@@ -20,6 +20,7 @@ import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
@@ -109,13 +110,19 @@ export default function App({
                     deviceId={deviceId}
                     getPage={() => url}
                   >
-                    <Companion
-                      postData={postData}
-                      companionHelper={alerts?.companionHelper}
-                      companionExpanded={settings?.companionExpanded}
-                      onOptOut={() => setIsOptOutCompanion(true)}
-                      onUpdateToken={setToken}
-                    />
+                    <NotificationsContextProvider
+                      app={app}
+                      isNotificationsReady={false}
+                      unreadCount={0}
+                    >
+                      <Companion
+                        postData={postData}
+                        companionHelper={alerts?.companionHelper}
+                        companionExpanded={settings?.companionExpanded}
+                        onOptOut={() => setIsOptOutCompanion(true)}
+                        onUpdateToken={setToken}
+                      />
+                    </NotificationsContextProvider>
                     <PromptElement parentSelector={getCompanionWrapper} />
                     <Toast
                       autoDismissNotifications={
