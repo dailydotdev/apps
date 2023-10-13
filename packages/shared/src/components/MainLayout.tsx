@@ -36,7 +36,6 @@ import { feature } from '../lib/featureManagement';
 import { FixedBottomBanner } from './banners/FixedBottomBanner';
 import usePersistentContext from '../hooks/usePersistentContext';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
-import { withFeaturesBoundary } from './withFeaturesBoundary';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -59,7 +58,7 @@ const mainLayoutClass = (sidebarExpanded: boolean) =>
 
 const feeds = Object.values(MainFeedPage);
 
-function MainLayout({
+export default function MainLayout({
   children,
   showOnlyLogo,
   greeting,
@@ -239,5 +238,3 @@ function MainLayout({
     </div>
   );
 }
-
-export default withFeaturesBoundary(MainLayout);

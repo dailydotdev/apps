@@ -1,11 +1,9 @@
-import { FeatureDefinition } from '@growthbook/growthbook';
 import { AnonymousUser, LoggedUser } from './user';
 import { apiUrl } from './config';
 import { Alerts } from '../graphql/alerts';
 import { RemoteSettings } from '../graphql/settings';
 import { Post } from '../graphql/posts';
 import { Squad } from '../graphql/sources';
-import { decrypt } from '../components/crypto';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -54,12 +52,7 @@ export type Boot = {
   squads: Squad[];
   postData?: PostBootData;
   isLegacyLogout?: boolean;
-  exp?: {
-    f: string;
-    e: string[];
-    a: string[];
-    features?: Record<string, FeatureDefinition>;
-  };
+  exp?: { f: string; e: string[]; a: string[] };
 };
 
 export type BootCacheData = Pick<
@@ -85,16 +78,5 @@ export async function getBootData(app: string, url?: string): Promise<Boot> {
     credentials: 'include',
     headers: { app, 'Content-Type': 'application/json' },
   });
-  const result = await res.json();
-
-  const features = await decrypt(
-    result.exp.f,
-    process.env.NEXT_PUBLIC_EXPERIMENTATION_KEY,
-    'AES-CBC',
-    128,
-  );
-
-  result.exp.features = JSON.parse(features);
-
-  return result;
+  return res.json();
 }

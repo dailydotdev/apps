@@ -41,7 +41,6 @@ import {
   OnboardingV2,
 } from '@dailydotdev/shared/src/lib/featureValues';
 import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
-import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -158,7 +157,6 @@ function InternalApp({
     </DndContextProvider>
   );
 }
-const InternalAppWithFeaturesBoundary = withFeaturesBoundary(InternalApp);
 
 export default function App({
   localBootData,
@@ -180,7 +178,7 @@ export default function App({
           >
             <SubscriptionContextProvider>
               <OnboardingContextProvider>
-                <InternalAppWithFeaturesBoundary pageRef={pageRef} />
+                <InternalApp pageRef={pageRef} />
               </OnboardingContextProvider>
             </SubscriptionContextProvider>
           </BootDataProvider>

@@ -19,7 +19,6 @@ import {
   AlertContextProvider,
   AlertContextProviderProps,
 } from '../../src/contexts/AlertContext';
-import { FeaturesReadyContext } from '../../src/components/GrowthBookProvider';
 
 interface TestBootProviderProps {
   children: ReactNode;
@@ -69,28 +68,26 @@ export const TestBootProvider = ({
           }}
         >
           <GrowthBookProvider growthbook={gb}>
-            <FeaturesReadyContext.Provider value={{ ready: true }}>
-              <SettingsContext.Provider
-                value={{ ...settingsContext, ...settings }}
+            <SettingsContext.Provider
+              value={{ ...settingsContext, ...settings }}
+            >
+              <OnboardingContext.Provider
+                value={{
+                  myFeedMode: OnboardingMode.Manual,
+                  isOnboardingOpen: false,
+                  onCloseOnboardingModal: jest.fn(),
+                  onInitializeOnboarding: jest.fn(),
+                  onShouldUpdateFilters: jest.fn(),
+                }}
               >
-                <OnboardingContext.Provider
-                  value={{
-                    myFeedMode: OnboardingMode.Manual,
-                    isOnboardingOpen: false,
-                    onCloseOnboardingModal: jest.fn(),
-                    onInitializeOnboarding: jest.fn(),
-                    onShouldUpdateFilters: jest.fn(),
-                  }}
+                <NotificationsContextProvider
+                  app={BootApp.Test}
+                  {...notification}
                 >
-                  <NotificationsContextProvider
-                    app={BootApp.Test}
-                    {...notification}
-                  >
-                    {children}
-                  </NotificationsContextProvider>
-                </OnboardingContext.Provider>
-              </SettingsContext.Provider>
-            </FeaturesReadyContext.Provider>
+                  {children}
+                </NotificationsContextProvider>
+              </OnboardingContext.Provider>
+            </SettingsContext.Provider>
           </GrowthBookProvider>
         </AuthContext.Provider>
       </AlertContextProvider>
