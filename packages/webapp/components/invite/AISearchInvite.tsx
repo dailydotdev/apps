@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import KeyIcon from '@dailydotdev/shared/src/components/icons/Key';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -8,6 +7,7 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { useMutation } from 'react-query';
 import { acceptFeatureInvitation } from '@dailydotdev/shared/src/graphql/features';
 import { useRouter } from 'next/router';
+import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { campaignConfig, JoinPageProps } from './common';
 
 export function AISearchInvite({
@@ -37,24 +37,24 @@ export function AISearchInvite({
   };
 
   return (
-    <div className="flex relative flex-col flex-1 justify-center h-full min-h-page">
-      <span className="absolute top-8 left-8">
-        <HeaderLogo />
+    <div className="flex relative flex-col flex-1 justify-center p-6 h-full min-h-[100vh]">
+      <span className="absolute top-8 left-1/2 laptop:left-8 -translate-x-1/2 laptop:translate-x-0">
+        <Logo showGreeting={false} position={LogoPosition.Relative} />
       </span>
-      <div className="flex flex-col w-full max-w-[27.5rem] ml-[11.25rem]">
-        <span className="flex flex-row gap-2 mb-6">
+      <div className="flex flex-col laptop:ml-3 w-full max-w-[27.5rem] laptopL:ml-[9.75rem]">
+        <span className="flex flex-col tablet:flex-row gap-2 items-center tablet:items-start mb-6">
           <ProfileImageLink user={referringUser} />
-          <p className="text-theme-label-tertiary typo-callout">
+          <p className="text-center tablet:text-left text-theme-label-tertiary typo-callout">
             {referringUser.name}
             <br />
             invites you to try daily.dev search
           </p>
         </span>
-        <h1 className="w-full font-bold break-words-overflow typo-mega1">
+        <h1 className="w-full font-bold text-center tablet:text-left break-words-overflow typo-large-title tablet:typo-mega1">
           {referringUser.name.split(' ')[0]} gave you early access to daily.dev
           search!
         </h1>
-        <p className="mt-6 text-theme-label-secondary">
+        <p className="mt-6 text-center tablet:text-left text-theme-label-secondary">
           This isn’t just another search engine; it’s a search engine that’s
           both fine-tuned for developers and fully integrated into the daily.dev
           ecosystem.
@@ -68,9 +68,14 @@ export function AISearchInvite({
         </Button>
       </div>
       <img
-        src="./bg.png"
+        src="./bg.png" // TODO: upload to cloudinary
         alt="search input depicting our new AI search feature"
-        className="absolute right-0 h-full max-w-[58.75rem]"
+        className="hidden tablet:block absolute right-0 tablet:w-1/2"
+      />
+      <img
+        src="./bg_mobile.png" // TODO: upload to cloudinary
+        alt="search input depicting our new AI search feature"
+        className="block tablet:hidden absolute inset-0 w-full translate-y-1/2 top-[unset]"
       />
     </div>
   );
