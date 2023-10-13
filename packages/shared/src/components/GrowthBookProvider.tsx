@@ -52,7 +52,6 @@ export const GrowthBookProvider = ({
   experimentation,
   updateExperimentation,
   children,
-  firstLoad,
 }: GrowthBookProviderProps): ReactElement => {
   const { fetchMethod } = useRequestProtocol();
   const [ready, setReady] = useState(false);
@@ -89,11 +88,15 @@ export const GrowthBookProvider = ({
   );
 
   useEffect(() => {
-    if (gb && experimentation?.features && firstLoad) {
-      gb.setFeatures(experimentation.features);
-      setReady(true);
+    if (gb && experimentation?.features) {
+      const currentFeats = gb.getFeatures();
+      // Do not update when the features are already set
+      if (!currentFeats || !Object.keys(currentFeats).length) {
+        gb.setFeatures(experimentation.features);
+        setReady(true);
+      }
     }
-  }, [experimentation?.features, gb, firstLoad]);
+  }, [experimentation?.features, gb]);
 
   useEffect(() => {
     callback.current = async (experiment, result) => {
