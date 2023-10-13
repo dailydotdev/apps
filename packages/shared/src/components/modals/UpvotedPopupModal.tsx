@@ -45,9 +45,13 @@ export function UpvotedPopupModal({
         canFetchMore: checkFetchMore(queryResult),
         fetchNextPage: queryResult.fetchNextPage,
       }}
-      users={queryResult.data?.pages
-        .map((p) => p.upvotes.edges.map(({ node }) => node.user))
-        .flat()}
+      users={queryResult.data?.pages.reduce((acc, p) => {
+        p?.upvotes.edges.forEach(({ node }) => {
+          acc.push(node.user);
+        });
+
+        return acc;
+      }, [])}
     />
   );
 }

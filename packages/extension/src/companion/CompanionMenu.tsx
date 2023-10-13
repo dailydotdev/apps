@@ -25,6 +25,9 @@ import CreateSharedPostModal, {
 } from '@dailydotdev/shared/src/components/modals/post/CreateSharedPostModal';
 import { UserPostVote } from '@dailydotdev/shared/src/graphql/posts';
 import { useVotePost } from '@dailydotdev/shared/src/hooks';
+import UpvotedPopupModal, {
+  UpvotedPopupModalProps,
+} from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { getCompanionWrapper } from './common';
@@ -294,6 +297,14 @@ export default function CompanionMenu({
           parentSelector={getCompanionWrapper}
           onRequestClose={closeModal}
           {...(modal.props as CreateSharedPostModalProps)}
+        />
+      )}
+      {modal?.type === LazyModal.UpvotedPopup && (
+        <UpvotedPopupModal
+          isOpen
+          parentSelector={getCompanionWrapper}
+          onRequestClose={closeModal}
+          {...(modal.props as UpvotedPopupModalProps)}
         />
       )}
     </div>
