@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef } from 'react';
+import React, { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import DocsIcon from '../icons/Docs';
 import FeedbackIcon from '../icons/Feedback';
@@ -28,7 +28,6 @@ export function SidebarBottomSection({
   ...props
 }: SidebarBottomSectionProps): ReactElement {
   const changelog = useChangelog();
-  const navItemRef = useRef<HTMLElement>();
 
   const bottomMenuItems: SidebarMenuItem[] = [
     {
@@ -41,7 +40,6 @@ export function SidebarBottomSection({
       icon: () => <ListIcon Icon={() => <TerminalIcon />} />,
       title: 'Changelog',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
-      navItemRef,
     },
     {
       icon: () => <ListIcon Icon={() => <FeedbackIcon />} />,
@@ -58,12 +56,7 @@ export function SidebarBottomSection({
       {props.sidebarExpanded && !optOutWeeklyGoal && (
         <SidebarRankProgress {...props} disableNewRankPopup={showSettings} />
       )}
-      {changelog.isAvailable && (
-        <ChangelogTooltip
-          elementRef={navItemRef}
-          appendTo={() => navItemRef.current}
-        />
-      )}
+      {changelog.isAvailable && <ChangelogTooltip />}
     </Nav>
   );
 }
