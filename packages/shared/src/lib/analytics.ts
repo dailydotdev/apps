@@ -136,6 +136,7 @@ export enum NotificationChannel {
 export enum NotificationCategory {
   Marketing = 'marketing',
   Product = 'product',
+  Digest = 'digest',
 }
 
 export enum NotificationTarget {
