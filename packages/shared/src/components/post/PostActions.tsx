@@ -15,7 +15,7 @@ import { Card } from '../cards/Card';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PostTagsPanel } from './block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
-import { ActiveFeedContext } from '../../contexts';
+import { ActiveFeedContext, useActiveFeedContext } from '../../contexts';
 import { mutateVoteFeedPost } from '../../hooks/vote/utils';
 import { updateCachedPagePost } from '../../lib/query';
 
@@ -42,7 +42,7 @@ export function PostActions({
 }: PostActionsProps): ReactElement {
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
-  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
+  const { queryKey: feedQueryKey, items } = useActiveFeedContext();
   const queryClient = useQueryClient();
 
   const { toggleUpvote, toggleDownvote } = useVotePost({

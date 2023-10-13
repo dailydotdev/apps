@@ -1,4 +1,10 @@
-import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
+import React, {
+  forwardRef,
+  ReactElement,
+  Ref,
+  useContext,
+  useRef,
+} from 'react';
 import classNames from 'classnames';
 import { CardButton, FreeformCardTitle, getPostClassNames } from './Card';
 import ActionButtons from './ActionButtons';
@@ -11,6 +17,7 @@ import { Squad } from '../../graphql/sources';
 import { ActionType } from '../../graphql/actions';
 import FeedItemContainer from './FeedItemContainer';
 import { PostType } from '../../graphql/posts';
+import { ActiveFeedContext, useActiveFeedContext } from '../../contexts';
 
 export const WelcomePostCard = forwardRef(function SharePostCard(
   {
@@ -31,7 +38,9 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { pinnedAt, type: postType } = post;
-  const onPostCardClick = () => onPostClick(post);
+  const { onClick } = useActiveFeedContext();
+
+  const onPostCardClick = () => onClick(post);
   const containerRef = useRef<HTMLDivElement>();
 
   const { openStep, isChecklistVisible } = useSquadChecklist({

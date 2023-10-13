@@ -5,7 +5,7 @@ import { Post, dismissPostFeedback, UserPostVote } from '../graphql/posts';
 import { optimisticPostUpdateInFeed } from '../lib/feed';
 import { updatePostCache } from './usePostById';
 import { updateCachedPagePost } from '../lib/query';
-import { ActiveFeedContext } from '../contexts';
+import { ActiveFeedContext, useActiveFeedContext } from '../contexts';
 import { MainFeedPage } from '../components/utilities';
 import { EmptyResponse } from '../graphql/emptyResponse';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -26,7 +26,7 @@ export const usePostFeedback = ({
   post,
 }: UsePostFeedbackProps = {}): UsePostFeedback => {
   const client = useQueryClient();
-  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
+  const { queryKey: feedQueryKey, items } = useActiveFeedContext();
   const { trackEvent } = useContext(AnalyticsContext);
 
   const isFeedbackEnabled = useFeatureIsOn(

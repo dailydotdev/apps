@@ -9,7 +9,7 @@ import {
 } from '../lib/feed';
 import { Post, PostType } from '../graphql/posts';
 import { Origin } from '../lib/analytics';
-import { ActiveFeedContext } from '../contexts';
+import { ActiveFeedContext, useActiveFeedContext } from '../contexts';
 import { updateCachedPagePost } from '../lib/query';
 import { usePostFeedback } from './usePostFeedback';
 
@@ -47,8 +47,9 @@ export default function useOnPostClick({
   const client = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
   const { incrementReadingRank } = useIncrementReadingRank();
-  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
+  const { items } = useActiveFeedContext();
   const { isFeedbackEnabled } = usePostFeedback();
+  const feedQueryKey = ['as'];
 
   return useMemo(
     () =>

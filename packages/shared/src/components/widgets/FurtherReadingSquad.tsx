@@ -16,14 +16,14 @@ import {
 } from '../../graphql/posts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
-import SimilarPosts from './SimilarPosts';
 import { AuthTriggers } from '../../lib/auth';
 import { AnalyticsEvent } from '../../lib/analytics';
 import { FeedData, SOURCE_FEED_QUERY } from '../../graphql/feed';
 import { isSourcePublicSquad } from '../../graphql/squads';
-import { SquadPostListItem } from '../squads/SquadPostListItem';
-import FeedItemComponent, { getFeedItemKey } from '../FeedItemComponent';
 import Feed from '../Feed';
+import LeanFeed from '../feed/LeanFeed';
+import { FeedItem } from '../../hooks/useFeed';
+import { ActiveFeedContext, ActiveFeedContextProvider } from '../../contexts';
 
 export type FurtherReadingProps = {
   currentPost: Post;
@@ -82,38 +82,36 @@ export default function FurtherReadingSquad({
     }),
     [currentPost.source.id],
   );
-  const { data: posts, isLoading } = useQuery<FurtherReadingData>(
+  const {
+    data: posts,
+    isLoading,
+    isFetching,
+  } = useQuery<FurtherReadingData>(
     queryKey,
     async () => {
       const squad = currentPost.source;
 
-      if (isPublicSquad) {
-        const squadPostsResult = await request<FeedData>(
-          graphqlUrl,
-          SOURCE_FEED_QUERY,
-          {
-            first: 3,
-            loggedIn: isLoggedIn,
-            source: squad.id,
-            ranking: 'TIME',
-            supportedTypes: [
-              PostType.Article,
-              PostType.Share,
-              PostType.Freeform,
-            ],
-          },
-        );
-        const similarPosts =
-          squadPostsResult?.page?.edges
-            ?.map((item) => item.node)
-            ?.filter((item) => item.id !== currentPost.id) || [];
+      const squadPostsResult = await request<FeedData>(
+        graphqlUrl,
+        SOURCE_FEED_QUERY,
+        {
+          first: 3,
+          loggedIn: isLoggedIn,
+          source: squad.id,
+          ranking: 'TIME',
+          supportedTypes: [PostType.Article, PostType.Share, PostType.Freeform],
+        },
+      );
+      const similarPosts =
+        squadPostsResult?.page?.edges
+          ?.map((item) => item.node)
+          ?.filter((item) => item.id !== currentPost.id) || [];
 
-        return {
-          trendingPosts: [],
-          similarPosts,
-          discussedPosts: [],
-        };
-      }
+      return {
+        trendingPosts: [],
+        similarPosts,
+        discussedPosts: [],
+      };
 
       return request(graphqlUrl, FURTHER_READING_QUERY, {
         loggedIn: !!user,
@@ -142,19 +140,23 @@ export default function FurtherReadingSquad({
     })),
   });
 
-  if (!posts?.similarPosts && !isLoading) {
-    return <></>;
-  }
+  const similarPosts = useMemo(() => {
+    let newItems: FeedItem[] = [];
 
-  const similarPosts = posts?.similarPosts
-    ? [
-        ...posts.trendingPosts,
-        ...posts.similarPosts.slice(
-          0,
-          Math.min(posts.similarPosts.length, 3 - posts.trendingPosts.length),
-        ),
-      ]
-    : [];
+    if (posts?.similarPosts) {
+      newItems = posts.similarPosts.map((post, index) => ({
+        type: 'post',
+        post,
+        page: 0,
+        index,
+      }));
+    }
+
+    if (isFetching) {
+      newItems.push(...Array(1).fill({ type: 'placeholder' }));
+    }
+    return newItems;
+  }, [isFetching, posts]);
 
   const onBookmark = async (post: Post): Promise<void> => {
     if (!user) {
@@ -180,6 +182,14 @@ export default function FurtherReadingSquad({
     }
   };
 
+  const onClick = (e) => {
+    console.log('clicked', e);
+  };
+
+  const altOnClick = (e) => {
+    console.log('clicked alt', e);
+  };
+
   return (
     <div className="flex flex-col flex-1 w-full bg-theme-overlay-float-avocado">
       <div className="w-full border-b border-b-theme-divider-tertiary">
@@ -188,21 +198,14 @@ export default function FurtherReadingSquad({
         </p>
       </div>
       <div className={classNames(className, 'flex flex-col gap-6')}>
-        <Feed
-          className="px-6 pt-14 laptop:pt-10"
-          feedName="squad"
-          feedQueryKey={[
-            'sourceFeed',
-            user?.id ?? 'anonymous',
-            Object.values(queryVariables),
-          ]}
-          query={SOURCE_FEED_QUERY}
-          variables={queryVariables}
-          forceCardMode
-          showSearch={false}
-          emptyScreen={<div />}
-          allowPin
-        />
+        <ActiveFeedContextProvider items={similarPosts} onClick={onClick}>
+          <LeanFeed />
+        </ActiveFeedContextProvider>
+
+        <p className="typo-title3">Alternative feed</p>
+        <ActiveFeedContextProvider items={similarPosts} onClick={altOnClick}>
+          <LeanFeed />
+        </ActiveFeedContextProvider>
       </div>
     </div>
   );

@@ -39,7 +39,7 @@ import AlertContext from '../contexts/AlertContext';
 import { MainFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
 import useCompanionTrigger from '../hooks/useCompanionTrigger';
-import { ActiveFeedContext } from '../contexts';
+import { ActiveFeedContext, ActiveFeedContextProvider } from '../contexts';
 import { useFeedVotePost } from '../hooks';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
@@ -144,9 +144,6 @@ export default function Feed<T>({
     numCards,
     { query, variables, options },
   );
-
-  console.log(items);
-
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
@@ -194,7 +191,6 @@ export default function Feed<T>({
 
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
-
   const {
     showCommentPopupId,
     setShowCommentPopupId,
@@ -379,10 +375,8 @@ export default function Feed<T>({
     feedName as MainFeedPage,
   );
 
-  console.log(items);
-
   return (
-    <ActiveFeedContext.Provider value={feedContextValue}>
+    <ActiveFeedContextProvider {...feedContextValue}>
       <FeedContainer
         forceCardMode={forceCardMode}
         header={header}
@@ -466,6 +460,6 @@ export default function Feed<T>({
           />
         )}
       </FeedContainer>
-    </ActiveFeedContext.Provider>
+    </ActiveFeedContextProvider>
   );
 }
