@@ -21,7 +21,7 @@ const feature = {
   feedVersion: new Feature('feed_version', 15),
   onboardingV2: new Feature('onboarding_v2', OnboardingV2.Control),
   onboardingV3: new Feature('onboarding_v3', OnboardingV3.Control),
-  search: new Feature('search', SearchExperiment.Control),
+  search: new Feature('search', SearchExperiment.V1),
   onboardingFilterTitle: new Feature(
     'onboarding_filtering_title',
     OnboardingFilteringTitle.Control,

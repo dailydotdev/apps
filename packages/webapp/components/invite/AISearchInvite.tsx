@@ -8,12 +8,11 @@ import { useMutation } from 'react-query';
 import { acceptFeatureInvitation } from '@dailydotdev/shared/src/graphql/features';
 import { useRouter } from 'next/router';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
-import {
-  useFeature,
-  useGrowthBookContext,
-} from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { campaignConfig, JoinPageProps } from './common';
 
 export function AISearchInvite({
@@ -22,11 +21,13 @@ export function AISearchInvite({
 }: JoinPageProps): ReactElement {
   const router = useRouter();
   const search = useFeature(feature.search);
+  const { completeAction } = useActions();
   const { user, showLogin } = useAuthContext();
   const { mutateAsync: onAcceptMutation } = useMutation(
     acceptFeatureInvitation,
     {
       onSuccess: () => {
+        completeAction(ActionType.AcceptedSearch);
         // TODO: check whether the feature will be set and forcibly apply it if not
         router.push(campaignConfig.search.redirectTo);
       },

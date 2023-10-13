@@ -16,13 +16,15 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../../hooks/useToastNotification';
-import { SearchBarSuggestionList, SearchBarInput } from '../search';
+import { SearchBarInput, SearchBarSuggestionList } from '../search';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 import { webappUrl } from '../../lib/constants';
 import { useSearchSuggestions } from '../../hooks/search';
 import { Origin } from '../../lib/analytics';
+import { useActions } from '../../hooks/useActions';
+import { ActionType } from '../../graphql/actions';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -98,6 +100,7 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const { completeAction, checkHasCompleted } = useActions();
   const router = useRouter();
   const searchValue = useFeature(feature.search);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
@@ -118,9 +121,20 @@ export const FeedContainer = ({
   const isFinder = router.pathname === '/posts/finder';
   const isV1Search =
     searchValue === SearchExperiment.V1 && showSearch && !isFinder;
+  const shouldShowPulse =
+    checkHasCompleted(ActionType.AcceptedSearch) &&
+    !checkHasCompleted(ActionType.SeenSearch);
+
   const onSearch = (event: FormEvent, input: string) => {
     event.preventDefault();
     router.push(`${webappUrl}search?q=${encodeURIComponent(input)}`);
+  };
+  const handleSearchFocus = () => {
+    if (!shouldShowPulse) {
+      return;
+    }
+
+    completeAction(ActionType.SeenSearch);
   };
 
   return (
@@ -149,13 +163,17 @@ export const FeedContainer = ({
             <span className="flex flex-row gap-3">
               <SearchBarInput
                 className={{
-                  container: 'max-w-2xl w-full flex flex-1',
+                  container: classNames(
+                    'max-w-2xl w-full flex flex-1',
+                    shouldShowPulse && 'highlight-pulse',
+                  ),
                   field: 'w-full',
                   form: 'w-full',
                 }}
                 showProgress={false}
                 onSubmit={onSearch}
                 shouldShowPopup
+                inputProps={{ onFocus: handleSearchFocus }}
                 suggestionsProps={suggestionsProps}
               />
               {besideSearch}

@@ -15,6 +15,8 @@ export enum ActionType {
   HideBlockPanel = 'hide_block_panel',
   EngagementLoopJuly2023CompanionModal = 'exp_july23_companion',
   ExistingAnonymousBanner = 'existingAnonymousBanner',
+  AcceptedSearch = 'accepted_search',
+  SeenSearch = 'seen_search',
 }
 
 export interface Action {
