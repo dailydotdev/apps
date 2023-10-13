@@ -1,5 +1,8 @@
 import { gql } from 'graphql-request';
-import { SHARED_POST_INFO_FRAGMENT } from './fragments';
+import {
+  SHARED_POST_INFO_FRAGMENT,
+  USER_SHORT_INFO_FRAGMENT,
+} from './fragments';
 
 type PostStats = {
   numPosts: number;
@@ -277,9 +280,8 @@ export const REFERRAL_CAMPAIGN_QUERY = gql`
 export const GET_REFERRING_USER_QUERY = gql`
   query User($id: ID!) {
     user(id: $id) {
-      id
-      name
-      image
+      ...UserShortInfo
     }
   }
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
