@@ -22,7 +22,7 @@ import classNames from 'classnames';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { UserPostVote } from '@dailydotdev/shared/src/graphql/posts';
-import { getCompanionWrapper } from './common';
+import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 
 interface CompanionContextMenuProps
   extends Omit<ShareBookmarkProps, 'onBookmark'> {

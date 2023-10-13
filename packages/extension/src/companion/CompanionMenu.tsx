@@ -28,9 +28,9 @@ import { useVotePost } from '@dailydotdev/shared/src/hooks';
 import UpvotedPopupModal, {
   UpvotedPopupModalProps,
 } from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
+import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
-import { getCompanionWrapper } from './common';
 import useCompanionActions from './useCompanionActions';
 import CompanionToggle from './CompanionToggle';
 

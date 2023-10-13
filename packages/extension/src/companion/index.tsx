@@ -6,7 +6,7 @@ import {
   themeModes,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { setOnError } from '@dailydotdev/shared/src/components/ProfilePicture';
-import { getCompanionWrapper } from './common';
+import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 import App, { CompanionData } from './App';
 
 const renderApp = (props: CompanionData) => {

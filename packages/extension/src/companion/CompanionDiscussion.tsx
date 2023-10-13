@@ -11,7 +11,7 @@ import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import { getCompanionWrapper } from './common';
+import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 
 interface CompanionDiscussionProps {
   post: PostBootData;
