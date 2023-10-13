@@ -84,8 +84,12 @@ export const usePostToSquad = ({
       },
     });
 
-  const onSharedPostSuccessfully = async () => {
-    displayToast('This post has been shared to your Squad');
+  const onSharedPostSuccessfully = async (update = false) => {
+    displayToast(
+      update
+        ? 'The post has been updated'
+        : 'This post has been shared to your squad',
+    );
     await client.invalidateQueries(['sourceFeed', user.id]);
     completeAction(ActionType.SquadFirstPost);
   };
@@ -109,7 +113,7 @@ export const usePostToSquad = ({
     isSuccess: isUpdatePostSuccess,
   } = useMutation(updateSquadPost(requestMethod), {
     onSuccess: (data) => {
-      onSharedPostSuccessfully();
+      onSharedPostSuccessfully(true);
       if (onPostSuccess) {
         onPostSuccess(data, data?.permalink);
       }
