@@ -36,7 +36,6 @@ import { feature } from '../lib/featureManagement';
 import { FixedBottomBanner } from './banners/FixedBottomBanner';
 import usePersistentContext from '../hooks/usePersistentContext';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
-import { withFeaturesBoundary } from './withFeaturesBoundary';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -240,4 +239,4 @@ function MainLayout({
   );
 }
 
-export default withFeaturesBoundary(MainLayout);
+export default MainLayout;
