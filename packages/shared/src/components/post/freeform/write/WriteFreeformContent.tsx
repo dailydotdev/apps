@@ -148,9 +148,8 @@ export function WriteFreeformContent({
         sourceId={squad?.id}
         onValueUpdate={onFormUpdate}
         initialContent={
-          draft?.content ?? isNullOrUndefined(post?.content)
-            ? ''
-            : post?.content
+          draft?.content ??
+          (isNullOrUndefined(post?.content) ? '' : post?.content)
         }
         textareaProps={{ name: 'content' }}
         enabledCommand={{ ...defaultMarkdownCommands, upload: true }}
