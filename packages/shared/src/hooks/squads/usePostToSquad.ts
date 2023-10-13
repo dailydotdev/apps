@@ -137,8 +137,8 @@ export const usePostToSquad = ({
 
   const isUpdating = isUpdatePostSuccess || isUpdatePostLoading;
 
-  const onSubmitPost = useCallback(
-    (e: BaseSyntheticEvent, sourceId: string, commentary: string) => {
+  const onSubmitPost = useCallback<UsePostToSquad['onSubmitPost']>(
+    (e, sourceId, commentary) => {
       e.preventDefault();
 
       if (isPosting) {
@@ -171,13 +171,8 @@ export const usePostToSquad = ({
     [preview, displayToast, onSubmitLink, onPost, isPosting],
   );
 
-  const onUpdatePost = useCallback(
-    (
-      e: BaseSyntheticEvent,
-      postId: Post['id'],
-      sourceId: Squad['id'],
-      commentary: string,
-    ) => {
+  const onUpdatePost = useCallback<UsePostToSquad['onUpdatePost']>(
+    (e, postId, sourceId, commentary) => {
       e.preventDefault();
 
       if (isUpdating) {
