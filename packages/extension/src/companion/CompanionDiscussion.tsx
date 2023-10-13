@@ -52,7 +52,10 @@ export function CompanionDiscussion({
         <NewComment
           size="medium"
           post={post}
-          className={{ ...commentClasses, container: 'mb-4' }}
+          className={{
+            ...commentClasses,
+            container: 'mb-4 companion-new-comment-button',
+          }}
         />
         <PostComments
           post={post}

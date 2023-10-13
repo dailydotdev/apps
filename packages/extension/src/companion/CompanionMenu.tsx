@@ -235,7 +235,18 @@ export default function CompanionMenu({
           className="btn-tertiary-blueCheese"
           pressed={post?.commented}
           icon={<CommentIcon />}
-          onClick={() => setCompanionState(true)}
+          onClick={() => {
+            setCompanionState(true);
+
+            const commentBox =
+              getCompanionWrapper()?.querySelector<HTMLElement>(
+                '.companion-new-comment-button',
+              );
+
+            if (commentBox) {
+              commentBox.click();
+            }
+          }}
         />
       </SimpleTooltip>
       <SimpleTooltip
