@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import KeyIcon from '@dailydotdev/shared/src/components/icons/Key';
@@ -8,6 +8,12 @@ import { useMutation } from 'react-query';
 import { acceptFeatureInvitation } from '@dailydotdev/shared/src/graphql/features';
 import { useRouter } from 'next/router';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
+import {
+  useFeature,
+  useGrowthBookContext,
+} from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { campaignConfig, JoinPageProps } from './common';
 
 export function AISearchInvite({
@@ -15,11 +21,13 @@ export function AISearchInvite({
   token,
 }: JoinPageProps): ReactElement {
   const router = useRouter();
+  const search = useFeature(feature.search);
   const { user, showLogin } = useAuthContext();
   const { mutateAsync: onAcceptMutation } = useMutation(
     acceptFeatureInvitation,
     {
       onSuccess: () => {
+        // TODO: check whether the feature will be set and forcibly apply it if not
         router.push(campaignConfig.search.redirectTo);
       },
       onError: () => {
@@ -35,6 +43,14 @@ export function AISearchInvite({
 
     return onAcceptMutation({ token, referrerId: referringUser.id });
   };
+
+  useEffect(() => {
+    if (search === SearchExperiment.Control) {
+      return;
+    }
+
+    router.push(campaignConfig.search.redirectTo);
+  }, [router, search]);
 
   return (
     <div className="flex relative flex-col flex-1 justify-center p-6 h-full min-h-[100vh]">
