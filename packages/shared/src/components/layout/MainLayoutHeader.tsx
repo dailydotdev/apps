@@ -21,6 +21,7 @@ import HeaderLogo from './HeaderLogo';
 import { CreatePostButton } from '../post/write';
 import useMedia from '../../hooks/useMedia';
 import { tablet } from '../../styles/media';
+import { SearchReferralButton } from '../referral/SearchReferralButton';
 
 interface ShouldShowLogoProps {
   mobileTitle?: string;
@@ -124,6 +125,7 @@ function MainLayoutHeader({
           )}
           {!hideButton && user && (
             <>
+              {sidebarRendered && <SearchReferralButton className="mr-3" />}
               <LinkWithTooltip
                 tooltip={{ placement: 'bottom', content: 'Notifications' }}
                 href={`${webappUrl}notifications`}

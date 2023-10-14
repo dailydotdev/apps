@@ -8,6 +8,7 @@ import React, {
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
 import {
+  CampaignCtaPlacement,
   RemoteSettings,
   RemoteTheme,
   Spaciness,
@@ -34,17 +35,8 @@ export const themes: ThemeOption[] = Object.values(ThemeMode).map((theme) => ({
   value: theme,
 }));
 
-export type SettingsContextData = {
-  spaciness: Spaciness;
+export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   themeMode: ThemeMode;
-  openNewTab: boolean;
-  insaneMode: boolean;
-  showTopSites: boolean;
-  sidebarExpanded: boolean;
-  sortingEnabled: boolean;
-  optOutWeeklyGoal: boolean;
-  optOutCompanion: boolean;
-  autoDismissNotifications: boolean;
   setTheme: (theme: ThemeMode) => Promise<void>;
   toggleOpenNewTab: () => Promise<void>;
   setSpaciness: (density: Spaciness) => Promise<void>;
@@ -56,10 +48,10 @@ export type SettingsContextData = {
   toggleOptOutCompanion: () => Promise<void>;
   toggleAutoDismissNotifications: () => Promise<void>;
   loadedSettings: boolean;
-  customLinks?: string[];
   updateCustomLinks: (links: string[]) => Promise<unknown>;
   syncSettings: (bootUserId?: string) => Promise<unknown>;
-};
+  onToggleHeaderPlacement(): Promise<unknown>;
+}
 
 const SettingsContext = React.createContext<SettingsContextData>(null);
 export default SettingsContext;
@@ -220,6 +212,14 @@ export const SettingsContextProvider = ({
         setSettings({
           ...settings,
           autoDismissNotifications: !settings.autoDismissNotifications,
+        }),
+      onToggleHeaderPlacement: () =>
+        setSettings({
+          ...settings,
+          campaignCtaPlacement:
+            settings.campaignCtaPlacement === CampaignCtaPlacement.Header
+              ? CampaignCtaPlacement.ProfileMenu
+              : CampaignCtaPlacement.Header,
         }),
       loadedSettings,
       updateCustomLinks: (links: string[]) =>

@@ -5,7 +5,7 @@ import { REFERRAL_CAMPAIGN_QUERY } from '../graphql/users';
 import { graphqlUrl } from '../lib/config';
 import { RequestKey, generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
-import { Feature } from '../lib/featureManagement';
+import { feature, Feature } from '../lib/featureManagement';
 import { useFeatureIsOn } from '../components/GrowthBookProvider';
 
 export type ReferralCampaign = {
@@ -39,7 +39,9 @@ export const campaignToReferralTargetCountMap: Record<
 
 const campaignFeatureFlagMap: Partial<
   Record<ReferralCampaignKey, Feature<string>>
-> = {};
+> = {
+  search: feature.search,
+};
 
 const useReferralCampaign = ({
   campaignKey,
