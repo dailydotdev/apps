@@ -92,7 +92,6 @@ export const cloudinary = {
       'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/empty_squad_light',
   },
   referralCampaign: {
-    key: './key.svg',
     appScreenshot:
       'https://daily-now-res.cloudinary.com/image/upload/s--3e8Phst3--/f_auto,q_auto/v1686045256/daily_lmzdaf',
     backgroundDark:

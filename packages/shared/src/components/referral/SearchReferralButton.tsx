@@ -3,10 +3,10 @@ import classNames from 'classnames';
 import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { Image } from '../image/Image';
-import { cloudinary } from '../../lib/image';
 import { LazyModal } from '../modals/common/types';
 import { CampaignCtaPlacement } from '../../graphql/settings';
+import { KeyReferralIcon } from '../icons';
+import { IconSize } from '../Icon';
 
 interface SearchReferralButtonProps {
   className?: string;
@@ -36,12 +36,7 @@ export function SearchReferralButton({
       onClick={() => openModal({ type: LazyModal.SearchReferral })}
     >
       {referralCurrentCount}/{referralTargetCount}
-      <Image
-        className="mt-1 ml-3"
-        width={24}
-        height={24}
-        src={cloudinary.referralCampaign.key}
-      />
+      <KeyReferralIcon size={IconSize.Medium} className="mt-1 ml-3" />
     </button>
   );
 }

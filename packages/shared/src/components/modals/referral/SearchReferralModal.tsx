@@ -7,6 +7,8 @@ import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { CampaignCtaPlacement } from '../../../graphql/settings';
 import useMedia from '../../../hooks/useMedia';
 import { laptop } from '../../../styles/media';
+import { KeyReferralIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 
 function SearchReferralModal(modalProps: ModalProps): ReactElement {
   const isLaptop = useMedia([laptop.replace('@media ', '')], [true], false);
@@ -33,14 +35,14 @@ function SearchReferralModal(modalProps: ModalProps): ReactElement {
             {/*  TODO: get the count value */}
           </p>
           <span
-            className="flex flex-row justify-evenly mt-10 bg-center bg-no-repeat bg-contain"
+            className="flex flex-row justify-evenly mt-10 w-full bg-center bg-no-repeat bg-cover"
             style={{ backgroundImage: `url(./keys_bg.svg)` }}
           >
-            <img src="./key.svg" alt="key icon" />
-            <img src="./key.svg" alt="key icon" />
-            <img src="./key.svg" alt="key icon" />
-            <img src="./key.svg" alt="key icon" />
-            <img src="./key.svg" alt="key icon" />
+            <KeyReferralIcon size={IconSize.XLarge} />
+            <KeyReferralIcon size={IconSize.XLarge} />
+            <KeyReferralIcon size={IconSize.XLarge} />
+            <KeyReferralIcon size={IconSize.XLarge} />
+            <KeyReferralIcon size={IconSize.XLarge} />
           </span>
           <Button className="mt-5 btn-primary" icon={<CopyIcon />}>
             Copy key link
