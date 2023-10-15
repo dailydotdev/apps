@@ -98,6 +98,11 @@ export default function useFeed<T>(
     },
   );
 
+  const isAdsQueryEnabled =
+    query &&
+    tokenRefreshed &&
+    (!settings?.adPostLength ||
+      feedQuery.data?.pages[0]?.page.edges.length > settings?.adPostLength);
   const adsQuery = useInfiniteQuery<Ad>(
     ['ads', ...feedQueryKey],
     async ({ pageParam }) => {
@@ -107,7 +112,7 @@ export default function useFeed<T>(
     },
     {
       getNextPageParam: () => Date.now(),
-      enabled: query && tokenRefreshed,
+      enabled: isAdsQueryEnabled,
       refetchOnMount: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
@@ -137,10 +142,7 @@ export default function useFeed<T>(
             index,
           }));
 
-          if (
-            !settings?.adPostLength ||
-            posts.length > settings?.adPostLength
-          ) {
+          if (isAdsQueryEnabled) {
             if (adsQuery.data?.pages[pageIndex]) {
               posts.splice(adSpot, 0, {
                 type: 'ad',
@@ -152,6 +154,7 @@ export default function useFeed<T>(
               });
             }
           }
+
           return posts;
         },
       );
