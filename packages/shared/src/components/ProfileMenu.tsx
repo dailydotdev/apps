@@ -8,6 +8,13 @@ import { UserIcon } from './icons';
 import DevCardIcon from './icons/DevCard';
 import SettingsIcon from './icons/Settings';
 import { IconSize } from './Icon';
+import { Image } from './image/Image';
+import { cloudinary } from '../lib/image';
+import { useLazyModal } from '../hooks/useLazyModal';
+import { LazyModal } from './modals/common/types';
+import TimerIcon from './icons/Timer';
+import { useSettingsContext } from '../contexts/SettingsContext';
+import { CampaignCtaPlacement } from '../graphql/settings';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -17,6 +24,8 @@ const PortalMenu = dynamic(
 );
 
 export default function ProfileMenu(): ReactElement {
+  const { openModal } = useLazyModal();
+  const { campaignCtaPlacement } = useSettingsContext();
   const { user, logout } = useContext(AuthContext);
 
   if (!user) {
@@ -58,6 +67,26 @@ export default function ProfileMenu(): ReactElement {
           </a>
         </Link>
       </Item>
+      {campaignCtaPlacement !== CampaignCtaPlacement.Header && ( // TODO: after BE is updated, switch the condition to check equality with enum.ProfileMenu
+        <Item>
+          <button
+            type="button"
+            className="flex items-center min-w-[12.5rem]"
+            onClick={() => {
+              openModal({ type: LazyModal.SearchReferral });
+            }}
+          >
+            <Image
+              className="mr-2"
+              width={24}
+              height={24}
+              src={cloudinary.referralCampaign.key}
+            />
+            Referral campagin
+            <TimerIcon className="ml-auto" size={IconSize.Small} />
+          </button>
+        </Item>
+      )}
       <Item>
         <Link
           href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}devcard`}

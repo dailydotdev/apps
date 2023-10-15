@@ -5,23 +5,29 @@ import { Button } from '../../buttons/Button';
 import CopyIcon from '../../icons/Copy';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { CampaignCtaPlacement } from '../../../graphql/settings';
+import useMedia from '../../../hooks/useMedia';
+import { laptop } from '../../../styles/media';
 
 function SearchReferralModal(modalProps: ModalProps): ReactElement {
+  const isLaptop = useMedia([laptop.replace('@media ', '')], [true], false);
   const { campaignCtaPlacement, onToggleHeaderPlacement } =
     useSettingsContext();
 
   return (
     <Modal
       {...modalProps}
-      kind={Modal.Kind.FixedCenter}
-      size={Modal.Size.XLarge}
+      kind={isLaptop ? Modal.Kind.FixedCenter : Modal.Kind.FlexibleCenter}
+      size={isLaptop ? Modal.Size.XLarge : Modal.Size.Small}
     >
-      <Modal.Body className="!flex-row">
-        <div className="flex flex-col p-2 w-full max-w-[26rem]">
-          <h1 className="mt-4 font-bold typo-mega2">
+      <Modal.Body className="laptop:flex-row">
+        <span className="laptop:hidden -mx-6 -mt-6">
+          <img src="./bg_popup_mobile.png" alt="tablet popup background" />
+        </span>
+        <div className="flex flex-col laptop:p-2 w-full max-w-[26rem]">
+          <h1 className="laptop:mt-4 font-bold text-center laptop:text-left typo-title3 tablet:typo-title1 laptop:typo-mega2">
             Give your friends early access to daily.dev&apos;s search!
           </h1>
-          <p className="mt-6 typo-title3 text-theme-label-secondary">
+          <p className="mt-6 text-center laptop:text-left !font-normal typo-body tablet:typo-headline laptop:typo-title3 text-theme-label-secondary">
             Be that cool friend who got access to yet another AI feature! You
             have COUNT invite keys left, use them wisely.
             {/*  TODO: get the count value */}
@@ -41,7 +47,7 @@ function SearchReferralModal(modalProps: ModalProps): ReactElement {
           </Button>
           <Checkbox
             name="referral_cta_placement"
-            className="mt-auto"
+            className="mt-6 laptop:mt-auto"
             checked={campaignCtaPlacement !== CampaignCtaPlacement.Header}
             onToggle={onToggleHeaderPlacement}
           >
@@ -49,7 +55,7 @@ function SearchReferralModal(modalProps: ModalProps): ReactElement {
           </Checkbox>
         </div>
         <div
-          className="flex flex-1 -m-6 bg-center bg-contain"
+          className="hidden laptop:flex flex-1 -m-6 bg-center bg-no-repeat bg-contain"
           style={{ backgroundImage: `url(./bg_popup.png)` }}
         />
       </Modal.Body>
