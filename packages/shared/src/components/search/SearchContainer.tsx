@@ -3,6 +3,8 @@ import { SearchBar } from './SearchBar';
 import { SearchFeedback } from './SearchFeedback';
 import { SearchBarInputProps } from './SearchBarInput';
 import { Pill } from '../utilities/loaders';
+import { PageWidgets } from '../utilities';
+import { SearchReferralBanner } from './SearchReferralBanner';
 
 interface SearchContainerProps extends Pick<SearchBarInputProps, 'chunk'> {
   children: ReactNode;
@@ -34,7 +36,13 @@ export function SearchContainer({
             />
           )}
         </main>
-        <SearchFeedback />
+        <PageWidgets
+          tablet={false}
+          className="flex flex-col order-last laptop:order-2 gap-6 items-center"
+        >
+          <SearchFeedback />
+          <SearchReferralBanner />
+        </PageWidgets>
         {children}
       </div>
     </main>
