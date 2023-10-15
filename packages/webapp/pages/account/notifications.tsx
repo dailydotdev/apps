@@ -18,6 +18,7 @@ import {
   NotificationPromptSource,
 } from '@dailydotdev/shared/src/lib/analytics';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
+import { usePersonalizedDigest } from '@dailydotdev/shared/src/hooks';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -34,8 +35,17 @@ const AccountNotificationsPage = (): ReactElement => {
   const { updateUserProfile } = useProfileForm();
   const { trackEvent } = useAnalyticsContext();
   const { user } = useContext(AuthContext);
+  const {
+    personalizedDigest,
+    isLoading: isPersonalizedDigestLoading,
+    subscribePersonalizedDigest,
+    unsubscribePersonalizedDigest,
+  } = usePersonalizedDigest();
+
   const { acceptedMarketing, notificationEmail } = user ?? {};
-  const emailNotification = acceptedMarketing || notificationEmail;
+  const emailNotification =
+    acceptedMarketing || notificationEmail || !!personalizedDigest;
+
   const onToggleEmailSettings = () => {
     const value = !emailNotification;
 
@@ -53,6 +63,12 @@ const AccountNotificationsPage = (): ReactElement => {
       acceptedMarketing: value,
       notificationEmail: value,
     });
+
+    if (value) {
+      subscribePersonalizedDigest();
+    } else {
+      unsubscribePersonalizedDigest();
+    }
   };
 
   const onTrackToggle = (
@@ -97,6 +113,20 @@ const AccountNotificationsPage = (): ReactElement => {
       NotificationCategory.Marketing,
     );
     updateUserProfile({ acceptedMarketing: value });
+  };
+
+  const onTogglePersonalizedDigest = async () => {
+    onTrackToggle(
+      !personalizedDigest,
+      NotificationChannel.Email,
+      NotificationCategory.Digest,
+    );
+
+    if (!personalizedDigest) {
+      await subscribePersonalizedDigest();
+    } else {
+      await unsubscribePersonalizedDigest();
+    }
   };
 
   return (
@@ -162,7 +192,7 @@ const AccountNotificationsPage = (): ReactElement => {
             container: 'flex flex-col flex-1 w-full',
           }}
           title="Email notifications"
-          description="Receive notifications via email so you never miss a mention, reply, upvote or comment on daily.dev"
+          description="Tailor your email notifications by selecting the types of emails that are important to you."
         />
         <div className="mx-4 w-px h-full bg-theme-divider-tertiary" />
         <Switch
@@ -185,7 +215,7 @@ const AccountNotificationsPage = (): ReactElement => {
           checked={notificationEmail}
           onToggle={onToggleEmailNotification}
         >
-          New activity notifications (mentions, replies, etc.)
+          Activity (mentions, replies, upvotes, etc.)
         </Checkbox>
         <Checkbox
           name="marketing"
@@ -193,10 +223,19 @@ const AccountNotificationsPage = (): ReactElement => {
           checked={acceptedMarketing}
           onToggle={onToggleEmailMarketing}
         >
-          Marketing updates
+          Community updates
+        </Checkbox>
+        <Checkbox
+          name="personalizedDigest"
+          data-testid="personalized-digest-switch"
+          checked={!!personalizedDigest}
+          onToggle={onTogglePersonalizedDigest}
+          disabled={isPersonalizedDigestLoading}
+        >
+          Personalized Weekly Digest
         </Checkbox>
         <Checkbox name="newsletter" checked disabled>
-          Email me System notifications (security related, always on)
+          System alerts (security, privacy, etc.)
         </Checkbox>
       </div>
     </AccountPageContainer>
