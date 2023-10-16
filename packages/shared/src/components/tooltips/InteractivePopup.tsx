@@ -47,6 +47,7 @@ function InteractivePopup({
   children,
   className,
   position = InteractivePopupPosition.Center,
+  ...props
 }: InteractivePopupProps): ReactElement {
   const classes = positionClass[position];
 
@@ -58,6 +59,7 @@ function InteractivePopup({
           className,
           classes,
         )}
+        {...props}
       >
         {children}
       </div>

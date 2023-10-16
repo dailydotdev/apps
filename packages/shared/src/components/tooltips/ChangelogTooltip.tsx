@@ -159,7 +159,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
               id={`post-${post.id}-comment-btn`}
               icon={<CommentIcon secondary={post.commented} />}
               pressed={post.commented}
-              // onClick={() => onCommentClick?.(post)}
+              onClick={dismissChangelog}
               buttonSize={ButtonSize.Small}
               className="btn-tertiary-avocado bg-theme-bg-tertiary"
             >
