@@ -13,6 +13,7 @@ import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { campaignConfig, JoinPageProps } from './common';
 
 export function AISearchInvite({
@@ -85,12 +86,12 @@ export function AISearchInvite({
         </Button>
       </div>
       <img
-        src="./bg.png" // TODO: upload to cloudinary
+        src={cloudinary.referralCampaign.search.bg}
         alt="search input depicting our new AI search feature"
         className="hidden tablet:block absolute right-0 tablet:w-1/2"
       />
       <img
-        src="./bg_mobile.png" // TODO: upload to cloudinary
+        src={cloudinary.referralCampaign.search.bgMobile}
         alt="search input depicting our new AI search feature"
         className="block tablet:hidden absolute inset-0 w-full translate-y-1/2 top-[unset]"
       />

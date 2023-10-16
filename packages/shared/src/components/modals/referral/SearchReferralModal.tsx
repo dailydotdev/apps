@@ -9,6 +9,7 @@ import useMedia from '../../../hooks/useMedia';
 import { laptop } from '../../../styles/media';
 import { KeyReferralIcon } from '../../icons';
 import { IconSize } from '../../Icon';
+import { cloudinary } from '../../../lib/image';
 
 function SearchReferralModal(modalProps: ModalProps): ReactElement {
   const isLaptop = useMedia([laptop.replace('@media ', '')], [true], false);
@@ -23,7 +24,10 @@ function SearchReferralModal(modalProps: ModalProps): ReactElement {
     >
       <Modal.Body className="laptop:flex-row">
         <span className="laptop:hidden -mx-6 -mt-6">
-          <img src="./bg_popup_mobile.png" alt="tablet popup background" />
+          <img
+            src={cloudinary.referralCampaign.search.bgPopupMobile}
+            alt="tablet popup background"
+          />
         </span>
         <div className="flex flex-col laptop:p-2 w-full max-w-[26rem]">
           <h1 className="laptop:mt-4 font-bold text-center laptop:text-left typo-title3 tablet:typo-title1 laptop:typo-mega2">
@@ -36,7 +40,9 @@ function SearchReferralModal(modalProps: ModalProps): ReactElement {
           </p>
           <span
             className="flex flex-row justify-evenly mt-10 w-full bg-center bg-no-repeat bg-cover"
-            style={{ backgroundImage: `url(./keys_bg.svg)` }}
+            style={{
+              backgroundImage: `url(${cloudinary.referralCampaign.search.bgKeys})`,
+            }}
           >
             <KeyReferralIcon size={IconSize.XLarge} />
             <KeyReferralIcon size={IconSize.XLarge} />
@@ -58,7 +64,9 @@ function SearchReferralModal(modalProps: ModalProps): ReactElement {
         </div>
         <div
           className="hidden laptop:flex flex-1 -m-6 bg-center bg-no-repeat bg-contain"
-          style={{ backgroundImage: `url(./bg_popup.png)` }}
+          style={{
+            backgroundImage: `url(${cloudinary.referralCampaign.search.bgPopup})`,
+          }}
         />
       </Modal.Body>
     </Modal>
