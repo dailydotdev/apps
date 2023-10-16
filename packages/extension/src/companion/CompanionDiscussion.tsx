@@ -11,7 +11,7 @@ import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import { getCompanionWrapper } from './common';
+import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 
 interface CompanionDiscussionProps {
   post: PostBootData;
@@ -52,7 +52,10 @@ export function CompanionDiscussion({
         <NewComment
           size="medium"
           post={post}
-          className={{ ...commentClasses, container: 'mb-4' }}
+          className={{
+            ...commentClasses,
+            container: 'mb-4 companion-new-comment-button',
+          }}
         />
         <PostComments
           post={post}

@@ -22,11 +22,11 @@ import {
   getPostByIdKey,
   updatePostCache,
 } from '@dailydotdev/shared/src/hooks/usePostById';
+import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 import CompanionMenu from './CompanionMenu';
 import CompanionContent from './CompanionContent';
 import { companionRequest } from './companionRequest';
 import { companionFetch } from './companionFetch';
-import { getCompanionWrapper } from './common';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
