@@ -25,9 +25,12 @@ import CreateSharedPostModal, {
 } from '@dailydotdev/shared/src/components/modals/post/CreateSharedPostModal';
 import { UserPostVote } from '@dailydotdev/shared/src/graphql/posts';
 import { useVotePost } from '@dailydotdev/shared/src/hooks';
+import UpvotedPopupModal, {
+  UpvotedPopupModalProps,
+} from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
+import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
-import { getCompanionWrapper } from './common';
 import useCompanionActions from './useCompanionActions';
 import CompanionToggle from './CompanionToggle';
 
@@ -232,7 +235,18 @@ export default function CompanionMenu({
           className="btn-tertiary-blueCheese"
           pressed={post?.commented}
           icon={<CommentIcon />}
-          onClick={() => setCompanionState(true)}
+          onClick={() => {
+            setCompanionState(true);
+
+            const commentBox =
+              getCompanionWrapper()?.querySelector<HTMLElement>(
+                '.companion-new-comment-button',
+              );
+
+            if (commentBox) {
+              commentBox.click();
+            }
+          }}
         />
       </SimpleTooltip>
       <SimpleTooltip
@@ -294,6 +308,14 @@ export default function CompanionMenu({
           parentSelector={getCompanionWrapper}
           onRequestClose={closeModal}
           {...(modal.props as CreateSharedPostModalProps)}
+        />
+      )}
+      {modal?.type === LazyModal.UpvotedPopup && (
+        <UpvotedPopupModal
+          isOpen
+          parentSelector={getCompanionWrapper}
+          onRequestClose={closeModal}
+          {...(modal.props as UpvotedPopupModalProps)}
         />
       )}
     </div>
