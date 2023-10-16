@@ -11,6 +11,7 @@ import { oneYear } from '@dailydotdev/shared/src/lib/dateFormat';
 import { defaultOpenGraph } from '../next-seo';
 import { JoinPageProps } from '../components/invite/common';
 import { AISearchInvite } from '../components/invite/AISearchInvite';
+import Custom404Seo from './404';
 
 type ReferralRecord<T> = Record<ReferralCampaignKey, T>;
 
@@ -47,7 +48,12 @@ const Page = ({ referringUser, campaign }: JoinPageProps): ReactElement => {
   const seoComponent = <NextSeo {...seoProps} />;
 
   if (!Component) {
-    return <>{seoComponent}</>; // TODO: return 404 page not found
+    return (
+      <>
+        {seoComponent}
+        <Custom404Seo />
+      </>
+    );
   }
 
   return (
