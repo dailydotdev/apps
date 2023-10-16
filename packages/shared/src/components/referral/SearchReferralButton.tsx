@@ -17,7 +17,7 @@ export function SearchReferralButton({
 }: SearchReferralButtonProps): ReactElement {
   const { openModal } = useLazyModal();
   const { campaignCtaPlacement } = useSettingsContext();
-  const { isReady, referralCurrentCount, referralTargetCount } =
+  const { isReady, referredUsersCount, referralCountLimit } =
     useReferralCampaign({
       campaignKey: ReferralCampaignKey.Search,
     });
@@ -35,7 +35,7 @@ export function SearchReferralButton({
       )}
       onClick={() => openModal({ type: LazyModal.SearchReferral })}
     >
-      {referralCurrentCount}/{referralTargetCount}
+      {referredUsersCount}/{referralCountLimit}
       <KeyReferralIcon size={IconSize.Medium} className="mt-1 ml-3" />
     </button>
   );
