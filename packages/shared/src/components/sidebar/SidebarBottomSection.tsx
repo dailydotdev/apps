@@ -9,7 +9,7 @@ import InvitePeople from './InvitePeople';
 import { Section, SectionCommonProps } from './Section';
 import { docs, feedback } from '../../lib/constants';
 import { useChangelog } from '../../hooks/useChangelog';
-import { AlertColor, AlertDot, AlertDotPosition } from '../AlertDot';
+import { AlertColor, AlertDot } from '../AlertDot';
 
 const ChangelogTooltip = dynamic(
   () =>
@@ -41,13 +41,10 @@ export function SidebarBottomSection({
       icon: () => <ListIcon Icon={() => <TerminalIcon />} />,
       title: 'Changelog',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
-      alert: changelog.isAvailable && (
-        <AlertDot
-          className="right-5 mt-1.5"
-          color={AlertColor.Cabbage}
-          position={AlertDotPosition.Fixed}
-        />
-      ),
+      rightIcon: () =>
+        changelog.isAvailable && (
+          <AlertDot className="-top-1 right-0" color={AlertColor.Cabbage} />
+        ),
     },
     {
       icon: () => <ListIcon Icon={() => <FeedbackIcon />} />,

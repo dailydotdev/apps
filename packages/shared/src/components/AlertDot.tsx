@@ -2,7 +2,7 @@ import React, { CSSProperties, ReactElement } from 'react';
 import classNames from 'classnames';
 import classed from '../lib/classed';
 
-const Dot = classed('div', 'w-2 h-2 rounded-full');
+const Dot = classed('div', 'absolute w-2 h-2 rounded-full');
 
 export enum AlertColor {
   BrightRed = 'bg-theme-status-error',
@@ -11,23 +11,16 @@ export enum AlertColor {
   Cabbage = 'bg-theme-color-cabbage',
 }
 
-export enum AlertDotPosition {
-  Absolute = 'absolute',
-  Fixed = 'fixed',
-}
-
 interface AlertDotProps {
   color: AlertColor;
   className?: string;
   style?: CSSProperties;
-  position?: AlertDotPosition;
 }
 
 export const AlertDot = function AlertDot({
   color,
   className,
-  position = AlertDotPosition.Absolute,
   ...props
 }: AlertDotProps): ReactElement {
-  return <Dot {...props} className={classNames(color, className, position)} />;
+  return <Dot {...props} className={classNames(color, className)} />;
 };
