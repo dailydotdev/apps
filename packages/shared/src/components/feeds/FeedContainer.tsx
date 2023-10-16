@@ -123,7 +123,7 @@ export const FeedContainer = ({
     searchValue === SearchExperiment.V1 && showSearch && !isFinder;
   const shouldShowPulse =
     checkHasCompleted(ActionType.AcceptedSearch) &&
-    !checkHasCompleted(ActionType.SeenSearch);
+    !checkHasCompleted(ActionType.UsedSearch);
 
   const onSearch = (event: FormEvent, input: string) => {
     event.preventDefault();
@@ -134,7 +134,7 @@ export const FeedContainer = ({
       return;
     }
 
-    completeAction(ActionType.SeenSearch);
+    completeAction(ActionType.UsedSearch);
   };
 
   return (

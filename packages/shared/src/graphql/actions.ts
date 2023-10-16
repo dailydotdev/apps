@@ -16,7 +16,7 @@ export enum ActionType {
   EngagementLoopJuly2023CompanionModal = 'exp_july23_companion',
   ExistingAnonymousBanner = 'existingAnonymousBanner',
   AcceptedSearch = 'accepted_search',
-  SeenSearch = 'seen_search',
+  UsedSearch = 'used_search',
 }
 
 export interface Action {

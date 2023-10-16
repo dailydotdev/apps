@@ -8,10 +8,11 @@ import AuthContext from '../../contexts/AuthContext';
 import { feature, Feature } from '../../lib/featureManagement';
 import { useFeatureIsOn } from '../../components/GrowthBookProvider';
 
-export type ReferralCampaign = {
+export interface ReferralCampaign {
   referredUsersCount: number;
+  referralCountLimit: number;
   url: string;
-};
+}
 
 export type UseReferralCampaign = Pick<
   ReferralCampaign,
