@@ -14,16 +14,11 @@ export interface ReferralCampaign {
   url: string;
 }
 
-export type UseReferralCampaign = Pick<
-  ReferralCampaign,
-  'referredUsersCount'
-> & {
-  url: string;
-  referralCurrentCount: number;
-  referralTargetCount: number;
+export interface UseReferralCampaign extends ReferralCampaign {
   isCompleted: boolean;
   isReady: boolean;
-};
+  availableCount: number;
+}
 
 export enum ReferralCampaignKey {
   Search = 'search',
@@ -54,7 +49,6 @@ const useReferralCampaign = ({
   const queryKey = generateQueryKey(RequestKey.ReferralCampaigns, user, {
     referralOrigin: campaignKey,
   });
-  const referralTargetCount = campaignToReferralTargetCountMap[campaignKey];
   const { data, isSuccess } = useQuery(
     queryKey,
     async () => {
@@ -73,19 +67,21 @@ const useReferralCampaign = ({
       enabled: !!user?.id && !!isCampaignEnabled,
     },
   );
-  const referredUsersCount = data?.referredUsersCount || 0;
+  const referralCountLimit =
+    data?.referralCountLimit ?? campaignToReferralTargetCountMap[campaignKey];
+  const referredUsersCount = data?.referredUsersCount ?? 0;
   const referralCurrentCount =
-    referredUsersCount > referralTargetCount
-      ? referralTargetCount
+    referredUsersCount > referralCountLimit
+      ? referralCountLimit
       : referredUsersCount;
 
   return {
     referredUsersCount,
+    referralCountLimit,
     url: data?.url,
     isReady: isSuccess,
-    referralCurrentCount,
-    referralTargetCount,
-    isCompleted: referralCurrentCount === referralTargetCount,
+    isCompleted: referralCurrentCount >= referralCountLimit,
+    availableCount: referralCountLimit - referredUsersCount,
   };
 };
 

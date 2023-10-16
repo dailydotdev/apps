@@ -2,19 +2,32 @@ import React, { ReactElement } from 'react';
 import { Button } from '../buttons/Button';
 import { KeyReferralIcon } from '../icons';
 import { IconSize } from '../Icon';
+import { ReferralCampaignKey, useFeatureCampaign } from '../../hooks';
 
 export function SearchReferralBanner(): ReactElement {
-  // TODO: validate whether you should render this
+  const { referralCampaign, canInvite } = useFeatureCampaign({
+    campaignKey: ReferralCampaignKey.Search,
+  });
+
+  if (!canInvite) {
+    return null;
+  }
+
+  const { availableCount } = referralCampaign;
+  const noKeysAvailable = availableCount <= 0;
+
   return (
     <div className="flex flex-col gap-4 p-4 w-full rounded-14 bg-theme-overlay-from">
       <KeyReferralIcon size={IconSize.Large} className="mr-2" />
       <h2 className="font-bold typo-title2">
-        Give your friends early access to daily.dev&apos;s search!
+        {noKeysAvailable
+          ? `Give more friends access to daily.dev's search!`
+          : `Give your friends early access to daily.dev's search!`}
       </h2>
       <p className="typo-title3 text-theme-label-secondary">
-        {/* TODO: update the count from the invitations table */}
-        Be that cool friend who got access to yet another AI feature! You have
-        COUNT invites, use them wisely.
+        {noKeysAvailable
+          ? `We noticed you have used all your invites wisely. Here's a way to get access to some more invites!`
+          : `Be that cool friend who got access to yet another AI feature! You have ${availableCount} invites, use them wisely.`}
       </p>
       <Button className="btn-primary">Give early access</Button>
     </div>
