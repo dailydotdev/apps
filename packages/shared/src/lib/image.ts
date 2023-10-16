@@ -95,7 +95,7 @@ export const cloudinary = {
     search: {
       bg: 'https://daily-now-res.cloudinary.com/image/upload/s--lYQL8anp--/f_auto/v1697393720/referral_bg_i261vi',
       bgKeys:
-        'https://daily-now-res.cloudinary.com/image/upload/s--kh_L03d8--/f_auto/v1697393719/referral_keys_bg_dregwt.svg',
+        'https://daily-now-res.cloudinary.com/image/upload/s--5Jrks80V--/v1697393719/referral_keys_bg_dregwt.svg',
       bgPopup:
         'https://daily-now-res.cloudinary.com/image/upload/s--FfsjTd-p--/f_auto/v1697393720/referral_bg_popup_qvmau3',
       bgMobile:
