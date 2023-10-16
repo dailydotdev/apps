@@ -7,9 +7,8 @@ import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { CampaignCtaPlacement } from '../../../graphql/settings';
 import useMedia from '../../../hooks/useMedia';
 import { laptop } from '../../../styles/media';
-import { KeyReferralIcon } from '../../icons';
-import { IconSize } from '../../Icon';
 import { cloudinary } from '../../../lib/image';
+import { KeysRow } from './KeysRow';
 
 function SearchReferralModal(modalProps: ModalProps): ReactElement {
   const isLaptop = useMedia([laptop.replace('@media ', '')], [true], false);
@@ -38,18 +37,7 @@ function SearchReferralModal(modalProps: ModalProps): ReactElement {
             have COUNT invite keys left, use them wisely.
             {/*  TODO: get the count value */}
           </p>
-          <span
-            className="flex flex-row justify-evenly mt-10 w-full bg-center bg-no-repeat bg-cover"
-            style={{
-              backgroundImage: `url(${cloudinary.referralCampaign.search.bgKeys})`,
-            }}
-          >
-            <KeyReferralIcon size={IconSize.XLarge} />
-            <KeyReferralIcon size={IconSize.XLarge} />
-            <KeyReferralIcon size={IconSize.XLarge} />
-            <KeyReferralIcon size={IconSize.XLarge} />
-            <KeyReferralIcon size={IconSize.XLarge} />
-          </span>
+          <KeysRow count={10} />
           <Button className="mt-5 btn-primary" icon={<CopyIcon />}>
             Copy key link
           </Button>
