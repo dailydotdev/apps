@@ -65,10 +65,6 @@ describe('ChangelogTooltip component', () => {
   }: {
     client: QueryClient;
   }): RenderResult => {
-    const {
-      result: { current: anchorRef },
-    } = renderHook(() => useRef());
-
     return render(
       <QueryClientProvider client={client}>
         <AuthContextProvider
@@ -85,8 +81,8 @@ describe('ChangelogTooltip component', () => {
               loadedAlerts
             >
               <AlertDot color={AlertColor.Cabbage} />
-              <div ref={anchorRef} />
-              <ChangelogTooltip elementRef={anchorRef} />
+              <div />
+              <ChangelogTooltip />
             </AlertContextProvider>
           </SettingsContext.Provider>
         </AuthContextProvider>

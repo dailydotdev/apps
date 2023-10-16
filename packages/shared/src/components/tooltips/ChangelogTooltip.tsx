@@ -17,7 +17,7 @@ import { checkIsExtension } from '../../lib/func';
 import { UserPostVote } from '../../graphql/posts';
 import InteractivePopup, { InteractivePopupPosition } from './InteractivePopup';
 
-interface ChangelogTooltipProps<TRef> extends BaseTooltipProps {
+interface ChangelogTooltipProps extends BaseTooltipProps {
   onRequestClose?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
 }
 
@@ -29,10 +29,10 @@ const toastMessageMap = {
   update_available: 'Browser extension updated 🎉',
 };
 
-function ChangelogTooltip<TRef extends HTMLElement>({
+function ChangelogTooltip({
   onRequestClose,
   ...props
-}: ChangelogTooltipProps<TRef>): ReactElement {
+}: ChangelogTooltipProps): ReactElement {
   const isExtension = checkIsExtension();
   const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
   const { latestPost: post, dismiss: dismissChangelog } = useChangelog();
@@ -150,6 +150,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
               onClick={() => {}}
               buttonSize={ButtonSize.Small}
               className="btn-tertiary-avocado bg-theme-bg-tertiary"
+              data-testid="changelogUpvotesCounter"
             >
               <InteractionCounter
                 value={post.numUpvotes > 0 && post.numUpvotes}
@@ -162,6 +163,7 @@ function ChangelogTooltip<TRef extends HTMLElement>({
               onClick={dismissChangelog}
               buttonSize={ButtonSize.Small}
               className="btn-tertiary-avocado bg-theme-bg-tertiary"
+              data-testid="changelogCommentsCounter"
             >
               <InteractionCounter
                 value={post.numComments > 0 && post.numComments}
