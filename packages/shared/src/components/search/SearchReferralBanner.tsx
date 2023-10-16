@@ -13,8 +13,7 @@ export function SearchReferralBanner(): ReactElement {
     return null;
   }
 
-  const { availableCount } = referralCampaign;
-  const noKeysAvailable = availableCount <= 0;
+  const { availableCount, noKeysAvailable } = referralCampaign;
 
   return (
     <div className="flex flex-col gap-4 p-4 w-full rounded-14 bg-theme-overlay-from">

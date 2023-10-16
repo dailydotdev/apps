@@ -18,6 +18,7 @@ export interface UseReferralCampaign extends ReferralCampaign {
   isCompleted: boolean;
   isReady: boolean;
   availableCount: number;
+  noKeysAvailable: boolean;
 }
 
 export enum ReferralCampaignKey {
@@ -82,6 +83,7 @@ const useReferralCampaign = ({
     isReady: isSuccess,
     isCompleted: referralCurrentCount >= referralCountLimit,
     availableCount: referralCountLimit - referredUsersCount,
+    noKeysAvailable: referralCountLimit - referredUsersCount <= 0,
   };
 };
 
