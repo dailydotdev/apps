@@ -58,7 +58,7 @@ const mainLayoutClass = (sidebarExpanded: boolean) =>
 
 const feeds = Object.values(MainFeedPage);
 
-export default function MainLayout({
+function MainLayout({
   children,
   showOnlyLogo,
   greeting,
@@ -238,3 +238,5 @@ export default function MainLayout({
     </div>
   );
 }
+
+export default MainLayout;
