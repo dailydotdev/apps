@@ -56,10 +56,15 @@ const findIndexOfPostInData = (
   return { pageIndex: -1, index: -1 };
 };
 
+type UseFeedSettingParams = {
+  adPostLength?: number;
+};
+
 export interface UseFeedOptionalParams<T> {
   query?: string;
   variables?: T;
   options?: UseInfiniteQueryOptions<FeedData>;
+  settings?: UseFeedSettingParams;
 }
 
 export default function useFeed<T>(
@@ -69,7 +74,7 @@ export default function useFeed<T>(
   placeholdersPerPage: number,
   params: UseFeedOptionalParams<T> = {},
 ): FeedReturnType {
-  const { query, variables, options = {} } = params;
+  const { query, variables, options = {}, settings } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
   const queryClient = useQueryClient();
 
@@ -93,6 +98,11 @@ export default function useFeed<T>(
     },
   );
 
+  const isAdsQueryEnabled =
+    query &&
+    tokenRefreshed &&
+    (!settings?.adPostLength ||
+      feedQuery.data?.pages[0]?.page.edges.length > settings?.adPostLength);
   const adsQuery = useInfiniteQuery<Ad>(
     ['ads', ...feedQueryKey],
     async ({ pageParam }) => {
@@ -102,7 +112,7 @@ export default function useFeed<T>(
     },
     {
       getNextPageParam: () => Date.now(),
-      enabled: query && tokenRefreshed,
+      enabled: isAdsQueryEnabled,
       refetchOnMount: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
@@ -131,16 +141,20 @@ export default function useFeed<T>(
             page: pageIndex,
             index,
           }));
-          if (adsQuery.data?.pages[pageIndex]) {
-            posts.splice(adSpot, 0, {
-              type: 'ad',
-              ad: adsQuery.data?.pages[pageIndex],
-            });
-          } else {
-            posts.splice(adSpot, 0, {
-              type: 'placeholder',
-            });
+
+          if (isAdsQueryEnabled) {
+            if (adsQuery.data?.pages[pageIndex]) {
+              posts.splice(adSpot, 0, {
+                type: 'ad',
+                ad: adsQuery.data?.pages[pageIndex],
+              });
+            } else {
+              posts.splice(adSpot, 0, {
+                type: 'placeholder',
+              });
+            }
           }
+
           return posts;
         },
       );
