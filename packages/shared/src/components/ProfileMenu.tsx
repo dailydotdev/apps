@@ -13,6 +13,7 @@ import { LazyModal } from './modals/common/types';
 import TimerIcon from './icons/Timer';
 import { useSettingsContext } from '../contexts/SettingsContext';
 import { CampaignCtaPlacement } from '../graphql/settings';
+import { ReferralCampaignKey, useFeatureCampaign } from '../hooks';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -25,6 +26,12 @@ export default function ProfileMenu(): ReactElement {
   const { openModal } = useLazyModal();
   const { campaignCtaPlacement } = useSettingsContext();
   const { user, logout } = useContext(AuthContext);
+  const { canInvite } = useFeatureCampaign({
+    campaignKey: ReferralCampaignKey.Search,
+  });
+  // TODO: after BE is updated, switch the condition to check equality with enum.ProfileMenu for accuracy
+  const showSearchReferral =
+    canInvite && campaignCtaPlacement !== CampaignCtaPlacement.Header;
 
   if (!user) {
     return <></>;
@@ -65,7 +72,7 @@ export default function ProfileMenu(): ReactElement {
           </a>
         </Link>
       </Item>
-      {campaignCtaPlacement !== CampaignCtaPlacement.Header && ( // TODO: after BE is updated, switch the condition to check equality with enum.ProfileMenu
+      {showSearchReferral && (
         <Item>
           <button
             type="button"

@@ -1,12 +1,12 @@
 import { useQuery } from 'react-query';
 import { useContext } from 'react';
-import { useRequestProtocol } from './useRequestProtocol';
-import { REFERRAL_CAMPAIGN_QUERY } from '../graphql/users';
-import { graphqlUrl } from '../lib/config';
-import { RequestKey, generateQueryKey } from '../lib/query';
-import AuthContext from '../contexts/AuthContext';
-import { feature, Feature } from '../lib/featureManagement';
-import { useFeatureIsOn } from '../components/GrowthBookProvider';
+import { useRequestProtocol } from '../useRequestProtocol';
+import { REFERRAL_CAMPAIGN_QUERY } from '../../graphql/users';
+import { graphqlUrl } from '../../lib/config';
+import { RequestKey, generateQueryKey } from '../../lib/query';
+import AuthContext from '../../contexts/AuthContext';
+import { feature, Feature } from '../../lib/featureManagement';
+import { useFeatureIsOn } from '../../components/GrowthBookProvider';
 
 export type ReferralCampaign = {
   referredUsersCount: number;
@@ -88,4 +88,29 @@ const useReferralCampaign = ({
   };
 };
 
-export { useReferralCampaign };
+interface UseFeatureCampaign {
+  referralCampaign: UseReferralCampaign;
+  canInvite: boolean;
+}
+
+const useFeatureCampaign = (
+  props: UseReferralCampaignProps,
+): UseFeatureCampaign => {
+  const referralCampaign = useReferralCampaign(props);
+  const { url } = referralCampaign;
+
+  return {
+    referralCampaign,
+    get canInvite() {
+      try {
+        const link = new URL(url);
+
+        return link.searchParams.has('token');
+      } catch (err) {
+        return false;
+      }
+    },
+  };
+};
+
+export { useReferralCampaign, useFeatureCampaign };

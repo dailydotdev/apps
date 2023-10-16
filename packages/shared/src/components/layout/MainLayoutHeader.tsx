@@ -22,6 +22,7 @@ import { CreatePostButton } from '../post/write';
 import useMedia from '../../hooks/useMedia';
 import { tablet } from '../../styles/media';
 import { SearchReferralButton } from '../referral/SearchReferralButton';
+import { ReferralCampaignKey, useFeatureCampaign } from '../../hooks';
 
 interface ShouldShowLogoProps {
   mobileTitle?: string;
@@ -85,6 +86,9 @@ function MainLayoutHeader({
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
   };
+  const { canInvite } = useFeatureCampaign({
+    campaignKey: ReferralCampaignKey.Search,
+  });
 
   return (
     <header
@@ -125,7 +129,9 @@ function MainLayoutHeader({
           )}
           {!hideButton && user && (
             <>
-              {sidebarRendered && <SearchReferralButton className="mr-3" />}
+              {sidebarRendered && canInvite && (
+                <SearchReferralButton className="mr-3" />
+              )}
               <LinkWithTooltip
                 tooltip={{ placement: 'bottom', content: 'Notifications' }}
                 href={`${webappUrl}notifications`}
