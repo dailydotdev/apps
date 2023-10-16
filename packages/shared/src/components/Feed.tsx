@@ -129,6 +129,7 @@ export default function Feed<T>({
   } = useContext(SettingsContext);
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
+  const isSquadFeed = feedName === 'squad';
   const {
     items,
     updatePost,
@@ -140,9 +141,14 @@ export default function Feed<T>({
   } = useFeed(
     feedQueryKey,
     currentSettings.pageSize,
-    currentSettings.adSpot,
+    isSquadFeed ? 3 : currentSettings.adSpot,
     numCards,
-    { query, variables, options },
+    {
+      query,
+      variables,
+      options,
+      ...(isSquadFeed && { settings: { adPostLength: 2 } }),
+    },
   );
   const feedContextValue = useMemo(() => {
     return {
