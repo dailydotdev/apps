@@ -53,7 +53,6 @@ export enum AnalyticsEvent {
   ClickOnboardingBack = 'click onboarding back',
   ClickOnboardingNext = 'click onboarding next',
   OnboardingSkip = 'my feed onboarding skip',
-  CompleteOnboarding = 'complete onboarding',
   GlobalError = 'global error',
   ClickArticleAnonymousCTA = 'click article anonymous cta',
   ClickScrollBlock = 'click scroll block',
