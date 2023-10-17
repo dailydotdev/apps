@@ -99,7 +99,6 @@ export const OnboardingContextProvider = ({
 
     setIsRegisteringFilters(true);
     registerLocalFilters().then(() => {
-      trackEvent({ event_name: AnalyticsEvent.CompleteOnboarding });
       setShouldUpdateFilters(false);
       setIsOnboarding(false);
       setIsRegisteringFilters(false);
