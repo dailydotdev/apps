@@ -19,10 +19,11 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { urlParamsToObject } from '@dailydotdev/shared/src/lib/links';
-import { campaignConfig, JoinPageProps } from './common';
+import { JoinPageProps } from './common';
 
 export function AISearchInvite({
   referringUser,
+  redirectTo,
   token,
 }: JoinPageProps): ReactElement {
   const router = useRouter();
@@ -37,7 +38,7 @@ export function AISearchInvite({
       onSuccess: () => {
         completeAction(ActionType.AcceptedSearch);
         // TODO: check whether the feature will be set and forcibly apply it if not
-        router.push(campaignConfig.search.redirectTo);
+        router.push(redirectTo);
       },
       onError: (err: ApiErrorResult) => {
         const message = err?.response?.errors?.[0]?.message;
@@ -67,8 +68,8 @@ export function AISearchInvite({
       return;
     }
 
-    router.push(campaignConfig.search.redirectTo);
-  }, [router, search]);
+    router.push(redirectTo);
+  }, [redirectTo, router, search]);
 
   return (
     <div className="flex relative flex-col flex-1 justify-center p-6 h-full min-h-[100vh]">

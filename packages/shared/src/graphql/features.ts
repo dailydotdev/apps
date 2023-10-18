@@ -9,6 +9,17 @@ export const ACCEPT_FEATURE_MUTATION = gql`
   }
 `;
 
+interface SeoImage {
+  url: string;
+}
+
+export interface CampaignConfig {
+  title: string;
+  description: string;
+  images: SeoImage[];
+  redirectTo: string;
+}
+
 interface AcceptFeatureInvitation {
   token: string;
   referrerId: string;

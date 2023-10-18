@@ -8,6 +8,7 @@ import { GetServerSideProps } from 'next';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { setCookie } from '@dailydotdev/shared/src/lib/cookie';
 import { oneYear } from '@dailydotdev/shared/src/lib/dateFormat';
+import { useReferralConfig } from '@dailydotdev/shared/src/hooks/referral/useReferralConfig';
 import { defaultOpenGraph } from '../next-seo';
 import { JoinPageProps } from '../components/invite/common';
 import { AISearchInvite } from '../components/invite/AISearchInvite';
@@ -21,6 +22,10 @@ const componentsMap: ReferralRecord<FunctionComponent<JoinPageProps>> = {
 
 const Page = ({ referringUser, campaign }: JoinPageProps): ReactElement => {
   const Component = componentsMap[campaign];
+  const { title, description, images, redirectTo } = useReferralConfig({
+    campaign,
+    referringUser,
+  });
 
   useEffect(() => {
     if (!Object.hasOwn(componentsMap, campaign)) {
@@ -37,13 +42,9 @@ const Page = ({ referringUser, campaign }: JoinPageProps): ReactElement => {
   }, [campaign, referringUser.id]);
 
   const seoProps: NextSeoProps = {
-    title: `${referringUser.name} invites you to use daily.dev`,
-    description:
-      'daily dev is a professional network for developers to learn, collaborate, and grow together. Developers come to daily.dev to discover a wide variety of professional knowledge, create groups where they can collaborate with other developers they appreciate, and discuss the latest trends in the developer ecosystem.',
-    openGraph: {
-      ...defaultOpenGraph,
-      images: [{ url: `https://og.daily.dev/api/refs/${referringUser.id}` }],
-    },
+    title,
+    description,
+    openGraph: { ...defaultOpenGraph, images },
   };
   const seoComponent = <NextSeo {...seoProps} />;
 
@@ -59,7 +60,11 @@ const Page = ({ referringUser, campaign }: JoinPageProps): ReactElement => {
   return (
     <>
       {seoComponent}
-      <Component referringUser={referringUser} campaign={campaign} />
+      <Component
+        campaign={campaign}
+        redirectTo={redirectTo}
+        referringUser={referringUser}
+      />
     </>
   );
 };
