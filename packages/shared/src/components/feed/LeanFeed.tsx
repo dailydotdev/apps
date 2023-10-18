@@ -1,9 +1,10 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import LeanFeedItemComponent from './LeanFeedItemComponent';
 import { useActiveFeedContext } from '../../contexts';
+import { FeedItem } from '../../hooks/useFeed';
 
-function LeanFeed(): ReactElement {
-  const { items, feedRef } = useActiveFeedContext();
+function LeanFeed({ items }: { items: FeedItem[] }): ReactElement {
+  const { feedRef } = useActiveFeedContext();
 
   return (
     <div className="grid grid-cols-2 gap-4" ref={feedRef}>

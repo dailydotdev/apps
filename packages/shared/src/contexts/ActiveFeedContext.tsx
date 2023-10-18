@@ -6,11 +6,26 @@ import React, {
   useRef,
 } from 'react';
 import { FeedReturnType } from '../hooks/useFeed';
+import { Post } from '../graphql/posts';
+import useLeanPostActions from '../hooks/post/useLeanPostActions';
 
 export type ActiveFeedContextValue = {
   queryKey?: unknown[];
+  pinPost?: boolean;
   items: FeedReturnType['items'];
-  onClick?: () => void;
+  onClick?: (post: Post) => void;
+  onBookmark?: (post: Post) => void;
+  onUpvote?: (post: Post) => void;
+  onDownvote?: (post: Post) => void;
+  onHidePost?: (post: Post) => void;
+  onPromotePost?: (post: Post) => void;
+  onBanPost?: (post: Post) => void;
+  onDeletePost?: (post: Post) => void;
+  canDeletePost?: (post: Post) => boolean;
+  canPinPost?: (post: Post) => boolean;
+  onPinPost?: (post: Post) => void;
+  onBlockSource?: (post: Post) => void;
+  onBlockTag?: (post: Post, tag: string) => void;
   feedRef?: React.RefObject<HTMLDivElement>;
 };
 
@@ -29,19 +44,68 @@ export const ActiveFeedContextProvider = ({
   items,
   queryKey,
   onClick,
+  pinPost = true,
 }: ActiveFeedContextProviderProps): ReactElement => {
   const feedRef = useRef();
   const virtualGrid =
     feedRef.current && getComputedStyle(feedRef.current).gridTemplateColumns;
-  console.log(virtualGrid);
+
+  // TODO: determine tracking when lean post actions are invoked from a feed type
+  const {
+    onPromotePost,
+    onBanPost,
+    canDeletePost,
+    onDeletePost,
+    canPinPost,
+    onPinPost,
+    onBlockSource,
+    onBlockTag,
+    onClick: onClickDefault,
+    onBookmark,
+    onUpvote,
+    onDownvote,
+    onHidePost,
+  } = useLeanPostActions({
+    queryKey,
+  });
+
+  // console.log(virtualGrid);
   const data: ActiveFeedContextValue = useMemo(
     () => ({
       items,
       queryKey,
-      onClick,
+      onClick: onClick || onClickDefault,
+      onBookmark,
+      onUpvote,
+      onDownvote,
+      onHidePost,
+      onPromotePost,
+      onBanPost,
+      canDeletePost,
+      onDeletePost,
+      canPinPost: pinPost && canPinPost,
+      onPinPost,
+      onBlockSource,
+      onBlockTag,
       feedRef,
     }),
-    [items, onClick, queryKey],
+    [
+      items,
+      onClick,
+      onBookmark,
+      onUpvote,
+      onDownvote,
+      onHidePost,
+      onPromotePost,
+      onBanPost,
+      canDeletePost,
+      onDeletePost,
+      canPinPost,
+      onPinPost,
+      onBlockSource,
+      onBlockTag,
+      queryKey,
+    ],
   );
   return (
     <ActiveFeedContext.Provider value={data}>

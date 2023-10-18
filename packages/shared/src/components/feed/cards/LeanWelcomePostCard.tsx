@@ -1,18 +1,23 @@
 import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
 import classNames from 'classnames';
-import { CardButton, FreeformCardTitle, getPostClassNames } from './Card';
-import ActionButtons from './ActionButtons';
-import { Container, PostCardProps } from './common';
-import OptionsButton from '../buttons/OptionsButton';
-import { WelcomePostCardHeader } from './WelcomePostCardHeader';
-import { WelcomePostCardFooter } from './WelcomePostCardFooter';
-import { useSquadChecklist } from '../../hooks/useSquadChecklist';
-import { Squad } from '../../graphql/sources';
-import { ActionType } from '../../graphql/actions';
-import FeedItemContainer from './FeedItemContainer';
-import { PostType } from '../../graphql/posts';
+import {
+  CardButton,
+  FreeformCardTitle,
+  getPostClassNames,
+} from '../../cards/Card';
+import ActionButtons from '../../cards/ActionButtons';
+import { Container, PostCardProps } from '../../cards/common';
+import OptionsButton from '../../buttons/OptionsButton';
+import { WelcomePostCardHeader } from '../../cards/WelcomePostCardHeader';
+import { WelcomePostCardFooter } from '../../cards/WelcomePostCardFooter';
+import { useSquadChecklist } from '../../../hooks/useSquadChecklist';
+import { Squad } from '../../../graphql/sources';
+import { ActionType } from '../../../graphql/actions';
+import FeedItemContainer from '../../cards/FeedItemContainer';
+import { PostType } from '../../../graphql/posts';
+import { useActiveFeedContext } from '../../../contexts';
 
-export const WelcomePostCard = forwardRef(function SharePostCard(
+export const LeanWelcomePostCard = forwardRef(function SharePostCard(
   {
     post,
     onPostClick,
@@ -31,7 +36,9 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { pinnedAt, type: postType } = post;
-  const onPostCardClick = () => onPostClick(post);
+  const { onClick } = useActiveFeedContext();
+
+  const onPostCardClick = () => onClick(post);
   const containerRef = useRef<HTMLDivElement>();
 
   const { openStep, isChecklistVisible } = useSquadChecklist({

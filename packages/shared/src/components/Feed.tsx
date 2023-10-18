@@ -39,7 +39,7 @@ import AlertContext from '../contexts/AlertContext';
 import { MainFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
 import useCompanionTrigger from '../hooks/useCompanionTrigger';
-import { ActiveFeedContext, ActiveFeedContextProvider } from '../contexts';
+import { ActiveFeedContextProvider } from '../contexts';
 import { useFeedVotePost } from '../hooks';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';

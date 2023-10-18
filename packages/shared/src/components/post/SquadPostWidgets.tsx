@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import { useQuery } from 'react-query';
 import { PageWidgets } from '../utilities';
 import { ShareMobile } from '../ShareMobile';

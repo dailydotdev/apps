@@ -33,36 +33,13 @@ export interface ActionButtonsProps {
   openNewTab?: boolean;
 }
 
-type LastActionButtonProps = {
-  onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
-  onShare?: (post: Post) => unknown;
-  onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
-  post: Post;
-};
-function LastActionButton(props: LastActionButtonProps) {
-  const { onShareClick, post } = props;
-  const onClickShare = (event) => onShareClick?.(event, post);
-  return (
-    <SimpleTooltip content="Share post">
-      <Button
-        icon={<ShareIcon />}
-        buttonSize={ButtonSize.Small}
-        onClick={onClickShare}
-        className="btn-tertiary-cabbage"
-      />
-    </SimpleTooltip>
-  );
-}
-
 export default function ActionButtons({
   openNewTab,
   post,
   onUpvoteClick,
   onCommentClick,
-  onBookmarkClick,
   onMenuClick,
   onReadArticleClick,
-  onShare,
   onShareClick,
   className,
   children,
@@ -71,13 +48,6 @@ export default function ActionButtons({
   const upvoteCommentProps: ButtonProps<'button'> = {
     buttonSize: ButtonSize.Small,
   };
-
-  const lastActionButton = LastActionButton({
-    post,
-    onBookmarkClick,
-    onShare,
-    onShareClick,
-  });
 
   return (
     <div
@@ -132,7 +102,14 @@ export default function ActionButtons({
             />
           </QuaternaryButton>
         </SimpleTooltip>
-        {insaneMode && lastActionButton}
+        <SimpleTooltip content="Share post">
+          <Button
+            icon={<ShareIcon />}
+            buttonSize={ButtonSize.Small}
+            onClick={(event) => onShareClick?.(event, post)}
+            className="btn-tertiary-cabbage"
+          />
+        </SimpleTooltip>
       </ConditionalWrapper>
       <ConditionalWrapper
         condition={insaneMode}
@@ -152,7 +129,6 @@ export default function ActionButtons({
             openNewTab={openNewTab}
           />
         )}
-        {!insaneMode && lastActionButton}
         {insaneMode && (
           <OptionsButton
             className={visibleOnGroupHover}

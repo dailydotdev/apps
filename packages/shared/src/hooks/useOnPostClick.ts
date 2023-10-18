@@ -9,7 +9,7 @@ import {
 } from '../lib/feed';
 import { Post, PostType } from '../graphql/posts';
 import { Origin } from '../lib/analytics';
-import { ActiveFeedContext, useActiveFeedContext } from '../contexts';
+import { useActiveFeedContext } from '../contexts';
 import { updateCachedPagePost } from '../lib/query';
 import { usePostFeedback } from './usePostFeedback';
 

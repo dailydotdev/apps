@@ -17,7 +17,6 @@ import MarkdownPostContent from './MarkdownPostContent';
 import { SquadPostWidgets } from './SquadPostWidgets';
 import { isSourcePublicSquad } from '../../graphql/squads';
 import { useAuthContext } from '../../contexts/AuthContext';
-import FurtherReading from '../widgets/FurtherReading';
 import FurtherReadingSquad from '../widgets/FurtherReadingSquad';
 
 const ContentMap = {
