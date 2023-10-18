@@ -28,9 +28,8 @@ export default function ProfileMenu(): ReactElement {
   const { referralToken } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Search,
   });
-  // TODO: after BE is updated, switch the condition to check equality with enum.ProfileMenu for accuracy
   const showSearchReferral =
-    !!referralToken && campaignCtaPlacement !== CampaignCtaPlacement.Header;
+    !!referralToken && campaignCtaPlacement === CampaignCtaPlacement.Header;
 
   if (!user) {
     return <></>;

@@ -26,7 +26,6 @@ export enum AuthEventNames {
 }
 
 export enum AuthTriggers {
-  FeatureInvitation = 'feature invitation click', // TODO: verify the correct trigger
   Author = 'author',
   Bookmark = 'bookmark',
   Comment = 'comment',
