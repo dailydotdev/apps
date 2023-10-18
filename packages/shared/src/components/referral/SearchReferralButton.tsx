@@ -21,8 +21,10 @@ export function SearchReferralButton({
     useReferralCampaign({
       campaignKey: ReferralCampaignKey.Search,
     });
+  const shouldBeDisplayed =
+    campaignCtaPlacement === CampaignCtaPlacement.Header && isReady;
 
-  if (campaignCtaPlacement !== CampaignCtaPlacement.Header || !isReady) {
+  if (!shouldBeDisplayed) {
     return null;
   }
 
