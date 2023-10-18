@@ -5,3 +5,8 @@ export enum ExtensionMessageType {
   DisableCompanion = 'DISABLE_COMPANION',
   RequestUpdate = 'REQUEST_UPDATE',
 }
+
+export const getCompanionWrapper = (): HTMLElement =>
+  globalThis?.document
+    ?.querySelector('daily-companion-app')
+    ?.shadowRoot?.querySelector('#daily-companion-wrapper');

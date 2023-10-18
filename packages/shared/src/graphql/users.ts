@@ -287,3 +287,47 @@ export const GET_REFERRING_USER_QUERY = gql`
   }
   ${USER_SHORT_INFO_FRAGMENT}
 `;
+
+export type UserPersonalizedDigest = {
+  preferredDay: number;
+  preferredHour: number;
+  preferredTimezone: string;
+};
+
+export type UserPersonalizedDigestSubscribe = {
+  day?: number;
+  hour?: number;
+  timezone?: string;
+};
+
+export const GET_PERSONALIZED_DIGEST_SETTINGS = gql`
+  query PersonalizedDigest {
+    personalizedDigest {
+      preferredDay
+      preferredHour
+      preferredTimezone
+    }
+  }
+`;
+
+export const SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION = gql`
+  mutation SubscribePersonalizedDigest(
+    $hour: Int
+    $day: Int
+    $timezone: String
+  ) {
+    subscribePersonalizedDigest(hour: $hour, day: $day, timezone: $timezone) {
+      preferredDay
+      preferredHour
+      preferredTimezone
+    }
+  }
+`;
+
+export const UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION = gql`
+  mutation UnsubscribePersonalizedDigest {
+    unsubscribePersonalizedDigest {
+      _
+    }
+  }
+`;

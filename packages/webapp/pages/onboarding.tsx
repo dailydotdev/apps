@@ -52,6 +52,7 @@ import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanie
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
+import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -515,4 +516,4 @@ export function OnboardPage(): ReactElement {
   );
 }
 
-export default OnboardPage;
+export default withFeaturesBoundary(OnboardPage);

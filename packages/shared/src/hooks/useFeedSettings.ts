@@ -12,6 +12,7 @@ import {
 import AuthContext from '../contexts/AuthContext';
 import { graphqlUrl } from '../lib/config';
 import { LoggedUser } from '../lib/user';
+import { disabledRefetch } from '../lib/func';
 
 export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
@@ -63,6 +64,7 @@ export default function useFeedSettings(): FeedSettingsReturnType {
 
       return { ...req, feedSettings };
     },
+    { ...disabledRefetch },
   );
 
   const { tagsCategories, feedSettings, advancedSettings } = feedQuery;
