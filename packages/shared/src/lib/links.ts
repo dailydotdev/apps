@@ -23,4 +23,8 @@ export const link = {
   post: {
     create: `${webappUrl}squads/create`,
   },
+  search: {
+    requestKeys:
+      'mailto:hi@daily.dev?subject=I want more invites for daily.dev search',
+  },
 };

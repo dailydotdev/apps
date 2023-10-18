@@ -11,14 +11,18 @@ import { laptop } from '../../../styles/media';
 import { cloudinary } from '../../../lib/image';
 import { KeysRow } from './KeysRow';
 import { ReferralCampaignKey, useReferralCampaign } from '../../../hooks';
+import { link } from '../../../lib/links';
+import { useCopyLink } from '../../../hooks/useCopy';
 
 function SearchReferralModal(modalProps: ModalProps): ReactElement {
   const isLaptop = useMedia([laptop.replace('@media ', '')], [true], false);
   const { campaignCtaPlacement, onToggleHeaderPlacement } =
     useSettingsContext();
-  const { availableCount, noKeysAvailable } = useReferralCampaign({
+  const { availableCount, noKeysAvailable, url } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Search,
   });
+  const [isCopying, copyLink] = useCopyLink(() => url);
+  const handleCopy = () => copyLink();
 
   return (
     <Modal
@@ -45,14 +49,19 @@ function SearchReferralModal(modalProps: ModalProps): ReactElement {
               : `Be that cool friend who got access to yet another AI feature! You
             have ${availableCount} invite keys left, use them wisely.`}
           </p>
-          <KeysRow count={5} />
+          <KeysRow count={10} />
           <Button
+            tag={noKeysAvailable ? 'a' : 'button'}
+            href={noKeysAvailable ? link.search.requestKeys : undefined}
             className={classNames(
               'mt-5',
               noKeysAvailable ? 'btn-secondary' : 'btn-primary',
             )}
-            // TODO: action when no keys available
-            icon={noKeysAvailable ? null : <CopyIcon />}
+            icon={
+              noKeysAvailable ? undefined : <CopyIcon secondary={isCopying} />
+            }
+            disabled={isCopying}
+            onClick={noKeysAvailable ? undefined : handleCopy}
           >
             {noKeysAvailable ? `Request more invitation keys` : `Copy key link`}
           </Button>
