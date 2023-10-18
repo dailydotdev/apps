@@ -2,18 +2,16 @@ import React, { ReactElement } from 'react';
 import { Button } from '../buttons/Button';
 import { KeyReferralIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { ReferralCampaignKey, useFeatureCampaign } from '../../hooks';
+import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
 
 export function SearchReferralBanner(): ReactElement {
-  const { referralCampaign, canInvite } = useFeatureCampaign({
+  const { availableCount, noKeysAvailable, token } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Search,
   });
 
-  if (!canInvite) {
+  if (token) {
     return null;
   }
-
-  const { availableCount, noKeysAvailable } = referralCampaign;
 
   return (
     <div className="flex flex-col gap-4 p-4 w-full rounded-14 bg-theme-overlay-from">

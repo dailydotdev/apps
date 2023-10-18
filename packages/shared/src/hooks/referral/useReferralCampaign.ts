@@ -11,6 +11,7 @@ import { useFeatureIsOn } from '../../components/GrowthBookProvider';
 export interface ReferralCampaign {
   referredUsersCount: number;
   referralCountLimit: number;
+  token: string;
   url: string;
 }
 
@@ -81,35 +82,11 @@ const useReferralCampaign = ({
     referralCountLimit,
     url: data?.url,
     isReady: isSuccess,
+    token: data?.token,
     isCompleted: referralCurrentCount >= referralCountLimit,
     availableCount: referralCountLimit - referredUsersCount,
     noKeysAvailable: referralCountLimit - referredUsersCount <= 0,
   };
 };
 
-interface UseFeatureCampaign {
-  referralCampaign: UseReferralCampaign;
-  canInvite: boolean;
-}
-
-const useFeatureCampaign = (
-  props: UseReferralCampaignProps,
-): UseFeatureCampaign => {
-  const referralCampaign = useReferralCampaign(props);
-  const { url } = referralCampaign;
-
-  return {
-    referralCampaign,
-    get canInvite() {
-      try {
-        const link = new URL(url);
-
-        return link.searchParams.has('token');
-      } catch (err) {
-        return false;
-      }
-    },
-  };
-};
-
-export { useReferralCampaign, useFeatureCampaign };
+export { useReferralCampaign };

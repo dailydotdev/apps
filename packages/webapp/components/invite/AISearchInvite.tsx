@@ -14,6 +14,8 @@ import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { campaignConfig, JoinPageProps } from './common';
 
 export function AISearchInvite({
@@ -23,6 +25,7 @@ export function AISearchInvite({
   const router = useRouter();
   const search = useFeature(feature.search);
   const { completeAction } = useActions();
+  const { displayToast } = useToastNotification();
   const { user, showLogin } = useAuthContext();
   const { mutateAsync: onAcceptMutation } = useMutation(
     acceptFeatureInvitation,
@@ -32,8 +35,12 @@ export function AISearchInvite({
         // TODO: check whether the feature will be set and forcibly apply it if not
         router.push(campaignConfig.search.redirectTo);
       },
-      onError: () => {
-        // TODO: display a toast based from the error response
+      onError: (err: ApiErrorResult) => {
+        const message = err?.response?.errors?.[0]?.message;
+
+        if (message) {
+          displayToast(message);
+        }
       },
     },
   );

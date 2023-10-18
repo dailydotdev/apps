@@ -22,7 +22,7 @@ import { CreatePostButton } from '../post/write';
 import useMedia from '../../hooks/useMedia';
 import { tablet } from '../../styles/media';
 import { SearchReferralButton } from '../referral/SearchReferralButton';
-import { ReferralCampaignKey, useFeatureCampaign } from '../../hooks';
+import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
 
 interface ShouldShowLogoProps {
   mobileTitle?: string;
@@ -86,7 +86,7 @@ function MainLayoutHeader({
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
   };
-  const { canInvite } = useFeatureCampaign({
+  const { token } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Search,
   });
 
@@ -129,7 +129,7 @@ function MainLayoutHeader({
           )}
           {!hideButton && user && (
             <>
-              {sidebarRendered && canInvite && (
+              {sidebarRendered && !!token && (
                 <SearchReferralButton className="mr-3" />
               )}
               <LinkWithTooltip
