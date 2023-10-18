@@ -4,6 +4,8 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
+  useEffect,
+  useRef,
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
@@ -22,9 +24,10 @@ import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 import { webappUrl } from '../../lib/constants';
 import { useSearchSuggestions } from '../../hooks/search';
-import { Origin } from '../../lib/analytics';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
+import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -100,6 +103,7 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const { trackEvent } = useAnalyticsContext();
   const { completeAction, checkHasCompleted } = useActions();
   const router = useRouter();
   const searchValue = useFeature(feature.search);
@@ -113,6 +117,19 @@ export const FeedContainer = ({
   } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
   const suggestionsProps = useSearchSuggestions({ origin: Origin.HomePage });
+  const isTracked = useRef(false);
+  const shouldShowPulse =
+    checkHasCompleted(ActionType.AcceptedSearch) &&
+    !checkHasCompleted(ActionType.UsedSearch);
+
+  useEffect(() => {
+    if (!shouldShowPulse || isTracked.current) {
+      return;
+    }
+
+    isTracked.current = true;
+    trackEvent({ event_name: AnalyticsEvent.SearchHighlightAnimation });
+  }, [trackEvent, shouldShowPulse]);
 
   if (!loadedSettings) {
     return <></>;
@@ -121,10 +138,6 @@ export const FeedContainer = ({
   const isFinder = router.pathname === '/posts/finder';
   const isV1Search =
     searchValue === SearchExperiment.V1 && showSearch && !isFinder;
-  const shouldShowPulse =
-    checkHasCompleted(ActionType.AcceptedSearch) &&
-    !checkHasCompleted(ActionType.UsedSearch);
-
   const onSearch = (event: FormEvent, input: string) => {
     event.preventDefault();
     router.push(`${webappUrl}search?q=${encodeURIComponent(input)}`);

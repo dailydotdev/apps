@@ -16,6 +16,9 @@ import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { urlParamsToObject } from '@dailydotdev/shared/src/lib/links';
 import { campaignConfig, JoinPageProps } from './common';
 
 export function AISearchInvite({
@@ -25,6 +28,7 @@ export function AISearchInvite({
   const router = useRouter();
   const search = useFeature(feature.search);
   const { completeAction } = useActions();
+  const { trackEvent } = useAnalyticsContext();
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useAuthContext();
   const { mutateAsync: onAcceptMutation } = useMutation(
@@ -49,6 +53,11 @@ export function AISearchInvite({
     if (!user) {
       return showLogin(AuthTriggers.Author);
     }
+
+    trackEvent({
+      event_name: AnalyticsEvent.AcceptInvitation,
+      query_params: JSON.stringify(urlParamsToObject(window.location.href)),
+    });
 
     return onAcceptMutation({ token, referrerId: referringUser.id });
   };

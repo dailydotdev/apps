@@ -1,4 +1,5 @@
 import { webappUrl } from './constants';
+import { EmptyObjectLiteral } from './kratos';
 
 export const getTagPageLink = (tag: string): string =>
   `${process.env.NEXT_PUBLIC_WEBAPP_URL}tags/${encodeURIComponent(tag)}`;
@@ -17,6 +18,16 @@ export const stripLinkParameters = (link: string): string => {
   const { origin, pathname } = new URL(link);
 
   return origin + pathname;
+};
+
+export const urlParamsToObject = (link: string): EmptyObjectLiteral => {
+  try {
+    const url = new URL(link);
+
+    return Object.fromEntries(url.searchParams);
+  } catch (err) {
+    return {};
+  }
 };
 
 export const link = {

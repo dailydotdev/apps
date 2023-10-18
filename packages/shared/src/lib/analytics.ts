@@ -102,7 +102,12 @@ export enum AnalyticsEvent {
   UpvoteSearch = 'upvote search',
   DownvoteSearch = 'downvote search',
   CopySearch = 'copy search',
+  CopyKeyLink = 'copy key link',
+  HideFromHeader = 'hide from header',
+  CloseInvitationPopup = 'close invitation popup',
   ErrorSearch = 'error search',
+  AcceptInvitation = 'accept invitation',
+  SearchHighlightAnimation = 'search highlight animation',
   // search end
   OpenCompanionPermissionModal = 'open companion permission popup',
   CloseCompanionPermissionModal = 'close companion permission popup',
@@ -126,6 +131,9 @@ export enum TargetType {
   SearchRecommendation = 'search rec',
   SearchHistory = 'search history',
   SearchSource = 'search source',
+  SearchReferralBadge = 'search referral badge',
+  InviteBanner = 'invite banner',
+  InviteProfileMenu = 'invite in profile menu',
 }
 
 export enum NotificationChannel {

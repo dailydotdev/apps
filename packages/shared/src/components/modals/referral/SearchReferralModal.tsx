@@ -13,22 +13,52 @@ import { KeysRow } from './KeysRow';
 import { ReferralCampaignKey, useReferralCampaign } from '../../../hooks';
 import { link } from '../../../lib/links';
 import { useCopyLink } from '../../../hooks/useCopy';
+import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
+import { AnalyticsEvent } from '../../../lib/analytics';
 
-function SearchReferralModal(modalProps: ModalProps): ReactElement {
+function SearchReferralModal({
+  onRequestClose,
+  ...props
+}: ModalProps): ReactElement {
   const isLaptop = useMedia([laptop.replace('@media ', '')], [true], false);
+  const { trackEvent } = useAnalyticsContext();
   const { campaignCtaPlacement, onToggleHeaderPlacement } =
     useSettingsContext();
-  const { availableCount, noKeysAvailable, url } = useReferralCampaign({
-    campaignKey: ReferralCampaignKey.Search,
-  });
+  const { availableCount, noKeysAvailable, url, referralToken } =
+    useReferralCampaign({
+      campaignKey: ReferralCampaignKey.Search,
+    });
   const [isCopying, copyLink] = useCopyLink(() => url);
-  const handleCopy = () => copyLink();
+  const handleCopy = () => {
+    trackEvent({
+      event_name: AnalyticsEvent.CopyKeyLink,
+      extra: JSON.stringify({ key_link_token: referralToken }),
+    });
+    copyLink();
+  };
+
+  const handleToggle = () => {
+    trackEvent({
+      event_name: AnalyticsEvent.HideFromHeader,
+      target_id: !campaignCtaPlacement,
+    });
+    onToggleHeaderPlacement();
+  };
+
+  const handleRequestClose: typeof onRequestClose = (event) => {
+    trackEvent({
+      event_name: AnalyticsEvent.CloseInvitationPopup,
+      target_id: !campaignCtaPlacement,
+    });
+    onRequestClose(event);
+  };
 
   return (
     <Modal
-      {...modalProps}
+      {...props}
       kind={isLaptop ? Modal.Kind.FixedCenter : Modal.Kind.FlexibleCenter}
       size={isLaptop ? Modal.Size.XLarge : Modal.Size.Small}
+      onRequestClose={handleRequestClose}
     >
       <Modal.Body className="laptop:flex-row">
         <span className="laptop:hidden -mx-6 -mt-6">
@@ -69,7 +99,7 @@ function SearchReferralModal(modalProps: ModalProps): ReactElement {
             name="referral_cta_placement"
             className="mt-6 laptop:mt-auto"
             checked={campaignCtaPlacement !== CampaignCtaPlacement.Header}
-            onToggle={onToggleHeaderPlacement}
+            onToggle={handleToggle}
           >
             Hide from header
           </Checkbox>

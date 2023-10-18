@@ -15,7 +15,7 @@ export const campaignConfig: Record<ReferralCampaignKey, CampaignConfig> = {
     title: '',
     description: '',
     image: '',
-    redirectTo: searchPageUrl,
+    redirectTo: '/',
   },
 };
 
