@@ -5,7 +5,7 @@ import { SearchEmpty } from './SearchEmpty';
 import { SearchHistoryContainer } from './common';
 import { SearchBarSuggestion, SuggestionOrigin } from './SearchBarSuggestion';
 import { SearchSkeleton } from './SearchSkeleton';
-import TimerIcon from '../icons/Timer';
+import { TimerIcon } from '../icons';
 import { useSearchHistory } from '../../hooks/search';
 
 interface SearchHistoryProps {
