@@ -3,11 +3,14 @@ import { Button } from '../buttons/Button';
 import { KeyReferralIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
 
 export function SearchReferralBanner(): ReactElement {
   const { availableCount, noKeysAvailable, token } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Search,
   });
+  const { openModal } = useLazyModal();
 
   if (token) {
     return null;
@@ -26,7 +29,12 @@ export function SearchReferralBanner(): ReactElement {
           ? `We noticed you have used all your invites wisely. Here's a way to get access to some more invites!`
           : `Be that cool friend who got access to yet another AI feature! You have ${availableCount} invites, use them wisely.`}
       </p>
-      <Button className="btn-primary">Give early access</Button>
+      <Button
+        className="btn-primary"
+        onClick={() => openModal({ type: LazyModal.SearchReferral })}
+      >
+        Give early access
+      </Button>
     </div>
   );
 }
