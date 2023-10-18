@@ -11,7 +11,7 @@ import { useFeatureIsOn } from '../../components/GrowthBookProvider';
 export interface ReferralCampaign {
   referredUsersCount: number;
   referralCountLimit: number;
-  token: string;
+  referralToken: string;
   url: string;
 }
 
@@ -82,7 +82,7 @@ const useReferralCampaign = ({
     referralCountLimit,
     url: data?.url,
     isReady: isSuccess,
-    token: data?.token,
+    referralToken: data?.referralToken,
     isCompleted: referralCurrentCount >= referralCountLimit,
     availableCount: referralCountLimit - referredUsersCount,
     noKeysAvailable: referralCountLimit - referredUsersCount <= 0,

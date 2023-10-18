@@ -273,6 +273,7 @@ export const REFERRAL_CAMPAIGN_QUERY = gql`
     referralCampaign(referralOrigin: $referralOrigin) {
       referredUsersCount
       referralCountLimit
+      referralToken
       url
     }
   }

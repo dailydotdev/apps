@@ -25,12 +25,12 @@ export default function ProfileMenu(): ReactElement {
   const { openModal } = useLazyModal();
   const { campaignCtaPlacement } = useSettingsContext();
   const { user, logout } = useContext(AuthContext);
-  const { token } = useReferralCampaign({
+  const { referralToken } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Search,
   });
   // TODO: after BE is updated, switch the condition to check equality with enum.ProfileMenu for accuracy
   const showSearchReferral =
-    !!token && campaignCtaPlacement !== CampaignCtaPlacement.Header;
+    !!referralToken && campaignCtaPlacement !== CampaignCtaPlacement.Header;
 
   if (!user) {
     return <></>;

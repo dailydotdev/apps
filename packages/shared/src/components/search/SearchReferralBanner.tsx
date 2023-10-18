@@ -7,12 +7,13 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 
 export function SearchReferralBanner(): ReactElement {
-  const { availableCount, noKeysAvailable, token } = useReferralCampaign({
-    campaignKey: ReferralCampaignKey.Search,
-  });
+  const { availableCount, noKeysAvailable, referralToken } =
+    useReferralCampaign({
+      campaignKey: ReferralCampaignKey.Search,
+    });
   const { openModal } = useLazyModal();
 
-  if (token) {
+  if (!referralToken) {
     return null;
   }
 

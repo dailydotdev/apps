@@ -86,7 +86,7 @@ function MainLayoutHeader({
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
   };
-  const { token } = useReferralCampaign({
+  const { referralToken } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Search,
   });
 
@@ -129,7 +129,7 @@ function MainLayoutHeader({
           )}
           {!hideButton && user && (
             <>
-              {sidebarRendered && !!token && (
+              {sidebarRendered && !!referralToken && (
                 <SearchReferralButton className="mr-3" />
               )}
               <LinkWithTooltip
