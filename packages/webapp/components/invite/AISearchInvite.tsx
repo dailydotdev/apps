@@ -14,7 +14,10 @@ import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
-import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import {
+  ApiErrorResult,
+  DEFAULT_ERROR,
+} from '@dailydotdev/shared/src/graphql/common';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
@@ -46,10 +49,7 @@ export function AISearchInvite({
     },
     onError: (err: ApiErrorResult) => {
       const message = err?.response?.errors?.[0]?.message;
-
-      if (message) {
-        displayToast(message);
-      }
+      displayToast(message ?? DEFAULT_ERROR);
     },
   });
 
