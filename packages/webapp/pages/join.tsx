@@ -20,7 +20,11 @@ const componentsMap: ReferralRecord<FunctionComponent<JoinPageProps>> = {
   search: AISearchInvite,
 };
 
-const Page = ({ referringUser, campaign }: JoinPageProps): ReactElement => {
+const Page = ({
+  referringUser,
+  campaign,
+  token,
+}: JoinPageProps): ReactElement => {
   const Component = componentsMap[campaign];
   const { title, description, images, redirectTo } = useReferralConfig({
     campaign,
@@ -61,6 +65,7 @@ const Page = ({ referringUser, campaign }: JoinPageProps): ReactElement => {
     <>
       {seoComponent}
       <Component
+        token={token}
         campaign={campaign}
         redirectTo={redirectTo}
         referringUser={referringUser}
@@ -70,7 +75,7 @@ const Page = ({ referringUser, campaign }: JoinPageProps): ReactElement => {
 };
 
 interface QueryParams {
-  token?: string;
+  ctoken?: string;
   userid: string;
   cid: ReferralCampaignKey;
 }
@@ -81,7 +86,7 @@ export const getServerSideProps: GetServerSideProps<JoinPageProps> = async ({
 }) => {
   const validateUserId = (value: string) => !!value && value !== '404';
   const params = query as unknown as QueryParams;
-  const { userid: userId, cid: campaign, token = null } = params;
+  const { userid: userId, cid: campaign, ctoken: token = null } = params;
 
   if (!validateUserId(userId as string) || !campaign) {
     return {

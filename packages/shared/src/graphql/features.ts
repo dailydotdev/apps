@@ -1,9 +1,18 @@
 import request, { gql } from 'graphql-request';
 import { graphqlUrl } from '../lib/config';
+import { ReferralCampaignKey } from '../hooks';
 
 export const ACCEPT_FEATURE_MUTATION = gql`
-  mutation AcceptFeatureInvite($token: String!, $referrerId: String!) {
-    acceptFeatureInvite(token: $token, referrerId: $referrerId) {
+  mutation AcceptFeatureInvite(
+    $token: String!
+    $referrerId: ID!
+    $feature: String!
+  ) {
+    acceptFeatureInvite(
+      token: $token
+      referrerId: $referrerId
+      feature: $feature
+    ) {
       _
     }
   }
@@ -23,6 +32,7 @@ export interface CampaignConfig {
 interface AcceptFeatureInvitation {
   token: string;
   referrerId: string;
+  feature: ReferralCampaignKey;
 }
 
 export const acceptFeatureInvitation = (

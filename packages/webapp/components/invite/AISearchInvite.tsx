@@ -18,6 +18,7 @@ import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
 import { JoinPageProps } from './common';
 
 export function AISearchInvite({
@@ -31,36 +32,47 @@ export function AISearchInvite({
   const { trackEvent } = useAnalyticsContext();
   const { displayToast } = useToastNotification();
   const { user, refetchBoot, showLogin } = useAuthContext();
-  const { mutateAsync: onAcceptMutation } = useMutation(
-    acceptFeatureInvitation,
-    {
-      onSuccess: async () => {
-        await Promise.all([
-          completeAction(ActionType.AcceptedSearch),
-          refetchBoot(),
-        ]);
-        router.push(redirectTo);
-      },
-      onError: (err: ApiErrorResult) => {
-        const message = err?.response?.errors?.[0]?.message;
-
-        if (message) {
-          displayToast(message);
-        }
-      },
+  const {
+    mutateAsync: onAcceptMutation,
+    isLoading,
+    isSuccess,
+  } = useMutation(acceptFeatureInvitation, {
+    onSuccess: async () => {
+      await Promise.all([
+        completeAction(ActionType.AcceptedSearch),
+        refetchBoot(),
+      ]);
+      router.push(redirectTo);
     },
-  );
+    onError: (err: ApiErrorResult) => {
+      const message = err?.response?.errors?.[0]?.message;
+
+      if (message) {
+        displayToast(message);
+      }
+    },
+  });
 
   const handleAcceptClick = () => {
+    const handleAccept = () =>
+      onAcceptMutation({
+        token,
+        referrerId: referringUser.id,
+        feature: ReferralCampaignKey.Search,
+      });
+
     if (!user) {
-      return showLogin(AuthTriggers.Author);
+      return showLogin(AuthTriggers.Author, {
+        onLoginSuccess: handleAccept,
+        onRegistrationSuccess: handleAccept,
+      });
     }
 
     // since in the page view, query params are tracked automatically,
     // we don't need to send the params here explicitly
     trackEvent({ event_name: AnalyticsEvent.AcceptInvitation });
 
-    return onAcceptMutation({ token, referrerId: referringUser.id });
+    return handleAccept();
   };
 
   useEffect(() => {
@@ -98,6 +110,9 @@ export function AISearchInvite({
           icon={<KeyIcon secondary />}
           className="mt-12 btn-primary"
           onClick={handleAcceptClick}
+          type="button"
+          loading={isLoading}
+          disabled={isLoading || isSuccess}
         >
           Accept invitation ➔
         </Button>
