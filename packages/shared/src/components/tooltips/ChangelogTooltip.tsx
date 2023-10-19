@@ -16,6 +16,7 @@ import InteractionCounter from '../InteractionCounter';
 import { checkIsExtension } from '../../lib/func';
 import { UserPostVote } from '../../graphql/posts';
 import InteractivePopup, { InteractivePopupPosition } from './InteractivePopup';
+import { Origin } from '../../lib/analytics';
 
 interface ChangelogTooltipProps extends BaseTooltipProps {
   onRequestClose?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
@@ -35,7 +36,11 @@ function ChangelogTooltip({
 }: ChangelogTooltipProps): ReactElement {
   const isExtension = checkIsExtension();
   const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
-  const { latestPost: post, dismiss: dismissChangelog } = useChangelog();
+  const {
+    latestPost: post,
+    dismiss: dismissChangelog,
+    toggleUpvote,
+  } = useChangelog();
   const toast = useToastNotification();
 
   const { mutateAsync: updateExtension, isLoading: isExtensionUpdating } =
@@ -83,6 +88,10 @@ function ChangelogTooltip({
 
   const onExtensionUpdateClick = async () => {
     await updateExtension();
+  };
+
+  const onToggleUpvote = async () => {
+    await toggleUpvote({ post, origin: Origin.ChangelogPopup });
   };
 
   return (
@@ -146,8 +155,7 @@ function ChangelogTooltip({
                 />
               }
               pressed={post?.userState?.vote === UserPostVote.Up}
-              // onClick={() => onUpvoteClick?.(post)}
-              onClick={() => {}}
+              onClick={onToggleUpvote}
               buttonSize={ButtonSize.Small}
               className="btn-tertiary-avocado bg-theme-bg-tertiary"
               data-testid="changelogUpvotesCounter"
@@ -160,9 +168,11 @@ function ChangelogTooltip({
               id={`post-${post.id}-comment-btn`}
               icon={<CommentIcon secondary={post.commented} />}
               pressed={post.commented}
+              tag="a"
+              href={post.commentsPermalink}
               onClick={dismissChangelog}
               buttonSize={ButtonSize.Small}
-              className="btn-tertiary-avocado bg-theme-bg-tertiary"
+              className="btn-tertiary-blueCheese bg-theme-bg-tertiary"
               data-testid="changelogCommentsCounter"
             >
               <InteractionCounter
