@@ -53,7 +53,7 @@ type EditSquadOutput = {
 
 type PostToSquadProps = {
   id: string;
-  sourceId: string;
+  sourceId?: string;
   commentary: string;
 };
 
@@ -188,8 +188,8 @@ export const ADD_POST_TO_SQUAD_MUTATION = gql`
 `;
 
 export const UPDATE_SQUAD_POST_MUTATION = gql`
-  mutation UpdateSquadPost($id: ID!, $sourceId: ID!, $commentary: String) {
-    editSharePost(id: $id, sourceId: $sourceId, commentary: $commentary) {
+  mutation UpdateSquadPost($id: ID!, $commentary: String) {
+    editSharePost(id: $id, commentary: $commentary) {
       id
     }
   }

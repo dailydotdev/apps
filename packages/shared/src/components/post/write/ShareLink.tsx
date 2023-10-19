@@ -43,7 +43,7 @@ export function ShareLink({
     }
 
     return post?.id
-      ? onUpdatePost(e, post.id, squad.id, commentary)
+      ? onUpdatePost(e, post.id, commentary)
       : onSubmitPost(e, squad.id, commentary);
   };
 
