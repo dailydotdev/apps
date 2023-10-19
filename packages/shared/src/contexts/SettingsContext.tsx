@@ -109,6 +109,7 @@ const defaultSettings: RemoteSettings = {
   optOutCompanion: false,
   autoDismissNotifications: true,
   theme: remoteThemes[ThemeMode.Dark],
+  campaignCtaPlacement: CampaignCtaPlacement.Header,
 };
 
 export const SettingsContextProvider = ({
