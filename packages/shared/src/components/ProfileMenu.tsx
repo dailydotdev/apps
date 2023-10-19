@@ -13,6 +13,8 @@ import { LazyModal } from './modals/common/types';
 import { useSettingsContext } from '../contexts/SettingsContext';
 import { CampaignCtaPlacement } from '../graphql/settings';
 import { ReferralCampaignKey, useReferralCampaign } from '../hooks';
+import { useAnalyticsContext } from '../contexts/AnalyticsContext';
+import { AnalyticsEvent } from '../lib/analytics';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -23,6 +25,7 @@ const PortalMenu = dynamic(
 
 export default function ProfileMenu(): ReactElement {
   const { openModal } = useLazyModal();
+  const { trackEvent } = useAnalyticsContext();
   const { campaignCtaPlacement } = useSettingsContext();
   const { user, logout } = useContext(AuthContext);
   const { referralToken } = useReferralCampaign({
@@ -34,6 +37,11 @@ export default function ProfileMenu(): ReactElement {
   if (!user) {
     return <></>;
   }
+
+  const handleReferralClick = () => {
+    trackEvent({ event_name: AnalyticsEvent.Click });
+    openModal({ type: LazyModal.SearchReferral });
+  };
 
   return (
     <PortalMenu
@@ -75,9 +83,7 @@ export default function ProfileMenu(): ReactElement {
           <button
             type="button"
             className="flex items-center min-w-[12.5rem]"
-            onClick={() => {
-              openModal({ type: LazyModal.SearchReferral });
-            }}
+            onClick={handleReferralClick}
           >
             <KeyReferralIcon size={IconSize.Small} className="mr-2" />
             Referral campagin

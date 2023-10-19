@@ -5,13 +5,20 @@ import { IconSize } from '../Icon';
 import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import { AnalyticsEvent } from '../../lib/analytics';
+import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 
 export function SearchReferralBanner(): ReactElement {
+  const { trackEvent } = useAnalyticsContext();
   const { availableCount, noKeysAvailable, referralToken } =
     useReferralCampaign({
       campaignKey: ReferralCampaignKey.Search,
     });
   const { openModal } = useLazyModal();
+  const handleBannerClick = () => {
+    trackEvent({ event_name: AnalyticsEvent.Click });
+    openModal({ type: LazyModal.SearchReferral });
+  };
 
   if (!referralToken) {
     return null;
@@ -30,10 +37,7 @@ export function SearchReferralBanner(): ReactElement {
           ? `We noticed you have used all your invites wisely. Here's a way to get access to some more invites!`
           : `Be that cool friend who got access to yet another AI feature! You have ${availableCount} invites, use them wisely.`}
       </p>
-      <Button
-        className="btn-primary"
-        onClick={() => openModal({ type: LazyModal.SearchReferral })}
-      >
+      <Button className="btn-primary" onClick={handleBannerClick}>
         Give early access
       </Button>
     </div>
