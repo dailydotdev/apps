@@ -32,7 +32,7 @@ function SearchReferralModal({
   const handleCopy = () => {
     trackEvent({
       event_name: AnalyticsEvent.CopyKeyLink,
-      extra: JSON.stringify({ key_link_token: referralToken }),
+      extra: JSON.stringify({ token: referralToken }),
     });
     copyLink();
   };
