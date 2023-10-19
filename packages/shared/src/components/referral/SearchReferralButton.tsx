@@ -8,7 +8,7 @@ import { CampaignCtaPlacement } from '../../graphql/settings';
 import { KeyReferralIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../../lib/analytics';
+import { AnalyticsEvent, TargetId, TargetType } from '../../lib/analytics';
 
 interface SearchReferralButtonProps {
   className?: string;
@@ -26,7 +26,11 @@ export function SearchReferralButton({
   const shouldBeDisplayed =
     campaignCtaPlacement === CampaignCtaPlacement.Header && isReady;
   const handleClick = () => {
-    trackEvent({ event_name: AnalyticsEvent.Click });
+    trackEvent({
+      event_name: AnalyticsEvent.Click,
+      target_type: TargetType.SearchInviteButton,
+      target_id: TargetId.SearchReferralBadge,
+    });
     openModal({ type: LazyModal.SearchReferral });
   };
 

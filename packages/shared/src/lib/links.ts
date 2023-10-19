@@ -20,16 +20,6 @@ export const stripLinkParameters = (link: string): string => {
   return origin + pathname;
 };
 
-export const urlParamsToObject = (link: string): EmptyObjectLiteral => {
-  try {
-    const url = new URL(link);
-
-    return Object.fromEntries(url.searchParams);
-  } catch (err) {
-    return {};
-  }
-};
-
 export const link = {
   post: {
     create: `${webappUrl}squads/create`,

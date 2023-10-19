@@ -5,7 +5,7 @@ import { IconSize } from '../Icon';
 import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { AnalyticsEvent } from '../../lib/analytics';
+import { AnalyticsEvent, TargetId, TargetType } from '../../lib/analytics';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 
 export function SearchReferralBanner(): ReactElement {
@@ -16,7 +16,11 @@ export function SearchReferralBanner(): ReactElement {
     });
   const { openModal } = useLazyModal();
   const handleBannerClick = () => {
-    trackEvent({ event_name: AnalyticsEvent.Click });
+    trackEvent({
+      event_name: AnalyticsEvent.Click,
+      target_type: TargetType.SearchInviteButton,
+      target_id: TargetId.InviteBanner,
+    });
     openModal({ type: LazyModal.SearchReferral });
   };
 

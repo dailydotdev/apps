@@ -18,7 +18,6 @@ import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
-import { urlParamsToObject } from '@dailydotdev/shared/src/lib/links';
 import { JoinPageProps } from './common';
 
 export function AISearchInvite({
@@ -55,10 +54,9 @@ export function AISearchInvite({
       return showLogin(AuthTriggers.Author);
     }
 
-    trackEvent({
-      event_name: AnalyticsEvent.AcceptInvitation,
-      query_params: JSON.stringify(urlParamsToObject(window.location.href)),
-    });
+    // since in the page view, query params are tracked automatically,
+    // we don't need to send the params here explicitly
+    trackEvent({ event_name: AnalyticsEvent.AcceptInvitation });
 
     return onAcceptMutation({ token, referrerId: referringUser.id });
   };

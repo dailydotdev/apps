@@ -14,7 +14,7 @@ import { useSettingsContext } from '../contexts/SettingsContext';
 import { CampaignCtaPlacement } from '../graphql/settings';
 import { ReferralCampaignKey, useReferralCampaign } from '../hooks';
 import { useAnalyticsContext } from '../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../lib/analytics';
+import { AnalyticsEvent, TargetId, TargetType } from '../lib/analytics';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -39,7 +39,11 @@ export default function ProfileMenu(): ReactElement {
   }
 
   const handleReferralClick = () => {
-    trackEvent({ event_name: AnalyticsEvent.Click });
+    trackEvent({
+      event_name: AnalyticsEvent.Click,
+      target_type: TargetType.SearchInviteButton,
+      target_id: TargetId.InviteProfileMenu,
+    });
     openModal({ type: LazyModal.SearchReferral });
   };
 

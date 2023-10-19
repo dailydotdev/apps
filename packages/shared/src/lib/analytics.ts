@@ -130,6 +130,11 @@ export enum TargetType {
   SearchRecommendation = 'search rec',
   SearchHistory = 'search history',
   SearchSource = 'search source',
+  SearchInviteButton = 'search invite button',
+  HideInviteCheckbox = 'hide invite checkbox',
+}
+
+export enum TargetId {
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
   InviteProfileMenu = 'invite in profile menu',

@@ -14,7 +14,7 @@ import { ReferralCampaignKey, useReferralCampaign } from '../../../hooks';
 import { link } from '../../../lib/links';
 import { useCopyLink } from '../../../hooks/useCopy';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../../../lib/analytics';
+import { AnalyticsEvent, TargetType } from '../../../lib/analytics';
 
 function SearchReferralModal({
   onRequestClose,
@@ -40,16 +40,14 @@ function SearchReferralModal({
   const handleToggle = () => {
     trackEvent({
       event_name: AnalyticsEvent.HideFromHeader,
+      target_type: TargetType.HideInviteCheckbox,
       target_id: !campaignCtaPlacement,
     });
     onToggleHeaderPlacement();
   };
 
   const handleRequestClose: typeof onRequestClose = (event) => {
-    trackEvent({
-      event_name: AnalyticsEvent.CloseInvitationPopup,
-      target_id: !campaignCtaPlacement,
-    });
+    trackEvent({ event_name: AnalyticsEvent.CloseInvitationPopup });
     onRequestClose(event);
   };
 
