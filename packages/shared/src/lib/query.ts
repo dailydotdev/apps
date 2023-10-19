@@ -44,6 +44,7 @@ export enum RequestKey {
   Auth = 'auth',
   CurrentSession = 'current_session',
   PersonalizedDigest = 'personalizedDigest',
+  Tags = 'tags',
 }
 
 export type HasConnection<

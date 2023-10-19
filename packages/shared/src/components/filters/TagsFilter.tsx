@@ -6,12 +6,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import { useQuery } from 'react-query';
-import request from 'graphql-request';
 import { SearchField } from '../fields/SearchField';
-import { graphqlUrl } from '../../lib/config';
-import { getSearchTagsQueryKey } from '../../hooks/useMutateFilters';
-import { SearchTagsData, SEARCH_TAGS_QUERY } from '../../graphql/feedSettings';
 import TagCategoryDropdown, { TagCategoryLayout } from './TagCategoryDropdown';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import TagItemList from './TagItemList';
@@ -25,9 +20,9 @@ import MenuIcon from '../icons/Menu';
 import AuthContext from '../../contexts/AuthContext';
 import classed from '../../lib/classed';
 import { HTMLElementComponent } from '../utilities';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { Origin } from '../../lib/analytics';
 import useDebounce from '../../hooks/useDebounce';
+import { useTagSearch } from '../../hooks';
 
 const TagsContainer = classed('div', 'grid grid-cols-1 gap-4');
 
@@ -46,9 +41,7 @@ export default function TagsFilter({
 }: TagsFilterProps): ReactElement {
   const searchRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>(null);
-  const searchKey = getSearchTagsQueryKey(query);
   const { user } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
   const [onSearch] = useDebounce(setQuery, 200);
   const { tagsCategories, feedSettings, isLoading } = useFeedSettings();
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
@@ -60,31 +53,8 @@ export default function TagsFilter({
   const isTagBlocked = feedSettings?.blockedTags?.some(
     (tag) => tag === contextSelectedTag,
   );
-  const { data: searchResults } = useQuery<SearchTagsData>(
-    searchKey,
-    async () => {
-      const data = await request<SearchTagsData>(
-        graphqlUrl,
-        SEARCH_TAGS_QUERY,
-        { query },
-      );
 
-      if (!query) {
-        return data;
-      }
-
-      trackEvent({
-        event_name: AnalyticsEvent.SearchTags,
-        extra: JSON.stringify({
-          tag_search_term: query,
-          tag_return_value: data.searchTags.tags.length,
-        }),
-      });
-
-      return data;
-    },
-    { enabled: query?.length > 0 },
-  );
+  const { data: searchResults } = useTagSearch({ value: query });
 
   const { followedTags, blockedTags } = useMemo(() => {
     return {
