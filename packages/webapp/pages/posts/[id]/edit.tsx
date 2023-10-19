@@ -16,6 +16,7 @@ import { NextSeo, NextSeoProps } from 'next-seo';
 import { WritePostContext } from '@dailydotdev/shared/src/contexts';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
+import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
@@ -104,7 +105,20 @@ function EditPost(): ReactElement {
         isForbidden={!isVerified || !squad || !canEdit}
       >
         <WritePostHeader isEdit />
-        <WriteFreeformContent className="py-6 px-4" />
+
+        {post?.type === PostType.Share ? (
+          <ShareLink
+            post={post}
+            squad={squad}
+            className="py-6 px-4"
+            onPostSuccess={() => {
+              onAskConfirmation(false);
+              push(squad.permalink);
+            }}
+          />
+        ) : (
+          <WriteFreeformContent className="py-6 px-4" />
+        )}
       </WritePage>
     </WritePostContext.Provider>
   );
