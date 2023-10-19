@@ -19,7 +19,6 @@ import { ActionType } from '../../graphql/actions';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
 import { useRequestProtocol } from '../useRequestProtocol';
-import { Squad } from '../../graphql/sources';
 
 interface UsePostToSquad {
   preview: ExternalLinkPreview;
@@ -39,7 +38,6 @@ interface UsePostToSquad {
   onUpdatePost: (
     e: BaseSyntheticEvent,
     postId: Post['id'],
-    sourceId: Squad['id'],
     commentary: string,
   ) => Promise<unknown>;
 }
@@ -176,7 +174,7 @@ export const usePostToSquad = ({
   );
 
   const onUpdatePost = useCallback<UsePostToSquad['onUpdatePost']>(
-    (e, postId, sourceId, commentary) => {
+    (e, postId, commentary) => {
       e.preventDefault();
 
       if (isUpdating) {
@@ -185,7 +183,6 @@ export const usePostToSquad = ({
 
       return updatePost({
         id: postId,
-        sourceId,
         commentary,
       });
     },
