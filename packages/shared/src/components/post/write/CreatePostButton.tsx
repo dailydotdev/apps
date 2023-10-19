@@ -20,18 +20,33 @@ export function CreatePostButton({
   const { user, isAuthReady, squads } = useAuthContext();
   const { route, query } = useRouter();
   const isTablet = !useMedia([laptop.replace('@media ', '')], [true], false);
-
   const handle = route === '/squads/[handle]' ? (query.handle as string) : '';
   const { squad } = useSquad({ handle });
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
+  const hasAccess = squads?.some((item) =>
+    verifyPermission(item, SourcePermissions.Post),
+  );
 
   if (!user || !isAuthReady || !squads?.length) {
     return null;
   }
 
+  const getIsDisabled = () => {
+    if (!hasAccess) {
+      return true;
+    }
+
+    if (!handle) {
+      return false;
+    }
+
+    return !allowedToPost;
+  };
+
   return (
     <Button
       className={classNames('btn-secondary', className)}
+      disabled={getIsDisabled()}
       tag="a"
       href={
         link.post.create +
