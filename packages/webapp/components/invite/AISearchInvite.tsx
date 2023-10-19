@@ -30,13 +30,15 @@ export function AISearchInvite({
   const { completeAction } = useActions();
   const { trackEvent } = useAnalyticsContext();
   const { displayToast } = useToastNotification();
-  const { user, showLogin } = useAuthContext();
+  const { user, refetchBoot, showLogin } = useAuthContext();
   const { mutateAsync: onAcceptMutation } = useMutation(
     acceptFeatureInvitation,
     {
-      onSuccess: () => {
-        completeAction(ActionType.AcceptedSearch);
-        // TODO: check whether the feature will be set and forcibly apply it if not
+      onSuccess: async () => {
+        await Promise.all([
+          completeAction(ActionType.AcceptedSearch),
+          refetchBoot(),
+        ]);
         router.push(redirectTo);
       },
       onError: (err: ApiErrorResult) => {
