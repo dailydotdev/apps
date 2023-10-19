@@ -44,7 +44,7 @@ export function KeysRow({ count }: KeysRowProps): ReactElement {
 
   if (count > 5) {
     return (
-      <Container className="!justify-center">
+      <Container className="!bg-contain !justify-center">
         <KeyReferralIcon size={IconSize.XXLarge} />
         <span className="font-bold typo-title2">x{count}</span>
       </Container>

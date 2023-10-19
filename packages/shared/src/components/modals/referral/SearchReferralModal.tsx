@@ -77,7 +77,7 @@ function SearchReferralModal({
               : `Be that cool friend who got access to yet another AI feature! You
             have ${availableCount} invite keys left, use them wisely.`}
           </p>
-          <KeysRow count={10} />
+          <KeysRow count={availableCount} />
           <Button
             tag={noKeysAvailable ? 'a' : 'button'}
             href={noKeysAvailable ? link.search.requestKeys : undefined}
