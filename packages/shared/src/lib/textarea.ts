@@ -32,10 +32,10 @@ const concatReplacement = (
 };
 
 /* eslint-disable no-param-reassign */
-const focusInput = async (
+export const focusInput = async (
   textarea: HTMLTextAreaElement,
   [start, end]: number[],
-) => {
+): Promise<void> => {
   textarea.focus();
   await nextTick(); // for the selection to work, we need to wait for the input to get updated
   textarea.selectionStart = start;
