@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { useMutation } from 'react-query';
-import { BaseTooltipProps } from './BaseTooltip';
 import { Button, ButtonSize } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
 import { cloudinary } from '../../lib/image';
@@ -18,7 +17,7 @@ import { UserPostVote } from '../../graphql/posts';
 import InteractivePopup, { InteractivePopupPosition } from './InteractivePopup';
 import { Origin } from '../../lib/analytics';
 
-interface ChangelogTooltipProps extends BaseTooltipProps {
+interface ChangelogTooltipProps {
   onRequestClose?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
 }
 
@@ -99,7 +98,7 @@ function ChangelogTooltip({
       <InteractivePopup
         {...props}
         position={InteractivePopupPosition.Unset}
-        className="bottom-0 left-60 mb-6 ml-6 border shadow-2 focus:outline-none w-[24rem] max-w-[360px] max-h-[466px] changelog bg-theme-bg-tertiary border-theme-color-cabbage"
+        className="bottom-0 left-60 mb-6 ml-6 border shadow-2 focus:outline-none w-[24rem] max-w-[360px] max-h-[466px] bg-theme-bg-tertiary border-theme-color-cabbage"
         data-testid="changelog"
       >
         <header className="flex flex-1 items-center py-3 px-4 border-b border-theme-divider-tertiary">
@@ -146,9 +145,8 @@ function ChangelogTooltip({
               {post.summary}
             </div>
           )}
-          <div className="flex mt-4 font-bold w text-theme-color-salt typo-footnote">
+          <div className="flex mt-4">
             <Button
-              id={`post-${post.id}-upvote-btn`}
               icon={
                 <UpvoteIcon
                   secondary={post?.userState?.vote === UserPostVote.Up}
@@ -165,7 +163,6 @@ function ChangelogTooltip({
               />
             </Button>
             <Button
-              id={`post-${post.id}-comment-btn`}
               icon={<CommentIcon secondary={post.commented} />}
               pressed={post.commented}
               tag="a"
@@ -195,7 +192,7 @@ function ChangelogTooltip({
             <Button
               tag={isFirefoxExtension ? 'a' : undefined}
               href={isFirefoxExtension ? updateFirefoxExtensionLink : undefined}
-              className="bg-cabbage-40 btn-primary"
+              className="btn-primary-cabbage"
               data-testid="changelogExtensionBtn"
               loading={isExtensionUpdating}
               onClick={onExtensionUpdateClick}
