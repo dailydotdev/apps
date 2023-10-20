@@ -16,6 +16,7 @@ import { checkIsExtension } from '../../lib/func';
 import { UserPostVote } from '../../graphql/posts';
 import InteractivePopup, { InteractivePopupPosition } from './InteractivePopup';
 import { Origin } from '../../lib/analytics';
+import { QuaternaryButton } from '../buttons/QuaternaryButton';
 
 interface ChangelogTooltipProps {
   onRequestClose?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
@@ -146,7 +147,8 @@ function ChangelogTooltip({
             </div>
           )}
           <div className="flex mt-4">
-            <Button
+            <QuaternaryButton
+              id={`post-${post.id}-upvote-btn`}
               icon={
                 <UpvoteIcon
                   secondary={post?.userState?.vote === UserPostVote.Up}
@@ -155,14 +157,16 @@ function ChangelogTooltip({
               pressed={post?.userState?.vote === UserPostVote.Up}
               onClick={onToggleUpvote}
               buttonSize={ButtonSize.Small}
-              className="btn-tertiary-avocado bg-theme-bg-tertiary"
-              data-testid="changelogUpvotesCounter"
+              className="btn-tertiary-avocado"
+              data-testid="changelogUpvotesButton"
             >
               <InteractionCounter
                 value={post.numUpvotes > 0 && post.numUpvotes}
+                data-testid="changelogUpvotesCounter"
               />
-            </Button>
-            <Button
+            </QuaternaryButton>
+            <QuaternaryButton
+              id={`post-${post.id}-comment-btn`}
               icon={<CommentIcon secondary={post.commented} />}
               pressed={post.commented}
               tag="a"
@@ -170,12 +174,13 @@ function ChangelogTooltip({
               onClick={dismissChangelog}
               buttonSize={ButtonSize.Small}
               className="btn-tertiary-blueCheese bg-theme-bg-tertiary"
-              data-testid="changelogCommentsCounter"
+              data-testid="changelogCommentsButton"
             >
               <InteractionCounter
                 value={post.numComments > 0 && post.numComments}
+                data-testid="changelogCommentsCounter"
               />
-            </Button>
+            </QuaternaryButton>
           </div>
         </section>
         <footer className="flex gap-3 justify-between items-center py-3 px-4 w-full h-16 border-t border-theme-divider-tertiary">

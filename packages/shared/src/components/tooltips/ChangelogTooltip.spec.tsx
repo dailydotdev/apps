@@ -336,4 +336,32 @@ describe('ChangelogTooltip component', () => {
 
     delete process.env.TARGET_BROWSER;
   });
+
+  it('update lastChangelog on comments click', async () => {
+    const client = new QueryClient();
+    client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
+
+    mockGraphQL({
+      request: {
+        query: UPDATE_ALERTS,
+        variables: { data: { lastChangelog: /.*/ } },
+      },
+      result: () => ({
+        data: { data: { lastChangelog: new Date().toISOString() } },
+      }),
+    });
+
+    renderComponent({ client });
+    await screen.findByTestId('changelog');
+
+    await act(async () => {
+      const changelogCommentsButton = await screen.findByTestId(
+        'changelogCommentsButton',
+      );
+      fireEvent.click(changelogCommentsButton);
+      await waitForNock();
+    });
+
+    expect(updateAlerts).toHaveBeenCalled();
+  });
 });

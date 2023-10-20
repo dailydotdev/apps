@@ -45,7 +45,6 @@ export enum RequestKey {
   CurrentSession = 'current_session',
   PersonalizedDigest = 'personalizedDigest',
   Changelog = 'changelog',
-  LatestPost = 'latest-post',
 }
 
 export type HasConnection<

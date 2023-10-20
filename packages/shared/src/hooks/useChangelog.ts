@@ -22,7 +22,7 @@ export function useChangelog(): UseChangelog {
   const changelogQueryKey = generateQueryKey(
     RequestKey.Changelog,
     user,
-    RequestKey.LatestPost,
+    'latest-post',
   );
 
   const { data: latestPost } = useQuery(
