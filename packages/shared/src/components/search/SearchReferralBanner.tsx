@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { Button } from '../buttons/Button';
 import { KeyReferralIcon } from '../icons';
 import { IconSize } from '../Icon';
@@ -7,8 +8,11 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { AnalyticsEvent, TargetId, TargetType } from '../../lib/analytics';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { WithClassNameProps } from '../utilities';
 
-export function SearchReferralBanner(): ReactElement {
+export function SearchReferralBanner({
+  className,
+}: WithClassNameProps): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const { availableCount, noKeysAvailable, referralToken } =
     useReferralCampaign({
@@ -29,7 +33,12 @@ export function SearchReferralBanner(): ReactElement {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4 w-full rounded-14 bg-theme-overlay-from max-w-[19.25rem]">
+    <div
+      className={classNames(
+        'flex flex-col gap-4 p-4 w-full rounded-14 bg-theme-overlay-from max-w-[19.25rem]',
+        className,
+      )}
+    >
       <KeyReferralIcon size={IconSize.XLarge} className="mr-2" />
       <h2 className="font-bold typo-title2">
         {noKeysAvailable

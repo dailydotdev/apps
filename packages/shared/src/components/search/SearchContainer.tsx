@@ -41,7 +41,6 @@ export function SearchContainer({
           className="flex flex-col order-last laptop:order-2 gap-6 items-center"
         >
           <SearchFeedback />
-          {!chunk && <SearchReferralBanner />}
         </PageWidgets>
         {children}
       </div>

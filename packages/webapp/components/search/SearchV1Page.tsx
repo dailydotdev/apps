@@ -10,6 +10,7 @@ import { useRouter } from 'next/router';
 import { searchPageUrl } from '@dailydotdev/shared/src/graphql/search';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { labels } from '@dailydotdev/shared/src/lib';
+import { SearchReferralBanner } from '@dailydotdev/shared/src/components/search/SearchReferralBanner';
 import { getLayout as getMainLayout } from '../layouts/MainLayout';
 import { getTemplatedTitle } from '../layouts/utils';
 
@@ -88,6 +89,7 @@ const SearchPage = (): ReactElement => {
           )}
         </>
       )}
+      <SearchReferralBanner className="tablet:col-start-3 row-start-3 tablet:row-start-2 m-auto tablet:ml-5" />
     </SearchContainer>
   );
 };
