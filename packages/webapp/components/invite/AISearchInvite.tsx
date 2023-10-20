@@ -81,7 +81,9 @@ export function AISearchInvite({
     }
 
     router.push(redirectTo);
-  }, [redirectTo, router, search]);
+    // router is an unstable dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [redirectTo, search]);
 
   return (
     <div className="flex relative flex-col flex-1 justify-center p-6 h-full min-h-[100vh]">
