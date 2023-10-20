@@ -111,3 +111,10 @@ interface ApiResponse {
 export interface ApiErrorResult {
   response: ApiResponse;
 }
+
+export const errorMessage = {
+  profile: {
+    invalidUsername: 'Invalid characters found in username!',
+    invalidHandle: 'Invalid character(s) found in social handle',
+  },
+};
