@@ -106,7 +106,7 @@ export enum AnalyticsEvent {
   CloseInvitationPopup = 'close invitation popup',
   ErrorSearch = 'error search',
   AcceptInvitation = 'accept invitation',
-  SearchHighlightAnimation = 'search highlight animation',
+  SearchHighlightAnimation = 'highlight search',
   // search end
   OpenCompanionPermissionModal = 'open companion permission popup',
   CloseCompanionPermissionModal = 'close companion permission popup',
@@ -131,7 +131,7 @@ export enum TargetType {
   SearchHistory = 'search history',
   SearchSource = 'search source',
   SearchInviteButton = 'search invite button',
-  HideInviteCheckbox = 'hide invite checkbox',
+  HideInviteCheckbox = 'hide invite mechanism',
 }
 
 export enum TargetId {
