@@ -6,6 +6,7 @@ import React, {
   ReactElement,
   ReactNode,
   TextareaHTMLAttributes,
+  useEffect,
   useImperativeHandle,
   useRef,
   useState,
@@ -35,6 +36,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { Loader } from '../../Loader';
 import { Divider } from '../../utilities';
 import { usePopupSelector } from '../../../hooks/usePopupSelector';
+import { focusInput } from '../../../lib/textarea';
 
 interface ClassName {
   container?: string;
@@ -149,6 +151,16 @@ function MarkdownInput(
       checkMention();
     }
   };
+
+  useEffect(() => {
+    const content = textareaRef?.current?.value;
+
+    if (!content) {
+      return;
+    }
+
+    focusInput(textareaRef.current, [content.length, content.length]);
+  }, []);
 
   return (
     <div
