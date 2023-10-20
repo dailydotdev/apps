@@ -82,6 +82,7 @@ export const SearchSourceList = ({
         </div>
         <PaginationActions {...pagination} />
       </div>
+      <SearchReferralBanner />
     </PageWidgets>
   );
 };
