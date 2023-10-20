@@ -12,6 +12,7 @@ import {
 import { graphqlUrl } from '../lib/config';
 import { LoggedUser, UserProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
+import { errorMessage } from '../graphql/common';
 
 export interface ProfileFormHint {
   portfolio?: string;
@@ -64,7 +65,7 @@ export const onValidateHandles = (
     const isValid = handleRegex.test(after.username);
 
     if (!isValid) {
-      return { username: 'Invalid characters found in username!' };
+      return { username: errorMessage.profile.invalidUsername };
     }
   }
 
@@ -81,7 +82,7 @@ export const onValidateHandles = (
 
     return {
       ...obj,
-      [social]: 'Invalid character(s) found in social handle',
+      [social]: errorMessage.profile.invalidHandle,
     };
   }, {});
 };
