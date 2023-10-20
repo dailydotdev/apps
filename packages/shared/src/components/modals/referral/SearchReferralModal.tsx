@@ -72,7 +72,7 @@ function SearchReferralModal({
           />
         </span>
         <div className="flex flex-col laptop:p-2 w-full max-w-[26rem]">
-          <h1 className="laptop:mt-4 font-bold text-center laptop:text-left typo-title3 tablet:typo-title1 laptop:typo-mega2">
+          <h1 className="laptop:mt-4 font-bold text-center laptop:text-left typo-title3 tablet:typo-title2 laptop:typo-mega2">
             {noKeysAvailable
               ? `Need more keys?`
               : `Give your friends early access to daily.dev's search!`}
