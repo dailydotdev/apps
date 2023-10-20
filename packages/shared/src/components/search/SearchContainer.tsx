@@ -4,7 +4,6 @@ import { SearchFeedback } from './SearchFeedback';
 import { SearchBarInputProps } from './SearchBarInput';
 import { Pill } from '../utilities/loaders';
 import { PageWidgets } from '../utilities';
-import { SearchReferralBanner } from './SearchReferralBanner';
 
 interface SearchContainerProps extends Pick<SearchBarInputProps, 'chunk'> {
   children: ReactNode;

@@ -62,7 +62,7 @@ function SearchReferralModal({
       <CloseButton
         onClick={handleRequestClose}
         position="absolute"
-        className="top-3 right-3 !btn-secondary"
+        className="top-3 right-3 z-1 !btn-secondary"
       />
       <Modal.Body className="laptop:flex-row">
         <span className="laptop:hidden -mx-6 -mt-6">
