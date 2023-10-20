@@ -84,10 +84,11 @@ const SearchPage = (): ReactElement => {
             chunk={chunk}
             searchMessageProps={{ isLoading }}
           />
-          {content ? (
+          {!!content && (
             <SearchSourceList sources={chunk?.sources} isLoading={isLoading} />
-          ) : (
-            <SearchReferralBanner className="hidden laptop:flex" />
+          )}
+          {!content && !!data && (
+            <SearchReferralBanner className="hidden laptop:flex order-3 laptop:order-last col-span-2 laptop:col-span-1" />
           )}
         </>
       )}
