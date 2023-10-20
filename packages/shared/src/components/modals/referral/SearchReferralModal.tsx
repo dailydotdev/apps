@@ -42,7 +42,8 @@ function SearchReferralModal({
     trackEvent({
       event_name: AnalyticsEvent.HideFromHeader,
       target_type: TargetType.HideInviteCheckbox,
-      target_id: !campaignCtaPlacement,
+      target_id: campaignCtaPlacement === CampaignCtaPlacement.Header,
+      // we need expected value after clicking the checkbox, that means, the previous value was header.
     });
     onToggleHeaderPlacement();
   };
