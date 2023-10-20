@@ -10,6 +10,7 @@ import { SearchChunkSource } from '../../graphql/search';
 import { PaginationActions } from '../pagination';
 import { usePagination } from '../../hooks/utils';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
+import { SearchReferralBanner } from './SearchReferralBanner';
 
 interface SearchSourceListProps {
   sources: SearchChunkSource[];
@@ -81,6 +82,7 @@ export const SearchSourceList = ({
         </div>
         <PaginationActions {...pagination} />
       </div>
+      <SearchReferralBanner />
     </PageWidgets>
   );
 };
