@@ -32,7 +32,7 @@ const Page = ({
   });
 
   useEffect(() => {
-    if (!Object.hasOwn(componentsMap, campaign)) {
+    if (!componentsMap[campaign]) {
       return;
     }
 
