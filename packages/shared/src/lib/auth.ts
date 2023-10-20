@@ -47,6 +47,7 @@ export enum AuthTriggers {
   JoinSquad = 'join squad',
   CreateSquad = 'create squad',
   ReportComment = 'report comment',
+  SearchReferral = 'search referral',
 }
 
 // Needed for the AB flagged Sidebar items

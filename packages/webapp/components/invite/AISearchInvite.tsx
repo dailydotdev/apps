@@ -62,7 +62,7 @@ export function AISearchInvite({
       });
 
     if (!user) {
-      return showLogin(AuthTriggers.Author, {
+      return showLogin(AuthTriggers.SearchReferral, {
         onLoginSuccess: handleAccept,
         onRegistrationSuccess: handleAccept,
       });
@@ -88,7 +88,7 @@ export function AISearchInvite({
       <span className="absolute top-8 left-1/2 laptop:left-8 -translate-x-1/2 laptop:translate-x-0">
         <Logo showGreeting={false} position={LogoPosition.Relative} />
       </span>
-      <div className="flex flex-col laptop:ml-3 w-full max-w-[27.5rem] laptopL:ml-[9.75rem]">
+      <div className="flex flex-col laptop:ml-3 w-full tablet:max-w-[27.5rem] laptopL:ml-[9.75rem]">
         <span className="flex flex-col tablet:flex-row gap-2 items-center tablet:items-start mb-6">
           <ProfileImageLink user={referringUser} />
           <p className="text-center tablet:text-left text-theme-label-tertiary typo-callout">

@@ -30,7 +30,7 @@ export function SearchReferralBanner(): ReactElement {
 
   return (
     <div className="flex flex-col gap-4 p-4 w-full rounded-14 bg-theme-overlay-from max-w-[19.25rem]">
-      <KeyReferralIcon size={IconSize.Large} className="mr-2" />
+      <KeyReferralIcon size={IconSize.XLarge} className="mr-2" />
       <h2 className="font-bold typo-title2">
         {noKeysAvailable
           ? `Give more friends access to daily.dev's search!`

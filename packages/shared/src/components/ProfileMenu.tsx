@@ -32,7 +32,8 @@ export default function ProfileMenu(): ReactElement {
     campaignKey: ReferralCampaignKey.Search,
   });
   const showSearchReferral =
-    !!referralToken && campaignCtaPlacement === CampaignCtaPlacement.Header;
+    !!referralToken &&
+    campaignCtaPlacement === CampaignCtaPlacement.ProfileMenu;
 
   if (!user) {
     return <></>;
