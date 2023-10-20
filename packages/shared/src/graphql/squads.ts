@@ -53,7 +53,7 @@ type EditSquadOutput = {
 
 type PostToSquadProps = {
   id: string;
-  sourceId: string;
+  sourceId?: string;
   commentary: string;
 };
 
@@ -182,6 +182,14 @@ export const EDIT_SQUAD_MUTATION = gql`
 export const ADD_POST_TO_SQUAD_MUTATION = gql`
   mutation AddPostToSquad($id: ID!, $sourceId: ID!, $commentary: String) {
     sharePost(id: $id, sourceId: $sourceId, commentary: $commentary) {
+      id
+    }
+  }
+`;
+
+export const UPDATE_SQUAD_POST_MUTATION = gql`
+  mutation UpdateSquadPost($id: ID!, $commentary: String) {
+    editSharePost(id: $id, commentary: $commentary) {
       id
     }
   }
@@ -367,6 +375,11 @@ export const addPostToSquad =
   (requestMethod: typeof request) =>
   (data: PostToSquadProps): Promise<Post> =>
     requestMethod(graphqlUrl, ADD_POST_TO_SQUAD_MUTATION, data);
+
+export const updateSquadPost =
+  (requestMethod: typeof request) =>
+  (data: PostToSquadProps): Promise<Post> =>
+    requestMethod(graphqlUrl, UPDATE_SQUAD_POST_MUTATION, data);
 
 export async function createSquad(form: SquadForm): Promise<Squad> {
   const inputData: CreateSquadInput = {

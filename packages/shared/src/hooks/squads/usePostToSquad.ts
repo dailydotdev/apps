@@ -19,7 +19,7 @@ import {
   getApiError,
 } from '../../graphql/common';
 import { useToastNotification } from '../useToastNotification';
-import { addPostToSquad } from '../../graphql/squads';
+import { addPostToSquad, updateSquadPost } from '../../graphql/squads';
 import { ActionType } from '../../graphql/actions';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
@@ -38,6 +38,11 @@ interface UsePostToSquad {
   onSubmitPost: (
     e: BaseSyntheticEvent,
     sourceId: string,
+    commentary: string,
+  ) => Promise<unknown>;
+  onUpdatePost: (
+    e: BaseSyntheticEvent,
+    postId: Post['id'],
     commentary: string,
   ) => Promise<unknown>;
 }
@@ -80,8 +85,12 @@ export const usePostToSquad = ({
       },
     });
 
-  const onSharedPostSuccessfully = async () => {
-    displayToast('This post has been shared to your Squad');
+  const onSharedPostSuccessfully = async (update = false) => {
+    displayToast(
+      update
+        ? 'The post has been updated'
+        : 'This post has been shared to your squad',
+    );
     await client.invalidateQueries(['sourceFeed', user.id]);
     completeAction(ActionType.SquadFirstPost);
   };
@@ -93,6 +102,19 @@ export const usePostToSquad = ({
   } = useMutation(addPostToSquad(requestMethod), {
     onSuccess: (data) => {
       onSharedPostSuccessfully();
+      if (onPostSuccess) {
+        onPostSuccess(data, data?.permalink);
+      }
+    },
+  });
+
+  const {
+    mutateAsync: updatePost,
+    isLoading: isUpdatePostLoading,
+    isSuccess: isUpdatePostSuccess,
+  } = useMutation(updateSquadPost(requestMethod), {
+    onSuccess: (data) => {
+      onSharedPostSuccessfully(true);
       if (onPostSuccess) {
         onPostSuccess(data, data?.permalink);
       }
@@ -118,8 +140,10 @@ export const usePostToSquad = ({
   const isPosting =
     isPostLoading || isLinkLoading || isPostSuccess || isLinkSuccess;
 
-  const onSubmitPost = useCallback(
-    (e: BaseSyntheticEvent, sourceId: string, commentary: string) => {
+  const isUpdating = isUpdatePostSuccess || isUpdatePostLoading;
+
+  const onSubmitPost = useCallback<UsePostToSquad['onSubmitPost']>(
+    (e, sourceId, commentary) => {
       e.preventDefault();
 
       if (isPosting) {
@@ -152,10 +176,27 @@ export const usePostToSquad = ({
     [preview, displayToast, onSubmitLink, onPost, isPosting],
   );
 
+  const onUpdatePost = useCallback<UsePostToSquad['onUpdatePost']>(
+    (e, postId, commentary) => {
+      e.preventDefault();
+
+      if (isUpdating) {
+        return null;
+      }
+
+      return updatePost({
+        id: postId,
+        commentary,
+      });
+    },
+    [updatePost, isUpdating],
+  );
+
   return {
     isLoadingPreview,
     getLinkPreview,
     onSubmitPost,
+    onUpdatePost,
     isPosting,
     preview,
     onUpdatePreview: setPreview,
