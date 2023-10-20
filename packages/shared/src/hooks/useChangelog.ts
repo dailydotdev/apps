@@ -4,6 +4,8 @@ import AlertContext from '../contexts/AlertContext';
 import { getLatestChangelogPost, Post } from '../graphql/posts';
 import useSidebarRendered from './useSidebarRendered';
 import { ToggleVoteProps, useVotePost, voteMutationHandlers } from './vote';
+import { generateQueryKey, RequestKey } from '../lib/query';
+import { useAuthContext } from '../contexts/AuthContext';
 
 type UseChangelog = {
   isAvailable: boolean;
@@ -16,8 +18,12 @@ export function useChangelog(): UseChangelog {
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { sidebarRendered } = useSidebarRendered();
   const client = useQueryClient();
-
-  const changelogQueryKey = ['changelog', 'latest-post'];
+  const { user } = useAuthContext();
+  const changelogQueryKey = generateQueryKey(
+    RequestKey.Changelog,
+    user,
+    RequestKey.LatestPost,
+  );
 
   const { data: latestPost } = useQuery(
     changelogQueryKey,
