@@ -98,8 +98,8 @@ function ChangelogTooltip({
     !!post && (
       <InteractivePopup
         {...props}
-        position={InteractivePopupPosition.Unset}
-        className="bottom-0 left-60 mb-6 ml-6 border shadow-2 focus:outline-none w-[24rem] max-w-[360px] max-h-[466px] bg-theme-bg-tertiary border-theme-color-cabbage"
+        position={InteractivePopupPosition.MainFeedLeftEnd}
+        className="ml-6 border shadow-2 focus:outline-none w-[24rem] max-w-[360px] max-h-[466px] bg-theme-bg-tertiary border-theme-color-cabbage"
         data-testid="changelog"
       >
         <header className="flex flex-1 items-center py-3 px-4 border-b border-theme-divider-tertiary">

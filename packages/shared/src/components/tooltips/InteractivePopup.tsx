@@ -13,7 +13,7 @@ export enum InteractivePopupPosition {
   LeftCenter = 'leftCenter',
   LeftEnd = 'leftEnd',
   Screen = 'screen',
-  Unset = 'unset',
+  MainFeedLeftEnd = 'mainFeedLeftEnd',
 }
 
 interface InteractivePopupProps {
@@ -28,6 +28,8 @@ const startClass = 'top-8';
 const endClass = 'bottom-8';
 const rightClass = 'right-8';
 const leftClass = 'left-8';
+const mainFeedEndClass = 'bottom-6';
+const mainFeedLeftClass = 'left-60';
 
 const positionClass: Record<InteractivePopupPosition, string> = {
   center: classNames(centerClassX, centerClassY),
@@ -40,7 +42,7 @@ const positionClass: Record<InteractivePopupPosition, string> = {
   leftCenter: classNames(leftClass, centerClassY),
   leftEnd: classNames(leftClass, endClass),
   screen: 'inset-0 w-screen h-screen',
-  unset: '',
+  mainFeedLeftEnd: classNames(mainFeedLeftClass, mainFeedEndClass),
 };
 
 function InteractivePopup({
