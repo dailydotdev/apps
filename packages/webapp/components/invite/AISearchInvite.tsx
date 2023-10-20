@@ -86,7 +86,7 @@ export function AISearchInvite({
   }, [redirectTo, search]);
 
   return (
-    <div className="flex relative flex-col flex-1 justify-center p-6 h-full min-h-[100vh]">
+    <div className="flex overflow-hidden tablet:overflow-auto relative flex-col flex-1 justify-center p-6 h-full min-h-[100vh]">
       <span className="absolute top-8 left-1/2 laptop:left-8 -translate-x-1/2 laptop:translate-x-0">
         <Logo showGreeting={false} position={LogoPosition.Relative} />
       </span>
