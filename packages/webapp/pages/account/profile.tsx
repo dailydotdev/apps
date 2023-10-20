@@ -16,20 +16,12 @@ import CameraIcon from '@dailydotdev/shared/src/components/icons/Camera';
 import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import {
-  handleRegex,
-  socialHandleRegex,
-} from '@dailydotdev/shared/src/graphql/users';
-import { UserProfile } from '@dailydotdev/shared/src/lib/user';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { AccountTextField } from '../../components/layouts/AccountLayout/common';
 
 const id = 'avatar_file';
-
-type Socials = Pick<UserProfile, 'github' | 'hashnode' | 'twitter'>;
-const socials: Array<keyof Socials> = ['github', 'hashnode', 'twitter'];
 
 const AccountProfilePage = (): ReactElement => {
   const formRef = useRef<HTMLFormElement>();
@@ -41,29 +33,6 @@ const AccountProfilePage = (): ReactElement => {
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
     const values = formToJson<UpdateProfileParameters>(formRef.current);
-
-    if (values.username !== user.username) {
-      const isValid = handleRegex.test(values.username);
-
-      if (!isValid) {
-        displayToast('Invalid characters found in username!');
-        return;
-      }
-    }
-
-    const areHandlesValid = socials.every((social) => {
-      if (values[social] === user[social]) {
-        return true;
-      }
-
-      return socialHandleRegex.test(values[social]);
-    });
-
-    if (!areHandlesValid) {
-      displayToast(`Invalid character(s) found in social handle`);
-      return;
-    }
-
     const params = {
       name: values.name,
       username: values.username,
