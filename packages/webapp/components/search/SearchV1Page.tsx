@@ -10,6 +10,7 @@ import { useRouter } from 'next/router';
 import { searchPageUrl } from '@dailydotdev/shared/src/graphql/search';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { labels } from '@dailydotdev/shared/src/lib';
+import { SearchReferralBanner } from '@dailydotdev/shared/src/components/search/SearchReferralBanner';
 import { getLayout as getMainLayout } from '../layouts/MainLayout';
 import { getTemplatedTitle } from '../layouts/utils';
 
@@ -83,8 +84,10 @@ const SearchPage = (): ReactElement => {
             chunk={chunk}
             searchMessageProps={{ isLoading }}
           />
-          {!!content && (
+          {content ? (
             <SearchSourceList sources={chunk?.sources} isLoading={isLoading} />
+          ) : (
+            <SearchReferralBanner className="hidden laptop:flex" />
           )}
         </>
       )}
