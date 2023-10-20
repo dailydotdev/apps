@@ -173,7 +173,7 @@ function ChangelogTooltip({
               href={post.commentsPermalink}
               onClick={dismissChangelog}
               buttonSize={ButtonSize.Small}
-              className="btn-tertiary-blueCheese bg-theme-bg-tertiary"
+              className="btn-tertiary-blueCheese"
               data-testid="changelogCommentsButton"
             >
               <InteractionCounter
