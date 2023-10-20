@@ -53,7 +53,7 @@ describe('useChangelog hook', () => {
   });
 
   it('changelog should be available if post createdAt is greater then lastChangelog', async () => {
-    client.setQueryData(['changelog', 'latest-post'], defaultPost);
+    client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
     defaultAlerts.changelog = true;
     const lastChangelog = new Date(defaultAlerts.lastChangelog);
     lastChangelog.setMonth(lastChangelog.getMonth() - 1);
@@ -70,7 +70,7 @@ describe('useChangelog hook', () => {
   });
 
   it('changelog should be NOT be available if post createdAt is less then lastChangelog', async () => {
-    client.setQueryData(['changelog', 'latest-post'], defaultPost);
+    client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
     defaultAlerts.changelog = true;
     const lastChangelog = new Date(defaultAlerts.lastChangelog);
     lastChangelog.setMonth(lastChangelog.getMonth() + 1);
@@ -111,7 +111,7 @@ describe('useChangelog hook', () => {
       })),
     });
 
-    client.setQueryData(['changelog', 'latest-post'], defaultPost);
+    client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
     defaultAlerts.changelog = true;
     const lastChangelog = new Date(defaultAlerts.lastChangelog);
     lastChangelog.setMonth(lastChangelog.getMonth() + 1);
@@ -136,7 +136,7 @@ describe('useChangelog hook', () => {
       })),
     });
 
-    client.setQueryData(['changelog', 'latest-post'], defaultPost);
+    client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
     defaultAlerts.changelog = true;
     const lastChangelog = new Date(defaultAlerts.lastChangelog);
     lastChangelog.setMonth(lastChangelog.getMonth() + 1);
