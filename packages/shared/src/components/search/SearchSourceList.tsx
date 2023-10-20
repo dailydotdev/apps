@@ -82,7 +82,7 @@ export const SearchSourceList = ({
         </div>
         <PaginationActions {...pagination} />
       </div>
-      <SearchReferralBanner />
+      <SearchReferralBanner className="hidden laptop:flex" />
     </PageWidgets>
   );
 };
