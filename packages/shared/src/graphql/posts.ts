@@ -393,6 +393,9 @@ export const LATEST_CHANGELOG_POST_QUERY = gql`
           numComments
           numUpvotes
           summary
+          userState {
+            vote
+          }
         }
       }
     }

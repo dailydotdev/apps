@@ -11,6 +11,7 @@ export enum Origin {
   TagsSearch = 'tags search',
   RealTime = 'realtime',
   NonRealTime = 'nonrealtime',
+  ChangelogPopup = 'changelog popup',
   // squads - start
   SquadDirectory = 'squad directory',
   SquadCreation = 'squad creation',

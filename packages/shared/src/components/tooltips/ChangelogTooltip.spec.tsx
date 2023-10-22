@@ -6,9 +6,8 @@ import {
   screen,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import React, { useRef } from 'react';
+import React from 'react';
 import nock from 'nock';
-import { renderHook } from '@testing-library/react-hooks';
 import { createTestSettings } from '../../../__tests__/fixture/settings';
 import Post from '../../../__tests__/fixture/post';
 import { AuthContextProvider } from '../../contexts/AuthContext';
@@ -65,10 +64,6 @@ describe('ChangelogTooltip component', () => {
   }: {
     client: QueryClient;
   }): RenderResult => {
-    const {
-      result: { current: anchorRef },
-    } = renderHook(() => useRef());
-
     return render(
       <QueryClientProvider client={client}>
         <AuthContextProvider
@@ -85,8 +80,7 @@ describe('ChangelogTooltip component', () => {
               loadedAlerts
             >
               <AlertDot color={AlertColor.Cabbage} />
-              <div ref={anchorRef} />
-              <ChangelogTooltip elementRef={anchorRef} />
+              <ChangelogTooltip />
             </AlertContextProvider>
           </SettingsContext.Provider>
         </AuthContextProvider>
@@ -96,7 +90,7 @@ describe('ChangelogTooltip component', () => {
 
   it('should render', async () => {
     const client = new QueryClient();
-    client.setQueryData(['changelog', 'latest-post'], defaultPost);
+    client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
 
     renderComponent({ client });
 
@@ -159,7 +153,7 @@ describe('ChangelogTooltip component', () => {
 
   it('should render update button when used inside extension', async () => {
     const client = new QueryClient();
-    client.setQueryData(['changelog', 'latest-post'], defaultPost);
+    client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
 
     process.env.TARGET_BROWSER = 'chrome';
 
@@ -182,7 +176,7 @@ describe('ChangelogTooltip component', () => {
 
   it('should request extension update on update button click', async () => {
     const client = new QueryClient();
-    client.setQueryData(['changelog', 'latest-post'], defaultPost);
+    client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
 
     process.env.TARGET_BROWSER = 'chrome';
 
@@ -210,7 +204,7 @@ describe('ChangelogTooltip component', () => {
 
   it('update lastChangelog on release notes click', async () => {
     const client = new QueryClient();
-    client.setQueryData(['changelog', 'latest-post'], defaultPost);
+    client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
 
     mockGraphQL({
       request: {
@@ -238,7 +232,7 @@ describe('ChangelogTooltip component', () => {
 
   it('update lastChangelog on close modal click', async () => {
     const client = new QueryClient();
-    client.setQueryData(['changelog', 'latest-post'], defaultPost);
+    client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
 
     mockGraphQL({
       request: {
@@ -266,7 +260,7 @@ describe('ChangelogTooltip component', () => {
 
   it('should link to blog post on firefox', async () => {
     const client = new QueryClient();
-    client.setQueryData(['changelog', 'latest-post'], defaultPost);
+    client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
 
     process.env.TARGET_BROWSER = 'firefox';
 
@@ -291,7 +285,7 @@ describe('ChangelogTooltip component', () => {
 
   it('should show toast when no extension update available', async () => {
     const client = new QueryClient();
-    client.setQueryData(['changelog', 'latest-post'], defaultPost);
+    client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
 
     process.env.TARGET_BROWSER = 'chrome';
 
@@ -318,7 +312,7 @@ describe('ChangelogTooltip component', () => {
 
   it('should show toast when no extension update is throttled', async () => {
     const client = new QueryClient();
-    client.setQueryData(['changelog', 'latest-post'], defaultPost);
+    client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
 
     process.env.TARGET_BROWSER = 'chrome';
 
@@ -341,5 +335,33 @@ describe('ChangelogTooltip component', () => {
     ).toBeDefined();
 
     delete process.env.TARGET_BROWSER;
+  });
+
+  it('update lastChangelog on comments click', async () => {
+    const client = new QueryClient();
+    client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
+
+    mockGraphQL({
+      request: {
+        query: UPDATE_ALERTS,
+        variables: { data: { lastChangelog: /.*/ } },
+      },
+      result: () => ({
+        data: { data: { lastChangelog: new Date().toISOString() } },
+      }),
+    });
+
+    renderComponent({ client });
+    await screen.findByTestId('changelog');
+
+    await act(async () => {
+      const changelogCommentsButton = await screen.findByTestId(
+        'changelogCommentsButton',
+      );
+      fireEvent.click(changelogCommentsButton);
+      await waitForNock();
+    });
+
+    expect(updateAlerts).toHaveBeenCalled();
   });
 });
