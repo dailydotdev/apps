@@ -14,11 +14,13 @@ import useSidebarRendered from '../../hooks/useSidebarRendered';
 interface SearchSourceListProps {
   sources: SearchChunkSource[];
   isLoading?: boolean;
+  className?: string;
 }
 
 export const SearchSourceList = ({
   sources,
   isLoading,
+  className,
 }: SearchSourceListProps): ReactElement => {
   const [isSourcesOpen, setIsSourcesOpen] = useState(false);
   const { sidebarRendered } = useSidebarRendered();
@@ -31,10 +33,7 @@ export const SearchSourceList = ({
     !sidebarRendered && setIsSourcesOpen((prev) => !prev);
 
   return (
-    <PageWidgets
-      tablet={false}
-      className="relative order-3 laptop:order-last col-span-2 laptop:col-span-1"
-    >
+    <PageWidgets tablet={false} className={classNames(className, 'relative')}>
       <i className="hidden laptop:block absolute top-8 -left-8 w-12 h-px bg-theme-divider-tertiary" />
       <div className={classNames('flex flex-col', widgetClasses)}>
         <div

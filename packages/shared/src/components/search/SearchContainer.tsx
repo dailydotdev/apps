@@ -41,16 +41,11 @@ export function SearchContainer({
         {children}
       </main>
       <PageWidgets tablet={false} className="gap-6 items-center">
-        <SearchFeedback
-          className={classNames(
-            content && 'order-2 laptop:order-1',
-            'max-w-widget',
-          )}
-        />
+        <SearchFeedback className="order-2 laptop:order-1 max-w-widget" />
         {!!content && (
           <SearchSourceList sources={chunk?.sources} isLoading={isLoading} />
         )}
-        <SearchReferralBanner />
+        <SearchReferralBanner className="order-last" />
       </PageWidgets>
     </div>
   );
