@@ -46,7 +46,7 @@ export function SearchContainer({
           <SearchSourceList
             className={classNames(
               'order-1 laptop:order-1',
-              chunk?.status && 'mt-3',
+              chunk?.status && 'mt-6 pt-0.5',
             )}
             sources={chunk?.sources}
             isLoading={isLoading}
