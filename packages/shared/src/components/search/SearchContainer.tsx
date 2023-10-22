@@ -24,7 +24,7 @@ export function SearchContainer({
 
   return (
     <div className="grid grid-cols-1 laptop:grid-cols-3 gap-y-6 py-8 m-auto w-full max-w-screen-laptopL">
-      <main className="grid grid-cols-1 col-span-2 px-4 laptop:px-8">
+      <main className="flex flex-col col-span-2 px-4 laptop:px-8">
         {isLoading ? (
           <>
             <Pill className="!h-16" />
@@ -43,7 +43,11 @@ export function SearchContainer({
       <PageWidgets tablet={false} className="gap-6 items-center">
         <SearchFeedback className="order-2 laptop:order-1 max-w-widget" />
         {!!content && (
-          <SearchSourceList sources={chunk?.sources} isLoading={isLoading} />
+          <SearchSourceList
+            className="order-1 laptop:order-1"
+            sources={chunk?.sources}
+            isLoading={isLoading}
+          />
         )}
         <SearchReferralBanner className="order-last" />
       </PageWidgets>
