@@ -35,7 +35,7 @@ export function SearchReferralBanner({
   return (
     <div
       className={classNames(
-        'flex flex-col gap-4 p-4 w-full rounded-14 bg-theme-overlay-from max-w-[19.25rem]',
+        'flex flex-col gap-4 p-4 w-full rounded-14 bg-theme-overlay-from max-w-widget',
         className,
       )}
     >

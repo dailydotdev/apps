@@ -1,16 +1,12 @@
 import React, { ReactElement, useEffect } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
-import {
-  SearchResult,
-  SearchSourceList,
-} from '@dailydotdev/shared/src/components/search';
+import { SearchResult } from '@dailydotdev/shared/src/components/search';
 import { useChat } from '@dailydotdev/shared/src/hooks';
 import { SearchContainer } from '@dailydotdev/shared/src/components/search/SearchContainer';
 import { useRouter } from 'next/router';
 import { searchPageUrl } from '@dailydotdev/shared/src/graphql/search';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { labels } from '@dailydotdev/shared/src/lib';
-import { SearchReferralBanner } from '@dailydotdev/shared/src/components/search/SearchReferralBanner';
 import { getLayout as getMainLayout } from '../layouts/MainLayout';
 import { getTemplatedTitle } from '../layouts/utils';
 
@@ -77,20 +73,12 @@ const SearchPage = (): ReactElement => {
     >
       <NextSeo {...seo} />
       {(!!content || !!data) && (
-        <>
-          <SearchResult
-            queryKey={queryKey}
-            isInProgress={isLoading}
-            chunk={chunk}
-            searchMessageProps={{ isLoading }}
-          />
-          {!!content && (
-            <SearchSourceList sources={chunk?.sources} isLoading={isLoading} />
-          )}
-          {!content && !!data && (
-            <SearchReferralBanner className="hidden laptop:flex order-3 laptop:order-last col-span-2 laptop:col-span-1 ml-5" />
-          )}
-        </>
+        <SearchResult
+          queryKey={queryKey}
+          isInProgress={isLoading}
+          chunk={chunk}
+          searchMessageProps={{ isLoading }}
+        />
       )}
     </SearchContainer>
   );
