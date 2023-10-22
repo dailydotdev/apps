@@ -1,5 +1,4 @@
 import React, { ReactNode } from 'react';
-import classNames from 'classnames';
 import { SearchBar } from './SearchBar';
 import { SearchFeedback } from './SearchFeedback';
 import { SearchBarInputProps } from './SearchBarInput';
@@ -40,7 +39,7 @@ export function SearchContainer({
         )}
         {children}
       </main>
-      <PageWidgets tablet={false} className="gap-6 items-center">
+      <PageWidgets tablet={false} className="gap-6 items-center !px-0">
         <SearchFeedback className="order-2 laptop:order-1 max-w-widget" />
         {!!content && (
           <SearchSourceList
