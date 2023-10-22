@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import classNames from 'classnames';
 import { SearchBar } from './SearchBar';
 import { SearchFeedback } from './SearchFeedback';
 import { SearchBarInputProps } from './SearchBarInput';
@@ -43,7 +44,10 @@ export function SearchContainer({
         <SearchFeedback className="order-2 laptop:order-1 max-w-widget" />
         {!!content && (
           <SearchSourceList
-            className="order-1 laptop:order-1"
+            className={classNames(
+              'order-1 laptop:order-1',
+              chunk?.status && 'mt-3',
+            )}
             sources={chunk?.sources}
             isLoading={isLoading}
           />
