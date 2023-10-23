@@ -28,7 +28,7 @@ export default function ProfileMenu(): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const { campaignCtaPlacement } = useSettingsContext();
   const { user, logout } = useContext(AuthContext);
-  const { referralToken } = useReferralCampaign({
+  const { referralToken, copy } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Search,
   });
   const showSearchReferral =
@@ -91,7 +91,7 @@ export default function ProfileMenu(): ReactElement {
             onClick={handleReferralClick}
           >
             <KeyReferralIcon size={IconSize.Small} className="mr-2" />
-            Referral campagin
+            Search invitations {copy.count}/{copy.limit}
             <TimerIcon className="ml-auto" size={IconSize.Small} />
           </button>
         </Item>
