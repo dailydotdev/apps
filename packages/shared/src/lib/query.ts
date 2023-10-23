@@ -13,6 +13,7 @@ import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import { MainFeedPage } from '../components/utilities';
 
 export enum OtherFeedPage {
+  Tag = 'tag',
   Squad = 'squad',
   Source = 'source',
   Bookmarks = 'bookmarks',
