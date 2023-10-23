@@ -14,6 +14,7 @@ import { MainFeedPage } from '../components/utilities';
 
 export enum OtherFeedPage {
   Squad = 'squad',
+  Source = 'source',
   Bookmarks = 'bookmarks',
   SearchBookmarks = 'search-bookmarks',
 }
