@@ -42,7 +42,7 @@ export function SearchContainer({
       </main>
       <PageWidgets tablet={false} className="gap-6 items-center !px-0">
         <SearchFeedback className="order-2 laptop:order-1 max-w-widget" />
-        {!!content && (
+        {!!chunk && (
           <SearchSourceList
             className={classNames(
               'order-1 laptop:order-1 laptop:pt-0.5',
