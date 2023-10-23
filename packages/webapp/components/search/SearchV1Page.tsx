@@ -78,7 +78,7 @@ const SearchPage = (): ReactElement => {
           isInProgress={isLoading}
           chunk={chunk}
           searchMessageProps={{ isLoading }}
-          className="mt-1.5"
+          className="pt-1.5 mt-6"
         />
       )}
     </SearchContainer>
