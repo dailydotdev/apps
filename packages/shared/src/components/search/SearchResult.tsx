@@ -99,7 +99,7 @@ export function SearchResult({
 
   if (!chunk?.response && !chunk?.error) {
     return (
-      <Container className="flex-col gap-2 p-6">
+      <Container className={classNames('flex-col gap-2 p-6', className)}>
         <ContentPill />
         <ContentPill />
         <ContentPill className="!w-5/6" />
