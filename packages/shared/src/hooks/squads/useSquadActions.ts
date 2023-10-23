@@ -99,6 +99,12 @@ export const useSquadActions = ({
           .map((page) => page.sourceMembers.edges.map(({ node }) => node))
           .flat() ?? [],
     }),
-    [onUnblock, onUpdateRole, membersQueryResult],
+    [
+      onUnblock,
+      onUpdateRole,
+      collapseSquadPinnedPosts,
+      expandSquadPinnedPosts,
+      membersQueryResult,
+    ],
   );
 };

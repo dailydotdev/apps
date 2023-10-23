@@ -42,6 +42,7 @@ function SquadFeedHeading({
     }
 
     return countPinned;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemsCount]);
 
   return (
