@@ -11,6 +11,7 @@ import { SearchSourceList } from './SearchSourceList';
 interface SearchContainerProps extends Pick<SearchBarInputProps, 'chunk'> {
   children: ReactNode;
   isLoading?: boolean;
+  isInProgress?: boolean;
   onSubmit(event: React.MouseEvent, value: string): void;
 }
 
@@ -18,6 +19,7 @@ export function SearchContainer({
   children,
   onSubmit,
   isLoading,
+  isInProgress,
   chunk,
 }: SearchContainerProps): React.ReactElement {
   return (
@@ -47,7 +49,7 @@ export function SearchContainer({
               chunk?.status ? 'laptop:mt-10' : 'laptop:mt-4',
             )}
             sources={chunk?.sources}
-            isLoading={isLoading}
+            isLoading={isInProgress}
           />
         )}
         <SearchReferralBanner className="order-last" />

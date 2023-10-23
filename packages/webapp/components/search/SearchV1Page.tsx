@@ -70,6 +70,7 @@ const SearchPage = (): ReactElement => {
       }}
       chunk={chunk}
       isLoading={!router?.isReady}
+      isInProgress={isLoading}
     >
       <NextSeo {...seo} />
       {(!!content || !!data) && (
