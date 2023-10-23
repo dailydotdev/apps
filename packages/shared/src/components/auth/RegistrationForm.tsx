@@ -33,6 +33,7 @@ import { useGenerateUsername } from '../../hooks';
 import { AuthFormProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
+import { onValidateHandles } from '../../hooks/useProfileForm';
 
 export interface RegistrationFormProps extends AuthFormProps {
   email: string;
@@ -110,6 +111,29 @@ export const RegistrationForm = ({
       }
 
       onUpdateHints(setHints);
+      return;
+    }
+
+    const error = onValidateHandles(
+      {},
+      {
+        username: values['traits.username'],
+        twitter: values['traits.twitter'],
+      },
+    );
+
+    if (error.username || error.twitter) {
+      const updatedHints = { ...hints };
+
+      if (error.username) {
+        updatedHints['traits.username'] = error.username;
+      }
+
+      if (error.twitter) {
+        updatedHints['traits.twitter'] = error.twitter;
+      }
+
+      onUpdateHints(updatedHints);
       return;
     }
 

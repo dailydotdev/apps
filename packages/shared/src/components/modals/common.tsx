@@ -82,6 +82,13 @@ const VerifySession = dynamic(
     ),
 );
 
+const SearchReferralModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "searchReferralModal" */ './referral/SearchReferralModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -97,6 +104,7 @@ export const modals = {
   [LazyModal.NewSource]: NewSource,
   [LazyModal.FeedFilters]: FeedFilters,
   [LazyModal.VerifySession]: VerifySession,
+  [LazyModal.SearchReferral]: SearchReferralModal,
 };
 
 type GetComponentProps<T> = T extends

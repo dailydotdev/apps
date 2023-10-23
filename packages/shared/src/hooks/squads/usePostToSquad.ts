@@ -12,7 +12,12 @@ import {
   SubmitExternalLink,
   submitExternalLink,
 } from '../../graphql/posts';
-import { ApiError, ApiErrorResult, getApiError } from '../../graphql/common';
+import {
+  ApiError,
+  ApiErrorResult,
+  DEFAULT_ERROR,
+  getApiError,
+} from '../../graphql/common';
 import { useToastNotification } from '../useToastNotification';
 import { addPostToSquad, updateSquadPost } from '../../graphql/squads';
 import { ActionType } from '../../graphql/actions';
@@ -50,8 +55,6 @@ interface UsePostToSquadProps {
   onPostSuccess?: (post: Post, url: string) => void;
   initialPreview?: ExternalLinkPreview;
 }
-
-const DEFAULT_ERROR = 'An error occurred, please try again';
 
 export const usePostToSquad = ({
   callback,

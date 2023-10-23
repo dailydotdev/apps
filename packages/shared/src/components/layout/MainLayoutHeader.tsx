@@ -21,6 +21,8 @@ import HeaderLogo from './HeaderLogo';
 import { CreatePostButton } from '../post/write';
 import useMedia from '../../hooks/useMedia';
 import { tablet } from '../../styles/media';
+import { SearchReferralButton } from '../referral/SearchReferralButton';
+import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
 
 interface ShouldShowLogoProps {
   mobileTitle?: string;
@@ -84,6 +86,9 @@ function MainLayoutHeader({
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
   };
+  const { referralToken } = useReferralCampaign({
+    campaignKey: ReferralCampaignKey.Search,
+  });
 
   return (
     <header
@@ -124,6 +129,9 @@ function MainLayoutHeader({
           )}
           {!hideButton && user && (
             <>
+              {sidebarRendered && !!referralToken && (
+                <SearchReferralButton className="mr-3" />
+              )}
               <LinkWithTooltip
                 tooltip={{ placement: 'bottom', content: 'Notifications' }}
                 href={`${webappUrl}notifications`}

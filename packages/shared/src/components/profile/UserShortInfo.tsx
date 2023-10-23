@@ -52,7 +52,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
   const Element = (tag || 'a') as React.ElementType;
   const { name, username, bio } = user;
   const tooltipProps: TooltipProps = {
-    appendTo: appendTooltipTo || document?.body || 'parent',
+    appendTo: appendTooltipTo || globalThis?.document?.body || 'parent',
     visible: disableTooltip ? false : undefined,
   };
 
