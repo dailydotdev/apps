@@ -18,7 +18,7 @@ import {
   MOST_UPVOTED_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
-import { generateQueryKey, RequestKey } from '../lib/query';
+import { generateQueryKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
