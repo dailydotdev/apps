@@ -20,7 +20,7 @@ function SquadFeedHeading({
     squad,
     user,
   });
-  const { collapsePinnedPosts } = squad.currentMember.flags;
+  const collapsePinnedPosts = squad?.currentMember?.flags?.collapsePinnedPosts;
   const itemsCount = items.length;
 
   const onClick = async () => {
