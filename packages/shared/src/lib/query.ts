@@ -46,6 +46,7 @@ export enum RequestKey {
   PersonalizedDigest = 'personalizedDigest',
   Changelog = 'changelog',
   Tags = 'tags',
+  FeedPreview = 'feedPreview',
 }
 
 export type HasConnection<

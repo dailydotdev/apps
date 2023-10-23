@@ -20,7 +20,6 @@ import { SearchField } from '../fields/SearchField';
 import useDebounce from '../../hooks/useDebounce';
 import { useTagSearch } from '../../hooks';
 import type { FilterOnboardingProps } from './FilterOnboarding';
-import { ActiveFeedContext } from '../../contexts';
 
 type OnSelectTagProps = {
   tag: Tag;
@@ -34,17 +33,17 @@ export function FilterOnboardingV4({
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
 
-  const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
   const { feedSettings } = useFeedSettings();
   const selectedTags = useMemo(() => {
     return new Set(feedSettings?.includeTags || []);
   }, [feedSettings?.includeTags]);
   const { followTags, unfollowTags } = useMutateFilters(user);
 
-  const refetchFeed = () => {
+  const [refetchFeed] = useDebounce(() => {
+    const feedQueryKey = [RequestKey.FeedPreview];
     queryClient.cancelQueries(feedQueryKey);
     queryClient.invalidateQueries(feedQueryKey);
-  };
+  }, 1000);
 
   const onboardingTagsQueryKey = generateQueryKey(
     RequestKey.Tags,
