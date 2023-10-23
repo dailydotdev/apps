@@ -6,8 +6,9 @@ import useMutateFilters from './useMutateFilters';
 import { Source } from '../graphql/sources';
 import AlertContext from '../contexts/AlertContext';
 import { BooleanPromise } from '../components/filters/common';
-import { generateQueryKey, RequestKey } from '../lib/query';
+import { generateQueryKey } from '../lib/query';
 import useDebounce from './useDebounce';
+import { MainFeedPage } from '../components/utilities';
 
 export interface TagActionArguments {
   tags: Array<string>;
@@ -63,7 +64,7 @@ export default function useTagAndSource({
       return;
     }
 
-    queryClient.invalidateQueries(generateQueryKey(RequestKey.MyFeed, user));
+    queryClient.invalidateQueries(generateQueryKey(MainFeedPage.MyFeed, user));
   }, 100);
 
   const onFollowTags = useCallback(
