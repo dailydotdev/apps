@@ -198,7 +198,11 @@ export default function MainFeedLayout({
     if (isSearchOn && searchQuery) {
       return {
         feedName: SharedFeedPage.Search,
-        feedQueryKey: generateQueryKey(SharedFeedPage.Search, user, searchQuery),
+        feedQueryKey: generateQueryKey(
+          SharedFeedPage.Search,
+          user,
+          searchQuery,
+        ),
         query: SEARCH_POSTS_QUERY,
         variables: { query: searchQuery },
         emptyScreen: <SearchEmptyScreen />,

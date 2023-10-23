@@ -137,7 +137,9 @@ export const SearchControlHeader = ({
       {alerts?.filter && (
         <CreateMyFeedButton
           action={() =>
-            onInitializeOnboarding(() => onFeedPageChanged(SharedFeedPage.MyFeed))
+            onInitializeOnboarding(() =>
+              onFeedPageChanged(SharedFeedPage.MyFeed),
+            )
           }
         />
       )}
