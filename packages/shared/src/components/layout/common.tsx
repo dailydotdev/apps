@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
-import { FeedHeading, MainFeedPage } from '../utilities';
+import { FeedHeading, SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
 import AlertContext from '../../contexts/AlertContext';
 import CreateMyFeedButton from '../CreateMyFeedButton';
@@ -30,10 +30,10 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
 export interface SearchControlHeaderProps {
-  feedName: MainFeedPage;
+  feedName: SharedFeedPage;
   navChildren?: ReactNode;
   isSearchOn?: boolean;
-  onFeedPageChanged: (value: MainFeedPage) => void;
+  onFeedPageChanged: (value: SharedFeedPage) => void;
   algoState: State<number>;
   periodState: State<number>;
 }
@@ -75,7 +75,7 @@ export const SearchControlHeader = ({
 
   /* eslint-disable react/no-children-prop */
   const feedHeading = {
-    [MainFeedPage.MyFeed]: (
+    [SharedFeedPage.MyFeed]: (
       <MyFeedHeading
         isAlertDisabled={!hasMyFeedAlert}
         sidebarRendered={sidebarRendered}
@@ -83,9 +83,9 @@ export const SearchControlHeader = ({
         onUpdateAlerts={() => updateAlerts({ myFeed: null })}
       />
     ),
-    [MainFeedPage.Popular]: <FeedHeading children="Popular" />,
-    [MainFeedPage.Upvoted]: <FeedHeading children="Most upvoted" />,
-    [MainFeedPage.Discussed]: <FeedHeading children="Best discussions" />,
+    [SharedFeedPage.Popular]: <FeedHeading children="Popular" />,
+    [SharedFeedPage.Upvoted]: <FeedHeading children="Most upvoted" />,
+    [SharedFeedPage.Discussed]: <FeedHeading children="Best discussions" />,
   };
 
   if (searchVersion === SearchExperiment.V1) {
@@ -97,7 +97,7 @@ export const SearchControlHeader = ({
       iconOnly: true,
     };
     const actionButtons = [
-      feedName === MainFeedPage.MyFeed ? (
+      feedName === SharedFeedPage.MyFeed ? (
         <MyFeedHeading
           key="my-feed"
           isAlertDisabled={!alerts.myFeed}
@@ -137,7 +137,7 @@ export const SearchControlHeader = ({
       {alerts?.filter && (
         <CreateMyFeedButton
           action={() =>
-            onInitializeOnboarding(() => onFeedPageChanged(MainFeedPage.MyFeed))
+            onInitializeOnboarding(() => onFeedPageChanged(SharedFeedPage.MyFeed))
           }
         />
       )}

@@ -10,7 +10,7 @@ import { EmptyObjectLiteral } from './kratos';
 import { LoggedUser } from './user';
 import { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
 import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
-import { MainFeedPage } from '../components/utilities';
+import { SharedFeedPage } from '../components/utilities';
 
 export enum OtherFeedPage {
   Tag = 'tag',
@@ -20,7 +20,7 @@ export enum OtherFeedPage {
   SearchBookmarks = 'search-bookmarks',
 }
 
-export type AllFeedPages = MainFeedPage | OtherFeedPage;
+export type AllFeedPages = SharedFeedPage | OtherFeedPage;
 
 export type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 

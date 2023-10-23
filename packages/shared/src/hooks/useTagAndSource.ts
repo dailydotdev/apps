@@ -8,7 +8,7 @@ import AlertContext from '../contexts/AlertContext';
 import { BooleanPromise } from '../components/filters/common';
 import { generateQueryKey } from '../lib/query';
 import useDebounce from './useDebounce';
-import { MainFeedPage } from '../components/utilities';
+import { SharedFeedPage } from '../components/utilities';
 
 export interface TagActionArguments {
   tags: Array<string>;
@@ -64,7 +64,7 @@ export default function useTagAndSource({
       return;
     }
 
-    queryClient.invalidateQueries(generateQueryKey(MainFeedPage.MyFeed, user));
+    queryClient.invalidateQueries(generateQueryKey(SharedFeedPage.MyFeed, user));
   }, 100);
 
   const onFollowTags = useCallback(
