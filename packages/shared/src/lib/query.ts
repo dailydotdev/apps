@@ -14,6 +14,8 @@ import { MainFeedPage } from '../components/utilities';
 
 export enum OtherFeedPage {
   Squad = 'squad',
+  Bookmarks = 'bookmarks',
+  SearchBookmarks = 'search-bookmarks',
 }
 
 export type AllFeedPages = MainFeedPage | OtherFeedPage;
