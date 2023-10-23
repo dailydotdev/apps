@@ -312,17 +312,11 @@ export const KEYWORD_FEED_QUERY = gql`
 export const PREVIEW_FEED_QUERY = gql`
   query FeedPreview(
     $loggedIn: Boolean! = false
-    $first: Int
-    $after: String
     $ranking: Ranking
-    $version: Int
     ${SUPPORTED_TYPES}
   ) {
     page: feedPreview(
-      first: $first
-      after: $after
       ranking: $ranking
-      version: $version
       supportedTypes: $supportedTypes
     ) {
       ...FeedPostConnection
