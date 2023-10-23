@@ -43,9 +43,11 @@ export enum RequestKey {
   NotificationPreference = 'notification_preference',
   Banner = 'latest_banner',
   Auth = 'auth',
+  Profile = 'profile',
   CurrentSession = 'current_session',
   PersonalizedDigest = 'personalizedDigest',
   Changelog = 'changelog',
+  MyFeed = 'my-feed',
 }
 
 export type HasConnection<

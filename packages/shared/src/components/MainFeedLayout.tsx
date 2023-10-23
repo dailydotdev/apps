@@ -18,7 +18,7 @@ import {
   MOST_UPVOTED_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
-import { generateQueryKey } from '../lib/query';
+import { generateQueryKey, RequestKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
@@ -198,7 +198,7 @@ export default function MainFeedLayout({
     if (isSearchOn && searchQuery) {
       return {
         feedName: 'search',
-        feedQueryKey: generateQueryKey('search', user, searchQuery),
+        feedQueryKey: generateQueryKey(RequestKey.Search, user, searchQuery),
         query: SEARCH_POSTS_QUERY,
         variables: { query: searchQuery },
         emptyScreen: <SearchEmptyScreen />,
