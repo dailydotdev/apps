@@ -4,6 +4,8 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
+  useEffect,
+  useRef,
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
@@ -16,13 +18,16 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../../hooks/useToastNotification';
-import { SearchBarSuggestionList, SearchBarInput } from '../search';
+import { SearchBarInput, SearchBarSuggestionList } from '../search';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 import { webappUrl } from '../../lib/constants';
 import { useSearchSuggestions } from '../../hooks/search';
-import { Origin } from '../../lib/analytics';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
+import { useActions } from '../../hooks/useActions';
+import { ActionType } from '../../graphql/actions';
+import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -98,6 +103,8 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const { trackEvent } = useAnalyticsContext();
+  const { completeAction, checkHasCompleted } = useActions();
   const router = useRouter();
   const searchValue = useFeature(feature.search);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
@@ -110,6 +117,19 @@ export const FeedContainer = ({
   } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
   const suggestionsProps = useSearchSuggestions({ origin: Origin.HomePage });
+  const isTracked = useRef(false);
+  const shouldShowPulse =
+    checkHasCompleted(ActionType.AcceptedSearch) &&
+    !checkHasCompleted(ActionType.UsedSearch);
+
+  useEffect(() => {
+    if (!shouldShowPulse || isTracked.current) {
+      return;
+    }
+
+    isTracked.current = true;
+    trackEvent({ event_name: AnalyticsEvent.SearchHighlightAnimation });
+  }, [trackEvent, shouldShowPulse]);
 
   if (!loadedSettings) {
     return <></>;
@@ -121,6 +141,13 @@ export const FeedContainer = ({
   const onSearch = (event: FormEvent, input: string) => {
     event.preventDefault();
     router.push(`${webappUrl}search?q=${encodeURIComponent(input)}`);
+  };
+  const handleSearchFocus = () => {
+    if (!shouldShowPulse) {
+      return;
+    }
+
+    completeAction(ActionType.UsedSearch);
   };
 
   return (
@@ -149,13 +176,17 @@ export const FeedContainer = ({
             <span className="flex flex-row gap-3">
               <SearchBarInput
                 className={{
-                  container: 'max-w-2xl w-full flex flex-1',
+                  container: classNames(
+                    'max-w-2xl w-full flex flex-1',
+                    shouldShowPulse && 'highlight-pulse',
+                  ),
                   field: 'w-full',
                   form: 'w-full',
                 }}
                 showProgress={false}
                 onSubmit={onSearch}
                 shouldShowPopup
+                inputProps={{ onFocus: handleSearchFocus }}
                 suggestionsProps={suggestionsProps}
               />
               {besideSearch}

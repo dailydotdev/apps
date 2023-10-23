@@ -3,6 +3,11 @@ import { gql } from 'graphql-request';
 export type Spaciness = 'eco' | 'roomy' | 'cozy';
 export type RemoteTheme = 'darcula' | 'bright' | 'auto';
 
+export enum CampaignCtaPlacement {
+  Header = 'header',
+  ProfileMenu = 'profileMenu',
+}
+
 export type RemoteSettings = {
   openNewTab: boolean;
   theme: RemoteTheme;
@@ -16,6 +21,7 @@ export type RemoteSettings = {
   optOutCompanion: boolean;
   autoDismissNotifications: boolean;
   customLinks?: string[];
+  campaignCtaPlacement?: CampaignCtaPlacement;
 };
 
 export const UPDATE_USER_SETTINGS_MUTATION = gql`

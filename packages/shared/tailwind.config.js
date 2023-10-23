@@ -209,6 +209,9 @@ module.exports = {
         22: '5.5rem',
         70: '17.5rem',
       },
+      maxWidth: {
+        widget: '19.25rem',
+      },
       width: {
         70: '17.5rem',
       },

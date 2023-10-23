@@ -33,7 +33,6 @@ const AccountProfilePage = (): ReactElement => {
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
     const values = formToJson<UpdateProfileParameters>(formRef.current);
-
     const params = {
       name: values.name,
       username: values.username,

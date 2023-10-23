@@ -1,9 +1,9 @@
 import React from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient } from 'react-query';
 import { waitFor, render, RenderResult, screen } from '@testing-library/react';
 import ProfileButton from './ProfileButton';
-import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
+import { TestBootProvider } from '../../../__tests__/helpers/boot';
 
 const logout = jest.fn();
 
@@ -11,25 +11,23 @@ const renderComponent = (): RenderResult => {
   const client = new QueryClient();
 
   return render(
-    <QueryClientProvider client={client}>
-      <AuthContext.Provider
-        value={{
-          user: defaultUser,
-          shouldShowLogin: false,
-          showLogin: jest.fn(),
-          logout,
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-          getRedirectUri: jest.fn(),
-          closeLogin: jest.fn(),
-          trackingId: '21',
-          loginState: null,
-        }}
-      >
-        <ProfileButton />
-      </AuthContext.Provider>
-      ,
-    </QueryClientProvider>,
+    <TestBootProvider
+      client={client}
+      auth={{
+        user: defaultUser,
+        shouldShowLogin: false,
+        showLogin: jest.fn(),
+        logout,
+        updateUser: jest.fn(),
+        tokenRefreshed: true,
+        getRedirectUri: jest.fn(),
+        closeLogin: jest.fn(),
+        trackingId: '21',
+        loginState: null,
+      }}
+    >
+      <ProfileButton />
+    </TestBootProvider>,
   );
 };
 

@@ -11,6 +11,7 @@ export enum Origin {
   TagsSearch = 'tags search',
   RealTime = 'realtime',
   NonRealTime = 'nonrealtime',
+  ChangelogPopup = 'changelog popup',
   // squads - start
   SquadDirectory = 'squad directory',
   SquadCreation = 'squad creation',
@@ -101,7 +102,12 @@ export enum AnalyticsEvent {
   UpvoteSearch = 'upvote search',
   DownvoteSearch = 'downvote search',
   CopySearch = 'copy search',
+  CopyKeyLink = 'copy key link',
+  HideFromHeader = 'hide from header',
+  CloseInvitationPopup = 'close invitation popup',
   ErrorSearch = 'error search',
+  AcceptInvitation = 'accept invitation',
+  SearchHighlightAnimation = 'highlight search',
   // search end
   OpenCompanionPermissionModal = 'open companion permission popup',
   CloseCompanionPermissionModal = 'close companion permission popup',
@@ -125,6 +131,14 @@ export enum TargetType {
   SearchRecommendation = 'search rec',
   SearchHistory = 'search history',
   SearchSource = 'search source',
+  SearchInviteButton = 'search invite button',
+  HideInviteCheckbox = 'hide invite mechanism',
+}
+
+export enum TargetId {
+  SearchReferralBadge = 'search referral badge',
+  InviteBanner = 'invite banner',
+  InviteProfileMenu = 'invite in profile menu',
 }
 
 export enum NotificationChannel {
