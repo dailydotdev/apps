@@ -19,10 +19,8 @@ import AuthContext from '../../contexts/AuthContext';
 import { SearchField } from '../fields/SearchField';
 import useDebounce from '../../hooks/useDebounce';
 import { useTagSearch } from '../../hooks';
-
-type FilterOnboardingV4Props = {
-  className?: string;
-};
+import type { FilterOnboardingProps } from './FilterOnboarding';
+import { ActiveFeedContext } from '../../contexts';
 
 type OnSelectTagProps = {
   tag: Tag;
@@ -32,15 +30,21 @@ const tagsSelector = (data: TagsData) => data?.tags || [];
 
 export function FilterOnboardingV4({
   className,
-}: FilterOnboardingV4Props): ReactElement {
+}: FilterOnboardingProps): ReactElement {
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
 
+  const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
   const { feedSettings } = useFeedSettings();
   const selectedTags = useMemo(() => {
     return new Set(feedSettings?.includeTags || []);
   }, [feedSettings?.includeTags]);
   const { followTags, unfollowTags } = useMutateFilters(user);
+
+  const refetchFeed = () => {
+    queryClient.cancelQueries(feedQueryKey);
+    queryClient.invalidateQueries(feedQueryKey);
+  };
 
   const onboardingTagsQueryKey = generateQueryKey(
     RequestKey.Tags,
@@ -106,12 +110,10 @@ export function FilterOnboardingV4({
     },
   );
 
-  const onClickTag = ({ tag }: OnSelectTagProps) => {
+  const onClickTag = async ({ tag }: OnSelectTagProps) => {
     const isSearchMode = !!searchQuery;
 
     if (!selectedTags.has(tag.name)) {
-      followTags({ tags: [tag.name] });
-
       if (isSearchMode) {
         queryClient.setQueryData<TagsData>(
           onboardingTagsQueryKey,
@@ -127,9 +129,13 @@ export function FilterOnboardingV4({
       }
 
       recommendTags({ tag });
+
+      await followTags({ tags: [tag.name] });
     } else {
-      unfollowTags({ tags: [tag.name] });
+      await unfollowTags({ tags: [tag.name] });
     }
+
+    refetchFeed();
   };
 
   const tags = searchQuery && !isSearchLoading ? searchTags : onboardingTags;
