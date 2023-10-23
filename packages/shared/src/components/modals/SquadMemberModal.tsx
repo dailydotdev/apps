@@ -127,7 +127,9 @@ export function SquadMemberModal({
             />
           ),
           emptyPlaceholder: query ? (
-            <FlexCentered className="p-10">No user found</FlexCentered>
+            <FlexCentered className="p-10 typo-callout text-theme-label-tertiary">
+              No user found
+            </FlexCentered>
           ) : (
             <BlockedMembersPlaceholder />
           ),
