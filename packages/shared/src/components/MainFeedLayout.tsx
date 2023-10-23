@@ -197,7 +197,7 @@ export default function MainFeedLayout({
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (isSearchOn && searchQuery) {
       return {
-        feedName: 'search',
+        feedName: MainFeedPage.Search,
         feedQueryKey: generateQueryKey(RequestKey.Search, user, searchQuery),
         query: SEARCH_POSTS_QUERY,
         variables: { query: searchQuery },

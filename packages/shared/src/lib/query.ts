@@ -10,11 +10,18 @@ import { EmptyObjectLiteral } from './kratos';
 import { LoggedUser } from './user';
 import { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
 import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
+import { MainFeedPage } from '../components/utilities';
+
+export enum OtherFeedPage {
+  Squad = 'squad',
+}
+
+export type AllFeedPages = MainFeedPage | OtherFeedPage;
 
 export type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 
 export const generateQueryKey = (
-  name: RequestKey,
+  name: RequestKey | AllFeedPages,
   user: Pick<LoggedUser, 'id'> | null,
   ...additional: unknown[]
 ): unknown[] => {
@@ -47,7 +54,6 @@ export enum RequestKey {
   CurrentSession = 'current_session',
   PersonalizedDigest = 'personalizedDigest',
   Changelog = 'changelog',
-  MyFeed = 'my-feed',
 }
 
 export type HasConnection<

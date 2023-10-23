@@ -43,10 +43,11 @@ import { ActiveFeedContext } from '../contexts';
 import { useFeedVotePost } from '../hooks';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
+import { AllFeedPages } from '../lib/query';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
-  feedName: string;
+  feedName: AllFeedPages;
   feedQueryKey: unknown[];
   query?: string;
   variables?: T;
