@@ -112,6 +112,8 @@ export interface ApiErrorResult {
   response: ApiResponse;
 }
 
+export const DEFAULT_ERROR = 'An error occurred, please try again';
+
 export const errorMessage = {
   profile: {
     invalidUsername: 'Invalid characters found in username!',

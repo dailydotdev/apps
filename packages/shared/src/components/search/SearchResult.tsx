@@ -28,6 +28,7 @@ export interface SearchResultProps {
   queryKey: QueryKey;
   isInProgress: boolean;
   searchMessageProps?: Omit<SearchMessageProps, 'content'>;
+  className?: string;
 }
 
 interface ContainerProps extends WithClassNameProps {
@@ -37,7 +38,7 @@ interface ContainerProps extends WithClassNameProps {
 const ContentPill = classed(Pill, 'w-full !h-3');
 
 const Container = ({ children, className }: ContainerProps) => (
-  <main className="order-2 laptop:order-3 col-span-2 px-4 laptop:px-8 mb-5 w-full">
+  <main className="order-2 laptop:order-3 col-span-2 w-full">
     <WidgetContainer className={classNames('flex p-4', className)}>
       {children}
     </WidgetContainer>
@@ -47,6 +48,7 @@ const Container = ({ children, className }: ContainerProps) => (
 export function SearchResult({
   chunk,
   queryKey,
+  className,
   isInProgress,
   searchMessageProps,
 }: SearchResultProps): ReactElement {
@@ -111,7 +113,7 @@ export function SearchResult({
   }
 
   return (
-    <Container>
+    <Container className={className}>
       <div className="flex p-2 mr-4 w-10 h-10 rounded-10 bg-theme-color-cabbage">
         <LogoIcon className="max-w-full" />
       </div>

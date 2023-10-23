@@ -92,6 +92,17 @@ export const cloudinary = {
       'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/empty_squad_light',
   },
   referralCampaign: {
+    search: {
+      bg: 'https://daily-now-res.cloudinary.com/image/upload/s--lYQL8anp--/f_auto/v1697393720/referral_bg_i261vi',
+      bgKeys:
+        'https://daily-now-res.cloudinary.com/image/upload/s--5Jrks80V--/v1697393719/referral_keys_bg_dregwt.svg',
+      bgPopup:
+        'https://daily-now-res.cloudinary.com/image/upload/s--FfsjTd-p--/f_auto/v1697393720/referral_bg_popup_qvmau3',
+      bgMobile:
+        'https://daily-now-res.cloudinary.com/image/upload/s--pvdAKlaQ--/f_auto/v1697393719/referral_bg_mobile_on0esi',
+      bgPopupMobile:
+        'https://daily-now-res.cloudinary.com/image/upload/s--19oBvNgw--/f_auto/v1697393719/referral_bg_popup_mobile_on7ss5',
+    },
     appScreenshot:
       'https://daily-now-res.cloudinary.com/image/upload/s--3e8Phst3--/f_auto,q_auto/v1686045256/daily_lmzdaf',
     backgroundDark:
