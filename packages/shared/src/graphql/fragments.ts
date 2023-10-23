@@ -10,6 +10,7 @@ export const CURRENT_MEMBER_FRAGMENT = gql`
     referralToken
     flags {
       hideFeedPosts
+      collapsePinnedPosts
     }
   }
 `;

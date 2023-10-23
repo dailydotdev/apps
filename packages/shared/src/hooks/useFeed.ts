@@ -17,6 +17,7 @@ import AuthContext from '../contexts/AuthContext';
 import { apiUrl, graphqlUrl } from '../lib/config';
 import useSubscription from './useSubscription';
 import { removeCachedPagePost, updateCachedPagePost } from '../lib/query';
+import { Squad } from '../graphql/sources';
 
 export type PostItem = {
   type: 'post';
@@ -65,6 +66,7 @@ export interface UseFeedOptionalParams<T> {
   variables?: T;
   options?: UseInfiniteQueryOptions<FeedData>;
   settings?: UseFeedSettingParams;
+  squad?: Squad;
 }
 
 export default function useFeed<T>(

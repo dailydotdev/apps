@@ -16,6 +16,7 @@ import { SharePostCard } from './cards/SharePostCard';
 import { WelcomePostCard } from './cards/WelcomePostCard';
 import { Origin } from '../lib/analytics';
 import { UseVotePost } from '../hooks';
+import { Squad } from '../graphql/sources';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -42,6 +43,7 @@ export type FeedItemComponentProps = {
     columns: number;
   }) => Promise<CommentOnData>;
   user: LoggedUser | undefined;
+  squad?: Squad;
   feedName: string;
   ranking?: string;
   onBookmark: (
@@ -110,6 +112,7 @@ export default function FeedItemComponent({
   isSendingComment,
   comment,
   user,
+  squad,
   feedName,
   ranking,
   toggleUpvote,
@@ -138,6 +141,13 @@ export default function FeedItemComponent({
 
   switch (item.type) {
     case 'post': {
+      if (
+        !!item.post.pinnedAt &&
+        squad?.currentMember?.flags?.collapsePinnedPosts
+      ) {
+        return null;
+      }
+
       const PostTag = useList
         ? PostList
         : PostTypeToTag[item.post.type] ?? ArticlePostCard;

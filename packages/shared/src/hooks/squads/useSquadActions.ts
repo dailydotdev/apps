@@ -7,6 +7,8 @@ import {
 } from 'react-query';
 import request from 'graphql-request';
 import {
+  collapsePinnedPosts,
+  expandPinnedPosts,
   SQUAD_MEMBERS_QUERY,
   SquadEdgesData,
   unblockSquadMember,
@@ -14,10 +16,14 @@ import {
 } from '../../graphql/squads';
 import { graphqlUrl } from '../../lib/config';
 import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
+import { updateFlagsCache } from '../../graphql/source/common';
+import { LoggedUser } from '../../lib/user';
 
 export interface UseSquadActions {
   onUnblock?: typeof unblockSquadMember;
   onUpdateRole?: typeof updateSquadMemberRole;
+  collapseSquadPinnedPosts?: typeof collapsePinnedPosts;
+  expandSquadPinnedPosts?: typeof expandPinnedPosts;
   membersQueryResult?: UseInfiniteQueryResult<SquadEdgesData>;
   members?: SourceMember[];
 }
@@ -28,12 +34,14 @@ interface MembersQueryParams {
 
 interface UseSquadActionsProps {
   squad: Squad;
+  user?: LoggedUser;
   membersQueryParams?: MembersQueryParams;
   membersQueryEnabled?: boolean;
 }
 
 export const useSquadActions = ({
   squad,
+  user,
   membersQueryParams = {},
   membersQueryEnabled,
 }: UseSquadActionsProps): UseSquadActions => {
@@ -46,6 +54,23 @@ export const useSquadActions = ({
     onSuccess: () => client.invalidateQueries(membersQueryKey),
   });
 
+  const { mutateAsync: collapseSquadPinnedPosts } = useMutation(
+    collapsePinnedPosts,
+    {
+      onSuccess: () => {
+        updateFlagsCache(client, squad, user, { collapsePinnedPosts: true });
+      },
+    },
+  );
+
+  const { mutateAsync: expandSquadPinnedPosts } = useMutation(
+    expandPinnedPosts,
+    {
+      onSuccess: () => {
+        updateFlagsCache(client, squad, user, { collapsePinnedPosts: false });
+      },
+    },
+  );
   const membersQueryResult = useInfiniteQuery<SquadEdgesData>(
     membersQueryKey,
     ({ pageParam }) =>
@@ -66,6 +91,8 @@ export const useSquadActions = ({
     () => ({
       onUnblock,
       onUpdateRole,
+      collapseSquadPinnedPosts,
+      expandSquadPinnedPosts,
       membersQueryResult,
       members:
         membersQueryResult.data?.pages

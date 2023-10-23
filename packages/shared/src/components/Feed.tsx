@@ -45,7 +45,7 @@ import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 
 export interface FeedProps<T>
-  extends Pick<UseFeedOptionalParams<T>, 'options'> {
+  extends Pick<UseFeedOptionalParams<T>, 'options' | 'squad'> {
   feedName: string;
   feedQueryKey: unknown[];
   query?: string;
@@ -54,6 +54,7 @@ export interface FeedProps<T>
   onEmptyFeed?: () => unknown;
   emptyScreen?: ReactNode;
   header?: ReactNode;
+  inlineHeader?: boolean;
   forceCardMode?: boolean;
   allowPin?: boolean;
   showSearch?: boolean;
@@ -105,6 +106,7 @@ export default function Feed<T>({
   variables,
   className,
   header,
+  inlineHeader,
   onEmptyFeed,
   emptyScreen,
   forceCardMode,
@@ -113,6 +115,7 @@ export default function Feed<T>({
   showSearch = true,
   besideSearch,
   actionButtons,
+  squad,
 }: FeedProps<T>): ReactElement {
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
@@ -387,6 +390,7 @@ export default function Feed<T>({
       <FeedContainer
         forceCardMode={forceCardMode}
         header={header}
+        inlineHeader={inlineHeader}
         className={className}
         showSearch={showSearch && isValidFeed}
         besideSearch={besideSearch}
@@ -416,6 +420,7 @@ export default function Feed<T>({
             isSendingComment={isSendingComment}
             comment={comment}
             user={user}
+            squad={squad}
             feedName={feedName}
             ranking={ranking}
             toggleUpvote={toggleUpvote}
