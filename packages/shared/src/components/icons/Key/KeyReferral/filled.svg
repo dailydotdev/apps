@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Shape</title>
+    <defs>
+        <linearGradient x1="50%" y1="-2.48949813e-15%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#F4F8FC" offset="0%"></stop>
+            <stop stop-color="#A5B3D2" offset="100%"></stop>
+        </linearGradient>
+        <path d="M184.129942,2.18376618 L188.816234,6.87005769 C191.727922,9.78174593 191.727922,14.5025253 188.816234,17.4142136 L185.887302,20.3431458 C183.378674,22.8517732 179.527149,23.1990389 176.646731,21.3849429 L174.757359,23.2720779 C173.786797,24.2426407 172.213203,24.2426407 171.242641,23.2720779 C170.91912,22.948557 170.394589,22.948557 170.071068,23.2720779 C169.747547,23.5955989 169.747547,24.1201299 170.071068,24.4436508 L170.232269,24.6209409 C171.038272,25.5972556 170.984539,27.0448986 170.071068,27.9583694 L169.485281,28.5441559 C167.544156,30.4852814 164.39697,30.4852814 162.455844,28.5441559 C160.514719,26.6030304 160.514719,23.4558441 162.455844,21.5147186 L169.61596,14.3547022 C167.800846,11.4741284 168.147811,7.62174173 170.656854,5.11269837 L173.585786,2.18376618 C176.497475,-0.727922061 181.218254,-0.727922061 184.129942,2.18376618 Z M181.883252,6.26639038 C181.404447,5.89563538 180.735689,5.90959349 180.322641,6.32264102 C179.872044,6.77323832 179.896396,7.52815298 180.377033,8.00879011 L182.99121,10.6229671 L183.116748,10.7336096 C183.595553,11.1043646 184.264311,11.0904065 184.677359,10.677359 C185.127956,10.2267617 185.103604,9.47184702 184.622967,8.99120989 L182.00879,6.37703292 Z" id="path-2"></path>
+        <filter x="-53.3%" y="-36.7%" width="206.7%" height="206.7%" filterUnits="objectBoundingBox" id="filter-3">
+            <feOffset dx="0" dy="5" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="4.5" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0.2   0 0 0 0 0.0980392157   0 0 0 0 0.678431373  0 0 0 1 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Invite-mechanism-for-search" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="3.-Invitation-Popup-" transform="translate(-612, -520)">
+            <g id="Popover" transform="translate(428, 160)">
+                <g id="Shape" transform="translate(32, 364)">
+                    <use fill="black" fill-opacity="1" filter="url(#filter-3)" xlink:href="#path-2"></use>
+                    <use fill="url(#linearGradient-1)" fill-rule="evenodd" xlink:href="#path-2"></use>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

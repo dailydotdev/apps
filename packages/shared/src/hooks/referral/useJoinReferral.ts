@@ -1,14 +1,14 @@
 import request from 'graphql-request';
 import { useRouter } from 'next/router';
 import { useQuery } from 'react-query';
-import { expireCookie, setCookie } from '../lib/cookie';
-import { isDevelopment } from '../lib/constants';
-import { GET_REFERRING_USER_QUERY } from '../graphql/users';
-import { graphqlUrl } from '../lib/config';
-import { ApiErrorResult } from '../graphql/common';
-import { useAuthContext } from '../contexts/AuthContext';
-import { disabledRefetch } from '../lib/func';
-import { oneYear } from '../lib/dateFormat';
+import { expireCookie, setCookie } from '../../lib/cookie';
+import { isDevelopment } from '../../lib/constants';
+import { GET_REFERRING_USER_QUERY } from '../../graphql/users';
+import { graphqlUrl } from '../../lib/config';
+import { ApiErrorResult } from '../../graphql/common';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { disabledRefetch } from '../../lib/func';
+import { oneYear } from '../../lib/dateFormat';
 
 export const useJoinReferral = (): void => {
   const { user, refetchBoot, isAuthReady } = useAuthContext();

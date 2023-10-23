@@ -1,43 +1,41 @@
 import { useQuery } from 'react-query';
 import { useContext } from 'react';
-import { useRequestProtocol } from './useRequestProtocol';
-import { REFERRAL_CAMPAIGN_QUERY } from '../graphql/users';
-import { graphqlUrl } from '../lib/config';
-import { RequestKey, generateQueryKey } from '../lib/query';
-import AuthContext from '../contexts/AuthContext';
-import { Feature } from '../lib/featureManagement';
-import { useFeatureIsOn } from '../components/GrowthBookProvider';
+import { useRequestProtocol } from '../useRequestProtocol';
+import { REFERRAL_CAMPAIGN_QUERY } from '../../graphql/users';
+import { graphqlUrl } from '../../lib/config';
+import { RequestKey, generateQueryKey } from '../../lib/query';
+import AuthContext from '../../contexts/AuthContext';
+import { feature, Feature } from '../../lib/featureManagement';
+import { useFeatureIsOn } from '../../components/GrowthBookProvider';
 
-export type ReferralCampaign = {
+export interface ReferralCampaign {
   referredUsersCount: number;
+  referralCountLimit: number;
+  referralToken: string;
   url: string;
-};
+}
 
-export type UseReferralCampaign = Pick<
-  ReferralCampaign,
-  'referredUsersCount'
-> & {
-  url: string;
-  referralCurrentCount: number;
-  referralTargetCount: number;
+export interface UseReferralCampaign extends ReferralCampaign {
   isCompleted: boolean;
   isReady: boolean;
-};
+  availableCount: number;
+  noKeysAvailable: boolean;
+  copy: { count: number; limit: number };
+}
 
-export enum ReferralCampaignKey {}
+export enum ReferralCampaignKey {
+  Search = 'search',
+}
 
 export type UseReferralCampaignProps = {
   campaignKey: ReferralCampaignKey;
 };
 
-export const campaignToReferralTargetCountMap: Record<
-  ReferralCampaignKey,
-  number
-> = {};
-
 const campaignFeatureFlagMap: Partial<
   Record<ReferralCampaignKey, Feature<string>>
-> = {};
+> = {
+  search: feature.search,
+};
 
 const useReferralCampaign = ({
   campaignKey,
@@ -49,7 +47,6 @@ const useReferralCampaign = ({
   const queryKey = generateQueryKey(RequestKey.ReferralCampaigns, user, {
     referralOrigin: campaignKey,
   });
-  const referralTargetCount = campaignToReferralTargetCountMap[campaignKey];
   const { data, isSuccess } = useQuery(
     queryKey,
     async () => {
@@ -68,19 +65,30 @@ const useReferralCampaign = ({
       enabled: !!user?.id && !!isCampaignEnabled,
     },
   );
-  const referredUsersCount = data?.referredUsersCount || 0;
+  const {
+    referralCountLimit = 0,
+    referredUsersCount = 0,
+    referralToken,
+    url,
+  } = data ?? {};
   const referralCurrentCount =
-    referredUsersCount > referralTargetCount
-      ? referralTargetCount
+    referredUsersCount > referralCountLimit
+      ? referralCountLimit
       : referredUsersCount;
 
   return {
+    copy: {
+      count: referredUsersCount < 100 ? referredUsersCount : 99,
+      limit: referralCountLimit < 100 ? referralCountLimit : 99,
+    },
     referredUsersCount,
-    url: data?.url,
+    referralCountLimit,
+    url,
+    referralToken,
     isReady: isSuccess,
-    referralCurrentCount,
-    referralTargetCount,
-    isCompleted: referralCurrentCount === referralTargetCount,
+    isCompleted: referralCurrentCount >= referralCountLimit,
+    availableCount: referralCountLimit - referredUsersCount,
+    noKeysAvailable: referralCountLimit - referredUsersCount <= 0,
   };
 };
 

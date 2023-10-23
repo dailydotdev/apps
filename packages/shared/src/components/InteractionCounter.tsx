@@ -6,6 +6,7 @@ export type InteractionCounterProps = { value: number | null };
 
 export default function InteractionCounter({
   value,
+  ...props
 }: InteractionCounterProps): ReactElement {
   const [shownValue, setShownValue] = useState(value);
   const [animate, setAnimate] = useState(false);
@@ -24,7 +25,7 @@ export default function InteractionCounter({
   }, [value]);
 
   if (shownValue === value) {
-    return <>{shownValue}</>;
+    return <span {...props}>{shownValue}</span>;
   }
 
   const updateShownValue = () => {
@@ -33,7 +34,10 @@ export default function InteractionCounter({
   };
 
   return (
-    <span className={`relative overflow-hidden ${styles.interactionCounter}`}>
+    <span
+      className={`relative overflow-hidden ${styles.interactionCounter}`}
+      {...props}
+    >
       <span
         className={
           animate ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0'

@@ -1,5 +1,8 @@
 import { gql } from 'graphql-request';
-import { SHARED_POST_INFO_FRAGMENT } from './fragments';
+import {
+  SHARED_POST_INFO_FRAGMENT,
+  USER_SHORT_INFO_FRAGMENT,
+} from './fragments';
 
 type PostStats = {
   numPosts: number;
@@ -263,12 +266,17 @@ export const GET_USERNAME_SUGGESTION = gql`
   }
 `;
 
-export const handleRegex = new RegExp(/^@?([\w-]){1,39}$/i);
+// Regex taken from https://github.com/dailydotdev/daily-api/blob/234b0be53fea85954403cef5a2326fc50ce498fd/src/common/object.ts#L41
+export const handleRegex = new RegExp(/^@?[a-z0-9](\w){2,38}$/i);
+// Regex taken from https://github.com/dailydotdev/daily-api/blob/234b0be53fea85954403cef5a2326fc50ce498fd/src/common/object.ts#L40
+export const socialHandleRegex = new RegExp(/^@?([\w-]){1,39}$/i);
 
 export const REFERRAL_CAMPAIGN_QUERY = gql`
   query ReferralCampaign($referralOrigin: String!) {
     referralCampaign(referralOrigin: $referralOrigin) {
       referredUsersCount
+      referralCountLimit
+      referralToken
       url
     }
   }
@@ -277,11 +285,10 @@ export const REFERRAL_CAMPAIGN_QUERY = gql`
 export const GET_REFERRING_USER_QUERY = gql`
   query User($id: ID!) {
     user(id: $id) {
-      id
-      name
-      image
+      ...UserShortInfo
     }
   }
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export type UserPersonalizedDigest = {
