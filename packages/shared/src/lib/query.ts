@@ -14,7 +14,7 @@ import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 export type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 
 export const generateQueryKey = (
-  name: string | RequestKey,
+  name: RequestKey,
   user: Pick<LoggedUser, 'id'> | null,
   ...additional: unknown[]
 ): unknown[] => {
@@ -34,6 +34,7 @@ export enum RequestKey {
   PostCommentsMutations = 'post_comments_mutations',
   Actions = 'actions',
   Squad = 'squad',
+  SquadMembers = 'squad_members',
   Search = 'search',
   SearchHistory = 'searchHistory',
   ReadingHistory = 'readingHistory',

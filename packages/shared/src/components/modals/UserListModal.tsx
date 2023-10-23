@@ -3,6 +3,7 @@ import { Modal, ModalProps } from './common/Modal';
 import UserList, { UserListProps } from '../profile/UserList';
 import { InfiniteScrollingProps } from '../containers/InfiniteScrolling';
 import { UserShortProfile } from '../../lib/user';
+import { SearchField } from '../fields/SearchField';
 
 export interface UserListModalProps extends Omit<ModalProps, 'children'> {
   users: UserShortProfile[];
@@ -14,6 +15,7 @@ export interface UserListModalProps extends Omit<ModalProps, 'children'> {
     UserListProps,
     'additionalContent' | 'initialItem' | 'isLoading' | 'emptyPlaceholder'
   >;
+  onSearch?(query: string): void;
 }
 
 function UserListModal({
@@ -24,6 +26,7 @@ function UserListModal({
   placeholderAmount,
   size = Modal.Size.Medium,
   userListProps,
+  onSearch,
   ...props
 }: UserListModalProps): ReactElement {
   const container = useRef<HTMLElement>();
@@ -40,6 +43,13 @@ function UserListModal({
     >
       {header ?? <Modal.Header title={title} />}
       <Modal.Body className="py-2 px-0" onScroll={onScroll} ref={container}>
+        {onSearch && (
+          <SearchField
+            className="mx-6"
+            inputId="members-search"
+            valueChanged={onSearch}
+          />
+        )}
         <UserList
           {...userListProps}
           users={users}
