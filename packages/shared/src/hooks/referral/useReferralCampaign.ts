@@ -7,6 +7,7 @@ import { RequestKey, generateQueryKey } from '../../lib/query';
 import AuthContext from '../../contexts/AuthContext';
 import { feature, Feature } from '../../lib/featureManagement';
 import { useFeatureIsOn } from '../../components/GrowthBookProvider';
+import { isTesting } from '../../lib/constants';
 
 export interface ReferralCampaign {
   referredUsersCount: number;
@@ -85,7 +86,7 @@ const useReferralCampaign = ({
     referralCountLimit,
     url,
     referralToken,
-    isReady: isSuccess,
+    isReady: isSuccess || isTesting,
     isCompleted: referralCurrentCount >= referralCountLimit,
     availableCount: referralCountLimit - referredUsersCount,
     noKeysAvailable: referralCountLimit - referredUsersCount <= 0,
