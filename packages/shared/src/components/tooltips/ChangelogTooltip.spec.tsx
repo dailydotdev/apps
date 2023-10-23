@@ -24,6 +24,7 @@ import {
   TOAST_NOTIF_KEY,
 } from '../../hooks/useToastNotification';
 import SettingsContext from '../../contexts/SettingsContext';
+import * as hooks from '../../hooks/useChangelog';
 
 describe('ChangelogTooltip component', () => {
   const noop = jest.fn();
@@ -363,5 +364,32 @@ describe('ChangelogTooltip component', () => {
     });
 
     expect(updateAlerts).toHaveBeenCalled();
+  });
+
+  it('calls toggleUpvote on upvote button click', async () => {
+    const client = new QueryClient();
+    const toggleUpvote = jest.fn();
+
+    jest.spyOn(hooks, 'useChangelog').mockImplementation(() => ({
+      toggleUpvote,
+      isAvailable: true,
+      latestPost: defaultPost,
+      dismiss: jest.fn(),
+    }));
+
+    renderComponent({ client });
+    await screen.findByTestId('changelog');
+
+    await act(async () => {
+      const changelogUpvotesButton = await screen.findByTestId(
+        'changelogUpvotesButton',
+      );
+      fireEvent.click(changelogUpvotesButton);
+    });
+
+    expect(toggleUpvote).toHaveBeenCalledWith({
+      post: defaultPost,
+      origin: 'changelog popup',
+    });
   });
 });
