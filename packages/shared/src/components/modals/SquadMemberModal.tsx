@@ -80,7 +80,7 @@ export function SquadMemberModal({
     onUpdateRole,
   } = useSquadActions({
     squad,
-    query: query?.trim?.(),
+    query: query?.trim?.()?.length ? query : undefined,
     membersQueryParams: { role: roleFilter },
     membersQueryEnabled: true,
   });
