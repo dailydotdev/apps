@@ -60,7 +60,7 @@ export const useSquadActions = ({
     ({ pageParam }) =>
       request(graphqlUrl, SQUAD_MEMBERS_QUERY, {
         id: squad?.id,
-        after: pageParam,
+        after: typeof pageParam === pageParam ? pageParam : null,
         query,
         ...membersQueryParams,
       }),
