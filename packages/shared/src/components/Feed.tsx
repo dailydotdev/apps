@@ -36,17 +36,18 @@ import { ExperimentWinner, OnboardingV2 } from '../lib/featureValues';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import OnboardingContext from '../contexts/OnboardingContext';
 import AlertContext from '../contexts/AlertContext';
-import { MainFeedPage } from './utilities';
+import { SharedFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
 import useCompanionTrigger from '../hooks/useCompanionTrigger';
 import { ActiveFeedContext } from '../contexts';
 import { useFeedVotePost } from '../hooks';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
+import { AllFeedPages } from '../lib/query';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
-  feedName: string;
+  feedName: AllFeedPages;
   feedQueryKey: unknown[];
   query?: string;
   variables?: T;
@@ -176,7 +177,7 @@ export default function Feed<T>({
 
   const showScrollOnboardingVersion =
     sidebarRendered &&
-    feedName === MainFeedPage.Popular &&
+    feedName === SharedFeedPage.Popular &&
     !isLoading &&
     alerts?.filter &&
     !user?.id &&
@@ -378,8 +379,8 @@ export default function Feed<T>({
     return <>{emptyScreen}</>;
   }
 
-  const isValidFeed = Object.values(MainFeedPage).includes(
-    feedName as MainFeedPage,
+  const isValidFeed = Object.values(SharedFeedPage).includes(
+    feedName as SharedFeedPage,
   );
 
   return (

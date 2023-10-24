@@ -225,7 +225,7 @@ export const RegistrationForm = ({
             leftIcon={<TwitterIcon />}
             name="traits.twitter"
             inputId="traits.twitter"
-            label="Twitter"
+            label="X"
             type="text"
             required
           />

@@ -33,6 +33,7 @@ import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -115,7 +116,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         </Button>
       </CustomFeedHeader>
       <Feed
-        feedName="source"
+        feedName={OtherFeedPage.Squad}
         feedQueryKey={[
           'sourceFeed',
           user?.id ?? 'anonymous',

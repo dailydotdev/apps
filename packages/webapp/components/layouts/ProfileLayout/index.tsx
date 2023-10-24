@@ -211,7 +211,7 @@ export default function ProfileLayout({
             />
             <div className={classNames('flex mt-3 mx-0.5', styles.links)}>
               {twitterHandle && (
-                <SimpleTooltip content="Twitter">
+                <SimpleTooltip content="X">
                   <Button
                     tag="a"
                     href={`https://twitter.com/${twitterHandle}`}
