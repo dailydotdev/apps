@@ -72,7 +72,7 @@ export function AISearchInvite({
     // we don't need to send the params here explicitly
     trackEvent({ event_name: AnalyticsEvent.AcceptInvitation });
 
-    return handleAccept;
+    return handleAccept();
   };
 
   useEffect(() => {
