@@ -21,7 +21,7 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../hooks/useToastNotification';
-import { generateQueryKey } from '../lib/query';
+import { AllFeedPages, generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { ShareBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
@@ -47,7 +47,7 @@ const PortalMenu = dynamic(
 export interface PostOptionsMenuProps extends ShareBookmarkProps {
   postIndex?: number;
   post: Post;
-  feedName?: string;
+  feedName?: AllFeedPages;
   onHidden?: () => unknown;
   feedQueryKey?: QueryKey;
   onRemovePost?: (postIndex: number) => Promise<unknown>;

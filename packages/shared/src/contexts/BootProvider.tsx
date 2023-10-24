@@ -10,7 +10,7 @@ import { BootApp, BootCacheData, getBootData } from '../lib/boot';
 import { AuthContextProvider } from './AuthContext';
 import { AnonymousUser, LoggedUser } from '../lib/user';
 import { AlertContextProvider } from './AlertContext';
-import { generateQueryKey } from '../lib/query';
+import { generateQueryKey, RequestKey } from '../lib/query';
 import {
   applyTheme,
   SettingsContextProvider,
@@ -157,7 +157,9 @@ export const BootDataProvider = ({
     async (newUser: LoggedUser | AnonymousUser) => {
       const updated = updateLocalBootData(cachedBootData, { user: newUser });
       setCachedBootData(updated);
-      await queryClient.invalidateQueries(generateQueryKey('profile', newUser));
+      await queryClient.invalidateQueries(
+        generateQueryKey(RequestKey.Profile, newUser),
+      );
     },
     [queryClient, cachedBootData],
   );
