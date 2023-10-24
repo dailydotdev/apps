@@ -17,12 +17,17 @@ import AuthOptions, {
   AuthProps,
 } from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { FilterOnboarding } from '@dailydotdev/shared/src/components/onboarding';
+import {
+  CreateFeedButton,
+  FilterOnboarding,
+  FilterOnboardingV4,
+} from '@dailydotdev/shared/src/components/onboarding';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/MemberAlready';
 import {
   OnboardingFilteringTitle,
   OnboardingV3,
+  OnboardingV4,
 } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
@@ -36,7 +41,10 @@ import {
   OnboardingStep,
   OnboardingTitleGradient,
 } from '@dailydotdev/shared/src/components/onboarding/common';
-import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
+import {
+  OnboardingMode,
+  PREVIEW_FEED_QUERY,
+} from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
@@ -53,6 +61,13 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
+import Feed from '@dailydotdev/shared/src/components/Feed';
+import { RequestKey } from '@dailydotdev/shared/src/lib/query';
+import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
+import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
+import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
+import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
+import { tablet, laptop } from '@dailydotdev/shared/src/styles/media';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -74,6 +89,8 @@ const Container = classed(
   'flex flex-col overflow-x-hidden items-center min-h-[100vh] w-full h-full max-h-[100vh] flex-1 z-max',
 );
 
+const requiredTagsThreshold = 5;
+
 const seo: NextSeoProps = {
   title: 'Get started',
   openGraph: { ...defaultOpenGraph },
@@ -84,12 +101,52 @@ interface HeaderProps {
   showOnboardingPage: boolean;
   isOnboardingV3: boolean;
   setAuth: Dispatch<SetStateAction<AuthProps>>;
+  onClickNext: () => void;
+  isFiltering: boolean;
 }
 const Header = ({
   showOnboardingPage,
   isOnboardingV3,
+  isFiltering,
   setAuth,
+  onClickNext,
 }: HeaderProps) => {
+  const onboardingV4 = useFeature(feature.onboardingV4);
+  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
+  const isTablet = !useMedia([laptop.replace('@media ', '')], [true], false);
+
+  const getImage = () => {
+    if (isMobile) {
+      return cloudinary.feed.bg.mobile;
+    }
+
+    return isTablet ? cloudinary.feed.bg.tablet : cloudinary.feed.bg.laptop;
+  };
+
+  if (isFiltering && onboardingV4 === OnboardingV4.V4) {
+    return (
+      <header className="flex sticky top-0 z-3 justify-center mb-10 w-full">
+        <img
+          className="absolute top-0 right-0 left-0 w-full"
+          src={getImage()}
+          alt="Gradient background"
+        />
+        <div className="flex justify-between items-center py-10 w-full max-w-4xl tablet:!px-6 !px-4">
+          <Logo
+            logoClassName={classNames(
+              onboardingV4 === OnboardingV4.V4 && 'h-6',
+            )}
+            position={LogoPosition.Relative}
+          />
+          <CreateFeedButton
+            requiredTagsThreshold={requiredTagsThreshold}
+            onClick={onClickNext}
+          />
+        </div>
+      </header>
+    );
+  }
+
   if (!isOnboardingV3 || !showOnboardingPage) {
     return (
       <Logo
@@ -142,6 +199,7 @@ export function OnboardPage(): ReactElement {
   const { onShouldUpdateFilters } = useOnboardingContext();
   const onboardingV2 = useFeature(feature.onboardingV2);
   const onboardingV3 = useFeature(feature.onboardingV3);
+  const onboardingV4 = useFeature(feature.onboardingV4);
   const isOnboardingV3 = onboardingV3 !== OnboardingV3.Control;
   const { growthbook } = useGrowthBookContext();
   const filteringTitle = useFeature(feature.onboardingFilterTitle);
@@ -156,6 +214,7 @@ export function OnboardPage(): ReactElement {
   });
   const { isAuthenticating, isLoginFlow, email, defaultDisplay } = auth;
   const isPageReady = growthbook?.ready && isAuthReady;
+  const { feedSettings } = useFeedSettings();
 
   const formRef = useRef<HTMLFormElement>();
   const title = versionToTitle[filteringTitle];
@@ -290,7 +349,12 @@ export function OnboardPage(): ReactElement {
     );
   };
 
+  const [isPreviewVisible, setPreviewVisible] = useState(false);
+
   const getContentV3 = (): ReactElement => {
+    const tagsCount = feedSettings?.includeTags?.length || 0;
+    const isPreviewEnabled = tagsCount >= requiredTagsThreshold;
+
     if (isAuthenticating && !isFiltering) {
       return getAuthOptions();
     }
@@ -298,13 +362,19 @@ export function OnboardPage(): ReactElement {
     return (
       <div
         className={classNames(
-          'flex tablet:flex-1 laptop:max-w-[37.5rem]',
-          isFiltering
-            ? 'flex-col items-center ml-0 tablet:max-w-[32rem] laptop:max-w-[48.75rem]'
-            : 'ml-auto',
+          'flex tablet:flex-1',
+          !(isFiltering && onboardingV4 === OnboardingV4.V4) &&
+            'laptop:max-w-[37.5rem]',
+          !isFiltering && 'ml-auto',
+          isFiltering &&
+            onboardingV4 === OnboardingV4.Control &&
+            'flex-col items-center ml-0 tablet:max-w-[32rem] laptop:max-w-[48.75rem]',
+          isFiltering &&
+            onboardingV4 === OnboardingV4.V4 &&
+            'flex flex-col items-center justify-start w-full ml-0 mb-10',
         )}
       >
-        {isFiltering ? (
+        {isFiltering && onboardingV4 === OnboardingV4.Control && (
           <>
             <Title className="text-center typo-title1">{title}</Title>
             <p className="mt-3 mb-10 text-center text-theme-label-secondary typo-title3">
@@ -323,7 +393,60 @@ export function OnboardPage(): ReactElement {
               </Button>
             </div>
           </>
-        ) : (
+        )}
+        {isFiltering && onboardingV4 === OnboardingV4.V4 && (
+          <>
+            <Title className="text-center typo-large-title">
+              Pick tags that relevant to you
+            </Title>
+            <FilterOnboardingV4
+              className="mt-10 max-w-4xl"
+              onSelectedTopics={hasSelectedTopics}
+            />
+            <Button
+              className={classNames(
+                'mt-10 btn',
+                isPreviewVisible ? 'btn-primary' : 'btn-secondary',
+              )}
+              disabled={!isPreviewEnabled}
+              rightIcon={
+                <ArrowIcon
+                  className={classNames(!isPreviewVisible && 'rotate-180')}
+                />
+              }
+              onClick={() => {
+                setPreviewVisible((current) => !current);
+              }}
+            >
+              {isPreviewEnabled
+                ? `${isPreviewVisible ? 'Hide' : 'Show'} feed preview`
+                : `${tagsCount}/${requiredTagsThreshold} to show feed preview`}
+            </Button>
+            {isPreviewEnabled && isPreviewVisible && (
+              <FeedLayout>
+                <p className="mt-6 -mb-4 text-center typo-body text-theme-label-secondary">
+                  Change your selection tags to see different feed preview.
+                </p>
+                <Feed
+                  className="px-6 pt-14 laptop:pt-10"
+                  feedName="preview"
+                  feedQueryKey={[RequestKey.FeedPreview, user?.id]}
+                  query={PREVIEW_FEED_QUERY}
+                  forceCardMode
+                  showSearch={false}
+                  options={{ refetchOnMount: true }}
+                  allowPin
+                />
+                <CreateFeedButton
+                  className="mt-20"
+                  requiredTagsThreshold={requiredTagsThreshold}
+                  onClick={onClickNext}
+                />
+              </FeedLayout>
+            )}
+          </>
+        )}
+        {!isFiltering && (
           <div className="hidden tablet:block flex-1">
             <div className={classNames('relative', styles.videoWrapper)}>
               {
@@ -441,11 +564,13 @@ export function OnboardPage(): ReactElement {
       }
     >
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
-      {getProgressBar()}
+      {onboardingV4 === OnboardingV4.Control && getProgressBar()}
       <Header
         showOnboardingPage={showOnboardingPage}
         isOnboardingV3={isOnboardingV3}
         setAuth={setAuth}
+        onClickNext={onClickNext}
+        isFiltering={isFiltering}
       />
       <div
         className={classNames(

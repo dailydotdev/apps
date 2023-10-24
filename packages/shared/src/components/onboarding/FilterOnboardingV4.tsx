@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
@@ -14,12 +14,12 @@ import { graphqlUrl } from '../../lib/config';
 import { disabledRefetch } from '../../lib/func';
 import { Button } from '../buttons/Button';
 import { AlertColor, AlertDot } from '../AlertDot';
-import useMutateFilters from '../../hooks/useMutateFilters';
-import AuthContext from '../../contexts/AuthContext';
 import { SearchField } from '../fields/SearchField';
 import useDebounce from '../../hooks/useDebounce';
 import { useTagSearch } from '../../hooks';
 import type { FilterOnboardingProps } from './FilterOnboarding';
+import useTagAndSource from '../../hooks/useTagAndSource';
+import { Origin } from '../../lib/analytics';
 
 type OnSelectTagProps = {
   tag: Tag;
@@ -30,14 +30,15 @@ const tagsSelector = (data: TagsData) => data?.tags || [];
 export function FilterOnboardingV4({
   className,
 }: FilterOnboardingProps): ReactElement {
-  const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
 
   const { feedSettings } = useFeedSettings();
   const selectedTags = useMemo(() => {
     return new Set(feedSettings?.includeTags || []);
   }, [feedSettings?.includeTags]);
-  const { followTags, unfollowTags } = useMutateFilters(user);
+  const { onFollowTags, onUnfollowTags } = useTagAndSource({
+    origin: Origin.TagsFilter,
+  });
 
   const [refetchFeed] = useDebounce(() => {
     const feedQueryKey = [RequestKey.FeedPreview];
@@ -129,9 +130,9 @@ export function FilterOnboardingV4({
 
       recommendTags({ tag });
 
-      await followTags({ tags: [tag.name] });
+      await onFollowTags({ tags: [tag.name] });
     } else {
-      await unfollowTags({ tags: [tag.name] });
+      await onUnfollowTags({ tags: [tag.name] });
     }
 
     refetchFeed();
@@ -143,8 +144,8 @@ export function FilterOnboardingV4({
     <div className={classNames(className, 'w-full flex flex-col items-center')}>
       <SearchField
         inputId="search-filters"
-        placeholder="Search"
-        className="mb-6 max-w-xs"
+        placeholder="javascript, php, git, etc…"
+        className="mb-10 w-full max-w-xs"
         valueChanged={onSearch}
       />
       <div className="flex flex-row flex-wrap gap-4 justify-center">
