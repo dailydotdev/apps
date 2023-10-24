@@ -15,10 +15,12 @@ import { IconSize } from '../Icon';
 import LinkIcon from '../icons/Link';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { FlexCentered } from '../utilities';
-import { useSquadActions } from '../../hooks/squads/useSquadActions';
+import { useSquadActions } from '../../hooks';
 import SquadMemberItemAdditionalContent from '../squads/SquadMemberItemAdditionalContent';
-import BlockIcon from '../icons/Block';
 import { verifyPermission } from '../../graphql/squads';
+import useDebounce from '../../hooks/useDebounce';
+import { defaultSearchDebounceMs } from '../../lib/func';
+import { BlockedMembersPlaceholder } from '../squads/Members';
 
 enum SquadMemberTab {
   AllMembers = 'Squad members',
@@ -66,6 +68,11 @@ export function SquadMemberModal({
   const { onMenuClick, onHide: hideMenu } = useContextMenu({
     id: 'squad-member-menu-context',
   });
+  const [query, setQuery] = useState('');
+  const [handleSearchDebounce] = useDebounce(
+    (value: string) => setQuery(value),
+    defaultSearchDebounceMs,
+  );
   const {
     members,
     membersQueryResult: queryResult,
@@ -73,6 +80,7 @@ export function SquadMemberModal({
     onUpdateRole,
   } = useSquadActions({
     squad,
+    query: query?.trim?.()?.length ? query : undefined,
     membersQueryParams: { role: roleFilter },
     membersQueryEnabled: true,
   });
@@ -118,13 +126,12 @@ export function SquadMemberModal({
               onOptionsClick={(e) => onOptionsClick(e, members[index])}
             />
           ),
-          emptyPlaceholder: (
-            <FlexCentered className="flex-col h-full">
-              <BlockIcon secondary size={IconSize.XXXLarge} />
-              <p className="text-theme-label-secondary typo-body">
-                No blocked members found
-              </p>
+          emptyPlaceholder: query ? (
+            <FlexCentered className="p-10 typo-callout text-theme-label-tertiary">
+              No user found
             </FlexCentered>
+          ) : (
+            <BlockedMembersPlaceholder />
           ),
           isLoading: queryResult.isLoading,
           initialItem:
@@ -133,6 +140,7 @@ export function SquadMemberModal({
             ),
         }}
         users={members?.map(({ user }) => user)}
+        onSearch={handleSearchDebounce}
       />
       <SquadMemberMenu
         squad={squad}

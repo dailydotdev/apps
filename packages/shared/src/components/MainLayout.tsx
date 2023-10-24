@@ -28,7 +28,7 @@ import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { daysLeft, OnboardingV2 } from '../lib/featureValues';
 import { useAuthContext } from '../contexts/AuthContext';
-import { MainFeedPage } from './utilities';
+import { SharedFeedPage } from './utilities';
 import { isTesting, onboardingUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useFeature, useGrowthBookContext } from './GrowthBookProvider';
@@ -56,7 +56,7 @@ export interface MainLayoutProps
 const mainLayoutClass = (sidebarExpanded: boolean) =>
   sidebarExpanded ? 'laptop:pl-60' : 'laptop:pl-11';
 
-const feeds = Object.values(MainFeedPage);
+const feeds = Object.values(SharedFeedPage);
 
 function MainLayout({
   children,
@@ -151,7 +151,7 @@ function MainLayout({
   };
 
   const router = useRouter();
-  const page = router?.route?.substring(1).trim() as MainFeedPage;
+  const page = router?.route?.substring(1).trim() as SharedFeedPage;
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   const isPageApplicableForOnboarding = !page || feeds.includes(page);

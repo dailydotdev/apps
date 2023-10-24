@@ -42,7 +42,7 @@ export function SearchReferralButton({
     <button
       type="button"
       className={classNames(
-        'flex flex-row items-center justify-center rounded-12 py-1 px-3 font-bold text-theme-label-tertiary bg-theme-overlay-from',
+        'flex flex-row items-center justify-center typo-callout rounded-12 py-1 px-3 font-bold text-theme-label-tertiary bg-theme-overlay-from',
         className,
       )}
       onClick={handleClick}

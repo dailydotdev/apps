@@ -10,7 +10,7 @@ import dynamic from 'next/dynamic';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
-import { FeedPage, MainFeedPage } from './utilities';
+import { FeedPage, SharedFeedPage } from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
@@ -53,7 +53,7 @@ type FeedQueryProps = {
   variables?: Record<string, unknown>;
 };
 
-const propsByFeed: Record<MainFeedPage, FeedQueryProps> = {
+const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
   'my-feed': {
     query: ANONYMOUS_FEED_QUERY,
     queryIfLogged: FEED_QUERY,
@@ -81,7 +81,7 @@ export type MainFeedLayoutProps = {
   searchChildren: ReactNode;
   besideSearch?: ReactNode;
   navChildren?: ReactNode;
-  onFeedPageChanged: (page: MainFeedPage) => void;
+  onFeedPageChanged: (page: SharedFeedPage) => void;
   isFinder?: boolean;
 };
 
@@ -107,12 +107,12 @@ interface GetDefaultFeedProps {
   hasUser?: boolean;
 }
 
-const getDefaultFeed = ({ hasUser }: GetDefaultFeedProps): MainFeedPage => {
+const getDefaultFeed = ({ hasUser }: GetDefaultFeedProps): SharedFeedPage => {
   if (!hasUser) {
-    return MainFeedPage.Popular;
+    return SharedFeedPage.Popular;
   }
 
-  return MainFeedPage.MyFeed;
+  return SharedFeedPage.MyFeed;
 };
 
 const defaultFeedConditions = [null, 'default', '/', ''];
@@ -120,7 +120,7 @@ const defaultFeedConditions = [null, 'default', '/', ''];
 export const getFeedName = (
   path: string,
   options: GetDefaultFeedProps = {},
-): MainFeedPage => {
+): SharedFeedPage => {
   const feed = path?.replaceAll?.('/', '') || '';
 
   if (defaultFeedConditions.some((condition) => condition === feed)) {
@@ -129,7 +129,7 @@ export const getFeedName = (
 
   const [page] = feed.split('?');
 
-  return page.replace(/^\/+/, '') as MainFeedPage;
+  return page.replace(/^\/+/, '') as SharedFeedPage;
 };
 
 export default function MainFeedLayout({
@@ -197,8 +197,12 @@ export default function MainFeedLayout({
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (isSearchOn && searchQuery) {
       return {
-        feedName: 'search',
-        feedQueryKey: generateQueryKey('search', user, searchQuery),
+        feedName: SharedFeedPage.Search,
+        feedQueryKey: generateQueryKey(
+          SharedFeedPage.Search,
+          user,
+          searchQuery,
+        ),
         query: SEARCH_POSTS_QUERY,
         variables: { query: searchQuery },
         emptyScreen: <SearchEmptyScreen />,
