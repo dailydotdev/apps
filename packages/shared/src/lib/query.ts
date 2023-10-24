@@ -18,6 +18,7 @@ export enum OtherFeedPage {
   Source = 'source',
   Bookmarks = 'bookmarks',
   SearchBookmarks = 'search-bookmarks',
+  Preview = 'preview',
 }
 
 export type AllFeedPages = SharedFeedPage | OtherFeedPage;

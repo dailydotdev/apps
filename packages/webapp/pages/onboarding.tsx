@@ -62,7 +62,7 @@ import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
 import Feed from '@dailydotdev/shared/src/components/Feed';
-import { RequestKey } from '@dailydotdev/shared/src/lib/query';
+import { OtherFeedPage, RequestKey } from '@dailydotdev/shared/src/lib/query';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
@@ -429,7 +429,7 @@ export function OnboardPage(): ReactElement {
                 </p>
                 <Feed
                   className="px-6 pt-14 laptop:pt-10"
-                  feedName="preview"
+                  feedName={OtherFeedPage.Preview}
                   feedQueryKey={[RequestKey.FeedPreview, user?.id]}
                   query={PREVIEW_FEED_QUERY}
                   forceCardMode
