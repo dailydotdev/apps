@@ -19,7 +19,7 @@ function PostSummary(
     <SummaryContainer ref={ref} {...props}>
       <ShowMoreContent
         content={summary}
-        charactersLimit={300}
+        charactersLimit={330}
         threshold={50}
         contentPrefix={<TLDRText>TLDR</TLDRText>}
       />
