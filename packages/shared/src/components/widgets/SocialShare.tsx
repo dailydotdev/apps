@@ -122,9 +122,9 @@ export const SocialShare = ({
         <SocialShareIcon
           href={getTwitterShareLink(link, post?.title)}
           icon={<TwitterIcon />}
-          className="bg-theme-bg-twitter"
+          className="text-white bg-black"
           onClick={() => trackClick(ShareProvider.Twitter)}
-          label="Twitter"
+          label="X"
         />
         <SocialShareIcon
           href={getWhatsappShareLink(link)}

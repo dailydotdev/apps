@@ -83,7 +83,7 @@ it('should show join date', () => {
 
 it('should show twitter link', () => {
   renderComponent();
-  const el = screen.getByLabelText('Twitter');
+  const el = screen.getByLabelText('X');
   expect(el).toHaveAttribute('href', 'https://twitter.com/dailydotdev');
 });
 
