@@ -36,6 +36,8 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
 import { MenuItemProps } from './fields/PortalMenu';
+import SendBackwardIcon from './icons/SendBackward';
+import BringForwardIcon from './icons/BringForward';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -47,6 +49,8 @@ const PortalMenu = dynamic(
 export interface PostOptionsMenuProps extends ShareBookmarkProps {
   postIndex?: number;
   post: Post;
+  prevPost?: Post;
+  nextPost?: Post;
   feedName?: AllFeedPages;
   onHidden?: () => unknown;
   feedQueryKey?: QueryKey;
@@ -62,6 +66,8 @@ export default function PostOptionsMenu({
   onBookmark,
   postIndex,
   post,
+  prevPost,
+  nextPost,
   feedName,
   onHidden,
   onRemovePost,
@@ -107,41 +113,44 @@ export default function PostOptionsMenu({
     });
     onRemovePost?.(_postIndex);
   };
-  const { onConfirmDeletePost, onPinPost, onToggleDownvotePost } =
-    usePostMenuActions({
-      post,
-      postIndex,
-      onPinSuccessful: async () => {
-        const key = getPostByIdKey(post.id);
-        const cached = client.getQueryData(key);
-        if (cached) {
-          client.setQueryData<Post>(key, (data) => ({
-            ...data,
-            pinnedAt: post.pinnedAt ? null : new Date(),
-          }));
-        }
+  const {
+    onConfirmDeletePost,
+    onPinPost,
+    onSwapPinnedPost,
+    onToggleDownvotePost,
+  } = usePostMenuActions({
+    post,
+    postIndex,
+    onPinSuccessful: async () => {
+      const key = getPostByIdKey(post.id);
+      const cached = client.getQueryData(key);
+      if (cached) {
+        client.setQueryData<Post>(key, (data) => ({
+          ...data,
+          pinnedAt: post.pinnedAt ? null : new Date(),
+        }));
+      }
 
-        await client.invalidateQueries(feedQueryKey);
-        displayToast(
-          post.pinnedAt
-            ? 'Your post has been unpinned'
-            : '📌 Your post has been pinned',
-        );
-      },
-      onPostDeleted: ({ index, post: deletedPost }) => {
-        trackEvent(
-          postAnalyticsEvent(AnalyticsEvent.DeletePost, deletedPost, {
-            extra: { origin },
-          }),
-        );
-        return showMessageAndRemovePost(
-          'The post has been deleted',
-          index,
-          null,
-        );
-      },
-      origin,
-    });
+      await client.invalidateQueries(feedQueryKey);
+      displayToast(
+        post.pinnedAt
+          ? 'Your post has been unpinned'
+          : '📌 Your post has been pinned',
+      );
+    },
+    onSwapPostSuccessful: async () => {
+      await client.invalidateQueries(feedQueryKey);
+    },
+    onPostDeleted: ({ index, post: deletedPost }) => {
+      trackEvent(
+        postAnalyticsEvent(AnalyticsEvent.DeletePost, deletedPost, {
+          extra: { origin },
+        }),
+      );
+      return showMessageAndRemovePost('The post has been deleted', index, null);
+    },
+    origin,
+  });
 
   const onReportedPost: ReportedCallback = async (
     reportedPost,
@@ -284,6 +293,25 @@ export default function PostOptionsMenu({
       action: onConfirmDeletePost,
     });
   }
+
+  if (allowPin && onSwapPinnedPost) {
+    if (nextPost?.pinnedAt) {
+      postOptions.unshift({
+        icon: <MenuIcon Icon={SendBackwardIcon} secondary={!!post.pinnedAt} />,
+        label: 'Send backward',
+        action: () => onSwapPinnedPost({ nextPostId: nextPost.id }),
+      });
+    }
+
+    if (prevPost?.pinnedAt) {
+      postOptions.unshift({
+        icon: <MenuIcon Icon={BringForwardIcon} secondary={!!post.pinnedAt} />,
+        label: 'Bring forward',
+        action: () => onSwapPinnedPost({ prevPostId: prevPost.id }),
+      });
+    }
+  }
+
   if (allowPin && onPinPost) {
     postOptions.unshift({
       icon: <MenuIcon Icon={PinIcon} secondary={!!post.pinnedAt} />,
@@ -291,6 +319,7 @@ export default function PostOptionsMenu({
       action: onPinPost,
     });
   }
+
   if (setShowBanPost) {
     postOptions.push({
       icon: <MenuIcon Icon={HammerIcon} />,

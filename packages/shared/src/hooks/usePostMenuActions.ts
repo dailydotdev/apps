@@ -17,6 +17,12 @@ import { useBlockPostPanel } from './post/useBlockPostPanel';
 interface UsePostMenuActions {
   onConfirmDeletePost: () => Promise<void>;
   onPinPost: () => Promise<void>;
+  onSwapPinnedPost:
+    | null
+    | ((args: {
+        nextPostId?: Post['id'];
+        prevPostId?: Post['id'];
+      }) => Promise<void>);
   onToggleDownvotePost: () => void;
 }
 
@@ -30,6 +36,7 @@ interface UsePostMenuActionsProps {
   post: Post;
   postIndex?: number;
   onPinSuccessful?: () => Promise<unknown>;
+  onSwapPostSuccessful?: () => Promise<unknown>;
   onPostDeleted?: (args: DeletePostProps) => void;
   origin: Origin;
 }
@@ -49,6 +56,7 @@ export const usePostMenuActions = ({
   postIndex,
   onPostDeleted,
   onPinSuccessful,
+  onSwapPostSuccessful,
   origin,
 }: UsePostMenuActionsProps): UsePostMenuActions => {
   const { user } = useAuthContext();
@@ -79,9 +87,23 @@ export const usePostMenuActions = ({
     SourcePermissions.PostPin,
   );
 
+  const canSwap = post?.pinnedAt;
+
   const { mutateAsync: onPinPost } = useMutation(
     () => updatePinnedPost({ id: post.id, pinned: !post.pinnedAt }),
     { onSuccess: onPinSuccessful },
+  );
+
+  const { mutateAsync: onSwapPinnedPost } = useMutation(
+    ({
+      nextPostId,
+      prevPostId,
+    }: {
+      nextPostId: Post['id'];
+      prevPostId: Post['id'];
+    }) =>
+      updatePinnedPost({ id: post.id, pinned: true, nextPostId, prevPostId }),
+    { onSuccess: onSwapPostSuccessful },
   );
 
   const { onClose, onShowPanel } = useBlockPostPanel(post);
@@ -90,6 +112,7 @@ export const usePostMenuActions = ({
   return {
     onConfirmDeletePost: canDelete ? deletePostPrompt : null,
     onPinPost: canPin ? onPinPost : null,
+    onSwapPinnedPost: canSwap ? onSwapPinnedPost : null,
     onToggleDownvotePost: () => {
       if (post.userState?.vote !== UserPostVote.Down) {
         onShowPanel();

@@ -371,6 +371,8 @@ export default function Feed<T>({
       );
     },
     post,
+    prevPost: (items[postMenuIndex - 1] as PostItem)?.post,
+    nextPost: (items[postMenuIndex + 1] as PostItem)?.post,
   };
 
   const ArticleModal = PostModalMap[selectedPost?.type];

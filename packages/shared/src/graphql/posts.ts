@@ -519,8 +519,18 @@ export const editPost = async (
 };
 
 export const PIN_POST_MUTATION = gql`
-  mutation UpdatePinPost($id: ID!, $pinned: Boolean!) {
-    updatePinPost(id: $id, pinned: $pinned) {
+  mutation UpdatePinPost(
+    $id: ID!
+    $pinned: Boolean!
+    $nextPostId: ID
+    $prevPostId: ID
+  ) {
+    updatePinPost(
+      id: $id
+      pinned: $pinned
+      nextPostId: $nextPostId
+      prevPostId: $prevPostId
+    ) {
       _
     }
   }
@@ -529,6 +539,8 @@ export const PIN_POST_MUTATION = gql`
 interface UpdatePinnedProps {
   id: string;
   pinned: boolean;
+  nextPostId?: string;
+  prevPostId?: string;
 }
 
 export const updatePinnedPost = async (
