@@ -29,7 +29,7 @@ export const SearchSourceList = ({
     limit: 3,
   });
 
-  if (!isLoading && sources?.length === 0) {
+  if ((!isLoading && !sources) || sources?.length === 0) {
     return null;
   }
 
