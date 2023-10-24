@@ -8,7 +8,6 @@ import NotificationItemAttachment from './NotificationItemAttachment';
 import NotificationItemAvatar from './NotificationItemAvatar';
 import { notificationTypeTheme } from './utils';
 import OptionsButton from '../buttons/OptionsButton';
-import ConditionalWrapper from '../ConditionalWrapper';
 
 export interface NotificationItemProps
   extends Pick<
@@ -56,70 +55,63 @@ function NotificationItem({
   const hasAvatar = avatarComponents.length > 0;
 
   return (
-    <ConditionalWrapper
-      condition={!!onClick}
-      wrapper={(children) => (
-        <Link href={targetUrl}>
-          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
-          <a
-            data-testid="openNotification"
-            role="button"
-            title="Open notification"
-            aria-label="Open notification"
-            onClick={onClick}
-            tabIndex={0}
-          >
-            {children}
-          </a>
-        </Link>
+    <div
+      className={classNames(
+        'relative group flex flex-row py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active border-y border-theme-bg-primary',
+        isUnread && 'bg-theme-float',
       )}
     >
-      <div
-        className={classNames(
-          'relative group flex flex-row py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active border-y border-theme-bg-primary',
-          isUnread && 'bg-theme-float',
-        )}
-      >
-        {onOptionsClick && (
-          <OptionsButton
-            className="hidden group-hover:flex top-3 right-2"
-            position="absolute"
-            type="button"
-            onClick={onOptionsClick}
+      {onClick && (
+        <Link href={targetUrl} passHref>
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/anchor-has-content, jsx-a11y/no-static-element-interactions */}
+          <a
+            aria-label="Open notification"
+            className="absolute inset-0 z-0"
+            onClick={onClick}
+            title="Open notification"
+            data-testid="openNotification"
           />
-        )}
-        <NotificationItemIcon
-          icon={icon}
-          iconTheme={notificationTypeTheme[type]}
+        </Link>
+      )}
+      {onOptionsClick && (
+        <OptionsButton
+          className="hidden group-hover:flex top-3 right-2"
+          position="absolute"
+          type="button"
+          onClick={onOptionsClick}
         />
-        <div className="flex flex-col flex-1 ml-4 w-full text-left typo-callout">
-          {hasAvatar && (
-            <span className="flex flex-row gap-2 mb-4">{avatarComponents}</span>
-          )}
-          <span
-            className="break-words"
+      )}
+      <NotificationItemIcon
+        icon={icon}
+        iconTheme={notificationTypeTheme[type]}
+      />
+      <div className="flex flex-col flex-1 ml-4 w-full text-left typo-callout">
+        {hasAvatar && (
+          <span className="flex flex-row gap-2 mb-4">{avatarComponents}</span>
+        )}
+        <span
+          className="break-words"
+          dangerouslySetInnerHTML={{
+            __html: memoizedTitle,
+          }}
+        />
+        {description && (
+          <p
+            className="mt-2 w-4/5 break-words text-theme-label-quaternary"
             dangerouslySetInnerHTML={{
-              __html: memoizedTitle,
+              __html: memoizedDescription,
             }}
           />
-          {description && (
-            <p
-              className="mt-2 w-4/5 break-words text-theme-label-quaternary"
-              dangerouslySetInnerHTML={{
-                __html: memoizedDescription,
-              }}
-            />
-          )}
-          {attachments?.map(({ image, title: attachment }) => (
-            <NotificationItemAttachment
-              key={attachment}
-              image={image}
-              title={attachment}
-            />
-          ))}
-        </div>
+        )}
+        {attachments?.map(({ image, title: attachment }) => (
+          <NotificationItemAttachment
+            key={attachment}
+            image={image}
+            title={attachment}
+          />
+        ))}
       </div>
-    </ConditionalWrapper>
+    </div>
   );
 }
 
