@@ -95,10 +95,10 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
         <SocialShareIcon
           size={ButtonSize.Medium}
           href={getTwitterShareLink(href, post?.title)}
-          icon={<TwitterIcon secondary />}
+          icon={<TwitterIcon />}
           className="btn-tertiary"
           onClick={() => onClick(ShareProvider.Twitter)}
-          label="Twitter"
+          label="X"
         />
         <SquadsToShare
           size={ButtonSize.Medium}

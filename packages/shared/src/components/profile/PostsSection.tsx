@@ -175,7 +175,7 @@ export default function PostsSection({
         >
           <TextField
             leftIcon={<TwitterIcon />}
-            label="Twitter"
+            label="X"
             inputId="twitter"
             hint={hint.twitter}
             name="twitter"
