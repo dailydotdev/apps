@@ -299,7 +299,7 @@ export default function PostOptionsMenu({
       postOptions.unshift({
         icon: <MenuIcon Icon={SendBackwardIcon} secondary={!!post.pinnedAt} />,
         label: 'Send backward',
-        action: () => onSwapPinnedPost({ nextPostId: nextPost.id }),
+        action: () => onSwapPinnedPost({ swapWithId: nextPost.id }),
       });
     }
 
@@ -307,7 +307,7 @@ export default function PostOptionsMenu({
       postOptions.unshift({
         icon: <MenuIcon Icon={BringForwardIcon} secondary={!!post.pinnedAt} />,
         label: 'Bring forward',
-        action: () => onSwapPinnedPost({ prevPostId: prevPost.id }),
+        action: () => onSwapPinnedPost({ swapWithId: prevPost.id }),
       });
     }
   }

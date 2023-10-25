@@ -4,6 +4,7 @@ import { PromptOptions, usePrompt } from './usePrompt';
 import {
   deletePost,
   Post,
+  swapPinnedPosts,
   updatePinnedPost,
   UserPostVote,
 } from '../graphql/posts';
@@ -19,10 +20,7 @@ interface UsePostMenuActions {
   onPinPost: () => Promise<void>;
   onSwapPinnedPost:
     | null
-    | ((args: {
-        nextPostId?: Post['id'];
-        prevPostId?: Post['id'];
-      }) => Promise<void>);
+    | ((args: { swapWithId: Post['id'] }) => Promise<void>);
   onToggleDownvotePost: () => void;
 }
 
@@ -95,14 +93,8 @@ export const usePostMenuActions = ({
   );
 
   const { mutateAsync: onSwapPinnedPost } = useMutation(
-    ({
-      nextPostId,
-      prevPostId,
-    }: {
-      nextPostId: Post['id'];
-      prevPostId: Post['id'];
-    }) =>
-      updatePinnedPost({ id: post.id, pinned: true, nextPostId, prevPostId }),
+    ({ swapWithId }: { swapWithId: Post['id'] }) =>
+      swapPinnedPosts({ id: post.id, swapWithId }),
     { onSuccess: onSwapPostSuccessful },
   );
 
