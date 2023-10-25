@@ -21,6 +21,8 @@ export enum OtherFeedPage {
   Preview = 'preview',
 }
 
+export const STALE_TIME = 30 * 1000;
+
 export type AllFeedPages = SharedFeedPage | OtherFeedPage;
 
 export type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
