@@ -1,5 +1,6 @@
 import React, { MouseEventHandler, ReactElement } from 'react';
 import classNames from 'classnames';
+import Link from 'next/link';
 import { Notification } from '../../graphql/notifications';
 import { useObjectPurify } from '../../hooks/useDomPurify';
 import NotificationItemIcon from './NotificationIcon';
@@ -29,6 +30,7 @@ function NotificationItem({
   attachments,
   onClick,
   onOptionsClick,
+  targetUrl,
 }: NotificationItemProps): ReactElement {
   const {
     isReady,
@@ -60,12 +62,16 @@ function NotificationItem({
       )}
     >
       {onClick && (
-        <button
-          type="button"
-          aria-label="Open notification"
-          className="absolute inset-0 z-0"
-          onClick={onClick}
-        />
+        <Link href={targetUrl} passHref>
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/anchor-has-content, jsx-a11y/no-static-element-interactions */}
+          <a
+            aria-label="Open notification"
+            className="absolute inset-0 z-0"
+            onClick={onClick}
+            title="Open notification"
+            data-testid="openNotification"
+          />
+        </Link>
       )}
       {onOptionsClick && (
         <OptionsButton

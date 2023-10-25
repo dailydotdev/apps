@@ -6,7 +6,7 @@ import { optimisticPostUpdateInFeed } from '../lib/feed';
 import { updatePostCache } from './usePostById';
 import { updateCachedPagePost } from '../lib/query';
 import { ActiveFeedContext } from '../contexts';
-import { MainFeedPage } from '../components/utilities';
+import { SharedFeedPage } from '../components/utilities';
 import { EmptyResponse } from '../graphql/emptyResponse';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
@@ -33,7 +33,7 @@ export const usePostFeedback = ({
     feature.engagementLoopJuly2023Upvote.id,
   );
   const isMyFeed = useMemo(() => {
-    return feedQueryKey?.some((item) => item === MainFeedPage.MyFeed);
+    return feedQueryKey?.some((item) => item === SharedFeedPage.MyFeed);
   }, [feedQueryKey]);
 
   const dismissFeedbackMutation = useMutation(

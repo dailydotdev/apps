@@ -72,7 +72,7 @@ export function AISearchInvite({
     // we don't need to send the params here explicitly
     trackEvent({ event_name: AnalyticsEvent.AcceptInvitation });
 
-    return handleAccept;
+    return handleAccept();
   };
 
   useEffect(() => {
@@ -86,24 +86,24 @@ export function AISearchInvite({
   }, [redirectTo, search]);
 
   return (
-    <div className="flex overflow-hidden tablet:overflow-auto relative flex-col flex-1 justify-center p-6 h-full min-h-[100vh]">
+    <div className="flex overflow-hidden relative flex-col flex-1 justify-center items-center laptop:items-start p-6 h-full min-h-[100vh]">
       <span className="absolute top-8 left-1/2 laptop:left-8 -translate-x-1/2 laptop:translate-x-0">
         <Logo showGreeting={false} position={LogoPosition.Relative} />
       </span>
       <div className="flex flex-col laptop:ml-3 w-full tablet:max-w-[27.5rem] laptopL:ml-[9.75rem]">
-        <span className="flex flex-col tablet:flex-row gap-2 items-center tablet:items-start mb-6">
+        <span className="flex flex-col laptop:flex-row gap-3 tablet:gap-4 laptop:gap-2 items-center laptop:items-start mb-6 tablet:mb-10 laptop:mb-8">
           <ProfileImageLink user={referringUser} />
-          <p className="text-center tablet:text-left text-theme-label-tertiary typo-callout">
+          <p className="text-center laptop:text-left text-theme-label-tertiary typo-callout">
             {referringUser.name}
             <br />
             invites you to try daily.dev search
           </p>
         </span>
-        <h1 className="w-full font-bold text-center tablet:text-left break-words-overflow typo-large-title tablet:typo-mega1">
+        <h1 className="w-full font-bold text-center laptop:text-left break-words-overflow typo-large-title tablet:typo-mega3">
           {referringUser.name.split(' ')[0]} gave you early access to daily.dev
           search!
         </h1>
-        <p className="mt-6 text-center tablet:text-left text-theme-label-secondary">
+        <p className="mt-6 text-center laptop:text-left text-theme-label-secondary">
           This isn’t just another search engine; it’s a search engine that’s
           both fine-tuned for developers and fully integrated into the daily.dev
           ecosystem.
@@ -122,7 +122,12 @@ export function AISearchInvite({
       <img
         src={cloudinary.referralCampaign.search.bg}
         alt="search input depicting our new AI search feature"
-        className="hidden tablet:block absolute right-0 tablet:w-1/2"
+        className="hidden laptop:block absolute right-0 tablet:w-1/2"
+      />
+      <img
+        src={cloudinary.referralCampaign.search.bgPopupMobile}
+        alt="search input depicting our new AI search feature"
+        className="hidden tablet:block laptop:hidden max-w-[27.5rem]"
       />
       <img
         src={cloudinary.referralCampaign.search.bgMobile}

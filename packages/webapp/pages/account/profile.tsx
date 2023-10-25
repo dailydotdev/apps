@@ -135,7 +135,7 @@ const AccountProfilePage = (): ReactElement => {
         >
           <AccountTextField
             leftIcon={<TwitterIcon />}
-            label="Twitter"
+            label="X"
             inputId="twitter"
             hint={hint.twitter}
             valid={!hint.twitter}

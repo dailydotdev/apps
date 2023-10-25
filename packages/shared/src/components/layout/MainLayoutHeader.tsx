@@ -86,9 +86,62 @@ function MainLayoutHeader({
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
   };
-  const { referralToken } = useReferralCampaign({
+  const { referralToken, isReady } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Search,
   });
+
+  const renderButtons = () => {
+    return (
+      <>
+        {showPostButton && (
+          <CreatePostButton
+            className={classNames(
+              'mr-0 laptop:mr-4',
+              optOutWeeklyGoal ? 'tablet:mr-0' : 'tablet:mr-4',
+            )}
+          />
+        )}
+        {!hideButton && user && (
+          <>
+            {sidebarRendered && !!referralToken && (
+              <SearchReferralButton className="mr-3" />
+            )}
+            <LinkWithTooltip
+              tooltip={{ placement: 'bottom', content: 'Notifications' }}
+              href={`${webappUrl}notifications`}
+            >
+              <Button
+                className="hidden laptop:flex mr-4 btn-tertiary bg-theme-bg-secondary"
+                buttonSize={ButtonSize.Small}
+                iconOnly
+                onClick={onNavigateNotifications}
+                icon={
+                  <BellIcon
+                    className={classNames(
+                      'hover:text-theme-label-primary',
+                      atNotificationsPage && 'text-theme-label-primary',
+                    )}
+                    secondary={atNotificationsPage}
+                  />
+                }
+              >
+                {hasNotification && (
+                  <Bubble className="top-0 right-0 px-1 shadow-bubble-cabbage translate-x-1/2 -translate-y-1/2">
+                    {getUnreadText(unreadCount)}
+                  </Bubble>
+                )}
+              </Button>
+            </LinkWithTooltip>
+          </>
+        )}
+        {additionalButtons}
+        {headerButton}
+        {!sidebarRendered && !optOutWeeklyGoal && !isMobile && (
+          <MobileHeaderRankProgress />
+        )}
+      </>
+    );
+  };
 
   return (
     <header
@@ -119,52 +172,7 @@ function MainLayoutHeader({
               />
             )}
           </div>
-          {showPostButton && (
-            <CreatePostButton
-              className={classNames(
-                'mr-0 laptop:mr-4',
-                optOutWeeklyGoal ? 'tablet:mr-0' : 'tablet:mr-4',
-              )}
-            />
-          )}
-          {!hideButton && user && (
-            <>
-              {sidebarRendered && !!referralToken && (
-                <SearchReferralButton className="mr-3" />
-              )}
-              <LinkWithTooltip
-                tooltip={{ placement: 'bottom', content: 'Notifications' }}
-                href={`${webappUrl}notifications`}
-              >
-                <Button
-                  className="hidden laptop:flex mr-4 btn-tertiary bg-theme-bg-secondary"
-                  buttonSize={ButtonSize.Small}
-                  iconOnly
-                  onClick={onNavigateNotifications}
-                  icon={
-                    <BellIcon
-                      className={classNames(
-                        'hover:text-theme-label-primary',
-                        atNotificationsPage && 'text-theme-label-primary',
-                      )}
-                      secondary={atNotificationsPage}
-                    />
-                  }
-                >
-                  {hasNotification && (
-                    <Bubble className="top-0 right-0 px-1 shadow-bubble-cabbage translate-x-1/2 -translate-y-1/2">
-                      {getUnreadText(unreadCount)}
-                    </Bubble>
-                  )}
-                </Button>
-              </LinkWithTooltip>
-            </>
-          )}
-          {additionalButtons}
-          {headerButton}
-          {!sidebarRendered && !optOutWeeklyGoal && !isMobile && (
-            <MobileHeaderRankProgress />
-          )}
+          {isReady ? renderButtons() : null}
         </>
       )}
     </header>

@@ -30,3 +30,5 @@ export const postWindowMessage = (
 ): void => window.opener?.postMessage?.({ ...params, eventKey }, attributes);
 
 export const checkIsExtension = (): boolean => !!process.env.TARGET_BROWSER;
+
+export const defaultSearchDebounceMs = 200;
