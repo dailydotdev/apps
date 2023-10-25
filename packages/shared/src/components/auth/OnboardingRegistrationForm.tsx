@@ -4,7 +4,7 @@ import { checkKratosEmail } from '../../lib/kratos';
 import { AuthFormProps, getFormEmail, providerMap } from './common';
 import OrDivider from './OrDivider';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
+import { AuthEventNames, AuthTriggers } from '../../lib/auth';
 import { Button } from '../buttons/Button';
 import AuthForm from './AuthForm';
 import { TextField } from '../fields/TextField';
@@ -22,7 +22,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   isLoginFlow?: boolean;
   logInTitle?: string;
   signUpTitle?: string;
-  trigger: AuthTriggersOrString;
+  trigger: AuthTriggers;
   isReady: boolean;
 }
 

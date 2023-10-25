@@ -14,12 +14,12 @@ import {
 } from '../lib/user';
 import { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
-import { AuthTriggers, AuthTriggersOrString } from '../lib/auth';
+import { AuthTriggers } from '../lib/auth';
 import { Squad } from '../graphql/sources';
 import { checkIsExtension, isNullOrUndefined } from '../lib/func';
 
 export interface LoginState {
-  trigger: AuthTriggersOrString;
+  trigger: AuthTriggers;
   referral?: string;
   referralOrigin?: string;
   onLoginSuccess?: () => void;
@@ -36,7 +36,7 @@ export interface AuthContextData {
   referralOrigin?: string;
   trackingId?: string;
   shouldShowLogin: boolean;
-  showLogin: (trigger: AuthTriggersOrString, options?: LoginOptions) => void;
+  showLogin: (trigger: AuthTriggers, options?: LoginOptions) => void;
   closeLogin: () => void;
   loginState?: LoginState;
   logout: () => Promise<void>;

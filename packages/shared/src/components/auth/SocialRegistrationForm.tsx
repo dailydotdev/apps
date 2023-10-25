@@ -9,7 +9,6 @@ import React, {
 import {
   AuthEventNames,
   AuthTriggers,
-  AuthTriggersOrString,
   SocialRegistrationParameters,
 } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
@@ -40,7 +39,7 @@ export interface SocialRegistrationFormProps extends AuthFormProps {
   provider?: string;
   formRef?: MutableRefObject<HTMLFormElement>;
   title?: string;
-  trigger: AuthTriggersOrString;
+  trigger: AuthTriggers;
   hints?: ProfileFormHint;
   onUpdateHints?: (errors: ProfileFormHint) => void;
   onSignup?: (params: SocialRegistrationParameters) => void;

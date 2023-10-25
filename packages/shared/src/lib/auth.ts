@@ -50,9 +50,6 @@ export enum AuthTriggers {
   SearchReferral = 'search referral',
 }
 
-// Needed for the AB flagged Sidebar items
-export type AuthTriggersOrString = AuthTriggers | string;
-
 export interface LoginPasswordParameters extends AuthPostParams {
   password: string;
   identifier: string;

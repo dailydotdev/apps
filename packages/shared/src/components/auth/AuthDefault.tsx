@@ -13,7 +13,7 @@ import EmailSignupForm from './EmailSignupForm';
 import LoginForm, { LoginFormParams } from './LoginForm';
 import OrDivider from './OrDivider';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
+import { AuthEventNames, AuthTriggers } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
 import AuthHeader from './AuthHeader';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -32,7 +32,7 @@ interface AuthDefaultProps extends AuthFormProps {
   logInTitle?: string;
   signUpTitle?: string;
   providers: Provider[];
-  trigger: AuthTriggersOrString;
+  trigger: AuthTriggers;
   disableRegistration?: boolean;
   disablePassword?: boolean;
   isLoading?: boolean;

@@ -26,7 +26,7 @@ import {
 } from '../graphql/settings';
 import { BootDataProvider } from './BootProvider';
 import { getBootData, Boot, BootCacheData } from '../lib/boot';
-import { AuthTriggers, AuthTriggersOrString } from '../lib/auth';
+import { AuthTriggers } from '../lib/auth';
 import { expectToHaveTestValue } from '../../__tests__/helpers/utilities';
 
 jest.mock('../lib/boot', () => ({
@@ -347,7 +347,7 @@ it('should trigger update alerts callback', async () => {
 
 interface AuthMockProps {
   updatedUser?: LoggedUser;
-  loginTrigger?: AuthTriggersOrString;
+  loginTrigger?: AuthTriggers;
 }
 
 const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
