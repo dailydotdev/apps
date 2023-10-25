@@ -125,7 +125,7 @@ const Header = ({
 
   if (isFiltering && onboardingV4 === OnboardingV4.V4) {
     return (
-      <header className="flex sticky top-0 z-3 justify-center mb-10 w-full">
+      <header className="flex sticky top-0 z-3 justify-center mb-10 w-full backdrop-blur-sm">
         <img
           className="absolute top-0 right-0 left-0 w-full pointer-events-none"
           src={getImage()}
