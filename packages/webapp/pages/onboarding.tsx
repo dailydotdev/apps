@@ -292,10 +292,20 @@ export function OnboardPage(): ReactElement {
       return;
     }
 
+    let targetId = onboardingV2;
+
+    if (isOnboardingV3) {
+      targetId = onboardingV3;
+    }
+
+    if (onboardingV4 === OnboardingV4.V4) {
+      targetId = onboardingV4;
+    }
+
     trackEvent({
       event_name: AnalyticsEvent.Impression,
       target_type: TargetType.MyFeedModal,
-      target_id: isOnboardingV3 ? onboardingV3 : onboardingV2,
+      target_id: targetId,
       extra: JSON.stringify({
         origin: OnboardingMode.Wall,
         steps: [OnboardingStep.Topics],
