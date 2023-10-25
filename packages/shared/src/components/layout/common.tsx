@@ -71,7 +71,8 @@ export const SearchControlHeader = ({
   const { openModal } = useLazyModal();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
-  const openFeedFilters = () => openModal({ type: LazyModal.FeedFilters });
+  const openFeedFilters = () =>
+    openModal({ type: LazyModal.FeedFilters, persistOnRouteChange: true });
 
   /* eslint-disable react/no-children-prop */
   const feedHeading = {
