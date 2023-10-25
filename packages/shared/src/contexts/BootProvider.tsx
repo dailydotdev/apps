@@ -10,7 +10,7 @@ import { BootApp, BootCacheData, getBootData } from '../lib/boot';
 import { AuthContextProvider } from './AuthContext';
 import { AnonymousUser, LoggedUser } from '../lib/user';
 import { AlertContextProvider } from './AlertContext';
-import { generateQueryKey, RequestKey } from '../lib/query';
+import { generateQueryKey, RequestKey, STALE_TIME } from '../lib/query';
 import {
   applyTheme,
   SettingsContextProvider,
@@ -22,8 +22,6 @@ import { NotificationsContextProvider } from './NotificationsContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
 import { AnalyticsContextProvider } from './AnalyticsContext';
 import { GrowthBookProvider } from '../components/GrowthBookProvider';
-
-const STALE_TIME = 30 * 1000;
 
 function filteredProps<T extends Record<string, unknown>>(
   obj: T,
