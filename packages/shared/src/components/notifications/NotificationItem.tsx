@@ -9,6 +9,7 @@ import NotificationItemAttachment from './NotificationItemAttachment';
 import NotificationItemAvatar from './NotificationItemAvatar';
 import { notificationTypeTheme } from './utils';
 import OptionsButton from '../buttons/OptionsButton';
+import { KeyboardCommand } from '../../lib/element';
 
 export interface NotificationItemProps
   extends Pick<
@@ -78,7 +79,7 @@ function NotificationItem({
             data-testid="openNotification"
             tabIndex={0}
             onKeyDown={(e) => {
-              if (e.code === 'Space') {
+              if (e.code === KeyboardCommand.Space) {
                 onClick(e);
                 router.push(targetUrl);
               }
