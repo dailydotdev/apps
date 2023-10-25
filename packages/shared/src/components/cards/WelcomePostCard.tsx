@@ -11,6 +11,7 @@ import { Squad } from '../../graphql/sources';
 import { ActionType } from '../../graphql/actions';
 import FeedItemContainer from './FeedItemContainer';
 import { PostType } from '../../graphql/posts';
+import { useFeedPreviewMode } from '../../hooks';
 
 export const WelcomePostCard = forwardRef(function SharePostCard(
   {
@@ -33,6 +34,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
   const { pinnedAt, type: postType } = post;
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
+  const isFeedPreview = useFeedPreviewMode();
 
   const { openStep, isChecklistVisible } = useSquadChecklist({
     squad: post.source as Squad,
@@ -67,7 +69,14 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       ref={ref}
       flagProps={{ pinnedAt }}
     >
-      <CardButton title={post.title} onClick={onPostCardClick} />
+      <CardButton
+        className={classNames(
+          isFeedPreview && 'cursor-auto pointer-events-none',
+        )}
+        title={post.title}
+        onClick={isFeedPreview ? undefined : onPostCardClick}
+      />
+
       <OptionsButton
         className="group-hover:flex laptop:hidden top-2 right-2"
         onClick={(event) => onMenuClick?.(event, post)}

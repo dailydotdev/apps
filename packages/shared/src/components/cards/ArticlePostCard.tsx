@@ -15,7 +15,7 @@ import { Container, PostCardProps } from './common';
 import FeedItemContainer from './FeedItemContainer';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { PostTagsPanel } from '../post/block/PostTagsPanel';
-import { usePostFeedback } from '../../hooks';
+import { useFeedPreviewMode, usePostFeedback } from '../../hooks';
 import styles from './Card.module.css';
 import { FeedbackCard } from './FeedbackCard';
 
@@ -44,6 +44,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const { trending, pinnedAt } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const { showFeedback } = usePostFeedback({ post });
+  const isFeedPreview = useFeedPreviewMode();
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -69,7 +70,13 @@ export const ArticlePostCard = forwardRef(function PostCard(
       ref={ref}
       flagProps={{ pinnedAt, trending }}
     >
-      <CardButton title={post.title} onClick={onPostCardClick} />
+      <CardButton
+        className={classNames(
+          isFeedPreview && 'cursor-auto pointer-events-none',
+        )}
+        title={post.title}
+        onClick={isFeedPreview ? undefined : onPostCardClick}
+      />
 
       {showFeedback && <FeedbackCard post={post} />}
 

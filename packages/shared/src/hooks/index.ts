@@ -13,3 +13,4 @@ export * from './mutationSubscription';
 export * from './useContentScriptStatus';
 export * from './usePersonalizedDigest';
 export * from './useTagSearch';
+export * from './useFeedPreviewMode';
