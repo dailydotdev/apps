@@ -7,6 +7,7 @@ import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { Post } from '../../graphql/posts';
+import { AuthTriggers } from '../../lib/auth';
 
 type IsEdit = boolean;
 type ParentId = string;
@@ -44,7 +45,7 @@ export const useComments = (post: Post): UseComments => {
   const onReplyTo = useCallback(
     (params: ReplyTo | null) => {
       if (!user) {
-        return showLogin('comment');
+        return showLogin(AuthTriggers.Comment);
       }
 
       if (!isNullOrUndefined(params)) {

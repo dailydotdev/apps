@@ -9,6 +9,7 @@ import { BooleanPromise } from '../components/filters/common';
 import { generateQueryKey } from '../lib/query';
 import useDebounce from './useDebounce';
 import { SharedFeedPage } from '../components/utilities';
+import { AuthTriggers } from '../lib/auth';
 
 export interface TagActionArguments {
   tags: Array<string>;
@@ -22,7 +23,7 @@ export interface SourceActionArguments {
 }
 
 interface UseTagAndSourceProps {
-  origin?: string;
+  origin?: AuthTriggers;
   postId?: string;
   shouldInvalidateQueries?: boolean;
 }

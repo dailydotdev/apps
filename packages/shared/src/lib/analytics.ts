@@ -38,12 +38,6 @@ export enum Origin {
   InitializeRegistrationFlow = 'initialize registration flow',
 }
 
-export enum LoginTrigger {
-  CreateFeedFilters = 'create feed filters',
-  SearchInput = 'search input',
-  SearchSuggestion = 'search suggestion',
-}
-
 export enum AnalyticsEvent {
   Click = 'click',
   CommentPost = 'comment post',

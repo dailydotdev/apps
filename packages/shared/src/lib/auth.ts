@@ -48,6 +48,14 @@ export enum AuthTriggers {
   CreateSquad = 'create squad',
   ReportComment = 'report comment',
   SearchReferral = 'search referral',
+  CreateFeedFilters = 'create feed filters',
+  NewComment = 'new comment',
+  SearchInput = 'search input',
+  SearchSuggestion = 'search suggestion',
+  BlockedFilter = 'blocked filter',
+  TagsFilter = 'tags filter',
+  TagsSearch = 'tags search',
+  PostContextMenu = 'post context menu',
 }
 
 export interface LoginPasswordParameters extends AuthPostParams {

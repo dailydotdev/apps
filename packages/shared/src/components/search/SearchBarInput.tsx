@@ -32,8 +32,9 @@ import { SearchSubmitButton } from './SearchSubmitButton';
 import { MobileSearch } from './MobileSearch';
 import { SearchBarSuggestionListProps } from './SearchBarSuggestionList';
 import { SearchHistoryButton } from './SearchHistoryButton';
-import { AnalyticsEvent, LoginTrigger } from '../../lib/analytics';
+import { AnalyticsEvent } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { AuthTriggers } from '../../lib/auth';
 
 interface SearchBarClassName {
   container?: string;
@@ -114,7 +115,7 @@ function SearchBarInputComponent(
     event.preventDefault();
 
     if (!user) {
-      return showLogin(LoginTrigger.SearchInput);
+      return showLogin(AuthTriggers.SearchInput);
     }
 
     const finalValue = input ?? inputRef.current.value;
@@ -136,7 +137,7 @@ function SearchBarInputComponent(
     }
 
     if (!user) {
-      return showLogin(LoginTrigger.SearchInput);
+      return showLogin(AuthTriggers.SearchInput);
     }
 
     return setIsMobileOpen(true);

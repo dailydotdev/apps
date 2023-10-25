@@ -36,6 +36,7 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
 import { MenuItemProps } from './fields/PortalMenu';
+import { AuthTriggers } from '../lib/auth';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -87,7 +88,7 @@ export default function PostOptionsMenu({
     onBlockTags,
     onUnblockTags,
   } = useTagAndSource({
-    origin: Origin.PostContextMenu,
+    origin: AuthTriggers.PostContextMenu,
     postId: post?.id,
     shouldInvalidateQueries: false,
   });

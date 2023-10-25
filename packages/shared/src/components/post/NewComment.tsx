@@ -26,6 +26,7 @@ import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { PostType } from '../../graphql/posts';
+import { AuthTriggers } from '../../lib/auth';
 
 interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
@@ -85,7 +86,7 @@ function NewCommentComponent(
 
   const onCommentClick = (origin: Origin) => {
     if (!user) {
-      return showLogin('new comment');
+      return showLogin(AuthTriggers.NewComment);
     }
 
     return onShowComment(origin);
