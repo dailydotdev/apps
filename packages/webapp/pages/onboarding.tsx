@@ -1,7 +1,5 @@
 import React, {
-  Dispatch,
   ReactElement,
-  SetStateAction,
   useContext,
   useEffect,
   useRef,
@@ -9,7 +7,6 @@ import React, {
 } from 'react';
 import { useOnboardingContext } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
-import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import classNames from 'classnames';
 import { IntroductionOnboardingTitle } from '@dailydotdev/shared/src/components/onboarding/IntroductionOnboarding';
 import AuthOptions, {
@@ -21,6 +18,7 @@ import {
   CreateFeedButton,
   FilterOnboarding,
   FilterOnboardingV4,
+  OnboardingHeader,
 } from '@dailydotdev/shared/src/components/onboarding';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/MemberAlready';
@@ -40,6 +38,8 @@ import {
 import {
   OnboardingStep,
   OnboardingTitleGradient,
+  requiredTagsThreshold,
+  wrapperMaxWidth,
 } from '@dailydotdev/shared/src/components/onboarding/common';
 import {
   OnboardingMode,
@@ -66,8 +66,6 @@ import { OtherFeedPage, RequestKey } from '@dailydotdev/shared/src/lib/query';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
-import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
-import { tablet, laptop } from '@dailydotdev/shared/src/styles/media';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -82,112 +80,16 @@ const versionToTitle: Record<OnboardingFilteringTitle, string> = {
 const Title = classed('h2', 'font-bold');
 
 const maxAuthWidth = 'tablet:max-w-[30rem]';
-const wrapperMaxWidth = 'max-w-[75rem] laptopXL:max-w-[90rem]';
 
 const Container = classed(
   'div',
   'flex flex-col overflow-x-hidden items-center min-h-[100vh] w-full h-full max-h-[100vh] flex-1 z-max',
 );
 
-const requiredTagsThreshold = 5;
-
 const seo: NextSeoProps = {
   title: 'Get started',
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
-};
-
-interface HeaderProps {
-  showOnboardingPage: boolean;
-  isOnboardingV3: boolean;
-  setAuth: Dispatch<SetStateAction<AuthProps>>;
-  onClickNext: () => void;
-  isFiltering: boolean;
-}
-const Header = ({
-  showOnboardingPage,
-  isOnboardingV3,
-  isFiltering,
-  setAuth,
-  onClickNext,
-}: HeaderProps) => {
-  const onboardingV4 = useFeature(feature.onboardingV4);
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
-  const isTablet = !useMedia([laptop.replace('@media ', '')], [true], false);
-
-  const getImage = () => {
-    if (isMobile) {
-      return cloudinary.feed.bg.mobile;
-    }
-
-    return isTablet ? cloudinary.feed.bg.tablet : cloudinary.feed.bg.laptop;
-  };
-
-  if (isFiltering && onboardingV4 === OnboardingV4.V4) {
-    return (
-      <header className="flex sticky top-0 z-3 justify-center mb-10 w-full backdrop-blur-sm">
-        <img
-          className="absolute top-0 right-0 left-0 w-full pointer-events-none"
-          src={getImage()}
-          alt="Gradient background"
-        />
-        <div className="flex justify-between items-center py-10 w-full max-w-4xl tablet:!px-6 !px-4">
-          <Logo
-            logoClassName={classNames(
-              onboardingV4 === OnboardingV4.V4 && 'h-6',
-            )}
-            position={LogoPosition.Relative}
-          />
-          <CreateFeedButton
-            requiredTagsThreshold={requiredTagsThreshold}
-            onClick={onClickNext}
-          />
-        </div>
-      </header>
-    );
-  }
-
-  if (!isOnboardingV3 || !showOnboardingPage) {
-    return (
-      <Logo
-        className="py-8 px-10 w-auto laptop:w-full"
-        position={LogoPosition.Relative}
-      />
-    );
-  }
-
-  return (
-    <header
-      className={classNames(
-        'flex justify-between px-6 mt-6 tablet:mt-16 laptop:mt-20 w-full h-full flew-row',
-        wrapperMaxWidth,
-      )}
-    >
-      <Logo
-        className="w-auto"
-        logoClassName="h-6 tablet:h-8"
-        position={LogoPosition.Relative}
-      />
-
-      <span
-        className={classNames('flex items-center', 'text-theme-label-tertiary')}
-      >
-        <span className="hidden tablet:block">Already a daily.dev member?</span>
-        <Button
-          className="ml-3 btn-secondary"
-          onClick={() => {
-            setAuth({
-              isAuthenticating: true,
-              isLoginFlow: true,
-              defaultDisplay: AuthDisplay.Default,
-            });
-          }}
-        >
-          Log in
-        </Button>
-      </span>
-    </header>
-  );
 };
 
 export function OnboardPage(): ReactElement {
@@ -456,11 +358,7 @@ export function OnboardPage(): ReactElement {
                   options={{ refetchOnMount: true }}
                   allowPin
                 />
-                <CreateFeedButton
-                  className="mt-20"
-                  requiredTagsThreshold={requiredTagsThreshold}
-                  onClick={onClickNext}
-                />
+                <CreateFeedButton className="mt-20" onClick={onClickNext} />
               </FeedLayout>
             )}
           </>
@@ -584,7 +482,7 @@ export function OnboardPage(): ReactElement {
     >
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       {onboardingV4 === OnboardingV4.Control && getProgressBar()}
-      <Header
+      <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
         isOnboardingV3={isOnboardingV3}
         setAuth={setAuth}

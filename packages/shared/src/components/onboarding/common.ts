@@ -22,3 +22,7 @@ export interface OnboardingStepProps {
   onClose?: (e: React.MouseEvent | React.KeyboardEvent) => void;
   isModal?: boolean;
 }
+
+export const requiredTagsThreshold = 5;
+
+export const wrapperMaxWidth = 'max-w-[75rem] laptopXL:max-w-[90rem]';

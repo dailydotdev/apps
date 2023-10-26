@@ -3,24 +3,22 @@ import classNames from 'classnames';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { Button, ButtonElementType } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips';
-import useMedia from '../../hooks/useMedia';
-import { tablet } from '../../styles/media';
 import { isTesting } from '../../lib/constants';
+import useSidebarRendered from '../../hooks/useSidebarRendered';
+import { requiredTagsThreshold } from './common';
 
 export type CreateFeedButtonProps = {
   className?: string;
-  requiredTagsThreshold: number;
 } & Pick<HTMLAttributes<ButtonElementType<'button'>>, 'onClick'>;
 
 export const CreateFeedButton = ({
   className,
-  requiredTagsThreshold,
   onClick,
 }: CreateFeedButtonProps): ReactElement => {
   const { feedSettings } = useFeedSettings();
   const tagsCount = feedSettings?.includeTags?.length || 0;
   const canCreateFeed = tagsCount >= requiredTagsThreshold;
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
+  const { sidebarRendered } = useSidebarRendered();
 
   return (
     <SimpleTooltip
@@ -35,7 +33,7 @@ export const CreateFeedButton = ({
           disabled={!canCreateFeed}
           onClick={onClick}
         >
-          Create {isMobile ? '' : 'personalized'} feed ➔
+          Create {!sidebarRendered ? '' : 'personalized'} feed ➔
         </Button>
       </div>
     </SimpleTooltip>
