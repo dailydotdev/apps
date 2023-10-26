@@ -1,5 +1,5 @@
 import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 const proxyFetch = {
   apply(_, __, args) {

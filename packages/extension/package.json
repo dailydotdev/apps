@@ -21,6 +21,7 @@
     "@babel/runtime": "^7.17.9",
     "@dailydotdev/react-contexify": "^5.0.2",
     "@dailydotdev/shared": "*",
+    "@types/webextension-polyfill": "^0.10.5",
     "classnames": "^2.3.1",
     "content-scripts-register-polyfill": "^3.2.1",
     "date-fns": "^2.25.0",
@@ -40,7 +41,7 @@
     "react-tooltip": "^4.2.21",
     "react-transition-group": "^4.4.2",
     "react-virtual": "^2.10.4",
-    "webextension-polyfill-ts": "^0.22.0"
+    "webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.9",

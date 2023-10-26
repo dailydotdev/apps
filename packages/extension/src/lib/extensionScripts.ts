@@ -1,5 +1,5 @@
 import 'content-scripts-register-polyfill';
-import { browser, ContentScripts } from 'webextension-polyfill-ts';
+import browser, { ContentScripts } from 'webextension-polyfill';
 import {
   CreateRequestContentScripts,
   contentScriptKey,

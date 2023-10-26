@@ -41,7 +41,7 @@ describe('ChangelogTooltip component', () => {
   }));
 
   beforeAll(() => {
-    jest.mock('webextension-polyfill-ts', () => ({
+    jest.mock('webextension-polyfill', () => ({
       browser: {
         runtime: {
           sendMessage: mockSendMessageFn,
@@ -56,7 +56,7 @@ describe('ChangelogTooltip component', () => {
   });
 
   afterAll(() => {
-    jest.unmock('webextension-polyfill-ts');
+    jest.unmock('webextension-polyfill');
   });
 
   const renderComponent = ({

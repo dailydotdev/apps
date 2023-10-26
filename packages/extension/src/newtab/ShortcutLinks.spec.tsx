@@ -25,7 +25,7 @@ import {
   UPDATE_USER_SETTINGS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/settings';
 import { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
-import { browser, TopSites } from 'webextension-polyfill-ts';
+import browser, { TopSites } from 'webextension-polyfill';
 import ShortcutLinks from './ShortcutLinks';
 
 jest.mock('@dailydotdev/shared/src/lib/boot', () => ({
@@ -34,7 +34,7 @@ jest.mock('@dailydotdev/shared/src/lib/boot', () => ({
   getBootData: jest.fn(),
 }));
 
-jest.mock('webextension-polyfill-ts', () => {
+jest.mock('webextension-polyfill', () => {
   let providedPermission = false;
 
   return {
