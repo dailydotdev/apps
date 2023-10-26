@@ -135,7 +135,8 @@ export function SquadMemberModal({
           ),
           isLoading: queryResult.isLoading,
           initialItem:
-            roleFilter === SourceMemberRole.Blocked ? undefined : (
+            roleFilter === SourceMemberRole.Blocked ||
+            query?.length ? undefined : (
               <InitialItem squad={squad} />
             ),
         }}
