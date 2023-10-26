@@ -8,17 +8,21 @@ import { disabledRefetch } from '../../lib/func';
 
 type UseSearchSuggestions = (data: {
   origin: SearchBarSuggestionListProps['origin'];
+  disabled?: boolean;
 }) => Pick<
   SearchBarSuggestionListProps,
   'origin' | 'suggestions' | 'isLoading'
 >;
 
-export const useSearchSuggestions: UseSearchSuggestions = (args) => {
+export const useSearchSuggestions: UseSearchSuggestions = ({
+  disabled,
+  ...args
+}) => {
   const { user } = useAuthContext();
   const { data, isLoading } = useQuery(
     generateQueryKey(RequestKey.SearchHistory, user),
     getSearchSuggestions,
-    { ...disabledRefetch, enabled: !!user },
+    { ...disabledRefetch, enabled: !disabled && !!user },
   );
 
   const suggestions = useMemo(
