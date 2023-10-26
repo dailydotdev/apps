@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { REFERRAL_CAMPAIGN_QUERY } from '../../graphql/users';
 import { graphqlUrl } from '../../lib/config';
-import { RequestKey, generateQueryKey } from '../../lib/query';
+import { RequestKey, generateQueryKey, STALE_TIME } from '../../lib/query';
 import AuthContext from '../../contexts/AuthContext';
 import { feature, Feature } from '../../lib/featureManagement';
 import { useFeatureIsOn } from '../../components/GrowthBookProvider';
@@ -64,6 +64,7 @@ const useReferralCampaign = ({
     },
     {
       enabled: !!user?.id && !!isCampaignEnabled,
+      staleTime: STALE_TIME,
     },
   );
   const {
