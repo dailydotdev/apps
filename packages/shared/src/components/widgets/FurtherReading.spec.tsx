@@ -22,6 +22,7 @@ import {
 } from '../../../__tests__/helpers/graphql';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import post from '../../../__tests__/fixture/post';
+import { AuthTriggers } from '../../lib/auth';
 
 const showLogin = jest.fn();
 
@@ -204,7 +205,7 @@ it('should open login modal on anonymous bookmark', async () => {
   );
   const [el] = await screen.findAllByLabelText('Bookmark');
   el.click();
-  expect(showLogin).toBeCalledWith({ trigger: 'bookmark' });
+  expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Bookmark });
 });
 
 it('should not show table of contents when it does not exist', async () => {
