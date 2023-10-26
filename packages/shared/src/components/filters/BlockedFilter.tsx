@@ -5,14 +5,14 @@ import TagItemList from './TagItemList';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import BlockIcon from '../icons/Block';
-import { AuthTriggers } from '../../lib/auth';
+import { Origin } from '../../lib/analytics';
 
 export default function BlockedFilter({
   onUnblockItem,
 }: FilterMenuProps): ReactElement {
   const { feedSettings, isLoading } = useFeedSettings();
   const { onUnblockTags, onFollowSource } = useTagAndSource({
-    origin: AuthTriggers.BlockedFilter,
+    origin: Origin.BlockedFilter,
   });
 
   const tagItemAction = (event: React.MouseEvent, tag: string) => {

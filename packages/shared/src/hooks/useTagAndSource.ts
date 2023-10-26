@@ -9,7 +9,8 @@ import { BooleanPromise } from '../components/filters/common';
 import { generateQueryKey } from '../lib/query';
 import useDebounce from './useDebounce';
 import { SharedFeedPage } from '../components/utilities';
-import { AuthTriggers } from '../lib/auth';
+import { Origin } from '../lib/analytics';
+import { AuthTriggersType } from '../lib/auth';
 
 export interface TagActionArguments {
   tags: Array<string>;
@@ -23,7 +24,7 @@ export interface SourceActionArguments {
 }
 
 interface UseTagAndSourceProps {
-  origin?: AuthTriggers;
+  origin?: Origin;
   postId?: string;
   shouldInvalidateQueries?: boolean;
 }
@@ -73,7 +74,7 @@ export default function useTagAndSource({
   const onFollowTags = useCallback(
     async ({ tags, category, requireLogin }: TagActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
-        showLogin(origin);
+        showLogin(origin as AuthTriggersType);
         return { successful: false };
       }
       trackEvent({
@@ -107,7 +108,7 @@ export default function useTagAndSource({
   const onUnfollowTags = useCallback(
     async ({ tags, category, requireLogin }: TagActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
-        showLogin(origin);
+        showLogin(origin as AuthTriggersType);
         return { successful: false };
       }
       trackEvent({
@@ -135,7 +136,7 @@ export default function useTagAndSource({
   const onBlockTags = useCallback(
     async ({ tags, requireLogin }: TagActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
-        showLogin(origin);
+        showLogin(origin as AuthTriggersType);
         return { successful: false };
       }
 
@@ -165,7 +166,7 @@ export default function useTagAndSource({
   const onUnblockTags = useCallback(
     async ({ tags, requireLogin }: TagActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
-        showLogin(origin);
+        showLogin(origin as AuthTriggersType);
         return { successful: false };
       }
       trackEvent({
@@ -194,7 +195,7 @@ export default function useTagAndSource({
   const onFollowSource = useCallback(
     async ({ source, requireLogin }: SourceActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
-        showLogin(origin);
+        showLogin(origin as AuthTriggersType);
         return { successful: false };
       }
       trackEvent({
@@ -223,7 +224,7 @@ export default function useTagAndSource({
   const onUnfollowSource = useCallback(
     async ({ source, requireLogin }: SourceActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
-        showLogin(origin);
+        showLogin(origin as AuthTriggersType);
         return { successful: false };
       }
       trackEvent({

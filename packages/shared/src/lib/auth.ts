@@ -7,6 +7,7 @@ import {
   KratosMessage,
   KratosMethod,
 } from './kratos';
+import { Origin } from './analytics';
 
 export enum AuthEventNames {
   OpenSignup = 'open signup',
@@ -52,11 +53,17 @@ export enum AuthTriggers {
   NewComment = 'new comment',
   SearchInput = 'search input',
   SearchSuggestion = 'search suggestion',
-  BlockedFilter = 'blocked filter',
-  TagsFilter = 'tags filter',
-  TagsSearch = 'tags search',
-  PostContextMenu = 'post context menu',
 }
+
+export type AuthTriggersType =
+  | AuthTriggers
+  | Extract<
+      Origin,
+      | Origin.TagsFilter
+      | Origin.TagsSearch
+      | Origin.BlockedFilter
+      | Origin.PostContextMenu
+    >;
 
 export interface LoginPasswordParameters extends AuthPostParams {
   password: string;

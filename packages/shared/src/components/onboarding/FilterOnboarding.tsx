@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import FeedTopicCard, { ButtonEvent } from '../containers/FeedTopicCard';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import useFeedSettings from '../../hooks/useFeedSettings';
-import { AuthTriggers } from '../../lib/auth';
+import { Origin } from '../../lib/analytics';
 
 interface FilterOnboardingProps {
   onSelectedTopics?(tags: Record<string, boolean>): void;
@@ -18,7 +18,7 @@ export function FilterOnboarding({
   const [selectedTopics, setSelectedTopics] = useState({});
   const { tagsCategories } = useFeedSettings();
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
-    origin: AuthTriggers.TagsFilter,
+    origin: Origin.TagsFilter,
   });
 
   const onChangeSelectedTopic = (e: ButtonEvent, value: string) => {

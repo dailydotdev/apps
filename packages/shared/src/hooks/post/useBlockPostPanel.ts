@@ -17,7 +17,6 @@ import { useLazyModal } from '../useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
 import { disabledRefetch, isNullOrUndefined } from '../../lib/func';
 import { useToastNotification } from '../useToastNotification';
-import { AuthTriggers } from '../../lib/auth';
 
 interface BlockData {
   showTagsPanel?: boolean;
@@ -69,7 +68,7 @@ export const useBlockPostPanel = (
   const { displayToast } = useToastNotification();
   const { onBlockTags, onUnfollowSource, onUnblockTags, onFollowSource } =
     useTagAndSource({
-      origin: AuthTriggers.TagsFilter,
+      origin: Origin.TagsFilter,
       postId: post?.id,
       shouldInvalidateQueries: false,
     });

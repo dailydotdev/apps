@@ -12,6 +12,7 @@ export enum Origin {
   RealTime = 'realtime',
   NonRealTime = 'nonrealtime',
   ChangelogPopup = 'changelog popup',
+  BlockedFilter = 'blocked filter',
   // squads - start
   SquadDirectory = 'squad directory',
   SquadCreation = 'squad creation',
