@@ -116,7 +116,14 @@ export const FeedContainer = ({
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
-  const suggestionsProps = useSearchSuggestions({ origin: Origin.HomePage });
+  const isFinder = router.pathname === '/posts/finder';
+  const isV1Search =
+    searchValue === SearchExperiment.V1 && showSearch && !isFinder;
+
+  const suggestionsProps = useSearchSuggestions({
+    origin: Origin.HomePage,
+    disabled: !isV1Search,
+  });
   const isTracked = useRef(false);
   const shouldShowPulse =
     checkHasCompleted(ActionType.AcceptedSearch) &&
@@ -135,9 +142,6 @@ export const FeedContainer = ({
     return <></>;
   }
 
-  const isFinder = router.pathname === '/posts/finder';
-  const isV1Search =
-    searchValue === SearchExperiment.V1 && showSearch && !isFinder;
   const onSearch = (event: FormEvent, input: string) => {
     event.preventDefault();
     router.push(`${webappUrl}search?q=${encodeURIComponent(input)}`);
