@@ -6,7 +6,7 @@ import AuthContext from '../../contexts/AuthContext';
 import FeedbackIcon from '../icons/Feedback';
 import { getSearchUrl, SearchQuestion } from '../../graphql/search';
 import { Pill } from '../utilities/loaders';
-import { LoginTrigger } from '../../lib/analytics';
+import { AuthTriggers } from '../../lib/auth';
 
 export interface SearchBarSuggestionListProps {
   className?: string;
@@ -31,7 +31,7 @@ export function SearchBarSuggestionList({
     return (
       <PlaceholderSearchSuggestion
         className={className}
-        onClick={() => showLogin(LoginTrigger.SearchSuggestion)}
+        onClick={() => showLogin({ trigger: AuthTriggers.SearchSuggestion })}
       >
         Sign up and read your first post to get search recommendations
       </PlaceholderSearchSuggestion>

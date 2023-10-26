@@ -19,6 +19,7 @@ import AuthOptions, { AuthOptionsProps } from './AuthOptions';
 import SettingsContext from '../../contexts/SettingsContext';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
+import { AuthTriggers } from '../../lib/auth';
 
 const user = null;
 
@@ -35,7 +36,7 @@ const renderComponent = (
   props: AuthOptionsProps = {
     onSuccessfulLogin,
     formRef: null,
-    trigger: 'test',
+    trigger: AuthTriggers.Verification,
   },
 ): RenderResult => {
   const client = new QueryClient();

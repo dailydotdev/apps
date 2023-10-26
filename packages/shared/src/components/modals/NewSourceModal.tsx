@@ -176,7 +176,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   ): Promise<void> => {
     e.preventDefault();
     if (!user) {
-      showLogin(loginTrigger);
+      showLogin({ trigger: loginTrigger });
       return;
     }
 

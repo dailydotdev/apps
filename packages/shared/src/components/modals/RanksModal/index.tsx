@@ -53,7 +53,7 @@ export default function RanksModal({
                 'mt-3 w-40 btn-primary',
                 rank && RANKS[rank].background,
               )}
-              onClick={() => showLogin(AuthTriggers.RanksModal)}
+              onClick={() => showLogin({ trigger: AuthTriggers.RanksModal })}
             >
               Sign up
             </Button>

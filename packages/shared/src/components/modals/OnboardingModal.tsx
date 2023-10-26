@@ -10,13 +10,13 @@ import React, {
 import { FilterOnboardingStep } from '../onboarding';
 import IntroductionOnboarding from '../onboarding/IntroductionOnboarding';
 import { OnboardingStep } from '../onboarding/common';
-import { AnalyticsEvent, LoginTrigger, TargetType } from '../../lib/analytics';
+import { AnalyticsEvent, TargetType } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { OnboardingMode } from '../../graphql/feed';
 import { Modal, ModalProps } from './common/Modal';
 import useAuthForms from '../../hooks/useAuthForms';
 import AuthOptions, { AuthDisplay } from '../auth/AuthOptions';
-import { AuthEventNames } from '../../lib/auth';
+import { AuthEventNames, AuthTriggers } from '../../lib/auth';
 import CloseButton from '../CloseButton';
 import { ExperimentWinner } from '../../lib/featureValues';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
@@ -69,7 +69,7 @@ function OnboardingModal({
       trackEvent({
         event_name: AuthEventNames.CloseSignUp,
         extra: JSON.stringify({
-          trigger: LoginTrigger.CreateFeedFilters,
+          trigger: AuthTriggers.CreateFeedFilters,
           screenValue,
         }),
       });
@@ -152,7 +152,7 @@ function OnboardingModal({
             formRef={formRef}
             onSuccessfulLogin={onRegistrationSuccess}
             onSuccessfulRegistration={onRegistrationSuccess}
-            trigger={LoginTrigger.CreateFeedFilters}
+            trigger={AuthTriggers.CreateFeedFilters}
             onDisplayChange={(display: AuthDisplay) => setScreenValue(display)}
           />
         </>
