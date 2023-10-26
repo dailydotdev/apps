@@ -64,6 +64,8 @@ export type AuthTriggersType =
       | Origin.TagsSearch
       | Origin.BlockedFilter
       | Origin.PostContextMenu
+      | Origin.SourcePage
+      | Origin.TagPage
     >;
 
 export interface LoginPasswordParameters extends AuthPostParams {
