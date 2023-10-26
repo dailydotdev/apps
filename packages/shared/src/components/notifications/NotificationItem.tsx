@@ -1,6 +1,7 @@
-import React, { MouseEventHandler, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { Notification } from '../../graphql/notifications';
 import { useObjectPurify } from '../../hooks/useDomPurify';
 import NotificationItemIcon from './NotificationIcon';
@@ -8,6 +9,7 @@ import NotificationItemAttachment from './NotificationItemAttachment';
 import NotificationItemAvatar from './NotificationItemAvatar';
 import { notificationTypeTheme } from './utils';
 import OptionsButton from '../buttons/OptionsButton';
+import { KeyboardCommand } from '../../lib/element';
 
 export interface NotificationItemProps
   extends Pick<
@@ -16,7 +18,11 @@ export interface NotificationItemProps
   > {
   isUnread?: boolean;
   targetUrl: string;
-  onClick?: MouseEventHandler;
+  onClick?: (
+    e:
+      | React.MouseEvent<HTMLAnchorElement>
+      | React.KeyboardEvent<HTMLAnchorElement>,
+  ) => void;
   onOptionsClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
@@ -37,6 +43,7 @@ function NotificationItem({
     title: memoizedTitle,
     description: memoizedDescription,
   } = useObjectPurify({ title, description });
+  const router = useRouter();
 
   if (!isReady) {
     return null;
@@ -63,14 +70,24 @@ function NotificationItem({
     >
       {onClick && (
         <Link href={targetUrl} passHref>
-          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/anchor-has-content, jsx-a11y/no-static-element-interactions */}
           <a
+            role="link"
             aria-label="Open notification"
             className="absolute inset-0 z-0"
             onClick={onClick}
             title="Open notification"
             data-testid="openNotification"
-          />
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.code === KeyboardCommand.Space) {
+                onClick(e);
+                router.push(targetUrl);
+              }
+              return true;
+            }}
+          >
+            <span />
+          </a>
         </Link>
       )}
       {onOptionsClick && (
