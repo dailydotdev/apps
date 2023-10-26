@@ -42,10 +42,8 @@ describe('ChangelogTooltip component', () => {
 
   beforeAll(() => {
     jest.mock('webextension-polyfill', () => ({
-      browser: {
-        runtime: {
-          sendMessage: mockSendMessageFn,
-        },
+      runtime: {
+        sendMessage: mockSendMessageFn,
       },
     }));
   });

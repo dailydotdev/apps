@@ -38,30 +38,28 @@ jest.mock('webextension-polyfill', () => {
   let providedPermission = false;
 
   return {
-    browser: {
-      permissions: {
-        remove: jest.fn(),
-        request: () =>
-          new Promise((resolve) => {
-            providedPermission = true;
-            resolve(true);
-          }),
-      },
-      topSites: {
-        get: () =>
-          new Promise((resolve, reject): TopSites.MostVisitedURL[] | void => {
-            if (!providedPermission) {
-              return reject();
-            }
+    permissions: {
+      remove: jest.fn(),
+      request: () =>
+        new Promise((resolve) => {
+          providedPermission = true;
+          resolve(true);
+        }),
+    },
+    topSites: {
+      get: () =>
+        new Promise((resolve, reject): TopSites.MostVisitedURL[] | void => {
+          if (!providedPermission) {
+            return reject();
+          }
 
-            providedPermission = false;
-            return resolve([
-              { url: 'http://abc1.com' },
-              { url: 'http://abc2.com' },
-              { url: 'http://abc3.com' },
-            ]);
-          }),
-      },
+          providedPermission = false;
+          return resolve([
+            { url: 'http://abc1.com' },
+            { url: 'http://abc2.com' },
+            { url: 'http://abc3.com' },
+          ]);
+        }),
     },
   };
 });
