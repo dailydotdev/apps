@@ -118,12 +118,14 @@ export function FilterOnboardingV4({
         queryClient.setQueryData<TagsData>(
           onboardingTagsQueryKey,
           (current) => {
-            const newTags = [...current.tags];
-            newTags.push(tag);
+            if (!excludedTags.includes(tag.name)) {
+              return {
+                ...current,
+                tags: [...current.tags, tag],
+              };
+            }
 
-            return {
-              tags: newTags,
-            };
+            return current;
           },
         );
       }
