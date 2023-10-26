@@ -53,6 +53,7 @@ export enum AuthTriggers {
   NewComment = 'new comment',
   SearchInput = 'search input',
   SearchSuggestion = 'search suggestion',
+  LoginPage = 'login page',
 }
 
 export type AuthTriggersType =
