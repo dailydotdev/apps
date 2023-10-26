@@ -63,7 +63,7 @@ export function Section({
             item={item}
             showLogin={
               item.requiresLogin && !user
-                ? () => showLogin(item.title as AuthTriggersType)
+                ? () => showLogin({ trigger: item.title as AuthTriggersType })
                 : null
             }
             isButton={isItemsButton && !item?.isForcedLink}
