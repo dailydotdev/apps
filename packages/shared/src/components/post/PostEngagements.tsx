@@ -126,7 +126,9 @@ function PostEngagements({
       />
       {authorOnboarding && (
         <AuthorOnboarding
-          onSignUp={!user && (() => showLogin(AuthTriggers.Author))}
+          onSignUp={
+            !user && (() => showLogin({ trigger: AuthTriggers.Author }))
+          }
         />
       )}
       {showShareNewComment && (

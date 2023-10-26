@@ -7,6 +7,7 @@ import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import { useRouter } from 'next/router';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 
 function Signup(): ReactElement {
   const { formRef } = useAuthForms();
@@ -30,7 +31,7 @@ function Signup(): ReactElement {
           <AuthOptions
             className="h-full max-h-[40rem] min-h-[40rem]"
             formRef={formRef}
-            trigger="login page"
+            trigger={AuthTriggers.LoginPage}
             onClose={onClose}
             onSuccessfulLogin={onClose}
           />

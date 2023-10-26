@@ -37,7 +37,7 @@ export default function useReportComment(): UseReportCommentRet {
 
   const reportComment = async (params: ReportCommentProps) => {
     if (!user) {
-      showLogin(AuthTriggers.ReportPost);
+      showLogin({ trigger: AuthTriggers.ReportPost });
       return { successful: false };
     }
 

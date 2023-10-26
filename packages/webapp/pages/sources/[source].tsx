@@ -34,6 +34,7 @@ import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
+import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -52,7 +53,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
 
   const { feedSettings } = useFeedSettings();
   const { onFollowSource, onUnfollowSource } = useTagAndSource({
-    origin: 'source page',
+    origin: Origin.SourcePage,
   });
 
   const unfollowingSource = useMemo(() => {
@@ -91,7 +92,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
           await onUnfollowSource({ source });
         }
       } else {
-        showLogin(AuthTriggers.Filter);
+        showLogin({ trigger: AuthTriggers.Filter });
       }
     },
   };
