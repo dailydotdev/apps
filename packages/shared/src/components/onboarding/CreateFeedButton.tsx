@@ -5,6 +5,7 @@ import { Button, ButtonElementType } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips';
 import useMedia from '../../hooks/useMedia';
 import { tablet } from '../../styles/media';
+import { isTesting } from '../../lib/constants';
 
 export type CreateFeedButtonProps = {
   className?: string;
@@ -26,6 +27,7 @@ export const CreateFeedButton = ({
       content={
         canCreateFeed ? '' : `Choose at least ${requiredTagsThreshold} tags`
       }
+      forceLoad={!isTesting}
     >
       <div>
         <Button
