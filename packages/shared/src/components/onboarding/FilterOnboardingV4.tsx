@@ -161,7 +161,7 @@ export function FilterOnboardingV4({
             }}
           >
             {tag.name}
-            {!!recommendedTags?.has(tag.name) && (
+            {!searchQuery && !!recommendedTags?.has(tag.name) && (
               <AlertDot
                 className="absolute top-1 right-1"
                 color={AlertColor.Cabbage}
