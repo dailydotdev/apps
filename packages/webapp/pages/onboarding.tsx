@@ -248,7 +248,16 @@ export function OnboardPage(): ReactElement {
 
         onShouldUpdateFilters(true);
       }
-      return router.replace('/');
+      return router.replace({
+        pathname: '/',
+        query:
+          onboardingV4 === OnboardingV4.V4
+            ? {
+                welcome: '1',
+                hset: '1',
+              }
+            : undefined,
+      });
     }
 
     return setAuth({ isAuthenticating: true, isLoginFlow: false });
