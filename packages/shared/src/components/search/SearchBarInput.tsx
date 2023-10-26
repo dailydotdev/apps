@@ -115,7 +115,7 @@ function SearchBarInputComponent(
     event.preventDefault();
 
     if (!user) {
-      return showLogin(AuthTriggers.SearchInput);
+      return showLogin({ trigger: AuthTriggers.SearchInput });
     }
 
     const finalValue = input ?? inputRef.current.value;
@@ -137,7 +137,7 @@ function SearchBarInputComponent(
     }
 
     if (!user) {
-      return showLogin(AuthTriggers.SearchInput);
+      return showLogin({ trigger: AuthTriggers.SearchInput });
     }
 
     return setIsMobileOpen(true);

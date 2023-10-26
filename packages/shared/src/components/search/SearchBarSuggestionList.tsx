@@ -31,7 +31,7 @@ export function SearchBarSuggestionList({
     return (
       <PlaceholderSearchSuggestion
         className={className}
-        onClick={() => showLogin(AuthTriggers.SearchSuggestion)}
+        onClick={() => showLogin({ trigger: AuthTriggers.SearchSuggestion })}
       >
         Sign up and read your first post to get search recommendations
       </PlaceholderSearchSuggestion>

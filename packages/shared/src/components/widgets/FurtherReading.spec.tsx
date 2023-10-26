@@ -204,7 +204,7 @@ it('should open login modal on anonymous bookmark', async () => {
   );
   const [el] = await screen.findAllByLabelText('Bookmark');
   el.click();
-  expect(showLogin).toBeCalledWith('bookmark');
+  expect(showLogin).toBeCalledWith({ trigger: 'bookmark' });
 });
 
 it('should not show table of contents when it does not exist', async () => {

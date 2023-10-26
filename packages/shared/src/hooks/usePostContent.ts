@@ -54,7 +54,7 @@ const usePostContent = ({
   const onShare = () => openSharePost(post);
   const toggleBookmark = async (): Promise<void> => {
     if (!user) {
-      showLogin(AuthTriggers.Bookmark);
+      showLogin({ trigger: AuthTriggers.Bookmark });
       return;
     }
     const targetBookmarkState = !post?.bookmarked;

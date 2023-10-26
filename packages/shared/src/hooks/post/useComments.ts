@@ -45,7 +45,7 @@ export const useComments = (post: Post): UseComments => {
   const onReplyTo = useCallback(
     (params: ReplyTo | null) => {
       if (!user) {
-        return showLogin(AuthTriggers.Comment);
+        return showLogin({ trigger: AuthTriggers.Comment });
       }
 
       if (!isNullOrUndefined(params)) {

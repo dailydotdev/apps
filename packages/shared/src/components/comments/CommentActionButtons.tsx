@@ -139,7 +139,7 @@ export default function CommentActionButtons({
       );
       return upvoteComment();
     }
-    showLogin(AuthTriggers.CommentUpvote);
+    showLogin({ trigger: AuthTriggers.CommentUpvote });
     return undefined;
   };
 
@@ -153,7 +153,7 @@ export default function CommentActionButtons({
 
   const openReportCommentModal = () => {
     if (!user) {
-      return showLogin(AuthTriggers.ReportComment);
+      return showLogin({ trigger: AuthTriggers.ReportComment });
     }
 
     return openModal({

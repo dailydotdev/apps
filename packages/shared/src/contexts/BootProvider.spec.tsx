@@ -380,7 +380,7 @@ const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
         Logout
       </button>
       <button
-        onClick={() => showLogin(loginTrigger)}
+        onClick={() => showLogin({ trigger: loginTrigger })}
         type="button"
         data-test-value={JSON.stringify(loginState)}
       >

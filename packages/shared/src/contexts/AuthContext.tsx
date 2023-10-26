@@ -29,6 +29,11 @@ export interface LoginState {
 
 type LoginOptions = Omit<LoginState, 'trigger'>;
 
+type ShowLoginParams = {
+  trigger: AuthTriggersType;
+  options?: LoginOptions;
+};
+
 export interface AuthContextData {
   user?: LoggedUser;
   isLoggedIn: boolean;
@@ -36,7 +41,7 @@ export interface AuthContextData {
   referralOrigin?: string;
   trackingId?: string;
   shouldShowLogin: boolean;
-  showLogin: (trigger: AuthTriggersType, options?: LoginOptions) => void;
+  showLogin: ({ trigger, options }: ShowLoginParams) => void;
   closeLogin: () => void;
   loginState?: LoginState;
   logout: () => Promise<void>;
@@ -147,7 +152,7 @@ export const AuthContextProvider = ({
       firstVisit: user?.firstVisit,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
-      showLogin: (trigger, options = {}) => {
+      showLogin: ({ trigger, options = {} }) => {
         const hasCompanion = !!isCompanionActivated();
         if (hasCompanion) {
           const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`;

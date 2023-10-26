@@ -92,7 +92,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
           await onUnfollowSource({ source });
         }
       } else {
-        showLogin(AuthTriggers.Filter);
+        showLogin({ trigger: AuthTriggers.Filter });
       }
     },
   };

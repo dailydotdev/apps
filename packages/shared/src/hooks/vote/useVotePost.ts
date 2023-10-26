@@ -115,7 +115,7 @@ const useVotePost = ({
       }
 
       if (!user) {
-        showLogin(AuthTriggers.Upvote);
+        showLogin({ trigger: AuthTriggers.Upvote });
 
         return;
       }
@@ -156,7 +156,7 @@ const useVotePost = ({
       }
 
       if (!user) {
-        showLogin(AuthTriggers.Downvote);
+        showLogin({ trigger: AuthTriggers.Downvote });
 
         return;
       }

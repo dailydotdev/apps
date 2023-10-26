@@ -36,7 +36,7 @@ export function useAuthVerificationRecovery(): void {
     const hasVerified =
       data?.state === 'passed_challenge' && flow === AuthFlow.Verification;
     if (couldBeVerified && hasVerified) {
-      showLogin(AuthTriggers.Verification);
+      showLogin({ trigger: AuthTriggers.Verification });
       return;
     }
 

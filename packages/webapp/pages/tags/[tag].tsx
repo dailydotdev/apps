@@ -87,7 +87,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
           await onFollowTags({ tags: [tag] });
         }
       } else {
-        showLogin(AuthTriggers.Filter);
+        showLogin({ trigger: AuthTriggers.Filter });
       }
     },
   };
@@ -103,7 +103,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
           await onBlockTags({ tags: [tag] });
         }
       } else {
-        showLogin(AuthTriggers.Filter);
+        showLogin({ trigger: AuthTriggers.Filter });
       }
     },
   };

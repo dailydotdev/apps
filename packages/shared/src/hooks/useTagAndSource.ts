@@ -74,7 +74,7 @@ export default function useTagAndSource({
   const onFollowTags = useCallback(
     async ({ tags, category, requireLogin }: TagActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
-        showLogin(origin as AuthTriggersType);
+        showLogin({ trigger: origin as AuthTriggersType });
         return { successful: false };
       }
       trackEvent({
@@ -108,7 +108,7 @@ export default function useTagAndSource({
   const onUnfollowTags = useCallback(
     async ({ tags, category, requireLogin }: TagActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
-        showLogin(origin as AuthTriggersType);
+        showLogin({ trigger: origin as AuthTriggersType });
         return { successful: false };
       }
       trackEvent({
@@ -136,7 +136,7 @@ export default function useTagAndSource({
   const onBlockTags = useCallback(
     async ({ tags, requireLogin }: TagActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
-        showLogin(origin as AuthTriggersType);
+        showLogin({ trigger: origin as AuthTriggersType });
         return { successful: false };
       }
 
@@ -166,7 +166,7 @@ export default function useTagAndSource({
   const onUnblockTags = useCallback(
     async ({ tags, requireLogin }: TagActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
-        showLogin(origin as AuthTriggersType);
+        showLogin({ trigger: origin as AuthTriggersType });
         return { successful: false };
       }
       trackEvent({
@@ -195,7 +195,7 @@ export default function useTagAndSource({
   const onFollowSource = useCallback(
     async ({ source, requireLogin }: SourceActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
-        showLogin(origin as AuthTriggersType);
+        showLogin({ trigger: origin as AuthTriggersType });
         return { successful: false };
       }
       trackEvent({
@@ -224,7 +224,7 @@ export default function useTagAndSource({
   const onUnfollowSource = useCallback(
     async ({ source, requireLogin }: SourceActionArguments) => {
       if (shouldShowLogin(requireLogin)) {
-        showLogin(origin as AuthTriggersType);
+        showLogin({ trigger: origin as AuthTriggersType });
         return { successful: false };
       }
       trackEvent({

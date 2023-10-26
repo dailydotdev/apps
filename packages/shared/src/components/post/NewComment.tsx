@@ -86,7 +86,7 @@ function NewCommentComponent(
 
   const onCommentClick = (origin: Origin) => {
     if (!user) {
-      return showLogin(AuthTriggers.NewComment);
+      return showLogin({ trigger: AuthTriggers.NewComment });
     }
 
     return onShowComment(origin);

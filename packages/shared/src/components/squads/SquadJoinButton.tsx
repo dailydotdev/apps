@@ -132,9 +132,12 @@ export const SquadJoinButton = ({
 
   const onLeaveSquad = () => {
     if (!user) {
-      showLogin(AuthTriggers.JoinSquad, {
-        onLoginSuccess: joinSquad,
-        onRegistrationSuccess: joinSquad,
+      showLogin({
+        trigger: AuthTriggers.JoinSquad,
+        options: {
+          onLoginSuccess: joinSquad,
+          onRegistrationSuccess: joinSquad,
+        },
       });
 
       return;
