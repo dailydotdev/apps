@@ -6,6 +6,6 @@
     "esModuleInterop": true,
     "noImplicitAny": true,
     "sourceMap": true,
-    "target": "es5"
+    "target": "es6"
   }
 }
