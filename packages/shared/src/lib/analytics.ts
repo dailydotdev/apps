@@ -13,6 +13,8 @@ export enum Origin {
   NonRealTime = 'nonrealtime',
   ChangelogPopup = 'changelog popup',
   BlockedFilter = 'blocked filter',
+  SourcePage = 'source page',
+  TagPage = 'tag page',
   // squads - start
   SquadDirectory = 'squad directory',
   SquadCreation = 'squad creation',
