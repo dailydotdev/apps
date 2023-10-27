@@ -222,7 +222,7 @@ function MainLayout({
           'flex flex-row',
           className,
           !showOnlyLogo && !screenCentered && mainLayoutClass(sidebarExpanded),
-          isBannerAvailable ? 'laptop:pt-22' : 'laptop:pt-14',
+          isBannerAvailable && 'laptop:pt-8',
         )}
       >
         {renderSidebar()}
