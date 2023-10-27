@@ -81,9 +81,6 @@ importers:
       '@dailydotdev/shared':
         specifier: '*'
         version: link:../shared
-      '@types/webextension-polyfill':
-        specifier: ^0.10.5
-        version: 0.10.5
       classnames:
         specifier: ^2.3.1
         version: 2.3.1
@@ -214,6 +211,9 @@ importers:
       '@types/testing-library__jest-dom':
         specifier: ^5.14.6
         version: 5.14.6
+      '@types/webextension-polyfill':
+        specifier: ^0.10.5
+        version: 0.10.5
       '@types/webpack':
         specifier: ^4.41.31
         version: 4.41.31
@@ -408,9 +408,6 @@ importers:
       '@tippyjs/react':
         specifier: ^4.2.5
         version: 4.2.5(react-dom@17.0.2)(react@17.0.2)
-      '@types/webextension-polyfill':
-        specifier: ^0.10.5
-        version: 0.10.5
       balloon-css:
         specifier: ^1.2.0
         version: 1.2.0
@@ -526,6 +523,9 @@ importers:
       '@types/react-syntax-highlighter':
         specifier: ^15.5.7
         version: 15.5.7
+      '@types/webextension-polyfill':
+        specifier: ^0.10.5
+        version: 0.10.5
       '@typescript-eslint/eslint-plugin':
         specifier: ^4.33.0
         version: 4.33.0(@typescript-eslint/parser@4.33.0)(eslint@7.32.0)(typescript@4.6.4)
@@ -3330,7 +3330,7 @@ packages:
 
   /@types/webextension-polyfill@0.10.5:
     resolution: {integrity: sha512-LlmbFLUB7+BDrb9nMuM0wlqtx9LZbBV2x3W98o02cD7Y8i10+sBenTlhG56vr47dzC7WIVXbURii+5jMJsyjLw==}
-    dev: false
+    dev: true
 
   /@types/webextension-polyfill@0.8.3:
     resolution: {integrity: sha512-GN+Hjzy9mXjWoXKmaicTegv3FJ0WFZ3aYz77Wk8TMp1IY3vEzvzj1vnsa0ggV7vMI1i+PUxe4qqnIJKCzf9aTg==}
