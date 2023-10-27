@@ -138,9 +138,9 @@ importers:
       react-virtual:
         specifier: ^2.10.4
         version: 2.10.4(react@17.0.2)
-      webextension-polyfill-ts:
-        specifier: ^0.22.0
-        version: 0.22.0
+      webextension-polyfill:
+        specifier: ^0.10.0
+        version: 0.10.0
     devDependencies:
       '@babel/core':
         specifier: ^7.17.9
@@ -211,6 +211,9 @@ importers:
       '@types/testing-library__jest-dom':
         specifier: ^5.14.6
         version: 5.14.6
+      '@types/webextension-polyfill':
+        specifier: ^0.10.5
+        version: 0.10.5
       '@types/webpack':
         specifier: ^4.41.31
         version: 4.41.31
@@ -450,9 +453,9 @@ importers:
       web-vitals:
         specifier: ^3.5.0
         version: 3.5.0
-      webextension-polyfill-ts:
-        specifier: ^0.22.0
-        version: 0.22.0
+      webextension-polyfill:
+        specifier: ^0.10.0
+        version: 0.10.0
     devDependencies:
       '@babel/preset-env':
         specifier: ^7.16.0
@@ -520,6 +523,9 @@ importers:
       '@types/react-syntax-highlighter':
         specifier: ^15.5.7
         version: 15.5.7
+      '@types/webextension-polyfill':
+        specifier: ^0.10.5
+        version: 0.10.5
       '@typescript-eslint/eslint-plugin':
         specifier: ^4.33.0
         version: 4.33.0(@typescript-eslint/parser@4.33.0)(eslint@7.32.0)(typescript@4.6.4)
@@ -3321,6 +3327,10 @@ packages:
 
   /@types/unist@2.0.6:
     resolution: {integrity: sha512-PBjIUxZHOuj0R15/xuwJYjFi+KZdNFrehocChv4g5hu6aFroHue8m0lBP0POdK2nKzbw0cgV1mws8+V/JAcEkQ==}
+
+  /@types/webextension-polyfill@0.10.5:
+    resolution: {integrity: sha512-LlmbFLUB7+BDrb9nMuM0wlqtx9LZbBV2x3W98o02cD7Y8i10+sBenTlhG56vr47dzC7WIVXbURii+5jMJsyjLw==}
+    dev: true
 
   /@types/webextension-polyfill@0.8.3:
     resolution: {integrity: sha512-GN+Hjzy9mXjWoXKmaicTegv3FJ0WFZ3aYz77Wk8TMp1IY3vEzvzj1vnsa0ggV7vMI1i+PUxe4qqnIJKCzf9aTg==}
@@ -13209,15 +13219,8 @@ packages:
     resolution: {integrity: sha512-TTtitT7rgdaR2nx0+TZDIYHpZ5TXH9Ak8C2TaBaJT9qNeHXexKzde6uQ6cjdOK2G80C04r8fcx98Iy+PTCNN7Q==}
     dev: false
 
-  /webextension-polyfill-ts@0.22.0:
-    resolution: {integrity: sha512-3P33ClMwZ/qiAT7UH1ROrkRC1KM78umlnPpRhdC/292UyoTTW9NcjJEqDsv83HbibcTB6qCtpVeuB2q2/oniHQ==}
-    deprecated: This project has moved to @types/webextension-polyfill
-    dependencies:
-      webextension-polyfill: 0.7.0
-    dev: false
-
-  /webextension-polyfill@0.7.0:
-    resolution: {integrity: sha512-su48BkMLxqzTTvPSE1eWxKToPS2Tv5DLGxKexLEVpwFd6Po6N8hhSLIvG6acPAg7qERoEaDL+Y5HQJeJeml5Aw==}
+  /webextension-polyfill@0.10.0:
+    resolution: {integrity: sha512-c5s35LgVa5tFaHhrZDnr3FpQpjj1BB+RXhLTYUxGqBVN460HkbM8TBtEqdXWbpTKfzwCcjAZVF7zXCYSKtcp9g==}
     dev: false
 
   /webextension-polyfill@0.8.0:
@@ -13796,7 +13799,7 @@ packages:
     dev: false
 
   '@gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?a0d1a3add257acdbf5353dfd690547feebbada92':
-    resolution: {tarball: https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?a0d1a3add257acdbf5353dfd690547feebbada92}
+    resolution: {registry: https://registry.npmjs.org/, tarball: https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?a0d1a3add257acdbf5353dfd690547feebbada92}
     name: '@growthbook/growthbook'
     version: 0.27.0
     engines: {node: '>=10'}

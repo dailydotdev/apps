@@ -1,5 +1,5 @@
 import 'content-scripts-register-polyfill';
-import { browser, Runtime, Tabs } from 'webextension-polyfill-ts';
+import browser, { runtime, Runtime, Tabs } from 'webextension-polyfill';
 import { getBootData } from '@dailydotdev/shared/src/lib/boot';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
@@ -134,13 +134,9 @@ async function handleMessages(
   }
 
   if (message.type === ExtensionMessageType.RequestUpdate) {
-    // check if requestUpdateCheck is available
-    // @ts-expect-error Property 'requestUpdateCheck' does not exist on type 'Static'
     if (typeof browser.runtime.requestUpdateCheck === 'function') {
-      // @ts-expect-error Property 'requestUpdateCheck' does not exist on type 'Static'
       const [status] = await browser.runtime.requestUpdateCheck();
 
-      // if update is available reload extension to apply the update
       if (status === 'update_available') {
         browser.runtime.reload();
       }
@@ -157,7 +153,7 @@ async function handleMessages(
 browser.runtime.onMessage.addListener(handleMessages);
 
 browser.browserAction.onClicked.addListener(() => {
-  const url = browser.extension.getURL('index.html?source=button');
+  const url = runtime.getURL('index.html?source=button');
   browser.tabs.create({ url, active: true });
 });
 
@@ -177,8 +173,6 @@ browser.runtime.onStartup.addListener(async () => {
   await getContentScriptPermissionAndRegister();
 });
 
-// only add update listener if requestUpdateCheck is not available
-// @ts-expect-error Property 'requestUpdateCheck' does not exist on type 'Static'
 if (typeof browser.runtime.requestUpdateCheck === 'undefined') {
   browser.runtime.onUpdateAvailable.addListener(() => {
     browser.runtime.reload();

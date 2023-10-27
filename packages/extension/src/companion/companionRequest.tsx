@@ -1,5 +1,5 @@
 import request from 'graphql-request';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 import { initialDataKey } from '@dailydotdev/shared/src/lib/constants';
 import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
 

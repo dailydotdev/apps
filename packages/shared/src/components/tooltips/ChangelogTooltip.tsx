@@ -56,8 +56,8 @@ function ChangelogTooltip({
           );
         }
 
-        const browser = await import('webextension-polyfill-ts').then(
-          (mod) => mod.browser,
+        const browser = await import('webextension-polyfill').then(
+          (mod) => mod.default,
         );
 
         const updateResponse: { status: string } =
