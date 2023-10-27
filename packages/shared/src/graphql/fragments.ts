@@ -80,6 +80,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     upvoted
     commented
     bookmarked
+    views
     numUpvotes
     numComments
     scout {
