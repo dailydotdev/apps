@@ -1,5 +1,4 @@
 import { useContext, useMemo } from 'react';
-import { useFeatureIsOn } from '@growthbook/growthbook-react';
 import { useMutation, useQueryClient } from 'react-query';
 import { Post, dismissPostFeedback, UserPostVote } from '../graphql/posts';
 import { optimisticPostUpdateInFeed } from '../lib/feed';
@@ -10,7 +9,6 @@ import { SharedFeedPage } from '../components/utilities';
 import { EmptyResponse } from '../graphql/emptyResponse';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
-import { feature } from '../lib/featureManagement';
 
 type UsePostFeedbackProps = {
   post?: Pick<Post, 'id' | 'userState' | 'read'>;
@@ -19,7 +17,6 @@ type UsePostFeedbackProps = {
 interface UsePostFeedback {
   showFeedback: boolean;
   dismissFeedback: () => Promise<EmptyResponse>;
-  isFeedbackEnabled: boolean;
 }
 
 export const usePostFeedback = ({
@@ -29,9 +26,6 @@ export const usePostFeedback = ({
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const { trackEvent } = useContext(AnalyticsContext);
 
-  const isFeedbackEnabled = useFeatureIsOn(
-    feature.engagementLoopJuly2023Upvote.id,
-  );
   const isMyFeed = useMemo(() => {
     return feedQueryKey?.some((item) => item === SharedFeedPage.MyFeed);
   }, [feedQueryKey]);
@@ -84,10 +78,7 @@ export const usePostFeedback = ({
   );
 
   const shouldShowFeedback =
-    isFeedbackEnabled &&
-    isMyFeed &&
-    !!post?.read &&
-    post?.userState?.vote === UserPostVote.None;
+    isMyFeed && !!post?.read && post?.userState?.vote === UserPostVote.None;
 
   const showFeedback = useMemo(() => {
     if (!shouldShowFeedback) {
@@ -103,6 +94,5 @@ export const usePostFeedback = ({
   return {
     showFeedback,
     dismissFeedback: dismissFeedbackMutation.mutateAsync,
-    isFeedbackEnabled,
   };
 };
