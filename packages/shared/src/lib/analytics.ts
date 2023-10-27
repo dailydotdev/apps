@@ -12,6 +12,9 @@ export enum Origin {
   RealTime = 'realtime',
   NonRealTime = 'nonrealtime',
   ChangelogPopup = 'changelog popup',
+  BlockedFilter = 'blocked filter',
+  SourcePage = 'source page',
+  TagPage = 'tag page',
   // squads - start
   SquadDirectory = 'squad directory',
   SquadCreation = 'squad creation',
@@ -36,12 +39,6 @@ export enum Origin {
   History = 'history',
   FeedbackCard = 'feedback card',
   InitializeRegistrationFlow = 'initialize registration flow',
-}
-
-export enum LoginTrigger {
-  CreateFeedFilters = 'create feed filters',
-  SearchInput = 'search input',
-  SearchSuggestion = 'search suggestion',
 }
 
 export enum AnalyticsEvent {

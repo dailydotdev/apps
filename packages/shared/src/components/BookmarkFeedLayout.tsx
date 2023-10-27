@@ -14,7 +14,7 @@ import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button } from './buttons/Button';
 import ShareIcon from './icons/Share';
-import { generateQueryKey, RequestKey } from '../lib/query';
+import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import { supportedTypesForPrivateSources } from '../graphql/posts';
 
 export type BookmarkFeedLayoutProps = {
@@ -43,7 +43,7 @@ export default function BookmarkFeedLayout({
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (searchQuery) {
       return {
-        feedName: 'search-bookmarks',
+        feedName: OtherFeedPage.SearchBookmarks,
         feedQueryKey: defaultKey.concat(searchQuery),
         query: SEARCH_BOOKMARKS_QUERY,
         variables: {
@@ -54,7 +54,7 @@ export default function BookmarkFeedLayout({
       };
     }
     return {
-      feedName: 'bookmarks',
+      feedName: OtherFeedPage.Bookmarks,
       feedQueryKey: defaultKey,
       query: BOOKMARKS_FEED_QUERY,
       variables: {

@@ -78,7 +78,7 @@ it('should show about section', () => {
 
 it('should show profile social links', () => {
   renderComponent();
-  const twitter = screen.getByPlaceholderText('Twitter');
+  const twitter = screen.getByPlaceholderText('X');
   expect(twitter).toBeInTheDocument();
   expect(twitter).toHaveValue(defaultLoggedUser.twitter);
   const github = screen.getByPlaceholderText('GitHub');

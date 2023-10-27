@@ -10,11 +10,24 @@ import { EmptyObjectLiteral } from './kratos';
 import { LoggedUser } from './user';
 import { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
 import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
+import { SharedFeedPage } from '../components/utilities';
+
+export enum OtherFeedPage {
+  Tag = 'tag',
+  Squad = 'squad',
+  Source = 'source',
+  Bookmarks = 'bookmarks',
+  SearchBookmarks = 'search-bookmarks',
+}
+
+export const STALE_TIME = 30 * 1000;
+
+export type AllFeedPages = SharedFeedPage | OtherFeedPage;
 
 export type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 
 export const generateQueryKey = (
-  name: string | RequestKey,
+  name: RequestKey | AllFeedPages,
   user: Pick<LoggedUser, 'id'> | null,
   ...additional: unknown[]
 ): unknown[] => {
@@ -34,6 +47,7 @@ export enum RequestKey {
   PostCommentsMutations = 'post_comments_mutations',
   Actions = 'actions',
   Squad = 'squad',
+  SquadMembers = 'squad_members',
   Search = 'search',
   SearchHistory = 'searchHistory',
   ReadingHistory = 'readingHistory',
@@ -42,6 +56,7 @@ export enum RequestKey {
   NotificationPreference = 'notification_preference',
   Banner = 'latest_banner',
   Auth = 'auth',
+  Profile = 'profile',
   CurrentSession = 'current_session',
   PersonalizedDigest = 'personalizedDigest',
   Changelog = 'changelog',

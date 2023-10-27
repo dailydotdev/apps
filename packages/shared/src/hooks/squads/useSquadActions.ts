@@ -17,6 +17,7 @@ import {
 } from '../../graphql/squads';
 import { graphqlUrl } from '../../lib/config';
 import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 
 export interface UseSquadActions {
   onUnblock?: typeof unblockSquadMember;
@@ -33,6 +34,7 @@ interface MembersQueryParams {
 
 interface UseSquadActionsProps {
   squad: Squad;
+  query?: string;
   membersQueryParams?: MembersQueryParams;
   membersQueryEnabled?: boolean;
   feedQueryKey?: QueryKey;
@@ -40,12 +42,19 @@ interface UseSquadActionsProps {
 
 export const useSquadActions = ({
   squad,
+  query,
   membersQueryParams = {},
   membersQueryEnabled,
   feedQueryKey,
 }: UseSquadActionsProps): UseSquadActions => {
   const client = useQueryClient();
-  const membersQueryKey = ['squadMembers', squad?.id, membersQueryParams];
+  const membersQueryKey = generateQueryKey(
+    RequestKey.SquadMembers,
+    null,
+    membersQueryParams,
+    squad?.id,
+    query,
+  );
   const { mutateAsync: onUpdateRole } = useMutation(updateSquadMemberRole, {
     onSuccess: () => client.invalidateQueries(membersQueryKey),
   });
@@ -75,7 +84,8 @@ export const useSquadActions = ({
     ({ pageParam }) =>
       request(graphqlUrl, SQUAD_MEMBERS_QUERY, {
         id: squad?.id,
-        after: pageParam,
+        after: typeof pageParam === 'string' ? pageParam : undefined,
+        query,
         ...membersQueryParams,
       }),
     {

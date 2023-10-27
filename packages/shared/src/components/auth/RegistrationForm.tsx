@@ -9,7 +9,7 @@ import React, {
 import {
   AuthEventNames,
   AuthTriggers,
-  AuthTriggersOrString,
+  AuthTriggersType,
   RegistrationError,
   RegistrationParameters,
 } from '../../lib/auth';
@@ -43,7 +43,7 @@ export interface RegistrationFormProps extends AuthFormProps {
   onUpdateHints?: (errors: RegistrationError) => void;
   onSignup?: (params: RegistrationFormValues) => void;
   token: string;
-  trigger: AuthTriggersOrString;
+  trigger: AuthTriggersType;
 }
 
 export type RegistrationFormValues = Omit<
@@ -225,7 +225,7 @@ export const RegistrationForm = ({
             leftIcon={<TwitterIcon />}
             name="traits.twitter"
             inputId="traits.twitter"
-            label="Twitter"
+            label="X"
             type="text"
             required
           />

@@ -223,8 +223,20 @@ export const SQUAD_HANDE_AVAILABILITY_QUERY = gql`
 `;
 
 export const SQUAD_MEMBERS_QUERY = gql`
-  query SourceMembers($id: ID!, $after: String, $first: Int, $role: String) {
-    sourceMembers(sourceId: $id, after: $after, first: $first, role: $role) {
+  query SourceMembers(
+    $id: ID!
+    $after: String
+    $first: Int
+    $role: String
+    $query: String
+  ) {
+    sourceMembers(
+      sourceId: $id
+      after: $after
+      first: $first
+      role: $role
+      query: $query
+    ) {
       pageInfo {
         endCursor
         hasNextPage

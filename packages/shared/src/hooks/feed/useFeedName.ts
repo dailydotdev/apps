@@ -1,11 +1,11 @@
-import { MainFeedPage } from '../../components/utilities';
+import { SharedFeedPage } from '../../components/utilities';
 import { useFeature } from '../../components/GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 
 interface UseFeedNameProps {
   isSearchOn: boolean;
-  feedName: MainFeedPage;
+  feedName: SharedFeedPage;
 }
 
 interface UseFeedName {
@@ -13,7 +13,7 @@ interface UseFeedName {
   isSortableFeed: boolean;
 }
 
-const sortableFeeds = [MainFeedPage.Popular, MainFeedPage.MyFeed];
+const sortableFeeds = [SharedFeedPage.Popular, SharedFeedPage.MyFeed];
 
 export const useFeedName = ({
   feedName,
