@@ -256,7 +256,7 @@ export function OnboardPage(): ReactElement {
         {isFiltering && onboardingV4 === OnboardingV4.V4 && (
           <>
             <Title className="text-center typo-large-title">
-              Pick tags that relevant to you
+              Pick tags that are relevant to you
             </Title>
             <FilterOnboardingV4
               className="mt-10 max-w-4xl"
@@ -284,7 +284,8 @@ export function OnboardPage(): ReactElement {
             {isPreviewEnabled && isPreviewVisible && (
               <FeedLayout>
                 <p className="mt-6 -mb-4 text-center typo-body text-theme-label-secondary">
-                  Change your selection tags to see different feed preview.
+                  Change your tag selection until you&apos;re happy with your
+                  feed preview.
                 </p>
                 <Feed
                   className="px-6 pt-14 laptop:pt-10"
