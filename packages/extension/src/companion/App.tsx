@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 import { Boot, BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';

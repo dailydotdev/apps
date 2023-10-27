@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   ADD_BOOKMARKS_MUTATION,
