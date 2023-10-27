@@ -23,6 +23,6 @@ export interface OnboardingStepProps {
   isModal?: boolean;
 }
 
-export const requiredTagsThreshold = 5;
+export const REQUIRED_TAGS_THRESHOLD = 5;
 
 export const wrapperMaxWidth = 'max-w-[75rem] laptopXL:max-w-[90rem]';

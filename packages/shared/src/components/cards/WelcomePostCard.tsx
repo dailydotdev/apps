@@ -69,13 +69,9 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       ref={ref}
       flagProps={{ pinnedAt }}
     >
-      <CardButton
-        className={classNames(
-          isFeedPreview && 'cursor-auto pointer-events-none',
-        )}
-        title={post.title}
-        onClick={isFeedPreview ? undefined : onPostCardClick}
-      />
+      {!isFeedPreview && (
+        <CardButton title={post.title} onClick={onPostCardClick} />
+      )}
 
       <OptionsButton
         className="group-hover:flex laptop:hidden top-2 right-2"

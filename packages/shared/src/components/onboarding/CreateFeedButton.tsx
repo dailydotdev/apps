@@ -5,7 +5,7 @@ import { Button, ButtonElementType } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips';
 import { isTesting } from '../../lib/constants';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
-import { requiredTagsThreshold } from './common';
+import { REQUIRED_TAGS_THRESHOLD } from './common';
 
 export type CreateFeedButtonProps = {
   className?: string;
@@ -17,13 +17,13 @@ export const CreateFeedButton = ({
 }: CreateFeedButtonProps): ReactElement => {
   const { feedSettings } = useFeedSettings();
   const tagsCount = feedSettings?.includeTags?.length || 0;
-  const canCreateFeed = tagsCount >= requiredTagsThreshold;
+  const canCreateFeed = tagsCount >= REQUIRED_TAGS_THRESHOLD;
   const { sidebarRendered } = useSidebarRendered();
 
   return (
     <SimpleTooltip
       content={
-        canCreateFeed ? '' : `Choose at least ${requiredTagsThreshold} tags`
+        canCreateFeed ? '' : `Choose at least ${REQUIRED_TAGS_THRESHOLD} tags`
       }
       forceLoad={!isTesting}
     >

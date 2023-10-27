@@ -176,7 +176,7 @@ export const FeedContainer = ({
           aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
           data-testid="posts-feed"
         >
-          {router.query.welcome === '1' && (
+          {router.query?.welcome === 'true' && (
             <FeedReadyMessage className="mb-10" />
           )}
           {inlineHeader && header}

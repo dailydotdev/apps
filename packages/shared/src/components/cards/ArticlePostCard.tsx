@@ -70,13 +70,9 @@ export const ArticlePostCard = forwardRef(function PostCard(
       ref={ref}
       flagProps={{ pinnedAt, trending }}
     >
-      <CardButton
-        className={classNames(
-          isFeedPreview && 'cursor-auto pointer-events-none',
-        )}
-        title={post.title}
-        onClick={isFeedPreview ? undefined : onPostCardClick}
-      />
+      {!isFeedPreview && (
+        <CardButton title={post.title} onClick={onPostCardClick} />
+      )}
 
       {showFeedback && <FeedbackCard post={post} />}
 

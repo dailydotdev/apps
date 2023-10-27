@@ -1,5 +1,4 @@
 import React, { forwardRef, ReactElement, Ref, useRef, useState } from 'react';
-import classNames from 'classnames';
 import { CardButton, getPostClassNames } from './Card';
 import ActionButtons from './ActionButtons';
 import { SharedPostCardHeader } from './SharedPostCardHeader';
@@ -49,13 +48,9 @@ export const SharePostCard = forwardRef(function SharePostCard(
       ref={ref}
       flagProps={{ pinnedAt, trending }}
     >
-      <CardButton
-        className={classNames(
-          isFeedPreview && 'cursor-auto pointer-events-none',
-        )}
-        title={post.title}
-        onClick={isFeedPreview ? undefined : onPostCardClick}
-      />
+      {!isFeedPreview && (
+        <CardButton title={post.title} onClick={onPostCardClick} />
+      )}
 
       <OptionsButton
         className="group-hover:flex laptop:hidden top-2 right-2"

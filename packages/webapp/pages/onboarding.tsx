@@ -38,7 +38,7 @@ import {
 import {
   OnboardingStep,
   OnboardingTitleGradient,
-  requiredTagsThreshold,
+  REQUIRED_TAGS_THRESHOLD,
   wrapperMaxWidth,
 } from '@dailydotdev/shared/src/components/onboarding/common';
 import {
@@ -155,8 +155,8 @@ export function OnboardPage(): ReactElement {
         query:
           onboardingV4 === OnboardingV4.V4
             ? {
-                welcome: '1',
-                hset: '1',
+                welcome: 'true',
+                hset: 'true',
               }
             : undefined,
       });
@@ -274,7 +274,7 @@ export function OnboardPage(): ReactElement {
 
   const getContentV3 = (): ReactElement => {
     const tagsCount = feedSettings?.includeTags?.length || 0;
-    const isPreviewEnabled = tagsCount >= requiredTagsThreshold;
+    const isPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
 
     if (isAuthenticating && !isFiltering) {
       return getAuthOptions();
@@ -341,7 +341,7 @@ export function OnboardPage(): ReactElement {
             >
               {isPreviewEnabled
                 ? `${isPreviewVisible ? 'Hide' : 'Show'} feed preview`
-                : `${tagsCount}/${requiredTagsThreshold} to show feed preview`}
+                : `${tagsCount}/${REQUIRED_TAGS_THRESHOLD} to show feed preview`}
             </Button>
             {isPreviewEnabled && isPreviewVisible && (
               <FeedLayout>

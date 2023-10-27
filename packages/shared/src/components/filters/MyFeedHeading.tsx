@@ -31,7 +31,7 @@ function MyFeedHeading({
   const router = useRouter();
   const { trackEvent } = useContext(AnalyticsContext);
   const searchVersion = useFeature(feature.search);
-  const shouldShowHighlightPulse = router.query?.hset === '1';
+  const shouldShowHighlightPulse = router.query?.hset === 'true';
 
   const onClick = () => {
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
