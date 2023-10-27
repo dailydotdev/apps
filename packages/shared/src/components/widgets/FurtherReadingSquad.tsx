@@ -13,6 +13,7 @@ import { FeedData, SOURCE_FEED_QUERY } from '../../graphql/feed';
 import LeanFeed from '../feed/LeanFeed';
 import { FeedItem } from '../../hooks/useFeed';
 import { ActiveFeedContextProvider } from '../../contexts';
+import LeanFeedItemComponent from '../feed/LeanFeedItemComponent';
 
 export type FurtherReadingProps = {
   currentPost: Post;
@@ -104,16 +105,22 @@ export default function FurtherReadingSquad({
       </div>
       <div className={classNames(className, 'flex flex-col gap-6')}>
         <ActiveFeedContextProvider items={similarPosts} queryKey={queryKey}>
-          <LeanFeed items={similarPosts} />
+          <LeanFeed>
+            <p className="col-span-2">Some extra element</p>
+            {similarPosts.map((item, i) => {
+              return <LeanFeedItemComponent key={i} item={item} />;
+            })}
+            <div className="col-span-2">Maybe a load more trigger here</div>
+          </LeanFeed>
         </ActiveFeedContextProvider>
 
         <p className="typo-title3">Alternative feed</p>
-        <ActiveFeedContextProvider
-          items={similarPosts}
-          onClick={altOnClick}
-          queryKey={queryKey}
-        >
-          <LeanFeed items={similarPosts} />
+        <ActiveFeedContextProvider items={similarPosts} queryKey={queryKey}>
+          <LeanFeed>
+            {similarPosts.map((item, i) => {
+              return <LeanFeedItemComponent key={i} item={item} />;
+            })}
+          </LeanFeed>
         </ActiveFeedContextProvider>
       </div>
     </div>

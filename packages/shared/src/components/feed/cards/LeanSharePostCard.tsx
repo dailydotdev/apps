@@ -8,13 +8,15 @@ import FeedItemContainer from '../../cards/FeedItemContainer';
 import { useActiveFeedContext } from '../../../contexts';
 import LeanOptionsButton from './LeanOptionsMenu';
 import LeanActionButtons from './LeanActionButtons';
+import useLeanPostActions from '../../../hooks/post/useLeanPostActions';
 
 export const LeanSharePostCard = forwardRef(function LeanSharePostCard(
   { post, children }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { pinnedAt, trending } = post;
-  const { onClick } = useActiveFeedContext();
+  const { queryKey } = useActiveFeedContext();
+  const { onClick } = useLeanPostActions({ queryKey });
 
   const onPostCardClick = () => onClick(post);
   const [isSharedPostShort, setSharedPostShort] = useState(true);

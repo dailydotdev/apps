@@ -72,7 +72,6 @@ const updatePost =
     update: (oldPost: Post) => Partial<Post>,
   ): ((args: { id: string }) => Promise<() => void>) =>
   async ({ id }) => {
-    await queryClient.cancelQueries(queryKey);
     const previousData = queryClient.getQueryData(queryKey);
     queryClient.setQueryData(
       queryKey,
