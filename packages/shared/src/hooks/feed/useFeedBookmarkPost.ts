@@ -50,7 +50,7 @@ export default function useFeedBookmarkPost(
     targetBookmarkState,
   ): Promise<void> => {
     if (!user) {
-      showLogin(AuthTriggers.Bookmark);
+      showLogin({ trigger: AuthTriggers.Bookmark });
       return;
     }
     trackEvent(

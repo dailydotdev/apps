@@ -52,7 +52,10 @@ function IntroductionOnboarding({
               <MemberAlready
                 className={{ container: 'py-10', login: 'z-0' }}
                 onLogin={() =>
-                  showLogin(AuthTriggers.Onboarding, { isLogin: true })
+                  showLogin({
+                    trigger: AuthTriggers.Onboarding,
+                    options: { isLogin: true },
+                  })
                 }
               />
             )}

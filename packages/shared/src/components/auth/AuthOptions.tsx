@@ -17,7 +17,7 @@ import { RegistrationForm, RegistrationFormValues } from './RegistrationForm';
 import {
   AuthEventNames,
   AuthTriggers,
-  AuthTriggersOrString,
+  AuthTriggersType,
   getNodeValue,
   RegistrationError,
 } from '../../lib/auth';
@@ -80,7 +80,7 @@ export interface AuthOptionsProps {
   onSuccessfulLogin?: () => unknown;
   onSuccessfulRegistration?: () => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
-  trigger: AuthTriggersOrString;
+  trigger: AuthTriggersType;
   defaultDisplay?: AuthDisplay;
   forceDefaultDisplay?: boolean;
   className?: string;

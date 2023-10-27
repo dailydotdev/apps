@@ -3,12 +3,12 @@ import classNames from 'classnames';
 import AuthOptions, { AuthDisplay as Display } from './AuthOptions';
 import useAuthForms from '../../hooks/useAuthForms';
 import AuthContext from '../../contexts/AuthContext';
-import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
+import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Modal, ModalProps } from '../modals/common/Modal';
 
 export interface AuthModalProps extends ModalProps {
-  trigger?: AuthTriggersOrString;
+  trigger?: AuthTriggersType;
 }
 
 export default function AuthModal({

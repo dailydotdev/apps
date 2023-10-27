@@ -106,13 +106,9 @@ export const SocialShare = ({
       <SocialShareContainer title="Share externally">
         <SocialShareIcon
           onClick={trackAndCopyLink}
-          pressed={copying}
           icon={
             <CopyIcon
-              className={classNames(
-                'text-theme-label-invert',
-                copying && 'text-theme-color-avocado',
-              )}
+              className={classNames('text-theme-label-invert')}
               secondary={copying}
             />
           }

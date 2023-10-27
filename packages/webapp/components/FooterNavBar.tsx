@@ -145,7 +145,7 @@ export default function FooterNavBar(): ReactElement {
                 <Button
                   {...buttonProps}
                   icon={tab.icon(index === selectedTab, unreadCount)}
-                  onClick={() => showLogin(AuthTriggers.Bookmark)}
+                  onClick={() => showLogin({ trigger: AuthTriggers.Bookmark })}
                 />
               </SimpleTooltip>
             )}

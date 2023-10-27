@@ -88,7 +88,7 @@ export default function Settings({
     onToggleFunc: () => Promise<void> | void,
   ): Promise<void> | void => {
     if (!user) {
-      showLogin(AuthTriggers.Settings);
+      showLogin({ trigger: AuthTriggers.Settings });
       return undefined;
     }
 

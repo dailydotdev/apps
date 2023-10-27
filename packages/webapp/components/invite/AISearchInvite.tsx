@@ -62,9 +62,12 @@ export function AISearchInvite({
       });
 
     if (!user) {
-      return showLogin(AuthTriggers.SearchReferral, {
-        onLoginSuccess: handleAccept,
-        onRegistrationSuccess: handleAccept,
+      return showLogin({
+        trigger: AuthTriggers.SearchReferral,
+        options: {
+          onLoginSuccess: handleAccept,
+          onRegistrationSuccess: handleAccept,
+        },
       });
     }
 

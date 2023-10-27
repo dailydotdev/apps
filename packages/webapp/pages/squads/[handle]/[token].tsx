@@ -167,11 +167,14 @@ const SquadReferral = ({
       return onJoinSquad();
     }
 
-    return showLogin(AuthTriggers.JoinSquad, {
-      referral: member.user.id,
-      referralOrigin: ReferralOriginKey.Squad,
-      onLoginSuccess: onJoinSquad,
-      onRegistrationSuccess: onJoinSquad,
+    return showLogin({
+      trigger: AuthTriggers.JoinSquad,
+      options: {
+        referral: member.user.id,
+        referralOrigin: ReferralOriginKey.Squad,
+        onLoginSuccess: onJoinSquad,
+        onRegistrationSuccess: onJoinSquad,
+      },
     });
   };
 
