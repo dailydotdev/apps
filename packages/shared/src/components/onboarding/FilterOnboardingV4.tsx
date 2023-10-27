@@ -11,7 +11,7 @@ import {
   TagsData,
 } from '../../graphql/feedSettings';
 import { graphqlUrl } from '../../lib/config';
-import { disabledRefetch } from '../../lib/func';
+import { disabledRefetch, getRandomNumber } from '../../lib/func';
 import { Button } from '../buttons/Button';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { SearchField } from '../fields/SearchField';
@@ -33,10 +33,8 @@ const placeholderTags = new Array(24)
   .fill(null)
   .map(
     (_, index) =>
-      new Array(
-        Math.floor(Math.random() * (maxPlaceholder - minPlaceholder + 1)) +
-          minPlaceholder,
-      ).join('-') + index,
+      new Array(getRandomNumber(minPlaceholder, maxPlaceholder)).join('-') +
+      index,
   );
 
 export function FilterOnboardingV4({
