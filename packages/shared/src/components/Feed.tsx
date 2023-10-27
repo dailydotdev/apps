@@ -45,7 +45,7 @@ import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 
 export interface FeedProps<T>
-  extends Pick<UseFeedOptionalParams<T>, 'options' | 'squad'> {
+  extends Pick<UseFeedOptionalParams<T>, 'options'> {
   feedName: string;
   feedQueryKey: unknown[];
   query?: string;
@@ -115,7 +115,6 @@ export default function Feed<T>({
   showSearch = true,
   besideSearch,
   actionButtons,
-  squad,
 }: FeedProps<T>): ReactElement {
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
@@ -420,7 +419,6 @@ export default function Feed<T>({
             isSendingComment={isSendingComment}
             comment={comment}
             user={user}
-            squad={squad}
             feedName={feedName}
             ranking={ranking}
             toggleUpvote={toggleUpvote}

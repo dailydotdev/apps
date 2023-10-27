@@ -66,7 +66,6 @@ export interface UseFeedOptionalParams<T> {
   variables?: T;
   options?: UseInfiniteQueryOptions<FeedData>;
   settings?: UseFeedSettingParams;
-  squad?: Squad;
 }
 
 export default function useFeed<T>(

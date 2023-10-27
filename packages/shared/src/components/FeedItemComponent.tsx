@@ -43,7 +43,6 @@ export type FeedItemComponentProps = {
     columns: number;
   }) => Promise<CommentOnData>;
   user: LoggedUser | undefined;
-  squad?: Squad;
   feedName: string;
   ranking?: string;
   onBookmark: (
@@ -112,7 +111,6 @@ export default function FeedItemComponent({
   isSendingComment,
   comment,
   user,
-  squad,
   feedName,
   ranking,
   toggleUpvote,
@@ -143,7 +141,7 @@ export default function FeedItemComponent({
     case 'post': {
       if (
         !!item.post.pinnedAt &&
-        squad?.currentMember?.flags?.collapsePinnedPosts
+        item.post.source?.currentMember?.flags?.collapsePinnedPosts
       ) {
         return null;
       }

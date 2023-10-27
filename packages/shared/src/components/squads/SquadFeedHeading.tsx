@@ -1,27 +1,22 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
+import { QueryKey } from 'react-query';
 import { Button } from '../buttons/Button';
 import { PinIcon } from '../icons';
 import { Squad } from '../../graphql/sources';
 import { ActiveFeedContext } from '../../contexts';
 import { useSquadActions } from '../../hooks';
-import { LoggedUser } from '../../lib/user';
 
 interface SquadFeedHeadingProps {
   squad: Squad;
-  user: LoggedUser;
+  feedQueryKey: QueryKey;
 }
 
-function SquadFeedHeading({
-  squad,
-  user,
-}: SquadFeedHeadingProps): ReactElement {
+function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
   const { items } = useContext(ActiveFeedContext);
   const { collapseSquadPinnedPosts, expandSquadPinnedPosts } = useSquadActions({
     squad,
-    user,
   });
   const collapsePinnedPosts = squad?.currentMember?.flags?.collapsePinnedPosts;
-  const itemsCount = items.length;
 
   const onClick = async () => {
     return collapsePinnedPosts
@@ -29,21 +24,16 @@ function SquadFeedHeading({
       : await collapseSquadPinnedPosts(squad.id);
   };
 
-  const pinnedPostsCount = useMemo(() => {
-    let countPinned = 0;
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.type === 'post' && !!item.post.pinnedAt) {
-        countPinned += 1;
-      } else {
-        break;
-      }
-    }
-
-    return countPinned;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemsCount]);
+  const pinnedPostsCount = useMemo(
+    () =>
+      items.reduce((acc, item) => {
+        if (item.type === 'post' && !!item.post.pinnedAt) {
+          return acc + 1;
+        }
+        return acc;
+      }, 0),
+    [items],
+  );
 
   return (
     <div className="flex flex-row flex-wrap gap-4 justify-end items-center pb-6 w-full">

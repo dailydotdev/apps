@@ -176,6 +176,12 @@ const SquadPage = ({
     return <Custom404 />;
   }
 
+  const feedQueryKey = [
+    'sourceFeed',
+    user?.id ?? 'anonymous',
+    Object.values(queryVariables),
+  ];
+
   return (
     <PageComponent
       squad={squad}
@@ -195,19 +201,16 @@ const SquadPage = ({
         <Feed
           className="px-6 pt-14 laptop:pt-10"
           feedName="squad"
-          feedQueryKey={[
-            'sourceFeed',
-            user?.id ?? 'anonymous',
-            Object.values(queryVariables),
-          ]}
+          feedQueryKey={feedQueryKey}
           query={SOURCE_FEED_QUERY}
           variables={queryVariables}
           forceCardMode
           showSearch={false}
           emptyScreen={<SquadEmptyScreen />}
           options={{ refetchOnMount: true }}
-          header={<SquadFeedHeading squad={squad} user={user} />}
-          squad={squad}
+          header={
+            <SquadFeedHeading squad={squad} feedQueryKey={feedQueryKey} />
+          }
           inlineHeader
           allowPin
         />

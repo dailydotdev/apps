@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import {
+  QueryKey,
   useInfiniteQuery,
   UseInfiniteQueryResult,
   useMutation,
@@ -16,8 +17,6 @@ import {
 } from '../../graphql/squads';
 import { graphqlUrl } from '../../lib/config';
 import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
-import { updateFlagsCache } from '../../graphql/source/common';
-import { LoggedUser } from '../../lib/user';
 
 export interface UseSquadActions {
   onUnblock?: typeof unblockSquadMember;
@@ -34,16 +33,16 @@ interface MembersQueryParams {
 
 interface UseSquadActionsProps {
   squad: Squad;
-  user?: LoggedUser;
   membersQueryParams?: MembersQueryParams;
   membersQueryEnabled?: boolean;
+  feedQueryKey?: QueryKey;
 }
 
 export const useSquadActions = ({
   squad,
-  user,
   membersQueryParams = {},
   membersQueryEnabled,
+  feedQueryKey,
 }: UseSquadActionsProps): UseSquadActions => {
   const client = useQueryClient();
   const membersQueryKey = ['squadMembers', squad?.id, membersQueryParams];
@@ -58,7 +57,7 @@ export const useSquadActions = ({
     collapsePinnedPosts,
     {
       onSuccess: () => {
-        updateFlagsCache(client, squad, user, { collapsePinnedPosts: true });
+        client.invalidateQueries(feedQueryKey);
       },
     },
   );
@@ -67,7 +66,7 @@ export const useSquadActions = ({
     expandPinnedPosts,
     {
       onSuccess: () => {
-        updateFlagsCache(client, squad, user, { collapsePinnedPosts: false });
+        client.invalidateQueries(feedQueryKey);
       },
     },
   );
