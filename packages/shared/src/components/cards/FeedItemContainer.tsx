@@ -41,7 +41,7 @@ function FeedItemContainer(
 
   return (
     <ConditionalWrapper
-      condition={!!pinnedAt || !!trending}
+      condition={(!!pinnedAt || !!trending) && !isFeedPreview}
       wrapper={(component) => (
         <RaisedLabelContainer>
           {component}
@@ -58,6 +58,7 @@ function FeedItemContainer(
         data-testid="postItem"
         ref={ref}
         className={classNames(
+          domProps.className,
           !listMode && isFeedPreview && 'hover:border-theme-divider-tertiary',
         )}
       >
