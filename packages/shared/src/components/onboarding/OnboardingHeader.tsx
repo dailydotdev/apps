@@ -14,7 +14,6 @@ import { wrapperMaxWidth } from './common';
 
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
-  isOnboardingV3: boolean;
   setAuth: Dispatch<SetStateAction<AuthProps>>;
   onClickNext: () => void;
   isFiltering: boolean;
@@ -22,7 +21,6 @@ type OnboardingHeaderProps = {
 
 export const OnboardingHeader = ({
   showOnboardingPage,
-  isOnboardingV3,
   isFiltering,
   setAuth,
   onClickNext,
@@ -60,7 +58,7 @@ export const OnboardingHeader = ({
     );
   }
 
-  if (!isOnboardingV3 || !showOnboardingPage) {
+  if (!showOnboardingPage) {
     return (
       <Logo
         className="py-8 px-10 w-auto laptop:w-full"
