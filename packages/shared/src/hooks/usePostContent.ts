@@ -7,23 +7,18 @@ import {
   PostsEngaged,
   POSTS_ENGAGED_SUBSCRIPTION,
 } from '../graphql/posts';
-import useUpdatePost from './useUpdatePost';
-import useBookmarkPostOld from './useBookmarkPost';
 import { useAnalyticsContext } from '../contexts/AnalyticsContext';
-import { AuthTriggers } from '../lib/auth';
 import { postAnalyticsEvent } from '../lib/feed';
 import useOnPostClick from './useOnPostClick';
 import useSubscription from './useSubscription';
 import { PostOrigin } from './analytics/useAnalyticsContextData';
 import { updatePostCache } from './usePostById';
-import { AnalyticsEvent } from '../lib/analytics';
 
 export interface UsePostContent {
   sharePost: Post;
   onSharePost: () => void;
   onCloseShare: () => void;
   onReadArticle: () => Promise<void>;
-  onToggleBookmark: () => Promise<void>;
 }
 
 export interface UsePostContentProps {
@@ -37,43 +32,16 @@ const usePostContent = ({
 }: UsePostContentProps): UsePostContent => {
   const id = post?.id;
   const queryClient = useQueryClient();
-  const { user, showLogin } = useAuthContext();
+  const { user } = useAuthContext();
   const { trackEvent } = useAnalyticsContext();
-  const { updatePost } = useUpdatePost();
   const onPostClick = useOnPostClick({ origin });
   const onReadArticle = () =>
     onPostClick({
       post: post?.sharedPost || post,
       optional: { parent_id: post.sharedPost && post.id },
     });
-  const { bookmark, bookmarkToast, removeBookmark } = useBookmarkPostOld({
-    onBookmarkMutate: updatePost({ id, update: { bookmarked: true } }),
-    onRemoveBookmarkMutate: updatePost({ id, update: { bookmarked: false } }),
-  });
   const { sharePost, openSharePost, closeSharePost } = useSharePost(origin);
   const onShare = () => openSharePost(post);
-  const toggleBookmark = async (): Promise<void> => {
-    if (!user) {
-      showLogin({ trigger: AuthTriggers.Bookmark });
-      return;
-    }
-    const targetBookmarkState = !post?.bookmarked;
-    trackEvent(
-      postAnalyticsEvent(
-        targetBookmarkState
-          ? AnalyticsEvent.BookmarkPost
-          : AnalyticsEvent.RemovePostBookmark,
-        post,
-        { extra: { origin } },
-      ),
-    );
-    if (targetBookmarkState) {
-      await bookmark({ id: post?.id });
-    } else {
-      await removeBookmark({ id: post?.id });
-    }
-    bookmarkToast(targetBookmarkState);
-  };
 
   useSubscription(
     () => ({
@@ -105,7 +73,6 @@ const usePostContent = ({
     () => ({
       sharePost,
       onReadArticle,
-      onToggleBookmark: toggleBookmark,
       onSharePost: onShare,
       onCloseShare: closeSharePost,
     }),

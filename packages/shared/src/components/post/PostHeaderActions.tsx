@@ -27,6 +27,7 @@ import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import SettingsContext from '../../contexts/SettingsContext';
 import { Origin } from '../../lib/analytics';
 import useContextMenu from '../../hooks/useContextMenu';
+import { ActiveFeedContext } from '../../contexts';
 
 export interface PostHeaderActionsProps extends ShareBookmarkProps {
   post: Post;
@@ -45,7 +46,6 @@ const Container = classed('div', 'flex flex-row items-center');
 export function PostHeaderActions({
   onReadArticle,
   onShare,
-  onBookmark,
   post,
   onClose,
   inlineActions,
@@ -59,6 +59,7 @@ export function PostHeaderActions({
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
   const { onMenuClick } = useContextMenu({ id: contextMenuId });
+  const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
 
   const isInternalReadType = internalReadTypes.includes(post?.type);
   const isModerator = user?.roles?.includes(Roles.Moderator);
@@ -136,9 +137,9 @@ export function PostHeaderActions({
         </SimpleTooltip>
       )}
       <PostOptionsMenu
-        onBookmark={onBookmark}
         onShare={onShare}
         post={post}
+        feedQueryKey={feedQueryKey}
         onRemovePost={onRemovePost}
         setShowBanPost={isModerator ? () => banPostPrompt() : null}
         setShowPromotePost={isModerator ? () => promotePostPrompt() : null}

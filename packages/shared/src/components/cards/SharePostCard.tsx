@@ -14,7 +14,6 @@ export const SharePostCard = forwardRef(function SharePostCard(
     onPostClick,
     onUpvoteClick,
     onCommentClick,
-    onBookmarkClick,
     onMenuClick,
     onShare,
     onShareClick,
@@ -73,7 +72,6 @@ export const SharePostCard = forwardRef(function SharePostCard(
           post={post}
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
-          onBookmarkClick={onBookmarkClick}
           onShare={onShare}
           onShareClick={onShareClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}

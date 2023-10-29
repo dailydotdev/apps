@@ -8,15 +8,12 @@ import {
   FurtherReadingData,
 } from '../../graphql/furtherReading';
 import { graphqlUrl } from '../../lib/config';
-import useBookmarkPostOld from '../../hooks/useBookmarkPost';
+import { useBookmarkPost } from '../../hooks/useBookmarkPost';
 import { Post, PostType } from '../../graphql/posts';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../../lib/feed';
 import SimilarPosts from './SimilarPosts';
 import BestDiscussions from './BestDiscussions';
 import PostToc from './PostToc';
-import { AuthTriggers } from '../../lib/auth';
-import { AnalyticsEvent } from '../../lib/analytics';
+import { Origin } from '../../lib/analytics';
 import { FeedData, SOURCE_FEED_QUERY } from '../../graphql/feed';
 import { isSourcePublicSquad } from '../../graphql/squads';
 import { SquadPostListItem } from '../squads/SquadPostListItem';
@@ -67,8 +64,7 @@ export default function FurtherReading({
   const postId = currentPost.id;
   const { tags } = currentPost;
   const queryKey = ['furtherReading', postId];
-  const { user, showLogin, isLoggedIn } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { user, isLoggedIn } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const { data: posts, isLoading } = useQuery<FurtherReadingData>(
     queryKey,
@@ -121,13 +117,14 @@ export default function FurtherReading({
     },
   );
 
-  const { bookmark, removeBookmark } = useBookmarkPostOld({
-    onBookmarkMutate: updatePost(queryClient, queryKey, () => ({
-      bookmarked: true,
-    })),
-    onRemoveBookmarkMutate: updatePost(queryClient, queryKey, () => ({
-      bookmarked: false,
-    })),
+  const { toggleBookmark } = useBookmarkPost({
+    onMutate: () => {
+      updatePost(queryClient, queryKey, () => ({
+        bookmarked: !currentPost.bookmarked,
+      }));
+
+      return undefined;
+    },
   });
 
   if (!posts?.similarPosts && !isLoading) {
@@ -144,28 +141,8 @@ export default function FurtherReading({
       ]
     : [];
 
-  const onBookmark = async (post: Post): Promise<void> => {
-    if (!user) {
-      showLogin({ trigger: AuthTriggers.Bookmark });
-      return;
-    }
-    const bookmarked = !post.bookmarked;
-    trackEvent(
-      postAnalyticsEvent(
-        bookmarked
-          ? AnalyticsEvent.BookmarkPost
-          : AnalyticsEvent.RemovePostBookmark,
-        post,
-        {
-          extra: { origin: 'recommendation' },
-        },
-      ),
-    );
-    if (bookmarked) {
-      await bookmark({ id: post.id });
-    } else {
-      await removeBookmark({ id: post.id });
-    }
+  const onToggleBookmark = async (post) => {
+    toggleBookmark({ post, origin: 'recommendation' as Origin });
   };
 
   const showToc = currentPost.toc?.length > 0;
@@ -176,7 +153,7 @@ export default function FurtherReading({
         <SimilarPosts
           posts={similarPosts}
           isLoading={isLoading}
-          onBookmark={onBookmark}
+          onBookmark={onToggleBookmark}
           title={
             isPublicSquad
               ? `More posts from ${currentPost.source.name}`

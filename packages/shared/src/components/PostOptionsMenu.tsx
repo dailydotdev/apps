@@ -21,7 +21,11 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../hooks/useToastNotification';
-import { AllFeedPages, generateQueryKey } from '../lib/query';
+import {
+  AllFeedPages,
+  generateQueryKey,
+  updateCachedPagePost,
+} from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { ShareBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
@@ -36,6 +40,11 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
 import { MenuItemProps } from './fields/PortalMenu';
+import {
+  mutateBookmarkFeedPost,
+  useBookmarkPost,
+} from '../hooks/useBookmarkPost';
+import { ActiveFeedContext } from '../contexts';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -49,6 +58,7 @@ export interface PostOptionsMenuProps extends ShareBookmarkProps {
   post: Post;
   feedName?: AllFeedPages;
   onHidden?: () => unknown;
+  onBookmark?: () => unknown;
   feedQueryKey?: QueryKey;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowBanPost?: () => unknown;
@@ -59,7 +69,6 @@ export interface PostOptionsMenuProps extends ShareBookmarkProps {
 }
 
 export default function PostOptionsMenu({
-  onBookmark,
   postIndex,
   post,
   feedName,
@@ -80,6 +89,7 @@ export default function PostOptionsMenu({
   const { trackEvent } = useContext(AnalyticsContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openModal } = useLazyModal();
+  const { items } = useContext(ActiveFeedContext);
   const {
     onFollowSource,
     onUnfollowSource,
@@ -91,6 +101,24 @@ export default function PostOptionsMenu({
     postId: post?.id,
     shouldInvalidateQueries: false,
   });
+
+  const { toggleBookmark } = useBookmarkPost({
+    variables: { feedName: feedQueryKey },
+    onMutate: feedQueryKey
+      ? ({ id }) => {
+          const updatePost = updateCachedPagePost(
+            feedQueryKey as unknown[],
+            client,
+          );
+
+          return mutateBookmarkFeedPost({ id, items, updatePost });
+        }
+      : undefined,
+  });
+
+  const onToggleBookmark = async () => {
+    toggleBookmark({ post, origin });
+  };
 
   const showMessageAndRemovePost = async (
     message: string,
@@ -223,7 +251,7 @@ export default function PostOptionsMenu({
         />
       ),
       label: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
-      action: onBookmark,
+      action: onToggleBookmark,
     },
     {
       icon: (

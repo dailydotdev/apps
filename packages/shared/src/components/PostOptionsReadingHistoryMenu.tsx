@@ -7,7 +7,7 @@ import { ReadHistoryPost } from '../graphql/posts';
 import ShareIcon from './icons/Share';
 import BookmarkIcon from './icons/Bookmark';
 import XIcon from './icons/MiniClose';
-import useBookmarkPostOld from '../hooks/useBookmarkPost';
+import { useBookmarkPost } from '../hooks/useBookmarkPost';
 import AuthContext from '../contexts/AuthContext';
 import {
   ReadHistoryInfiniteData,
@@ -15,13 +15,12 @@ import {
 } from '../hooks/useInfiniteReadingHistory';
 import { MenuIcon } from './MenuIcon';
 import { QueryIndexes } from '../hooks/useReadingHistory';
-import { postAnalyticsEvent } from '../lib/feed';
 import {
   generateQueryKey,
   RequestKey,
   updateInfiniteCache,
 } from '../lib/query';
-import { AnalyticsEvent } from '../lib/analytics';
+import { Origin } from '../lib/analytics';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -93,38 +92,28 @@ export default function PostOptionsReadingHistoryMenu({
   const queryClient = useQueryClient();
   const historyQueryKey = generateQueryKey(RequestKey.ReadingHistory, user);
 
-  const { bookmark, removeBookmark } = useBookmarkPostOld({
-    onBookmarkMutate: updateReadingHistoryPost(
-      queryClient,
-      historyQueryKey,
-      {
-        bookmarked: true,
-      },
-      indexes,
-    ),
-    onRemoveBookmarkMutate: updateReadingHistoryPost(
-      queryClient,
-      historyQueryKey,
-      {
-        bookmarked: false,
-      },
-      indexes,
-    ),
-    onBookmarkTrackObject: () =>
-      postAnalyticsEvent(AnalyticsEvent.BookmarkPost, post, {
-        extra: { origin: 'reading history context menu' },
-      }),
-    onRemoveBookmarkTrackObject: () =>
-      postAnalyticsEvent(AnalyticsEvent.RemovePostBookmark, post, {
-        extra: { origin: 'reading history context menu' },
-      }),
+  const { toggleBookmark } = useBookmarkPost({
+    onMutate: () => {
+      updateReadingHistoryPost(
+        queryClient,
+        historyQueryKey,
+        {
+          bookmarked: !post?.bookmarked,
+        },
+        indexes,
+      );
+      return undefined;
+    },
   });
 
-  const onBookmarkReadingHistoryPost = async (): Promise<void> => {
-    if (post?.bookmarked) {
-      return removeBookmark(post);
-    }
-    return bookmark(post);
+  const onToggleBookmark = async (): Promise<void> => {
+    toggleBookmark({
+      post,
+      origin: Origin.ReadingHistoryContextMenu,
+      opts: {
+        extra: { origin: Origin.ReadingHistoryContextMenu },
+      },
+    });
   };
 
   return (
@@ -141,7 +130,7 @@ export default function PostOptionsReadingHistoryMenu({
             <MenuIcon Icon={ShareIcon} /> Share post via...
           </span>
         </Item>
-        <Item className="typo-callout" onClick={onBookmarkReadingHistoryPost}>
+        <Item className="typo-callout" onClick={onToggleBookmark}>
           <span className="flex w-full typo-callout">
             {getBookmarkIconAndMenuText(post?.bookmarked)}
           </span>
