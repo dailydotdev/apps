@@ -139,7 +139,6 @@ export function PostHeaderActions({
       <PostOptionsMenu
         onShare={onShare}
         post={post}
-        feedQueryKey={feedQueryKey}
         onRemovePost={onRemovePost}
         setShowBanPost={isModerator ? () => banPostPrompt() : null}
         setShowPromotePost={isModerator ? () => promotePostPrompt() : null}
