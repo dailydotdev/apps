@@ -44,7 +44,7 @@ export type BookmarkProps = {
 export type UseBookmarkPostProps = {
   onMutate?: (
     props: UseBookmarkPostMutationProps,
-  ) => UseBookmarkPostRollback | undefined;
+  ) => Promise<UseBookmarkPostRollback> | UseBookmarkPostRollback | undefined;
   variables?: unknown;
 };
 

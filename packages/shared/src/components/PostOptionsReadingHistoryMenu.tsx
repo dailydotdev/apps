@@ -48,7 +48,7 @@ const updateReadingHistoryPost =
     post: Partial<ReadHistoryPost>,
     { page, edge }: QueryIndexes,
   ): (() => UseBookmarkPostRollback) =>
-  (): UseBookmarkPostRollback => {
+  () => {
     const history = client.getQueryData<ReadHistoryInfiniteData>(queryKey);
     const { node } = history?.pages[page].readHistory.edges[edge] || {};
     const updated = { ...node, post: { ...node?.post, ...post } };

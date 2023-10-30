@@ -8,7 +8,10 @@ import {
   FurtherReadingData,
 } from '../../graphql/furtherReading';
 import { graphqlUrl } from '../../lib/config';
-import { useBookmarkPost } from '../../hooks/useBookmarkPost';
+import {
+  UseBookmarkPostRollback,
+  useBookmarkPost,
+} from '../../hooks/useBookmarkPost';
 import { Post, PostType } from '../../graphql/posts';
 import SimilarPosts from './SimilarPosts';
 import BestDiscussions from './BestDiscussions';
@@ -37,12 +40,12 @@ const transformPosts = (
       : post,
   );
 
-const updatePost =
+const updateFurtherReadingPost =
   (
     queryClient: QueryClient,
     queryKey: string[],
     update: (oldPost: Post) => Partial<Post>,
-  ): ((args: { id: string }) => Promise<() => void>) =>
+  ): ((args: { id: string }) => Promise<UseBookmarkPostRollback>) =>
   async ({ id }) => {
     await queryClient.cancelQueries(queryKey);
     const previousData = queryClient.getQueryData<FurtherReadingData>(queryKey);
@@ -51,9 +54,7 @@ const updatePost =
       trendingPosts: transformPosts(previousData.trendingPosts, id, update),
       similarPosts: transformPosts(previousData.similarPosts, id, update),
     });
-    return () => {
-      queryClient.setQueryData(queryKey, previousData);
-    };
+    return () => queryClient.setQueryData(queryKey, previousData);
   };
 
 export default function FurtherReading({
@@ -118,12 +119,16 @@ export default function FurtherReading({
   );
 
   const { toggleBookmark } = useBookmarkPost({
-    onMutate: () => {
-      updatePost(queryClient, queryKey, () => ({
-        bookmarked: !currentPost.bookmarked,
-      }));
+    onMutate: ({ id }) => {
+      const updatedPost = updateFurtherReadingPost(
+        queryClient,
+        queryKey,
+        (post) => ({
+          bookmarked: !post.bookmarked,
+        }),
+      );
 
-      return undefined;
+      return updatedPost({ id });
     },
   });
 
@@ -142,6 +147,7 @@ export default function FurtherReading({
     : [];
 
   const onToggleBookmark = async (post) => {
+    console.log(post);
     toggleBookmark({ post, origin: 'recommendation' as Origin });
   };
 
