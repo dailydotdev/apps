@@ -27,6 +27,7 @@ const feature = {
     OnboardingFilteringTitle.Control,
   ),
   engagementLoopJuly2023Upvote: new Feature('engagement_loop_july2023_upvote'),
+  lowImps: new Feature('feed_low_imps'),
 };
 
 export { feature };

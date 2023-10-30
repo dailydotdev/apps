@@ -1,5 +1,6 @@
 import { useContext, useMemo } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
+import { useFeatureIsOn } from '@growthbook/growthbook-react';
 import { Post, dismissPostFeedback, UserPostVote } from '../graphql/posts';
 import { optimisticPostUpdateInFeed } from '../lib/feed';
 import { updatePostCache } from './usePostById';
@@ -9,6 +10,7 @@ import { SharedFeedPage } from '../components/utilities';
 import { EmptyResponse } from '../graphql/emptyResponse';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
+import { feature } from '../lib/featureManagement';
 
 type UsePostFeedbackProps = {
   post?: Pick<Post, 'id' | 'userState' | 'read'>;
@@ -17,6 +19,8 @@ type UsePostFeedbackProps = {
 interface UsePostFeedback {
   showFeedback: boolean;
   dismissFeedback: () => Promise<EmptyResponse>;
+  isFeedbackEnabled: boolean;
+  isLowImpsEnabled: boolean;
 }
 
 export const usePostFeedback = ({
@@ -25,6 +29,11 @@ export const usePostFeedback = ({
   const client = useQueryClient();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const { trackEvent } = useContext(AnalyticsContext);
+
+  const isFeedbackEnabled = useFeatureIsOn(
+    feature.engagementLoopJuly2023Upvote.id,
+  );
+  const isLowImpsEnabled = useFeatureIsOn(feature.lowImps.id);
 
   const isMyFeed = useMemo(() => {
     return feedQueryKey?.some((item) => item === SharedFeedPage.MyFeed);
@@ -94,5 +103,7 @@ export const usePostFeedback = ({
   return {
     showFeedback,
     dismissFeedback: dismissFeedbackMutation.mutateAsync,
+    isFeedbackEnabled,
+    isLowImpsEnabled,
   };
 };

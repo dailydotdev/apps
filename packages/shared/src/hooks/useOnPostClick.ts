@@ -7,10 +7,11 @@ import {
   optimisticPostUpdateInFeed,
   postAnalyticsEvent,
 } from '../lib/feed';
-import { Post } from '../graphql/posts';
+import { Post, PostType } from '../graphql/posts';
 import { Origin } from '../lib/analytics';
 import { ActiveFeedContext } from '../contexts';
 import { updateCachedPagePost } from '../lib/query';
+import { usePostFeedback } from './usePostFeedback';
 
 interface PostClickOptionalProps {
   skipPostUpdate?: boolean;
@@ -47,6 +48,7 @@ export default function useOnPostClick({
   const { trackEvent } = useContext(AnalyticsContext);
   const { incrementReadingRank } = useIncrementReadingRank();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
+  const { isFeedbackEnabled, isLowImpsEnabled } = usePostFeedback();
 
   return useMemo(
     () =>
@@ -65,6 +67,11 @@ export default function useOnPostClick({
                 null,
                 optional?.parent_id,
               ).extra,
+              feedback:
+                isFeedbackEnabled && post.type === PostType.Article
+                  ? true
+                  : undefined,
+              low_imps: isLowImpsEnabled ? true : undefined,
             },
           }),
         );

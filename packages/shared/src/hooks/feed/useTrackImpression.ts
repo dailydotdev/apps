@@ -7,6 +7,8 @@ import {
 } from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { FeedItem } from '../useFeed';
+import { PostType } from '../../graphql/posts';
+import { usePostFeedback } from '../usePostFeedback';
 
 const TRACKING = 1;
 const TRACKED = 2;
@@ -24,6 +26,7 @@ export default function useTrackImpression(
   const { ref: inViewRef, inView } = useInView({
     threshold: 0.5,
   });
+  const { isFeedbackEnabled, isLowImpsEnabled } = usePostFeedback();
 
   useEffect(() => {
     if (item.type === 'post') {
@@ -39,6 +42,11 @@ export default function useTrackImpression(
               ...feedAnalyticsExtra(feedName, ranking, {
                 scroll_y: window.scrollY,
               }).extra,
+              feedback:
+                isFeedbackEnabled && item.post.type === PostType.Article
+                  ? true
+                  : undefined,
+              low_imps: isLowImpsEnabled ? true : undefined,
             },
           }),
         );
