@@ -30,7 +30,7 @@ import useContextMenu from '../../hooks/useContextMenu';
 
 export interface PostHeaderActionsProps extends ShareBookmarkProps {
   post: Post;
-  onReadArticle?: (e: React.MouseEvent, data: { post: Post }) => void;
+  onReadArticle?: () => void;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   className?: string;
   style?: CSSProperties;
@@ -112,7 +112,7 @@ export function PostHeaderActions({
             href={post.sharedPost?.permalink ?? post.permalink}
             target={openNewTab ? '_blank' : '_self'}
             icon={<OpenLinkIcon />}
-            onClick={(e) => onReadArticle(e, { post })}
+            onClick={onReadArticle}
             data-testid="postActionsRead"
           >
             {!inlineActions && 'Read post'}

@@ -38,7 +38,6 @@ import OnboardingContext from '../contexts/OnboardingContext';
 import AlertContext from '../contexts/AlertContext';
 import { SharedFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
-import useCompanionTrigger from '../hooks/useCompanionTrigger';
 import { ActiveFeedContext } from '../contexts';
 import { useFeedVotePost } from '../hooks';
 import { useFeature } from './GrowthBookProvider';
@@ -232,17 +231,13 @@ export default function Feed<T>({
     ranking,
   );
 
-  const triggerReadArticleClick = useFeedOnPostClick(
+  const onReadArticleClick = useFeedOnPostClick(
     items,
     updatePost,
     virtualizedNumCards,
     feedName,
     ranking,
     'go to link',
-  );
-
-  const { onFeedArticleClick: onReadArticleClick } = useCompanionTrigger(
-    triggerReadArticleClick,
   );
 
   const {

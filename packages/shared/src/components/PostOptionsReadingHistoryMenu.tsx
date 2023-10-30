@@ -22,7 +22,6 @@ import {
   updateInfiniteCache,
 } from '../lib/query';
 import { AnalyticsEvent } from '../lib/analytics';
-import { usePostFeedback } from '../hooks';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -93,7 +92,6 @@ export default function PostOptionsReadingHistoryMenu({
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const historyQueryKey = generateQueryKey(RequestKey.ReadingHistory, user);
-  const { isFeedbackEnabled } = usePostFeedback({ post });
 
   const { bookmark, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updateReadingHistoryPost(
@@ -149,10 +147,7 @@ export default function PostOptionsReadingHistoryMenu({
           </span>
         </Item>
         <Item
-          className={classNames(
-            'typo-callout',
-            !isFeedbackEnabled && 'laptop:hidden',
-          )}
+          className="typo-callout"
           onClick={() => onHideHistoryPost(post?.id)}
         >
           <span className="flex w-full typo-callout">
