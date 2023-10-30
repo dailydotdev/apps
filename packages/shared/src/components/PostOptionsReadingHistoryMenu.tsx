@@ -7,7 +7,10 @@ import { ReadHistoryPost } from '../graphql/posts';
 import ShareIcon from './icons/Share';
 import BookmarkIcon from './icons/Bookmark';
 import XIcon from './icons/MiniClose';
-import { useBookmarkPost } from '../hooks/useBookmarkPost';
+import {
+  UseBookmarkPostRollback,
+  useBookmarkPost,
+} from '../hooks/useBookmarkPost';
 import AuthContext from '../contexts/AuthContext';
 import {
   ReadHistoryInfiniteData,
@@ -38,15 +41,14 @@ export type PostOptionsReadingHistoryMenuProps = {
   indexes: QueryIndexes;
 };
 
-/* eslint-disable no-param-reassign */
 const updateReadingHistoryPost =
   (
     client: QueryClient,
     queryKey: QueryKey,
     post: Partial<ReadHistoryPost>,
     { page, edge }: QueryIndexes,
-  ): ((args: { id: string }) => Promise<() => void>) =>
-  async () => {
+  ): (() => UseBookmarkPostRollback) =>
+  (): UseBookmarkPostRollback => {
     const history = client.getQueryData<ReadHistoryInfiniteData>(queryKey);
     const { node } = history?.pages[page].readHistory.edges[edge] || {};
     const updated = { ...node, post: { ...node?.post, ...post } };
@@ -94,7 +96,7 @@ export default function PostOptionsReadingHistoryMenu({
 
   const { toggleBookmark } = useBookmarkPost({
     onMutate: () => {
-      updateReadingHistoryPost(
+      const updatePost = updateReadingHistoryPost(
         queryClient,
         historyQueryKey,
         {
@@ -102,7 +104,8 @@ export default function PostOptionsReadingHistoryMenu({
         },
         indexes,
       );
-      return undefined;
+
+      return updatePost();
     },
   });
 
