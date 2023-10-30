@@ -430,7 +430,6 @@ export default function Feed<T>({
         <PostOptionsMenu
           {...commonMenuItems}
           feedName={feedName}
-          feedQueryKey={feedQueryKey}
           postIndex={postMenuIndex}
           onHidden={() => setPostMenuIndex(null)}
           onRemovePost={onRemovePost}

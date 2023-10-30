@@ -59,7 +59,6 @@ export interface PostOptionsMenuProps extends ShareBookmarkProps {
   feedName?: AllFeedPages;
   onHidden?: () => unknown;
   onBookmark?: () => unknown;
-  feedQueryKey?: QueryKey;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowBanPost?: () => unknown;
   setShowPromotePost?: () => unknown;
@@ -76,7 +75,6 @@ export default function PostOptionsMenu({
   onRemovePost,
   setShowBanPost,
   setShowPromotePost,
-  feedQueryKey,
   origin,
   allowPin,
   contextId = 'post-context',
@@ -89,7 +87,7 @@ export default function PostOptionsMenu({
   const { trackEvent } = useContext(AnalyticsContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openModal } = useLazyModal();
-  const { items } = useContext(ActiveFeedContext);
+  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const {
     onFollowSource,
     onUnfollowSource,
