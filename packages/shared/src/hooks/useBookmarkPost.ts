@@ -54,12 +54,10 @@ const prepareBookmarkPostAnalyticsOptions = ({
 }: ToggleBookmarkProps): PostAnalyticsEventFnOptions => {
   const { extra, ...restOpts } = opts || {};
 
-  const analyticsOptions: PostAnalyticsEventFnOptions = {
+  return {
     ...restOpts,
     extra: { ...extra, origin },
   };
-
-  return analyticsOptions;
 };
 
 export type UseBookmarkPost = {
