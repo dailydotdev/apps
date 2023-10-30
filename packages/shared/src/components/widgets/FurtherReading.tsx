@@ -147,7 +147,6 @@ export default function FurtherReading({
     : [];
 
   const onToggleBookmark = async (post) => {
-    console.log(post);
     toggleBookmark({ post, origin: 'recommendation' as Origin });
   };
 

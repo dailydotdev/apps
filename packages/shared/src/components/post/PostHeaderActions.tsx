@@ -59,7 +59,6 @@ export function PostHeaderActions({
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
   const { onMenuClick } = useContextMenu({ id: contextMenuId });
-  const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
 
   const isInternalReadType = internalReadTypes.includes(post?.type);
   const isModerator = user?.roles?.includes(Roles.Moderator);
