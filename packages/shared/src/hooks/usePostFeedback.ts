@@ -19,7 +19,6 @@ type UsePostFeedbackProps = {
 interface UsePostFeedback {
   showFeedback: boolean;
   dismissFeedback: () => Promise<EmptyResponse>;
-  isFeedbackEnabled: boolean;
   isLowImpsEnabled: boolean;
 }
 
@@ -30,9 +29,6 @@ export const usePostFeedback = ({
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const { trackEvent } = useContext(AnalyticsContext);
 
-  const isFeedbackEnabled = useFeatureIsOn(
-    feature.engagementLoopJuly2023Upvote.id,
-  );
   const isLowImpsEnabled = useFeatureIsOn(feature.lowImps.id);
 
   const isMyFeed = useMemo(() => {
@@ -103,7 +99,6 @@ export const usePostFeedback = ({
   return {
     showFeedback,
     dismissFeedback: dismissFeedbackMutation.mutateAsync,
-    isFeedbackEnabled,
     isLowImpsEnabled,
   };
 };

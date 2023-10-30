@@ -26,7 +26,7 @@ export default function useTrackImpression(
   const { ref: inViewRef, inView } = useInView({
     threshold: 0.5,
   });
-  const { isFeedbackEnabled, isLowImpsEnabled } = usePostFeedback();
+  const { isLowImpsEnabled } = usePostFeedback();
 
   useEffect(() => {
     if (item.type === 'post') {
@@ -42,10 +42,7 @@ export default function useTrackImpression(
               ...feedAnalyticsExtra(feedName, ranking, {
                 scroll_y: window.scrollY,
               }).extra,
-              feedback:
-                isFeedbackEnabled && item.post.type === PostType.Article
-                  ? true
-                  : undefined,
+              feedback: item.post.type === PostType.Article ? true : undefined,
               low_imps: isLowImpsEnabled ? true : undefined,
             },
           }),

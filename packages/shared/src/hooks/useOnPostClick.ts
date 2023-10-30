@@ -48,7 +48,7 @@ export default function useOnPostClick({
   const { trackEvent } = useContext(AnalyticsContext);
   const { incrementReadingRank } = useIncrementReadingRank();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
-  const { isFeedbackEnabled, isLowImpsEnabled } = usePostFeedback();
+  const { isLowImpsEnabled } = usePostFeedback();
 
   return useMemo(
     () =>
@@ -67,10 +67,7 @@ export default function useOnPostClick({
                 null,
                 optional?.parent_id,
               ).extra,
-              feedback:
-                isFeedbackEnabled && post.type === PostType.Article
-                  ? true
-                  : undefined,
+              feedback: post.type === PostType.Article ? true : undefined,
               low_imps: isLowImpsEnabled ? true : undefined,
             },
           }),
