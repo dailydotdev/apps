@@ -48,7 +48,7 @@ export type UseBookmarkPostProps = {
   variables?: unknown;
 };
 
-const prepareVotePostAnalyticsOptions = ({
+const prepareBookmarkPostAnalyticsOptions = ({
   origin,
   opts,
 }: ToggleBookmarkProps): PostAnalyticsEventFnOptions => {
@@ -131,7 +131,7 @@ const useBookmarkPost = ({
         return;
       }
 
-      const analyticsOptions = prepareVotePostAnalyticsOptions({
+      const analyticsOptions = prepareBookmarkPostAnalyticsOptions({
         post,
         origin,
         opts,
