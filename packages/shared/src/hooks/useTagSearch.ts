@@ -17,6 +17,8 @@ export type UseTagSearch = {
   isLoading: boolean;
 };
 
+export const MIN_SEARCH_QUERY_LENGTH = 2;
+
 export const useTagSearch = ({
   value,
   origin,
@@ -45,7 +47,7 @@ export const useTagSearch = ({
 
       return result;
     },
-    { enabled: value?.length > 0 },
+    { enabled: value?.length >= MIN_SEARCH_QUERY_LENGTH },
   );
 
   return {
