@@ -106,8 +106,6 @@ export enum AnalyticsEvent {
   AcceptInvitation = 'accept invitation',
   SearchHighlightAnimation = 'highlight search',
   // search end
-  OpenCompanionPermissionModal = 'open companion permission popup',
-  CloseCompanionPermissionModal = 'close companion permission popup',
   RequestContentScripts = 'request content scripts',
   ApproveContentScripts = 'approve content scripts',
   DeclineContentScripts = 'decline content scripts',

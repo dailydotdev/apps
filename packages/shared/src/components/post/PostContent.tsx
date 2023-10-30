@@ -21,7 +21,6 @@ import { BasePostContent, PostContentClassName } from './BasePostContent';
 import classed from '../../lib/classed';
 import { cloudinary } from '../../lib/image';
 import { combinedClicks } from '../../lib/click';
-import useCompanionTrigger from '../../hooks/useCompanionTrigger';
 
 export type PassedPostNavigationProps = Pick<
   PostNavigationProps,
@@ -97,9 +96,6 @@ export function PostContent({
     onRemovePost,
   };
 
-  const { onPostArticleClick: onReadArticleClick } =
-    useCompanionTrigger(onReadArticle);
-
   return (
     <PostContentContainer
       hasNavigation={hasNavigation}
@@ -121,7 +117,7 @@ export function PostContent({
           <PostHeaderActions
             onBookmark={onToggleBookmark}
             onShare={onShare}
-            onReadArticle={onReadArticleClick}
+            onReadArticle={onReadArticle}
             post={post}
             onClose={onClose}
             className="flex tablet:hidden mb-4"
@@ -159,7 +155,7 @@ export function PostContent({
               title="Go to post"
               target="_blank"
               rel="noopener"
-              {...combinedClicks(onReadArticleClick)}
+              {...combinedClicks(onReadArticle)}
             >
               {post.title}
             </a>
@@ -178,7 +174,7 @@ export function PostContent({
             title="Go to post"
             target="_blank"
             rel="noopener"
-            {...combinedClicks(onReadArticleClick)}
+            {...combinedClicks(onReadArticle)}
             className="block overflow-hidden mb-10 rounded-2xl cursor-pointer"
             style={{ maxWidth: '25.625rem' }}
           >
@@ -202,7 +198,7 @@ export function PostContent({
       <PostWidgets
         onBookmark={onToggleBookmark}
         onShare={onShare}
-        onReadArticle={onReadArticleClick}
+        onReadArticle={onReadArticle}
         post={post}
         className="pb-8"
         onClose={onClose}

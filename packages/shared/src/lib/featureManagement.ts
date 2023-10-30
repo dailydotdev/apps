@@ -26,10 +26,7 @@ const feature = {
     'onboarding_filtering_title',
     OnboardingFilteringTitle.Control,
   ),
-  engagementLoopJuly2023Companion: new Feature(
-    'engagement_loop_july2023_companion',
-  ),
-  engagementLoopJuly2023Upvote: new Feature('engagement_loop_july2023_upvote'),
+  lowImps: new Feature('feed_low_imps'),
 };
 
 export { feature };
