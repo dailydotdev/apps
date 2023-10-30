@@ -25,7 +25,7 @@ const ExtensionOnboarding = (): ReactElement => {
       <Link href={onboardingUrl} passHref>
         <Button
           tag="a"
-          className="w-full btn-primary max-w-[18.75rem]"
+          className="w-full btn-primary max-w-[18.75rem] z-1"
           buttonSize={ButtonSize.Large}
         >
           Continue ➔
@@ -33,7 +33,7 @@ const ExtensionOnboarding = (): ReactElement => {
       </Link>
 
       <img
-        className="absolute bottom-0 w-[33rem]"
+        className="absolute bottom-0 w-[33rem] z-0"
         src={cloudinary.onboarding.glow}
         alt="Gradient background"
       />
