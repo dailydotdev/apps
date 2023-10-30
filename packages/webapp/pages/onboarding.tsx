@@ -139,7 +139,12 @@ export function OnboardPage(): ReactElement {
       });
 
       onShouldUpdateFilters(true);
+    } else {
+      trackEvent({
+        event_name: AnalyticsEvent.CreateFeed,
+      });
     }
+
     return router.replace({
       pathname: '/',
       query:

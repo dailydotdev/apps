@@ -115,6 +115,7 @@ export enum AnalyticsEvent {
   ApproveContentScripts = 'approve content scripts',
   DeclineContentScripts = 'decline content scripts',
   ToggleFeedPreview = 'toggle feed preview',
+  CreateFeed = 'create feed',
 }
 
 export enum FeedItemTitle {
