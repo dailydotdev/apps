@@ -25,6 +25,7 @@ import { useRouter } from 'next/router';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import {
   AnalyticsEvent,
+  Origin,
   TargetType,
 } from '@dailydotdev/shared/src/lib/analytics';
 import {
@@ -113,7 +114,14 @@ export function OnboardPage(): ReactElement {
   const title = versionToTitle[filteringTitle];
 
   const onClickNext = () => {
-    const screen = isFiltering ? OnboardingStep.Topics : OnboardingStep.Intro;
+    let screen = OnboardingStep.Intro;
+
+    if (isFiltering) {
+      screen =
+        onboardingV4 === OnboardingV4.V4
+          ? OnboardingStep.EditTag
+          : OnboardingStep.Topics;
+    }
 
     trackEvent({
       event_name: AnalyticsEvent.ClickOnboardingNext,
@@ -178,10 +186,9 @@ export function OnboardPage(): ReactElement {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trackEvent, isPageReady, user, targetId]);
 
-  const hasSelectedTopics = (tags: Record<string, boolean>) => {
-    const hasTopics = Object.values(tags).some((value) => value === true);
-    setHasSelectTopics(hasTopics);
-  };
+  useEffect(() => {
+    setHasSelectTopics(!!feedSettings?.includeTags?.length);
+  }, [feedSettings?.includeTags?.length]);
 
   const getAuthOptions = () => {
     return (
@@ -240,10 +247,7 @@ export function OnboardPage(): ReactElement {
               Pick a few subjects that interest you. <br />
               You can always change theselater.
             </p>
-            <FilterOnboarding
-              className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4"
-              onSelectedTopics={hasSelectedTopics}
-            />
+            <FilterOnboarding className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4" />
             <div className="flex sticky bottom-0 z-3 flex-col items-center py-4 mt-4 w-full">
               <div className="flex absolute inset-0 -z-1 w-full h-1/2 bg-gradient-to-t to-transparent from-theme-bg-primary" />
               <div className="flex absolute inset-0 top-1/2 -z-1 w-full h-1/2 bg-theme-bg-primary" />
@@ -258,10 +262,7 @@ export function OnboardPage(): ReactElement {
             <Title className="text-center typo-large-title">
               Pick tags that are relevant to you
             </Title>
-            <FilterOnboardingV4
-              className="mt-10 max-w-4xl"
-              onSelectedTopics={hasSelectedTopics}
-            />
+            <FilterOnboardingV4 className="mt-10 max-w-4xl" />
             <Button
               className={classNames(
                 'mt-10 btn',
@@ -274,7 +275,17 @@ export function OnboardPage(): ReactElement {
                 />
               }
               onClick={() => {
-                setPreviewVisible((current) => !current);
+                setPreviewVisible((current) => {
+                  const newValue = !current;
+
+                  trackEvent({
+                    event_name: AnalyticsEvent.ToggleFeedPreview,
+                    target_id: newValue,
+                    extra: JSON.stringify({ origin: Origin.EditTag }),
+                  });
+
+                  return newValue;
+                });
               }}
             >
               {isPreviewEnabled

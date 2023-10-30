@@ -2,13 +2,14 @@ import request from 'graphql-request';
 import { useQuery } from 'react-query';
 import { useContext } from 'react';
 import { SearchTagsData, SEARCH_TAGS_QUERY } from '../graphql/feedSettings';
-import { AnalyticsEvent } from '../lib/analytics';
+import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { graphqlUrl } from '../lib/config';
 import { getSearchTagsQueryKey } from './useMutateFilters';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 
 export type UseTagSearchProps = {
   value: string;
+  origin: Origin;
 };
 
 export type UseTagSearch = {
@@ -16,7 +17,10 @@ export type UseTagSearch = {
   isLoading: boolean;
 };
 
-export const useTagSearch = ({ value }: UseTagSearchProps): UseTagSearch => {
+export const useTagSearch = ({
+  value,
+  origin,
+}: UseTagSearchProps): UseTagSearch => {
   const { trackEvent } = useContext(AnalyticsContext);
 
   const { data, isLoading } = useQuery(
@@ -34,6 +38,7 @@ export const useTagSearch = ({ value }: UseTagSearchProps): UseTagSearch => {
           extra: JSON.stringify({
             tag_search_term: result.searchTags.query,
             tag_return_value: result.searchTags.tags.length,
+            origin,
           }),
         });
       }

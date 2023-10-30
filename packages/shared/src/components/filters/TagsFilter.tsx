@@ -54,7 +54,10 @@ export default function TagsFilter({
     (tag) => tag === contextSelectedTag,
   );
 
-  const { data: searchResults } = useTagSearch({ value: query });
+  const { data: searchResults } = useTagSearch({
+    value: query,
+    origin: Origin.ManageTag,
+  });
 
   const { followedTags, blockedTags } = useMemo(() => {
     return {

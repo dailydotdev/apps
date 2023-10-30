@@ -6,6 +6,7 @@ export enum OnboardingStep {
   Topics = 'topics',
   Layout = 'layout',
   Theme = 'theme',
+  EditTag = 'edit_tag',
 }
 
 export const OnboardingTitle = classed(

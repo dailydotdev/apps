@@ -47,7 +47,7 @@ export function FilterOnboardingV4({
     return new Set(feedSettings?.includeTags || []);
   }, [feedSettings?.includeTags]);
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
-    origin: Origin.TagsFilter,
+    origin: Origin.Onboarding,
   });
 
   const [refetchFeed] = useDebounce(() => {
@@ -89,6 +89,7 @@ export function FilterOnboardingV4({
 
   const { data: searchResult, isLoading: isSearchLoading } = useTagSearch({
     value: searchQuery,
+    origin: Origin.EditTag,
   });
   const searchTags = searchResult?.searchTags.tags || [];
 
