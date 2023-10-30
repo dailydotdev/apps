@@ -27,7 +27,6 @@ import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import SettingsContext from '../../contexts/SettingsContext';
 import { Origin } from '../../lib/analytics';
 import useContextMenu from '../../hooks/useContextMenu';
-import { ActiveFeedContext } from '../../contexts';
 
 export interface PostHeaderActionsProps extends ShareBookmarkProps {
   post: Post;
