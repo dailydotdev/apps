@@ -5,7 +5,7 @@ import useTagAndSource from '../../hooks/useTagAndSource';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { Origin } from '../../lib/analytics';
 
-interface FilterOnboardingProps {
+export interface FilterOnboardingProps {
   onSelectedTopics?(tags: Record<string, boolean>): void;
   className?: string;
 }

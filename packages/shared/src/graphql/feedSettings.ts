@@ -23,7 +23,9 @@ export interface TagsData {
 }
 
 export interface SearchTagsData {
-  searchTags: TagsData;
+  searchTags: TagsData & {
+    query: string;
+  };
 }
 
 export interface FeedSettings {
@@ -61,6 +63,7 @@ export interface FeedSettingsData {
 export const SEARCH_TAGS_QUERY = gql`
   query SearchTags($query: String!) {
     searchTags(query: $query) {
+      query
       tags: hits {
         name
       }
@@ -137,6 +140,26 @@ export const UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION = gql`
     feedSettings: updateFeedAdvancedSettings(settings: $settings) {
       id
       enabled
+    }
+  }
+`;
+
+export const GET_ONBOARDING_TAGS_QUERY = gql`
+  query OnboardingTags {
+    onboardingTags {
+      tags: hits {
+        name
+      }
+    }
+  }
+`;
+
+export const GET_RECOMMENDED_TAGS_QUERY = gql`
+  query RecommendedTags($tags: [String]!, $excludedTags: [String]!) {
+    recommendedTags(tags: $tags, excludedTags: $excludedTags) {
+      tags: hits {
+        name
+      }
     }
   }
 `;

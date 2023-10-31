@@ -42,7 +42,7 @@ import { ActiveFeedContext } from '../contexts';
 import { useFeedVotePost } from '../hooks';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
-import { AllFeedPages } from '../lib/query';
+import { AllFeedPages, RequestKey } from '../lib/query';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -184,7 +184,10 @@ export default function Feed<T>({
 
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage,
-    canFetchMore: canFetchMore && !showScrollOnboardingVersion,
+    canFetchMore:
+      canFetchMore &&
+      !showScrollOnboardingVersion &&
+      feedQueryKey?.[0] !== RequestKey.FeedPreview,
   });
 
   const onInitializeOnboardingClick = () => {
