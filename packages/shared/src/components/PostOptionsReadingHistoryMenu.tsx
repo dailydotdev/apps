@@ -113,9 +113,6 @@ export default function PostOptionsReadingHistoryMenu({
     toggleBookmark({
       post,
       origin: Origin.ReadingHistoryContextMenu,
-      opts: {
-        extra: { origin: Origin.ReadingHistoryContextMenu },
-      },
     });
   };
 
