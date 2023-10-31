@@ -24,7 +24,6 @@ export interface ActionButtonsProps {
   onMenuClick?: (e: React.MouseEvent) => unknown;
   onUpvoteClick?: (post: Post) => unknown;
   onCommentClick?: (post: Post) => unknown;
-  onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
   onShare?: (post: Post) => unknown;
   onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
@@ -35,7 +34,6 @@ export interface ActionButtonsProps {
 }
 
 type LastActionButtonProps = {
-  onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
   onShare?: (post: Post) => unknown;
   onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
   post: Post;
@@ -60,7 +58,6 @@ export default function ActionButtons({
   post,
   onUpvoteClick,
   onCommentClick,
-  onBookmarkClick,
   onMenuClick,
   onReadArticleClick,
   onShare,
@@ -80,7 +77,6 @@ export default function ActionButtons({
 
   const lastActionButton = LastActionButton({
     post,
-    onBookmarkClick,
     onShare,
     onShareClick,
   });

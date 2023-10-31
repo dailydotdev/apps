@@ -71,11 +71,7 @@ export function PostContent({
     origin,
     post,
   });
-  const {
-    onSharePost: onShare,
-    onReadArticle,
-    onToggleBookmark,
-  } = engagementActions;
+  const { onSharePost: onShare, onReadArticle } = engagementActions;
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
@@ -88,7 +84,6 @@ export function PostContent({
     onPreviousPost,
     onNextPost,
     post,
-    onBookmark: onToggleBookmark,
     onReadArticle,
     onClose,
     onShare,
@@ -115,7 +110,6 @@ export function PostContent({
       >
         {!hasNavigation && (
           <PostHeaderActions
-            onBookmark={onToggleBookmark}
             onShare={onShare}
             onReadArticle={onReadArticle}
             post={post}
@@ -196,7 +190,6 @@ export function PostContent({
         </BasePostContent>
       </PostContainer>
       <PostWidgets
-        onBookmark={onToggleBookmark}
         onShare={onShare}
         onReadArticle={onReadArticle}
         post={post}
