@@ -118,6 +118,7 @@ export default function Feed<T>({
   besideSearch,
   actionButtons,
 }: FeedProps<T>): ReactElement {
+  const origin = Origin.Feed;
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -254,7 +255,7 @@ export default function Feed<T>({
   } = useFeedContextMenu();
 
   const { sharePost, sharePostFeedLocation, openSharePost, closeSharePost } =
-    useSharePost(Origin.Feed);
+    useSharePost(origin);
 
   useEffect(() => {
     return () => {
@@ -364,11 +365,7 @@ export default function Feed<T>({
         postMenuLocation.column,
       ),
     onBookmark: () => {
-      onBookmark({
-        post,
-        origin: Origin.Feed,
-        opts: feedAnalyticsExtra(feedName, ranking),
-      });
+      onBookmark({ post, origin, opts: feedAnalyticsExtra(feedName, ranking) });
     },
     post,
   };
@@ -437,7 +434,7 @@ export default function Feed<T>({
           postIndex={postMenuIndex}
           onHidden={() => setPostMenuIndex(null)}
           onRemovePost={onRemovePost}
-          origin={Origin.Feed}
+          origin={origin}
           allowPin={allowPin}
         />
         <ShareOptionsMenu
@@ -460,7 +457,7 @@ export default function Feed<T>({
           <ShareModal
             isOpen={!!sharePost}
             post={sharePost}
-            origin={Origin.Feed}
+            origin={origin}
             {...sharePostFeedLocation}
             onRequestClose={closeSharePost}
           />
