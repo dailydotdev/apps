@@ -353,6 +353,10 @@ export function OnboardPage(): ReactElement {
   };
 
   const getProgressBar = () => {
+    if (isFiltering && onboardingV4 === OnboardingV4.V4) {
+      return null;
+    }
+
     const percentage = isFiltering ? 100 : 50;
     return <ProgressBar percentage={isAuthenticating ? percentage : 0} />;
   };
@@ -376,7 +380,7 @@ export function OnboardPage(): ReactElement {
     // eslint-disable-next-line @dailydotdev/daily-dev-eslint-rules/no-custom-color
     <Container className="bg-[#0e1019]">
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
-      {onboardingV4 === OnboardingV4.Control && getProgressBar()}
+      {getProgressBar()}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
         setAuth={setAuth}
