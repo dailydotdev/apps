@@ -16,6 +16,7 @@ export enum ActionType {
   ExistingAnonymousBanner = 'existingAnonymousBanner',
   AcceptedSearch = 'accepted_search',
   UsedSearch = 'used_search',
+  AcceptedGenericReferral = 'accepted_generic_referral',
 }
 
 export interface Action {

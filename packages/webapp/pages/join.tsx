@@ -13,11 +13,13 @@ import { defaultOpenGraph } from '../next-seo';
 import { JoinPageProps } from '../components/invite/common';
 import { AISearchInvite } from '../components/invite/AISearchInvite';
 import Custom404Seo from './404';
+import { Referral } from '../components/invite/Referral';
 
 type ReferralRecord<T> = Record<ReferralCampaignKey, T>;
 
 const componentsMap: ReferralRecord<FunctionComponent<JoinPageProps>> = {
   search: AISearchInvite,
+  generic: Referral,
 };
 
 const Page = ({

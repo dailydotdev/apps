@@ -4,6 +4,7 @@ import {
   OnboardingFilteringTitle,
   SearchExperiment,
   OnboardingV4,
+  GenericReferral,
 } from './featureValues';
 
 export class Feature<T extends JSONValue> {
@@ -27,6 +28,7 @@ const feature = {
     OnboardingFilteringTitle.Control,
   ),
   lowImps: new Feature('feed_low_imps'),
+  genericReferral: new Feature('generic_referral', GenericReferral.Control),
 };
 
 export { feature };

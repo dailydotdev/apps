@@ -37,6 +37,11 @@ export enum SearchExperiment {
   V1 = 'v1',
 }
 
+export enum GenericReferral {
+  Control = 'control',
+  V1 = 'v1',
+}
+
 const anonymousMigrationDate = new Date(2023, 10, 1);
 const now = new Date();
 export const daysLeft = differenceInDays(anonymousMigrationDate, now);

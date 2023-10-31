@@ -17,19 +17,29 @@ export const useReferralConfig = ({
     { url: `https://og.daily.dev/api/refs/${referringUser.id}` },
   ];
 
-  if (campaign === ReferralCampaignKey.Search) {
-    return {
-      title: defaultTitle,
-      description: defaultDescription,
-      images: defaultImages,
-      redirectTo: '/my-feed',
-    };
-  }
+  switch (campaign as ReferralCampaignKey) {
+    case ReferralCampaignKey.Search:
+      return {
+        title: defaultTitle,
+        description: defaultDescription,
+        images: defaultImages,
+        redirectTo: '/my-feed',
+      };
 
-  return {
-    title: defaultTitle,
-    description: defaultDescription,
-    images: defaultImages,
-    redirectTo: '/',
-  };
+    case ReferralCampaignKey.Generic:
+      return {
+        title: defaultTitle,
+        description: defaultDescription,
+        images: defaultImages,
+        redirectTo: 'https://r.daily.dev/download',
+      };
+
+    default:
+      return {
+        title: defaultTitle,
+        description: defaultDescription,
+        images: defaultImages,
+        redirectTo: '/',
+      };
+  }
 };
