@@ -367,7 +367,7 @@ export default function Feed<T>({
       onBookmark({
         post,
         origin: Origin.Feed,
-        opts: { ...feedAnalyticsExtra(feedName, ranking) },
+        opts: feedAnalyticsExtra(feedName, ranking),
       });
     },
     post,
