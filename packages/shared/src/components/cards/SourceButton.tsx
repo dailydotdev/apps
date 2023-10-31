@@ -26,6 +26,8 @@ export default function SourceButton({
   if (source && isFeedPreview) {
     return (
       <ProfilePicture
+        {...props}
+        className={className}
         size={size}
         rounded="full"
         user={{
@@ -46,6 +48,7 @@ export default function SourceButton({
     >
       <ProfileImageLink
         {...props}
+        className={className}
         picture={{ size, rounded: 'full' }}
         user={{
           id: source.id,
