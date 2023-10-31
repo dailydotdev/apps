@@ -364,7 +364,11 @@ export default function Feed<T>({
         postMenuLocation.column,
       ),
     onBookmark: () => {
-      onBookmark({ post, origin: Origin.Feed });
+      onBookmark({
+        post,
+        origin: Origin.Feed,
+        opts: { ...feedAnalyticsExtra(feedName, ranking) },
+      });
     },
     post,
   };
