@@ -1,5 +1,5 @@
 import { useCallback, useContext } from 'react';
-import { useMutation, useQueryClient } from 'react-query';
+import { MutationKey, useMutation, useQueryClient } from 'react-query';
 import { graphqlUrl } from '../lib/config';
 import {
   ADD_BOOKMARKS_MUTATION,
@@ -45,7 +45,7 @@ export type UseBookmarkPostProps = {
   onMutate?: (
     props: UseBookmarkPostMutationProps,
   ) => Promise<UseBookmarkPostRollback> | UseBookmarkPostRollback | undefined;
-  variables?: unknown;
+  mutationKey?: MutationKey;
 };
 
 const prepareBookmarkPostAnalyticsOptions = ({
@@ -66,7 +66,7 @@ export type UseBookmarkPost = {
 
 const useBookmarkPost = ({
   onMutate,
-  variables,
+  mutationKey,
 }: UseBookmarkPostProps = {}): UseBookmarkPost => {
   const { requestMethod } = useRequestProtocol();
   const client = useQueryClient();
@@ -88,8 +88,8 @@ const useBookmarkPost = ({
         ...payload,
       }),
     {
-      mutationKey: variables
-        ? [...bookmarkMutationKey, variables]
+      mutationKey: mutationKey
+        ? [...bookmarkMutationKey, ...mutationKey]
         : bookmarkMutationKey,
       onMutate: onMutate || defaultOnMutate,
       onError: (err, _, rollback?: () => void) => rollback?.(),

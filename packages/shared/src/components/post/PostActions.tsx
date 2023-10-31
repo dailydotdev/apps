@@ -59,7 +59,7 @@ export function PostActions({
   });
 
   const { toggleBookmark } = useBookmarkPost({
-    variables: { feedName: feedQueryKey },
+    mutationKey: feedQueryKey,
     onMutate: feedQueryKey
       ? ({ id }) => {
           const updatePost = updateCachedPagePost(feedQueryKey, queryClient);

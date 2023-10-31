@@ -101,7 +101,7 @@ export default function PostOptionsMenu({
   });
 
   const { toggleBookmark } = useBookmarkPost({
-    variables: { feedName: feedQueryKey },
+    mutationKey: feedQueryKey,
     onMutate: feedQueryKey
       ? ({ id }) => {
           const updatePost = updateCachedPagePost(

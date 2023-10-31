@@ -218,7 +218,7 @@ export default function Feed<T>({
   });
 
   const { toggleBookmark: onBookmark } = useBookmarkPost({
-    variables: { feedName: feedQueryKey },
+    mutationKey: feedQueryKey,
     onMutate: ({ id }) => {
       return mutateBookmarkFeedPost({
         id,
