@@ -13,6 +13,7 @@ import OptionsButton from '../buttons/OptionsButton';
 import { ReadArticleButton } from './ReadArticleButton';
 import { visibleOnGroupHover } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { useFeedPreviewMode } from '../../hooks';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "share" */ '../icons/Share'),
@@ -68,6 +69,11 @@ export default function ActionButtons({
   const upvoteCommentProps: ButtonProps<'button'> = {
     buttonSize: ButtonSize.Small,
   };
+  const isFeedPreview = useFeedPreviewMode();
+
+  if (isFeedPreview) {
+    return null;
+  }
 
   const lastActionButton = LastActionButton({
     post,

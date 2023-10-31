@@ -5,6 +5,7 @@ import SourceButton from './SourceButton';
 import { Source } from '../../graphql/sources';
 import { ReadArticleButton } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
+import { useFeedPreviewMode } from '../../hooks';
 
 interface CardHeaderProps {
   className?: string;
@@ -27,6 +28,8 @@ export const PostCardHeader = ({
   postLink,
   openNewTab,
 }: CardHeaderProps): ReactElement => {
+  const isFeedPreview = useFeedPreviewMode();
+
   return (
     <CardHeader className={className}>
       <SourceButton source={source} />
@@ -35,13 +38,17 @@ export const PostCardHeader = ({
         className="flex flex-row ml-auto"
         data-testid="cardHeaderActions"
       >
-        <ReadArticleButton
-          className="mr-2 btn-primary"
-          href={postLink}
-          onClick={onReadArticleClick}
-          openNewTab={openNewTab}
-        />
-        <OptionsButton onClick={onMenuClick} tooltipPlacement="top" />
+        {!isFeedPreview && (
+          <>
+            <ReadArticleButton
+              className="mr-2 btn-primary"
+              href={postLink}
+              onClick={onReadArticleClick}
+              openNewTab={openNewTab}
+            />
+            <OptionsButton onClick={onMenuClick} tooltipPlacement="top" />
+          </>
+        )}
       </Container>
     </CardHeader>
   );

@@ -6,6 +6,7 @@ export enum OnboardingStep {
   Topics = 'topics',
   Layout = 'layout',
   Theme = 'theme',
+  EditTag = 'edit_tag',
 }
 
 export const OnboardingTitle = classed(
@@ -22,3 +23,7 @@ export interface OnboardingStepProps {
   onClose?: (e: React.MouseEvent | React.KeyboardEvent) => void;
   isModal?: boolean;
 }
+
+export const REQUIRED_TAGS_THRESHOLD = 5;
+
+export const wrapperMaxWidth = 'max-w-[75rem] laptopXL:max-w-[90rem]';

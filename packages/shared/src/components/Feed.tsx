@@ -42,7 +42,7 @@ import { ActiveFeedContext } from '../contexts';
 import { useFeedVotePost } from '../hooks';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
-import { AllFeedPages, updateCachedPagePost } from '../lib/query';
+import { AllFeedPages, RequestKey, updateCachedPagePost } from '../lib/query';
 import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
@@ -190,7 +190,10 @@ export default function Feed<T>({
 
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage,
-    canFetchMore: canFetchMore && !showScrollOnboardingVersion,
+    canFetchMore:
+      canFetchMore &&
+      !showScrollOnboardingVersion &&
+      feedQueryKey?.[0] !== RequestKey.FeedPreview,
   });
 
   const onInitializeOnboardingClick = () => {
