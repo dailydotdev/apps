@@ -1,7 +1,9 @@
 import React, { ReactElement, useEffect } from 'react';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonSize,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
-import KeyIcon from '@dailydotdev/shared/src/components/icons/Key';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { useMutation } from 'react-query';
@@ -22,6 +24,9 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
+import { downloadBrowserExtension } from '@dailydotdev/shared/src/lib/constants';
+import { FlexCentered } from '@dailydotdev/shared/src/components/utilities';
+import BrowsersIcon from '@dailydotdev/shared/icons/browsers.svg';
 import { JoinPageProps } from './common';
 
 export function Referral({
@@ -104,23 +109,35 @@ export function Referral({
             invited you to daily.dev
           </p>
         </span>
-        <h1 className="w-full text-center laptop:text-left break-words-overflow typo-large-title tablet:typo-mega3 laptop:typo-giga3">
+        <h1 className="w-full text-center laptop:text-left break-words-overflow typo-large-title tablet:typo-mega3 laptopL:typo-giga2">
           The Homepage
           <b className="text-theme-color-cabbage"> Developers Deserve </b>
         </h1>
-        <p className="mt-8 text-center laptop:text-left typo-title3 text-theme-label-tertiary">
+        <p className="mt-8 max-w-xl text-center laptop:text-left typo-title3 text-theme-label-tertiary">
           Get a feed of the best developer news out there! Read more quality
           articles. Stay up to date.
         </p>
         <Button
-          icon={<KeyIcon secondary />}
-          className="mt-12 btn-primary"
-          onClick={handleAcceptClick}
-          type="button"
+          buttonSize={ButtonSize.XLarge}
+          className="p-4 mt-12 max-w-[24.25rem] btn-primary"
+          tag="a"
+          href={downloadBrowserExtension}
+          onClick={() => {
+            handleAcceptClick();
+            // completeAction(ActionType.BrowserExtension);
+          }}
+          target="_blank"
           loading={isLoading}
           disabled={isLoading || isSuccess}
         >
-          {`Add to browser - It's free`}
+          <FlexCentered className="gap-2 typo-title3">
+            <BrowsersIcon
+              width="80px"
+              height="40px"
+              className="text-theme-label-primary"
+            />
+            Add to browser - it&apos;s free!
+          </FlexCentered>
         </Button>
       </div>
       <img

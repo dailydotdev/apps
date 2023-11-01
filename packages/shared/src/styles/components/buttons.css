@@ -39,6 +39,12 @@
     border-radius: 0.875rem;
   }
 
+  &.xlarge {
+    height: 4rem;
+    padding: 0 1.5rem;
+    border-radius: 0.75rem;
+  }
+
   &.headline {
     height: 3rem;
     padding: 0 1.5rem;
