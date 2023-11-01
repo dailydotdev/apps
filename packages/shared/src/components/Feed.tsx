@@ -30,18 +30,13 @@ import {
 import PostOptionsMenu from './PostOptionsMenu';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
-import { AnalyticsEvent, Origin } from '../lib/analytics';
+import { Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
-import { ExperimentWinner, OnboardingV2 } from '../lib/featureValues';
-import useSidebarRendered from '../hooks/useSidebarRendered';
-import OnboardingContext from '../contexts/OnboardingContext';
-import AlertContext from '../contexts/AlertContext';
+import { ExperimentWinner } from '../lib/featureValues';
 import { SharedFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
 import { ActiveFeedContext } from '../contexts';
 import { useFeedVotePost } from '../hooks';
-import { useFeature } from './GrowthBookProvider';
-import { feature } from '../lib/featureManagement';
 import { AllFeedPages, RequestKey, updateCachedPagePost } from '../lib/query';
 import {
   mutateBookmarkFeedPost,
@@ -83,13 +78,6 @@ const SharePostModal = dynamic(
     import(/* webpackChunkName: "sharePostModal" */ './modals/SharePostModal'),
 );
 
-const ScrollFeedFiltersOnboarding = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "scrollFeedFiltersOnboarding" */ './ScrollFeedFiltersOnboarding'
-    ),
-);
-
 const calculateRow = (index: number, numCards: number): number =>
   Math.floor(index / numCards);
 const calculateColumn = (index: number, numCards: number): number =>
@@ -119,13 +107,9 @@ export default function Feed<T>({
   actionButtons,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
-  const { alerts } = useContext(AlertContext);
-  const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
-  const { sidebarRendered } = useSidebarRendered();
-  const onboardingV2 = useFeature(feature.onboardingV2);
   const queryClient = useQueryClient();
   const {
     openNewTab,
@@ -136,26 +120,19 @@ export default function Feed<T>({
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
-  const {
-    items,
-    updatePost,
-    removePost,
-    fetchPage,
-    canFetchMore,
-    emptyFeed,
-    isLoading,
-  } = useFeed(
-    feedQueryKey,
-    currentSettings.pageSize,
-    isSquadFeed ? 3 : currentSettings.adSpot,
-    numCards,
-    {
-      query,
-      variables,
-      options,
-      ...(isSquadFeed && { settings: { adPostLength: 2 } }),
-    },
-  );
+  const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
+    useFeed(
+      feedQueryKey,
+      currentSettings.pageSize,
+      isSquadFeed ? 3 : currentSettings.adSpot,
+      numCards,
+      {
+        query,
+        variables,
+        options,
+        ...(isSquadFeed && { settings: { adPostLength: 2 } }),
+      },
+    );
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
@@ -180,29 +157,10 @@ export default function Feed<T>({
     }
   }, [emptyFeed, onEmptyFeed]);
 
-  const showScrollOnboardingVersion =
-    sidebarRendered &&
-    feedName === SharedFeedPage.Popular &&
-    !isLoading &&
-    alerts?.filter &&
-    !user?.id &&
-    onboardingV2 === OnboardingV2.Control;
-
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage,
-    canFetchMore:
-      canFetchMore &&
-      !showScrollOnboardingVersion &&
-      feedQueryKey?.[0] !== RequestKey.FeedPreview,
+    canFetchMore: canFetchMore && feedQueryKey?.[0] !== RequestKey.FeedPreview,
   });
-
-  const onInitializeOnboardingClick = () => {
-    trackEvent({
-      event_name: AnalyticsEvent.ClickScrollBlock,
-      target_id: ExperimentWinner.ScrollOnboardingVersion,
-    });
-    onInitializeOnboarding(undefined, true);
-  };
 
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
@@ -392,13 +350,6 @@ export default function Feed<T>({
         showSearch={showSearch && isValidFeed}
         besideSearch={besideSearch}
         actionButtons={actionButtons}
-        afterFeed={
-          showScrollOnboardingVersion ? (
-            <ScrollFeedFiltersOnboarding
-              onInitializeOnboarding={onInitializeOnboardingClick}
-            />
-          ) : null
-        }
       >
         {items.map((item, index) => (
           <FeedItemComponent
