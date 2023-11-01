@@ -103,6 +103,12 @@ export const cloudinary = {
       bgPopupMobile:
         'https://daily-now-res.cloudinary.com/image/upload/s--19oBvNgw--/f_auto/v1697393719/referral_bg_popup_mobile_on7ss5',
     },
+    genericReferral: {
+      backgroundDark:
+        'https://daily-now-res.cloudinary.com/image/upload/s--GBy6n7jn--/f_auto/v1685961531/public/background_Image',
+      appScreenshot:
+        'https://daily-now-res.cloudinary.com/image/upload/s--m_DzIlz0--/f_auto/v1698844735/platform_bjdgxm',
+    },
     appScreenshot:
       'https://daily-now-res.cloudinary.com/image/upload/s--3e8Phst3--/f_auto,q_auto/v1686045256/daily_lmzdaf',
     backgroundDark:

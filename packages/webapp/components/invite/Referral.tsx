@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import {
   Button,
   ButtonSize,
@@ -27,6 +27,14 @@ import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
 import { downloadBrowserExtension } from '@dailydotdev/shared/src/lib/constants';
 import { FlexCentered } from '@dailydotdev/shared/src/components/utilities';
 import BrowsersIcon from '@dailydotdev/shared/icons/browsers.svg';
+import { mobileL, laptopL } from '@dailydotdev/shared/src/styles/media';
+import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
+import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
+import {
+  ModalKind,
+  ModalSize,
+} from '@dailydotdev/shared/src/components/modals/common/types';
+import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { JoinPageProps } from './common';
 
 export function Referral({
@@ -40,6 +48,8 @@ export function Referral({
   const { trackEvent } = useAnalyticsContext();
   const { displayToast } = useToastNotification();
   const { user, refetchBoot, showLogin } = useAuthContext();
+  const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
+  const isLaptopL = useMedia([laptopL.replace('@media ', '')], [true], false);
   const {
     mutateAsync: onAcceptMutation,
     isLoading,
@@ -57,6 +67,11 @@ export function Referral({
       displayToast(message ?? DEFAULT_ERROR);
     },
   });
+  const [isVideoOpen, setVideoOpen] = useState(false);
+
+  const onVideoModalClose = () => {
+    setVideoOpen(false);
+  };
 
   const handleAcceptClick = () => {
     const handleAccept = () =>
@@ -94,32 +109,42 @@ export function Referral({
   }, [redirectTo, genericReferral]);
 
   return (
-    <div className="flex overflow-hidden relative flex-col flex-1 justify-center items-center laptop:items-start p-6 h-full min-h-[100vh]">
+    <div
+      style={{
+        background: `url(${cloudinary.referralCampaign.genericReferral.backgroundDark})`,
+        backgroundSize: 'cover',
+      }}
+      className="flex overflow-hidden relative flex-col flex-1 justify-center items-center laptop:items-start p-6 h-full min-h-[100vh]"
+    >
       <span className="absolute top-8 left-1/2 laptop:left-8 -translate-x-1/2 laptop:translate-x-0">
         <Logo showGreeting={false} position={LogoPosition.Relative} />
       </span>
-      <div className="flex flex-col laptop:ml-3 w-full tablet:max-w-[30rem] laptopL:ml-[9.75rem] laptopL:max-w-[37.2rem]">
-        <span className="flex flex-col laptop:flex-row gap-3 tablet:gap-4 laptop:gap-6 items-center laptop:items-start mb-6 tablet:mb-10 laptop:mb-8">
+      <div className="flex flex-col laptop:ml-3 w-full laptopL:ml-[9.315rem] laptopL:max-w-[37.2rem]">
+        <span className="flex flex-col laptop:flex-row gap-3 laptopL:gap-6 items-center laptop:items-start mb-6 tablet:mb-8">
           <ProfileImageLink
             user={referringUser}
-            picture={{ size: 'xxxlarge' }}
+            picture={{ size: isLaptopL ? 'xxxlarge' : 'xlarge' }}
           />
-          <p className="my-auto text-center laptop:text-left typo-title2">
-            <b> {referringUser.name} </b>
-            invited you to daily.dev
+          <p className="my-auto text-center laptop:text-left typo-headline laptop:typo-title3 laptopL:typo-title2">
+            <span className="block laptop:inline">{referringUser.name}</span>
+            <span className="font-normal"> invited you to daily.dev</span>
           </p>
         </span>
-        <h1 className="w-full text-center laptop:text-left break-words-overflow typo-large-title tablet:typo-mega3 laptopL:typo-giga2">
+        <h1 className="w-full text-center laptop:text-left break-words-overflow typo-large-title tablet:typo-mega2 laptopL:typo-giga2">
           The Homepage
-          <b className="text-theme-color-cabbage"> Developers Deserve </b>
+          <span className="block font-bold text-theme-color-cabbage">
+            {' '}
+            Developers Deserve
+          </span>
         </h1>
-        <p className="mt-8 max-w-xl text-center laptop:text-left typo-title3 text-theme-label-tertiary">
+        <p className="mx-auto laptop:mx-0 mt-8 max-w-sm laptopL:max-w-xl text-center laptop:text-left typo-title3 text-theme-label-tertiary">
           Get a feed of the best developer news out there! Read more quality
-          articles. Stay up to date.
+          articles.
+          <span className="tablet:block laptopL:inline"> Stay up to date.</span>
         </p>
         <Button
-          buttonSize={ButtonSize.XLarge}
-          className="p-4 mt-12 max-w-[24.25rem] btn-primary"
+          buttonSize={isMobile ? ButtonSize.Large : ButtonSize.XLarge}
+          className="p-4 mx-auto laptop:mx-0 mt-12 max-w-[17.5rem] mobileL:max-w-[24.25rem] btn-primary"
           tag="a"
           href={downloadBrowserExtension}
           onClick={() => {
@@ -130,21 +155,53 @@ export function Referral({
           loading={isLoading}
           disabled={isLoading || isSuccess}
         >
-          <FlexCentered className="gap-2 typo-title3">
+          <FlexCentered className="gap-2 mobileL:typo-title3">
             <BrowsersIcon
-              width="80px"
-              height="40px"
+              width={isMobile ? '58px' : '80px'}
+              height={isMobile ? '30px' : '40px'}
               className="text-theme-label-primary"
             />
             Add to browser - it&apos;s free!
           </FlexCentered>
         </Button>
       </div>
-      <img
-        src={cloudinary.referralCampaign.search.bg}
-        alt="search input depicting our new AI search feature"
-        className="hidden laptop:block absolute right-0 tablet:w-1/2"
-      />
+      <button
+        className="hidden laptop:block absolute right-0 tablet:w-1/2 h-full cursor-pointer"
+        type="button"
+        onClick={() => {
+          setVideoOpen(true);
+        }}
+      >
+        <img
+          src={cloudinary.referralCampaign.genericReferral.appScreenshot}
+          alt="Daily.dev app screenshot of my feed page"
+          className="object-contain w-full h-auto"
+        />
+      </button>
+
+      {isVideoOpen && (
+        <Modal
+          // eslint-disable-next-line @dailydotdev/daily-dev-eslint-rules/no-custom-color
+          className="px-8 bg-[black]"
+          kind={ModalKind.FlexibleCenter}
+          size={ModalSize.XLarge}
+          isOpen={isVideoOpen}
+          onRequestClose={onVideoModalClose}
+        >
+          <CloseButton
+            buttonSize={ButtonSize.Small}
+            className="top-3 right-3 text-white border-white !absolute !btn-secondary"
+            onClick={onVideoModalClose}
+          />
+          <iframe
+            className="w-full border-none aspect-video"
+            src="https://www.youtube.com/embed/igZCEr3HwCg"
+            title="YouTube video player"
+            allow="encrypted-media;web-share"
+            allowFullScreen
+          />
+        </Modal>
+      )}
     </div>
   );
 }
