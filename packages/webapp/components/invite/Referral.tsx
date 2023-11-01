@@ -165,20 +165,33 @@ export function Referral({
           </FlexCentered>
         </Button>
       </div>
-      <button
-        className="hidden laptop:block absolute right-0 tablet:w-1/2 h-full cursor-pointer"
-        type="button"
-        onClick={() => {
-          setVideoOpen(true);
-        }}
-      >
-        <img
-          src={cloudinary.referralCampaign.genericReferral.appScreenshot}
-          alt="Daily.dev app screenshot of my feed page"
-          className="object-contain w-full h-auto"
-        />
-      </button>
-
+      <div className="hidden laptop:block absolute right-0 tablet:w-1/2 h-full -mx-[4.5rem]">
+        <div className="flex justify-center items-center h-full">
+          <button
+            className="absolute w-full h-full max-h-[39.5rem]"
+            type="button"
+            aria-label="Play daily.dev introduction video"
+            onClick={() => {
+              setVideoOpen(true);
+            }}
+          />
+          <img
+            src={cloudinary.referralCampaign.genericReferral.purpleEdgeGlow}
+            alt="Daily.dev app screenshot of my feed page"
+            className="absolute top-0 right-[-3.2rem]"
+          />
+          <img
+            src={cloudinary.referralCampaign.genericReferral.playButton}
+            alt="Play daily.dev introduction video"
+            className="object-contain absolute m-auto"
+          />
+          <img
+            src={cloudinary.referralCampaign.genericReferral.appScreenshot}
+            alt="Daily.dev app screenshot of my feed page"
+            className="object-contain w-auto h-full max-h-[39.5rem]"
+          />
+        </div>
+      </div>
       {isVideoOpen && (
         <Modal
           // eslint-disable-next-line @dailydotdev/daily-dev-eslint-rules/no-custom-color
