@@ -110,8 +110,10 @@ export const cloudinary = {
         'https://daily-now-res.cloudinary.com/image/upload/s--m_DzIlz0--/f_auto/v1698844735/platform_bjdgxm',
       playButton:
         'https://daily-now-res.cloudinary.com/image/upload/v1698844736/play_button_h38ezx.svg',
-      purpleEdgeGlow:
-        'https://daily-now-res.cloudinary.com/image/upload/v1698844666/Glow_imof0m.svg',
+      purpleEdgeGlowDesktop:
+        'https://daily-now-res.cloudinary.com/image/upload/v1686064286/Glow_l5yvph.svg',
+      purpleEdgeGlowTablet:
+        'https://daily-now-res.cloudinary.com/image/upload/v1698844665/glow_mobile_tablet_ilyzyg.svg',
     },
     appScreenshot:
       'https://daily-now-res.cloudinary.com/image/upload/s--3e8Phst3--/f_auto,q_auto/v1686045256/daily_lmzdaf',

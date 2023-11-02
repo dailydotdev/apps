@@ -27,7 +27,7 @@ import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
 import { downloadBrowserExtension } from '@dailydotdev/shared/src/lib/constants';
 import { FlexCentered } from '@dailydotdev/shared/src/components/utilities';
 import BrowsersIcon from '@dailydotdev/shared/icons/browsers.svg';
-import { mobileL, laptopL } from '@dailydotdev/shared/src/styles/media';
+import { mobileL, laptopL, laptop } from '@dailydotdev/shared/src/styles/media';
 import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import {
@@ -50,6 +50,7 @@ export function Referral({
   const { user, refetchBoot, showLogin } = useAuthContext();
   const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
   const isLaptopL = useMedia([laptopL.replace('@media ', '')], [true], false);
+  const isTablet = !useMedia([laptop.replace('@media ', '')], [true], false);
   const {
     mutateAsync: onAcceptMutation,
     isLoading,
@@ -114,12 +115,12 @@ export function Referral({
         background: `url(${cloudinary.referralCampaign.genericReferral.backgroundDark})`,
         backgroundSize: 'cover',
       }}
-      className="flex overflow-hidden relative flex-col flex-1 justify-center items-center laptop:items-start p-6 h-full min-h-[100vh]"
+      className="flex overflow-hidden relative flex-col laptop:flex-row flex-auto gap-6 items-center p-2 laptop:p-6 h-full h-[100vh] laptop:gap-[13rem] tablet:gap-[7.35rem]"
     >
       <span className="absolute top-8 left-1/2 laptop:left-8 -translate-x-1/2 laptop:translate-x-0">
         <Logo showGreeting={false} position={LogoPosition.Relative} />
       </span>
-      <div className="flex flex-col laptop:ml-3 w-full laptopL:ml-[9.315rem] laptopL:max-w-[37.2rem]">
+      <div className="flex z-1 flex-col p-4 laptop:p-0 laptop:mt-0 laptop:ml-3 w-full laptopL:ml-[9.315rem] laptopL:max-w-[37.2rem] tablet:mt-[8rem] mt-[5rem]">
         <span className="flex flex-col laptop:flex-row gap-3 laptopL:gap-6 items-center laptop:items-start mb-6 tablet:mb-8">
           <ProfileImageLink
             user={referringUser}
@@ -137,14 +138,14 @@ export function Referral({
             Developers Deserve
           </span>
         </h1>
-        <p className="mx-auto laptop:mx-0 mt-8 max-w-sm laptopL:max-w-xl text-center laptop:text-left typo-title3 text-theme-label-tertiary">
+        <p className="mx-auto laptop:mx-0 mt-7 tablet:mt-8 max-w-sm laptopL:max-w-xl text-center laptop:text-left typo-title3 text-theme-label-tertiary">
           Get a feed of the best developer news out there! Read more quality
           articles.
           <span className="tablet:block laptopL:inline"> Stay up to date.</span>
         </p>
         <Button
           buttonSize={isMobile ? ButtonSize.Large : ButtonSize.XLarge}
-          className="p-4 mx-auto laptop:mx-0 mt-12 max-w-[17.5rem] mobileL:max-w-[24.25rem] btn-primary"
+          className="p-4 mx-auto laptop:mx-0 mt-6 tablet:mt-12 max-w-[17.5rem] mobileL:max-w-[24.25rem] btn-primary"
           tag="a"
           href={downloadBrowserExtension}
           onClick={() => {
@@ -165,30 +166,34 @@ export function Referral({
           </FlexCentered>
         </Button>
       </div>
-      <div className="hidden laptop:block absolute right-0 tablet:w-1/2 h-full -mx-[4.5rem]">
-        <div className="flex justify-center items-center h-full">
+      <div className="flex flex-auto w-full h-full">
+        <div className="flex relative laptop:absolute justify-center self-center m-auto z-10 laptopXL:right-[-7rem] laptopL:right-[-10.5rem] laptop:right-[-8.5rem] w-[inherit] laptop:w-[initial]">
+          <img
+            src={
+              cloudinary.referralCampaign.genericReferral[
+                isTablet ? 'purpleEdgeGlowTablet' : 'purpleEdgeGlowDesktop'
+              ]
+            }
+            alt="Purple glow right edge"
+            className="fixed laptop:top-0 right-0 bottom-0 w-full laptop:w-auto laptop:h-full z-20"
+          />
+          <img
+            src={cloudinary.referralCampaign.genericReferral.appScreenshot}
+            alt="Daily.dev app screenshot of my feed page"
+            className="object-contain w-full laptop:w-auto h-auto laptop:h-full z-10 laptopXL:max-h-[39.5rem] laptopL:max-h-[31rem] laptop:max-h-[25.35rem]"
+          />
+          <img
+            src={cloudinary.referralCampaign.genericReferral.playButton}
+            alt="Play daily.dev introduction video"
+            className="object-contain absolute laptop:self-center laptopL:m-auto w-auto laptopL:h-auto laptop:mr-[8.5rem] laptop:mt-[0.5rem] z-20 inherit laptop:h-[8rem] tablet:h-[14.5rem] h-[7.8rem] tablet:mt-[-1.5rem] mt-[-1.5rem] self-[unset]"
+          />
           <button
-            className="absolute w-full h-full max-h-[39.5rem]"
+            className="absolute z-1 w-full h-full max-h-[39.5rem]"
             type="button"
             aria-label="Play daily.dev introduction video"
             onClick={() => {
               setVideoOpen(true);
             }}
-          />
-          <img
-            src={cloudinary.referralCampaign.genericReferral.purpleEdgeGlow}
-            alt="Daily.dev app screenshot of my feed page"
-            className="absolute top-0 right-[-3.2rem]"
-          />
-          <img
-            src={cloudinary.referralCampaign.genericReferral.playButton}
-            alt="Play daily.dev introduction video"
-            className="object-contain absolute m-auto"
-          />
-          <img
-            src={cloudinary.referralCampaign.genericReferral.appScreenshot}
-            alt="Daily.dev app screenshot of my feed page"
-            className="object-contain w-auto h-full max-h-[39.5rem]"
           />
         </div>
       </div>
