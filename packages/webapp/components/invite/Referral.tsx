@@ -27,7 +27,7 @@ import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
 import { downloadBrowserExtension } from '@dailydotdev/shared/src/lib/constants';
 import { FlexCentered } from '@dailydotdev/shared/src/components/utilities';
 import BrowsersIcon from '@dailydotdev/shared/icons/browsers.svg';
-import { mobileL, laptopL, laptop } from '@dailydotdev/shared/src/styles/media';
+import { mobileL, laptopL } from '@dailydotdev/shared/src/styles/media';
 import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import {
@@ -50,7 +50,6 @@ export function Referral({
   const { user, refetchBoot, showLogin } = useAuthContext();
   const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
   const isLaptopL = useMedia([laptopL.replace('@media ', '')], [true], false);
-  const isTablet = !useMedia([laptop.replace('@media ', '')], [true], false);
   const {
     mutateAsync: onAcceptMutation,
     isLoading,
@@ -150,7 +149,6 @@ export function Referral({
           href={downloadBrowserExtension}
           onClick={() => {
             handleAcceptClick();
-            // completeAction(ActionType.BrowserExtension);
           }}
           target="_blank"
           loading={isLoading}
@@ -167,7 +165,7 @@ export function Referral({
         </Button>
       </div>
       <div className="flex fixed flex-auto w-full h-full laptop:initial laptop:bottom-[unset] bottom-[-49%]">
-        <div className="flex relative laptop:absolute justify-center self-center m-auto mx-2 z-10 laptopL:right-[-7rem] laptop:right-[-8.5rem] w-[fit-content] laptop:w-[initial]">
+        <div className="flex relative laptop:absolute justify-center self-center m-auto mx-2 z-10 laptopL:right-[-6rem] laptop:right-[-7.5rem] w-[fit-content] laptop:w-[initial]">
           <img
             src={
               cloudinary.referralCampaign.genericReferral.purpleEdgeGlowTablet
