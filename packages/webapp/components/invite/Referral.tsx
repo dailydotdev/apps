@@ -115,9 +115,9 @@ export function Referral({
         background: `url(${cloudinary.referralCampaign.genericReferral.backgroundDark})`,
         backgroundSize: 'cover',
       }}
-      className="flex overflow-hidden relative flex-col laptop:flex-row flex-auto gap-6 items-center p-2 laptop:p-6 h-full h-[100vh] laptop:gap-[13rem] tablet:gap-[7.35rem]"
+      className="flex overflow-hidden relative flex-col laptop:flex-row flex-auto items-center p-2 laptop:p-6 h-[100vh]"
     >
-      <span className="absolute top-8 left-1/2 laptop:left-8 -translate-x-1/2 laptop:translate-x-0">
+      <span className="absolute top-8 left-1/2 laptop:left-12 -translate-x-1/2 laptop:translate-x-0 scale-[1.375]">
         <Logo showGreeting={false} position={LogoPosition.Relative} />
       </span>
       <div className="flex z-1 flex-col p-4 laptop:p-0 laptop:mt-0 laptop:ml-3 w-full laptopL:ml-[9.315rem] laptopL:max-w-[37.2rem] tablet:mt-[8rem] mt-[5rem]">
@@ -167,28 +167,26 @@ export function Referral({
         </Button>
       </div>
       <div className="flex flex-auto w-full h-full">
-        <div className="flex relative laptop:absolute justify-center self-center m-auto z-10 laptopXL:right-[-7rem] laptopL:right-[-10.5rem] laptop:right-[-8.5rem] w-[inherit] laptop:w-[initial]">
+        <div className="flex relative laptop:absolute justify-center self-center m-auto z-10 laptopL:right-[-7rem] laptop:right-[-8.5rem] w-[inherit] laptop:w-[initial]">
           <img
             src={
-              cloudinary.referralCampaign.genericReferral[
-                isTablet ? 'purpleEdgeGlowTablet' : 'purpleEdgeGlowDesktop'
-              ]
+              cloudinary.referralCampaign.genericReferral.purpleEdgeGlowTablet
             }
             alt="Purple glow right edge"
-            className="fixed laptop:top-0 right-0 bottom-0 w-full laptop:w-auto laptop:h-full z-20"
+            className="fixed laptop:top-0 w-full laptop:w-auto laptop:h-full bottom-[-1rem] laptop:bottom-[unset] laptop:rotate-[270deg] z-20"
           />
           <img
             src={cloudinary.referralCampaign.genericReferral.appScreenshot}
             alt="Daily.dev app screenshot of my feed page"
-            className="object-contain w-full laptop:w-auto h-auto laptop:h-full z-10 laptopXL:max-h-[39.5rem] laptopL:max-h-[31rem] laptop:max-h-[25.35rem]"
+            className="object-contain w-full laptop:w-auto h-auto laptop:h-full z-10 laptopXL:max-h-[39.5rem] laptop:max-h-[25.35rem]"
           />
           <img
             src={cloudinary.referralCampaign.genericReferral.playButton}
             alt="Play daily.dev introduction video"
-            className="object-contain absolute laptop:self-center laptopL:m-auto w-auto laptopL:h-auto laptop:mr-[8.5rem] laptop:mt-[0.5rem] z-20 inherit laptop:h-[8rem] tablet:h-[14.5rem] h-[7.8rem] tablet:mt-[-1.5rem] mt-[-1.5rem] self-[unset]"
+            className="absolute laptop:self-center laptopL:m-auto laptopXL:h-auto laptop:mr-[8.5rem] laptop:mt-[0.5rem] z-20 laptop:h-[8rem] tablet:h-[14.5rem] h-[7.8rem] mt-[-1.5rem]"
           />
           <button
-            className="absolute z-1 w-full h-full max-h-[39.5rem]"
+            className="absolute z-1 w-full h-full"
             type="button"
             aria-label="Play daily.dev introduction video"
             onClick={() => {

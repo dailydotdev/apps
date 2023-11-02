@@ -113,7 +113,7 @@ export const cloudinary = {
       purpleEdgeGlowDesktop:
         'https://daily-now-res.cloudinary.com/image/upload/v1686064286/Glow_l5yvph.svg',
       purpleEdgeGlowTablet:
-        'https://daily-now-res.cloudinary.com/image/upload/v1698844665/glow_mobile_tablet_ilyzyg.svg',
+        'https://daily-now-res.cloudinary.com/image/upload/v1698922944/glow_mobile_tablet_lsou4j.svg',
     },
     appScreenshot:
       'https://daily-now-res.cloudinary.com/image/upload/s--3e8Phst3--/f_auto,q_auto/v1686045256/daily_lmzdaf',
