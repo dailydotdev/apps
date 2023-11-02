@@ -93,7 +93,7 @@ export function Referral({
 
     // since in the page view, query params are tracked automatically,
     // we don't need to send the params here explicitly
-    trackEvent({ event_name: AnalyticsEvent.AcceptInvitation });
+    trackEvent({ event_name: AnalyticsEvent.AcceptGeneralReferralInvitation });
 
     return handleAccept();
   };
