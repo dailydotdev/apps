@@ -120,7 +120,7 @@ export function Referral({
       <span className="absolute top-8 left-1/2 laptop:left-12 -translate-x-1/2 laptop:translate-x-0 scale-[1.375]">
         <Logo showGreeting={false} position={LogoPosition.Relative} />
       </span>
-      <div className="flex z-1 flex-col p-4 laptop:p-0 laptop:mt-0 laptop:ml-3 w-full laptopL:ml-[9.315rem] laptopL:max-w-[37.2rem] tablet:mt-[8rem] mt-[5rem]">
+      <div className="flex z-1 flex-col p-4 laptop:p-0 laptop:mt-0 laptop:ml-3 w-full laptopL:ml-[9.315rem] laptopL:max-w-[37.2rem] mt-[5rem]">
         <span className="flex flex-col laptop:flex-row gap-3 laptopL:gap-6 items-center laptop:items-start mb-6 tablet:mb-8">
           <ProfileImageLink
             user={referringUser}
@@ -166,8 +166,8 @@ export function Referral({
           </FlexCentered>
         </Button>
       </div>
-      <div className="flex flex-auto w-full h-full">
-        <div className="flex relative laptop:absolute justify-center self-center m-auto z-10 laptopL:right-[-7rem] laptop:right-[-8.5rem] w-[inherit] laptop:w-[initial]">
+      <div className="flex fixed flex-auto w-full h-full laptop:initial laptop:bottom-[unset] bottom-[-49%]">
+        <div className="flex relative laptop:absolute justify-center self-center m-auto mx-2 z-10 laptopL:right-[-7rem] laptop:right-[-8.5rem] w-[fit-content] laptop:w-[initial]">
           <img
             src={
               cloudinary.referralCampaign.genericReferral.purpleEdgeGlowTablet
@@ -183,7 +183,7 @@ export function Referral({
           <img
             src={cloudinary.referralCampaign.genericReferral.playButton}
             alt="Play daily.dev introduction video"
-            className="absolute laptop:self-center laptopL:m-auto laptopXL:h-auto laptop:mr-[8.5rem] laptop:mt-[0.5rem] z-20 laptop:h-[8rem] tablet:h-[14.5rem] h-[7.8rem] mt-[-1.5rem]"
+            className="absolute laptop:self-center laptopL:m-auto laptopXL:h-auto laptop:mr-[8.5rem] laptop:mt-[0.5rem] z-20 laptop:h-[8rem] tablet:h-[14.5rem] h-[7.8rem] tablet:mt-[-1.5rem]"
           />
           <button
             className="absolute z-1 w-full h-full"
