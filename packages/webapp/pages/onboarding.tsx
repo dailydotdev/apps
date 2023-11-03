@@ -250,7 +250,7 @@ export function OnboardPage(): ReactElement {
             <Title className="text-center typo-title1">{title}</Title>
             <p className="mt-3 mb-10 text-center text-theme-label-secondary typo-title3">
               Pick a few subjects that interest you. <br />
-              You can always change theselater.
+              You can always change these later.
             </p>
             <FilterOnboarding className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4" />
             <div className="flex sticky bottom-0 z-3 flex-col items-center py-4 mt-4 w-full">
