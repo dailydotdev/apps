@@ -163,7 +163,7 @@ export function RankProgress({
     const maxScale = 1.666;
 
     const progressAnimation = showRadialProgress
-      ? progressRef.current.animate(
+      ? progressRef.current?.animate(
           [
             {
               transform: 'scale(1) rotate(180deg)',
@@ -179,7 +179,7 @@ export function RankProgress({
         )
       : null;
 
-    const firstBadgeAnimation = animatedRef.animate(
+    const firstBadgeAnimation = animatedRef?.animate(
       [
         {
           transform: 'scale(1)',
@@ -198,7 +198,7 @@ export function RankProgress({
 
       setTimeout(() => {
         const attentionAnimation = showRankAnimation
-          ? attentionRef.current.animate(
+          ? attentionRef.current?.animate(
               [
                 {
                   transform: 'scale(0.5)',
@@ -212,8 +212,7 @@ export function RankProgress({
               { duration: 600, fill: 'forwards' },
             )
           : null;
-
-        const lastBadgeAnimation = animatedRef.animate(
+        const lastBadgeAnimation = animatedRef?.animate(
           [
             {
               transform: `scale(${2 - maxScale})`,
