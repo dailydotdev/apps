@@ -95,7 +95,7 @@ export default function ProfileMenu(): ReactElement {
               secondary
               className="mr-2"
             />
-            {availableCount} search invites
+            {availableCount} Search invites
             <TimerIcon className="ml-auto" size={IconSize.Small} />
           </button>
         </Item>
