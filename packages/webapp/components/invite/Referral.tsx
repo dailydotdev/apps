@@ -13,28 +13,31 @@ import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { GenericReferral } from '@dailydotdev/shared/src/lib/featureValues';
-import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import {
   ApiErrorResult,
   DEFAULT_ERROR,
 } from '@dailydotdev/shared/src/graphql/common';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
-import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
+import {
+  ReferralCampaignKey,
+  useMedia,
+  useActions,
+  useToastNotification,
+} from '@dailydotdev/shared/src/hooks';
 import { downloadBrowserExtension } from '@dailydotdev/shared/src/lib/constants';
 import { FlexCentered } from '@dailydotdev/shared/src/components/utilities';
 import BrowsersIcon from '@dailydotdev/shared/icons/browsers.svg';
 import { mobileL, laptopL } from '@dailydotdev/shared/src/styles/media';
-import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import {
   ModalKind,
   ModalSize,
 } from '@dailydotdev/shared/src/components/modals/common/types';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { JoinPageProps } from './common';
 
 export function Referral({
@@ -131,16 +134,16 @@ export function Referral({
           </p>
         </span>
         <h1 className="w-full text-center laptop:text-left break-words-overflow typo-large-title tablet:typo-mega2 laptopL:typo-giga2">
-          The Homepage
+          The homepage
           <span className="block font-bold text-theme-color-cabbage">
             {' '}
-            Developers Deserve
+            developers deserve
           </span>
         </h1>
         <p className="mx-auto laptop:mx-0 mt-7 tablet:mt-8 max-w-sm laptopL:max-w-xl text-center laptop:text-left typo-title3 text-theme-label-tertiary">
           Get a feed of the best developer news out there! Read more quality
           articles.
-          <span className="tablet:block laptopL:inline"> Stay up to date.</span>
+          <span className="tablet:block laptopL:inline">Stay up to date.</span>
         </p>
         <Button
           buttonSize={isMobile ? ButtonSize.Large : ButtonSize.XLarge}
@@ -151,6 +154,7 @@ export function Referral({
             handleAcceptClick();
           }}
           target="_blank"
+          rel={anchorDefaultRel}
           loading={isLoading}
           disabled={isLoading || isSuccess}
         >
@@ -196,7 +200,7 @@ export function Referral({
       {isVideoOpen && (
         <Modal
           // eslint-disable-next-line @dailydotdev/daily-dev-eslint-rules/no-custom-color
-          className="px-8 bg-[black]"
+          className="px-8 bg-black"
           kind={ModalKind.FlexibleCenter}
           size={ModalSize.XLarge}
           isOpen={isVideoOpen}
@@ -204,8 +208,9 @@ export function Referral({
         >
           <CloseButton
             buttonSize={ButtonSize.Small}
-            className="top-3 right-3 text-white border-white !absolute !btn-secondary"
+            className="top-3 right-3 border-white"
             onClick={onVideoModalClose}
+            position={LogoPosition.Absolute}
           />
           <iframe
             className="w-full border-none aspect-video"
