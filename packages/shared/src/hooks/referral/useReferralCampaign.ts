@@ -62,7 +62,7 @@ const useReferralCampaign = ({
       return result.referralCampaign;
     },
     {
-      enabled: !!user?.id && true,
+      enabled: !!user?.id && !!isCampaignEnabled,
       staleTime: STALE_TIME,
     },
   );
