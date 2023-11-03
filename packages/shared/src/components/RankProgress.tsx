@@ -162,22 +162,22 @@ export function RankProgress({
     const firstAnimationDuration = 400;
     const maxScale = 1.666;
 
-    const progressAnimation =
-      showRadialProgress &&
-      progressRef.current?.animate(
-        [
-          {
-            transform: 'scale(1) rotate(180deg)',
-            '--radial-progress-completed-step': rankToColor(shownRank),
-          },
-          { transform: `scale(${maxScale}) rotate(180deg)` },
-          {
-            transform: 'scale(1) rotate(180deg)',
-            '--radial-progress-completed-step': rankToColor(rank),
-          },
-        ],
-        { duration: firstAnimationDuration, fill: 'forwards' },
-      );
+    const progressAnimation = showRadialProgress
+      ? progressRef.current?.animate(
+          [
+            {
+              transform: 'scale(1) rotate(180deg)',
+              '--radial-progress-completed-step': rankToColor(shownRank),
+            },
+            { transform: `scale(${maxScale}) rotate(180deg)` },
+            {
+              transform: 'scale(1) rotate(180deg)',
+              '--radial-progress-completed-step': rankToColor(rank),
+            },
+          ],
+          { duration: firstAnimationDuration, fill: 'forwards' },
+        )
+      : null;
 
     const firstBadgeAnimation = animatedRef?.animate(
       [
@@ -197,21 +197,21 @@ export function RankProgress({
       // Let the new rank update
 
       setTimeout(() => {
-        const attentionAnimation =
-          showRankAnimation &&
-          attentionRef.current?.animate(
-            [
-              {
-                transform: 'scale(0.5)',
-                opacity: 1,
-              },
-              {
-                transform: 'scale(1.5)',
-                opacity: 0,
-              },
-            ],
-            { duration: 600, fill: 'forwards' },
-          );
+        const attentionAnimation = showRankAnimation
+          ? attentionRef.current?.animate(
+              [
+                {
+                  transform: 'scale(0.5)',
+                  opacity: 1,
+                },
+                {
+                  transform: 'scale(1.5)',
+                  opacity: 0,
+                },
+              ],
+              { duration: 600, fill: 'forwards' },
+            )
+          : null;
         const lastBadgeAnimation = animatedRef?.animate(
           [
             {
