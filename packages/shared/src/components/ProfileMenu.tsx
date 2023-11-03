@@ -15,6 +15,7 @@ import { CampaignCtaPlacement } from '../graphql/settings';
 import { ReferralCampaignKey, useReferralCampaign } from '../hooks';
 import { useAnalyticsContext } from '../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetId, TargetType } from '../lib/analytics';
+import KeyReferralOutlineIcon from './icons/Key/KeyReferralOutline';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -90,8 +91,12 @@ export default function ProfileMenu(): ReactElement {
             className="flex items-center min-w-[12.5rem]"
             onClick={handleReferralClick}
           >
-            <KeyReferralIcon size={IconSize.Small} className="mr-2" />
-            Search invitations {availableCount}
+            <KeyReferralOutlineIcon
+              size={IconSize.Small}
+              secondary
+              className="mr-2"
+            />
+            {availableCount} search invites
             <TimerIcon className="ml-auto" size={IconSize.Small} />
           </button>
         </Item>
