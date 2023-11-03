@@ -1,6 +1,5 @@
 import { JSONValue } from '@growthbook/growthbook';
 import {
-  OnboardingV2,
   OnboardingFilteringTitle,
   SearchExperiment,
   OnboardingV4,
@@ -19,7 +18,6 @@ export class Feature<T extends JSONValue> {
 
 const feature = {
   feedVersion: new Feature('feed_version', 15),
-  onboardingV2: new Feature('onboarding_v2', OnboardingV2.Control),
   onboardingV4: new Feature('onboarding_v4', OnboardingV4.Control),
   search: new Feature('search', SearchExperiment.Control),
   onboardingFilterTitle: new Feature(
