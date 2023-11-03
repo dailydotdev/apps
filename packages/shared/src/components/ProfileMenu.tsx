@@ -4,7 +4,7 @@ import { Item } from '@dailydotdev/react-contexify';
 import Link from 'next/link';
 import AuthContext from '../contexts/AuthContext';
 import PowerIcon from './icons/Power';
-import { KeyReferralIcon, UserIcon, TimerIcon } from './icons';
+import { KeyReferralOutlineIcon, UserIcon, TimerIcon } from './icons';
 import DevCardIcon from './icons/DevCard';
 import SettingsIcon from './icons/Settings';
 import { IconSize } from './Icon';
@@ -15,7 +15,6 @@ import { CampaignCtaPlacement } from '../graphql/settings';
 import { ReferralCampaignKey, useReferralCampaign } from '../hooks';
 import { useAnalyticsContext } from '../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetId, TargetType } from '../lib/analytics';
-import KeyReferralOutlineIcon from './icons/Key/KeyReferralOutline';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
