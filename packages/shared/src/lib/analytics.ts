@@ -114,9 +114,6 @@ export enum AnalyticsEvent {
   DeclineContentScripts = 'decline content scripts',
   ToggleFeedPreview = 'toggle feed preview',
   CreateFeed = 'create feed',
-  // generic referral - start
-  AcceptGeneralReferralInvitation = 'accept generic referral invitation',
-  // generic referral - end
 }
 
 export enum FeedItemTitle {

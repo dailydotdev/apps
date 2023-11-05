@@ -96,7 +96,7 @@ export function Referral({
 
     // since in the page view, query params are tracked automatically,
     // we don't need to send the params here explicitly
-    trackEvent({ event_name: AnalyticsEvent.AcceptGeneralReferralInvitation });
+    trackEvent({ event_name: AnalyticsEvent.AcceptInvitation });
 
     return handleAccept();
   };
@@ -119,7 +119,7 @@ export function Referral({
       }}
       className="flex overflow-hidden relative flex-col laptop:flex-row flex-auto items-center p-2 laptop:p-6 h-[100vh]"
     >
-      <span className="absolute top-8 left-1/2 laptop:left-12 -translate-x-1/2 laptop:translate-x-0 scale-[1.375]">
+      <span className="absolute top-8 left-1/2 laptop:left-12 -translate-x-1/2 laptop:translate-x-0">
         <Logo showGreeting={false} position={LogoPosition.Relative} />
       </span>
       <div className="flex z-1 flex-col p-4 laptop:p-0 laptop:mt-0 laptop:ml-3 w-full laptopL:ml-[9.315rem] laptopL:max-w-[37.2rem] mt-[5rem]">
@@ -146,8 +146,9 @@ export function Referral({
           <span className="tablet:block laptopL:inline">Stay up to date.</span>
         </p>
         <Button
-          buttonSize={isMobile ? ButtonSize.Large : ButtonSize.XLarge}
-          className="p-4 mx-auto laptop:mx-0 mt-6 tablet:mt-12 max-w-[17.5rem] mobileL:max-w-[24.25rem] btn-primary"
+          buttonSize={ButtonSize.Large}
+          // important has been used is some classnames to override the default styles as agreed on [thread](https://dailydotdev.slack.com/archives/C05P9ET7S9K/p1699023366663489?thread_ts=1699011522.350609&cid=C05P9ET7S9K)
+          className="p-4 mx-auto laptop:mx-0 mt-6 tablet:mt-12 max-w-[17.5rem] mobileL:max-w-[fit-content] btn-primary mobileL:!h-[4rem] mobileL:!p-[0] mobileL:!px-[1.5rem]"
           tag="a"
           href={downloadBrowserExtension}
           onClick={() => {
@@ -164,7 +165,7 @@ export function Referral({
               height={isMobile ? '30px' : '40px'}
               className="text-theme-label-primary"
             />
-            Add to browser - it&apos;s free!
+            Try it now - It&apos;s free
           </FlexCentered>
         </Button>
       </div>

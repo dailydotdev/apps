@@ -6,7 +6,7 @@ import LinkIcon from '../../icons/Link';
 import { ClickableText } from '../../buttons/ClickableText';
 import { LazyModal } from '../../modals/common/types';
 import { useLazyModal } from '../../../hooks/useLazyModal';
-import useMedia from '../../../hooks/useMedia';
+import { useMedia } from '../../../hooks';
 import { tablet } from '../../../styles/media';
 import { WritePreviewSkeleton } from './WritePreviewSkeleton';
 import { WriteLinkPreview } from './WriteLinkPreview';
