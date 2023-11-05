@@ -38,7 +38,7 @@ import CommentsSection from '@dailydotdev/shared/src/components/profile/Comments
 import PostsSection from '@dailydotdev/shared/src/components/profile/PostsSection';
 import AuthorStats from '@dailydotdev/shared/src/components/profile/AuthorStats';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
-import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
+import { useMedia } from '@dailydotdev/shared/src/hooks';
 import { laptop } from '@dailydotdev/shared/src/styles/media';
 import { weeklyGoal } from '@dailydotdev/shared/src/lib/constants';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
