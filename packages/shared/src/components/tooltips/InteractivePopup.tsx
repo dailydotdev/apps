@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode } from 'react';
 import Portal from './Portal';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 
 export enum InteractivePopupPosition {
   Center = 'center',
@@ -13,7 +14,6 @@ export enum InteractivePopupPosition {
   LeftCenter = 'leftCenter',
   LeftEnd = 'leftEnd',
   Screen = 'screen',
-  MainFeedLeftEnd = 'mainFeedLeftEnd',
 }
 
 interface InteractivePopupProps {
@@ -27,9 +27,7 @@ const centerClassY = 'top-1/2 -translate-y-1/2';
 const startClass = 'top-16';
 const endClass = 'bottom-8';
 const rightClass = 'right-8';
-const leftClass = 'left-8';
-const mainFeedEndClass = 'bottom-6';
-const mainFeedLeftClass = 'left-60';
+const leftClass = 'left-64';
 
 const positionClass: Record<InteractivePopupPosition, string> = {
   center: classNames(centerClassX, centerClassY),
@@ -42,8 +40,13 @@ const positionClass: Record<InteractivePopupPosition, string> = {
   leftCenter: classNames(leftClass, centerClassY),
   leftEnd: classNames(leftClass, endClass),
   screen: 'inset-0 w-screen h-screen',
-  mainFeedLeftEnd: classNames(mainFeedLeftClass, mainFeedEndClass),
 };
+
+const leftPositions = [
+  InteractivePopupPosition.LeftEnd,
+  InteractivePopupPosition.LeftCenter,
+  InteractivePopupPosition.LeftEnd,
+];
 
 function InteractivePopup({
   children,
@@ -52,6 +55,7 @@ function InteractivePopup({
   ...props
 }: InteractivePopupProps): ReactElement {
   const classes = positionClass[position];
+  const { sidebarExpanded } = useSettingsContext();
 
   return (
     <Portal>
@@ -60,6 +64,9 @@ function InteractivePopup({
           'fixed z-popup bg-theme-bg-primary rounded-16 overflow-hidden',
           className,
           classes,
+          leftPositions.includes(position) &&
+            !sidebarExpanded &&
+            'laptop:left-16',
         )}
         {...props}
       >
