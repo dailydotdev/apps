@@ -7,6 +7,7 @@ import { SharedPostCardFooter } from './SharedPostCardFooter';
 import { Container, PostCardProps } from './common';
 import OptionsButton from '../buttons/OptionsButton';
 import FeedItemContainer from './FeedItemContainer';
+import { useFeedPreviewMode } from '../../hooks';
 
 export const SharePostCard = forwardRef(function SharePostCard(
   {
@@ -14,7 +15,6 @@ export const SharePostCard = forwardRef(function SharePostCard(
     onPostClick,
     onUpvoteClick,
     onCommentClick,
-    onBookmarkClick,
     onMenuClick,
     onShare,
     onShareClick,
@@ -36,6 +36,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
     }
     setSharedPostShort(containerRef.current.offsetHeight - height < 40);
   };
+  const isFeedPreview = useFeedPreviewMode();
 
   return (
     <FeedItemContainer
@@ -46,7 +47,10 @@ export const SharePostCard = forwardRef(function SharePostCard(
       ref={ref}
       flagProps={{ pinnedAt, trending }}
     >
-      <CardButton title={post.title} onClick={onPostCardClick} />
+      {!isFeedPreview && (
+        <CardButton title={post.title} onClick={onPostCardClick} />
+      )}
+
       <OptionsButton
         className="group-hover:flex laptop:hidden top-2 right-2"
         onClick={(event) => onMenuClick?.(event, post)}
@@ -73,7 +77,6 @@ export const SharePostCard = forwardRef(function SharePostCard(
           post={post}
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
-          onBookmarkClick={onBookmarkClick}
           onShare={onShare}
           onShareClick={onShareClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}

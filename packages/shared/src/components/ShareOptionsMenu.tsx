@@ -21,6 +21,7 @@ const PortalMenu = dynamic(
 interface ShareOptionsMenuProps extends ShareBookmarkProps {
   post: Post;
   onHidden?: () => unknown;
+  onBookmark?: () => unknown;
   contextId?: string;
 }
 

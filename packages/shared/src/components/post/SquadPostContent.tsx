@@ -44,7 +44,7 @@ function SquadPostContent({
   const { mutateAsync: onSendViewPost } = useMutation(sendViewPost);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const engagementActions = usePostContent({ origin, post });
-  const { onReadArticle, onSharePost, onToggleBookmark } = engagementActions;
+  const { onReadArticle, onSharePost } = engagementActions;
   const { role } = useMemberRoleForSource({
     source: post?.source,
     user: post?.author,
@@ -53,7 +53,6 @@ function SquadPostContent({
 
   const navigationProps: PostNavigationProps = {
     post,
-    onBookmark: onToggleBookmark,
     onPreviousPost,
     onNextPost,
     onShare: onSharePost,
@@ -129,7 +128,6 @@ function SquadPostContent({
         </div>
         {isPublicSquad && (
           <SquadPostWidgets
-            onBookmark={onToggleBookmark}
             onShare={onSharePost}
             onReadArticle={onReadArticle}
             post={post}

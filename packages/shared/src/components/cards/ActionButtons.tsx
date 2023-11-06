@@ -13,6 +13,7 @@ import OptionsButton from '../buttons/OptionsButton';
 import { ReadArticleButton } from './ReadArticleButton';
 import { visibleOnGroupHover } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { useFeedPreviewMode } from '../../hooks';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "share" */ '../icons/Share'),
@@ -23,7 +24,6 @@ export interface ActionButtonsProps {
   onMenuClick?: (e: React.MouseEvent) => unknown;
   onUpvoteClick?: (post: Post) => unknown;
   onCommentClick?: (post: Post) => unknown;
-  onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
   onShare?: (post: Post) => unknown;
   onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
@@ -34,7 +34,6 @@ export interface ActionButtonsProps {
 }
 
 type LastActionButtonProps = {
-  onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
   onShare?: (post: Post) => unknown;
   onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
   post: Post;
@@ -59,7 +58,6 @@ export default function ActionButtons({
   post,
   onUpvoteClick,
   onCommentClick,
-  onBookmarkClick,
   onMenuClick,
   onReadArticleClick,
   onShare,
@@ -71,10 +69,14 @@ export default function ActionButtons({
   const upvoteCommentProps: ButtonProps<'button'> = {
     buttonSize: ButtonSize.Small,
   };
+  const isFeedPreview = useFeedPreviewMode();
+
+  if (isFeedPreview) {
+    return null;
+  }
 
   const lastActionButton = LastActionButton({
     post,
-    onBookmarkClick,
     onShare,
     onShareClick,
   });

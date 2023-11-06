@@ -21,7 +21,6 @@ export interface UseReferralCampaign extends ReferralCampaign {
   isReady: boolean;
   availableCount: number;
   noKeysAvailable: boolean;
-  copy: { count: number; limit: number };
 }
 
 export enum ReferralCampaignKey {
@@ -79,10 +78,6 @@ const useReferralCampaign = ({
       : referredUsersCount;
 
   return {
-    copy: {
-      count: referredUsersCount < 100 ? referredUsersCount : 99,
-      limit: referralCountLimit < 100 ? referralCountLimit : 99,
-    },
     referredUsersCount,
     referralCountLimit,
     url,

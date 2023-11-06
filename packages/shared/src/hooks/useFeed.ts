@@ -16,7 +16,11 @@ import {
 import AuthContext from '../contexts/AuthContext';
 import { apiUrl, graphqlUrl } from '../lib/config';
 import useSubscription from './useSubscription';
-import { removeCachedPagePost, updateCachedPagePost } from '../lib/query';
+import {
+  RequestKey,
+  removeCachedPagePost,
+  updateCachedPagePost,
+} from '../lib/query';
 
 export type PostItem = {
   type: 'post';
@@ -77,6 +81,7 @@ export default function useFeed<T>(
   const { query, variables, options = {}, settings } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
   const queryClient = useQueryClient();
+  const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
 
   const feedQuery = useInfiniteQuery<FeedData>(
     feedQueryKey,
@@ -101,6 +106,7 @@ export default function useFeed<T>(
   const isAdsQueryEnabled =
     query &&
     tokenRefreshed &&
+    !isFeedPreview &&
     (!settings?.adPostLength ||
       feedQuery.data?.pages[0]?.page.edges.length > settings?.adPostLength);
   const adsQuery = useInfiniteQuery<Ad>(

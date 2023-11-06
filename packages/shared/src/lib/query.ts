@@ -18,6 +18,7 @@ export enum OtherFeedPage {
   Source = 'source',
   Bookmarks = 'bookmarks',
   SearchBookmarks = 'search-bookmarks',
+  Preview = 'preview',
 }
 
 export const STALE_TIME = 30 * 1000;
@@ -60,6 +61,8 @@ export enum RequestKey {
   CurrentSession = 'current_session',
   PersonalizedDigest = 'personalizedDigest',
   Changelog = 'changelog',
+  Tags = 'tags',
+  FeedPreview = 'feedPreview',
 }
 
 export type HasConnection<

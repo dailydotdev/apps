@@ -28,6 +28,7 @@ import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { FeedReadyMessage } from '../onboarding';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -35,7 +36,6 @@ export interface FeedContainerProps {
   header?: ReactNode;
   className?: string;
   inlineHeader?: boolean;
-  afterFeed?: ReactNode;
   showSearch?: boolean;
   besideSearch?: ReactNode;
   actionButtons?: ReactNode;
@@ -91,7 +91,6 @@ export const FeedContainer = ({
   header,
   className,
   inlineHeader = false,
-  afterFeed,
   showSearch,
   besideSearch,
   actionButtons,
@@ -175,6 +174,9 @@ export const FeedContainer = ({
           aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
           data-testid="posts-feed"
         >
+          {router.query?.welcome === 'true' && (
+            <FeedReadyMessage className="mb-10" />
+          )}
           {inlineHeader && header}
           {isV1Search && (
             <span className="flex flex-row gap-3">
@@ -219,7 +221,6 @@ export const FeedContainer = ({
           >
             {children}
           </div>
-          {afterFeed}
         </div>
       </div>
     </div>
