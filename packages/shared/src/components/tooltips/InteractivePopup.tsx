@@ -24,7 +24,7 @@ interface InteractivePopupProps {
 
 const centerClassX = 'left-1/2 -translate-x-1/2';
 const centerClassY = 'top-1/2 -translate-y-1/2';
-const startClass = 'top-8';
+const startClass = 'top-16';
 const endClass = 'bottom-8';
 const rightClass = 'right-8';
 const leftClass = 'left-8';
