@@ -16,7 +16,6 @@ import { SharePostCard } from './cards/SharePostCard';
 import { WelcomePostCard } from './cards/WelcomePostCard';
 import { Origin } from '../lib/analytics';
 import { UseVotePost } from '../hooks';
-import { Squad } from '../graphql/sources';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
