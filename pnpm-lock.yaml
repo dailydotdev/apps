@@ -50,10 +50,10 @@ importers:
         version: 7.5.2(react-dom@17.0.2)(react@17.0.2)
       '@storybook/react':
         specifier: ^7.5.2
-        version: 7.5.2(react-dom@17.0.2)(react@17.0.2)(typescript@5.2.2)
+        version: 7.5.2(react-dom@17.0.2)(react@17.0.2)(typescript@4.6.4)
       '@storybook/react-vite':
         specifier: ^7.5.2
-        version: 7.5.2(react-dom@17.0.2)(react@17.0.2)(typescript@5.2.2)(vite@4.5.0)
+        version: 7.5.2(react-dom@17.0.2)(react@17.0.2)(typescript@4.6.4)(vite@4.5.0)
       '@vitejs/plugin-react':
         specifier: ^1.3.2
         version: 1.3.2
@@ -91,8 +91,8 @@ importers:
         specifier: ^7.5.2
         version: 7.5.2
       typescript:
-        specifier: ^5.2.2
-        version: 5.2.2
+        specifier: ^4.6.4
+        version: 4.6.4
       vite:
         specifier: ^4.4.9
         version: 4.5.0
@@ -756,7 +756,7 @@ importers:
         specifier: ^26.5.4
         version: 26.5.6(jest@26.6.3)(typescript@4.6.4)
       typescript:
-        specifier: ^4.4.4
+        specifier: ^4.6.4
         version: 4.6.4
 
   packages/webapp:
@@ -1580,7 +1580,7 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
     dependencies:
-      '@babel/types': 7.22.5
+      '@babel/types': 7.23.0
 
   /@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression@7.22.15(@babel/core@7.23.2):
     resolution: {integrity: sha512-FB9iYlz7rURmRJyXRKEnalYPPdn87H5no108cyuQQyMwlpJ2SJtpIUBI27kdTin956pz+LPypkPVPUTlxOmrsg==}
@@ -2483,8 +2483,10 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.23.2
-      '@babel/helper-create-class-features-plugin': 7.22.15(@babel/core@7.23.2)
+      '@babel/helper-create-class-features-plugin': 7.22.5(@babel/core@7.23.2)
       '@babel/helper-plugin-utils': 7.22.5
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /@babel/plugin-transform-class-static-block@7.22.11(@babel/core@7.23.2):
@@ -3137,8 +3139,10 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.23.2
-      '@babel/helper-create-class-features-plugin': 7.22.15(@babel/core@7.23.2)
+      '@babel/helper-create-class-features-plugin': 7.22.5(@babel/core@7.23.2)
       '@babel/helper-plugin-utils': 7.22.5
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /@babel/plugin-transform-private-property-in-object@7.22.11(@babel/core@7.23.2):
@@ -3814,7 +3818,7 @@ packages:
       babel-plugin-polyfill-corejs2: 0.4.6(@babel/core@7.23.2)
       babel-plugin-polyfill-corejs3: 0.8.6(@babel/core@7.23.2)
       babel-plugin-polyfill-regenerator: 0.5.3(@babel/core@7.23.2)
-      core-js-compat: 3.33.1
+      core-js-compat: 3.31.0
       semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
@@ -4593,7 +4597,7 @@ packages:
       chalk: 4.1.2
     dev: true
 
-  /@joshwooding/vite-plugin-react-docgen-typescript@0.3.0(typescript@5.2.2)(vite@4.5.0):
+  /@joshwooding/vite-plugin-react-docgen-typescript@0.3.0(typescript@4.6.4)(vite@4.5.0):
     resolution: {integrity: sha512-2D6y7fNvFmsLmRt6UCOFJPvFoPMJGT0Uh1Wg0RaigUp7kdQPs6yYn8Dmx6GZkOH/NW0yMTwRz/p0SRMMRo50vA==}
     peerDependencies:
       typescript: '>= 4.3.x'
@@ -4605,8 +4609,8 @@ packages:
       glob: 7.2.0
       glob-promise: 4.2.2(glob@7.2.0)
       magic-string: 0.27.0
-      react-docgen-typescript: 2.2.2(typescript@5.2.2)
-      typescript: 5.2.2
+      react-docgen-typescript: 2.2.2(typescript@4.6.4)
+      typescript: 4.6.4
       vite: 4.5.0
     dev: true
 
@@ -5809,7 +5813,7 @@ packages:
       react-colorful: 5.6.1(react-dom@17.0.2)(react@17.0.2)
       react-dom: 17.0.2(react@17.0.2)
       telejson: 7.2.0
-      tocbot: 4.21.2
+      tocbot: 4.21.6
       ts-dedent: 2.2.0
       util-deprecate: 1.0.2
     transitivePeerDependencies:
@@ -5843,7 +5847,7 @@ packages:
       - supports-color
     dev: true
 
-  /@storybook/builder-vite@7.5.2(typescript@5.2.2)(vite@4.5.0):
+  /@storybook/builder-vite@7.5.2(typescript@4.6.4)(vite@4.5.0):
     resolution: {integrity: sha512-j96m5K0ahlAjQY6uUxEbybvmRFc3eMpQ3wiosuunc8NkXtfohXZeRVQowAcVrfPktKMufRNGY86RTYxe7sMABw==}
     peerDependencies:
       '@preact/preset-vite': '*'
@@ -5873,8 +5877,8 @@ packages:
       find-cache-dir: 3.3.2
       fs-extra: 11.1.1
       magic-string: 0.30.5
-      rollup: 3.29.4
-      typescript: 5.2.2
+      rollup: 2.79.1
+      typescript: 4.6.4
       vite: 4.5.0
     transitivePeerDependencies:
       - encoding
@@ -6008,8 +6012,8 @@ packages:
       '@storybook/node-logger': 7.5.2
       '@storybook/types': 7.5.2
       '@types/find-cache-dir': 3.2.1
-      '@types/node': 18.18.7
-      '@types/node-fetch': 2.6.7
+      '@types/node': 18.18.8
+      '@types/node-fetch': 2.6.8
       '@types/pretty-hrtime': 1.0.2
       chalk: 4.1.2
       esbuild: 0.18.20
@@ -6057,7 +6061,7 @@ packages:
       '@storybook/telemetry': 7.5.2
       '@storybook/types': 7.5.2
       '@types/detect-port': 1.3.4
-      '@types/node': 18.18.7
+      '@types/node': 18.18.8
       '@types/pretty-hrtime': 1.0.2
       '@types/semver': 7.5.4
       better-opn: 3.0.2
@@ -6216,7 +6220,7 @@ packages:
       react-dom: 17.0.2(react@17.0.2)
     dev: true
 
-  /@storybook/react-vite@7.5.2(react-dom@17.0.2)(react@17.0.2)(typescript@5.2.2)(vite@4.5.0):
+  /@storybook/react-vite@7.5.2(react-dom@17.0.2)(react@17.0.2)(typescript@4.6.4)(vite@4.5.0):
     resolution: {integrity: sha512-faYGER/qU/jeaMEf5kgx4dNeKno+HkCEviXo/bgRswRg7odW5XydlGGSATOYLYxLhWG6jztaYHYIaDk21KoOVA==}
     engines: {node: '>=16'}
     peerDependencies:
@@ -6224,10 +6228,10 @@ packages:
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
       vite: ^3.0.0 || ^4.0.0 || ^5.0.0
     dependencies:
-      '@joshwooding/vite-plugin-react-docgen-typescript': 0.3.0(typescript@5.2.2)(vite@4.5.0)
+      '@joshwooding/vite-plugin-react-docgen-typescript': 0.3.0(typescript@4.6.4)(vite@4.5.0)
       '@rollup/pluginutils': 5.0.5
-      '@storybook/builder-vite': 7.5.2(typescript@5.2.2)(vite@4.5.0)
-      '@storybook/react': 7.5.2(react-dom@17.0.2)(react@17.0.2)(typescript@5.2.2)
+      '@storybook/builder-vite': 7.5.2(typescript@4.6.4)(vite@4.5.0)
+      '@storybook/react': 7.5.2(react-dom@17.0.2)(react@17.0.2)(typescript@4.6.4)
       '@vitejs/plugin-react': 3.1.0(vite@4.5.0)
       magic-string: 0.30.5
       react: 17.0.2
@@ -6243,7 +6247,7 @@ packages:
       - vite-plugin-glimmerx
     dev: true
 
-  /@storybook/react@7.5.2(react-dom@17.0.2)(react@17.0.2)(typescript@5.2.2):
+  /@storybook/react@7.5.2(react-dom@17.0.2)(react@17.0.2)(typescript@4.6.4):
     resolution: {integrity: sha512-7X8GtqvRjWmVS112ifChJMxfD15rMVg5m3t6apZqi0uui1S/DImAveHwz8M4FhsElW6MIHs5xK0uJhR9rVQgTA==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
@@ -6263,7 +6267,7 @@ packages:
       '@storybook/types': 7.5.2
       '@types/escodegen': 0.0.6
       '@types/estree': 0.0.51
-      '@types/node': 18.18.7
+      '@types/node': 18.18.8
       acorn: 7.4.1
       acorn-jsx: 5.3.2(acorn@7.4.1)
       acorn-walk: 7.2.0
@@ -6276,7 +6280,7 @@ packages:
       react-element-to-jsx-string: 15.0.0(react-dom@17.0.2)(react@17.0.2)
       ts-dedent: 2.2.0
       type-fest: 2.19.0
-      typescript: 5.2.2
+      typescript: 4.6.4
       util-deprecate: 1.0.2
     transitivePeerDependencies:
       - encoding
@@ -6921,8 +6925,8 @@ packages:
       form-data: 3.0.1
     dev: true
 
-  /@types/node-fetch@2.6.7:
-    resolution: {integrity: sha512-lX17GZVpJ/fuCjguZ5b3TjEbSENxmEk1B2z02yoXSK9WMEWRivhdSY73wWMn6bpcCDAOh6qAdktpKHIlkDk2lg==}
+  /@types/node-fetch@2.6.8:
+    resolution: {integrity: sha512-nnH5lV9QCMPsbEVdTb5Y+F3GQxLSw1xQgIydrb2gSfEavRPs50FnMr+KUaa+LoPSqibm2N+ZZxH7lavZlAT4GA==}
     dependencies:
       '@types/node': 16.11.41
       form-data: 4.0.0
@@ -6931,8 +6935,8 @@ packages:
   /@types/node@16.11.41:
     resolution: {integrity: sha512-mqoYK2TnVjdkGk8qXAVGc/x9nSaTpSrFaGFm43BUH3IdoBV0nta6hYaGmdOvIMlbHJbUEVen3gvwpwovAZKNdQ==}
 
-  /@types/node@18.18.7:
-    resolution: {integrity: sha512-bw+lEsxis6eqJYW8Ql6+yTqkE6RuFtsQPSe5JxXbqYRFQEER5aJA9a5UH9igqDWm3X4iLHIKOHlnAXLM4mi7uQ==}
+  /@types/node@18.18.8:
+    resolution: {integrity: sha512-OLGBaaK5V3VRBS1bAkMVP2/W9B+H8meUfl866OrMNQqt7wDgdpWPp5o6gmIc9pB+lIQHSq4ZL8ypeH1vPxcPaQ==}
     dependencies:
       undici-types: 5.26.5
     dev: true
@@ -7556,8 +7560,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  /acorn@8.10.0:
-    resolution: {integrity: sha512-F0SAmZ8iUtS//m8DmCTA0jlh6TDKkHQyK6xc6V4KDTyZKA9dnvX9/3sRTVQrWm79glUAZbnmmNcdYwUIHWVybw==}
+  /acorn@8.11.2:
+    resolution: {integrity: sha512-nc0Axzp/0FILLEVsm4fNwLCwMttvhEI263QtVPQcbpfZZ3ts0hLsZGOpE6czNlid7CJ9MlyH8reXkpsf3YUY4w==}
     engines: {node: '>=0.4.0'}
     hasBin: true
     dev: true
@@ -8208,7 +8212,7 @@ packages:
     dependencies:
       '@babel/core': 7.23.2
       '@babel/helper-define-polyfill-provider': 0.4.3(@babel/core@7.23.2)
-      core-js-compat: 3.33.1
+      core-js-compat: 3.33.2
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -9193,8 +9197,8 @@ packages:
     dependencies:
       browserslist: 4.21.8
 
-  /core-js-compat@3.33.1:
-    resolution: {integrity: sha512-6pYKNOgD/j/bkC5xS5IIg6bncid3rfrI42oBH1SQJbsmYPKF7rhzcFzYCcxYMmNQQ0rCEB8WqpW7QHndOggaeQ==}
+  /core-js-compat@3.33.2:
+    resolution: {integrity: sha512-axfo+wxFVxnqf8RvxTzoAlzW4gRoacrHeoFlc9n0x50+7BEyZL/Rt3hicaED1/CEd7I6tPCPVUYcJwCMO5XUYw==}
     dependencies:
       browserslist: 4.22.1
     dev: true
@@ -11096,8 +11100,8 @@ packages:
       rematrix: 0.2.2
     dev: false
 
-  /flow-parser@0.219.5:
-    resolution: {integrity: sha512-lHx/cl2XjopBx/ma9RYhG7FGj2JLKacoBwtI3leOp8AwRDPGwu6bzJoaCMfIl/sq14KdtY5MGzd5q6nKfGzcuQ==}
+  /flow-parser@0.220.1:
+    resolution: {integrity: sha512-RoM3ARqVYvxnwtkM36RjQFzo5Z9p22jUqtuMrN8gzA/8fU6iMLFE3cXkdSFPyfHRXLU8ILH8TCtSFADk1ACPCg==}
     engines: {node: '>=0.4.0'}
     dev: true
 
@@ -11371,7 +11375,7 @@ packages:
       defu: 6.1.3
       https-proxy-agent: 7.0.2
       mri: 1.2.0
-      node-fetch-native: 1.4.0
+      node-fetch-native: 1.4.1
       pathe: 1.1.1
       tar: 6.2.0
     transitivePeerDependencies:
@@ -13105,14 +13109,14 @@ packages:
       '@babel/plugin-proposal-class-properties': 7.18.6(@babel/core@7.23.2)
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.18.6(@babel/core@7.23.2)
       '@babel/plugin-proposal-optional-chaining': 7.21.0(@babel/core@7.23.2)
-      '@babel/plugin-transform-modules-commonjs': 7.23.0(@babel/core@7.23.2)
+      '@babel/plugin-transform-modules-commonjs': 7.22.5(@babel/core@7.23.2)
       '@babel/preset-env': 7.23.2(@babel/core@7.23.2)
       '@babel/preset-flow': 7.22.15(@babel/core@7.23.2)
       '@babel/preset-typescript': 7.16.5(@babel/core@7.23.2)
       '@babel/register': 7.22.15(@babel/core@7.23.2)
       babel-core: 7.0.0-bridge.0(@babel/core@7.23.2)
       chalk: 4.1.2
-      flow-parser: 0.219.5
+      flow-parser: 0.220.1
       graceful-fs: 4.2.11
       micromatch: 4.0.5
       neo-async: 2.6.2
@@ -14575,8 +14579,8 @@ packages:
       lodash: 4.17.21
     dev: true
 
-  /node-fetch-native@1.4.0:
-    resolution: {integrity: sha512-F5kfEj95kX8tkDhUCYdV8dg3/8Olx/94zB8+ZNthFs6Bz31UpUi8Xh40TN3thLwXgrwXry1pEg9lJ++tLWTcqA==}
+  /node-fetch-native@1.4.1:
+    resolution: {integrity: sha512-NsXBU0UgBxo2rQLOeWNZqS3fvflWePMECr8CoSWoSTqCqGbVVsvl9vZu1HfQicYN0g5piV9Gh8RTEvo/uP752w==}
     dev: true
 
   /node-fetch@2.6.11:
@@ -16227,12 +16231,12 @@ packages:
       react-dom: 17.0.2(react@17.0.2)
     dev: true
 
-  /react-docgen-typescript@2.2.2(typescript@5.2.2):
+  /react-docgen-typescript@2.2.2(typescript@4.6.4):
     resolution: {integrity: sha512-tvg2ZtOpOi6QDwsb3GZhOjDkkX0h8Z2gipvTg6OVMUyoYoURhEiRNePT8NZItTVCDh39JJHnLdfCOkzoLbFnTg==}
     peerDependencies:
       typescript: '>= 4.3.x'
     dependencies:
-      typescript: 5.2.2
+      typescript: 4.6.4
     dev: true
 
   /react-docgen@6.0.4:
@@ -17026,7 +17030,6 @@ packages:
     hasBin: true
     optionalDependencies:
       fsevents: 2.3.2
-    dev: false
 
   /rollup@3.29.4:
     resolution: {integrity: sha512-oWzmBZwvYrU0iJHtDmhsm662rC15FRXmcjCk1xD771dFDx5jJ02ufAQQTn0etB2emNk4J9EZg/yWKpsn9BWGRw==}
@@ -17206,6 +17209,7 @@ packages:
     resolution: {integrity: sha512-1bCSESV6Pv+i21Hvpxp3Dx+pSD8lIPt8uVjRrxAUt/nbswYc+tK6Y2btiULjd4+fnq15PX+nqQDC7Oft7WkwcA==}
     engines: {node: '>=10'}
     hasBin: true
+    requiresBuild: true
     dependencies:
       lru-cache: 6.0.0
     dev: true
@@ -18371,8 +18375,8 @@ packages:
       safe-regex: 1.1.0
     dev: true
 
-  /tocbot@4.21.2:
-    resolution: {integrity: sha512-R5Muhi/TUu4i4snWVrMgNoXyJm2f8sJfdgIkQvqb+cuIXQEIMAiWGWgCgYXHqX4+XiS/Bnm7IYZ9Zy6NVe6lhw==}
+  /tocbot@4.21.6:
+    resolution: {integrity: sha512-bAnyV6SU2n1AvuBvEgi8t7KiIn5rRiEmwFp4+elx/1ueuncAUyubITfXDMwOqStgUwh8pDzLdWgDKLicsJPikw==}
     dev: true
 
   /toidentifier@1.0.1:
@@ -18611,12 +18615,6 @@ packages:
     engines: {node: '>=4.2.0'}
     hasBin: true
 
-  /typescript@5.2.2:
-    resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-    dev: true
-
   /typeson-registry@1.0.0-alpha.39:
     resolution: {integrity: sha512-NeGDEquhw+yfwNhguLPcZ9Oj0fzbADiX4R0WxvoY8nGhy98IbzQy1sezjoEFWOywOboj/DWehI+/aUlRVrJnnw==}
     engines: {node: '>=10.0.0'}
@@ -18813,7 +18811,7 @@ packages:
   /unplugin@1.5.0:
     resolution: {integrity: sha512-9ZdRwbh/4gcm1JTOkp9lAkIDrtOyOxgHmY7cjuwI8L/2RTikMcVG25GsZwNAgRuap3iDw2jeq7eoqtAsz5rW3A==}
     dependencies:
-      acorn: 8.10.0
+      acorn: 8.11.2
       chokidar: 3.5.3
       webpack-sources: 3.2.3
       webpack-virtual-modules: 0.5.0
