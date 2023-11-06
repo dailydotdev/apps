@@ -122,7 +122,7 @@ export function Referral({
       <span className="absolute top-8 left-1/2 laptop:left-12 -translate-x-1/2 laptop:translate-x-0">
         <Logo showGreeting={false} position={LogoPosition.Relative} />
       </span>
-      <div className="flex z-1 flex-col p-4 laptop:p-0 laptop:mt-0 laptop:ml-3 w-full laptopL:ml-[9.315rem] laptopL:max-w-[37.2rem] mt-[5rem]">
+      <div className="flex z-1 flex-col p-4 laptop:p-0 laptop:mt-0 laptop:ml-3 w-full laptopL:ml-[9.315rem] laptop:max-w-[25rem] laptopL:max-w-[37.2rem] mt-[5rem]">
         <span className="flex flex-col laptop:flex-row gap-3 laptopL:gap-6 items-center laptop:items-start mb-6 tablet:mb-8">
           <ProfileImageLink
             user={referringUser}
