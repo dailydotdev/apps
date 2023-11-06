@@ -33,7 +33,7 @@ const ExtensionOnboarding = (): ReactElement => {
       </Link>
 
       <img
-        className="absolute bottom-0 w-[33rem] z-0"
+        className="absolute bottom-0 z-0 w-[33rem]"
         src={cloudinary.onboarding.glow}
         alt="Gradient background"
       />
