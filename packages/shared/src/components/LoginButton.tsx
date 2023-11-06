@@ -32,7 +32,10 @@ export default function LoginButton({
 
   const onClick = (copy: ButtonCopy) => {
     trackEvent(getAnalyticsEvent(copy));
-    showLogin(AuthTriggers.MainButton, { isLogin: copy === ButtonCopy.Login });
+    showLogin({
+      trigger: AuthTriggers.MainButton,
+      options: { isLogin: copy === ButtonCopy.Login },
+    });
   };
 
   return (

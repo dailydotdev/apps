@@ -15,7 +15,6 @@ interface PostWidgetsProps
 
 export function PostWidgets({
   onShare,
-  onBookmark,
   onReadArticle,
   post,
   className,
@@ -26,7 +25,6 @@ export function PostWidgets({
   return (
     <PageWidgets className={className}>
       <PostHeaderActions
-        onBookmark={onBookmark}
         onShare={onShare}
         onReadArticle={onReadArticle}
         post={post}

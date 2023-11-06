@@ -11,6 +11,7 @@ import { Squad } from '../../graphql/sources';
 import { ActionType } from '../../graphql/actions';
 import FeedItemContainer from './FeedItemContainer';
 import { PostType } from '../../graphql/posts';
+import { useFeedPreviewMode } from '../../hooks';
 
 export const WelcomePostCard = forwardRef(function SharePostCard(
   {
@@ -18,7 +19,6 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     onPostClick,
     onUpvoteClick,
     onCommentClick,
-    onBookmarkClick,
     onMenuClick,
     onShare,
     onShareClick,
@@ -33,6 +33,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
   const { pinnedAt, type: postType } = post;
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
+  const isFeedPreview = useFeedPreviewMode();
 
   const { openStep, isChecklistVisible } = useSquadChecklist({
     squad: post.source as Squad,
@@ -67,7 +68,10 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       ref={ref}
       flagProps={{ pinnedAt }}
     >
-      <CardButton title={post.title} onClick={onPostCardClick} />
+      {!isFeedPreview && (
+        <CardButton title={post.title} onClick={onPostCardClick} />
+      )}
+
       <OptionsButton
         className="group-hover:flex laptop:hidden top-2 right-2"
         onClick={(event) => onMenuClick?.(event, post)}
@@ -95,7 +99,6 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
           post={post}
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
-          onBookmarkClick={onBookmarkClick}
           onShare={onShare}
           onShareClick={onShareClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}

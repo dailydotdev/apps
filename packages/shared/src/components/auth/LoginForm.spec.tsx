@@ -17,7 +17,11 @@ import {
   passwordLoginFlowMockData,
   successfulRegistrationMockData,
 } from '../../../__tests__/fixture/auth';
-import { getNodeByKey, LoginPasswordParameters } from '../../lib/auth';
+import {
+  AuthTriggers,
+  getNodeByKey,
+  LoginPasswordParameters,
+} from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
@@ -61,7 +65,7 @@ const renderComponent = (
   props: AuthOptionsProps = {
     onSuccessfulLogin,
     formRef: null,
-    trigger: 'test',
+    trigger: AuthTriggers.Author,
   },
 ): RenderResult => {
   const client = new QueryClient();

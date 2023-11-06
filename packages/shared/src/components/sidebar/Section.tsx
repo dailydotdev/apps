@@ -10,6 +10,7 @@ import {
   NavSection,
   SidebarMenuItem,
 } from './common';
+import { AuthTriggersType } from '../../lib/auth';
 
 export interface SectionCommonProps
   extends Pick<ItemInnerProps, 'shouldShowLabel'> {
@@ -61,7 +62,9 @@ export function Section({
           <ClickableNavItem
             item={item}
             showLogin={
-              item.requiresLogin && !user ? () => showLogin(item.title) : null
+              item.requiresLogin && !user
+                ? () => showLogin({ trigger: item.title as AuthTriggersType })
+                : null
             }
             isButton={isItemsButton && !item?.isForcedLink}
           >

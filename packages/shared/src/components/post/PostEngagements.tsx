@@ -44,7 +44,6 @@ interface PostEngagementsProps extends ShareBookmarkProps {
 function PostEngagements({
   post,
   onShare,
-  onBookmark,
   analyticsOrigin,
   shouldOnboardAuthor,
   enableShowShareNewComment,
@@ -99,7 +98,6 @@ function PostEngagements({
         onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
       />
       <PostActions
-        onBookmark={onBookmark}
         onShare={onShare}
         post={post}
         postQueryKey={postQueryKey}
@@ -126,7 +124,9 @@ function PostEngagements({
       />
       {authorOnboarding && (
         <AuthorOnboarding
-          onSignUp={!user && (() => showLogin(AuthTriggers.Author))}
+          onSignUp={
+            !user && (() => showLogin({ trigger: AuthTriggers.Author }))
+          }
         />
       )}
       {showShareNewComment && (

@@ -5,6 +5,7 @@ import React, {
   ReactNode,
   Ref,
 } from 'react';
+import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
 import { Card, ListCard } from './Card';
 import {
@@ -13,6 +14,7 @@ import {
   RaisedLabelType,
 } from './RaisedLabel';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { useFeedPreviewMode } from '../../hooks';
 
 interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;
@@ -35,10 +37,11 @@ function FeedItemContainer(
     type === RaisedLabelType.Hot
       ? `${trending} devs read it last hour`
       : undefined;
+  const isFeedPreview = useFeedPreviewMode();
 
   return (
     <ConditionalWrapper
-      condition={!!pinnedAt || !!trending}
+      condition={(!!pinnedAt || !!trending) && !isFeedPreview}
       wrapper={(component) => (
         <RaisedLabelContainer>
           {component}
@@ -50,7 +53,15 @@ function FeedItemContainer(
         </RaisedLabelContainer>
       )}
     >
-      <Component {...domProps} data-testid="postItem" ref={ref}>
+      <Component
+        {...domProps}
+        data-testid="postItem"
+        ref={ref}
+        className={classNames(
+          domProps.className,
+          !listMode && isFeedPreview && 'hover:border-theme-divider-tertiary',
+        )}
+      >
         {children}
       </Component>
     </ConditionalWrapper>

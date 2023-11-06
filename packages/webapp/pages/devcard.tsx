@@ -85,7 +85,7 @@ const Step1 = ({
             <Button
               className="btn-secondary"
               buttonSize={ButtonSize.Large}
-              onClick={() => showLogin(AuthTriggers.DevCard)}
+              onClick={() => showLogin({ trigger: AuthTriggers.DevCard })}
             >
               Login to generate
             </Button>

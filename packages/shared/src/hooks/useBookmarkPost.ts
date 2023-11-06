@@ -1,82 +1,218 @@
-import { useContext } from 'react';
-import { useMutation } from 'react-query';
-import request from 'graphql-request';
+import { useCallback, useContext } from 'react';
+import { MutationKey, useMutation, useQueryClient } from 'react-query';
 import { graphqlUrl } from '../lib/config';
 import {
   ADD_BOOKMARKS_MUTATION,
+  Post,
   REMOVE_BOOKMARK_MUTATION,
+  ReadHistoryPost,
 } from '../graphql/posts';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { MutateFunc } from '../lib/query';
 import { useToastNotification } from './useToastNotification';
-import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
+import { useRequestProtocol } from './useRequestProtocol';
+import AuthContext from '../contexts/AuthContext';
+import { updatePostCache } from './usePostById';
+import { AuthTriggers } from '../lib/auth';
+import { AnalyticsEvent, Origin } from '../lib/analytics';
+import {
+  PostAnalyticsEventFnOptions,
+  optimisticPostUpdateInFeed,
+  postAnalyticsEvent,
+} from '../lib/feed';
+import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 
-type UseBookmarkPostParams<T> = {
-  onBookmarkMutate: MutateFunc<T>;
-  onRemoveBookmarkMutate: MutateFunc<T>;
-  onBookmarkTrackObject?: () => AnalyticsEvent;
-  onRemoveBookmarkTrackObject?: () => AnalyticsEvent;
+export type ToggleBookmarkProps = {
+  origin: Origin;
+  post: Post | ReadHistoryPost;
+  opts?: PostAnalyticsEventFnOptions;
 };
-type UseBookmarkPostRet<T> = {
-  bookmark: (variables: T) => Promise<void>;
-  bookmarkToast: (targetState: boolean) => void;
-  removeBookmark: (variables: T) => Promise<void>;
+
+export const bookmarkMutationKey = ['post', 'mutation'];
+
+export type UseBookmarkPostMutationProps = {
+  id?: string;
+  mutation?: string;
+  payload?: Record<string, unknown>;
 };
 
-export default function useBookmarkPost<
-  T extends { id: string } = { id: string },
->({
-  onBookmarkMutate,
-  onRemoveBookmarkMutate,
-  onBookmarkTrackObject,
-  onRemoveBookmarkTrackObject,
-}: UseBookmarkPostParams<T>): UseBookmarkPostRet<T> {
-  const { trackEvent } = useContext(AnalyticsContext);
-  const { displayToast } = useToastNotification();
-  const { mutateAsync: bookmark } = useMutation<
-    void,
-    unknown,
-    T,
-    (() => void) | undefined
-  >(
-    ({ id }) =>
-      request(graphqlUrl, ADD_BOOKMARKS_MUTATION, {
-        data: { postIds: [id] },
-      }),
-    {
-      onMutate: onBookmarkMutate,
-      onError: (err, _, rollback) => rollback?.(),
-      onSuccess: () =>
-        onBookmarkTrackObject && trackEvent(onBookmarkTrackObject()),
-    },
-  );
+export type UseBookmarkPostRollback = () => void;
 
-  const { mutateAsync: removeBookmark } = useMutation<
-    void,
-    unknown,
-    T,
-    (() => void) | undefined
-  >(
-    ({ id }) =>
-      request(graphqlUrl, REMOVE_BOOKMARK_MUTATION, {
-        id,
-      }),
-    {
-      onMutate: onRemoveBookmarkMutate,
-      onError: (err, _, rollback) => rollback?.(),
-      onSuccess: () =>
-        onRemoveBookmarkTrackObject &&
-        trackEvent(onRemoveBookmarkTrackObject()),
-    },
-  );
-  const bookmarkToast = (targetBookmarkState) =>
-    targetBookmarkState
-      ? displayToast('Post was added to your bookmarks')
-      : displayToast('Post was removed from your bookmarks');
+export type BookmarkProps = {
+  id: string;
+};
+
+export type UseBookmarkPostProps = {
+  onMutate?: (
+    props: UseBookmarkPostMutationProps,
+  ) => Promise<UseBookmarkPostRollback> | UseBookmarkPostRollback | undefined;
+  mutationKey?: MutationKey;
+};
+
+const prepareBookmarkPostAnalyticsOptions = ({
+  origin,
+  opts,
+}: ToggleBookmarkProps): PostAnalyticsEventFnOptions => {
+  const { extra, ...restOpts } = opts || {};
 
   return {
-    bookmark,
-    bookmarkToast,
-    removeBookmark,
+    ...restOpts,
+    extra: { ...extra, origin },
   };
-}
+};
+
+export type UseBookmarkPost = {
+  toggleBookmark: (props: ToggleBookmarkProps) => Promise<void>;
+};
+
+const useBookmarkPost = ({
+  onMutate,
+  mutationKey,
+}: UseBookmarkPostProps = {}): UseBookmarkPost => {
+  const { requestMethod } = useRequestProtocol();
+  const client = useQueryClient();
+  const { displayToast } = useToastNotification();
+  const { user, showLogin } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
+
+  const defaultOnMutate = ({ id }) => {
+    updatePostCache(client, id, (post) => ({ bookmarked: !post.bookmarked }));
+
+    return () => {
+      updatePostCache(client, id, (post) => ({ bookmarked: !post.bookmarked }));
+    };
+  };
+
+  const { mutateAsync: bookmarkPost } = useMutation(
+    ({ mutation, payload }: UseBookmarkPostMutationProps) =>
+      requestMethod(graphqlUrl, mutation, {
+        ...payload,
+      }),
+    {
+      mutationKey: mutationKey
+        ? [...bookmarkMutationKey, ...mutationKey]
+        : bookmarkMutationKey,
+      onMutate: onMutate || defaultOnMutate,
+      onError: (err, _, rollback?: () => void) => rollback?.(),
+    },
+  );
+
+  const addBookmark = useCallback(
+    ({ id }: BookmarkProps) => {
+      return bookmarkPost({
+        id,
+        mutation: ADD_BOOKMARKS_MUTATION,
+        payload: { data: { postIds: [id] } },
+      });
+    },
+    [bookmarkPost],
+  );
+
+  const removeBookmark = useCallback(
+    ({ id }: BookmarkProps) => {
+      return bookmarkPost({
+        id,
+        mutation: REMOVE_BOOKMARK_MUTATION,
+        payload: { id },
+      });
+    },
+    [bookmarkPost],
+  );
+
+  const toggleBookmark = useCallback(
+    async ({ post, origin, opts }: ToggleBookmarkProps) => {
+      if (!post) {
+        return;
+      }
+
+      if (!user) {
+        showLogin({ trigger: AuthTriggers.Bookmark });
+        return;
+      }
+
+      const analyticsOptions = prepareBookmarkPostAnalyticsOptions({
+        post,
+        origin,
+        opts,
+      });
+
+      if (post.bookmarked) {
+        trackEvent(
+          postAnalyticsEvent(
+            AnalyticsEvent.RemovePostBookmark,
+            post,
+            analyticsOptions,
+          ),
+        );
+        await removeBookmark({ id: post.id });
+        displayToast('Post was removed from your bookmarks');
+        return;
+      }
+
+      trackEvent(
+        postAnalyticsEvent(AnalyticsEvent.BookmarkPost, post, analyticsOptions),
+      );
+
+      await addBookmark({ id: post.id });
+      displayToast('Post was added to your bookmarks');
+    },
+    [addBookmark, displayToast, removeBookmark, showLogin, trackEvent, user],
+  );
+
+  return { toggleBookmark };
+};
+
+export { useBookmarkPost };
+
+type MutateBookmarkFeedPostProps = {
+  id: string;
+  updatePost: UpdateFeedPost;
+  items: FeedItem[];
+};
+
+export const mutateBookmarkFeedPost = ({
+  id,
+  items,
+  updatePost,
+}: MutateBookmarkFeedPostProps): ReturnType<
+  UseBookmarkPostProps['onMutate']
+> => {
+  if (!items) {
+    return undefined;
+  }
+
+  const postIndexToUpdate = items.findIndex(
+    (item) => item.type === 'post' && item.post.id === id,
+  );
+
+  if (postIndexToUpdate === -1) {
+    return undefined;
+  }
+
+  const mutationHandler = (post: Post) => ({ bookmarked: !post.bookmarked });
+  const previousState = (items[postIndexToUpdate] as PostItem)?.post
+    ?.bookmarked;
+
+  optimisticPostUpdateInFeed(
+    items,
+    updatePost,
+    mutationHandler,
+  )({ index: postIndexToUpdate });
+
+  return () => {
+    const postIndexToRollback = items.findIndex(
+      (item) => item.type === 'post' && item.post.id === id,
+    );
+
+    if (postIndexToRollback === -1) {
+      return;
+    }
+
+    const rollbackMutationHandler = () => ({ bookmarked: previousState });
+
+    optimisticPostUpdateInFeed(
+      items,
+      updatePost,
+      rollbackMutationHandler,
+    )({ index: postIndexToUpdate });
+  };
+};
