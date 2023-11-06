@@ -308,3 +308,17 @@ export const KEYWORD_FEED_QUERY = gql`
     }
   }
 `;
+
+export const PREVIEW_FEED_QUERY = gql`
+  query FeedPreview(
+    $loggedIn: Boolean! = false
+    ${SUPPORTED_TYPES}
+  ) {
+    page: feedPreview(
+      supportedTypes: $supportedTypes
+    ) {
+      ...FeedPostConnection
+    }
+  }
+  ${getFeedPostFragment('contentHtml')}
+`;

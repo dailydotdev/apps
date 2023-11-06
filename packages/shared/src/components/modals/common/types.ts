@@ -36,7 +36,6 @@ export enum LazyModal {
   NewSource = 'newSource',
   SubmitArticle = 'submitArticle',
   FeedFilters = 'feedFilters',
-  CompanionModal = 'companionModal',
   VerifySession = 'verifySession',
   SearchReferral = 'searchReferral',
 }

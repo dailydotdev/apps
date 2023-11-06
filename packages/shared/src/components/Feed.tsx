@@ -6,12 +6,12 @@ import React, {
   useMemo,
 } from 'react';
 import dynamic from 'next/dynamic';
+import { useQueryClient } from 'react-query';
 import useFeed, { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import { Ad, Post, PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
-import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
 import useFeedOnPostClick, {
   FeedPostClick,
@@ -30,20 +30,18 @@ import {
 import PostOptionsMenu from './PostOptionsMenu';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
-import { AnalyticsEvent, Origin } from '../lib/analytics';
+import { Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
-import { ExperimentWinner, OnboardingV2 } from '../lib/featureValues';
-import useSidebarRendered from '../hooks/useSidebarRendered';
-import OnboardingContext from '../contexts/OnboardingContext';
-import AlertContext from '../contexts/AlertContext';
+import { ExperimentWinner } from '../lib/featureValues';
 import { SharedFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
-import useCompanionTrigger from '../hooks/useCompanionTrigger';
 import { ActiveFeedContext } from '../contexts';
 import { useFeedVotePost } from '../hooks';
-import { useFeature } from './GrowthBookProvider';
-import { feature } from '../lib/featureManagement';
-import { AllFeedPages } from '../lib/query';
+import { AllFeedPages, RequestKey, updateCachedPagePost } from '../lib/query';
+import {
+  mutateBookmarkFeedPost,
+  useBookmarkPost,
+} from '../hooks/useBookmarkPost';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -81,13 +79,6 @@ const SharePostModal = dynamic(
     import(/* webpackChunkName: "sharePostModal" */ './modals/SharePostModal'),
 );
 
-const ScrollFeedFiltersOnboarding = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "scrollFeedFiltersOnboarding" */ './ScrollFeedFiltersOnboarding'
-    ),
-);
-
 const calculateRow = (index: number, numCards: number): number =>
   Math.floor(index / numCards);
 const calculateColumn = (index: number, numCards: number): number =>
@@ -117,13 +108,11 @@ export default function Feed<T>({
   besideSearch,
   actionButtons,
 }: FeedProps<T>): ReactElement {
-  const { alerts } = useContext(AlertContext);
-  const { onInitializeOnboarding } = useContext(OnboardingContext);
+  const origin = Origin.Feed;
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
-  const { sidebarRendered } = useSidebarRendered();
-  const onboardingV2 = useFeature(feature.onboardingV2);
+  const queryClient = useQueryClient();
   const {
     openNewTab,
     spaciness,
@@ -133,26 +122,19 @@ export default function Feed<T>({
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
-  const {
-    items,
-    updatePost,
-    removePost,
-    fetchPage,
-    canFetchMore,
-    emptyFeed,
-    isLoading,
-  } = useFeed(
-    feedQueryKey,
-    currentSettings.pageSize,
-    isSquadFeed ? 3 : currentSettings.adSpot,
-    numCards,
-    {
-      query,
-      variables,
-      options,
-      ...(isSquadFeed && { settings: { adPostLength: 2 } }),
-    },
-  );
+  const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
+    useFeed(
+      feedQueryKey,
+      currentSettings.pageSize,
+      isSquadFeed ? 3 : currentSettings.adSpot,
+      numCards,
+      {
+        query,
+        variables,
+        options,
+        ...(isSquadFeed && { settings: { adPostLength: 2 } }),
+      },
+    );
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
@@ -177,26 +159,10 @@ export default function Feed<T>({
     }
   }, [emptyFeed, onEmptyFeed]);
 
-  const showScrollOnboardingVersion =
-    sidebarRendered &&
-    feedName === SharedFeedPage.Popular &&
-    !isLoading &&
-    alerts?.filter &&
-    !user?.id &&
-    onboardingV2 === OnboardingV2.Control;
-
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage,
-    canFetchMore: canFetchMore && !showScrollOnboardingVersion,
+    canFetchMore: canFetchMore && feedQueryKey?.[0] !== RequestKey.FeedPreview,
   });
-
-  const onInitializeOnboardingClick = () => {
-    trackEvent({
-      event_name: AnalyticsEvent.ClickScrollBlock,
-      target_id: ExperimentWinner.ScrollOnboardingVersion,
-    });
-    onInitializeOnboarding(undefined, true);
-  };
 
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
@@ -215,13 +181,16 @@ export default function Feed<T>({
     updatePost,
   });
 
-  const onBookmark = useFeedBookmarkPost(
-    items,
-    updatePost,
-    virtualizedNumCards,
-    feedName,
-    ranking,
-  );
+  const { toggleBookmark: onBookmark } = useBookmarkPost({
+    mutationKey: feedQueryKey,
+    onMutate: ({ id }) => {
+      return mutateBookmarkFeedPost({
+        id,
+        items,
+        updatePost: updateCachedPagePost(feedQueryKey, queryClient),
+      });
+    },
+  });
 
   const onPostClick = useFeedOnPostClick(
     items,
@@ -231,17 +200,13 @@ export default function Feed<T>({
     ranking,
   );
 
-  const triggerReadArticleClick = useFeedOnPostClick(
+  const onReadArticleClick = useFeedOnPostClick(
     items,
     updatePost,
     virtualizedNumCards,
     feedName,
     ranking,
     'go to link',
-  );
-
-  const { onFeedArticleClick: onReadArticleClick } = useCompanionTrigger(
-    triggerReadArticleClick,
   );
 
   const {
@@ -253,7 +218,7 @@ export default function Feed<T>({
   } = useFeedContextMenu();
 
   const { sharePost, sharePostFeedLocation, openSharePost, closeSharePost } =
-    useSharePost(Origin.Feed);
+    useSharePost(origin);
 
   useEffect(() => {
     return () => {
@@ -363,14 +328,7 @@ export default function Feed<T>({
         postMenuLocation.column,
       ),
     onBookmark: () => {
-      const targetBookmarkState = !post?.bookmarked;
-      onBookmark(
-        post,
-        postMenuIndex,
-        postMenuLocation.row,
-        postMenuLocation.column,
-        targetBookmarkState,
-      );
+      onBookmark({ post, origin, opts: feedAnalyticsExtra(feedName, ranking) });
     },
     post,
   };
@@ -395,13 +353,6 @@ export default function Feed<T>({
         showSearch={showSearch && isValidFeed}
         besideSearch={besideSearch}
         actionButtons={actionButtons}
-        afterFeed={
-          showScrollOnboardingVersion ? (
-            <ScrollFeedFiltersOnboarding
-              onInitializeOnboarding={onInitializeOnboardingClick}
-            />
-          ) : null
-        }
       >
         {items.map((item, index) => (
           <FeedItemComponent
@@ -424,7 +375,6 @@ export default function Feed<T>({
             ranking={ranking}
             toggleUpvote={toggleUpvote}
             toggleDownvote={toggleDownvote}
-            onBookmark={onBookmark}
             onPostClick={onPostCardClick}
             onShare={onShareClick}
             onMenuClick={onMenuClick}
@@ -438,11 +388,10 @@ export default function Feed<T>({
         <PostOptionsMenu
           {...commonMenuItems}
           feedName={feedName}
-          feedQueryKey={feedQueryKey}
           postIndex={postMenuIndex}
           onHidden={() => setPostMenuIndex(null)}
           onRemovePost={onRemovePost}
-          origin={Origin.Feed}
+          origin={origin}
           allowPin={allowPin}
         />
         <ShareOptionsMenu
@@ -465,7 +414,7 @@ export default function Feed<T>({
           <ShareModal
             isOpen={!!sharePost}
             post={sharePost}
-            origin={Origin.Feed}
+            origin={origin}
             {...sharePostFeedLocation}
             onRequestClose={closeSharePost}
           />

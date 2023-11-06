@@ -86,7 +86,9 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     }
 
     const onRouteChange = () => {
-      closeModal();
+      if (!modal.persistOnRouteChange) {
+        closeModal();
+      }
     };
 
     router.events.on('routeChangeStart', onRouteChange);

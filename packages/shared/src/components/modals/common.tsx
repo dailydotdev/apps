@@ -58,10 +58,6 @@ const SquadNotificationsModal = dynamic(
     ),
 );
 
-const CompanionModal = dynamic(
-  () => import(/* webpackChunkName: "companionModal" */ './CompanionModal'),
-);
-
 const FeedFilters = dynamic(
   () => import(/* webpackChunkName: "feedFilters" */ '../filters/FeedFilters'),
 );
@@ -99,7 +95,6 @@ export const modals = {
   [LazyModal.ReportPost]: ReportPostModal,
   [LazyModal.ReportComment]: ReportCommentModal,
   [LazyModal.SquadNotifications]: SquadNotificationsModal,
-  [LazyModal.CompanionModal]: CompanionModal,
   [LazyModal.SubmitArticle]: SubmitArticle,
   [LazyModal.NewSource]: NewSource,
   [LazyModal.FeedFilters]: FeedFilters,
@@ -138,10 +133,12 @@ export type LazyModalType<T extends keyof ModalsType> = {
   > extends Record<string, never>
     ? {
         type: K;
+        persistOnRouteChange?: boolean;
         props?: LazyModalComponentType<K>;
       }
     : {
         type: K;
+        persistOnRouteChange?: boolean;
         props: LazyModalComponentType<K>;
       };
 }[T];

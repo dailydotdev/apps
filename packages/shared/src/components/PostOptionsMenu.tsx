@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
-import { QueryKey, useQueryClient } from 'react-query';
+import { useQueryClient } from 'react-query';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
@@ -21,7 +21,11 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../hooks/useToastNotification';
-import { AllFeedPages, generateQueryKey } from '../lib/query';
+import {
+  AllFeedPages,
+  generateQueryKey,
+  updateCachedPagePost,
+} from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { ShareBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
@@ -36,6 +40,11 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
 import { MenuItemProps } from './fields/PortalMenu';
+import {
+  mutateBookmarkFeedPost,
+  useBookmarkPost,
+} from '../hooks/useBookmarkPost';
+import { ActiveFeedContext } from '../contexts';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -49,7 +58,7 @@ export interface PostOptionsMenuProps extends ShareBookmarkProps {
   post: Post;
   feedName?: AllFeedPages;
   onHidden?: () => unknown;
-  feedQueryKey?: QueryKey;
+  onBookmark?: () => unknown;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowBanPost?: () => unknown;
   setShowPromotePost?: () => unknown;
@@ -59,7 +68,6 @@ export interface PostOptionsMenuProps extends ShareBookmarkProps {
 }
 
 export default function PostOptionsMenu({
-  onBookmark,
   postIndex,
   post,
   feedName,
@@ -67,7 +75,6 @@ export default function PostOptionsMenu({
   onRemovePost,
   setShowBanPost,
   setShowPromotePost,
-  feedQueryKey,
   origin,
   allowPin,
   contextId = 'post-context',
@@ -80,6 +87,7 @@ export default function PostOptionsMenu({
   const { trackEvent } = useContext(AnalyticsContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openModal } = useLazyModal();
+  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const {
     onFollowSource,
     onUnfollowSource,
@@ -91,6 +99,24 @@ export default function PostOptionsMenu({
     postId: post?.id,
     shouldInvalidateQueries: false,
   });
+
+  const { toggleBookmark } = useBookmarkPost({
+    mutationKey: feedQueryKey,
+    onMutate: feedQueryKey
+      ? ({ id }) => {
+          const updatePost = updateCachedPagePost(
+            feedQueryKey as unknown[],
+            client,
+          );
+
+          return mutateBookmarkFeedPost({ id, items, updatePost });
+        }
+      : undefined,
+  });
+
+  const onToggleBookmark = async () => {
+    toggleBookmark({ post, origin });
+  };
 
   const showMessageAndRemovePost = async (
     message: string,
@@ -223,7 +249,7 @@ export default function PostOptionsMenu({
         />
       ),
       label: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
-      action: onBookmark,
+      action: onToggleBookmark,
     },
     {
       icon: (
