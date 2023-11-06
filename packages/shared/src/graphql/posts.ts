@@ -157,7 +157,6 @@ export const POST_BY_ID_QUERY = gql`
     post(id: $id) {
       ...SharedPostInfo
       trending
-      views
       content
       contentHtml
       sharedPost {
@@ -481,7 +480,6 @@ export const EDIT_POST_MUTATION = gql`
     editPost(id: $id, title: $title, content: $content, image: $image) {
       ...SharedPostInfo
       trending
-      views
       content
       contentHtml
       source {

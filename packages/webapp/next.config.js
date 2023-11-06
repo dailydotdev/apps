@@ -63,7 +63,7 @@ module.exports = withTM(
           return config;
         },
         env: {
-          CURRENT_VERSION: `'${version}'`,
+          CURRENT_VERSION: version,
         },
         rewrites: () => [
           {

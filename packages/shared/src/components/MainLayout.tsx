@@ -26,16 +26,11 @@ import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
 import { LazyModalElement } from './modals/LazyModalElement';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
-import { daysLeft, OnboardingV2 } from '../lib/featureValues';
 import { useAuthContext } from '../contexts/AuthContext';
 import { SharedFeedPage } from './utilities';
 import { isTesting, onboardingUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
-import { useFeature, useGrowthBookContext } from './GrowthBookProvider';
-import { feature } from '../lib/featureManagement';
-import { FixedBottomBanner } from './banners/FixedBottomBanner';
-import usePersistentContext from '../hooks/usePersistentContext';
-import { generateStorageKey, StorageTopic } from '../lib/storage';
+import { useGrowthBookContext } from './GrowthBookProvider';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -81,7 +76,6 @@ function MainLayout({
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
-  const onboardingV2 = useFeature(feature.onboardingV2);
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
@@ -97,10 +91,6 @@ function MainLayout({
     openMobileSidebar,
     setOpenMobileSidebar,
   });
-  const [isDismissed, setIsDismissed, isFetched] = usePersistentContext(
-    generateStorageKey(StorageTopic.Onboarding, 'wall_dismissed'),
-    false,
-  );
 
   const onMobileSidebarToggle = (state: boolean) => {
     trackEvent({
@@ -156,11 +146,7 @@ function MainLayout({
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   const isPageApplicableForOnboarding = !page || feeds.includes(page);
   const shouldRedirectOnboarding =
-    !user &&
-    isPageReady &&
-    (onboardingV2 !== OnboardingV2.Control || daysLeft < 1) &&
-    isPageApplicableForOnboarding &&
-    !isTesting;
+    !user && isPageReady && isPageApplicableForOnboarding && !isTesting;
 
   useEffect(() => {
     if (!shouldRedirectOnboarding) {
@@ -190,13 +176,6 @@ function MainLayout({
     return null;
   }
 
-  const shouldShowBanner =
-    !user &&
-    onboardingV2 === OnboardingV2.Control &&
-    isPageApplicableForOnboarding &&
-    isFetched &&
-    !isDismissed;
-
   return (
     <div {...handlers} className="antialiased">
       {customBanner}
@@ -222,19 +201,13 @@ function MainLayout({
           'flex flex-row',
           className,
           !showOnlyLogo && !screenCentered && mainLayoutClass(sidebarExpanded),
-          isBannerAvailable ? 'laptop:pt-22' : 'laptop:pt-14',
+          isBannerAvailable && 'laptop:pt-8',
         )}
       >
         {renderSidebar()}
         {children}
       </main>
       <PromptElement />
-      {shouldShowBanner && (
-        <FixedBottomBanner
-          daysLeft={daysLeft}
-          onDismiss={() => setIsDismissed(true)}
-        />
-      )}
     </div>
   );
 }

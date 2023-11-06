@@ -74,11 +74,12 @@ npm i -g pnpm
 pnpm install
 ```
 
-## Firefox Review
-
-* Install node v18.16.0 and npm v9.5.1
-* Install `pnpm` as a global package `npm i -g pnpm` 
-* Bootstrap project `pnpm install`
-* Change working directory to extension project `cd packages/extension`
-* Build Firefox version `npm run build:firefox`
-* Firefox build should be located at `dist`
+### Run Extension Locally
+Example for Chrome:
+- Run `pnpm --filter extension dev:chrome` in the root directory
+- Open Chrome and go to `chrome://extensions/`
+- Enable `Developer mode` in the top right corner
+- Click on `Load unpacked` and select the `packages/extension/dist/chrome` folder
+- The extension should be loaded and you should be able to see it in the extensions list
+- Enable the extension, don't forget to disable it when you are done
+- Disable the production extension if you have it installed as it might cause conflicts

@@ -20,7 +20,7 @@ export function SearchReferralButton({
   const { openModal } = useLazyModal();
   const { trackEvent } = useAnalyticsContext();
   const { campaignCtaPlacement } = useSettingsContext();
-  const { isReady, copy } = useReferralCampaign({
+  const { isReady, availableCount } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Search,
   });
   const shouldBeDisplayed =
@@ -47,8 +47,8 @@ export function SearchReferralButton({
       )}
       onClick={handleClick}
     >
-      {copy.count}/{copy.limit}
-      <KeyReferralIcon size={IconSize.Medium} className="mt-1 ml-3" />
+      {availableCount}
+      <KeyReferralIcon size={IconSize.Medium} className="mt-1 ml-1" />
     </button>
   );
 }
