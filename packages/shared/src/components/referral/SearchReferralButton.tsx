@@ -48,7 +48,7 @@ export function SearchReferralButton({
       onClick={handleClick}
     >
       {availableCount}
-      <KeyReferralIcon size={IconSize.Medium} className="mt-1 ml-3" />
+      <KeyReferralIcon size={IconSize.Medium} className="mt-1 ml-1" />
     </button>
   );
 }
