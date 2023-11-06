@@ -152,7 +152,7 @@ async function handleMessages(
 
 browser.runtime.onMessage.addListener(handleMessages);
 
-browser.browserAction.onClicked.addListener(() => {
+browser.action.onClicked.addListener(() => {
   const url = runtime.getURL('index.html?source=button');
   browser.tabs.create({ url, active: true });
 });

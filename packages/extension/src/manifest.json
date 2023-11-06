@@ -30,7 +30,8 @@
     }
   },
   "background": {
-    "service_worker": "js/background.bundle.js"
+    "service_worker": "js/background.bundle.js",
+    "type": "module"
   },
   "chrome_url_overrides": {
     "newtab": "index.html"
