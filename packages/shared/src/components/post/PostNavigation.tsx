@@ -11,7 +11,6 @@ type PostActions = Pick<
   | 'post'
   | 'onClose'
   | 'onShare'
-  | 'onBookmark'
   | 'onReadArticle'
   | 'inlineActions'
   | 'onRemovePost'

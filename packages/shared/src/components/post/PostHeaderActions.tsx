@@ -45,7 +45,6 @@ const Container = classed('div', 'flex flex-row items-center');
 export function PostHeaderActions({
   onReadArticle,
   onShare,
-  onBookmark,
   post,
   onClose,
   inlineActions,
@@ -136,7 +135,6 @@ export function PostHeaderActions({
         </SimpleTooltip>
       )}
       <PostOptionsMenu
-        onBookmark={onBookmark}
         onShare={onShare}
         post={post}
         onRemovePost={onRemovePost}

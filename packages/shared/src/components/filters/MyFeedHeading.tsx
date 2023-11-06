@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import FilterIcon from '../icons/Filter';
 import { Button } from '../buttons/Button';
 import AlertPointer, {
@@ -27,12 +28,22 @@ function MyFeedHeading({
   onUpdateAlerts,
   onOpenFeedFilters,
 }: MyFeedHeadingProps): ReactElement {
+  const router = useRouter();
   const { trackEvent } = useContext(AnalyticsContext);
   const searchVersion = useFeature(feature.search);
+  const shouldShowHighlightPulse = router.query?.hset === 'true';
 
   const onClick = () => {
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
     onOpenFeedFilters();
+
+    if (shouldShowHighlightPulse) {
+      const { hset, ...query } = router.query;
+
+      router.replace({ pathname: router.pathname, query }, undefined, {
+        shallow: true,
+      });
+    }
   };
 
   const alertProps: Omit<AlertPointerProps, 'children'> = {
@@ -60,7 +71,10 @@ function MyFeedHeading({
     return (
       <AlertPointer {...alertProps} offset={[0, 0]}>
         <Button
-          className="mr-auto btn-tertiaryFloat"
+          className={classNames(
+            'mr-auto btn-tertiaryFloat',
+            shouldShowHighlightPulse && 'highlight-pulse',
+          )}
           onClick={onClick}
           icon={<FilterIcon />}
         >
@@ -73,7 +87,10 @@ function MyFeedHeading({
   return (
     <AlertPointer {...alertProps}>
       <Button
-        className="mr-auto btn-tertiary"
+        className={classNames(
+          'mr-auto btn-tertiary',
+          shouldShowHighlightPulse && 'highlight-pulse',
+        )}
         onClick={onClick}
         rightIcon={<FilterIcon />}
       >
