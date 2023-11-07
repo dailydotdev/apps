@@ -85,6 +85,13 @@ const SearchReferralModal = dynamic(
     ),
 );
 
+const GenericReferralModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "genericReferralModal" */ './referral/GenericReferralModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -100,6 +107,7 @@ export const modals = {
   [LazyModal.FeedFilters]: FeedFilters,
   [LazyModal.VerifySession]: VerifySession,
   [LazyModal.SearchReferral]: SearchReferralModal,
+  [LazyModal.GenericReferral]: GenericReferralModal,
 };
 
 type GetComponentProps<T> = T extends

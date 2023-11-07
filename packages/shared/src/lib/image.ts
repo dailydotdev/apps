@@ -92,6 +92,11 @@ export const cloudinary = {
       'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/empty_squad_light',
   },
   referralCampaign: {
+    generic: {
+      sad: 'https://daily-now-res.cloudinary.com/image/upload/s--rMfJxJbl--/f_auto/v1697024846/ido_sad_xbe6p5',
+      happy:
+        'https://daily-now-res.cloudinary.com/image/upload/s--gnompkBm--/f_auto/v1697024846/ido_happy_zfosbr',
+    },
     search: {
       bg: 'https://daily-now-res.cloudinary.com/image/upload/s--lYQL8anp--/f_auto/v1697393720/referral_bg_i261vi',
       bgKeys:

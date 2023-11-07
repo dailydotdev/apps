@@ -168,7 +168,7 @@ export const GrowthBookProvider = ({
 };
 
 export const useFeatureIsOn = (feature: Feature<JSONValue>): boolean =>
-  gbUseFeatureIsOn(feature.id);
+  gbUseFeatureIsOn(feature?.id);
 
 export const useFeature = <T extends JSONValue>(
   feature: Feature<T>,

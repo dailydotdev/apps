@@ -25,4 +25,9 @@ export const labels = {
         '❌ We got some unexpected error from our side, nothing to worry about. Please try again.',
     },
   },
+  referral: {
+    generic: {
+      inviteText: `I'm using daily.dev to stay updated on developer news. I think you will find it helpful:`,
+    },
+  },
 };
