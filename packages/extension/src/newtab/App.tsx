@@ -30,16 +30,8 @@ import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
-import {
-  useFeature,
-  useGrowthBookContext,
-} from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
-import {
-  daysLeft,
-  OnboardingV2,
-} from '@dailydotdev/shared/src/lib/featureValues';
 import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
@@ -92,13 +84,7 @@ function InternalApp({
   const { growthbook } = useGrowthBookContext();
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-  const onboardingV2 = useFeature(feature.onboardingV2);
-
-  const shouldRedirectOnboarding =
-    !user &&
-    isPageReady &&
-    (onboardingV2 !== OnboardingV2.Control || daysLeft < 1) &&
-    !isTesting;
+  const shouldRedirectOnboarding = !user && isPageReady && !isTesting;
 
   useQuery(EXTENSION_PERMISSION_KEY, () => ({
     requestContentScripts,
