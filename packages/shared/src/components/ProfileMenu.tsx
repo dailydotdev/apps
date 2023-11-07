@@ -1,13 +1,9 @@
-import React, { ReactElement, useContext } from 'react';
-import dynamic from 'next/dynamic';
-import { Item } from '@dailydotdev/react-contexify';
-import Link from 'next/link';
+import React, { ReactElement, useContext, useMemo } from 'react';
 import AuthContext from '../contexts/AuthContext';
 import PowerIcon from './icons/Power';
-import { KeyReferralOutlineIcon, UserIcon, TimerIcon } from './icons';
+import { KeyReferralOutlineIcon, UserIcon } from './icons';
 import DevCardIcon from './icons/DevCard';
 import SettingsIcon from './icons/Settings';
-import { IconSize } from './Icon';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { useSettingsContext } from '../contexts/SettingsContext';
@@ -15,13 +11,17 @@ import { CampaignCtaPlacement } from '../graphql/settings';
 import { ReferralCampaignKey, useReferralCampaign } from '../hooks';
 import { useAnalyticsContext } from '../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetId, TargetType } from '../lib/analytics';
+import InteractivePopup, {
+  InteractivePopupPosition,
+} from './tooltips/InteractivePopup';
+import { AllowedTags, Button, ButtonProps } from './buttons/Button';
+import { LabeledImage } from './image';
+import { webappUrl } from '../lib/constants';
 
-const PortalMenu = dynamic(
-  () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
-  {
-    ssr: false,
-  },
-);
+interface ListItem {
+  title: string;
+  buttonProps?: ButtonProps<AllowedTags>;
+}
 
 export default function ProfileMenu(): ReactElement {
   const { openModal } = useLazyModal();
@@ -35,85 +35,89 @@ export default function ProfileMenu(): ReactElement {
     !!referralToken &&
     campaignCtaPlacement === CampaignCtaPlacement.ProfileMenu;
 
+  const items: ListItem[] = useMemo(() => {
+    const handleReferralClick = () => {
+      trackEvent({
+        event_name: AnalyticsEvent.Click,
+        target_type: TargetType.SearchInviteButton,
+        target_id: TargetId.InviteProfileMenu,
+      });
+      openModal({ type: LazyModal.SearchReferral });
+    };
+
+    const list: ListItem[] = [
+      {
+        title: 'Profile',
+        buttonProps: {
+          tag: 'a',
+          href: user.permalink,
+          icon: <UserIcon />,
+        },
+      },
+      {
+        title: 'Account details',
+        buttonProps: {
+          tag: 'a',
+          icon: <SettingsIcon />,
+          href: `${webappUrl}account/profile`,
+        },
+      },
+      {
+        title: 'Devcard',
+        buttonProps: {
+          tag: 'a',
+          icon: <DevCardIcon />,
+          href: `${webappUrl}devcard`,
+        },
+      },
+    ];
+
+    if (showSearchReferral) {
+      list.push({
+        title: `${availableCount} Search invites`,
+        buttonProps: {
+          icon: <KeyReferralOutlineIcon secondary />,
+          onClick: handleReferralClick,
+        },
+      });
+    }
+
+    list.push({
+      title: 'Logout',
+      buttonProps: {
+        icon: <PowerIcon />,
+        onClick: logout,
+      },
+    });
+
+    return list;
+  }, [trackEvent, logout, availableCount, openModal, showSearchReferral, user]);
+
   if (!user) {
     return <></>;
   }
 
-  const handleReferralClick = () => {
-    trackEvent({
-      event_name: AnalyticsEvent.Click,
-      target_type: TargetType.SearchInviteButton,
-      target_id: TargetId.InviteProfileMenu,
-    });
-    openModal({ type: LazyModal.SearchReferral });
-  };
-
   return (
-    <PortalMenu
-      disableBoundariesCheck
-      id="profile-context"
-      className="menu-primary"
-      animation="fade"
+    <InteractivePopup
+      position={InteractivePopupPosition.RightStart}
+      className="w-full border !right-4 laptop:max-w-[13.75rem] max-w-[21.25rem] roundeed-14 border-theme-divider-tertiary"
     >
-      <Item>
-        <Link href={user.permalink} passHref prefetch={false}>
-          <a className="flex items-center w-full">
-            <UserIcon
-              size={IconSize.Small}
-              secondary={false}
-              className="mr-2"
-            />{' '}
-            Profile
-          </a>
-        </Link>
-      </Item>
-      <Item>
-        <Link
-          href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
-          passHref
-          prefetch={false}
-        >
-          <a className="flex items-center w-full">
-            <SettingsIcon
-              size={IconSize.Small}
-              secondary={false}
-              className="mr-2"
-            />{' '}
-            Account details
-          </a>
-        </Link>
-      </Item>
-      {showSearchReferral && (
-        <Item>
-          <button
-            type="button"
-            className="flex items-center min-w-[12.5rem]"
-            onClick={handleReferralClick}
+      <LabeledImage src={user.image} alt="Logged-in user">
+        <span className="font-bold typo-title3">{user.name}</span>
+        <span className="mt-1 typo-callout">@{user.username}</span>
+      </LabeledImage>
+      <div className="flex flex-col -mt-16">
+        {items.map(({ title, buttonProps }) => (
+          <Button
+            key={title}
+            {...buttonProps}
+            textPosition="justify-start"
+            className="w-full font-normal btn-tertiary !px-5"
           >
-            <KeyReferralOutlineIcon
-              size={IconSize.Small}
-              secondary
-              className="mr-2"
-            />
-            {availableCount} Search invites
-            <TimerIcon className="ml-auto" size={IconSize.Small} />
-          </button>
-        </Item>
-      )}
-      <Item>
-        <Link
-          href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}devcard`}
-          passHref
-          prefetch={false}
-        >
-          <a className="flex items-center w-full">
-            <DevCardIcon size={IconSize.Small} className="mr-2" /> Dev card
-          </a>
-        </Link>
-      </Item>
-      <Item onClick={logout}>
-        <PowerIcon size={IconSize.Small} className="mr-2" /> Logout
-      </Item>
-    </PortalMenu>
+            {title}
+          </Button>
+        ))}
+      </div>
+    </InteractivePopup>
   );
 }
