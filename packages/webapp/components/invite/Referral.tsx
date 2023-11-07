@@ -136,32 +136,32 @@ export function Referral({
           disabled={isLoading || isSuccess}
         >
           <FlexCentered className="gap-2 mobileL:typo-title3">
-            <BrowsersIcon className="text-theme-label-primary w-[3.7rem] h-[1.9rem] mobileL:w-[5rem] mobileL:h-[2.5rem]" />
+            <BrowsersIcon className="mobileL:w-20 mobileL:h-10 text-theme-label-primary w-[3.7rem] h-[1.9rem]" />
             Try it now - It&apos;s free
           </FlexCentered>
         </Button>
       </div>
       <div className="flex fixed -bottom-1/2 flex-auto w-full h-full laptop:initial laptop:bottom-[unset]">
-        <div className="flex relative laptop:absolute laptopL:-right-24 justify-center self-center m-auto mx-2 z-10 laptop:right-[-7.5rem] w-fit laptop:w-[initial]">
+        <div className="flex relative laptop:absolute laptopL:-right-24 z-1 justify-center self-center m-auto mx-2 laptop:right-[-7.5rem] w-fit laptop:w-[initial]">
           <img
             src={
               cloudinary.referralCampaign.genericReferral.purpleEdgeGlowTablet
             }
             alt="Purple glow right edge"
-            className="fixed laptop:top-0 -bottom-4 w-full laptop:w-auto laptop:h-full laptop:bottom-[unset] laptop:rotate-[270deg] z-20"
+            className="fixed laptop:top-0 -bottom-4 z-1 w-full laptop:w-auto laptop:h-full laptop:-rotate-90 laptop:bottom-[unset]"
           />
           <img
             src={cloudinary.referralCampaign.genericReferral.appScreenshot}
             alt="Daily.dev app screenshot of my feed page"
-            className="object-contain w-full laptop:w-auto h-auto laptop:h-full z-10 laptopXL:max-h-[39.5rem] laptop:max-h-[25.35rem]"
+            className="object-contain z-0 w-full laptop:w-auto h-auto laptop:h-full laptopXL:max-h-[39.5rem] laptop:max-h-[25.35rem]"
           />
           <img
             src={cloudinary.referralCampaign.genericReferral.playButton}
             alt="Play daily.dev introduction video"
-            className="absolute laptop:self-center laptopL:m-auto laptopXL:h-auto laptop:mr-[8.5rem] laptop:mt-[0.5rem] z-20 laptop:h-[8rem] tablet:h-[14.5rem] h-[7.8rem] tablet:mt-[-1.5rem]"
+            className="absolute z-2 laptop:self-center laptopL:m-auto tablet:-mt-6 laptop:mt-2 laptop:h-32 laptopXL:h-auto laptop:mr-[8.5rem] tablet:h-[14.5rem] h-[7.5rem]"
           />
           <button
-            className="absolute z-1 w-full h-full"
+            className="absolute z-2 w-full h-full"
             type="button"
             aria-label="Play daily.dev introduction video"
             onClick={() => {
