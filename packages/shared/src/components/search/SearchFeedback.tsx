@@ -11,29 +11,37 @@ import { WithClassNameProps } from '../utilities';
 export const SearchFeedback = ({
   className,
 }: WithClassNameProps): ReactElement => (
-  <WidgetContainer className={classNames('flex justify-around p-4', className)}>
-    <Button
-      tag="a"
-      target="_blank"
-      rel="noopener"
-      href={searchFeedback}
-      icon={<FeedbackIcon />}
-      className="btn-tertiary"
-      buttonSize={ButtonSize.Small}
-    >
-      Feedback
-    </Button>
-    <ListCardDivider className="mx-3" />
-    <Button
-      tag="a"
-      target="_blank"
-      rel="noopener"
-      href={searchDocs}
-      icon={<DocsIcon />}
-      className="btn-tertiary"
-      buttonSize={ButtonSize.Small}
-    >
-      User guide
-    </Button>
+  <WidgetContainer
+    className={classNames('flex flex-col justify-around', className)}
+  >
+    <div className="flex p-4">
+      <Button
+        tag="a"
+        target="_blank"
+        rel="noopener"
+        href={searchFeedback}
+        icon={<FeedbackIcon />}
+        className="btn-tertiary"
+        buttonSize={ButtonSize.Small}
+      >
+        Feedback
+      </Button>
+      <ListCardDivider className="mx-3" />
+      <Button
+        tag="a"
+        target="_blank"
+        rel="noopener"
+        href={searchDocs}
+        icon={<DocsIcon />}
+        className="btn-tertiary"
+        buttonSize={ButtonSize.Small}
+      >
+        User guide
+      </Button>
+    </div>
+    <p className="py-3 px-4 border-t typo-subhead text-theme-label-quaternary border-theme-divider-tertiary">
+      daily.dev Search is in beta and can make mistakes. Verify important
+      information.
+    </p>
   </WidgetContainer>
 );
