@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement } from 'react';
 import {
   Button,
   ButtonSize,
@@ -27,14 +27,10 @@ import {
 import { downloadBrowserExtension } from '@dailydotdev/shared/src/lib/constants';
 import { FlexCentered } from '@dailydotdev/shared/src/components/utilities';
 import BrowsersIcon from '@dailydotdev/shared/icons/browsers.svg';
-import { mobileL, laptopL } from '@dailydotdev/shared/src/styles/media';
-import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
-import {
-  ModalKind,
-  ModalSize,
-} from '@dailydotdev/shared/src/components/modals/common/types';
-import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
+import { laptopL } from '@dailydotdev/shared/src/styles/media';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { JoinPageProps } from './common';
 
 export function Referral({
@@ -47,6 +43,7 @@ export function Referral({
   const { trackEvent } = useAnalyticsContext();
   const { displayToast } = useToastNotification();
   const { user, refetchBoot, showLogin } = useAuthContext();
+  const { openModal } = useLazyModal();
   const isLaptopL = useMedia([laptopL.replace('@media ', '')], [true], false);
   const {
     mutateAsync: onAcceptMutation,
@@ -65,11 +62,6 @@ export function Referral({
       displayToast(message ?? DEFAULT_ERROR);
     },
   });
-  const [isVideoOpen, setVideoOpen] = useState(false);
-
-  const onVideoModalClose = () => {
-    setVideoOpen(false);
-  };
 
   const handleAcceptClick = () => {
     const handleAccept = () =>
@@ -101,7 +93,7 @@ export function Referral({
       style={{
         background: `url(${cloudinary.referralCampaign.genericReferral.backgroundDark})`,
       }}
-      className="flex overflow-hidden relative flex-col laptop:flex-row flex-auto items-center p-2 laptop:p-6 h-screen bg-cover"
+      className="flex overflow-hidden relative flex-col laptop:flex-row flex-auto items-center p-2 laptop:p-6 h-screen !bg-cover"
     >
       <span className="absolute top-8 left-1/2 laptop:left-12 -translate-x-1/2 laptop:translate-x-0">
         <Logo showGreeting={false} position={LogoPosition.Relative} />
@@ -173,35 +165,17 @@ export function Referral({
             type="button"
             aria-label="Play daily.dev introduction video"
             onClick={() => {
-              setVideoOpen(true);
+              openModal({
+                type: LazyModal.Video,
+                props: {
+                  src: 'https://www.youtube.com/embed/igZCEr3HwCg',
+                  title: 'YouTube video player',
+                },
+              });
             }}
           />
         </div>
       </div>
-      {isVideoOpen && (
-        <Modal
-          // eslint-disable-next-line @dailydotdev/daily-dev-eslint-rules/no-custom-color
-          className="px-8 bg-black"
-          kind={ModalKind.FlexibleCenter}
-          size={ModalSize.XLarge}
-          isOpen={isVideoOpen}
-          onRequestClose={onVideoModalClose}
-        >
-          <CloseButton
-            buttonSize={ButtonSize.Small}
-            className="top-3 right-3 border-white"
-            onClick={onVideoModalClose}
-            position={LogoPosition.Absolute}
-          />
-          <iframe
-            className="w-full border-none aspect-video"
-            src="https://www.youtube.com/embed/igZCEr3HwCg"
-            title="YouTube video player"
-            allow="encrypted-media;web-share"
-            allowFullScreen
-          />
-        </Modal>
-      )}
     </div>
   );
 }
