@@ -2,6 +2,8 @@ import classNames from 'classnames';
 import React, { ReactElement, ReactNode } from 'react';
 import Portal from './Portal';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import useSidebarRendered from '../../hooks/useSidebarRendered';
+import ConditionalWrapper from '../ConditionalWrapper';
 
 export enum InteractivePopupPosition {
   Center = 'center',
@@ -54,24 +56,38 @@ function InteractivePopup({
   position = InteractivePopupPosition.Center,
   ...props
 }: InteractivePopupProps): ReactElement {
-  const classes = positionClass[position];
+  const { sidebarRendered } = useSidebarRendered();
   const { sidebarExpanded } = useSettingsContext();
+  const finalPosition = sidebarRendered
+    ? position
+    : InteractivePopupPosition.Center;
+  const classes = positionClass[finalPosition];
 
   return (
     <Portal>
-      <div
-        className={classNames(
-          'fixed z-popup bg-theme-bg-primary rounded-16 overflow-hidden',
-          className,
-          classes,
-          leftPositions.includes(position) &&
-            !sidebarExpanded &&
-            'laptop:left-16',
+      <ConditionalWrapper
+        condition={!sidebarRendered}
+        wrapper={(child) => (
+          <div className="flex fixed inset-0 z-modal flex-col items-center bg-overlay-quaternary-onion">
+            {child}
+          </div>
         )}
-        {...props}
       >
-        {children}
-      </div>
+        <div
+          className={classNames(
+            'fixed z-popup bg-theme-bg-primary rounded-16 overflow-hidden shadow-2',
+            className,
+            classes,
+            !sidebarRendered && 'shadow-2',
+            leftPositions.includes(finalPosition) &&
+              !sidebarExpanded &&
+              'laptop:left-16',
+          )}
+          {...props}
+        >
+          {children}
+        </div>
+      </ConditionalWrapper>
     </Portal>
   );
 }
