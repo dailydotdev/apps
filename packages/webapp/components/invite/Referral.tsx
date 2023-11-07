@@ -10,9 +10,6 @@ import { useMutation } from 'react-query';
 import { acceptFeatureInvitation } from '@dailydotdev/shared/src/graphql/features';
 import { useRouter } from 'next/router';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { GenericReferral } from '@dailydotdev/shared/src/lib/featureValues';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import {
@@ -46,7 +43,6 @@ export function Referral({
   token,
 }: JoinPageProps): ReactElement {
   const router = useRouter();
-  const genericReferral = useFeature(feature.genericReferral);
   const { completeAction } = useActions();
   const { trackEvent } = useAnalyticsContext();
   const { displayToast } = useToastNotification();
@@ -99,16 +95,6 @@ export function Referral({
 
     return handleAccept();
   };
-
-  useEffect(() => {
-    if (genericReferral === GenericReferral.Control) {
-      return;
-    }
-
-    router.push(redirectTo);
-    // router is an unstable dependency
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [redirectTo, genericReferral]);
 
   return (
     <div
