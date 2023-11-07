@@ -19,7 +19,7 @@ export default function VideoModal({
 }: VideoModalProps): ReactElement {
   return (
     <Modal
-      className="px-8 pepper-90"
+      className="px-8"
       kind={ModalKind.FlexibleCenter}
       size={ModalSize.XLarge}
       onRequestClose={onRequestClose}
