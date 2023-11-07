@@ -1,66 +1,43 @@
-import React, { ReactElement, useContext } from 'react';
-import { Modal, ModalProps, modalSizeToClassName } from './common/Modal';
-import {
-  ONBOARDING_OFFSET,
-  PassedPostNavigationProps,
-  PostContent,
-} from '../post/PostContent';
-import { Origin } from '../../lib/analytics';
-import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
-import BasePostModal from './BasePostModal';
-import OnboardingContext from '../../contexts/OnboardingContext';
-import { Post, PostType } from '../../graphql/posts';
+import React, { ReactElement } from 'react';
+import ReactModal from 'react-modal';
+import { Modal } from './common/Modal';
+import { ModalKind, ModalSize } from './common/types';
+import CloseButton from '../CloseButton';
+import { ButtonSize } from '../buttons/Button';
+import { LogoPosition } from '../Logo';
 
-interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
-  id: string;
-  post: Post;
+interface VideoModalProps extends ReactModal.Props {
+  src: string;
+  title: string;
 }
 
-export default function ArticlePostModal({
-  id,
-  className,
+export default function VideoModal({
   onRequestClose,
-  onPreviousPost,
-  onNextPost,
-  postPosition,
-  post,
-  onRemovePost,
+  src,
+  title,
   ...props
-}: ArticlePostModalProps): ReactElement {
-  const { showArticleOnboarding } = useContext(OnboardingContext);
-  const position = usePostNavigationPosition({
-    isLoading: false,
-    isDisplayed: props.isOpen,
-    offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
-  });
-
+}: VideoModalProps): ReactElement {
   return (
-    <BasePostModal
-      {...props}
+    <Modal
+      className="px-8 pepper-90"
+      kind={ModalKind.FlexibleCenter}
+      size={ModalSize.XLarge}
       onRequestClose={onRequestClose}
-      postType={PostType.Article}
-      source={post.source}
-      loadingClassName="!pb-2 tablet:pb-0"
+      {...props}
     >
-      <PostContent
-        position={position}
-        post={post}
-        postPosition={postPosition}
-        onPreviousPost={onPreviousPost}
-        onNextPost={onNextPost}
-        inlineActions
-        className={{
-          onboarding: 'mt-8',
-          navigation: { actions: 'tablet:hidden ml-auto' },
-          fixedNavigation: {
-            container: modalSizeToClassName[Modal.Size.XLarge],
-            actions: 'ml-auto',
-          },
-        }}
-        onClose={onRequestClose}
-        origin={Origin.ArticleModal}
-        onRemovePost={onRemovePost}
+      <CloseButton
+        buttonSize={ButtonSize.Small}
+        className="top-3 right-3"
+        onClick={onRequestClose}
+        position={LogoPosition.Absolute}
       />
-    </BasePostModal>
+      <iframe
+        className="w-full border-none aspect-video"
+        src={src}
+        title={title}
+        allow="encrypted-media;web-share"
+        allowFullScreen
+      />
+    </Modal>
   );
 }

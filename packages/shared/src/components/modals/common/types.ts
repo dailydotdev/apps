@@ -38,6 +38,7 @@ export enum LazyModal {
   FeedFilters = 'feedFilters',
   VerifySession = 'verifySession',
   SearchReferral = 'searchReferral',
+  Video = 'video',
 }
 
 export type ModalTabItem = {
