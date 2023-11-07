@@ -1,5 +1,9 @@
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
+import {
+  ReferralCampaignKey,
+  useActions,
+  useToastNotification,
+} from '@dailydotdev/shared/src/hooks';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
 import request from 'graphql-request';
@@ -9,17 +13,39 @@ import { NextSeo, NextSeoProps } from 'next-seo';
 import { setCookie } from '@dailydotdev/shared/src/lib/cookie';
 import { oneYear } from '@dailydotdev/shared/src/lib/dateFormat';
 import { useReferralConfig } from '@dailydotdev/shared/src/hooks/referral/useReferralConfig';
-import { defaultOpenGraph } from '../next-seo';
-import { JoinPageProps } from '../components/invite/common';
-import { AISearchInvite } from '../components/invite/AISearchInvite';
+import { useRouter } from 'next/router';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { useMutation } from 'react-query';
+import { acceptFeatureInvitation } from '@dailydotdev/shared/src/graphql/features';
+import {
+  ApiErrorResult,
+  DEFAULT_ERROR,
+} from '@dailydotdev/shared/src/graphql/common';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { genericReferralConfig, Referral } from '../components/invite/Referral';
 import Custom404Seo from './404';
-import { Referral } from '../components/invite/Referral';
+import {
+  AISearchInvite,
+  AISearchInviteConfig,
+} from '../components/invite/AISearchInvite';
+import {
+  ComponentConfig,
+  InviteComponentProps,
+  JoinPageProps,
+} from '../components/invite/common';
+import { defaultOpenGraph } from '../next-seo';
 
 type ReferralRecord<T> = Record<ReferralCampaignKey, T>;
 
-const componentsMap: ReferralRecord<FunctionComponent<JoinPageProps>> = {
+const componentsMap: ReferralRecord<FunctionComponent<InviteComponentProps>> = {
   search: AISearchInvite,
   generic: Referral,
+};
+
+const configsMap: ReferralRecord<ComponentConfig> = {
+  search: AISearchInviteConfig,
+  generic: genericReferralConfig,
 };
 
 const Page = ({
@@ -28,10 +54,16 @@ const Page = ({
   token,
 }: JoinPageProps): ReactElement => {
   const Component = componentsMap[campaign];
+  const config = configsMap[campaign];
   const { title, description, images, redirectTo } = useReferralConfig({
     campaign,
     referringUser,
   });
+  const { completeAction } = useActions();
+  const { displayToast } = useToastNotification();
+  const router = useRouter();
+  const { user, refetchBoot, showLogin } = useAuthContext();
+  const { trackEvent } = useAnalyticsContext();
 
   useEffect(() => {
     if (!componentsMap[campaign]) {
@@ -46,6 +78,46 @@ const Page = ({
       sameSite: 'lax',
     });
   }, [campaign, referringUser.id]);
+
+  const {
+    mutateAsync: onAcceptMutation,
+    isLoading,
+    isSuccess,
+  } = useMutation(acceptFeatureInvitation, {
+    onSuccess: async () => {
+      await Promise.all([completeAction(config.actionType), refetchBoot()]);
+      router.push(redirectTo);
+    },
+    onError: (err: ApiErrorResult) => {
+      const message = err?.response?.errors?.[0]?.message;
+      displayToast(message ?? DEFAULT_ERROR);
+    },
+  });
+
+  const handleAcceptClick = () => {
+    const handleAccept = () =>
+      onAcceptMutation({
+        token,
+        referrerId: referringUser.id,
+        feature: config.campaignKey,
+      });
+
+    if (!user) {
+      return showLogin({
+        trigger: config.authTrigger,
+        options: {
+          onLoginSuccess: handleAccept,
+          onRegistrationSuccess: handleAccept,
+        },
+      });
+    }
+
+    // since in the page view, query params are tracked automatically,
+    // we don't need to send the params here explicitly
+    trackEvent({ event_name: AnalyticsEvent.AcceptInvitation });
+
+    return handleAccept();
+  };
 
   const seoProps: NextSeoProps = {
     title,
@@ -67,10 +139,12 @@ const Page = ({
     <>
       {seoComponent}
       <Component
-        token={token}
         campaign={campaign}
-        redirectTo={redirectTo}
         referringUser={referringUser}
+        handleAcceptClick={handleAcceptClick}
+        isLoading={isLoading}
+        isSuccess={isSuccess}
+        redirectTo={redirectTo}
       />
     </>
   );

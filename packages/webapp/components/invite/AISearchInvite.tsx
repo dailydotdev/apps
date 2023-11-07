@@ -2,91 +2,44 @@ import React, { ReactElement, useEffect } from 'react';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import KeyIcon from '@dailydotdev/shared/src/components/icons/Key';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { useMutation } from 'react-query';
-import { acceptFeatureInvitation } from '@dailydotdev/shared/src/graphql/features';
-import { useRouter } from 'next/router';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
-import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
-import {
-  ApiErrorResult,
-  DEFAULT_ERROR,
-} from '@dailydotdev/shared/src/graphql/common';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
-import { JoinPageProps } from './common';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { useRouter } from 'next/router';
+import { ComponentConfig, InviteComponentProps } from './common';
+
+export const AISearchInviteConfig: ComponentConfig = {
+  actionType: ActionType.AcceptedSearch,
+  feature: feature.search,
+  featureControl: SearchExperiment.Control,
+  campaignKey: ReferralCampaignKey.Search,
+  authTrigger: AuthTriggers.SearchReferral,
+};
 
 export function AISearchInvite({
   referringUser,
+  handleAcceptClick,
+  isLoading,
+  isSuccess,
   redirectTo,
-  token,
-}: JoinPageProps): ReactElement {
+}: InviteComponentProps): ReactElement {
   const router = useRouter();
-  const search = useFeature(feature.search);
-  const { completeAction } = useActions();
-  const { trackEvent } = useAnalyticsContext();
-  const { displayToast } = useToastNotification();
-  const { user, refetchBoot, showLogin } = useAuthContext();
-  const {
-    mutateAsync: onAcceptMutation,
-    isLoading,
-    isSuccess,
-  } = useMutation(acceptFeatureInvitation, {
-    onSuccess: async () => {
-      await Promise.all([
-        completeAction(ActionType.AcceptedSearch),
-        refetchBoot(),
-      ]);
-      router.push(redirectTo);
-    },
-    onError: (err: ApiErrorResult) => {
-      const message = err?.response?.errors?.[0]?.message;
-      displayToast(message ?? DEFAULT_ERROR);
-    },
-  });
-
-  const handleAcceptClick = () => {
-    const handleAccept = () =>
-      onAcceptMutation({
-        token,
-        referrerId: referringUser.id,
-        feature: ReferralCampaignKey.Search,
-      });
-
-    if (!user) {
-      return showLogin({
-        trigger: AuthTriggers.SearchReferral,
-        options: {
-          onLoginSuccess: handleAccept,
-          onRegistrationSuccess: handleAccept,
-        },
-      });
-    }
-
-    // since in the page view, query params are tracked automatically,
-    // we don't need to send the params here explicitly
-    trackEvent({ event_name: AnalyticsEvent.AcceptInvitation });
-
-    return handleAccept();
-  };
+  const featureValue = useFeature(AISearchInviteConfig.feature);
 
   useEffect(() => {
-    if (search === SearchExperiment.Control) {
+    if (featureValue === AISearchInviteConfig.featureControl) {
       return;
     }
 
     router.push(redirectTo);
     // router is an unstable dependency
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [redirectTo, search]);
+  }, [redirectTo, featureValue]);
 
   return (
     <div className="flex overflow-hidden relative flex-col flex-1 justify-center items-center laptop:items-start p-6 h-full min-h-[100vh]">

@@ -15,6 +15,7 @@
   },
   "prettier": "@dailydotdev/prettier-config",
   "dependencies": {
+    "@growthbook/growthbook": "https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?a0d1a3add257acdbf5353dfd690547feebbada92",
     "@dailydotdev/react-contexify": "^5.0.2",
     "@dailydotdev/shared": "*",
     "classnames": "^2.3.1",
