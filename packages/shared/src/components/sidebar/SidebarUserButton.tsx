@@ -1,17 +1,12 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfilePicture } from '../ProfilePicture';
 import { Button } from '../buttons/Button';
-import useProfileMenu from '../../hooks/useProfileMenu';
 import AuthContext from '../../contexts/AuthContext';
 import SettingsIcon from '../icons/Settings';
 import { SidebarUserButtonProps } from './common';
 import LoginButton from '../LoginButton';
-
-// @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-// eslint-disable-next-line react-hooks/rules-of-hooks
-const { onMenuClick } = useProfileMenu();
 
 const ProfileMenu = dynamic(
   () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
@@ -20,6 +15,7 @@ const ProfileMenu = dynamic(
 export function SidebarUserButton({
   sidebarRendered,
 }: SidebarUserButtonProps): ReactElement {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, loadingUser } = useContext(AuthContext);
 
   return (
@@ -39,7 +35,7 @@ export function SidebarUserButton({
                 <Button
                   iconOnly
                   className="btn btn-tertiary"
-                  onClick={onMenuClick}
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
                   icon={<SettingsIcon />}
                 />
               </div>
@@ -47,7 +43,7 @@ export function SidebarUserButton({
               <p className="typo-footnote text-theme-label-secondary">
                 @{user.username}
               </p>
-              <ProfileMenu />
+              {isMenuOpen && <ProfileMenu />}
             </>
           ) : (
             <LoginButton />

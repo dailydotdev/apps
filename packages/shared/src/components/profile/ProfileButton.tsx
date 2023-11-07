@@ -1,16 +1,19 @@
-import React, { HTMLProps, ReactElement, useContext } from 'react';
+import React, { HTMLProps, ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import AuthContext from '../../contexts/AuthContext';
-import useProfileMenu from '../../hooks/useProfileMenu';
-import ProfileMenu from '../ProfileMenu';
 import { ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+
+const ProfileMenu = dynamic(
+  () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
+);
 
 export default function ProfileButton({
   className,
 }: HTMLProps<HTMLButtonElement>): ReactElement {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useContext(AuthContext);
-  const { onMenuClick } = useProfileMenu();
 
   return (
     <>
@@ -21,7 +24,7 @@ export default function ProfileButton({
             'items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline',
             className ?? 'flex',
           )}
-          onClick={onMenuClick}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           <span className="hidden laptop:block mr-2 ml-3">
             {user.reputation ?? 0}
@@ -29,7 +32,7 @@ export default function ProfileButton({
           <ProfilePicture user={user} size="medium" />
         </button>
       </SimpleTooltip>
-      <ProfileMenu />
+      {isMenuOpen && <ProfileMenu />}
     </>
   );
 }
