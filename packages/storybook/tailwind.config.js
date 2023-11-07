@@ -5,6 +5,6 @@ module.exports = {
   ...config,
   content: [
     './src/**/*.{js,ts,jsx,tsx}',
-    './node_modules/@dailydotdev/shared/src/**/*.{js,ts,jsx,tsx}',
+    './node_modules/@dailydotdev/shared/src/**/*.{ts,tsx}',
   ],
 };
