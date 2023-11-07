@@ -4,7 +4,7 @@ const config = require('@dailydotdev/shared/tailwind.config');
 module.exports = {
   ...config,
   content: [
-    './src/**/*.{js,ts,jsx,tsx}',
+    './src/**/*.{ts,tsx}',
     './node_modules/@dailydotdev/shared/src/**/*.{ts,tsx}',
   ],
 };
