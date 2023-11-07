@@ -23,7 +23,13 @@ interface ListItem {
   buttonProps?: ButtonProps<AllowedTags>;
 }
 
-export default function ProfileMenu(): ReactElement {
+interface ProfileMenuProps {
+  onClose: () => void;
+}
+
+export default function ProfileMenu({
+  onClose,
+}: ProfileMenuProps): ReactElement {
   const { openModal } = useLazyModal();
   const { trackEvent } = useAnalyticsContext();
   const { campaignCtaPlacement } = useSettingsContext();
@@ -99,6 +105,8 @@ export default function ProfileMenu(): ReactElement {
 
   return (
     <InteractivePopup
+      onClose={onClose}
+      closeOutsideClick
       position={InteractivePopupPosition.RightStart}
       className="w-full border !right-4 laptop:max-w-[13.75rem] max-w-[21.25rem] roundeed-14 border-theme-divider-tertiary"
     >

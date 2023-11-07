@@ -43,7 +43,9 @@ export function SidebarUserButton({
               <p className="typo-footnote text-theme-label-secondary">
                 @{user.username}
               </p>
-              {isMenuOpen && <ProfileMenu />}
+              {isMenuOpen && (
+                <ProfileMenu onClose={() => setIsMenuOpen(false)} />
+              )}
             </>
           ) : (
             <LoginButton />

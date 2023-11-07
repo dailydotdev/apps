@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useEffect, useRef } from 'react';
 import Portal from './Portal';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
@@ -22,6 +22,8 @@ interface InteractivePopupProps {
   children: ReactNode;
   className?: string;
   position?: InteractivePopupPosition;
+  closeOutsideClick?: boolean;
+  onClose?: (e: MouseEvent) => void;
 }
 
 const centerClassX = 'left-1/2 -translate-x-1/2';
@@ -50,18 +52,46 @@ const leftPositions = [
   InteractivePopupPosition.LeftEnd,
 ];
 
+const WAIT_FOR_FULL_RENDER = 10;
+
 function InteractivePopup({
   children,
   className,
   position = InteractivePopupPosition.Center,
+  closeOutsideClick,
+  onClose,
   ...props
 }: InteractivePopupProps): ReactElement {
+  const container = useRef<HTMLDivElement>();
+  const onCloseRef = useRef(onClose);
   const { sidebarRendered } = useSidebarRendered();
   const { sidebarExpanded } = useSettingsContext();
   const finalPosition = sidebarRendered
     ? position
     : InteractivePopupPosition.Center;
   const classes = positionClass[finalPosition];
+
+  useEffect(() => {
+    if (!closeOutsideClick || !onCloseRef?.current) {
+      return null;
+    }
+
+    const onClickAnywhere = (e: MouseEvent) => {
+      if (container.current && !container.current.contains(e.target as Node)) {
+        onCloseRef.current(e);
+      }
+    };
+
+    // The reason we wait for a few ms is, when the user clicks the triggering element to open this,
+    // it is considered outside the core container. Hence, triggering the close here.
+    setTimeout(() => {
+      globalThis?.document.addEventListener('click', onClickAnywhere);
+    }, WAIT_FOR_FULL_RENDER);
+
+    return () => {
+      globalThis?.document.removeEventListener('click', onClickAnywhere);
+    };
+  }, [closeOutsideClick]);
 
   return (
     <Portal>
@@ -74,6 +104,7 @@ function InteractivePopup({
         )}
       >
         <div
+          ref={container}
           className={classNames(
             'fixed z-popup bg-theme-bg-primary rounded-16 overflow-hidden shadow-2',
             className,

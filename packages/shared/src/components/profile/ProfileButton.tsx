@@ -32,7 +32,7 @@ export default function ProfileButton({
           <ProfilePicture user={user} size="medium" />
         </button>
       </SimpleTooltip>
-      {isMenuOpen && <ProfileMenu />}
+      {isMenuOpen && <ProfileMenu onClose={() => setIsMenuOpen(false)} />}
     </>
   );
 }
