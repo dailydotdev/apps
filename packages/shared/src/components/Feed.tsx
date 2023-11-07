@@ -329,6 +329,8 @@ export default function Feed<T>({
       onBookmark({ post, origin, opts: feedAnalyticsExtra(feedName, ranking) });
     },
     post,
+    prevPost: (items[postMenuIndex - 1] as PostItem)?.post,
+    nextPost: (items[postMenuIndex + 1] as PostItem)?.post,
   };
 
   const ArticleModal = PostModalMap[selectedPost?.type];
