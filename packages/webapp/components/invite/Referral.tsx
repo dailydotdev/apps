@@ -51,7 +51,6 @@ export function Referral({
   const { trackEvent } = useAnalyticsContext();
   const { displayToast } = useToastNotification();
   const { user, refetchBoot, showLogin } = useAuthContext();
-  const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
   const isLaptopL = useMedia([laptopL.replace('@media ', '')], [true], false);
   const {
     mutateAsync: onAcceptMutation,
@@ -115,15 +114,14 @@ export function Referral({
     <div
       style={{
         background: `url(${cloudinary.referralCampaign.genericReferral.backgroundDark})`,
-        backgroundSize: 'cover',
       }}
-      className="flex overflow-hidden relative flex-col laptop:flex-row flex-auto items-center p-2 laptop:p-6 h-[100vh]"
+      className="flex overflow-hidden relative flex-col laptop:flex-row flex-auto items-center p-2 laptop:p-6 h-screen bg-cover"
     >
       <span className="absolute top-8 left-1/2 laptop:left-12 -translate-x-1/2 laptop:translate-x-0">
         <Logo showGreeting={false} position={LogoPosition.Relative} />
       </span>
-      <div className="flex z-1 flex-col p-4 laptop:p-0 laptop:mt-0 laptop:ml-3 w-full laptopL:ml-[9.315rem] laptop:max-w-[25rem] laptopL:max-w-[37.2rem] mt-[5rem]">
-        <span className="flex flex-col laptop:flex-row gap-3 laptopL:gap-6 items-center laptop:items-start mb-6 tablet:mb-8">
+      <div className="flex z-1 flex-col p-4 laptop:p-0 mt-20 laptop:mt-0 laptop:ml-3 w-full laptopL:ml-[9.25rem] laptop:max-w-[25rem] laptopL:max-w-[37.25rem]">
+        <span className="flex flex-col laptop:flex-row gap-3 laptopL:gap-6 items-center laptop:items-start mb-7 tablet:mb-8">
           <ProfileImageLink
             user={referringUser}
             picture={{ size: isLaptopL ? 'xxxlarge' : 'xlarge' }}
@@ -160,23 +158,19 @@ export function Referral({
           disabled={isLoading || isSuccess}
         >
           <FlexCentered className="gap-2 mobileL:typo-title3">
-            <BrowsersIcon
-              width={isMobile ? '58px' : '80px'}
-              height={isMobile ? '30px' : '40px'}
-              className="text-theme-label-primary"
-            />
+            <BrowsersIcon className="text-theme-label-primary w-[3.7rem] h-[1.9rem] mobileL:w-[5rem] mobileL:h-[2.5rem]" />
             Try it now - It&apos;s free
           </FlexCentered>
         </Button>
       </div>
-      <div className="flex fixed flex-auto w-full h-full laptop:initial laptop:bottom-[unset] bottom-[-49%]">
-        <div className="flex relative laptop:absolute justify-center self-center m-auto mx-2 z-10 laptopL:right-[-6rem] laptop:right-[-7.5rem] w-[fit-content] laptop:w-[initial]">
+      <div className="flex fixed -bottom-1/2 flex-auto w-full h-full laptop:initial laptop:bottom-[unset]">
+        <div className="flex relative laptop:absolute laptopL:-right-24 justify-center self-center m-auto mx-2 z-10 laptop:right-[-7.5rem] w-fit laptop:w-[initial]">
           <img
             src={
               cloudinary.referralCampaign.genericReferral.purpleEdgeGlowTablet
             }
             alt="Purple glow right edge"
-            className="fixed laptop:top-0 w-full laptop:w-auto laptop:h-full bottom-[-1rem] laptop:bottom-[unset] laptop:rotate-[270deg] z-20"
+            className="fixed laptop:top-0 -bottom-4 w-full laptop:w-auto laptop:h-full laptop:bottom-[unset] laptop:rotate-[270deg] z-20"
           />
           <img
             src={cloudinary.referralCampaign.genericReferral.appScreenshot}
