@@ -59,9 +59,7 @@ function GenericReferralModal({
         </div>
         <img
           src={
-            !shareState
-              ? cloudinary.referralCampaign.generic.sad
-              : cloudinary.referralCampaign.generic.happy
+            cloudinary.referralCampaign.generic[!shareState ? 'sad' : 'happy']
           }
           alt={!shareState ? 'CTO Ido looking sad' : 'CTO Ido looking happy'}
           className="object-cover absolute top-0 left-0 z-0 w-full aspect-square"

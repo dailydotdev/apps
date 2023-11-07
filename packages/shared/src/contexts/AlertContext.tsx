@@ -77,17 +77,17 @@ export const AlertContextProvider = ({
   const { mutateAsync: updateLastReferralReminder } = useMutation(
     () => request(graphqlUrl, UPDATE_LAST_REFERRAL_REMINDER),
     {
-      // onMutate: () =>
-      //   updateAlerts({
-      //     ...alerts,
-      //     showGenericReferral: false,
-      //   }),
-      // onError: () => {
-      //   updateAlerts({
-      //     ...alerts,
-      //     showGenericReferral: true,
-      //   });
-      // },
+      onMutate: () =>
+        updateAlerts({
+          ...alerts,
+          showGenericReferral: false,
+        }),
+      onError: () => {
+        updateAlerts({
+          ...alerts,
+          showGenericReferral: true,
+        });
+      },
     },
   );
 
