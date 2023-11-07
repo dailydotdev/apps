@@ -337,8 +337,6 @@ html.light .invert .invert,
   position: relative;
   flex-direction: column;
   align-items: stretch;
-  min-height: -webkit-fill-available;
-  min-height: 100vh;
 }
 
 img.lazyload:not([src]) {
