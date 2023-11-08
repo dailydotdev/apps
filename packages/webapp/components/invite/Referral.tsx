@@ -4,25 +4,10 @@ import {
   ButtonSize,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { useMutation } from 'react-query';
-import { acceptFeatureInvitation } from '@dailydotdev/shared/src/graphql/features';
-import { useRouter } from 'next/router';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
-import {
-  ApiErrorResult,
-  DEFAULT_ERROR,
-} from '@dailydotdev/shared/src/graphql/common';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
-import {
-  ReferralCampaignKey,
-  useMedia,
-  useActions,
-  useToastNotification,
-} from '@dailydotdev/shared/src/hooks';
+import { useMedia } from '@dailydotdev/shared/src/hooks';
 import { downloadBrowserExtension } from '@dailydotdev/shared/src/lib/constants';
 import { FlexCentered } from '@dailydotdev/shared/src/components/utilities';
 import BrowsersIcon from '@dailydotdev/shared/icons/browsers.svg';
@@ -32,59 +17,15 @@ import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { DailyDevLogo, JoinPageProps } from './common';
 
-export function Referral({
-  referringUser,
-  redirectTo,
-  token,
-}: JoinPageProps): ReactElement {
-  const router = useRouter();
-  const { completeAction } = useActions();
+export function Referral({ referringUser }: JoinPageProps): ReactElement {
   const { trackEvent } = useAnalyticsContext();
-  const { displayToast } = useToastNotification();
-  const { user, refetchBoot, showLogin } = useAuthContext();
   const { openModal } = useLazyModal();
   const isLaptopL = useMedia([laptopL.replace('@media ', '')], [true], false);
-  const {
-    mutateAsync: onAcceptMutation,
-    isLoading,
-    isSuccess,
-  } = useMutation(acceptFeatureInvitation, {
-    onSuccess: async () => {
-      await Promise.all([
-        completeAction(ActionType.AcceptedGenericReferral),
-        refetchBoot(),
-      ]);
-      router.push(redirectTo);
-    },
-    onError: (err: ApiErrorResult) => {
-      const message = err?.response?.errors?.[0]?.message;
-      displayToast(message ?? DEFAULT_ERROR);
-    },
-  });
 
   const handleAcceptClick = () => {
-    const handleAccept = () =>
-      onAcceptMutation({
-        token,
-        referrerId: referringUser.id,
-        feature: ReferralCampaignKey.Generic,
-      });
-
-    if (!user) {
-      return showLogin({
-        trigger: AuthTriggers.GenericReferral,
-        options: {
-          onLoginSuccess: handleAccept,
-          onRegistrationSuccess: handleAccept,
-        },
-      });
-    }
-
     // since in the page view, query params are tracked automatically,
     // we don't need to send the params here explicitly
     trackEvent({ event_name: AnalyticsEvent.AcceptInvitation });
-
-    return handleAccept();
   };
 
   return (
@@ -127,10 +68,7 @@ export function Referral({
           onClick={() => {
             handleAcceptClick();
           }}
-          target="_blank"
           rel={anchorDefaultRel}
-          loading={isLoading}
-          disabled={isLoading || isSuccess}
         >
           <FlexCentered className="gap-2 mobileL:typo-title3">
             <BrowsersIcon className="mobileL:w-20 mobileL:h-10 text-theme-label-primary w-[3.7rem] h-[1.9rem]" />
