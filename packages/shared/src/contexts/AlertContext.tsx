@@ -14,6 +14,7 @@ export const ALERT_DEFAULTS: Alerts = {
   rankLastSeen: null,
   myFeed: null,
   squadTour: true,
+  showGenericReferral: false,
 };
 
 export interface AlertContextData {
