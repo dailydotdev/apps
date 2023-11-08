@@ -112,7 +112,7 @@ export default function ProfileMenu({
     >
       <LabeledImage
         src={user.image}
-        alt="Logged-in user"
+        alt={`${user.username}'s avatar`}
         className={{ content: '-mt-10' }}
       >
         <span className="font-bold typo-title3">{user.name}</span>
