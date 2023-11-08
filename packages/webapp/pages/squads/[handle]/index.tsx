@@ -177,12 +177,6 @@ const SquadPage = ({
     return <Custom404 />;
   }
 
-  const feedQueryKey = [
-    'sourceFeed',
-    user?.id ?? 'anonymous',
-    Object.values(queryVariables),
-  ];
-
   return (
     <PageComponent
       squad={squad}
@@ -202,7 +196,11 @@ const SquadPage = ({
         <Feed
           className="px-6 pt-14 laptop:pt-10"
           feedName={OtherFeedPage.Squad}
-          feedQueryKey={feedQueryKey}
+          feedQueryKey={[
+            'sourceFeed',
+            user?.id ?? 'anonymous',
+            Object.values(queryVariables),
+          ]}
           query={SOURCE_FEED_QUERY}
           variables={queryVariables}
           forceCardMode
