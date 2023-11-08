@@ -11,10 +11,14 @@ interface SquadFeedHeadingProps {
   feedQueryKey: QueryKey;
 }
 
-function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
+function SquadFeedHeading({
+  squad,
+  feedQueryKey,
+}: SquadFeedHeadingProps): ReactElement {
   const { items } = useContext(ActiveFeedContext);
   const { collapseSquadPinnedPosts, expandSquadPinnedPosts } = useSquadActions({
     squad,
+    feedQueryKey,
   });
   const collapsePinnedPosts = squad?.currentMember?.flags?.collapsePinnedPosts;
 

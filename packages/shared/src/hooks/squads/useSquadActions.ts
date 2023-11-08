@@ -18,6 +18,8 @@ import {
 import { graphqlUrl } from '../../lib/config';
 import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import { updateFlagsCache } from '../../graphql/source/common';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export interface UseSquadActions {
   onUnblock?: typeof unblockSquadMember;
@@ -47,6 +49,7 @@ export const useSquadActions = ({
   membersQueryEnabled,
   feedQueryKey,
 }: UseSquadActionsProps): UseSquadActions => {
+  const { user } = useAuthContext();
   const client = useQueryClient();
   const membersQueryKey = generateQueryKey(
     RequestKey.SquadMembers,
@@ -67,6 +70,7 @@ export const useSquadActions = ({
     {
       onSuccess: () => {
         client.invalidateQueries(feedQueryKey);
+        updateFlagsCache(client, squad, user, { collapsePinnedPosts: true });
       },
     },
   );
@@ -76,6 +80,7 @@ export const useSquadActions = ({
     {
       onSuccess: () => {
         client.invalidateQueries(feedQueryKey);
+        updateFlagsCache(client, squad, user, { collapsePinnedPosts: false });
       },
     },
   );
