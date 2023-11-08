@@ -1,5 +1,5 @@
 import 'content-scripts-register-polyfill';
-import browser, { runtime, Runtime, Tabs } from 'webextension-polyfill';
+import browser, { Runtime, Tabs } from 'webextension-polyfill';
 import { getBootData } from '@dailydotdev/shared/src/lib/boot';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
@@ -153,7 +153,7 @@ async function handleMessages(
 browser.runtime.onMessage.addListener(handleMessages);
 
 browser.action.onClicked.addListener(() => {
-  const url = runtime.getURL('index.html?source=button');
+  const url = browser.runtime.getURL('index.html?source=button');
   browser.tabs.create({ url, active: true });
 });
 
