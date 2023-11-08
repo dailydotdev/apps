@@ -31,7 +31,7 @@ import { laptopL } from '@dailydotdev/shared/src/styles/media';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { JoinPageProps } from './common';
+import { DailyDevLogo, JoinPageProps } from './common';
 
 export function Referral({
   referringUser,
@@ -95,9 +95,7 @@ export function Referral({
       }}
       className="flex overflow-hidden relative flex-col laptop:flex-row flex-auto items-center p-2 laptop:p-6 h-screen !bg-cover"
     >
-      <span className="absolute top-8 left-1/2 laptop:left-12 -translate-x-1/2 laptop:translate-x-0">
-        <Logo showGreeting={false} position={LogoPosition.Relative} />
-      </span>
+      <DailyDevLogo />
       <div className="flex z-1 flex-col p-4 laptop:p-0 mt-20 laptop:mt-0 laptop:ml-3 w-full laptopL:ml-[9.25rem] laptop:max-w-[25rem] laptopL:max-w-[37.25rem]">
         <span className="flex flex-col laptop:flex-row gap-3 laptopL:gap-6 items-center laptop:items-start mb-7 tablet:mb-8">
           <ProfileImageLink

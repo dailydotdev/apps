@@ -22,7 +22,7 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
-import { JoinPageProps } from './common';
+import { DailyDevLogo, JoinPageProps } from './common';
 
 export function AISearchInvite({
   referringUser,
@@ -90,9 +90,7 @@ export function AISearchInvite({
 
   return (
     <div className="flex overflow-hidden relative flex-col flex-1 justify-center items-center laptop:items-start p-6 h-full min-h-[100vh]">
-      <span className="absolute top-8 left-1/2 laptop:left-8 -translate-x-1/2 laptop:translate-x-0">
-        <Logo showGreeting={false} position={LogoPosition.Relative} />
-      </span>
+      <DailyDevLogo />
       <div className="flex flex-col laptop:ml-3 w-full tablet:max-w-[27.5rem] laptopL:ml-[9.75rem]">
         <span className="flex flex-col laptop:flex-row gap-3 tablet:gap-4 laptop:gap-2 items-center laptop:items-start mb-6 tablet:mb-10 laptop:mb-8">
           <ProfileImageLink user={referringUser} />
