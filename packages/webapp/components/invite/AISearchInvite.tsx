@@ -3,7 +3,6 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import KeyIcon from '@dailydotdev/shared/src/components/icons/Key';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
@@ -11,7 +10,7 @@ import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { useRouter } from 'next/router';
-import { ComponentConfig, InviteComponentProps } from './common';
+import { ComponentConfig, InviteComponentProps, DailyDevLogo } from './common';
 
 export const AISearchInviteConfig: ComponentConfig = {
   actionType: ActionType.AcceptedSearch,
@@ -42,11 +41,9 @@ export function AISearchInvite({
   }, [redirectTo, featureValue]);
 
   return (
-    <div className="flex overflow-hidden relative flex-col flex-1 justify-center items-center laptop:items-start p-6 h-full min-h-[100vh]">
-      <span className="absolute top-8 left-1/2 laptop:left-8 -translate-x-1/2 laptop:translate-x-0">
-        <Logo showGreeting={false} position={LogoPosition.Relative} />
-      </span>
-      <div className="flex flex-col laptop:ml-3 w-full tablet:max-w-[27.5rem] laptopL:ml-[9.75rem]">
+    <div className="flex overflow-hidden relative flex-col flex-1 justify-center items-center laptop:items-start p-6 h-full min-h-page">
+      <DailyDevLogo />
+      <div className="flex relative z-1 flex-col laptop:ml-3 w-full tablet:max-w-[27.5rem] laptopL:ml-[9.75rem]">
         <span className="flex flex-col laptop:flex-row gap-3 tablet:gap-4 laptop:gap-2 items-center laptop:items-start mb-6 tablet:mb-10 laptop:mb-8">
           <ProfileImageLink user={referringUser} />
           <p className="text-center laptop:text-left text-theme-label-tertiary typo-callout">
@@ -78,7 +75,7 @@ export function AISearchInvite({
       <img
         src={cloudinary.referralCampaign.search.bg}
         alt="search input depicting our new AI search feature"
-        className="hidden laptop:block absolute right-0 tablet:w-1/2"
+        className="hidden laptop:block absolute right-0 z-0 tablet:w-1/2"
       />
       <img
         src={cloudinary.referralCampaign.search.bgPopupMobile}
@@ -88,7 +85,7 @@ export function AISearchInvite({
       <img
         src={cloudinary.referralCampaign.search.bgMobile}
         alt="search input depicting our new AI search feature"
-        className="block tablet:hidden absolute inset-0 w-full translate-y-1/2 top-[unset]"
+        className="block tablet:hidden absolute inset-0 z-0 w-full translate-y-1/2 top-[unset]"
       />
     </div>
   );

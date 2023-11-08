@@ -1,5 +1,7 @@
 import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
 import { Author } from '@dailydotdev/shared/src/graphql/comments';
+import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
+import React, { ReactElement } from 'react';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { Feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { JSONValue } from '@growthbook/growthbook';
@@ -27,3 +29,11 @@ export interface ComponentConfig {
   campaignKey: ReferralCampaignKey;
   authTrigger: AuthTriggers;
 }
+
+export const DailyDevLogo = (): ReactElement => {
+  return (
+    <span className="absolute top-8 left-1/2 laptop:left-12 -translate-x-1/2 laptop:translate-x-0">
+      <Logo showGreeting={false} position={LogoPosition.Relative} />
+    </span>
+  );
+};
