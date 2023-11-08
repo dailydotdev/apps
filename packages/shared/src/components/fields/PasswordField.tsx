@@ -86,6 +86,7 @@ export function PasswordField({
             e.preventDefault();
             setUseType((_type) => (_type === 'password' ? 'text' : 'password'));
           }}
+          aria-label="Set password"
         >
           <Icon className="text-theme-label-secondary" />
         </button>
