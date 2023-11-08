@@ -72,12 +72,12 @@ function InteractivePopup({
   const classes = positionClass[finalPosition];
 
   useEffect(() => {
-    if (!closeOutsideClick || !onCloseRef?.current) {
+    if (!closeOutsideClick || !onCloseRef?.current || !container?.current) {
       return null;
     }
 
     const onClickAnywhere = (e: MouseEvent) => {
-      if (container.current && !container.current.contains(e.target as Node)) {
+      if (!container.current.contains(e.target as Node)) {
         onCloseRef.current(e);
       }
     };
