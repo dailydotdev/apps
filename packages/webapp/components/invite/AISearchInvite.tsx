@@ -88,9 +88,9 @@ export function AISearchInvite({
   }, [redirectTo, search]);
 
   return (
-    <div className="flex overflow-hidden relative flex-col flex-1 justify-center items-center laptop:items-start p-6 h-full min-h-[100vh]">
+    <div className="flex overflow-hidden relative flex-col flex-1 justify-center items-center laptop:items-start p-6 h-full min-h-page">
       <DailyDevLogo />
-      <div className="flex flex-col laptop:ml-3 w-full tablet:max-w-[27.5rem] laptopL:ml-[9.75rem]">
+      <div className="flex relative z-1 flex-col laptop:ml-3 w-full tablet:max-w-[27.5rem] laptopL:ml-[9.75rem]">
         <span className="flex flex-col laptop:flex-row gap-3 tablet:gap-4 laptop:gap-2 items-center laptop:items-start mb-6 tablet:mb-10 laptop:mb-8">
           <ProfileImageLink user={referringUser} />
           <p className="text-center laptop:text-left text-theme-label-tertiary typo-callout">
@@ -122,7 +122,7 @@ export function AISearchInvite({
       <img
         src={cloudinary.referralCampaign.search.bg}
         alt="search input depicting our new AI search feature"
-        className="hidden laptop:block absolute right-0 tablet:w-1/2"
+        className="hidden laptop:block absolute right-0 z-0 tablet:w-1/2"
       />
       <img
         src={cloudinary.referralCampaign.search.bgPopupMobile}
@@ -132,7 +132,7 @@ export function AISearchInvite({
       <img
         src={cloudinary.referralCampaign.search.bgMobile}
         alt="search input depicting our new AI search feature"
-        className="block tablet:hidden absolute inset-0 w-full translate-y-1/2 top-[unset]"
+        className="block tablet:hidden absolute inset-0 z-0 w-full translate-y-1/2 top-[unset]"
       />
     </div>
   );
