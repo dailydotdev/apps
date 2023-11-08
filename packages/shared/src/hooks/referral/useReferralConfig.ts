@@ -26,11 +26,6 @@ export const useReferralConfig = ({
       };
 
     case ReferralCampaignKey.Generic:
-      return {
-        ...defaultValues,
-        redirectTo: 'https://r.daily.dev/download',
-      };
-
     default:
       return {
         ...defaultValues,

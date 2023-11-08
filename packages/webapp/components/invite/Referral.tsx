@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import {
   Button,
   ButtonSize,
@@ -15,12 +15,18 @@ import { laptopL } from '@dailydotdev/shared/src/styles/media';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import router from 'next/router';
 import { DailyDevLogo, JoinPageProps } from './common';
 
-export function Referral({ referringUser }: JoinPageProps): ReactElement {
+export function Referral({
+  referringUser,
+  redirectTo,
+}: JoinPageProps): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const { openModal } = useLazyModal();
   const isLaptopL = useMedia([laptopL.replace('@media ', '')], [true], false);
+  const { isLoggedIn } = useAuthContext();
 
   const handleAcceptClick = () => {
     // since in the page view, query params are tracked automatically,
@@ -28,12 +34,21 @@ export function Referral({ referringUser }: JoinPageProps): ReactElement {
     trackEvent({ event_name: AnalyticsEvent.AcceptInvitation });
   };
 
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.push(redirectTo);
+    }
+
+    // router is an unstable dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [redirectTo, isLoggedIn]);
+
   return (
     <div
       style={{
-        background: `url(${cloudinary.referralCampaign.genericReferral.backgroundDark})`,
+        backgroundImage: `url(${cloudinary.referralCampaign.genericReferral.backgroundDark})`,
       }}
-      className="flex overflow-hidden relative flex-col laptop:flex-row flex-auto items-center p-2 laptop:p-6 h-screen !bg-cover"
+      className="flex overflow-hidden relative flex-col laptop:flex-row flex-auto items-center p-2 laptop:p-6 h-screen bg-cover"
     >
       <DailyDevLogo />
       <div className="flex z-1 flex-col p-4 laptop:p-0 mt-20 laptop:mt-0 laptop:ml-3 w-full laptopL:ml-[9.25rem] laptop:max-w-[25rem] laptopL:max-w-[37.25rem]">
@@ -62,7 +77,7 @@ export function Referral({ referringUser }: JoinPageProps): ReactElement {
         <Button
           buttonSize={ButtonSize.Large}
           // important has been used is some classnames to override the default styles as agreed on [thread](https://dailydotdev.slack.com/archives/C05P9ET7S9K/p1699023366663489?thread_ts=1699011522.350609&cid=C05P9ET7S9K)
-          className="p-4 mx-auto laptop:mx-0 mt-6 tablet:mt-12 max-w-[17.5rem] mobileL:max-w-[fit-content] btn-primary mobileL:!h-[4rem] mobileL:!p-[0] mobileL:!px-[1.5rem]"
+          className="p-4 mx-auto laptop:mx-0 mt-6 tablet:mt-12 max-w-[17.5rem] tablet:max-w-fit btn-primary tablet:!h-16 tablet:!p-0 tablet:!px-6"
           tag="a"
           href={downloadBrowserExtension}
           onClick={() => {
@@ -70,8 +85,8 @@ export function Referral({ referringUser }: JoinPageProps): ReactElement {
           }}
           rel={anchorDefaultRel}
         >
-          <FlexCentered className="gap-2 mobileL:typo-title3">
-            <BrowsersIcon className="mobileL:w-20 mobileL:h-10 text-theme-label-primary w-[3.7rem] h-[1.9rem]" />
+          <FlexCentered className="gap-2 tablet:typo-title3">
+            <BrowsersIcon className="tablet:w-20 tablet:h-10 text-theme-label-primary w-[3.7rem] h-[1.9rem]" />
             Try it now - It&apos;s free
           </FlexCentered>
         </Button>
