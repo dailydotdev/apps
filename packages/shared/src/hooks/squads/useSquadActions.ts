@@ -1,6 +1,5 @@
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import {
-  QueryKey,
   useInfiniteQuery,
   UseInfiniteQueryResult,
   useMutation,
@@ -20,6 +19,7 @@ import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { updateFlagsCache } from '../../graphql/source/common';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { ActiveFeedContext } from '../../contexts';
 
 export interface UseSquadActions {
   onUnblock?: typeof unblockSquadMember;
@@ -39,7 +39,6 @@ interface UseSquadActionsProps {
   query?: string;
   membersQueryParams?: MembersQueryParams;
   membersQueryEnabled?: boolean;
-  feedQueryKey?: QueryKey;
 }
 
 export const useSquadActions = ({
@@ -47,8 +46,8 @@ export const useSquadActions = ({
   query,
   membersQueryParams = {},
   membersQueryEnabled,
-  feedQueryKey,
 }: UseSquadActionsProps): UseSquadActions => {
+  const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
   const { user } = useAuthContext();
   const client = useQueryClient();
   const membersQueryKey = generateQueryKey(

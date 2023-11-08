@@ -209,9 +209,7 @@ const SquadPage = ({
           showSearch={false}
           emptyScreen={<SquadEmptyScreen />}
           options={{ refetchOnMount: true }}
-          header={
-            <SquadFeedHeading squad={squad} feedQueryKey={feedQueryKey} />
-          }
+          header={<SquadFeedHeading squad={squad} />}
           inlineHeader
           allowPin
         />

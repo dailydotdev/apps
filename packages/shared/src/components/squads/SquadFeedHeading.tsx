@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
-import { QueryKey } from 'react-query';
 import { Button } from '../buttons/Button';
 import { PinIcon } from '../icons';
 import { Squad } from '../../graphql/sources';
@@ -8,17 +7,12 @@ import { useSquadActions } from '../../hooks';
 
 interface SquadFeedHeadingProps {
   squad: Squad;
-  feedQueryKey: QueryKey;
 }
 
-function SquadFeedHeading({
-  squad,
-  feedQueryKey,
-}: SquadFeedHeadingProps): ReactElement {
+function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
   const { items } = useContext(ActiveFeedContext);
   const { collapseSquadPinnedPosts, expandSquadPinnedPosts } = useSquadActions({
     squad,
-    feedQueryKey,
   });
   const collapsePinnedPosts = squad?.currentMember?.flags?.collapsePinnedPosts;
 
