@@ -36,7 +36,6 @@ export interface FeedContainerProps {
   header?: ReactNode;
   className?: string;
   inlineHeader?: boolean;
-  afterFeed?: ReactNode;
   showSearch?: boolean;
   besideSearch?: ReactNode;
   actionButtons?: ReactNode;
@@ -92,7 +91,6 @@ export const FeedContainer = ({
   header,
   className,
   inlineHeader = false,
-  afterFeed,
   showSearch,
   besideSearch,
   actionButtons,
@@ -223,7 +221,6 @@ export const FeedContainer = ({
           >
             {children}
           </div>
-          {afterFeed}
         </div>
       </div>
     </div>
