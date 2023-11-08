@@ -7,7 +7,6 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { useMutation } from 'react-query';
 import { acceptFeatureInvitation } from '@dailydotdev/shared/src/graphql/features';
 import { useRouter } from 'next/router';
-import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';

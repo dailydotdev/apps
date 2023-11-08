@@ -9,7 +9,6 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { useMutation } from 'react-query';
 import { acceptFeatureInvitation } from '@dailydotdev/shared/src/graphql/features';
 import { useRouter } from 'next/router';
-import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import {
