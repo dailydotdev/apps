@@ -110,7 +110,11 @@ export default function ProfileMenu({
       position={InteractivePopupPosition.RightStart}
       className="w-full border !right-4 laptop:max-w-[13.75rem] max-w-[21.25rem] roundeed-14 border-theme-divider-tertiary"
     >
-      <LabeledImage src={user.image} alt="Logged-in user">
+      <LabeledImage
+        src={user.image}
+        alt="Logged-in user"
+        className={{ content: '-mt-10' }}
+      >
         <span className="font-bold typo-title3">{user.name}</span>
         <span className="mt-1 typo-callout">@{user.username}</span>
       </LabeledImage>
