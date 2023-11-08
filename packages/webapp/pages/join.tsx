@@ -34,6 +34,10 @@ const Page = ({
   });
 
   useEffect(() => {
+    document.body.classList.add('hidden-scrollbar');
+  }, []);
+
+  useEffect(() => {
     if (!componentsMap[campaign]) {
       return;
     }
