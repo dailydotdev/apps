@@ -15,6 +15,7 @@ export enum InteractivePopupPosition {
   LeftStart = 'leftStart',
   LeftCenter = 'leftCenter',
   LeftEnd = 'leftEnd',
+  ProfileMenu = 'profileMenu',
   Screen = 'screen',
 }
 
@@ -32,6 +33,7 @@ const startClass = 'top-16';
 const endClass = 'bottom-8';
 const rightClass = 'right-8';
 const leftClass = 'left-64';
+const profileMenuRightClass = 'right-4';
 
 const positionClass: Record<InteractivePopupPosition, string> = {
   center: classNames(centerClassX, centerClassY),
@@ -43,6 +45,7 @@ const positionClass: Record<InteractivePopupPosition, string> = {
   leftStart: classNames(leftClass, startClass),
   leftCenter: classNames(leftClass, centerClassY),
   leftEnd: classNames(leftClass, endClass),
+  profileMenu: classNames(profileMenuRightClass, startClass),
   screen: 'inset-0 w-screen h-screen',
 };
 
