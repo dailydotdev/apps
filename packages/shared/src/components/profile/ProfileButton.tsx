@@ -21,7 +21,7 @@ export default function ProfileButton({
   className,
   atMobileSidebar,
 }: ProfileButtonProps): ReactElement {
-  const { isOpen, onUpdate } = useInteractivePopup();
+  const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
   const { user } = useContext(AuthContext);
 
   return (
@@ -30,7 +30,7 @@ export default function ProfileButton({
         <Button
           iconOnly
           className="btn btn-tertiary"
-          onClick={(e) => onUpdate(!isOpen, e)}
+          onClick={wrapHandler(() => onUpdate(!isOpen))}
           icon={<SettingsIcon />}
         />
       ) : (
@@ -41,7 +41,7 @@ export default function ProfileButton({
               'items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline',
               className ?? 'flex',
             )}
-            onClick={(e) => onUpdate(!isOpen, e)}
+            onClick={wrapHandler(() => onUpdate(!isOpen))}
           >
             <span className="hidden laptop:block mr-2 ml-3">
               {user.reputation ?? 0}

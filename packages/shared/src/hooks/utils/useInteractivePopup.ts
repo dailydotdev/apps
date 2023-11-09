@@ -4,7 +4,7 @@ type Fn = (e: MouseEvent) => void;
 
 interface UseInteractivePopup {
   isOpen: boolean;
-  onUpdate: (value: boolean, e?: MouseEvent) => void;
+  onUpdate: (value: boolean) => void;
   wrapHandler: (callback: Fn) => Fn;
 }
 
@@ -20,17 +20,9 @@ export const useInteractivePopup = (): UseInteractivePopup => {
     };
   }, []);
 
-  const onUpdate = useCallback((value: boolean, event: MouseEvent) => {
-    if (event?.stopPropagation) {
-      event.stopPropagation();
-    }
-
-    setIsOpen(value);
-  }, []);
-
   return {
     isOpen,
-    onUpdate,
+    onUpdate: setIsOpen,
     wrapHandler: handleTrigger,
   };
 };
