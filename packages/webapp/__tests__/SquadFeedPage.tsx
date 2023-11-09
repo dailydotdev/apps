@@ -12,7 +12,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { QueryClient } from 'react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { NextRouter } from 'next/router';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';

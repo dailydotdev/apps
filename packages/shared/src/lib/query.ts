@@ -3,7 +3,7 @@ import {
   QueryClient,
   QueryClientConfig,
   QueryKey,
-} from 'react-query';
+} from '@tanstack/react-query';
 import cloneDeep from 'lodash.clonedeep';
 import { Connection } from '../graphql/common';
 import { EmptyObjectLiteral } from './kratos';

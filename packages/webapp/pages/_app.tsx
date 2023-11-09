@@ -12,7 +12,7 @@ import Head from 'next/head';
 import 'focus-visible';
 import Modal from 'react-modal';
 import { DefaultSeo } from 'next-seo';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
@@ -30,7 +30,7 @@ import { useNotificationContext } from '@dailydotdev/shared/src/contexts/Notific
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
-import { ReactQueryDevtools } from 'react-query/devtools';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import Seo from '../next-seo';

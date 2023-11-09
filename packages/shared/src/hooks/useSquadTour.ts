@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 
 const SQUAD_TOUR_KEY = 'squadTourKey';
@@ -15,14 +15,14 @@ interface UseSquadTour extends SquadTourData {
 export const useSquadTour = (): UseSquadTour => {
   const client = useQueryClient();
   const { data } = useQuery<SquadTourData>(
-    SQUAD_TOUR_KEY,
-    () => client.getQueryData(SQUAD_TOUR_KEY),
+    [SQUAD_TOUR_KEY],
+    () => client.getQueryData([SQUAD_TOUR_KEY]),
     { initialData: { tourIndex: -1 } },
   );
 
   const onTourIndexChange = useCallback(
     (tourIndex: number) => {
-      client.setQueryData<SquadTourData>(SQUAD_TOUR_KEY, (value) => ({
+      client.setQueryData<SquadTourData>([SQUAD_TOUR_KEY], (value) => ({
         ...value,
         tourIndex,
       }));

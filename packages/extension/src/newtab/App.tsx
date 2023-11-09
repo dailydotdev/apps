@@ -5,7 +5,11 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
 import 'focus-visible';
@@ -28,7 +32,7 @@ import { useNotificationContext } from '@dailydotdev/shared/src/contexts/Notific
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
-import { ReactQueryDevtools } from 'react-query/devtools';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
@@ -85,7 +89,7 @@ function InternalApp({
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   const shouldRedirectOnboarding = !user && isPageReady && !isTesting;
 
-  useQuery(EXTENSION_PERMISSION_KEY, () => ({
+  useQuery([EXTENSION_PERMISSION_KEY], () => ({
     requestContentScripts,
     registerBrowserContentScripts,
     getContentScriptPermission,

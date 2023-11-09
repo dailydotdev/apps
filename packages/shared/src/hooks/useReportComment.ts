@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { graphqlUrl } from '../lib/config';
 import AuthContext from '../contexts/AuthContext';
 import { BooleanPromise } from '../components/filters/common';

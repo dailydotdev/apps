@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import useIncrementReadingRank from './useIncrementReadingRank';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import {

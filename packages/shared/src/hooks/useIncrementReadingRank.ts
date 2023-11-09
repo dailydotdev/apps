@@ -1,4 +1,4 @@
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useContext, useRef } from 'react';
 import AuthContext from '../contexts/AuthContext';
 import { getRankQueryKey } from './useReadingRank';

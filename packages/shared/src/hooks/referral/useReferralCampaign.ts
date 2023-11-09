@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useContext } from 'react';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { REFERRAL_CAMPAIGN_QUERY } from '../../graphql/users';
@@ -47,7 +47,7 @@ const useReferralCampaign = ({
   const queryKey = generateQueryKey(RequestKey.ReferralCampaigns, user, {
     referralOrigin: campaignKey,
   });
-  const { data, isSuccess, isIdle } = useQuery(
+  const { data, isSuccess, fetchStatus } = useQuery(
     queryKey,
     async () => {
       const result = await requestMethod<{
@@ -82,7 +82,7 @@ const useReferralCampaign = ({
     referralCountLimit,
     url,
     referralToken,
-    isReady: isSuccess || isIdle || isTesting,
+    isReady: isSuccess || fetchStatus === 'idle' || isTesting,
     isCompleted: referralCurrentCount >= referralCountLimit,
     availableCount: referralCountLimit - referredUsersCount,
     noKeysAvailable: referralCountLimit - referredUsersCount <= 0,

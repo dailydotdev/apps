@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRawBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
 
 interface CompanionEngagementsProps {

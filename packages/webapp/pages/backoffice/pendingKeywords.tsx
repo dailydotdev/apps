@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {
@@ -23,7 +23,7 @@ const PendingKeywords = (): ReactElement => {
     refetch: refetchCurrentKeyword,
     isLoading: isLoadingCurrentKeyword,
   } = useQuery<KeywordData & CountPendingKeywordsData>(
-    'randomPendingKeyword',
+    ['randomPendingKeyword'],
     () => request(graphqlUrl, RANDOM_PENDING_KEYWORD_QUERY),
     {
       enabled: tokenRefreshed,

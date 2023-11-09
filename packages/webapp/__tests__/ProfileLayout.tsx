@@ -2,7 +2,7 @@ import React from 'react';
 import { LoggedUser, PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { render, RenderResult, screen } from '@testing-library/react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { USER_READING_RANK_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';

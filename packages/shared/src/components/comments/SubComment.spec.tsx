@@ -1,6 +1,6 @@
 import React from 'react';
 import { screen, render, RenderResult } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser } from '../../lib/user';
 import SubComment, { SubCommentProps } from './SubComment';

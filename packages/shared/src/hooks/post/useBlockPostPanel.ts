@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import { Post, ReadHistoryPost } from '../../graphql/posts';
 import { generateStorageKey, StorageTopic } from '../../lib/storage';
@@ -75,11 +75,9 @@ export const useBlockPostPanel = (
   const client = useQueryClient();
   const { user } = useAuthContext();
   const { checkHasCompleted, completeAction } = useActions();
-  const key = generateStorageKey(
-    StorageTopic.Post,
-    `block:${post?.id}`,
-    user?.id,
-  );
+  const key = [
+    generateStorageKey(StorageTopic.Post, `block:${post?.id}`, user?.id),
+  ];
   const { data } = useQuery<BlockData>(key, () => client.getQueryData(key), {
     initialData: {},
     ...disabledRefetch,

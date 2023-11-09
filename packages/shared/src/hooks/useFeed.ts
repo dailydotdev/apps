@@ -5,7 +5,7 @@ import {
   useInfiniteQuery,
   UseInfiniteQueryOptions,
   useQueryClient,
-} from 'react-query';
+} from '@tanstack/react-query';
 import {
   Ad,
   FeedData,

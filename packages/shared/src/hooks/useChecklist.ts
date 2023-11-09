@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChecklistStepType } from '../lib/checklist';
 import { Action, ActionType } from '../graphql/actions';
 import { disabledRefetch } from '../lib/func';
@@ -26,17 +26,17 @@ const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
     [steps],
   );
   const { data: openStep } = useQuery<ActionType | undefined>(
-    CHECKLIST_OPEN_STEP_KEY,
-    () => client.getQueryData(CHECKLIST_OPEN_STEP_KEY),
+    [CHECKLIST_OPEN_STEP_KEY],
+    () => client.getQueryData([CHECKLIST_OPEN_STEP_KEY]),
     { initialData: undefined, ...disabledRefetch },
   );
   const setOpenStep = useCallback(
     (step: ActionType) => {
       client.setQueryData<ActionType | undefined>(
-        CHECKLIST_OPEN_STEP_KEY,
+        [CHECKLIST_OPEN_STEP_KEY],
         () => step,
       );
-      client.invalidateQueries(CHECKLIST_OPEN_STEP_KEY);
+      client.invalidateQueries([CHECKLIST_OPEN_STEP_KEY]);
     },
     [client],
   );

@@ -1,5 +1,5 @@
 import request from 'graphql-request';
-import { QueryKey, UseInfiniteQueryOptions } from 'react-query';
+import { QueryKey, UseInfiniteQueryOptions } from '@tanstack/react-query';
 import { UserShortProfile } from '../lib/user';
 // GraphQL Relay pagination types
 

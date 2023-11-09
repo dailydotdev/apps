@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { ClientError } from 'graphql-request';
 import { useContext } from 'react';
 import { Squad } from '../../graphql/sources';

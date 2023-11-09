@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { Button, ButtonSize } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
 import { cloudinary } from '../../lib/image';

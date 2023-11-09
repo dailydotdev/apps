@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo } from 'react';
-import { QueryKey, useMutation, useQuery } from 'react-query';
+import { QueryKey, useMutation, useQuery } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
 import {
   errorsToJson,
@@ -55,6 +55,7 @@ const useRegistration = ({
   const { displayToast } = useToastNotification();
   const { trackingId, referral, referralOrigin } = useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
+  console.log('registration', key);
   const {
     data: registration,
     isLoading: isQueryLoading,

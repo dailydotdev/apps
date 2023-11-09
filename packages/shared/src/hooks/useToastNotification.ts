@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 type AnyFunction = (() => Promise<unknown>) | (() => unknown);
 
@@ -22,7 +22,7 @@ export interface ToastNotification {
   undoCopy?: string;
 }
 
-export const TOAST_NOTIF_KEY = 'toast_notif';
+export const TOAST_NOTIF_KEY = ['toast_notif'];
 
 export type NotifyOptionalProps = Partial<
   Pick<ToastNotification, 'timer' | 'subject' | 'onUndo' | 'undoCopy'>
@@ -30,11 +30,12 @@ export type NotifyOptionalProps = Partial<
 
 export const useToastNotification = (): UseToastNotification => {
   const client = useQueryClient();
-  const { data: toast } = useQuery<ToastNotification>(TOAST_NOTIF_KEY, () =>
-    client.getQueryData<ToastNotification>(TOAST_NOTIF_KEY),
+  const { data: toast } = useQuery<ToastNotification>(
+    [TOAST_NOTIF_KEY],
+    () => client.getQueryData<ToastNotification>([TOAST_NOTIF_KEY]) || null,
   );
   const setToastNotification = (data: ToastNotification) =>
-    client.setQueryData(TOAST_NOTIF_KEY, data);
+    client.setQueryData([TOAST_NOTIF_KEY], data);
 
   const displayToast = (
     message: string,

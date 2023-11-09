@@ -1,5 +1,5 @@
 import { useCallback, useContext, useMemo } from 'react';
-import { useMutation, useQuery } from 'react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import request from 'graphql-request';
 import AlertContext from '../contexts/AlertContext';
 import { generateQueryKey, RequestKey } from '../lib/query';

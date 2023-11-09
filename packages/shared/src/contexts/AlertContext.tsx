@@ -1,6 +1,6 @@
 import request from 'graphql-request';
 import React, { ReactNode, ReactElement, useMemo } from 'react';
-import { UseMutateAsyncFunction, useMutation } from 'react-query';
+import { UseMutateAsyncFunction, useMutation } from '@tanstack/react-query';
 import { Alerts, AlertsUpdate, UPDATE_ALERTS } from '../graphql/alerts';
 import { graphqlUrl } from '../lib/config';
 

@@ -1,4 +1,4 @@
-import { QueryClient, useQueryClient } from 'react-query';
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { useContext } from 'react';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
@@ -29,7 +29,7 @@ interface ExtensionPermission {
 export const useExtensionPermission = (): ExtensionPermission => {
   const client = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
-  const data = client.getQueryData(EXTENSION_PERMISSION_KEY) || {};
+  const data = client.getQueryData([EXTENSION_PERMISSION_KEY]) || {};
 
   const {
     registerBrowserContentScripts,

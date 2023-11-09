@@ -39,8 +39,8 @@ export const upvoteMutationKey = ['post', 'mutation'];
 
 export const voteMutationMatcher: UseMutationMatcher = ({ mutation }) => {
   return (
-    mutation.state.status === 'success' &&
-    mutation.options.mutationKey?.toString() === upvoteMutationKey.toString()
+    mutation?.state?.status === 'success' &&
+    mutation?.options?.mutationKey?.toString() === upvoteMutationKey.toString()
   );
 };
 

@@ -9,7 +9,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { defaultTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import { NextRouter } from 'next/router';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';

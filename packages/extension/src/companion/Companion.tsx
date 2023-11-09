@@ -7,7 +7,7 @@ import React, {
   LegacyRef,
   useCallback,
 } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import Modal from 'react-modal';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
@@ -68,7 +68,7 @@ const Container = ({
   );
 };
 
-export const refreshTokenKey = 'refresh_token';
+export const refreshTokenKey = ['refresh_token'];
 
 export default function Companion({
   postData,
@@ -103,7 +103,7 @@ export default function Companion({
   );
   const [companionState, setCompanionState] =
     useState<boolean>(companionExpanded);
-  useQuery(REQUEST_PROTOCOL_KEY, () => ({
+  useQuery([REQUEST_PROTOCOL_KEY], () => ({
     requestMethod: companionRequest,
     fetchMethod: companionFetch,
     isCompanion: true,

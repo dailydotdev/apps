@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { RequestKey, generateQueryKey } from '../../lib/query';
 import { ReadHistoryInfiniteData } from '../useInfiniteReadingHistory';

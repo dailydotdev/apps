@@ -6,7 +6,7 @@ import { SQUAD_DIRECTORY_SOURCES } from '@dailydotdev/shared/src/graphql/squads'
 import InfiniteScrolling, {
   checkFetchMore,
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
-import { InfiniteData, useInfiniteQuery } from 'react-query';
+import { InfiniteData, useInfiniteQuery } from '@tanstack/react-query';
 import request, { ClientError } from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';

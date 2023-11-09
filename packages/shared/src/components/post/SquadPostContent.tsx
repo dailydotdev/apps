@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { PostNavigationProps } from './PostNavigation';
 import { postDateFormat } from '../../lib/dateFormat';

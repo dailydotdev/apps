@@ -11,7 +11,7 @@ import {
   KEYWORD_QUERY,
   KeywordData,
 } from '@dailydotdev/shared/src/graphql/keywords';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import useRequirePermissions from '@dailydotdev/shared/src/hooks/useRequirePermissions';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';

@@ -1,5 +1,5 @@
 import { useCallback, useContext, useState } from 'react';
-import { useMutation, useQuery } from 'react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { LoginFormParams } from '../components/auth/LoginForm';
 import AuthContext from '../contexts/AuthContext';
 import {
@@ -60,11 +60,19 @@ const useLogin = ({
   const hintState = useState('Enter your password to login');
   const [, setHint] = hintState;
   const { data: login } = useQuery(
-    [{ type: 'login', params: queryParams }],
-    ({ queryKey: [{ params }] }) =>
-      initializeKratosFlow(AuthFlow.Login, params),
-    { enabled: queryEnabled, refetchOnWindowFocus: false },
+    ['login'],
+    () => initializeKratosFlow(AuthFlow.Login, queryParams),
+    {
+      enabled: queryEnabled,
+      refetchOnWindowFocus: false,
+    },
   );
+  // const { data: login } = useQuery(
+  //   [AuthEvent.Login, { ...queryParams }],
+  //   ({ queryKey: [{ queryParams: params }] }) =>
+  //     initializeKratosFlow(AuthFlow.Login, params),
+  //   { enabled: queryEnabled, refetchOnWindowFocus: false },
+  // );
   const { mutateAsync: onPasswordLogin, isLoading } = useMutation(
     (params: ValidateLoginParams) => {
       trackEvent({

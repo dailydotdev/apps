@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { Origin } from '../../lib/analytics';
 import { Button } from '../buttons/Button';
