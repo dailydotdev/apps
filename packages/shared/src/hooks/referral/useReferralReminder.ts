@@ -14,7 +14,6 @@ export const useReferralReminder = (): void => {
 
     openModal({
       type: LazyModal.GenericReferral,
-      persistOnRouteChange: true,
     });
     updateLastReferralReminder();
   }, [alerts?.showGenericReferral, openModal, updateLastReferralReminder]);
