@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React, { FunctionComponent, ReactElement, ReactNode } from 'react';
 import { IconProps, IconSize } from './Icon';
-import useMedia from '../hooks/useMedia';
+import { useMedia } from '../hooks';
 import { tablet } from '../styles/media';
 
 export type UserBadgeProps = {

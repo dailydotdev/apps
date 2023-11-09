@@ -44,3 +44,5 @@ export default function useMedia<T>(
 
   return value;
 }
+
+export { useMedia };

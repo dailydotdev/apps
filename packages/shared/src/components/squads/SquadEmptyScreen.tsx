@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import SettingsContext, { ThemeMode } from '../../contexts/SettingsContext';
-import useMedia from '../../hooks/useMedia';
+import { useMedia } from '../../hooks';
 import { cloudinary } from '../../lib/image';
 import { tablet } from '../../styles/media';
 import { Image } from '../image/Image';

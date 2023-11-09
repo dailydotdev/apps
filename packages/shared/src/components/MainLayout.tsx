@@ -23,7 +23,6 @@ import MainLayoutHeader, {
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
-import { LazyModalElement } from './modals/LazyModalElement';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -183,7 +182,6 @@ function MainLayout({
       {customBanner}
       {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />
-      <LazyModalElement />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <MainLayoutHeader
