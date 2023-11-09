@@ -89,7 +89,7 @@ function MainLayoutHeader({
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
   };
-  const { referralToken, isReady } = useReferralCampaign({
+  const { isReady } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Search,
   });
 
