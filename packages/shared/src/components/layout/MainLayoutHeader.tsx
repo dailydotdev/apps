@@ -106,9 +106,7 @@ function MainLayoutHeader({
         )}
         {!hideButton && user && (
           <>
-            {sidebarRendered && !!referralToken && (
-              <SearchReferralButton className="mr-3" />
-            )}
+            {sidebarRendered && <SearchReferralButton className="mr-3" />}
             <LinkWithTooltip
               tooltip={{ placement: 'bottom', content: 'Notifications' }}
               href={`${webappUrl}notifications`}
