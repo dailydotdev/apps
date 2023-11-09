@@ -13,7 +13,7 @@ import {
   TabContainer,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
 import { SearchHistory } from '@dailydotdev/shared/src/components';
-import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
+import { useMedia } from '@dailydotdev/shared/src/hooks';
 import { laptop } from '@dailydotdev/shared/src/styles/media';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';

@@ -11,7 +11,7 @@ import FeedContext, {
   defaultFeedContextData,
   FeedContextData,
 } from '../contexts/FeedContext';
-import useMedia from '../hooks/useMedia';
+import { useMedia } from '../hooks';
 import SettingsContext from '../contexts/SettingsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 

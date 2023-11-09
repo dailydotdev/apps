@@ -39,6 +39,7 @@ export enum LazyModal {
   VerifySession = 'verifySession',
   SearchReferral = 'searchReferral',
   GenericReferral = 'genericReferral',
+  Video = 'video',
 }
 
 export type ModalTabItem = {

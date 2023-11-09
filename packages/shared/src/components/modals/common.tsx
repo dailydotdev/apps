@@ -85,6 +85,10 @@ const SearchReferralModal = dynamic(
     ),
 );
 
+const VideoModal = dynamic(
+  () => import(/* webpackChunkName: "videoModal" */ './VideoModal'),
+);
+
 const GenericReferralModal = dynamic(
   () =>
     import(
@@ -108,6 +112,7 @@ export const modals = {
   [LazyModal.VerifySession]: VerifySession,
   [LazyModal.SearchReferral]: SearchReferralModal,
   [LazyModal.GenericReferral]: GenericReferralModal,
+  [LazyModal.Video]: VideoModal,
 };
 
 type GetComponentProps<T> = T extends

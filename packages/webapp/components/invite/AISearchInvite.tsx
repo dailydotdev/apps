@@ -7,7 +7,6 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { useMutation } from 'react-query';
 import { acceptFeatureInvitation } from '@dailydotdev/shared/src/graphql/features';
 import { useRouter } from 'next/router';
-import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
@@ -22,7 +21,7 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
-import { JoinPageProps } from './common';
+import { DailyDevLogo, JoinPageProps } from './common';
 
 export function AISearchInvite({
   referringUser,
@@ -89,11 +88,9 @@ export function AISearchInvite({
   }, [redirectTo, search]);
 
   return (
-    <div className="flex overflow-hidden relative flex-col flex-1 justify-center items-center laptop:items-start p-6 h-full min-h-[100vh]">
-      <span className="absolute top-8 left-1/2 laptop:left-8 -translate-x-1/2 laptop:translate-x-0">
-        <Logo showGreeting={false} position={LogoPosition.Relative} />
-      </span>
-      <div className="flex flex-col laptop:ml-3 w-full tablet:max-w-[27.5rem] laptopL:ml-[9.75rem]">
+    <div className="flex overflow-hidden relative flex-col flex-1 justify-center items-center laptop:items-start p-6 h-full min-h-page">
+      <DailyDevLogo />
+      <div className="flex relative z-1 flex-col laptop:ml-3 w-full tablet:max-w-[27.5rem] laptopL:ml-[9.75rem]">
         <span className="flex flex-col laptop:flex-row gap-3 tablet:gap-4 laptop:gap-2 items-center laptop:items-start mb-6 tablet:mb-10 laptop:mb-8">
           <ProfileImageLink user={referringUser} />
           <p className="text-center laptop:text-left text-theme-label-tertiary typo-callout">
@@ -125,7 +122,7 @@ export function AISearchInvite({
       <img
         src={cloudinary.referralCampaign.search.bg}
         alt="search input depicting our new AI search feature"
-        className="hidden laptop:block absolute right-0 tablet:w-1/2"
+        className="hidden laptop:block absolute right-0 z-0 tablet:w-1/2"
       />
       <img
         src={cloudinary.referralCampaign.search.bgPopupMobile}
@@ -135,7 +132,7 @@ export function AISearchInvite({
       <img
         src={cloudinary.referralCampaign.search.bgMobile}
         alt="search input depicting our new AI search feature"
-        className="block tablet:hidden absolute inset-0 w-full translate-y-1/2 top-[unset]"
+        className="block tablet:hidden absolute inset-0 z-0 w-full translate-y-1/2 top-[unset]"
       />
     </div>
   );

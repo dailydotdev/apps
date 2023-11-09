@@ -4,9 +4,8 @@ import { useRouter } from 'next/router';
 import { Button, ButtonSize } from '../../buttons/Button';
 import { link } from '../../../lib/links';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import useMedia from '../../../hooks/useMedia';
+import { useMedia, useSquad } from '../../../hooks';
 import { laptop } from '../../../styles/media';
-import { useSquad } from '../../../hooks';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
 
