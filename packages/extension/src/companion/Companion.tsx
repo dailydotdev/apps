@@ -103,7 +103,7 @@ export default function Companion({
   );
   const [companionState, setCompanionState] =
     useState<boolean>(companionExpanded);
-  useQuery([REQUEST_PROTOCOL_KEY], () => ({
+  useQuery(REQUEST_PROTOCOL_KEY, () => ({
     requestMethod: companionRequest,
     fetchMethod: companionFetch,
     isCompanion: true,
