@@ -14,3 +14,6 @@ export * from './useContentScriptStatus';
 export * from './usePersonalizedDigest';
 export * from './useTagSearch';
 export * from './useFeedPreviewMode';
+export * from './useMedia';
+export * from './useActions';
+export * from './useToastNotification';

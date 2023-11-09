@@ -33,7 +33,7 @@ import {
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { cloudinary } from '../lib/image';
-import useMedia from '../hooks/useMedia';
+import { useMedia } from '../hooks';
 import { laptop, tablet } from '../styles/media';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
