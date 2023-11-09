@@ -30,6 +30,7 @@ import { SharedFeedPage } from './utilities';
 import { isTesting, onboardingUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
+import { useReferralReminder } from '../hooks/referral/useReferralReminder';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -85,6 +86,7 @@ function MainLayout({
   useAuthErrors();
   useAuthVerificationRecovery();
   useNotificationParams();
+  useReferralReminder();
   const handlers = useSwipeableSidebar({
     sidebarRendered,
     openMobileSidebar,

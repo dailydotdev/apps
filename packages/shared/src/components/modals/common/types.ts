@@ -38,6 +38,7 @@ export enum LazyModal {
   FeedFilters = 'feedFilters',
   VerifySession = 'verifySession',
   SearchReferral = 'searchReferral',
+  GenericReferral = 'genericReferral',
   Video = 'video',
 }
 

@@ -89,6 +89,13 @@ const VideoModal = dynamic(
   () => import(/* webpackChunkName: "videoModal" */ './VideoModal'),
 );
 
+const GenericReferralModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "genericReferralModal" */ './referral/GenericReferralModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -104,6 +111,7 @@ export const modals = {
   [LazyModal.FeedFilters]: FeedFilters,
   [LazyModal.VerifySession]: VerifySession,
   [LazyModal.SearchReferral]: SearchReferralModal,
+  [LazyModal.GenericReferral]: GenericReferralModal,
   [LazyModal.Video]: VideoModal,
 };
 
