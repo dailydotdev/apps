@@ -87,12 +87,13 @@ function InteractivePopup({
 
     // The reason we wait for a few ms is, when the user clicks the triggering element to open this,
     // it is considered outside the core container. Hence, triggering the close here.
-    setTimeout(() => {
+    const timeout = setTimeout(() => {
       globalThis?.document.addEventListener('click', onClickAnywhere);
     }, WAIT_FOR_FULL_RENDER);
 
     return () => {
       globalThis?.document.removeEventListener('click', onClickAnywhere);
+      clearTimeout(timeout);
     };
   }, [closeOutsideClick]);
 
