@@ -43,6 +43,7 @@ import classNames from 'classnames';
 import DOMPurify from 'dompurify';
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
+import ReferralWidget from '@dailydotdev/shared/src/components/cards/ReferralWidget';
 import styles from './index.module.css';
 import NavBar, { tabs } from './NavBar';
 import { getLayout as getMainLayout } from '../MainLayout';
@@ -276,6 +277,9 @@ export default function ProfileLayout({
             )}
           </div>
         </section>
+        {profile.id === user?.id && (
+          <ReferralWidget link="https://daily.dev/invite/42378478932789" />
+        )}
         <NavBar selectedTab={selectedTab} profile={profile} />
         {children}
       </ResponsivePageContainer>
