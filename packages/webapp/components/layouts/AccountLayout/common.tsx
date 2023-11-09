@@ -14,6 +14,7 @@ import {
   termsOfService,
 } from '@dailydotdev/shared/src/lib/constants';
 import BellIcon from '@dailydotdev/shared/src/components/icons/Bell';
+import { InviteIcon } from '@dailydotdev/shared/src/components/icons';
 
 export interface ManageSocialProvidersProps {
   type: ManageSocialProviderTypes;
@@ -38,6 +39,7 @@ export enum AccountPage {
   Security = 'security',
   Notifications = 'notifications',
   OtherSettings = 'others',
+  InviteFriends = 'invite',
 }
 
 export enum AccountSecurityDisplay {
@@ -108,10 +110,20 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
     ),
   },
   others: {
-    title: 'Other Settings',
+    title: 'Other settings',
     href: '/others',
     getIcon: ({ isActive }) => (
       <SettingsIcon
+        secondary={isActive}
+        className={!isActive && 'text-theme-label-secondary'}
+      />
+    ),
+  },
+  invite: {
+    title: 'Invite friends',
+    href: '/invite',
+    getIcon: ({ isActive }) => (
+      <InviteIcon
         secondary={isActive}
         className={!isActive && 'text-theme-label-secondary'}
       />
