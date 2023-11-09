@@ -35,6 +35,10 @@ const Page = ({
 
   useEffect(() => {
     document.body.classList.add('hidden-scrollbar');
+
+    return () => {
+      document.body.classList.remove('hidden-scrollbar');
+    };
   }, []);
 
   useEffect(() => {
