@@ -24,7 +24,7 @@ interface InteractivePopupProps {
   className?: string;
   position?: InteractivePopupPosition;
   closeOutsideClick?: boolean;
-  onClose?: (e: MouseEvent) => void;
+  onClose?: (e: MouseEvent | KeyboardEvent) => void;
 }
 
 const centerClassX = 'left-1/2 -translate-x-1/2';
@@ -55,8 +55,6 @@ const leftPositions = [
   InteractivePopupPosition.LeftEnd,
 ];
 
-const WAIT_FOR_FULL_RENDER = 10;
-
 function InteractivePopup({
   children,
   className,
@@ -85,15 +83,10 @@ function InteractivePopup({
       }
     };
 
-    // The reason we wait for a few ms is, when the user clicks the triggering element to open this,
-    // it is considered outside the core container. Hence, triggering the close here.
-    const timeout = setTimeout(() => {
-      globalThis?.document.addEventListener('click', onClickAnywhere);
-    }, WAIT_FOR_FULL_RENDER);
+    globalThis?.document.addEventListener('click', onClickAnywhere);
 
     return () => {
       globalThis?.document.removeEventListener('click', onClickAnywhere);
-      clearTimeout(timeout);
     };
   }, [closeOutsideClick]);
 
@@ -102,7 +95,13 @@ function InteractivePopup({
       <ConditionalWrapper
         condition={!sidebarRendered}
         wrapper={(child) => (
-          <div className="flex fixed inset-0 z-modal flex-col items-center bg-overlay-quaternary-onion">
+          <div
+            role="button"
+            className="flex fixed inset-0 z-modal flex-col items-center bg-overlay-quaternary-onion"
+            onClick={(e) => onClose(e.nativeEvent)}
+            onKeyDown={(e) => onClose(e.nativeEvent)}
+            tabIndex={0}
+          >
             {child}
           </div>
         )}

@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import AuthContext from '../../contexts/AuthContext';
@@ -6,6 +6,7 @@ import { ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import SettingsIcon from '../icons/Settings';
 import { Button } from '../buttons/Button';
+import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 
 const ProfileMenu = dynamic(
   () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
@@ -20,7 +21,7 @@ export default function ProfileButton({
   className,
   atMobileSidebar,
 }: ProfileButtonProps): ReactElement {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isOpen, onUpdate } = useInteractivePopup();
   const { user } = useContext(AuthContext);
 
   return (
@@ -29,7 +30,7 @@ export default function ProfileButton({
         <Button
           iconOnly
           className="btn btn-tertiary"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          onClick={(e) => onUpdate(!isOpen, e)}
           icon={<SettingsIcon />}
         />
       ) : (
@@ -40,7 +41,7 @@ export default function ProfileButton({
               'items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline',
               className ?? 'flex',
             )}
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onClick={(e) => onUpdate(!isOpen, e)}
           >
             <span className="hidden laptop:block mr-2 ml-3">
               {user.reputation ?? 0}
@@ -49,7 +50,7 @@ export default function ProfileButton({
           </button>
         </SimpleTooltip>
       )}
-      {isMenuOpen && <ProfileMenu onClose={() => setIsMenuOpen(false)} />}
+      {isOpen && <ProfileMenu onClose={() => onUpdate(false)} />}
     </>
   );
 }
