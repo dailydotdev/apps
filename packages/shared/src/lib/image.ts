@@ -92,6 +92,11 @@ export const cloudinary = {
       'https://daily-now-res.cloudinary.com/image/upload/f_auto/public/empty_squad_light',
   },
   referralCampaign: {
+    generic: {
+      sad: 'https://daily-now-res.cloudinary.com/image/upload/s--rMfJxJbl--/f_auto/v1697024846/ido_sad_xbe6p5',
+      happy:
+        'https://daily-now-res.cloudinary.com/image/upload/s--gnompkBm--/f_auto/v1697024846/ido_happy_zfosbr',
+    },
     search: {
       bg: 'https://daily-now-res.cloudinary.com/image/upload/s--lYQL8anp--/f_auto/v1697393720/referral_bg_i261vi',
       bgKeys:
@@ -102,6 +107,16 @@ export const cloudinary = {
         'https://daily-now-res.cloudinary.com/image/upload/s--pvdAKlaQ--/f_auto/v1697393719/referral_bg_mobile_on0esi',
       bgPopupMobile:
         'https://daily-now-res.cloudinary.com/image/upload/s--19oBvNgw--/f_auto/v1697393719/referral_bg_popup_mobile_on7ss5',
+    },
+    genericReferral: {
+      backgroundDark:
+        'https://daily-now-res.cloudinary.com/image/upload/s--GBy6n7jn--/f_auto/v1685961531/public/background_Image',
+      appScreenshot:
+        'https://daily-now-res.cloudinary.com/image/upload/s--m_DzIlz0--/f_auto/v1698844735/platform_bjdgxm',
+      playButton:
+        'https://daily-now-res.cloudinary.com/image/upload/v1698844736/play_button_h38ezx.svg',
+      purpleEdgeGlowTablet:
+        'https://daily-now-res.cloudinary.com/image/upload/v1698922944/glow_mobile_tablet_lsou4j.svg',
     },
     appScreenshot:
       'https://daily-now-res.cloudinary.com/image/upload/s--3e8Phst3--/f_auto,q_auto/v1686045256/daily_lmzdaf',

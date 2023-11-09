@@ -1,7 +1,12 @@
 import request from 'graphql-request';
 import React, { ReactNode, ReactElement, useMemo } from 'react';
 import { UseMutateAsyncFunction, useMutation } from 'react-query';
-import { Alerts, AlertsUpdate, UPDATE_ALERTS } from '../graphql/alerts';
+import {
+  Alerts,
+  AlertsUpdate,
+  UPDATE_ALERTS,
+  UPDATE_LAST_REFERRAL_REMINDER,
+} from '../graphql/alerts';
 import { graphqlUrl } from '../lib/config';
 
 export const ALERT_DEFAULTS: Alerts = {
@@ -9,6 +14,7 @@ export const ALERT_DEFAULTS: Alerts = {
   rankLastSeen: null,
   myFeed: null,
   squadTour: true,
+  showGenericReferral: false,
 };
 
 export interface AlertContextData {
@@ -21,6 +27,7 @@ export interface AlertContextData {
     AlertsUpdate,
     () => Promise<void>
   >;
+  updateLastReferralReminder?: UseMutateAsyncFunction;
 }
 
 export const MAX_DATE = new Date(3021, 0, 1);
@@ -36,6 +43,7 @@ export interface AlertContextProviderProps {
   isFetched?: boolean;
   loadedAlerts?: boolean;
   updateAlerts?: (alerts: Alerts) => unknown;
+  updateLastReferralReminder?: () => unknown;
 }
 
 export const AlertContextProvider = ({
@@ -67,14 +75,38 @@ export const AlertContextProvider = ({
     },
   );
 
+  const { mutateAsync: updateLastReferralReminder } = useMutation(
+    () => request(graphqlUrl, UPDATE_LAST_REFERRAL_REMINDER),
+    {
+      onMutate: () =>
+        updateAlerts({
+          ...alerts,
+          showGenericReferral: false,
+        }),
+      onError: () => {
+        updateAlerts({
+          ...alerts,
+          showGenericReferral: true,
+        });
+      },
+    },
+  );
+
   const alertContextData = useMemo<AlertContextData>(
     () => ({
       alerts,
       isFetched,
       loadedAlerts,
       updateAlerts: updateRemoteAlerts,
+      updateLastReferralReminder,
     }),
-    [alerts, loadedAlerts, isFetched, updateRemoteAlerts],
+    [
+      alerts,
+      loadedAlerts,
+      isFetched,
+      updateRemoteAlerts,
+      updateLastReferralReminder,
+    ],
   );
 
   return (

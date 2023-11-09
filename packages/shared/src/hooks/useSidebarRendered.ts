@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import useMedia from './useMedia';
+import { useMedia } from './useMedia';
 import { laptop } from '../styles/media';
 
 export const footerNavBarBreakpoint = laptop;

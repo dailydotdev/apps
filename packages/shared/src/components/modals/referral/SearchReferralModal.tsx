@@ -6,11 +6,14 @@ import { Button } from '../../buttons/Button';
 import CopyIcon from '../../icons/Copy';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { CampaignCtaPlacement } from '../../../graphql/settings';
-import useMedia from '../../../hooks/useMedia';
+import {
+  useMedia,
+  ReferralCampaignKey,
+  useReferralCampaign,
+} from '../../../hooks';
 import { laptop } from '../../../styles/media';
 import { cloudinary } from '../../../lib/image';
 import { KeysRow } from './KeysRow';
-import { ReferralCampaignKey, useReferralCampaign } from '../../../hooks';
 import { link } from '../../../lib/links';
 import { useCopyLink } from '../../../hooks/useCopy';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
