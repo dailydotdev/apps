@@ -23,7 +23,6 @@ import MainLayoutHeader, {
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
-import { LazyModalElement } from './modals/LazyModalElement';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -31,6 +30,7 @@ import { SharedFeedPage } from './utilities';
 import { isTesting, onboardingUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
+import { useReferralReminder } from '../hooks/referral/useReferralReminder';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -86,6 +86,7 @@ function MainLayout({
   useAuthErrors();
   useAuthVerificationRecovery();
   useNotificationParams();
+  useReferralReminder();
   const handlers = useSwipeableSidebar({
     sidebarRendered,
     openMobileSidebar,
@@ -181,7 +182,6 @@ function MainLayout({
       {customBanner}
       {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />
-      <LazyModalElement />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <MainLayoutHeader

@@ -19,10 +19,13 @@ import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { Bubble } from '../tooltips/utils';
 import HeaderLogo from './HeaderLogo';
 import { CreatePostButton } from '../post/write';
-import useMedia from '../../hooks/useMedia';
+import {
+  useMedia,
+  ReferralCampaignKey,
+  useReferralCampaign,
+} from '../../hooks';
 import { tablet } from '../../styles/media';
 import { SearchReferralButton } from '../referral/SearchReferralButton';
-import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
 
 interface ShouldShowLogoProps {
   mobileTitle?: string;

@@ -25,7 +25,7 @@ import CloseIcon from '../icons/MiniClose';
 import { useInputField } from '../../hooks/useInputField';
 import { SearchProgressBar } from './SearchProgressBar';
 import { SearchChunk } from '../../graphql/search';
-import useMedia from '../../hooks/useMedia';
+import { useMedia } from '../../hooks';
 import { tablet } from '../../styles/media';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { SearchSubmitButton } from './SearchSubmitButton';

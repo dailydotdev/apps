@@ -32,6 +32,7 @@ export function InfiniteReadingHistory({
           type="button"
           className="group relative -mx-6 hover:bg-theme-hover cursor-pointer"
           onClick={(e) => onArticleClick(e, item)}
+          aria-label="Reading history item"
         >
           <PostItemCard postItem={item} showButtons={false} clickable={false} />
           <ArrowIcon
