@@ -25,6 +25,7 @@ import { IconSize } from '../Icon';
 interface SocialShareListProps {
   link: string;
   description: string;
+  emailTitle?: string;
   isCopying?: boolean;
   onCopy?(): void;
   onNativeShare(): void;
@@ -33,6 +34,7 @@ interface SocialShareListProps {
 
 export function SocialShareList({
   link,
+  emailTitle,
   description,
   isCopying,
   onCopy,
@@ -97,7 +99,7 @@ export function SocialShareList({
         label="Telegram"
       />
       <SocialShareIcon
-        href={getEmailShareLink(link, 'I found this amazing post')}
+        href={getEmailShareLink(link, emailTitle ?? description)}
         icon={<MailIcon />}
         className="bg-theme-bg-email"
         onClick={() => onClickSocial(ShareProvider.Email)}
