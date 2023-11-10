@@ -1,15 +1,13 @@
 import React, { ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
 import { UserShortInfoPlaceholder } from './UserShortInfoPlaceholder';
-import { UserShortInfo } from './UserShortInfo';
+import { UserShortInfo, UserShortInfoProps } from './UserShortInfo';
 import InfiniteScrolling, {
   InfiniteScrollingProps,
 } from '../containers/InfiniteScrolling';
 import { UserShortProfile } from '../../lib/user';
 
 export interface UserListProps {
-  scrollingContainer?: HTMLElement;
-  appendTooltipTo?: HTMLElement;
   scrollingProps: Omit<InfiniteScrollingProps, 'children'>;
   users: UserShortProfile[];
   placeholderAmount?: number;
@@ -17,6 +15,10 @@ export interface UserListProps {
   initialItem?: ReactElement;
   isLoading?: boolean;
   emptyPlaceholder?: JSX.Element;
+  userInfoProps?: Omit<
+    UserShortInfoProps,
+    'user' | 'href' | 'tag' | 'children'
+  >;
 }
 
 function UserList({
@@ -27,7 +29,7 @@ function UserList({
   initialItem,
   isLoading,
   emptyPlaceholder,
-  ...props
+  userInfoProps = {},
 }: UserListProps): ReactElement {
   const loader = (
     <UserShortInfoPlaceholder placeholderAmount={placeholderAmount} />
@@ -43,7 +45,12 @@ function UserList({
         {!!initialItem && initialItem}
         {users.map((user, i) => (
           <Link key={user.username} href={user.permalink}>
-            <UserShortInfo {...props} tag="a" href={user.permalink} user={user}>
+            <UserShortInfo
+              {...userInfoProps}
+              tag="a"
+              href={user.permalink}
+              user={user}
+            >
               {additionalContent?.(user, i)}
             </UserShortInfo>
           </Link>

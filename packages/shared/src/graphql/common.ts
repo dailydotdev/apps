@@ -1,6 +1,6 @@
 import request from 'graphql-request';
 import { QueryKey, UseInfiniteQueryOptions } from 'react-query';
-import { UserShortProfile } from '../lib/user';
+import { PublicProfile, UserShortProfile } from '../lib/user';
 // GraphQL Relay pagination types
 
 export type ConnectionCursor = string;
@@ -120,3 +120,7 @@ export const errorMessage = {
     invalidHandle: 'Invalid character(s) found in social handle',
   },
 };
+
+export interface ReferredUsersData {
+  referredUsers: Connection<PublicProfile>;
+}

@@ -54,9 +54,11 @@ function UserListModal({
           {...userListProps}
           users={users}
           scrollingProps={otherScrollingProps}
-          scrollingContainer={container.current}
-          appendTooltipTo={modalRef}
           placeholderAmount={placeholderAmount}
+          userInfoProps={{
+            scrollingContainer: container.current,
+            appendTooltipTo: modalRef,
+          }}
         />
       </Modal.Body>
     </Modal>
