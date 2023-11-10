@@ -50,6 +50,7 @@ const ReferralWidget = (): ReactElement => {
           value={inviteLink}
           fieldType="tertiary"
           className={{ input: 'typo-footnote' }}
+          disabled={!isReady}
           actionButton={
             <Button
               buttonSize={ButtonSize.XSmall}
