@@ -10,11 +10,6 @@ import {
   ButtonSize,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { labels } from '@dailydotdev/shared/src/lib';
-import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
-import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
-import { SocialShareIcon } from '@dailydotdev/shared/src/components/widgets/SocialShareIcon';
-import { getTwitterShareLink } from '@dailydotdev/shared/src/lib/share';
-import TwitterIcon from '@dailydotdev/shared/src/components/icons/Twitter';
 import {
   generateQueryKey,
   RequestKey,
@@ -27,6 +22,8 @@ import { REFERRED_USERS_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import UserList from '@dailydotdev/shared/src/components/profile/UserList';
 import { checkFetchMore } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { ReferredUsersData } from '@dailydotdev/shared/src/graphql/common';
+import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/SocialShareList';
+import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
@@ -39,14 +36,7 @@ const AccountInvitePage = (): ReactElement => {
     campaignKey: ReferralCampaignKey.Generic,
   });
   const inviteLink = url || link.referral.defaultUrl;
-  const [copyingLink, onShareOrCopyLink] = useShareOrCopyLink({
-    text: labels.referral.generic.inviteText,
-    link: inviteLink,
-    trackObject: () => ({
-      event_name: AnalyticsEvent.CopyReferralLink,
-      // target_id: TargetId.GenericReferralPopup,
-    }),
-  });
+  const [copyingLink, onCopyLink] = useCopyLink(() => inviteLink);
 
   const usersResult = useInfiniteQuery<ReferredUsersData>(
     referredKey,
@@ -60,6 +50,17 @@ const AccountInvitePage = (): ReactElement => {
         lastPage?.referredUsers?.pageInfo?.endCursor,
     },
   );
+
+  const onNativeShare = async () => {
+    await navigator.share({
+      title: labels.referral.generic.inviteText,
+      url: inviteLink,
+    });
+  };
+
+  const onTrackShare = () => {
+    // add tracking here
+  };
 
   return (
     <AccountPageContainer title="Invite friends">
@@ -75,7 +76,7 @@ const AccountInvitePage = (): ReactElement => {
           <Button
             buttonSize={ButtonSize.Small}
             className="btn-primary"
-            onClick={() => onShareOrCopyLink()}
+            onClick={() => onCopyLink()}
           >
             {copyingLink ? 'Copying...' : 'Copy link'}
           </Button>
@@ -86,65 +87,13 @@ const AccountInvitePage = (): ReactElement => {
         or invite with
       </span>
       <div className="flex flex-row gap-6">
-        <SocialShareIcon
-          href={getTwitterShareLink(
-            inviteLink,
-            labels.referral.generic.inviteText,
-          )}
-          icon={<TwitterIcon />}
-          className="text-white bg-black"
-          // onClick={() => trackClick(ShareProvider.Twitter)}
-          label="X"
-        />
-        <SocialShareIcon
-          href={getTwitterShareLink(
-            inviteLink,
-            labels.referral.generic.inviteText,
-          )}
-          icon={<TwitterIcon />}
-          className="text-white bg-black"
-          // onClick={() => trackClick(ShareProvider.Twitter)}
-          label="X"
-        />
-        <SocialShareIcon
-          href={getTwitterShareLink(
-            inviteLink,
-            labels.referral.generic.inviteText,
-          )}
-          icon={<TwitterIcon />}
-          className="text-white bg-black"
-          // onClick={() => trackClick(ShareProvider.Twitter)}
-          label="X"
-        />
-        <SocialShareIcon
-          href={getTwitterShareLink(
-            inviteLink,
-            labels.referral.generic.inviteText,
-          )}
-          icon={<TwitterIcon />}
-          className="text-white bg-black"
-          // onClick={() => trackClick(ShareProvider.Twitter)}
-          label="X"
-        />
-        <SocialShareIcon
-          href={getTwitterShareLink(
-            inviteLink,
-            labels.referral.generic.inviteText,
-          )}
-          icon={<TwitterIcon />}
-          className="text-white bg-black"
-          // onClick={() => trackClick(ShareProvider.Twitter)}
-          label="X"
-        />
-        <SocialShareIcon
-          href={getTwitterShareLink(
-            inviteLink,
-            labels.referral.generic.inviteText,
-          )}
-          icon={<TwitterIcon />}
-          className="text-white bg-black"
-          // onClick={() => trackClick(ShareProvider.Twitter)}
-          label="X"
+        <SocialShareList
+          link={inviteLink}
+          description={labels.referral.generic.inviteText}
+          isCopying={copyingLink}
+          onCopy={onCopyLink}
+          onNativeShare={onNativeShare}
+          onClickSocial={onTrackShare}
         />
       </div>
       <AccountContentSection
