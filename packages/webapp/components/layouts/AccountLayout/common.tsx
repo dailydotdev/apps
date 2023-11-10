@@ -14,6 +14,7 @@ import {
   termsOfService,
 } from '@dailydotdev/shared/src/lib/constants';
 import BellIcon from '@dailydotdev/shared/src/components/icons/Bell';
+import { InviteIcon } from '@dailydotdev/shared/src/components/icons';
 
 export interface ManageSocialProvidersProps {
   type: ManageSocialProviderTypes;
@@ -38,6 +39,7 @@ export enum AccountPage {
   Security = 'security',
   Notifications = 'notifications',
   OtherSettings = 'others',
+  InviteFriends = 'invite',
 }
 
 export enum AccountSecurityDisplay {
@@ -107,8 +109,18 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
       />
     ),
   },
+  invite: {
+    title: 'Invite friends',
+    href: '/invite',
+    getIcon: ({ isActive }) => (
+      <InviteIcon
+        secondary={isActive}
+        className={!isActive && 'text-theme-label-secondary'}
+      />
+    ),
+  },
   others: {
-    title: 'Other Settings',
+    title: 'Other settings',
     href: '/others',
     getIcon: ({ isActive }) => (
       <SettingsIcon
@@ -122,7 +134,7 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
 export const AccountPageContent = classed(
   'div',
   pageBorders,
-  'flex flex-col w-full laptop:max-w-[calc(100vw-19.75rem)] laptop:max-w-[calc(100vw-36rem)] laptopL:max-w-[40rem] tablet:border-l mr-auto',
+  'flex flex-col w-full laptop:max-w-[calc(100vw-19.75rem)] laptopL:max-w-[40.5rem] tablet:border-l mr-auto',
 );
 export const AccountPageSection = classed(
   'section',

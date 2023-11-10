@@ -37,7 +37,7 @@ const AccountOthersPage = (): ReactElement => {
   const Icon = getTimeZoneIcon(userTimeZone);
 
   return (
-    <AccountPageContainer title="Other Settings">
+    <AccountPageContainer title="Other settings">
       <AccountContentSection
         className={{ heading: 'mt-0' }}
         title="Timezone"
