@@ -19,11 +19,12 @@ const useWindowEvents = <T extends MessageEventData = MessageEventData>(
   { validateKey = true, enabled = true }: Partial<OptionalProps> = {},
 ): void => {
   useEffect(() => {
+    if (!enabled) {
+      return null;
+    }
+
     const handler = (e: MessageEvent<T>) => {
-      if (
-        !enabled ||
-        (validateKey && (!e.data?.eventKey || e.data.eventKey !== key))
-      ) {
+      if (validateKey && (!e.data?.eventKey || e.data.eventKey !== key)) {
         return;
       }
 
