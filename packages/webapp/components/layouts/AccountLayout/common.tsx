@@ -109,21 +109,21 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
       />
     ),
   },
-  others: {
-    title: 'Other settings',
-    href: '/others',
-    getIcon: ({ isActive }) => (
-      <SettingsIcon
-        secondary={isActive}
-        className={!isActive && 'text-theme-label-secondary'}
-      />
-    ),
-  },
   invite: {
     title: 'Invite friends',
     href: '/invite',
     getIcon: ({ isActive }) => (
       <InviteIcon
+        secondary={isActive}
+        className={!isActive && 'text-theme-label-secondary'}
+      />
+    ),
+  },
+  others: {
+    title: 'Other settings',
+    href: '/others',
+    getIcon: ({ isActive }) => (
+      <SettingsIcon
         secondary={isActive}
         className={!isActive && 'text-theme-label-secondary'}
       />
