@@ -24,6 +24,9 @@ import { checkFetchMore } from '@dailydotdev/shared/src/components/containers/In
 import { ReferredUsersData } from '@dailydotdev/shared/src/graphql/common';
 import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/SocialShareList';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
+import { Separator } from '@dailydotdev/shared/src/components/cards/common';
+import { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
+import { format } from 'date-fns';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
@@ -111,9 +114,28 @@ const AccountInvitePage = (): ReactElement => {
             fetchNextPage: usersResult.fetchNextPage,
             className: 'mt-4',
           }}
-          scrollingContainer={container.current}
+          userInfoProps={{
+            scrollingContainer: container.current,
+            className: {
+              container: 'px-0',
+              textWrapper: 'flex-none',
+            },
+            transformUsername({
+              username,
+              createdAt,
+            }: UserShortProfile): React.ReactNode {
+              return (
+                <span className="mt-2 typo-callout text-theme-label-secondary">
+                  @{username}
+                  <Separator />
+                  <time dateTime={createdAt}>
+                    {format(new Date(createdAt), 'dd MMM yyyy')}
+                  </time>
+                </span>
+              );
+            },
+          }}
           placeholderAmount={referredUsersCount}
-          className={{ container: 'px-0' }}
         />
       </AccountContentSection>
     </AccountPageContainer>

@@ -48,7 +48,7 @@ export interface UserProfile {
 }
 
 export interface UserShortProfile
-  extends Pick<PublicProfile, 'id' | 'name' | 'image' | 'bio'> {
+  extends Pick<PublicProfile, 'id' | 'name' | 'image' | 'bio' | 'createdAt'> {
   username: string;
   permalink: string;
 }
