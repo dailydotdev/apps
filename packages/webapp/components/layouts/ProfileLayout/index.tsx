@@ -277,9 +277,7 @@ export default function ProfileLayout({
             )}
           </div>
         </section>
-        {profile.id === user?.id && (
-          <ReferralWidget link="https://daily.dev/invite/42378478932789" />
-        )}
+        {profile.id === user?.id && <ReferralWidget />}
         <NavBar selectedTab={selectedTab} profile={profile} />
         {children}
       </ResponsivePageContainer>

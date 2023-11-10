@@ -27,7 +27,6 @@ type ItemType = React.ComponentType<{ className }>;
 
 export interface IconProps {
   secondary?: boolean;
-  tertiary?: boolean;
   size?: IconSize;
   className?: string;
   style?: CSSProperties;
@@ -36,26 +35,17 @@ export interface IconProps {
 type Props = IconProps & {
   IconPrimary: ItemType;
   IconSecondary: ItemType;
-  IconTertiary?: ItemType;
 };
 
 const Icon = ({
   secondary = false,
-  tertiary = false,
   size = IconSize.XSmall,
   className = '',
   IconPrimary,
   IconSecondary,
-  IconTertiary,
   ...rest
 }: Props): ReactElement => {
-  let IconComponent = IconPrimary;
-
-  if (secondary) {
-    IconComponent = IconSecondary;
-  } else if (tertiary) {
-    IconComponent = IconTertiary;
-  }
+  const IconComponent = secondary ? IconSecondary : IconPrimary;
 
   return (
     <IconComponent

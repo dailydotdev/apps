@@ -1,20 +1,37 @@
 import React, { ReactElement } from 'react';
 import { Card, CardTitle } from './Card';
 import { Button, ButtonSize } from '../buttons/Button';
-import { SocialShareIcon } from '../widgets/SocialShareIcon';
 import {
   getFacebookShareLink,
   getTwitterShareLink,
   getWhatsappShareLink,
-  ShareProvider,
 } from '../../lib/share';
 import WhatsappIcon from '../icons/Whatsapp';
 import FacebookIcon from '../icons/Facebook';
 import TwitterIcon from '../icons/Twitter';
+import { TextField } from '../fields/TextField';
+import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
+import { link } from '../../lib/links';
+import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
+import { labels } from '../../lib';
+import { AnalyticsEvent, TargetId } from '../../lib/analytics';
+import { SimpleTooltip } from '../tooltips';
 
-const ReferralWidget = ({ link }: { link: string }): ReactElement => {
-  const onReferralClick = (provider: ShareProvider) => {
-    console.log(provider);
+const ReferralWidget = (): ReactElement => {
+  const { url } = useReferralCampaign({
+    campaignKey: ReferralCampaignKey.Generic,
+  });
+  const inviteLink = url || link.referral.defaultUrl;
+  const [, onShareOrCopyLink] = useShareOrCopyLink({
+    text: labels.referral.generic.inviteText,
+    link: inviteLink,
+    trackObject: () => ({
+      event_name: AnalyticsEvent.CopyReferralLink,
+      target_id: TargetId.GenericReferralPopup,
+    }),
+  });
+  const onShareClick = () => {
+    onShareOrCopyLink();
   };
 
   return (
@@ -24,39 +41,67 @@ const ReferralWidget = ({ link }: { link: string }): ReactElement => {
         Tell your dev friends how easy is it to learn, collaborate, and grow
         together
       </p>
-      <div className="flex justify-between p-3 my-5 w-70 rounded-14 bg-theme-bg-secondary">
-        <p className="my-auto w-40 truncate typo-callout">{link}</p>
-        <Button className="btn-primary" buttonSize={ButtonSize.XSmall}>
-          Copy link
-        </Button>
+      <div className="flex flex-col my-5 w-auto tablet:w-70">
+        <TextField
+          name="inviteURL"
+          inputId="inviteURL"
+          label="Your unique invite URL"
+          autoComplete="off"
+          type="url"
+          value={inviteLink}
+          fieldType="tertiary"
+          className={{ input: 'typo-footnote' }}
+          actionButton={
+            <Button
+              buttonSize={ButtonSize.XSmall}
+              className="btn-primary"
+              onClick={onShareClick}
+            >
+              Copy link
+            </Button>
+          }
+          readOnly
+        />
       </div>
       <div className="flex justify-between items-center text-salt-90 typo-callout">
         Invite with
         <span className="flex">
-          <SocialShareIcon
-            href={getWhatsappShareLink(link)}
-            icon={<WhatsappIcon tertiary />}
-            onClick={() => onReferralClick(ShareProvider.WhatsApp)}
-            ariaLabel="WhatsApp"
-            size={ButtonSize.Medium}
-            wrapperClassName="w-auto mr-2 ml-3"
-          />
-          <SocialShareIcon
-            href={getFacebookShareLink(link)}
-            icon={<FacebookIcon tertiary />}
-            onClick={() => onReferralClick(ShareProvider.Facebook)}
-            ariaLabel="Facebook"
-            size={ButtonSize.Medium}
-            wrapperClassName="w-auto mr-2"
-          />
-          <SocialShareIcon
-            href={getTwitterShareLink(link, 'Referral')}
-            icon={<TwitterIcon tertiary />}
-            onClick={() => onReferralClick(ShareProvider.Twitter)}
-            ariaLabel="X"
-            size={ButtonSize.Medium}
-            wrapperClassName="w-auto"
-          />
+          <SimpleTooltip content="Share on WhatsApp">
+            <Button
+              tag="a"
+              href={getWhatsappShareLink(inviteLink)}
+              target="_blank"
+              rel="noopener"
+              icon={<WhatsappIcon />}
+              className="mr-2 ml-3 btn-tertiary"
+              iconOnly
+            />
+          </SimpleTooltip>
+          <SimpleTooltip content="Share on Facebook">
+            <Button
+              tag="a"
+              href={getFacebookShareLink(inviteLink)}
+              target="_blank"
+              rel="noopener"
+              icon={<FacebookIcon />}
+              className="mr-2 btn-tertiary"
+              iconOnly
+            />
+          </SimpleTooltip>
+          <SimpleTooltip content="Share on X">
+            <Button
+              tag="a"
+              href={getTwitterShareLink(
+                inviteLink,
+                labels.referral.generic.inviteText,
+              )}
+              target="_blank"
+              rel="noopener"
+              icon={<TwitterIcon />}
+              className="btn-tertiary"
+              iconOnly
+            />
+          </SimpleTooltip>
         </span>
       </div>
     </Card>
