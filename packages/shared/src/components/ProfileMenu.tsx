@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import AuthContext from '../contexts/AuthContext';
 import PowerIcon from './icons/Power';
-import { KeyReferralOutlineIcon, UserIcon } from './icons';
+import { InviteIcon, KeyReferralOutlineIcon, UserIcon } from './icons';
 import DevCardIcon from './icons/DevCard';
 import SettingsIcon from './icons/Settings';
 import { useLazyModal } from '../hooks/useLazyModal';
@@ -88,13 +88,23 @@ export default function ProfileMenu({
       });
     }
 
-    list.push({
-      title: 'Logout',
-      buttonProps: {
-        icon: <PowerIcon />,
-        onClick: logout,
+    list.push(
+      {
+        title: 'Invite friends',
+        buttonProps: {
+          tag: 'a',
+          icon: <InviteIcon />,
+          href: `${webappUrl}account/invite`,
+        },
       },
-    });
+      {
+        title: 'Logout',
+        buttonProps: {
+          icon: <PowerIcon />,
+          onClick: logout,
+        },
+      },
+    );
 
     return list;
   }, [trackEvent, logout, availableCount, openModal, showSearchReferral, user]);
