@@ -27,9 +27,11 @@ import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import { Separator } from '@dailydotdev/shared/src/components/cards/common';
 import { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { format } from 'date-fns';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
+import { InviteIcon } from '../../../shared/src/components/icons/Invite';
 
 const AccountInvitePage = (): ReactElement => {
   const { user } = useAuthContext();
@@ -114,6 +116,12 @@ const AccountInvitePage = (): ReactElement => {
             fetchNextPage: usersResult.fetchNextPage,
             className: 'mt-4',
           }}
+          emptyPlaceholder={
+            <div className="flex flex-col items-center mt-16 text-theme-label-secondary">
+              <InviteIcon size={IconSize.XXXLarge} />
+              <p className="mt-2 typo-body">No referred members found</p>
+            </div>
+          }
           userInfoProps={{
             scrollingContainer: container.current,
             className: {
