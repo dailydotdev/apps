@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef } from 'react';
+import React, { ReactElement, useMemo, useRef } from 'react';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import {
   ReferralCampaignKey,
@@ -54,6 +54,16 @@ const AccountInvitePage = (): ReactElement => {
         lastPage?.referredUsers?.pageInfo?.endCursor,
     },
   );
+  const users: UserShortProfile[] = useMemo(() => {
+    const list = [];
+    usersResult.data?.pages.forEach((page) => {
+      page?.referredUsers.edges.forEach(({ node }) => {
+        list.push(node);
+      });
+    }, []);
+
+    return list;
+  }, [usersResult]);
 
   const onNativeShare = async () => {
     await navigator.share({
@@ -103,13 +113,7 @@ const AccountInvitePage = (): ReactElement => {
         description="Here you will see all your active members who joined to daily.dev. Who knows? maybe someday it will be worth something 😉"
       >
         <UserList
-          users={usersResult.data?.pages.reduce((acc, p) => {
-            p?.referredUsers.edges.forEach(({ node }) => {
-              acc.push(node);
-            });
-
-            return acc;
-          }, [])}
+          users={users}
           scrollingProps={{
             isFetchingNextPage: usersResult.isFetchingNextPage,
             canFetchMore: checkFetchMore(usersResult),
