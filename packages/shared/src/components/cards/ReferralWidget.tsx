@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import { Card, CardTitle } from './Card';
 import { Button, ButtonSize } from '../buttons/Button';
 import {
   getFacebookShareLink,
@@ -35,9 +34,9 @@ const ReferralWidget = (): ReactElement => {
   };
 
   return (
-    <Card className="laptopL:absolute justify-between p-4 laptopL:m-6 mt-6 laptopL:mt-0 mb-4 laptopL:max-w-widget laptopL:h-auto laptopL:left-[40rem] tablet:!flex-row laptopL:!flex-col !flex-wrap max-w-fit !bg-theme-bg-primary">
-      <CardTitle>Invite friends</CardTitle>
-      <p className="contents text-salt-50">
+    <div className="flex laptopL:absolute flex-col tablet:flex-row laptopL:flex-col flex-wrap justify-between p-4 laptopL:m-6 mt-6 laptopL:mt-0 mb-4 laptopL:max-w-widget laptopL:h-auto rounded-2xl border border-theme-divider-tertiary laptopL:left-[40rem] max-w-fit bg-theme-bg-primary">
+      <h3 className="mb-2 font-bold typo-title3">Invite friends</h3>
+      <p className="contents text-salt-50 typo-callout">
         Tell your dev friends how easy is it to learn, collaborate, and grow
         together
       </p>
@@ -105,7 +104,7 @@ const ReferralWidget = (): ReactElement => {
           </SimpleTooltip>
         </span>
       </div>
-    </Card>
+    </div>
   );
 };
 
