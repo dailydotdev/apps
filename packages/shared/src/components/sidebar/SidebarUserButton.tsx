@@ -1,22 +1,11 @@
 import React, { ReactElement, useContext } from 'react';
-import dynamic from 'next/dynamic';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfilePicture } from '../ProfilePicture';
-import { Button } from '../buttons/Button';
-import useProfileMenu from '../../hooks/useProfileMenu';
 import AuthContext from '../../contexts/AuthContext';
-import SettingsIcon from '../icons/Settings';
 import { SidebarUserButtonProps } from './common';
 import LoginButton from '../LoginButton';
 import { SearchReferralButton } from '../referral/SearchReferralButton';
-
-// @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-// eslint-disable-next-line react-hooks/rules-of-hooks
-const { onMenuClick } = useProfileMenu();
-
-const ProfileMenu = dynamic(
-  () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
-);
+import ProfileButton from '../profile/ProfileButton';
 
 export function SidebarUserButton({
   sidebarRendered,
@@ -39,18 +28,12 @@ export function SidebarUserButton({
                 </ProfileLink>
                 <SearchReferralButton className="ml-3" />
                 <div className="flex-1" />
-                <Button
-                  iconOnly
-                  className="btn btn-tertiary"
-                  onClick={onMenuClick}
-                  icon={<SettingsIcon />}
-                />
+                <ProfileButton atMobileSidebar />
               </div>
               <strong className="mb-0.5 typo-callout">{user.name}</strong>
               <p className="typo-footnote text-theme-label-secondary">
                 @{user.username}
               </p>
-              <ProfileMenu />
             </>
           ) : (
             <LoginButton />
