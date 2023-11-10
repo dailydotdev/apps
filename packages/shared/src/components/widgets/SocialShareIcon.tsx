@@ -7,11 +7,9 @@ interface SocialShareIconProps extends HTMLAttributes<HTMLButtonElement> {
   pressed?: boolean;
   href?: string;
   icon: ReactElement;
-  label?: string;
+  label: string;
   size?: ButtonSize;
   disabled?: boolean;
-  ariaLabel?: string;
-  wrapperClassName?: string;
 }
 
 export const ShareText = classed(
@@ -31,9 +29,7 @@ export const SocialShareIcon = ({
   className,
   onClick,
   label,
-  ariaLabel,
   disabled,
-  wrapperClassName = '',
   size = ButtonSize.Large,
 }: SocialShareIconProps): ReactElement => {
   const button = useRef<HTMLButtonElement>();
@@ -48,15 +44,10 @@ export const SocialShareIcon = ({
     : ({ onClick, disabled } as ButtonProps<'button'>);
 
   return (
-    <div
-      className={classNames(
-        'flex flex-col items-center w-16',
-        wrapperClassName,
-      )}
-    >
+    <div className="flex flex-col items-center w-16">
       <Button
         {...buttonProps}
-        data-testid={`social-share-${label || ariaLabel}`}
+        data-testid={`social-share-${label}`}
         buttonSize={size}
         className={className}
         iconOnly
@@ -64,17 +55,15 @@ export const SocialShareIcon = ({
         pressed={pressed}
         ref={button}
       />
-      {label && (
-        <ShareText
-          className={classNames(
-            'mt-1.5 max-w-[4rem] overflow-hidden overflow-ellipsis text-center',
-            sizeToText[size],
-          )}
-          onClick={() => button?.current?.click()}
-        >
-          {label}
-        </ShareText>
-      )}
+      <ShareText
+        className={classNames(
+          'mt-1.5 max-w-[4rem] overflow-hidden overflow-ellipsis text-center',
+          sizeToText[size],
+        )}
+        onClick={() => button?.current?.click()}
+      >
+        {label}
+      </ShareText>
     </div>
   );
 };
