@@ -81,7 +81,7 @@ function InteractivePopup({
         onCloseRef.current(e);
       }
     },
-    { enabled: closeOutsideClick || !sidebarRendered },
+    { enabled: closeOutsideClick || !sidebarRendered, validateKey: false },
   );
 
   return (
