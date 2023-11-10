@@ -7,15 +7,23 @@ export interface MessageEventData {
 type EventParameter = keyof WindowEventMap;
 type KeyedWindowEventHandler<T = unknown> = (e: MessageEvent<T>) => void;
 
+interface OptionalProps {
+  validateKey: boolean;
+  enabled: boolean;
+}
+
 const useWindowEvents = <T extends MessageEventData = MessageEventData>(
   event: EventParameter,
   key: string,
   func: KeyedWindowEventHandler<T>,
-  validateKey = true,
+  { validateKey = true, enabled = true }: Partial<OptionalProps> = {},
 ): void => {
   useEffect(() => {
     const handler = (e: MessageEvent<T>) => {
-      if (validateKey && (!e.data?.eventKey || e.data.eventKey !== key)) {
+      if (
+        !enabled ||
+        (validateKey && (!e.data?.eventKey || e.data.eventKey !== key))
+      ) {
         return;
       }
 
@@ -24,9 +32,7 @@ const useWindowEvents = <T extends MessageEventData = MessageEventData>(
 
     globalThis?.window.addEventListener(event, handler);
     return () => globalThis?.window.removeEventListener(event, handler);
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [event, func]);
+  }, [event, func, validateKey, enabled, key]);
 };
 
 export default useWindowEvents;

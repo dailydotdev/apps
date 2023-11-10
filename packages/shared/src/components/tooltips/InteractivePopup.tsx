@@ -1,9 +1,10 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode, useEffect, useRef } from 'react';
+import React, { ReactElement, ReactNode, useRef } from 'react';
 import Portal from './Portal';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import ConditionalWrapper from '../ConditionalWrapper';
+import useWindowEvents from '../../hooks/useWindowEvents';
 
 export enum InteractivePopupPosition {
   Center = 'center',
@@ -24,7 +25,7 @@ interface InteractivePopupProps {
   className?: string;
   position?: InteractivePopupPosition;
   closeOutsideClick?: boolean;
-  onClose?: (e: MouseEvent | KeyboardEvent) => void;
+  onClose?: (e: MouseEvent | KeyboardEvent | MessageEvent) => void;
 }
 
 const centerClassX = 'left-1/2 -translate-x-1/2';
@@ -72,36 +73,23 @@ function InteractivePopup({
     : InteractivePopupPosition.Center;
   const classes = positionClass[finalPosition];
 
-  useEffect(() => {
-    if (!closeOutsideClick || !onCloseRef?.current || !container?.current) {
-      return null;
-    }
-
-    const onClickAnywhere = (e: MouseEvent) => {
+  useWindowEvents(
+    'click',
+    'click',
+    (e: MessageEvent) => {
       if (!container.current.contains(e.target as Node)) {
         onCloseRef.current(e);
       }
-    };
-
-    globalThis?.document.addEventListener('click', onClickAnywhere);
-
-    return () => {
-      globalThis?.document.removeEventListener('click', onClickAnywhere);
-    };
-  }, [closeOutsideClick]);
+    },
+    { enabled: closeOutsideClick || !sidebarRendered },
+  );
 
   return (
     <Portal>
       <ConditionalWrapper
         condition={!sidebarRendered}
         wrapper={(child) => (
-          <div
-            role="button"
-            className="flex fixed inset-0 z-modal flex-col items-center bg-overlay-quaternary-onion"
-            onClick={(e) => onClose(e.nativeEvent)}
-            onKeyDown={(e) => onClose(e.nativeEvent)}
-            tabIndex={0}
-          >
+          <div className="flex fixed inset-0 z-modal flex-col items-center bg-overlay-quaternary-onion">
             {child}
           </div>
         )}
