@@ -129,7 +129,7 @@ const AccountInvitePage = (): ReactElement => {
           userInfoProps={{
             scrollingContainer: container.current,
             className: {
-              container: 'px-0',
+              container: 'px-0 py-3 items-center',
               textWrapper: 'flex-none',
             },
             transformUsername({
