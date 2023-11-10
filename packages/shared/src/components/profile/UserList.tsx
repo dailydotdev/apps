@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
 import { UserShortInfoPlaceholder } from './UserShortInfoPlaceholder';
-import { UserShortInfo } from './UserShortInfo';
+import { UserInfoClassName, UserShortInfo } from './UserShortInfo';
 import InfiniteScrolling, {
   InfiniteScrollingProps,
 } from '../containers/InfiniteScrolling';
@@ -17,6 +17,7 @@ export interface UserListProps {
   initialItem?: ReactElement;
   isLoading?: boolean;
   emptyPlaceholder?: JSX.Element;
+  className?: UserInfoClassName;
 }
 
 function UserList({

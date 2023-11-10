@@ -12,13 +12,15 @@ type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? Props & JSX.IntrinsicAttributes
   : never;
 
+export interface UserInfoClassName {
+  container?: string;
+  textWrapper?: string;
+}
+
 interface UserShortInfoProps<Tag extends React.ElementType> {
   user: Author;
   imageSize?: ProfileImageSize;
-  className?: {
-    container?: string;
-    textWrapper?: string;
-  };
+  className?: UserInfoClassName;
   tag?: Tag;
   disableTooltip?: boolean;
   scrollingContainer?: HTMLElement;

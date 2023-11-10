@@ -37,7 +37,6 @@ const AccountInvitePage = (): ReactElement => {
   });
   const inviteLink = url || link.referral.defaultUrl;
   const [copyingLink, onCopyLink] = useCopyLink(() => inviteLink);
-
   const usersResult = useInfiniteQuery<ReferredUsersData>(
     referredKey,
     ({ pageParam }) =>
@@ -83,15 +82,13 @@ const AccountInvitePage = (): ReactElement => {
         }
         readOnly
       />
-      <span className="my-2 font-bold typo-callout text-theme-label-tertiary">
+      <span className="p-0.5 my-4 font-bold typo-callout text-theme-label-tertiary">
         or invite with
       </span>
-      <div className="flex flex-row gap-6">
+      <div className="flex flex-row flex-wrap gap-4">
         <SocialShareList
           link={inviteLink}
           description={labels.referral.generic.inviteText}
-          isCopying={copyingLink}
-          onCopy={onCopyLink}
           onNativeShare={onNativeShare}
           onClickSocial={onTrackShare}
         />
@@ -112,9 +109,11 @@ const AccountInvitePage = (): ReactElement => {
             isFetchingNextPage: usersResult.isFetchingNextPage,
             canFetchMore: checkFetchMore(usersResult),
             fetchNextPage: usersResult.fetchNextPage,
+            className: 'mt-4',
           }}
           scrollingContainer={container.current}
           placeholderAmount={referredUsersCount}
+          className={{ container: 'px-0' }}
         />
       </AccountContentSection>
     </AccountPageContainer>
