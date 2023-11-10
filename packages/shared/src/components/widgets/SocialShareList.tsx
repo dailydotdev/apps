@@ -25,8 +25,8 @@ import { IconSize } from '../Icon';
 interface SocialShareListProps {
   link: string;
   description: string;
-  isCopying: boolean;
-  onCopy(): void;
+  isCopying?: boolean;
+  onCopy?(): void;
   onNativeShare(): void;
   onClickSocial(provider: ShareProvider): void;
 }
@@ -41,17 +41,19 @@ export function SocialShareList({
 }: SocialShareListProps): ReactElement {
   return (
     <>
-      <SocialShareIcon
-        onClick={onCopy}
-        icon={
-          <CopyIcon
-            className={classNames('text-theme-label-invert')}
-            secondary={isCopying}
-          />
-        }
-        className="btn-primary"
-        label={isCopying ? 'Copied!' : 'Copy link'}
-      />
+      {onCopy && (
+        <SocialShareIcon
+          onClick={onCopy}
+          icon={
+            <CopyIcon
+              className={classNames('text-theme-label-invert')}
+              secondary={isCopying}
+            />
+          }
+          className="btn-primary"
+          label={isCopying ? 'Copied!' : 'Copy link'}
+        />
+      )}
       <SocialShareIcon
         href={getTwitterShareLink(link, description)}
         icon={<TwitterIcon />}
