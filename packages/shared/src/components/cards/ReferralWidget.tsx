@@ -18,7 +18,7 @@ import { AnalyticsEvent, TargetId } from '../../lib/analytics';
 import { SimpleTooltip } from '../tooltips';
 
 const ReferralWidget = (): ReactElement => {
-  const { url } = useReferralCampaign({
+  const { isReady, url } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Generic,
   });
   const inviteLink = url || link.referral.defaultUrl;
@@ -56,6 +56,7 @@ const ReferralWidget = (): ReactElement => {
               buttonSize={ButtonSize.XSmall}
               className="btn-primary"
               onClick={onShareClick}
+              disabled={!isReady}
             >
               Copy link
             </Button>

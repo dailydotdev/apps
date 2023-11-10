@@ -93,6 +93,7 @@ export default function ProfileLayout({
 
   // Needed because sometimes initialProfile is defined and fetchedProfile is not
   const profile = fetchedProfile ?? initialProfile;
+  const isCurrentUserProfile = profile && profile.id === user?.id;
 
   const userRankQueryKey = ['userRank', initialProfile?.id];
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
@@ -266,7 +267,7 @@ export default function ProfileLayout({
                 </SimpleTooltip>
               )}
             </div>
-            {profile.id === user?.id && (
+            {isCurrentUserProfile && (
               <Button
                 className="self-start mt-6 mb-0.5 btn-secondary"
                 tag="a"
@@ -277,7 +278,7 @@ export default function ProfileLayout({
             )}
           </div>
         </section>
-        {profile.id === user?.id && <ReferralWidget />}
+        {isCurrentUserProfile && <ReferralWidget />}
         <NavBar selectedTab={selectedTab} profile={profile} />
         {children}
       </ResponsivePageContainer>
