@@ -27,7 +27,7 @@ const ReferralWidget = (): ReactElement => {
     link: inviteLink,
     trackObject: () => ({
       event_name: AnalyticsEvent.CopyReferralLink,
-      target_id: TargetId.GenericReferralPopup,
+      target_id: TargetId.ProfilePage,
     }),
   });
   const onShareClick = () => {

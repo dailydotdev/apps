@@ -143,6 +143,7 @@ export enum TargetId {
   InviteProfileMenu = 'invite in profile menu',
   // Referral campaign
   GenericReferralPopup = 'generic referral popup',
+  ProfilePage = 'profile page',
 }
 
 export enum NotificationChannel {
