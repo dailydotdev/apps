@@ -38,7 +38,8 @@ it('account details should link to account profile page', async () => {
   profileBtn.click();
 
   const accountBtn = await screen.findByText('Account details');
-  expect(accountBtn).toHaveAttribute('href', '/account/profile');
+  // eslint-disable-next-line testing-library/no-node-access
+  expect(accountBtn.parentElement).toHaveAttribute('href', '/account/profile');
 });
 
 it('should click the logout button and logout', async () => {
