@@ -53,6 +53,7 @@ export interface FeedProps<T>
   onEmptyFeed?: () => unknown;
   emptyScreen?: ReactNode;
   header?: ReactNode;
+  inlineHeader?: boolean;
   forceCardMode?: boolean;
   allowPin?: boolean;
   showSearch?: boolean;
@@ -97,6 +98,7 @@ export default function Feed<T>({
   variables,
   className,
   header,
+  inlineHeader,
   onEmptyFeed,
   emptyScreen,
   forceCardMode,
@@ -348,6 +350,7 @@ export default function Feed<T>({
       <FeedContainer
         forceCardMode={forceCardMode}
         header={header}
+        inlineHeader={inlineHeader}
         className={className}
         showSearch={showSearch && isValidFeed}
         besideSearch={besideSearch}

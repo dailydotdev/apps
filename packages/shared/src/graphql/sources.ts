@@ -28,6 +28,7 @@ export enum SourcePermissions {
 
 export type SourceMemberFlag = Partial<{
   hideFeedPosts: boolean;
+  collapsePinnedPosts: boolean;
 }>;
 
 export interface SourceMember {
