@@ -9,7 +9,7 @@ module.exports = {
         // Do not transform modules to CJS
         modules: false,
         targets: {
-          chrome: '110',
+          chrome: '49',
           firefox: '52',
           opera: '36',
           edge: '79',
