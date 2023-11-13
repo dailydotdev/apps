@@ -36,7 +36,7 @@ const ReferralWidget = (): ReactElement => {
   return (
     <div className="flex laptopL:absolute flex-col tablet:flex-row laptopL:flex-col flex-wrap justify-between p-4 laptopL:m-6 mt-6 laptopL:mt-0 mb-4 laptopL:max-w-widget laptopL:h-auto rounded-2xl border border-theme-divider-tertiary laptopL:left-[40rem] max-w-fit bg-theme-bg-primary">
       <h3 className="mb-2 font-bold typo-title3">Invite friends</h3>
-      <p className="contents text-salt-50 typo-callout">
+      <p className="contents text-theme-label-secondary typo-callout">
         Tell your dev friends how easy is it to learn, collaborate, and grow
         together
       </p>
@@ -64,7 +64,7 @@ const ReferralWidget = (): ReactElement => {
           readOnly
         />
       </div>
-      <div className="flex justify-between items-center text-salt-90 typo-callout">
+      <div className="flex justify-between items-center text-theme-label-tertiary typo-callout">
         Invite with
         <span className="flex">
           <SimpleTooltip content="Share on WhatsApp">
