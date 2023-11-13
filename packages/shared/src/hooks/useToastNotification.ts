@@ -31,11 +31,11 @@ export type NotifyOptionalProps = Partial<
 export const useToastNotification = (): UseToastNotification => {
   const client = useQueryClient();
   const { data: toast } = useQuery<ToastNotification>(
-    [TOAST_NOTIF_KEY],
-    () => client.getQueryData<ToastNotification>([TOAST_NOTIF_KEY]) || null,
+    TOAST_NOTIF_KEY,
+    () => client.getQueryData<ToastNotification>(TOAST_NOTIF_KEY) || null,
   );
   const setToastNotification = (data: ToastNotification) =>
-    client.setQueryData([TOAST_NOTIF_KEY], data);
+    client.setQueryData(TOAST_NOTIF_KEY, data);
 
   const displayToast = (
     message: string,

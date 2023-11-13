@@ -89,7 +89,7 @@ describe('useChecklist hook', () => {
 
     expect(result.current.isDone).toBe(true);
     expect(result.current.activeStep).toBeUndefined();
-    expect(result.current.openStep).toBeUndefined();
+    expect(result.current.openStep).toBeNull();
 
     steps = updateStep(steps, 0, { action: { completedAt: null } });
     rerender({ steps });
@@ -207,7 +207,7 @@ describe('useChecklist hook', () => {
       },
     );
 
-    expect(result.current.openStep).toBeUndefined();
+    expect(result.current.openStep).toBeNull();
 
     act(() => {
       result.current.onToggleStep(steps[0].action);
@@ -232,7 +232,7 @@ describe('useChecklist hook', () => {
       },
     );
 
-    expect(result.current.openStep).toBeUndefined();
+    expect(result.current.openStep).toBeNull();
 
     act(() => {
       result.current.onToggleStep(steps[0].action);
@@ -246,6 +246,6 @@ describe('useChecklist hook', () => {
       result.current.onToggleStep(steps[0].action);
     });
 
-    await waitFor(() => expect(result.current.openStep).toBeUndefined());
+    await waitFor(() => expect(result.current.openStep).toBeNull());
   });
 });

@@ -4,7 +4,7 @@ import { ChecklistStepType } from '../lib/checklist';
 import { Action, ActionType } from '../graphql/actions';
 import { disabledRefetch } from '../lib/func';
 
-const CHECKLIST_OPEN_STEP_KEY = 'checklistOpenStepKey';
+const CHECKLIST_OPEN_STEP_KEY = ['checklistOpenStepKey'];
 
 export type UseChecklistProps = {
   steps: ChecklistStepType[];
@@ -25,18 +25,15 @@ const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
     () => steps.find((item) => !item.action.completedAt)?.action.type,
     [steps],
   );
-  const { data: openStep } = useQuery<ActionType | undefined>(
-    [CHECKLIST_OPEN_STEP_KEY],
-    () => client.getQueryData([CHECKLIST_OPEN_STEP_KEY]),
-    { initialData: undefined, ...disabledRefetch },
+  const { data: openStep } = useQuery<ActionType>(
+    CHECKLIST_OPEN_STEP_KEY,
+    () => client.getQueryData(CHECKLIST_OPEN_STEP_KEY) || null,
+    { initialData: null, ...disabledRefetch },
   );
   const setOpenStep = useCallback(
     (step: ActionType) => {
-      client.setQueryData<ActionType | undefined>(
-        [CHECKLIST_OPEN_STEP_KEY],
-        () => step,
-      );
-      client.invalidateQueries([CHECKLIST_OPEN_STEP_KEY]);
+      client.setQueryData<ActionType>(CHECKLIST_OPEN_STEP_KEY, () => step);
+      client.invalidateQueries(CHECKLIST_OPEN_STEP_KEY);
     },
     [client],
   );
@@ -47,7 +44,7 @@ const useChecklist = ({ steps }: UseChecklistProps): UseChecklist => {
 
   const onToggleStep = useCallback(
     (action: Action) => {
-      const step = openStep === action.type ? undefined : action.type;
+      const step = openStep === action.type ? null : action.type;
       setOpenStep(step);
     },
     [openStep, setOpenStep],
