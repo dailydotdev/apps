@@ -288,6 +288,22 @@ export const SQUAD_JOIN_MUTATION = gql`
   ${SOURCE_BASE_FRAGMENT}
 `;
 
+export const COLLAPSE_PINNED_POSTS_MUTATION = gql`
+  mutation CollapsePinnedPosts($sourceId: ID!) {
+    collapsePinnedPosts(sourceId: $sourceId) {
+      _
+    }
+  }
+`;
+
+export const EXPAND_PINNED_POSTS_MUTATION = gql`
+  mutation ExpandPinnedPosts($sourceId: ID!) {
+    expandPinnedPosts(sourceId: $sourceId) {
+      _
+    }
+  }
+`;
+
 export const validateSourceHandle = (handle: string, source: Source): boolean =>
   source.handle === handle || source.handle === handle.toLowerCase();
 
@@ -438,6 +454,26 @@ export async function editSquad(
   );
   return data.editSquad;
 }
+
+export const collapsePinnedPosts = async (
+  sourceId: string,
+): Promise<EmptyResponse> => {
+  const res = await request(graphqlUrl, COLLAPSE_PINNED_POSTS_MUTATION, {
+    sourceId,
+  });
+
+  return res.collapsePinnedPosts;
+};
+
+export const expandPinnedPosts = async (
+  sourceId: string,
+): Promise<EmptyResponse> => {
+  const res = await request(graphqlUrl, EXPAND_PINNED_POSTS_MUTATION, {
+    sourceId,
+  });
+
+  return res.expandPinnedPosts;
+};
 
 export const verifyPermission = (
   squad: Squad,
