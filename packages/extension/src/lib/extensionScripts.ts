@@ -1,5 +1,4 @@
-import 'content-scripts-register-polyfill';
-import browser, { ContentScripts } from 'webextension-polyfill';
+import browser from 'webextension-polyfill';
 import {
   CreateRequestContentScripts,
   contentScriptKey,
@@ -7,23 +6,32 @@ import {
 import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 
-export const registerBrowserContentScripts =
-  (): Promise<ContentScripts.RegisteredContentScript> =>
-    browser.contentScripts.register({
+let hasInjectedScripts = false;
+
+export const registerBrowserContentScripts = async (): Promise<void> => {
+  if (hasInjectedScripts) {
+    return null;
+  }
+
+  await browser.scripting.registerContentScripts([
+    {
+      id: `companion-${Date.now()}`,
       matches: ['*://*/*'],
-      css: [{ file: 'css/daily-companion-app.css' }],
-      js: [
-        { file: 'js/content.bundle.js' },
-        { file: 'js/companion.bundle.js' },
-      ],
-    });
+      css: ['css/daily-companion-app.css'],
+      js: ['js/content.bundle.js', 'js/companion.bundle.js'],
+    },
+  ]);
+
+  hasInjectedScripts = true;
+
+  return null;
+};
 
 export const getContentScriptPermission = (): Promise<boolean> =>
   browser.permissions.contains({
     origins: ['*://*/*'],
   });
 
-let hasInjectedScripts = false;
 export const getContentScriptPermissionAndRegister =
   async (): Promise<void> => {
     const permission = await getContentScriptPermission();

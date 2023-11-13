@@ -8,7 +8,7 @@ export const decrypt = async (
   key: string,
   algorithmName = 'AES-CBC',
   algorithmLength = 256,
-  subtle = window.crypto.subtle,
+  subtle = globalThis.crypto.subtle,
 ): Promise<string> => {
   if (!subtle || isDevelopment) {
     return input;
