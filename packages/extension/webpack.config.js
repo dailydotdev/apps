@@ -227,12 +227,7 @@ const baseConfig = {
 
 const backgroundConfig = {
   ...baseConfig,
-
   target: 'webworker',
-  externals: {
-    fetch: 'fetch',
-  },
-
   entry: {
     background: path.join(sourcePath, 'background', 'index.ts'),
   },
@@ -240,7 +235,6 @@ const backgroundConfig = {
 
 const mainConfig = {
   ...baseConfig,
-
   entry: {
     manifest: path.join(sourcePath, 'manifest.json'),
     content: path.join(sourcePath, 'content'),
