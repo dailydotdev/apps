@@ -64,6 +64,7 @@ export enum RequestKey {
   Tags = 'tags',
   FeedPreview = 'feedPreview',
   ReferredUsers = 'referred',
+  PostKey = 'post',
 }
 
 export type HasConnection<

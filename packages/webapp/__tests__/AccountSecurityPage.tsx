@@ -27,6 +27,7 @@ import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContex
 import { getNodeValue } from '@dailydotdev/shared/src/lib/auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
+import nock from 'nock';
 import SecurityProfilePage from '../pages/account/security';
 
 jest.mock('next/router', () => ({
@@ -38,6 +39,7 @@ jest.mock('next/router', () => ({
 }));
 
 beforeEach(() => {
+  nock.cleanAll();
   jest.clearAllMocks();
 });
 
@@ -227,7 +229,7 @@ it('should allow setting new password but require to verify session', async () =
   mockSettingsValidation(params);
   await verifySession();
   const input = await screen.findByPlaceholderText('Password');
-  expect(input).toHaveValue('');
+  expect(input).toHaveValue('#123xAbc');
 });
 
 it('should allow linking social providers', async () => {

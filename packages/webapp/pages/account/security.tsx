@@ -53,7 +53,7 @@ const AccountSecurityPage = (): ReactElement => {
 
   const onSetPassword = () => {
     displayToast('Password changed successfully!');
-    updatePasswordRef.current.reset();
+    updatePasswordRef.current?.reset();
   };
 
   const { initializePrivilegedSession } = usePrivilegedSession({
