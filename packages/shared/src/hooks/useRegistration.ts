@@ -55,7 +55,6 @@ const useRegistration = ({
   const { displayToast } = useToastNotification();
   const { trackingId, referral, referralOrigin } = useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
-  console.log('registration', key);
   const {
     data: registration,
     isLoading: isQueryLoading,

@@ -75,9 +75,12 @@ export const useBlockPostPanel = (
   const client = useQueryClient();
   const { user } = useAuthContext();
   const { checkHasCompleted, completeAction } = useActions();
-  const key = [
-    generateStorageKey(StorageTopic.Post, `block:${post?.id}`, user?.id),
-  ];
+  const key = useMemo(
+    () => [
+      generateStorageKey(StorageTopic.Post, `block:${post?.id}`, user?.id),
+    ],
+    [post?.id, user?.id],
+  );
   const { data } = useQuery<BlockData>(key, () => client.getQueryData(key), {
     initialData: {},
     ...disabledRefetch,
