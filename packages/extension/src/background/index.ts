@@ -1,4 +1,3 @@
-import 'content-scripts-register-polyfill';
 import browser, { Runtime, Tabs } from 'webextension-polyfill';
 import { getBootData } from '@dailydotdev/shared/src/lib/boot';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
@@ -41,7 +40,7 @@ const sendBootData = async (_, tab: Tabs.Tab) => {
   }
 
   const cacheData = getLocalBootData();
-  if (cacheData.settings?.optOutCompanion) {
+  if (cacheData?.settings?.optOutCompanion) {
     return;
   }
 

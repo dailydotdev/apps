@@ -10,13 +10,14 @@
     "48": "icons/48.png",
     "128": "icons/128.png"
   },
+  "__prod__permissions": ["scripting"],
   "__prod__host_permissions": [
     "https://daily.dev/",
     "https://*.daily.dev/",
     "https://dailynow.co/",
     "https://*.dailynow.co/"
   ],
-  "__dev__permissions": ["storage"],
+  "__dev__permissions": ["storage", "scripting"],
   "__dev__host_permissions": ["http://localhost/", "http://*.local.com/"],
   "optional_permissions": ["topSites"],
   "optional_host_permissions": [ "*://*/*"],
