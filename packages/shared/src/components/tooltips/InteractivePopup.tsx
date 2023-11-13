@@ -1,6 +1,10 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useRef } from 'react';
 import Portal from './Portal';
+import { useSettingsContext } from '../../contexts/SettingsContext';
+import useSidebarRendered from '../../hooks/useSidebarRendered';
+import ConditionalWrapper from '../ConditionalWrapper';
+import useWindowEvents from '../../hooks/useWindowEvents';
 
 export enum InteractivePopupPosition {
   Center = 'center',
@@ -12,24 +16,25 @@ export enum InteractivePopupPosition {
   LeftStart = 'leftStart',
   LeftCenter = 'leftCenter',
   LeftEnd = 'leftEnd',
+  ProfileMenu = 'profileMenu',
   Screen = 'screen',
-  MainFeedLeftEnd = 'mainFeedLeftEnd',
 }
 
 interface InteractivePopupProps {
   children: ReactNode;
   className?: string;
   position?: InteractivePopupPosition;
+  closeOutsideClick?: boolean;
+  onClose?: (e: MouseEvent | KeyboardEvent | MessageEvent) => void;
 }
 
 const centerClassX = 'left-1/2 -translate-x-1/2';
 const centerClassY = 'top-1/2 -translate-y-1/2';
-const startClass = 'top-8';
+const startClass = 'top-16';
 const endClass = 'bottom-8';
 const rightClass = 'right-8';
-const leftClass = 'left-8';
-const mainFeedEndClass = 'bottom-6';
-const mainFeedLeftClass = 'left-60';
+const leftClass = 'left-64';
+const profileMenuRightClass = 'right-4';
 
 const positionClass: Record<InteractivePopupPosition, string> = {
   center: classNames(centerClassX, centerClassY),
@@ -41,30 +46,70 @@ const positionClass: Record<InteractivePopupPosition, string> = {
   leftStart: classNames(leftClass, startClass),
   leftCenter: classNames(leftClass, centerClassY),
   leftEnd: classNames(leftClass, endClass),
+  profileMenu: classNames(profileMenuRightClass, startClass),
   screen: 'inset-0 w-screen h-screen',
-  mainFeedLeftEnd: classNames(mainFeedLeftClass, mainFeedEndClass),
 };
+
+const leftPositions = [
+  InteractivePopupPosition.LeftEnd,
+  InteractivePopupPosition.LeftCenter,
+  InteractivePopupPosition.LeftEnd,
+];
 
 function InteractivePopup({
   children,
   className,
   position = InteractivePopupPosition.Center,
+  closeOutsideClick,
+  onClose,
   ...props
 }: InteractivePopupProps): ReactElement {
-  const classes = positionClass[position];
+  const container = useRef<HTMLDivElement>();
+  const onCloseRef = useRef(onClose);
+  const { sidebarRendered } = useSidebarRendered();
+  const { sidebarExpanded } = useSettingsContext();
+  const finalPosition = sidebarRendered
+    ? position
+    : InteractivePopupPosition.Center;
+  const classes = positionClass[finalPosition];
+
+  useWindowEvents(
+    'click',
+    'click',
+    (e: MessageEvent) => {
+      if (!container.current.contains(e.target as Node)) {
+        onCloseRef.current(e);
+      }
+    },
+    { enabled: closeOutsideClick || !sidebarRendered, validateKey: false },
+  );
 
   return (
     <Portal>
-      <div
-        className={classNames(
-          'fixed z-popup bg-theme-bg-primary rounded-16 overflow-hidden',
-          className,
-          classes,
+      <ConditionalWrapper
+        condition={!sidebarRendered}
+        wrapper={(child) => (
+          <div className="flex fixed inset-0 z-modal flex-col items-center bg-overlay-quaternary-onion">
+            {child}
+          </div>
         )}
-        {...props}
       >
-        {children}
-      </div>
+        <div
+          ref={container}
+          className={classNames(
+            'fixed z-popup bg-theme-bg-primary rounded-16 overflow-hidden shadow-2',
+            className,
+            classes,
+            !sidebarRendered && 'shadow-2',
+            leftPositions.includes(finalPosition) &&
+              !sidebarExpanded &&
+              'laptop:left-16',
+          )}
+          {...props}
+        >
+          {children}
+        </div>
+      </ConditionalWrapper>
     </Portal>
   );
 }
