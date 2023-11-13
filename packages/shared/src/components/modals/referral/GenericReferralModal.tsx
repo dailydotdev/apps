@@ -49,7 +49,10 @@ function GenericReferralModal({
       event_name: AnalyticsEvent.Impression,
       target_type: TargetType.ReferralPopup,
     });
-  }, [trackEvent]);
+
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Modal {...props} onRequestClose={onRequestClose} size={ModalSize.Small}>
