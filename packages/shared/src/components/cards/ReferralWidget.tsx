@@ -9,17 +9,13 @@ import WhatsappIcon from '../icons/Whatsapp';
 import FacebookIcon from '../icons/Facebook';
 import TwitterIcon from '../icons/Twitter';
 import { TextField } from '../fields/TextField';
-import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
 import { link } from '../../lib/links';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { labels } from '../../lib';
 import { AnalyticsEvent, TargetId } from '../../lib/analytics';
 import { SimpleTooltip } from '../tooltips';
 
-const ReferralWidget = (): ReactElement => {
-  const { isReady, url } = useReferralCampaign({
-    campaignKey: ReferralCampaignKey.Generic,
-  });
+const ReferralWidget = ({ url }: { url: string }): ReactElement => {
   const inviteLink = url || link.referral.defaultUrl;
   const [, onShareOrCopyLink] = useShareOrCopyLink({
     text: labels.referral.generic.inviteText,
@@ -34,7 +30,10 @@ const ReferralWidget = (): ReactElement => {
   };
 
   return (
-    <div className="flex laptopL:absolute flex-col tablet:flex-row laptopL:flex-col flex-wrap justify-between p-4 laptopL:m-6 mt-6 laptopL:mt-0 mb-4 laptopL:max-w-widget laptopL:h-auto rounded-2xl border border-theme-divider-tertiary laptopL:left-[40rem] max-w-fit bg-theme-bg-primary">
+    <div
+      data-testid="referral-widget"
+      className="flex laptopL:absolute flex-col tablet:flex-row laptopL:flex-col flex-wrap justify-between p-4 laptopL:m-6 mt-6 laptopL:mt-0 mb-4 laptopL:max-w-widget laptopL:h-auto rounded-2xl border border-theme-divider-tertiary laptopL:left-[40rem] max-w-fit bg-theme-bg-primary"
+    >
       <h3 className="mb-2 font-bold typo-title3">Invite friends</h3>
       <p className="contents text-theme-label-secondary typo-callout">
         Tell your dev friends how easy is it to learn, collaborate, and grow
@@ -50,13 +49,11 @@ const ReferralWidget = (): ReactElement => {
           value={inviteLink}
           fieldType="tertiary"
           className={{ input: 'typo-footnote' }}
-          disabled={!isReady}
           actionButton={
             <Button
               buttonSize={ButtonSize.XSmall}
               className="btn-primary"
               onClick={onShareClick}
-              disabled={!isReady}
             >
               Copy link
             </Button>

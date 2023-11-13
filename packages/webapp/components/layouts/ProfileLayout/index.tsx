@@ -44,6 +44,10 @@ import DOMPurify from 'dompurify';
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import ReferralWidget from '@dailydotdev/shared/src/components/cards/ReferralWidget';
+import {
+  ReferralCampaignKey,
+  useReferralCampaign,
+} from '@dailydotdev/shared/src/hooks';
 import styles from './index.module.css';
 import NavBar, { tabs } from './NavBar';
 import { getLayout as getMainLayout } from '../MainLayout';
@@ -69,14 +73,16 @@ export default function ProfileLayout({
 }: ProfileLayoutProps): ReactElement {
   const router = useRouter();
   const { isFallback } = router;
+  const { user } = useContext(AuthContext);
+  const { isReady, url } = useReferralCampaign({
+    campaignKey: ReferralCampaignKey.Generic,
+    enabled: initialProfile?.id === user?.id,
+  });
 
   if (!isFallback && !initialProfile) {
     return <Custom404 />;
   }
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { user } = useContext(AuthContext);
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
   const queryKey = ['profile', initialProfile?.id];
@@ -150,7 +156,9 @@ export default function ProfileLayout({
     }
   }, [profile]);
 
-  if (isFallback && !initialProfile) {
+  const isReadyProfile = isCurrentUserProfile && !isReady;
+
+  if ((isFallback && !initialProfile) || isReadyProfile) {
     return <></>;
   }
 
@@ -278,7 +286,7 @@ export default function ProfileLayout({
             )}
           </div>
         </section>
-        {isCurrentUserProfile && <ReferralWidget />}
+        {isCurrentUserProfile && <ReferralWidget url={url} />}
         <NavBar selectedTab={selectedTab} profile={profile} />
         {children}
       </ResponsivePageContainer>

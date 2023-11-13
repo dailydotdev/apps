@@ -30,6 +30,7 @@ export enum ReferralCampaignKey {
 
 export type UseReferralCampaignProps = {
   campaignKey: ReferralCampaignKey;
+  enabled?: boolean;
 };
 
 const campaignFeatureFlagMap: Partial<
@@ -40,12 +41,14 @@ const campaignFeatureFlagMap: Partial<
 
 const useReferralCampaign = ({
   campaignKey,
+  enabled = true,
 }: UseReferralCampaignProps): UseReferralCampaign => {
   const isValidCampaignKey =
     Object.values(ReferralCampaignKey).includes(campaignKey);
   const featureFlag = campaignFeatureFlagMap[campaignKey];
   const isCampaignEnabled =
-    useFeatureIsOn(featureFlag) || (!featureFlag && isValidCampaignKey);
+    (useFeatureIsOn(featureFlag) || (!featureFlag && isValidCampaignKey)) &&
+    enabled;
   const { requestMethod } = useRequestProtocol();
   const { user } = useContext(AuthContext);
   const queryKey = generateQueryKey(RequestKey.ReferralCampaigns, user, {
