@@ -27,4 +27,7 @@ export const link = {
     requestKeys:
       'mailto:hi@daily.dev?subject=I want more invites for daily.dev search',
   },
+  referral: {
+    defaultUrl: 'https://daily.dev',
+  },
 };

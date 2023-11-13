@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { Dispatch, ReactElement, SetStateAction } from 'react';
-import useMedia from '../../hooks/useMedia';
+import { useMedia } from '../../hooks';
 import { OnboardingV4 } from '../../lib/featureValues';
 import { cloudinary } from '../../lib/image';
 import { tablet, laptop } from '../../styles/media';

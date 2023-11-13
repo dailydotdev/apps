@@ -20,6 +20,7 @@ import {
   AlertContextProviderProps,
 } from '../../src/contexts/AlertContext';
 import { FeaturesReadyContext } from '../../src/components/GrowthBookProvider';
+import { LazyModalElement } from '../../src/components/modals/LazyModalElement';
 
 interface TestBootProviderProps {
   children: ReactNode;
@@ -87,6 +88,7 @@ export const TestBootProvider = ({
                     {...notification}
                   >
                     {children}
+                    <LazyModalElement />
                   </NotificationsContextProvider>
                 </OnboardingContext.Provider>
               </SettingsContext.Provider>

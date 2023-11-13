@@ -114,6 +114,8 @@ export enum AnalyticsEvent {
   DeclineContentScripts = 'decline content scripts',
   ToggleFeedPreview = 'toggle feed preview',
   CreateFeed = 'create feed',
+  // Referral campaign
+  CopyReferralLink = 'copy referral link',
 }
 
 export enum FeedItemTitle {
@@ -139,6 +141,8 @@ export enum TargetId {
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
   InviteProfileMenu = 'invite in profile menu',
+  // Referral campaign
+  GenericReferralPopup = 'generic referral popup',
 }
 
 export enum NotificationChannel {

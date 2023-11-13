@@ -98,7 +98,7 @@ function ChangelogTooltip({
     !!post && (
       <InteractivePopup
         {...props}
-        position={InteractivePopupPosition.MainFeedLeftEnd}
+        position={InteractivePopupPosition.LeftEnd}
         className="ml-6 border shadow-2 focus:outline-none w-[24rem] max-w-[360px] bg-theme-bg-tertiary border-theme-color-cabbage"
         data-testid="changelog"
       >

@@ -38,6 +38,7 @@ import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthB
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
+import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -136,6 +137,7 @@ function InternalApp({
 
   return (
     <DndContextProvider>
+      <LazyModalElement />
       <MainFeedPage onPageChanged={onPageChanged} />
       {shouldShowLogin && (
         <AuthModal

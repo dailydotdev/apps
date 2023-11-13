@@ -63,6 +63,7 @@ export enum RequestKey {
   Changelog = 'changelog',
   Tags = 'tags',
   FeedPreview = 'feedPreview',
+  ReferredUsers = 'referred',
 }
 
 export type HasConnection<

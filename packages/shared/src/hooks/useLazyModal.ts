@@ -19,9 +19,11 @@ export function useLazyModal<
   const client = useQueryClient();
   const { data: modal } = useQuery<T>(
     MODAL_KEY,
-    () => client.getQueryData<T>(MODAL_KEY) || null,
+    () => client.getQueryData<T>(MODAL_KEY),
+    {
+      enabled: false,
+    },
   );
-
   const openModal = useCallback(
     (data: T) => {
       scrollPosition = window.scrollY;

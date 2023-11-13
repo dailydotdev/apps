@@ -19,10 +19,13 @@ import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { Bubble } from '../tooltips/utils';
 import HeaderLogo from './HeaderLogo';
 import { CreatePostButton } from '../post/write';
-import useMedia from '../../hooks/useMedia';
+import {
+  useMedia,
+  ReferralCampaignKey,
+  useReferralCampaign,
+} from '../../hooks';
 import { tablet } from '../../styles/media';
 import { SearchReferralButton } from '../referral/SearchReferralButton';
-import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
 
 interface ShouldShowLogoProps {
   mobileTitle?: string;
@@ -86,7 +89,7 @@ function MainLayoutHeader({
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
   };
-  const { referralToken, isReady } = useReferralCampaign({
+  const { isReady } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Search,
   });
 
@@ -103,9 +106,7 @@ function MainLayoutHeader({
         )}
         {!hideButton && user && (
           <>
-            {sidebarRendered && !!referralToken && (
-              <SearchReferralButton className="mr-3" />
-            )}
+            {sidebarRendered && <SearchReferralButton className="mr-3" />}
             <LinkWithTooltip
               tooltip={{ placement: 'bottom', content: 'Notifications' }}
               href={`${webappUrl}notifications`}
