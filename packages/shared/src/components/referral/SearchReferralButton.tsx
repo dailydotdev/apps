@@ -20,7 +20,7 @@ export function SearchReferralButton({
   const { openModal } = useLazyModal();
   const { trackEvent } = useAnalyticsContext();
   const { campaignCtaPlacement } = useSettingsContext();
-  const { isReady, availableCount } = useReferralCampaign({
+  const { referralToken, isReady, availableCount } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Search,
   });
   const shouldBeDisplayed =
@@ -34,7 +34,7 @@ export function SearchReferralButton({
     openModal({ type: LazyModal.SearchReferral });
   };
 
-  if (!shouldBeDisplayed) {
+  if (!shouldBeDisplayed || !referralToken) {
     return null;
   }
 

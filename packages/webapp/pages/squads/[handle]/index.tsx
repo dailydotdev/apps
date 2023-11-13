@@ -12,6 +12,7 @@ import Feed from '@dailydotdev/shared/src/components/Feed';
 import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
+import SquadFeedHeading from '@dailydotdev/shared/src/components/squads/SquadFeedHeading';
 import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
 import {
   getSquadMembers,
@@ -206,6 +207,8 @@ const SquadPage = ({
           showSearch={false}
           emptyScreen={<SquadEmptyScreen />}
           options={{ refetchOnMount: true }}
+          header={<SquadFeedHeading squad={squad} />}
+          inlineHeader
           allowPin
         />
       </BaseFeedPage>

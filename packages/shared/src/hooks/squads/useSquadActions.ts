@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import {
   useInfiniteQuery,
   UseInfiniteQueryResult,
@@ -7,6 +7,8 @@ import {
 } from 'react-query';
 import request from 'graphql-request';
 import {
+  collapsePinnedPosts,
+  expandPinnedPosts,
   SQUAD_MEMBERS_QUERY,
   SquadEdgesData,
   unblockSquadMember,
@@ -15,10 +17,15 @@ import {
 import { graphqlUrl } from '../../lib/config';
 import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import { updateFlagsCache } from '../../graphql/source/common';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { ActiveFeedContext } from '../../contexts';
 
 export interface UseSquadActions {
   onUnblock?: typeof unblockSquadMember;
   onUpdateRole?: typeof updateSquadMemberRole;
+  collapseSquadPinnedPosts?: typeof collapsePinnedPosts;
+  expandSquadPinnedPosts?: typeof expandPinnedPosts;
   membersQueryResult?: UseInfiniteQueryResult<SquadEdgesData>;
   members?: SourceMember[];
 }
@@ -40,6 +47,8 @@ export const useSquadActions = ({
   membersQueryParams = {},
   membersQueryEnabled,
 }: UseSquadActionsProps): UseSquadActions => {
+  const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
+  const { user } = useAuthContext();
   const client = useQueryClient();
   const membersQueryKey = generateQueryKey(
     RequestKey.SquadMembers,
@@ -55,6 +64,25 @@ export const useSquadActions = ({
     onSuccess: () => client.invalidateQueries(membersQueryKey),
   });
 
+  const { mutateAsync: collapseSquadPinnedPosts } = useMutation(
+    collapsePinnedPosts,
+    {
+      onSuccess: () => {
+        client.invalidateQueries(feedQueryKey);
+        updateFlagsCache(client, squad, user, { collapsePinnedPosts: true });
+      },
+    },
+  );
+
+  const { mutateAsync: expandSquadPinnedPosts } = useMutation(
+    expandPinnedPosts,
+    {
+      onSuccess: () => {
+        client.invalidateQueries(feedQueryKey);
+        updateFlagsCache(client, squad, user, { collapsePinnedPosts: false });
+      },
+    },
+  );
   const membersQueryResult = useInfiniteQuery<SquadEdgesData>(
     membersQueryKey,
     ({ pageParam }) =>
@@ -76,12 +104,20 @@ export const useSquadActions = ({
     () => ({
       onUnblock,
       onUpdateRole,
+      collapseSquadPinnedPosts,
+      expandSquadPinnedPosts,
       membersQueryResult,
       members:
         membersQueryResult.data?.pages
           .map((page) => page.sourceMembers.edges.map(({ node }) => node))
           .flat() ?? [],
     }),
-    [onUnblock, onUpdateRole, membersQueryResult],
+    [
+      onUnblock,
+      onUpdateRole,
+      collapseSquadPinnedPosts,
+      expandSquadPinnedPosts,
+      membersQueryResult,
+    ],
   );
 };

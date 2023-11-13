@@ -91,6 +91,7 @@ export const SocialShare = ({
           onCopy={trackAndCopyLink}
           onNativeShare={() => openNativeSharePost(post)}
           onClickSocial={trackClick}
+          emailTitle="I found this amazing post"
         />
       </SocialShareContainer>
     </>
