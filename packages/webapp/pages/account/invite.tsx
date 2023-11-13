@@ -22,12 +22,19 @@ import UserList from '@dailydotdev/shared/src/components/profile/UserList';
 import { checkFetchMore } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { ReferredUsersData } from '@dailydotdev/shared/src/graphql/common';
 import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/SocialShareList';
-import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import { Separator } from '@dailydotdev/shared/src/components/cards/common';
 import { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { format } from 'date-fns';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import {
+  AnalyticsEvent,
+  TargetId,
+  TargetType,
+} from '@dailydotdev/shared/src/lib/analytics';
+import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
+import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
@@ -40,8 +47,16 @@ const AccountInvitePage = (): ReactElement => {
   const { url, referredUsersCount } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Generic,
   });
+  const { trackEvent } = useAnalyticsContext();
   const inviteLink = url || link.referral.defaultUrl;
-  const [copyingLink, onCopyLink] = useCopyLink(() => inviteLink);
+  const [copyingLink, onShareOrCopyLink] = useShareOrCopyLink({
+    text: labels.referral.generic.inviteText,
+    link: inviteLink,
+    trackObject: () => ({
+      event_name: AnalyticsEvent.CopyReferralLink,
+      target_id: TargetId.InviteFriendsPage,
+    }),
+  });
   const usersResult = useInfiniteQuery<ReferredUsersData>(
     referredKey,
     ({ pageParam }) =>
@@ -65,15 +80,12 @@ const AccountInvitePage = (): ReactElement => {
     return list;
   }, [usersResult]);
 
-  const onNativeShare = async () => {
-    await navigator.share({
-      title: labels.referral.generic.inviteText,
-      url: inviteLink,
+  const onTrackShare = (provider: ShareProvider) => {
+    trackEvent({
+      event_name: AnalyticsEvent.InviteReferral,
+      target_id: provider,
+      target_type: TargetType.InviteFriendsPage,
     });
-  };
-
-  const onTrackShare = () => {
-    // add tracking here
   };
 
   return (
@@ -90,7 +102,7 @@ const AccountInvitePage = (): ReactElement => {
           <Button
             buttonSize={ButtonSize.Small}
             className="btn-primary"
-            onClick={() => onCopyLink()}
+            onClick={() => onShareOrCopyLink()}
           >
             {copyingLink ? 'Copying...' : 'Copy link'}
           </Button>
@@ -104,7 +116,7 @@ const AccountInvitePage = (): ReactElement => {
         <SocialShareList
           link={inviteLink}
           description={labels.referral.generic.inviteText}
-          onNativeShare={onNativeShare}
+          onNativeShare={onShareOrCopyLink}
           onClickSocial={onTrackShare}
         />
       </div>
