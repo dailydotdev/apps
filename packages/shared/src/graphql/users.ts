@@ -313,6 +313,24 @@ export const GET_PERSONALIZED_DIGEST_SETTINGS = gql`
   }
 `;
 
+export const REFERRED_USERS_QUERY = gql`
+  query ReferredUsers {
+    referredUsers {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          ...UserShortInfo
+          createdAt
+        }
+      }
+    }
+  }
+  ${USER_SHORT_INFO_FRAGMENT}
+`;
+
 export const SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION = gql`
   mutation SubscribePersonalizedDigest(
     $hour: Int

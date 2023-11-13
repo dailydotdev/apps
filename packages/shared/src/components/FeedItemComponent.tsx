@@ -130,6 +130,13 @@ export default function FeedItemComponent({
 
   switch (item.type) {
     case 'post': {
+      if (
+        !!item.post.pinnedAt &&
+        item.post.source?.currentMember?.flags?.collapsePinnedPosts
+      ) {
+        return null;
+      }
+
       const PostTag = useList
         ? PostList
         : PostTypeToTag[item.post.type] ?? ArticlePostCard;

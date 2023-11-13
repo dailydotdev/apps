@@ -24,6 +24,7 @@ export interface UseReferralCampaign extends ReferralCampaign {
 }
 
 export enum ReferralCampaignKey {
+  Generic = 'generic',
   Search = 'search',
 }
 
@@ -40,8 +41,11 @@ const campaignFeatureFlagMap: Partial<
 const useReferralCampaign = ({
   campaignKey,
 }: UseReferralCampaignProps): UseReferralCampaign => {
+  const isValidCampaignKey =
+    Object.values(ReferralCampaignKey).includes(campaignKey);
   const featureFlag = campaignFeatureFlagMap[campaignKey];
-  const isCampaignEnabled = useFeatureIsOn(featureFlag);
+  const isCampaignEnabled =
+    useFeatureIsOn(featureFlag) || (!featureFlag && isValidCampaignKey);
   const { requestMethod } = useRequestProtocol();
   const { user } = useContext(AuthContext);
   const queryKey = generateQueryKey(RequestKey.ReferralCampaigns, user, {
