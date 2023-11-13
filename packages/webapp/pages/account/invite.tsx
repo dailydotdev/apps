@@ -82,7 +82,7 @@ const AccountInvitePage = (): ReactElement => {
 
   const onTrackShare = (provider: ShareProvider) => {
     trackEvent({
-      event_name: AnalyticsEvent.ShareReferral,
+      event_name: AnalyticsEvent.InviteReferral,
       target_id: provider,
       target_type: TargetType.InviteFriendsPage,
     });

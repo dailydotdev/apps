@@ -117,7 +117,7 @@ export enum AnalyticsEvent {
   CreateFeed = 'create feed',
   // Referral campaign
   CopyReferralLink = 'copy referral link',
-  ShareReferral = 'share referral',
+  InviteReferral = 'invite referral',
 }
 
 export enum FeedItemTitle {
