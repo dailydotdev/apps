@@ -90,7 +90,7 @@ function InternalApp({
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   const shouldRedirectOnboarding = !user && isPageReady && !isTesting;
 
-  useQuery([EXTENSION_PERMISSION_KEY], () => ({
+  useQuery(EXTENSION_PERMISSION_KEY, () => ({
     requestContentScripts,
     registerBrowserContentScripts,
     getContentScriptPermission,

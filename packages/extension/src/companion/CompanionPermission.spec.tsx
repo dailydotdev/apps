@@ -52,7 +52,7 @@ jest.mock('webextension-polyfill-ts', () => {
 
 beforeEach(() => {
   client = new QueryClient();
-  client.setQueryData([EXTENSION_PERMISSION_KEY], () => ({
+  client.setQueryData(EXTENSION_PERMISSION_KEY, () => ({
     requestContentScripts,
     registerBrowserContentScripts,
     getContentScriptPermission,

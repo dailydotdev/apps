@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
 
-export const EXTENSION_PERMISSION_KEY = 'extension-permission';
+export const EXTENSION_PERMISSION_KEY = ['extension-permission'];
 
 export type RequestContentScripts = (data: {
   origin: string;
@@ -29,7 +29,7 @@ interface ExtensionPermission {
 export const useExtensionPermission = (): ExtensionPermission => {
   const client = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
-  const data = client.getQueryData([EXTENSION_PERMISSION_KEY]) || {};
+  const data = client.getQueryData(EXTENSION_PERMISSION_KEY) || {};
 
   const {
     registerBrowserContentScripts,
