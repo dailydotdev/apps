@@ -5,6 +5,8 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import ConditionalWrapper from '../ConditionalWrapper';
 import useWindowEvents from '../../hooks/useWindowEvents';
+import { Button, ButtonSize } from '../buttons/Button';
+import CloseIcon from '../icons/MiniClose';
 
 export enum InteractivePopupPosition {
   Center = 'center',
@@ -25,6 +27,7 @@ interface InteractivePopupProps {
   className?: string;
   position?: InteractivePopupPosition;
   closeOutsideClick?: boolean;
+  alwaysShowClose?: boolean;
   onClose?: (e: MouseEvent | KeyboardEvent | MessageEvent) => void;
 }
 
@@ -61,6 +64,7 @@ function InteractivePopup({
   className,
   position = InteractivePopupPosition.Center,
   closeOutsideClick,
+  alwaysShowClose,
   onClose,
   ...props
 }: InteractivePopupProps): ReactElement {
@@ -107,6 +111,15 @@ function InteractivePopup({
           )}
           {...props}
         >
+          {(!sidebarRendered || alwaysShowClose) && (
+            <Button
+              buttonSize={ButtonSize.Small}
+              className="top-2 right-2 z-1 btn-secondary"
+              position="absolute"
+              icon={<CloseIcon />}
+              onClick={(e: React.MouseEvent) => onClose(e.nativeEvent)}
+            />
+          )}
           {children}
         </div>
       </ConditionalWrapper>
