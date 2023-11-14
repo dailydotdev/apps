@@ -17,7 +17,7 @@ import { IconSize } from '../Icon';
 import SquadIcon from '../icons/Squad';
 import { SourceMemberRole } from '../../graphql/sources';
 import { Radio } from '../fields/Radio';
-import { squadFeedback, squadsPublicWaitlist } from '../../lib/constants';
+import { squadsPublicWaitlist } from '../../lib/constants';
 import { ManageSquadPageFooter } from './utils';
 import AuthContext from '../../contexts/AuthContext';
 
