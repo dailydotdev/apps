@@ -17,42 +17,40 @@ const ReferralWidget = ({ url }: { url: string }): ReactElement => {
       target_id: TargetId.ProfilePage,
     }),
   });
-  const onShareClick = () => {
-    onShareOrCopyLink();
-  };
 
   return (
     <div
       data-testid="referral-widget"
-      className="flex laptopL:absolute flex-col tablet:flex-row laptopL:flex-col flex-wrap justify-between p-4 laptopL:m-6 mt-6 laptopL:mt-0 mb-4 laptopL:max-w-widget laptopL:h-auto rounded-2xl border border-theme-divider-tertiary laptopL:left-[40rem] max-w-fit bg-theme-bg-primary"
+      className="flex laptopL:absolute laptopL:left-full flex-col tablet:flex-row laptopL:flex-col flex-wrap justify-between p-4 laptopL:m-6 mt-6 laptopL:mt-0 mb-4 laptopL:max-w-widget laptopL:h-auto rounded-2xl border border-theme-divider-tertiary max-w-fit bg-theme-bg-primary"
     >
       <h3 className="mb-2 font-bold typo-title3">Invite friends</h3>
-      <p className="contents text-theme-label-secondary typo-callout">
+      <p className="text-theme-label-secondary typo-callout">
         Tell your dev friends how easy is it to learn, collaborate, and grow
         together
       </p>
-      <div className="flex flex-col my-5 w-auto tablet:w-70">
-        <TextField
-          name="inviteURL"
-          inputId="inviteURL"
-          label="Your unique invite URL"
-          autoComplete="off"
-          type="url"
-          value={inviteLink}
-          fieldType="tertiary"
-          className={{ input: 'typo-footnote' }}
-          actionButton={
-            <Button
-              buttonSize={ButtonSize.XSmall}
-              className="btn-primary"
-              onClick={onShareClick}
-            >
-              Copy link
-            </Button>
-          }
-          readOnly
-        />
-      </div>
+      <TextField
+        name="inviteURL"
+        inputId="inviteURL"
+        label="Your unique invite URL"
+        autoComplete="off"
+        type="url"
+        value={inviteLink}
+        fieldType="tertiary"
+        className={{
+          input: 'typo-footnote',
+          container: 'flex flex-col my-5 w-auto tablet:w-70',
+        }}
+        actionButton={
+          <Button
+            buttonSize={ButtonSize.XSmall}
+            className="btn-primary"
+            onClick={() => onShareOrCopyLink()}
+          >
+            Copy link
+          </Button>
+        }
+        readOnly
+      />
       <div className="flex justify-between items-center">
         <p className="mr-3 typo-callout text-theme-label-tertiary">
           Invite with

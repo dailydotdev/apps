@@ -156,9 +156,9 @@ export default function ProfileLayout({
     }
   }, [profile]);
 
-  const isReadyProfile = isCurrentUserProfile && !isReady;
+  const isLoadingReferral = isCurrentUserProfile && !isReady;
 
-  if ((isFallback && !initialProfile) || isReadyProfile) {
+  if ((isFallback && !initialProfile) || isLoadingReferral) {
     return <></>;
   }
 
