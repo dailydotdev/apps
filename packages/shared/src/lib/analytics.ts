@@ -107,6 +107,7 @@ export enum AnalyticsEvent {
   CloseInvitationPopup = 'close invitation popup',
   ErrorSearch = 'error search',
   AcceptInvitation = 'accept invitation',
+  DownloadExtension = 'download extension',
   SearchHighlightAnimation = 'highlight search',
   // search end
   RequestContentScripts = 'request content scripts',
@@ -135,6 +136,8 @@ export enum TargetType {
   SearchSource = 'search source',
   SearchInviteButton = 'search invite button',
   HideInviteCheckbox = 'hide invite mechanism',
+  ReferralPopup = 'referral popup',
+  InviteFriendsPage = 'invite friends page',
 }
 
 export enum TargetId {
@@ -144,6 +147,7 @@ export enum TargetId {
   // Referral campaign
   GenericReferralPopup = 'generic referral popup',
   ProfilePage = 'profile page',
+  InviteFriendsPage = 'invite friends page',
 }
 
 export enum NotificationChannel {

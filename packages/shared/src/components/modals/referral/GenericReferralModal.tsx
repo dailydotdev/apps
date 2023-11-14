@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { Modal, ModalProps } from '../common/Modal';
 import { cloudinary } from '../../../lib/image';
 import CloseButton from '../../CloseButton';
@@ -8,9 +8,10 @@ import { TextField } from '../../fields/TextField';
 import { useShareOrCopyLink } from '../../../hooks/useShareOrCopyLink';
 import { link } from '../../../lib/links';
 import { labels } from '../../../lib';
-import { AnalyticsEvent, TargetId } from '../../../lib/analytics';
+import { AnalyticsEvent, TargetId, TargetType } from '../../../lib/analytics';
 import { ReferralCampaignKey, useReferralCampaign } from '../../../hooks';
 import ReferralSocialShareButtons from '../../widgets/ReferralSocialShareButtons';
+import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 
 function GenericReferralModal({
   onRequestClose,
@@ -29,10 +30,21 @@ function GenericReferralModal({
       target_id: TargetId.GenericReferralPopup,
     }),
   });
+  const { trackEvent } = useAnalyticsContext();
   const onShareClick = () => {
     onShareOrCopyLink();
     setShareState(true);
   };
+
+  useEffect(() => {
+    trackEvent({
+      event_name: AnalyticsEvent.Impression,
+      target_type: TargetType.ReferralPopup,
+    });
+
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Modal {...props} onRequestClose={onRequestClose} size={ModalSize.Small}>
