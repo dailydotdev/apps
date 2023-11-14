@@ -58,7 +58,7 @@ const ReferralWidget = ({ url }: { url: string }): ReactElement => {
         <span className="flex gap-2">
           <ReferralSocialShareButtons
             url={url}
-            origin={TargetType.ProfilePage}
+            targetType={TargetType.ProfilePage}
           />
         </span>
       </div>

@@ -93,7 +93,7 @@ function GenericReferralModal({
           </p>
           <ReferralSocialShareButtons
             url={url}
-            origin={TargetType.GenericReferralPopup}
+            targetType={TargetType.GenericReferralPopup}
           />
         </div>
       </Modal.Body>

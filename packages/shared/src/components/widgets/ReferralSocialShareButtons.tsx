@@ -15,13 +15,14 @@ import { SimpleTooltip } from '../tooltips';
 import { AnalyticsEvent, TargetType } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
+interface ReferralSocialShareButtonsProps {
+  url: string;
+  targetType: TargetType;
+}
 const ReferralSocialShareButtons = ({
   url,
-  origin,
-}: {
-  url: string;
-  origin: TargetType;
-}): ReactElement => {
+  targetType,
+}: ReferralSocialShareButtonsProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const inviteLink = url || link.referral.defaultUrl;
 
@@ -62,7 +63,7 @@ const ReferralSocialShareButtons = ({
                 trackEvent({
                   event_name: AnalyticsEvent.InviteReferral,
                   target_id: shareProvider,
-                  target_type: origin,
+                  target_type: targetType,
                 });
               }}
             />
