@@ -65,6 +65,8 @@ export enum RequestKey {
   FeedPreview = 'feedPreview',
   ReferredUsers = 'referred',
   PostKey = 'post',
+  Prompt = 'prompt',
+  SquadTour = 'squad_tour',
 }
 
 export type HasConnection<

@@ -14,13 +14,15 @@ export const useMutationSubscription = ({
   matcherRef.current = matcher;
 
   useEffect(() => {
-    const unsubscribe = queryClient.getMutationCache().subscribe((mutation) => {
-      if (!matcherRef.current({ mutation: mutation.mutation })) {
-        return;
-      }
+    const unsubscribe = queryClient
+      .getMutationCache()
+      .subscribe(({ mutation }) => {
+        if (!matcherRef.current({ mutation })) {
+          return;
+        }
 
-      callbackRef.current({ mutation: mutation.mutation, queryClient });
-    });
+        callbackRef.current({ mutation, queryClient });
+      });
 
     return () => {
       unsubscribe();

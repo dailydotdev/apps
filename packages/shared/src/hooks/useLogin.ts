@@ -60,19 +60,13 @@ const useLogin = ({
   const hintState = useState('Enter your password to login');
   const [, setHint] = hintState;
   const { data: login } = useQuery(
-    ['login'],
+    [AuthEvent.Login, { ...queryParams }],
     () => initializeKratosFlow(AuthFlow.Login, queryParams),
     {
       enabled: queryEnabled,
       refetchOnWindowFocus: false,
     },
   );
-  // const { data: login } = useQuery(
-  //   [AuthEvent.Login, { ...queryParams }],
-  //   ({ queryKey: [{ queryParams: params }] }) =>
-  //     initializeKratosFlow(AuthFlow.Login, params),
-  //   { enabled: queryEnabled, refetchOnWindowFocus: false },
-  // );
   const { mutateAsync: onPasswordLogin, isLoading } = useMutation(
     (params: ValidateLoginParams) => {
       trackEvent({

@@ -2,8 +2,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ReactNode, useCallback } from 'react';
 import { ButtonProps, StyledButtonProps } from '../components/buttons/Button';
 import { ModalSize } from '../components/modals/common/types';
+import { generateQueryKey, RequestKey } from '../lib/query';
 
-export const PROMPT_KEY = 'prompt';
+export const PROMPT_KEY = generateQueryKey(RequestKey.Prompt, null);
 
 export type PromptButtonProps = StyledButtonProps &
   Omit<ButtonProps<'button'>, 'onClick'> & {
@@ -41,12 +42,12 @@ type UsePromptRet = {
 export function usePrompt(): UsePromptRet {
   const client = useQueryClient();
   const { data: prompt } = useQuery<Prompt>(
-    [PROMPT_KEY],
-    () => client.getQueryData<Prompt>([PROMPT_KEY]) || null,
+    PROMPT_KEY,
+    () => client.getQueryData<Prompt>(PROMPT_KEY) || null,
   );
 
   const setPrompt = useCallback(
-    (data: Prompt) => client.setQueryData([PROMPT_KEY], data),
+    (data: Prompt) => client.setQueryData(PROMPT_KEY, data),
     [client],
   );
 
