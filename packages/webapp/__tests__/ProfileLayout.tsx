@@ -29,6 +29,7 @@ const defaultLoggedUser: LoggedUser = {
   infoConfirmed: true,
   premium: false,
   createdAt: '2020-07-26T13:04:35.000Z',
+  permalink: 'https://daily.dev/ido',
 };
 
 const defaultProfile: PublicProfile = {
@@ -44,6 +45,23 @@ const defaultProfile: PublicProfile = {
   github: 'dailydotdev',
   hashnode: 'dailydotdev',
   portfolio: 'https://daily.dev/?key=vaue',
+  permalink: 'https://daily.dev/dailydotdev',
+};
+
+const loggedInUserProfile: PublicProfile = {
+  id: 'u1',
+  name: 'Ido Shamun',
+  username: 'idoshamun',
+  premium: false,
+  reputation: 20,
+  image: 'https://daily.dev/ido.png',
+  bio: 'The best company!',
+  createdAt: '2020-07-26T13:04:35.000Z',
+  twitter: 'idoshamun',
+  github: 'idoshamun',
+  hashnode: 'idoshamun',
+  portfolio: 'https://daily.dev/?key=vaue',
+  permalink: 'https://daily.dev/ido',
 };
 
 const renderComponent = (
@@ -83,6 +101,7 @@ it('should show join date', () => {
 
 it('should show twitter link', () => {
   renderComponent();
+
   const el = screen.getByLabelText('X');
   expect(el).toHaveAttribute('href', 'https://twitter.com/dailydotdev');
 });
@@ -134,5 +153,17 @@ it('should show rank when loaded', async () => {
   renderComponent();
   await waitForNock();
   const el = await screen.findByTestId('rank');
+  expect(el).toBeInTheDocument();
+});
+
+it('should not show referral widget if user is seeing different profile', () => {
+  renderComponent();
+  const el = screen.queryByTestId('referral-widget');
+  expect(el).not.toBeInTheDocument();
+});
+
+it('should show referral widget if user is seeing their own profile', () => {
+  renderComponent(loggedInUserProfile);
+  const el = screen.queryByTestId('referral-widget');
   expect(el).toBeInTheDocument();
 });
