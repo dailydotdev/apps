@@ -1,4 +1,4 @@
-import React, { FormEvent, ReactElement, useState } from 'react';
+import React, { FormEvent, ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
 import { ClientError } from 'graphql-request';
 import { useMutation } from 'react-query';
@@ -19,6 +19,7 @@ import { SourceMemberRole } from '../../graphql/sources';
 import { Radio } from '../fields/Radio';
 import { squadsPublicWaitlist } from '../../lib/constants';
 import { ManageSquadPageFooter } from './utils';
+import AuthContext from '../../contexts/AuthContext';
 
 const squadImageId = 'squad_image_file';
 
@@ -56,7 +57,7 @@ const memberRoleOptions = [
   },
 ];
 
-const squadTypeOptions = [
+const squadTypeOptions = (userId: string) => [
   {
     label: 'Private Squad',
     value: 'private',
@@ -75,7 +76,7 @@ const squadTypeOptions = [
         Everyone can see the content, and the posts may appear on the main
         feed.&nbsp;
         <a
-          href={squadsPublicWaitlist}
+          href={`${squadsPublicWaitlist}#user_id=${userId}`}
           rel={anchorDefaultRel}
           target="_blank"
           className="underline text-theme-label-link"
@@ -94,6 +95,7 @@ export function SquadDetails({
   createMode = true,
   onRequestClose,
 }: SquadDetailsProps): ReactElement {
+  const { user } = useContext(AuthContext);
   const {
     name,
     handle,
@@ -246,7 +248,7 @@ export function SquadDetails({
             <div>
               <Radio
                 name="squadType"
-                options={squadTypeOptions}
+                options={squadTypeOptions(user.id)}
                 value="private"
                 onChange={() => {}}
               />
