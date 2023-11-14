@@ -1,24 +1,17 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { Modal, ModalProps } from '../common/Modal';
 import { cloudinary } from '../../../lib/image';
 import CloseButton from '../../CloseButton';
 import { ModalSize } from '../common/types';
 import { Button, ButtonSize } from '../../buttons/Button';
 import { TextField } from '../../fields/TextField';
-import {
-  getFacebookShareLink,
-  getTwitterShareLink,
-  getWhatsappShareLink,
-} from '../../../lib/share';
-import WhatsappIcon from '../../icons/Whatsapp';
-import { SimpleTooltip } from '../../tooltips';
-import FacebookIcon from '../../icons/Facebook';
-import TwitterIcon from '../../icons/Twitter';
 import { useShareOrCopyLink } from '../../../hooks/useShareOrCopyLink';
 import { link } from '../../../lib/links';
 import { labels } from '../../../lib';
-import { AnalyticsEvent, TargetId } from '../../../lib/analytics';
+import { AnalyticsEvent, TargetId, TargetType } from '../../../lib/analytics';
 import { ReferralCampaignKey, useReferralCampaign } from '../../../hooks';
+import ReferralSocialShareButtons from '../../widgets/ReferralSocialShareButtons';
+import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 
 function GenericReferralModal({
   onRequestClose,
@@ -37,10 +30,21 @@ function GenericReferralModal({
       target_id: TargetId.GenericReferralPopup,
     }),
   });
+  const { trackEvent } = useAnalyticsContext();
   const onShareClick = () => {
     onShareOrCopyLink();
     setShareState(true);
   };
+
+  useEffect(() => {
+    trackEvent({
+      event_name: AnalyticsEvent.Impression,
+      target_type: TargetType.ReferralPopup,
+    });
+
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Modal {...props} onRequestClose={onRequestClose} size={ModalSize.Small}>
@@ -87,42 +91,10 @@ function GenericReferralModal({
           <p className="mr-1 typo-callout text-theme-label-tertiary">
             Invite with
           </p>
-          <SimpleTooltip content="Share on WhatsApp">
-            <Button
-              tag="a"
-              href={getWhatsappShareLink(inviteLink)}
-              target="_blank"
-              rel="noopener"
-              icon={<WhatsappIcon />}
-              className="btn-tertiary"
-              iconOnly
-            />
-          </SimpleTooltip>
-          <SimpleTooltip content="Share on Facebook">
-            <Button
-              tag="a"
-              href={getFacebookShareLink(inviteLink)}
-              target="_blank"
-              rel="noopener"
-              icon={<FacebookIcon />}
-              className="btn-tertiary"
-              iconOnly
-            />
-          </SimpleTooltip>
-          <SimpleTooltip content="Share on X">
-            <Button
-              tag="a"
-              href={getTwitterShareLink(
-                inviteLink,
-                labels.referral.generic.inviteText,
-              )}
-              target="_blank"
-              rel="noopener"
-              icon={<TwitterIcon />}
-              className="btn-tertiary"
-              iconOnly
-            />
-          </SimpleTooltip>
+          <ReferralSocialShareButtons
+            url={url}
+            targetType={TargetType.GenericReferralPopup}
+          />
         </div>
       </Modal.Body>
     </Modal>
