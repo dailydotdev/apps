@@ -126,6 +126,7 @@ const AccountInvitePage = (): ReactElement => {
       >
         <UserList
           users={users}
+          isLoading={usersResult?.isLoading}
           scrollingProps={{
             isFetchingNextPage: usersResult.isFetchingNextPage,
             canFetchMore: checkFetchMore(usersResult),
