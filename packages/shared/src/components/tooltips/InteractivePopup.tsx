@@ -7,6 +7,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import useWindowEvents from '../../hooks/useWindowEvents';
 import { Button, ButtonSize } from '../buttons/Button';
 import CloseIcon from '../icons/MiniClose';
+import { isNullOrUndefined } from '../../lib/func';
 
 export enum InteractivePopupPosition {
   Center = 'center',
@@ -27,7 +28,6 @@ interface InteractivePopupProps {
   className?: string;
   position?: InteractivePopupPosition;
   closeOutsideClick?: boolean;
-  alwaysShowClose?: boolean;
   onClose?: (e: MouseEvent | KeyboardEvent | MessageEvent) => void;
 }
 
@@ -64,7 +64,6 @@ function InteractivePopup({
   className,
   position = InteractivePopupPosition.Center,
   closeOutsideClick,
-  alwaysShowClose,
   onClose,
   ...props
 }: InteractivePopupProps): ReactElement {
@@ -81,7 +80,10 @@ function InteractivePopup({
     'click',
     'click',
     (e: MessageEvent) => {
-      if (!container.current.contains(e.target as Node)) {
+      if (
+        !isNullOrUndefined(container.current) &&
+        !container.current.contains(e.target as Node)
+      ) {
         onCloseRef.current(e);
       }
     },
@@ -111,7 +113,7 @@ function InteractivePopup({
           )}
           {...props}
         >
-          {(!sidebarRendered || alwaysShowClose) && (
+          {finalPosition !== InteractivePopupPosition.ProfileMenu && (
             <Button
               buttonSize={ButtonSize.Small}
               className="top-2 right-2 z-1 btn-secondary"
