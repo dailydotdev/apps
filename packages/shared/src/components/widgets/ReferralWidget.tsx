@@ -1,22 +1,11 @@
 import React, { ReactElement } from 'react';
-import { Button, ButtonSize } from '../buttons/Button';
-import { TextField } from '../fields/TextField';
 import { link } from '../../lib/links';
-import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
-import { labels } from '../../lib';
-import { AnalyticsEvent, TargetId, TargetType } from '../../lib/analytics';
+import { TargetId, TargetType } from '../../lib/analytics';
 import ReferralSocialShareButtons from './ReferralSocialShareButtons';
+import { InviteLinkInput } from '../referral/InviteLinkInput';
 
 const ReferralWidget = ({ url }: { url: string }): ReactElement => {
   const inviteLink = url || link.referral.defaultUrl;
-  const [, onShareOrCopyLink] = useShareOrCopyLink({
-    text: labels.referral.generic.inviteText,
-    link: inviteLink,
-    trackObject: () => ({
-      event_name: AnalyticsEvent.CopyReferralLink,
-      target_id: TargetId.ProfilePage,
-    }),
-  });
 
   return (
     <div
@@ -28,28 +17,14 @@ const ReferralWidget = ({ url }: { url: string }): ReactElement => {
         Tell your dev friends how easy is it to learn, collaborate, and grow
         together
       </p>
-      <TextField
-        name="inviteURL"
-        inputId="inviteURL"
-        label="Your unique invite URL"
-        autoComplete="off"
-        type="url"
-        value={inviteLink}
-        fieldType="tertiary"
+      <InviteLinkInput
+        targetId={TargetId.ProfilePage}
+        link={inviteLink}
+        copyingText="Copying..."
         className={{
           input: 'typo-footnote',
           container: 'flex flex-col my-5 w-auto tablet:w-70',
         }}
-        actionButton={
-          <Button
-            buttonSize={ButtonSize.XSmall}
-            className="btn-primary"
-            onClick={() => onShareOrCopyLink()}
-          >
-            Copy link
-          </Button>
-        }
-        readOnly
       />
       <div className="flex justify-between items-center">
         <p className="mr-3 typo-callout text-theme-label-tertiary">

@@ -1,14 +1,9 @@
 import React, { ReactElement, useMemo, useRef } from 'react';
-import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import {
   ReferralCampaignKey,
   useReferralCampaign,
 } from '@dailydotdev/shared/src/hooks';
 import { link } from '@dailydotdev/shared/src/lib/links';
-import {
-  Button,
-  ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
 import { labels } from '@dailydotdev/shared/src/lib';
 import {
   generateQueryKey,
@@ -35,6 +30,7 @@ import {
 } from '@dailydotdev/shared/src/lib/analytics';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
+import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral/InviteLinkInput';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
@@ -49,7 +45,7 @@ const AccountInvitePage = (): ReactElement => {
   });
   const { trackEvent } = useAnalyticsContext();
   const inviteLink = url || link.referral.defaultUrl;
-  const [copyingLink, onShareOrCopyLink] = useShareOrCopyLink({
+  const [, onShareOrCopyLink] = useShareOrCopyLink({
     text: labels.referral.generic.inviteText,
     link: inviteLink,
     trackObject: () => ({
@@ -90,24 +86,10 @@ const AccountInvitePage = (): ReactElement => {
 
   return (
     <AccountPageContainer title="Invite friends">
-      <TextField
-        name="inviteURL"
-        inputId="inviteURL"
-        label="Your unique invite URL"
-        type="url"
-        autoComplete="off"
-        value={inviteLink}
-        fieldType="tertiary"
-        actionButton={
-          <Button
-            buttonSize={ButtonSize.Small}
-            className="btn-primary"
-            onClick={() => onShareOrCopyLink()}
-          >
-            {copyingLink ? 'Copying...' : 'Copy link'}
-          </Button>
-        }
-        readOnly
+      <InviteLinkInput
+        targetId={TargetId.InviteFriendsPage}
+        link={inviteLink}
+        copyingText="Copying..."
       />
       <span className="p-0.5 my-4 font-bold typo-callout text-theme-label-tertiary">
         or invite with
