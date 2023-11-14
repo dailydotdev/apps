@@ -91,7 +91,10 @@ function GenericReferralModal({
           <p className="mr-1 typo-callout text-theme-label-tertiary">
             Invite with
           </p>
-          <ReferralSocialShareButtons url={url} />
+          <ReferralSocialShareButtons
+            url={url}
+            origin={TargetType.GenericReferralPopup}
+          />
         </div>
       </Modal.Body>
     </Modal>

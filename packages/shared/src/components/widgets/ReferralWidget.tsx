@@ -4,7 +4,7 @@ import { TextField } from '../fields/TextField';
 import { link } from '../../lib/links';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { labels } from '../../lib';
-import { AnalyticsEvent, TargetId } from '../../lib/analytics';
+import { AnalyticsEvent, TargetId, TargetType } from '../../lib/analytics';
 import ReferralSocialShareButtons from './ReferralSocialShareButtons';
 
 const ReferralWidget = ({ url }: { url: string }): ReactElement => {
@@ -56,7 +56,10 @@ const ReferralWidget = ({ url }: { url: string }): ReactElement => {
           Invite with
         </p>
         <span className="flex gap-2">
-          <ReferralSocialShareButtons url={url} />
+          <ReferralSocialShareButtons
+            url={url}
+            origin={TargetType.ProfilePage}
+          />
         </span>
       </div>
     </div>
