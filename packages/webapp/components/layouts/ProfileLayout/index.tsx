@@ -43,7 +43,7 @@ import classNames from 'classnames';
 import DOMPurify from 'dompurify';
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import ReferralWidget from '@dailydotdev/shared/src/components/cards/ReferralWidget';
+import ReferralWidget from '@dailydotdev/shared/src/components/widgets/ReferralWidget';
 import {
   ReferralCampaignKey,
   useReferralCampaign,

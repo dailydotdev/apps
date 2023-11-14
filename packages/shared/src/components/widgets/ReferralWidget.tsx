@@ -1,19 +1,11 @@
 import React, { ReactElement } from 'react';
 import { Button, ButtonSize } from '../buttons/Button';
-import {
-  getFacebookShareLink,
-  getTwitterShareLink,
-  getWhatsappShareLink,
-} from '../../lib/share';
-import WhatsappIcon from '../icons/Whatsapp';
-import FacebookIcon from '../icons/Facebook';
-import TwitterIcon from '../icons/Twitter';
 import { TextField } from '../fields/TextField';
 import { link } from '../../lib/links';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { labels } from '../../lib';
 import { AnalyticsEvent, TargetId } from '../../lib/analytics';
-import { SimpleTooltip } from '../tooltips';
+import ReferralSocialShareButtons from './ReferralSocialShareButtons';
 
 const ReferralWidget = ({ url }: { url: string }): ReactElement => {
   const inviteLink = url || link.referral.defaultUrl;
@@ -61,45 +53,12 @@ const ReferralWidget = ({ url }: { url: string }): ReactElement => {
           readOnly
         />
       </div>
-      <div className="flex justify-between items-center text-theme-label-tertiary typo-callout">
-        Invite with
-        <span className="flex">
-          <SimpleTooltip content="Share on WhatsApp">
-            <Button
-              tag="a"
-              href={getWhatsappShareLink(inviteLink)}
-              target="_blank"
-              rel="noopener"
-              icon={<WhatsappIcon />}
-              className="mr-2 ml-3 btn-tertiary"
-              iconOnly
-            />
-          </SimpleTooltip>
-          <SimpleTooltip content="Share on Facebook">
-            <Button
-              tag="a"
-              href={getFacebookShareLink(inviteLink)}
-              target="_blank"
-              rel="noopener"
-              icon={<FacebookIcon />}
-              className="mr-2 btn-tertiary"
-              iconOnly
-            />
-          </SimpleTooltip>
-          <SimpleTooltip content="Share on X">
-            <Button
-              tag="a"
-              href={getTwitterShareLink(
-                inviteLink,
-                labels.referral.generic.inviteText,
-              )}
-              target="_blank"
-              rel="noopener"
-              icon={<TwitterIcon />}
-              className="btn-tertiary"
-              iconOnly
-            />
-          </SimpleTooltip>
+      <div className="flex justify-between items-center">
+        <p className="mr-3 typo-callout text-theme-label-tertiary">
+          Invite with
+        </p>
+        <span className="flex gap-2">
+          <ReferralSocialShareButtons url={url} />
         </span>
       </div>
     </div>
