@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { Button, ButtonSize } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { AnalyticsEvent, TargetId } from '../../lib/analytics';
@@ -6,10 +6,16 @@ import { useCopyLink } from '../../hooks/useCopy';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { FieldClassName } from '../fields/BaseFieldContainer';
 
+interface Text {
+  copying?: string;
+  copied?: string;
+  initial?: string;
+}
+
 interface InviteLinkInputProps {
   targetId: TargetId;
   link: string;
-  copyingText?: string;
+  text?: Text;
   onCopy?: () => void;
   className?: FieldClassName;
 }
@@ -17,10 +23,11 @@ interface InviteLinkInputProps {
 export function InviteLinkInput({
   link,
   targetId,
-  copyingText,
+  text = {},
   onCopy,
   className,
 }: InviteLinkInputProps): ReactElement {
+  const [hasCopied, setHasCopied] = useState(false);
   const [copying, onCopyLink] = useCopyLink(() => link);
   const { trackEvent } = useAnalyticsContext();
   const onCopyClick = () => {
@@ -29,6 +36,7 @@ export function InviteLinkInput({
       event_name: AnalyticsEvent.CopyReferralLink,
       target_id: targetId,
     });
+    setHasCopied(true);
 
     if (onCopy) {
       onCopy();
@@ -36,13 +44,17 @@ export function InviteLinkInput({
   };
 
   const renderText = () => {
-    const copy = 'Copy link';
+    const copy = text?.initial ?? 'Copy link';
 
-    if (copyingText) {
-      return copying ? copyingText : copy;
+    if (text?.copying) {
+      return copying ? text?.copying : copy;
     }
 
-    return `${copy} ${copying ? '😀' : '😉'}`;
+    if (hasCopied) {
+      return text?.copied ?? copy;
+    }
+
+    return copy;
   };
 
   return (

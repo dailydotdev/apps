@@ -89,7 +89,7 @@ const AccountInvitePage = (): ReactElement => {
       <InviteLinkInput
         targetId={TargetId.InviteFriendsPage}
         link={inviteLink}
-        copyingText="Copying..."
+        text={{ copying: 'Copying...' }}
       />
       <span className="p-0.5 my-4 font-bold typo-callout text-theme-label-tertiary">
         or invite with
