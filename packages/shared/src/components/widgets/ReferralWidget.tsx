@@ -14,8 +14,8 @@ const ReferralWidget = ({ url }: { url: string }): ReactElement => {
     >
       <h3 className="mb-2 font-bold typo-title3">Invite friends</h3>
       <p className="text-theme-label-secondary typo-callout">
-        Tell your dev friends how easy is it to learn, collaborate, and grow
-        together
+        Invite other developers to discover how easy it is to stay updated with
+        daily.dev
       </p>
       <InviteLinkInput
         targetId={TargetId.ProfilePage}
@@ -28,7 +28,7 @@ const ReferralWidget = ({ url }: { url: string }): ReactElement => {
       />
       <div className="flex justify-between items-center">
         <p className="mr-3 typo-callout text-theme-label-tertiary">
-          Invite with
+          Invite via
         </p>
         <span className="flex gap-2">
           <ReferralSocialShareButtons
