@@ -39,6 +39,7 @@ import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
+import { useHostStatus } from '@dailydotdev/shared/src/hooks/useHostPermissionStatus';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -49,6 +50,9 @@ import {
   requestContentScripts,
   registerBrowserContentScripts,
   getContentScriptPermission,
+  getHostPermissionAndRegister,
+  getHostPermission,
+  HOST_PERMISSIONS,
 } from '../lib/extensionScripts';
 import {
   EXTENSION_PERMISSION_KEY,
@@ -82,6 +86,8 @@ function InternalApp({
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useContentScriptStatus();
+  const { hostGranted } = useHostStatus();
+
   const routeChangedCallbackRef = useTrackPageView();
 
   const { user, isAuthReady } = useAuthContext();
@@ -89,12 +95,6 @@ function InternalApp({
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   const shouldRedirectOnboarding = !user && isPageReady && !isTesting;
-
-  useQuery(EXTENSION_PERMISSION_KEY, () => ({
-    requestContentScripts,
-    registerBrowserContentScripts,
-    getContentScriptPermission,
-  }));
 
   useEffect(() => {
     if (routeChangedCallbackRef.current && isPageReady) {
@@ -111,6 +111,15 @@ function InternalApp({
     dismissToast();
   };
 
+  const handleRequestHostPermissions = async (url: string) => {
+    console.log({ hostGranted });
+    if (!hostGranted) {
+      await browser.permissions.request({ origins: HOST_PERMISSIONS });
+    }
+
+    router.push(url);
+  };
+
   useEffect(() => {
     if (contentScriptGranted) {
       getContentScriptPermissionAndRegister();
@@ -123,16 +132,12 @@ function InternalApp({
       : DEFAULT_TAB_TITLE;
   }, [unreadCount]);
 
-  useEffect(() => {
-    if (shouldRedirectOnboarding) {
-      routeChangedCallbackRef.current();
-    }
-  }, [routeChangedCallbackRef, shouldRedirectOnboarding]);
+  console.log({ hostGranted });
 
-  if (shouldRedirectOnboarding) {
+  if (!hostGranted || shouldRedirectOnboarding) {
     // eslint-disable-next-line no-param-reassign
     pageRef.current = '/hijacking';
-    return <ExtensionOnboarding />;
+    return <ExtensionOnboarding onContinue={handleRequestHostPermissions} />;
   }
 
   return (
@@ -152,6 +157,36 @@ function InternalApp({
 }
 const InternalAppWithFeaturesBoundary = withFeaturesBoundary(InternalApp);
 
+function CheckHostPermission(): ReactElement {
+  useQuery(EXTENSION_PERMISSION_KEY, () => ({
+    requestContentScripts,
+    registerBrowserContentScripts,
+    getContentScriptPermission,
+    getHostPermission,
+    getHostPermissionAndRegister,
+  }));
+
+  const { hostGranted } = useHostStatus();
+
+  const handleRequestHostPermissions = async (url: string) => {
+    console.log({ hostGranted });
+    if (!hostGranted) {
+      await browser.permissions.request({ origins: HOST_PERMISSIONS });
+    }
+
+    router.push(url);
+  };
+
+  console.log({ hostGranted });
+
+  if (!hostGranted) {
+    // eslint-disable-next-line no-param-reassign
+    return <ExtensionOnboarding onContinue={handleRequestHostPermissions} />;
+  }
+
+  return null;
+}
+
 export default function App({
   localBootData,
 }: Pick<BootDataProviderProps, 'localBootData'>): ReactElement {
@@ -162,6 +197,8 @@ export default function App({
     <RouterContext.Provider value={router}>
       <ProgressiveEnhancementContextProvider>
         <QueryClientProvider client={queryClient}>
+          <CheckHostPermission />
+
           <BootDataProvider
             app={BootApp.Extension}
             getRedirectUri={getRedirectUri}

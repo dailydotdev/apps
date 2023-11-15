@@ -6,7 +6,11 @@ import { onboardingUrl } from '../lib/constants';
 import { Button, ButtonSize } from './buttons/Button';
 import { cloudinary } from '../lib/image';
 
-const ExtensionOnboarding = (): ReactElement => {
+interface Props {
+  onContinue?: (url: string) => void;
+}
+
+const ExtensionOnboarding = ({ onContinue }: Props): ReactElement => {
   return (
     <div className="flex overflow-hidden flex-col justify-center items-center px-7 antialiased text-center min-h-[100vh] max-h-[100vh]">
       <Logo position={LogoPosition.Relative} logoClassName="h-logo-big" />
@@ -22,15 +26,16 @@ const ExtensionOnboarding = (): ReactElement => {
         The magic awaits inside! ✨
       </p>
 
-      <Link href={onboardingUrl} passHref>
-        <Button
-          tag="a"
-          className="z-1 w-full btn-primary max-w-[18.75rem]"
-          buttonSize={ButtonSize.Large}
-        >
-          Continue ➔
-        </Button>
-      </Link>
+      {/* <Link href={onboardingUrl} passHref> */}
+      <Button
+        // tag="a"
+        className="z-1 w-full btn-primary max-w-[18.75rem]"
+        buttonSize={ButtonSize.Large}
+        onClick={() => onContinue(onboardingUrl)}
+      >
+        Continue ➔
+      </Button>
+      {/* </Link> */}
 
       <img
         className="absolute bottom-0 z-0 w-[33rem]"

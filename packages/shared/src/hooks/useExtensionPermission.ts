@@ -24,6 +24,8 @@ interface ExtensionPermission {
   getContentScriptPermission: () => Promise<boolean>;
   requestContentScripts: RequestContentScripts;
   registerBrowserContentScripts: () => Promise<never>;
+  getHostPermission: () => Promise<boolean>;
+  getHostPermissionAndRegister: () => Promise<never>;
 }
 
 export const useExtensionPermission = (): ExtensionPermission => {
@@ -35,15 +37,21 @@ export const useExtensionPermission = (): ExtensionPermission => {
     registerBrowserContentScripts,
     requestContentScripts,
     getContentScriptPermission,
+    getHostPermission,
+    getHostPermissionAndRegister,
   } = data as {
     registerBrowserContentScripts: ExtensionPermission['registerBrowserContentScripts'];
     requestContentScripts: CreateRequestContentScripts;
     getContentScriptPermission: ExtensionPermission['getContentScriptPermission'];
+    getHostPermission: ExtensionPermission['getHostPermission'];
+    getHostPermissionAndRegister: ExtensionPermission['getHostPermissionAndRegister'];
   };
 
   return {
     registerBrowserContentScripts,
     requestContentScripts: requestContentScripts?.(client, trackEvent),
     getContentScriptPermission,
+    getHostPermission,
+    getHostPermissionAndRegister,
   };
 };
