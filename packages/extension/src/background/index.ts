@@ -9,6 +9,7 @@ import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/u
 import { install, uninstall } from '@dailydotdev/shared/src/lib/constants';
 import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
 import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
+import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 
 const client = new GraphQLClient(graphqlUrl, { fetch: globalThis.fetch });
@@ -122,8 +123,8 @@ async function handleMessages(
 
   if (message.type === ExtensionMessageType.DisableCompanion) {
     const cacheData = getLocalBootData();
-    const settings = { ...cacheData.settings, optOutCompanion: true };
-    localStorage.setItem(
+    const settings = { ...cacheData?.settings, optOutCompanion: true };
+    storage.setItem(
       BOOT_LOCAL_KEY,
       JSON.stringify({ ...cacheData, settings, lastModifier: 'companion' }),
     );
