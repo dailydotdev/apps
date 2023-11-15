@@ -14,6 +14,19 @@ import LeanFeed from '../feed/LeanFeed';
 import { FeedItem } from '../../hooks/useFeed';
 import { ActiveFeedContextProvider } from '../../contexts';
 import LeanFeedItemComponent from '../feed/LeanFeedItemComponent';
+import { Card } from '../feed/cards/atoms/Card';
+import { CardButton } from '../feed/cards/atoms/CardAction';
+import { Flag } from '../feed/cards/atoms/Flag';
+import styles from '../cards/Card.module.css';
+import { RaisedLabelType } from '../cards/RaisedLabel';
+import { FlagContainer } from '../feed/cards/atoms/FlagContainer';
+import SourceButton from '../cards/SourceButton';
+import { ProfilePicture } from '../ProfilePicture';
+import {
+  Typography,
+  TypographyElement,
+  TypographyType,
+} from '../feed/cards/atoms/Typography';
 
 export type FurtherReadingProps = {
   currentPost: Post;
@@ -104,6 +117,43 @@ export default function FurtherReadingSquad({
         </p>
       </div>
       <div className={classNames(className, 'flex flex-col gap-6')}>
+        {/* Card related stuff */}
+        <FlagContainer>
+          <Flag type={RaisedLabelType.Hot} description="Some text" />
+          <Card>
+            <div className="relative z-1">
+              <CardButton />
+              <SourceButton
+                source={{
+                  id: '1',
+                  image: 'https://picsum.photos/200/300',
+                  name: 'test',
+                  handle: 'test',
+                  permalink: 'https://daily.dev/test',
+                }}
+              />
+              <ProfilePicture
+                user={{
+                  id: '1',
+                  username: 'test',
+                  image: 'https://picsum.photos/200/300',
+                }}
+              />
+              <Typography type={TypographyType.Giga1} bold>
+                Big one
+              </Typography>
+              <Typography>Some text</Typography>
+              <Typography
+                element={TypographyElement.H1}
+                type={TypographyType.Callout}
+                bold
+              >
+                Some text
+              </Typography>
+            </div>
+          </Card>
+        </FlagContainer>
+
         <ActiveFeedContextProvider items={similarPosts} queryKey={queryKey}>
           <LeanFeed>
             <p className="col-span-2">Some extra element</p>
