@@ -38,7 +38,6 @@ export interface MainLayoutHeaderProps extends ShouldShowLogoProps {
   showOnlyLogo?: boolean;
   optOutWeeklyGoal?: boolean;
   additionalButtons?: ReactNode;
-  showPostButton?: boolean;
   onLogoClick?: (e: React.MouseEvent) => unknown;
   onMobileSidebarToggle: (state: boolean) => unknown;
 }
@@ -55,7 +54,6 @@ function MainLayoutHeader({
   hasBanner,
   mobileTitle,
   showOnlyLogo,
-  showPostButton,
   sidebarRendered,
   optOutWeeklyGoal,
   additionalButtons,
@@ -96,14 +94,12 @@ function MainLayoutHeader({
   const renderButtons = () => {
     return (
       <>
-        {showPostButton && (
-          <CreatePostButton
-            className={classNames(
-              'mr-0 laptop:mr-4',
-              optOutWeeklyGoal ? 'tablet:mr-0' : 'tablet:mr-4',
-            )}
-          />
-        )}
+        <CreatePostButton
+          className={classNames(
+            'mr-0 laptop:mr-4',
+            optOutWeeklyGoal ? 'tablet:mr-0' : 'tablet:mr-4',
+          )}
+        />
         {!hideButton && user && (
           <>
             {sidebarRendered && <SearchReferralButton className="mr-3" />}

@@ -71,7 +71,6 @@ function MainLayout({
   onNavTabClick,
   enableSearch,
   onShowDndClick,
-  showPostButton,
 }: MainLayoutProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, isAuthReady } = useAuthContext();
@@ -194,7 +193,6 @@ function MainLayout({
         additionalButtons={additionalButtons}
         onLogoClick={onLogoClick}
         onMobileSidebarToggle={onMobileSidebarToggle}
-        showPostButton={showPostButton}
       />
       <main
         className={classNames(

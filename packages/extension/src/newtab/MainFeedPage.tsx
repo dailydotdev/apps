@@ -96,7 +96,6 @@ export default function MainFeedPage({
     <MainLayout
       greeting
       mainPage
-      showPostButton
       isNavItemsButton
       activePage={activePage}
       onLogoClick={onLogoClick}
