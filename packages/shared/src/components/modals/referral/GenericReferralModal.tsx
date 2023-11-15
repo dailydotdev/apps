@@ -61,7 +61,7 @@ function GenericReferralModal({
         />
         <div className="flex gap-3 justify-center items-center mt-7">
           <p className="mr-1 typo-callout text-theme-label-tertiary">
-            Invite with
+            Invite via
           </p>
           <ReferralSocialShareButtons
             url={url}
