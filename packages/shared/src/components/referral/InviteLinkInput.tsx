@@ -51,7 +51,7 @@ export function InviteLinkInput({
     }
 
     if (hasCopied) {
-      return text?.copied ?? copy;
+      return text?.copied ?? 'Copied';
     }
 
     return copy;
