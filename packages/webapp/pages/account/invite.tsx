@@ -89,10 +89,9 @@ const AccountInvitePage = (): ReactElement => {
       <InviteLinkInput
         targetId={TargetId.InviteFriendsPage}
         link={inviteLink}
-        copyingText="Copying..."
       />
       <span className="p-0.5 my-4 font-bold typo-callout text-theme-label-tertiary">
-        or invite with
+        or invite via
       </span>
       <div className="flex flex-row flex-wrap gap-2 gap-y-4">
         <SocialShareList
@@ -103,8 +102,8 @@ const AccountInvitePage = (): ReactElement => {
         />
       </div>
       <AccountContentSection
-        title="Referred"
-        description="Here you will see all your active members who joined to daily.dev. Who knows? maybe someday it will be worth something 😉"
+        title="Buddies you brought onboard"
+        description="Meet the developers who joined daily.dev through your invite. They might just be your ticket to future rewards 😉"
       >
         <UserList
           users={users}
