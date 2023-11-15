@@ -94,7 +94,7 @@ const AccountInvitePage = (): ReactElement => {
       <span className="p-0.5 my-4 font-bold typo-callout text-theme-label-tertiary">
         or invite via
       </span>
-      <div className="flex flex-row flex-wrap gap-4">
+      <div className="flex flex-row flex-wrap gap-2 gap-y-4">
         <SocialShareList
           link={inviteLink}
           description={labels.referral.generic.inviteText}
