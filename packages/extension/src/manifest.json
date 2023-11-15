@@ -20,7 +20,8 @@
   "__dev__permissions": ["storage", "scripting"],
   "__dev__host_permissions": ["http://localhost/", "http://*.local.com/"],
   "optional_permissions": ["topSites"],
-  "optional_host_permissions": [ "*://*/*"],
+  "__firefox__optional_permissions": ["topSites", "*://*/*"],
+  "__chrome|opera|edge__optional_host_permissions": [ "*://*/*"],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"
   },
@@ -31,8 +32,8 @@
     }
   },
   "background": {
-    "service_worker": "js/background.bundle.js",
-    "type": "module"
+    "__chrome|opera|edge__service_worker": "js/background.bundle.js",
+    "__firefox__scripts": ["js/background.bundle.js"]
   },
   "chrome_url_overrides": {
     "newtab": "index.html"
@@ -45,6 +46,7 @@
   ],
   "__firefox__browser_specific_settings": {
     "gecko": {
+      "id": "{ae4ac76b-bf34-4c73-9972-6572871719d4}",
       "strict_min_version": "54.0"
     }
   },
