@@ -13,6 +13,10 @@ export interface SquadMemberShortListProps {
   className?: string;
 }
 
+function kFormatter(num: number): string | number {
+  return Math.abs(num) > 999 ? `${(num / 1000).toFixed(1)}K` : num;
+}
+
 function SquadMemberShortList({
   squad,
   members,
@@ -43,9 +47,7 @@ function SquadMemberShortList({
           className="mr-1 ml-2 min-w-[1rem]"
           aria-label="squad-members-count"
         >
-          {squad.membersCount >= 1000
-            ? `${Math.floor(squad.membersCount / 1000)}K`
-            : squad.membersCount}
+          {kFormatter(squad.membersCount)}
         </span>
         {members?.slice(0, sidebarRendered ? 5 : 3).map(({ user }) => (
           <ProfilePicture
