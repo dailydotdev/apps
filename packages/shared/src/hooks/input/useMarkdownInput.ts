@@ -8,6 +8,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -97,6 +98,7 @@ export const useMarkdownInput = ({
   initialContent = '',
   enabledCommand = {},
 }: UseMarkdownInputProps): UseMarkdownInput => {
+  const dirtyRef = useRef(false);
   const textarea = textareaRef?.current;
   const isLinkEnabled = enabledCommand[MarkdownCommand.Link];
   const isUploadEnabled = enabledCommand[MarkdownCommand.Upload];
@@ -112,12 +114,20 @@ export const useMarkdownInput = ({
   const { displayToast } = useToastNotification();
 
   useEffect(() => {
+    if (dirtyRef.current) {
+      return;
+    }
+
     if (input?.length === 0 && initialContent?.length > 0) {
       setInput(initialContent);
     }
   }, [input, initialContent]);
 
   const onUpdate = (value: string) => {
+    if (!dirtyRef.current) {
+      dirtyRef.current = true;
+    }
+
     setInput(value);
     if (onValueUpdate) {
       onValueUpdate(value);

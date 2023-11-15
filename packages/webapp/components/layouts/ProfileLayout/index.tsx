@@ -43,6 +43,11 @@ import classNames from 'classnames';
 import DOMPurify from 'dompurify';
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
+import ReferralWidget from '@dailydotdev/shared/src/components/widgets/ReferralWidget';
+import {
+  ReferralCampaignKey,
+  useReferralCampaign,
+} from '@dailydotdev/shared/src/hooks';
 import styles from './index.module.css';
 import NavBar, { tabs } from './NavBar';
 import { getLayout as getMainLayout } from '../MainLayout';
@@ -68,14 +73,16 @@ export default function ProfileLayout({
 }: ProfileLayoutProps): ReactElement {
   const router = useRouter();
   const { isFallback } = router;
+  const { user } = useContext(AuthContext);
+  const { isReady, url } = useReferralCampaign({
+    campaignKey: ReferralCampaignKey.Generic,
+    enabled: initialProfile?.id === user?.id,
+  });
 
   if (!isFallback && !initialProfile) {
     return <Custom404 />;
   }
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { user } = useContext(AuthContext);
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
   const queryKey = ['profile', initialProfile?.id];
@@ -92,6 +99,7 @@ export default function ProfileLayout({
 
   // Needed because sometimes initialProfile is defined and fetchedProfile is not
   const profile = fetchedProfile ?? initialProfile;
+  const isCurrentUserProfile = profile && profile.id === user?.id;
 
   const userRankQueryKey = ['userRank', initialProfile?.id];
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
@@ -148,7 +156,9 @@ export default function ProfileLayout({
     }
   }, [profile]);
 
-  if (isFallback && !initialProfile) {
+  const isLoadingReferral = isCurrentUserProfile && !isReady;
+
+  if ((isFallback && !initialProfile) || isLoadingReferral) {
     return <></>;
   }
 
@@ -265,7 +275,7 @@ export default function ProfileLayout({
                 </SimpleTooltip>
               )}
             </div>
-            {profile.id === user?.id && (
+            {isCurrentUserProfile && (
               <Button
                 className="self-start mt-6 mb-0.5 btn-secondary"
                 tag="a"
@@ -276,6 +286,7 @@ export default function ProfileLayout({
             )}
           </div>
         </section>
+        {isCurrentUserProfile && <ReferralWidget url={url} />}
         <NavBar selectedTab={selectedTab} profile={profile} />
         {children}
       </ResponsivePageContainer>
