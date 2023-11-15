@@ -20,7 +20,6 @@ const ReferralWidget = ({ url }: { url: string }): ReactElement => {
       <InviteLinkInput
         targetId={TargetId.ProfilePage}
         link={inviteLink}
-        text={{ copying: 'Copying...' }}
         className={{
           input: 'typo-footnote',
           container: 'flex flex-col my-5 w-auto tablet:w-70',
