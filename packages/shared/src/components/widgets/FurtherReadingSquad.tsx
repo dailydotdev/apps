@@ -17,16 +17,27 @@ import LeanFeedItemComponent from '../feed/LeanFeedItemComponent';
 import { Card } from '../feed/cards/atoms/Card';
 import { CardButton } from '../feed/cards/atoms/CardAction';
 import { Flag } from '../feed/cards/atoms/Flag';
-import styles from '../cards/Card.module.css';
 import { RaisedLabelType } from '../cards/RaisedLabel';
 import { FlagContainer } from '../feed/cards/atoms/FlagContainer';
 import SourceButton from '../cards/SourceButton';
 import { ProfilePicture } from '../ProfilePicture';
 import {
   Typography,
+  TypographyColor,
   TypographyElement,
   TypographyType,
 } from '../feed/cards/atoms/Typography';
+import CreatedAt from '../feed/cards/atoms/CreatedAt';
+import ReadTime from '../feed/cards/atoms/ReadTime';
+import { Separator } from '../cards/common';
+import { ReadArticleButton } from '../cards/ReadArticleButton';
+import OptionsButton from '../buttons/OptionsButton';
+import { cloudinary } from '../../lib/image';
+import { Image } from '../feed/cards/atoms/Image';
+import { UpvoteButton } from '../feed/cards/atoms/UpvoteButton';
+import { CommentButton } from '../feed/cards/atoms/CommentButton';
+import ShareButton from '../feed/cards/atoms/ShareButton';
+import TextImage from '../feed/cards/atoms/TextImage';
 
 export type FurtherReadingProps = {
   currentPost: Post;
@@ -118,7 +129,7 @@ export default function FurtherReadingSquad({
       </div>
       <div className={classNames(className, 'flex flex-col gap-6')}>
         {/* Card related stuff */}
-        <FlagContainer>
+        <FlagContainer className="group/card">
           <Flag type={RaisedLabelType.Hot} description="Some text" />
           <Card>
             <div className="relative z-1">
@@ -149,6 +160,73 @@ export default function FurtherReadingSquad({
                 bold
               >
                 Some text
+              </Typography>
+              <CreatedAt
+                createdAt="2023-08-10T12:00:00.000Z"
+                type={TypographyType.Giga1}
+              />
+              <CreatedAt createdAt="2021-08-10T12:00:00.000Z" />
+              <ReadTime readTime={5} />
+              <Separator />
+              <div className="flex">
+                <Typography type={TypographyType.Callout} bold>
+                  @description
+                </Typography>
+                <Separator />
+                <CreatedAt createdAt="2021-08-10T12:00:00.000Z" />
+                <Separator />
+                <ReadTime readTime={5} />
+              </div>
+              <ReadArticleButton
+                className="invisible group-hover/card:visible btn-primary"
+                href="https://daily.dev"
+                onClick={() => {}}
+                openNewTab
+              />
+              <OptionsButton tooltipPlacement="top" />
+              <Typography type={TypographyType.Title3} className="line-clamp-2">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                rutrum dignissim mi quis accumsan. Phasellus faucibus dolor in
+                mauris maximus rhoncus. Nulla tristique nunc justo, et eleifend
+                quam mattis sed. Donec et vehicula odio. Sed sit amet augue at
+                nibh condimentum sodales sit amet id turpis. Interdum et
+                malesuada fames ac ante ipsum primis in faucibus. Quisque
+                fringilla consequat dui. Quisque tellus augue, fringilla non
+                condimentum eu, posuere vitae eros. Maecenas massa metus, ornare
+                ultricies neque eget, dapibus elementum est. Maecenas suscipit
+                ullamcorper sapien, eget ullamcorper diam egestas in.
+              </Typography>
+              <Image
+                alt="Post Cover image"
+                src="https://picsum.photos/500/500"
+                fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+                className={classNames('object-cover my-2')}
+                loading="lazy"
+              />
+              <UpvoteButton post={{ userState: { vote: 1 }, numUpvotes: 5 }} />
+              <CommentButton post={{}} />
+              <ShareButton post={{}} />
+              <div className="flex flex-row justify-between w-full">
+                <UpvoteButton
+                  post={{ userState: { vote: -1 }, numUpvotes: 32 }}
+                />
+                <CommentButton post={{}} />
+                <ShareButton post={{}} />
+              </div>
+              <TextImage
+                text={
+                  <Typography type={TypographyType.Giga1}>
+                    Header text
+                  </Typography>
+                }
+                image="https://picsum.photos/500/500"
+              />
+              <Typography
+                type={TypographyType.Footnote}
+                bold
+                color={TypographyColor.Quaternary}
+              >
+                Promoted
               </Typography>
             </div>
           </Card>
