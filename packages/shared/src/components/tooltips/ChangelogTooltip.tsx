@@ -88,7 +88,6 @@ function ChangelogTooltip({
 
   const onExtensionUpdateClick = async () => {
     await updateExtension();
-    dismissChangelog();
   };
 
   const onToggleUpvote = async () => {
@@ -184,7 +183,7 @@ function ChangelogTooltip({
             </QuaternaryButton>
           </div>
         </section>
-        <footer className="flex justify-between items-center p-3 w-full h-16 border-t border-theme-divider-tertiary">
+        <footer className="flex gap-3 justify-between items-center py-3 px-4 w-full h-16 border-t border-theme-divider-tertiary">
           <Button
             className="btn-tertiary"
             onClick={dismissChangelog}
