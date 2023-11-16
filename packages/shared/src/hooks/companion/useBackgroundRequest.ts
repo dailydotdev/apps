@@ -15,7 +15,7 @@ export const useBackgroundRequest = (
 
   useRawBackgroundRequest(({ key, ...args }) => {
     const validKey = Array.isArray(key) ? key : [key];
-    if (!enabled || !isQueryKeySame([validKey], queryKey)) {
+    if (!enabled || !isQueryKeySame(validKey, queryKey)) {
       return;
     }
 
