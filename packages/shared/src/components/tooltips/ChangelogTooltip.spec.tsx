@@ -101,7 +101,7 @@ describe('ChangelogTooltip component', () => {
     expect(changelogNewReleaseTag).toBeInTheDocument();
 
     const changelogModalClose = await screen.findByTestId(
-      'changelogModalClose',
+      'close-interactive-popup',
     );
     expect(changelogModalClose).toBeInTheDocument();
 
@@ -181,6 +181,16 @@ describe('ChangelogTooltip component', () => {
 
     process.env.TARGET_BROWSER = 'chrome';
 
+    mockGraphQL({
+      request: {
+        query: UPDATE_ALERTS,
+        variables: { data: { lastChangelog: /.*/ } },
+      },
+      result: () => ({
+        data: { data: { lastChangelog: new Date().toISOString() } },
+      }),
+    });
+
     renderComponent({ client });
     await screen.findByTestId('changelog');
 
@@ -190,6 +200,7 @@ describe('ChangelogTooltip component', () => {
       );
       fireEvent.click(changelogExtensionBtn);
       await new Promise(process.nextTick);
+      await waitForNock();
     });
 
     expect(
@@ -199,6 +210,7 @@ describe('ChangelogTooltip component', () => {
     expect(mockSendMessageFn).toHaveBeenCalledWith({
       type: ExtensionMessageType.RequestUpdate,
     });
+    expect(updateAlerts).toHaveBeenCalled();
 
     delete process.env.TARGET_BROWSER;
   });
@@ -250,7 +262,7 @@ describe('ChangelogTooltip component', () => {
 
     await act(async () => {
       const changelogModalClose = await screen.findByTestId(
-        'changelogModalClose',
+        'close-interactive-popup',
       );
       fireEvent.click(changelogModalClose);
       await waitForNock();
@@ -262,6 +274,15 @@ describe('ChangelogTooltip component', () => {
   it('should link to blog post on firefox', async () => {
     const client = new QueryClient();
     client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
+    mockGraphQL({
+      request: {
+        query: UPDATE_ALERTS,
+        variables: { data: { lastChangelog: /.*/ } },
+      },
+      result: () => ({
+        data: { data: { lastChangelog: new Date().toISOString() } },
+      }),
+    });
 
     process.env.TARGET_BROWSER = 'firefox';
 
@@ -275,6 +296,7 @@ describe('ChangelogTooltip component', () => {
     await act(async () => {
       fireEvent.click(changelogExtensionBtn);
       await new Promise(process.nextTick);
+      await waitForNock();
     });
 
     expect(mockSendMessageFn).not.toHaveBeenCalled();
@@ -290,6 +312,16 @@ describe('ChangelogTooltip component', () => {
 
     process.env.TARGET_BROWSER = 'chrome';
 
+    mockGraphQL({
+      request: {
+        query: UPDATE_ALERTS,
+        variables: { data: { lastChangelog: /.*/ } },
+      },
+      result: () => ({
+        data: { data: { lastChangelog: new Date().toISOString() } },
+      }),
+    });
+
     renderComponent({ client });
     await screen.findByTestId('changelog');
 
@@ -302,6 +334,7 @@ describe('ChangelogTooltip component', () => {
     await act(async () => {
       fireEvent.click(changelogExtensionBtn);
       await new Promise(process.nextTick);
+      await waitForNock();
     });
 
     expect(
@@ -315,6 +348,15 @@ describe('ChangelogTooltip component', () => {
     const client = new QueryClient();
     client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
 
+    mockGraphQL({
+      request: {
+        query: UPDATE_ALERTS,
+        variables: { data: { lastChangelog: /.*/ } },
+      },
+      result: () => ({
+        data: { data: { lastChangelog: new Date().toISOString() } },
+      }),
+    });
     process.env.TARGET_BROWSER = 'chrome';
 
     renderComponent({ client });
@@ -329,6 +371,7 @@ describe('ChangelogTooltip component', () => {
     await act(async () => {
       fireEvent.click(changelogExtensionBtn);
       await new Promise(process.nextTick);
+      await waitForNock();
     });
 
     expect(

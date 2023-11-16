@@ -29,6 +29,7 @@ interface InteractivePopupProps {
   position?: InteractivePopupPosition;
   closeOutsideClick?: boolean;
   onClose?: (e: MouseEvent | KeyboardEvent | MessageEvent) => void;
+  closeButtonTypeClassname?: 'btn-secondary' | 'btn-tertiary';
 }
 
 const centerClassX = 'left-1/2 -translate-x-1/2';
@@ -65,6 +66,7 @@ function InteractivePopup({
   position = InteractivePopupPosition.Center,
   closeOutsideClick,
   onClose,
+  closeButtonTypeClassname = 'btn-secondary',
   ...props
 }: InteractivePopupProps): ReactElement {
   const container = useRef<HTMLDivElement>();
@@ -118,10 +120,14 @@ function InteractivePopup({
             onClose && (
               <Button
                 buttonSize={ButtonSize.Small}
-                className="top-2 right-2 z-1 btn-secondary"
+                className={classNames(
+                  'top-2 right-2 z-1',
+                  closeButtonTypeClassname,
+                )}
                 position="absolute"
                 icon={<CloseIcon />}
                 onClick={(e: React.MouseEvent) => onClose(e.nativeEvent)}
+                data-testid="close-interactive-popup"
               />
             )}
           {children}

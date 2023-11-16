@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import { useMutation } from 'react-query';
 import { Button, ButtonSize } from '../buttons/Button';
-import { ModalClose } from '../modals/common/ModalClose';
 import { cloudinary } from '../../lib/image';
 import { postDateFormat } from '../../lib/dateFormat';
 import { Image } from '../image/Image';
@@ -18,10 +17,6 @@ import InteractivePopup, { InteractivePopupPosition } from './InteractivePopup';
 import { Origin } from '../../lib/analytics';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 
-interface ChangelogTooltipProps {
-  onRequestClose?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
-}
-
 const toastMessageMap = {
   error: 'Something went wrong, try again later',
   throttled: 'There is no extension update available, try again later',
@@ -30,10 +25,7 @@ const toastMessageMap = {
   update_available: 'Browser extension updated 🎉',
 };
 
-function ChangelogTooltip({
-  onRequestClose,
-  ...props
-}: ChangelogTooltipProps): ReactElement {
+function ChangelogTooltip(): ReactElement {
   const isExtension = checkIsExtension();
   const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
   const {
@@ -78,16 +70,9 @@ function ChangelogTooltip({
       },
     );
 
-  const onModalCloseClick = async (event) => {
-    if (typeof onRequestClose === 'function') {
-      onRequestClose(event);
-    }
-
-    await dismissChangelog();
-  };
-
   const onExtensionUpdateClick = async () => {
     await updateExtension();
+    await dismissChangelog();
   };
 
   const onToggleUpvote = async () => {
@@ -97,10 +82,11 @@ function ChangelogTooltip({
   return (
     !!post && (
       <InteractivePopup
-        {...props}
         position={InteractivePopupPosition.LeftEnd}
         className="ml-6 border shadow-2 focus:outline-none w-[24rem] max-w-[360px] bg-theme-bg-tertiary border-theme-color-cabbage"
         data-testid="changelog"
+        onClose={dismissChangelog}
+        closeButtonTypeClassname="btn-tertiary"
       >
         <header className="flex flex-1 items-center py-3 px-4 border-b border-theme-divider-tertiary">
           <h3
@@ -109,12 +95,6 @@ function ChangelogTooltip({
           >
             New release
           </h3>
-          <ModalClose
-            className="right-4"
-            onClick={onModalCloseClick}
-            data-testid="changelogModalClose"
-            buttonSize={ButtonSize.XSmall}
-          />
         </header>
         <section className="flex flex-col flex-1 p-5 h-full shrink max-h-full">
           <Image
@@ -183,7 +163,7 @@ function ChangelogTooltip({
             </QuaternaryButton>
           </div>
         </section>
-        <footer className="flex gap-3 justify-between items-center py-3 px-4 w-full h-16 border-t border-theme-divider-tertiary">
+        <footer className="flex justify-between items-center p-3 w-full h-16 border-t border-theme-divider-tertiary">
           <Button
             className="btn-tertiary"
             onClick={dismissChangelog}
