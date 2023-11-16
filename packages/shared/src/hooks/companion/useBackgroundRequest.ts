@@ -20,7 +20,7 @@ export const useBackgroundRequest = (
     }
 
     if (callback) {
-      callback({ validKey, ...args });
+      callback({ key: validKey, ...args });
     } else {
       client.setQueryData(queryKey, args.res);
     }
