@@ -58,10 +58,11 @@ function GenericReferralModal({
           targetId={TargetId.GenericReferralPopup}
           link={inviteLink}
           onCopy={() => setShareState(true)}
+          text={{ initial: 'Copy link 😀', copied: 'Copied 😉' }}
         />
         <div className="flex gap-3 justify-center items-center mt-7">
           <p className="mr-1 typo-callout text-theme-label-tertiary">
-            Invite with
+            Invite via
           </p>
           <ReferralSocialShareButtons
             url={url}

@@ -82,7 +82,8 @@ function InteractivePopup({
     (e: MessageEvent) => {
       if (
         !isNullOrUndefined(container.current) &&
-        !container.current.contains(e.target as Node)
+        !container.current.contains(e.target as Node) &&
+        onCloseRef.current
       ) {
         onCloseRef.current(e);
       }
@@ -113,15 +114,16 @@ function InteractivePopup({
           )}
           {...props}
         >
-          {finalPosition !== InteractivePopupPosition.ProfileMenu && (
-            <Button
-              buttonSize={ButtonSize.Small}
-              className="top-2 right-2 z-1 btn-secondary"
-              position="absolute"
-              icon={<CloseIcon />}
-              onClick={(e: React.MouseEvent) => onClose(e.nativeEvent)}
-            />
-          )}
+          {finalPosition !== InteractivePopupPosition.ProfileMenu &&
+            onClose && (
+              <Button
+                buttonSize={ButtonSize.Small}
+                className="top-2 right-2 z-1 btn-secondary"
+                position="absolute"
+                icon={<CloseIcon />}
+                onClick={(e: React.MouseEvent) => onClose(e.nativeEvent)}
+              />
+            )}
           {children}
         </div>
       </ConditionalWrapper>

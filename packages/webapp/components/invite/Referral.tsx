@@ -68,9 +68,9 @@ export function Referral({
           </span>
         </h1>
         <p className="mx-auto laptop:mx-0 mt-7 tablet:mt-8 max-w-sm laptopL:max-w-xl text-center laptop:text-left typo-title3 text-theme-label-tertiary">
-          Get a feed of the best developer news out there! Read more quality
-          articles.
-          <span className="tablet:block laptopL:inline">Stay up to date.</span>
+          We know how hard it is to be a developer. It doesn’t have to be.
+          Personalized news feed, dev communities and search, much better than
+          what’s out there. Maybe 😉
         </p>
         <Button
           buttonSize={ButtonSize.Large}

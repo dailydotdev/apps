@@ -6,10 +6,15 @@ import { useCopyLink } from '../../hooks/useCopy';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { FieldClassName } from '../fields/BaseFieldContainer';
 
+interface Text {
+  copied?: string;
+  initial?: string;
+}
+
 interface InviteLinkInputProps {
   targetId: TargetId;
   link: string;
-  copyingText?: string;
+  text?: Text;
   onCopy?: () => void;
   className?: FieldClassName;
 }
@@ -17,11 +22,11 @@ interface InviteLinkInputProps {
 export function InviteLinkInput({
   link,
   targetId,
-  copyingText,
+  text = {},
   onCopy,
   className,
 }: InviteLinkInputProps): ReactElement {
-  const [copying, onCopyLink] = useCopyLink(() => link);
+  const [copied, onCopyLink] = useCopyLink(() => link);
   const { trackEvent } = useAnalyticsContext();
   const onCopyClick = () => {
     onCopyLink();
@@ -36,13 +41,10 @@ export function InviteLinkInput({
   };
 
   const renderText = () => {
-    const copy = 'Copy link';
+    const copy = text?.initial ?? 'Copy link';
+    const copiedText = text?.copied ?? 'Copied';
 
-    if (copyingText) {
-      return copying ? copyingText : copy;
-    }
-
-    return `${copy} ${copying ? '😀' : '😉'}`;
+    return copied ? copiedText : copy;
   };
 
   return (
