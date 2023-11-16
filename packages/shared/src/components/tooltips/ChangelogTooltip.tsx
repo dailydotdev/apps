@@ -78,7 +78,7 @@ function ChangelogTooltip({
       },
     );
 
-  const onCloseChangelog = async (event) => {
+  const onModalCloseClick = async (event) => {
     if (typeof onRequestClose === 'function') {
       onRequestClose(event);
     }
@@ -86,9 +86,9 @@ function ChangelogTooltip({
     await dismissChangelog();
   };
 
-  const onExtensionUpdateClick = async (event) => {
+  const onExtensionUpdateClick = async () => {
     await updateExtension();
-    await onCloseChangelog(event);
+    dismissChangelog();
   };
 
   const onToggleUpvote = async () => {
@@ -112,7 +112,7 @@ function ChangelogTooltip({
           </h3>
           <ModalClose
             className="right-4"
-            onClick={onCloseChangelog}
+            onClick={onModalCloseClick}
             data-testid="changelogModalClose"
             buttonSize={ButtonSize.XSmall}
           />
@@ -172,7 +172,7 @@ function ChangelogTooltip({
               pressed={post.commented}
               tag="a"
               href={post.commentsPermalink}
-              onClick={onCloseChangelog}
+              onClick={dismissChangelog}
               buttonSize={ButtonSize.Small}
               className="btn-tertiary-blueCheese"
               data-testid="changelogCommentsButton"
@@ -187,7 +187,7 @@ function ChangelogTooltip({
         <footer className="flex justify-between items-center p-3 w-full h-16 border-t border-theme-divider-tertiary">
           <Button
             className="btn-tertiary"
-            onClick={onCloseChangelog}
+            onClick={dismissChangelog}
             tag="a"
             href={post.commentsPermalink}
             data-testid="changelogReleaseNotesBtn"
