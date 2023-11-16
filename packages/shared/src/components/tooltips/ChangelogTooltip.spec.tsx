@@ -89,6 +89,17 @@ describe('ChangelogTooltip component', () => {
     );
   };
 
+  const mockGraphQLUpdateAlerts = () =>
+    mockGraphQL({
+      request: {
+        query: UPDATE_ALERTS,
+        variables: { data: { lastChangelog: /.*/ } },
+      },
+      result: () => ({
+        data: { data: { lastChangelog: new Date().toISOString() } },
+      }),
+    });
+
   it('should render', async () => {
     const client = new QueryClient();
     client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
@@ -181,15 +192,7 @@ describe('ChangelogTooltip component', () => {
 
     process.env.TARGET_BROWSER = 'chrome';
 
-    mockGraphQL({
-      request: {
-        query: UPDATE_ALERTS,
-        variables: { data: { lastChangelog: /.*/ } },
-      },
-      result: () => ({
-        data: { data: { lastChangelog: new Date().toISOString() } },
-      }),
-    });
+    mockGraphQLUpdateAlerts();
 
     renderComponent({ client });
     await screen.findByTestId('changelog');
@@ -219,15 +222,7 @@ describe('ChangelogTooltip component', () => {
     const client = new QueryClient();
     client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
 
-    mockGraphQL({
-      request: {
-        query: UPDATE_ALERTS,
-        variables: { data: { lastChangelog: /.*/ } },
-      },
-      result: () => ({
-        data: { data: { lastChangelog: new Date().toISOString() } },
-      }),
-    });
+    mockGraphQLUpdateAlerts();
 
     renderComponent({ client });
     await screen.findByTestId('changelog');
@@ -247,15 +242,7 @@ describe('ChangelogTooltip component', () => {
     const client = new QueryClient();
     client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
 
-    mockGraphQL({
-      request: {
-        query: UPDATE_ALERTS,
-        variables: { data: { lastChangelog: /.*/ } },
-      },
-      result: () => ({
-        data: { data: { lastChangelog: new Date().toISOString() } },
-      }),
-    });
+    mockGraphQLUpdateAlerts();
 
     renderComponent({ client });
     await screen.findByTestId('changelog');
@@ -274,15 +261,7 @@ describe('ChangelogTooltip component', () => {
   it('should link to blog post on firefox', async () => {
     const client = new QueryClient();
     client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
-    mockGraphQL({
-      request: {
-        query: UPDATE_ALERTS,
-        variables: { data: { lastChangelog: /.*/ } },
-      },
-      result: () => ({
-        data: { data: { lastChangelog: new Date().toISOString() } },
-      }),
-    });
+    mockGraphQLUpdateAlerts();
 
     process.env.TARGET_BROWSER = 'firefox';
 
@@ -312,15 +291,7 @@ describe('ChangelogTooltip component', () => {
 
     process.env.TARGET_BROWSER = 'chrome';
 
-    mockGraphQL({
-      request: {
-        query: UPDATE_ALERTS,
-        variables: { data: { lastChangelog: /.*/ } },
-      },
-      result: () => ({
-        data: { data: { lastChangelog: new Date().toISOString() } },
-      }),
-    });
+    mockGraphQLUpdateAlerts();
 
     renderComponent({ client });
     await screen.findByTestId('changelog');
@@ -348,15 +319,7 @@ describe('ChangelogTooltip component', () => {
     const client = new QueryClient();
     client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
 
-    mockGraphQL({
-      request: {
-        query: UPDATE_ALERTS,
-        variables: { data: { lastChangelog: /.*/ } },
-      },
-      result: () => ({
-        data: { data: { lastChangelog: new Date().toISOString() } },
-      }),
-    });
+    mockGraphQLUpdateAlerts();
     process.env.TARGET_BROWSER = 'chrome';
 
     renderComponent({ client });
@@ -385,15 +348,7 @@ describe('ChangelogTooltip component', () => {
     const client = new QueryClient();
     client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
 
-    mockGraphQL({
-      request: {
-        query: UPDATE_ALERTS,
-        variables: { data: { lastChangelog: /.*/ } },
-      },
-      result: () => ({
-        data: { data: { lastChangelog: new Date().toISOString() } },
-      }),
-    });
+    mockGraphQLUpdateAlerts();
 
     renderComponent({ client });
     await screen.findByTestId('changelog');
