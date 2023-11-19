@@ -200,8 +200,9 @@ export function OnboardPage(): ReactElement {
       <AuthOptions
         simplified
         className={classNames(
-          'w-full rounded-none h-full',
+          'w-full rounded-none',
           maxAuthWidth,
+          isAuthenticating && 'h-full',
           !isAuthenticating && 'max-w-full',
         )}
         trigger={AuthTriggers.Onboarding}
