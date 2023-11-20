@@ -89,6 +89,7 @@ const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Share]: SharePostModal,
   [PostType.Welcome]: SharePostModal,
   [PostType.Freeform]: SharePostModal,
+  [PostType.Collection]: () => <div>TBD</div>,
 };
 
 export default function Feed<T>({
