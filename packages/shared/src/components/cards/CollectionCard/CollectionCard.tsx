@@ -43,21 +43,18 @@ export const CollectionCard = forwardRef(function CollectionCard(
       domProps={{
         ...domProps,
         className: getPostClassNames(post, domProps.className, 'min-h-card'),
+        onMouseEnter: () => toggleHeadingFull(true),
+        onMouseLeave: () => toggleHeadingFull(false),
       }}
       ref={ref}
       flagProps={{ pinnedAt: post.pinnedAt }}
     >
-      <CardButton
-        title={post.title}
-        onClick={() => onPostClick(post)}
-        onMouseEnter={() => toggleHeadingFull(true)}
-        onMouseLeave={() => toggleHeadingFull(false)}
-      />
+      <CardButton title={post.title} onClick={() => onPostClick(post)} />
 
       <CollectionCardHeader
-        createdAt={post.createdAt}
-        source={post.source}
+        post={post}
         full={headingFull}
+        onMenuClick={onMenuClick}
       />
 
       <FreeformCardTitle
