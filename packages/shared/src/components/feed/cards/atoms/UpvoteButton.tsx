@@ -4,6 +4,7 @@ import { QuaternaryButton } from '../../../buttons/QuaternaryButton';
 import UpvoteIcon from '../../../icons/Upvote';
 import InteractionCounter from '../../../InteractionCounter';
 import { SimpleTooltip } from '../../../tooltips';
+import { ButtonSize } from '../../../buttons/Button';
 
 interface UpvoteButtonProps {
   post: Post;
@@ -22,6 +23,7 @@ export function UpvoteButton({ post }: UpvoteButtonProps): ReactElement {
         }
         pressed={post?.userState?.vote === UserPostVote.Up}
         onClick={() => {}}
+        buttonSize={ButtonSize.Small}
         className="btn-tertiary-avocado w-[4.875rem]"
       >
         <InteractionCounter value={post.numUpvotes > 0 && post.numUpvotes} />

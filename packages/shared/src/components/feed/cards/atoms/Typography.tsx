@@ -32,8 +32,8 @@ export type TypographyProps<Tag extends AllowedTags> = {
 
 export function Typography<TagName extends AllowedTags>({
   element = TypographyElement.P,
-  type = TypographyType.Body,
-  color = TypographyColor.Primary,
+  type,
+  color,
   bold = false,
   children,
   ...props

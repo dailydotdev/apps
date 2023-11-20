@@ -18,7 +18,7 @@ import { Card } from '../feed/cards/atoms/Card';
 import { CardButton } from '../feed/cards/atoms/CardAction';
 import { Flag } from '../feed/cards/atoms/Flag';
 import { RaisedLabelType } from '../cards/RaisedLabel';
-import { FlagContainer } from '../feed/cards/atoms/FlagContainer';
+import { CardContainer } from '../feed/cards/atoms/CardContainer';
 import SourceButton from '../cards/SourceButton';
 import { ProfilePicture } from '../ProfilePicture';
 import {
@@ -38,6 +38,8 @@ import { UpvoteButton } from '../feed/cards/atoms/UpvoteButton';
 import { CommentButton } from '../feed/cards/atoms/CommentButton';
 import ShareButton from '../feed/cards/atoms/ShareButton';
 import TextImage from '../feed/cards/atoms/TextImage';
+import MetaContainer from '../feed/cards/atoms/MetaContainer';
+import { CardImage } from '../cards/Card';
 
 export type FurtherReadingProps = {
   currentPost: Post;
@@ -128,8 +130,65 @@ export default function FurtherReadingSquad({
         </p>
       </div>
       <div className={classNames(className, 'flex flex-col gap-6')}>
+        {/**
+         Article card
+         * */}
+        <CardContainer className="group/card w-[320px]">
+          <Card>
+            <CardButton />
+            <header className="flex items-center my-1 mx-2.5 h-8">
+              <SourceButton
+                source={{
+                  id: '1',
+                  image: 'https://picsum.photos/200/300',
+                  name: 'test',
+                  handle: 'test',
+                  permalink: 'https://daily.dev/test',
+                }}
+              />
+              <div className="flex invisible group-hover/card:visible flex-row gap-2 ml-auto">
+                <ReadArticleButton
+                  className="btn-primary"
+                  href="https://daily.dev"
+                  onClick={() => {}}
+                  openNewTab
+                />
+                <OptionsButton tooltipPlacement="top" />
+              </div>
+            </header>
+            <section>
+              <div className="mx-4">
+                <Typography type={TypographyType.Title3} bold className="my-2">
+                  FBI Shuts Down IPStorm Botnet as Its Operator Pleads Guilty
+                </Typography>
+                <MetaContainer
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  <CreatedAt createdAt="2023-10-10T12:00:00.000Z" />
+                  <Separator />
+                  <ReadTime readTime={5} />
+                </MetaContainer>
+              </div>
+            </section>
+            <section>
+              <CardImage
+                className="my-2 w-full"
+                src="https://picsum.photos/500/500"
+              />
+            </section>
+            <footer className="flex flex-row justify-between mx-4">
+              <UpvoteButton
+                post={{ userState: { vote: -1 }, numUpvotes: 32 }}
+              />
+              <CommentButton post={{}} />
+              <ShareButton post={{}} />
+            </footer>
+          </Card>
+        </CardContainer>
+
         {/* Card related stuff */}
-        <FlagContainer className="group/card">
+        <CardContainer className="group/card">
           <Flag type={RaisedLabelType.Hot} description="Some text" />
           <Card>
             <div className="relative z-1">
@@ -230,7 +289,7 @@ export default function FurtherReadingSquad({
               </Typography>
             </div>
           </Card>
-        </FlagContainer>
+        </CardContainer>
 
         <ActiveFeedContextProvider items={similarPosts} queryKey={queryKey}>
           <LeanFeed>
