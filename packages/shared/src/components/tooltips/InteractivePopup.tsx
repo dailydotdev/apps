@@ -72,8 +72,10 @@ function InteractivePopup({
   const container = useRef<HTMLDivElement>();
   const onCloseRef = useRef(onClose);
   const { sidebarRendered } = useSidebarRendered();
+  const validateSidebar =
+    sidebarRendered || position === InteractivePopupPosition.Screen;
   const { sidebarExpanded } = useSettingsContext();
-  const finalPosition = sidebarRendered
+  const finalPosition = validateSidebar
     ? position
     : InteractivePopupPosition.Center;
   const classes = positionClass[finalPosition];
@@ -90,13 +92,13 @@ function InteractivePopup({
         onCloseRef.current(e);
       }
     },
-    { enabled: closeOutsideClick || !sidebarRendered, validateKey: false },
+    { enabled: closeOutsideClick || !validateSidebar, validateKey: false },
   );
 
   return (
     <Portal>
       <ConditionalWrapper
-        condition={!sidebarRendered}
+        condition={!validateSidebar}
         wrapper={(child) => (
           <div className="flex fixed inset-0 z-modal flex-col items-center bg-overlay-quaternary-onion">
             {child}
@@ -109,7 +111,7 @@ function InteractivePopup({
             'fixed z-popup bg-theme-bg-primary rounded-16 overflow-hidden shadow-2',
             className,
             classes,
-            !sidebarRendered && 'shadow-2',
+            !validateSidebar && 'shadow-2',
             leftPositions.includes(finalPosition) &&
               !sidebarExpanded &&
               'laptop:left-16',
