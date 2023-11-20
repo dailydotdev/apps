@@ -64,7 +64,7 @@ export function MobileSearch({
         alt="Gradient background"
       />
       <form className="flex flex-col" onSubmit={onSubmitForm}>
-        <span className="flex z-1 flex-row gap-4 px-2">
+        <span className="flex z-1 flex-row gap-4 px-2 mr-2">
           <CloseButton
             type="button"
             onClick={(event) => onClose(event, input)}
