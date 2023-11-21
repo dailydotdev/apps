@@ -8,7 +8,7 @@ import {
   FurtherReadingData,
 } from '../../graphql/furtherReading';
 import { graphqlUrl } from '../../lib/config';
-import { Post, PostType } from '../../graphql/posts';
+import { Post, PostType, UserPostVote } from '../../graphql/posts';
 import { FeedData, SOURCE_FEED_QUERY } from '../../graphql/feed';
 import LeanFeed from '../feed/LeanFeed';
 import { FeedItem } from '../../hooks/useFeed';
@@ -40,6 +40,12 @@ import ShareButton from '../feed/cards/atoms/ShareButton';
 import TextImage from '../feed/cards/atoms/TextImage';
 import MetaContainer from '../feed/cards/atoms/MetaContainer';
 import { CardImage } from '../cards/Card';
+import AdLink from '../feed/cards/atoms/AdLink';
+import AdImage from '../feed/cards/atoms/AdImage';
+import { Button } from '../buttons/Button';
+import { Origin } from '../../lib/analytics';
+import UpvoteIcon from '../icons/Upvote';
+import DownvoteIcon from '../icons/Downvote';
 
 export type FurtherReadingProps = {
   currentPost: Post;
@@ -177,6 +183,364 @@ export default function FurtherReadingSquad({
                 src="https://picsum.photos/500/500"
               />
             </section>
+            <footer className="flex flex-row justify-between mx-4">
+              <UpvoteButton
+                post={{ userState: { vote: -1 }, numUpvotes: 32 }}
+              />
+              <CommentButton post={{}} />
+              <ShareButton post={{}} />
+            </footer>
+          </Card>
+        </CardContainer>
+
+        {/**
+         Article card no action buttons
+         * */}
+        <CardContainer className="group/card w-[320px]">
+          <Card>
+            <header className="flex items-center my-1 mx-2.5 h-8">
+              <SourceButton
+                source={{
+                  id: '1',
+                  image: 'https://picsum.photos/200/300',
+                  name: 'test',
+                  handle: 'test',
+                  permalink: 'https://daily.dev/test',
+                }}
+              />
+            </header>
+            <section>
+              <div className="mx-4">
+                <Typography type={TypographyType.Title3} bold className="my-2">
+                  FBI Shuts Down IPStorm Botnet as Its Operator Pleads Guilty
+                </Typography>
+                <MetaContainer
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  <CreatedAt createdAt="2023-10-10T12:00:00.000Z" />
+                  <Separator />
+                  <ReadTime readTime={5} />
+                </MetaContainer>
+              </div>
+            </section>
+            <section>
+              <CardImage
+                className="my-2 w-full"
+                src="https://picsum.photos/500/500"
+              />
+            </section>
+          </Card>
+        </CardContainer>
+
+        {/**
+         Feedback
+         * */}
+        <CardContainer className="group/card w-[320px]">
+          <Card
+            padding=""
+            background="bg-theme-bg-primary"
+            border="border border-theme-divider-quaternary"
+          >
+            <section className="flex-1 p-6 pb-5 space-y-4">
+              <Typography type={TypographyType.Callout} bold>
+                Did you like the post?
+              </Typography>
+              <div className="flex gap-3 items-center">
+                <Button
+                  id="upvote-post-btn"
+                  icon={<UpvoteIcon />}
+                  aria-label="Upvote"
+                  className="btn-secondary-avocado"
+                />
+                <Button
+                  id="downvote-post-btn"
+                  icon={<DownvoteIcon />}
+                  aria-label="Downvote"
+                  className="btn-secondary-ketchup"
+                />
+              </div>
+            </section>
+            <Card shadow={false} background="bg-theme-bg-primary">
+              <section className="mx-4">
+                <Typography
+                  type={TypographyType.Title3}
+                  color={TypographyColor.Tertiary}
+                  bold
+                  className="my-2 line-clamp-2"
+                >
+                  Elon Musk is a ‘jerk’ but was a ‘talent magnet’ for OpenAI
+                  early on, admits Sam Altman—who now faces direct competition
+                  from him
+                </Typography>
+              </section>
+              <section>
+                <CardImage
+                  className="my-2 w-full"
+                  src="https://picsum.photos/500/500"
+                />
+              </section>
+            </Card>
+          </Card>
+        </CardContainer>
+
+        {/**
+         Ad card
+         * */}
+        <CardContainer className="group/card w-[320px]">
+          <Card>
+            <CardButton />
+            <section>
+              <div className="mx-4">
+                <Typography type={TypographyType.Title3} bold className="my-4">
+                  snarkOS - A decentralized operating system for zero-knowledge
+                  applications.
+                </Typography>
+              </div>
+            </section>
+            <section>
+              <AdImage
+                ad={{
+                  source: 'Carbon',
+                  referralLink: 'https://google.com',
+                  image: 'https://picsum.photos/500/500',
+                }}
+              />
+            </section>
+            <footer className="flex flex-row justify-between mx-4">
+              <AdLink
+                ad={{ source: 'Carbon', referralLink: 'https://google.com' }}
+              />
+            </footer>
+          </Card>
+        </CardContainer>
+
+        {/**
+         Shared post card
+         * */}
+        <CardContainer className="group/card w-[320px]">
+          <Card>
+            <CardButton />
+            <header className="flex relative flex-row gap-2 m-2 mb-3">
+              <div className="relative">
+                <SourceButton
+                  source={{
+                    id: '1',
+                    image: 'https://picsum.photos/200/300',
+                    name: 'test',
+                    handle: 'test',
+                    permalink: 'https://daily.dev/test',
+                  }}
+                  size="large"
+                />
+                <ProfilePicture
+                  user={{
+                    id: '123',
+                    image: 'https://picsum.photos/200/300',
+                    username: 'test',
+                  }}
+                  size="xsmall"
+                  className="top-7 -right-2.5"
+                  absolute
+                />
+              </div>
+              <div className="flex flex-col flex-1 mr-6 ml-2">
+                <Typography type={TypographyType.Footnote} bold>
+                  Watercooler
+                </Typography>
+                <MetaContainer
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  <Typography bold>User Name</Typography>
+                  <Separator />
+                  <CreatedAt createdAt="2021-08-10T12:00:00.000Z" />
+                </MetaContainer>
+              </div>
+              <div className="flex invisible group-hover/card:visible flex-row gap-2 self-start ml-auto">
+                <OptionsButton tooltipPlacement="top" />
+              </div>
+            </header>
+            <section>
+              <div className="px-2 pt-2 pb-3">
+                <Typography
+                  type={TypographyType.Callout}
+                  className="line-clamp-6"
+                >
+                  Since switching to Kagi, I've been impressed by not only the
+                  ad-free, relevant search results but also the vast array of
+                  customization options available – it's a game-changer in
+                  online searching Since switching to Kagi, I've been impressed
+                  by not only the ad-free, relevant search results but also the
+                  vast array of customization options available – it's a
+                  game-changer in online searching
+                </Typography>
+              </div>
+            </section>
+            <TextImage
+              className="gap-2 mb-2"
+              text={
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Secondary}
+                >
+                  How Kagi finally let me lay Google Search to rest
+                </Typography>
+              }
+              image="https://picsum.photos/500/500"
+            />
+            <footer className="flex flex-row justify-between mx-4">
+              <UpvoteButton
+                post={{ userState: { vote: -1 }, numUpvotes: 32 }}
+              />
+              <CommentButton post={{}} />
+              <ShareButton post={{}} />
+            </footer>
+          </Card>
+        </CardContainer>
+
+        {/**
+         Welcome card
+         * */}
+        <CardContainer className="group/card w-[320px]">
+          <Flag type={RaisedLabelType.Pinned} description="Pinned" />
+          <Card>
+            <CardButton />
+            <header className="flex relative flex-row gap-2 m-2 mb-3">
+              <div className="relative">
+                <SourceButton
+                  source={{
+                    id: '1',
+                    image: 'https://picsum.photos/200/300',
+                    name: 'test',
+                    handle: 'test',
+                    permalink: 'https://daily.dev/test',
+                  }}
+                  size="xsmall"
+                  className="absolute -right-2 -bottom-2"
+                />
+                <ProfilePicture
+                  user={{
+                    id: '123',
+                    image: 'https://picsum.photos/200/300',
+                    username: 'test',
+                  }}
+                  size="large"
+                />
+              </div>
+              <div className="flex flex-col flex-1 mr-6 ml-2">
+                <Typography type={TypographyType.Footnote} bold>
+                  Ido Shamun
+                </Typography>
+                <MetaContainer
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  <Typography bold>@ido</Typography>
+                  <Separator />
+                  <CreatedAt createdAt="2021-08-10T12:00:00.000Z" />
+                </MetaContainer>
+              </div>
+              <div className="flex invisible group-hover/card:visible flex-row gap-2 self-start ml-auto">
+                <OptionsButton tooltipPlacement="top" />
+              </div>
+            </header>
+            <section>
+              <div className="px-2 pt-2 pb-3">
+                <Typography
+                  type={TypographyType.Title3}
+                  bold
+                  className="line-clamp-3"
+                >
+                  Welcome to the Watercooler Squad 🍄 Guidelines and
+                  introductions 👇
+                </Typography>
+              </div>
+            </section>
+            <section>
+              <CardImage
+                className="my-2 w-full"
+                src="https://picsum.photos/500/500"
+              />
+            </section>
+            <footer className="flex flex-row justify-between mx-4">
+              <UpvoteButton
+                post={{ userState: { vote: -1 }, numUpvotes: 32 }}
+              />
+              <CommentButton post={{ numComments: 2000, commented: true }} />
+              <ShareButton post={{}} />
+            </footer>
+          </Card>
+        </CardContainer>
+
+        {/**
+         Shared post card
+         * */}
+        <CardContainer className="group/card w-[320px]">
+          <Card>
+            <CardButton />
+            <header className="flex relative flex-row gap-2 m-2 mb-3">
+              <div className="relative">
+                <SourceButton
+                  source={{
+                    id: '1',
+                    image: 'https://picsum.photos/200/300',
+                    name: 'test',
+                    handle: 'test',
+                    permalink: 'https://daily.dev/test',
+                  }}
+                  size="xsmall"
+                  className="absolute -right-2 -bottom-2"
+                />
+                <ProfilePicture
+                  user={{
+                    id: '123',
+                    image: 'https://picsum.photos/200/300',
+                    username: 'test',
+                  }}
+                  size="large"
+                />
+              </div>
+              <div className="flex flex-col flex-1 mr-6 ml-2">
+                <Typography type={TypographyType.Footnote} bold>
+                  Ido Shamun
+                </Typography>
+                <MetaContainer
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  <Typography bold>@ido</Typography>
+                  <Separator />
+                  <CreatedAt createdAt="2021-08-10T12:00:00.000Z" />
+                </MetaContainer>
+              </div>
+              <div className="flex invisible group-hover/card:visible flex-row gap-2 self-start ml-auto">
+                <OptionsButton tooltipPlacement="top" />
+              </div>
+            </header>
+            <section>
+              <div className="px-2 pt-2 pb-3">
+                <Typography
+                  type={TypographyType.Callout}
+                  className="line-clamp-6"
+                >
+                  Is it worth to start learning bun instead of node for fresh
+                  beginners ?
+                </Typography>
+              </div>
+            </section>
+            <TextImage
+              className="gap-2 mb-2"
+              text={
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Secondary}
+                >
+                  How Kagi finally let me lay Google Search to rest
+                </Typography>
+              }
+              image="https://picsum.photos/500/500"
+            />
             <footer className="flex flex-row justify-between mx-4">
               <UpvoteButton
                 post={{ userState: { vote: -1 }, numUpvotes: 32 }}

@@ -6,11 +6,28 @@ import styles from '../../../cards/Card.module.css';
 const BasicCard = classed(
   'article',
   styles.card,
-  'relative h-full flex flex-col rounded-2xl bg-theme-bg-secondary border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
+  'relative h-full flex flex-col rounded-2xl',
 );
 
-export function Card({ padding = true, children }): ReactElement {
+export function Card({
+  background = 'bg-theme-bg-secondary',
+  border = 'border border-theme-divider-tertiary hover:border-theme-divider-secondary',
+  padding = 'p-2',
+  shadow = true,
+  className = '',
+  children,
+}): ReactElement {
   return (
-    <BasicCard className={classNames(padding && 'p-2')}>{children}</BasicCard>
+    <BasicCard
+      className={classNames(
+        padding,
+        shadow && 'shadow-2',
+        background,
+        border,
+        className,
+      )}
+    >
+      {children}
+    </BasicCard>
   );
 }
