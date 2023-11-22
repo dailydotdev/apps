@@ -41,10 +41,15 @@ const isObjectEmpty = (obj: unknown) => {
   return Object.keys(obj).length === 0;
 };
 
-export default function useFeedSettings(): FeedSettingsReturnType {
+interface UseFeedSettingsProps {
+  enabled?: boolean;
+}
+
+export default function useFeedSettings({
+  enabled = true,
+}: UseFeedSettingsProps = {}): FeedSettingsReturnType {
   const { user } = useContext(AuthContext);
   const filtersKey = getFeedSettingsQueryKey(user);
-
   const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>(
     filtersKey,
     async () => {
@@ -64,7 +69,7 @@ export default function useFeedSettings(): FeedSettingsReturnType {
 
       return { ...req, feedSettings };
     },
-    { ...disabledRefetch },
+    { ...disabledRefetch, enabled },
   );
 
   const { tagsCategories, feedSettings, advancedSettings } = feedQuery;
