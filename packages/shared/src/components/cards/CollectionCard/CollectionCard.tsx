@@ -12,6 +12,7 @@ import {
 import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
 import ActionButtons from '../ActionButtons';
 import PostMetadata from '../PostMetadata';
+import OptionsButton from '../../buttons/OptionsButton';
 
 export const CollectionCard = forwardRef(function CollectionCard(
   {
@@ -51,12 +52,13 @@ export const CollectionCard = forwardRef(function CollectionCard(
     >
       <CardButton title={post.title} onClick={() => onPostClick(post)} />
 
-      <CollectionCardHeader
-        post={post}
-        full={headingFull}
-        onMenuClick={onMenuClick}
+      <CollectionCardHeader post={post} />
+      <OptionsButton
+        className="group-hover:flex laptop:hidden top-3 right-3"
+        onClick={(event) => onMenuClick?.(event, post)}
+        tooltipPlacement="top"
+        position="absolute"
       />
-
       <FreeformCardTitle
         className={classNames(
           clamp,
