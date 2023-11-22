@@ -1,26 +1,48 @@
 import { useMemo } from 'react';
 import { useMedia } from './useMedia';
-import { laptop, laptopL, tablet } from '../styles/media';
+import {
+  desktop,
+  desktopL,
+  laptop,
+  laptopL,
+  laptopXL,
+  mobileL,
+  tablet,
+} from '../styles/media';
 
-type ViewSize = {
-  isMobile: boolean;
-  isTablet: boolean;
-  isLaptop: boolean;
-  isLaptopL: boolean;
+export enum ViewSize {
+  MobileM = 'mobileM',
+  MobileL = 'mobileL',
+  Tablet = 'tablet',
+  Laptop = 'laptop',
+  LaptopL = 'laptopL',
+  LaptopXL = 'laptopXL',
+  Desktop = 'desktop',
+  DesktopL = 'desktopL',
+}
+
+const reversedEvaluatedSizes = [ViewSize.MobileM, ViewSize.MobileL];
+
+const viewSizeToQuery = {
+  [ViewSize.MobileM]: mobileL,
+  [ViewSize.MobileL]: tablet,
+  [ViewSize.Tablet]: tablet,
+  [ViewSize.Laptop]: laptop,
+  [ViewSize.LaptopL]: laptopL,
+  [ViewSize.LaptopXL]: laptopXL,
+  [ViewSize.Desktop]: desktop,
+  [ViewSize.DesktopL]: desktopL,
 };
-const useViewSize = (): ViewSize => {
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
-  const isTablet = useMedia([tablet.replace('@media ', '')], [true], false);
-  const isLaptop = useMedia([laptop.replace('@media ', '')], [true], false);
-  const isLaptopL = useMedia([laptopL.replace('@media ', '')], [true], false);
+
+const useViewSize = (size: ViewSize): boolean => {
+  const check = useMedia(
+    [viewSizeToQuery[size].replace('@media ', '')],
+    [true],
+    false,
+  );
 
   return useMemo(() => {
-    return {
-      isMobile,
-      isTablet,
-      isLaptop,
-      isLaptopL,
-    };
-  }, [isMobile, isTablet, isLaptop, isLaptopL]);
+    return reversedEvaluatedSizes.includes(size) ? !check : check;
+  }, [check, size]);
 };
 export { useViewSize };
