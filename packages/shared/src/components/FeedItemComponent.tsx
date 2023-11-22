@@ -83,8 +83,8 @@ export function getFeedItemKey(items: FeedItem[], index: number): string {
 }
 
 const PostTypeToTag: Record<PostType, FunctionComponent> = {
-  [PostType.Article]: CollectionCard,
-  [PostType.Share]: CollectionCard,
+  [PostType.Article]: ArticlePostCard,
+  [PostType.Share]: SharePostCard,
   [PostType.Welcome]: WelcomePostCard,
   [PostType.Freeform]: WelcomePostCard,
   [PostType.Collection]: CollectionCard,

@@ -1,4 +1,4 @@
-import React, { forwardRef, Ref, useState } from 'react';
+import React, { forwardRef, Ref } from 'react';
 import classNames from 'classnames';
 import { Container, PostCardProps } from '../common';
 import FeedItemContainer from '../FeedItemContainer';
@@ -49,7 +49,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
     >
       <CardButton title={post.title} onClick={() => onPostClick(post)} />
 
-      <CollectionCardHeader />
+      <CollectionCardHeader post={post} />
       <OptionsButton
         className="group-hover:flex laptop:hidden top-3 right-3"
         onClick={(event) => onMenuClick?.(event, post)}
