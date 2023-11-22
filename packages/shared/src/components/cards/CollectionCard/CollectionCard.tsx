@@ -30,7 +30,6 @@ export const CollectionCard = forwardRef(function CollectionCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
-  const [headingFull, toggleHeadingFull] = useState(false);
   const clamp = (() => {
     if (post.image) {
       return 'line-clamp-3';
@@ -44,15 +43,13 @@ export const CollectionCard = forwardRef(function CollectionCard(
       domProps={{
         ...domProps,
         className: getPostClassNames(post, domProps.className, 'min-h-card'),
-        onMouseEnter: () => toggleHeadingFull(true),
-        onMouseLeave: () => toggleHeadingFull(false),
       }}
       ref={ref}
       flagProps={{ pinnedAt: post.pinnedAt }}
     >
       <CardButton title={post.title} onClick={() => onPostClick(post)} />
 
-      <CollectionCardHeader post={post} />
+      <CollectionCardHeader />
       <OptionsButton
         className="group-hover:flex laptop:hidden top-3 right-3"
         onClick={(event) => onMenuClick?.(event, post)}
@@ -62,7 +59,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
       <FreeformCardTitle
         className={classNames(
           clamp,
-          'px-2 font-bold !text-theme-label-primary typo-title3',
+          'px-2 font-bold text-theme-label-primary typo-title3',
         )}
       >
         {post.title}
