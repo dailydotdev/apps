@@ -21,7 +21,7 @@ import {
 import { SourceMember, Squad } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import dynamic from 'next/dynamic';

@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import NotificationItem, { NotificationItemProps } from './NotificationItem';
 import { NotificationAvatarType } from '../../graphql/notifications';
 import { NotificationType, NotificationIconType } from './utils';

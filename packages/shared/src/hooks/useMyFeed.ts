@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AllTagCategoriesData, FeedSettings } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey, getHasAnyFilter } from './useFeedSettings';

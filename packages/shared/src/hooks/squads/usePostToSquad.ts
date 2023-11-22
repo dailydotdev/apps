@@ -3,7 +3,7 @@ import {
   useMutation,
   UseMutationOptions,
   useQueryClient,
-} from 'react-query';
+} from '@tanstack/react-query';
 import { BaseSyntheticEvent, useCallback, useState } from 'react';
 import {
   ExternalLinkPreview,

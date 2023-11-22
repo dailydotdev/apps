@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/react';
-import { QueryClient } from 'react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import MainLayout from '../components/layouts/MainLayout';

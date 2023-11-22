@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNotificationContext } from '../contexts/NotificationsContext';
 import {
   NewNotification,
@@ -26,7 +26,7 @@ export interface InAppNotification {
   timer: number;
 }
 
-export const IN_APP_NOTIFICATION_KEY = 'in_app_notification';
+export const IN_APP_NOTIFICATION_KEY = ['in_app_notification'];
 const MAX_QUEUE_LENGTH = 5;
 
 export interface NotifyOptionalProps {
@@ -41,7 +41,8 @@ export const useInAppNotification = (): UseInAppNotification => {
   const { incrementUnreadCount } = useNotificationContext();
   const { data: notification } = useQuery<InAppNotification>(
     IN_APP_NOTIFICATION_KEY,
-    () => client.getQueryData<InAppNotification>(IN_APP_NOTIFICATION_KEY),
+    () =>
+      client.getQueryData<InAppNotification>(IN_APP_NOTIFICATION_KEY) || null,
   );
   const hasNotification = (): boolean =>
     !!client.getQueryData(IN_APP_NOTIFICATION_KEY);

@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { providers } from './common';
 import AuthDefault from './AuthDefault';
 import { AuthTriggers } from '../../lib/auth';

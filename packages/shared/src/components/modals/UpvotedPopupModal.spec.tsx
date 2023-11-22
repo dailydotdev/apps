@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/react';
 import nock from 'nock';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { COMMENT_UPVOTES_BY_ID_QUERY } from '../../graphql/comments';
 import {

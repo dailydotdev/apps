@@ -1,6 +1,6 @@
 import request from 'graphql-request';
 import { useRouter } from 'next/router';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { expireCookie, setCookie } from '../../lib/cookie';
 import { isDevelopment } from '../../lib/constants';
 import { GET_REFERRING_USER_QUERY } from '../../graphql/users';

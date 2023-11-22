@@ -1,6 +1,6 @@
 import React, { ReactElement, useMemo } from 'react';
 import classNames from 'classnames';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import request from 'graphql-request';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { RequestKey, generateQueryKey } from '../../lib/query';

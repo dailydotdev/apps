@@ -1,8 +1,8 @@
 import { useCallback, useMemo } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { LazyModalType, ModalsType } from '../components/modals/common';
 
-export const MODAL_KEY = 'modal';
+export const MODAL_KEY = ['modal'];
 
 type UseLazyModal<K extends keyof ModalsType, T extends LazyModalType<K>> = {
   openModal: (data: T) => void;

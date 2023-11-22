@@ -1,8 +1,7 @@
 import { GraphQLError } from 'graphql-request/dist/types';
 import request from 'graphql-request';
 import { useCallback, useContext, useState } from 'react';
-import { useMutation } from 'react-query';
-import { UseMutateFunction } from 'react-query/types/react/types';
+import { UseMutateFunction, useMutation } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
 import {
   handleRegex,

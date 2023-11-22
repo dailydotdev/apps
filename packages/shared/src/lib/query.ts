@@ -3,7 +3,7 @@ import {
   QueryClient,
   QueryClientConfig,
   QueryKey,
-} from 'react-query';
+} from '@tanstack/react-query';
 import cloneDeep from 'lodash.clonedeep';
 import { Connection } from '../graphql/common';
 import { EmptyObjectLiteral } from './kratos';
@@ -64,6 +64,9 @@ export enum RequestKey {
   Tags = 'tags',
   FeedPreview = 'feedPreview',
   ReferredUsers = 'referred',
+  PostKey = 'post',
+  Prompt = 'prompt',
+  SquadTour = 'squad_tour',
 }
 
 export type HasConnection<

@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import { QueryKey, useQueryClient } from 'react-query';
+import { QueryKey, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import UpvoteIcon from '../icons/Upvote';
 import CommentIcon from '../icons/Discuss';

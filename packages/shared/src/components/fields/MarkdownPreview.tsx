@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { graphqlUrl } from '../../lib/config';
 import { PREVIEW_COMMENT_MUTATION } from '../../graphql/comments';

@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { browser } from 'webextension-polyfill-ts';
 import { Boot, BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -17,7 +17,7 @@ import {
   getCompanionWrapper,
 } from '@dailydotdev/shared/src/lib/extension';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
-import { ReactQueryDevtools } from 'react-query/devtools';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';

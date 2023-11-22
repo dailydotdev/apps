@@ -1,7 +1,6 @@
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import { Post, ReadHistoryPost } from '../../graphql/posts';
-import { generateStorageKey, StorageTopic } from '../../lib/storage';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
@@ -17,6 +16,7 @@ import { useLazyModal } from '../useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
 import { disabledRefetch, isNullOrUndefined } from '../../lib/func';
 import { useToastNotification } from '../useToastNotification';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 
 interface BlockData {
   showTagsPanel?: boolean;
@@ -75,11 +75,7 @@ export const useBlockPostPanel = (
   const client = useQueryClient();
   const { user } = useAuthContext();
   const { checkHasCompleted, completeAction } = useActions();
-  const key = generateStorageKey(
-    StorageTopic.Post,
-    `block:${post?.id}`,
-    user?.id,
-  );
+  const key = generateQueryKey(RequestKey.PostKey, user, `block:${post?.id}`);
   const { data } = useQuery<BlockData>(key, () => client.getQueryData(key), {
     initialData: {},
     ...disabledRefetch,

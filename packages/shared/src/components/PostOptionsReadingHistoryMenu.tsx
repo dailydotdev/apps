@@ -2,7 +2,7 @@ import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
-import { QueryClient, QueryKey, useQueryClient } from 'react-query';
+import { QueryClient, QueryKey, useQueryClient } from '@tanstack/react-query';
 import { ReadHistoryPost } from '../graphql/posts';
 import ShareIcon from './icons/Share';
 import BookmarkIcon from './icons/Bookmark';

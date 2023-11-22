@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import request from 'graphql-request';
 import CopyIcon from '../icons/Copy';
 import { Button, ButtonSize } from '../buttons/Button';
@@ -26,7 +26,7 @@ export default function SharedBookmarksModal({
   const queryClient = useQueryClient();
 
   const { data: bookmarksSharingData, isFetched } =
-    useQuery<BookmarksSharingData>('bookmarksSharing', () =>
+    useQuery<BookmarksSharingData>(['bookmarksSharing'], () =>
       request(graphqlUrl, BOOKMARK_SHARING_QUERY),
     );
 
@@ -41,7 +41,7 @@ export default function SharedBookmarksModal({
     },
     {
       onSuccess: (data) => {
-        queryClient.setQueryData('bookmarksSharing', data);
+        queryClient.setQueryData(['bookmarksSharing'], data);
       },
     },
   );

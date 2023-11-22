@@ -4,7 +4,7 @@ import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/Pro
 import KeyIcon from '@dailydotdev/shared/src/components/icons/Key';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { acceptFeatureInvitation } from '@dailydotdev/shared/src/graphql/features';
 import { useRouter } from 'next/router';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';

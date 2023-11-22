@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { PageWidgets } from '../utilities';
 import { ShareMobile } from '../ShareMobile';
 import AuthContext, { useAuthContext } from '../../contexts/AuthContext';

@@ -1,7 +1,7 @@
 import React, { ReactElement, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import ExitIcon from '../icons/Exit';
 import {
   Squad,

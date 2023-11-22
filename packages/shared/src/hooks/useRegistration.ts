@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo } from 'react';
-import { QueryKey, useMutation, useQuery } from 'react-query';
+import { QueryKey, useMutation, useQuery } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
 import {
   errorsToJson,
