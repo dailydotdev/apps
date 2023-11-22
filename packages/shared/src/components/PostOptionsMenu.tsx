@@ -91,7 +91,7 @@ export default function PostOptionsMenu({
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
-  const { feedSettings, isLoading } = useFeedSettings({ enabled: isOpen });
+  const { feedSettings } = useFeedSettings({ enabled: isOpen });
   const { trackEvent } = useContext(AnalyticsContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openModal } = useLazyModal();
