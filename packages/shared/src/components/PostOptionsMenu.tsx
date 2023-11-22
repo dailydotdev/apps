@@ -245,10 +245,6 @@ export default function PostOptionsMenu({
     );
   };
 
-  if (isLoading) {
-    return null;
-  }
-
   const postOptions: MenuItemProps[] = [
     {
       icon: <MenuIcon Icon={EyeIcon} />,
