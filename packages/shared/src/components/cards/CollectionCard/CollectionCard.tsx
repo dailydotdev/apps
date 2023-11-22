@@ -49,7 +49,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
     >
       <CardButton title={post.title} onClick={() => onPostClick(post)} />
 
-      <CollectionCardHeader post={post} />
+      <CollectionCardHeader />
       <OptionsButton
         className="group-hover:flex laptop:hidden top-3 right-3"
         onClick={(event) => onMenuClick?.(event, post)}
