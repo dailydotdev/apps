@@ -6,6 +6,7 @@ import { RemoteSettings } from '../graphql/settings';
 import { Post } from '../graphql/posts';
 import { Squad } from '../graphql/sources';
 import { decrypt } from '../components/crypto';
+import { commonRequestHeaders } from './headers';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -83,7 +84,11 @@ export async function getBootData(app: string, url?: string): Promise<Boot> {
   const res = await fetch(`${apiUrl}/boot${appRoute}?${params}`, {
     method: 'GET',
     credentials: 'include',
-    headers: { app, 'Content-Type': 'application/json' },
+    headers: {
+      app,
+      'Content-Type': 'application/json',
+      ...commonRequestHeaders,
+    },
   });
   const result = await res.json();
 

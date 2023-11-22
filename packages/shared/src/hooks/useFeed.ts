@@ -1,5 +1,4 @@
 import { useContext, useEffect, useMemo } from 'react';
-import request from 'graphql-request';
 import {
   InfiniteData,
   useInfiniteQuery,
@@ -21,6 +20,7 @@ import {
   removeCachedPagePost,
   updateCachedPagePost,
 } from '../lib/query';
+import { useRequestProtocol } from './useRequestProtocol';
 
 export type PostItem = {
   type: 'post';
@@ -80,13 +80,14 @@ export default function useFeed<T>(
 ): FeedReturnType {
   const { query, variables, options = {}, settings } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
+  const { requestMethod, fetchMethod } = useRequestProtocol();
   const queryClient = useQueryClient();
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
 
   const feedQuery = useInfiniteQuery<FeedData>(
     feedQueryKey,
     ({ pageParam }) =>
-      request(graphqlUrl, query, {
+      requestMethod(graphqlUrl, query, {
         ...variables,
         first: pageSize,
         after: pageParam,
@@ -112,7 +113,7 @@ export default function useFeed<T>(
   const adsQuery = useInfiniteQuery<Ad>(
     ['ads', ...feedQueryKey],
     async ({ pageParam }) => {
-      const res = await fetch(`${apiUrl}/v1/a?active=${!!pageParam}`);
+      const res = await fetchMethod(`${apiUrl}/v1/a?active=${!!pageParam}`);
       const ads: Ad[] = await res.json();
       return ads[0];
     },

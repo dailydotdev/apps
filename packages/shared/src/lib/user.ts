@@ -1,6 +1,7 @@
 import nodeFetch from 'node-fetch';
 import { apiUrl, graphqlUrl } from './config';
 import { USER_BY_ID_STATIC_FIELDS_QUERY } from '../graphql/users';
+import { commonRequestHeaders } from './headers';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -86,6 +87,7 @@ export async function logout(): Promise<void> {
   await fetch(`${apiUrl}/v1/users/logout`, {
     method: 'POST',
     credentials: 'include',
+    headers: { ...commonRequestHeaders },
   });
 }
 
@@ -93,6 +95,7 @@ export async function deleteAccount(): Promise<void> {
   await fetch(`${apiUrl}/v1/users/me`, {
     method: 'DELETE',
     credentials: 'include',
+    headers: { ...commonRequestHeaders },
   });
 }
 
@@ -104,6 +107,7 @@ export async function updateProfile(
     credentials: 'include',
     headers: {
       'content-type': 'application/json',
+      ...commonRequestHeaders,
     },
     body: JSON.stringify(profile),
   });
@@ -125,6 +129,7 @@ const getProfileRequest = async (method = fetch, id: string) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...commonRequestHeaders,
     },
     body: JSON.stringify({
       query: USER_BY_ID_STATIC_FIELDS_QUERY,

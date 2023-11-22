@@ -3,6 +3,7 @@ import { MutableRefObject, useMemo, useRef } from 'react';
 import { apiUrl } from '../../lib/config';
 import useDebounce from '../useDebounce';
 import { ExtensionMessageType } from '../../lib/extension';
+import { commonRequestHeaders } from '../../lib/headers';
 
 export interface AnalyticsEvent extends Record<string, unknown> {
   visit_id?: string;
@@ -39,6 +40,7 @@ export default function useAnalyticsQueue({
         credentials: 'include',
         headers: {
           'content-type': 'application/json',
+          ...commonRequestHeaders,
         },
       });
       await res?.text();

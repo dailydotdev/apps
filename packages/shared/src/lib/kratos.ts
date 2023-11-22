@@ -1,5 +1,6 @@
 import { MessageEventData } from '../hooks/useWindowEvents';
 import { authUrl, heimdallUrl } from './constants';
+import { commonRequestHeaders } from './headers';
 
 export type EmptyObjectLiteral = Record<string, never | string>;
 
@@ -207,7 +208,7 @@ export const initializeKratosFlow = async (
   const search = new URLSearchParams(params);
   const res = await fetch(`${authUrl}/self-service${flow}/browser?${search}`, {
     credentials: 'include',
-    headers: { Accept: 'application/json' },
+    headers: { Accept: 'application/json', ...commonRequestHeaders },
   });
 
   return res.json();
@@ -219,7 +220,7 @@ export const getKratosSettingsFlow = async (
 ): Promise<InitializationData> => {
   const res = await fetch(`${authUrl}/self-service${flow}/flows?id=${id}`, {
     credentials: 'include',
-    headers: { Accept: 'application/json' },
+    headers: { Accept: 'application/json', ...commonRequestHeaders },
   });
   return res.json();
 };
@@ -230,7 +231,7 @@ export const getKratosFlow = async <T = InitializationData>(
 ): Promise<T> => {
   const res = await fetch(`${authUrl}/self-service${flow}?flow=${id}`, {
     credentials: 'include',
-    headers: { Accept: 'application/json' },
+    headers: { Accept: 'application/json', ...commonRequestHeaders },
   });
   return res.json();
 };
@@ -238,7 +239,7 @@ export const getKratosFlow = async <T = InitializationData>(
 export const getKratosError = async (id: string): Promise<ErrorData> => {
   const res = await fetch(`${authUrl}/self-service/errors?id=${id}`, {
     credentials: 'include',
-    headers: { Accept: 'application/json' },
+    headers: { Accept: 'application/json', ...commonRequestHeaders },
   });
   return res.json();
 };
@@ -250,6 +251,7 @@ export const checkKratosEmail = async (
     `${heimdallUrl}/api/check_email?email_address=${email}`,
     {
       method: 'POST',
+      ...commonRequestHeaders,
     },
   );
   return res.json();
@@ -284,6 +286,7 @@ export const getKratosProviders = async (
   const res = await fetch(`${heimdallUrl}/api/list_providers?${search}`, {
     credentials: 'include',
     method: flow ? 'GET' : 'POST',
+    headers: { ...commonRequestHeaders },
   });
   return res.json();
 };
@@ -304,6 +307,7 @@ export const submitKratosFlow = async <
       'Content-Type': 'application/json',
       'X-CSRF-Token': params.csrf_token,
       Accept: 'application/json',
+      ...commonRequestHeaders,
     },
     body: method === 'GET' ? undefined : JSON.stringify(params),
   });
@@ -332,6 +336,7 @@ export const submitKratosFlow = async <
 export const getKratosSession = async (): Promise<AuthSession> => {
   const res = await fetch(`${heimdallUrl}/api/whoami`, {
     credentials: 'include',
+    headers: { ...commonRequestHeaders },
   });
 
   if (res.status === 401) {

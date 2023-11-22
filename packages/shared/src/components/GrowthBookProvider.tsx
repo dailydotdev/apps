@@ -24,6 +24,7 @@ import { BootApp, BootCacheData } from '../lib/boot';
 import { apiUrl } from '../lib/config';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
 import { Feature } from '../lib/featureManagement';
+import { commonRequestHeaders } from '../lib/headers';
 
 export type FeaturesReadyContextValue = {
   ready: boolean;
@@ -69,6 +70,7 @@ export const GrowthBookProvider = ({
         credentials: 'include',
         headers: {
           'content-type': 'application/json',
+          ...commonRequestHeaders,
         },
       });
       await res?.text();

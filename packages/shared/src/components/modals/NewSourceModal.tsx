@@ -30,6 +30,7 @@ import Alert, { AlertType } from '../widgets/Alert';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
 import OpenLinkIcon from '../icons/OpenLink';
 import { DISMISS_PERMISSION_BANNER } from '../../hooks/useEnableNotification';
+import { commonRequestHeaders } from '../../lib/headers';
 
 interface RSS {
   url: string;
@@ -116,6 +117,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         20000,
         {
           credentials: 'same-origin',
+          headers: { ...commonRequestHeaders },
         },
       );
       return res.json();

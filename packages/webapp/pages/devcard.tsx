@@ -29,6 +29,7 @@ import useReadingRank from '@dailydotdev/shared/src/hooks/useReadingRank';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { devCard } from '@dailydotdev/shared/src/lib/constants';
 import { labels } from '@dailydotdev/shared/src/lib';
+import { commonRequestHeaders } from '@dailydotdev/shared/src/lib/headers';
 import { DevCardData, GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -119,7 +120,9 @@ const Step2 = ({
 
   const downloadImage = async (): Promise<void> => {
     setDownloading(true);
-    const image = await fetch(devCardSrc);
+    const image = await fetch(devCardSrc, {
+      headers: { ...commonRequestHeaders },
+    });
     const imageBlog = await image.blob();
     const imageURL = URL.createObjectURL(imageBlog);
 
