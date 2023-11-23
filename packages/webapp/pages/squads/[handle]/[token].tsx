@@ -1,5 +1,5 @@
 import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
-import { useQuery, useMutation } from 'react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import {
   getSquadInvitation,

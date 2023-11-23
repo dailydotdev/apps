@@ -171,7 +171,7 @@ function AuthOptions({
     validateRegistration,
     onSocialRegistration,
   } = useRegistration({
-    key: 'registration_form',
+    key: ['registration_form'],
     onValidRegistration: async () => {
       setIsRegistration(true);
       const { data } = await refetchBoot();

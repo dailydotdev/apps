@@ -1,5 +1,5 @@
 import React, { FormEvent, ReactElement, useState } from 'react';
-import { useMutation, useQuery } from 'react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import AuthHeader from './AuthHeader';

@@ -5,7 +5,7 @@ import {
   RenderResult,
   screen,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ChecklistCardProps } from '../../lib/checklist';
 import { ChecklistCard } from './ChecklistCard';
 import { defaultSteps, updateStep } from '../../hooks/useChecklist.spec';

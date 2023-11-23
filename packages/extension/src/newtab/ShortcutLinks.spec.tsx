@@ -10,7 +10,7 @@ import {
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 import { mocked } from 'ts-jest/utils';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import {

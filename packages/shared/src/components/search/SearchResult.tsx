@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode, useCallback, useContext } from 'react';
-import { QueryKey, useMutation, useQueryClient } from 'react-query';
+import { QueryKey, useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { WidgetContainer } from '../widgets/common';
 import { Button } from '../buttons/Button';

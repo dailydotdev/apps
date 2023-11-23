@@ -1,4 +1,4 @@
-import { useQueryClient, useMutation, QueryKey } from 'react-query';
+import { useQueryClient, useMutation, QueryKey } from '@tanstack/react-query';
 import request from 'graphql-request';
 import { graphqlUrl } from '../lib/config';
 import {

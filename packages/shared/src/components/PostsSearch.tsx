@@ -1,6 +1,6 @@
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import request from 'graphql-request';
 import classNames from 'classnames';
 import { SearchField } from './fields/SearchField';

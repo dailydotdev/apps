@@ -5,7 +5,7 @@ import {
   waitFor,
   fireEvent,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
 import Comment from '../../../../__tests__/fixture/comment';

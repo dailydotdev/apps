@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import request from 'graphql-request';
 import {
   HIDE_POST_MUTATION,

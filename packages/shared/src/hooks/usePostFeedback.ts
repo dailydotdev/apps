@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
 import { Post, dismissPostFeedback, UserPostVote } from '../graphql/posts';
 import { optimisticPostUpdateInFeed } from '../lib/feed';

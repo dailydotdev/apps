@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react';
-import { InfiniteData, useQueryClient } from 'react-query';
+import { InfiniteData, useQueryClient } from '@tanstack/react-query';
 import {
   FeedData,
   Post,

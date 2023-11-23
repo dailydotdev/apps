@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/react';
-import { QueryClient } from 'react-query';
+import { QueryClient } from '@tanstack/react-query';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';

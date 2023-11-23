@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
 import request from 'graphql-request';
 import { Button } from '../buttons/Button';

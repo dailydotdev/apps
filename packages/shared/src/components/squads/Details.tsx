@@ -1,7 +1,7 @@
 import React, { FormEvent, ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
 import { ClientError } from 'graphql-request';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import AtIcon from '../icons/At';

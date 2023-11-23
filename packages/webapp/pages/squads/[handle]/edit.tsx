@@ -13,7 +13,7 @@ import {
   ManageSquadPageHeader,
 } from '@dailydotdev/shared/src/components/squads/utils';
 import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useSquad } from '@dailydotdev/shared/src/hooks';
 import {
   GetStaticPathsResult,

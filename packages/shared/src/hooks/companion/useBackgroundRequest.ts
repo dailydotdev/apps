@@ -1,4 +1,4 @@
-import { QueryKey, useQueryClient } from 'react-query';
+import { QueryKey, useQueryClient } from '@tanstack/react-query';
 import { isQueryKeySame } from '../../graphql/common';
 import { useRawBackgroundRequest } from './useRawBackgroundRequest';
 
@@ -14,12 +14,13 @@ export const useBackgroundRequest = (
   const client = useQueryClient();
 
   useRawBackgroundRequest(({ key, ...args }) => {
-    if (!enabled || !isQueryKeySame(key, queryKey)) {
+    const validKey = Array.isArray(key) ? key : [key];
+    if (!enabled || !isQueryKeySame(validKey, queryKey)) {
       return;
     }
 
     if (callback) {
-      callback({ key, ...args });
+      callback({ key: validKey, ...args });
     } else {
       client.setQueryData(queryKey, args.res);
     }

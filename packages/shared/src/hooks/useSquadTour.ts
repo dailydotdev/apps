@@ -1,7 +1,8 @@
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
+import { generateQueryKey, RequestKey } from '../lib/query';
 
-const SQUAD_TOUR_KEY = 'squadTourKey';
+const SQUAD_TOUR_KEY = generateQueryKey(RequestKey.SquadTour, null);
 
 interface SquadTourData {
   tourIndex: number;

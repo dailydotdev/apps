@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AlertContext from '../contexts/AlertContext';
 import { getLatestChangelogPost, Post } from '../graphql/posts';
 import useSidebarRendered from './useSidebarRendered';

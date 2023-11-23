@@ -4,7 +4,7 @@ import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
 import nock from 'nock';
 import { waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useJoinReferral } from './useJoinReferral';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';

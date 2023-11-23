@@ -1,4 +1,4 @@
-import { QueryClient } from 'react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { SourceMemberFlag, Squad } from '../sources';
 import { LoggedUser } from '../../lib/user';

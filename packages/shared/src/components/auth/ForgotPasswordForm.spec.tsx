@@ -7,7 +7,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import nock from 'nock';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import {
   emailSentRecoveryMockData,

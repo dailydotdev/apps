@@ -1,7 +1,7 @@
 import nock from 'nock';
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import AuthContext from '../../contexts/AuthContext';
 import {

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { browser } from 'webextension-polyfill-ts';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {

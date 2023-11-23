@@ -1,7 +1,11 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
-import { InfiniteData, useInfiniteQuery, useMutation } from 'react-query';
+import {
+  InfiniteData,
+  useInfiniteQuery,
+  useMutation,
+} from '@tanstack/react-query';
 import {
   Notification,
   NOTIFICATIONS_QUERY,

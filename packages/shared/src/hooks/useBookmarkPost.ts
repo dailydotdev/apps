@@ -1,5 +1,9 @@
 import { useCallback, useContext } from 'react';
-import { MutationKey, useMutation, useQueryClient } from 'react-query';
+import {
+  MutationKey,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { graphqlUrl } from '../lib/config';
 import {
   ADD_BOOKMARKS_MUTATION,
