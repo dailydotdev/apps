@@ -104,15 +104,13 @@ interface GetNextRankTextProps {
 }
 
 export const getRank = (rank: number): number => {
-  if (rank < 0) {
-    return 0;
-  }
+  const computedRank = Math.max(0, rank - 1);
 
-  if (rank >= RANKS.length) {
+  if (computedRank >= RANKS.length) {
     return RANKS.length - 1;
   }
 
-  return rank;
+  return computedRank;
 };
 
 export const getNextRankText = ({
