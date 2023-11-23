@@ -42,6 +42,7 @@ import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
 } from '../hooks/useBookmarkPost';
+import { isNullOrUndefined } from '../lib/func';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -395,6 +396,7 @@ export default function Feed<T>({
           onRemovePost={onRemovePost}
           origin={origin}
           allowPin={allowPin}
+          isOpen={!isNullOrUndefined(postMenuIndex)}
         />
         <ShareOptionsMenu
           {...commonMenuItems}

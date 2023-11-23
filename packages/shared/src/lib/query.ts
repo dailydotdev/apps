@@ -21,7 +21,9 @@ export enum OtherFeedPage {
   Preview = 'preview',
 }
 
+const ONE_MINUTE = 60 * 1000;
 export const STALE_TIME = 30 * 1000;
+export const FEED_SETTINGS_STALE_TIME = ONE_MINUTE;
 
 export type AllFeedPages = SharedFeedPage | OtherFeedPage;
 

@@ -69,6 +69,7 @@ export interface PostOptionsMenuProps extends ShareBookmarkProps {
   contextId?: string;
   origin: Origin;
   allowPin?: boolean;
+  isOpen?: boolean;
 }
 
 export default function PostOptionsMenu({
@@ -83,13 +84,14 @@ export default function PostOptionsMenu({
   setShowPromotePost,
   origin,
   allowPin,
+  isOpen,
   contextId = 'post-context',
 }: PostOptionsMenuProps): ReactElement {
   const client = useQueryClient();
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
-  const { feedSettings } = useFeedSettings();
+  const { feedSettings } = useFeedSettings({ enabled: isOpen });
   const { trackEvent } = useContext(AnalyticsContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openModal } = useLazyModal();
