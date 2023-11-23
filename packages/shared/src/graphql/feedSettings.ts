@@ -35,13 +35,6 @@ export interface FeedSettings {
   advancedSettings?: FeedAdvancedSettings[];
 }
 
-export const getEmptyFeedSettings = (): FeedSettings => ({
-  includeTags: [],
-  blockedTags: [],
-  excludeSources: [],
-  advancedSettings: [],
-});
-
 export interface TagCategory {
   id: string;
   title: string;

@@ -106,9 +106,8 @@ const createTagsSettingsMock = (
     blockedTags: [],
     excludeSources: [],
   },
-  loggedIn = true,
 ): MockedGraphQLResponse<AllTagCategoriesData> => ({
-  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn } },
+  request: { query: FEED_SETTINGS_QUERY },
   result: {
     data: {
       feedSettings,

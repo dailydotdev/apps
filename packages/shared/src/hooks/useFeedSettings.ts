@@ -7,7 +7,6 @@ import {
   FeedSettings,
   FEED_SETTINGS_QUERY,
   TagCategory,
-  getEmptyFeedSettings,
 } from '../graphql/feedSettings';
 import AuthContext from '../contexts/AuthContext';
 import { graphqlUrl } from '../lib/config';
