@@ -18,6 +18,11 @@
     "editor.quickSuggestions": {
       "strings": true
     },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/.next": true,
+    },
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": true
     },
