@@ -69,7 +69,7 @@ export default function useFeedSettings({
     },
     {
       ...disabledRefetch,
-      enabled: user && enabled,
+      enabled: enabled && !!user,
       staleTime: FEED_SETTINGS_STALE_TIME,
     },
   );
