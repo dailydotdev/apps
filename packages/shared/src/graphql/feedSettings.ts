@@ -65,7 +65,7 @@ export const SEARCH_TAGS_QUERY = gql`
 `;
 
 export const FEED_SETTINGS_QUERY = gql`
-  query TagCategories {
+  query FeedPreferences {
     tagsCategories {
       id
       title
