@@ -25,6 +25,7 @@ export default function useContextMenu({
   const { data: isOpen } = useQuery(
     key,
     () => client.getQueryData<boolean>(key) ?? false,
+    { initialData: false },
   );
 
   const onIsOpen = useCallback(
