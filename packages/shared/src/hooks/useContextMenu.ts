@@ -22,8 +22,9 @@ export default function useContextMenu({
   );
   const client = useQueryClient();
   const { show, hideAll } = useContexifyContextMenu({ id });
-  const { data: isOpen } = useQuery(key, () =>
-    client.getQueryData<boolean>(key),
+  const { data: isOpen } = useQuery(
+    key,
+    () => client.getQueryData<boolean>(key) ?? false,
   );
 
   const onIsOpen = useCallback(
