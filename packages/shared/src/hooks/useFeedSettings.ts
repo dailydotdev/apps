@@ -45,6 +45,8 @@ interface UseFeedSettingsProps {
   enabled?: boolean;
 }
 
+const FEED_SETTINGS_STALE_TIME = 1000 * 60;
+
 export default function useFeedSettings({
   enabled = true,
 }: UseFeedSettingsProps = {}): FeedSettingsReturnType {
@@ -59,17 +61,17 @@ export default function useFeedSettings({
         { loggedIn: !!user?.id },
       );
 
-      if (user) {
-        return req;
-      }
-
       const feedSettings = isObjectEmpty(feedQuery.feedSettings)
         ? getEmptyFeedSettings()
         : feedQuery.feedSettings;
 
       return { ...req, feedSettings };
     },
-    { ...disabledRefetch, enabled },
+    {
+      ...disabledRefetch,
+      enabled: user && enabled,
+      staleTime: FEED_SETTINGS_STALE_TIME,
+    },
   );
 
   const { tagsCategories, feedSettings, advancedSettings } = feedQuery;
