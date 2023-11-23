@@ -53,19 +53,7 @@ export default function useFeedSettings({
   const filtersKey = getFeedSettingsQueryKey(user);
   const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>(
     filtersKey,
-    async () => {
-      const req = await request<AllTagCategoriesData>(
-        graphqlUrl,
-        FEED_SETTINGS_QUERY,
-        { loggedIn: !!user?.id },
-      );
-
-      const feedSettings = isObjectEmpty(feedQuery.feedSettings)
-        ? getEmptyFeedSettings()
-        : feedQuery.feedSettings;
-
-      return { ...req, feedSettings };
-    },
+    () => request(graphqlUrl, FEED_SETTINGS_QUERY, { loggedIn: true }),
     {
       ...disabledRefetch,
       enabled: enabled && !!user,
