@@ -53,6 +53,7 @@ import {
 import { LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
 import OnboardingRegistrationForm from './OnboardingRegistrationForm';
+import EmailCodeVerification from './EmailCodeVerification';
 
 export enum AuthDisplay {
   Default = 'default',
@@ -65,6 +66,7 @@ export enum AuthDisplay {
   EmailSent = 'email_sent',
   VerifiedEmail = 'VerifiedEmail',
   OnboardingSignup = 'onboarding_signup',
+  EmailVerification = 'email_verification',
 }
 
 export interface AuthProps {
@@ -479,6 +481,10 @@ function AuthOptions({
             title="Verify your email address"
           />
           <EmailVerificationSent email={email} />
+        </Tab>
+        <Tab label={AuthDisplay.EmailVerification}>
+          <AuthHeader simplified={simplified} title="Verify your email" />
+          <EmailCodeVerification email={email} />
         </Tab>
         <Tab label={AuthDisplay.VerifiedEmail}>
           <EmailVerified hasUser={!!user} simplified={simplified}>

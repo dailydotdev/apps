@@ -62,7 +62,7 @@ function useAccountEmailFlow({
         action: emailFlow.ui.action,
         params: {
           email,
-          method: flow === AuthFlow.Recovery ? 'code' : 'link',
+          method: 'code',
           csrf_token: getNodeValue('csrf_token', emailFlow.ui.nodes),
         },
       }),
