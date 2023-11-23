@@ -72,14 +72,14 @@ export const SEARCH_TAGS_QUERY = gql`
 `;
 
 export const FEED_SETTINGS_QUERY = gql`
-  query TagCategories($loggedIn: Boolean!) {
+  query TagCategories {
     tagsCategories {
       id
       title
       tags
       emoji
     }
-    feedSettings @include(if: $loggedIn) {
+    feedSettings {
       includeTags
       blockedTags
       excludeSources {
