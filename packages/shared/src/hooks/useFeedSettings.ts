@@ -34,14 +34,6 @@ export const getHasAnyFilter = (feedSettings: FeedSettings): boolean =>
   feedSettings?.excludeSources?.length > 0 ||
   feedSettings?.advancedSettings?.length > 0;
 
-const isObjectEmpty = (obj: unknown) => {
-  if (typeof obj === 'undefined' || obj === null) {
-    return true;
-  }
-
-  return Object.keys(obj).length === 0;
-};
-
 interface UseFeedSettingsProps {
   enabled?: boolean;
 }
