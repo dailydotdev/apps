@@ -70,3 +70,4 @@ services:
       - JWT_PUBLIC_KEY_PATH=/opt/app/.cert/public.pem
       - JWT_PRIVATE_KEY_PATH=/opt/app/.cert/key.pem
       - GROWTHBOOK_CLIENT_KEY='local'
+      - MOCK_USER_ID='404'
