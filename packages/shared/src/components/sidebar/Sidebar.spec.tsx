@@ -31,7 +31,7 @@ beforeEach(() => {
 });
 
 const createMockFeedSettings = () => ({
-  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn: true } },
+  request: { query: FEED_SETTINGS_QUERY },
   result: { data: { feedSettings: { blockedTags: ['javascript'] } } },
 });
 

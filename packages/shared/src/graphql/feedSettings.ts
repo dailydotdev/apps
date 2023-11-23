@@ -35,13 +35,6 @@ export interface FeedSettings {
   advancedSettings?: FeedAdvancedSettings[];
 }
 
-export const getEmptyFeedSettings = (): FeedSettings => ({
-  includeTags: [],
-  blockedTags: [],
-  excludeSources: [],
-  advancedSettings: [],
-});
-
 export interface TagCategory {
   id: string;
   title: string;
@@ -72,14 +65,14 @@ export const SEARCH_TAGS_QUERY = gql`
 `;
 
 export const FEED_SETTINGS_QUERY = gql`
-  query TagCategories($loggedIn: Boolean!) {
+  query FeedPreferences {
     tagsCategories {
       id
       title
       tags
       emoji
     }
-    feedSettings @include(if: $loggedIn) {
+    feedSettings {
       includeTags
       blockedTags
       excludeSources {
