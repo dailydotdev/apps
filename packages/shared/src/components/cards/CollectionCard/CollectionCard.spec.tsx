@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CollectionCard } from './CollectionCard';
 import { sharePost as collectionPost } from '../../../../__tests__/fixture/post';
 import { PostCardProps } from '../common';
