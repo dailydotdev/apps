@@ -28,6 +28,7 @@ export enum PostType {
   Share = 'share',
   Welcome = 'welcome',
   Freeform = 'freeform',
+  Collection = 'collection',
 }
 
 export const internalReadTypes: PostType[] = [PostType.Welcome];
@@ -37,6 +38,7 @@ export const supportedTypesForPrivateSources = [
   PostType.Share,
   PostType.Welcome,
   PostType.Freeform,
+  PostType.Collection,
 ];
 
 type PostFlags = {

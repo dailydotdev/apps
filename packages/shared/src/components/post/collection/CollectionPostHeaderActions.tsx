@@ -6,32 +6,24 @@ import React, {
   useContext,
 } from 'react';
 import classNames from 'classnames';
-import MenuIcon from '../icons/Menu';
-import CloseIcon from '../icons/MiniClose';
-import OpenLinkIcon from '../icons/OpenLink';
-import { Roles } from '../../lib/user';
-import AuthContext from '../../contexts/AuthContext';
-import {
-  banPost,
-  demotePost,
-  internalReadTypes,
-  Post,
-  promotePost,
-} from '../../graphql/posts';
-import classed from '../../lib/classed';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { Button } from '../buttons/Button';
-import PostOptionsMenu, { PostOptionsMenuProps } from '../PostOptionsMenu';
-import { ShareBookmarkProps } from './PostActions';
-import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import SettingsContext from '../../contexts/SettingsContext';
-import { Origin } from '../../lib/analytics';
-import useContextMenu from '../../hooks/useContextMenu';
-import BellIcon from '../icons/Bell';
+import MenuIcon from '../../icons/Menu';
+import CloseIcon from '../../icons/MiniClose';
+import { Roles } from '../../../lib/user';
+import AuthContext from '../../../contexts/AuthContext';
+import { banPost, demotePost, Post, promotePost } from '../../../graphql/posts';
+import classed from '../../../lib/classed';
+import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
+import { Button } from '../../buttons/Button';
+import PostOptionsMenu, { PostOptionsMenuProps } from '../../PostOptionsMenu';
+import { ShareBookmarkProps } from '../PostActions';
+import { PromptOptions, usePrompt } from '../../../hooks/usePrompt';
+import SettingsContext from '../../../contexts/SettingsContext';
+import { Origin } from '../../../lib/analytics';
+import useContextMenu from '../../../hooks/useContextMenu';
+import BellIcon from '../../icons/Bell';
 
 export interface PostHeaderActionsProps extends ShareBookmarkProps {
   post: Post;
-  onReadArticle?: () => void;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   className?: string;
   style?: CSSProperties;
@@ -43,8 +35,7 @@ export interface PostHeaderActionsProps extends ShareBookmarkProps {
 
 const Container = classed('div', 'flex flex-row items-center');
 
-export function PostHeaderActions({
-  onReadArticle,
+const CollectionPostHeaderActions = ({
   onShare,
   post,
   onClose,
@@ -54,13 +45,12 @@ export function PostHeaderActions({
   contextMenuId,
   onRemovePost,
   ...props
-}: PostHeaderActionsProps): ReactElement {
+}: PostHeaderActionsProps): ReactElement => {
   const { openNewTab } = useContext(SettingsContext);
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
   const { onMenuClick, isOpen } = useContextMenu({ id: contextMenuId });
 
-  const isInternalReadType = internalReadTypes.includes(post?.type);
   const isModerator = user?.roles?.includes(Roles.Moderator);
 
   const banPostPrompt = async () => {
@@ -118,6 +108,8 @@ export function PostHeaderActions({
           {!inlineActions && 'Subscribe'}
         </Button>
       </SimpleTooltip>
+
+      {/* TODO: check if menu is the same */}
       <SimpleTooltip placement="bottom" content="Options">
         <Button
           className={classNames('btn-tertiary', !inlineActions && 'ml-auto')}
@@ -141,9 +133,11 @@ export function PostHeaderActions({
         setShowBanPost={isModerator ? () => banPostPrompt() : null}
         setShowPromotePost={isModerator ? () => promotePostPrompt() : null}
         contextId={contextMenuId}
-        origin={Origin.ArticleModal}
+        origin={Origin.CollectionModal}
         isOpen={isOpen}
       />
     </Container>
   );
-}
+};
+
+export default CollectionPostHeaderActions;
