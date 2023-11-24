@@ -28,7 +28,7 @@ export enum PostType {
   Share = 'share',
   Welcome = 'welcome',
   Freeform = 'freeform',
-  Collections = 'collections',
+  Collection = 'collection',
 }
 
 export const internalReadTypes: PostType[] = [PostType.Welcome];
