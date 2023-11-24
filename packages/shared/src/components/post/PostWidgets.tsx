@@ -34,7 +34,7 @@ export function PostWidgets({
         className="hidden tablet:flex pt-6"
         contextMenuId="post-widgets-context"
       />
-      {post.type === PostType.Collections && <CollectionsIntro />}
+      {post.type === PostType.Collection && <CollectionsIntro />}
       <PostUsersHighlights post={post} />
       <ShareBar post={post} />
       <ShareMobile post={post} share={onShare} link={post.commentsPermalink} />
