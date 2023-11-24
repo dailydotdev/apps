@@ -22,8 +22,14 @@ export enum OtherFeedPage {
 }
 
 const ONE_MINUTE = 60 * 1000;
+const THIRTY_MINUTES = ONE_MINUTE * 30;
 export const STALE_TIME = 30 * 1000;
-export const FEED_SETTINGS_STALE_TIME = ONE_MINUTE;
+
+export enum StaleTime {
+  FeedSettings = ONE_MINUTE,
+  Tooltip = THIRTY_MINUTES,
+  Base = STALE_TIME,
+}
 
 export type AllFeedPages = SharedFeedPage | OtherFeedPage;
 
