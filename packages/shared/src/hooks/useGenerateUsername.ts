@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useState, useRef } from 'react';
 import { useRequestProtocol } from './useRequestProtocol';
 import { GET_USERNAME_SUGGESTION } from '../graphql/users';

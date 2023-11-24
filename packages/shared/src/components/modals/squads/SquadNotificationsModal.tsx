@@ -1,5 +1,5 @@
 import React, { ReactElement, useMemo } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Modal, ModalProps } from '../common/Modal';
 import {
   checkHasMutedPreference,

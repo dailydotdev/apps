@@ -7,7 +7,7 @@ import {
   waitFor,
   fireEvent,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import AuthContext from '../../contexts/AuthContext';
 import {
@@ -60,10 +60,7 @@ const createAdvancedSettingsAndFiltersMock = (
     },
   ],
 ): MockedGraphQLResponse<AllTagCategoriesData> => ({
-  request: {
-    query: FEED_SETTINGS_QUERY,
-    variables: { loggedIn: !!loggedUser },
-  },
+  request: { query: FEED_SETTINGS_QUERY },
   result: {
     data: {
       feedSettings,
@@ -114,19 +111,6 @@ it('should display advanced settings title and description', async () => {
   ).toBeInTheDocument();
   const [checkbox] = await screen.findAllByRole('checkbox');
   await waitFor(() => expect(checkbox).not.toBeChecked());
-});
-
-it('should display advanced settings title and description including the appropriate enabled state using unregistered user', async () => {
-  const { baseElement } = renderComponent([
-    createAdvancedSettingsAndFiltersMock({}),
-  ]);
-  await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
-  expect(await screen.findByText('Tech magazines')).toBeInTheDocument();
-  expect(
-    await screen.findByText('Description for Tech magazines'),
-  ).toBeInTheDocument();
-  const [checkbox] = await screen.findAllByRole('checkbox');
-  await waitFor(() => expect(checkbox).toBeChecked());
 });
 
 it('should mutate update feed advanced settings', async () => {

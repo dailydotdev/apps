@@ -1,5 +1,5 @@
 import React, { ReactElement, useRef } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Author } from '../../graphql/comments';
 import { useProfileTooltip } from '../../hooks/useProfileTooltip';
 import { TooltipProps } from '../tooltips/BaseTooltip';

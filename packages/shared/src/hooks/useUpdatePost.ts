@@ -1,4 +1,4 @@
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Post, PostData } from '../graphql/posts';
 import { MutateFunc } from '../lib/query';
 import { getPostByIdKey } from './usePostById';

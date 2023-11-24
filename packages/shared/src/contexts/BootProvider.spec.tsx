@@ -6,7 +6,7 @@ import {
   RenderResult,
   screen,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mocked } from 'ts-jest/utils';
 import AuthContext from './AuthContext';
 import defaultUser from '../../__tests__/fixture/loggedUser';

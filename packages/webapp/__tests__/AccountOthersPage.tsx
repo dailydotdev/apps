@@ -10,7 +10,7 @@ import {
   screen,
 } from '@testing-library/react';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { UPDATE_USER_PROFILE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { getTimeZoneOptions } from '@dailydotdev/shared/src/lib/timezones';

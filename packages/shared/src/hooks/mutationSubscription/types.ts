@@ -1,4 +1,4 @@
-import { Mutation, QueryClient } from 'react-query';
+import { Mutation, QueryClient } from '@tanstack/react-query';
 
 export type UseMutationMatcherProps = {
   mutation: Mutation;

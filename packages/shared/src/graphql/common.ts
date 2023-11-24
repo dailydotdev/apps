@@ -1,5 +1,5 @@
 import request from 'graphql-request';
-import { QueryKey, UseInfiniteQueryOptions } from 'react-query';
+import { QueryKey, UseInfiniteQueryOptions } from '@tanstack/react-query';
 import { PublicProfile, UserShortProfile } from '../lib/user';
 // GraphQL Relay pagination types
 
@@ -52,7 +52,7 @@ export type RequestDataConnection<TEntity, TKey extends string> = Record<
   Connection<TEntity>
 >;
 
-export const REQUEST_PROTOCOL_KEY = 'request-protocol';
+export const REQUEST_PROTOCOL_KEY = ['request-protocol'];
 export interface RequestProtocol {
   requestMethod?: typeof request;
   fetchMethod?: typeof fetch;

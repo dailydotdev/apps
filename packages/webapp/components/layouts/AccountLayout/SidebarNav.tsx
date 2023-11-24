@@ -1,5 +1,5 @@
 import React, { ReactElement, useCallback, useContext, useEffect } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';

@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { request } from 'graphql-request';
 import {
   AdvancedSettings,
@@ -7,12 +7,12 @@ import {
   FeedSettings,
   FEED_SETTINGS_QUERY,
   TagCategory,
-  getEmptyFeedSettings,
 } from '../graphql/feedSettings';
 import AuthContext from '../contexts/AuthContext';
 import { graphqlUrl } from '../lib/config';
 import { LoggedUser } from '../lib/user';
 import { disabledRefetch } from '../lib/func';
+import { FEED_SETTINGS_STALE_TIME } from '../lib/query';
 
 export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
@@ -33,38 +33,23 @@ export const getHasAnyFilter = (feedSettings: FeedSettings): boolean =>
   feedSettings?.excludeSources?.length > 0 ||
   feedSettings?.advancedSettings?.length > 0;
 
-const isObjectEmpty = (obj: unknown) => {
-  if (typeof obj === 'undefined' || obj === null) {
-    return true;
-  }
+interface UseFeedSettingsProps {
+  enabled?: boolean;
+}
 
-  return Object.keys(obj).length === 0;
-};
-
-export default function useFeedSettings(): FeedSettingsReturnType {
+export default function useFeedSettings({
+  enabled = true,
+}: UseFeedSettingsProps = {}): FeedSettingsReturnType {
   const { user } = useContext(AuthContext);
   const filtersKey = getFeedSettingsQueryKey(user);
-
   const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>(
     filtersKey,
-    async () => {
-      const req = await request<AllTagCategoriesData>(
-        graphqlUrl,
-        FEED_SETTINGS_QUERY,
-        { loggedIn: !!user?.id },
-      );
-
-      if (user) {
-        return req;
-      }
-
-      const feedSettings = isObjectEmpty(feedQuery.feedSettings)
-        ? getEmptyFeedSettings()
-        : feedQuery.feedSettings;
-
-      return { ...req, feedSettings };
+    () => request(graphqlUrl, FEED_SETTINGS_QUERY),
+    {
+      ...disabledRefetch,
+      enabled: enabled && !!user,
+      staleTime: FEED_SETTINGS_STALE_TIME,
     },
-    { ...disabledRefetch },
   );
 
   const { tagsCategories, feedSettings, advancedSettings } = feedQuery;

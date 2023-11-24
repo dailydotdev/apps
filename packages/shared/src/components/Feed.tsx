@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from 'react';
 import dynamic from 'next/dynamic';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import useFeed, { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import { Ad, Post, PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -42,6 +42,7 @@ import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
 } from '../hooks/useBookmarkPost';
+import { isNullOrUndefined } from '../lib/func';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -396,6 +397,7 @@ export default function Feed<T>({
           onRemovePost={onRemovePost}
           origin={origin}
           allowPin={allowPin}
+          isOpen={!isNullOrUndefined(postMenuIndex)}
         />
         <ShareOptionsMenu
           {...commonMenuItems}

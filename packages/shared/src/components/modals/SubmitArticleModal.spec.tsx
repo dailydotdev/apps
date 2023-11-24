@@ -1,6 +1,6 @@
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
 import { AuthContextProvider } from '../../contexts/AuthContext';
@@ -53,11 +53,7 @@ const renderComponent = (
         loadedUserFromCache
       >
         <NotificationsContextProvider>
-          <SubmitArticleModal
-            headerCopy="Submit article"
-            isOpen
-            onRequestClose={onRequestClose}
-          />
+          <SubmitArticleModal isOpen onRequestClose={onRequestClose} />
         </NotificationsContextProvider>
       </AuthContextProvider>
     </QueryClientProvider>,

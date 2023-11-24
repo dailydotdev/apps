@@ -6,7 +6,7 @@ import {
   WriteFreeFormSkeleton,
   WritePageContainer,
 } from '@dailydotdev/shared/src/components/post/freeform';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { createPost } from '@dailydotdev/shared/src/graphql/posts';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';

@@ -1,9 +1,12 @@
 import React from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@testing-library/jest-dom';
 import { render, RenderResult, screen } from '@testing-library/react';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
-import { EXTENSION_PERMISSION_KEY } from '@dailydotdev/shared/src/hooks';
+import {
+  contentScriptKey,
+  EXTENSION_PERMISSION_KEY,
+} from '@dailydotdev/shared/src/hooks';
 import { CompanionPermission } from './CompanionPermission';
 import {
   registerBrowserContentScripts,
@@ -92,11 +95,10 @@ describe('companion permission component', () => {
 
   it('should ask for permission when button is clicked', async () => {
     renderComponent();
-    const key = 'permission_key';
-    expect(client.getQueryData(key)).toBeFalsy();
+    expect(client.getQueryData(contentScriptKey)).toBeFalsy();
     const button = await screen.findByRole('button');
     expect(button).toBeInTheDocument();
     await button.click();
-    expect(client.getQueryData(key)).toEqual(true);
+    expect(client.getQueryData(contentScriptKey)).toEqual(true);
   });
 });

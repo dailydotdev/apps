@@ -1,4 +1,4 @@
-import { QueryKey } from 'react-query';
+import { QueryKey } from '@tanstack/react-query';
 import { MouseEvent } from 'react';
 import { Search, SearchChunkSource } from '../../graphql/search';
 

@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
   Button,

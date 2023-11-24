@@ -28,7 +28,7 @@ import {
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { reputationGuide } from '@dailydotdev/shared/src/lib/constants';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import Rank from '@dailydotdev/shared/src/components/Rank';
 import request, { ClientError } from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';

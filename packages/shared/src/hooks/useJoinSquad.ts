@@ -1,4 +1,4 @@
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { joinSquadInvitation, SquadInvitationProps } from '../graphql/squads';
 import { useAnalyticsContext } from '../contexts/AnalyticsContext';

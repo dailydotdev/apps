@@ -3,7 +3,7 @@ import {
   QueryClient,
   QueryClientConfig,
   QueryKey,
-} from 'react-query';
+} from '@tanstack/react-query';
 import cloneDeep from 'lodash.clonedeep';
 import { Connection } from '../graphql/common';
 import { EmptyObjectLiteral } from './kratos';
@@ -21,7 +21,9 @@ export enum OtherFeedPage {
   Preview = 'preview',
 }
 
+const ONE_MINUTE = 60 * 1000;
 export const STALE_TIME = 30 * 1000;
+export const FEED_SETTINGS_STALE_TIME = ONE_MINUTE;
 
 export type AllFeedPages = SharedFeedPage | OtherFeedPage;
 
@@ -64,6 +66,9 @@ export enum RequestKey {
   Tags = 'tags',
   FeedPreview = 'feedPreview',
   ReferredUsers = 'referred',
+  PostKey = 'post',
+  Prompt = 'prompt',
+  SquadTour = 'squad_tour',
 }
 
 export type HasConnection<

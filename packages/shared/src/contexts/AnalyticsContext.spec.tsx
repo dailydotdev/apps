@@ -1,10 +1,10 @@
 import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
 import nock from 'nock';
 import { fireEvent, render, waitFor } from '@testing-library/react';
-import { QueryClient } from 'react-query';
+import { QueryClient } from '@tanstack/react-query';
 import AnalyticsContext, { AnalyticsContextProvider } from './AnalyticsContext';
 import { AnalyticsContextData } from '../hooks/analytics/useAnalyticsContextData';
-import { SettingsContextData } from './SettingsContext';
+import { SettingsContextData, ThemeMode } from './SettingsContext';
 import { AuthContextData } from './AuthContext';
 import { AnonymousUser } from '../lib/user';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
@@ -26,7 +26,7 @@ const settings: SettingsContextData = {
   spaciness: 'roomy',
   loadedSettings: true,
   setTheme: jest.fn(),
-  themeMode: 'light',
+  themeMode: ThemeMode.Light,
   insaneMode: true,
   showTopSites: true,
   toggleInsaneMode: jest.fn(),

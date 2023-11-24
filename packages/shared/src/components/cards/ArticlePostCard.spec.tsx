@@ -6,7 +6,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ArticlePostCard } from './ArticlePostCard';
 import post from '../../../__tests__/fixture/post';
 import { PostCardProps, visibleOnGroupHover } from './common';

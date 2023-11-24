@@ -1,5 +1,9 @@
 import { useCallback, useMemo } from 'react';
-import { QueryClient, useMutation, useQueryClient } from 'react-query';
+import {
+  QueryClient,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import request from 'graphql-request';
 import cloneDeep from 'lodash.clonedeep';
 import { LoggedUser } from '../lib/user';

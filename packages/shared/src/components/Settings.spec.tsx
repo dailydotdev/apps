@@ -8,7 +8,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import { SettingsContextProvider } from '../contexts/SettingsContext';
 import Settings from './Settings';

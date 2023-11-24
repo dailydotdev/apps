@@ -1,9 +1,9 @@
-import { QueryClient, useQueryClient } from 'react-query';
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { useContext } from 'react';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
 
-export const EXTENSION_PERMISSION_KEY = 'extension-permission';
+export const EXTENSION_PERMISSION_KEY = ['extension-permission'];
 
 export type RequestContentScripts = (data: {
   origin: string;

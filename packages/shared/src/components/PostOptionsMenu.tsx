@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
@@ -69,6 +69,7 @@ export interface PostOptionsMenuProps extends ShareBookmarkProps {
   contextId?: string;
   origin: Origin;
   allowPin?: boolean;
+  isOpen?: boolean;
 }
 
 export default function PostOptionsMenu({
@@ -83,13 +84,14 @@ export default function PostOptionsMenu({
   setShowPromotePost,
   origin,
   allowPin,
+  isOpen,
   contextId = 'post-context',
 }: PostOptionsMenuProps): ReactElement {
   const client = useQueryClient();
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
-  const { feedSettings } = useFeedSettings();
+  const { feedSettings } = useFeedSettings({ enabled: isOpen });
   const { trackEvent } = useContext(AnalyticsContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openModal } = useLazyModal();

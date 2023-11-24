@@ -10,7 +10,6 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useInfiniteQuery } from 'react-query';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { REFERRED_USERS_QUERY } from '@dailydotdev/shared/src/graphql/users';
@@ -22,6 +21,7 @@ import { Separator } from '@dailydotdev/shared/src/components/cards/common';
 import { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { format } from 'date-fns';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import {
   AnalyticsEvent,

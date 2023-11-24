@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { UseMutationSubscription, UseMutationSubscriptionProps } from './types';
 
 export const useMutationSubscription = ({
@@ -14,13 +14,15 @@ export const useMutationSubscription = ({
   matcherRef.current = matcher;
 
   useEffect(() => {
-    const unsubscribe = queryClient.getMutationCache().subscribe((mutation) => {
-      if (!matcherRef.current({ mutation })) {
-        return;
-      }
+    const unsubscribe = queryClient
+      .getMutationCache()
+      .subscribe(({ mutation }) => {
+        if (!matcherRef.current({ mutation })) {
+          return;
+        }
 
-      callbackRef.current({ mutation, queryClient });
-    });
+        callbackRef.current({ mutation, queryClient });
+      });
 
     return () => {
       unsubscribe();

@@ -1,7 +1,7 @@
 import nock from 'nock';
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import AuthContext from '../../contexts/AuthContext';
 import {
@@ -27,7 +27,6 @@ beforeEach(() => {
 });
 
 const createAllBlockedTagsAndSourcesMock = (
-  loggedIn = true,
   feedSettings: FeedSettings = {
     includeTags: ['react', 'golang'],
     blockedTags: ['javascript'],
@@ -41,7 +40,7 @@ const createAllBlockedTagsAndSourcesMock = (
     ],
   },
 ): MockedGraphQLResponse<AllTagCategoriesData> => ({
-  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn } },
+  request: { query: FEED_SETTINGS_QUERY },
   result: {
     data: {
       feedSettings,

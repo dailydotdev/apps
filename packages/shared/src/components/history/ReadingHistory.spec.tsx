@@ -7,7 +7,7 @@ import {
   screen,
 } from '@testing-library/react';
 import nock from 'nock';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import PostItemCard, { PostItemCardProps } from '../post/PostItemCard';
 import ReadHistoryList, { ReadHistoryListProps } from './ReadingHistoryList';
 import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';

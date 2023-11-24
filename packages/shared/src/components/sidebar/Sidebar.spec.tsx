@@ -1,7 +1,7 @@
 import React from 'react';
 import nock from 'nock';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { LoggedUser } from '../../lib/user';
@@ -31,7 +31,7 @@ beforeEach(() => {
 });
 
 const createMockFeedSettings = () => ({
-  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn: true } },
+  request: { query: FEED_SETTINGS_QUERY },
   result: { data: { feedSettings: { blockedTags: ['javascript'] } } },
 });
 

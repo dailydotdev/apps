@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import request from 'graphql-request';
-import { QueryClient, useQuery, useQueryClient } from 'react-query';
+import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import {
   FURTHER_READING_QUERY,

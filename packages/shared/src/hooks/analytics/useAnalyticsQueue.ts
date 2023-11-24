@@ -1,4 +1,4 @@
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { MutableRefObject, useMemo, useRef } from 'react';
 import { apiUrl } from '../../lib/config';
 import useDebounce from '../useDebounce';

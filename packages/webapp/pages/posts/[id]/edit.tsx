@@ -8,7 +8,7 @@ import {
 import { editPost, PostType } from '@dailydotdev/shared/src/graphql/posts';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';

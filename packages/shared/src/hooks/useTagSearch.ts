@@ -1,5 +1,5 @@
 import request from 'graphql-request';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useContext } from 'react';
 import { SearchTagsData, SEARCH_TAGS_QUERY } from '../graphql/feedSettings';
 import { AnalyticsEvent, Origin } from '../lib/analytics';

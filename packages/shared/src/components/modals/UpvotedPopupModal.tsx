@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { useInfiniteQuery } from 'react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { graphqlUrl } from '../../lib/config';
 import { RequestQuery, UpvotesData } from '../../graphql/common';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
