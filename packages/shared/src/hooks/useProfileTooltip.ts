@@ -8,7 +8,7 @@ import {
 } from '../graphql/users';
 import { graphqlUrl } from '../lib/config';
 import { useRequestProtocol } from './useRequestProtocol';
-import { STALE_TIME } from '../lib/query';
+import { StaleTime } from '../lib/query';
 
 export type UserTooltipContentData = {
   rank: UserReadingRank;
@@ -48,7 +48,7 @@ export const useProfileTooltip = ({
         { requestKey: JSON.stringify(key) },
       ),
     {
-      staleTime: STALE_TIME,
+      staleTime: StaleTime.Tooltip,
       refetchOnWindowFocus: false,
       enabled: shouldFetch && !!userId,
       onSettled: () => setShouldFetch(false),
