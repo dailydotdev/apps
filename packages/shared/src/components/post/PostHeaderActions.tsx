@@ -27,7 +27,6 @@ import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import SettingsContext from '../../contexts/SettingsContext';
 import { Origin } from '../../lib/analytics';
 import useContextMenu from '../../hooks/useContextMenu';
-import BellIcon from '../icons/Bell';
 
 export interface PostHeaderActionsProps extends ShareBookmarkProps {
   post: Post;
@@ -100,24 +99,25 @@ export function PostHeaderActions({
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      <SimpleTooltip
-        placement="bottom"
-        content="Subscribe"
-        disabled={!inlineActions}
-      >
-        {/* TODO: FIX ACTION ON THIS */}
-        <Button
-          className="btn-primary"
-          tag="a"
-          href={post.sharedPost?.permalink ?? post.permalink}
-          target={openNewTab ? '_blank' : '_self'}
-          icon={<BellIcon />}
-          onClick={() => {}}
-          data-testid="collectionPostActionsSubscribe"
+      {!isInternalReadType && onReadArticle && (
+        <SimpleTooltip
+          placement="bottom"
+          content="Read post"
+          disabled={!inlineActions}
         >
-          {!inlineActions && 'Subscribe'}
-        </Button>
-      </SimpleTooltip>
+          <Button
+            className={inlineActions ? 'btn-tertiary' : 'btn-secondary'}
+            tag="a"
+            href={post.sharedPost?.permalink ?? post.permalink}
+            target={openNewTab ? '_blank' : '_self'}
+            icon={<OpenLinkIcon />}
+            onClick={onReadArticle}
+            data-testid="postActionsRead"
+          >
+            {!inlineActions && 'Read post'}
+          </Button>
+        </SimpleTooltip>
+      )}
       <SimpleTooltip placement="bottom" content="Options">
         <Button
           className={classNames('btn-tertiary', !inlineActions && 'ml-auto')}

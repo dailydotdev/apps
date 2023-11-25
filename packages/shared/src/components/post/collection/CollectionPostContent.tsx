@@ -22,6 +22,7 @@ import { Separator } from '../../cards/common';
 import { postDateFormat } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
 import CollectionPostWidgets from './CollectionPostWidgets';
+import CollectionPostHeaderActions from './CollectionPostHeaderActions';
 
 export type PassedPostNavigationProps = Pick<
   PostNavigationProps,
@@ -117,9 +118,8 @@ const CollectionPostContent = ({
         data-testid="postContainer"
       >
         {!hasNavigation && (
-          <PostHeaderActions
+          <CollectionPostHeaderActions
             onShare={onShare}
-            onReadArticle={onReadArticle}
             post={post}
             onClose={onClose}
             className="flex tablet:hidden mb-4"
