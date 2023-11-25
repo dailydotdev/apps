@@ -69,12 +69,11 @@ export interface Props {
 }
 
 const CONTENT_MAP: Record<PostType, typeof PostContent> = {
-  // article: PostContent,
+  article: PostContent,
   share: SquadPostContent,
   welcome: SquadPostContent,
   freeform: SquadPostContent,
   collection: CollectionPostContent,
-  article: CollectionPostContent,
 };
 
 interface PostParams extends ParsedUrlQuery {

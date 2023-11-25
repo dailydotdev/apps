@@ -10,11 +10,27 @@ import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import BasePostModal from './BasePostModal';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import { Post, PostType } from '../../graphql/posts';
+import CollectionPostContent from '../post/collection/CollectionPostContent';
 
 interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
   post: Post;
 }
+
+type SimilarPostTypes = Exclude<
+  PostType,
+  PostType.Share | PostType.Welcome | PostType.Freeform
+>;
+
+const CONTENT_MAP: Record<SimilarPostTypes, typeof PostContent> = {
+  collection: CollectionPostContent,
+  article: PostContent,
+};
+
+const ORIGIN_MAP: Record<SimilarPostTypes, string> = {
+  collection: Origin.CollectionModal,
+  article: Origin.CollectionModal,
+};
 
 export default function ArticlePostModal({
   id,
@@ -33,16 +49,18 @@ export default function ArticlePostModal({
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
+  const Content = CONTENT_MAP[post?.type];
+  const postOrigin = ORIGIN_MAP[post?.type];
 
   return (
     <BasePostModal
       {...props}
       onRequestClose={onRequestClose}
-      postType={PostType.Article}
+      postType={post.type}
       source={post.source}
       loadingClassName="!pb-2 tablet:pb-0"
     >
-      <PostContent
+      <Content
         position={position}
         post={post}
         postPosition={postPosition}
@@ -58,7 +76,7 @@ export default function ArticlePostModal({
           },
         }}
         onClose={onRequestClose}
-        origin={Origin.ArticleModal}
+        origin={postOrigin}
         onRemovePost={onRemovePost}
       />
     </BasePostModal>
