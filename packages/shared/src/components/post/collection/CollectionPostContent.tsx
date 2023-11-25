@@ -1,52 +1,22 @@
 import classNames from 'classnames';
-import React, { CSSProperties, ReactElement, ReactNode, useMemo } from 'react';
-import { Post } from '../../../graphql/posts';
+import React, { ReactElement, useMemo } from 'react';
 import { LazyImage } from '../../LazyImage';
 import { PostNavigationProps } from '../PostNavigation';
-import {
-  PostHeaderActions,
-  PostHeaderActionsProps,
-} from '../PostHeaderActions';
 import {
   ToastSubject,
   useToastNotification,
 } from '../../../hooks/useToastNotification';
 import PostContentContainer from '../PostContentContainer';
-import { PostOrigin } from '../../../hooks/analytics/useAnalyticsContextData';
 import usePostContent from '../../../hooks/usePostContent';
 import FixedPostNavigation from '../FixedPostNavigation';
-import { BasePostContent, PostContentClassName } from '../BasePostContent';
-import classed from '../../../lib/classed';
+import { BasePostContent } from '../BasePostContent';
 import { cloudinary } from '../../../lib/image';
 import { Separator } from '../../cards/common';
 import { postDateFormat } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
 import CollectionPostWidgets from './CollectionPostWidgets';
 import CollectionPostHeaderActions from './CollectionPostHeaderActions';
-
-export type PassedPostNavigationProps = Pick<
-  PostNavigationProps,
-  'onNextPost' | 'onPreviousPost' | 'postPosition' | 'onRemovePost'
->;
-
-export interface PostContentProps
-  extends Pick<PostHeaderActionsProps, 'onClose' | 'inlineActions'>,
-    PassedPostNavigationProps {
-  enableShowShareNewComment?: boolean;
-  post?: Post;
-  isFallback?: boolean;
-  className?: PostContentClassName;
-  origin: PostOrigin;
-  shouldOnboardAuthor?: boolean;
-  customNavigation?: ReactNode;
-  position?: CSSProperties['position'];
-  backToSquad?: boolean;
-}
-
-const PostContainer = classed(
-  'main',
-  'flex flex-col flex-1 px-4 tablet:px-8 tablet:border-r tablet:border-theme-divider-tertiary',
-);
+import { PostContainer, PostContentProps } from '../common';
 
 const CollectionPostContent = ({
   post,

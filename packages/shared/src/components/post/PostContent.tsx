@@ -1,6 +1,5 @@
 import classNames from 'classnames';
-import React, { CSSProperties, ReactElement, ReactNode } from 'react';
-import { Post } from '../../graphql/posts';
+import React, { ReactElement } from 'react';
 import PostMetadata from '../cards/PostMetadata';
 import PostSummary from '../cards/PostSummary';
 import { LazyImage } from '../LazyImage';
@@ -8,46 +7,21 @@ import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
 import { PostNavigationProps } from './PostNavigation';
-import { PostHeaderActions, PostHeaderActionsProps } from './PostHeaderActions';
+import { PostHeaderActions } from './PostHeaderActions';
 import {
   ToastSubject,
   useToastNotification,
 } from '../../hooks/useToastNotification';
 import PostContentContainer from './PostContentContainer';
-import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import usePostContent from '../../hooks/usePostContent';
 import FixedPostNavigation from './FixedPostNavigation';
-import { BasePostContent, PostContentClassName } from './BasePostContent';
-import classed from '../../lib/classed';
+import { BasePostContent } from './BasePostContent';
 import { cloudinary } from '../../lib/image';
 import { combinedClicks } from '../../lib/click';
-
-export type PassedPostNavigationProps = Pick<
-  PostNavigationProps,
-  'onNextPost' | 'onPreviousPost' | 'postPosition' | 'onRemovePost'
->;
-
-export interface PostContentProps
-  extends Pick<PostHeaderActionsProps, 'onClose' | 'inlineActions'>,
-    PassedPostNavigationProps {
-  enableShowShareNewComment?: boolean;
-  post?: Post;
-  isFallback?: boolean;
-  className?: PostContentClassName;
-  origin: PostOrigin;
-  shouldOnboardAuthor?: boolean;
-  customNavigation?: ReactNode;
-  position?: CSSProperties['position'];
-  backToSquad?: boolean;
-}
+import { PostContainer, PostContentProps } from './common';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
-
-const PostContainer = classed(
-  'main',
-  'flex flex-col flex-1 px-4 tablet:px-8 tablet:border-r tablet:border-theme-divider-tertiary',
-);
 
 export function PostContent({
   post,
