@@ -1,17 +1,16 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { PageWidgets } from '../../utilities';
 import { ShareMobile } from '../../ShareMobile';
 import ShareBar from '../../ShareBar';
-import FurtherReading from '../../widgets/FurtherReading';
 import { PostHeaderActionsProps } from '../PostHeaderActions';
 import { PostOrigin } from '../../../hooks/analytics/useAnalyticsContextData';
 import CollectionPostHeaderActions from './CollectionPostHeaderActions';
-import { WidgetContainer } from '../../widgets/common';
 import { Button, ButtonSize } from '../../buttons/Button';
 import XIcon from '../../icons/MiniClose';
 import AlertBanner from '../../alert/AlertBanner';
-import AlertContext from '../../../contexts/AlertContext';
+import { useActions } from '../../../hooks';
+import { ActionType } from '../../../graphql/actions';
 
 interface PostWidgetsProps
   extends Omit<PostHeaderActionsProps, 'contextMenuId'> {
@@ -24,7 +23,8 @@ const CollectionPostWidgets = ({
   className,
   onClose,
 }: PostWidgetsProps): ReactElement => {
-  const { alerts, updateAlerts } = useContext(AlertContext);
+  const { completeAction, checkHasCompleted } = useActions();
+  const shouldShowAlert = !checkHasCompleted(ActionType.CollectionsIntro);
 
   return (
     <PageWidgets className={className}>
@@ -35,8 +35,7 @@ const CollectionPostWidgets = ({
         className="hidden tablet:flex pt-6"
         contextMenuId="post-widgets-context"
       />
-      {/* TODO: Is this really an alert, didn't see this in the DR but from the design looked so, but needs to be checked. */}
-      {alerts.introducingCollections && (
+      {shouldShowAlert && (
         <AlertBanner
           className={{
             container: classNames(
@@ -53,7 +52,7 @@ const CollectionPostWidgets = ({
           </div>
           <Button
             data-testid="alert-close"
-            onClick={() => updateAlerts({ introducingCollections: false })}
+            onClick={() => completeAction(ActionType.CollectionsIntro)}
             icon={<XIcon />}
             buttonSize={ButtonSize.XSmall}
             iconOnly

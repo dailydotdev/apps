@@ -95,7 +95,7 @@ const CollectionPostHeaderActions = ({
         content="Subscribe"
         disabled={!inlineActions}
       >
-        {/* TODO: FIX ACTION ON THIS */}
+        {/* TODO: FIX ACTION ON THIS with useNotificationPreference */}
         <Button
           className="btn-primary"
           tag="a"
