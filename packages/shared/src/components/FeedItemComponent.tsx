@@ -86,6 +86,7 @@ const PostTypeToTag: Record<PostType, FunctionComponent> = {
   [PostType.Share]: SharePostCard,
   [PostType.Welcome]: WelcomePostCard,
   [PostType.Freeform]: WelcomePostCard,
+  [PostType.Collection]: () => <div> Placeholder div </div>,
 };
 
 export default function FeedItemComponent({

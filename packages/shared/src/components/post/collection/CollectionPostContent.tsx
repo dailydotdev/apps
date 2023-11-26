@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, useMemo } from 'react';
 import { LazyImage } from '../../LazyImage';
-import { PostNavigationProps } from '../PostNavigation';
 import {
   ToastSubject,
   useToastNotification,
@@ -16,7 +15,11 @@ import { postDateFormat } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
 import CollectionPostWidgets from './CollectionPostWidgets';
 import CollectionPostHeaderActions from './CollectionPostHeaderActions';
-import { PostContainer, PostContentProps } from '../common';
+import {
+  PostContainer,
+  PostContentProps,
+  PostNavigationProps,
+} from '../common';
 
 const CollectionPostContent = ({
   post,

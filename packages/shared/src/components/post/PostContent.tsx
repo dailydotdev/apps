@@ -6,7 +6,6 @@ import { LazyImage } from '../LazyImage';
 import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
-import { PostNavigationProps } from './PostNavigation';
 import { PostHeaderActions } from './PostHeaderActions';
 import {
   ToastSubject,
@@ -18,7 +17,7 @@ import FixedPostNavigation from './FixedPostNavigation';
 import { BasePostContent } from './BasePostContent';
 import { cloudinary } from '../../lib/image';
 import { combinedClicks } from '../../lib/click';
-import { PostContainer, PostContentProps } from './common';
+import { PostContainer, PostContentProps, PostNavigationProps } from './common';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;

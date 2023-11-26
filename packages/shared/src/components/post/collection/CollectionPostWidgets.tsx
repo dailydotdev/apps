@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import { PageWidgets } from '../../utilities';
 import { ShareMobile } from '../../ShareMobile';
 import ShareBar from '../../ShareBar';
-import { PostHeaderActionsProps } from '../PostHeaderActions';
 import { PostOrigin } from '../../../hooks/analytics/useAnalyticsContextData';
 import CollectionPostHeaderActions from './CollectionPostHeaderActions';
 import { Button, ButtonSize } from '../../buttons/Button';
@@ -11,6 +10,7 @@ import XIcon from '../../icons/MiniClose';
 import AlertBanner from '../../alert/AlertBanner';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
+import { PostHeaderActionsProps } from '../common';
 
 interface PostWidgetsProps
   extends Omit<PostHeaderActionsProps, 'contextMenuId'> {
