@@ -86,6 +86,7 @@ const PostTypeToTag: Record<PostType, FunctionComponent> = {
   [PostType.Share]: SharePostCard,
   [PostType.Welcome]: WelcomePostCard,
   [PostType.Freeform]: WelcomePostCard,
+  // TODO: replace the tag below with the right post card
   [PostType.Collection]: () => <div> Placeholder div </div>,
 };
 

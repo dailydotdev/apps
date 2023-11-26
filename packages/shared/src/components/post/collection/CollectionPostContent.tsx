@@ -43,11 +43,7 @@ const CollectionPostContent = ({
     origin,
     post,
   });
-  // const { createdAt, contentHtml, image } = post;
-  // TODO: remove this and uncomment the above
-  const { createdAt, image } = post;
-  const contentHtml =
-    '<p>Welcome to Web team, a dedicated space to collaborate, share knowledge, and discuss topics that matter to us!</p>\n<p>Here are some of the things you can do in Squads:</p>\n<p>Say hi: Start by saying hi in the comments below so that we’ll know you’re here\nCreate a new post: Share interesting links and your thoughts by creating a new post in the squad\nInteract with others: Comment and upvote on other members’ posts and give feedback\nPersonalize it: Customize your profile by adding a profile picture, bio, and links to your projects or social media\nInvite other developers you know and appreciate that you think can benefit from this squad</p>\n<p>Now that you know what you can do in this squad, we’ve put together a code of conduct that we expect all of our squad members to follow:</p>\n<p>Keep it relevant: Keep your posts and comments relevant to the topic of the Squad. Please refrain from spamming or promoting unrelated content.\nBe respectful: Treat others the way you want to be treated. We do not tolerate hate speech, discrimination, or harassment of any kind.\nBe constructive: Offer helpful feedback and constructive criticism rather than tearing others down.\nProtect your privacy: Do not share personal information or sensitive data in Squads.</p>\n<p>We hope you will find Web team useful! test</p>\n';
+  const { createdAt, contentHtml, image } = post;
   const { onSharePost: onShare, onReadArticle } = engagementActions;
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
