@@ -759,7 +759,7 @@ describe('downvote flow', () => {
   const createAllTagCategoriesMock = (
     onSuccess?: () => void,
   ): MockedGraphQLResponse<AllTagCategoriesData> => ({
-    request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn: true } },
+    request: { query: FEED_SETTINGS_QUERY },
     result: () => {
       if (onSuccess) {
         onSuccess();
