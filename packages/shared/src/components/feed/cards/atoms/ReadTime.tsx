@@ -1,6 +1,10 @@
 import React, { ReactElement } from 'react';
 import { Post } from '../../../../graphql/posts';
-import { Typography, TypographyElement, TypographyProps } from './Typography';
+import {
+  Typography,
+  TypographyElement,
+  TypographyProps,
+} from '../../../typography/Typography';
 
 type AllowedTags = keyof Pick<JSX.IntrinsicElements, 'p'>;
 

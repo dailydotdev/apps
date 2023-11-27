@@ -11,6 +11,7 @@ import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
+import GenericFeedItemComponent from '@dailydotdev/shared/src/components/feed/feedItemComponent/genericFeedItemComponent';
 import { getLayout } from './FeedLayout';
 
 const PostsSearch = dynamic(
@@ -39,7 +40,9 @@ const getFeedName = (path: string): string => {
 export default function MainFeedPage({
   children,
   isFinder,
+  ...props
 }: MainFeedPageProps): ReactElement {
+  console.log(props);
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const isFinderPage = router?.pathname === '/search' || isFinder;
@@ -81,6 +84,7 @@ export default function MainFeedPage({
       searchQuery={router.query?.q?.toString()}
       searchChildren={<PostsSearch />}
       isFinder={isFinder}
+      feedItemComponent={props.feedItemComponent}
     >
       {children}
     </MainFeedLayout>
@@ -100,6 +104,7 @@ export function getMainFeedLayout(
 }
 
 export const mainFeedLayoutProps: MainLayoutProps = {
+  feedItemComponent: GenericFeedItemComponent,
   greeting: true,
   mainPage: true,
   screenCentered: false,

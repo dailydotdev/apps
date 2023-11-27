@@ -1,5 +1,5 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
-import classed from '../../../../lib/classed';
+import classed from '../../lib/classed';
 
 export const enum TypographyElement {
   TIME = 'time',

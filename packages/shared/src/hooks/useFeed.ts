@@ -12,20 +12,28 @@ import {
   Post,
   POSTS_ENGAGED_SUBSCRIPTION,
   PostsEngaged,
+  PostType,
 } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import { apiUrl, graphqlUrl } from '../lib/config';
 import useSubscription from './useSubscription';
 import { removeCachedPagePost, updateCachedPagePost } from '../lib/query';
 
+export enum FeedItemType {
+  Post = 'post',
+  Ad = 'ad',
+  Placeholder = 'placeholder',
+}
+export type FeedOrPostType = FeedItemType | PostType;
+
 export type PostItem = {
-  type: 'post';
+  type: FeedItemType.Post;
   post: Post;
   page: number;
   index: number;
 };
-export type AdItem = { type: 'ad'; ad: Ad };
-export type PlaceholderItem = { type: 'placeholder' };
+export type AdItem = { type: FeedItemType.Ad; ad: Ad };
+export type PlaceholderItem = { type: FeedItemType.Placeholder };
 export type FeedItem = PostItem | AdItem | PlaceholderItem;
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;

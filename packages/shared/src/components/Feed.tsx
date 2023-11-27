@@ -100,6 +100,7 @@ const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
 
 export default function Feed<T>({
   feedName,
+  feedItemComponent,
   feedQueryKey,
   query,
   variables,
@@ -114,6 +115,8 @@ export default function Feed<T>({
   besideSearch,
   actionButtons,
 }: FeedProps<T>): ReactElement {
+  console.log(feedItemComponent);
+  const FeedTag = feedItemComponent;
   const { alerts } = useContext(AlertContext);
   const { onInitializeOnboarding } = useContext(OnboardingContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -393,35 +396,7 @@ export default function Feed<T>({
         }
       >
         {items.map((item, index) => (
-          <FeedItemComponent
-            items={items}
-            index={index}
-            row={calculateRow(index, virtualizedNumCards)}
-            column={calculateColumn(index, virtualizedNumCards)}
-            columns={virtualizedNumCards}
-            key={getFeedItemKey(items, index)}
-            useList={useList}
-            openNewTab={openNewTab}
-            insaneMode={insaneMode}
-            postMenuIndex={postMenuIndex}
-            showCommentPopupId={showCommentPopupId}
-            setShowCommentPopupId={setShowCommentPopupId}
-            isSendingComment={isSendingComment}
-            comment={comment}
-            user={user}
-            feedName={feedName}
-            ranking={ranking}
-            toggleUpvote={toggleUpvote}
-            toggleDownvote={toggleDownvote}
-            onBookmark={onBookmark}
-            onPostClick={onPostCardClick}
-            onShare={onShareClick}
-            onMenuClick={onMenuClick}
-            onShareClick={onShareMenuClickTracked}
-            onCommentClick={onCommentClick}
-            onAdClick={onAdClick}
-            onReadArticleClick={onReadArticleClick}
-          />
+          <FeedTag item={item} key={index} />
         ))}
         <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
         <PostOptionsMenu

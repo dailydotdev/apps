@@ -1,6 +1,10 @@
 import React, { ReactElement } from 'react';
 import { anchorDefaultRel } from '../../../../lib/strings';
-import { Typography, TypographyColor, TypographyType } from './Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../../typography/Typography';
 import { Ad } from '../../../../graphql/posts';
 
 type AdLinkProps = {

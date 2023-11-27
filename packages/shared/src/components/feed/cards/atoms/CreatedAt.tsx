@@ -1,7 +1,11 @@
 import React, { ReactElement, useMemo } from 'react';
 import { postDateFormat } from '../../../../lib/dateFormat';
 import { Post } from '../../../../graphql/posts';
-import { Typography, TypographyElement, TypographyProps } from './Typography';
+import {
+  Typography,
+  TypographyElement,
+  TypographyProps,
+} from '../../../typography/Typography';
 
 type AllowedTags = keyof Pick<JSX.IntrinsicElements, 'time'>;
 

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { TypographyProps } from './Typography';
+import { TypographyProps } from '../../../typography/Typography';
 
 type MetaContainerProps = Pick<
   TypographyProps<'p'>,

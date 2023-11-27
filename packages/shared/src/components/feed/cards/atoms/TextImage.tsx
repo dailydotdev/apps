@@ -1,11 +1,10 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Typography } from './Typography';
 import { cloudinary } from '../../../../lib/image';
 import { Card } from './Card';
 
 type TextImageProps = {
-  text: typeof Typography;
+  text: ReactElement;
   image: string;
   className: string;
 };

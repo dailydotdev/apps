@@ -36,10 +36,12 @@ import { feature } from '../lib/featureManagement';
 import { FixedBottomBanner } from './banners/FixedBottomBanner';
 import usePersistentContext from '../hooks/usePersistentContext';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
+import GenericFeedItemComponent from './feed/feedItemComponent/genericFeedItemComponent';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
     HTMLAttributes<HTMLDivElement> {
+  feedItemComponent?: typeof GenericFeedItemComponent;
   mainPage?: boolean;
   activePage?: string;
   isNavItemsButton?: boolean;

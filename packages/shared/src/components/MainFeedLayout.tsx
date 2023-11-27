@@ -142,6 +142,7 @@ export default function MainFeedLayout({
   onFeedPageChanged,
   navChildren,
   isFinder,
+  feedItemComponent,
 }: MainFeedLayoutProps): ReactElement {
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
@@ -227,6 +228,7 @@ export default function MainFeedLayout({
 
     return {
       feedName,
+      feedItemComponent,
       feedQueryKey: generateQueryKey(
         feedName,
         user,
@@ -279,6 +281,8 @@ export default function MainFeedLayout({
     return isTablet ? cloudinary.feed.bg.tablet : cloudinary.feed.bg.laptop;
   };
 
+  console.log(feedItemComponent);
+
   return (
     <FeedPage className="relative">
       {searchVersion === SearchExperiment.V1 && !isFinder && (
@@ -289,6 +293,7 @@ export default function MainFeedLayout({
         />
       )}
       {isSearchOn && search}
+      <p>Blabla</p>
       {feedProps && <Feed {...feedProps} />}
       {children}
     </FeedPage>
