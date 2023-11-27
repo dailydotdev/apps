@@ -16,3 +16,4 @@ export * from './useMedia';
 export * from './useActions';
 export * from './useToastNotification';
 export * from './referral';
+export * from './useViewSize';
