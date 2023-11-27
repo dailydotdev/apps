@@ -12,7 +12,7 @@ import AuthContext from '../contexts/AuthContext';
 import { graphqlUrl } from '../lib/config';
 import { LoggedUser } from '../lib/user';
 import { disabledRefetch } from '../lib/func';
-import { FEED_SETTINGS_STALE_TIME } from '../lib/query';
+import { StaleTime } from '../lib/query';
 
 export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
@@ -48,7 +48,7 @@ export default function useFeedSettings({
     {
       ...disabledRefetch,
       enabled: enabled && !!user,
-      staleTime: FEED_SETTINGS_STALE_TIME,
+      staleTime: StaleTime.FeedSettings,
     },
   );
 
