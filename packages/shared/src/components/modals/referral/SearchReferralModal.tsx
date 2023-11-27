@@ -7,13 +7,11 @@ import CopyIcon from '../../icons/Copy';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { CampaignCtaPlacement } from '../../../graphql/settings';
 import {
-  useMedia,
   ReferralCampaignKey,
   useReferralCampaign,
   useViewSize,
   ViewSize,
 } from '../../../hooks';
-import { laptop } from '../../../styles/media';
 import { cloudinary } from '../../../lib/image';
 import { KeysRow } from './KeysRow';
 import { link } from '../../../lib/links';

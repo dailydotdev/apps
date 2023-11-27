@@ -1,9 +1,8 @@
 import classNames from 'classnames';
 import React, { Dispatch, ReactElement, SetStateAction } from 'react';
-import { useMedia, useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks';
 import { OnboardingV4 } from '../../lib/featureValues';
 import { cloudinary } from '../../lib/image';
-import { tablet, laptop } from '../../styles/media';
 import Logo, { LogoPosition } from '../Logo';
 import { AuthProps, AuthDisplay } from '../auth/AuthOptions';
 import { Button } from '../buttons/Button';

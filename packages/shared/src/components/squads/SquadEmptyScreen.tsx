@@ -1,8 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import SettingsContext, { ThemeMode } from '../../contexts/SettingsContext';
-import { useMedia, useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks';
 import { cloudinary } from '../../lib/image';
-import { tablet } from '../../styles/media';
 import { Image } from '../image/Image';
 import { FlexCentered } from '../utilities';
 

@@ -8,8 +8,7 @@ import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
 import { Comment } from '../../graphql/comments';
 import { Modal, ModalProps } from './common/Modal';
 import { ExperimentWinner } from '../../lib/featureValues';
-import { useMedia, useViewSize, ViewSize } from '../../hooks';
-import { tablet } from '../../styles/media';
+import { useViewSize, ViewSize } from '../../hooks';
 
 type ShareModalProps = {
   post: Post;

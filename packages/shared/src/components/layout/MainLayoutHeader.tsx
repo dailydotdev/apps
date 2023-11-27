@@ -20,13 +20,11 @@ import { Bubble } from '../tooltips/utils';
 import HeaderLogo from './HeaderLogo';
 import { CreatePostButton } from '../post/write';
 import {
-  useMedia,
   ReferralCampaignKey,
   useReferralCampaign,
   useViewSize,
   ViewSize,
 } from '../../hooks';
-import { tablet } from '../../styles/media';
 import { SearchReferralButton } from '../referral/SearchReferralButton';
 
 interface ShouldShowLogoProps {
