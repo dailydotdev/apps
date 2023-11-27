@@ -3,7 +3,12 @@ import { Modal, ModalProps } from '../common/Modal';
 import { ExternalLinkPreview } from '../../../graphql/posts';
 import MarkdownInput, { MarkdownRef } from '../../fields/MarkdownInput';
 import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
-import { usePostToSquad, useMedia } from '../../../hooks';
+import {
+  usePostToSquad,
+  useMedia,
+  useViewSize,
+  ViewSize,
+} from '../../../hooks';
 import { Button, ButtonSize } from '../../buttons/Button';
 import AtIcon from '../../icons/At';
 import { Divider, Justify } from '../../utilities';
@@ -32,7 +37,7 @@ export function CreateSharedPostModal({
   const [link, setLink] = useState(preview?.permalink ?? preview?.url ?? '');
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
+  const isMobile = useViewSize(ViewSize.MobileL);
   const {
     getLinkPreview,
     isLoadingPreview,

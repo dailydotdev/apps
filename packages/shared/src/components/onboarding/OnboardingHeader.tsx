@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { Dispatch, ReactElement, SetStateAction } from 'react';
-import { useMedia } from '../../hooks';
+import { useMedia, useViewSize, ViewSize } from '../../hooks';
 import { OnboardingV4 } from '../../lib/featureValues';
 import { cloudinary } from '../../lib/image';
 import { tablet, laptop } from '../../styles/media';
@@ -26,8 +26,8 @@ export const OnboardingHeader = ({
   onClickNext,
 }: OnboardingHeaderProps): ReactElement => {
   const onboardingV4 = useFeature(feature.onboardingV4);
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
-  const isTablet = !useMedia([laptop.replace('@media ', '')], [true], false);
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const isTablet = useViewSize(ViewSize.Tablet);
 
   const getImage = () => {
     if (isMobile) {

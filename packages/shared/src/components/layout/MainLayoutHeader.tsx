@@ -23,6 +23,8 @@ import {
   useMedia,
   ReferralCampaignKey,
   useReferralCampaign,
+  useViewSize,
+  ViewSize,
 } from '../../hooks';
 import { tablet } from '../../styles/media';
 import { SearchReferralButton } from '../referral/SearchReferralButton';
@@ -64,7 +66,7 @@ function MainLayoutHeader({
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
   const hideButton = showOnlyLogo || loadingUser;
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   const headerButton = (() => {
     if (hideButton) {

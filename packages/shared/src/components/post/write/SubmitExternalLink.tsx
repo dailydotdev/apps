@@ -6,7 +6,7 @@ import LinkIcon from '../../icons/Link';
 import { ClickableText } from '../../buttons/ClickableText';
 import { LazyModal } from '../../modals/common/types';
 import { useLazyModal } from '../../../hooks/useLazyModal';
-import { useMedia } from '../../../hooks';
+import { useMedia, useViewSize, ViewSize } from '../../../hooks';
 import { tablet } from '../../../styles/media';
 import { WritePreviewSkeleton } from './WritePreviewSkeleton';
 import { WriteLinkPreview } from './WriteLinkPreview';
@@ -25,7 +25,7 @@ export function SubmitExternalLink({
   getLinkPreview,
   preview,
 }: SubmitExternalLinkProps): ReactElement {
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
+  const isMobile = useViewSize(ViewSize.MobileL);
   const { openModal } = useLazyModal();
   const [url, setUrl] = useState<string>(undefined);
   const shouldShorten = url !== undefined || isMobile;

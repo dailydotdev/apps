@@ -10,6 +10,8 @@ import {
   useMedia,
   ReferralCampaignKey,
   useReferralCampaign,
+  useViewSize,
+  ViewSize,
 } from '../../../hooks';
 import { laptop } from '../../../styles/media';
 import { cloudinary } from '../../../lib/image';
@@ -24,7 +26,7 @@ function SearchReferralModal({
   onRequestClose,
   ...props
 }: ModalProps): ReactElement {
-  const isLaptop = useMedia([laptop.replace('@media ', '')], [true], false);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const { trackEvent } = useAnalyticsContext();
   const { campaignCtaPlacement, onToggleHeaderPlacement } =
     useSettingsContext();

@@ -39,6 +39,7 @@ const useViewSize = (size: ViewSize): boolean => {
     [viewSizeToQuery[size].replace('@media ', '')],
     [true],
     false,
+    null,
   );
 
   return useMemo(() => {

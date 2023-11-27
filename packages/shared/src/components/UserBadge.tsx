@@ -1,8 +1,7 @@
 import classNames from 'classnames';
 import React, { FunctionComponent, ReactElement, ReactNode } from 'react';
 import { IconProps, IconSize } from './Icon';
-import { useMedia } from '../hooks';
-import { tablet } from '../styles/media';
+import { useViewSize, ViewSize } from '../hooks';
 
 export type UserBadgeProps = {
   className?: string;
@@ -17,7 +16,7 @@ const UserBadge = ({
   Icon,
   iconProps,
 }: UserBadgeProps): ReactElement => {
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   return (
     <span
