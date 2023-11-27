@@ -57,7 +57,7 @@ export function PostHeaderActions({
   const { openNewTab } = useContext(SettingsContext);
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
-  const { onMenuClick } = useContextMenu({ id: contextMenuId });
+  const { onMenuClick, isOpen } = useContextMenu({ id: contextMenuId });
 
   const isInternalReadType = internalReadTypes.includes(post?.type);
   const isModerator = user?.roles?.includes(Roles.Moderator);
@@ -142,6 +142,7 @@ export function PostHeaderActions({
         setShowPromotePost={isModerator ? () => promotePostPrompt() : null}
         contextId={contextMenuId}
         origin={Origin.ArticleModal}
+        isOpen={isOpen}
       />
     </Container>
   );

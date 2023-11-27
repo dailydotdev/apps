@@ -106,9 +106,8 @@ const createTagsSettingsMock = (
     blockedTags: [],
     excludeSources: [],
   },
-  loggedIn = true,
 ): MockedGraphQLResponse<AllTagCategoriesData> => ({
-  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn } },
+  request: { query: FEED_SETTINGS_QUERY },
   result: {
     data: {
       feedSettings,
@@ -792,7 +791,6 @@ it('should block a source', async () => {
       pageInfo: defaultFeedPage.pageInfo,
       edges: [defaultFeedPage.edges[0]],
     }),
-    createTagsSettingsMock(),
     {
       request: {
         query: ADD_FILTERS_TO_FEED_MUTATION,
@@ -804,14 +802,15 @@ it('should block a source', async () => {
       },
     },
   ]);
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  menuBtn.click();
+  mockGraphQL(createTagsSettingsMock());
   await waitFor(async () => {
     const data = await queryClient.getQueryData(
       getFeedSettingsQueryKey(defaultUser),
     );
     expect(data).toBeTruthy();
   });
-  const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
   const contextBtn = await screen.findByText("Don't show posts from Echo JS");
   contextBtn.click();
 
@@ -832,7 +831,6 @@ it('should block a tag', async () => {
       pageInfo: defaultFeedPage.pageInfo,
       edges: [defaultFeedPage.edges[0]],
     }),
-    createTagsSettingsMock(),
     {
       request: {
         query: ADD_FILTERS_TO_FEED_MUTATION,
@@ -844,14 +842,16 @@ it('should block a tag', async () => {
       },
     },
   ]);
+
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  menuBtn.click();
+  mockGraphQL(createTagsSettingsMock());
   await waitFor(async () => {
     const data = await queryClient.getQueryData(
       getFeedSettingsQueryKey(defaultUser),
     );
     expect(data).toBeTruthy();
   });
-  const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
   const contextBtn = await screen.findByText('Not interested in #javascript');
   contextBtn.click();
 

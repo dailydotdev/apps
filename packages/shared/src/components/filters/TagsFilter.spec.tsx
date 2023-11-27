@@ -24,7 +24,6 @@ import {
   REMOVE_FILTERS_FROM_FEED_MUTATION,
   TagCategory,
 } from '../../graphql/feedSettings';
-import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
@@ -45,7 +44,6 @@ const createAllTagCategoriesMock = (
   feedSettings: FeedSettings = {
     includeTags: ['react', 'golang'],
   },
-  loggedIn = !!loggedUser,
   tagsCategories: TagCategory[] = [
     {
       id: 'FE',
@@ -55,7 +53,7 @@ const createAllTagCategoriesMock = (
     },
   ],
 ): MockedGraphQLResponse<AllTagCategoriesData> => ({
-  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn } },
+  request: { query: FEED_SETTINGS_QUERY },
   result: {
     data: {
       feedSettings,
@@ -266,69 +264,4 @@ it('should clear all tags on click', async () => {
   button.click();
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
-});
-
-it('should utilize query cache to follow a tag when not logged in', async () => {
-  loggedUser = null;
-  renderComponent([createAllTagCategoriesMock(null)], defaultAlerts);
-  await waitForNock();
-  const category = await screen.findByText('Frontend');
-  // eslint-disable-next-line testing-library/no-node-access
-  const container = category.parentElement.parentElement;
-  container.click();
-
-  const button = await screen.findByTestId('tagCategoryTags');
-  expect(button).toBeVisible();
-
-  const webdev = await screen.findByText('#webdev');
-  expect(webdev).toBeVisible();
-  fireEvent.click(webdev);
-  await waitForNock();
-
-  // We have to wait for the data to be set
-  await new Promise((resolve) => setTimeout(resolve, 10));
-  const { feedSettings } = client.getQueryData(
-    getFeedSettingsQueryKey(),
-  ) as AllTagCategoriesData;
-  expect(feedSettings.includeTags.length).toEqual(1);
-});
-
-it('should utilize query cache to unfollow a tag when not logged in', async () => {
-  loggedUser = null;
-  const unfollow = 'react';
-  renderComponent([createAllTagCategoriesMock()], defaultAlerts);
-  await waitForNock();
-  const category = await screen.findByText('Frontend');
-  // eslint-disable-next-line testing-library/no-node-access
-  const container = category.parentElement.parentElement;
-
-  container.click();
-
-  const button = await screen.findByTestId('tagCategoryTags');
-  expect(button).toBeVisible();
-
-  const react = await screen.findByText(`#${unfollow}`);
-  expect(react).toBeVisible();
-  fireEvent.click(react);
-
-  // We have to wait for the data to be set
-  await new Promise((resolve) => setTimeout(resolve, 10));
-  const { feedSettings: initialSettings } = client.getQueryData(
-    getFeedSettingsQueryKey(),
-  ) as AllTagCategoriesData;
-  expect(
-    initialSettings.includeTags.find((tag) => tag === unfollow),
-  ).toBeTruthy();
-
-  const reactTwo = await screen.findByText(`#${unfollow}`);
-  expect(reactTwo).toBeVisible();
-  fireEvent.click(reactTwo);
-
-  // We have to wait for the data to be set
-  await new Promise((resolve) => setTimeout(resolve, 10));
-
-  const { feedSettings } = client.getQueryData(
-    getFeedSettingsQueryKey(),
-  ) as AllTagCategoriesData;
-  expect(feedSettings.includeTags.find((tag) => tag === unfollow)).toBeFalsy();
 });

@@ -27,7 +27,6 @@ beforeEach(() => {
 });
 
 const createAllBlockedTagsAndSourcesMock = (
-  loggedIn = true,
   feedSettings: FeedSettings = {
     includeTags: ['react', 'golang'],
     blockedTags: ['javascript'],
@@ -41,7 +40,7 @@ const createAllBlockedTagsAndSourcesMock = (
     ],
   },
 ): MockedGraphQLResponse<AllTagCategoriesData> => ({
-  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn } },
+  request: { query: FEED_SETTINGS_QUERY },
   result: {
     data: {
       feedSettings,
