@@ -272,14 +272,14 @@ export default function MainFeedLayout({
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   const isMobile = useViewSize(ViewSize.MobileL);
-  const isTablet = useViewSize(ViewSize.Tablet);
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const getImage = () => {
     if (isMobile) {
       return cloudinary.feed.bg.mobile;
     }
 
-    return isTablet ? cloudinary.feed.bg.tablet : cloudinary.feed.bg.laptop;
+    return isLaptop ? cloudinary.feed.bg.laptop : cloudinary.feed.bg.tablet;
   };
 
   return (
