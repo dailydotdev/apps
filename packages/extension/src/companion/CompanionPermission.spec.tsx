@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import '@testing-library/jest-dom';
 import { render, RenderResult, screen } from '@testing-library/react';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
-import { EXTENSION_PERMISSION_KEY } from '@dailydotdev/shared/src/hooks';
+import { ExtensionContext } from '@dailydotdev/shared/src/contexts/common';
 import { CompanionPermission } from './CompanionPermission';
 import {
   registerBrowserContentScripts,
@@ -19,6 +19,9 @@ jest.mock('webextension-polyfill', () => {
   return {
     contentScripts: {
       register: jest.fn(),
+    },
+    scripting: {
+      registerContentScripts: jest.fn(),
     },
     runtime: {
       id: 123,
@@ -45,19 +48,19 @@ jest.mock('webextension-polyfill', () => {
   };
 });
 
-beforeEach(() => {
-  client = new QueryClient();
-  client.setQueryData(EXTENSION_PERMISSION_KEY, () => ({
-    requestContentScripts,
-    registerBrowserContentScripts,
-    getContentScriptPermission,
-  }));
-});
-
 const renderComponent = (): RenderResult => {
+  client = new QueryClient();
   return render(
     <QueryClientProvider client={client}>
-      <CompanionPermission />
+      <ExtensionContext.Provider
+        value={{
+          requestContentScripts: requestContentScripts?.(client, jest.fn()),
+          registerBrowserContentScripts,
+          getContentScriptPermission,
+        }}
+      >
+        <CompanionPermission />
+      </ExtensionContext.Provider>
     </QueryClientProvider>,
   );
 };

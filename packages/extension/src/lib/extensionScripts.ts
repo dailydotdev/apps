@@ -1,10 +1,19 @@
 import browser from 'webextension-polyfill';
-import {
-  CreateRequestContentScripts,
-  contentScriptKey,
-} from '@dailydotdev/shared/src/hooks';
+import { contentScriptKey } from '@dailydotdev/shared/src/hooks';
 import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
-import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { AnalyticsEvent as AnalyticsEventType } from '@dailydotdev/shared/src/lib/analytics';
+import { QueryClient } from 'react-query';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/hooks/analytics/useAnalyticsQueue';
+
+export type RequestContentScripts = (data: {
+  origin: string;
+  skipRedirect?: boolean;
+}) => Promise<boolean>;
+
+export type CreateRequestContentScripts = (
+  client: QueryClient,
+  trackEvent: (e: AnalyticsEvent) => void,
+) => RequestContentScripts;
 
 export const HOST_PERMISSIONS = [
   'https://daily.dev/*',
@@ -59,7 +68,7 @@ export const requestContentScripts: CreateRequestContentScripts = (
     skipRedirect?: boolean;
   }) => {
     trackEvent({
-      event_name: AnalyticsEvent.RequestContentScripts,
+      event_name: AnalyticsEventType.RequestContentScripts,
       extra: JSON.stringify({ origin }),
     });
 
@@ -69,7 +78,7 @@ export const requestContentScripts: CreateRequestContentScripts = (
 
     if (granted) {
       trackEvent({
-        event_name: AnalyticsEvent.ApproveContentScripts,
+        event_name: AnalyticsEventType.ApproveContentScripts,
         extra: JSON.stringify({ origin }),
       });
       client.setQueryData(contentScriptKey, true);
@@ -80,7 +89,7 @@ export const requestContentScripts: CreateRequestContentScripts = (
       }
     } else {
       trackEvent({
-        event_name: AnalyticsEvent.DeclineContentScripts,
+        event_name: AnalyticsEventType.DeclineContentScripts,
         extra: JSON.stringify({ origin }),
       });
     }

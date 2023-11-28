@@ -5,7 +5,6 @@ export * from './useSquadNavigation';
 export * from './useLeaveSquad';
 export * from './useJoinSquad';
 export * from './chat';
-export * from './useExtensionPermission';
 export * from './usePostFeedback';
 export * from './mutationSubscription';
 export * from './useContentScriptStatus';

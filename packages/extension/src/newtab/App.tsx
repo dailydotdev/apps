@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
 import 'focus-visible';
@@ -43,19 +43,8 @@ import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
 import { DndContextProvider } from './DndContext';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
-import {
-  getContentScriptPermissionAndRegister,
-  requestContentScripts,
-  registerBrowserContentScripts,
-  getContentScriptPermission,
-  getHostPermissionAndRegister,
-  getHostPermission,
-  HOST_PERMISSIONS,
-} from '../lib/extensionScripts';
-import {
-  EXTENSION_PERMISSION_KEY,
-  useContentScriptStatus,
-} from '../../../shared/src/hooks';
+import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
+import { useContentScriptStatus } from '../../../shared/src/hooks';
 
 const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();
@@ -85,15 +74,6 @@ function InternalApp({
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useContentScriptStatus();
   const { hostGranted, refetch: refetchHostPermissions } = useHostStatus();
-
-  useQuery(EXTENSION_PERMISSION_KEY, () => ({
-    requestContentScripts,
-    registerBrowserContentScripts,
-    getContentScriptPermission,
-    getHostPermission,
-    getHostPermissionAndRegister,
-  }));
-
   const routeChangedCallbackRef = useTrackPageView();
 
   const { user, isAuthReady } = useAuthContext();

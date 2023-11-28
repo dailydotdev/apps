@@ -22,7 +22,6 @@ export const ExtensionContextProvider = ({
   const { trackEvent } = useContext(AnalyticsContext);
 
   const contextData = {
-    // registerBrowserContentScripts,
     requestContentScripts: requestContentScripts?.(client, trackEvent),
     getContentScriptPermission,
     getHostPermission,
