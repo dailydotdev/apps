@@ -3,7 +3,7 @@ import React, { ReactElement, ReactNode, useContext } from 'react';
 import browser from 'webextension-polyfill';
 import { useQueryClient } from 'react-query';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { ExtensionContext } from '@dailydotdev/shared/src/contexts/common';
+import { ExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import {
   requestContentScripts,
   getContentScriptPermission,

@@ -1,16 +1,16 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import Logo, { LogoPosition } from './Logo';
 import { OnboardingTitleGradient } from './onboarding/common';
 import { Button, ButtonSize } from './buttons/Button';
 import { cloudinary } from '../lib/image';
-import { ExtensionContext } from '../contexts/common';
+import { useExtensionContext } from '../contexts/ExtensionContext';
 
 interface Props {
   onSuccess?: () => void;
 }
 
 const ExtensionPermissionsPrompt = ({ onSuccess }: Props): ReactElement => {
-  const { requestHostPermissions, origins } = useContext(ExtensionContext);
+  const { requestHostPermissions, origins } = useExtensionContext();
 
   const handleRequestHostPermissions = async () => {
     const success = await requestHostPermissions({ origins });

@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import '@testing-library/jest-dom';
 import { render, RenderResult, screen } from '@testing-library/react';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
-import { ExtensionContext } from '@dailydotdev/shared/src/contexts/common';
+import { ExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import { CompanionPermission } from './CompanionPermission';
 import {
   registerBrowserContentScripts,

@@ -1,7 +1,6 @@
 import { useQuery } from 'react-query';
-import { useContext } from 'react';
 import { disabledRefetch } from '../lib/func';
-import { ExtensionContext } from '../contexts/common';
+import { useExtensionContext } from '../contexts/ExtensionContext';
 
 export const hostKey = ['host_key'];
 
@@ -12,7 +11,7 @@ export type UseHostStatus = {
 };
 
 export const useHostStatus = (): UseHostStatus => {
-  const { getHostPermission } = useContext(ExtensionContext);
+  const { getHostPermission } = useExtensionContext();
 
   const {
     data: hostGranted,
