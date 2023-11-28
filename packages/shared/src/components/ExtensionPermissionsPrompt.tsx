@@ -27,7 +27,7 @@ const ExtensionPermissionsPrompt = ({ onSuccess }: Props): ReactElement => {
         Let&apos;s get started
       </OnboardingTitleGradient>
 
-      <p className="mb-9 tablet:mb-16 max-w-[25rem] typo-title3 tablet:typo-title2">
+      <p className="mb-9 tablet:mb-16 max-w-[40rem] typo-title3 tablet:typo-title2">
         To get started, please allow us to manage data on the
         &apos;daily.dev&apos; domain. This is solely for technical purposes,
         like login and authentication. We value your privacy -- no fishy stuff
