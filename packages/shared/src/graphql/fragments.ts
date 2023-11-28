@@ -113,7 +113,6 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
 export const COMMENT_FRAGMENT = gql`
   fragment CommentFragment on Comment {
     id
-    content
     contentHtml
     createdAt
     lastUpdatedAt
