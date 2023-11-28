@@ -72,7 +72,6 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   share: SquadPostContent,
   welcome: SquadPostContent,
   freeform: SquadPostContent,
-
   // TODO WT-1939-collections
   collection: () => <div>TBD</div>,
 };
