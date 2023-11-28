@@ -13,9 +13,9 @@ export function CollectionsIntro(): ReactElement {
 
   return (
     <span className="flex relative flex-row p-3 pr-2 w-full rounded-10 border border-theme-color-cabbage">
-      <div className="flex flex-col flex-1 typo-callout">
+      <div className="flex flex-col flex-1 typo-subhead">
         <strong>Introducing collections!</strong>
-        <p className="mt-1">
+        <p className="mt-2">
           Collections are posts that aggregate all the information about
           specific news to help you save time and discuss with the community.
         </p>
