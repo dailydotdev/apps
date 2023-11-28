@@ -7,11 +7,10 @@ import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/Pro
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
-import { useMedia } from '@dailydotdev/shared/src/hooks';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { downloadBrowserExtension } from '@dailydotdev/shared/src/lib/constants';
 import { FlexCentered } from '@dailydotdev/shared/src/components/utilities';
 import BrowsersIcon from '@dailydotdev/shared/icons/browsers.svg';
-import { laptopL } from '@dailydotdev/shared/src/styles/media';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
@@ -25,7 +24,7 @@ export function Referral({
 }: JoinPageProps): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const { openModal } = useLazyModal();
-  const isLaptopL = useMedia([laptopL.replace('@media ', '')], [true], false);
+  const isLaptopL = useViewSize(ViewSize.LaptopL);
   const { isLoggedIn } = useAuthContext();
 
   const handleAcceptClick = () => {

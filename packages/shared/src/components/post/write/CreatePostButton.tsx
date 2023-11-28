@@ -4,8 +4,7 @@ import { useRouter } from 'next/router';
 import { Button, ButtonSize } from '../../buttons/Button';
 import { link } from '../../../lib/links';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useMedia, useSquad } from '../../../hooks';
-import { laptop } from '../../../styles/media';
+import { useSquad, useViewSize, ViewSize } from '../../../hooks';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
 
@@ -18,7 +17,7 @@ export function CreatePostButton({
 }: CreatePostButtonProps): ReactElement {
   const { user, isAuthReady, squads } = useAuthContext();
   const { route, query } = useRouter();
-  const isTablet = !useMedia([laptop.replace('@media ', '')], [true], false);
+  const isTablet = useViewSize(ViewSize.Tablet);
   const handle = route === '/squads/[handle]' ? (query.handle as string) : '';
   const { squad } = useSquad({ handle });
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);

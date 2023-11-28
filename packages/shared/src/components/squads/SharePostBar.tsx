@@ -6,9 +6,8 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import LockIcon from '../icons/Lock';
 import { Card } from '../cards/Card';
 import { IconSize } from '../Icon';
-import { usePostToSquad, useMedia } from '../../hooks';
+import { usePostToSquad, useViewSize, ViewSize } from '../../hooks';
 import { ClickableText } from '../buttons/ClickableText';
-import { mobileL } from '../../styles/media';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/sources';
@@ -31,7 +30,7 @@ function SharePostBar({
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
   const [url, setUrl] = useState<string>('');
-  const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
+  const isMobile = useViewSize(ViewSize.MobileL);
   const [urlFocused, toggleUrlFocus] = useState(false);
   const onSharedSuccessfully = () => {
     inputRef.current.value = '';

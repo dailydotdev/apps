@@ -1,9 +1,8 @@
 import classNames from 'classnames';
 import React, { Dispatch, ReactElement, SetStateAction } from 'react';
-import { useMedia } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks';
 import { OnboardingV4 } from '../../lib/featureValues';
 import { cloudinary } from '../../lib/image';
-import { tablet, laptop } from '../../styles/media';
 import Logo, { LogoPosition } from '../Logo';
 import { AuthProps, AuthDisplay } from '../auth/AuthOptions';
 import { Button } from '../buttons/Button';
@@ -26,15 +25,15 @@ export const OnboardingHeader = ({
   onClickNext,
 }: OnboardingHeaderProps): ReactElement => {
   const onboardingV4 = useFeature(feature.onboardingV4);
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
-  const isTablet = !useMedia([laptop.replace('@media ', '')], [true], false);
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const getImage = () => {
     if (isMobile) {
       return cloudinary.feed.bg.mobile;
     }
 
-    return isTablet ? cloudinary.feed.bg.tablet : cloudinary.feed.bg.laptop;
+    return isLaptop ? cloudinary.feed.bg.laptop : cloudinary.feed.bg.tablet;
   };
 
   if (isFiltering && onboardingV4 === OnboardingV4.V4) {
