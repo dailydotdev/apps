@@ -44,8 +44,6 @@ const CollectionPostHeaderActions = ({
           {!inlineActions && 'Subscribe'}
         </Button>
       </SimpleTooltip>
-
-      {/* TODO: check if menu is the same */}
       <PostMenuOptions
         onShare={onShare}
         post={post}

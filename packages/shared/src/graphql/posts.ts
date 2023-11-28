@@ -107,6 +107,7 @@ export interface Post {
   downvoted?: boolean;
   flags: PostFlags;
   userState?: PostUserState;
+  updatedAt?: string;
 }
 
 export interface Ad {
@@ -174,6 +175,7 @@ export const POST_BY_ID_QUERY = gql`
         text
         id
       }
+      updatedAt
     }
   }
   ${SHARED_POST_INFO_FRAGMENT}
@@ -223,6 +225,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
         id
       }
       type
+      updatedAt
     }
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}

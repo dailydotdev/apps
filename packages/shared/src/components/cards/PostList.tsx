@@ -78,7 +78,7 @@ export const PostList = forwardRef(function PostList(
           <>
             <Pill
               label="Collection"
-              className="mb-2.5 text-theme-color-cabbage"
+              className="mb-2.5 bg-theme-overlay-float-cabbage text-theme-color-cabbage"
             />
           </>
         )}

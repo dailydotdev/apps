@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement } from 'react';
 import { LazyImage } from '../../LazyImage';
 import {
   ToastSubject,
@@ -44,7 +44,7 @@ const CollectionPostContent = ({
     origin,
     post,
   });
-  const { createdAt, contentHtml, image } = post;
+  const { updatedAt, contentHtml, image } = post;
   const { onSharePost: onShare, onReadArticle } = engagementActions;
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
@@ -64,11 +64,6 @@ const CollectionPostContent = ({
     inlineActions,
     onRemovePost,
   };
-
-  const date = useMemo(
-    () => createdAt && postDateFormat(createdAt),
-    [createdAt],
-  );
 
   return (
     <PostContentContainer
@@ -118,7 +113,10 @@ const CollectionPostContent = ({
           origin={origin}
           post={post}
         >
-          <Pill label="Collection" className="text-theme-color-cabbage" />
+          <Pill
+            label="Collection"
+            className="bg-theme-overlay-float-cabbage text-theme-color-cabbage"
+          />
 
           <h1
             className="font-bold break-words typo-large-title"
@@ -126,11 +124,12 @@ const CollectionPostContent = ({
           >
             {post.title}
           </h1>
-          <div className="flex items-center text-theme-label-tertiary typo-callout">
-            <span>Last updated</span> <Separator />
-            {/* TODO: change this with metadataChangedAt */}
-            {!!createdAt && <time dateTime={createdAt}>{date}</time>}
-          </div>
+          {!!updatedAt && (
+            <div className="flex items-center text-theme-label-tertiary typo-callout">
+              <span>Last updated</span> <Separator />
+              <time dateTime={updatedAt}>{postDateFormat(updatedAt)}</time>
+            </div>
+          )}
           {image && (
             <div className="block overflow-hidden w-full h-auto rounded-xl cursor-pointer">
               <LazyImage

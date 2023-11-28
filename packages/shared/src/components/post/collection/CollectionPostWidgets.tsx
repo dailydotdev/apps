@@ -39,7 +39,7 @@ const CollectionPostWidgets = ({
         <AlertBanner
           className={{
             container: classNames(
-              'hidden laptop:block mt-6 border-theme-status-cabbage !rounded-16 !p-3 typo-callout',
+              'hidden laptop:block border-theme-status-cabbage !rounded-16 !p-3 typo-callout',
               className,
             ),
           }}
