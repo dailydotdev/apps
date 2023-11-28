@@ -79,6 +79,7 @@ export interface Post {
   readTime?: number;
   tags?: string[];
   source?: Source | Squad;
+  collectionSources?: Source[];
   upvoted?: boolean;
   commented?: boolean;
   commentsPermalink: string;

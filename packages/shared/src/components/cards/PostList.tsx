@@ -1,12 +1,12 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import { PostCardProps } from './common';
 import {
-  getPostClassNames,
-  ListCardTitle,
-  ListCardDivider,
-  ListCardAside,
-  ListCardMain,
   CardButton,
+  getPostClassNames,
+  ListCardAside,
+  ListCardDivider,
+  ListCardMain,
+  ListCardTitle,
 } from './Card';
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
@@ -15,6 +15,8 @@ import PostAuthor from './PostAuthor';
 import FeedItemContainer from './FeedItemContainer';
 import { PostTagsPanel } from '../post/block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
+import { PostType } from '../../graphql/posts';
+import Pill from '../Pill';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -35,6 +37,7 @@ export const PostList = forwardRef(function PostList(
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const { trending, pinnedAt } = post;
+  const isCollectionPost = post.type === PostType.Collection;
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -56,15 +59,29 @@ export const PostList = forwardRef(function PostList(
       flagProps={{ listMode: true, pinnedAt, trending }}
     >
       <CardButton title={post.title} onClick={onPostCardClick} />
-      <ListCardAside className="w-14">
-        <SourceButton
-          source={post?.source}
-          className="pb-2"
-          tooltipPosition="top"
-        />
-      </ListCardAside>
-      <ListCardDivider className="mb-1" />
+      {!isCollectionPost && (
+        <>
+          <ListCardAside className="w-14">
+            <SourceButton
+              source={post?.source}
+              className="pb-2"
+              tooltipPosition="top"
+            />
+          </ListCardAside>
+
+          <ListCardDivider className="mb-1" />
+        </>
+      )}
+
       <ListCardMain>
+        {isCollectionPost && (
+          <>
+            <Pill
+              label="Collection"
+              className="mb-2.5 text-theme-color-cabbage"
+            />
+          </>
+        )}
         <ListCardTitle>{post.title}</ListCardTitle>
         <PostMetadata
           createdAt={post.createdAt}
