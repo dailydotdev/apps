@@ -22,6 +22,7 @@ import { NotificationsContextProvider } from './NotificationsContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
 import { AnalyticsContextProvider } from './AnalyticsContext';
 import { GrowthBookProvider } from '../components/GrowthBookProvider';
+import { useHostStatus } from '../hooks/useHostPermissionStatus';
 
 function filteredProps<T extends Record<string, unknown>>(
   obj: T,
@@ -80,7 +81,9 @@ export const BootDataProvider = ({
   getRedirectUri,
   getPage,
 }: BootDataProviderProps): ReactElement => {
+  const { hostGranted } = useHostStatus();
   const queryClient = useQueryClient();
+
   const [cachedBootData, setCachedBootData] =
     useState<Partial<BootCacheData>>(localBootData);
   const [lastAppliedChange, setLastAppliedChange] =
@@ -96,8 +99,9 @@ export const BootDataProvider = ({
     isFetched,
     dataUpdatedAt,
   } = useQuery(BOOT_QUERY_KEY, () => getBootData(app), {
-    refetchOnWindowFocus: loggedUser,
+    refetchOnWindowFocus: loggedUser && hostGranted,
     staleTime: STALE_TIME,
+    enabled: !!hostGranted,
   });
 
   useEffect(() => {

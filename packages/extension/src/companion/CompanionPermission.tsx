@@ -4,10 +4,10 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
-import React, { ReactElement, Ref, forwardRef } from 'react';
+import React, { ReactElement, Ref, forwardRef, useContext } from 'react';
 import PlayIcon from '@dailydotdev/shared/src/components/icons/Play';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
-import { useExtensionPermission } from '@dailydotdev/shared/src/hooks';
+import { ExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 
 const CompanionSection = classed('div', 'flex flex-col max-w-full');
 
@@ -15,7 +15,7 @@ const CompanionPermissionComponent = (
   _,
   ref: Ref<HTMLDivElement>,
 ): ReactElement => {
-  const { requestContentScripts } = useExtensionPermission();
+  const { requestContentScripts } = useContext(ExtensionContext);
   const link = 'Overview Video';
   const button = 'Activate companion';
   const title = 'Try the new companion feature!';

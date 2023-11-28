@@ -1,6 +1,7 @@
 import { useQuery } from 'react-query';
-import { useExtensionPermission } from './useExtensionPermission';
+import { useContext } from 'react';
 import { disabledRefetch } from '../lib/func';
+import { ExtensionContext } from '../contexts/ExtensionContext';
 
 export const contentScriptKey = ['permission_key'];
 
@@ -10,7 +11,7 @@ export type UseContentScriptStatus = {
 };
 
 export const useContentScriptStatus = (): UseContentScriptStatus => {
-  const { getContentScriptPermission } = useExtensionPermission();
+  const { getContentScriptPermission } = useContext(ExtensionContext);
 
   const { data: contentScriptGranted, isFetched } = useQuery(
     contentScriptKey,

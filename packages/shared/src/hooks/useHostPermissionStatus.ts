@@ -1,18 +1,24 @@
 import { useQuery } from 'react-query';
-import { useExtensionPermission } from './useExtensionPermission';
+import { useContext } from 'react';
 import { disabledRefetch } from '../lib/func';
+import { ExtensionContext } from '../contexts/ExtensionContext';
 
 export const hostKey = ['host_key'];
 
 export type UseHostStatus = {
   hostGranted: boolean;
   isFetched: boolean;
+  refetch: () => void;
 };
 
 export const useHostStatus = (): UseHostStatus => {
-  const { getHostPermission } = useExtensionPermission();
+  const { getHostPermission } = useContext(ExtensionContext);
 
-  const { data: hostGranted, isFetched } = useQuery(
+  const {
+    data: hostGranted,
+    isFetched,
+    refetch,
+  } = useQuery(
     hostKey,
     () => {
       if (typeof getHostPermission === 'function') {
@@ -21,8 +27,8 @@ export const useHostStatus = (): UseHostStatus => {
 
       return false;
     },
-    { ...disabledRefetch, enabled: !!getHostPermission },
+    { ...disabledRefetch },
   );
 
-  return { hostGranted, isFetched };
+  return { hostGranted, isFetched, refetch };
 };
