@@ -21,7 +21,7 @@ interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
 }
 
 interface FeedItemContainerProps {
-  flagProps: FlagProps;
+  flagProps?: FlagProps;
   children: ReactNode;
   domProps: HTMLAttributes<HTMLDivElement>;
 }

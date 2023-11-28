@@ -120,4 +120,47 @@ function ProfilePictureComponent(
   );
 }
 
-export const ProfilePicture = forwardRef(ProfilePictureComponent);
+const Group: React.FC<{
+  children:
+    | React.ReactElement<ProfilePictureProps>[]
+    | React.ReactElement<ProfilePictureProps>;
+  limit?: number;
+  total?: number;
+}> = ({ children, limit = 3, total }) => {
+  const childrenMap = React.Children.toArray(children).slice(0, limit);
+  const remainingCount = total ? total - childrenMap.length : 0;
+
+  if (remainingCount) {
+    childrenMap.push(
+      <div
+        className={classNames(
+          'flex items-center justify-center',
+          'rounded-full',
+          'w-8 h-8',
+          'font-bold',
+          'bg-theme-bg-secondary',
+        )}
+      >
+        +{remainingCount}
+      </div>,
+    );
+  }
+  return (
+    <div className="flex">
+      {childrenMap.map(
+        (child: React.ReactElement<ProfilePictureProps>, index) =>
+          React.cloneElement(child, {
+            className: classNames(
+              index !== 0 && 'ml-[-10%]',
+              'border-2 border-theme-bg-secondary',
+              `z-${childrenMap.length - index}`,
+              child.props.className,
+            ),
+          }),
+      )}
+    </div>
+  );
+};
+
+const ProfilePicture = forwardRef(ProfilePictureComponent);
+export { ProfilePicture, Group as ProfilePictureGroup };
