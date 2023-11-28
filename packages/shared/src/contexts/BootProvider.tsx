@@ -102,7 +102,7 @@ export const BootDataProvider = ({
     isFetched,
     dataUpdatedAt,
   } = useQuery(BOOT_QUERY_KEY, () => getBootData(app), {
-    refetchOnWindowFocus: loggedUser && hostGranted,
+    refetchOnWindowFocus: loggedUser,
     staleTime: STALE_TIME,
     enabled: isExtension ? !!hostGranted : true,
   });

@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill';
 import { contentScriptKey } from '@dailydotdev/shared/src/hooks';
 import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
-import { AnalyticsEvent as AnalyticsEventType } from '@dailydotdev/shared/src/lib/analytics';
+import { AnalyticsEvent as AnalyticsEventName } from '@dailydotdev/shared/src/lib/analytics';
 import { QueryClient } from 'react-query';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/hooks/analytics/useAnalyticsQueue';
 
@@ -68,7 +68,7 @@ export const requestContentScripts: CreateRequestContentScripts = (
     skipRedirect?: boolean;
   }) => {
     trackEvent({
-      event_name: AnalyticsEventType.RequestContentScripts,
+      event_name: AnalyticsEventName.RequestContentScripts,
       extra: JSON.stringify({ origin }),
     });
 
@@ -78,7 +78,7 @@ export const requestContentScripts: CreateRequestContentScripts = (
 
     if (granted) {
       trackEvent({
-        event_name: AnalyticsEventType.ApproveContentScripts,
+        event_name: AnalyticsEventName.ApproveContentScripts,
         extra: JSON.stringify({ origin }),
       });
       client.setQueryData(contentScriptKey, true);
@@ -89,7 +89,7 @@ export const requestContentScripts: CreateRequestContentScripts = (
       }
     } else {
       trackEvent({
-        event_name: AnalyticsEventType.DeclineContentScripts,
+        event_name: AnalyticsEventName.DeclineContentScripts,
         extra: JSON.stringify({ origin }),
       });
     }

@@ -81,7 +81,6 @@ export async function getBootData(app: string, url?: string): Promise<Boot> {
     params.append('url', url);
   }
 
-  console.log('CALLED');
   const res = await fetch(`${apiUrl}/boot${appRoute}?${params}`, {
     method: 'GET',
     credentials: 'include',
