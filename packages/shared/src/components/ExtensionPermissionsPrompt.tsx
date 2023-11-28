@@ -3,7 +3,7 @@ import Logo, { LogoPosition } from './Logo';
 import { OnboardingTitleGradient } from './onboarding/common';
 import { Button, ButtonSize } from './buttons/Button';
 import { cloudinary } from '../lib/image';
-import { ExtensionContext } from '../contexts/ExtensionContext';
+import { ExtensionContext } from '../contexts/common';
 
 interface Props {
   onSuccess?: () => void;

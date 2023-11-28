@@ -1,7 +1,7 @@
 import { useQuery } from 'react-query';
 import { useContext } from 'react';
 import { disabledRefetch } from '../lib/func';
-import { ExtensionContext } from '../contexts/ExtensionContext';
+import { ExtensionContext } from '../contexts/common';
 
 export const contentScriptKey = ['permission_key'];
 

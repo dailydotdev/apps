@@ -7,7 +7,7 @@ import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
 import React, { ReactElement, Ref, forwardRef, useContext } from 'react';
 import PlayIcon from '@dailydotdev/shared/src/components/icons/Play';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
-import { ExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
+import { ExtensionContext } from '@dailydotdev/shared/src/contexts/common';
 
 const CompanionSection = classed('div', 'flex flex-col max-w-full');
 
