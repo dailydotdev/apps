@@ -25,8 +25,7 @@ import CloseIcon from '../icons/MiniClose';
 import { useInputField } from '../../hooks/useInputField';
 import { SearchProgressBar } from './SearchProgressBar';
 import { SearchChunk } from '../../graphql/search';
-import { useMedia } from '../../hooks';
-import { tablet } from '../../styles/media';
+import { useViewSize, ViewSize } from '../../hooks';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { SearchSubmitButton } from './SearchSubmitButton';
 import { MobileSearch } from './MobileSearch';
@@ -82,11 +81,7 @@ function SearchBarInputComponent(
   } = inputProps;
   const { inputRef, focused, hasInput, onFocus, onBlur, onInput, setInput } =
     useInputField(value, valueChanged);
-  const isTabletAbove = useMedia(
-    [tablet.replace('@media ', '')],
-    [true],
-    false,
-  );
+  const isTabletAbove = useViewSize(ViewSize.Tablet);
 
   const lastChunkIdRef = useRef(chunk?.id);
 

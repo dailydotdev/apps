@@ -33,8 +33,7 @@ import {
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { cloudinary } from '../lib/image';
-import { useMedia } from '../hooks';
-import { laptop, tablet } from '../styles/media';
+import { useViewSize, ViewSize } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
 
@@ -272,15 +271,15 @@ export default function MainFeedLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
-  const isTablet = !useMedia([laptop.replace('@media ', '')], [true], false);
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const getImage = () => {
     if (isMobile) {
       return cloudinary.feed.bg.mobile;
     }
 
-    return isTablet ? cloudinary.feed.bg.tablet : cloudinary.feed.bg.laptop;
+    return isLaptop ? cloudinary.feed.bg.laptop : cloudinary.feed.bg.tablet;
   };
 
   return (

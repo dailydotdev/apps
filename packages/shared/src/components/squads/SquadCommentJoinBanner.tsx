@@ -6,11 +6,10 @@ import { Button } from '../buttons/Button';
 import { SimpleSquadJoinButton } from './SquadJoinButton';
 import { Squad } from '../../graphql/sources';
 import usePersistentContext from '../../hooks/usePersistentContext';
-import { useJoinSquad, useMedia } from '../../hooks';
+import { useJoinSquad, useViewSize, ViewSize } from '../../hooks';
 import { labels } from '../../lib';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import SourceButton from '../cards/SourceButton';
-import { mobileL } from '../../styles/media';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { Post } from '../../graphql/posts';
 
@@ -29,7 +28,7 @@ export const SquadCommentJoinBanner = ({
 }: SquadCommentJoinBannerProps): ReactElement => {
   const queryClient = useQueryClient();
   const isSquadMember = !!squad?.currentMember;
-  const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
+  const isMobile = useViewSize(ViewSize.MobileL);
   const { displayToast } = useToastNotification();
   const [isJoinSquadBannerDismissed, setJoinSquadBannerDismissed] =
     usePersistentContext(SQUAD_COMMENT_JOIN_BANNER_KEY, false);
