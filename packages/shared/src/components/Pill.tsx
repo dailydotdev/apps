@@ -34,7 +34,7 @@ const Pill = ({
     <div
       className={classNames(
         pillSizeToClassName[size],
-        'rounded-12',
+        'rounded-10',
         'bg-theme-overlay-float-cabbage',
         'px-2',
         'inline-flex items-center',
