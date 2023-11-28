@@ -4,7 +4,7 @@ import { ButtonSize } from '../../buttons/Button';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 
-export function CollectionsIntro(): ReactElement {
+export const CollectionsIntro = (): ReactElement => {
   const { checkHasCompleted, completeAction } = useActions();
 
   if (checkHasCompleted(ActionType.CollectionsIntro)) {
@@ -26,4 +26,4 @@ export function CollectionsIntro(): ReactElement {
       />
     </span>
   );
-}
+};

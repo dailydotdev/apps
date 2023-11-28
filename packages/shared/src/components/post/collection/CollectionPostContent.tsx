@@ -87,7 +87,7 @@ const CollectionPostContent = ({
             onShare={onShare}
             post={post}
             onClose={onClose}
-            className="flex tablet:hidden mb-4"
+            className="flex tablet:hidden"
             contextMenuId="post-widgets-context"
           />
         )}
