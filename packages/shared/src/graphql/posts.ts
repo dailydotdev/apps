@@ -28,6 +28,7 @@ export enum PostType {
   Share = 'share',
   Welcome = 'welcome',
   Freeform = 'freeform',
+  Collection = 'collection',
 }
 
 export const internalReadTypes: PostType[] = [PostType.Welcome];
@@ -78,6 +79,7 @@ export interface Post {
   readTime?: number;
   tags?: string[];
   source?: Source | Squad;
+  collectionSources?: Source[];
   upvoted?: boolean;
   commented?: boolean;
   commentsPermalink: string;

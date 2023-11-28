@@ -72,6 +72,9 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   share: SquadPostContent,
   welcome: SquadPostContent,
   freeform: SquadPostContent,
+
+  // TODO WT-1939-collections
+  collection: () => <div>TBD</div>,
 };
 
 interface PostParams extends ParsedUrlQuery {
@@ -163,6 +166,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     share: shareNavigation,
     welcome: shareNavigation,
     freeform: shareNavigation,
+    collection: shareNavigation,
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;
 
