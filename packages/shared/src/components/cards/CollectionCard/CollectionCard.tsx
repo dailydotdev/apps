@@ -30,6 +30,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
+  const [hovered, toggleHovered] = React.useState(false);
   const clamp = (() => {
     if (post.image) {
       return 'line-clamp-3';
@@ -47,14 +48,24 @@ export const CollectionCard = forwardRef(function CollectionCard(
       ref={ref}
       flagProps={{ pinnedAt: post.pinnedAt }}
     >
-      <CardButton title={post.title} onClick={() => onPostClick(post)} />
+      <CardButton
+        onMouseEnter={() => toggleHovered(true)}
+        onMouseLeave={() => toggleHovered(false)}
+        title={post.title}
+        onClick={() => onPostClick(post)}
+      />
 
-      <CollectionCardHeader />
+      <CollectionCardHeader
+        collectionSources={post.collectionSources}
+        hovered={hovered}
+      />
       <OptionsButton
         className="group-hover:flex laptop:hidden top-3 right-3"
         onClick={(event) => onMenuClick?.(event, post)}
         tooltipPlacement="top"
         position="absolute"
+        onMouseEnter={() => toggleHovered(true)}
+        onMouseLeave={() => toggleHovered(false)}
       />
       <FreeformCardTitle
         className={classNames(
