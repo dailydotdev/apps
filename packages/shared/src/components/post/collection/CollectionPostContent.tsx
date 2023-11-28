@@ -21,6 +21,7 @@ import {
   PostNavigationProps,
 } from '../common';
 import Pill from '../../Pill';
+import { CollectionsIntro } from '../widgets';
 
 const CollectionPostContent = ({
   post,
@@ -91,6 +92,7 @@ const CollectionPostContent = ({
             contextMenuId="post-widgets-context"
           />
         )}
+        <CollectionsIntro className="tablet:hidden" />
 
         <BasePostContent
           className={{

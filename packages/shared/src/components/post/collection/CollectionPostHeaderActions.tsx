@@ -31,7 +31,7 @@ const CollectionPostHeaderActions = ({
         content="Subscribe"
         disabled={!inlineActions}
       >
-        {/* TODO: FIX ACTION ON THIS with useNotificationPreference */}
+        {/* TODO WT-1939-collections FIX ACTION ON THIS with useNotificationPreference */}
         <Button
           className="btn-primary"
           tag="a"

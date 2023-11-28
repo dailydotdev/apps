@@ -90,7 +90,7 @@ const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Share]: SharePostModal,
   [PostType.Welcome]: SharePostModal,
   [PostType.Freeform]: SharePostModal,
-  // TODO WT-1939-collections
+  // TODO WT-1939-collections replace with proper modal
   [PostType.Collection]: ArticlePostModal,
 };
 

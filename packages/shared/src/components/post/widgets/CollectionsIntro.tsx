@@ -1,10 +1,17 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import CloseButton from '../../CloseButton';
 import { ButtonSize } from '../../buttons/Button';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 
-export const CollectionsIntro = (): ReactElement => {
+export type CollectionsIntroProps = {
+  className?: string;
+};
+
+export const CollectionsIntro = ({
+  className,
+}: CollectionsIntroProps): ReactElement => {
   const { checkHasCompleted, completeAction } = useActions();
 
   if (checkHasCompleted(ActionType.CollectionsIntro)) {
@@ -12,7 +19,12 @@ export const CollectionsIntro = (): ReactElement => {
   }
 
   return (
-    <span className="flex relative flex-row p-3 pr-2 w-full rounded-10 border border-theme-color-cabbage">
+    <span
+      className={classNames(
+        'flex relative flex-row p-3 pr-2 w-full rounded-10 border border-theme-color-cabbage',
+        className,
+      )}
+    >
       <div className="flex flex-col flex-1 typo-subhead">
         <strong>Introducing collections!</strong>
         <p className="mt-2">
