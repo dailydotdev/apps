@@ -20,6 +20,7 @@ import {
   PostContentProps,
   PostNavigationProps,
 } from '../common';
+import Pill from '../../Pill';
 
 const CollectionPostContent = ({
   post,
@@ -117,8 +118,7 @@ const CollectionPostContent = ({
           origin={origin}
           post={post}
         >
-          {/* TODO: replace <div>Collection</div> with the right pill */}
-          <div>Collection</div>
+          <Pill label="Collection" className="text-theme-color-cabbage" />
 
           <h1
             className="font-bold break-words typo-large-title"
