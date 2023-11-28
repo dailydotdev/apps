@@ -2,7 +2,6 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 
 export enum PillSize {
-  XXSmall = 'xxsmall',
   XSmall = 'xsmall',
   Small = 'small',
   Medium = 'medium',
@@ -11,12 +10,11 @@ export enum PillSize {
 }
 
 const pillSizeToClassName: Record<PillSize, string> = {
-  [PillSize.XXSmall]: 'h-3 text-xs',
-  [PillSize.XSmall]: 'h-5 text-xs',
-  [PillSize.Small]: 'h-6 text-sm',
-  [PillSize.Medium]: 'h-7 text-base font-bold',
-  [PillSize.Large]: 'h-8 text-lg font-bold',
-  [PillSize.XLarge]: 'h-10 text-xl font-bold',
+  [PillSize.XSmall]: 'h-5 typo-caption1',
+  [PillSize.Small]: 'h-6 text-caption2',
+  [PillSize.Medium]: 'h-7 font-bold',
+  [PillSize.Large]: 'h-8 typo-caption4 font-bold',
+  [PillSize.XLarge]: 'h-10 typo-caption5 font-bold',
 };
 
 interface Props {
