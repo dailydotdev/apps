@@ -13,8 +13,7 @@ import {
   TabContainer,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
 import { SearchHistory } from '@dailydotdev/shared/src/components';
-import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
-import { laptop } from '@dailydotdev/shared/src/styles/media';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
@@ -27,7 +26,7 @@ import { HistoryType, ReadingHistory } from '../components/history';
 const History = (): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const searchValue = useFeature(feature.search);
-  const isLaptop = useMedia([laptop.replace('@media ', '')], [true], false);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const seo = (
     <NextSeo
       title={

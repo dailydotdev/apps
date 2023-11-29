@@ -65,7 +65,7 @@ export default function ShareNewCommentPopup({
             className="btn-primary-twitter"
             buttonSize={ButtonSize.Small}
           >
-            Twitter
+            X
           </ShareButton>
         </SimpleTooltip>
         <SimpleTooltip content="Share on WhatsApp">

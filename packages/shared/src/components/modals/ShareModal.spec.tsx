@@ -1,5 +1,5 @@
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { QueryClient } from 'react-query';
+import { QueryClient } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
 import { useRouter } from 'next/router';

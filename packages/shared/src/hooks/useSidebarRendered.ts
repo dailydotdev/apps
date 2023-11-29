@@ -1,18 +1,10 @@
 import { useMemo } from 'react';
-import useMedia from './useMedia';
-import { laptop } from '../styles/media';
-
-export const footerNavBarBreakpoint = laptop;
+import { useViewSize, ViewSize } from './useViewSize';
 
 export default function useSidebarRendered(): {
   sidebarRendered: boolean;
 } {
-  const sidebarRendered = useMedia(
-    [footerNavBarBreakpoint.replace('@media ', '')],
-    [true],
-    false,
-    null,
-  );
+  const sidebarRendered = useViewSize(ViewSize.Laptop);
 
   return useMemo(() => {
     return {

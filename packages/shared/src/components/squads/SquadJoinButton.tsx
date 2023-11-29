@@ -1,6 +1,6 @@
 import React, { ReactElement, useEffect } from 'react';
 import classNames from 'classnames';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { SourceMemberRole, Squad } from '../../graphql/sources';
 import { Button, ButtonProps } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -132,9 +132,12 @@ export const SquadJoinButton = ({
 
   const onLeaveSquad = () => {
     if (!user) {
-      showLogin(AuthTriggers.JoinSquad, {
-        onLoginSuccess: joinSquad,
-        onRegistrationSuccess: joinSquad,
+      showLogin({
+        trigger: AuthTriggers.JoinSquad,
+        options: {
+          onLoginSuccess: joinSquad,
+          onRegistrationSuccess: joinSquad,
+        },
       });
 
       return;

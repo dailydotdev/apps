@@ -1,10 +1,10 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { checkKratosEmail } from '../../lib/kratos';
 import { AuthFormProps, getFormEmail, providerMap } from './common';
 import OrDivider from './OrDivider';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
+import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
 import { Button } from '../buttons/Button';
 import AuthForm from './AuthForm';
 import { TextField } from '../fields/TextField';
@@ -22,7 +22,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   isLoginFlow?: boolean;
   logInTitle?: string;
   signUpTitle?: string;
-  trigger: AuthTriggersOrString;
+  trigger: AuthTriggersType;
   isReady: boolean;
 }
 

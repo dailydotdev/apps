@@ -4,7 +4,7 @@ import {
   DENY_KEYWORD_MUTATION,
   Keyword,
 } from '@dailydotdev/shared/src/graphql/keywords';
-import { useInfiniteQuery, useMutation } from 'react-query';
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {

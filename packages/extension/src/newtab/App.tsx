@@ -5,7 +5,11 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
 import 'focus-visible';
@@ -28,19 +32,13 @@ import { useNotificationContext } from '@dailydotdev/shared/src/contexts/Notific
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
-import { ReactQueryDevtools } from 'react-query/devtools';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
-import {
-  useFeature,
-  useGrowthBookContext,
-} from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
-import {
-  daysLeft,
-  OnboardingV2,
-} from '@dailydotdev/shared/src/lib/featureValues';
 import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
+import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
+import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -90,13 +88,7 @@ function InternalApp({
   const { growthbook } = useGrowthBookContext();
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-  const onboardingV2 = useFeature(feature.onboardingV2);
-
-  const shouldRedirectOnboarding =
-    !user &&
-    isPageReady &&
-    (onboardingV2 !== OnboardingV2.Control || daysLeft < 1) &&
-    !isTesting;
+  const shouldRedirectOnboarding = !user && isPageReady && !isTesting;
 
   useQuery(EXTENSION_PERMISSION_KEY, () => ({
     requestContentScripts,
@@ -145,6 +137,7 @@ function InternalApp({
 
   return (
     <DndContextProvider>
+      <LazyModalElement />
       <MainFeedPage onPageChanged={onPageChanged} />
       {shouldShowLogin && (
         <AuthModal
@@ -157,6 +150,7 @@ function InternalApp({
     </DndContextProvider>
   );
 }
+const InternalAppWithFeaturesBoundary = withFeaturesBoundary(InternalApp);
 
 export default function App({
   localBootData,
@@ -178,7 +172,7 @@ export default function App({
           >
             <SubscriptionContextProvider>
               <OnboardingContextProvider>
-                <InternalApp pageRef={pageRef} />
+                <InternalAppWithFeaturesBoundary pageRef={pageRef} />
               </OnboardingContextProvider>
             </SubscriptionContextProvider>
           </BootDataProvider>

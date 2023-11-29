@@ -3,7 +3,7 @@ import {
   InfiniteData,
   QueryKey,
   UseInfiniteQueryResult,
-} from 'react-query';
+} from '@tanstack/react-query';
 import { useMemo } from 'react';
 import request from 'graphql-request';
 import { graphqlUrl } from '../lib/config';

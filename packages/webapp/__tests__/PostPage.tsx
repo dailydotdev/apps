@@ -34,7 +34,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/actions';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
 import { OperationOptions } from 'subscriptions-transport-ws';
@@ -616,7 +616,7 @@ it('should toggle TLDR on click', async () => {
   renderPost({}, [
     createPostMock({
       summary:
-        "Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book type specimen book type specimen book type specimen book type.Ipsum is simply dummy text of the printing and typesetting industry.",
+        "Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book type specimen book type specimen book type specimen book type.Ipsum is simply dummy text of the printing and typesetting industry. book type.Ipsum is simply dummy text of the printing and typesetting industry.",
     }),
   ]);
   const el = await screen.findByText('TLDR');
@@ -759,7 +759,7 @@ describe('downvote flow', () => {
   const createAllTagCategoriesMock = (
     onSuccess?: () => void,
   ): MockedGraphQLResponse<AllTagCategoriesData> => ({
-    request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn: true } },
+    request: { query: FEED_SETTINGS_QUERY },
     result: () => {
       if (onSuccess) {
         onSuccess();

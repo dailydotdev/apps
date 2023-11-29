@@ -26,7 +26,7 @@ it('should call on click on component left click', async () => {
 it('should call on click on component middle mouse up', async () => {
   renderComponent();
   const el = await screen.findByRole('link');
-  el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 1 }));
+  el.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, button: 1 }));
   await waitFor(() => expect(defaultProps.onLinkClick).toBeCalledWith(ad));
 });
 

@@ -3,7 +3,7 @@ import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { render, RenderResult, screen } from '@testing-library/react';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AccountProfilePage from '../pages/account/profile';
 
 jest.mock('next/router', () => ({
@@ -78,7 +78,7 @@ it('should show about section', () => {
 
 it('should show profile social links', () => {
   renderComponent();
-  const twitter = screen.getByPlaceholderText('Twitter');
+  const twitter = screen.getByPlaceholderText('X');
   expect(twitter).toBeInTheDocument();
   expect(twitter).toHaveValue(defaultLoggedUser.twitter);
   const github = screen.getByPlaceholderText('GitHub');

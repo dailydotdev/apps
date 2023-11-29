@@ -16,7 +16,7 @@ import { LoaderOverlay } from '@dailydotdev/shared/src/components/LoaderOverlay'
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import request from 'graphql-request';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import classNames from 'classnames';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
@@ -85,7 +85,7 @@ const Step1 = ({
             <Button
               className="btn-secondary"
               buttonSize={ButtonSize.Large}
-              onClick={() => showLogin(AuthTriggers.DevCard)}
+              onClick={() => showLogin({ trigger: AuthTriggers.DevCard })}
             >
               Login to generate
             </Button>

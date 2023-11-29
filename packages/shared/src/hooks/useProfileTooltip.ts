@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Author } from '../graphql/comments';
 import {
   USER_TOOLTIP_CONTENT_QUERY,
@@ -8,6 +8,7 @@ import {
 } from '../graphql/users';
 import { graphqlUrl } from '../lib/config';
 import { useRequestProtocol } from './useRequestProtocol';
+import { StaleTime } from '../lib/query';
 
 export type UserTooltipContentData = {
   rank: UserReadingRank;
@@ -47,6 +48,7 @@ export const useProfileTooltip = ({
         { requestKey: JSON.stringify(key) },
       ),
     {
+      staleTime: StaleTime.Tooltip,
       refetchOnWindowFocus: false,
       enabled: shouldFetch && !!userId,
       onSettled: () => setShouldFetch(false),

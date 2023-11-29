@@ -13,8 +13,9 @@ export enum ActionType {
   EnableNotification = 'enable_notification',
   WritePost = 'write_post',
   HideBlockPanel = 'hide_block_panel',
-  EngagementLoopJuly2023CompanionModal = 'exp_july23_companion',
   ExistingAnonymousBanner = 'existingAnonymousBanner',
+  AcceptedSearch = 'accepted_search',
+  UsedSearch = 'used_search',
 }
 
 export interface Action {

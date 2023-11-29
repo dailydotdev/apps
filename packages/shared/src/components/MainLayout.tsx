@@ -23,19 +23,14 @@ import MainLayoutHeader, {
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
-import { LazyModalElement } from './modals/LazyModalElement';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
-import { daysLeft, OnboardingV2 } from '../lib/featureValues';
 import { useAuthContext } from '../contexts/AuthContext';
-import { MainFeedPage } from './utilities';
+import { SharedFeedPage } from './utilities';
 import { isTesting, onboardingUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
-import { useFeature, useGrowthBookContext } from './GrowthBookProvider';
-import { feature } from '../lib/featureManagement';
-import { FixedBottomBanner } from './banners/FixedBottomBanner';
-import usePersistentContext from '../hooks/usePersistentContext';
-import { generateStorageKey, StorageTopic } from '../lib/storage';
+import { useGrowthBookContext } from './GrowthBookProvider';
+import { useReferralReminder } from '../hooks/referral/useReferralReminder';
 import GenericFeedItemComponent from './feed/feedItemComponent/genericFeedItemComponent';
 
 export interface MainLayoutProps
@@ -58,9 +53,9 @@ export interface MainLayoutProps
 const mainLayoutClass = (sidebarExpanded: boolean) =>
   sidebarExpanded ? 'laptop:pl-60' : 'laptop:pl-11';
 
-const feeds = Object.values(MainFeedPage);
+const feeds = Object.values(SharedFeedPage);
 
-export default function MainLayout({
+function MainLayout({
   children,
   showOnlyLogo,
   greeting,
@@ -78,12 +73,10 @@ export default function MainLayout({
   onNavTabClick,
   enableSearch,
   onShowDndClick,
-  showPostButton,
 }: MainLayoutProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
-  const onboardingV2 = useFeature(feature.onboardingV2);
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
@@ -94,15 +87,12 @@ export default function MainLayout({
   useAuthErrors();
   useAuthVerificationRecovery();
   useNotificationParams();
+  useReferralReminder();
   const handlers = useSwipeableSidebar({
     sidebarRendered,
     openMobileSidebar,
     setOpenMobileSidebar,
   });
-  const [isDismissed, setIsDismissed, isFetched] = usePersistentContext(
-    generateStorageKey(StorageTopic.Onboarding, 'wall_dismissed'),
-    false,
-  );
 
   const onMobileSidebarToggle = (state: boolean) => {
     trackEvent({
@@ -153,16 +143,12 @@ export default function MainLayout({
   };
 
   const router = useRouter();
-  const page = router?.route?.substring(1).trim() as MainFeedPage;
+  const page = router?.route?.substring(1).trim() as SharedFeedPage;
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   const isPageApplicableForOnboarding = !page || feeds.includes(page);
   const shouldRedirectOnboarding =
-    !user &&
-    isPageReady &&
-    (onboardingV2 !== OnboardingV2.Control || daysLeft < 1) &&
-    isPageApplicableForOnboarding &&
-    !isTesting;
+    !user && isPageReady && isPageApplicableForOnboarding && !isTesting;
 
   useEffect(() => {
     if (!shouldRedirectOnboarding) {
@@ -192,19 +178,11 @@ export default function MainLayout({
     return null;
   }
 
-  const shouldShowBanner =
-    !user &&
-    onboardingV2 === OnboardingV2.Control &&
-    isPageApplicableForOnboarding &&
-    isFetched &&
-    !isDismissed;
-
   return (
     <div {...handlers} className="antialiased">
       {customBanner}
       {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />
-      <LazyModalElement />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <MainLayoutHeader
@@ -217,26 +195,21 @@ export default function MainLayout({
         additionalButtons={additionalButtons}
         onLogoClick={onLogoClick}
         onMobileSidebarToggle={onMobileSidebarToggle}
-        showPostButton={showPostButton}
       />
       <main
         className={classNames(
           'flex flex-row',
           className,
           !showOnlyLogo && !screenCentered && mainLayoutClass(sidebarExpanded),
-          isBannerAvailable ? 'laptop:pt-22' : 'laptop:pt-14',
+          isBannerAvailable && 'laptop:pt-8',
         )}
       >
         {renderSidebar()}
         {children}
       </main>
       <PromptElement />
-      {shouldShowBanner && (
-        <FixedBottomBanner
-          daysLeft={daysLeft}
-          onDismiss={() => setIsDismissed(true)}
-        />
-      )}
     </div>
   );
 }
+
+export default MainLayout;

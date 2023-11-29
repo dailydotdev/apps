@@ -62,8 +62,7 @@ export function BasePostContent({
     return <Custom404 />;
   }
 
-  const { onCloseShare, sharePost, onSharePost, onToggleBookmark } =
-    engagementProps;
+  const { onCloseShare, sharePost, onSharePost } = engagementProps;
   const { onStartArticleOnboarding, showArticleOnboarding } =
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -85,7 +84,6 @@ export function BasePostContent({
         post={post}
         onShare={onSharePost}
         analyticsOrigin={origin}
-        onBookmark={onToggleBookmark}
         shouldOnboardAuthor={shouldOnboardAuthor}
         enableShowShareNewComment={enableShowShareNewComment}
       />

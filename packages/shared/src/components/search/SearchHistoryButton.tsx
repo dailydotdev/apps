@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
-import TimerIcon from '../icons/Timer';
+import { TimerIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
 import { Button, ButtonSize } from '../buttons/Button';
 import { useSearchHistory } from '../../hooks/search';

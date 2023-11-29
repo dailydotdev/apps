@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { useInfiniteQuery } from 'react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import request from 'graphql-request';
 import Link from 'next/link';
 import { format } from 'date-fns';

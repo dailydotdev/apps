@@ -1,7 +1,7 @@
 import nock from 'nock';
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser } from '../../lib/user';
 import {
@@ -22,6 +22,7 @@ import {
 } from '../../../__tests__/helpers/graphql';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import post from '../../../__tests__/fixture/post';
+import { AuthTriggers } from '../../lib/auth';
 
 const showLogin = jest.fn();
 
@@ -204,7 +205,7 @@ it('should open login modal on anonymous bookmark', async () => {
   );
   const [el] = await screen.findAllByLabelText('Bookmark');
   el.click();
-  expect(showLogin).toBeCalledWith('bookmark');
+  expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Bookmark });
 });
 
 it('should not show table of contents when it does not exist', async () => {

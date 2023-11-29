@@ -1,12 +1,17 @@
 import { GraphQLError } from 'graphql-request/dist/types';
 import request from 'graphql-request';
-import { useContext, useMemo, useState } from 'react';
-import { useMutation } from 'react-query';
-import { UseMutateFunction } from 'react-query/types/react/types';
+import { useCallback, useContext, useState } from 'react';
+import { UseMutateFunction, useMutation } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
-import { UPDATE_USER_PROFILE_MUTATION } from '../graphql/users';
+import {
+  handleRegex,
+  socialHandleRegex,
+  UPDATE_USER_PROFILE_MUTATION,
+} from '../graphql/users';
 import { graphqlUrl } from '../lib/config';
 import { LoggedUser, UserProfile } from '../lib/user';
+import { useToastNotification } from './useToastNotification';
+import { errorMessage } from '../graphql/common';
 
 export interface ProfileFormHint {
   portfolio?: string;
@@ -45,10 +50,47 @@ interface UseProfileFormProps {
   onSuccess?: () => void;
 }
 
+type Handles = Pick<
+  UserProfile,
+  'github' | 'hashnode' | 'twitter' | 'username'
+>;
+const socials: Array<keyof Handles> = ['github', 'hashnode', 'twitter'];
+
+export const onValidateHandles = (
+  before: Partial<Handles>,
+  after: Partial<Handles>,
+): Partial<Record<keyof Handles, string>> => {
+  if (after.username && after.username !== before.username) {
+    const isValid = handleRegex.test(after.username);
+
+    if (!isValid) {
+      return { username: errorMessage.profile.invalidUsername };
+    }
+  }
+
+  return socials.reduce((obj, social) => {
+    if (after[social] && after[social] === before[social]) {
+      return obj;
+    }
+
+    const isValid = socialHandleRegex.test(after[social]);
+
+    if (isValid) {
+      return obj;
+    }
+
+    return {
+      ...obj,
+      [social]: errorMessage.profile.invalidHandle,
+    };
+  }, {});
+};
+
 const useProfileForm = ({
   onSuccess,
 }: UseProfileFormProps = {}): UseProfileForm => {
   const { user, updateUser } = useContext(AuthContext);
+  const { displayToast } = useToastNotification();
   const [hint, setHint] = useState<ProfileFormHint>({});
   const { isLoading, mutate: updateUserProfile } = useMutation<
     LoggedUser,
@@ -76,12 +118,26 @@ const useProfileForm = ({
     },
   );
 
-  return useMemo(
-    () => ({ hint, isLoading, onUpdateHint: setHint, updateUserProfile }),
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [user, hint, isLoading],
+  const handleUpdate: typeof updateUserProfile = useCallback(
+    (values) => {
+      const error = onValidateHandles(user, values);
+      const message = Object.values(error)[0];
+
+      if (message) {
+        return displayToast(message);
+      }
+
+      return updateUserProfile(values);
+    },
+    [displayToast, user, updateUserProfile],
   );
+
+  return {
+    hint,
+    isLoading,
+    onUpdateHint: setHint,
+    updateUserProfile: handleUpdate,
+  };
 };
 
 export default useProfileForm;

@@ -11,7 +11,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
@@ -20,7 +20,14 @@ import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { BootApp, Visit } from '@dailydotdev/shared/src/lib/boot';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { UpdateProfileParameters } from '@dailydotdev/shared/src/hooks/useProfileForm';
-import { UPDATE_USER_PROFILE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
+import {
+  GET_PERSONALIZED_DIGEST_SETTINGS,
+  SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+  UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+  UPDATE_USER_PROFILE_MUTATION,
+} from '@dailydotdev/shared/src/graphql/users';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import ProfileNotificationsPage from '../pages/account/notifications';
 
 jest.mock('next/router', () => ({
@@ -32,6 +39,8 @@ jest.mock('next/router', () => ({
 }));
 
 let client: QueryClient;
+let personalizedDigestMock: MockedGraphQLResponse;
+const trackEvent = jest.fn();
 
 beforeEach(() => {
   jest.restoreAllMocks();
@@ -41,6 +50,20 @@ beforeEach(() => {
 
   globalThis.OneSignal = {
     getRegistrationId: jest.fn().mockResolvedValue('123'),
+  };
+
+  personalizedDigestMock = {
+    request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
+    result: {
+      errors: [
+        {
+          message: 'Not subscribed to personalized digest',
+          extensions: {
+            code: ApiError.NotFound,
+          },
+        },
+      ],
+    },
   };
 });
 
@@ -80,6 +103,8 @@ jest
   .mockResolvedValueOnce('granted');
 
 const renderComponent = (user = defaultLoggedUser): RenderResult => {
+  mockGraphQL(personalizedDigestMock);
+
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
@@ -89,9 +114,18 @@ const renderComponent = (user = defaultLoggedUser): RenderResult => {
         visit={defaultVisit}
         tokenRefreshed
       >
-        <NotificationsContextProvider app={BootApp.Webapp}>
-          <ProfileNotificationsPage />
-        </NotificationsContextProvider>
+        <AnalyticsContext.Provider
+          value={{
+            trackEvent,
+            trackEventStart: jest.fn(),
+            trackEventEnd: jest.fn(),
+            sendBeacon: jest.fn(),
+          }}
+        >
+          <NotificationsContextProvider app={BootApp.Webapp}>
+            <ProfileNotificationsPage />
+          </NotificationsContextProvider>
+        </AnalyticsContext.Provider>
       </AuthContextProvider>
     </QueryClientProvider>,
   );
@@ -118,12 +152,36 @@ it('should change user all email subscription', async () => {
     notificationEmail: true,
   };
   mockGraphQL(updateProfileMock(data));
+  let personalizedDigestMutationCalled = false;
+  mockGraphQL({
+    request: {
+      query: SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+      variables: {
+        day: 3,
+        hour: 8,
+      },
+    },
+    result: () => {
+      personalizedDigestMutationCalled = true;
+
+      return {
+        data: {
+          subscribePersonalizedDigest: {
+            preferredDay: 1,
+            preferredHour: 9,
+            preferredTimezone: 'Etc/UTC',
+          },
+        },
+      };
+    },
+  });
   const subscription = await screen.findByTestId('email_notification-switch');
   expect(subscription).not.toBeChecked();
   fireEvent.click(subscription);
-  await waitFor(() =>
-    expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data }),
-  );
+  await waitFor(() => {
+    expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
+    expect(personalizedDigestMutationCalled).toBe(true);
+  });
 });
 
 it('should change user email marketing subscription', async () => {
@@ -148,4 +206,78 @@ it('should change user notification email subscription', async () => {
   await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
   await waitForNock();
   expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
+});
+
+it('should subscribe to personalized digest subscription', async () => {
+  renderComponent();
+
+  mockGraphQL({
+    request: {
+      query: SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+      variables: {
+        day: 3,
+        hour: 8,
+      },
+    },
+    result: {
+      data: {
+        subscribePersonalizedDigest: {
+          preferredDay: 1,
+          preferredHour: 9,
+          preferredTimezone: 'Etc/UTC',
+        },
+      },
+    },
+  });
+
+  const subscription = await screen.findByTestId('personalized-digest-switch');
+  await waitFor(() => expect(subscription).toBeEnabled());
+
+  expect(subscription).not.toBeChecked();
+
+  fireEvent.click(subscription);
+  await waitForNock();
+
+  expect(subscription).toBeChecked();
+});
+
+it('should unsubscribe from personalized digest subscription', async () => {
+  personalizedDigestMock = {
+    request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
+    result: {
+      data: {
+        personalizedDigest: {
+          preferredDay: 1,
+          preferredHour: 9,
+          preferredTimezone: 'Etc/UTC',
+        },
+      },
+    },
+  };
+
+  renderComponent();
+
+  mockGraphQL({
+    request: { query: UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, variables: {} },
+    result: {
+      data: {
+        _: true,
+      },
+    },
+  });
+
+  const subscription = await screen.findByTestId('personalized-digest-switch');
+  await waitFor(() => expect(subscription).toBeEnabled());
+
+  expect(subscription).toBeChecked();
+
+  fireEvent.click(subscription);
+  await waitForNock();
+
+  expect(subscription).not.toBeChecked();
+  expect(trackEvent).toHaveBeenCalledTimes(1);
+  expect(trackEvent).toHaveBeenCalledWith({
+    event_name: 'disable notification',
+    extra: JSON.stringify({ channel: 'email', category: 'digest' }),
+  });
 });

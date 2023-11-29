@@ -1,6 +1,6 @@
 import request from 'graphql-request';
-import { QueryKey, UseInfiniteQueryOptions } from 'react-query';
-import { UserShortProfile } from '../lib/user';
+import { QueryKey, UseInfiniteQueryOptions } from '@tanstack/react-query';
+import { PublicProfile, UserShortProfile } from '../lib/user';
 // GraphQL Relay pagination types
 
 export type ConnectionCursor = string;
@@ -52,7 +52,7 @@ export type RequestDataConnection<TEntity, TKey extends string> = Record<
   Connection<TEntity>
 >;
 
-export const REQUEST_PROTOCOL_KEY = 'request-protocol';
+export const REQUEST_PROTOCOL_KEY = ['request-protocol'];
 export interface RequestProtocol {
   requestMethod?: typeof request;
   fetchMethod?: typeof fetch;
@@ -110,4 +110,17 @@ interface ApiResponse {
 
 export interface ApiErrorResult {
   response: ApiResponse;
+}
+
+export const DEFAULT_ERROR = 'An error occurred, please try again';
+
+export const errorMessage = {
+  profile: {
+    invalidUsername: 'Invalid characters found in username!',
+    invalidHandle: 'Invalid character(s) found in social handle',
+  },
+};
+
+export interface ReferredUsersData {
+  referredUsers: Connection<PublicProfile>;
 }

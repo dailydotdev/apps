@@ -7,6 +7,7 @@ import {
   KratosMessage,
   KratosMethod,
 } from './kratos';
+import { Origin } from './analytics';
 
 export enum AuthEventNames {
   OpenSignup = 'open signup',
@@ -47,10 +48,26 @@ export enum AuthTriggers {
   JoinSquad = 'join squad',
   CreateSquad = 'create squad',
   ReportComment = 'report comment',
+  SearchReferral = 'search referral',
+  CreateFeedFilters = 'create feed filters',
+  NewComment = 'new comment',
+  SearchInput = 'search input',
+  SearchSuggestion = 'search suggestion',
+  LoginPage = 'login page',
+  GenericReferral = 'generic referral',
 }
 
-// Needed for the AB flagged Sidebar items
-export type AuthTriggersOrString = AuthTriggers | string;
+export type AuthTriggersType =
+  | AuthTriggers
+  | Extract<
+      Origin,
+      | Origin.TagsFilter
+      | Origin.TagsSearch
+      | Origin.BlockedFilter
+      | Origin.PostContextMenu
+      | Origin.SourcePage
+      | Origin.TagPage
+    >;
 
 export interface LoginPasswordParameters extends AuthPostParams {
   password: string;

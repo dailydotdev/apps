@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { QueryKey, useQueryClient } from 'react-query';
+import { QueryKey, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import UpvoteIcon from '../icons/Upvote';
 import CommentIcon from '../icons/Discuss';
@@ -18,10 +18,13 @@ import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { useActiveFeedContext } from '../../contexts';
 import { mutateVoteFeedPost } from '../../hooks/vote/utils';
 import { updateCachedPagePost } from '../../lib/query';
+import {
+  mutateBookmarkFeedPost,
+  useBookmarkPost,
+} from '../../hooks/useBookmarkPost';
 
 export interface ShareBookmarkProps {
   onShare: (post: Post) => void;
-  onBookmark: () => void;
 }
 
 interface PostActionsProps extends ShareBookmarkProps {
@@ -37,7 +40,6 @@ export function PostActions({
   post,
   actionsClassName = 'hidden mobileL:flex',
   onComment,
-  onBookmark,
   origin = Origin.ArticlePage,
 }: PostActionsProps): ReactElement {
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
@@ -55,6 +57,21 @@ export function PostActions({
         }
       : undefined,
   });
+
+  const { toggleBookmark } = useBookmarkPost({
+    mutationKey: feedQueryKey,
+    onMutate: feedQueryKey
+      ? ({ id }) => {
+          const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
+
+          return mutateBookmarkFeedPost({ id, items, updatePost });
+        }
+      : undefined,
+  });
+
+  const onToggleBookmark = async () => {
+    await toggleBookmark({ post, origin });
+  };
 
   const onToggleUpvote = async () => {
     if (post?.userState?.vote === UserPostVote.None) {
@@ -138,7 +155,7 @@ export function PostActions({
           <QuaternaryButton
             id="bookmark-post-btn"
             pressed={post.bookmarked}
-            onClick={onBookmark}
+            onClick={onToggleBookmark}
             icon={<BookmarkIcon secondary={post.bookmarked} />}
             aria-label="Bookmark"
             responsiveLabelClass={actionsClassName}

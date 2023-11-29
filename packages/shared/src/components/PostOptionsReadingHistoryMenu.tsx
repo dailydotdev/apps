@@ -2,12 +2,15 @@ import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
-import { QueryClient, QueryKey, useQueryClient } from 'react-query';
+import { QueryClient, QueryKey, useQueryClient } from '@tanstack/react-query';
 import { ReadHistoryPost } from '../graphql/posts';
 import ShareIcon from './icons/Share';
 import BookmarkIcon from './icons/Bookmark';
 import XIcon from './icons/MiniClose';
-import useBookmarkPost from '../hooks/useBookmarkPost';
+import {
+  UseBookmarkPostRollback,
+  useBookmarkPost,
+} from '../hooks/useBookmarkPost';
 import AuthContext from '../contexts/AuthContext';
 import {
   ReadHistoryInfiniteData,
@@ -15,14 +18,12 @@ import {
 } from '../hooks/useInfiniteReadingHistory';
 import { MenuIcon } from './MenuIcon';
 import { QueryIndexes } from '../hooks/useReadingHistory';
-import { postAnalyticsEvent } from '../lib/feed';
 import {
   generateQueryKey,
   RequestKey,
   updateInfiniteCache,
 } from '../lib/query';
-import { AnalyticsEvent } from '../lib/analytics';
-import { usePostFeedback } from '../hooks';
+import { Origin } from '../lib/analytics';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -40,15 +41,14 @@ export type PostOptionsReadingHistoryMenuProps = {
   indexes: QueryIndexes;
 };
 
-/* eslint-disable no-param-reassign */
 const updateReadingHistoryPost =
   (
     client: QueryClient,
     queryKey: QueryKey,
     post: Partial<ReadHistoryPost>,
     { page, edge }: QueryIndexes,
-  ): ((args: { id: string }) => Promise<() => void>) =>
-  async () => {
+  ): (() => UseBookmarkPostRollback) =>
+  () => {
     const history = client.getQueryData<ReadHistoryInfiniteData>(queryKey);
     const { node } = history?.pages[page].readHistory.edges[edge] || {};
     const updated = { ...node, post: { ...node?.post, ...post } };
@@ -93,40 +93,27 @@ export default function PostOptionsReadingHistoryMenu({
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const historyQueryKey = generateQueryKey(RequestKey.ReadingHistory, user);
-  const { isFeedbackEnabled } = usePostFeedback({ post });
 
-  const { bookmark, removeBookmark } = useBookmarkPost({
-    onBookmarkMutate: updateReadingHistoryPost(
-      queryClient,
-      historyQueryKey,
-      {
-        bookmarked: true,
-      },
-      indexes,
-    ),
-    onRemoveBookmarkMutate: updateReadingHistoryPost(
-      queryClient,
-      historyQueryKey,
-      {
-        bookmarked: false,
-      },
-      indexes,
-    ),
-    onBookmarkTrackObject: () =>
-      postAnalyticsEvent(AnalyticsEvent.BookmarkPost, post, {
-        extra: { origin: 'reading history context menu' },
-      }),
-    onRemoveBookmarkTrackObject: () =>
-      postAnalyticsEvent(AnalyticsEvent.RemovePostBookmark, post, {
-        extra: { origin: 'reading history context menu' },
-      }),
+  const { toggleBookmark } = useBookmarkPost({
+    onMutate: () => {
+      const updatePost = updateReadingHistoryPost(
+        queryClient,
+        historyQueryKey,
+        {
+          bookmarked: !post?.bookmarked,
+        },
+        indexes,
+      );
+
+      return updatePost();
+    },
   });
 
-  const onBookmarkReadingHistoryPost = async (): Promise<void> => {
-    if (post?.bookmarked) {
-      return removeBookmark(post);
-    }
-    return bookmark(post);
+  const onToggleBookmark = async (): Promise<void> => {
+    toggleBookmark({
+      post,
+      origin: Origin.ReadingHistoryContextMenu,
+    });
   };
 
   return (
@@ -143,16 +130,13 @@ export default function PostOptionsReadingHistoryMenu({
             <MenuIcon Icon={ShareIcon} /> Share post via...
           </span>
         </Item>
-        <Item className="typo-callout" onClick={onBookmarkReadingHistoryPost}>
+        <Item className="typo-callout" onClick={onToggleBookmark}>
           <span className="flex w-full typo-callout">
             {getBookmarkIconAndMenuText(post?.bookmarked)}
           </span>
         </Item>
         <Item
-          className={classNames(
-            'typo-callout',
-            !isFeedbackEnabled && 'laptop:hidden',
-          )}
+          className="typo-callout"
           onClick={() => onHideHistoryPost(post?.id)}
         >
           <span className="flex w-full typo-callout">

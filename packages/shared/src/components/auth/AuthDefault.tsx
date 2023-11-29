@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { checkKratosEmail } from '../../lib/kratos';
 import AuthModalFooter from './AuthModalFooter';
 import { AuthFormProps, Provider, getFormEmail } from './common';
@@ -13,7 +13,7 @@ import EmailSignupForm from './EmailSignupForm';
 import LoginForm, { LoginFormParams } from './LoginForm';
 import OrDivider from './OrDivider';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { AuthEventNames, AuthTriggersOrString } from '../../lib/auth';
+import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
 import AuthHeader from './AuthHeader';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -32,7 +32,7 @@ interface AuthDefaultProps extends AuthFormProps {
   logInTitle?: string;
   signUpTitle?: string;
   providers: Provider[];
-  trigger: AuthTriggersOrString;
+  trigger: AuthTriggersType;
   disableRegistration?: boolean;
   disablePassword?: boolean;
   isLoading?: boolean;

@@ -22,7 +22,6 @@ export const PostList = forwardRef(function PostList(
     onPostClick,
     onUpvoteClick,
     onCommentClick,
-    onBookmarkClick,
     onReadArticleClick,
     onMenuClick,
     onShare,
@@ -79,7 +78,6 @@ export const PostList = forwardRef(function PostList(
           openNewTab={openNewTab}
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
-          onBookmarkClick={onBookmarkClick}
           onReadArticleClick={onReadArticleClick}
           onShare={onShare}
           onShareClick={onShareClick}

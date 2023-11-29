@@ -53,7 +53,7 @@ type EditSquadOutput = {
 
 type PostToSquadProps = {
   id: string;
-  sourceId: string;
+  sourceId?: string;
   commentary: string;
 };
 
@@ -187,6 +187,14 @@ export const ADD_POST_TO_SQUAD_MUTATION = gql`
   }
 `;
 
+export const UPDATE_SQUAD_POST_MUTATION = gql`
+  mutation UpdateSquadPost($id: ID!, $commentary: String) {
+    editSharePost(id: $id, commentary: $commentary) {
+      id
+    }
+  }
+`;
+
 export const SQUAD_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
@@ -215,8 +223,20 @@ export const SQUAD_HANDE_AVAILABILITY_QUERY = gql`
 `;
 
 export const SQUAD_MEMBERS_QUERY = gql`
-  query SourceMembers($id: ID!, $after: String, $first: Int, $role: String) {
-    sourceMembers(sourceId: $id, after: $after, first: $first, role: $role) {
+  query SourceMembers(
+    $id: ID!
+    $after: String
+    $first: Int
+    $role: String
+    $query: String
+  ) {
+    sourceMembers(
+      sourceId: $id
+      after: $after
+      first: $first
+      role: $role
+      query: $query
+    ) {
       pageInfo {
         endCursor
         hasNextPage
@@ -266,6 +286,22 @@ export const SQUAD_JOIN_MUTATION = gql`
     }
   }
   ${SOURCE_BASE_FRAGMENT}
+`;
+
+export const COLLAPSE_PINNED_POSTS_MUTATION = gql`
+  mutation CollapsePinnedPosts($sourceId: ID!) {
+    collapsePinnedPosts(sourceId: $sourceId) {
+      _
+    }
+  }
+`;
+
+export const EXPAND_PINNED_POSTS_MUTATION = gql`
+  mutation ExpandPinnedPosts($sourceId: ID!) {
+    expandPinnedPosts(sourceId: $sourceId) {
+      _
+    }
+  }
 `;
 
 export const validateSourceHandle = (handle: string, source: Source): boolean =>
@@ -368,6 +404,11 @@ export const addPostToSquad =
   (data: PostToSquadProps): Promise<Post> =>
     requestMethod(graphqlUrl, ADD_POST_TO_SQUAD_MUTATION, data);
 
+export const updateSquadPost =
+  (requestMethod: typeof request) =>
+  (data: PostToSquadProps): Promise<Post> =>
+    requestMethod(graphqlUrl, UPDATE_SQUAD_POST_MUTATION, data);
+
 export async function createSquad(form: SquadForm): Promise<Squad> {
   const inputData: CreateSquadInput = {
     description: form?.description,
@@ -413,6 +454,26 @@ export async function editSquad(
   );
   return data.editSquad;
 }
+
+export const collapsePinnedPosts = async (
+  sourceId: string,
+): Promise<EmptyResponse> => {
+  const res = await request(graphqlUrl, COLLAPSE_PINNED_POSTS_MUTATION, {
+    sourceId,
+  });
+
+  return res.collapsePinnedPosts;
+};
+
+export const expandPinnedPosts = async (
+  sourceId: string,
+): Promise<EmptyResponse> => {
+  const res = await request(graphqlUrl, EXPAND_PINNED_POSTS_MUTATION, {
+    sourceId,
+  });
+
+  return res.expandPinnedPosts;
+};
 
 export const verifyPermission = (
   squad: Squad,

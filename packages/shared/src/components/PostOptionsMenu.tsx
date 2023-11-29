@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
-import { QueryKey, useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
@@ -21,7 +21,11 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../hooks/useToastNotification';
-import { generateQueryKey } from '../lib/query';
+import {
+  AllFeedPages,
+  generateQueryKey,
+  updateCachedPagePost,
+} from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { ShareBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
@@ -36,6 +40,13 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
 import { MenuItemProps } from './fields/PortalMenu';
+import SendBackwardIcon from './icons/SendBackward';
+import BringForwardIcon from './icons/BringForward';
+import {
+  mutateBookmarkFeedPost,
+  useBookmarkPost,
+} from '../hooks/useBookmarkPost';
+import { ActiveFeedContext } from '../contexts';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -47,39 +58,44 @@ const PortalMenu = dynamic(
 export interface PostOptionsMenuProps extends ShareBookmarkProps {
   postIndex?: number;
   post: Post;
-  feedName?: string;
+  prevPost?: Post;
+  nextPost?: Post;
+  feedName?: AllFeedPages;
   onHidden?: () => unknown;
-  feedQueryKey?: QueryKey;
+  onBookmark?: () => unknown;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowBanPost?: () => unknown;
   setShowPromotePost?: () => unknown;
   contextId?: string;
   origin: Origin;
   allowPin?: boolean;
+  isOpen?: boolean;
 }
 
 export default function PostOptionsMenu({
-  onBookmark,
   postIndex,
   post,
+  prevPost,
+  nextPost,
   feedName,
   onHidden,
   onRemovePost,
   setShowBanPost,
   setShowPromotePost,
-  feedQueryKey,
   origin,
   allowPin,
+  isOpen,
   contextId = 'post-context',
 }: PostOptionsMenuProps): ReactElement {
   const client = useQueryClient();
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
-  const { feedSettings } = useFeedSettings();
+  const { feedSettings } = useFeedSettings({ enabled: isOpen });
   const { trackEvent } = useContext(AnalyticsContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openModal } = useLazyModal();
+  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const {
     onFollowSource,
     onUnfollowSource,
@@ -91,6 +107,24 @@ export default function PostOptionsMenu({
     postId: post?.id,
     shouldInvalidateQueries: false,
   });
+
+  const { toggleBookmark } = useBookmarkPost({
+    mutationKey: feedQueryKey,
+    onMutate: feedQueryKey
+      ? ({ id }) => {
+          const updatePost = updateCachedPagePost(
+            feedQueryKey as unknown[],
+            client,
+          );
+
+          return mutateBookmarkFeedPost({ id, items, updatePost });
+        }
+      : undefined,
+  });
+
+  const onToggleBookmark = async () => {
+    toggleBookmark({ post, origin });
+  };
 
   const showMessageAndRemovePost = async (
     message: string,
@@ -107,41 +141,44 @@ export default function PostOptionsMenu({
     });
     onRemovePost?.(_postIndex);
   };
-  const { onConfirmDeletePost, onPinPost, onToggleDownvotePost } =
-    usePostMenuActions({
-      post,
-      postIndex,
-      onPinSuccessful: async () => {
-        const key = getPostByIdKey(post.id);
-        const cached = client.getQueryData(key);
-        if (cached) {
-          client.setQueryData<Post>(key, (data) => ({
-            ...data,
-            pinnedAt: post.pinnedAt ? null : new Date(),
-          }));
-        }
+  const {
+    onConfirmDeletePost,
+    onPinPost,
+    onSwapPinnedPost,
+    onToggleDownvotePost,
+  } = usePostMenuActions({
+    post,
+    postIndex,
+    onPinSuccessful: async () => {
+      const key = getPostByIdKey(post.id);
+      const cached = client.getQueryData(key);
+      if (cached) {
+        client.setQueryData<Post>(key, (data) => ({
+          ...data,
+          pinnedAt: post.pinnedAt ? null : new Date(),
+        }));
+      }
 
-        await client.invalidateQueries(feedQueryKey);
-        displayToast(
-          post.pinnedAt
-            ? 'Your post has been unpinned'
-            : '📌 Your post has been pinned',
-        );
-      },
-      onPostDeleted: ({ index, post: deletedPost }) => {
-        trackEvent(
-          postAnalyticsEvent(AnalyticsEvent.DeletePost, deletedPost, {
-            extra: { origin },
-          }),
-        );
-        return showMessageAndRemovePost(
-          'The post has been deleted',
-          index,
-          null,
-        );
-      },
-      origin,
-    });
+      await client.invalidateQueries(feedQueryKey);
+      displayToast(
+        post.pinnedAt
+          ? 'Your post has been unpinned'
+          : '📌 Your post has been pinned',
+      );
+    },
+    onSwapPostSuccessful: async () => {
+      await client.invalidateQueries(feedQueryKey);
+    },
+    onPostDeleted: ({ index, post: deletedPost }) => {
+      trackEvent(
+        postAnalyticsEvent(AnalyticsEvent.DeletePost, deletedPost, {
+          extra: { origin },
+        }),
+      );
+      return showMessageAndRemovePost('The post has been deleted', index, null);
+    },
+    origin,
+  });
 
   const onReportedPost: ReportedCallback = async (
     reportedPost,
@@ -223,7 +260,7 @@ export default function PostOptionsMenu({
         />
       ),
       label: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
-      action: onBookmark,
+      action: onToggleBookmark,
     },
     {
       icon: (
@@ -284,6 +321,25 @@ export default function PostOptionsMenu({
       action: onConfirmDeletePost,
     });
   }
+
+  if (allowPin && onSwapPinnedPost) {
+    if (nextPost?.pinnedAt) {
+      postOptions.unshift({
+        icon: <MenuIcon Icon={SendBackwardIcon} secondary={!!post.pinnedAt} />,
+        label: 'Send backward',
+        action: () => onSwapPinnedPost({ swapWithId: nextPost.id }),
+      });
+    }
+
+    if (prevPost?.pinnedAt) {
+      postOptions.unshift({
+        icon: <MenuIcon Icon={BringForwardIcon} secondary={!!post.pinnedAt} />,
+        label: 'Bring forward',
+        action: () => onSwapPinnedPost({ swapWithId: prevPost.id }),
+      });
+    }
+  }
+
   if (allowPin && onPinPost) {
     postOptions.unshift({
       icon: <MenuIcon Icon={PinIcon} secondary={!!post.pinnedAt} />,
@@ -291,6 +347,7 @@ export default function PostOptionsMenu({
       action: onPinPost,
     });
   }
+
   if (setShowBanPost) {
     postOptions.push({
       icon: <MenuIcon Icon={HammerIcon} />,

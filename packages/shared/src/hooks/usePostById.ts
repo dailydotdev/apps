@@ -6,7 +6,7 @@ import {
   QueryObserverOptions,
   useQuery,
   UseQueryResult,
-} from 'react-query';
+} from '@tanstack/react-query';
 import { graphqlUrl } from '../lib/config';
 import { useAuthContext } from '../contexts/AuthContext';
 import { Post, PostData, POST_BY_ID_QUERY } from '../graphql/posts';

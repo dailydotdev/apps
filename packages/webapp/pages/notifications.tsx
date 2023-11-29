@@ -1,7 +1,11 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
-import { InfiniteData, useInfiniteQuery, useMutation } from 'react-query';
+import {
+  InfiniteData,
+  useInfiniteQuery,
+  useMutation,
+} from '@tanstack/react-query';
 import {
   Notification,
   NOTIFICATIONS_QUERY,
@@ -30,7 +34,6 @@ import {
 import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import { NotificationPreferenceMenu } from '@dailydotdev/shared/src/components/tooltips/notifications';
-import { useRouter } from 'next/router';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -51,7 +54,6 @@ const seo = (
 );
 
 const Notifications = (): ReactElement => {
-  const router = useRouter();
   const { trackEvent } = useAnalyticsContext();
   const { clearUnreadCount, isSubscribed } = useNotificationContext();
   const { mutateAsync: readNotifications } = useMutation(
@@ -80,13 +82,12 @@ const Notifications = (): ReactElement => {
 
   const length = queryResult?.data?.pages?.length ?? 0;
 
-  const onNotificationClick = ({ id, type, targetUrl }: Notification) => {
+  const onNotificationClick = ({ id, type }: Notification) => {
     trackEvent({
       event_name: AnalyticsEvent.ClickNotification,
       target_id: id,
       extra: JSON.stringify({ origin: Origin.NonRealTime, type }),
     });
-    router.push(targetUrl);
   };
 
   useEffect(() => {

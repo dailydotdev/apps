@@ -3,7 +3,7 @@ import { Modal, ModalProps } from '../common/Modal';
 import { ExternalLinkPreview } from '../../../graphql/posts';
 import MarkdownInput, { MarkdownRef } from '../../fields/MarkdownInput';
 import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
-import { usePostToSquad } from '../../../hooks';
+import { usePostToSquad, useViewSize, ViewSize } from '../../../hooks';
 import { Button, ButtonSize } from '../../buttons/Button';
 import AtIcon from '../../icons/At';
 import { Divider, Justify } from '../../utilities';
@@ -14,8 +14,6 @@ import { useDebouncedUrl } from '../../../hooks/input';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import { Switch } from '../../fields/Switch';
 import CloseButton from '../../CloseButton';
-import useMedia from '../../../hooks/useMedia';
-import { tablet } from '../../../styles/media';
 
 export interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;
@@ -33,7 +31,7 @@ export function CreateSharedPostModal({
   const [link, setLink] = useState(preview?.permalink ?? preview?.url ?? '');
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
+  const isMobile = useViewSize(ViewSize.MobileL);
   const {
     getLinkPreview,
     isLoadingPreview,

@@ -11,6 +11,10 @@ export enum Origin {
   TagsSearch = 'tags search',
   RealTime = 'realtime',
   NonRealTime = 'nonrealtime',
+  ChangelogPopup = 'changelog popup',
+  BlockedFilter = 'blocked filter',
+  SourcePage = 'source page',
+  TagPage = 'tag page',
   // squads - start
   SquadDirectory = 'squad directory',
   SquadCreation = 'squad creation',
@@ -35,12 +39,9 @@ export enum Origin {
   History = 'history',
   FeedbackCard = 'feedback card',
   InitializeRegistrationFlow = 'initialize registration flow',
-}
-
-export enum LoginTrigger {
-  CreateFeedFilters = 'create feed filters',
-  SearchInput = 'search input',
-  SearchSuggestion = 'search suggestion',
+  Onboarding = 'onboarding',
+  ManageTag = 'manage_tag',
+  EditTag = 'edit_tag',
 }
 
 export enum AnalyticsEvent {
@@ -53,7 +54,6 @@ export enum AnalyticsEvent {
   ClickOnboardingBack = 'click onboarding back',
   ClickOnboardingNext = 'click onboarding next',
   OnboardingSkip = 'my feed onboarding skip',
-  CompleteOnboarding = 'complete onboarding',
   GlobalError = 'global error',
   ClickArticleAnonymousCTA = 'click article anonymous cta',
   ClickScrollBlock = 'click scroll block',
@@ -102,13 +102,22 @@ export enum AnalyticsEvent {
   UpvoteSearch = 'upvote search',
   DownvoteSearch = 'downvote search',
   CopySearch = 'copy search',
+  CopyKeyLink = 'copy key link',
+  HideFromHeader = 'hide from header',
+  CloseInvitationPopup = 'close invitation popup',
   ErrorSearch = 'error search',
+  AcceptInvitation = 'accept invitation',
+  DownloadExtension = 'download extension',
+  SearchHighlightAnimation = 'highlight search',
   // search end
-  OpenCompanionPermissionModal = 'open companion permission popup',
-  CloseCompanionPermissionModal = 'close companion permission popup',
   RequestContentScripts = 'request content scripts',
   ApproveContentScripts = 'approve content scripts',
   DeclineContentScripts = 'decline content scripts',
+  ToggleFeedPreview = 'toggle feed preview',
+  CreateFeed = 'create feed',
+  // Referral campaign
+  CopyReferralLink = 'copy referral link',
+  InviteReferral = 'invite referral',
 }
 
 export enum FeedItemTitle {
@@ -126,6 +135,22 @@ export enum TargetType {
   SearchRecommendation = 'search rec',
   SearchHistory = 'search history',
   SearchSource = 'search source',
+  SearchInviteButton = 'search invite button',
+  HideInviteCheckbox = 'hide invite mechanism',
+  ReferralPopup = 'referral popup',
+  InviteFriendsPage = 'invite friends page',
+  ProfilePage = 'profile page',
+  GenericReferralPopup = 'generic referral popup',
+}
+
+export enum TargetId {
+  SearchReferralBadge = 'search referral badge',
+  InviteBanner = 'invite banner',
+  InviteProfileMenu = 'invite in profile menu',
+  // Referral campaign
+  GenericReferralPopup = 'generic referral popup',
+  ProfilePage = 'profile page',
+  InviteFriendsPage = 'invite friends page',
 }
 
 export enum NotificationChannel {
@@ -136,6 +161,7 @@ export enum NotificationChannel {
 export enum NotificationCategory {
   Marketing = 'marketing',
   Product = 'product',
+  Digest = 'digest',
 }
 
 export enum NotificationTarget {

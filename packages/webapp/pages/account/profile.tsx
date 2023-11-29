@@ -33,7 +33,6 @@ const AccountProfilePage = (): ReactElement => {
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
     const values = formToJson<UpdateProfileParameters>(formRef.current);
-
     const params = {
       name: values.name,
       username: values.username,
@@ -136,7 +135,7 @@ const AccountProfilePage = (): ReactElement => {
         >
           <AccountTextField
             leftIcon={<TwitterIcon />}
-            label="Twitter"
+            label="X"
             inputId="twitter"
             hint={hint.twitter}
             valid={!hint.twitter}

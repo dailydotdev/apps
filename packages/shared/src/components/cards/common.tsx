@@ -31,7 +31,6 @@ export interface PostCardProps {
   onUpvoteClick?: (post: Post) => unknown;
   onDownvoteClick?: (post: Post, downvoted: boolean | number) => unknown;
   onCommentClick?: Callback;
-  onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
   onMenuClick?: (event: React.MouseEvent, post: Post) => unknown;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   onShare?: Callback;

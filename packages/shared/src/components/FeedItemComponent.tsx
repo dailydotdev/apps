@@ -44,13 +44,6 @@ export type FeedItemComponentProps = {
   user: LoggedUser | undefined;
   feedName: string;
   ranking?: string;
-  onBookmark: (
-    post: Post,
-    index: number,
-    row: number,
-    column: number,
-    bookmarked: boolean,
-  ) => Promise<void>;
   onPostClick: FeedPostClick;
   onReadArticleClick: FeedPostClick;
   onShare: (post: Post, row?: number, column?: number) => void;
@@ -114,7 +107,6 @@ export default function FeedItemComponent({
   ranking,
   toggleUpvote,
   toggleDownvote,
-  onBookmark,
   onPostClick,
   onShare,
   onShareClick,
@@ -138,6 +130,13 @@ export default function FeedItemComponent({
 
   switch (item.type) {
     case 'post': {
+      if (
+        !!item.post.pinnedAt &&
+        item.post.source?.currentMember?.flags?.collapsePinnedPosts
+      ) {
+        return null;
+      }
+
       const PostTag = useList
         ? PostList
         : PostTypeToTag[item.post.type] ?? ArticlePostCard;
@@ -174,11 +173,8 @@ export default function FeedItemComponent({
             });
           }}
           onPostClick={(post) => onPostClick(post, index, row, column)}
-          onBookmarkClick={(post, bookmarked) =>
-            onBookmark(post, index, row, column, bookmarked)
-          }
-          onReadArticleClick={(e) =>
-            onReadArticleClick(item.post, index, row, column, { clickEvent: e })
+          onReadArticleClick={() =>
+            onReadArticleClick(item.post, index, row, column)
           }
           onShare={(post: Post) => onShare(post, row, column)}
           openNewTab={openNewTab}

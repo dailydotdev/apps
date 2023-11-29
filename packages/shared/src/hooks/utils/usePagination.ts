@@ -18,10 +18,11 @@ export const usePagination = <T = unknown>({
   limit,
 }: UsePaginationProps<T>): UsePagination<T> => {
   const [page, setPage] = useState(1);
+  const max = Math.ceil(items?.length / limit);
 
   return {
-    max: Math.ceil(items?.length / limit),
-    current: page,
+    max,
+    current: max === 0 ? 0 : page,
     paginated: useMemo(
       () => items?.slice(limit * (page - 1), limit * page) ?? [],
       [items, limit, page],

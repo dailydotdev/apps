@@ -1,5 +1,5 @@
 import React, { Fragment, ReactElement, ReactNode } from 'react';
-import { InfiniteQueryObserverBaseResult } from 'react-query';
+import { InfiniteQueryObserverBaseResult } from '@tanstack/react-query';
 import { Connection } from '../../graphql/common';
 import classed from '../../lib/classed';
 import { ClickableText } from '../buttons/ClickableText';

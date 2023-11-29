@@ -30,7 +30,7 @@ import useContextMenu from '../../hooks/useContextMenu';
 
 export interface PostHeaderActionsProps extends ShareBookmarkProps {
   post: Post;
-  onReadArticle?: (e: React.MouseEvent, data: { post: Post }) => void;
+  onReadArticle?: () => void;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   className?: string;
   style?: CSSProperties;
@@ -45,7 +45,6 @@ const Container = classed('div', 'flex flex-row items-center');
 export function PostHeaderActions({
   onReadArticle,
   onShare,
-  onBookmark,
   post,
   onClose,
   inlineActions,
@@ -58,7 +57,7 @@ export function PostHeaderActions({
   const { openNewTab } = useContext(SettingsContext);
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
-  const { onMenuClick } = useContextMenu({ id: contextMenuId });
+  const { onMenuClick, isOpen } = useContextMenu({ id: contextMenuId });
 
   const isInternalReadType = internalReadTypes.includes(post?.type);
   const isModerator = user?.roles?.includes(Roles.Moderator);
@@ -112,7 +111,7 @@ export function PostHeaderActions({
             href={post.sharedPost?.permalink ?? post.permalink}
             target={openNewTab ? '_blank' : '_self'}
             icon={<OpenLinkIcon />}
-            onClick={(e) => onReadArticle(e, { post })}
+            onClick={onReadArticle}
             data-testid="postActionsRead"
           >
             {!inlineActions && 'Read post'}
@@ -136,7 +135,6 @@ export function PostHeaderActions({
         </SimpleTooltip>
       )}
       <PostOptionsMenu
-        onBookmark={onBookmark}
         onShare={onShare}
         post={post}
         onRemovePost={onRemovePost}
@@ -144,6 +142,7 @@ export function PostHeaderActions({
         setShowPromotePost={isModerator ? () => promotePostPrompt() : null}
         contextId={contextMenuId}
         origin={Origin.ArticleModal}
+        isOpen={isOpen}
       />
     </Container>
   );

@@ -21,7 +21,6 @@ import { BasePostContent, PostContentClassName } from './BasePostContent';
 import classed from '../../lib/classed';
 import { cloudinary } from '../../lib/image';
 import { combinedClicks } from '../../lib/click';
-import useCompanionTrigger from '../../hooks/useCompanionTrigger';
 
 export type PassedPostNavigationProps = Pick<
   PostNavigationProps,
@@ -72,11 +71,7 @@ export function PostContent({
     origin,
     post,
   });
-  const {
-    onSharePost: onShare,
-    onReadArticle,
-    onToggleBookmark,
-  } = engagementActions;
+  const { onSharePost: onShare, onReadArticle } = engagementActions;
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
@@ -89,16 +84,12 @@ export function PostContent({
     onPreviousPost,
     onNextPost,
     post,
-    onBookmark: onToggleBookmark,
     onReadArticle,
     onClose,
     onShare,
     inlineActions,
     onRemovePost,
   };
-
-  const { onPostArticleClick: onReadArticleClick } =
-    useCompanionTrigger(onReadArticle);
 
   return (
     <PostContentContainer
@@ -119,9 +110,8 @@ export function PostContent({
       >
         {!hasNavigation && (
           <PostHeaderActions
-            onBookmark={onToggleBookmark}
             onShare={onShare}
-            onReadArticle={onReadArticleClick}
+            onReadArticle={onReadArticle}
             post={post}
             onClose={onClose}
             className="flex tablet:hidden mb-4"
@@ -159,7 +149,7 @@ export function PostContent({
               title="Go to post"
               target="_blank"
               rel="noopener"
-              {...combinedClicks(onReadArticleClick)}
+              {...combinedClicks(onReadArticle)}
             >
               {post.title}
             </a>
@@ -178,7 +168,7 @@ export function PostContent({
             title="Go to post"
             target="_blank"
             rel="noopener"
-            {...combinedClicks(onReadArticleClick)}
+            {...combinedClicks(onReadArticle)}
             className="block overflow-hidden mb-10 rounded-2xl cursor-pointer"
             style={{ maxWidth: '25.625rem' }}
           >
@@ -200,9 +190,8 @@ export function PostContent({
         </BasePostContent>
       </PostContainer>
       <PostWidgets
-        onBookmark={onToggleBookmark}
         onShare={onShare}
-        onReadArticle={onReadArticleClick}
+        onReadArticle={onReadArticle}
         post={post}
         className="pb-8"
         onClose={onClose}

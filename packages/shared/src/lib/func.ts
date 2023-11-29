@@ -30,3 +30,11 @@ export const postWindowMessage = (
 ): void => window.opener?.postMessage?.({ ...params, eventKey }, attributes);
 
 export const checkIsExtension = (): boolean => !!process.env.TARGET_BROWSER;
+
+export const defaultSearchDebounceMs = 200;
+
+export const getRandomNumber = (min: number, max: number): number => {
+  const range = max - min + 1;
+
+  return Math.floor(Math.random() * range) + min;
+};

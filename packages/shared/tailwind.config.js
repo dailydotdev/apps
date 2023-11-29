@@ -21,7 +21,6 @@ module.exports = {
           inherit: 'inherit',
           transparent: 'transparent',
           whatsapp: '#30B944',
-          twitter: '#1D9BF0',
           facebook: '#4363B6',
           reddit: '#FF4500',
           linkedin: '#0077B5',
@@ -116,6 +115,7 @@ module.exports = {
           label: 'var(--theme-highlight-label)',
         },
       },
+      black: '#000000',
       white: '#ffffff',
       transparent: 'transparent',
     },
@@ -208,6 +208,9 @@ module.exports = {
       spacing: {
         22: '5.5rem',
         70: '17.5rem',
+      },
+      maxWidth: {
+        widget: '19.25rem',
       },
       width: {
         70: '17.5rem',

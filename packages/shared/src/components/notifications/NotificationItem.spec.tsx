@@ -1,6 +1,6 @@
-import React, { ReactNode } from 'react';
-import { render, screen } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import React, { ReactElement, ReactNode } from 'react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import NotificationItem, { NotificationItemProps } from './NotificationItem';
 import { NotificationAvatarType } from '../../graphql/notifications';
 import { NotificationType, NotificationIconType } from './utils';
@@ -35,6 +35,15 @@ const sampleNotification: NotificationItemProps = {
     },
   ],
 };
+
+const mockReact = React;
+
+jest.mock(
+  'next/link',
+  () =>
+    ({ children, ...rest }: { children: ReactElement }) =>
+      mockReact.cloneElement(children, { ...rest }),
+);
 
 const renderComponent = (component: ReactNode) => {
   const client = new QueryClient();
@@ -115,5 +124,28 @@ describe('notification item', () => {
   it('should have a description that supports html', async () => {
     renderComponent(<NotificationItem {...sampleNotification} />);
     await screen.findByText(sampleNotificationDescription);
+  });
+});
+
+describe('notification click if onClick prop is provided', () => {
+  it('should call provided onClick', async () => {
+    const mockOnClick = jest.fn();
+    renderComponent(
+      <NotificationItem {...sampleNotification} onClick={mockOnClick} />,
+    );
+
+    const notificationLink = await screen.findByTestId('openNotification');
+    expect(notificationLink).toBeInTheDocument();
+    expect(notificationLink).toHaveAttribute('href', 'post url');
+
+    fireEvent.click(notificationLink);
+    await waitFor(() => expect(mockOnClick).toBeCalledTimes(1));
+  });
+});
+describe('notification click if onClick prop is NOT provided', () => {
+  it('should not render link', async () => {
+    renderComponent(<NotificationItem {...sampleNotification} />);
+
+    expect(screen.queryByTestId('openNotification')).not.toBeInTheDocument();
   });
 });

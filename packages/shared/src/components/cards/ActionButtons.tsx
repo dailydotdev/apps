@@ -13,6 +13,7 @@ import OptionsButton from '../buttons/OptionsButton';
 import { ReadArticleButton } from './ReadArticleButton';
 import { visibleOnGroupHover } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { useFeedPreviewMode } from '../../hooks';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "share" */ '../icons/Share'),
@@ -23,7 +24,6 @@ export interface ActionButtonsProps {
   onMenuClick?: (e: React.MouseEvent) => unknown;
   onUpvoteClick?: (post: Post) => unknown;
   onCommentClick?: (post: Post) => unknown;
-  onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
   onShare?: (post: Post) => unknown;
   onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
@@ -31,6 +31,26 @@ export interface ActionButtonsProps {
   children?: ReactNode;
   insaneMode?: boolean;
   openNewTab?: boolean;
+}
+
+type LastActionButtonProps = {
+  onShare?: (post: Post) => unknown;
+  onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
+  post: Post;
+};
+function LastActionButton(props: LastActionButtonProps) {
+  const { onShareClick, post } = props;
+  const onClickShare = (event) => onShareClick?.(event, post);
+  return (
+    <SimpleTooltip content="Share post">
+      <Button
+        icon={<ShareIcon />}
+        buttonSize={ButtonSize.Small}
+        onClick={onClickShare}
+        className="btn-tertiary-cabbage"
+      />
+    </SimpleTooltip>
+  );
 }
 
 export default function ActionButtons({
@@ -48,6 +68,17 @@ export default function ActionButtons({
   const upvoteCommentProps: ButtonProps<'button'> = {
     buttonSize: ButtonSize.Small,
   };
+  const isFeedPreview = useFeedPreviewMode();
+
+  if (isFeedPreview) {
+    return null;
+  }
+
+  const lastActionButton = LastActionButton({
+    post,
+    onShare,
+    onShareClick,
+  });
 
   return (
     <div

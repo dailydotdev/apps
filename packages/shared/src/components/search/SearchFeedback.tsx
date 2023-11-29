@@ -1,18 +1,20 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { WidgetContainer } from '../widgets/common';
 import { Button, ButtonSize } from '../buttons/Button';
 import FeedbackIcon from '../icons/Feedback';
 import { ListCardDivider } from '../cards/Card';
-import { PageWidgets } from '../utilities';
 import { searchDocs, searchFeedback } from '../../lib/constants';
 import DocsIcon from '../icons/Docs';
+import { WithClassNameProps } from '../utilities';
 
-export const SearchFeedback = (): ReactElement => (
-  <PageWidgets
-    tablet={false}
-    className="order-last laptop:order-2 items-center"
+export const SearchFeedback = ({
+  className,
+}: WithClassNameProps): ReactElement => (
+  <WidgetContainer
+    className={classNames('flex flex-col justify-around', className)}
   >
-    <WidgetContainer className="flex justify-around p-4">
+    <div className="flex p-4">
       <Button
         tag="a"
         target="_blank"
@@ -36,6 +38,10 @@ export const SearchFeedback = (): ReactElement => (
       >
         User guide
       </Button>
-    </WidgetContainer>
-  </PageWidgets>
+    </div>
+    <p className="py-3 px-4 border-t typo-subhead text-theme-label-quaternary border-theme-divider-tertiary">
+      daily.dev Search is in beta and can make mistakes. Verify important
+      information.
+    </p>
+  </WidgetContainer>
 );

@@ -62,6 +62,7 @@ export default function RankProgressWrapper({
           'flex items-center cursor-pointer focus-outline w-full',
           sidebarExpanded ? 'rounded-12 p-3' : 'rounded-10',
         )}
+        aria-label="Open rank modal"
         onClick={() => setShowRanksModal(true)}
       >
         <RankProgress

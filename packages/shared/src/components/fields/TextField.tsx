@@ -167,7 +167,7 @@ function TextFieldComponent(
           readOnly={readOnly}
           size={1}
           className={classNames(
-            'self-stretch',
+            'self-stretch text-ellipsis',
             className?.input,
             getFieldFontColor({
               readOnly,

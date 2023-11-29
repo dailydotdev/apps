@@ -1,11 +1,12 @@
 import { useContext, useMemo } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AllTagCategoriesData, FeedSettings } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey, getHasAnyFilter } from './useFeedSettings';
 import useMutateFilters from './useMutateFilters';
 import { BOOT_QUERY_KEY } from '../contexts/common';
 import { AuthEventNames } from '../lib/auth';
+import { AnalyticsEvent } from '../lib/analytics';
 
 interface RegisterLocalFilters {
   hasFilters: boolean;
@@ -34,7 +35,7 @@ export function useMyFeed(): UseMyFeed {
     }
 
     trackEvent({
-      event_name: 'create feed',
+      event_name: AnalyticsEvent.CreateFeed,
     });
 
     try {

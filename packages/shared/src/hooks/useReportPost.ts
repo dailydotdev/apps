@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import request from 'graphql-request';
 import {
   HIDE_POST_MUTATION,
@@ -49,7 +49,7 @@ export default function useReportPost(): UseReportPostRet {
 
   const reportPost = async (params: ReportPostProps) => {
     if (!user) {
-      showLogin(AuthTriggers.ReportPost);
+      showLogin({ trigger: AuthTriggers.ReportPost });
       return { successful: false };
     }
 
@@ -60,7 +60,7 @@ export default function useReportPost(): UseReportPostRet {
 
   const hidePost = async (id: string) => {
     if (!user) {
-      showLogin(AuthTriggers.HidePost);
+      showLogin({ trigger: AuthTriggers.HidePost });
       return { successful: false };
     }
 
@@ -71,7 +71,7 @@ export default function useReportPost(): UseReportPostRet {
 
   const unhidePost = async (id: string) => {
     if (!user) {
-      showLogin(AuthTriggers.HidePost);
+      showLogin({ trigger: AuthTriggers.HidePost });
       return { successful: false };
     }
 

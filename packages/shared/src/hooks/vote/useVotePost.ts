@@ -1,5 +1,5 @@
 import { useContext, useCallback } from 'react';
-import { useQueryClient, useMutation } from 'react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import {
@@ -115,7 +115,7 @@ const useVotePost = ({
       }
 
       if (!user) {
-        showLogin(AuthTriggers.Upvote);
+        showLogin({ trigger: AuthTriggers.Upvote });
 
         return;
       }
@@ -156,7 +156,7 @@ const useVotePost = ({
       }
 
       if (!user) {
-        showLogin(AuthTriggers.Downvote);
+        showLogin({ trigger: AuthTriggers.Downvote });
 
         return;
       }

@@ -5,8 +5,10 @@ import React, {
   useEffect,
   useRef,
   useState,
+  createContext,
+  useMemo,
 } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import {
   Context,
   GrowthBook,
@@ -19,10 +21,17 @@ import {
 import { WidenPrimitives, JSONValue } from '@growthbook/growthbook';
 import { isProduction } from '../lib/constants';
 import { BootApp, BootCacheData } from '../lib/boot';
-import { decrypt } from './crypto';
 import { apiUrl } from '../lib/config';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
 import { Feature } from '../lib/featureManagement';
+
+export type FeaturesReadyContextValue = {
+  ready: boolean;
+};
+
+export const FeaturesReadyContext = createContext<FeaturesReadyContextValue>({
+  ready: false,
+});
 
 export type GrowthBookProviderProps = {
   app: BootApp;
@@ -43,9 +52,9 @@ export const GrowthBookProvider = ({
   experimentation,
   updateExperimentation,
   children,
-  firstLoad,
 }: GrowthBookProviderProps): ReactElement => {
   const { fetchMethod } = useRequestProtocol();
+  const [ready, setReady] = useState(false);
   const { mutateAsync: sendAllocation } = useMutation(
     async (data: { experimentId: string; variationId: string }) => {
       const res = await fetchMethod(`${apiUrl}/e/x`, {
@@ -79,21 +88,15 @@ export const GrowthBookProvider = ({
   );
 
   useEffect(() => {
-    if (gb && experimentation?.f && firstLoad) {
+    if (gb && experimentation?.features) {
       const currentFeats = gb.getFeatures();
       // Do not update when the features are already set
       if (!currentFeats || !Object.keys(currentFeats).length) {
-        decrypt(
-          experimentation.f,
-          process.env.NEXT_PUBLIC_EXPERIMENTATION_KEY,
-          'AES-CBC',
-          128,
-        ).then((features) => {
-          gb.setFeatures(JSON.parse(features));
-        });
+        gb.setFeatures(experimentation.features);
+        setReady(true);
       }
     }
-  }, [gb, experimentation?.f, firstLoad]);
+  }, [experimentation?.features, gb]);
 
   useEffect(() => {
     callback.current = async (experiment, result) => {
@@ -151,11 +154,21 @@ export const GrowthBookProvider = ({
     gb.setAttributes(atts);
   }, [app, user, deviceId, gb, version, experimentation?.a]);
 
-  return <Provider growthbook={gb}>{children}</Provider>;
+  const featuresReadyContextValue = useMemo<FeaturesReadyContextValue>(() => {
+    return {
+      ready,
+    };
+  }, [ready]);
+
+  return (
+    <FeaturesReadyContext.Provider value={featuresReadyContextValue}>
+      <Provider growthbook={gb}>{children}</Provider>
+    </FeaturesReadyContext.Provider>
+  );
 };
 
-export const useFeatureIsOn = (feature: Feature<JSONValue>): boolean =>
-  gbUseFeatureIsOn(feature.id);
+export const useFeatureIsOn = (feature?: Feature<JSONValue>): boolean =>
+  feature ? gbUseFeatureIsOn(feature.id) : false;
 
 export const useFeature = <T extends JSONValue>(
   feature: Feature<T>,

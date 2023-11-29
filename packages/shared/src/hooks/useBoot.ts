@@ -1,4 +1,4 @@
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { BOOT_QUERY_KEY } from '../contexts/common';
 import { Squad } from '../graphql/sources';
 import { Boot } from '../lib/boot';

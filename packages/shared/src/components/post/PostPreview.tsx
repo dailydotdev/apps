@@ -61,7 +61,12 @@ function PostPreview({
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
         />
       )}
-      <a href={url} target="_blank" rel="noopener noreferrer">
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Open link"
+      >
         <OpenLinkIcon
           size={IconSize.Medium}
           className={isLoading && 'text-theme-label-disabled'}

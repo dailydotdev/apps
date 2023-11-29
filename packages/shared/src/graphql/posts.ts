@@ -157,7 +157,6 @@ export const POST_BY_ID_QUERY = gql`
     post(id: $id) {
       ...SharedPostInfo
       trending
-      views
       content
       contentHtml
       sharedPost {
@@ -393,6 +392,9 @@ export const LATEST_CHANGELOG_POST_QUERY = gql`
           numComments
           numUpvotes
           summary
+          userState {
+            vote
+          }
         }
       }
     }
@@ -478,7 +480,6 @@ export const EDIT_POST_MUTATION = gql`
     editPost(id: $id, title: $title, content: $content, image: $image) {
       ...SharedPostInfo
       trending
-      views
       content
       contentHtml
       source {
@@ -531,6 +532,23 @@ interface UpdatePinnedProps {
 export const updatePinnedPost = async (
   variables: UpdatePinnedProps,
 ): Promise<void> => request(graphqlUrl, PIN_POST_MUTATION, variables);
+
+export const SWAP_PINNED_POSTS_MUTATION = gql`
+  mutation SwapPinnedPosts($id: ID!, $swapWithId: ID!) {
+    swapPinnedPosts(id: $id, swapWithId: $swapWithId) {
+      _
+    }
+  }
+`;
+
+interface SwapPinnedPostsProps {
+  id: Post['id'];
+  swapWithId: Post['id'];
+}
+
+export const swapPinnedPosts = async (
+  variables: SwapPinnedPostsProps,
+): Promise<void> => request(graphqlUrl, SWAP_PINNED_POSTS_MUTATION, variables);
 
 export const CREATE_POST_MUTATION = gql`
   mutation CreatePost(

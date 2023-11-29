@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { Item, useContextMenu } from '@dailydotdev/react-contexify';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
 import UpvoteIcon from '../icons/Upvote';
@@ -90,7 +90,7 @@ export default function CommentActionButtons({
       }),
     {
       onMutate: async () => {
-        await queryClient.cancelQueries(RequestKey.PostComments);
+        await queryClient.cancelQueries([RequestKey.PostComments]);
         setUpvoted(true);
         setNumUpvotes(numUpvotes + 1);
         return () => {
@@ -109,7 +109,7 @@ export default function CommentActionButtons({
       }),
     {
       onMutate: async () => {
-        await queryClient.cancelQueries(RequestKey.PostComments);
+        await queryClient.cancelQueries([RequestKey.PostComments]);
         setUpvoted(false);
         setNumUpvotes(numUpvotes - 1);
         return () => {
@@ -139,7 +139,7 @@ export default function CommentActionButtons({
       );
       return upvoteComment();
     }
-    showLogin(AuthTriggers.CommentUpvote);
+    showLogin({ trigger: AuthTriggers.CommentUpvote });
     return undefined;
   };
 
@@ -153,7 +153,7 @@ export default function CommentActionButtons({
 
   const openReportCommentModal = () => {
     if (!user) {
-      return showLogin(AuthTriggers.ReportComment);
+      return showLogin({ trigger: AuthTriggers.ReportComment });
     }
 
     return openModal({

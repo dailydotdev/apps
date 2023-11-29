@@ -3,7 +3,7 @@ import TabContainer, {
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
 import usePrivilegedSession from '@dailydotdev/shared/src/hooks/usePrivilegedSession';
 import React, { ReactElement, useRef, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   AuthFlow,
   getKratosProviders,
@@ -53,7 +53,7 @@ const AccountSecurityPage = (): ReactElement => {
 
   const onSetPassword = () => {
     displayToast('Password changed successfully!');
-    updatePasswordRef.current.reset();
+    updatePasswordRef.current?.reset();
   };
 
   const { initializePrivilegedSession } = usePrivilegedSession({

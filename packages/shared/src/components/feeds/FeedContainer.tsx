@@ -4,6 +4,8 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
+  useEffect,
+  useRef,
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
@@ -16,13 +18,17 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../../hooks/useToastNotification';
-import { SearchBarSuggestionList, SearchBarInput } from '../search';
+import { SearchBarInput, SearchBarSuggestionList } from '../search';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 import { webappUrl } from '../../lib/constants';
 import { useSearchSuggestions } from '../../hooks/search';
-import { Origin } from '../../lib/analytics';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
+import { useActions } from '../../hooks/useActions';
+import { ActionType } from '../../graphql/actions';
+import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { FeedReadyMessage } from '../onboarding';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -30,7 +36,6 @@ export interface FeedContainerProps {
   header?: ReactNode;
   className?: string;
   inlineHeader?: boolean;
-  afterFeed?: ReactNode;
   showSearch?: boolean;
   besideSearch?: ReactNode;
   actionButtons?: ReactNode;
@@ -86,7 +91,6 @@ export const FeedContainer = ({
   header,
   className,
   inlineHeader = false,
-  afterFeed,
   showSearch,
   besideSearch,
   actionButtons,
@@ -98,6 +102,8 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const { trackEvent } = useAnalyticsContext();
+  const { completeAction, checkHasCompleted } = useActions();
   const router = useRouter();
   const searchValue = useFeature(feature.search);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
@@ -109,18 +115,42 @@ export const FeedContainer = ({
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
-  const suggestionsProps = useSearchSuggestions({ origin: Origin.HomePage });
+  const isFinder = router.pathname === '/posts/finder';
+  const isV1Search =
+    searchValue === SearchExperiment.V1 && showSearch && !isFinder;
+
+  const suggestionsProps = useSearchSuggestions({
+    origin: Origin.HomePage,
+    disabled: !isV1Search,
+  });
+  const isTracked = useRef(false);
+  const shouldShowPulse =
+    checkHasCompleted(ActionType.AcceptedSearch) &&
+    !checkHasCompleted(ActionType.UsedSearch);
+
+  useEffect(() => {
+    if (!shouldShowPulse || isTracked.current) {
+      return;
+    }
+
+    isTracked.current = true;
+    trackEvent({ event_name: AnalyticsEvent.SearchHighlightAnimation });
+  }, [trackEvent, shouldShowPulse]);
 
   if (!loadedSettings) {
     return <></>;
   }
 
-  const isFinder = router.pathname === '/posts/finder';
-  const isV1Search =
-    searchValue === SearchExperiment.V1 && showSearch && !isFinder;
   const onSearch = (event: FormEvent, input: string) => {
     event.preventDefault();
     router.push(`${webappUrl}search?q=${encodeURIComponent(input)}`);
+  };
+  const handleSearchFocus = () => {
+    if (!shouldShowPulse) {
+      return;
+    }
+
+    completeAction(ActionType.UsedSearch);
   };
 
   return (
@@ -144,18 +174,25 @@ export const FeedContainer = ({
           aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
           data-testid="posts-feed"
         >
+          {router.query?.welcome === 'true' && (
+            <FeedReadyMessage className="mb-10" />
+          )}
           {inlineHeader && header}
           {isV1Search && (
             <span className="flex flex-row gap-3">
               <SearchBarInput
                 className={{
-                  container: 'max-w-2xl w-full flex flex-1',
+                  container: classNames(
+                    'max-w-2xl w-full flex flex-1',
+                    shouldShowPulse && 'highlight-pulse',
+                  ),
                   field: 'w-full',
                   form: 'w-full',
                 }}
                 showProgress={false}
                 onSubmit={onSearch}
                 shouldShowPopup
+                inputProps={{ onFocus: handleSearchFocus }}
                 suggestionsProps={suggestionsProps}
               />
               {besideSearch}
@@ -184,7 +221,6 @@ export const FeedContainer = ({
           >
             {children}
           </div>
-          {afterFeed}
         </div>
       </div>
     </div>

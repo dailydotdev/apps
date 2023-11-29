@@ -4,12 +4,12 @@ import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
 import nock from 'nock';
 import { waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useJoinReferral } from './useJoinReferral';
-import { AuthContextProvider } from '../contexts/AuthContext';
-import { mockGraphQL } from '../../__tests__/helpers/graphql';
-import { GET_REFERRING_USER_QUERY } from '../graphql/users';
-import defaultUser from '../../__tests__/fixture/loggedUser';
+import { AuthContextProvider } from '../../contexts/AuthContext';
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
+import { GET_REFERRING_USER_QUERY } from '../../graphql/users';
+import defaultUser from '../../../__tests__/fixture/loggedUser';
 
 describe('useJoinReferral hook', () => {
   const createWrapper = ({ user = null, client = new QueryClient() }) => {

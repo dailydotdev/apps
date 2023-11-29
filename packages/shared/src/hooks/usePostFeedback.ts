@@ -1,12 +1,12 @@
 import { useContext, useMemo } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
-import { useMutation, useQueryClient } from 'react-query';
 import { Post, dismissPostFeedback, UserPostVote } from '../graphql/posts';
 import { optimisticPostUpdateInFeed } from '../lib/feed';
 import { updatePostCache } from './usePostById';
 import { updateCachedPagePost } from '../lib/query';
 import { useActiveFeedContext } from '../contexts';
-import { MainFeedPage } from '../components/utilities';
+import { SharedFeedPage } from '../components/utilities';
 import { EmptyResponse } from '../graphql/emptyResponse';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
@@ -19,7 +19,7 @@ type UsePostFeedbackProps = {
 interface UsePostFeedback {
   showFeedback: boolean;
   dismissFeedback: () => Promise<EmptyResponse>;
-  isFeedbackEnabled: boolean;
+  isLowImpsEnabled: boolean;
 }
 
 export const usePostFeedback = ({
@@ -29,11 +29,10 @@ export const usePostFeedback = ({
   const { queryKey: feedQueryKey, items } = useActiveFeedContext();
   const { trackEvent } = useContext(AnalyticsContext);
 
-  const isFeedbackEnabled = useFeatureIsOn(
-    feature.engagementLoopJuly2023Upvote.id,
-  );
+  const isLowImpsEnabled = useFeatureIsOn(feature.lowImps.id);
+
   const isMyFeed = useMemo(() => {
-    return feedQueryKey?.some((item) => item === MainFeedPage.MyFeed);
+    return feedQueryKey?.some((item) => item === SharedFeedPage.MyFeed);
   }, [feedQueryKey]);
 
   const dismissFeedbackMutation = useMutation(
@@ -84,10 +83,7 @@ export const usePostFeedback = ({
   );
 
   const shouldShowFeedback =
-    isFeedbackEnabled &&
-    isMyFeed &&
-    !!post?.read &&
-    post?.userState?.vote === UserPostVote.None;
+    isMyFeed && !!post?.read && post?.userState?.vote === UserPostVote.None;
 
   const showFeedback = useMemo(() => {
     if (!shouldShowFeedback) {
@@ -103,6 +99,6 @@ export const usePostFeedback = ({
   return {
     showFeedback,
     dismissFeedback: dismissFeedbackMutation.mutateAsync,
-    isFeedbackEnabled,
+    isLowImpsEnabled,
   };
 };

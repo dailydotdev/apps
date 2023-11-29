@@ -58,10 +58,6 @@ const SquadNotificationsModal = dynamic(
     ),
 );
 
-const CompanionModal = dynamic(
-  () => import(/* webpackChunkName: "companionModal" */ './CompanionModal'),
-);
-
 const FeedFilters = dynamic(
   () => import(/* webpackChunkName: "feedFilters" */ '../filters/FeedFilters'),
 );
@@ -86,6 +82,24 @@ const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shadeModal" */ './ShareModal'),
 );
 
+const SearchReferralModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "searchReferralModal" */ './referral/SearchReferralModal'
+    ),
+);
+
+const VideoModal = dynamic(
+  () => import(/* webpackChunkName: "videoModal" */ './VideoModal'),
+);
+
+const GenericReferralModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "genericReferralModal" */ './referral/GenericReferralModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -97,11 +111,13 @@ export const modals = {
   [LazyModal.SharePost]: ShareModal,
   [LazyModal.ReportComment]: ReportCommentModal,
   [LazyModal.SquadNotifications]: SquadNotificationsModal,
-  [LazyModal.CompanionModal]: CompanionModal,
   [LazyModal.SubmitArticle]: SubmitArticle,
   [LazyModal.NewSource]: NewSource,
   [LazyModal.FeedFilters]: FeedFilters,
   [LazyModal.VerifySession]: VerifySession,
+  [LazyModal.SearchReferral]: SearchReferralModal,
+  [LazyModal.GenericReferral]: GenericReferralModal,
+  [LazyModal.Video]: VideoModal,
 };
 
 type GetComponentProps<T> = T extends
@@ -135,10 +151,12 @@ export type LazyModalType<T extends keyof ModalsType> = {
   > extends Record<string, never>
     ? {
         type: K;
+        persistOnRouteChange?: boolean;
         props?: LazyModalComponentType<K>;
       }
     : {
         type: K;
+        persistOnRouteChange?: boolean;
         props: LazyModalComponentType<K>;
       };
 }[T];

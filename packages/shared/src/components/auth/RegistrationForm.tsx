@@ -9,7 +9,7 @@ import React, {
 import {
   AuthEventNames,
   AuthTriggers,
-  AuthTriggersOrString,
+  AuthTriggersType,
   RegistrationError,
   RegistrationParameters,
 } from '../../lib/auth';
@@ -33,6 +33,7 @@ import { useGenerateUsername } from '../../hooks';
 import { AuthFormProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
+import { onValidateHandles } from '../../hooks/useProfileForm';
 
 export interface RegistrationFormProps extends AuthFormProps {
   email: string;
@@ -42,7 +43,7 @@ export interface RegistrationFormProps extends AuthFormProps {
   onUpdateHints?: (errors: RegistrationError) => void;
   onSignup?: (params: RegistrationFormValues) => void;
   token: string;
-  trigger: AuthTriggersOrString;
+  trigger: AuthTriggersType;
 }
 
 export type RegistrationFormValues = Omit<
@@ -110,6 +111,29 @@ export const RegistrationForm = ({
       }
 
       onUpdateHints(setHints);
+      return;
+    }
+
+    const error = onValidateHandles(
+      {},
+      {
+        username: values['traits.username'],
+        twitter: values['traits.twitter'],
+      },
+    );
+
+    if (error.username || error.twitter) {
+      const updatedHints = { ...hints };
+
+      if (error.username) {
+        updatedHints['traits.username'] = error.username;
+      }
+
+      if (error.twitter) {
+        updatedHints['traits.twitter'] = error.twitter;
+      }
+
+      onUpdateHints(updatedHints);
       return;
     }
 
@@ -201,7 +225,7 @@ export const RegistrationForm = ({
             leftIcon={<TwitterIcon />}
             name="traits.twitter"
             inputId="traits.twitter"
-            label="Twitter"
+            label="X"
             type="text"
             required
           />

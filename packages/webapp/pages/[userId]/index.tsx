@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import {
   addDays,
   endOfYear,
@@ -38,8 +38,7 @@ import CommentsSection from '@dailydotdev/shared/src/components/profile/Comments
 import PostsSection from '@dailydotdev/shared/src/components/profile/PostsSection';
 import AuthorStats from '@dailydotdev/shared/src/components/profile/AuthorStats';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
-import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
-import { laptop } from '@dailydotdev/shared/src/styles/media';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { weeklyGoal } from '@dailydotdev/shared/src/lib/constants';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import CalendarHeatmap from '../../components/CalendarHeatmap';
@@ -117,7 +116,7 @@ const getHistoryTitle = (
 
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const { user, tokenRefreshed } = useContext(AuthContext);
-  const fullHistory = useMedia([laptop.replace('@media ', '')], [true], false);
+  const fullHistory = useViewSize(ViewSize.Laptop);
   const [selectedHistoryYear, setSelectedHistoryYear] = useState(0);
   const [before, after] = useMemo<[Date, Date]>(() => {
     if (!fullHistory) {

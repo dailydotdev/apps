@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { browser } from 'webextension-polyfill-ts';
 import { Boot, BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -12,16 +12,19 @@ import { RouterContext } from 'next/dist/shared/lib/router-context';
 import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
-import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
+import {
+  ExtensionMessageType,
+  getCompanionWrapper,
+} from '@dailydotdev/shared/src/lib/extension';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
-import { ReactQueryDevtools } from 'react-query/devtools';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
 import { version } from '../../package.json';
-import { getCompanionWrapper } from './common';
 
 const queryClient = new QueryClient(defaultQueryClientConfig);
 const router = new CustomRouter();
@@ -107,13 +110,19 @@ export default function App({
                     deviceId={deviceId}
                     getPage={() => url}
                   >
-                    <Companion
-                      postData={postData}
-                      companionHelper={alerts?.companionHelper}
-                      companionExpanded={settings?.companionExpanded}
-                      onOptOut={() => setIsOptOutCompanion(true)}
-                      onUpdateToken={setToken}
-                    />
+                    <NotificationsContextProvider
+                      app={app}
+                      isNotificationsReady={false}
+                      unreadCount={0}
+                    >
+                      <Companion
+                        postData={postData}
+                        companionHelper={alerts?.companionHelper}
+                        companionExpanded={settings?.companionExpanded}
+                        onOptOut={() => setIsOptOutCompanion(true)}
+                        onUpdateToken={setToken}
+                      />
+                    </NotificationsContextProvider>
                     <PromptElement parentSelector={getCompanionWrapper} />
                     <Toast
                       autoDismissNotifications={

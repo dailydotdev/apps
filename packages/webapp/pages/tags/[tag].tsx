@@ -29,6 +29,8 @@ import classNames from 'classnames';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import XIcon from '@dailydotdev/shared/src/components/icons/MiniClose';
+import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
+import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
@@ -42,7 +44,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
   const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
   const { feedSettings } = useFeedSettings();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
-    useTagAndSource({ origin: 'tag page' });
+    useTagAndSource({ origin: Origin.TagPage });
 
   const tagStatus = useMemo(() => {
     if (!feedSettings) {
@@ -85,7 +87,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
           await onFollowTags({ tags: [tag] });
         }
       } else {
-        showLogin(AuthTriggers.Filter);
+        showLogin({ trigger: AuthTriggers.Filter });
       }
     },
   };
@@ -101,7 +103,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
           await onBlockTags({ tags: [tag] });
         }
       } else {
-        showLogin(AuthTriggers.Filter);
+        showLogin({ trigger: AuthTriggers.Filter });
       }
     },
   };
@@ -150,7 +152,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
         )}
       </CustomFeedHeader>
       <Feed
-        feedName="tag"
+        feedName={OtherFeedPage.Tag}
         feedQueryKey={[
           'tagFeed',
           user?.id ?? 'anonymous',

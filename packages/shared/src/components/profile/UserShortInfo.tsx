@@ -1,10 +1,10 @@
 import classNames from 'classnames';
 import React, { forwardRef, ReactElement, ReactNode, Ref } from 'react';
-import { Author } from '../../graphql/comments';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { TooltipProps } from '../tooltips/BaseTooltip';
 import { getTextEllipsis } from '../utilities';
 import { ProfileTooltip } from './ProfileTooltip';
+import { UserShortProfile } from '../../lib/user';
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
@@ -12,19 +12,24 @@ type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? Props & JSX.IntrinsicAttributes
   : never;
 
-interface UserShortInfoProps<Tag extends React.ElementType> {
-  user: Author;
+export interface UserInfoClassName {
+  container?: string;
+  textWrapper?: string;
+}
+
+export interface UserShortInfoProps<
+  Tag extends React.ElementType = React.ElementType,
+> {
+  user: UserShortProfile;
   imageSize?: ProfileImageSize;
-  className?: {
-    container?: string;
-    textWrapper?: string;
-  };
+  className?: UserInfoClassName;
   tag?: Tag;
   disableTooltip?: boolean;
   scrollingContainer?: HTMLElement;
   appendTooltipTo?: HTMLElement;
   children?: ReactNode;
   showDescription?: boolean;
+  transformUsername?(user: UserShortProfile): ReactNode;
 }
 
 const TextEllipsis = getTextEllipsis();
@@ -45,6 +50,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
     appendTooltipTo,
     children,
     showDescription = true,
+    transformUsername,
     ...props
   }: UserShortInfoProps<Tag> & Omit<PropsOf<Tag>, 'className'>,
   ref?: Ref<Tag>,
@@ -52,7 +58,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
   const Element = (tag || 'a') as React.ElementType;
   const { name, username, bio } = user;
   const tooltipProps: TooltipProps = {
-    appendTo: appendTooltipTo || document?.body || 'parent',
+    appendTo: appendTooltipTo || globalThis?.document?.body || 'parent',
     visible: disableTooltip ? false : undefined,
   };
 
@@ -85,7 +91,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
         >
           <TextEllipsis className="font-bold">{name}</TextEllipsis>
           <TextEllipsis className="text-theme-label-secondary">
-            @{username}
+            {transformUsername ? transformUsername(user) : `@${username}`}
           </TextEllipsis>
           {bio && showDescription && (
             <span className="mt-1 text-theme-label-tertiary">{bio}</span>

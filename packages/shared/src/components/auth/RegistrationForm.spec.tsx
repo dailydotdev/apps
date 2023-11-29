@@ -7,7 +7,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import nock from 'nock';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import {
   mockEmailCheck,
@@ -19,6 +19,7 @@ import AuthOptions, { AuthOptionsProps } from './AuthOptions';
 import SettingsContext from '../../contexts/SettingsContext';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
+import { AuthTriggers } from '../../lib/auth';
 
 const user = null;
 
@@ -35,7 +36,7 @@ const renderComponent = (
   props: AuthOptionsProps = {
     onSuccessfulLogin,
     formRef: null,
-    trigger: 'test',
+    trigger: AuthTriggers.Verification,
   },
 ): RenderResult => {
   const client = new QueryClient();

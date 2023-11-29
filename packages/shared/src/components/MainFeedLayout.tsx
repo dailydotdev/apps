@@ -10,7 +10,7 @@ import dynamic from 'next/dynamic';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
-import { FeedPage, MainFeedPage } from './utilities';
+import { FeedPage, SharedFeedPage } from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
@@ -33,8 +33,7 @@ import {
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { cloudinary } from '../lib/image';
-import useMedia from '../hooks/useMedia';
-import { laptop, tablet } from '../styles/media';
+import { useViewSize, ViewSize } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
 
@@ -53,7 +52,7 @@ type FeedQueryProps = {
   variables?: Record<string, unknown>;
 };
 
-const propsByFeed: Record<MainFeedPage, FeedQueryProps> = {
+const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
   'my-feed': {
     query: ANONYMOUS_FEED_QUERY,
     queryIfLogged: FEED_QUERY,
@@ -81,7 +80,7 @@ export type MainFeedLayoutProps = {
   searchChildren: ReactNode;
   besideSearch?: ReactNode;
   navChildren?: ReactNode;
-  onFeedPageChanged: (page: MainFeedPage) => void;
+  onFeedPageChanged: (page: SharedFeedPage) => void;
   isFinder?: boolean;
 };
 
@@ -107,12 +106,12 @@ interface GetDefaultFeedProps {
   hasUser?: boolean;
 }
 
-const getDefaultFeed = ({ hasUser }: GetDefaultFeedProps): MainFeedPage => {
+const getDefaultFeed = ({ hasUser }: GetDefaultFeedProps): SharedFeedPage => {
   if (!hasUser) {
-    return MainFeedPage.Popular;
+    return SharedFeedPage.Popular;
   }
 
-  return MainFeedPage.MyFeed;
+  return SharedFeedPage.MyFeed;
 };
 
 const defaultFeedConditions = [null, 'default', '/', ''];
@@ -120,7 +119,7 @@ const defaultFeedConditions = [null, 'default', '/', ''];
 export const getFeedName = (
   path: string,
   options: GetDefaultFeedProps = {},
-): MainFeedPage => {
+): SharedFeedPage => {
   const feed = path?.replaceAll?.('/', '') || '';
 
   if (defaultFeedConditions.some((condition) => condition === feed)) {
@@ -129,7 +128,7 @@ export const getFeedName = (
 
   const [page] = feed.split('?');
 
-  return page.replace(/^\/+/, '') as MainFeedPage;
+  return page.replace(/^\/+/, '') as SharedFeedPage;
 };
 
 export default function MainFeedLayout({
@@ -198,8 +197,12 @@ export default function MainFeedLayout({
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (isSearchOn && searchQuery) {
       return {
-        feedName: 'search',
-        feedQueryKey: generateQueryKey('search', user, searchQuery),
+        feedName: SharedFeedPage.Search,
+        feedQueryKey: generateQueryKey(
+          SharedFeedPage.Search,
+          user,
+          searchQuery,
+        ),
         query: SEARCH_POSTS_QUERY,
         variables: { query: searchQuery },
         emptyScreen: <SearchEmptyScreen />,
@@ -270,15 +273,15 @@ export default function MainFeedLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
-  const isTablet = !useMedia([laptop.replace('@media ', '')], [true], false);
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const getImage = () => {
     if (isMobile) {
       return cloudinary.feed.bg.mobile;
     }
 
-    return isTablet ? cloudinary.feed.bg.tablet : cloudinary.feed.bg.laptop;
+    return isLaptop ? cloudinary.feed.bg.laptop : cloudinary.feed.bg.tablet;
   };
 
   console.log(feedItemComponent);

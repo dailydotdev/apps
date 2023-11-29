@@ -23,7 +23,7 @@ import {
   MostReadTag,
   ProfileReadingData,
 } from '@dailydotdev/shared/src/graphql/users';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RANKS } from '@dailydotdev/shared/src/lib/rank';
 import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 import {

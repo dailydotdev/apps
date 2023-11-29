@@ -23,7 +23,9 @@ export interface TagsData {
 }
 
 export interface SearchTagsData {
-  searchTags: TagsData;
+  searchTags: TagsData & {
+    query: string;
+  };
 }
 
 export interface FeedSettings {
@@ -32,13 +34,6 @@ export interface FeedSettings {
   excludeSources?: Source[];
   advancedSettings?: FeedAdvancedSettings[];
 }
-
-export const getEmptyFeedSettings = (): FeedSettings => ({
-  includeTags: [],
-  blockedTags: [],
-  excludeSources: [],
-  advancedSettings: [],
-});
 
 export interface TagCategory {
   id: string;
@@ -61,6 +56,7 @@ export interface FeedSettingsData {
 export const SEARCH_TAGS_QUERY = gql`
   query SearchTags($query: String!) {
     searchTags(query: $query) {
+      query
       tags: hits {
         name
       }
@@ -69,14 +65,14 @@ export const SEARCH_TAGS_QUERY = gql`
 `;
 
 export const FEED_SETTINGS_QUERY = gql`
-  query TagCategories($loggedIn: Boolean!) {
+  query FeedPreferences {
     tagsCategories {
       id
       title
       tags
       emoji
     }
-    feedSettings @include(if: $loggedIn) {
+    feedSettings {
       includeTags
       blockedTags
       excludeSources {
@@ -137,6 +133,26 @@ export const UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION = gql`
     feedSettings: updateFeedAdvancedSettings(settings: $settings) {
       id
       enabled
+    }
+  }
+`;
+
+export const GET_ONBOARDING_TAGS_QUERY = gql`
+  query OnboardingTags {
+    onboardingTags {
+      tags: hits {
+        name
+      }
+    }
+  }
+`;
+
+export const GET_RECOMMENDED_TAGS_QUERY = gql`
+  query RecommendedTags($tags: [String]!, $excludedTags: [String]!) {
+    recommendedTags(tags: $tags, excludedTags: $excludedTags) {
+      tags: hits {
+        name
+      }
     }
   }
 `;

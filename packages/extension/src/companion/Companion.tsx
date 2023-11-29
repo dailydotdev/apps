@@ -7,7 +7,7 @@ import React, {
   LegacyRef,
   useCallback,
 } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import Modal from 'react-modal';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
@@ -22,11 +22,11 @@ import {
   getPostByIdKey,
   updatePostCache,
 } from '@dailydotdev/shared/src/hooks/usePostById';
+import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 import CompanionMenu from './CompanionMenu';
 import CompanionContent from './CompanionContent';
 import { companionRequest } from './companionRequest';
 import { companionFetch } from './companionFetch';
-import { getCompanionWrapper } from './common';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
@@ -68,7 +68,7 @@ const Container = ({
   );
 };
 
-export const refreshTokenKey = 'refresh_token';
+export const refreshTokenKey = ['refresh_token'];
 
 export default function Companion({
   postData,

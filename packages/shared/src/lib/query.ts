@@ -3,18 +3,40 @@ import {
   QueryClient,
   QueryClientConfig,
   QueryKey,
-} from 'react-query';
+} from '@tanstack/react-query';
 import cloneDeep from 'lodash.clonedeep';
 import { Connection } from '../graphql/common';
 import { EmptyObjectLiteral } from './kratos';
 import { LoggedUser } from './user';
 import { FeedData, Post, ReadHistoryPost } from '../graphql/posts';
 import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
+import { SharedFeedPage } from '../components/utilities';
+
+export enum OtherFeedPage {
+  Tag = 'tag',
+  Squad = 'squad',
+  Source = 'source',
+  Bookmarks = 'bookmarks',
+  SearchBookmarks = 'search-bookmarks',
+  Preview = 'preview',
+}
+
+const ONE_MINUTE = 60 * 1000;
+const THIRTY_MINUTES = ONE_MINUTE * 30;
+export const STALE_TIME = 30 * 1000;
+
+export enum StaleTime {
+  FeedSettings = ONE_MINUTE,
+  Tooltip = THIRTY_MINUTES,
+  Base = STALE_TIME,
+}
+
+export type AllFeedPages = SharedFeedPage | OtherFeedPage;
 
 export type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 
 export const generateQueryKey = (
-  name: string | RequestKey,
+  name: RequestKey | AllFeedPages,
   user: Pick<LoggedUser, 'id'> | null,
   ...additional: unknown[]
 ): unknown[] => {
@@ -34,6 +56,7 @@ export enum RequestKey {
   PostCommentsMutations = 'post_comments_mutations',
   Actions = 'actions',
   Squad = 'squad',
+  SquadMembers = 'squad_members',
   Search = 'search',
   SearchHistory = 'searchHistory',
   ReadingHistory = 'readingHistory',
@@ -42,7 +65,17 @@ export enum RequestKey {
   NotificationPreference = 'notification_preference',
   Banner = 'latest_banner',
   Auth = 'auth',
+  Profile = 'profile',
   CurrentSession = 'current_session',
+  PersonalizedDigest = 'personalizedDigest',
+  Changelog = 'changelog',
+  Tags = 'tags',
+  FeedPreview = 'feedPreview',
+  ReferredUsers = 'referred',
+  PostKey = 'post',
+  Prompt = 'prompt',
+  Comment = 'comment',
+  SquadTour = 'squad_tour',
 }
 
 export type HasConnection<

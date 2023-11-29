@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { QueryObserverResult } from 'react-query';
+import { QueryObserverResult } from '@tanstack/react-query';
 import {
   AnonymousUser,
   deleteAccount,
@@ -14,12 +14,12 @@ import {
 } from '../lib/user';
 import { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
-import { AuthTriggers, AuthTriggersOrString } from '../lib/auth';
+import { AuthTriggers, AuthTriggersType } from '../lib/auth';
 import { Squad } from '../graphql/sources';
 import { checkIsExtension, isNullOrUndefined } from '../lib/func';
 
 export interface LoginState {
-  trigger: AuthTriggersOrString;
+  trigger: AuthTriggersType;
   referral?: string;
   referralOrigin?: string;
   onLoginSuccess?: () => void;
@@ -29,6 +29,11 @@ export interface LoginState {
 
 type LoginOptions = Omit<LoginState, 'trigger'>;
 
+type ShowLoginParams = {
+  trigger: AuthTriggersType;
+  options?: LoginOptions;
+};
+
 export interface AuthContextData {
   user?: LoggedUser;
   isLoggedIn: boolean;
@@ -36,7 +41,7 @@ export interface AuthContextData {
   referralOrigin?: string;
   trackingId?: string;
   shouldShowLogin: boolean;
-  showLogin: (trigger: AuthTriggersOrString, options?: LoginOptions) => void;
+  showLogin: ({ trigger, options }: ShowLoginParams) => void;
   closeLogin: () => void;
   loginState?: LoginState;
   logout: () => Promise<void>;
@@ -147,7 +152,7 @@ export const AuthContextProvider = ({
       firstVisit: user?.firstVisit,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
-      showLogin: (trigger, options = {}) => {
+      showLogin: ({ trigger, options = {} }) => {
         const hasCompanion = !!isCompanionActivated();
         if (hasCompanion) {
           const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`;

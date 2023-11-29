@@ -6,7 +6,7 @@ import React, {
   useRef,
 } from 'react';
 import Link from 'next/link';
-import { useInfiniteQuery } from 'react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import request from 'graphql-request';
 import classNames from 'classnames';
 import {
@@ -175,7 +175,7 @@ export default function PostsSection({
         >
           <TextField
             leftIcon={<TwitterIcon />}
-            label="Twitter"
+            label="X"
             inputId="twitter"
             hint={hint.twitter}
             name="twitter"

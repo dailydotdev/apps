@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useContext } from 'react';
 import {
@@ -36,7 +36,7 @@ export function useAuthVerificationRecovery(): void {
     const hasVerified =
       data?.state === 'passed_challenge' && flow === AuthFlow.Verification;
     if (couldBeVerified && hasVerified) {
-      showLogin(AuthTriggers.Verification);
+      showLogin({ trigger: AuthTriggers.Verification });
       return;
     }
 

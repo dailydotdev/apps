@@ -146,7 +146,7 @@ export function WriteFreeformContent({
         className={{ container: 'mt-4' }}
         sourceId={squad?.id}
         onValueUpdate={onFormUpdate}
-        initialContent={draft?.content ?? post?.content}
+        initialContent={draft?.content ?? post?.content ?? ''}
         textareaProps={{ name: 'content' }}
         enabledCommand={{ ...defaultMarkdownCommands, upload: true }}
         isUpdatingDraft={isUpdatingDraft}

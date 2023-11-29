@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { useInfiniteQuery } from 'react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { graphqlUrl } from '../../lib/config';
 import { RequestQuery, UpvotesData } from '../../graphql/common';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
@@ -45,9 +45,13 @@ export function UpvotedPopupModal({
         canFetchMore: checkFetchMore(queryResult),
         fetchNextPage: queryResult.fetchNextPage,
       }}
-      users={queryResult.data?.pages
-        .map((p) => p.upvotes.edges.map(({ node }) => node.user))
-        .flat()}
+      users={queryResult.data?.pages.reduce((acc, p) => {
+        p?.upvotes.edges.forEach(({ node }) => {
+          acc.push(node.user);
+        });
+
+        return acc;
+      }, [])}
     />
   );
 }

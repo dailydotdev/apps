@@ -246,12 +246,11 @@ export const getKratosError = async (id: string): Promise<ErrorData> => {
 export const checkKratosEmail = async (
   email: string,
 ): Promise<KratosEmailData> => {
-  const res = await fetch(
-    `${heimdallUrl}/api/check_email?email_address=${email}`,
-    {
-      method: 'POST',
-    },
-  );
+  const url = new URL(`${heimdallUrl}/api/check_email`);
+  url.searchParams.append('email_address', email);
+  const res = await fetch(url.toString(), {
+    method: 'POST',
+  });
   return res.json();
 };
 

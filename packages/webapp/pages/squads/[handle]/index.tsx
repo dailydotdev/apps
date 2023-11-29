@@ -12,15 +12,16 @@ import Feed from '@dailydotdev/shared/src/components/Feed';
 import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
+import SquadFeedHeading from '@dailydotdev/shared/src/components/squads/SquadFeedHeading';
 import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
 import {
-  SQUAD_STATIC_FIELDS_QUERY,
   getSquadMembers,
+  SQUAD_STATIC_FIELDS_QUERY,
 } from '@dailydotdev/shared/src/graphql/squads';
 import { SourceMember, Squad } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import dynamic from 'next/dynamic';
@@ -34,6 +35,7 @@ import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
+import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage, {
@@ -193,7 +195,7 @@ const SquadPage = ({
         <SquadChecklistCard squad={squad} />
         <Feed
           className="px-6 pt-14 laptop:pt-10"
-          feedName="squad"
+          feedName={OtherFeedPage.Squad}
           feedQueryKey={[
             'sourceFeed',
             user?.id ?? 'anonymous',
@@ -205,6 +207,8 @@ const SquadPage = ({
           showSearch={false}
           emptyScreen={<SquadEmptyScreen />}
           options={{ refetchOnMount: true }}
+          header={<SquadFeedHeading squad={squad} />}
+          inlineHeader
           allowPin
         />
       </BaseFeedPage>

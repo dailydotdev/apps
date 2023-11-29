@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { PostNavigationProps } from './PostNavigation';
 import { postDateFormat } from '../../lib/dateFormat';
@@ -45,7 +45,7 @@ function SquadPostContent({
   const { mutateAsync: onSendViewPost } = useMutation(sendViewPost);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const engagementActions = usePostContent({ origin, post });
-  const { onReadArticle, onSharePost, onToggleBookmark } = engagementActions;
+  const { onReadArticle, onSharePost } = engagementActions;
   const { role } = useMemberRoleForSource({
     source: post?.source,
     user: post?.author,
@@ -54,7 +54,6 @@ function SquadPostContent({
 
   const navigationProps: PostNavigationProps = {
     post,
-    onBookmark: onToggleBookmark,
     onPreviousPost,
     onNextPost,
     onShare: onSharePost,
@@ -91,6 +90,53 @@ function SquadPostContent({
         )}
         hasNavigation={hasNavigation}
       >
+        <div
+          className={classNames(
+            'relative px-4 tablet:px-8',
+            className?.content,
+            isPublicSquad && 'flex flex-col flex-1',
+          )}
+        >
+          <BasePostContent
+            className={{
+              ...className,
+              onboarding: classNames('mb-6', className?.onboarding),
+              navigation: {
+                actions: classNames(
+                  'ml-auto',
+                  isPublicSquad && 'tablet:hidden',
+                ),
+                container: classNames('mb-6 pt-6'),
+              },
+            }}
+            isFallback={isFallback}
+            customNavigation={customNavigation}
+            enableShowShareNewComment={enableShowShareNewComment}
+            shouldOnboardAuthor={shouldOnboardAuthor}
+            navigationProps={navigationProps}
+            engagementProps={engagementActions}
+            origin={origin}
+            post={post}
+          >
+            <PostSourceInfo source={post.source} className="!typo-body" />
+            <SquadPostAuthor
+              author={post.author}
+              role={role}
+              date={postDateFormat(post.createdAt)}
+            />
+            <Content post={post} onReadArticle={onReadArticle} />
+          </BasePostContent>
+        </div>
+        {isPublicSquad && (
+          <SquadPostWidgets
+            onShare={onSharePost}
+            onReadArticle={onReadArticle}
+            post={post}
+            className="px-8 tablet:pl-0 mb-6"
+            onClose={onClose}
+            origin={origin}
+          />
+        )}
         <div className="flex flex-row">
           <div
             className={classNames(

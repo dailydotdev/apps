@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import useIncrementReadingRank from './useIncrementReadingRank';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import {
@@ -48,7 +48,7 @@ export default function useOnPostClick({
   const { trackEvent } = useContext(AnalyticsContext);
   const { incrementReadingRank } = useIncrementReadingRank();
   const { items } = useActiveFeedContext();
-  const { isFeedbackEnabled } = usePostFeedback();
+  const { isLowImpsEnabled } = usePostFeedback();
   const feedQueryKey = ['as'];
 
   return useMemo(
@@ -68,10 +68,8 @@ export default function useOnPostClick({
                 null,
                 optional?.parent_id,
               ).extra,
-              feedback:
-                isFeedbackEnabled && post.type === PostType.Article
-                  ? true
-                  : undefined,
+              feedback: post.type === PostType.Article ? true : undefined,
+              low_imps: isLowImpsEnabled ? true : undefined,
             },
           }),
         );
@@ -109,6 +107,6 @@ export default function useOnPostClick({
       },
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [columns, feedName, ranking, origin, isFeedbackEnabled],
+    [columns, feedName, ranking, origin],
   );
 }

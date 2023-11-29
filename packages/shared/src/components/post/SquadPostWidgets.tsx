@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { PageWidgets } from '../utilities';
 import { ShareMobile } from '../ShareMobile';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -69,7 +69,6 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
 
 export function SquadPostWidgets({
   onShare,
-  onBookmark,
   post,
   className,
   onClose,
@@ -79,7 +78,6 @@ export function SquadPostWidgets({
   return (
     <PageWidgets className={className}>
       <PostHeaderActions
-        onBookmark={onBookmark}
         onShare={onShare}
         post={post}
         onClose={onClose}

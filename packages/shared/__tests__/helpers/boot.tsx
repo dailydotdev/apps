@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import React, { ReactElement, ReactNode } from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GrowthBook, GrowthBookProvider } from '@growthbook/growthbook-react';
 import AuthContext, { AuthContextData } from '../../src/contexts/AuthContext';
 import OnboardingContext from '../../src/contexts/OnboardingContext';
@@ -19,6 +19,8 @@ import {
   AlertContextProvider,
   AlertContextProviderProps,
 } from '../../src/contexts/AlertContext';
+import { FeaturesReadyContext } from '../../src/components/GrowthBookProvider';
+import { LazyModalElement } from '../../src/components/modals/LazyModalElement';
 
 interface TestBootProviderProps {
   children: ReactNode;
@@ -68,26 +70,29 @@ export const TestBootProvider = ({
           }}
         >
           <GrowthBookProvider growthbook={gb}>
-            <SettingsContext.Provider
-              value={{ ...settingsContext, ...settings }}
-            >
-              <OnboardingContext.Provider
-                value={{
-                  myFeedMode: OnboardingMode.Manual,
-                  isOnboardingOpen: false,
-                  onCloseOnboardingModal: jest.fn(),
-                  onInitializeOnboarding: jest.fn(),
-                  onShouldUpdateFilters: jest.fn(),
-                }}
+            <FeaturesReadyContext.Provider value={{ ready: true }}>
+              <SettingsContext.Provider
+                value={{ ...settingsContext, ...settings }}
               >
-                <NotificationsContextProvider
-                  app={BootApp.Test}
-                  {...notification}
+                <OnboardingContext.Provider
+                  value={{
+                    myFeedMode: OnboardingMode.Manual,
+                    isOnboardingOpen: false,
+                    onCloseOnboardingModal: jest.fn(),
+                    onInitializeOnboarding: jest.fn(),
+                    onShouldUpdateFilters: jest.fn(),
+                  }}
                 >
-                  {children}
-                </NotificationsContextProvider>
-              </OnboardingContext.Provider>
-            </SettingsContext.Provider>
+                  <NotificationsContextProvider
+                    app={BootApp.Test}
+                    {...notification}
+                  >
+                    {children}
+                    <LazyModalElement />
+                  </NotificationsContextProvider>
+                </OnboardingContext.Provider>
+              </SettingsContext.Provider>
+            </FeaturesReadyContext.Provider>
           </GrowthBookProvider>
         </AuthContext.Provider>
       </AlertContextProvider>

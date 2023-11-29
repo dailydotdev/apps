@@ -6,10 +6,8 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import LockIcon from '../icons/Lock';
 import { Card } from '../cards/Card';
 import { IconSize } from '../Icon';
-import { usePostToSquad } from '../../hooks';
+import { usePostToSquad, useViewSize, ViewSize } from '../../hooks';
 import { ClickableText } from '../buttons/ClickableText';
-import useMedia from '../../hooks/useMedia';
-import { mobileL } from '../../styles/media';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/sources';
@@ -32,7 +30,7 @@ function SharePostBar({
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
   const [url, setUrl] = useState<string>('');
-  const isMobile = !useMedia([mobileL.replace('@media ', '')], [true], false);
+  const isMobile = useViewSize(ViewSize.MobileL);
   const [urlFocused, toggleUrlFocus] = useState(false);
   const onSharedSuccessfully = () => {
     inputRef.current.value = '';
@@ -106,8 +104,8 @@ function SharePostBar({
           name="share-post-bar"
           placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
           className={classNames(
-            'pl-1 tablet:min-w-[11rem] w-auto outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-body flex-1 w-full tablet:flex-none tablet:w-auto',
-            !shouldRenderReadingHistory && 'flex-1 pr-2',
+            'pl-1 tablet:min-w-[11rem] outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-body flex-1 w-full tablet:flex-none tablet:w-auto',
+            !shouldRenderReadingHistory && '!flex-1 pr-2',
           )}
           onInput={(e) => setUrl(e.currentTarget.value)}
           value={url}
@@ -116,7 +114,7 @@ function SharePostBar({
         />
         {shouldRenderReadingHistory && (
           <ClickableText
-            className="hidden tablet:flex ml-1 font-bold reading-history hover:text-theme-label-primary"
+            className="hidden tablet:flex ml-1.5 font-bold reading-history hover:text-theme-label-primary"
             inverseUnderline
             onClick={onOpenHistory}
             type="button"

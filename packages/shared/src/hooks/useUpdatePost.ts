@@ -1,6 +1,7 @@
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Post, PostData } from '../graphql/posts';
 import { MutateFunc } from '../lib/query';
+import { getPostByIdKey } from './usePostById';
 
 type UpdateData = { id: string; update?: Partial<Post> };
 type UseBookmarkPostRet = {
@@ -13,7 +14,7 @@ export default function useUpdatePost(): UseBookmarkPostRet {
   const updatePost =
     (props): MutateFunc<UpdateData> =>
     async () => {
-      const postQueryKey = ['post', props.id];
+      const postQueryKey = getPostByIdKey(props.id);
       await client.cancelQueries(postQueryKey);
       const oldPost = client.getQueryData<PostData>(postQueryKey);
 

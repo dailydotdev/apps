@@ -1,9 +1,10 @@
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { PromptOptions, usePrompt } from './usePrompt';
 import {
   deletePost,
   Post,
+  swapPinnedPosts,
   updatePinnedPost,
   UserPostVote,
 } from '../graphql/posts';
@@ -17,6 +18,9 @@ import { useBlockPostPanel } from './post/useBlockPostPanel';
 interface UsePostMenuActions {
   onConfirmDeletePost: () => Promise<void>;
   onPinPost: () => Promise<void>;
+  onSwapPinnedPost:
+    | null
+    | ((args: { swapWithId: Post['id'] }) => Promise<void>);
   onToggleDownvotePost: () => void;
 }
 
@@ -30,6 +34,7 @@ interface UsePostMenuActionsProps {
   post: Post;
   postIndex?: number;
   onPinSuccessful?: () => Promise<unknown>;
+  onSwapPostSuccessful?: () => Promise<unknown>;
   onPostDeleted?: (args: DeletePostProps) => void;
   origin: Origin;
 }
@@ -49,6 +54,7 @@ export const usePostMenuActions = ({
   postIndex,
   onPostDeleted,
   onPinSuccessful,
+  onSwapPostSuccessful,
   origin,
 }: UsePostMenuActionsProps): UsePostMenuActions => {
   const { user } = useAuthContext();
@@ -79,9 +85,17 @@ export const usePostMenuActions = ({
     SourcePermissions.PostPin,
   );
 
+  const canSwap = post?.pinnedAt;
+
   const { mutateAsync: onPinPost } = useMutation(
     () => updatePinnedPost({ id: post.id, pinned: !post.pinnedAt }),
     { onSuccess: onPinSuccessful },
+  );
+
+  const { mutateAsync: onSwapPinnedPost } = useMutation(
+    ({ swapWithId }: { swapWithId: Post['id'] }) =>
+      swapPinnedPosts({ id: post.id, swapWithId }),
+    { onSuccess: onSwapPostSuccessful },
   );
 
   const { onClose, onShowPanel } = useBlockPostPanel(post);
@@ -90,6 +104,7 @@ export const usePostMenuActions = ({
   return {
     onConfirmDeletePost: canDelete ? deletePostPrompt : null,
     onPinPost: canPin ? onPinPost : null,
+    onSwapPinnedPost: canSwap ? onSwapPinnedPost : null,
     onToggleDownvotePost: () => {
       if (post.userState?.vote !== UserPostVote.Down) {
         onShowPanel();

@@ -7,6 +7,7 @@ export type Alerts = {
   squadTour?: boolean;
   companionHelper?: boolean;
   lastChangelog?: string;
+  showGenericReferral?: boolean;
   changelog?: boolean;
   lastBanner?: string;
   banner?: boolean;
@@ -24,6 +25,14 @@ export const UPDATE_ALERTS = gql`
       squadTour
       lastChangelog
       lastBanner
+    }
+  }
+`;
+
+export const UPDATE_LAST_REFERRAL_REMINDER = gql`
+  mutation UpdateLastReferralReminder {
+    updateLastReferralReminder {
+      _
     }
   }
 `;

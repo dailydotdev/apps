@@ -6,7 +6,7 @@ import {
   RenderResult,
   screen,
 } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mocked } from 'ts-jest/utils';
 import AuthContext from './AuthContext';
 import defaultUser from '../../__tests__/fixture/loggedUser';
@@ -26,7 +26,7 @@ import {
 } from '../graphql/settings';
 import { BootDataProvider } from './BootProvider';
 import { getBootData, Boot, BootCacheData } from '../lib/boot';
-import { AuthTriggers, AuthTriggersOrString } from '../lib/auth';
+import { AuthTriggers, AuthTriggersType } from '../lib/auth';
 import { expectToHaveTestValue } from '../../__tests__/helpers/utilities';
 
 jest.mock('../lib/boot', () => ({
@@ -347,7 +347,7 @@ it('should trigger update alerts callback', async () => {
 
 interface AuthMockProps {
   updatedUser?: LoggedUser;
-  loginTrigger?: AuthTriggersOrString;
+  loginTrigger?: AuthTriggersType;
 }
 
 const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
@@ -380,7 +380,7 @@ const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
         Logout
       </button>
       <button
-        onClick={() => showLogin(loginTrigger)}
+        onClick={() => showLogin({ trigger: loginTrigger })}
         type="button"
         data-test-value={JSON.stringify(loginState)}
       >
