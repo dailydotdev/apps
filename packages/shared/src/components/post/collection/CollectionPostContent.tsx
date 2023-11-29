@@ -121,7 +121,7 @@ const CollectionPostContent = ({
           />
 
           <h1
-            className="font-bold break-words typo-large-title"
+            className="font-bold break-words typo-headline"
             data-testid="post-modal-title"
           >
             {post.title}
