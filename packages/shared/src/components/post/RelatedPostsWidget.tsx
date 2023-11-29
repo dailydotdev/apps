@@ -101,7 +101,7 @@ export const RelatedPostsWidget = ({
     <div className={classNames(className, 'flex flex-col', widgetClasses)}>
       <div
         className={classNames(
-          'rounded-16 cursor-pointer laptop:cursor-auto flex justify-between items-center py-1.5 laptop:py-4 px-4 laptop:!pb-0 laptop:bg-transparent rounded-t-16 bg-theme-bg-secondary',
+          'rounded-16 cursor-pointer laptop:cursor-auto flex justify-between items-center py-1.5 laptop:py-4 px-4 laptop:!pb-0 rounded-t-16',
         )}
       >
         <p className="font-bold typo-callout text-theme-label-quaternary laptop:text-theme-label-quaternary">
