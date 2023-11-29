@@ -73,7 +73,7 @@ function InternalApp({
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useContentScriptStatus();
-  const { hostGranted, refetch: refetchHostPermissions } = useHostStatus();
+  const { hostGranted } = useHostStatus();
   const routeChangedCallbackRef = useTrackPageView();
 
   const { user, isAuthReady } = useAuthContext();
