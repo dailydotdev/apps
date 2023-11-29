@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
 
 import browser from 'webextension-polyfill';
 import { useQueryClient } from 'react-query';
@@ -21,13 +21,16 @@ export const ExtensionContextProvider = ({
   const client = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
 
-  const contextData = {
-    requestContentScripts: requestContentScripts?.(client, trackEvent),
-    getContentScriptPermission,
-    getHostPermission,
-    requestHostPermissions: browser.permissions.request,
-    origins: HOST_PERMISSIONS,
-  };
+  const contextData = useMemo(
+    () => ({
+      requestContentScripts: requestContentScripts?.(client, trackEvent),
+      getContentScriptPermission,
+      getHostPermission,
+      requestHostPermissions: browser.permissions.request,
+      origins: HOST_PERMISSIONS,
+    }),
+    [client, trackEvent],
+  );
 
   return (
     <ExtensionContext.Provider value={contextData}>
