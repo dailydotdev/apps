@@ -1,14 +1,12 @@
 import { useContext, useEffect, useRef } from 'react';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
-import {
-  useContentScriptStatus,
-  useExtensionPermission,
-} from '@dailydotdev/shared/src/hooks';
+import { useContentScriptStatus } from '@dailydotdev/shared/src/hooks';
+import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 
 export const useCompanionSettings = (): void => {
   const isOnLoad = useRef(true);
   const { optOutCompanion, loadedSettings } = useContext(SettingsContext);
-  const { registerBrowserContentScripts } = useExtensionPermission();
+  const { registerBrowserContentScripts } = useExtensionContext();
   const { contentScriptGranted } = useContentScriptStatus();
 
   useEffect(() => {

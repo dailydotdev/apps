@@ -40,24 +40,15 @@ import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnb
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { useHostStatus } from '@dailydotdev/shared/src/hooks/useHostPermissionStatus';
+import ExtensionPermissionsPrompt from '@dailydotdev/shared/src/components/ExtensionPermissionsPrompt';
+import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
 import { DndContextProvider } from './DndContext';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
-import {
-  getContentScriptPermissionAndRegister,
-  requestContentScripts,
-  registerBrowserContentScripts,
-  getContentScriptPermission,
-  getHostPermissionAndRegister,
-  getHostPermission,
-  HOST_PERMISSIONS,
-} from '../lib/extensionScripts';
-import {
-  EXTENSION_PERMISSION_KEY,
-  useContentScriptStatus,
-} from '../../../shared/src/hooks';
+import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
+import { useContentScriptStatus } from '../../../shared/src/hooks';
 
 const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();
@@ -87,7 +78,6 @@ function InternalApp({
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useContentScriptStatus();
   const { hostGranted } = useHostStatus();
-
   const routeChangedCallbackRef = useTrackPageView();
 
   const { user, isAuthReady } = useAuthContext();
@@ -111,15 +101,6 @@ function InternalApp({
     dismissToast();
   };
 
-  const handleRequestHostPermissions = async (url: string) => {
-    console.log({ hostGranted });
-    if (!hostGranted) {
-      await browser.permissions.request({ origins: HOST_PERMISSIONS });
-    }
-
-    router.push(url);
-  };
-
   useEffect(() => {
     if (contentScriptGranted) {
       getContentScriptPermissionAndRegister();
@@ -132,12 +113,14 @@ function InternalApp({
       : DEFAULT_TAB_TITLE;
   }, [unreadCount]);
 
-  console.log({ hostGranted });
+  if (!hostGranted) {
+    return <ExtensionPermissionsPrompt pageRef={pageRef} />;
+  }
 
-  if (!hostGranted || shouldRedirectOnboarding) {
+  if (shouldRedirectOnboarding) {
     // eslint-disable-next-line no-param-reassign
     pageRef.current = '/hijacking';
-    return <ExtensionOnboarding onContinue={handleRequestHostPermissions} />;
+    return <ExtensionOnboarding />;
   }
 
   return (
@@ -155,37 +138,9 @@ function InternalApp({
     </DndContextProvider>
   );
 }
-const InternalAppWithFeaturesBoundary = withFeaturesBoundary(InternalApp);
-
-function CheckHostPermission(): ReactElement {
-  useQuery(EXTENSION_PERMISSION_KEY, () => ({
-    requestContentScripts,
-    registerBrowserContentScripts,
-    getContentScriptPermission,
-    getHostPermission,
-    getHostPermissionAndRegister,
-  }));
-
-  const { hostGranted } = useHostStatus();
-
-  const handleRequestHostPermissions = async (url: string) => {
-    console.log({ hostGranted });
-    if (!hostGranted) {
-      await browser.permissions.request({ origins: HOST_PERMISSIONS });
-    }
-
-    router.push(url);
-  };
-
-  console.log({ hostGranted });
-
-  if (!hostGranted) {
-    // eslint-disable-next-line no-param-reassign
-    return <ExtensionOnboarding onContinue={handleRequestHostPermissions} />;
-  }
-
-  return null;
-}
+const InternalAppWithFeaturesBoundary = withFeaturesBoundary(InternalApp, {
+  fallback: ExtensionPermissionsPrompt,
+});
 
 export default function App({
   localBootData,
@@ -197,22 +152,22 @@ export default function App({
     <RouterContext.Provider value={router}>
       <ProgressiveEnhancementContextProvider>
         <QueryClientProvider client={queryClient}>
-          <CheckHostPermission />
-
-          <BootDataProvider
-            app={BootApp.Extension}
-            getRedirectUri={getRedirectUri}
-            localBootData={localBootData}
-            version={version}
-            getPage={() => pageRef.current}
-            deviceId={deviceId}
-          >
-            <SubscriptionContextProvider>
-              <OnboardingContextProvider>
-                <InternalAppWithFeaturesBoundary pageRef={pageRef} />
-              </OnboardingContextProvider>
-            </SubscriptionContextProvider>
-          </BootDataProvider>
+          <ExtensionContextProvider>
+            <BootDataProvider
+              app={BootApp.Extension}
+              getRedirectUri={getRedirectUri}
+              localBootData={localBootData}
+              version={version}
+              getPage={() => pageRef.current}
+              deviceId={deviceId}
+            >
+              <SubscriptionContextProvider>
+                <OnboardingContextProvider>
+                  <InternalAppWithFeaturesBoundary pageRef={pageRef} />
+                </OnboardingContextProvider>
+              </SubscriptionContextProvider>
+            </BootDataProvider>
+          </ExtensionContextProvider>
           <ReactQueryDevtools />
         </QueryClientProvider>
       </ProgressiveEnhancementContextProvider>

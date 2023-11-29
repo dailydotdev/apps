@@ -1,16 +1,23 @@
 import browser from 'webextension-polyfill';
-import {
-  CreateRequestContentScripts,
-  contentScriptKey,
-} from '@dailydotdev/shared/src/hooks';
+import { contentScriptKey } from '@dailydotdev/shared/src/hooks';
 import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
-import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { AnalyticsEvent as AnalyticsEventName } from '@dailydotdev/shared/src/lib/analytics';
+import { QueryClient } from 'react-query';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/hooks/analytics/useAnalyticsQueue';
+
+export type RequestContentScripts = (data: {
+  origin: string;
+  skipRedirect?: boolean;
+}) => Promise<boolean>;
+
+export type CreateRequestContentScripts = (
+  client: QueryClient,
+  trackEvent: (e: AnalyticsEvent) => void,
+) => RequestContentScripts;
 
 export const HOST_PERMISSIONS = [
   'https://daily.dev/*',
   'https://*.daily.dev/*',
-  'https://dailynow.co/*',
-  'https://*.dailynow.co/*',
 ];
 
 let hasInjectedScripts = false;
@@ -61,7 +68,7 @@ export const requestContentScripts: CreateRequestContentScripts = (
     skipRedirect?: boolean;
   }) => {
     trackEvent({
-      event_name: AnalyticsEvent.RequestContentScripts,
+      event_name: AnalyticsEventName.RequestContentScripts,
       extra: JSON.stringify({ origin }),
     });
 
@@ -71,7 +78,7 @@ export const requestContentScripts: CreateRequestContentScripts = (
 
     if (granted) {
       trackEvent({
-        event_name: AnalyticsEvent.ApproveContentScripts,
+        event_name: AnalyticsEventName.ApproveContentScripts,
         extra: JSON.stringify({ origin }),
       });
       client.setQueryData(contentScriptKey, true);
@@ -82,7 +89,7 @@ export const requestContentScripts: CreateRequestContentScripts = (
       }
     } else {
       trackEvent({
-        event_name: AnalyticsEvent.DeclineContentScripts,
+        event_name: AnalyticsEventName.DeclineContentScripts,
         extra: JSON.stringify({ origin }),
       });
     }
@@ -96,37 +103,12 @@ export const getHostPermission = (): Promise<boolean> =>
     origins: HOST_PERMISSIONS,
   });
 
-export const getHostPermissionAndRegister = async (): Promise<void> => {
+export const getHostPermissionAndRegister = async (): Promise<boolean> => {
   const permission = await getHostPermission();
 
-  // // Create a new button element
-  // const button = document.createElement('button');
-  // button.id = 'myButton';
-  // button.style.display = 'none'; // Hide the button
-  //
-  // // Append the button to the body
-  // document.body.appendChild(button);
-  //
-  // // Create a click event
-  // const event = new MouseEvent('click', {
-  //   bubbles: true,
-  //   cancelable: true,
-  //   view: window,
-  // });
-  //
-  // button.addEventListener('click', async () => {
-  //
-  // });
-  //
-  // console.log({ button });
-  //
-  // // Dispatch the event
-  // button.dispatchEvent(event);
-  //
-  // // Remove the button after the click
-  // document.body.removeChild(button);
-
   if (!permission) {
-    await browser.permissions.request({ origins: HOST_PERMISSIONS });
+    return await browser.permissions.request({ origins: HOST_PERMISSIONS });
   }
+
+  return permission;
 };
