@@ -21,6 +21,7 @@ export const baseFeedSupportedTypes = [
   PostType.Article,
   PostType.Share,
   PostType.Freeform,
+  PostType.Collection,
 ];
 
 const joinedTypes = baseFeedSupportedTypes.join('","');

@@ -6,10 +6,10 @@ import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import SquadPostContent from '../post/SquadPostContent';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import { ONBOARDING_OFFSET } from '../post/BasePostContent';
+import { PassedPostNavigationProps } from '../post/common';
 import { Post, PostType } from '../../graphql/posts';
 import EnableNotification from '../notifications/EnableNotification';
 import { isSourcePublicSquad } from '../../graphql/squads';
-import { PassedPostNavigationProps } from '../post/common';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;

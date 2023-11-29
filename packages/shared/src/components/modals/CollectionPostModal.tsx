@@ -1,19 +1,22 @@
 import React, { ReactElement, useContext } from 'react';
 import { Modal, ModalProps, modalSizeToClassName } from './common/Modal';
-import { ONBOARDING_OFFSET, PostContent } from '../post/PostContent';
+import { ONBOARDING_OFFSET } from '../post/PostContent';
 import { Origin } from '../../lib/analytics';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import BasePostModal from './BasePostModal';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import { Post, PostType } from '../../graphql/posts';
 import { PassedPostNavigationProps } from '../post/common';
+import CollectionPostContent from '../post/collection/CollectionPostContent';
 
-interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
+interface CollectionPostModalProps
+  extends ModalProps,
+    PassedPostNavigationProps {
   id: string;
   post: Post;
 }
 
-export default function ArticlePostModal({
+export default function CollectionPostModal({
   id,
   className,
   onRequestClose,
@@ -23,7 +26,7 @@ export default function ArticlePostModal({
   post,
   onRemovePost,
   ...props
-}: ArticlePostModalProps): ReactElement {
+}: CollectionPostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
   const position = usePostNavigationPosition({
     isLoading: false,
@@ -35,11 +38,11 @@ export default function ArticlePostModal({
     <BasePostModal
       {...props}
       onRequestClose={onRequestClose}
-      postType={PostType.Article}
+      postType={PostType.Collection}
       source={post.source}
       loadingClassName="!pb-2 tablet:pb-0"
     >
-      <PostContent
+      <CollectionPostContent
         position={position}
         post={post}
         postPosition={postPosition}
@@ -55,7 +58,7 @@ export default function ArticlePostModal({
           },
         }}
         onClose={onRequestClose}
-        origin={Origin.ArticleModal}
+        origin={Origin.CollectionModal}
         onRemovePost={onRemovePost}
       />
     </BasePostModal>
