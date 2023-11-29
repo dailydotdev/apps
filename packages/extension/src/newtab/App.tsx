@@ -110,9 +110,7 @@ function InternalApp({
   }, [unreadCount]);
 
   if (!hostGranted) {
-    // eslint-disable-next-line no-param-reassign
-    pageRef.current = '/permissions';
-    return <ExtensionPermissionsPrompt onSuccess={refetchHostPermissions} />;
+    return <ExtensionPermissionsPrompt pageRef={pageRef} />;
   }
 
   if (shouldRedirectOnboarding) {
@@ -136,7 +134,9 @@ function InternalApp({
     </DndContextProvider>
   );
 }
-const InternalAppWithFeaturesBoundary = withFeaturesBoundary(InternalApp);
+const InternalAppWithFeaturesBoundary = withFeaturesBoundary(InternalApp, {
+  fallback: ExtensionPermissionsPrompt,
+});
 
 export default function App({
   localBootData,

@@ -27,7 +27,7 @@ describe('withFeaturesBoundary', () => {
 
   it('should return a component that renders the fallback if features are not ready', async () => {
     const Component = withFeaturesBoundary(() => <div />, {
-      fallback: <div>Fallback</div>,
+      fallback: () => <div>Fallback</div>,
     });
 
     renderComponent(Component, false);

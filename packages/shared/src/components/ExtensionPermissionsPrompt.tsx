@@ -1,21 +1,25 @@
-import React, { ReactElement } from 'react';
+import React, { MutableRefObject, ReactElement } from 'react';
 import Logo, { LogoPosition } from './Logo';
 import { OnboardingTitleGradient } from './onboarding/common';
 import { Button, ButtonSize } from './buttons/Button';
 import { cloudinary } from '../lib/image';
 import { useExtensionContext } from '../contexts/ExtensionContext';
+import { useHostStatus } from '../hooks/useHostPermissionStatus';
 
-interface Props {
-  onSuccess?: () => void;
-}
-
-const ExtensionPermissionsPrompt = ({ onSuccess }: Props): ReactElement => {
+const ExtensionPermissionsPrompt = ({
+  pageRef,
+}: {
+  pageRef: MutableRefObject<string>;
+}): ReactElement => {
+  // eslint-disable-next-line no-param-reassign
+  pageRef.current = '/permissions';
   const { requestHostPermissions, origins } = useExtensionContext();
+  const { refetch: refetchHostPermissions } = useHostStatus();
 
   const handleRequestHostPermissions = async () => {
     const success = await requestHostPermissions({ origins });
     if (success) {
-      onSuccess();
+      refetchHostPermissions();
     }
   };
 
