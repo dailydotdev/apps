@@ -1,6 +1,6 @@
 import React, { ReactElement, useCallback, useState } from 'react';
 import classNames from 'classnames';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { widgetClasses } from '../widgets/common';
 import { InfinitePaginationActions } from '../pagination';
 import { ElementPlaceholder } from '../ElementPlaceholder';
@@ -9,6 +9,7 @@ import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { graphqlUrl } from '../../lib/config';
 import {
   Post,
+  PostData,
   PostRelationType,
   RELATED_POSTS_PER_PAGE_DEFAULT,
   RELATED_POSTS_QUERY,
@@ -18,25 +19,24 @@ import { Connection } from '../../graphql/common';
 import { SourceAvatar } from '../profile/source';
 import PostMetadata from '../cards/PostMetadata';
 import { CardLink } from '../cards/Card';
-import usePostById from '../../hooks/usePostById';
+import { getPostByIdKey } from '../../hooks/usePostById';
 
 export type RelatedPostsWidgetProps = {
   className?: string;
   post: Post;
   perPage?: number;
+  relationType: PostRelationType;
 };
 
 export const RelatedPostsWidget = ({
   className,
   post,
   perPage = RELATED_POSTS_PER_PAGE_DEFAULT,
+  relationType,
 }: RelatedPostsWidgetProps): ReactElement => {
   const { requestMethod } = useRequestProtocol();
   const [page, setPage] = useState(0);
-  const { relatedCollectionPosts: initialRelatedPosts } = usePostById({
-    id: post.id,
-    options: { retry: false },
-  });
+  const queryClient = useQueryClient();
 
   const {
     data: relatedPosts,
@@ -47,19 +47,19 @@ export const RelatedPostsWidget = ({
   } = useInfiniteQuery(
     generateQueryKey(RequestKey.RelatedPosts, null, {
       id: post.id,
-      type: post.type,
+      type: relationType,
     }),
     async ({ pageParam }) => {
       const result = await requestMethod<{
         relatedPosts: Connection<RelatedPost>;
       }>(graphqlUrl, RELATED_POSTS_QUERY, {
         id: post.id,
-        relationType: PostRelationType.Collection,
+        relationType,
         first: perPage,
         after: pageParam,
       });
 
-      return result?.relatedPosts;
+      return result.relatedPosts;
     },
     {
       enabled: !!post?.id,
@@ -77,12 +77,22 @@ export const RelatedPostsWidget = ({
         };
       }, []),
       staleTime: StaleTime.Default,
-      initialData: initialRelatedPosts
-        ? {
-            pages: [initialRelatedPosts],
-            pageParams: [null],
+      initialData: () => {
+        if (relationType === PostRelationType.Collection) {
+          const postQueryData = queryClient.getQueryData<PostData>(
+            getPostByIdKey(post.id),
+          );
+
+          if (postQueryData?.relatedCollectionPosts) {
+            return {
+              pages: [postQueryData.relatedCollectionPosts],
+              pageParams: [null],
+            };
           }
-        : undefined,
+        }
+
+        return undefined;
+      },
     },
   );
   const relatedPostPage = relatedPosts?.pages[page];

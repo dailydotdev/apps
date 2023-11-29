@@ -7,6 +7,7 @@ import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
 import { PostHeaderActionsProps } from '../common';
 import { CollectionsIntro } from '../widgets';
 import { RelatedPostsWidget } from '../RelatedPostsWidget';
+import { PostRelationType } from '../../../graphql/posts';
 
 interface PostWidgetsProps
   extends Omit<PostHeaderActionsProps, 'contextMenuId'> {
@@ -29,7 +30,10 @@ export const CollectionPostWidgets = ({
         contextMenuId="post-widgets-context"
       />
       <CollectionsIntro className="hidden tablet:flex" />
-      <RelatedPostsWidget post={post} />
+      <RelatedPostsWidget
+        post={post}
+        relationType={PostRelationType.Collection}
+      />
       <ShareBar post={post} />
       <ShareMobile post={post} share={onShare} link={post.commentsPermalink} />
     </PageWidgets>
