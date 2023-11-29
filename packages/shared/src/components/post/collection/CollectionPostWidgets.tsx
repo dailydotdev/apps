@@ -6,6 +6,7 @@ import { PostOrigin } from '../../../hooks/analytics/useAnalyticsContextData';
 import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
 import { PostHeaderActionsProps } from '../common';
 import { CollectionsIntro } from '../widgets';
+import { RelatedPostsWidget } from '../RelatedPostsWidget';
 
 interface PostWidgetsProps
   extends Omit<PostHeaderActionsProps, 'contextMenuId'> {
@@ -28,8 +29,7 @@ export const CollectionPostWidgets = ({
         contextMenuId="post-widgets-context"
       />
       <CollectionsIntro className="hidden tablet:flex" />
-      {/* TODO WT-1939-collections SOURCES - SOME PARTS OF DESIGN CAN BE TAKEN FROM THE FURTHER READING COMPONENT */}
-      {/* <FurtherReading currentPost={post} /> */}
+      <RelatedPostsWidget post={post} />
       <ShareBar post={post} />
       <ShareMobile post={post} share={onShare} link={post.commentsPermalink} />
     </PageWidgets>

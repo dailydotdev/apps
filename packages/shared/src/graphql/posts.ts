@@ -111,6 +111,13 @@ export interface Post {
   updatedAt?: string;
 }
 
+export type RelatedPost = Pick<
+  Post,
+  'id' | 'permalink' | 'title' | 'summary' | 'createdAt'
+> & {
+  source: Pick<Source, 'id' | 'handle' | 'name' | 'image'>;
+};
+
 export interface Ad {
   pixel?: string[];
   source: string;
@@ -177,6 +184,7 @@ export const POST_BY_ID_QUERY = gql`
         id
       }
       updatedAt
+      numCollectionSources
     }
   }
   ${SHARED_POST_INFO_FRAGMENT}
@@ -227,6 +235,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       }
       type
       updatedAt
+      numCollectionSources
     }
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}
@@ -623,3 +632,43 @@ export const uploadContentImage = async (
 
   return res.uploadContentImage;
 };
+
+export enum PostRelationType {
+  Collection = 'COLLECTION',
+}
+
+export const RELATED_POSTS_QUERY = gql`
+  query relatedPosts(
+    $id: ID!
+    $relationType: PostRelationType!
+    $after: String
+    $first: Int
+  ) {
+    relatedPosts(
+      id: $id
+      relationType: $relationType
+      after: $after
+      first: $first
+    ) {
+      edges {
+        node {
+          id
+          permalink
+          title
+          summary
+          createdAt
+          source {
+            id
+            handle
+            name
+            image
+          }
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+`;
