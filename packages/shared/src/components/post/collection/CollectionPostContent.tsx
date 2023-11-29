@@ -13,8 +13,8 @@ import { cloudinary } from '../../../lib/image';
 import { Separator } from '../../cards/common';
 import { postDateFormat } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
-import CollectionPostWidgets from './CollectionPostWidgets';
-import CollectionPostHeaderActions from './CollectionPostHeaderActions';
+import { CollectionPostWidgets } from './CollectionPostWidgets';
+import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
 import {
   PostContainer,
   PostContentProps,
@@ -23,7 +23,7 @@ import {
 import Pill from '../../Pill';
 import { CollectionsIntro } from '../widgets';
 
-const CollectionPostContent = ({
+export const CollectionPostContent = ({
   post,
   className = {},
   shouldOnboardAuthor,
@@ -156,5 +156,3 @@ const CollectionPostContent = ({
     </PostContentContainer>
   );
 };
-
-export default CollectionPostContent;

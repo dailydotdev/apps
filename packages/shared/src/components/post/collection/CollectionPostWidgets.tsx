@@ -3,7 +3,7 @@ import { PageWidgets } from '../../utilities';
 import { ShareMobile } from '../../ShareMobile';
 import ShareBar from '../../ShareBar';
 import { PostOrigin } from '../../../hooks/analytics/useAnalyticsContextData';
-import CollectionPostHeaderActions from './CollectionPostHeaderActions';
+import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
 import { PostHeaderActionsProps } from '../common';
 import { CollectionsIntro } from '../widgets';
 
@@ -12,7 +12,7 @@ interface PostWidgetsProps
   origin?: PostOrigin;
 }
 
-const CollectionPostWidgets = ({
+export const CollectionPostWidgets = ({
   onShare,
   post,
   className,
@@ -35,5 +35,3 @@ const CollectionPostWidgets = ({
     </PageWidgets>
   );
 };
-
-export default CollectionPostWidgets;

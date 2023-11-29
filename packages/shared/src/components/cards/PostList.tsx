@@ -1,4 +1,4 @@
-import React, { forwardRef, ReactElement, Ref } from 'react';
+import React, { forwardRef, ReactElement, Ref, useState } from 'react';
 import { PostCardProps } from './common';
 import {
   CardButton,
@@ -16,7 +16,7 @@ import FeedItemContainer from './FeedItemContainer';
 import { PostTagsPanel } from '../post/block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { PostType } from '../../graphql/posts';
-import Pill from '../Pill';
+import { CollectionPillSources } from '../post/collection';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -38,6 +38,7 @@ export const PostList = forwardRef(function PostList(
   const onPostCardClick = () => onPostClick(post);
   const { trending, pinnedAt } = post;
   const isCollectionPost = post.type === PostType.Collection;
+  const [isHovered, setHovered] = useState(false);
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -54,6 +55,8 @@ export const PostList = forwardRef(function PostList(
       domProps={{
         ...domProps,
         className: getPostClassNames(post, domProps.className),
+        onMouseEnter: () => setHovered(true),
+        onMouseLeave: () => setHovered(false),
       }}
       ref={ref}
       flagProps={{ listMode: true, pinnedAt, trending }}
@@ -75,12 +78,16 @@ export const PostList = forwardRef(function PostList(
 
       <ListCardMain>
         {isCollectionPost && (
-          <>
-            <Pill
-              label="Collection"
-              className="mb-2.5 bg-theme-overlay-float-cabbage text-theme-color-cabbage"
+          <div className="">
+            <CollectionPillSources
+              className="mb-2.5"
+              sources={post.collectionSources}
+              totalSources={post.numCollectionSources}
+              shouldShowSources={
+                isHovered && post.collectionSources?.length > 0
+              }
             />
-          </>
+          </div>
         )}
         <ListCardTitle>{post.title}</ListCardTitle>
         <PostMetadata
@@ -95,7 +102,7 @@ export const PostList = forwardRef(function PostList(
           openNewTab={openNewTab}
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
-          onReadArticleClick={onReadArticleClick}
+          onReadArticleClick={isCollectionPost ? undefined : onReadArticleClick}
           onShare={onShare}
           onShareClick={onShareClick}
           className="relative self-stretch mt-1"

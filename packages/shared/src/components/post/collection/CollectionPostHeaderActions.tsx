@@ -11,7 +11,7 @@ import { PostMenuOptions } from '../PostMenuOptions';
 
 const Container = classed('div', 'flex flex-row items-center');
 
-const CollectionPostHeaderActions = ({
+export const CollectionPostHeaderActions = ({
   onShare,
   post,
   onClose,
@@ -55,5 +55,3 @@ const CollectionPostHeaderActions = ({
     </Container>
   );
 };
-
-export default CollectionPostHeaderActions;

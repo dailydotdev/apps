@@ -1,42 +1,35 @@
 import React, { ReactElement } from 'react';
-import Pill from '../../Pill';
-import { SourceAvatar, SourceAvatarProps } from '../../profile/source';
-import { ProfilePictureGroup } from '../../ProfilePictureGroup';
+import { SourceAvatarProps } from '../../profile/source';
+import { CollectionPillSources } from '../../post/collection';
+import OptionsButton from '../../buttons/OptionsButton';
 
-interface Props {
+interface CollectionCardHeaderProps {
   sources: SourceAvatarProps['source'][];
   totalSources: number;
-  hovered?: boolean;
+  isHovered: boolean;
+  onMenuClick?: (e: React.MouseEvent) => void;
 }
+
 export const CollectionCardHeader = ({
   sources,
   totalSources,
-  hovered = false,
-}: Props): ReactElement => {
-  const shouldShowSources = hovered && sources.length > 0;
-
+  isHovered,
+  onMenuClick,
+}: CollectionCardHeaderProps): ReactElement => {
   return (
-    <div className="flex relative flex-row gap-2 m-2 mb-3">
-      <div className="relative">
-        {shouldShowSources && (
-          <ProfilePictureGroup total={totalSources} size="medium">
-            {sources.map((source) => (
-              <SourceAvatar
-                className="border-2 !mr-0 border-theme-bg-primary"
-                key={source.handle}
-                source={source}
-                size="medium"
-              />
-            ))}
-          </ProfilePictureGroup>
-        )}
-        {!shouldShowSources && (
-          <Pill
-            label="Collection"
-            className="bg-theme-overlay-float-cabbage text-theme-color-cabbage"
-          />
-        )}
-      </div>
-    </div>
+    <>
+      <CollectionPillSources
+        className="m-2 mb-3"
+        sources={sources}
+        totalSources={totalSources}
+        shouldShowSources={isHovered && sources.length > 0}
+      />
+      <OptionsButton
+        className="group-hover:flex laptop:hidden top-3 right-3"
+        onClick={onMenuClick}
+        tooltipPlacement="top"
+        position="absolute"
+      />
+    </>
   );
 };

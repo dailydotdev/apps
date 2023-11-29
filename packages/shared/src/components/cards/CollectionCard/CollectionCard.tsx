@@ -12,7 +12,6 @@ import {
 import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
 import ActionButtons from '../ActionButtons';
 import PostMetadata from '../PostMetadata';
-import OptionsButton from '../../buttons/OptionsButton';
 
 export const CollectionCard = forwardRef(function CollectionCard(
   {
@@ -30,7 +29,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
-  const [hovered, setHovered] = useState(false);
+  const [isHovered, setHovered] = useState(false);
   const clamp = (() => {
     if (post.image) {
       return 'line-clamp-3';
@@ -55,13 +54,8 @@ export const CollectionCard = forwardRef(function CollectionCard(
       <CollectionCardHeader
         sources={post.collectionSources}
         totalSources={post.numCollectionSources}
-        hovered={hovered}
-      />
-      <OptionsButton
-        className="group-hover:flex laptop:hidden top-3 right-3"
-        onClick={(event) => onMenuClick?.(event, post)}
-        tooltipPlacement="top"
-        position="absolute"
+        isHovered={isHovered}
+        onMenuClick={(event) => onMenuClick?.(event, post)}
       />
       <FreeformCardTitle
         className={classNames(
