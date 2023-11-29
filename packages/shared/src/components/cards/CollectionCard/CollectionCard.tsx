@@ -66,14 +66,12 @@ export const CollectionCard = forwardRef(function CollectionCard(
         {post.title}
       </FreeformCardTitle>
 
-      <Container className="mb-8 tablet:mb-0">
-        <CardSpace />
-        <PostMetadata
-          createdAt={post.createdAt}
-          readTime={post.readTime}
-          className="mx-4"
-        />
-      </Container>
+      {!!post.image && <CardSpace />}
+      <PostMetadata
+        createdAt={post.createdAt}
+        readTime={post.readTime}
+        className={classNames('m-2', post.image ? 'mb-0' : 'mb-4')}
+      />
 
       <Container>
         <WelcomePostCardFooter post={post} />
