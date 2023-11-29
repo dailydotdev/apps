@@ -1,4 +1,4 @@
-import React, { forwardRef, Ref } from 'react';
+import React, { forwardRef, Ref, useState } from 'react';
 import classNames from 'classnames';
 import { Container, PostCardProps } from '../common';
 import FeedItemContainer from '../FeedItemContainer';
@@ -30,7 +30,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
-  const [hovered, toggleHovered] = React.useState(false);
+  const [hovered, setHovered] = useState(false);
   const clamp = (() => {
     if (post.image) {
       return 'line-clamp-3';
@@ -44,19 +44,17 @@ export const CollectionCard = forwardRef(function CollectionCard(
       domProps={{
         ...domProps,
         className: getPostClassNames(post, domProps.className, 'min-h-card'),
+        onMouseEnter: () => setHovered(true),
+        onMouseLeave: () => setHovered(false),
       }}
       ref={ref}
       flagProps={{ pinnedAt: post.pinnedAt }}
     >
-      <CardButton
-        onMouseEnter={() => toggleHovered(true)}
-        onMouseLeave={() => toggleHovered(false)}
-        title={post.title}
-        onClick={() => onPostClick(post)}
-      />
+      <CardButton title={post.title} onClick={() => onPostClick(post)} />
 
       <CollectionCardHeader
-        collectionSources={post.collectionSources}
+        sources={post.collectionSources}
+        totalSources={post.numCollectionSources}
         hovered={hovered}
       />
       <OptionsButton
@@ -64,8 +62,6 @@ export const CollectionCard = forwardRef(function CollectionCard(
         onClick={(event) => onMenuClick?.(event, post)}
         tooltipPlacement="top"
         position="absolute"
-        onMouseEnter={() => toggleHovered(true)}
-        onMouseLeave={() => toggleHovered(false)}
       />
       <FreeformCardTitle
         className={classNames(

@@ -39,6 +39,11 @@ export const FEED_POST_FRAGMENT = gql`
     }
     trending
     feedMeta
+    collectionSources {
+      handle
+      image
+    }
+    numCollectionSources
   }
   ${SHARED_POST_INFO_FRAGMENT}
 `;

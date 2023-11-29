@@ -1,38 +1,41 @@
 import React, { ReactElement } from 'react';
 import Pill from '../../Pill';
-import { ProfilePicture, ProfilePictureGroup } from '../../ProfilePicture';
-import { Source } from '../../../graphql/sources';
+import { SourceAvatar, SourceAvatarProps } from '../../profile/source';
+import { ProfilePictureGroup } from '../../ProfilePictureGroup';
 
 interface Props {
-  collectionSources: Source[];
+  sources: SourceAvatarProps['source'][];
+  totalSources: number;
   hovered?: boolean;
 }
 export const CollectionCardHeader = ({
-  collectionSources,
-  hovered,
+  sources,
+  totalSources,
+  hovered = false,
 }: Props): ReactElement => {
-  if (collectionSources && hovered) {
-    return (
-      <ProfilePictureGroup>
-        {collectionSources.map((source) => (
-          <ProfilePicture
-            key={source.id}
-            user={source}
-            rounded="full"
-            size="xlarge"
-          />
-        ))}
-      </ProfilePictureGroup>
-    );
-  }
+  const shouldShowSources = hovered && sources.length > 0;
 
   return (
     <div className="flex relative flex-row gap-2 m-2 mb-3">
       <div className="relative">
-        <Pill
-          label="Collection"
-          className="bg-theme-overlay-float-cabbage text-theme-color-cabbage"
-        />
+        {shouldShowSources && (
+          <ProfilePictureGroup total={totalSources} size="medium">
+            {sources.map((source) => (
+              <SourceAvatar
+                className="border-2 !mr-0 border-theme-bg-primary"
+                key={source.handle}
+                source={source}
+                size="medium"
+              />
+            ))}
+          </ProfilePictureGroup>
+        )}
+        {!shouldShowSources && (
+          <Pill
+            label="Collection"
+            className="bg-theme-overlay-float-cabbage text-theme-color-cabbage"
+          />
+        )}
       </div>
     </div>
   );

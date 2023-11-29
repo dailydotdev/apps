@@ -81,6 +81,7 @@ export interface Post {
   tags?: string[];
   source?: Source | Squad;
   collectionSources?: Source[];
+  numCollectionSources?: number;
   upvoted?: boolean;
   commented?: boolean;
   commentsPermalink: string;
