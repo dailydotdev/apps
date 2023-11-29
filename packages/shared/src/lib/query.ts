@@ -74,6 +74,7 @@ export enum RequestKey {
   ReferredUsers = 'referred',
   PostKey = 'post',
   Prompt = 'prompt',
+  Comment = 'comment',
   SquadTour = 'squad_tour',
 }
 
