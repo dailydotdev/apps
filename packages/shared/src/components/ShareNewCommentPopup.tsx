@@ -62,7 +62,7 @@ export default function ShareNewCommentPopup({
             target="_blank"
             rel="noopener"
             icon={<TwitterIcon />}
-            className="btn-primary"
+            className="btn-primary-twitter"
             buttonSize={ButtonSize.Small}
           >
             X
