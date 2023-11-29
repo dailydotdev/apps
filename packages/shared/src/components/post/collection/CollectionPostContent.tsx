@@ -127,7 +127,7 @@ const CollectionPostContent = ({
             {post.title}
           </h1>
           {!!updatedAt && (
-            <div className="flex items-center text-theme-label-tertiary typo-callout">
+            <div className="flex items-center text-theme-label-tertiary typo-footnote">
               <span>Last updated</span> <Separator />
               <time dateTime={updatedAt}>{postDateFormat(updatedAt)}</time>
             </div>
