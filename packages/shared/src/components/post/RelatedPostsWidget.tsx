@@ -10,6 +10,7 @@ import { graphqlUrl } from '../../lib/config';
 import {
   Post,
   PostRelationType,
+  RELATED_POSTS_PER_PAGE_DEFAULT,
   RELATED_POSTS_QUERY,
   RelatedPost,
 } from '../../graphql/posts';
@@ -17,14 +18,13 @@ import { Connection } from '../../graphql/common';
 import { SourceAvatar } from '../profile/source';
 import PostMetadata from '../cards/PostMetadata';
 import { CardLink } from '../cards/Card';
+import usePostById from '../../hooks/usePostById';
 
 export type RelatedPostsWidgetProps = {
   className?: string;
   post: Post;
   perPage?: number;
 };
-
-export const RELATED_POSTS_PER_PAGE_DEFAULT = 5;
 
 export const RelatedPostsWidget = ({
   className,
@@ -33,6 +33,10 @@ export const RelatedPostsWidget = ({
 }: RelatedPostsWidgetProps): ReactElement => {
   const { requestMethod } = useRequestProtocol();
   const [page, setPage] = useState(0);
+  const { relatedCollectionPosts: initialRelatedPosts } = usePostById({
+    id: post.id,
+    options: { retry: false },
+  });
 
   const {
     data: relatedPosts,
@@ -73,6 +77,12 @@ export const RelatedPostsWidget = ({
         };
       }, []),
       staleTime: StaleTime.Default,
+      initialData: initialRelatedPosts
+        ? {
+            pages: [initialRelatedPosts],
+            pageParams: [null],
+          }
+        : undefined,
     },
   );
   const relatedPostPage = relatedPosts?.pages[page];

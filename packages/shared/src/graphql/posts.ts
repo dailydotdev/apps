@@ -5,6 +5,7 @@ import { Source, Squad } from './sources';
 import { EmptyResponse } from './emptyResponse';
 import { graphqlUrl } from '../lib/config';
 import {
+  RELATED_POST_FRAGMENT,
   SHARED_POST_INFO_FRAGMENT,
   SOURCE_SHORT_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
@@ -162,7 +163,10 @@ export interface PostItem {
 
 export interface PostData {
   post: Post;
+  relatedCollectionPosts?: Connection<RelatedPost>;
 }
+
+export const RELATED_POSTS_PER_PAGE_DEFAULT = 5;
 
 export const POST_BY_ID_QUERY = gql`
   query Post($id: ID!) {
@@ -186,8 +190,24 @@ export const POST_BY_ID_QUERY = gql`
       updatedAt
       numCollectionSources
     }
+    relatedCollectionPosts: relatedPosts(
+      id: $id
+      relationType: COLLECTION
+      first: ${RELATED_POSTS_PER_PAGE_DEFAULT}
+    ) {
+      edges {
+        node {
+          ...RelatedPost
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
   }
   ${SHARED_POST_INFO_FRAGMENT}
+  ${RELATED_POST_FRAGMENT}
 `;
 
 export const POST_UPVOTES_BY_ID_QUERY = gql`
@@ -652,17 +672,7 @@ export const RELATED_POSTS_QUERY = gql`
     ) {
       edges {
         node {
-          id
-          permalink
-          title
-          summary
-          createdAt
-          source {
-            id
-            handle
-            name
-            image
-          }
+          ...RelatedPost
         }
       }
       pageInfo {
@@ -671,4 +681,5 @@ export const RELATED_POSTS_QUERY = gql`
       }
     }
   }
+  ${RELATED_POST_FRAGMENT}
 `;
