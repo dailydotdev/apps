@@ -27,7 +27,7 @@ export type Scout = Author;
 export interface Comment {
   __typename?: string;
   id: string;
-  content: string;
+  content?: string;
   contentHtml: string;
   createdAt: string;
   lastUpdatedAt?: string;
@@ -212,3 +212,12 @@ export const deleteComment = (
     id,
   });
 };
+
+export const COMMENT_BY_ID_QUERY = gql`
+  query Comment($id: ID!) {
+    comment(id: $id) {
+      id
+      content
+    }
+  }
+`;
