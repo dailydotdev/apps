@@ -9,7 +9,7 @@ const withFeaturesBoundary = <Props,>(
     const { ready: areFeaturesReady } = useContext(FeaturesReadyContext);
 
     if (!areFeaturesReady) {
-      const FallbackComponent = options.fallback;
+      const FallbackComponent = options?.fallback;
 
       return FallbackComponent ? <FallbackComponent {...props} /> : null;
     }
