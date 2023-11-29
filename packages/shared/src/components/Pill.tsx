@@ -24,7 +24,7 @@ const Pill = ({
     <div
       className={classNames(
         pillSizeToClassName[size],
-        'rounded-xl p-2 inline-flex items-center self-start',
+        'rounded-10 p-2 inline-flex items-center self-start',
         className,
       )}
     >

@@ -39,7 +39,6 @@ const CollectionPostHeaderActions = ({
           target={openNewTab ? '_blank' : '_self'}
           icon={<BellIcon />}
           onClick={() => {}}
-          data-testid="collectionPostActionsSubscribe"
         >
           {!inlineActions && 'Subscribe'}
         </Button>
