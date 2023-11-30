@@ -79,6 +79,12 @@ const SharePostModal = dynamic(
   () =>
     import(/* webpackChunkName: "sharePostModal" */ './modals/SharePostModal'),
 );
+const CollectionPostModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "collectionPostModal" */ './modals/CollectionPostModal'
+    ),
+);
 
 const calculateRow = (index: number, numCards: number): number =>
   Math.floor(index / numCards);
@@ -90,8 +96,7 @@ const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Share]: SharePostModal,
   [PostType.Welcome]: SharePostModal,
   [PostType.Freeform]: SharePostModal,
-  // TODO WT-1939-collections
-  [PostType.Collection]: () => <div>TBD</div>,
+  [PostType.Collection]: CollectionPostModal,
 };
 
 export default function Feed<T>({

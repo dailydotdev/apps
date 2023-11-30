@@ -1,17 +1,10 @@
 import dynamic from 'next/dynamic';
-import React, { ReactElement, ReactNode, useContext } from 'react';
-import { Post } from '../../graphql/posts';
-import PostNavigation, {
-  PostNavigationClassName,
-  PostNavigationProps,
-} from './PostNavigation';
+import React, { ReactElement, useContext } from 'react';
+import PostNavigation from './PostNavigation';
 import { PostFeedFiltersOnboarding } from './PostFeedFiltersOnboarding';
 import PostEngagements from './PostEngagements';
-import {
-  UsePostContent,
-  UsePostContentProps,
-} from '../../hooks/usePostContent';
 import OnboardingContext from '../../contexts/OnboardingContext';
+import { BasePostContentProps } from './common';
 
 const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ '../modals/ShareModal'),
@@ -20,27 +13,6 @@ const ShareModal = dynamic(
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
 );
-
-export interface PostContentClassName {
-  container?: string;
-  content?: string;
-  onboarding?: string;
-  navigation?: PostNavigationClassName;
-  fixedNavigation?: PostNavigationClassName;
-}
-
-export interface BasePostContentProps extends UsePostContentProps {
-  post: Post;
-  children: ReactNode;
-  isFallback?: boolean;
-  className?: PostContentClassName;
-  navigationProps?: PostNavigationProps;
-  engagementProps: UsePostContent;
-  shouldOnboardAuthor?: boolean;
-  enableShowShareNewComment?: boolean;
-  loadingPlaceholder?: ReactNode;
-  customNavigation?: ReactNode;
-}
 
 export const ONBOARDING_OFFSET = 120;
 

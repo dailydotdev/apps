@@ -23,9 +23,11 @@ export enum OtherFeedPage {
 
 const ONE_MINUTE = 60 * 1000;
 const THIRTY_MINUTES = ONE_MINUTE * 30;
+const FIVE_MINUTES = ONE_MINUTE * 5;
 export const STALE_TIME = 30 * 1000;
 
 export enum StaleTime {
+  Default = FIVE_MINUTES,
   FeedSettings = ONE_MINUTE,
   Tooltip = THIRTY_MINUTES,
   Base = STALE_TIME,
@@ -75,6 +77,7 @@ export enum RequestKey {
   PostKey = 'post',
   Prompt = 'prompt',
   SquadTour = 'squad_tour',
+  RelatedPosts = 'related_posts',
 }
 
 export type HasConnection<

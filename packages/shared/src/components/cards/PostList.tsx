@@ -16,7 +16,7 @@ import FeedItemContainer from './FeedItemContainer';
 import { PostTagsPanel } from '../post/block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { PostType } from '../../graphql/posts';
-import Pill from '../Pill';
+import { CollectionPillSources } from '../post/collection';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -75,12 +75,13 @@ export const PostList = forwardRef(function PostList(
 
       <ListCardMain>
         {isCollectionPost && (
-          <>
-            <Pill
-              label="Collection"
-              className="mb-2.5 text-theme-color-cabbage"
+          <div className="">
+            <CollectionPillSources
+              className="mb-2.5"
+              sources={post.collectionSources}
+              totalSources={post.numCollectionSources}
             />
-          </>
+          </div>
         )}
         <ListCardTitle>{post.title}</ListCardTitle>
         <PostMetadata
@@ -95,7 +96,7 @@ export const PostList = forwardRef(function PostList(
           openNewTab={openNewTab}
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
-          onReadArticleClick={onReadArticleClick}
+          onReadArticleClick={isCollectionPost ? undefined : onReadArticleClick}
           onShare={onShare}
           onShareClick={onShareClick}
           className="relative self-stretch mt-1"

@@ -5,10 +5,9 @@ import AuthContext from '../../contexts/AuthContext';
 import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
 import { PostUsersHighlights } from '../widgets/PostUsersHighlights';
-import { PostHeaderActions, PostHeaderActionsProps } from './PostHeaderActions';
+import { PostHeaderActions } from './PostHeaderActions';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
-import { CollectionsIntro } from './widgets';
-import { PostType } from '../../graphql/posts';
+import { PostHeaderActionsProps } from './common';
 
 interface PostWidgetsProps
   extends Omit<PostHeaderActionsProps, 'contextMenuId'> {
@@ -34,7 +33,6 @@ export function PostWidgets({
         className="hidden tablet:flex pt-6"
         contextMenuId="post-widgets-context"
       />
-      {post.type === PostType.Collection && <CollectionsIntro />}
       <PostUsersHighlights post={post} />
       <ShareBar post={post} />
       <ShareMobile post={post} share={onShare} link={post.commentsPermalink} />

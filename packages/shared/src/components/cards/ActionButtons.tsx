@@ -146,7 +146,7 @@ export default function ActionButtons({
           </div>
         )}
       >
-        {insaneMode && (
+        {!!onReadArticleClick && insaneMode && (
           <ReadArticleButton
             className="mr-2 btn-primary"
             href={post.permalink}

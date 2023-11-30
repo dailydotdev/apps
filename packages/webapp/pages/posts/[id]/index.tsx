@@ -46,6 +46,7 @@ import classNames from 'classnames';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Link from 'next/link';
+import { CollectionPostContent } from '@dailydotdev/shared/src/components/post/collection';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -72,8 +73,7 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   share: SquadPostContent,
   welcome: SquadPostContent,
   freeform: SquadPostContent,
-  // TODO WT-1939-collections
-  collection: () => <div>TBD</div>,
+  collection: CollectionPostContent,
 };
 
 interface PostParams extends ParsedUrlQuery {
@@ -153,19 +153,20 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   ) : (
     <SquadPostPageNavigation squadLink={post.source.permalink} />
   );
+  const articleNavigation = !!router?.query?.squad && (
+    <Link href={`/squads/${router.query.squad}`}>
+      <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
+        <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
+        Back to {router.query.n || 'Squad'}
+      </a>
+    </Link>
+  );
   const navigation: Record<PostType, ReactNode> = {
-    article: !!router?.query?.squad && (
-      <Link href={`/squads/${router.query.squad}`}>
-        <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
-          <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
-          Back to {router.query.n || 'Squad'}
-        </a>
-      </Link>
-    ),
+    article: articleNavigation,
     share: shareNavigation,
     welcome: shareNavigation,
     freeform: shareNavigation,
-    collection: shareNavigation,
+    collection: articleNavigation,
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;
 

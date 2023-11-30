@@ -40,6 +40,7 @@ export enum NotificationType {
   PromotedToModerator = 'promoted_to_moderator',
   DemotedToMember = 'demoted_to_member',
   SquadSubscribeNotification = 'squad_subscribe_to_notification',
+  CollectionUpdated = 'collection_updated',
 }
 
 export enum NotificationIconType {
