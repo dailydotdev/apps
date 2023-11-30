@@ -113,10 +113,7 @@ function MainLayout({
   }, [isNotificationsReady, unreadCount, hasTrackedImpression]);
 
   const renderSidebar = () => {
-    if (
-      sidebarRendered === null ||
-      (sidebarRendered && !showSidebar)
-    ) {
+    if (sidebarRendered === null || (sidebarRendered && !showSidebar)) {
       return null;
     }
 

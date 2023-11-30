@@ -27,7 +27,6 @@ import {
 } from '../../hooks';
 import { SearchReferralButton } from '../referral/SearchReferralButton';
 
-
 export interface MainLayoutHeaderProps {
   greeting?: boolean;
   hasBanner?: boolean;
