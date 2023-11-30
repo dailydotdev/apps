@@ -5,11 +5,7 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
 import 'focus-visible';
