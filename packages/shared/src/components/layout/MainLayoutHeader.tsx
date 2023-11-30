@@ -30,6 +30,7 @@ import { SearchReferralButton } from '../referral/SearchReferralButton';
 export interface MainLayoutHeaderProps {
   greeting?: boolean;
   hasBanner?: boolean;
+  sidebarRendered?: boolean;
   optOutWeeklyGoal?: boolean;
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
