@@ -284,8 +284,6 @@ export default function MainFeedLayout({
     return isLaptop ? cloudinary.feed.bg.laptop : cloudinary.feed.bg.tablet;
   };
 
-  console.log(feedItemComponent);
-
   return (
     <FeedPage className="relative">
       {searchVersion === SearchExperiment.V1 && !isFinder && (

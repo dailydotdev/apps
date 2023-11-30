@@ -71,6 +71,7 @@ export type ButtonProps<Tag extends AllowedTags> = BaseButtonProps &
     readOnly?: boolean;
   };
 
+export type ButtonComponentProps = StyledButtonProps & ButtonProps<AllowedTags>;
 function ButtonComponent<TagName extends AllowedTags>(
   {
     loading,
@@ -89,7 +90,7 @@ function ButtonComponent<TagName extends AllowedTags>(
     onClick,
     spanClassName,
     ...props
-  }: StyledButtonProps & ButtonProps<TagName>,
+  }: ButtonComponentProps,
   ref?: Ref<ButtonElementType<TagName>>,
 ): ReactElement {
   const iconOnly = (icon && !children && !rightIcon) || showIconOnly;

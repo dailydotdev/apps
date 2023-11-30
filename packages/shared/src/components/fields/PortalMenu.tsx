@@ -9,6 +9,7 @@ export default function PortalMenu({
   onHidden: onHiddenProps,
   ...props
 }: MenuProps): ReactElement {
+  // TODO: Don't think we need this anymore actually?
   const { onHide } = useContextMenu({ id: id?.toString() });
 
   const onHidden = () => {

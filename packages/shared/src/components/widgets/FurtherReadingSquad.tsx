@@ -1,14 +1,14 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import request from 'graphql-request';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import {
   FURTHER_READING_QUERY,
   FurtherReadingData,
 } from '../../graphql/furtherReading';
 import { graphqlUrl } from '../../lib/config';
-import { Post, PostType, UserPostVote } from '../../graphql/posts';
+import { Post, PostType } from '../../graphql/posts';
 import { FeedData, SOURCE_FEED_QUERY } from '../../graphql/feed';
 import LeanFeed from '../feed/LeanFeed';
 import { FeedItem } from '../../hooks/useFeed';
@@ -42,7 +42,6 @@ import { CardImage } from '../cards/Card';
 import AdLink from '../feed/cards/atoms/AdLink';
 import AdImage from '../feed/cards/atoms/AdImage';
 import { Button } from '../buttons/Button';
-import { Origin } from '../../lib/analytics';
 import UpvoteIcon from '../icons/Upvote';
 import DownvoteIcon from '../icons/Downvote';
 import GenericFeedItemComponent from '../feed/feedItemComponent/genericFeedItemComponent';
@@ -125,10 +124,6 @@ export default function FurtherReadingSquad({
     return newItems;
   }, [isFetching, posts]);
 
-  const altOnClick = (e) => {
-    alert('some overwrite value');
-  };
-
   return (
     <div className="flex flex-col flex-1 w-full bg-theme-overlay-float-avocado">
       <div className="w-full border-b border-b-theme-divider-tertiary">
@@ -137,10 +132,6 @@ export default function FurtherReadingSquad({
         </p>
       </div>
       <div className={classNames(className, 'flex flex-col gap-6')}>
-        {/**
-         Article card
-         * */}
-
         {/**
          Article card no action buttons
          * */}

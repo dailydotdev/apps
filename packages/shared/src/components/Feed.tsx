@@ -35,9 +35,8 @@ import ShareOptionsMenu from './ShareOptionsMenu';
 import { ExperimentWinner } from '../lib/featureValues';
 import { SharedFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
-import { ActiveFeedContext } from '../contexts';
+import { ActiveFeedContext, ActiveFeedContextProvider } from '../contexts';
 import useCompanionTrigger from '../hooks/useCompanionTrigger';
-import { ActiveFeedContextProvider } from '../contexts';
 import { useFeedVotePost } from '../hooks';
 import { AllFeedPages, RequestKey, updateCachedPagePost } from '../lib/query';
 import {
@@ -112,7 +111,6 @@ export default function Feed<T>({
   besideSearch,
   actionButtons,
 }: FeedProps<T>): ReactElement {
-  console.log(feedItemComponent);
   const FeedTag = feedItemComponent;
   const origin = Origin.Feed;
   const { trackEvent } = useContext(AnalyticsContext);

@@ -42,7 +42,6 @@ export default function MainFeedPage({
   isFinder,
   ...props
 }: MainFeedPageProps): ReactElement {
-  console.log(props);
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const isFinderPage = router?.pathname === '/search' || isFinder;

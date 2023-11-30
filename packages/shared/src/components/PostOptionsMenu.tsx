@@ -46,7 +46,7 @@ import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
 } from '../hooks/useBookmarkPost';
-import { ActiveFeedContext } from '../contexts';
+import { ActiveFeedContext, useActiveFeedContext } from '../contexts';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -95,7 +95,7 @@ export default function PostOptionsMenu({
   const { trackEvent } = useContext(AnalyticsContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openModal } = useLazyModal();
-  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
+  const { queryKey: feedQueryKey, items } = useActiveFeedContext();
   const {
     onFollowSource,
     onUnfollowSource,

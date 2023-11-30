@@ -19,7 +19,7 @@ import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { updateFlagsCache } from '../../graphql/source/common';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { ActiveFeedContext } from '../../contexts';
+import { ActiveFeedContext, useActiveFeedContext } from '../../contexts';
 
 export interface UseSquadActions {
   onUnblock?: typeof unblockSquadMember;
@@ -47,7 +47,7 @@ export const useSquadActions = ({
   membersQueryParams = {},
   membersQueryEnabled,
 }: UseSquadActionsProps): UseSquadActions => {
-  const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
+  const { queryKey: feedQueryKey } = useActiveFeedContext();
   const { user } = useAuthContext();
   const client = useQueryClient();
   const membersQueryKey = generateQueryKey(

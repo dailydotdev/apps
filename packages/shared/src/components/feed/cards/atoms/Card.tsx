@@ -6,7 +6,7 @@ import styles from '../../../cards/Card.module.css';
 const BasicCard = classed(
   'article',
   styles.card,
-  'relative  flex flex-col rounded-2xl',
+  'relative flex flex-col rounded-2xl h-full',
 );
 
 export function Card({

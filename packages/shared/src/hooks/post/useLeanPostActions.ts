@@ -1,5 +1,9 @@
 import { useCallback, useContext } from 'react';
-import { QueryClient, useMutation, useQueryClient } from 'react-query';
+import {
+  QueryClient,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import {
   banPost,
   deletePost,
@@ -23,7 +27,6 @@ import { AuthTriggers } from '../../lib/auth';
 import { graphqlUrl } from '../../lib/config';
 import { useRequestProtocol } from '../useRequestProtocol';
 import AuthContext from '../../contexts/AuthContext';
-import useBookmarkPost from '../useBookmarkPost';
 import { ToastSubject, useToastNotification } from '../useToastNotification';
 import { PromptOptions, usePrompt } from '../usePrompt';
 import { Roles } from '../../lib/user';
@@ -32,6 +35,7 @@ import { SourceActionArguments, TagActionArguments } from '../useTagAndSource';
 import useMutateFilters from '../useMutateFilters';
 import AlertContext from '../../contexts/AlertContext';
 import useFeedSettings from '../useFeedSettings';
+import { useBookmarkPost } from '../useBookmarkPost';
 
 const multiPostTransformer = (
   posts: Post[],
@@ -46,6 +50,23 @@ const multiPostTransformer = (
         }
       : post,
   );
+
+const multiPageTransformer = (
+  pages: { page: { edges: { node: Post }[] } }[],
+  id: string,
+  update: (oldPost: Post) => Partial<Post>,
+): { page: { edges: { node: Post }[] } }[] => {
+  return pages.map(({ page }) => {
+    const edges = page.edges.map((edge) => {
+      const tmpEdge = { ...edge };
+      if (tmpEdge.node.id === id) {
+        tmpEdge.node = { ...tmpEdge.node, ...update(tmpEdge.node) };
+      }
+      return tmpEdge;
+    });
+    return { page: { ...page, edges } };
+  });
+};
 
 const updateMap = {
   'single-post': {
@@ -62,6 +83,12 @@ const updateMap = {
       similarPosts: multiPostTransformer(previousData.similarPosts, id, update),
     }),
   },
+  feed: {
+    transformer: ({ previousData, id, update }) => ({
+      ...previousData,
+      pages: multiPageTransformer(previousData.pages, id, update),
+    }),
+  },
 };
 
 const updatePost =
@@ -73,6 +100,7 @@ const updatePost =
   ): ((args: { id: string }) => Promise<() => void>) =>
   async ({ id }) => {
     const previousData = queryClient.getQueryData(queryKey);
+
     queryClient.setQueryData(
       queryKey,
       updateMap[transformKey].transformer({ previousData, id, update }),
@@ -84,7 +112,7 @@ const updatePost =
 
 export default function useLeanPostActions({
   queryKey,
-  transformKey = 'further-reading',
+  transformKey = 'feed',
 }) {
   const { requestMethod } = useRequestProtocol();
   const { user, showLogin } = useContext(AuthContext);
@@ -275,7 +303,7 @@ export default function useLeanPostActions({
     }
 
     if (!user) {
-      showLogin(AuthTriggers.Upvote);
+      showLogin({ trigger: AuthTriggers.Upvote });
 
       return;
     }
@@ -294,7 +322,7 @@ export default function useLeanPostActions({
     }
 
     if (!user) {
-      showLogin(AuthTriggers.Downvote);
+      showLogin({ trigger: AuthTriggers.Downvote });
 
       return;
     }
@@ -307,6 +335,15 @@ export default function useLeanPostActions({
     downvotePost({ post });
   }, []);
 
+  const onDirectClick = useCallback((post: Post) => {
+    // TODO: Add tracking
+    // TODO: This should actually set it to be read in DB (onFeedItemClick)
+    updatePost(queryClient, queryKey, transformKey, () => ({
+      read: true,
+    }))({ id: post.id });
+    return null;
+  }, []);
+
   const onUpvote = useCallback(async (post: Post) => {
     return toggleUpvote({ post, origin: Origin.PostContextMenu });
   }, []);
@@ -315,28 +352,28 @@ export default function useLeanPostActions({
     return toggleDownvote({ post, origin: Origin.PostContextMenu });
   }, []);
 
-  const { bookmark, bookmarkToast, removeBookmark } = useBookmarkPost<{
-    post: Post;
-    id: string;
-  }>({
-    onBookmarkMutate: ({ post }) => {
-      updatePost(queryClient, queryKey, transformKey, () => ({
-        bookmarked: true,
-      }))({ id: post.id });
-      return undefined;
-    },
-    onRemoveBookmarkMutate: ({ post }) => {
-      updatePost(queryClient, queryKey, transformKey, () => ({
-        bookmarked: false,
-      }))({ id: post.id });
-      return undefined;
-    },
-  });
+  // const { bookmark, bookmarkToast, removeBookmark } = useBookmarkPost<{
+  //   post: Post;
+  //   id: string;
+  // }>({
+  //   onBookmarkMutate: ({ post }) => {
+  //     updatePost(queryClient, queryKey, transformKey, () => ({
+  //       bookmarked: true,
+  //     }))({ id: post.id });
+  //     return undefined;
+  //   },
+  //   onRemoveBookmarkMutate: ({ post }) => {
+  //     updatePost(queryClient, queryKey, transformKey, () => ({
+  //       bookmarked: false,
+  //     }))({ id: post.id });
+  //     return undefined;
+  //   },
+  // });
 
   const onFollowSource = useCallback(
     async ({ source }: SourceActionArguments) => {
       if (!user) {
-        showLogin(AuthTriggers.Bookmark);
+        showLogin({ trigger: AuthTriggers.Bookmark });
         return { successful: false };
       }
       await followSource({ source });
@@ -348,7 +385,7 @@ export default function useLeanPostActions({
   const onUnfollowSource = useCallback(
     async ({ source }: SourceActionArguments) => {
       if (!user) {
-        showLogin(AuthTriggers.Bookmark);
+        showLogin({ trigger: AuthTriggers.Bookmark });
         return { successful: false };
       }
 
@@ -361,7 +398,7 @@ export default function useLeanPostActions({
 
   const onBlockTags = useCallback(async ({ tags }: TagActionArguments) => {
     if (!user) {
-      showLogin(AuthTriggers.Bookmark);
+      showLogin({ trigger: AuthTriggers.Bookmark });
       return { successful: false };
     }
 
@@ -387,7 +424,7 @@ export default function useLeanPostActions({
 
   const onFollowTags = useCallback(async ({ tags }: TagActionArguments) => {
     if (!user) {
-      showLogin(AuthTriggers.Bookmark);
+      showLogin({ trigger: AuthTriggers.Bookmark });
       return { successful: false };
     }
 
@@ -401,7 +438,7 @@ export default function useLeanPostActions({
 
   const onUnblockTags = useCallback(async ({ tags }: TagActionArguments) => {
     if (!user) {
-      showLogin(AuthTriggers.Bookmark);
+      showLogin({ trigger: AuthTriggers.Bookmark });
       return { successful: false };
     }
     await unblockTag({ tags });
@@ -428,17 +465,16 @@ export default function useLeanPostActions({
 
   const toggleBookmark = useCallback(async (post: Post) => {
     if (!user) {
-      showLogin(AuthTriggers.Bookmark);
-      return;
+      showLogin({ trigger: AuthTriggers.Bookmark });
     }
 
-    const targetBookmarkState = !post.bookmarked;
-    if (targetBookmarkState) {
-      await bookmark({ post, id: post.id });
-    } else {
-      await removeBookmark({ post, id: post.id });
-    }
-    bookmarkToast(targetBookmarkState);
+    // const targetBookmarkState = !post.bookmarked;
+    // if (targetBookmarkState) {
+    //   await bookmark({ post, id: post.id });
+    // } else {
+    //   await removeBookmark({ post, id: post.id });
+    // }
+    // bookmarkToast(targetBookmarkState);
   }, []);
 
   const onClick = useCallback(() => {
@@ -459,5 +495,6 @@ export default function useLeanPostActions({
     onBlockSource,
     onBlockTag,
     onClick,
+    onDirectClick,
   };
 }
