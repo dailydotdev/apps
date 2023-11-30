@@ -1,13 +1,15 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import classed from '../../../lib/classed';
-import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
 import { Button } from '../../buttons/Button';
-import SettingsContext from '../../../contexts/SettingsContext';
 import { Origin } from '../../../lib/analytics';
 import BellIcon from '../../icons/Bell';
 import { PostHeaderActionsProps } from '../common';
 import { PostMenuOptions } from '../PostMenuOptions';
+import { useNotificationPreference } from '../../../hooks/notifications';
+import { NotificationType } from '../../notifications/utils';
+import { NotificationPreferenceStatus } from '../../../graphql/notifications';
+import BellDisabledIcon from '../../icons/Bell/Disabled';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -22,27 +24,44 @@ export const CollectionPostHeaderActions = ({
   onRemovePost,
   ...props
 }: PostHeaderActionsProps): ReactElement => {
-  const { openNewTab } = useContext(SettingsContext);
+  const { preferences, subscribeNotification, clearNotificationPreference } =
+    useNotificationPreference({
+      params: post?.id
+        ? [
+            {
+              notificationType: NotificationType.CollectionUpdated,
+              referenceId: post.id,
+            },
+          ]
+        : undefined,
+    });
+  const isSubscribed = !!preferences?.some(
+    (item) => item.status === NotificationPreferenceStatus.Subscribed,
+  );
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      <SimpleTooltip
-        placement="bottom"
-        content="Subscribe"
-        disabled={!inlineActions}
+      <Button
+        className={classNames(
+          'btn',
+          isSubscribed ? 'btn-secondary' : 'btn-primary',
+        )}
+        icon={isSubscribed ? <BellDisabledIcon /> : <BellIcon />}
+        onClick={() => {
+          const notificationPreferenceParams = {
+            type: NotificationType.CollectionUpdated,
+            referenceId: post.id,
+          };
+
+          if (isSubscribed) {
+            clearNotificationPreference(notificationPreferenceParams);
+          } else {
+            subscribeNotification(notificationPreferenceParams);
+          }
+        }}
       >
-        {/* TODO WT-1939-collections FIX ACTION ON THIS with useNotificationPreference */}
-        <Button
-          className="btn-primary"
-          tag="a"
-          href={post.sharedPost?.permalink ?? post.permalink}
-          target={openNewTab ? '_blank' : '_self'}
-          icon={<BellIcon />}
-          onClick={() => {}}
-        >
-          {!inlineActions && 'Subscribe'}
-        </Button>
-      </SimpleTooltip>
+        {isSubscribed ? 'Unsubscribe' : 'Subscribe'}
+      </Button>
       <PostMenuOptions
         onShare={onShare}
         post={post}
