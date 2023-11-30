@@ -33,14 +33,13 @@ interface UseNotificationPreferenceProps {
   squad?: Squad;
 }
 
-const notificationStatuses = Object.values(NotificationPreferenceStatus);
-
-export const checkHasPreferencePreference = (
+export const checkHasStatusPreference = (
   { notificationType, referenceId, status }: NotificationPreference,
   type: NotificationType,
   id: string,
+  targetStatuses: NotificationPreferenceStatus[],
 ): boolean =>
-  notificationStatuses.includes(status) &&
+  targetStatuses.includes(status) &&
   notificationType === type &&
   referenceId === id;
 
@@ -83,7 +82,10 @@ export const useNotificationPreference = ({
 
           return oldData.filter(
             (preference) =>
-              !checkHasPreferencePreference(preference, type, referenceId),
+              !checkHasStatusPreference(preference, type, referenceId, [
+                NotificationPreferenceStatus.Muted,
+                NotificationPreferenceStatus.Subscribed,
+              ]),
           );
         });
       },
