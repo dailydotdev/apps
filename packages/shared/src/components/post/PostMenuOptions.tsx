@@ -9,7 +9,13 @@ import MenuIcon from '../icons/Menu';
 import CloseIcon from '../icons/MiniClose';
 import { Roles } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
-import { banPost, demotePost, Post, promotePost } from '../../graphql/posts';
+import {
+  banPost,
+  demotePost,
+  Post,
+  promotePost,
+  subscribablePostTypes,
+} from '../../graphql/posts';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Button } from '../buttons/Button';
 import PostOptionsMenu, { PostOptionsMenuProps } from '../PostOptionsMenu';
@@ -17,6 +23,7 @@ import { ShareBookmarkProps } from './PostActions';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { Origin } from '../../lib/analytics';
 import useContextMenu from '../../hooks/useContextMenu';
+import BellIcon from '../icons/Bell';
 
 export interface PostMenuOptionssProps extends ShareBookmarkProps {
   post: Post;
@@ -79,6 +86,17 @@ export function PostMenuOptions({
 
   return (
     <>
+      {subscribablePostTypes.includes(post.type) && (
+        <SimpleTooltip placement="bottom" content="Subscribe">
+          <Button
+            className={classNames('btn-tertiary', !inlineActions && 'ml-auto')}
+            icon={<BellIcon />}
+            onClick={() => {
+              // TODO WT-1939-collections FIX ACTION ON THIS with useNotificationPreference
+            }}
+          />
+        </SimpleTooltip>
+      )}
       <SimpleTooltip placement="bottom" content="Options">
         <Button
           className={classNames('btn-tertiary', !inlineActions && 'ml-auto')}

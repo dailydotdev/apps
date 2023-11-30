@@ -92,7 +92,6 @@ export const CollectionPostContent = ({
             contextMenuId="post-widgets-context"
           />
         )}
-        <CollectionsIntro className="tablet:hidden" />
 
         <BasePostContent
           className={{
@@ -115,6 +114,7 @@ export const CollectionPostContent = ({
           origin={origin}
           post={post}
         >
+          <CollectionsIntro className="tablet:hidden" />
           <Pill
             label="Collection"
             className="bg-theme-overlay-float-cabbage text-theme-color-cabbage"

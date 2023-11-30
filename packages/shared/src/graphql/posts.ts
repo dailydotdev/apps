@@ -32,7 +32,13 @@ export enum PostType {
   Collection = 'collection',
 }
 
-export const internalReadTypes: PostType[] = [PostType.Welcome];
+export const subscribablePostTypes: PostType[] = [PostType.Collection];
+
+export const internalReadTypes: PostType[] = [
+  PostType.Welcome,
+  PostType.Freeform,
+  PostType.Collection,
+];
 
 export const supportedTypesForPrivateSources = [
   PostType.Article,
