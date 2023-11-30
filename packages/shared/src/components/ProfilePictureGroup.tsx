@@ -30,7 +30,6 @@ export const ProfilePictureGroup = ({
     childrenMap.push(
       <div
         className={classNames(
-          className,
           sizeClasses[size],
           'flex items-center justify-center rounded-full font-bold bg-theme-active typo-caption1',
         )}
@@ -40,7 +39,7 @@ export const ProfilePictureGroup = ({
     );
   }
   return (
-    <div className="flex">
+    <div className={classNames(className, 'flex')}>
       {childrenMap.map(
         (child: React.ReactElement<ProfilePictureGroupChildProps>, index) => {
           return (

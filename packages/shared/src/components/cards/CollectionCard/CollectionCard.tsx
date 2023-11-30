@@ -1,4 +1,4 @@
-import React, { forwardRef, Ref, useState } from 'react';
+import React, { forwardRef, Ref } from 'react';
 import classNames from 'classnames';
 import { Container, PostCardProps } from '../common';
 import FeedItemContainer from '../FeedItemContainer';
@@ -29,7 +29,6 @@ export const CollectionCard = forwardRef(function CollectionCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
-  const [isHovered, setHovered] = useState(false);
   const clamp = (() => {
     if (post.image) {
       return 'line-clamp-3';
@@ -43,8 +42,6 @@ export const CollectionCard = forwardRef(function CollectionCard(
       domProps={{
         ...domProps,
         className: getPostClassNames(post, domProps.className, 'min-h-card'),
-        onMouseEnter: () => setHovered(true),
-        onMouseLeave: () => setHovered(false),
       }}
       ref={ref}
       flagProps={{ pinnedAt: post.pinnedAt }}
@@ -54,7 +51,6 @@ export const CollectionCard = forwardRef(function CollectionCard(
       <CollectionCardHeader
         sources={post.collectionSources}
         totalSources={post.numCollectionSources}
-        isHovered={isHovered}
         onMenuClick={(event) => onMenuClick?.(event, post)}
       />
       <FreeformCardTitle
