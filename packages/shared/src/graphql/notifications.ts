@@ -39,6 +39,7 @@ export interface Notification {
   avatars?: NotificationAvatar[];
   attachments?: NotificationAttachment[];
   targetUrl: string;
+  numTotalAvatars?: number;
 }
 
 export interface NotificationsData {
@@ -75,6 +76,7 @@ export const NOTIFICATIONS_QUERY = gql`
             title
           }
           targetUrl
+          numTotalAvatars
         }
       }
     }

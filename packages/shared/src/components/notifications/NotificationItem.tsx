@@ -7,9 +7,10 @@ import { useObjectPurify } from '../../hooks/useDomPurify';
 import NotificationItemIcon from './NotificationIcon';
 import NotificationItemAttachment from './NotificationItemAttachment';
 import NotificationItemAvatar from './NotificationItemAvatar';
-import { notificationTypeTheme } from './utils';
+import { NotificationType, notificationTypeTheme } from './utils';
 import OptionsButton from '../buttons/OptionsButton';
 import { KeyboardCommand } from '../../lib/element';
+import { ProfilePicture, ProfilePictureGroup } from '../ProfilePicture';
 
 export interface NotificationItemProps
   extends Pick<
@@ -49,17 +50,32 @@ function NotificationItem({
     return null;
   }
 
+  const filteredAvatars = avatars?.filter((avatar) => avatar) || [];
+
   const avatarComponents =
-    avatars
-      ?.map?.((avatar) => (
-        <NotificationItemAvatar
-          key={avatar.referenceId}
-          className="z-1"
-          {...avatar}
-        />
-      ))
-      .filter((avatar) => avatar) ?? [];
-  const hasAvatar = avatarComponents.length > 0;
+    type === NotificationType.CollectionUpdated ? (
+      <ProfilePictureGroup>
+        {filteredAvatars.map((avatar) => (
+          <ProfilePicture
+            key={avatar.referenceId}
+            rounded="full"
+            size="medium"
+            user={{ image: avatar.image }}
+          />
+        ))}
+      </ProfilePictureGroup>
+    ) : (
+      filteredAvatars
+        .map((avatar) => (
+          <NotificationItemAvatar
+            key={avatar.referenceId}
+            className="z-1"
+            {...avatar}
+          />
+        ))
+        .filter((avatar) => avatar) ?? []
+    );
+  const hasAvatar = filteredAvatars.length > 0;
 
   return (
     <div
