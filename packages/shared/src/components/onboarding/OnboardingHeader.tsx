@@ -1,14 +1,11 @@
 import classNames from 'classnames';
 import React, { Dispatch, ReactElement, SetStateAction } from 'react';
 import { useViewSize, ViewSize } from '../../hooks';
-import { OnboardingV4 } from '../../lib/featureValues';
 import { cloudinary } from '../../lib/image';
 import Logo, { LogoPosition } from '../Logo';
 import { AuthProps, AuthDisplay } from '../auth/AuthOptions';
 import { Button } from '../buttons/Button';
 import { CreateFeedButton } from './CreateFeedButton';
-import { feature } from '../../lib/featureManagement';
-import { useFeature } from '../GrowthBookProvider';
 import { wrapperMaxWidth } from './common';
 
 type OnboardingHeaderProps = {
@@ -24,7 +21,6 @@ export const OnboardingHeader = ({
   setAuth,
   onClickNext,
 }: OnboardingHeaderProps): ReactElement => {
-  const onboardingV4 = useFeature(feature.onboardingV4);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
 
@@ -36,7 +32,7 @@ export const OnboardingHeader = ({
     return isLaptop ? cloudinary.feed.bg.laptop : cloudinary.feed.bg.tablet;
   };
 
-  if (isFiltering && onboardingV4 === OnboardingV4.V4) {
+  if (isFiltering) {
     return (
       <header className="flex sticky top-0 z-3 justify-center mb-10 w-full backdrop-blur-sm">
         <img
@@ -46,9 +42,7 @@ export const OnboardingHeader = ({
         />
         <div className="flex justify-between items-center py-10 w-full max-w-4xl tablet:!px-6 !px-4">
           <Logo
-            logoClassName={classNames(
-              onboardingV4 === OnboardingV4.V4 && 'h-6',
-            )}
+            logoClassName={classNames('h-6')}
             position={LogoPosition.Relative}
           />
           <CreateFeedButton onClick={onClickNext} />

@@ -14,6 +14,7 @@ import { Squad } from '../../graphql/sources';
 import { Comment } from '../../graphql/comments';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
+import { useCommentEdit } from '../../hooks/post/useCommentEdit';
 
 export interface MainCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
@@ -55,30 +56,32 @@ export default function MainComment({
     !props.post.source?.currentMember &&
     !isJoinSquadBannerDismissed;
 
-  const { replyComment, inputProps, onReplyTo } = useComments(props.post);
-  const {
-    replyComment: editComment,
-    inputProps: editProps,
-    onReplyTo: onEdit,
-  } = useComments(props.post);
+  const { commentId, inputProps, onReplyTo } = useComments(props.post);
+  const { inputProps: editProps, onEdit } = useCommentEdit();
 
   return (
     <section
       className="flex flex-col items-stretch rounded-24 border border-theme-divider-tertiary scroll-mt-16"
       data-testid="comment"
     >
-      {!editComment && (
+      {!editProps && (
         <CommentBox
           {...props}
           comment={comment}
           parentId={comment.id}
           className={{ container: 'border-b' }}
           appendTooltipTo={appendTooltipTo}
-          onComment={(selected, parentId) => onReplyTo([selected, parentId])}
-          onEdit={(selected) => onEdit([selected, null, true])}
+          onComment={(selected, parentId) =>
+            onReplyTo({
+              username: selected.author.username,
+              parentCommentId: parentId,
+              commentId: selected.id,
+            })
+          }
+          onEdit={(selected) => onEdit({ commentId: selected.id })}
         />
       )}
-      {editComment && (
+      {editProps && (
         <CommentMarkdownInput
           {...editProps}
           post={props.post}
@@ -89,7 +92,7 @@ export default function MainComment({
           className={className}
         />
       )}
-      {replyComment?.id === comment.id && (
+      {commentId === comment.id && (
         <CommentMarkdownInput
           {...inputProps}
           post={props.post}
