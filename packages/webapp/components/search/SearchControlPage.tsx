@@ -38,7 +38,6 @@ const Search = (): ReactElement => {
 Search.getLayout = getMainFeedLayout;
 Search.layoutProps = {
   ...mainFeedLayoutProps,
-  showOnlyLogo: true,
   isFinder: true,
 };
 

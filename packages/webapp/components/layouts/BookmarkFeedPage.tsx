@@ -62,6 +62,5 @@ export function getBookmarkFeedLayout(
 export const bookmarkFeedLayoutProps: MainLayoutProps = {
   greeting: true,
   mainPage: true,
-  showOnlyLogo: true,
   screenCentered: false,
 };

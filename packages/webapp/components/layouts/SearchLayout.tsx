@@ -7,7 +7,7 @@ import { getLayout } from './MainLayout';
 import { getMainFeedLayout, mainFeedLayoutProps } from './MainFeedPage';
 
 const props: Record<SearchExperiment, Record<string, unknown>> = {
-  control: { ...mainFeedLayoutProps, showOnlyLogo: true },
+  control: { ...mainFeedLayoutProps },
   v1: { screenCentered: false },
 };
 
