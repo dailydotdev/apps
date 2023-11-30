@@ -32,8 +32,6 @@ export enum PostType {
   Collection = 'collection',
 }
 
-export const subscribablePostTypes: PostType[] = [PostType.Collection];
-
 export const internalReadTypes: PostType[] = [
   PostType.Welcome,
   PostType.Freeform,
