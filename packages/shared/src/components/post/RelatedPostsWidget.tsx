@@ -1,25 +1,17 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { widgetClasses } from '../widgets/common';
 import { InfinitePaginationActions } from '../pagination';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-import { RequestKey, StaleTime, generateQueryKey } from '../../lib/query';
-import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import { graphqlUrl } from '../../lib/config';
 import {
   Post,
-  PostData,
   PostRelationType,
   RELATED_POSTS_PER_PAGE_DEFAULT,
-  RELATED_POSTS_QUERY,
-  RelatedPost,
 } from '../../graphql/posts';
-import { Connection } from '../../graphql/common';
 import { SourceAvatar } from '../profile/source';
 import PostMetadata from '../cards/PostMetadata';
 import { CardLink } from '../cards/Card';
-import { getPostByIdKey } from '../../hooks/usePostById';
+import { useRelatedPosts } from '../../hooks/post';
 
 export type RelatedPostsWidgetProps = {
   className?: string;
@@ -34,67 +26,18 @@ export const RelatedPostsWidget = ({
   perPage = RELATED_POSTS_PER_PAGE_DEFAULT,
   relationType,
 }: RelatedPostsWidgetProps): ReactElement => {
-  const { requestMethod } = useRequestProtocol();
-  const [page, setPage] = useState(0);
-  const queryClient = useQueryClient();
-
   const {
-    data: relatedPosts,
+    relatedPosts,
     isLoading,
+    isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery(
-    generateQueryKey(RequestKey.RelatedPosts, null, {
-      id: post.id,
-      type: relationType,
-    }),
-    async ({ pageParam }) => {
-      const result = await requestMethod<{
-        relatedPosts: Connection<RelatedPost>;
-      }>(graphqlUrl, RELATED_POSTS_QUERY, {
-        id: post.id,
-        relationType,
-        first: perPage,
-        after: pageParam,
-      });
-
-      return result.relatedPosts;
-    },
-    {
-      enabled: !!post?.id,
-      getNextPageParam: (lastPage) =>
-        lastPage?.pageInfo?.hasNextPage && lastPage?.pageInfo?.endCursor,
-      select: useCallback((data) => {
-        if (!data) {
-          return undefined;
-        }
-
-        return {
-          ...data,
-          // filter out last page with no edges returned by api paginator
-          pages: data.pages.filter((pageItem) => !!pageItem?.edges.length),
-        };
-      }, []),
-      staleTime: StaleTime.Default,
-      initialData: () => {
-        if (relationType === PostRelationType.Collection) {
-          const postQueryData = queryClient.getQueryData<PostData>(
-            getPostByIdKey(post.id),
-          );
-
-          if (postQueryData?.relatedCollectionPosts) {
-            return {
-              pages: [postQueryData.relatedCollectionPosts],
-              pageParams: [null],
-            };
-          }
-        }
-
-        return undefined;
-      },
-    },
-  );
+  } = useRelatedPosts({
+    postId: post.id,
+    relationType,
+    perPage,
+  });
+  const [page, setPage] = useState(0);
   const relatedPostPage = relatedPosts?.pages[page];
 
   return (
