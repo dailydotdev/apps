@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
 
 import browser from 'webextension-polyfill';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { ExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import {

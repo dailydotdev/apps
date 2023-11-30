@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 import { contentScriptKey } from '@dailydotdev/shared/src/hooks';
 import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
 import { AnalyticsEvent as AnalyticsEventName } from '@dailydotdev/shared/src/lib/analytics';
-import { QueryClient } from 'react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/hooks/analytics/useAnalyticsQueue';
 
 export type RequestContentScripts = (data: {

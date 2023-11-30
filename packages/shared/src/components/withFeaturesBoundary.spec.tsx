@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { FeaturesReadyContext } from './GrowthBookProvider';
 import { withFeaturesBoundary } from './withFeaturesBoundary';
 

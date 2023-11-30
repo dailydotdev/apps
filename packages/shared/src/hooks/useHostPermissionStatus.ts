@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { disabledRefetch } from '../lib/func';
 import { useExtensionContext } from '../contexts/ExtensionContext';
 
