@@ -72,6 +72,7 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   share: SquadPostContent,
   welcome: SquadPostContent,
   freeform: SquadPostContent,
+  // TODO: remove this once we know what content to use
   [PostType.VideoYouTube]: null,
 };
 
@@ -164,6 +165,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     share: shareNavigation,
     welcome: shareNavigation,
     freeform: shareNavigation,
+    // TODO: remove this once we know what navigation to use
     [PostType.VideoYouTube]: null,
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;

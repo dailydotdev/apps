@@ -86,6 +86,7 @@ const PostTypeToTag: Record<PostType, FunctionComponent> = {
   [PostType.Share]: SharePostCard,
   [PostType.Welcome]: WelcomePostCard,
   [PostType.Freeform]: WelcomePostCard,
+  // TODO: remove this once we have a proper video feed card
   [PostType.VideoYouTube]: null,
 };
 
