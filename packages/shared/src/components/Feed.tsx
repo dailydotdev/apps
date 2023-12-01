@@ -90,6 +90,7 @@ const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Share]: SharePostModal,
   [PostType.Welcome]: SharePostModal,
   [PostType.Freeform]: SharePostModal,
+  [PostType.VideoYouTube]: null,
 };
 
 export default function Feed<T>({

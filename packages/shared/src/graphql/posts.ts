@@ -28,6 +28,7 @@ export enum PostType {
   Share = 'share',
   Welcome = 'welcome',
   Freeform = 'freeform',
+  VideoYouTube = 'video:youtube',
 }
 
 export const internalReadTypes: PostType[] = [PostType.Welcome];
