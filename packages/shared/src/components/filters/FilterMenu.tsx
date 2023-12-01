@@ -12,7 +12,7 @@ import AdvancedSettingsFilter from './AdvancedSettings';
 import { Source } from '../../graphql/sources';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
-import { ContentTypesFilter } from './ContentTypes';
+import { ContentTypesFilter } from './ContentTypesFilter';
 
 const NewSourceModal = dynamic(
   () =>

@@ -10,14 +10,18 @@ export function ContentTypesFilter(): ReactElement {
 
   return (
     <section className="flex flex-col px-6" aria-busy={isLoading}>
-      <FilterSwitch
-        name={videos.title}
-        label={videos.title}
-        inputId={videos.title}
-        description={videos.description}
-        checked={selectedSettings[videos.id] ?? videos.defaultEnabledState}
-        onToggle={() => onToggleSettings(videos.id, videos.defaultEnabledState)}
-      />
+      {videos && (
+        <FilterSwitch
+          name={videos.title}
+          label={videos.title}
+          inputId={videos.title}
+          description={videos.description}
+          checked={selectedSettings[videos.id] ?? videos.defaultEnabledState}
+          onToggle={() =>
+            onToggleSettings(videos.id, videos.defaultEnabledState)
+          }
+        />
+      )}
       <FilterSwitch
         name="Articles"
         label="Articles"

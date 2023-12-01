@@ -12,7 +12,7 @@ import { UnblockItem, unBlockPromptOptions } from './FilterMenu';
 import { Modal, ModalProps } from '../modals/common/Modal';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
-import { ContentTypesFilter } from './ContentTypes';
+import { ContentTypesFilter } from './ContentTypesFilter';
 import AppIcon from '../icons/App';
 
 enum FilterMenuTitle {
