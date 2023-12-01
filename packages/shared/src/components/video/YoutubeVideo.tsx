@@ -24,7 +24,7 @@ const YoutubeVideo = ({
       src={`https://www.youtube-nocookie.com/embed/${videoId}`}
       allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
       allowFullScreen
-      className="absolute inset-0 w-full h-full border-0 aspect-video"
+      className="absolute inset-0 w-full border-0 aspect-video"
       {...props}
     />
   </div>
