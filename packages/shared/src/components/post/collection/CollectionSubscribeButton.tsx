@@ -30,10 +30,7 @@ const CollectionSubscribeButtonRegular = ({
 }: CollectionSubscribeButtonViewProps): ReactElement => {
   return (
     <Button
-      className={classNames(
-        'btn',
-        isSubscribed ? 'btn-secondary' : 'btn-primary',
-      )}
+      className={classNames(isSubscribed ? 'btn-secondary' : 'btn-primary')}
       icon={isSubscribed ? <BellDisabledIcon /> : <BellIcon />}
       disabled={isFetching}
       onClick={onClick}
@@ -51,7 +48,7 @@ const CollectionSubscribeButtonCondensed = ({
   return (
     <SimpleTooltip content={isSubscribed ? 'Unsubscribe' : 'Subscribe'}>
       <Button
-        className={classNames('btn btn-tertiary')}
+        className={classNames('btn-tertiary')}
         icon={isSubscribed ? <BellDisabledIcon /> : <BellIcon />}
         disabled={isFetching}
         onClick={onClick}
