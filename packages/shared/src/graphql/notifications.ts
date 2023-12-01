@@ -157,8 +157,17 @@ export const SHOW_SOURCE_ON_FEED_MUTATION = gql`
   }
 `;
 
+export const SUBSCRIBE_NOTIFICATION_MUTATION = gql`
+  mutation SubscribeNotificationPreference($referenceId: ID!, $type: String!) {
+    subscribeNotificationPreference(referenceId: $referenceId, type: $type) {
+      _
+    }
+  }
+`;
+
 export enum NotificationPreferenceStatus {
   Muted = 'muted',
+  Subscribed = 'subscribed',
 }
 
 enum NotificationPreferenceType {
@@ -175,7 +184,7 @@ export interface NotificationPreference {
   type: NotificationPreferenceType;
 }
 
-interface NotificationPreferenceParams
+export interface NotificationPreferenceParams
   extends Pick<NotificationPreference, 'referenceId'> {
   type: NotificationType;
 }
@@ -244,4 +253,16 @@ export const showSourceFeedPosts = async (
   });
 
   return res.showSourceFeedPosts;
+};
+
+export const subscribeNotification = async (
+  params: NotificationPreferenceParams,
+): Promise<EmptyResponse> => {
+  const res = await request(
+    graphqlUrl,
+    SUBSCRIBE_NOTIFICATION_MUTATION,
+    params,
+  );
+
+  return res.subscribeNotificationPreference;
 };
