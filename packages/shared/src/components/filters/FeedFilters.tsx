@@ -12,10 +12,12 @@ import { UnblockItem, unBlockPromptOptions } from './FilterMenu';
 import { Modal, ModalProps } from '../modals/common/Modal';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
+import { ContentTypesFilter } from './ContentTypes';
 
 enum FilterMenuTitle {
   Tags = 'Manage tags',
   Advanced = 'Advanced',
+  ContentTypes = 'Content types',
   Blocked = 'Blocked items',
 }
 
@@ -80,6 +82,9 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
           </Modal.Body>
           <Modal.Body view={FilterMenuTitle.Advanced}>
             <AdvancedSettingsFilter />
+          </Modal.Body>
+          <Modal.Body view={FilterMenuTitle.ContentTypes}>
+            <ContentTypesFilter />
           </Modal.Body>
           <Modal.Body view={FilterMenuTitle.Blocked}>
             <BlockedFilter onUnblockItem={unBlockPrompt} />

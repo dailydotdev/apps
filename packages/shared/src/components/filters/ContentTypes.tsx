@@ -3,7 +3,7 @@ import { FilterSwitch } from './FilterSwitch';
 import { useAdvancedSettings } from '../../hooks/feed';
 import useFeedSettings from '../../hooks/useFeedSettings';
 
-function ContentTypes(): ReactElement {
+export function ContentTypesFilter(): ReactElement {
   const { advancedSettings, isLoading } = useFeedSettings();
   const { selectedSettings, onToggleSettings } = useAdvancedSettings();
   const videos = advancedSettings.find(({ title }) => title === 'Videos');
@@ -29,5 +29,3 @@ function ContentTypes(): ReactElement {
     </section>
   );
 }
-
-export default ContentTypes;
