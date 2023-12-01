@@ -10,7 +10,8 @@ import NotificationItemAvatar from './NotificationItemAvatar';
 import { NotificationType, notificationTypeTheme } from './utils';
 import OptionsButton from '../buttons/OptionsButton';
 import { KeyboardCommand } from '../../lib/element';
-import { ProfilePicture, ProfilePictureGroup } from '../ProfilePicture';
+import { ProfilePicture } from '../ProfilePicture';
+import { ProfilePictureGroup } from '../ProfilePictureGroup';
 
 export interface NotificationItemProps
   extends Pick<
