@@ -38,6 +38,7 @@ export const supportedTypesForPrivateSources = [
   PostType.Share,
   PostType.Welcome,
   PostType.Freeform,
+  PostType.VideoYouTube,
 ];
 
 type PostFlags = {
