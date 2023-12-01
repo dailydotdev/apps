@@ -72,7 +72,7 @@ function MainLayout({
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
-  const { optOutWeeklyGoal, autoDismissNotifications } =
+  const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
     useContext(SettingsContext);
   const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
   const { isNotificationsReady, unreadCount } = useNotificationContext();
@@ -186,6 +186,7 @@ function MainLayout({
         className={classNames(
           'flex flex-row',
           className,
+          sidebarExpanded ? 'laptop:pl-60' : 'laptop:pl-11',
           isBannerAvailable && 'laptop:pt-8',
         )}
       >
