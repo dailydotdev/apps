@@ -55,6 +55,8 @@ it('color prop can be overriden with className', async () => {
 it('providing color without variant does not do anything', async () => {
   renderComponent({ color: 'burger', children: 'Button' });
   expect(await screen.findByRole('button')).toBeInTheDocument();
+  // We need to specifically verify that className does not contain the burger substring
+  // eslint-disable-next-line jest-dom/prefer-to-have-class
   expect((await screen.findByRole('button')).className).not.toContain('burger');
 });
 
