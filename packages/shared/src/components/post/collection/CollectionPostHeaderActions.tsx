@@ -6,7 +6,10 @@ import { Origin } from '../../../lib/analytics';
 import BellIcon from '../../icons/Bell';
 import { PostHeaderActionsProps } from '../common';
 import { PostMenuOptions } from '../PostMenuOptions';
-import { useNotificationPreference } from '../../../hooks/notifications';
+import {
+  checkHasStatusPreference,
+  useNotificationPreference,
+} from '../../../hooks/notifications';
 import { NotificationType } from '../../notifications/utils';
 import { NotificationPreferenceStatus } from '../../../graphql/notifications';
 import BellDisabledIcon from '../../icons/Bell/Disabled';
@@ -24,19 +27,28 @@ export const CollectionPostHeaderActions = ({
   onRemovePost,
   ...props
 }: PostHeaderActionsProps): ReactElement => {
-  const { preferences, subscribeNotification, clearNotificationPreference } =
-    useNotificationPreference({
-      params: post?.id
-        ? [
-            {
-              notificationType: NotificationType.CollectionUpdated,
-              referenceId: post.id,
-            },
-          ]
-        : undefined,
-    });
-  const isSubscribed = !!preferences?.some(
-    (item) => item.status === NotificationPreferenceStatus.Subscribed,
+  const {
+    preferences,
+    subscribeNotification,
+    clearNotificationPreference,
+    isFetching,
+  } = useNotificationPreference({
+    params: post?.id
+      ? [
+          {
+            notificationType: NotificationType.CollectionUpdated,
+            referenceId: post.id,
+          },
+        ]
+      : undefined,
+  });
+  const isSubscribed = !!preferences?.some((item) =>
+    checkHasStatusPreference(
+      item,
+      NotificationType.CollectionUpdated,
+      post?.id,
+      [NotificationPreferenceStatus.Subscribed],
+    ),
   );
 
   return (
@@ -47,6 +59,7 @@ export const CollectionPostHeaderActions = ({
           isSubscribed ? 'btn-secondary' : 'btn-primary',
         )}
         icon={isSubscribed ? <BellDisabledIcon /> : <BellIcon />}
+        disabled={isFetching}
         onClick={() => {
           const notificationPreferenceParams = {
             type: NotificationType.CollectionUpdated,
