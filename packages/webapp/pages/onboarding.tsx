@@ -9,16 +9,11 @@ import AuthOptions, {
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import {
   CreateFeedButton,
-  FilterOnboarding,
   FilterOnboardingV4,
   OnboardingHeader,
 } from '@dailydotdev/shared/src/components/onboarding';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  OnboardingFilteringTitle,
-  OnboardingV3,
-  OnboardingV4,
-} from '@dailydotdev/shared/src/lib/featureValues';
+import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useRouter } from 'next/router';
@@ -42,11 +37,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import {
-  useFeature,
-  useGrowthBookContext,
-} from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanies';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
@@ -59,14 +50,6 @@ import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
-
-const versionToTitle: Record<OnboardingFilteringTitle, string> = {
-  [OnboardingFilteringTitle.Control]: 'Choose topics to follow',
-  [OnboardingFilteringTitle.V1]: 'What topic best describes you?',
-  [OnboardingFilteringTitle.V2]: 'Which topics resonate with you the most?',
-  [OnboardingFilteringTitle.V3]: `Pick the topics you'd love to dive into`,
-  [OnboardingFilteringTitle.V4]: 'Choose the topics you’re passionate about',
-};
 
 const Title = classed('h2', 'font-bold');
 
@@ -90,9 +73,7 @@ export function OnboardPage(): ReactElement {
   const [isFiltering, setIsFiltering] = useState(false);
   const [finishedOnboarding, setFinishedOnboarding] = useState(false);
   const { onShouldUpdateFilters } = useOnboardingContext();
-  const onboardingV4 = useFeature(feature.onboardingV4);
   const { growthbook } = useGrowthBookContext();
-  const filteringTitle = useFeature(feature.onboardingFilterTitle);
   const { trackEvent } = useAnalyticsContext();
   const [hasSelectTopics, setHasSelectTopics] = useState(false);
   const [auth, setAuth] = useState<AuthProps>({
@@ -103,24 +84,14 @@ export function OnboardPage(): ReactElement {
   const { isAuthenticating, isLoginFlow, email, defaultDisplay } = auth;
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
-
-  let targetId: string = OnboardingV3.V3;
-
-  if (onboardingV4 === OnboardingV4.V4) {
-    targetId = OnboardingV4.V4;
-  }
-
+  const targetId = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-  const title = versionToTitle[filteringTitle];
 
   const onClickNext = () => {
     let screen = OnboardingStep.Intro;
 
     if (isFiltering) {
-      screen =
-        onboardingV4 === OnboardingV4.V4
-          ? OnboardingStep.EditTag
-          : OnboardingStep.Topics;
+      screen = OnboardingStep.EditTag;
     }
 
     trackEvent({
@@ -147,13 +118,10 @@ export function OnboardPage(): ReactElement {
 
     return router.replace({
       pathname: '/',
-      query:
-        onboardingV4 === OnboardingV4.V4
-          ? {
-              welcome: 'true',
-              hset: 'true',
-            }
-          : undefined,
+      query: {
+        welcome: 'true',
+        hset: 'true',
+      },
     });
   };
 
@@ -235,35 +203,12 @@ export function OnboardPage(): ReactElement {
       <div
         className={classNames(
           'flex tablet:flex-1',
-          !(isFiltering && onboardingV4 === OnboardingV4.V4) &&
-            'laptop:max-w-[37.5rem]',
-          !isFiltering && 'ml-auto',
+          !isFiltering && 'laptop:max-w-[37.5rem] ml-auto',
           isFiltering &&
-            onboardingV4 === OnboardingV4.Control &&
-            'flex-col items-center ml-0 tablet:max-w-[32rem] laptop:max-w-[48.75rem]',
-          isFiltering &&
-            onboardingV4 === OnboardingV4.V4 &&
             'flex flex-col items-center justify-start w-full ml-0 mb-10',
         )}
       >
-        {isFiltering && onboardingV4 === OnboardingV4.Control && (
-          <>
-            <Title className="text-center typo-title1">{title}</Title>
-            <p className="mt-3 mb-10 text-center text-theme-label-secondary typo-title3">
-              Pick a few subjects that interest you. <br />
-              You can always change these later.
-            </p>
-            <FilterOnboarding className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4" />
-            <div className="flex sticky bottom-0 z-3 flex-col items-center py-4 mt-4 w-full">
-              <div className="flex absolute inset-0 -z-1 w-full h-1/2 bg-gradient-to-t to-transparent from-theme-bg-primary" />
-              <div className="flex absolute inset-0 top-1/2 -z-1 w-full h-1/2 bg-theme-bg-primary" />
-              <Button className="btn-primary w-[22.5rem]" onClick={onClickNext}>
-                Next
-              </Button>
-            </div>
-          </>
-        )}
-        {isFiltering && onboardingV4 === OnboardingV4.V4 && (
+        {isFiltering && (
           <>
             <Title className="text-center typo-large-title">
               Pick tags that are relevant to you
@@ -354,7 +299,7 @@ export function OnboardPage(): ReactElement {
   };
 
   const getProgressBar = () => {
-    if (isFiltering && onboardingV4 === OnboardingV4.V4) {
+    if (isFiltering) {
       return null;
     }
 
@@ -391,7 +336,7 @@ export function OnboardPage(): ReactElement {
       <div
         className={classNames(
           'flex flex-wrap justify-center px-6 w-full tablet:gap-10 flex-grow',
-          !(onboardingV4 === OnboardingV4.V4 && isFiltering) && wrapperMaxWidth,
+          !isFiltering && wrapperMaxWidth,
           !isAuthenticating && 'flex-1 content-center mt-8',
         )}
       >

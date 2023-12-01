@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { ProfilePicture, ProfilePictureGroup, sizeClasses } from '@dailydotdev/shared/src/components/ProfilePicture';
+import { ProfilePicture, sizeClasses } from '@dailydotdev/shared/src/components/ProfilePicture';
+import {  ProfilePictureGroup } from '@dailydotdev/shared/src/components/ProfilePictureGroup';
 
 // TODO: this story fails due to the below import which we will need to mock
 //       jest mocking is not currently supported in storybook

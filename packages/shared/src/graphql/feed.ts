@@ -21,6 +21,7 @@ export const baseFeedSupportedTypes = [
   PostType.Article,
   PostType.Share,
   PostType.Freeform,
+  PostType.Collection,
 ];
 
 const joinedTypes = baseFeedSupportedTypes.join('","');
@@ -38,6 +39,11 @@ export const FEED_POST_FRAGMENT = gql`
     }
     trending
     feedMeta
+    collectionSources {
+      handle
+      image
+    }
+    numCollectionSources
   }
   ${SHARED_POST_INFO_FRAGMENT}
 `;

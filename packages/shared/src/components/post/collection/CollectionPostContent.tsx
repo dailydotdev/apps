@@ -1,28 +1,29 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import PostMetadata from '../cards/PostMetadata';
-import PostSummary from '../cards/PostSummary';
-import { LazyImage } from '../LazyImage';
-import { PostWidgets } from './PostWidgets';
-import { TagLinks } from '../TagLinks';
-import PostToc from '../widgets/PostToc';
-import { PostHeaderActions } from './PostHeaderActions';
+import { LazyImage } from '../../LazyImage';
 import {
   ToastSubject,
   useToastNotification,
-} from '../../hooks/useToastNotification';
-import PostContentContainer from './PostContentContainer';
-import usePostContent from '../../hooks/usePostContent';
-import FixedPostNavigation from './FixedPostNavigation';
-import { BasePostContent } from './BasePostContent';
-import { cloudinary } from '../../lib/image';
-import { combinedClicks } from '../../lib/click';
-import { PostContainer, PostContentProps, PostNavigationProps } from './common';
+} from '../../../hooks/useToastNotification';
+import PostContentContainer from '../PostContentContainer';
+import usePostContent from '../../../hooks/usePostContent';
+import FixedPostNavigation from '../FixedPostNavigation';
+import { BasePostContent } from '../BasePostContent';
+import { cloudinary } from '../../../lib/image';
+import { Separator } from '../../cards/common';
+import { postDateFormat } from '../../../lib/dateFormat';
+import Markdown from '../../Markdown';
+import { CollectionPostWidgets } from './CollectionPostWidgets';
+import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
+import {
+  PostContainer,
+  PostContentProps,
+  PostNavigationProps,
+} from '../common';
+import Pill from '../../Pill';
+import { CollectionsIntro } from '../widgets';
 
-export const SCROLL_OFFSET = 80;
-export const ONBOARDING_OFFSET = 120;
-
-export function PostContent({
+export const CollectionPostContent = ({
   post,
   className = {},
   shouldOnboardAuthor,
@@ -38,12 +39,13 @@ export function PostContent({
   customNavigation,
   onRemovePost,
   backToSquad,
-}: PostContentProps): ReactElement {
+}: PostContentProps): ReactElement => {
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
     origin,
     post,
   });
+  const { updatedAt, contentHtml, image } = post;
   const { onSharePost: onShare, onReadArticle } = engagementActions;
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
@@ -78,16 +80,15 @@ export function PostContent({
       )}
 
       <PostContainer
-        className={classNames('relative', className?.content)}
+        className={classNames('relative gap-8', className?.content)}
         data-testid="postContainer"
       >
         {!hasNavigation && (
-          <PostHeaderActions
+          <CollectionPostHeaderActions
             onShare={onShare}
-            onReadArticle={onReadArticle}
             post={post}
             onClose={onClose}
-            className="flex tablet:hidden mb-4"
+            className="flex tablet:hidden"
             contextMenuId="post-widgets-context"
           />
         )}
@@ -113,58 +114,40 @@ export function PostContent({
           origin={origin}
           post={post}
         >
+          <CollectionsIntro className="tablet:hidden" />
+          <Pill
+            label="Collection"
+            className="bg-theme-overlay-float-cabbage text-theme-color-cabbage"
+          />
+
           <h1
-            className="my-6 font-bold break-words typo-large-title"
+            className="font-bold break-words typo-large-title"
             data-testid="post-modal-title"
           >
-            <a
-              href={post.permalink}
-              title="Go to post"
-              target="_blank"
-              rel="noopener"
-              {...combinedClicks(onReadArticle)}
-            >
-              {post.title}
-            </a>
+            {post.title}
           </h1>
-          {post.summary && (
-            <PostSummary className="mb-6" summary={post.summary} />
+          {!!updatedAt && (
+            <div className="flex items-center text-theme-label-tertiary typo-footnote">
+              <span>Last updated</span> <Separator />
+              <time dateTime={updatedAt}>{postDateFormat(updatedAt)}</time>
+            </div>
           )}
-          <TagLinks tags={post.tags || []} />
-          <PostMetadata
-            createdAt={post.createdAt}
-            readTime={post.readTime}
-            className="mt-4 mb-8 !typo-callout"
-          />
-          <a
-            href={post.permalink}
-            title="Go to post"
-            target="_blank"
-            rel="noopener"
-            {...combinedClicks(onReadArticle)}
-            className="block overflow-hidden mb-10 rounded-2xl cursor-pointer"
-            style={{ maxWidth: '25.625rem' }}
-          >
-            <LazyImage
-              imgSrc={post.image}
-              imgAlt="Post cover image"
-              ratio="49%"
-              eager
-              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-            />
-          </a>
-          {post.toc?.length > 0 && (
-            <PostToc
-              post={post}
-              collapsible
-              className="flex laptop:hidden mt-2 mb-4"
-            />
+          {image && (
+            <div className="block overflow-hidden w-full h-auto rounded-xl cursor-pointer">
+              <LazyImage
+                imgSrc={image}
+                imgAlt="Post cover image"
+                ratio="52%"
+                eager
+                fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+              />
+            </div>
           )}
+          <Markdown content={contentHtml} />
         </BasePostContent>
       </PostContainer>
-      <PostWidgets
+      <CollectionPostWidgets
         onShare={onShare}
-        onReadArticle={onReadArticle}
         post={post}
         className="pb-8"
         onClose={onClose}
@@ -172,4 +155,4 @@ export function PostContent({
       />
     </PostContentContainer>
   );
-}
+};

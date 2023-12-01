@@ -12,7 +12,6 @@ import {
 import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
 import ActionButtons from '../ActionButtons';
 import PostMetadata from '../PostMetadata';
-import OptionsButton from '../../buttons/OptionsButton';
 
 export const CollectionCard = forwardRef(function CollectionCard(
   {
@@ -30,7 +29,6 @@ export const CollectionCard = forwardRef(function CollectionCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
-  const [hovered, toggleHovered] = React.useState(false);
   const clamp = (() => {
     if (post.image) {
       return 'line-clamp-3';
@@ -48,24 +46,12 @@ export const CollectionCard = forwardRef(function CollectionCard(
       ref={ref}
       flagProps={{ pinnedAt: post.pinnedAt }}
     >
-      <CardButton
-        onMouseEnter={() => toggleHovered(true)}
-        onMouseLeave={() => toggleHovered(false)}
-        title={post.title}
-        onClick={() => onPostClick(post)}
-      />
+      <CardButton title={post.title} onClick={() => onPostClick(post)} />
 
       <CollectionCardHeader
-        collectionSources={post.collectionSources}
-        hovered={hovered}
-      />
-      <OptionsButton
-        className="group-hover:flex laptop:hidden top-3 right-3"
-        onClick={(event) => onMenuClick?.(event, post)}
-        tooltipPlacement="top"
-        position="absolute"
-        onMouseEnter={() => toggleHovered(true)}
-        onMouseLeave={() => toggleHovered(false)}
+        sources={post.collectionSources}
+        totalSources={post.numCollectionSources}
+        onMenuClick={(event) => onMenuClick?.(event, post)}
       />
       <FreeformCardTitle
         className={classNames(
@@ -76,14 +62,12 @@ export const CollectionCard = forwardRef(function CollectionCard(
         {post.title}
       </FreeformCardTitle>
 
-      <Container className="mb-8 tablet:mb-0">
-        <CardSpace />
-        <PostMetadata
-          createdAt={post.createdAt}
-          readTime={post.readTime}
-          className="mx-4"
-        />
-      </Container>
+      {!!post.image && <CardSpace />}
+      <PostMetadata
+        createdAt={post.createdAt}
+        readTime={post.readTime}
+        className={classNames('m-2', post.image ? 'mb-0' : 'mb-4')}
+      />
 
       <Container>
         <WelcomePostCardFooter post={post} />

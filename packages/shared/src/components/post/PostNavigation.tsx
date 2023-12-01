@@ -1,34 +1,11 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import ArrowIcon from '../icons/Arrow';
-import { PostHeaderActions, PostHeaderActionsProps } from './PostHeaderActions';
+import { PostHeaderActions } from './PostHeaderActions';
 import { PostPosition } from '../../hooks/usePostModalNavigation';
-
-type PostActions = Pick<
-  PostHeaderActionsProps,
-  | 'post'
-  | 'onClose'
-  | 'onShare'
-  | 'onReadArticle'
-  | 'inlineActions'
-  | 'onRemovePost'
->;
-
-export interface PostNavigationClassName {
-  container?: string;
-  actions?: string;
-  title?: string;
-}
-
-export interface PostNavigationProps extends PostActions {
-  postPosition?: PostPosition;
-  onPreviousPost?: () => unknown;
-  onNextPost?: () => unknown;
-  className?: PostNavigationClassName;
-  children?: ReactNode;
-}
+import { PostNavigationProps } from './common';
 
 function PostNavigation({
   postPosition,

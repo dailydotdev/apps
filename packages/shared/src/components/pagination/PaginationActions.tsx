@@ -35,14 +35,48 @@ export const PaginationActions = ({
           icon={<ArrowIcon className="-rotate-90" />}
           className="btn-tertiary"
           disabled={current === 1}
-          onClick={onNext}
+          onClick={onPrevious}
         />
         <Button
           {...buttonProps}
           icon={<ArrowIcon className="rotate-90" />}
           className="btn-tertiary"
           disabled={max === current}
+          onClick={onNext}
+        />
+      </div>
+    </div>
+  );
+};
+
+export interface InfinitePaginationActionsProps
+  extends Pick<UsePagination, 'onPrevious' | 'onNext'> {
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
+export const InfinitePaginationActions = ({
+  hasNext,
+  hasPrevious,
+  onNext,
+  onPrevious,
+}: InfinitePaginationActionsProps): ReactElement => {
+  return (
+    <div className="flex justify-end items-center p-3 border-t border-theme-divider-tertiary">
+      <div className="flex ">
+        <Button
+          {...buttonProps}
+          icon={<ArrowIcon className="-rotate-90" />}
+          className="btn-tertiary"
+          disabled={!hasPrevious}
           onClick={onPrevious}
+        />
+        <Button
+          {...buttonProps}
+          icon={<ArrowIcon className="rotate-90" />}
+          className="btn-tertiary"
+          disabled={!hasNext}
+          onClick={onNext}
         />
       </div>
     </div>
