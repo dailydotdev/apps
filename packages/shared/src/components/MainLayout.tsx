@@ -48,23 +48,17 @@ export interface MainLayoutProps
   onShowDndClick?: () => unknown;
 }
 
-const mainLayoutClass = (sidebarExpanded: boolean) =>
-  sidebarExpanded ? 'laptop:pl-60' : 'laptop:pl-11';
-
 const feeds = Object.values(SharedFeedPage);
 
 function MainLayout({
   children,
-  showOnlyLogo,
   greeting,
   activePage,
   isNavItemsButton,
-  mobileTitle,
   showDnd,
   dndActive,
   customBanner,
   additionalButtons,
-  screenCentered = true,
   showSidebar = true,
   className,
   onLogoClick,
@@ -78,7 +72,7 @@ function MainLayout({
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
-  const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
+  const { optOutWeeklyGoal, autoDismissNotifications } =
     useContext(SettingsContext);
   const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
   const { isNotificationsReady, unreadCount } = useNotificationContext();
@@ -115,11 +109,7 @@ function MainLayout({
   }, [isNotificationsReady, unreadCount, hasTrackedImpression]);
 
   const renderSidebar = () => {
-    if (
-      showOnlyLogo ||
-      sidebarRendered === null ||
-      (sidebarRendered && !showSidebar)
-    ) {
+    if (sidebarRendered === null || (sidebarRendered && !showSidebar)) {
       return null;
     }
 
@@ -186,8 +176,6 @@ function MainLayout({
       <MainLayoutHeader
         greeting={greeting}
         hasBanner={isBannerAvailable}
-        mobileTitle={mobileTitle}
-        showOnlyLogo={showOnlyLogo}
         sidebarRendered={sidebarRendered}
         optOutWeeklyGoal={optOutWeeklyGoal}
         additionalButtons={additionalButtons}
@@ -198,7 +186,6 @@ function MainLayout({
         className={classNames(
           'flex flex-row',
           className,
-          !showOnlyLogo && !screenCentered && mainLayoutClass(sidebarExpanded),
           isBannerAvailable && 'laptop:pt-8',
         )}
       >
