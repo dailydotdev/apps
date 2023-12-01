@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react";
 import {
   Button,
   ButtonVariant,
-} from "../../shared/src/components/buttons/ButtonV2";
-import PlusIcon from "../../shared/src/components/icons/Plus";
+} from "@dailydotdev/shared/src/components/buttons/ButtonV2";
+import PlusIcon from "@dailydotdev/shared/src/components/icons/Plus";
 
 const meta: Meta<typeof Button> = {
   component: Button,
