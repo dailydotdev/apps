@@ -1,4 +1,4 @@
-import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
+import { FeedData, PostType } from '@dailydotdev/shared/src/graphql/posts';
 import {
   OnboardingMode,
   SOURCE_FEED_QUERY,
@@ -59,6 +59,7 @@ const createFeedMock = (
     loggedIn: true,
     source: 'react',
     ranking: 'TIME',
+    supportedTypes: [PostType.Article, PostType.Collection],
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
@@ -192,6 +193,7 @@ it('should show login popup when logged-out on add to feed click', async () => {
         loggedIn: false,
         source: 'react',
         ranking: 'TIME',
+        supportedTypes: [PostType.Article, PostType.Collection],
       }),
     ],
     null,
