@@ -11,9 +11,9 @@ function AdvancedSettingsFilter(): ReactElement {
   const { selectedSettings, onToggleSettings } = useAdvancedSettings();
   const settingsList = useMemo(
     () =>
-      advancedSettings.filter(
+      advancedSettings?.filter(
         ({ group }) => group === AdvancedSettingsGroup.Advanced,
-      ),
+      ) ?? [],
     [advancedSettings],
   );
 
