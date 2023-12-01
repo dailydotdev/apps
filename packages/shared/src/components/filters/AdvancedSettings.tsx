@@ -5,6 +5,7 @@ import AuthContext from '../../contexts/AuthContext';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import useMutateFilters from '../../hooks/useMutateFilters';
 import { FilterSwitch } from './FilterSwitch';
+import { AdvancedSettingsGroup } from '../../graphql/feedSettings';
 
 const ADVANCED_SETTINGS_KEY = 'advancedSettings';
 
@@ -43,21 +44,27 @@ function AdvancedSettingsFilter(): ReactElement {
     });
   };
 
+  const settingsList = useMemo(
+    () =>
+      advancedSettings.filter(
+        ({ group }) => group === AdvancedSettingsGroup.Advanced,
+      ),
+    [advancedSettings],
+  );
+
   return (
     <section className="flex flex-col px-6" aria-busy={isLoading}>
-      {advancedSettings?.map(
-        ({ id, title, description, defaultEnabledState }) => (
-          <FilterSwitch
-            key={id}
-            label={title}
-            checked={settings[id] ?? defaultEnabledState}
-            name={`${ADVANCED_SETTINGS_KEY}-${id}`}
-            description={description}
-            onToggle={() => onToggle(id, defaultEnabledState)}
-            inputId={`${ADVANCED_SETTINGS_KEY}-${id}`}
-          />
-        ),
-      )}
+      {settingsList?.map(({ id, title, description, defaultEnabledState }) => (
+        <FilterSwitch
+          key={id}
+          label={title}
+          checked={settings[id] ?? defaultEnabledState}
+          name={`${ADVANCED_SETTINGS_KEY}-${id}`}
+          description={description}
+          onToggle={() => onToggle(id, defaultEnabledState)}
+          inputId={`${ADVANCED_SETTINGS_KEY}-${id}`}
+        />
+      ))}
     </section>
   );
 }
