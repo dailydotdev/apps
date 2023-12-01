@@ -1,5 +1,5 @@
 import type { StorybookConfig } from "@storybook/react-vite";
-import type { InlineConfig } from "vite";
+import { mergeConfig } from "vite";
 import svgrPlugin from "vite-plugin-svgr";
 
 const config: StorybookConfig = {
@@ -13,23 +13,23 @@ const config: StorybookConfig = {
     "@storybook/addon-themes",
     "@storybook/addon-interactions",
   ],
-  framework: {
-    name: "@storybook/react-vite",
-    options: {},
-  },
-  core: {},
+  framework: "@storybook/react-vite",
   docs: {
     autodocs: true,
   },
-  async viteFinal(config, options): Promise<InlineConfig> {
-    return {
-      ...config,
+  async viteFinal(config) {
+    return mergeConfig(config, {
+      server: {
+        fs: {
+          strict: false,
+        },
+      },
       plugins: [
-        ...(config?.plugins ?? []),
         svgrPlugin({
           svgrOptions: {
             icon: true,
             svgo: true,
+            plugins: ["@svgr/plugin-svgo", "@svgr/plugin-jsx"],
             replaceAttrValues: {
               "#fff": "currentcolor",
               "#FFF": "currentcolor",
@@ -38,10 +38,11 @@ const config: StorybookConfig = {
             svgProps: {
               className: "icon",
             },
+            typescript: true,
           },
         }),
       ],
-    };
+    });
   },
 };
 export default config;
