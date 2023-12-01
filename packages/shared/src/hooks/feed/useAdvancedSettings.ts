@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import useFeedSettings from '../useFeedSettings';
+import useFeedSettings, { UseFeedSettingsProps } from '../useFeedSettings';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -10,9 +10,11 @@ interface UseAdvancedSettings {
   onToggleSettings(id: number, state: boolean): void;
 }
 
-export const useAdvancedSettings = (): UseAdvancedSettings => {
+export const useAdvancedSettings = (
+  props?: UseFeedSettingsProps,
+): UseAdvancedSettings => {
   const { user } = useAuthContext();
-  const { feedSettings } = useFeedSettings();
+  const { feedSettings } = useFeedSettings(props);
   const { trackEvent } = useAnalyticsContext();
   const { updateAdvancedSettings } = useMutateFilters(user);
   const { alerts, updateAlerts } = useAlertsContext();

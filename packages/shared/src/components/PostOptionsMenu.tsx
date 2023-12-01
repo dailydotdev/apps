@@ -95,7 +95,7 @@ export default function PostOptionsMenu({
   const { feedSettings, advancedSettings } = useFeedSettings({
     enabled: isOpen,
   });
-  const { onToggleSettings } = useAdvancedSettings();
+  const { onToggleSettings } = useAdvancedSettings({ enabled: false });
   const { trackEvent } = useContext(AnalyticsContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openModal } = useLazyModal();
@@ -228,6 +228,13 @@ export default function PostOptionsMenu({
       undoAction({ tags: [tag], requireLogin: true }),
     );
   };
+  const video = advancedSettings?.find(({ title }) => title === 'Videos');
+  const onToggleVideo = async () => {
+    await onToggleSettings(video.id, false);
+    await showMessageAndRemovePost(`⛔️ Video content blocked`, postIndex, () =>
+      onToggleSettings(video.id, true),
+    );
+  };
 
   const onHidePost = async (): Promise<void> => {
     const { successful } = await hidePost(post.id);
@@ -287,13 +294,11 @@ export default function PostOptionsMenu({
     },
   ];
 
-  const video = advancedSettings?.find(({ title }) => title === 'Videos');
-
-  if (video && post.type === PostType.VideoYouTube) {
+  if (video && post?.type === PostType.VideoYouTube) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
       label: `Don't show video content`,
-      action: () => onToggleSettings(video.id, video.defaultEnabledState),
+      action: onToggleVideo,
     });
   }
 
