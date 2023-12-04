@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -16,7 +16,13 @@ import { ProfilePictureGroup } from '../ProfilePictureGroup';
 export interface NotificationItemProps
   extends Pick<
     Notification,
-    'type' | 'icon' | 'title' | 'description' | 'avatars' | 'attachments'
+    | 'type'
+    | 'icon'
+    | 'title'
+    | 'description'
+    | 'avatars'
+    | 'attachments'
+    | 'numTotalAvatars'
   > {
   isUnread?: boolean;
   targetUrl: string;
@@ -39,6 +45,7 @@ function NotificationItem({
   onClick,
   onOptionsClick,
   targetUrl,
+  numTotalAvatars,
 }: NotificationItemProps): ReactElement {
   const {
     isReady,
@@ -47,15 +54,17 @@ function NotificationItem({
   } = useObjectPurify({ title, description });
   const router = useRouter();
 
+  const filteredAvatars = useMemo(() => {
+    return avatars?.filter((avatar) => avatar) || [];
+  }, [avatars]);
+
   if (!isReady) {
     return null;
   }
 
-  const filteredAvatars = avatars?.filter((avatar) => avatar) || [];
-
   const avatarComponents =
     type === NotificationType.CollectionUpdated ? (
-      <ProfilePictureGroup>
+      <ProfilePictureGroup total={numTotalAvatars} size="medium">
         {filteredAvatars.map((avatar) => (
           <ProfilePicture
             key={avatar.referenceId}
