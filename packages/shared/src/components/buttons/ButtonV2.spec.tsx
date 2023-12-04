@@ -2,19 +2,17 @@ import { render, RenderResult, screen } from '@testing-library/react';
 import React, { HTMLAttributes } from 'react';
 import {
   Button,
-  BaseButtonProps,
+  ButtonProps,
   ButtonColor,
   ButtonKind,
   ButtonVariant,
   ButtonIconPosition,
+  AllowedTags,
 } from './ButtonV2';
 import UpvoteIcon from '../icons/Upvote';
 
-const renderComponent = <
-  C extends HTMLElement = HTMLButtonElement,
-  P = HTMLAttributes<C>,
->(
-  props: Partial<BaseButtonProps & P> = {},
+const renderComponent = <Tag extends AllowedTags>(
+  props: Partial<ButtonProps<Tag>> = {},
 ): RenderResult => {
   return render(<Button {...props} />);
 };
@@ -57,14 +55,6 @@ it('color prop can be overriden with className', async () => {
   expect(button.className.indexOf('btn-secondary-burger')).toBeLessThan(
     button.className.indexOf('btn-secondary-bacon'),
   );
-});
-
-it('providing color without variant does not do anything', async () => {
-  renderComponent({ color: ButtonColor.Burger, children: 'Button' });
-  expect(await screen.findByRole('button')).toBeInTheDocument();
-  // We need to specifically verify that className does not contain the burger substring
-  // eslint-disable-next-line jest-dom/prefer-to-have-class
-  expect((await screen.findByRole('button')).className).not.toContain('burger');
 });
 
 it('should render icon button', async () => {

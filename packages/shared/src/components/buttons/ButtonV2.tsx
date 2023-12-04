@@ -49,19 +49,26 @@ export enum ButtonIconPosition {
   Left = 'left',
   Right = 'right',
 }
-
-export interface BaseButtonProps {
+interface CommonButtonProps {
   kind?: ButtonKind;
-  variant?: ButtonVariant;
   size?: ButtonSize;
-  color?: ButtonColor;
-  icon?: IconType;
-  iconPosition?: ButtonIconPosition;
   loading?: boolean;
   pressed?: boolean;
   disabled?: boolean;
   children?: ReactNode;
 }
+
+// when color is present, variant is required
+type ColorButtonProps =
+  | { color: ButtonColor; variant: ButtonVariant }
+  | { color?: never; variant?: ButtonVariant };
+
+// when iconPosition is present, icon is required
+type IconButtonProps =
+  | { iconPosition: ButtonIconPosition; icon: IconType }
+  | { iconPosition?: never; icon?: IconType };
+
+type BaseButtonProps = CommonButtonProps & ColorButtonProps & IconButtonProps;
 
 const useGetIconWithSize = (size: ButtonSize, iconOnly: boolean) => {
   return (icon: React.ReactElement<IconProps>) =>
