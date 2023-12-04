@@ -1,6 +1,12 @@
 import { render, RenderResult, screen } from '@testing-library/react';
 import React, { HTMLAttributes } from 'react';
-import { Button, BaseButtonProps, ButtonKind, ButtonVariant } from './ButtonV2';
+import {
+  Button,
+  BaseButtonProps,
+  ButtonColor,
+  ButtonKind,
+  ButtonVariant,
+} from './ButtonV2';
 import UpvoteIcon from '../icons/Upvote';
 
 const renderComponent = <
@@ -26,7 +32,7 @@ it('should render primary button', async () => {
 it('should render secondary button with color', async () => {
   renderComponent({
     variant: ButtonVariant.Secondary,
-    color: 'burger',
+    color: ButtonColor.Burger,
     children: 'Secondary burger',
   });
   expect(await screen.findByRole('button')).toBeInTheDocument();
@@ -36,7 +42,7 @@ it('should render secondary button with color', async () => {
 it('color prop can be overriden with className', async () => {
   renderComponent({
     variant: ButtonVariant.Secondary,
-    color: 'burger',
+    color: ButtonColor.Burger,
     children: 'Secondary burger',
     className: 'btn-secondary-bacon',
   });
@@ -53,7 +59,7 @@ it('color prop can be overriden with className', async () => {
 });
 
 it('providing color without variant does not do anything', async () => {
-  renderComponent({ color: 'burger', children: 'Button' });
+  renderComponent({ color: ButtonColor.Burger, children: 'Button' });
   expect(await screen.findByRole('button')).toBeInTheDocument();
   // We need to specifically verify that className does not contain the burger substring
   // eslint-disable-next-line jest-dom/prefer-to-have-class

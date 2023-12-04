@@ -1,20 +1,23 @@
-export type ColorName =
-  | 'burger'
-  | 'blueCheese'
-  | 'avocado'
-  | 'lettuce'
-  | 'cheese'
-  | 'bun'
-  | 'ketchup'
-  | 'bacon'
-  | 'cabbage'
-  | 'onion'
-  | 'water'
-  | 'salt'
-  | 'pepper'
-  | 'twitter'
-  | 'whatsapp'
-  | 'facebook';
+export enum Colors {
+  Burger = 'burger',
+  BlueCheese = 'blueCheese',
+  Avocado = 'avocado',
+  Lettuce = 'lettuce',
+  Cheese = 'cheese',
+  Bun = 'bun',
+  Ketchup = 'ketchup',
+  Bacon = 'bacon',
+  Cabbage = 'cabbage',
+  Onion = 'onion',
+  Water = 'water',
+  Salt = 'salt',
+  Pepper = 'pepper',
+  Twitter = 'twitter',
+  Whatsapp = 'whatsapp',
+  Facebook = 'facebook',
+}
+
+export type ColorName = Uncapitalize<keyof typeof Colors>;
 type ColorLevels = '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90';
 type Color = Record<ColorLevels, string>;
 type ColorPalette = Record<ColorName, Color>;

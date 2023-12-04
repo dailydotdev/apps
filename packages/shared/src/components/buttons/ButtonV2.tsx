@@ -10,7 +10,7 @@ import { IconProps, IconSize } from '../Icon';
 import { Loader } from '../Loader';
 import { combinedClicks } from '../../lib/click';
 
-import { ColorName } from '../../styles/colors';
+import { Colors as ButtonColor } from '../../styles/colors';
 
 export enum ButtonSize {
   XXSmall = 'xxsmall',
@@ -32,7 +32,7 @@ const buttonSizeToIconSize: Record<ButtonSize, IconSize> = {
 
 export type IconType = React.ReactElement<IconProps>;
 
-export type ButtonColor = ColorName;
+export { ButtonColor };
 
 export enum ButtonKind {
   Button = 'button',
