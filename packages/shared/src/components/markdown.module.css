@@ -13,10 +13,10 @@
     @apply font-bold typo-title3 mt-8 mb-6;
   }
   & :where(h3) {
-    @apply font-bold typo-headline mt-7 mb-5;
+    @apply font-bold typo-body mt-7 mb-5;
   }
   & :where(h4) {
-    @apply typo-headline mt-6 mb-4;
+    @apply typo-body font-bold mt-6 mb-4;
   }
   & :where(h5) {
     @apply text-theme-label-tertiary font-bold typo-markdown mt-5 mb-4;

@@ -54,7 +54,7 @@ export function Referral({
             user={referringUser}
             picture={{ size: isLaptopL ? 'xxxlarge' : 'xlarge' }}
           />
-          <p className="my-auto text-center laptop:text-left typo-headline laptop:typo-title3 laptopL:typo-title2">
+          <p className="my-auto text-center laptop:text-left typo-body laptop:typo-title3 laptopL:typo-title2">
             <span className="block laptop:inline">{referringUser.name}</span>
             <span className="font-normal"> invited you to daily.dev</span>
           </p>
