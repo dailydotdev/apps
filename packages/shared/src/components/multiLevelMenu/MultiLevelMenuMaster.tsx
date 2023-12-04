@@ -29,7 +29,7 @@ export default function MultiLevelMenuMaster({
             }
           >
             {item.icon}
-            <a className="flex-1 text-left typo-headline">{item.title}</a>
+            <a className="flex-1 font-bold text-left typo-body">{item.title}</a>
             <ArrowIcon className="text-xl rotate-90" />
           </MenuButton>
         </li>
