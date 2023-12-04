@@ -81,7 +81,7 @@ function SearchReferralModal({
               ? `Need more keys?`
               : `Give your friends early access to daily.dev's search!`}
           </h1>
-          <p className="mt-6 text-center laptop:text-left !font-normal typo-body tablet:typo-headline laptop:typo-title3 text-theme-label-secondary">
+          <p className="mt-6 font-bold text-center laptop:text-left !font-normal typo-body tablet:typo-body laptop:typo-title3 text-theme-label-secondary">
             {noKeysAvailable
               ? `You've already used all your invitation keys, but you can always ask for more...`
               : `Be that cool friend who got access to yet another AI feature! You
