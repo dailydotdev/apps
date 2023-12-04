@@ -176,7 +176,7 @@ export enum SharedFeedPage {
 
 export const FeedHeading = classed(
   'h3',
-  'flex flex-row flex-1 items-center typo-headline',
+  'flex flex-row flex-1 items-center typo-body font-bold',
 );
 
 export const getShouldRedirect = (
