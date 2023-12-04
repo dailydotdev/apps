@@ -6,6 +6,7 @@ import {
   ButtonColor,
   ButtonKind,
   ButtonVariant,
+  ButtonIconPosition,
 } from './ButtonV2';
 import UpvoteIcon from '../icons/Upvote';
 
@@ -66,14 +67,40 @@ it('providing color without variant does not do anything', async () => {
   expect((await screen.findByRole('button')).className).not.toContain('burger');
 });
 
-it('should render icon', async () => {
-  renderComponent({ icon: <UpvoteIcon data-testid="icon" /> });
+it('should render icon button', async () => {
+  renderComponent({
+    icon: <UpvoteIcon data-testid="icon" />,
+    children: 'Upvote',
+  });
   expect(await screen.findByTestId('icon')).toBeInTheDocument();
+  expect(await screen.findByRole('button')).not.toHaveClass('iconOnly');
 });
 
 it('should render right icon', async () => {
-  renderComponent({ rightIcon: <UpvoteIcon data-testid="right-icon" /> });
-  expect(await screen.findByTestId('right-icon')).toBeInTheDocument();
+  renderComponent({
+    icon: <UpvoteIcon data-testid="right-icon" />,
+    iconPosition: ButtonIconPosition.Right,
+    children: 'Upvote',
+  });
+
+  const button = await screen.findByRole('button');
+  const rightIcon = await screen.findByTestId('right-icon');
+
+  expect(button).toBeInTheDocument();
+  expect(rightIcon).toBeInTheDocument();
+
+  // check if icon appears AFTER the label
+  expect(button.innerHTML.indexOf('Upvote')).toBeLessThan(
+    button.innerHTML.indexOf(rightIcon.outerHTML),
+  );
+});
+
+it('should render iconOnly button', async () => {
+  renderComponent({
+    icon: <UpvoteIcon data-testid="icon" />,
+  });
+  expect(await screen.findByTestId('icon')).toBeInTheDocument();
+  expect(await screen.findByRole('button')).toHaveClass('iconOnly');
 });
 
 it('should render loader and set aria-busy when loading', async () => {

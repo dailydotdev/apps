@@ -45,12 +45,18 @@ export enum ButtonVariant {
   Tertiary = 'tertiary',
 }
 
+export enum ButtonIconPosition {
+  Left = 'left',
+  Right = 'right',
+}
+
 export interface BaseButtonProps {
   kind?: ButtonKind;
   variant?: ButtonVariant;
   size?: ButtonSize;
   color?: ButtonColor;
   icon?: IconType;
+  iconPosition: ButtonIconPosition;
   rightIcon?: IconType;
   loading?: boolean;
   pressed?: boolean;
@@ -86,7 +92,7 @@ function ButtonComponent<T extends AllowedTags>(
     color,
     className,
     icon,
-    rightIcon,
+    iconPosition = ButtonIconPosition.Left,
     loading,
     pressed,
     children,
@@ -95,7 +101,7 @@ function ButtonComponent<T extends AllowedTags>(
   }: ButtonProps<T>,
   ref?: Ref<ButtonElementType<T>>,
 ): ReactElement {
-  const iconOnly = icon && !children && !rightIcon;
+  const iconOnly = icon && !children;
   const getIconWithSize = useGetIconWithSize(size, iconOnly);
   const isAnchor = kind === ButtonKind.Link;
   const Tag = isAnchor ? 'a' : 'button';
@@ -118,9 +124,13 @@ function ButtonComponent<T extends AllowedTags>(
         className,
       )}
     >
-      {icon && getIconWithSize(icon)}
+      {icon &&
+        iconPosition === ButtonIconPosition.Left &&
+        getIconWithSize(icon)}
       {children && <span>{children}</span>}
-      {rightIcon && getIconWithSize(rightIcon)}
+      {icon &&
+        iconPosition === ButtonIconPosition.Right &&
+        getIconWithSize(icon)}
       {loading && (
         <Loader
           data-testid="buttonLoader"
