@@ -56,7 +56,7 @@ export interface BaseButtonProps {
   size?: ButtonSize;
   color?: ButtonColor;
   icon?: IconType;
-  iconPosition: ButtonIconPosition;
+  iconPosition?: ButtonIconPosition;
   rightIcon?: IconType;
   loading?: boolean;
   pressed?: boolean;
