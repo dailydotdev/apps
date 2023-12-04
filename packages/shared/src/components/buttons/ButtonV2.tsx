@@ -94,7 +94,7 @@ function ButtonComponent<T extends AllowedTags>(
   {
     kind = ButtonKind.Button,
     variant,
-    size,
+    size = ButtonSize.Medium,
     color,
     className,
     icon,
