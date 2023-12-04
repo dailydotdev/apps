@@ -6,6 +6,11 @@ import useFeedSettings from '../../hooks/useFeedSettings';
 export function ContentTypesFilter(): ReactElement {
   const { advancedSettings, isLoading } = useFeedSettings();
   const { selectedSettings, onToggleSettings } = useAdvancedSettings();
+  /*
+   * At the moment, we are only referencing the Video entity, but it should be based from the group that it is in.
+   * Point being, we have to send multiple mutation requests at the same time if the user toggles the switch.
+   * We should instead introduce a new mutation to handle an array of settings to toggle.
+   * */
   const videos = advancedSettings.find(({ title }) => title === 'Videos');
 
   return (
