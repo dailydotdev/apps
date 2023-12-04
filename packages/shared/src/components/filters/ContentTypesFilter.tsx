@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { FilterSwitch } from './FilterSwitch';
+import { FilterCheckbox } from '../fields/FilterCheckbox';
 import { useAdvancedSettings } from '../../hooks/feed';
 import useFeedSettings from '../../hooks/useFeedSettings';
 
@@ -14,27 +14,27 @@ export function ContentTypesFilter(): ReactElement {
   const videos = advancedSettings.find(({ title }) => title === 'Videos');
 
   return (
-    <section className="flex flex-col px-6" aria-busy={isLoading}>
+    <section className="flex flex-col gap-6 px-6" aria-busy={isLoading}>
       {videos && (
-        <FilterSwitch
+        <FilterCheckbox
           name={videos.title}
-          label={videos.title}
-          inputId={videos.title}
           description={videos.description}
           checked={selectedSettings[videos.id] ?? videos.defaultEnabledState}
           onToggle={() =>
             onToggleSettings(videos.id, videos.defaultEnabledState)
           }
-        />
+        >
+          {videos.title}
+        </FilterCheckbox>
       )}
-      <FilterSwitch
+      <FilterCheckbox
         name="Articles"
-        label="Articles"
-        inputId="Articles"
         description="Show article posts on my feed"
         disabled
         checked
-      />
+      >
+        Articles
+      </FilterCheckbox>
     </section>
   );
 }
