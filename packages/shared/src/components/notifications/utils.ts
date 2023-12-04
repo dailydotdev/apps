@@ -87,12 +87,12 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.System]: '',
     [NotificationType.SquadPostAdded]: 'text-theme-color-cabbage',
     [NotificationType.SquadMemberJoined]: 'text-theme-color-cabbage',
-    [NotificationType.SquadMemberJoined]: 'text-theme-color-cabbage',
     [NotificationType.DemotedToMember]: 'text-theme-color-cabbage',
     [NotificationType.PromotedToModerator]: 'text-theme-color-cabbage',
     [NotificationType.PromotedToAdmin]: 'text-theme-color-cabbage',
     [NotificationType.SquadBlocked]: 'text-theme-color-cabbage',
     [NotificationType.SquadSubscribeNotification]: 'text-theme-color-cabbage',
+    [NotificationType.CollectionUpdated]: 'text-theme-color-cabbage',
   };
 
 const notificationsUrl = `/notifications`;
