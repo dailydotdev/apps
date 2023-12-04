@@ -353,7 +353,7 @@ export function OnboardPage(): ReactElement {
             )}
           >
             <OnboardingTitleGradient className="mb-4 typo-large-title tablet:typo-mega1">
-              Where developers {onboardingTitle} together
+              {onboardingTitle}
             </OnboardingTitleGradient>
 
             <h2 className="mb-8 typo-body tablet:typo-title2">
