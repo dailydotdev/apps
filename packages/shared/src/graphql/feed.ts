@@ -24,6 +24,11 @@ export const baseFeedSupportedTypes = [
   PostType.VideoYouTube,
 ];
 
+export const supportedTypesForPrivateSources = [
+  ...baseFeedSupportedTypes,
+  PostType.Welcome,
+];
+
 const joinedTypes = baseFeedSupportedTypes.join('","');
 export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["${joinedTypes}"]`;
 

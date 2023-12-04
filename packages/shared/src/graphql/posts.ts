@@ -33,14 +33,6 @@ export enum PostType {
 
 export const internalReadTypes: PostType[] = [PostType.Welcome];
 
-export const supportedTypesForPrivateSources = [
-  PostType.Article,
-  PostType.Share,
-  PostType.Welcome,
-  PostType.Freeform,
-  PostType.VideoYouTube,
-];
-
 type PostFlags = {
   sentAnalyticsReport: boolean;
   banned: boolean;
