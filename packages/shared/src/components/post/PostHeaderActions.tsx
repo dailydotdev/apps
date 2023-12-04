@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import OpenLinkIcon from '../icons/OpenLink';
-import { internalReadTypes } from '../../graphql/posts';
+import { PostType, internalReadTypes } from '../../graphql/posts';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Button } from '../buttons/Button';
@@ -9,6 +9,7 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { PostHeaderActionsProps } from './common';
 import { PostMenuOptions } from './PostMenuOptions';
 import { Origin } from '../../lib/analytics';
+import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -27,6 +28,7 @@ export function PostHeaderActions({
   const { openNewTab } = useContext(SettingsContext);
 
   const isInternalReadType = internalReadTypes.includes(post?.type);
+  const isCollection = post?.type === PostType.Collection;
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
@@ -49,6 +51,7 @@ export function PostHeaderActions({
           </Button>
         </SimpleTooltip>
       )}
+      {isCollection && <CollectionSubscribeButton post={post} isCondensed />}
       <PostMenuOptions
         onShare={onShare}
         post={post}
