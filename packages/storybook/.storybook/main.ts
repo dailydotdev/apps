@@ -39,7 +39,6 @@ const config: StorybookConfig = {
             svgProps: {
               className: "icon",
             },
-            typescript: true,
           },
         }),
       ],
