@@ -16,7 +16,6 @@ const SettingsPage = (): ReactElement => (
 SettingsPage.getLayout = getLayout;
 SettingsPage.layoutProps = {
   ...mainFooterLayoutProps,
-  mobileTitle: 'Customize',
 };
 
 export default SettingsPage;

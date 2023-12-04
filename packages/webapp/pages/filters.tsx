@@ -14,7 +14,6 @@ const FiltersPage = (): ReactElement => (
 FiltersPage.getLayout = getLayout;
 FiltersPage.layoutProps = {
   ...mainFooterLayoutProps,
-  mobileTitle: 'Filters',
 };
 
 export default FiltersPage;

@@ -27,33 +27,19 @@ import {
 } from '../../hooks';
 import { SearchReferralButton } from '../referral/SearchReferralButton';
 
-interface ShouldShowLogoProps {
-  mobileTitle?: string;
-  sidebarRendered?: boolean;
-}
-
-export interface MainLayoutHeaderProps extends ShouldShowLogoProps {
+export interface MainLayoutHeaderProps {
   greeting?: boolean;
   hasBanner?: boolean;
-  showOnlyLogo?: boolean;
+  sidebarRendered?: boolean;
   optOutWeeklyGoal?: boolean;
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
   onMobileSidebarToggle: (state: boolean) => unknown;
 }
 
-const shouldShowLogo = ({
-  mobileTitle,
-  sidebarRendered,
-}: ShouldShowLogoProps) => {
-  return !mobileTitle ? true : mobileTitle && sidebarRendered;
-};
-
 function MainLayoutHeader({
   greeting,
   hasBanner,
-  mobileTitle,
-  showOnlyLogo,
   sidebarRendered,
   optOutWeeklyGoal,
   additionalButtons,
@@ -63,7 +49,7 @@ function MainLayoutHeader({
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
-  const hideButton = showOnlyLogo || loadingUser;
+  const hideButton = loadingUser;
   const isMobile = useViewSize(ViewSize.MobileL);
 
   const headerButton = (() => {
@@ -156,18 +142,11 @@ function MainLayoutHeader({
             icon={<HamburgerIcon secondary />}
           />
           <div className="flex flex-row flex-1 justify-center laptop:justify-start">
-            {mobileTitle && (
-              <h3 className="block laptop:hidden typo-callout">
-                {mobileTitle}
-              </h3>
-            )}
-            {shouldShowLogo({ mobileTitle, sidebarRendered }) && (
-              <HeaderLogo
-                user={user}
-                onLogoClick={onLogoClick}
-                greeting={greeting}
-              />
-            )}
+            <HeaderLogo
+              user={user}
+              onLogoClick={onLogoClick}
+              greeting={greeting}
+            />
           </div>
           {isReady ? renderButtons() : null}
         </>
