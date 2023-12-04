@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -7,14 +7,22 @@ import { useObjectPurify } from '../../hooks/useDomPurify';
 import NotificationItemIcon from './NotificationIcon';
 import NotificationItemAttachment from './NotificationItemAttachment';
 import NotificationItemAvatar from './NotificationItemAvatar';
-import { notificationTypeTheme } from './utils';
+import { NotificationType, notificationTypeTheme } from './utils';
 import OptionsButton from '../buttons/OptionsButton';
 import { KeyboardCommand } from '../../lib/element';
+import { ProfilePicture } from '../ProfilePicture';
+import { ProfilePictureGroup } from '../ProfilePictureGroup';
 
 export interface NotificationItemProps
   extends Pick<
     Notification,
-    'type' | 'icon' | 'title' | 'description' | 'avatars' | 'attachments'
+    | 'type'
+    | 'icon'
+    | 'title'
+    | 'description'
+    | 'avatars'
+    | 'attachments'
+    | 'numTotalAvatars'
   > {
   isUnread?: boolean;
   targetUrl: string;
@@ -37,6 +45,7 @@ function NotificationItem({
   onClick,
   onOptionsClick,
   targetUrl,
+  numTotalAvatars,
 }: NotificationItemProps): ReactElement {
   const {
     isReady,
@@ -45,21 +54,38 @@ function NotificationItem({
   } = useObjectPurify({ title, description });
   const router = useRouter();
 
+  const filteredAvatars = useMemo(() => {
+    return avatars?.filter((avatar) => avatar) || [];
+  }, [avatars]);
+
   if (!isReady) {
     return null;
   }
 
   const avatarComponents =
-    avatars
-      ?.map?.((avatar) => (
-        <NotificationItemAvatar
-          key={avatar.referenceId}
-          className="z-1"
-          {...avatar}
-        />
-      ))
-      .filter((avatar) => avatar) ?? [];
-  const hasAvatar = avatarComponents.length > 0;
+    type === NotificationType.CollectionUpdated ? (
+      <ProfilePictureGroup total={numTotalAvatars} size="medium">
+        {filteredAvatars.map((avatar) => (
+          <ProfilePicture
+            key={avatar.referenceId}
+            rounded="full"
+            size="medium"
+            user={{ image: avatar.image }}
+          />
+        ))}
+      </ProfilePictureGroup>
+    ) : (
+      filteredAvatars
+        .map((avatar) => (
+          <NotificationItemAvatar
+            key={avatar.referenceId}
+            className="z-1"
+            {...avatar}
+          />
+        ))
+        .filter((avatar) => avatar) ?? []
+    );
+  const hasAvatar = filteredAvatars.length > 0;
 
   return (
     <div
