@@ -26,6 +26,7 @@ const config: StorybookConfig = {
       },
       plugins: [
         svgrPlugin({
+          include: "**/*.svg",
           svgrOptions: {
             icon: true,
             svgo: true,
