@@ -28,6 +28,7 @@ export enum PostType {
   Share = 'share',
   Welcome = 'welcome',
   Freeform = 'freeform',
+  VideoYouTube = 'video:youtube',
 }
 
 export const internalReadTypes: PostType[] = [
@@ -37,13 +38,6 @@ export const internalReadTypes: PostType[] = [
 
 export const isInternalReadType = (post: Post): boolean =>
   internalReadTypes.includes(post?.type);
-
-export const supportedTypesForPrivateSources = [
-  PostType.Article,
-  PostType.Share,
-  PostType.Welcome,
-  PostType.Freeform,
-];
 
 type PostFlags = {
   sentAnalyticsReport: boolean;
