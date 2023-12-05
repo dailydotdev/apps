@@ -9,7 +9,10 @@ import React, {
 } from 'react';
 import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
-import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import {
+  SOURCE_FEED_QUERY,
+  supportedTypesForPrivateSources,
+} from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
 import SquadFeedHeading from '@dailydotdev/shared/src/components/squads/SquadFeedHeading';
@@ -27,7 +30,6 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
-import { supportedTypesForPrivateSources } from '@dailydotdev/shared/src/graphql/posts';
 import { useJoinReferral, useSquad } from '@dailydotdev/shared/src/hooks';
 import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
 import request, { ClientError } from 'graphql-request';
