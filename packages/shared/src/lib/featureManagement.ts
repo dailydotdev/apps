@@ -16,6 +16,10 @@ const feature = {
   feedVersion: new Feature('feed_version', 15),
   search: new Feature('search', SearchExperiment.Control),
   lowImps: new Feature('feed_low_imps'),
+  onboardingCopy: new Feature('onboarding_copy', {
+    title: 'Where developers grow together',
+    description: 'Get one personalized feed for all the knowledge you need.',
+  }),
 };
 
 export { feature };
