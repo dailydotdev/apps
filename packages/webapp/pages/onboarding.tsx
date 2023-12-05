@@ -90,8 +90,7 @@ export function OnboardPage(): ReactElement {
   const { feedSettings } = useFeedSettings();
   const targetId = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-  const onboardingTitle = useFeature(feature.onboardingTitle);
-  const onboardingSubTitle = useFeature(feature.onboardingSubTitle);
+  const { title, description } = useFeature(feature.onboardingCopy);
 
   const onClickNext = () => {
     let screen = OnboardingStep.Intro;
@@ -353,12 +352,10 @@ export function OnboardPage(): ReactElement {
             )}
           >
             <OnboardingTitleGradient className="mb-4 typo-large-title tablet:typo-mega1">
-              {onboardingTitle}
+              {title}
             </OnboardingTitleGradient>
 
-            <h2 className="mb-8 typo-body tablet:typo-title2">
-              {onboardingSubTitle}
-            </h2>
+            <h2 className="mb-8 typo-body tablet:typo-title2">{description}</h2>
 
             {getAuthOptions()}
           </div>
