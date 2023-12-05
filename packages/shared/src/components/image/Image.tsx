@@ -11,11 +11,10 @@ import { IconSize } from '../Icon';
 interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   fallbackSrc?: string;
   isVideoType?: boolean;
-  title?: string;
 }
 
 const ImageComponent = (
-  { fallbackSrc, isVideoType, title, ...props }: ImageProps,
+  { fallbackSrc, isVideoType, ...props }: ImageProps,
   ref?: Ref<HTMLImageElement>,
 ): ReactElement => {
   const onError = (event: SyntheticEvent<HTMLImageElement>): void => {
