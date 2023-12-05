@@ -90,6 +90,8 @@ const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Share]: SharePostModal,
   [PostType.Welcome]: SharePostModal,
   [PostType.Freeform]: SharePostModal,
+  // TODO: TO BE DONE IN https://dailydotdev.atlassian.net/browse/WT-1989
+  [PostType.VideoYouTube]: () => <div>TBD</div>,
 };
 
 export default function Feed<T>({
