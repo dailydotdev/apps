@@ -103,8 +103,8 @@ interface GetNextRankTextProps {
   showNextLevel?: boolean;
 }
 
-export const getRank = (rank: number): number => {
-  const computedRank = Math.max(0, rank - 1);
+export const getRank = (rank = 0): number => {
+  const computedRank = rank ? Math.max(0, rank - 1) : 0;
 
   if (computedRank >= RANKS.length) {
     return RANKS.length - 1;
