@@ -1,5 +1,5 @@
 import { render, RenderResult, screen } from '@testing-library/react';
-import React, { HTMLAttributes } from 'react';
+import React from 'react';
 import {
   Button,
   ButtonProps,

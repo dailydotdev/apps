@@ -1,11 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import classNames from 'classnames';
+
 import {
   Button,
-  ButtonIconPosition,
-  ButtonKind,
   ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import ShareIcon from '@dailydotdev/shared/src/components/icons/Share';
 
 const meta: Meta<typeof Button> = {
@@ -37,12 +36,12 @@ export const Sizes: Story = {
       {Object.values(ButtonSize).map((size) => (
         <>
           <span key={size}>
-            <Button {...props} size={size}>
+            <Button {...props} buttonSize={size}>
               {children}
             </Button>
           </span>
           <span key={size + '_iconOnly'}>
-            <Button {...props} size={size} icon={<ShareIcon />} />
+            <Button {...props} buttonSize={size} icon={<ShareIcon />} />
           </span>
         </>
       ))}
@@ -51,12 +50,12 @@ export const Sizes: Story = {
   name: 'Sizes',
   args: {
     children: 'Button',
-    variant: ButtonVariant.Primary,
+    className: 'btn-primary',
   },
 };
 
 export const Variants: Story = {
-  render: ({ children, variant, ...props }) => (
+  render: ({ className, children, ...props }) => (
     <div className="grid grid-cols-6 gap-4">
       <h2>Primary</h2>
       <h2>Secondary</h2>
@@ -64,17 +63,33 @@ export const Variants: Story = {
       <h2>Float</h2>
       <h2>Link</h2>
       <h2>Link Subtle</h2>
-      {Object.values(ButtonVariant).map((variant) => (
-        <span key={variant}>
-          <Button {...props} variant={variant}>
-            {children}
-          </Button>
-        </span>
-      ))}
+      <span>
+        <Button {...props} className={classNames(className, 'btn-primary')}>
+          {children}
+        </Button>
+      </span>
+      <span>
+        <Button {...props} className={classNames(className, 'btn-secondary')}>
+          {children}
+        </Button>
+      </span>
+      <span>
+        <Button {...props} className={classNames(className, 'btn-tertiary')}>
+          {children}
+        </Button>
+      </span>
       <span>
         <Button
-          kind={ButtonKind.Link}
-          variant={ButtonVariant.Primary}
+          {...props}
+          className={classNames(className, 'btn-tertiaryFloat')}
+        >
+          {children}
+        </Button>
+      </span>
+      <span>
+        <Button
+          tag="a"
+          className={classNames(className, 'btn-primary')}
           {...props}
           href={window.location.href}
         >
@@ -83,8 +98,8 @@ export const Variants: Story = {
       </span>
       <span>
         <Button
-          kind={ButtonKind.Link}
-          variant={ButtonVariant.Primary}
+          tag="a"
+          className={classNames(className, 'btn-primary')}
           {...props}
           href={window.location.href}
         >
@@ -100,7 +115,7 @@ export const Variants: Story = {
 };
 
 export const Icon: Story = {
-  render: ({ children, icon, iconPosition, ...props }) => (
+  render: ({ children, icon, rightIcon, ...props }) => (
     <div className="grid grid-cols-3 gap-4">
       <h2>Icon left</h2>
       <h2>Icon right</h2>
@@ -111,12 +126,12 @@ export const Icon: Story = {
         </Button>
       </span>
       <span>
-        <Button {...props} icon={icon!} iconPosition={ButtonIconPosition.Right}>
+        <Button {...props} rightIcon={rightIcon}>
           {children}
         </Button>
       </span>
       <span>
-        <Button {...props} icon={icon} />
+        <Button {...props} icon={icon} iconOnly />
       </span>
     </div>
   ),
@@ -124,6 +139,7 @@ export const Icon: Story = {
   args: {
     children: 'Share',
     icon: <ShareIcon />,
-    variant: ButtonVariant.Primary,
+    rightIcon: <ShareIcon />,
+    className: 'btn-primary',
   },
 };

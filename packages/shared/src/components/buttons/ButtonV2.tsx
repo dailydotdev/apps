@@ -43,6 +43,7 @@ export enum ButtonVariant {
   Primary = 'primary',
   Secondary = 'secondary',
   Tertiary = 'tertiary',
+  Float = 'tertiaryFloat',
 }
 
 export enum ButtonIconPosition {

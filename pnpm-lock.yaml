@@ -719,6 +719,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^1.3.2
         version: 1.3.2
+      classnames:
+        specifier: ^2.3.1
+        version: 2.3.1
       eslint-plugin-storybook:
         specifier: ^0.6.15
         version: 0.6.15(eslint@7.32.0)(typescript@4.6.4)
@@ -1466,21 +1469,6 @@ packages:
       '@babel/helper-annotate-as-pure': 7.22.5
       '@babel/helper-environment-visitor': 7.22.20
       '@babel/helper-wrap-function': 7.22.20
-
-  /@babel/helper-remap-async-to-generator@7.22.5(@babel/core@7.17.9):
-    resolution: {integrity: sha512-cU0Sq1Rf4Z55fgz7haOakIyM7+x/uCFwXpLPaeRzfoUtAEAuUZjZvFPjL/rk5rW693dIgn2hng1W7xbT7lWT4g==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0
-    dependencies:
-      '@babel/core': 7.17.9
-      '@babel/helper-annotate-as-pure': 7.22.5
-      '@babel/helper-environment-visitor': 7.22.20
-      '@babel/helper-wrap-function': 7.22.5
-      '@babel/types': 7.23.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
 
   /@babel/helper-remap-async-to-generator@7.22.5(@babel/core@7.23.2):
     resolution: {integrity: sha512-cU0Sq1Rf4Z55fgz7haOakIyM7+x/uCFwXpLPaeRzfoUtAEAuUZjZvFPjL/rk5rW693dIgn2hng1W7xbT7lWT4g==}
@@ -2354,11 +2342,9 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.17.9
-      '@babel/helper-module-imports': 7.22.5
+      '@babel/helper-module-imports': 7.22.15
       '@babel/helper-plugin-utils': 7.22.5
-      '@babel/helper-remap-async-to-generator': 7.22.5(@babel/core@7.17.9)
-    transitivePeerDependencies:
-      - supports-color
+      '@babel/helper-remap-async-to-generator': 7.22.20(@babel/core@7.17.9)
     dev: true
 
   /@babel/plugin-transform-async-to-generator@7.22.5(@babel/core@7.23.2):
