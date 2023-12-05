@@ -9,6 +9,7 @@
     "clean": "rm -rf .turbo && rm -rf node_modules",
     "lint": "eslint ./stories/*.stories.tsx"
   },
+  "prettier": "@dailydotdev/prettier-config",
   "dependencies": {
     "@dailydotdev/shared": "*",
     "react": "17.0.2",

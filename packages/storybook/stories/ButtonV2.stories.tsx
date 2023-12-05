@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { Button } from "@dailydotdev/shared/src/components/buttons/ButtonV2";
-import PlusIcon from "@dailydotdev/shared/src/components/icons/Plus";
+import type { Meta, StoryObj } from '@storybook/react';
+import { Button } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+import PlusIcon from '@dailydotdev/shared/src/components/icons/Plus';
 
 const meta: Meta<typeof Button> = {
   component: Button,
@@ -11,10 +11,10 @@ const meta: Meta<typeof Button> = {
   },
   argTypes: {
     href: {
-      control: "text",
+      control: 'text',
     },
     onClick: {
-      control: "object",
+      control: 'object',
     },
   },
 };
@@ -25,21 +25,21 @@ type Story = StoryObj<typeof Button>;
 
 export const Basic: Story = {
   render: (props) => <Button {...props}>{props.children}</Button>,
-  name: "Basic",
+  name: 'Basic',
   args: {
-    children: "Click me",
+    children: 'Click me',
     onClick: () => {
       // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello!");
+      alert('Hello!');
     },
   },
 };
 
 export const Icon: Story = {
   render: (props) => <Button {...props}>{props.children}</Button>,
-  name: "Icon",
+  name: 'Icon',
   args: {
-    children: "Add something",
+    children: 'Add something',
     icon: <PlusIcon />,
   },
 };
