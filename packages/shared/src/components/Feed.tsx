@@ -90,6 +90,8 @@ const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Share]: SharePostModal,
   [PostType.Welcome]: SharePostModal,
   [PostType.Freeform]: SharePostModal,
+  // TODO: remove this once we have a modal for youtube videos
+  [PostType.VideoYouTube]: null,
 };
 
 export default function Feed<T>({
