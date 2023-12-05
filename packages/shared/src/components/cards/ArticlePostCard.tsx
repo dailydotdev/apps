@@ -116,6 +116,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
               readTime={post.readTime}
               isVideoType={isVideoType}
               className="mx-4"
+              insaneMode={insaneMode}
             />
           </Container>
         )}

@@ -3,6 +3,8 @@ import classNames from 'classnames';
 import { postDateFormat } from '../../lib/dateFormat';
 import { Separator } from './common';
 import { Post } from '../../graphql/posts';
+import PlayIcon from '../icons/Play';
+import { IconSize } from '../Icon';
 
 interface PostMetadataProps
   extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {
@@ -10,6 +12,7 @@ interface PostMetadataProps
   description?: string;
   children?: ReactNode;
   isVideoType?: boolean;
+  insaneMode?: boolean;
 }
 
 export default function PostMetadata({
@@ -20,6 +23,7 @@ export default function PostMetadata({
   children,
   description,
   isVideoType,
+  insaneMode,
 }: PostMetadataProps): ReactElement {
   const date = useMemo(
     () => createdAt && postDateFormat(createdAt),
@@ -35,6 +39,9 @@ export default function PostMetadata({
         className,
       )}
     >
+      {isVideoType && insaneMode && (
+        <PlayIcon secondary size={IconSize.XXSmall} className="mr-1" />
+      )}
       {!!description && <span>{description}</span>}
       {!!createdAt && !!description && <Separator />}
       {!!createdAt && <time dateTime={createdAt}>{date}</time>}

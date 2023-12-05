@@ -31,6 +31,7 @@ export interface ActionButtonsProps {
   children?: ReactNode;
   insaneMode?: boolean;
   openNewTab?: boolean;
+  isVideoType?: boolean;
 }
 
 type LastActionButtonProps = {
@@ -65,6 +66,7 @@ export default function ActionButtons({
   className,
   children,
   insaneMode,
+  isVideoType,
 }: ActionButtonsProps): ReactElement {
   const upvoteCommentProps: ButtonProps<'button'> = {
     buttonSize: ButtonSize.Small,
@@ -152,6 +154,7 @@ export default function ActionButtons({
             href={post.permalink}
             onClick={onReadArticleClick}
             openNewTab={openNewTab}
+            isVideoType={isVideoType}
           />
         )}
         {!insaneMode && lastActionButton}
