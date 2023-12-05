@@ -80,7 +80,7 @@ export const CollectionPostContent = ({
       )}
 
       <PostContainer
-        className={classNames('relative gap-8', className?.content)}
+        className={classNames('relative gap-6', className?.content)}
         data-testid="postContainer"
       >
         {!hasNavigation && (
