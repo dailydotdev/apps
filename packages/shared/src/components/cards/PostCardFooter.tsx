@@ -18,12 +18,14 @@ type PostCardFooterProps = {
   showImage: boolean;
   post: Post;
   className: PostCardFooterClassName;
+  isVideoType?: boolean;
 };
 
 export const PostCardFooter = ({
   post,
   showImage,
   className,
+  isVideoType,
 }: PostCardFooterProps): ReactElement => {
   return (
     <>
@@ -40,9 +42,11 @@ export const PostCardFooter = ({
         <CardImage
           alt="Post Cover image"
           src={post.image}
+          title={post.title}
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
           className={classNames('object-cover my-2', className.image)}
           loading="lazy"
+          isVideoType={isVideoType}
         />
       )}
       {showImage && post.author && (

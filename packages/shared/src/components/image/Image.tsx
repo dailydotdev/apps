@@ -5,13 +5,17 @@ import React, {
   Ref,
   SyntheticEvent,
 } from 'react';
+import PlayIcon from '../icons/Play';
+import { IconSize } from '../Icon';
 
 interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   fallbackSrc?: string;
+  isVideoType?: boolean;
+  title?: string;
 }
 
 const ImageComponent = (
-  { fallbackSrc, ...props }: ImageProps,
+  { fallbackSrc, isVideoType, title, ...props }: ImageProps,
   ref?: Ref<HTMLImageElement>,
 ): ReactElement => {
   const onError = (event: SyntheticEvent<HTMLImageElement>): void => {
@@ -21,8 +25,16 @@ const ImageComponent = (
     }
   };
 
-  // eslint-disable-next-line jsx-a11y/alt-text
-  return <img {...props} ref={ref} onError={onError} />;
+  return (
+    <>
+      {isVideoType && (
+        <div className="flex absolute flex-col justify-center my-2 w-full h-40 rounded-xl bg-overlay-float-pepper">
+          <PlayIcon secondary className="mx-auto" size={IconSize.XXXLarge} />
+        </div>
+      )}
+      <img {...props} ref={ref} onError={onError} alt={title} />
+    </>
+  );
 };
 
 export const Image = forwardRef(ImageComponent);

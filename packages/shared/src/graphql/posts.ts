@@ -28,6 +28,7 @@ export enum PostType {
   Share = 'share',
   Welcome = 'welcome',
   Freeform = 'freeform',
+  VideoYouTube = 'video:youtube',
 }
 
 export const internalReadTypes: PostType[] = [PostType.Welcome];
@@ -37,6 +38,7 @@ export const supportedTypesForPrivateSources = [
   PostType.Share,
   PostType.Welcome,
   PostType.Freeform,
+  PostType.VideoYouTube,
 ];
 
 type PostFlags = {

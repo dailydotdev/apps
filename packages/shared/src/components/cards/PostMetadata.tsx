@@ -9,6 +9,7 @@ interface PostMetadataProps
   className?: string;
   description?: string;
   children?: ReactNode;
+  isVideoType?: boolean;
 }
 
 export default function PostMetadata({
@@ -18,11 +19,14 @@ export default function PostMetadata({
   className,
   children,
   description,
+  isVideoType,
 }: PostMetadataProps): ReactElement {
   const date = useMemo(
     () => createdAt && postDateFormat(createdAt),
     [createdAt],
   );
+
+  const timeActionContent = isVideoType ? 'watch' : 'read';
 
   return (
     <div
@@ -35,7 +39,11 @@ export default function PostMetadata({
       {!!createdAt && !!description && <Separator />}
       {!!createdAt && <time dateTime={createdAt}>{date}</time>}
       {!!createdAt && !!readTime && <Separator />}
-      {!!readTime && <span data-testid="readTime">{readTime}m read time</span>}
+      {!!readTime && (
+        <span data-testid="readTime">
+          {readTime}m {timeActionContent} time
+        </span>
+      )}
       {(!!createdAt || !!readTime) && !!numUpvotes && <Separator />}
       {!!numUpvotes && (
         <span data-testid="numUpvotes">

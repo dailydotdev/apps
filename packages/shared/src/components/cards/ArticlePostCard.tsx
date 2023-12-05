@@ -18,6 +18,7 @@ import { PostTagsPanel } from '../post/block/PostTagsPanel';
 import { useFeedPreviewMode, usePostFeedback } from '../../hooks';
 import styles from './Card.module.css';
 import { FeedbackCard } from './FeedbackCard';
+import { PostType } from '../../graphql/posts';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -44,6 +45,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
+  const isVideoType = post.type === PostType.VideoYouTube;
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -92,6 +94,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
             postLink={post.permalink}
             onMenuClick={(event) => onMenuClick?.(event, post)}
             onReadArticleClick={onReadArticleClick}
+            isVideoType={isVideoType}
           />
           <CardTitle lineClamp={showFeedback ? 'line-clamp-2' : undefined}>
             {post.title}
@@ -103,6 +106,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
             <PostMetadata
               createdAt={post.createdAt}
               readTime={post.readTime}
+              isVideoType={isVideoType}
               className="mx-4"
             />
           </Container>
@@ -113,6 +117,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
             openNewTab={openNewTab}
             post={post}
             showImage={showImage}
+            isVideoType={isVideoType}
             className={{
               image: classNames(showFeedback && 'mb-0'),
             }}
