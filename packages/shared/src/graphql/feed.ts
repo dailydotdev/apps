@@ -44,6 +44,7 @@ export const FEED_POST_FRAGMENT = gql`
       image
     }
     numCollectionSources
+    updatedAt
   }
   ${SHARED_POST_INFO_FRAGMENT}
 `;
