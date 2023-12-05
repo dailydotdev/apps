@@ -12,6 +12,9 @@
     },
     {
       "path": "../packages/shared"
+    },
+    {
+      "path": "../packages/storybook"
     }
   ],
   "settings": {

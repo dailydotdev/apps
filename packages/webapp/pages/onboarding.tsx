@@ -37,7 +37,10 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import {
+  useFeature,
+  useGrowthBookContext,
+} from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanies';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
@@ -48,6 +51,7 @@ import { OtherFeedPage, RequestKey } from '@dailydotdev/shared/src/lib/query';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -86,6 +90,7 @@ export function OnboardPage(): ReactElement {
   const { feedSettings } = useFeedSettings();
   const targetId = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
+  const { title, description } = useFeature(feature.onboardingCopy);
 
   const onClickNext = () => {
     let screen = OnboardingStep.Intro;
@@ -347,12 +352,10 @@ export function OnboardPage(): ReactElement {
             )}
           >
             <OnboardingTitleGradient className="mb-4 typo-large-title tablet:typo-mega1">
-              Where developers grow together
+              {title}
             </OnboardingTitleGradient>
 
-            <h2 className="mb-8 typo-body tablet:typo-title2">
-              Get one personalized feed for all the knowledge you need.
-            </h2>
+            <h2 className="mb-8 typo-body tablet:typo-title2">{description}</h2>
 
             {getAuthOptions()}
           </div>

@@ -38,7 +38,6 @@ const Search = (): ReactElement => {
 Search.getLayout = getMainFeedLayout;
 Search.layoutProps = {
   ...mainFeedLayoutProps,
-  mobileTitle: 'Post finder',
   isFinder: true,
 };
 

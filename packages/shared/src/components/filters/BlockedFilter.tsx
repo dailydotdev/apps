@@ -37,7 +37,7 @@ export default function BlockedFilter({
         (⋮) and choose “Not interested in…“.
       </p>
 
-      <h3 className="my-3 mx-6 typo-headline">Blocked tags</h3>
+      <h3 className="my-3 mx-6 font-bold typo-body">Blocked tags</h3>
 
       <TagItemList
         tags={feedSettings?.blockedTags}
@@ -47,7 +47,7 @@ export default function BlockedFilter({
         rowIcon={<BlockIcon />}
       />
 
-      <h3 className="mx-6 mt-10 mb-3 typo-headline">Blocked sources</h3>
+      <h3 className="mx-6 mt-10 mb-3 font-bold typo-body">Blocked sources</h3>
 
       <SourceItemList
         excludeSources={feedSettings?.excludeSources}
