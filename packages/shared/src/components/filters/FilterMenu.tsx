@@ -12,6 +12,7 @@ import AdvancedSettingsFilter from './AdvancedSettings';
 import { Source } from '../../graphql/sources';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
+import { ContentTypesFilter } from './ContentTypesFilter';
 
 const NewSourceModal = dynamic(
   () =>
@@ -61,6 +62,11 @@ export default function FilterMenu({
       icon: <FilterIcon className="mr-3 text-xl" />,
       title: 'Advanced',
       component: <AdvancedSettingsFilter />,
+    },
+    {
+      icon: <BlockIcon className="mr-3 text-xl" />,
+      title: 'Content Types',
+      component: <ContentTypesFilter />,
     },
     {
       icon: <BlockIcon className="mr-3 text-xl" />,
