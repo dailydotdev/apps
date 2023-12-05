@@ -46,6 +46,7 @@ export const PostCardFooter = ({
           className={classNames('object-cover my-2', className.image)}
           loading="lazy"
           isVideoType={isVideoType}
+          data-testid="postImage"
         />
       )}
       {showImage && post.author && (

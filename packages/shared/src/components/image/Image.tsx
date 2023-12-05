@@ -28,7 +28,12 @@ const ImageComponent = (
     <>
       {isVideoType && (
         <div className="flex absolute flex-col justify-center my-2 w-full h-40 rounded-xl bg-overlay-float-pepper">
-          <PlayIcon secondary className="mx-auto" size={IconSize.XXXLarge} />
+          <PlayIcon
+            secondary
+            className="mx-auto"
+            size={IconSize.XXXLarge}
+            data-testid="playIconVideoPost"
+          />
         </div>
       )}
       {/* eslint-disable-next-line jsx-a11y/alt-text */}
