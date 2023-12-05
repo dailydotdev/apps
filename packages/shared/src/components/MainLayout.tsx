@@ -59,6 +59,7 @@ function MainLayout({
   dndActive,
   customBanner,
   additionalButtons,
+  screenCentered = true,
   showSidebar = true,
   className,
   onLogoClick,
@@ -186,7 +187,7 @@ function MainLayout({
         className={classNames(
           'flex flex-row',
           className,
-          sidebarExpanded ? 'laptop:pl-60' : 'laptop:pl-11',
+          !screenCentered && sidebarExpanded ? 'laptop:pl-60' : 'laptop:pl-11',
           isBannerAvailable && 'laptop:pt-8',
         )}
       >

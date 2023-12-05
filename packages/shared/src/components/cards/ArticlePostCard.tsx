@@ -18,6 +18,7 @@ import { PostTagsPanel } from '../post/block/PostTagsPanel';
 import { useFeedPreviewMode, usePostFeedback } from '../../hooks';
 import styles from './Card.module.css';
 import { FeedbackCard } from './FeedbackCard';
+import { Origin } from '../../lib/analytics';
 import { PostType } from '../../graphql/posts';
 
 export const ArticlePostCard = forwardRef(function PostCard(
@@ -25,6 +26,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
     post,
     onPostClick,
     onUpvoteClick,
+    onDownvoteClick,
     onCommentClick,
     onMenuClick,
     onShare,
@@ -75,7 +77,13 @@ export const ArticlePostCard = forwardRef(function PostCard(
         <CardButton title={post.title} onClick={onPostCardClick} />
       )}
 
-      {showFeedback && <FeedbackCard post={post} />}
+      {showFeedback && (
+        <FeedbackCard
+          post={post}
+          onUpvoteClick={() => onUpvoteClick(post, Origin.FeedbackCard)}
+          onDownvoteClick={() => onDownvoteClick(post, Origin.FeedbackCard)}
+        />
+      )}
 
       <div
         className={classNames(
