@@ -32,7 +32,8 @@ const ImageComponent = (
           <PlayIcon secondary className="mx-auto" size={IconSize.XXXLarge} />
         </div>
       )}
-      <img {...props} ref={ref} onError={onError} alt={title} />
+      {/* eslint-disable-next-line jsx-a11y/alt-text */}
+      <img {...props} ref={ref} onError={onError} />
     </>
   );
 };
