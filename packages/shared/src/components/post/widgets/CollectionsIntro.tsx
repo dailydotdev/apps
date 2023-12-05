@@ -12,9 +12,9 @@ export type CollectionsIntroProps = {
 export const CollectionsIntro = ({
   className,
 }: CollectionsIntroProps): ReactElement => {
-  const { checkHasCompleted, completeAction } = useActions();
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
 
-  if (checkHasCompleted(ActionType.CollectionsIntro)) {
+  if (!isActionsFetched || checkHasCompleted(ActionType.CollectionsIntro)) {
     return null;
   }
 
