@@ -3,6 +3,7 @@ import { CommentMarkdownInputProps } from '../../components/fields/MarkdownInput
 export interface CommentWriteProps {
   commentId: string;
   parentCommentId?: string;
+  lastUpdatedAt?: string;
 }
 
 export interface CommentWrite {
