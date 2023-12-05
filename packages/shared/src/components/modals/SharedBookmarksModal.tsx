@@ -113,7 +113,7 @@ export default function SharedBookmarksModal({
             </Button>
             <div className="flex gap-2 items-center h-8 text-2xl">
               <DiscordIcon size={IconSize.Medium} />
-              <TwitterIcon size={IconSize.Medium} secondary />
+              <TwitterIcon size={IconSize.Medium} />
               <SlackIcon size={IconSize.Medium} />
               <GithubIcon size={IconSize.Medium} />
             </div>

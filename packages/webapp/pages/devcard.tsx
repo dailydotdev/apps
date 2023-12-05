@@ -212,7 +212,7 @@ const Step2 = ({
           />
         </section>
         <section className="flex flex-col self-stretch text-theme-label-tertiary">
-          <h2 className="typo-headline">Customize Style</h2>
+          <h2 className="font-bold typo-body">Customize Style</h2>
           <div className={classNames('flex flex-col -my-0.5 items-start mt-8')}>
             <RadioItem
               disabled={isLoadingImage}

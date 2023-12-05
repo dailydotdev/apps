@@ -114,7 +114,7 @@ export function WriteFreeformContent({
         offset={[0, -12]}
         message={
           <div className="flex flex-col w-64">
-            <h3 className="font-bold typo-headline">First time? 👋</h3>
+            <h3 className="font-bold typo-body">First time? 👋</h3>
             <p className="mt-1 typo-subhead">
               It looks like this is your first time sharing a post with the
               Squad! This is a community we build together. Please be welcoming

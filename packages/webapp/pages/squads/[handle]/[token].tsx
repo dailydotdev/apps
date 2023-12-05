@@ -226,7 +226,9 @@ const SquadReferral = ({
           <div className="flex flex-row flex-1 items-start">
             <SourceButton source={source} size="xxlarge" />
             <div className="flex flex-col flex-1 mr-0 tablet:mr-4 ml-4">
-              <h2 className="flex flex-col typo-headline">{source.name}</h2>
+              <h2 className="flex flex-col font-bold typo-body">
+                {source.name}
+              </h2>
               <BodyParagraph className="mt-2">@{source.handle}</BodyParagraph>
               {source.description && (
                 <BodyParagraph className="mt-4 break-words">
