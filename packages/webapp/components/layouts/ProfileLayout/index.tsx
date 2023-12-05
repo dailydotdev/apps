@@ -37,6 +37,11 @@ import {
   UserReadingRankData,
 } from '@dailydotdev/shared/src/graphql/users';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button as ButtonV2,
+  ButtonVariant,
+  ButtonKind,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import classNames from 'classnames';
@@ -276,13 +281,14 @@ export default function ProfileLayout({
               )}
             </div>
             {isCurrentUserProfile && (
-              <Button
-                className="self-start mt-6 mb-0.5 btn-secondary"
-                tag="a"
+              <ButtonV2
+                className="self-start mt-6 mb-0.5"
+                variant={ButtonVariant.Secondary}
+                kind={ButtonKind.Link}
                 href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
               >
                 Account details
-              </Button>
+              </ButtonV2>
             )}
           </div>
         </section>
