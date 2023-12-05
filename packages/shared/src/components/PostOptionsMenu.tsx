@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
-import { Post, UserPostVote } from '../graphql/posts';
+import { Post, PostType, UserPostVote } from '../graphql/posts';
 import TrashIcon from './icons/Trash';
 import HammerIcon from './icons/Hammer';
 import EyeIcon from './icons/Eye';
@@ -47,6 +47,7 @@ import {
   useBookmarkPost,
 } from '../hooks/useBookmarkPost';
 import { ActiveFeedContext } from '../contexts';
+import { useAdvancedSettings } from '../hooks/feed';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -91,7 +92,10 @@ export default function PostOptionsMenu({
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
-  const { feedSettings } = useFeedSettings({ enabled: isOpen });
+  const { feedSettings, advancedSettings } = useFeedSettings({
+    enabled: isOpen,
+  });
+  const { onToggleSettings } = useAdvancedSettings({ enabled: false });
   const { trackEvent } = useContext(AnalyticsContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openModal } = useLazyModal();
@@ -224,6 +228,13 @@ export default function PostOptionsMenu({
       undoAction({ tags: [tag], requireLogin: true }),
     );
   };
+  const video = advancedSettings?.find(({ title }) => title === 'Videos');
+  const onToggleVideo = async () => {
+    await onToggleSettings(video.id, false);
+    await showMessageAndRemovePost(`⛔️ Video content blocked`, postIndex, () =>
+      onToggleSettings(video.id, true),
+    );
+  };
 
   const onHidePost = async (): Promise<void> => {
     const { successful } = await hidePost(post.id);
@@ -282,6 +293,14 @@ export default function PostOptionsMenu({
       action: onBlockSource,
     },
   ];
+
+  if (video && post?.type === PostType.VideoYouTube) {
+    postOptions.push({
+      icon: <MenuIcon Icon={BlockIcon} />,
+      label: `Don't show video content`,
+      action: onToggleVideo,
+    });
+  }
 
   post?.tags?.forEach((tag) => {
     if (tag.length) {
