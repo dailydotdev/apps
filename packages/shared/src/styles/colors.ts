@@ -1,4 +1,4 @@
-export enum Colors {
+export enum ColorName {
   Burger = 'burger',
   BlueCheese = 'blueCheese',
   Avocado = 'avocado',
@@ -17,7 +17,6 @@ export enum Colors {
   Facebook = 'facebook',
 }
 
-export type ColorName = Uncapitalize<keyof typeof Colors>;
 type ColorLevels = '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90';
 type Color = Record<ColorLevels, string>;
 type ColorPalette = Record<ColorName, Color>;
