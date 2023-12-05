@@ -43,7 +43,7 @@ function FixedPostNavigation({
         <span className="overflow-hidden whitespace-nowrap typo-footnote text-ellipsis text-theme-label-tertiary">
           {content.subtitle}
         </span>
-        <h3 className="overflow-hidden font-bold whitespace-nowrap text-ellipsis typo-headline">
+        <h3 className="overflow-hidden font-bold whitespace-nowrap text-ellipsis typo-body">
           {content.title}
         </h3>
       </div>
