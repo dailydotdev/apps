@@ -13,21 +13,21 @@ import { combinedClicks } from '../../lib/click';
 import { ColorName as ButtonColor } from '../../styles/colors';
 
 export enum ButtonSize {
-  XXSmall = 'xxsmall',
-  XSmall = 'xsmall',
-  Small = 'small',
-  Medium = 'medium',
+  XLarge = 'xlarge', // only used for iconOnly buttons
   Large = 'large',
-  XLarge = 'xlarge',
+  Medium = 'medium',
+  Small = 'small',
+  XSmall = 'xsmall',
+  None = 'none',
 }
 
 const buttonSizeToIconSize: Record<ButtonSize, IconSize> = {
-  [ButtonSize.XXSmall]: IconSize.XXSmall,
-  [ButtonSize.XSmall]: IconSize.XSmall,
-  [ButtonSize.Small]: IconSize.Small,
-  [ButtonSize.Medium]: IconSize.Medium,
-  [ButtonSize.Large]: IconSize.Large,
   [ButtonSize.XLarge]: IconSize.XLarge,
+  [ButtonSize.Large]: IconSize.Large,
+  [ButtonSize.Medium]: IconSize.Medium,
+  [ButtonSize.Small]: IconSize.Small,
+  [ButtonSize.XSmall]: IconSize.XSmall,
+  [ButtonSize.None]: IconSize.Small,
 };
 
 export type IconType = React.ReactElement<IconProps>;
@@ -44,6 +44,7 @@ export enum ButtonVariant {
   Secondary = 'secondary',
   Tertiary = 'tertiary',
   Float = 'tertiaryFloat',
+  Subtle = 'subtle',
 }
 
 export enum ButtonIconPosition {
@@ -124,7 +125,7 @@ function ButtonComponent<TagName extends AllowedTags>(
       className={classNames(
         { iconOnly },
         size,
-        'btn flex flex-row items-center justify-center border typo-callout font-bold no-underline shadow-none cursor-pointer select-none focus-outline relative',
+        'btn inline-flex flex-row items-center justify-center border typo-callout font-bold no-underline shadow-none cursor-pointer select-none focus-outline relative',
         {
           [`btn-${variant}`]: variant,
           [`btn-${variant}-${color}`]: color && variant,
