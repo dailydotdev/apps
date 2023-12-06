@@ -10,7 +10,7 @@ const VideoPlayOverlay = ({
   size = IconSize.XXXLarge,
 }: VideoPlayOverlayProps): ReactElement => (
   <>
-    <span className="absolute w-full h-full bg-overlay-float-pepper" />
+    <span className="absolute w-full h-full rounded-xl bg-overlay-tertiary-pepper" />
     <PlayIcon
       secondary
       size={size}

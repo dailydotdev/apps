@@ -33,7 +33,7 @@ export const SharedPostCardFooter = ({
 
       <div
         className={classNames(
-          'rounded-xl flex items-center justify-center',
+          'rounded-xl flex items-center justify-center relative',
           isShort ? 'h-full aspect-square' : 'flex-1',
         )}
         style={{

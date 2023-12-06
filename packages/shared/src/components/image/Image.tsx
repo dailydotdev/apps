@@ -24,7 +24,7 @@ const ImageComponent = (
   };
 
   return (
-    <div className="flex relative justify-center items-center w-full h-auto rounded-xl">
+    <div className="flex relative justify-center items-center my-2 w-full h-auto rounded-xl">
       {isVideoType && <VideoPlayOverlay />}
       {/* eslint-disable-next-line jsx-a11y/alt-text */}
       <img {...props} ref={ref} onError={onError} />
