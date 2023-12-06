@@ -13,11 +13,11 @@ interface UseCommentEdit extends CommentWrite {
 
 export const useCommentEdit = (): UseCommentEdit => {
   const [state, setState] = useState<CommentWriteProps>();
-  const { commentId: id } = state ?? {};
+  const { commentId: id, lastUpdatedAt } = state ?? {};
   const { user } = useAuthContext();
   const { requestMethod } = useRequestProtocol();
   const { data } = useQuery<{ comment: Comment }>(
-    generateQueryKey(RequestKey.Comment, user, id),
+    generateQueryKey(RequestKey.Comment, user, id, lastUpdatedAt),
     () => requestMethod(graphqlUrl, COMMENT_BY_ID_QUERY, { id }),
     { enabled: !!id },
   );
