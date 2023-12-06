@@ -46,6 +46,7 @@ import classNames from 'classnames';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Link from 'next/link';
+import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -73,7 +74,7 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   welcome: SquadPostContent,
   freeform: SquadPostContent,
   // TODO: remove this once we know what content to use
-  [PostType.VideoYouTube]: null,
+  [PostType.VideoYouTube]: PostContent,
 };
 
 interface PostParams extends ParsedUrlQuery {
@@ -147,7 +148,11 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     );
   }
 
-  const Content = CONTENT_MAP[post?.type];
+  const Content =
+    post?.sharedPost?.type === PostType.VideoYouTube &&
+    post?.source?.type === SourceType.Squad
+      ? SquadPostContent
+      : CONTENT_MAP[post?.type];
   const shareNavigation = !post?.source ? (
     <></>
   ) : (

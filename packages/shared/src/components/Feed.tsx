@@ -43,6 +43,7 @@ import {
   useBookmarkPost,
 } from '../hooks/useBookmarkPost';
 import { isNullOrUndefined } from '../lib/func';
+import { SourceType } from '../graphql/sources';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -90,8 +91,7 @@ const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Share]: SharePostModal,
   [PostType.Welcome]: SharePostModal,
   [PostType.Freeform]: SharePostModal,
-  // TODO: remove this once we have a modal for youtube videos
-  [PostType.VideoYouTube]: null,
+  [PostType.VideoYouTube]: ArticlePostModal,
 };
 
 export default function Feed<T>({
@@ -338,7 +338,11 @@ export default function Feed<T>({
     nextPost: (items[postMenuIndex + 1] as PostItem)?.post,
   };
 
-  const ArticleModal = PostModalMap[selectedPost?.type];
+  const PostModal =
+    post?.sharedPost?.type === PostType.VideoYouTube &&
+    post?.source?.type === SourceType.Squad
+      ? SharePostModal
+      : PostModalMap[selectedPost?.type];
 
   if (emptyScreen && emptyFeed) {
     return <>{emptyScreen}</>;
@@ -404,8 +408,8 @@ export default function Feed<T>({
           {...commonMenuItems}
           onHidden={onShareOptionsHidden}
         />
-        {selectedPost && ArticleModal && (
-          <ArticleModal
+        {selectedPost && PostModal && (
+          <PostModal
             isOpen={!!selectedPost}
             id={selectedPost.id}
             onRequestClose={() => onCloseModal(false)}
