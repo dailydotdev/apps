@@ -11,6 +11,7 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import 'focus-visible';
 import Modal from 'react-modal';
+import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -36,7 +37,6 @@ import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
-import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 
 const AuthModal = dynamic(
   () =>

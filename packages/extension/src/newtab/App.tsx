@@ -39,6 +39,7 @@ import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
+import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -54,7 +55,6 @@ import {
   EXTENSION_PERMISSION_KEY,
   useContentScriptStatus,
 } from '../../../shared/src/hooks';
-import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 
 const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();
