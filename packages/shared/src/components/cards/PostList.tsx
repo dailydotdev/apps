@@ -3,8 +3,6 @@ import { PostCardProps } from './common';
 import {
   getPostClassNames,
   ListCardTitle,
-  ListCardDivider,
-  ListCardAside,
   ListCardMain,
   CardButton,
 } from './Card';
@@ -56,15 +54,12 @@ export const PostList = forwardRef(function PostList(
       flagProps={{ listMode: true, pinnedAt, trending }}
     >
       <CardButton title={post.title} onClick={onPostCardClick} />
-      <ListCardAside className="w-14">
+      <ListCardMain>
         <SourceButton
           source={post?.source}
-          className="pb-2"
+          className="mb-2.5"
           tooltipPosition="top"
         />
-      </ListCardAside>
-      <ListCardDivider className="mb-1" />
-      <ListCardMain>
         <ListCardTitle>{post.title}</ListCardTitle>
         <PostMetadata
           createdAt={post.createdAt}
