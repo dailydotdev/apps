@@ -5,8 +5,7 @@ import React, {
   Ref,
   SyntheticEvent,
 } from 'react';
-import PlayIcon from '../icons/Play';
-import { IconSize } from '../Icon';
+import VideoPlayOverlay from '../video/VideoPlayOverlay';
 
 interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   fallbackSrc?: string;
@@ -26,17 +25,7 @@ const ImageComponent = (
 
   return (
     <div className="flex relative justify-center items-center w-full h-auto rounded-xl">
-      {isVideoType && (
-        <>
-          <span className="absolute w-full h-full bg-overlay-float-pepper" />
-          <PlayIcon
-            secondary
-            size={IconSize.XXXLarge}
-            data-testid="playIconVideoPost"
-            className="absolute"
-          />
-        </>
-      )}
+      {isVideoType && <VideoPlayOverlay />}
       {/* eslint-disable-next-line jsx-a11y/alt-text */}
       <img {...props} ref={ref} onError={onError} />
     </div>

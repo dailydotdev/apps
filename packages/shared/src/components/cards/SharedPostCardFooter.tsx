@@ -2,7 +2,8 @@ import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { Post } from '../../graphql/posts';
 import { cloudinary } from '../../lib/image';
-import { CardImage } from './Card';
+import { IconSize } from '../Icon';
+import VideoPlayOverlay from '../video/VideoPlayOverlay';
 
 type SharedPostCardFooterProps = {
   isShort: boolean;
@@ -30,18 +31,21 @@ export const SharedPostCardFooter = ({
         {sharedPost.title}
       </span>
 
-      <CardImage
-        alt="Post Cover image"
-        src={sharedPost.image}
-        fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+      <div
         className={classNames(
-          'object-cover my-2 w-full',
-          isShort ? 'w-auto h-full aspect-square' : 'flex-1',
+          'rounded-xl flex items-center justify-center',
+          isShort ? 'h-full aspect-square' : 'flex-1',
         )}
-        loading="lazy"
-        isVideoType={isVideoType}
-        data-testid="postImage"
-      />
+        style={{
+          background: `url(${sharedPost.image}) center center / cover, url(${cloudinary.post.imageCoverPlaceholder}) center center / cover`,
+        }}
+      >
+        {isVideoType && (
+          <VideoPlayOverlay
+            size={isShort ? IconSize.XLarge : IconSize.XXXLarge}
+          />
+        )}
+      </div>
     </div>
   );
 };
