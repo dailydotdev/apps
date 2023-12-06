@@ -152,11 +152,13 @@ export function PostContent({
               {post.title}
             </a>
           </h1>
-          <YouTubeVideo
-            title={post.title}
-            videoId={post.videoId}
-            className="mb-7"
-          />
+          {post.type === PostType.VideoYouTube && (
+            <YouTubeVideo
+              title={post.title}
+              videoId={post.videoId}
+              className="mb-7"
+            />
+          )}
           {post.summary && (
             <PostSummary className="mb-6" summary={post.summary} />
           )}
