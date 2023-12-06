@@ -3,8 +3,6 @@ import { PostCardProps } from './common';
 import {
   CardButton,
   getPostClassNames,
-  ListCardAside,
-  ListCardDivider,
   ListCardMain,
   ListCardTitle,
 } from './Card';
@@ -59,29 +57,20 @@ export const PostList = forwardRef(function PostList(
       flagProps={{ listMode: true, pinnedAt, trending }}
     >
       <CardButton title={post.title} onClick={onPostCardClick} />
-      {!isCollectionPost && (
-        <>
-          <ListCardAside className="w-14">
-            <SourceButton
-              source={post?.source}
-              className="pb-2"
-              tooltipPosition="top"
-            />
-          </ListCardAside>
-
-          <ListCardDivider className="mb-1" />
-        </>
-      )}
-
       <ListCardMain>
         {isCollectionPost && (
-          <div className="">
-            <CollectionPillSources
-              className="mb-2.5"
-              sources={post.collectionSources}
-              totalSources={post.numCollectionSources}
-            />
-          </div>
+          <CollectionPillSources
+            className="mb-2.5"
+            sources={post.collectionSources}
+            totalSources={post.numCollectionSources}
+          />
+        )}
+        {!isCollectionPost && (
+          <SourceButton
+            source={post?.source}
+            className="mb-2.5"
+            tooltipPosition="top"
+          />
         )}
         <ListCardTitle>{post.title}</ListCardTitle>
         <PostMetadata
