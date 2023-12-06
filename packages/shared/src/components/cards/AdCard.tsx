@@ -45,7 +45,7 @@ export const AdCard = forwardRef(function AdCard(
             src={ad.image}
             className={classNames(
               'w-full z-1',
-              showBlurredImage && 'inset-0 m-auto absolute',
+              showBlurredImage && 'm-auto absolute top-full',
             )}
             style={{ objectFit: showBlurredImage ? 'contain' : 'cover' }}
           />
@@ -53,7 +53,7 @@ export const AdCard = forwardRef(function AdCard(
             <CardImage
               alt="Ad image background"
               src={ad.image}
-              className={classNames('-z-1 w-full', styles.blur)}
+              className={classNames('w-full', styles.blur)}
             />
           )}
         </div>

@@ -25,20 +25,21 @@ const ImageComponent = (
   };
 
   return (
-    <>
+    <div className="flex relative justify-center items-center w-full h-auto rounded-xl">
       {isVideoType && (
-        <div className="flex absolute flex-col justify-center my-2 w-full h-40 rounded-xl bg-overlay-float-pepper">
+        <>
+          <span className="absolute w-full h-full bg-overlay-float-pepper" />
           <PlayIcon
             secondary
-            className="mx-auto"
             size={IconSize.XXXLarge}
             data-testid="playIconVideoPost"
+            className="absolute"
           />
-        </div>
+        </>
       )}
       {/* eslint-disable-next-line jsx-a11y/alt-text */}
       <img {...props} ref={ref} onError={onError} />
-    </>
+    </div>
   );
 };
 
