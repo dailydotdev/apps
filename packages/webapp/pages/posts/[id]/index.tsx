@@ -73,7 +73,6 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   share: SquadPostContent,
   welcome: SquadPostContent,
   freeform: SquadPostContent,
-  // TODO: remove this once we know what content to use
   [PostType.VideoYouTube]: PostContent,
 };
 
