@@ -91,7 +91,7 @@ export type ButtonProps<Tag extends AllowedTags> = BaseButtonProps &
     ref?: Ref<ButtonElementType<Tag>>;
   };
 
-function ButtonComponent<T extends AllowedTags>(
+function ButtonComponent<TagName extends AllowedTags>(
   {
     kind = ButtonKind.Button,
     variant,
@@ -105,13 +105,14 @@ function ButtonComponent<T extends AllowedTags>(
     children,
     onClick,
     ...props
-  }: ButtonProps<T>,
-  ref?: Ref<ButtonElementType<T>>,
+  }: ButtonProps<TagName>,
+  ref?: Ref<ButtonElementType<TagName>>,
+  // TODO: @milan - this is a hack, but only way how I could get TS to be type happy for now
+  Tag = kind === ButtonKind.Link ? 'a' : 'button',
 ): ReactElement {
   const iconOnly = icon && !children;
   const getIconWithSize = useGetIconWithSize(size, iconOnly);
   const isAnchor = kind === ButtonKind.Link;
-  const Tag = isAnchor ? 'a' : 'button';
 
   return (
     <Tag
