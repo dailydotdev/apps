@@ -1,3 +1,1 @@
-import { CollectionCard } from './CollectionCard';
-
-export default CollectionCard;
+export * from './CollectionCard';

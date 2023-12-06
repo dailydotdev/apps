@@ -15,7 +15,7 @@ import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { WelcomePostCard } from './cards/WelcomePostCard';
 import { Origin } from '../lib/analytics';
 import { UseVotePost } from '../hooks';
-import CollectionCard from './cards/CollectionCard';
+import { CollectionCard } from './cards/CollectionCard';
 import { SharePostCard } from './cards/SharePostCard';
 
 const CommentPopup = dynamic(
