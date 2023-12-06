@@ -54,6 +54,7 @@ import {
   EXTENSION_PERMISSION_KEY,
   useContentScriptStatus,
 } from '../../../shared/src/hooks';
+import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 
 const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();
@@ -83,6 +84,7 @@ function InternalApp({
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useContentScriptStatus();
   const routeChangedCallbackRef = useTrackPageView();
+  useConsoleLogo();
 
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();

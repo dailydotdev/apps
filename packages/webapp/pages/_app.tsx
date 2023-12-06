@@ -36,6 +36,7 @@ import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
+import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 
 const AuthModal = dynamic(
   () =>
@@ -76,6 +77,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useInAppNotification();
   const { modal, closeModal } = useLazyModal();
   usePrompt();
+  useConsoleLogo();
 
   useEffect(() => {
     updateCookieBanner(user);
