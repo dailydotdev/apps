@@ -4,6 +4,7 @@ import { Post } from '../../graphql/posts';
 import { SharePostTitle } from './share';
 import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
+import { YouTubeVideo } from './common/YouTubeVideo';
 
 interface ShareYouTubeContentProps {
   post: Post;
@@ -15,16 +16,13 @@ function ShareYouTubeContent({ post }: ShareYouTubeContentProps): ReactElement {
     <>
       <SharePostTitle post={post} />
       <SharedLinkContainer summary={post?.sharedPost?.summary}>
-        <iframe
+        <YouTubeVideo
           title={post?.sharedPost?.title}
-          src={`https://www.youtube-nocookie.com/embed/${post?.sharedPost?.videoId}`}
-          allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-          allowFullScreen
-          className="w-full rounded-16 border-0"
+          videoId={post?.sharedPost?.videoId}
         />
         <SharedPostLink
           post={post}
-          className="flex flex-wrap mt-4 laptop:mt-0 mb-4 font-bold typo-body"
+          className="flex flex-wrap m-4 laptop:mt-0 font-bold typo-body"
         >
           {post.sharedPost.title}
         </SharedPostLink>
@@ -35,6 +33,7 @@ function ShareYouTubeContent({ post }: ShareYouTubeContentProps): ReactElement {
               : undefined
           }
           source={post.sharedPost.source}
+          className="mx-4"
           size="small"
         />
       </SharedLinkContainer>
