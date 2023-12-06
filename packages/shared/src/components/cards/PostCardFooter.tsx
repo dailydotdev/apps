@@ -43,7 +43,10 @@ export const PostCardFooter = ({
           alt="Post Cover image"
           src={post.image}
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-          className={classNames('object-cover w-full', className.image)}
+          className={{
+            wrapper: 'my-2',
+            image: classNames('object-cover w-full', className.image),
+          }}
           loading="lazy"
           isVideoType={isVideoType}
           data-testid="postImage"

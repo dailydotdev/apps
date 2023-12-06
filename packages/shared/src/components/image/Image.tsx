@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import VideoPlayOverlay from '../video/VideoPlayOverlay';
 
-interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
+export interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   fallbackSrc?: string;
   isVideoType?: boolean;
 }
@@ -24,11 +24,11 @@ const ImageComponent = (
   };
 
   return (
-    <div className="flex relative justify-center items-center my-2 w-full h-auto rounded-xl">
+    <>
       {isVideoType && <VideoPlayOverlay />}
       {/* eslint-disable-next-line jsx-a11y/alt-text */}
       <img {...props} ref={ref} onError={onError} />
-    </div>
+    </>
   );
 };
 

@@ -4,7 +4,7 @@ import { ReactElement } from 'react-markdown/lib/react-markdown';
 import styles from './Card.module.css';
 import classed from '../../lib/classed';
 import { Post } from '../../graphql/posts';
-import { Image } from '../image/Image';
+import { Image, ImageProps } from '../image/Image';
 
 type TitleProps = HTMLAttributes<HTMLHeadingElement> & {
   lineClamp?: `line-clamp-${number}`;
@@ -43,7 +43,31 @@ export const ListCardTitle = classed(Title, 'mr-2');
 
 export const CardTextContainer = classed('div', 'flex flex-col mx-4');
 
-export const CardImage = classed(Image, 'rounded-xl h-40');
+interface CardImageProps extends Omit<ImageProps, 'className'> {
+  className?: {
+    image?: string;
+    wrapper?: string;
+  };
+}
+
+export const CardImage = ({
+  className,
+  ...props
+}: CardImageProps): ReactElement => {
+  return (
+    <div
+      className={classNames(
+        'flex relative justify-center items-center w-full h-auto rounded-xl',
+        className.wrapper,
+      )}
+    >
+      <Image
+        {...props}
+        className={classNames('rounded-xl h-40', className.image)}
+      />
+    </div>
+  );
+};
 
 export const CardSpace = classed('div', 'flex-1');
 

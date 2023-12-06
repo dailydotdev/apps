@@ -46,7 +46,7 @@ export const WelcomePostCardFooter = ({
           alt="Post Cover image"
           src={image}
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-          className="object-cover my-2"
+          className={{ image: 'object-cover my-2' }}
           loading="lazy"
         />
       </>
