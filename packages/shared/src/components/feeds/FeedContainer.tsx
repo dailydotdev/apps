@@ -41,7 +41,7 @@ export interface FeedContainerProps {
   showSearch?: boolean;
   besideSearch?: ReactNode;
   actionButtons?: ReactNode;
-  feedName: AllFeedPages;
+  feedName?: AllFeedPages;
 }
 
 const listGaps = {
