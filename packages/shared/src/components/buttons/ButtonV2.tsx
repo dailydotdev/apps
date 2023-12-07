@@ -92,6 +92,24 @@ export type ButtonProps<Tag extends AllowedTags> = BaseButtonProps &
     ref?: Ref<ButtonElementType<Tag>>;
   };
 
+const sizeToClassName: Record<ButtonSize, string> = {
+  [ButtonSize.XLarge]: 'border-none',
+  [ButtonSize.Large]: 'h-12 px-6 rounded-[0.88rem]',
+  [ButtonSize.Medium]: 'h-10 px-5 rounded-xl',
+  [ButtonSize.Small]: 'h-8 px-3 rounded-[0.63rem]',
+  [ButtonSize.XSmall]: 'h-6 px-2 rounded-lg',
+  [ButtonSize.None]: 'border-none',
+};
+
+const iconOnlySizeToClassName: Record<ButtonSize, string> = {
+  [ButtonSize.XLarge]: 'h-16 w-16 p-0 rounded-[1.375rem]',
+  [ButtonSize.Large]: 'h-12 w-12 p-0 rounded-[0.88rem]',
+  [ButtonSize.Medium]: 'h-10 w-10 p-0 rounded-xl',
+  [ButtonSize.Small]: 'h-8 w-8 p-0 rounded-[0.63rem]',
+  [ButtonSize.XSmall]: 'h-6 w-6 p-0 rounded-lg',
+  [ButtonSize.None]: 'w-5 p-0 border-none',
+};
+
 function ButtonComponent<TagName extends AllowedTags>(
   {
     kind = ButtonKind.Button,
@@ -123,9 +141,12 @@ function ButtonComponent<TagName extends AllowedTags>(
       aria-pressed={pressed}
       ref={ref}
       className={classNames(
+        `btn inline-flex flex-row items-center justify-center border
+        typo-callout font-bold
+        no-underline shadow-none cursor-pointer select-none focus-outline relative
+        transition duration-200 ease-in-out`,
         { iconOnly },
-        size,
-        'btn inline-flex flex-row items-center justify-center border typo-callout font-bold no-underline shadow-none cursor-pointer select-none focus-outline relative',
+        iconOnly ? iconOnlySizeToClassName[size] : sizeToClassName[size],
         {
           [`btn-${variant}`]: variant,
           [`btn-${variant}-${color}`]: color && variant,

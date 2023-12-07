@@ -1,9 +1,6 @@
 .btn {
   transition: 0.2s ease-in-out;
   transition-property: border, background, box-shadow, color;
-  height: 2.5rem;
-  padding: 0 1.25rem;
-  border-radius: 0.75rem;
   background: var(--button-background, var(--button-default-background, none));
   border-color: var(--button-border-color, var(--button-default-border-color, transparent));
   color: var(--button-color, var(--button-default-color));
@@ -23,8 +20,14 @@
 
   &.small {
     height: 2rem;
-    padding: 0 0.75;
+    padding: 0 0.75rem;
     border-radius: 0.63rem;
+  }
+
+  &.medium {
+    height: 2.5rem;
+    padding: 0 1.25rem;
+    border-radius: 0.75rem;
   }
 
   &.large {
@@ -74,10 +77,6 @@
   }
 
   &.iconOnly {
-    width: 2.5rem;
-    padding: 0;
-    border-radius: 0.75rem;
-
     &.none {
       width: 1.25rem;
       padding: 0;
@@ -93,13 +92,19 @@
     &.small {
       width: 2rem;
       padding: 0;
-      border-radius: 0.625rem;
+      border-radius: 0.63rem;
+    }
+
+    &.medium {
+      width: 2.5rem;
+      padding: 0;
+      border-radius: 0.75rem;
     }
 
     &.large {
       width: 3rem;
       padding: 0;
-      border-radius: 0.875rem;
+      border-radius: 0.88rem;
     }
 
     &.xlarge {

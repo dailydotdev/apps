@@ -30,21 +30,25 @@ type Story = StoryObj<typeof Button>;
 
 export const Sizes: Story = {
   render: ({ children, ...props }) => (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-3 gap-4">
+      <h2>Size</h2>
       <h2>Button</h2>
       <h2>IconOnly Button</h2>
-      {Object.values(ButtonSize).map((size) => (
-        <>
-          <span key={size}>
-            <Button {...props} buttonSize={size}>
-              {children}
-            </Button>
-          </span>
-          <span key={size + '_iconOnly'}>
-            <Button {...props} buttonSize={size} icon={<ShareIcon />} />
-          </span>
-        </>
-      ))}
+      {Object.values(ButtonSize)
+        .reverse()
+        .map((size) => (
+          <>
+            <span key={size + '_header'}>{size}</span>
+            <span key={size}>
+              <Button {...props} buttonSize={size}>
+                {children}
+              </Button>
+            </span>
+            <span key={size + '_iconOnly'}>
+              <Button {...props} buttonSize={size} icon={<ShareIcon />} />
+            </span>
+          </>
+        ))}
     </div>
   ),
   name: 'Sizes',
