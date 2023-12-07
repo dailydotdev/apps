@@ -11,7 +11,7 @@ export const useFeedLayout = ({
   feedName,
 }: UseFeedLayoutProps): Record<string, unknown> => {
   const feedLayoutVersion = useFeature(feature.feedLayout);
-  const isFeedLayoutVersion = feedLayoutVersion === FeedLayout.Control;
+  const isFeedLayoutVersion = feedLayoutVersion === FeedLayout.V1;
   const shouldUseFeedLayout = isFeedLayoutVersion && feedName !== 'squad';
 
   if (shouldUseFeedLayout) {
