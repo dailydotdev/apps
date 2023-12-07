@@ -12,7 +12,6 @@ interface UseFeedLayoutReturn {
   isSingleColumnFeedLayout: boolean;
 }
 
-// TODO: return type to be changed once more info is added to the return object
 export const useFeedLayout = ({
   feedName,
 }: UseFeedLayoutProps): UseFeedLayoutReturn => {
