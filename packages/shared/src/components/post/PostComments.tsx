@@ -27,6 +27,7 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import { removePostComments } from '../../hooks/usePostById';
 import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import { isNullOrUndefined } from '../../lib/func';
 
 interface PostCommentsProps {
   post: Post;
@@ -67,7 +68,7 @@ export function PostComments({
         requestMethod(
           graphqlUrl,
           POST_COMMENTS_QUERY,
-          { postId: id, [initialDataKey]: comments, first: 500 },
+          { postId: id, [initialDataKey]: comments, first: 50 },
           { requestKey: JSON.stringify(queryKey) },
         ),
       {
@@ -118,7 +119,7 @@ export function PostComments({
     );
   }
 
-  if (isLoadingComments || comments === null) {
+  if (isLoadingComments || isNullOrUndefined(comments)) {
     return <PlaceholderCommentList placeholderAmount={post.numComments} />;
   }
 
