@@ -14,10 +14,6 @@ import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
 import ScrollToTopButton from '../ScrollToTopButton';
 import styles from '../Feed.module.css';
-import {
-  ToastSubject,
-  useToastNotification,
-} from '../../hooks/useToastNotification';
 import { SearchBarInput, SearchBarSuggestionList } from '../search';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
@@ -25,10 +21,16 @@ import { SearchExperiment } from '../../lib/featureValues';
 import { webappUrl } from '../../lib/constants';
 import { useSearchSuggestions } from '../../hooks/search';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { FeedReadyMessage } from '../onboarding';
+import {
+  useFeedLayout,
+  useActions,
+  ToastSubject,
+  useToastNotification,
+} from '../../hooks';
+import { AllFeedPages } from '../../lib/query';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -39,6 +41,7 @@ export interface FeedContainerProps {
   showSearch?: boolean;
   besideSearch?: ReactNode;
   actionButtons?: ReactNode;
+  feedName: AllFeedPages;
 }
 
 const listGaps = {
@@ -94,6 +97,7 @@ export const FeedContainer = ({
   showSearch,
   besideSearch,
   actionButtons,
+  feedName,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
@@ -104,11 +108,12 @@ export const FeedContainer = ({
   } = useContext(SettingsContext);
   const { trackEvent } = useAnalyticsContext();
   const { completeAction, checkHasCompleted } = useActions();
+  const { isSingleColumnFeedLayout } = useFeedLayout({ feedName });
   const router = useRouter();
   const searchValue = useFeature(feature.search);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
-  const isList = insaneMode && numCards > 1;
+  const isList = (insaneMode && numCards > 1) || isSingleColumnFeedLayout;
   const feedGapPx = getFeedGapPx[gapClass(isList, spaciness)];
   const style = {
     '--num-cards': numCards,
