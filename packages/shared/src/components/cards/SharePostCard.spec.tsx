@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SharePostCard } from './SharePostCard';
 import { sharePost } from '../../../__tests__/fixture/post';
 import { PostCardProps } from './common';
+import { PostType } from '../../graphql/posts';
 
 const post = sharePost;
 const defaultProps: PostCardProps = {
@@ -27,6 +28,10 @@ const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
       <SharePostCard {...defaultProps} {...props} />
     </QueryClientProvider>,
   );
+};
+
+const videoPostTypeComponentProps = {
+  post: { ...defaultProps.post, type: PostType.VideoYouTube },
 };
 
 it('should call on link click on component left click', async () => {
@@ -96,4 +101,10 @@ it('should show options button on hover when in laptop size', async () => {
   const header = await screen.findByLabelText('Options');
   expect(header).toHaveClass('flex');
   expect(header).toHaveClass('group-hover:flex laptop:hidden');
+});
+
+it('should show cover image with play icon when post is video:youtube type', async () => {
+  renderComponent(videoPostTypeComponentProps);
+  const image = await screen.findByTestId('playIconVideoPost');
+  expect(image).toBeInTheDocument();
 });

@@ -38,7 +38,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
     setSharedPostShort(containerRef.current.offsetHeight - height < 40);
   };
   const isFeedPreview = useFeedPreviewMode();
-  const isVideoType = post.sharedPost.type === PostType.VideoYouTube;
+  const isVideoType = post.type === PostType.VideoYouTube;
 
   return (
     <FeedItemContainer
