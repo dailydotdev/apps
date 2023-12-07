@@ -34,17 +34,11 @@ export type IconType = React.ReactElement<IconProps>;
 
 export { ButtonColor };
 
-export enum ButtonKind {
-  Button = 'button',
-  Link = 'link',
-}
-
 export enum ButtonVariant {
   Primary = 'primary',
   Secondary = 'secondary',
   Tertiary = 'tertiary',
   Float = 'tertiaryFloat',
-  Subtle = 'subtle',
 }
 
 export enum ButtonIconPosition {
@@ -52,12 +46,12 @@ export enum ButtonIconPosition {
   Right = 'right',
 }
 interface CommonButtonProps {
-  kind?: ButtonKind;
   size?: ButtonSize;
   loading?: boolean;
   pressed?: boolean;
   disabled?: boolean;
   children?: ReactNode;
+  tag?: React.ElementType & AllowedTags;
 }
 
 // when color is present, variant is required
@@ -86,10 +80,13 @@ export type ButtonElementType<Tag extends AllowedTags> = Tag extends 'a'
   ? HTMLAnchorElement
   : HTMLButtonElement;
 
-export type ButtonProps<Tag extends AllowedTags> = BaseButtonProps &
-  HTMLAttributes<Tag> &
-  JSX.IntrinsicElements[Tag] & {
-    ref?: Ref<ButtonElementType<Tag>>;
+export type ButtonProps<T extends AllowedTags> = BaseButtonProps &
+  HTMLAttributes<T> &
+  JSX.IntrinsicElements[T] & {
+    ref?: Ref<ButtonElementType<T>>;
+    /**
+     * @private for internal use only
+     */
   };
 
 const sizeToClassName: Record<ButtonSize, string> = {
@@ -112,7 +109,6 @@ const iconOnlySizeToClassName: Record<ButtonSize, string> = {
 
 function ButtonComponent<TagName extends AllowedTags>(
   {
-    kind = ButtonKind.Button,
     variant,
     size = ButtonSize.Medium,
     color,
@@ -123,15 +119,14 @@ function ButtonComponent<TagName extends AllowedTags>(
     pressed,
     children,
     onClick,
+    tag: Tag = 'button',
     ...props
   }: ButtonProps<TagName>,
   ref?: Ref<ButtonElementType<TagName>>,
-  // TODO: @milan - this is a hack, but only way how I could get TS to be type happy for now
-  Tag = kind === ButtonKind.Link ? 'a' : 'button',
 ): ReactElement {
   const iconOnly = icon && !children;
   const getIconWithSize = useGetIconWithSize(size, iconOnly);
-  const isAnchor = kind === ButtonKind.Link;
+  const isAnchor = Tag === 'a';
 
   return (
     <Tag

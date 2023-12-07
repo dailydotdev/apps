@@ -40,7 +40,6 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   Button as ButtonV2,
   ButtonVariant,
-  ButtonKind,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
@@ -284,7 +283,7 @@ export default function ProfileLayout({
               <ButtonV2
                 className="self-start mt-6 mb-0.5"
                 variant={ButtonVariant.Secondary}
-                kind={ButtonKind.Link}
+                tag="a"
                 href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
               >
                 Account details

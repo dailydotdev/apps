@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react';
 import {
   Button,
   ButtonIconPosition,
-  ButtonKind,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import ShareIcon from '@dailydotdev/shared/src/components/icons/Share';
 
 const meta: Meta<typeof Button> = {
@@ -44,7 +44,7 @@ export const Sizes: Story = {
             </Button>
           </span>
           <span key={size + '_iconOnly'}>
-            <Button {...props} size={size} icon={<ShareIcon />} />
+            <Button {...props} size={size} icon={<ShareIcon />} Tag="span" />
           </span>
         </>
       ))}
@@ -59,13 +59,11 @@ export const Sizes: Story = {
 
 export const Variants: Story = {
   render: ({ children, variant, ...props }) => (
-    <div className="grid grid-cols-6 gap-4">
+    <div className="grid grid-cols-4 gap-4">
       <h2>Primary</h2>
       <h2>Secondary</h2>
       <h2>Tertiary</h2>
       <h2>Float</h2>
-      <h2>Link</h2>
-      <h2>Link Subtle</h2>
       {Object.values(ButtonVariant).map((variant) => (
         <span key={variant}>
           <Button {...props} variant={variant}>
@@ -73,26 +71,6 @@ export const Variants: Story = {
           </Button>
         </span>
       ))}
-      <span>
-        <Button
-          kind={ButtonKind.Link}
-          variant={ButtonVariant.Primary}
-          {...props}
-          href={window.location.href}
-        >
-          {children}
-        </Button>
-      </span>
-      <span>
-        <Button
-          kind={ButtonKind.Link}
-          variant={ButtonVariant.Primary}
-          {...props}
-          href={window.location.href}
-        >
-          {children}
-        </Button>
-      </span>
     </div>
   ),
   name: 'Variants',

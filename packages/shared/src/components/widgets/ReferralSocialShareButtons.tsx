@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import { Button, ButtonKind, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import {
   getFacebookShareLink,
   getTwitterShareLink,
@@ -57,7 +57,7 @@ const ReferralSocialShareButtons = ({
               variant={ButtonVariant.Tertiary}
               target="_blank"
               rel="noopener"
-              kind={ButtonKind.Link}
+              tag="a"
               onClick={() => {
                 trackEvent({
                   event_name: AnalyticsEvent.InviteReferral,

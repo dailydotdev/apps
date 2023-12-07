@@ -4,7 +4,6 @@ import {
   Button,
   ButtonProps,
   ButtonColor,
-  ButtonKind,
   ButtonVariant,
   ButtonIconPosition,
   AllowedTags,
@@ -131,7 +130,7 @@ describe('Button', () => {
   it('should render the button as an anchor element', async () => {
     renderComponent({
       children: 'Button',
-      kind: ButtonKind.Link,
+      tag: 'a',
       href: 'https://daily.dev',
     });
     expect(await screen.findByRole('link')).toBeInTheDocument();
