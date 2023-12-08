@@ -18,7 +18,6 @@ export enum ButtonSize {
   Medium = 'medium',
   Small = 'small',
   XSmall = 'xsmall',
-  None = 'none',
 }
 
 const buttonSizeToIconSize: Record<ButtonSize, IconSize> = {
@@ -27,7 +26,6 @@ const buttonSizeToIconSize: Record<ButtonSize, IconSize> = {
   [ButtonSize.Medium]: IconSize.Medium,
   [ButtonSize.Small]: IconSize.Small,
   [ButtonSize.XSmall]: IconSize.XSmall,
-  [ButtonSize.None]: IconSize.Small,
 };
 
 export type IconType = React.ReactElement<IconProps>;
@@ -103,7 +101,6 @@ const sizeToClassName: Record<ButtonSize, string> = {
   [ButtonSize.Medium]: 'h-10 px-5 rounded-xl',
   [ButtonSize.Small]: 'h-8 px-3 rounded-[0.63rem]',
   [ButtonSize.XSmall]: 'h-6 px-2 rounded-lg',
-  [ButtonSize.None]: 'border-none',
 };
 
 const iconOnlySizeToClassName: Record<ButtonSize, string> = {
@@ -112,7 +109,6 @@ const iconOnlySizeToClassName: Record<ButtonSize, string> = {
   [ButtonSize.Medium]: 'h-10 w-10 p-0 rounded-xl',
   [ButtonSize.Small]: 'h-8 w-8 p-0 rounded-[0.63rem]',
   [ButtonSize.XSmall]: 'h-6 w-6 p-0 rounded-lg',
-  [ButtonSize.None]: 'w-5 p-0 border-none',
 };
 
 const variantToClassName: Record<ButtonVariant, string> = Object.values(
