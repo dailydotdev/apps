@@ -29,7 +29,7 @@ export const useFeedVotePost = ({
   useMutationSubscription({
     matcher: voteMutationMatcher,
     callback: ({ mutation }) => {
-      const mutationVariables = mutation.options
+      const mutationVariables = mutation.state
         .variables as unknown as UseVotePostMutationProps;
 
       if (!mutationVariables || !items) {

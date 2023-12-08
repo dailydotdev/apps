@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { UseMutationSubscription, UseMutationSubscriptionProps } from './types';
+import { mutationSuccessSubscribers } from '../../lib/query';
 
 export const useMutationSubscription = ({
   matcher,
@@ -14,18 +15,21 @@ export const useMutationSubscription = ({
   matcherRef.current = matcher;
 
   useEffect(() => {
-    const unsubscribe = queryClient
-      .getMutationCache()
-      .subscribe(({ mutation }) => {
-        if (!matcherRef.current({ mutation })) {
+    const subscriptionId = (mutationSuccessSubscribers.size + 1).toString();
+
+    mutationSuccessSubscribers.set(
+      subscriptionId,
+      (data, variables, context, mutation) => {
+        if (!matcherRef.current({ status: 'success', mutation })) {
           return;
         }
 
-        callbackRef.current({ mutation, queryClient });
-      });
+        callbackRef.current({ status: 'success', mutation, queryClient });
+      },
+    );
 
     return () => {
-      unsubscribe();
+      mutationSuccessSubscribers.delete(subscriptionId);
     };
   }, [queryClient]);
 };
