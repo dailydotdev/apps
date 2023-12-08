@@ -14,8 +14,10 @@ export type UseMutationSubscriptionProps = {
   callback: ({
     mutation,
     queryClient,
+    variables,
   }: UseMutationMatcherProps & {
     queryClient: QueryClient;
+    variables?: unknown;
   }) => void;
 };
 

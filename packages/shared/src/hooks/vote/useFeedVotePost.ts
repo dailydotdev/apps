@@ -28,16 +28,13 @@ export const useFeedVotePost = ({
 }: UseFeedVotePostProps): UseFeedVotePost => {
   useMutationSubscription({
     matcher: voteMutationMatcher,
-    callback: ({ mutation }) => {
-      const mutationVariables = mutation.state
-        .variables as unknown as UseVotePostMutationProps;
-
+    callback: ({ variables: mutationVariables }) => {
       if (!mutationVariables || !items) {
         return;
       }
 
       mutateVoteFeedPost({
-        ...mutationVariables,
+        ...(mutationVariables as UseVotePostMutationProps),
         items,
         updatePost,
       });

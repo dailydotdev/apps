@@ -24,7 +24,12 @@ export const useMutationSubscription = ({
           return;
         }
 
-        callbackRef.current({ status: 'success', mutation, queryClient });
+        callbackRef.current({
+          status: 'success',
+          mutation,
+          queryClient,
+          variables,
+        });
       },
     );
 
