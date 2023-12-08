@@ -5,7 +5,6 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
-import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import ShareIcon from '@dailydotdev/shared/src/components/icons/Share';
 
 const meta: Meta<typeof Button> = {

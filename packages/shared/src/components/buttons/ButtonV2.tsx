@@ -66,11 +66,22 @@ type IconButtonProps =
 
 type BaseButtonProps = CommonButtonProps & ColorButtonProps & IconButtonProps;
 
-const useGetIconWithSize = (size: ButtonSize, iconOnly: boolean) => {
+const useGetIconWithSize = (
+  size: ButtonSize,
+  iconOnly: boolean,
+  iconPosition: ButtonIconPosition,
+) => {
   return (icon: React.ReactElement<IconProps>) =>
     React.cloneElement(icon, {
       size: icon.props?.size ?? buttonSizeToIconSize[size],
-      className: classNames(icon.props.className, !iconOnly && 'icon'),
+      className: classNames(
+        icon.props.className,
+        !iconOnly && 'text-base !w-6 !h-6',
+        !iconOnly && iconPosition === ButtonIconPosition.Left && '-ml-2 mr-1',
+        !iconOnly && iconPosition === ButtonIconPosition.Right && 'ml-1 -mr-2',
+        // add margin to social icons
+        icon.props.className?.split(' ').includes('socialIcon') && 'mr-3',
+      ),
     });
 };
 
@@ -84,9 +95,6 @@ export type ButtonProps<T extends AllowedTags> = BaseButtonProps &
   HTMLAttributes<T> &
   JSX.IntrinsicElements[T] & {
     ref?: Ref<ButtonElementType<T>>;
-    /**
-     * @private for internal use only
-     */
   };
 
 const sizeToClassName: Record<ButtonSize, string> = {
@@ -147,7 +155,7 @@ function ButtonComponent<TagName extends AllowedTags>(
   ref?: Ref<ButtonElementType<TagName>>,
 ): ReactElement {
   const iconOnly = icon && !children;
-  const getIconWithSize = useGetIconWithSize(size, iconOnly);
+  const getIconWithSize = useGetIconWithSize(size, iconOnly, iconPosition);
   const isAnchor = Tag === 'a';
 
   return (
@@ -172,7 +180,7 @@ function ButtonComponent<TagName extends AllowedTags>(
       {icon &&
         iconPosition === ButtonIconPosition.Left &&
         getIconWithSize(icon)}
-      {children && <span>{children}</span>}
+      {children}
       {icon &&
         iconPosition === ButtonIconPosition.Right &&
         getIconWithSize(icon)}
