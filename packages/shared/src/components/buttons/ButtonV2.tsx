@@ -107,6 +107,28 @@ const iconOnlySizeToClassName: Record<ButtonSize, string> = {
   [ButtonSize.None]: 'w-5 p-0 border-none',
 };
 
+const variantToClassName: Record<ButtonVariant, string> = Object.values(
+  ButtonVariant,
+).reduce((acc, variant) => {
+  acc[variant] = `btn-${variant}`;
+  return acc;
+}, {} as Record<ButtonVariant, string>);
+
+const variantColorToClassName: Record<
+  ButtonVariant,
+  Record<ButtonColor, string>
+> = Object.values(ButtonVariant).reduce((variantAcc, variant) => {
+  return {
+    ...variantAcc,
+    [variant]: Object.values(ButtonColor).reduce((colorAcc, color) => {
+      return {
+        ...colorAcc,
+        [color]: `btn-${variant}-${color}`,
+      };
+    }, {} as Record<ButtonColor, string>),
+  };
+}, {} as Record<ButtonVariant, Record<ButtonColor, string>>);
+
 function ButtonComponent<TagName extends AllowedTags>(
   {
     variant,
@@ -142,10 +164,8 @@ function ButtonComponent<TagName extends AllowedTags>(
         transition duration-200 ease-in-out`,
         { iconOnly },
         iconOnly ? iconOnlySizeToClassName[size] : sizeToClassName[size],
-        {
-          [`btn-${variant}`]: variant,
-          [`btn-${variant}-${color}`]: color && variant,
-        },
+        variantToClassName[variant],
+        variantColorToClassName[variant]?.[color],
         className,
       )}
     >
