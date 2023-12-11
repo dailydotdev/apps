@@ -239,14 +239,14 @@ function ButtonComponent<TagName extends AllowedTags>(
       {icon &&
         iconPosition === ButtonIconPosition.Left &&
         getIconWithSize(icon)}
-      {children}
+      {loading ? <span className="invisible">{children}</span> : children}
       {icon &&
         iconPosition === ButtonIconPosition.Right &&
         getIconWithSize(icon)}
       {loading && (
         <Loader
           data-testid="buttonLoader"
-          className="hidden absolute top-0 right-0 bottom-0 left-0 m-auto btn-loader"
+          className="!visible absolute inset-0 m-auto"
         />
       )}
     </Tag>
