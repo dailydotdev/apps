@@ -17,11 +17,13 @@ import MarkdownPostContent from './MarkdownPostContent';
 import { SquadPostWidgets } from './SquadPostWidgets';
 import { isSourcePublicSquad } from '../../graphql/squads';
 import { useAuthContext } from '../../contexts/AuthContext';
+import ShareYouTubeContent from './ShareYouTubeContent';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
   [PostType.Welcome]: MarkdownPostContent,
   [PostType.Share]: SharePostContent,
+  [PostType.VideoYouTube]: ShareYouTubeContent,
 };
 
 function SquadPostContent({
