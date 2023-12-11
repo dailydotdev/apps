@@ -4,7 +4,7 @@ module.exports = ({ env }) => ({
       require('postcss-import')(),
       require('postcss-simple-vars')({
         variables: {
-          pageMaxWidth: '40rem',
+          pageMaxWidth: '42.5rem',
           headerHeight: '3rem',
           headerRankHeight: '4.5rem',
           navBarHeight: '3rem',
@@ -21,3 +21,7 @@ module.exports = ({ env }) => ({
       require('autoprefixer')(),
     ],
 });
+
+// TODO: PROFILE INVITE WIDGET
+// TODO: Account details long ago issue
+// TODO: fix the above and then check extension
