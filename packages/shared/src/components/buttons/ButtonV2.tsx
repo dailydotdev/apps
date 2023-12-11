@@ -98,17 +98,17 @@ export type ButtonProps<T extends AllowedTags> = BaseButtonProps &
 const sizeToClassName: Record<ButtonSize, string> = {
   [ButtonSize.XLarge]: 'border-none',
   [ButtonSize.Large]: 'h-12 px-6 rounded-14',
-  [ButtonSize.Medium]: 'h-10 px-5 rounded-xl',
+  [ButtonSize.Medium]: 'h-10 px-5 rounded-12',
   [ButtonSize.Small]: 'h-8 px-3 rounded-10',
-  [ButtonSize.XSmall]: 'h-6 px-2 rounded-lg',
+  [ButtonSize.XSmall]: 'h-6 px-2 rounded-8',
 };
 
 const iconOnlySizeToClassName: Record<ButtonSize, string> = {
-  [ButtonSize.XLarge]: 'h-16 w-16 p-0 rounded-[1.375rem]',
+  [ButtonSize.XLarge]: 'h-16 w-16 p-0 rounded-22',
   [ButtonSize.Large]: 'h-12 w-12 p-0 rounded-14',
-  [ButtonSize.Medium]: 'h-10 w-10 p-0 rounded-xl',
+  [ButtonSize.Medium]: 'h-10 w-10 p-0 rounded-12',
   [ButtonSize.Small]: 'h-8 w-8 p-0 rounded-10',
-  [ButtonSize.XSmall]: 'h-6 w-6 p-0 rounded-lg',
+  [ButtonSize.XSmall]: 'h-6 w-6 p-0 rounded-8',
 };
 
 const variantToClassName: Record<ButtonVariant, string> = {
