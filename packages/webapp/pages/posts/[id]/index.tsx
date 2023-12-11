@@ -147,18 +147,12 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     );
   }
 
-  const isVideoShared =
-    post?.sharedPost?.type === PostType.VideoYouTube &&
-    post?.source?.type === SourceType.Squad;
-
-  const Content = isVideoShared ? SquadPostContent : CONTENT_MAP[post?.type];
-
+  const Content = CONTENT_MAP[post?.type];
   const shareNavigation = !post?.source ? (
     <></>
   ) : (
     <SquadPostPageNavigation squadLink={post.source.permalink} />
   );
-
   const articleNavigation = router?.query?.squad ? (
     <Link href={`/squads/${router.query.squad}`}>
       <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
@@ -173,9 +167,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     share: shareNavigation,
     welcome: shareNavigation,
     freeform: shareNavigation,
-    [PostType.VideoYouTube]: isVideoShared
-      ? shareNavigation
-      : articleNavigation,
+    [PostType.VideoYouTube]: shareNavigation,
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;
 
