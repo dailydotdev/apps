@@ -97,17 +97,17 @@ export type ButtonProps<T extends AllowedTags> = BaseButtonProps &
 
 const sizeToClassName: Record<ButtonSize, string> = {
   [ButtonSize.XLarge]: 'border-none',
-  [ButtonSize.Large]: 'h-12 px-6 rounded-[0.88rem]',
+  [ButtonSize.Large]: 'h-12 px-6 rounded-14',
   [ButtonSize.Medium]: 'h-10 px-5 rounded-xl',
-  [ButtonSize.Small]: 'h-8 px-3 rounded-[0.63rem]',
+  [ButtonSize.Small]: 'h-8 px-3 rounded-10',
   [ButtonSize.XSmall]: 'h-6 px-2 rounded-lg',
 };
 
 const iconOnlySizeToClassName: Record<ButtonSize, string> = {
   [ButtonSize.XLarge]: 'h-16 w-16 p-0 rounded-[1.375rem]',
-  [ButtonSize.Large]: 'h-12 w-12 p-0 rounded-[0.88rem]',
+  [ButtonSize.Large]: 'h-12 w-12 p-0 rounded-14',
   [ButtonSize.Medium]: 'h-10 w-10 p-0 rounded-xl',
-  [ButtonSize.Small]: 'h-8 w-8 p-0 rounded-[0.63rem]',
+  [ButtonSize.Small]: 'h-8 w-8 p-0 rounded-10',
   [ButtonSize.XSmall]: 'h-6 w-6 p-0 rounded-lg',
 };
 
@@ -231,7 +231,7 @@ function ButtonComponent<TagName extends AllowedTags>(
         transition duration-200 ease-in-out`,
         { iconOnly },
         iconOnly ? iconOnlySizeToClassName[size] : sizeToClassName[size],
-        variantToClassName[variant],
+        !color && variantToClassName[variant],
         variantColorToClassName[variant]?.[color],
         className,
       )}
@@ -246,7 +246,7 @@ function ButtonComponent<TagName extends AllowedTags>(
       {loading && (
         <Loader
           data-testid="buttonLoader"
-          className="!visible absolute inset-0 m-auto"
+          className="absolute inset-0 m-auto !visible"
         />
       )}
     </Tag>
