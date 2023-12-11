@@ -167,7 +167,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     share: shareNavigation,
     welcome: shareNavigation,
     freeform: shareNavigation,
-    [PostType.VideoYouTube]: shareNavigation,
+    [PostType.VideoYouTube]: articleNavigation,
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;
 
