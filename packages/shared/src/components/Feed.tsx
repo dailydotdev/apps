@@ -43,7 +43,6 @@ import {
   useBookmarkPost,
 } from '../hooks/useBookmarkPost';
 import { isNullOrUndefined } from '../lib/func';
-import { SourceType } from '../graphql/sources';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
@@ -338,11 +337,7 @@ export default function Feed<T>({
     nextPost: (items[postMenuIndex + 1] as PostItem)?.post,
   };
 
-  const PostModal =
-    post?.sharedPost?.type === PostType.VideoYouTube &&
-    post?.source?.type === SourceType.Squad
-      ? SharePostModal
-      : PostModalMap[selectedPost?.type];
+  const PostModal = PostModalMap[selectedPost?.type];
 
   if (emptyScreen && emptyFeed) {
     return <>{emptyScreen}</>;
