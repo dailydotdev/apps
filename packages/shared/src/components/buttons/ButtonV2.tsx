@@ -111,27 +111,90 @@ const iconOnlySizeToClassName: Record<ButtonSize, string> = {
   [ButtonSize.XSmall]: 'h-6 w-6 p-0 rounded-lg',
 };
 
-const variantToClassName: Record<ButtonVariant, string> = Object.values(
-  ButtonVariant,
-).reduce((acc, variant) => {
-  acc[variant] = `btn-${variant}`;
-  return acc;
-}, {} as Record<ButtonVariant, string>);
+const variantToClassName: Record<ButtonVariant, string> = {
+  [ButtonVariant.Primary]: 'btn-primary',
+  [ButtonVariant.Secondary]: 'btn-secondary',
+  [ButtonVariant.Tertiary]: 'btn-tertiary',
+  [ButtonVariant.Float]: 'btn-tertiaryFloat',
+};
 
 const variantColorToClassName: Record<
   ButtonVariant,
   Record<ButtonColor, string>
-> = Object.values(ButtonVariant).reduce((variantAcc, variant) => {
-  return {
-    ...variantAcc,
-    [variant]: Object.values(ButtonColor).reduce((colorAcc, color) => {
-      return {
-        ...colorAcc,
-        [color]: `btn-${variant}-${color}`,
-      };
-    }, {} as Record<ButtonColor, string>),
-  };
-}, {} as Record<ButtonVariant, Record<ButtonColor, string>>);
+> = {
+  [ButtonVariant.Primary]: {
+    [ButtonColor.Avocado]: 'btn-primary-avocado',
+    [ButtonColor.Bacon]: 'btn-primary-bacon',
+    [ButtonColor.BlueCheese]: 'btn-primary-blueCheese',
+    [ButtonColor.Bun]: 'btn-primary-bun',
+    [ButtonColor.Burger]: 'btn-primary-burger',
+    [ButtonColor.Cabbage]: 'btn-primary-cabbage',
+    [ButtonColor.Cheese]: 'btn-primary-cheese',
+    [ButtonColor.Facebook]: 'btn-primary-facebook',
+    [ButtonColor.Ketchup]: 'btn-primary-ketchup',
+    [ButtonColor.Lettuce]: 'btn-primary-lettuce',
+    [ButtonColor.Onion]: 'btn-primary-onion',
+    [ButtonColor.Pepper]: 'btn-primary-pepper',
+    [ButtonColor.Salt]: 'btn-primary-salt',
+    [ButtonColor.Twitter]: 'btn-primary-twitter',
+    [ButtonColor.Water]: 'btn-primary-water',
+    [ButtonColor.Whatsapp]: 'btn-primary-whatsapp',
+  },
+  [ButtonVariant.Secondary]: {
+    [ButtonColor.Avocado]: 'btn-secondary-avocado',
+    [ButtonColor.Bacon]: 'btn-secondary-bacon',
+    [ButtonColor.BlueCheese]: 'btn-secondary-blueCheese',
+    [ButtonColor.Bun]: 'btn-secondary-bun',
+    [ButtonColor.Burger]: 'btn-secondary-burger',
+    [ButtonColor.Cabbage]: 'btn-secondary-cabbage',
+    [ButtonColor.Cheese]: 'btn-secondary-cheese',
+    [ButtonColor.Facebook]: 'btn-secondary-facebook',
+    [ButtonColor.Ketchup]: 'btn-secondary-ketchup',
+    [ButtonColor.Lettuce]: 'btn-secondary-lettuce',
+    [ButtonColor.Onion]: 'btn-secondary-onion',
+    [ButtonColor.Pepper]: 'btn-secondary-pepper',
+    [ButtonColor.Salt]: 'btn-secondary-salt',
+    [ButtonColor.Twitter]: 'btn-secondary-twitter',
+    [ButtonColor.Water]: 'btn-secondary-water',
+    [ButtonColor.Whatsapp]: 'btn-secondary-whatsapp',
+  },
+  [ButtonVariant.Tertiary]: {
+    [ButtonColor.Avocado]: 'btn-tertiary-avocado',
+    [ButtonColor.Bacon]: 'btn-tertiary-bacon',
+    [ButtonColor.BlueCheese]: 'btn-tertiary-blueCheese',
+    [ButtonColor.Bun]: 'btn-tertiary-bun',
+    [ButtonColor.Burger]: 'btn-tertiary-burger',
+    [ButtonColor.Cabbage]: 'btn-tertiary-cabbage',
+    [ButtonColor.Cheese]: 'btn-tertiary-cheese',
+    [ButtonColor.Facebook]: 'btn-tertiary-facebook',
+    [ButtonColor.Ketchup]: 'btn-tertiary-ketchup',
+    [ButtonColor.Lettuce]: 'btn-tertiary-lettuce',
+    [ButtonColor.Onion]: 'btn-tertiary-onion',
+    [ButtonColor.Pepper]: 'btn-tertiary-pepper',
+    [ButtonColor.Salt]: 'btn-tertiary-salt',
+    [ButtonColor.Twitter]: 'btn-tertiary-twitter',
+    [ButtonColor.Water]: 'btn-tertiary-water',
+    [ButtonColor.Whatsapp]: 'btn-tertiary-whatsapp',
+  },
+  [ButtonVariant.Float]: {
+    [ButtonColor.Avocado]: 'btn-tertiaryFloat-avocado',
+    [ButtonColor.Bacon]: 'btn-tertiaryFloat-bacon',
+    [ButtonColor.BlueCheese]: 'btn-tertiaryFloat-blueCheese',
+    [ButtonColor.Bun]: 'btn-tertiaryFloat-bun',
+    [ButtonColor.Burger]: 'btn-tertiaryFloat-burger',
+    [ButtonColor.Cabbage]: 'btn-tertiaryFloat-cabbage',
+    [ButtonColor.Cheese]: 'btn-tertiaryFloat-cheese',
+    [ButtonColor.Facebook]: 'btn-tertiaryFloat-facebook',
+    [ButtonColor.Ketchup]: 'btn-tertiaryFloat-ketchup',
+    [ButtonColor.Lettuce]: 'btn-tertiaryFloat-lettuce',
+    [ButtonColor.Onion]: 'btn-tertiaryFloat-onion',
+    [ButtonColor.Pepper]: 'btn-tertiaryFloat-pepper',
+    [ButtonColor.Salt]: 'btn-tertiaryFloat-salt',
+    [ButtonColor.Twitter]: 'btn-tertiaryFloat-twitter',
+    [ButtonColor.Water]: 'btn-tertiaryFloat-water',
+    [ButtonColor.Whatsapp]: 'btn-tertiaryFloat-whatsapp',
+  },
+};
 
 function ButtonComponent<TagName extends AllowedTags>(
   {

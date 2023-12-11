@@ -36,15 +36,6 @@
     border-radius: 0.88rem;
   }
 
-  &.none {
-    background: none;
-    border: none;
-    border-radius: 0.25rem;
-    padding: 0;
-    height: auto;
-    color: var(--text-color, var(--text-default-color));
-  }
-
   &.headline {
     height: 3rem;
     padding: 0 1.5rem;
@@ -77,12 +68,6 @@
   }
 
   &.iconOnly {
-    &.none {
-      width: 1.25rem;
-      padding: 0;
-      border-radius: 0.25rem;
-    }
-
     &.xsmall {
       width: 1.5rem;
       padding: 0;
