@@ -51,7 +51,7 @@ interface CardImageProps extends Omit<ImageProps, 'className'> {
 }
 
 export const CardImage = ({
-  className,
+  className = {},
   ...props
 }: CardImageProps): ReactElement => {
   return (
