@@ -159,7 +159,9 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
         Back to {router.query.n || 'Squad'}
       </a>
     </Link>
-  ) : null;
+  ) : (
+    <></>
+  );
 
   const navigation: Record<PostType, ReactNode> = {
     article: articleNavigation,
