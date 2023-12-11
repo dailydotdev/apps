@@ -18,7 +18,7 @@ import { BasePostContent, PostContentClassName } from './BasePostContent';
 import classed from '../../lib/classed';
 import { cloudinary } from '../../lib/image';
 import { combinedClicks } from '../../lib/click';
-import { YouTubeVideo } from './common/YouTubeVideo';
+import YoutubeVideo from '../video/YoutubeVideo';
 
 export type PassedPostNavigationProps = Pick<
   PostNavigationProps,
@@ -153,7 +153,7 @@ export function PostContent({
             </a>
           </h1>
           {post.type === PostType.VideoYouTube && (
-            <YouTubeVideo
+            <YoutubeVideo
               title={post.title}
               videoId={post.videoId}
               className="mb-7"

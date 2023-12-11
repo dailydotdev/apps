@@ -4,7 +4,7 @@ import { Post } from '../../graphql/posts';
 import { SharePostTitle } from './share';
 import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
-import { YouTubeVideo } from './common/YouTubeVideo';
+import YoutubeVideo from '../video/YoutubeVideo';
 
 interface ShareYouTubeContentProps {
   post: Post;
@@ -16,7 +16,7 @@ function ShareYouTubeContent({ post }: ShareYouTubeContentProps): ReactElement {
     <>
       <SharePostTitle post={post} />
       <SharedLinkContainer summary={post?.sharedPost?.summary}>
-        <YouTubeVideo
+        <YoutubeVideo
           title={post?.sharedPost?.title}
           videoId={post?.sharedPost?.videoId}
         />
