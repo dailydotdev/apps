@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { CSSProperties, ReactElement, ReactNode } from 'react';
-import { Post } from '../../graphql/posts';
+import { Post, PostType } from '../../graphql/posts';
 import PostMetadata from '../cards/PostMetadata';
 import PostSummary from '../cards/PostSummary';
 import { LazyImage } from '../LazyImage';
@@ -9,10 +9,7 @@ import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
 import { PostNavigationProps } from './PostNavigation';
 import { PostHeaderActions, PostHeaderActionsProps } from './PostHeaderActions';
-import {
-  ToastSubject,
-  useToastNotification,
-} from '../../hooks/useToastNotification';
+import { ToastSubject, useToastNotification } from '../../hooks';
 import PostContentContainer from './PostContentContainer';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import usePostContent from '../../hooks/usePostContent';
@@ -21,6 +18,7 @@ import { BasePostContent, PostContentClassName } from './BasePostContent';
 import classed from '../../lib/classed';
 import { cloudinary } from '../../lib/image';
 import { combinedClicks } from '../../lib/click';
+import YoutubeVideo from '../video/YoutubeVideo';
 
 export type PassedPostNavigationProps = Pick<
   PostNavigationProps,
@@ -154,6 +152,13 @@ export function PostContent({
               {post.title}
             </a>
           </h1>
+          {post.type === PostType.VideoYouTube && (
+            <YoutubeVideo
+              title={post.title}
+              videoId={post.videoId}
+              className="mb-7"
+            />
+          )}
           {post.summary && (
             <PostSummary className="mb-6" summary={post.summary} />
           )}
@@ -163,23 +168,25 @@ export function PostContent({
             readTime={post.readTime}
             className="mt-4 mb-8 !typo-callout"
           />
-          <a
-            href={post.permalink}
-            title="Go to post"
-            target="_blank"
-            rel="noopener"
-            {...combinedClicks(onReadArticle)}
-            className="block overflow-hidden mb-10 rounded-2xl cursor-pointer"
-            style={{ maxWidth: '25.625rem' }}
-          >
-            <LazyImage
-              imgSrc={post.image}
-              imgAlt="Post cover image"
-              ratio="49%"
-              eager
-              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-            />
-          </a>
+          {post.type !== PostType.VideoYouTube && (
+            <a
+              href={post.permalink}
+              title="Go to post"
+              target="_blank"
+              rel="noopener"
+              {...combinedClicks(onReadArticle)}
+              className="block overflow-hidden mb-10 rounded-2xl cursor-pointer"
+              style={{ maxWidth: '25.625rem' }}
+            >
+              <LazyImage
+                imgSrc={post.image}
+                imgAlt="Post cover image"
+                ratio="49%"
+                eager
+                fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+              />
+            </a>
+          )}
           {post.toc?.length > 0 && (
             <PostToc
               post={post}
