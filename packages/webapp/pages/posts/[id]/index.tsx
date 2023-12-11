@@ -147,30 +147,35 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     );
   }
 
-  const Content =
+  const isVideoShared =
     post?.sharedPost?.type === PostType.VideoYouTube &&
-    post?.source?.type === SourceType.Squad
-      ? SquadPostContent
-      : CONTENT_MAP[post?.type];
+    post?.source?.type === SourceType.Squad;
+
+  const Content = isVideoShared ? SquadPostContent : CONTENT_MAP[post?.type];
+
   const shareNavigation = !post?.source ? (
     <></>
   ) : (
     <SquadPostPageNavigation squadLink={post.source.permalink} />
   );
+
+  const articleNavigation = router?.query?.squad ? (
+    <Link href={`/squads/${router.query.squad}`}>
+      <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
+        <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
+        Back to {router.query.n || 'Squad'}
+      </a>
+    </Link>
+  ) : null;
+
   const navigation: Record<PostType, ReactNode> = {
-    article: !!router?.query?.squad && (
-      <Link href={`/squads/${router.query.squad}`}>
-        <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
-          <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
-          Back to {router.query.n || 'Squad'}
-        </a>
-      </Link>
-    ),
+    article: articleNavigation,
     share: shareNavigation,
     welcome: shareNavigation,
     freeform: shareNavigation,
-    // TODO: remove this once we know what navigation to use
-    [PostType.VideoYouTube]: null,
+    [PostType.VideoYouTube]: isVideoShared
+      ? shareNavigation
+      : articleNavigation,
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;
 
