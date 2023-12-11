@@ -104,6 +104,7 @@ export interface Post {
   downvoted?: boolean;
   flags: PostFlags;
   userState?: PostUserState;
+  videoId?: string;
 }
 
 export interface Ad {
