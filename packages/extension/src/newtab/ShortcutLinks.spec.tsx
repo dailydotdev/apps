@@ -26,6 +26,11 @@ import {
 } from '@dailydotdev/shared/src/graphql/settings';
 import { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
 import { browser, TopSites } from 'webextension-polyfill-ts';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import {
+  AnalyticsEvent,
+  TargetType,
+} from '@dailydotdev/shared/src/lib/analytics';
 import ShortcutLinks from './ShortcutLinks';
 
 jest.mock('@dailydotdev/shared/src/lib/boot', () => ({
@@ -107,6 +112,8 @@ const getBootMock = (bootMock: BootCacheData): Boot => ({
   visit: { sessionId: '1', visitId: '1' },
 });
 
+const trackEvent = jest.fn();
+
 const renderComponent = (bootData = defaultBootData): RenderResult => {
   const queryClient = new QueryClient();
   const app = BootApp.Extension;
@@ -120,7 +127,16 @@ const renderComponent = (bootData = defaultBootData): RenderResult => {
         deviceId="123"
         getPage={jest.fn()}
       >
-        <ShortcutLinks />
+        <AnalyticsContext.Provider
+          value={{
+            trackEvent,
+            trackEventStart: jest.fn(),
+            trackEventEnd: jest.fn(),
+            sendBeacon: jest.fn(),
+          }}
+        >
+          <ShortcutLinks />
+        </AnalyticsContext.Provider>
       </BootDataProvider>
     </QueryClientProvider>,
   );
@@ -212,6 +228,11 @@ describe('shortcut links component', () => {
 
     const addShortcuts = await screen.findByText('Add shortcuts');
     expect(addShortcuts).toBeVisible();
+
+    expect(trackEvent).toHaveBeenCalledWith({
+      event_name: AnalyticsEvent.RevokeShortcutAccess,
+      target_type: TargetType.Shortcuts,
+    });
   });
 
   it('should display custom shortcut links', async () => {
@@ -245,6 +266,11 @@ describe('shortcut links component', () => {
     const edit = await screen.findByLabelText('Edit shortcuts');
     fireEvent.click(edit);
 
+    expect(trackEvent).toHaveBeenCalledWith({
+      event_name: AnalyticsEvent.OpenShortcutConfig,
+      target_type: TargetType.Shortcuts,
+    });
+
     const instruction = screen.queryByText(
       'To edit links, please switch to "My shortcuts" mode',
     );
@@ -271,5 +297,27 @@ describe('shortcut links component', () => {
 
     const updated = await screen.findAllByRole('link');
     expect(updated.length).toEqual(6);
+  });
+
+  it('should track impression event', () => {
+    renderComponent();
+
+    expect(trackEvent).toHaveBeenCalledWith({
+      event_name: AnalyticsEvent.Impression,
+      target_type: TargetType.Shortcuts,
+    });
+  });
+
+  it('should track click event for individual shortcuts', async () => {
+    renderComponent();
+
+    const shortcutLink = await screen.findByAltText('http://custom1.com');
+
+    fireEvent.click(shortcutLink);
+
+    expect(trackEvent).toHaveBeenCalledWith({
+      event_name: AnalyticsEvent.Click,
+      target_type: TargetType.Shortcuts,
+    });
   });
 });
