@@ -1,5 +1,6 @@
 import {
   InfiniteData,
+  MutationCache,
   QueryClient,
   QueryClientConfig,
   QueryKey,
@@ -132,7 +133,19 @@ export const updateInfiniteCache = <
   });
 };
 
+export const mutationSuccessSubscribers: Map<
+  string,
+  MutationCache['config']['onSuccess']
+> = new Map();
+
+export const globalMutationCache = new MutationCache({
+  onSuccess: (...args) => {
+    mutationSuccessSubscribers.forEach((subscriber) => subscriber(...args));
+  },
+});
+
 export const defaultQueryClientConfig: QueryClientConfig = {
+  mutationCache: globalMutationCache,
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: process.env.NODE_ENV !== 'development',
