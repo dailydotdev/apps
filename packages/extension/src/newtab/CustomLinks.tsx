@@ -5,27 +5,24 @@ import {
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import MenuIcon from '@dailydotdev/shared/src/components/icons/Menu';
 import classNames from 'classnames';
-import React, { ReactElement, useContext } from 'react';
+import React, { MouseEventHandler, ReactElement } from 'react';
 import { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
 import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import {
-  AnalyticsEvent,
-  TargetType,
-} from '@dailydotdev/shared/src/lib/analytics';
 
 interface CustomLinksProps extends WithClassNameProps {
   links: string[];
   onOptions?: () => unknown;
+  onLinkClick?: MouseEventHandler;
 }
+
+const noop = () => undefined;
 
 export function CustomLinks({
   links,
   onOptions,
   className,
+  onLinkClick = noop,
 }: CustomLinksProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
-
   return (
     <div
       className={classNames(
@@ -42,12 +39,7 @@ export function CustomLinks({
             i >= 4 && 'hidden laptopL:block',
           )}
           key={url}
-          {...combinedClicks(() => {
-            trackEvent({
-              event_name: AnalyticsEvent.Click,
-              target_type: TargetType.Shortcuts,
-            });
-          })}
+          {...combinedClicks(onLinkClick)}
         >
           <img
             src={`https://api.daily.dev/icon?url=${encodeURIComponent(

@@ -95,6 +95,12 @@ export default function ShortcutLinks({
           links={shortcutLinks}
           className={className}
           onOptions={onOptionsOpen}
+          onLinkClick={() => {
+            trackEvent({
+              event_name: AnalyticsEvent.Click,
+              target_type: TargetType.Shortcuts,
+            });
+          }}
         />
       ) : (
         <Button
