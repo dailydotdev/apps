@@ -179,7 +179,7 @@ export default function FeedItemComponent({
             onReadArticleClick(item.post, index, row, column)
           }
           onShare={(post) => onShare(post, row, column)}
-          onBookmark={(post) => onBookmark(post, row, column)}
+          onBookmarkClick={(post) => onBookmark(post, row, column)}
           openNewTab={openNewTab}
           enableMenu={!!user}
           onMenuClick={(event) => onMenuClick(event, index, row, column)}

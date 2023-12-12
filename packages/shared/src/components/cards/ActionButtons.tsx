@@ -28,7 +28,7 @@ export interface ActionButtonsProps {
   onUpvoteClick?: (post: Post) => unknown;
   onCommentClick?: (post: Post) => unknown;
   onShare?: (post: Post) => unknown;
-  onBookmark?: (post: Post) => unknown;
+  onBookmarkClick?: (post: Post) => unknown;
   onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   className?: string;
@@ -64,7 +64,7 @@ export default function ActionButtons({
   onMenuClick,
   onReadArticleClick,
   onShare,
-  onBookmark,
+  onBookmarkClick,
   onShareClick,
   className,
   insaneMode,
@@ -93,7 +93,7 @@ export default function ActionButtons({
           <Button
             icon={<BookmarkIcon secondary={post.bookmarked} />}
             buttonSize={ButtonSize.Small}
-            onClick={() => onBookmark(post)}
+            onClick={() => onBookmarkClick(post)}
             className="btn-tertiary-bun"
             pressed={post.bookmarked}
           />

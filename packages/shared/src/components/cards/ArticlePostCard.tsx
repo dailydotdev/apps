@@ -28,7 +28,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
     onDownvoteClick,
     onCommentClick,
     onMenuClick,
-    onBookmark,
+    onBookmarkClick,
     onShare,
     onShareClick,
     openNewTab,
@@ -135,7 +135,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
               onCommentClick={onCommentClick}
               onShare={onShare}
               onShareClick={onShareClick}
-              onBookmark={onBookmark}
+              onBookmarkClick={onBookmarkClick}
               onMenuClick={(event) => onMenuClick?.(event, post)}
               onReadArticleClick={onReadArticleClick}
               className={classNames(
