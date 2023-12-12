@@ -5,11 +5,13 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import {
+  ADD_BOOKMARKS_MUTATION,
   banPost,
   deletePost,
   demotePost,
   Post,
   promotePost,
+  REMOVE_BOOKMARK_MUTATION,
   updatePinnedPost,
   UserPostVote,
   VOTE_POST_MUTATION,
@@ -35,7 +37,11 @@ import { SourceActionArguments, TagActionArguments } from '../useTagAndSource';
 import useMutateFilters from '../useMutateFilters';
 import AlertContext from '../../contexts/AlertContext';
 import useFeedSettings from '../useFeedSettings';
-import { useBookmarkPost } from '../useBookmarkPost';
+import {
+  bookmarkMutationKey,
+  BookmarkProps,
+  UseBookmarkPostMutationProps,
+} from '../useBookmarkPost';
 
 const multiPostTransformer = (
   posts: Post[],
@@ -259,6 +265,53 @@ export default function useLeanPostActions({
     );
   }, []);
 
+  type UseBookmarkPostMutationProps = {
+    bookmarked: boolean;
+    id?: string;
+    mutation?: string;
+    payload?: Record<string, unknown>;
+  };
+  const { mutateAsync: bookmarkPost } = useMutation(
+    ({ mutation, payload }: UseBookmarkPostMutationProps) =>
+      requestMethod(graphqlUrl, mutation, {
+        ...payload,
+      }),
+    {
+      mutationKey: bookmarkMutationKey,
+      onMutate: (post) => {
+        updatePost(queryClient, queryKey, transformKey, () => ({
+          bookmarked: post.bookmarked,
+        }))({ id: post.id });
+        return undefined;
+      },
+      onError: (err, _, rollback?: () => void) => rollback?.(),
+    },
+  );
+
+  const addBookmark = useCallback(
+    ({ id }: BookmarkProps) => {
+      return bookmarkPost({
+        bookmarked: true,
+        id,
+        mutation: ADD_BOOKMARKS_MUTATION,
+        payload: { data: { postIds: [id] } },
+      });
+    },
+    [bookmarkPost],
+  );
+
+  const removeBookmark = useCallback(
+    ({ id }: BookmarkProps) => {
+      return bookmarkPost({
+        bookmarked: false,
+        id,
+        mutation: REMOVE_BOOKMARK_MUTATION,
+        payload: { id },
+      });
+    },
+    [bookmarkPost],
+  );
+
   const { mutateAsync: votePost } = useMutation(
     ({ post, vote }: { post: Post; vote: UserPostVote }) => {
       return requestMethod(graphqlUrl, VOTE_POST_MUTATION, {
@@ -351,24 +404,6 @@ export default function useLeanPostActions({
   const onDownvote = useCallback(async (post: Post) => {
     return toggleDownvote({ post, origin: Origin.PostContextMenu });
   }, []);
-
-  // const { bookmark, bookmarkToast, removeBookmark } = useBookmarkPost<{
-  //   post: Post;
-  //   id: string;
-  // }>({
-  //   onBookmarkMutate: ({ post }) => {
-  //     updatePost(queryClient, queryKey, transformKey, () => ({
-  //       bookmarked: true,
-  //     }))({ id: post.id });
-  //     return undefined;
-  //   },
-  //   onRemoveBookmarkMutate: ({ post }) => {
-  //     updatePost(queryClient, queryKey, transformKey, () => ({
-  //       bookmarked: false,
-  //     }))({ id: post.id });
-  //     return undefined;
-  //   },
-  // });
 
   const onFollowSource = useCallback(
     async ({ source }: SourceActionArguments) => {
@@ -468,13 +503,14 @@ export default function useLeanPostActions({
       showLogin({ trigger: AuthTriggers.Bookmark });
     }
 
-    // const targetBookmarkState = !post.bookmarked;
-    // if (targetBookmarkState) {
-    //   await bookmark({ post, id: post.id });
-    // } else {
-    //   await removeBookmark({ post, id: post.id });
-    // }
-    // bookmarkToast(targetBookmarkState);
+    const targetBookmarkState = !post.bookmarked;
+    if (targetBookmarkState) {
+      await addBookmark({ id: post.id });
+      displayToast('Post was added to your bookmarks');
+    } else {
+      await removeBookmark({ id: post.id });
+      displayToast('Post was removed from your bookmarks');
+    }
   }, []);
 
   const onClick = useCallback(() => {
