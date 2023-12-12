@@ -19,7 +19,7 @@ export const SharedPostCardFooter = ({
   return (
     <div
       className={classNames(
-        'p-3 gap-3 mb-2 rounded-12 border border-theme-divider-tertiary flex w-fit max-h-[13.5rem] flex-auto h-auto min-h-[0]',
+        'p-3 gap-3 mb-2 rounded-12 border border-theme-divider-tertiary flex w-fit max-h-[13.5rem] flex-auto h-auto min-h-0',
         isShort ? 'flex-row items-center' : 'flex-col',
       )}
     >
@@ -39,7 +39,7 @@ export const SharedPostCardFooter = ({
           src={sharedPost.image}
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
           className={classNames(
-            'object-cover h-auto min-h-[0px]',
+            'object-cover h-auto min-h-0',
             isShort ? 'aspect-square' : 'w-full',
           )}
           wrapperClassName="overflow-hidden"

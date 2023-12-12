@@ -73,7 +73,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
         title={post.title}
         onHeightChange={onSharedPostTextHeightChange}
       />
-      <Container ref={containerRef} className="justify-end min-h-[0]">
+      <Container ref={containerRef} className="justify-end min-h-0">
         <SharedPostCardFooter
           sharedPost={post.sharedPost}
           isShort={isSharedPostShort}
