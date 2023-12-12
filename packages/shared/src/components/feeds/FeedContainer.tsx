@@ -41,7 +41,6 @@ export interface FeedContainerProps {
   showSearch?: boolean;
   besideSearch?: ReactNode;
   actionButtons?: ReactNode;
-  feedName?: AllFeedPages;
 }
 
 const listGaps = {
@@ -97,7 +96,6 @@ export const FeedContainer = ({
   showSearch,
   besideSearch,
   actionButtons,
-  feedName,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
@@ -108,12 +106,12 @@ export const FeedContainer = ({
   } = useContext(SettingsContext);
   const { trackEvent } = useAnalyticsContext();
   const { completeAction, checkHasCompleted } = useActions();
-  const { isSingleColumnFeedLayout } = useFeedLayout({ feedName });
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const router = useRouter();
   const searchValue = useFeature(feature.search);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
-  const isList = (insaneMode && numCards > 1) || isSingleColumnFeedLayout;
+  const isList = (insaneMode && numCards > 1) || shouldUseFeedLayoutV1;
   const feedGapPx = getFeedGapPx[gapClass(isList, spaciness)];
   const style = {
     '--num-cards': numCards,

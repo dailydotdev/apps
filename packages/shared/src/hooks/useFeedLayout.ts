@@ -1,33 +1,25 @@
+import { useContext } from 'react';
 import { useFeature } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { FeedLayout } from '../lib/featureValues';
-import { AllFeedPages } from '../lib/query';
 import { SharedFeedPage } from '../components/utilities';
+import { ActiveFeedContext } from '../contexts';
 
-interface UseFeedLayoutProps {
-  feedName: AllFeedPages;
+interface UseFeedLayout {
+  shouldUseFeedLayoutV1: boolean;
 }
 
-interface UseFeedLayoutReturn {
-  isSingleColumnFeedLayout: boolean;
-}
+export const useFeedLayout = (): UseFeedLayout => {
+  const { feedName } = useContext(ActiveFeedContext);
 
-export const useFeedLayout = ({
-  feedName,
-}: UseFeedLayoutProps): UseFeedLayoutReturn => {
   const feedLayoutVersion = useFeature(feature.feedLayout);
-  const isFeedLayoutVersion = feedLayoutVersion === FeedLayout.V1;
+  const isV1 = feedLayoutVersion === FeedLayout.V1;
   const isIncludedFeed = Object.values(SharedFeedPage).includes(
     feedName as SharedFeedPage,
   );
-  const shouldUseFeedLayout = isFeedLayoutVersion && isIncludedFeed;
+  const shouldUseFeedLayoutV1 = isV1 && isIncludedFeed;
 
-  if (shouldUseFeedLayout) {
-    return {
-      isSingleColumnFeedLayout: true,
-    };
-  }
   return {
-    isSingleColumnFeedLayout: false,
+    shouldUseFeedLayoutV1,
   };
 };
