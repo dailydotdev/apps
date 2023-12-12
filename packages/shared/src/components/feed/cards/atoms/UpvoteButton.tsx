@@ -5,11 +5,17 @@ import UpvoteIcon from '../../../icons/Upvote';
 import InteractionCounter from '../../../InteractionCounter';
 import { SimpleTooltip } from '../../../tooltips';
 import { ButtonSize } from '../../../buttons/Button';
+import { useActiveFeedContext } from '../../../../contexts';
+import useLeanPostActions from '../../../../hooks/post/useLeanPostActions';
 
 interface UpvoteButtonProps {
   post: Post;
 }
 export function UpvoteButton({ post }: UpvoteButtonProps): ReactElement {
+  const { queryKey } = useActiveFeedContext();
+  const { onUpvote } = useLeanPostActions({
+    queryKey,
+  });
   return (
     <SimpleTooltip
       content={
@@ -22,7 +28,7 @@ export function UpvoteButton({ post }: UpvoteButtonProps): ReactElement {
           <UpvoteIcon secondary={post?.userState?.vote === UserPostVote.Up} />
         }
         pressed={post?.userState?.vote === UserPostVote.Up}
-        onClick={() => {}}
+        onClick={() => onUpvote(post)}
         buttonSize={ButtonSize.Small}
         className="btn-tertiary-avocado w-[4.875rem]"
       >

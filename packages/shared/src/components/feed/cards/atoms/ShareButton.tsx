@@ -17,6 +17,7 @@ import LinkIcon from '../../../icons/Link';
 import { SimpleTooltip } from '../../../tooltips';
 import { Button, ButtonSize } from '../../../buttons/Button';
 import { getContextBottomPosition } from '../../../utilities';
+import useLeanPostActions from '../../../../hooks/post/useLeanPostActions';
 
 export interface ShareButtonProps {
   post: Post;
@@ -28,7 +29,10 @@ export default function ShareButton({ post }: ShareButtonProps): ReactElement {
   const { openModal } = useLazyModal();
   const link = post && post?.commentsPermalink;
   const [, copyLink] = useCopyPostLink(link);
-  const { onBookmark } = useActiveFeedContext();
+  const { queryKey } = useActiveFeedContext();
+  const { onBookmark } = useLeanPostActions({
+    queryKey,
+  });
   const { trackEvent } = useContext(AnalyticsContext);
 
   const onClick = (provider: ShareProvider) =>
@@ -65,7 +69,7 @@ export default function ShareButton({ post }: ShareButtonProps): ReactElement {
         />
       ),
       label: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
-      action: () => onBookmark?.(post),
+      action: () => onBookmark(post),
     },
     {
       icon: <MenuIcon Icon={LinkIcon} />,
