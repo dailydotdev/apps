@@ -42,20 +42,24 @@ export default function ShortcutLinks({
     onSaveChanges,
   } = useShortcutLinks();
 
-  const mountedRef = useRef(false);
+  const trackedRef = useRef(false);
 
   useEffect(() => {
-    if (mountedRef.current) {
+    if (!showTopSites) {
       return;
     }
 
-    mountedRef.current = true;
+    if (trackedRef.current) {
+      return;
+    }
+
+    trackedRef.current = true;
 
     trackEvent({
       event_name: AnalyticsEvent.Impression,
       target_type: TargetType.Shortcuts,
     });
-  }, [trackEvent]);
+  }, [trackEvent, showTopSites]);
 
   if (!showTopSites) {
     return <></>;
