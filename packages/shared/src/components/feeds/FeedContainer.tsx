@@ -30,7 +30,6 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../../hooks';
-import { AllFeedPages } from '../../lib/query';
 
 export interface FeedContainerProps {
   children: ReactNode;
