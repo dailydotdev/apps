@@ -5,6 +5,8 @@ import MiniCloseIcon from '../icons/MiniClose';
 import UpvoteIcon from '../icons/Upvote';
 import { Post, UserPostVote } from '../../graphql/posts';
 import { usePostFeedback } from '../../hooks';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
 
 interface FeedbackCardProps {
   post: Post;
@@ -18,11 +20,12 @@ export const FeedbackCard = ({
   onDownvoteClick,
 }: FeedbackCardProps): ReactElement => {
   const { dismissFeedback } = usePostFeedback({ post });
+  const feedbackCopy = useFeature(feature.cardFeedbackCopy);
 
   return (
     <div className="flex-1 p-6 pb-5 space-y-4">
       <div className="flex relative justify-between">
-        <p className="font-bold typo-callout">Did you like the post?</p>
+        <p className="font-bold typo-callout">{feedbackCopy}</p>
         <Button
           id="close-engagement-loop-btn"
           className="-top-2.5 -right-2.5 btn-tertiary"
