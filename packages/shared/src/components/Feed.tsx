@@ -142,7 +142,7 @@ export default function Feed<T>({
       items,
       feedName,
     };
-  }, [feedQueryKey, items]);
+  }, [feedQueryKey, items, feedName]);
 
   const { ranking } = (variables as RankVariables) || {};
   const {
