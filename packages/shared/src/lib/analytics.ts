@@ -118,6 +118,10 @@ export enum AnalyticsEvent {
   // Referral campaign
   CopyReferralLink = 'copy referral link',
   InviteReferral = 'invite referral',
+  // Shortcuts
+  RevokeShortcutAccess = 'revoke shortcut access',
+  SaveShortcutAccess = 'save shortcut access',
+  OpenShortcutConfig = 'open shortcut config',
 }
 
 export enum FeedItemTitle {
@@ -141,6 +145,7 @@ export enum TargetType {
   InviteFriendsPage = 'invite friends page',
   ProfilePage = 'profile page',
   GenericReferralPopup = 'generic referral popup',
+  Shortcuts = 'shortcuts',
 }
 
 export enum TargetId {
