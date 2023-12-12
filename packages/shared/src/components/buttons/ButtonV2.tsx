@@ -6,7 +6,7 @@ import React, {
   Ref,
 } from 'react';
 import classNames from 'classnames';
-import { IconProps, IconSize } from '../Icon';
+import { IconProps } from '../Icon';
 import { Loader } from '../Loader';
 import { combinedClicks } from '../../lib/click';
 

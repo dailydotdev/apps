@@ -1,7 +1,8 @@
 import React from 'react';
+import classNames from 'classnames';
+
 import { ColorName as ButtonColor } from '../../styles/colors';
 import { IconProps, IconSize } from '../Icon';
-import classNames from 'classnames';
 
 export enum ButtonSize {
   XLarge = 'xlarge', // only used for iconOnly buttons
@@ -136,7 +137,7 @@ export const useGetIconWithSize = (
   size: ButtonSize,
   iconOnly: boolean,
   iconPosition: ButtonIconPosition,
-) => {
+): ((icon: React.ReactElement<IconProps>) => React.ReactElement<IconProps>) => {
   return (icon: React.ReactElement<IconProps>) =>
     React.cloneElement(icon, {
       size: icon.props?.size ?? buttonSizeToIconSize[size],
