@@ -73,6 +73,7 @@ jest.mock('webextension-polyfill-ts', () => {
 
 beforeEach(() => {
   nock.cleanAll();
+  jest.clearAllMocks();
 });
 
 const defaultAlerts: Alerts = { filter: true, rankLastSeen: null };
