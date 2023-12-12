@@ -96,7 +96,7 @@ function ChangelogTooltip(): ReactElement {
             New release
           </h3>
         </header>
-        <section className="flex flex-col flex-1 p-5 h-full shrink max-h-full">
+        <section className="flex flex-col flex-1 p-5 h-full max-h-full shrink">
           <Image
             className="object-cover rounded-lg w-[207px] h-[108px]"
             alt="Post cover image"
