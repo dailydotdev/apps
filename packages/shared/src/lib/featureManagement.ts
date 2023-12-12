@@ -20,6 +20,7 @@ const feature = {
     title: 'Where developers grow together',
     description: 'Get one personalized feed for all the knowledge you need.',
   }),
+  cardFeedbackCopy: new Feature('card_feedback_copy', 'Did you like the post?'),
 };
 
 export { feature };
