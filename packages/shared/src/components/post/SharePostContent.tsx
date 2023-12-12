@@ -7,7 +7,7 @@ import { LazyImage } from '../LazyImage';
 import { cloudinary } from '../../lib/image';
 import PostSummary from '../cards/PostSummary';
 import ArrowIcon from '../icons/Arrow';
-import { Post } from '../../graphql/posts';
+import { Post, internalReadTypes } from '../../graphql/posts';
 import SettingsContext from '../../contexts/SettingsContext';
 import { SharePostTitle } from './share';
 import { combinedClicks } from '../../lib/click';
@@ -70,6 +70,8 @@ function SharePostContent({
 
   const isSharedPostSquadPost =
     post.sharedPost.source.type === SourceType.Squad;
+  const shouldUseInternalLink =
+    isSharedPostSquadPost || internalReadTypes.includes(post.sharedPost.type);
 
   return (
     <>
@@ -95,11 +97,11 @@ function SharePostContent({
             <ReadArticleButton
               className="mt-5 btn-secondary w-fit"
               href={
-                isSharedPostSquadPost
+                shouldUseInternalLink
                   ? post.sharedPost.commentsPermalink
                   : post.sharedPost.permalink
               }
-              openNewTab={isSharedPostSquadPost ? false : openNewTab}
+              openNewTab={shouldUseInternalLink ? false : openNewTab}
               title="Go to post"
               rel="noopener"
               {...combinedClicks(openArticle)}
