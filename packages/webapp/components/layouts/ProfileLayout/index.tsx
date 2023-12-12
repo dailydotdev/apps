@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
 import {
   getProfile,
   getProfileSSR,
@@ -78,10 +72,7 @@ export default function ProfileLayout({
     campaignKey: ReferralCampaignKey.Generic,
     enabled: initialProfile?.id === user?.id,
   });
-  const [twitterHandle, setTwitterHandle] = useState<string>();
-  const [githubHandle, setGithubHandle] = useState<string>();
-  const [hashnodeHandle, setHashnodeHandle] = useState<string>();
-  const [portfolioLink, setPortfolioLink] = useState<string>();
+
   const queryKey = ['profile', initialProfile?.id];
   const { data: fetchedProfile } = useQuery<PublicProfile>(
     queryKey,
@@ -93,15 +84,19 @@ export default function ProfileLayout({
   );
   // Needed because sometimes initialProfile is defined and fetchedProfile is not
   const profile = fetchedProfile ?? initialProfile;
-  useEffect(() => {
-    if (profile) {
-      const purify = DOMPurify(window);
-      setTwitterHandle(sanitizeOrNull(purify, profile.twitter));
-      setGithubHandle(sanitizeOrNull(purify, profile.github));
-      setHashnodeHandle(sanitizeOrNull(purify, profile.hashnode));
-      setPortfolioLink(sanitizeOrNull(purify, profile.portfolio));
-    }
-  }, [profile]);
+  const { twitterHandle, githubHandle, hashnodeHandle, portfolioLink } =
+    useMemo(() => {
+      if (typeof window === 'undefined' || !profile) {
+        return {};
+      }
+      const purify = DOMPurify(globalThis.window);
+      return {
+        twitterHandle: sanitizeOrNull(purify, profile?.twitter),
+        githubHandle: sanitizeOrNull(purify, profile?.github),
+        hashnodeHandle: sanitizeOrNull(purify, profile?.hashnode),
+        portfolioLink: sanitizeOrNull(purify, profile?.portfolio),
+      };
+    }, [profile]);
   const userRankQueryKey = ['userRank', initialProfile?.id];
   const { data: userRank } = useQuery<UserReadingRankData>(
     userRankQueryKey,
