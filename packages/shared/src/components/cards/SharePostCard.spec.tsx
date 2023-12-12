@@ -31,7 +31,13 @@ const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
 };
 
 const videoPostTypeComponentProps = {
-  post: { ...defaultProps.post, type: PostType.VideoYouTube },
+  post: {
+    ...defaultProps.post,
+    sharedPost: {
+      ...defaultProps.post?.sharedPost,
+      type: PostType.VideoYouTube,
+    },
+  },
 };
 
 it('should call on link click on component left click', async () => {

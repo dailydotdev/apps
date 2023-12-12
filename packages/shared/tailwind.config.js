@@ -222,6 +222,9 @@ module.exports = {
       minHeight: {
         card: '23.75rem',
       },
+      maxHeight: {
+        card: '23.75rem',
+      },
     },
     lineClamp: {
       1: '1',

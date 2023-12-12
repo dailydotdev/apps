@@ -3,7 +3,7 @@ import React, { ReactElement } from 'react';
 import { Post } from '../../graphql/posts';
 import { cloudinary } from '../../lib/image';
 import { IconSize } from '../Icon';
-import VideoPlayOverlay from '../video/VideoPlayOverlay';
+import { CardImage, CardVideoImage } from './Card';
 
 type SharedPostCardFooterProps = {
   isShort: boolean;
@@ -15,36 +15,37 @@ export const SharedPostCardFooter = ({
   isShort,
   isVideoType,
 }: SharedPostCardFooterProps): ReactElement => {
+  const ImageComponent = isVideoType ? CardVideoImage : CardImage;
   return (
     <div
       className={classNames(
-        'flex flex-1 gap-2 p-3 mb-2 rounded-12 border border-theme-divider-tertiary',
+        'p-3 gap-3 mb-2 rounded-12 border border-theme-divider-tertiary flex w-fit max-h-[13.5rem] flex-auto h-auto min-h-[0]',
         isShort ? 'flex-row items-center' : 'flex-col',
       )}
     >
-      <span
+      <div
         className={classNames(
-          'typo-footnote text-theme-label-secondary',
-          isShort ? 'line-clamp-4 flex-1' : 'line-clamp-2',
+          'typo-footnote text-theme-label-secondary flex',
+          isShort ? 'line-clamp-4 pr-3 w-8/12' : 'line-clamp-2',
         )}
       >
         {sharedPost.title}
-      </span>
+      </div>
 
-      <div
-        className={classNames(
-          'rounded-xl flex items-center justify-center relative',
-          isShort ? 'h-full aspect-square' : 'flex-1',
-        )}
-        style={{
-          background: `url(${sharedPost.image}) center center / cover, url(${cloudinary.post.imageCoverPlaceholder}) center center / cover`,
-        }}
-      >
-        {isVideoType && (
-          <VideoPlayOverlay
-            size={isShort ? IconSize.XLarge : IconSize.XXXLarge}
-          />
-        )}
+      <div className={classNames('flex flex-auto h-auto overflow-auto')}>
+        <ImageComponent
+          size={isShort ? IconSize.XLarge : IconSize.XXXLarge}
+          alt="Shared Post Cover image"
+          src={sharedPost.image}
+          fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+          className={classNames(
+            'object-cover h-auto min-h-[0px]',
+            isShort ? 'aspect-square' : 'w-full',
+          )}
+          wrapperClassName="overflow-hidden"
+          loading="lazy"
+          data-testid="sharedPostImage"
+        />
       </div>
     </div>
   );
