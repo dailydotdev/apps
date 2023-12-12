@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { CardImage } from './Card';
+import { CardImage, CardVideoImage } from './Card';
 import FeatherIcon from '../icons/Feather';
 import PostAuthor from './PostAuthor';
 import { ProfilePicture } from '../ProfilePicture';
@@ -27,6 +27,7 @@ export const PostCardFooter = ({
   className,
   isVideoType,
 }: PostCardFooterProps): ReactElement => {
+  const ImageComponent = isVideoType ? CardVideoImage : CardImage;
   return (
     <>
       {!showImage && post.author && (
@@ -39,16 +40,16 @@ export const PostCardFooter = ({
         />
       )}
       {showImage && (
-        <CardImage
+        <ImageComponent
           alt="Post Cover image"
           src={post.image}
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-          className={{
-            wrapper: 'my-2',
-            image: classNames('object-cover w-full', className.image),
-          }}
+          className={classNames(
+            'object-cover w-full',
+            className.image,
+            !isVideoType && 'my-2',
+          )}
           loading="lazy"
-          isVideoType={isVideoType}
           data-testid="postImage"
         />
       )}
