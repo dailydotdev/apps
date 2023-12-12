@@ -79,8 +79,6 @@ export const ListCardMain = classed(
   'flex-1 flex flex-col items-start ml-4',
 );
 
-export const ListCardAside = classed('div', 'flex flex-col items-center');
-
 export const ListCardDivider = classed(
   'div',
   'w-px h-full bg-theme-divider-tertiary',

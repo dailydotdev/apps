@@ -50,18 +50,13 @@ export interface MainLayoutProps
   onShowDndClick?: () => unknown;
 }
 
-const mainLayoutClass = (sidebarExpanded: boolean) =>
-  sidebarExpanded ? 'laptop:pl-60' : 'laptop:pl-11';
-
 const feeds = Object.values(SharedFeedPage);
 
 function MainLayout({
   children,
-  showOnlyLogo,
   greeting,
   activePage,
   isNavItemsButton,
-  mobileTitle,
   showDnd,
   dndActive,
   customBanner,
@@ -117,11 +112,7 @@ function MainLayout({
   }, [isNotificationsReady, unreadCount, hasTrackedImpression]);
 
   const renderSidebar = () => {
-    if (
-      showOnlyLogo ||
-      sidebarRendered === null ||
-      (sidebarRendered && !showSidebar)
-    ) {
+    if (sidebarRendered === null || (sidebarRendered && !showSidebar)) {
       return null;
     }
 
@@ -188,8 +179,6 @@ function MainLayout({
       <MainLayoutHeader
         greeting={greeting}
         hasBanner={isBannerAvailable}
-        mobileTitle={mobileTitle}
-        showOnlyLogo={showOnlyLogo}
         sidebarRendered={sidebarRendered}
         optOutWeeklyGoal={optOutWeeklyGoal}
         additionalButtons={additionalButtons}
@@ -200,7 +189,7 @@ function MainLayout({
         className={classNames(
           'flex flex-row',
           className,
-          !showOnlyLogo && !screenCentered && mainLayoutClass(sidebarExpanded),
+          !screenCentered && sidebarExpanded ? 'laptop:pl-60' : 'laptop:pl-11',
           isBannerAvailable && 'laptop:pt-8',
         )}
       >

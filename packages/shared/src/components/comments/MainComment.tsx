@@ -78,7 +78,9 @@ export default function MainComment({
               commentId: selected.id,
             })
           }
-          onEdit={(selected) => onEdit({ commentId: selected.id })}
+          onEdit={({ id, lastUpdatedAt }) =>
+            onEdit({ commentId: id, lastUpdatedAt })
+          }
         />
       )}
       {editProps && (
