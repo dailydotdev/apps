@@ -86,7 +86,7 @@ export default function ProfileLayout({
   const profile = fetchedProfile ?? initialProfile;
   const { twitterHandle, githubHandle, hashnodeHandle, portfolioLink } =
     useMemo(() => {
-      if (typeof window === 'undefined') {
+      if (typeof window === 'undefined' || !profile) {
         return {};
       }
       const purify = DOMPurify(globalThis.window);
