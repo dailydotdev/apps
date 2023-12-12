@@ -146,8 +146,6 @@ export const useGetIconWithSize = (
         !iconOnly && 'text-base !w-6 !h-6',
         !iconOnly && iconPosition === ButtonIconPosition.Left && '-ml-2 mr-1',
         !iconOnly && iconPosition === ButtonIconPosition.Right && 'ml-1 -mr-2',
-        // add margin to social icons
-        icon.props.className?.split(' ').includes('socialIcon') && 'mr-3',
       ),
     });
 };
