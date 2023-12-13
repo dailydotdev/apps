@@ -318,6 +318,18 @@ export default function Feed<T>({
     );
   };
 
+  const onCardBookmark = (post: Post, row: number, column: number) =>
+    onBookmark({
+      post,
+      origin,
+      opts: {
+        row,
+        column,
+        columns: virtualizedNumCards,
+        ...feedAnalyticsExtra(feedName, ranking),
+      },
+    });
+
   const onShareClick = (post: Post, row?: number, column?: number) =>
     openSharePost(post, virtualizedNumCards, column, row);
 
@@ -378,6 +390,7 @@ export default function Feed<T>({
             user={user}
             feedName={feedName}
             ranking={ranking}
+            onBookmark={onCardBookmark}
             toggleUpvote={toggleUpvote}
             toggleDownvote={toggleDownvote}
             onPostClick={onPostCardClick}
