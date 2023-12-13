@@ -9,6 +9,12 @@ import {
   useRef,
   useState,
 } from 'react';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import {
+  AnalyticsEvent,
+  ShortcutsSourceType,
+  TargetType,
+} from '@dailydotdev/shared/src/lib/analytics';
 import useTopSites from './useTopSites';
 
 interface UseShortcutLinks {
@@ -29,6 +35,7 @@ interface UseShortcutLinks {
 }
 
 export default function useShortcutLinks(): UseShortcutLinks {
+  const { trackEvent } = useContext(AnalyticsContext);
   const formRef = useRef<HTMLFormElement>();
   const [isManual, setIsManual] = useState(true);
   const { customLinks, updateCustomLinks } = useContext(SettingsContext);
@@ -71,6 +78,11 @@ export default function useShortcutLinks(): UseShortcutLinks {
     await revokePermission();
 
     setIsManual(true);
+
+    trackEvent({
+      event_name: AnalyticsEvent.RevokeShortcutAccess,
+      target_type: TargetType.Shortcuts,
+    });
   };
 
   const onSaveChanges = async (e: FormEvent) => {
@@ -96,6 +108,12 @@ export default function useShortcutLinks(): UseShortcutLinks {
       .filter((link) => !!link);
 
     updateCustomLinks(links);
+
+    trackEvent({
+      event_name: AnalyticsEvent.SaveShortcutAccess,
+      target_type: TargetType.Shortcuts,
+      extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
+    });
 
     return { errors: null };
   };
@@ -126,7 +144,19 @@ export default function useShortcutLinks(): UseShortcutLinks {
       hasCheckedPermission,
       customLinks,
       onSaveChanges,
-      askTopSitesPermission,
+      askTopSitesPermission: async () => {
+        const granted = await askTopSitesPermission();
+
+        if (granted) {
+          trackEvent({
+            event_name: AnalyticsEvent.SaveShortcutAccess,
+            target_type: TargetType.Shortcuts,
+            extra: JSON.stringify({ source: ShortcutsSourceType.Browser }),
+          });
+        }
+
+        return granted;
+      },
       resetSelected,
       onIsManual: setIsManual,
       revokePermission: onRevokePermission,
