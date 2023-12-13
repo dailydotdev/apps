@@ -72,6 +72,7 @@ export function PostContent({
   const { onSharePost: onShare, onReadArticle } = engagementActions;
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
+  const isVideoType = post.type === PostType.VideoYouTube;
   const containerClass = classNames(
     'tablet:pb-0 tablet:flex-row',
     className?.container,
@@ -166,6 +167,7 @@ export function PostContent({
           <PostMetadata
             createdAt={post.createdAt}
             readTime={post.readTime}
+            isVideoType={isVideoType}
             className="mt-4 mb-8 !typo-callout"
           />
           {post.type !== PostType.VideoYouTube && (
