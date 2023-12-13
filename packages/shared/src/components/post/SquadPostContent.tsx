@@ -72,7 +72,9 @@ function SquadPostContent({
     onSendViewPost(post.id);
   }, [post.id, onSendViewPost, user?.id]);
 
-  const Content = ContentMap[post?.type];
+  const isVideoShared = post?.sharedPost?.type === PostType.VideoYouTube;
+  const finalType = isVideoShared ? PostType.VideoYouTube : post?.type;
+  const Content = ContentMap[finalType];
 
   return (
     <>
