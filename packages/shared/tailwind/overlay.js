@@ -4,6 +4,9 @@ const overlayColor = (color) => {
   if (color === 'white') {
     return '#FFFFFF';
   }
+  if (color === 'black') {
+    return '#000000';
+  }
   if (color === 'pepper') {
     return colors[color]['90'];
   }
@@ -11,7 +14,7 @@ const overlayColor = (color) => {
 };
 
 const getOverlayPalette = (overlay) =>
-  [...Object.keys(colors), 'white'].reduce(
+  [...Object.keys(colors), 'white', 'black'].reduce(
     (acc, color) => ({ ...acc, [color]: `${overlayColor(color)}${overlay}` }),
     {},
   );

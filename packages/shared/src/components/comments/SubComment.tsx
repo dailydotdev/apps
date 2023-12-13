@@ -32,9 +32,10 @@ function SubComment({
           key={comment.id}
           parentId={parentComment.id}
           comment={comment}
-          onEdit={(selected) =>
+          onEdit={({ id, lastUpdatedAt }) =>
             onEdit({
-              commentId: selected.id,
+              commentId: id,
+              lastUpdatedAt,
               parentCommentId: parentComment.id,
             })
           }

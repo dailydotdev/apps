@@ -1,5 +1,5 @@
 import { JSONValue } from '@growthbook/growthbook';
-import { SearchExperiment } from './featureValues';
+import { FeedLayout, SearchExperiment } from './featureValues';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -20,6 +20,8 @@ const feature = {
     title: 'Where developers grow together',
     description: 'Get one personalized feed for all the knowledge you need.',
   }),
+  feedLayout: new Feature('feed_layout', FeedLayout.Control),
+  cardFeedbackCopy: new Feature('card_feedback_copy', 'Did you like the post?'),
 };
 
 export { feature };

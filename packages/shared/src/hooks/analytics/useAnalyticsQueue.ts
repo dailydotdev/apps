@@ -84,7 +84,7 @@ export default function useAnalyticsQueue({
               url: ANALYTICS_ENDPOINT,
               type: ExtensionMessageType.FetchRequest,
               args: {
-                body: JSON.stringify(events),
+                body: JSON.stringify({ events }),
                 credentials: 'include',
                 method: 'POST',
                 headers: {

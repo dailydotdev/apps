@@ -63,8 +63,10 @@ function SharePostContent({
               {...combinedClicks(openArticle)}
             />
           </div>
+
           <SharedPostLink
             post={post}
+            onGoToLinkProps={combinedClicks(openArticle)}
             className="block overflow-hidden ml-2 w-70 rounded-2xl cursor-pointer h-fit"
           >
             <LazyImage

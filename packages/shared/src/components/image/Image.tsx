@@ -6,7 +6,7 @@ import React, {
   SyntheticEvent,
 } from 'react';
 
-interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
+export interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   fallbackSrc?: string;
 }
 

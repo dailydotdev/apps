@@ -3,8 +3,6 @@ import { PostCardProps } from './common';
 import {
   getPostClassNames,
   ListCardTitle,
-  ListCardDivider,
-  ListCardAside,
   ListCardMain,
   CardButton,
 } from './Card';
@@ -15,6 +13,7 @@ import PostAuthor from './PostAuthor';
 import FeedItemContainer from './FeedItemContainer';
 import { PostTagsPanel } from '../post/block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
+import { PostType } from '../../graphql/posts';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -34,7 +33,8 @@ export const PostList = forwardRef(function PostList(
 ): ReactElement {
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
-  const { trending, pinnedAt } = post;
+  const { trending, pinnedAt, type } = post;
+  const isVideoType = type === PostType.VideoYouTube;
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -56,20 +56,19 @@ export const PostList = forwardRef(function PostList(
       flagProps={{ listMode: true, pinnedAt, trending }}
     >
       <CardButton title={post.title} onClick={onPostCardClick} />
-      <ListCardAside className="w-14">
+      <ListCardMain>
         <SourceButton
           source={post?.source}
-          className="pb-2"
+          className="mb-2.5"
           tooltipPosition="top"
         />
-      </ListCardAside>
-      <ListCardDivider className="mb-1" />
-      <ListCardMain>
         <ListCardTitle>{post.title}</ListCardTitle>
         <PostMetadata
           createdAt={post.createdAt}
           readTime={post.readTime}
           className="my-1"
+          isVideoType={isVideoType}
+          insaneMode
         >
           {post.author && <PostAuthor author={post.author} className="ml-2" />}
         </PostMetadata>
@@ -84,6 +83,7 @@ export const PostList = forwardRef(function PostList(
           className="relative self-stretch mt-1"
           onMenuClick={(event) => onMenuClick?.(event, post)}
           insaneMode
+          isVideoType={isVideoType}
         />
       </ListCardMain>
       {children}

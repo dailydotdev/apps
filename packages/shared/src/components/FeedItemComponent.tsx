@@ -66,7 +66,7 @@ export type FeedItemComponentProps = {
     row: number,
     column: number,
   ) => unknown;
-  onAdClick: (ad: Ad, index: number, row: number, column: number) => void;
+  onAdClick: (ad: Ad, row: number, column: number) => void;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'>;
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {
@@ -86,8 +86,7 @@ const PostTypeToTag: Record<PostType, FunctionComponent> = {
   [PostType.Share]: SharePostCard,
   [PostType.Welcome]: WelcomePostCard,
   [PostType.Freeform]: WelcomePostCard,
-  // TODO: remove this once we have a proper video feed card
-  [PostType.VideoYouTube]: null,
+  [PostType.VideoYouTube]: ArticlePostCard,
 };
 
 export default function FeedItemComponent({
@@ -209,7 +208,7 @@ export default function FeedItemComponent({
         <AdTag
           ref={inViewRef}
           ad={item.ad}
-          onLinkClick={(ad) => onAdClick(ad, index, row, column)}
+          onLinkClick={(ad) => onAdClick(ad, row, column)}
           showImage={!insaneMode}
         />
       );

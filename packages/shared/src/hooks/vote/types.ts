@@ -37,9 +37,12 @@ export type UseVotePostProps = {
 
 export const upvoteMutationKey = ['post', 'mutation'];
 
-export const voteMutationMatcher: UseMutationMatcher = ({ mutation }) => {
+export const voteMutationMatcher: UseMutationMatcher = ({
+  status,
+  mutation,
+}) => {
   return (
-    mutation?.state?.status === 'success' &&
+    status === 'success' &&
     mutation?.options?.mutationKey?.toString() === upvoteMutationKey.toString()
   );
 };

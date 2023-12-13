@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useMemo } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
@@ -212,6 +212,21 @@ export default function PostOptionsMenu({
     );
   };
 
+  const onUnblockSource = async (): Promise<void> => {
+    const { successful } = await onFollowSource({
+      source: post?.source,
+      requireLogin: true,
+    });
+
+    if (!successful) {
+      return;
+    }
+
+    displayToast(`${post?.source?.name} unblocked`, {
+      subject: ToastSubject.Feed,
+    });
+  };
+
   const onBlockTag = async (tag: string): Promise<void> => {
     const { successful } = await onBlockTags({
       tags: [tag],
@@ -256,6 +271,12 @@ export default function PostOptionsMenu({
     );
   };
 
+  const isSourceBlocked = useMemo(() => {
+    return !!feedSettings?.excludeSources?.some(
+      (excludedSource) => excludedSource.id === post?.source?.id,
+    );
+  }, [feedSettings?.excludeSources, post?.source?.id]);
+
   const postOptions: MenuItemProps[] = [
     {
       icon: <MenuIcon Icon={EyeIcon} />,
@@ -289,8 +310,10 @@ export default function PostOptionsMenu({
     },
     {
       icon: <MenuIcon Icon={BlockIcon} />,
-      label: `Don't show posts from ${post?.source?.name}`,
-      action: onBlockSource,
+      label: isSourceBlocked
+        ? `Show posts from ${post?.source?.name}`
+        : `Don't show posts from ${post?.source?.name}`,
+      action: isSourceBlocked ? onUnblockSource : onBlockSource,
     },
   ];
 
