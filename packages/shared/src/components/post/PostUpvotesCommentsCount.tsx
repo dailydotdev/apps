@@ -13,9 +13,10 @@ export function PostUpvotesCommentsCount({
 }: PostUpvotesCommentsCountProps): ReactElement {
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
-  const hasUpvotesOrComments = upvotes > 0 || comments > 0;
+  const hasUpvotesOrCommentsOrViews =
+    upvotes > 0 || comments > 0 || post.views > 0;
 
-  return !hasUpvotesOrComments ? (
+  return !hasUpvotesOrCommentsOrViews ? (
     <></>
   ) : (
     <div
