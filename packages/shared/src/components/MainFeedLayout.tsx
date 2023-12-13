@@ -294,7 +294,6 @@ export default function MainFeedLayout({
         />
       )}
       {isSearchOn && search}
-      <p>Blabla</p>
       {feedProps && <Feed {...feedProps} />}
       {children}
     </FeedPage>

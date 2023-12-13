@@ -12,7 +12,6 @@ import HammerIcon from './icons/Hammer';
 import EyeIcon from './icons/Eye';
 import BlockIcon from './icons/Block';
 import FlagIcon from './icons/Flag';
-import { ReportedCallback } from './modals/report/ReportPostModal';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
@@ -180,17 +179,6 @@ export default function PostOptionsMenu({
     origin,
   });
 
-  const onReportedPost: ReportedCallback = async (
-    reportedPost,
-    { index, shouldBlockSource },
-  ): Promise<void> => {
-    showMessageAndRemovePost(labels.reporting.reportFeedbackText, index);
-
-    if (shouldBlockSource) {
-      await onUnfollowSource({ source: reportedPost?.source });
-    }
-  };
-
   const onBlockSource = async (): Promise<void> => {
     const { successful } = await onUnfollowSource({
       source: post?.source,
@@ -302,8 +290,8 @@ export default function PostOptionsMenu({
         props: {
           index: postIndex,
           post,
-          onReported: onReportedPost,
           origin: Origin.PostContextMenu,
+          queryKey: feedQueryKey,
         },
       }),
   });

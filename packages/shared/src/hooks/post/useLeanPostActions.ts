@@ -4,6 +4,7 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
+import { useContextMenu } from '@dailydotdev/react-contexify';
 import {
   ADD_BOOKMARKS_MUTATION,
   banPost,
@@ -94,6 +95,15 @@ const updateMap = {
       ...previousData,
       pages: multiPageTransformer(previousData.pages, id, update),
     }),
+    remover: ({ previousData, id }) => ({
+      ...previousData,
+      pages: previousData.pages.map(({ page }) => ({
+        page: {
+          ...page,
+          edges: page.edges.filter((edge) => edge.node.id !== id),
+        },
+      })),
+    }),
   },
 };
 
@@ -129,6 +139,7 @@ export default function useLeanPostActions({
   const { showPrompt } = usePrompt();
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { feedSettings } = useFeedSettings();
+  const { show } = useContextMenu();
 
   const isModerator = user?.roles?.includes(Roles.Moderator);
   const canDeletePost = useCallback((post: Post) => {
@@ -156,6 +167,7 @@ export default function useLeanPostActions({
     post: Post,
     undo?: () => unknown,
   ) => {
+    console.log('showMessageAndRemovePost');
     const onUndo = async () => {
       await undo?.();
       return queryClient.invalidateQueries(queryKey);
@@ -164,8 +176,13 @@ export default function useLeanPostActions({
       subject: ToastSubject.Feed,
       onUndo: undo !== null ? onUndo : null,
     });
-    // TODO: Can we make this a generic removal based on the transform key maybe or the query key?
-    // onRemovePost?.(_postIndex);
+    const previousData = queryClient.getQueryData(queryKey);
+    console.log('queryKey', queryKey);
+    console.log(previousData);
+    queryClient.setQueryData(
+      queryKey,
+      updateMap[transformKey].remover({ previousData, id: post.id }),
+    );
   };
 
   const onPromotePost = useCallback(async (post: Post) => {
@@ -532,5 +549,7 @@ export default function useLeanPostActions({
     onBlockTag,
     onClick,
     onDirectClick,
+    showMessageAndRemovePost,
+    show,
   };
 }

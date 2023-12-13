@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import { Item, useContextMenu } from '@dailydotdev/react-contexify';
 import classNames from 'classnames';
@@ -32,6 +32,7 @@ import { SimpleTooltip } from '../../../tooltips';
 import { getContextBottomPosition } from '../../../utilities';
 import MenuIcon from '../../../icons/Menu';
 import { MenuIcon as Menu } from '../../../MenuIcon';
+import { labels } from '../../../../lib';
 
 type OptionsButtonProps = ButtonProps<AllowedTags> & {
   post: Post;
@@ -60,13 +61,17 @@ const OptionButton = ({
     onPinPost,
     onBlockSource,
     onBlockTag,
+    showMessageAndRemovePost,
   } = useLeanPostActions({
     queryKey,
   });
 
   const id = `post-actions-menu-${post?.id}`;
+  const { show, hideAll } = useContextMenu({
+    id,
+  });
+
   const router = useRouter();
-  const { show } = useContextMenu({ id });
 
   const postOptions: MenuItemProps[] = [
     {
@@ -120,12 +125,13 @@ const OptionButton = ({
     reportedPost,
     { index, shouldBlockSource },
   ): Promise<void> => {
-    //! TODO: Generic approach needed
-    // showMessageAndRemovePost(labels.reporting.reportFeedbackText, index);
+    showMessageAndRemovePost(
+      labels.reporting.reportFeedbackText,
+      reportedPost as Post,
+    );
 
     if (shouldBlockSource) {
-      //! TODO: Generic approach needed
-      // await onUnfollowSource({ source: reportedPost?.source });
+      await onBlockSource(reportedPost as Post);
     }
   };
 
@@ -184,7 +190,9 @@ const OptionButton = ({
       <SimpleTooltip placement={tooltipPlacement} content="Options">
         <Button
           {...props}
-          onClick={(e) => show(e, { position: getContextBottomPosition(e) })}
+          onClick={(e) => {
+            show(e);
+          }}
           className={classNames('my-auto btn-tertiary', className)}
           buttonSize={buttonSize}
           icon={<MenuIcon />}

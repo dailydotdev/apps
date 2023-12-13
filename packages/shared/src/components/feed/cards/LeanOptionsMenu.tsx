@@ -32,6 +32,7 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 import { useActiveFeedContext } from '../../../contexts';
 import { ReportedCallback } from '../../modals';
 import useLeanPostActions from '../../../hooks/post/useLeanPostActions';
+import { labels } from '../../../lib';
 
 type OptionsButtonProps = ButtonProps<AllowedTags> & {
   post: Post;
@@ -60,6 +61,7 @@ const LeanOptionsButton = ({
     onPinPost,
     onBlockSource,
     onBlockTag,
+    showMessageAndRemovePost,
   } = useLeanPostActions({
     queryKey,
   });
@@ -116,19 +118,26 @@ const LeanOptionsButton = ({
     }
   });
 
+  const test = () => {
+    console.log('test');
+  };
+
   const onReportedPost: ReportedCallback = async (
     reportedPost,
     { index, shouldBlockSource },
   ): Promise<void> => {
-    //! TODO: Generic approach needed
-    // showMessageAndRemovePost(labels.reporting.reportFeedbackText, index);
+    console.log('callback');
+    await showMessageAndRemovePost(
+      labels.reporting.reportFeedbackText,
+      reportedPost as Post,
+    );
 
     if (shouldBlockSource) {
-      //! TODO: Generic approach needed
-      // await onUnfollowSource({ source: reportedPost?.source });
+      await onBlockSource?.(reportedPost as Post);
     }
   };
 
+  console.log('queryKey in lean option', queryKey);
   postOptions.push({
     icon: <Menu Icon={FlagIcon} />,
     label: 'Report',
@@ -137,8 +146,9 @@ const LeanOptionsButton = ({
         type: LazyModal.ReportPost,
         props: {
           post,
-          onReported: onReportedPost,
+          onReported: test,
           origin: Origin.PostContextMenu,
+          queryKey,
         },
       }),
   });
