@@ -20,7 +20,3 @@ module.exports = ({ env }) => ({
     require('autoprefixer')(),
   ],
 });
-
-// TODO: PROFILE INVITE WIDGET
-// TODO: Account details long ago issue
-// TODO: fix the above and then check extension
