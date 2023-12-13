@@ -29,6 +29,7 @@ import { browser, TopSites } from 'webextension-polyfill-ts';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import {
   AnalyticsEvent,
+  ShortcutsSourceType,
   TargetType,
 } from '@dailydotdev/shared/src/lib/analytics';
 import ShortcutLinks from './ShortcutLinks';
@@ -206,6 +207,12 @@ describe('shortcut links component', () => {
 
     const shortcuts = await screen.findAllByRole('link');
     expect(shortcuts.length).toEqual(3);
+
+    expect(trackEvent).toHaveBeenCalledWith({
+      event_name: AnalyticsEvent.SaveShortcutAccess,
+      target_type: TargetType.Shortcuts,
+      extra: JSON.stringify({ source: ShortcutsSourceType.Browser }),
+    });
   });
 
   it('should be able to remove permission', async () => {
@@ -298,6 +305,12 @@ describe('shortcut links component', () => {
 
     const updated = await screen.findAllByRole('link');
     expect(updated.length).toEqual(6);
+
+    expect(trackEvent).toHaveBeenCalledWith({
+      event_name: AnalyticsEvent.SaveShortcutAccess,
+      target_type: TargetType.Shortcuts,
+      extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
+    });
   });
 
   it('should track impression event', () => {
@@ -306,7 +319,7 @@ describe('shortcut links component', () => {
     expect(trackEvent).toHaveBeenCalledWith({
       event_name: AnalyticsEvent.Impression,
       target_type: TargetType.Shortcuts,
-      extra: JSON.stringify({ source: 'custom' }),
+      extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
     });
   });
 
@@ -320,7 +333,7 @@ describe('shortcut links component', () => {
     expect(trackEvent).toHaveBeenCalledWith({
       event_name: AnalyticsEvent.Click,
       target_type: TargetType.Shortcuts,
-      extra: JSON.stringify({ source: 'custom' }),
+      extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
     });
   });
 });

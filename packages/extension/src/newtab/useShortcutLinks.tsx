@@ -12,6 +12,7 @@ import {
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import {
   AnalyticsEvent,
+  ShortcutsSourceType,
   TargetType,
 } from '@dailydotdev/shared/src/lib/analytics';
 import useTopSites from './useTopSites';
@@ -108,6 +109,12 @@ export default function useShortcutLinks(): UseShortcutLinks {
 
     updateCustomLinks(links);
 
+    trackEvent({
+      event_name: AnalyticsEvent.SaveShortcutAccess,
+      target_type: TargetType.Shortcuts,
+      extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
+    });
+
     return { errors: null };
   };
 
@@ -137,7 +144,19 @@ export default function useShortcutLinks(): UseShortcutLinks {
       hasCheckedPermission,
       customLinks,
       onSaveChanges,
-      askTopSitesPermission,
+      askTopSitesPermission: async () => {
+        const granted = await askTopSitesPermission();
+
+        if (granted) {
+          trackEvent({
+            event_name: AnalyticsEvent.SaveShortcutAccess,
+            target_type: TargetType.Shortcuts,
+            extra: JSON.stringify({ source: ShortcutsSourceType.Browser }),
+          });
+        }
+
+        return granted;
+      },
       resetSelected,
       onIsManual: setIsManual,
       revokePermission: onRevokePermission,

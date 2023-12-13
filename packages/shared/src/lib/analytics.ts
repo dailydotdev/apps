@@ -186,3 +186,8 @@ export enum NotificationPromptSource {
   SquadPostModal = 'squad post modal',
   SquadChecklist = 'squad checklist',
 }
+
+export enum ShortcutsSourceType {
+  Custom = 'custom',
+  Browser = 'browser',
+}

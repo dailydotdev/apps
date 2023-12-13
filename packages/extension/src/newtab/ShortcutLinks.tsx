@@ -14,6 +14,7 @@ import classNames from 'classnames';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import {
   AnalyticsEvent,
+  ShortcutsSourceType,
   TargetType,
 } from '@dailydotdev/shared/src/lib/analytics';
 import CustomLinksModal from './ShortcutLinksModal';
@@ -41,7 +42,9 @@ export default function ShortcutLinks({
     formRef,
     onSaveChanges,
   } = useShortcutLinks();
-  const shortcutSource = isManual ? 'custom' : 'browser';
+  const shortcutSource = isManual
+    ? ShortcutsSourceType.Custom
+    : ShortcutsSourceType.Browser;
 
   const trackedRef = useRef(false);
 
