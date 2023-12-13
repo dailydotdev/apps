@@ -18,18 +18,16 @@ const VideoImage = ({
     <div
       className={classNames(
         wrapperClassName,
-        'flex relative justify-center items-center w-full h-auto rounded-xl',
+        'flex relative justify-center items-center w-full h-auto rounded-12',
       )}
     >
-      <>
-        <span className="absolute w-full h-full rounded-xl bg-overlay-tertiary-black" />
-        <PlayIcon
-          secondary
-          size={size}
-          data-testid="playIconVideoPost"
-          className="absolute"
-        />
-      </>
+      <span className="absolute w-full h-full rounded-12 bg-overlay-tertiary-black" />
+      <PlayIcon
+        secondary
+        size={size}
+        data-testid="playIconVideoPost"
+        className="absolute"
+      />
       <Image {...props} />
     </div>
   );

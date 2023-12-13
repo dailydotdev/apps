@@ -44,8 +44,8 @@ export const ListCardTitle = classed(Title, 'mr-2');
 
 export const CardTextContainer = classed('div', 'flex flex-col mx-4');
 
-export const CardImage = classed(Image, 'rounded-xl h-40');
-export const CardVideoImage = classed(VideoImage, 'rounded-xl h-40');
+export const CardImage = classed(Image, 'rounded-12 h-40');
+export const CardVideoImage = classed(VideoImage, 'rounded-12 h-40');
 
 export const CardSpace = classed('div', 'flex-1');
 
