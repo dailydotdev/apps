@@ -130,5 +130,5 @@
     "web-vitals": "^3.5.0",
     "webextension-polyfill-ts": "^0.22.0"
   },
-  "sideEffects": ["./src/lib/lazysizesImport.ts"]
+  "sideEffects": ["./src/lib/lazysizesImport.ts", "*.css"]
 }
