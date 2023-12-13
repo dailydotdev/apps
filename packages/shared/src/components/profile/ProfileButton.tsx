@@ -34,18 +34,16 @@ export default function ProfileButton({
         />
       ) : (
         <SimpleTooltip placement="left" content="Profile settings">
-          <Button
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
+          <button
             className={classNames(
-              'items-center !p-0 ml-0.5 text-theme-label-primary gap-2',
+              'items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline gap-2',
               className,
             )}
             onClick={wrapHandler(() => onUpdate(!isOpen))}
           >
             <span className="block ml-3">{user.reputation ?? 0}</span>
             <ProfilePicture user={user} size="medium" />
-          </Button>
+          </button>
         </SimpleTooltip>
       )}
       {isOpen && <ProfileMenu onClose={() => onUpdate(false)} />}
