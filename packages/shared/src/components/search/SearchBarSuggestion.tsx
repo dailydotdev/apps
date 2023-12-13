@@ -76,7 +76,7 @@ export const SearchBarSuggestion = ({
       spanClassName="w-fit my-2 flex-shrink tablet:line-clamp-1"
       textPosition="justify-start"
       icon={<AiIcon />}
-      buttonSize={ButtonSize.Large}
+      buttonSize={ButtonSize.Medium}
       className={classNames(
         'btn-secondary border-theme-divider-tertiary typo-subhead text-theme-label-tertiary w-fit !h-auto min-h-[2.5rem]',
         className,
