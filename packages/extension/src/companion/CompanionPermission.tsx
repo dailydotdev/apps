@@ -1,7 +1,8 @@
 import {
   Button,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
 import React, { ReactElement, Ref, forwardRef } from 'react';
@@ -35,13 +36,14 @@ const CompanionPermissionComponent = (
           {description}
         </p>
         <Button
-          className="mt-1 w-[12.5rem] btn btn-primary"
+          className="mt-1 w-[12.5rem]"
           onClick={() =>
             requestContentScripts({
               origin: 'companion permission popup',
             })
           }
-          buttonSize={ButtonSize.Small}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Primary}
         >
           {button}
         </Button>
