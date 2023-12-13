@@ -5,7 +5,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import SettingsIcon from '../icons/Settings';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 
 const ProfileMenu = dynamic(
@@ -35,9 +35,10 @@ export default function ProfileButton({
       ) : (
         <SimpleTooltip placement="left" content="Profile settings">
           <button
+            type="button"
             className={classNames(
               'items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline gap-2',
-              className,
+              className ?? 'flex',
             )}
             onClick={wrapHandler(() => onUpdate(!isOpen))}
           >
