@@ -33,6 +33,7 @@ export interface ActionButtonsProps {
   className?: string;
   insaneMode?: boolean;
   openNewTab?: boolean;
+  isVideoType?: boolean;
 }
 
 type LastActionButtonProps = {
@@ -67,6 +68,7 @@ export default function ActionButtons({
   onShareClick,
   className,
   insaneMode,
+  isVideoType,
 }: ActionButtonsProps): ReactElement {
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
   const upvoteCommentProps: ButtonProps<'button'> = {
@@ -166,6 +168,7 @@ export default function ActionButtons({
             href={post.permalink}
             onClick={onReadArticleClick}
             openNewTab={openNewTab}
+            isVideoType={isVideoType}
           />
           <OptionsButton
             className={visibleOnGroupHover}
