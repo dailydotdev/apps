@@ -83,7 +83,6 @@ export const SharePostCard = forwardRef(function SharePostCard(
           onBookmarkClick={onBookmarkClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
-          className="justify-between mx-4"
         />
       </Container>
       {children}

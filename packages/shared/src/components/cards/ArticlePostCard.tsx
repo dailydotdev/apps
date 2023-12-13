@@ -138,10 +138,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
               onBookmarkClick={onBookmarkClick}
               onMenuClick={(event) => onMenuClick?.(event, post)}
               onReadArticleClick={onReadArticleClick}
-              className={classNames(
-                'mx-4 justify-between',
-                !showImage && 'my-4 laptop:mb-0',
-              )}
+              className={!showImage && 'my-4 laptop:mb-0'}
             />
           )}
         </Container>

@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import styles from './Card.module.css';
 import { Post, UserPostVote } from '../../graphql/posts';
 import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
@@ -90,12 +89,13 @@ export default function ActionButtons({
         <SimpleTooltip
           content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
         >
-          <Button
+          <QuaternaryButton
+            id={`post-${post.id}-bookmark-btn`}
             icon={<BookmarkIcon secondary={post.bookmarked} />}
-            buttonSize={ButtonSize.Small}
             onClick={() => onBookmarkClick(post)}
-            className="btn-tertiary-bun"
+            className="btn-tertiary-bun !min-w-[4.625rem]"
             pressed={post.bookmarked}
+            {...upvoteCommentProps}
           />
         </SimpleTooltip>
       )}
@@ -106,9 +106,8 @@ export default function ActionButtons({
   return (
     <div
       className={classNames(
-        styles.actionButtons,
-        'flex flex-row items-center',
-        insaneMode && 'justify-between',
+        'flex flex-row items-center justify-between',
+        !insaneMode && !bookmarkOnCard && 'mx-4',
         className,
       )}
     >
@@ -135,7 +134,7 @@ export default function ActionButtons({
             pressed={post?.userState?.vote === UserPostVote.Up}
             onClick={() => onUpvoteClick?.(post)}
             {...upvoteCommentProps}
-            className="btn-tertiary-avocado w-[4.875rem]"
+            className="btn-tertiary-avocado !min-w-[4.625rem]"
           >
             <InteractionCounter
               value={post.numUpvotes > 0 && post.numUpvotes}
@@ -149,7 +148,7 @@ export default function ActionButtons({
             pressed={post.commented}
             onClick={() => onCommentClick?.(post)}
             {...upvoteCommentProps}
-            className="btn-tertiary-blueCheese w-[4.875rem]"
+            className="btn-tertiary-blueCheese !min-w-[4.625rem]"
           >
             <InteractionCounter
               value={post.numComments > 0 && post.numComments}
