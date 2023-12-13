@@ -1,9 +1,22 @@
-import React, { FormEvent, ReactElement, useContext, useState } from 'react';
+import React, {
+  FormEvent,
+  ReactElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import PlusIcon from '@dailydotdev/shared/src/components/icons/Plus';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
 import classNames from 'classnames';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import {
+  AnalyticsEvent,
+  ShortcutsSourceType,
+  TargetType,
+} from '@dailydotdev/shared/src/lib/analytics';
 import CustomLinksModal from './ShortcutLinksModal';
 import MostVisitedSitesModal from './MostVisitedSitesModal';
 import { CustomLinks } from './CustomLinks';
@@ -15,6 +28,7 @@ export default function ShortcutLinks({
   const { showTopSites } = useContext(SettingsContext);
   const [showModal, setShowModal] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const { trackEvent } = useContext(AnalyticsContext);
   const {
     askTopSitesPermission,
     revokePermission,
@@ -27,7 +41,31 @@ export default function ShortcutLinks({
     isManual,
     formRef,
     onSaveChanges,
+    isTopSiteActive,
   } = useShortcutLinks();
+  const shortcutSource = isTopSiteActive
+    ? ShortcutsSourceType.Browser
+    : ShortcutsSourceType.Custom;
+
+  const trackedRef = useRef(false);
+
+  useEffect(() => {
+    if (!showTopSites || !hasCheckedPermission) {
+      return;
+    }
+
+    if (trackedRef.current) {
+      return;
+    }
+
+    trackedRef.current = true;
+
+    trackEvent({
+      event_name: AnalyticsEvent.Impression,
+      target_type: TargetType.Shortcuts,
+      extra: JSON.stringify({ source: shortcutSource }),
+    });
+  }, [trackEvent, showTopSites, shortcutSource, hasCheckedPermission]);
 
   if (!showTopSites) {
     return <></>;
@@ -51,19 +89,35 @@ export default function ShortcutLinks({
     setShowOptions(false);
   };
 
+  const onOptionsOpen = () => {
+    setShowOptions(true);
+
+    trackEvent({
+      event_name: AnalyticsEvent.OpenShortcutConfig,
+      target_type: TargetType.Shortcuts,
+    });
+  };
+
   return (
     <>
       {shortcutLinks?.length ? (
         <CustomLinks
           links={shortcutLinks}
           className={className}
-          onOptions={() => setShowOptions(true)}
+          onOptions={onOptionsOpen}
+          onLinkClick={() => {
+            trackEvent({
+              event_name: AnalyticsEvent.Click,
+              target_type: TargetType.Shortcuts,
+              extra: JSON.stringify({ source: shortcutSource }),
+            });
+          }}
         />
       ) : (
         <Button
           className={classNames('btn-tertiary', className)}
           rightIcon={<PlusIcon />}
-          onClick={() => setShowOptions(true)}
+          onClick={onOptionsOpen}
         >
           Add shortcuts
         </Button>
