@@ -1,9 +1,6 @@
 .btn {
   transition: 0.2s ease-in-out;
   transition-property: border, background, box-shadow, color;
-  height: 2.5rem;
-  padding: 0 1.4375rem;
-  border-radius: 0.75rem;
   background: var(--button-background, var(--button-default-background, none));
   border-color: var(--button-border-color, var(--button-default-border-color, transparent));
   color: var(--button-color, var(--button-default-color));
@@ -15,28 +12,28 @@
     font-size: 1.5rem;
   }
 
-  &.xxsmall {
-    height: 1.25rem;
-    padding: 0 0.75rem;
-    border-radius: 0.375rem;
-  }
-
   &.xsmall {
     height: 1.5rem;
-    padding: 0 0.75rem;
+    padding: 0 0.5rem;
     border-radius: 0.5rem;
   }
 
   &.small {
     height: 2rem;
-    padding: 0 0.9375rem;
-    border-radius: 0.625rem;
+    padding: 0 0.75rem;
+    border-radius: 0.63rem;
+  }
+
+  &.medium {
+    height: 2.5rem;
+    padding: 0 1.25rem;
+    border-radius: 0.75rem;
   }
 
   &.large {
     height: 3rem;
-    padding: 0 1.9375rem;
-    border-radius: 0.875rem;
+    padding: 0 1.5rem;
+    border-radius: 0.88rem;
   }
 
   &.headline {
@@ -71,16 +68,6 @@
   }
 
   &.iconOnly {
-    width: 2.5rem;
-    padding: 0;
-    border-radius: 0.75rem;
-
-    &.xxsmall {
-      width: 1.25rem;
-      padding: 0;
-      border-radius: 0.375rem;
-    }
-
     &.xsmall {
       width: 1.5rem;
       padding: 0;
@@ -90,13 +77,19 @@
     &.small {
       width: 2rem;
       padding: 0;
-      border-radius: 0.625rem;
+      border-radius: 0.63rem;
+    }
+
+    &.medium {
+      width: 2.5rem;
+      padding: 0;
+      border-radius: 0.75rem;
     }
 
     &.large {
       width: 3rem;
       padding: 0;
-      border-radius: 0.875rem;
+      border-radius: 0.88rem;
     }
 
     &.xlarge {

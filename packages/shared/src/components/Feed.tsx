@@ -140,8 +140,9 @@ export default function Feed<T>({
     return {
       queryKey: feedQueryKey,
       items,
+      feedName,
     };
-  }, [feedQueryKey, items]);
+  }, [feedQueryKey, items, feedName]);
 
   const { ranking } = (variables as RankVariables) || {};
   const {
@@ -305,7 +306,7 @@ export default function Feed<T>({
     );
   };
 
-  const onAdClick = (ad: Ad, index: number, row: number, column: number) => {
+  const onAdClick = (ad: Ad, row: number, column: number) => {
     trackEvent(
       adAnalyticsEvent('click', ad, {
         columns: virtualizedNumCards,
@@ -369,7 +370,7 @@ export default function Feed<T>({
         besideSearch={besideSearch}
         actionButtons={actionButtons}
       >
-        {items.map((item, index) => (
+        {items.map((_, index) => (
           <FeedItemComponent
             items={items}
             index={index}

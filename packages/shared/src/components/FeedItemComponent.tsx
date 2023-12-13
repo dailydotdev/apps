@@ -67,7 +67,7 @@ export type FeedItemComponentProps = {
     row: number,
     column: number,
   ) => unknown;
-  onAdClick: (ad: Ad, index: number, row: number, column: number) => void;
+  onAdClick: (ad: Ad, row: number, column: number) => void;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'>;
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {
@@ -210,7 +210,7 @@ export default function FeedItemComponent({
         <AdTag
           ref={inViewRef}
           ad={item.ad}
-          onLinkClick={(ad) => onAdClick(ad, index, row, column)}
+          onLinkClick={(ad) => onAdClick(ad, row, column)}
           showImage={!insaneMode}
         />
       );
