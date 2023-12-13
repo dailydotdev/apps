@@ -15,6 +15,7 @@ interface CardHeaderProps {
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   postLink: string;
   openNewTab?: boolean;
+  isVideoType?: boolean;
 }
 
 const Container = getGroupedHoverContainer('span');
@@ -27,6 +28,7 @@ export const PostCardHeader = ({
   source,
   postLink,
   openNewTab,
+  isVideoType,
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
 
@@ -45,6 +47,7 @@ export const PostCardHeader = ({
               href={postLink}
               onClick={onReadArticleClick}
               openNewTab={openNewTab}
+              isVideoType={isVideoType}
             />
             <OptionsButton onClick={onMenuClick} tooltipPlacement="top" />
           </>
