@@ -11,7 +11,6 @@ import { Loader } from '../Loader';
 import { combinedClicks } from '../../lib/click';
 
 export enum ButtonSize {
-  XXSmall = 'xxsmall',
   XSmall = 'xsmall',
   Small = 'small',
   Medium = 'medium',
@@ -20,7 +19,6 @@ export enum ButtonSize {
 }
 
 const buttonSizeToIconSize: Record<ButtonSize, IconSize> = {
-  [ButtonSize.XXSmall]: IconSize.XXSmall,
   [ButtonSize.XSmall]: IconSize.XSmall,
   [ButtonSize.Small]: IconSize.Small,
   [ButtonSize.Medium]: IconSize.Medium,

@@ -28,6 +28,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
     onDownvoteClick,
     onCommentClick,
     onMenuClick,
+    onBookmarkClick,
     onShare,
     onShareClick,
     openNewTab,
@@ -134,12 +135,10 @@ export const ArticlePostCard = forwardRef(function PostCard(
               onCommentClick={onCommentClick}
               onShare={onShare}
               onShareClick={onShareClick}
+              onBookmarkClick={onBookmarkClick}
               onMenuClick={(event) => onMenuClick?.(event, post)}
               onReadArticleClick={onReadArticleClick}
-              className={classNames(
-                'mx-4 justify-between',
-                !showImage && 'my-4 laptop:mb-0',
-              )}
+              className={!showImage && 'my-4 laptop:mb-0'}
             />
           )}
         </Container>

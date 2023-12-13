@@ -36,7 +36,7 @@ import { ExperimentWinner } from '../lib/featureValues';
 import { SharedFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
 import { ActiveFeedContext } from '../contexts';
-import { useFeedVotePost } from '../hooks';
+import { useFeedLayout, useFeedVotePost } from '../hooks';
 import { AllFeedPages, RequestKey, updateCachedPagePost } from '../lib/query';
 import {
   mutateBookmarkFeedPost,
@@ -123,11 +123,12 @@ export default function Feed<T>({
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
+  const { shouldUseFeedLayoutV1 } = useFeedLayout({ feedName });
   const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
     useFeed(
       feedQueryKey,
       currentSettings.pageSize,
-      isSquadFeed ? 3 : currentSettings.adSpot,
+      isSquadFeed || shouldUseFeedLayoutV1 ? 2 : currentSettings.adSpot,
       numCards,
       {
         query,
@@ -317,6 +318,18 @@ export default function Feed<T>({
     );
   };
 
+  const onCardBookmark = (post: Post, row: number, column: number) =>
+    onBookmark({
+      post,
+      origin,
+      opts: {
+        row,
+        column,
+        columns: virtualizedNumCards,
+        ...feedAnalyticsExtra(feedName, ranking),
+      },
+    });
+
   const onShareClick = (post: Post, row?: number, column?: number) =>
     openSharePost(post, virtualizedNumCards, column, row);
 
@@ -377,6 +390,7 @@ export default function Feed<T>({
             user={user}
             feedName={feedName}
             ranking={ranking}
+            onBookmark={onCardBookmark}
             toggleUpvote={toggleUpvote}
             toggleDownvote={toggleDownvote}
             onPostClick={onPostCardClick}

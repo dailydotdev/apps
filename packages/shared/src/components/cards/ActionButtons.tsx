@@ -1,7 +1,6 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import styles from './Card.module.css';
 import { Post, UserPostVote } from '../../graphql/posts';
 import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
@@ -14,6 +13,9 @@ import { ReadArticleButton } from './ReadArticleButton';
 import { visibleOnGroupHover } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useFeedPreviewMode } from '../../hooks';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import BookmarkIcon from '../icons/Bookmark';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "share" */ '../icons/Share'),
@@ -25,10 +27,10 @@ export interface ActionButtonsProps {
   onUpvoteClick?: (post: Post) => unknown;
   onCommentClick?: (post: Post) => unknown;
   onShare?: (post: Post) => unknown;
+  onBookmarkClick?: (post: Post) => unknown;
   onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   className?: string;
-  children?: ReactNode;
   insaneMode?: boolean;
   openNewTab?: boolean;
 }
@@ -61,11 +63,12 @@ export default function ActionButtons({
   onMenuClick,
   onReadArticleClick,
   onShare,
+  onBookmarkClick,
   onShareClick,
   className,
-  children,
   insaneMode,
 }: ActionButtonsProps): ReactElement {
+  const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
   const upvoteCommentProps: ButtonProps<'button'> = {
     buttonSize: ButtonSize.Small,
   };
@@ -80,13 +83,31 @@ export default function ActionButtons({
     onShare,
     onShareClick,
   });
+  const lastActions = (
+    <>
+      {bookmarkOnCard && (
+        <SimpleTooltip
+          content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
+        >
+          <QuaternaryButton
+            id={`post-${post.id}-bookmark-btn`}
+            icon={<BookmarkIcon secondary={post.bookmarked} />}
+            onClick={() => onBookmarkClick(post)}
+            className="btn-tertiary-bun !min-w-[4.625rem]"
+            pressed={post.bookmarked}
+            {...upvoteCommentProps}
+          />
+        </SimpleTooltip>
+      )}
+      {lastActionButton}
+    </>
+  );
 
   return (
     <div
       className={classNames(
-        styles.actionButtons,
-        'flex flex-row items-center',
-        insaneMode && 'justify-between',
+        'flex flex-row items-center justify-between',
+        !insaneMode && !bookmarkOnCard && 'mx-4',
         className,
       )}
     >
@@ -113,7 +134,7 @@ export default function ActionButtons({
             pressed={post?.userState?.vote === UserPostVote.Up}
             onClick={() => onUpvoteClick?.(post)}
             {...upvoteCommentProps}
-            className="btn-tertiary-avocado w-[4.875rem]"
+            className="btn-tertiary-avocado !min-w-[4.625rem]"
           >
             <InteractionCounter
               value={post.numUpvotes > 0 && post.numUpvotes}
@@ -127,43 +148,34 @@ export default function ActionButtons({
             pressed={post.commented}
             onClick={() => onCommentClick?.(post)}
             {...upvoteCommentProps}
-            className="btn-tertiary-blueCheese w-[4.875rem]"
+            className="btn-tertiary-blueCheese !min-w-[4.625rem]"
           >
             <InteractionCounter
               value={post.numComments > 0 && post.numComments}
             />
           </QuaternaryButton>
         </SimpleTooltip>
-        {insaneMode && lastActionButton}
+        {insaneMode && lastActions}
       </ConditionalWrapper>
-      <ConditionalWrapper
-        condition={insaneMode}
-        wrapper={(rightChildren) => (
-          <div
-            className={classNames('flex justify-between', visibleOnGroupHover)}
-          >
-            {rightChildren}
-          </div>
-        )}
-      >
-        {insaneMode && (
+      {insaneMode ? (
+        <div
+          className={classNames('flex justify-between', visibleOnGroupHover)}
+        >
           <ReadArticleButton
             className="mr-2 btn-primary"
             href={post.permalink}
             onClick={onReadArticleClick}
             openNewTab={openNewTab}
           />
-        )}
-        {!insaneMode && lastActionButton}
-        {insaneMode && (
           <OptionsButton
             className={visibleOnGroupHover}
             onClick={onMenuClick}
             tooltipPlacement="top"
           />
-        )}
-        {children}
-      </ConditionalWrapper>
+        </div>
+      ) : (
+        lastActions
+      )}
     </div>
   );
 }
