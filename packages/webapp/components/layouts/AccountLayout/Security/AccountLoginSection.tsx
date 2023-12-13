@@ -1,5 +1,8 @@
 import { Provider } from '@dailydotdev/shared/src/components/auth/common';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import AccountContentSection from '../AccountContentSection';
@@ -21,6 +24,7 @@ interface AccountLoginSectionProps {
   providerAction: (props: ManageSocialProvidersProps) => void;
   children?: ReactNode;
   className?: ClassName;
+  variant: ButtonVariant;
 }
 
 const providerLabel = {
@@ -36,6 +40,7 @@ function AccountLoginSection({
   providerAction,
   children,
   className,
+  variant = ButtonVariant.Primary,
 }: AccountLoginSectionProps): ReactElement {
   if (!providers?.length) {
     return null;
@@ -54,6 +59,7 @@ function AccountLoginSection({
             key={value}
             icon={icon}
             className={className?.button}
+            variant={variant}
             onClick={() =>
               providerAction({
                 type: providerActionType,

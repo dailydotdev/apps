@@ -28,7 +28,7 @@ export function SidebarUserButton({
                 </ProfileLink>
                 <SearchReferralButton className="ml-3" />
                 <div className="flex-1" />
-                <ProfileButton atMobileSidebar />
+                <ProfileButton settingsIconOnly />
               </div>
               <strong className="mb-0.5 typo-callout">{user.name}</strong>
               <p className="typo-footnote text-theme-label-secondary">
