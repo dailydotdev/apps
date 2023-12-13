@@ -306,6 +306,7 @@ describe('shortcut links component', () => {
     expect(trackEvent).toHaveBeenCalledWith({
       event_name: AnalyticsEvent.Impression,
       target_type: TargetType.Shortcuts,
+      extra: JSON.stringify({ source: 'custom' }),
     });
   });
 
@@ -319,6 +320,7 @@ describe('shortcut links component', () => {
     expect(trackEvent).toHaveBeenCalledWith({
       event_name: AnalyticsEvent.Click,
       target_type: TargetType.Shortcuts,
+      extra: JSON.stringify({ source: 'custom' }),
     });
   });
 });

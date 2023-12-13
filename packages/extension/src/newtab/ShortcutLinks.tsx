@@ -41,6 +41,7 @@ export default function ShortcutLinks({
     formRef,
     onSaveChanges,
   } = useShortcutLinks();
+  const shortcutSource = isManual ? 'custom' : 'browser';
 
   const trackedRef = useRef(false);
 
@@ -58,8 +59,9 @@ export default function ShortcutLinks({
     trackEvent({
       event_name: AnalyticsEvent.Impression,
       target_type: TargetType.Shortcuts,
+      extra: JSON.stringify({ source: shortcutSource }),
     });
-  }, [trackEvent, showTopSites]);
+  }, [trackEvent, showTopSites, shortcutSource]);
 
   if (!showTopSites) {
     return <></>;
@@ -103,6 +105,7 @@ export default function ShortcutLinks({
             trackEvent({
               event_name: AnalyticsEvent.Click,
               target_type: TargetType.Shortcuts,
+              extra: JSON.stringify({ source: shortcutSource }),
             });
           }}
         />
