@@ -129,5 +129,6 @@
     "uuid": "^8.3.2",
     "web-vitals": "^3.5.0",
     "webextension-polyfill-ts": "^0.22.0"
-  }
+  },
+  "sideEffects": false
 }
