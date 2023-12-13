@@ -47,18 +47,12 @@ export const RelatedPostsWidget = ({
 
   return (
     <div className={classNames(className, 'flex flex-col', widgetClasses)}>
-      <div
-        className={classNames(
-          'rounded-16 cursor-pointer laptop:cursor-auto flex justify-between items-center py-1.5 laptop:py-4 px-4 laptop:!pb-0 rounded-t-16',
-        )}
-      >
+      <div className="flex justify-between items-center py-1.5 laptop:py-4 px-4 rounded-16 rounded-t-16 cursor-pointer laptop:cursor-auto laptop:!pb-0">
         <p className="font-bold typo-callout text-theme-label-quaternary laptop:text-theme-label-quaternary">
           {post.numCollectionSources} sources
         </p>
       </div>
-      <div
-        className={classNames('flex pt-2 pb-0 laptop:min-h-[14rem] flex-col')}
-      >
+      <div className="flex flex-col pt-2 pb-0 laptop:min-h-[14rem]">
         {isLoading && (
           <article
             aria-busy
