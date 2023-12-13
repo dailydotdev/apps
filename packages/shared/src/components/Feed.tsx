@@ -128,7 +128,7 @@ export default function Feed<T>({
     useFeed(
       feedQueryKey,
       currentSettings.pageSize,
-      isSquadFeed || shouldUseFeedLayoutV1 ? 3 : currentSettings.adSpot,
+      isSquadFeed || shouldUseFeedLayoutV1 ? 2 : currentSettings.adSpot,
       numCards,
       {
         query,
