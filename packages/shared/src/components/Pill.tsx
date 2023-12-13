@@ -15,7 +15,7 @@ interface Props {
   className?: string;
 }
 
-const Pill = ({
+export const Pill = ({
   label,
   size = PillSize.Medium,
   className,
@@ -32,5 +32,3 @@ const Pill = ({
     </div>
   );
 };
-
-export default Pill;

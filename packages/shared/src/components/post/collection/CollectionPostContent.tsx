@@ -20,7 +20,7 @@ import {
   PostContentProps,
   PostNavigationProps,
 } from '../common';
-import Pill from '../../Pill';
+import { Pill } from '../../Pill';
 import { CollectionsIntro } from '../widgets';
 
 export const CollectionPostContent = ({

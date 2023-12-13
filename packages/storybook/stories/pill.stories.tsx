@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import Pill, { PillSize } from '@dailydotdev/shared/src/components/Pill';
+import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
 
 
 const meta: Meta<typeof Pill> = {

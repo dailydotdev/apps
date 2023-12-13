@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import Pill from '../../Pill';
+import { Pill } from '../../Pill';
 import { SourceAvatar, SourceAvatarProps } from '../../profile/source';
 import { ProfilePictureGroup } from '../../ProfilePictureGroup';
 
