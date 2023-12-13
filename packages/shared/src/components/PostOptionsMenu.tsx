@@ -245,9 +245,9 @@ export default function PostOptionsMenu({
   };
   const video = advancedSettings?.find(({ title }) => title === 'Videos');
   const onToggleVideo = async () => {
-    await onToggleSettings(video.id, false);
+    await onToggleSettings(video.id, true);
     await showMessageAndRemovePost(`⛔️ Video content blocked`, postIndex, () =>
-      onToggleSettings(video.id, true),
+      onToggleSettings(video.id, false),
     );
   };
 
