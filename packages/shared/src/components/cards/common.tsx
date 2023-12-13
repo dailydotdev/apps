@@ -29,6 +29,7 @@ export const Container = classed('div', 'relative flex flex-1 flex-col');
 export interface PostCardProps {
   post: Post;
   onPostClick?: Callback;
+  onBookmarkClick?: Callback;
   onUpvoteClick?: (post: Post, origin?: Origin) => unknown;
   onDownvoteClick?: (post: Post, origin?: Origin) => unknown;
   onCommentClick?: Callback;

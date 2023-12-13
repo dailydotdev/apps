@@ -14,10 +14,6 @@ import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
 import ScrollToTopButton from '../ScrollToTopButton';
 import styles from '../Feed.module.css';
-import {
-  ToastSubject,
-  useToastNotification,
-} from '../../hooks/useToastNotification';
 import { SearchBarInput, SearchBarSuggestionList } from '../search';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
@@ -25,10 +21,15 @@ import { SearchExperiment } from '../../lib/featureValues';
 import { webappUrl } from '../../lib/constants';
 import { useSearchSuggestions } from '../../hooks/search';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { FeedReadyMessage } from '../onboarding';
+import {
+  useFeedLayout,
+  useActions,
+  ToastSubject,
+  useToastNotification,
+} from '../../hooks';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -104,11 +105,12 @@ export const FeedContainer = ({
   } = useContext(SettingsContext);
   const { trackEvent } = useAnalyticsContext();
   const { completeAction, checkHasCompleted } = useActions();
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const router = useRouter();
   const searchValue = useFeature(feature.search);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
-  const isList = insaneMode && numCards > 1;
+  const isList = (insaneMode && numCards > 1) || shouldUseFeedLayoutV1;
   const feedGapPx = getFeedGapPx[gapClass(isList, spaciness)];
   const style = {
     '--num-cards': numCards,

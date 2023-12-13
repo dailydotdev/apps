@@ -10,3 +10,8 @@ export enum SearchExperiment {
   Control = 'control',
   V1 = 'v1',
 }
+
+export enum FeedLayout {
+  Control = 'control',
+  V1 = 'v1',
+}

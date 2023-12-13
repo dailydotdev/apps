@@ -27,7 +27,7 @@ export function LabeledImage({
     <Container className={classNames(className?.container, 'relative')}>
       <img
         className={classNames(
-          'w-full bg-cover opacity-64 aspect-square',
+          'w-full bg-cover opacity-64 aspect-square object-cover',
           className?.image,
         )}
         src={src}
