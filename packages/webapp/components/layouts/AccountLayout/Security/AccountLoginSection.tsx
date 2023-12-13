@@ -24,7 +24,7 @@ interface AccountLoginSectionProps {
   providerAction: (props: ManageSocialProvidersProps) => void;
   children?: ReactNode;
   className?: ClassName;
-  variant: ButtonVariant;
+  buttonVariant: ButtonVariant;
 }
 
 const providerLabel = {
@@ -40,7 +40,7 @@ function AccountLoginSection({
   providerAction,
   children,
   className,
-  variant = ButtonVariant.Primary,
+  buttonVariant = ButtonVariant.Primary,
 }: AccountLoginSectionProps): ReactElement {
   if (!providers?.length) {
     return null;
@@ -59,7 +59,7 @@ function AccountLoginSection({
             key={value}
             icon={icon}
             className={className?.button}
-            variant={variant}
+            variant={buttonVariant}
             onClick={() =>
               providerAction({
                 type: providerActionType,

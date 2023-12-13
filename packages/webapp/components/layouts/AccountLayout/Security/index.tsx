@@ -220,7 +220,7 @@ function AccountSecurityDefault({
         )}
       </AccountContentSection>
       <AccountLoginSection
-        variant={ButtonVariant.Primary}
+        buttonVariant={ButtonVariant.Primary}
         title="Add login account"
         description="Add more accounts to ensure you never lose access to your daily.dev
         profile and to make login quick and easy cross device"
@@ -236,7 +236,7 @@ function AccountSecurityDefault({
         providerAction={({ provider }) => unlinkProvider(provider)}
         providerActionType="unlink"
         className={{ button: 'hover:bg-theme-color-ketchup' }}
-        variant={ButtonVariant.Secondary}
+        buttonVariant={ButtonVariant.Secondary}
         providers={removeProviderList.filter(({ value }) =>
           userProviders?.result.includes(value),
         )}
