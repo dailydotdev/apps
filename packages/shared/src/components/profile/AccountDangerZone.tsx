@@ -54,7 +54,7 @@ function AccountDangerZone({
         size={ButtonSize.Small}
         variant={ButtonVariant.Primary}
         color={ButtonColor.Ketchup}
-        className="self-start mt-6 text-theme-label-primary"
+        className="self-start mt-6"
       >
         Delete account
       </Button>

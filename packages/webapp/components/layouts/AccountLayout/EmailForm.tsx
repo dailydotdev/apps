@@ -60,7 +60,7 @@ function EmailForm({
         />
       )}
       <Button
-        className="mt-6 ml-auto w-fit text-theme-label-primary"
+        className="mt-6 ml-auto w-fit"
         variant={ButtonVariant.Primary}
         color={ButtonColor.Cabbage}
       >
