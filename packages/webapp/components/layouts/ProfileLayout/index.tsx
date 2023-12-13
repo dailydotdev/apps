@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
 import {
   getProfile,
   getProfileSSR,
@@ -83,15 +77,7 @@ export default function ProfileLayout({
     enabled: initialProfile?.id === user?.id,
   });
 
-  if (!isFallback && !initialProfile) {
-    return <Custom404 />;
-  }
-
-  const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
-
   const queryKey = ['profile', initialProfile?.id];
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { data: fetchedProfile } = useQuery<PublicProfile>(
     queryKey,
     () => getProfile(initialProfile.id),
@@ -100,14 +86,22 @@ export default function ProfileLayout({
       enabled: !!initialProfile,
     },
   );
-
   // Needed because sometimes initialProfile is defined and fetchedProfile is not
   const profile = fetchedProfile ?? initialProfile;
-  const isCurrentUserProfile = profile && profile.id === user?.id;
-
+  const { twitterHandle, githubHandle, hashnodeHandle, portfolioLink } =
+    useMemo(() => {
+      if (typeof window === 'undefined' || !profile) {
+        return {};
+      }
+      const purify = DOMPurify(globalThis.window);
+      return {
+        twitterHandle: sanitizeOrNull(purify, profile?.twitter),
+        githubHandle: sanitizeOrNull(purify, profile?.github),
+        hashnodeHandle: sanitizeOrNull(purify, profile?.hashnode),
+        portfolioLink: sanitizeOrNull(purify, profile?.portfolio),
+      };
+    }, [profile]);
   const userRankQueryKey = ['userRank', initialProfile?.id];
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { data: userRank } = useQuery<UserReadingRankData>(
     userRankQueryKey,
     () =>
@@ -119,6 +113,14 @@ export default function ProfileLayout({
       enabled: !!initialProfile,
     },
   );
+
+  if (!isFallback && !initialProfile) {
+    return <Custom404 />;
+  }
+
+  const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
+
+  const isCurrentUserProfile = profile && profile.id === user?.id;
 
   const Seo: NextSeoProps = profile
     ? {
@@ -134,31 +136,6 @@ export default function ProfileLayout({
         },
       }
     : {};
-
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [twitterHandle, setTwitterHandle] = useState<string>();
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [githubHandle, setGithubHandle] = useState<string>();
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [hashnodeHandle, setHashnodeHandle] = useState<string>();
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [portfolioLink, setPortfolioLink] = useState<string>();
-
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    if (profile) {
-      const purify = DOMPurify(window);
-      setTwitterHandle(sanitizeOrNull(purify, profile.twitter));
-      setGithubHandle(sanitizeOrNull(purify, profile.github));
-      setHashnodeHandle(sanitizeOrNull(purify, profile.hashnode));
-      setPortfolioLink(sanitizeOrNull(purify, profile.portfolio));
-    }
-  }, [profile]);
 
   const isLoadingReferral = isCurrentUserProfile && !isReady;
 
