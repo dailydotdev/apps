@@ -8,6 +8,7 @@ import { Container, PostCardProps } from './common';
 import OptionsButton from '../buttons/OptionsButton';
 import FeedItemContainer from './FeedItemContainer';
 import { useFeedPreviewMode } from '../../hooks';
+import { PostType } from '../../graphql/posts';
 
 export const SharePostCard = forwardRef(function SharePostCard(
   {
@@ -38,12 +39,17 @@ export const SharePostCard = forwardRef(function SharePostCard(
     setSharedPostShort(containerRef.current.offsetHeight - height < 40);
   };
   const isFeedPreview = useFeedPreviewMode();
+  const isVideoType = post.sharedPost.type === PostType.VideoYouTube;
 
   return (
     <FeedItemContainer
       domProps={{
         ...domProps,
-        className: getPostClassNames(post, domProps.className, 'min-h-card'),
+        className: getPostClassNames(
+          post,
+          domProps.className,
+          'min-h-card max-h-card',
+        ),
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending }}
@@ -68,10 +74,11 @@ export const SharePostCard = forwardRef(function SharePostCard(
         title={post.title}
         onHeightChange={onSharedPostTextHeightChange}
       />
-      <Container ref={containerRef}>
+      <Container ref={containerRef} className="justify-end min-h-0">
         <SharedPostCardFooter
           sharedPost={post.sharedPost}
           isShort={isSharedPostShort}
+          isVideoType={isVideoType}
         />
         <ActionButtons
           openNewTab={openNewTab}
