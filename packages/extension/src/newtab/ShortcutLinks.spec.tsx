@@ -161,6 +161,12 @@ describe('shortcut links component', () => {
       const addShortcuts = await screen.findByText('Add shortcuts');
       expect(addShortcuts).toBeVisible();
     });
+
+    expect(trackEvent).toHaveBeenCalledWith({
+      event_name: AnalyticsEvent.Impression,
+      target_type: TargetType.Shortcuts,
+      extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
+    });
   });
 
   it('should display top sites if permission is previously granted', async () => {
@@ -169,6 +175,12 @@ describe('shortcut links component', () => {
 
     const shortcuts = await screen.findAllByRole('link');
     expect(shortcuts.length).toEqual(3);
+
+    expect(trackEvent).toHaveBeenCalledWith({
+      event_name: AnalyticsEvent.Impression,
+      target_type: TargetType.Shortcuts,
+      extra: JSON.stringify({ source: ShortcutsSourceType.Browser }),
+    });
   });
 
   it('should display top sites if permission is manually granted', async () => {
@@ -308,16 +320,6 @@ describe('shortcut links component', () => {
 
     expect(trackEvent).toHaveBeenCalledWith({
       event_name: AnalyticsEvent.SaveShortcutAccess,
-      target_type: TargetType.Shortcuts,
-      extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
-    });
-  });
-
-  it('should track impression event', () => {
-    renderComponent();
-
-    expect(trackEvent).toHaveBeenCalledWith({
-      event_name: AnalyticsEvent.Impression,
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
     });

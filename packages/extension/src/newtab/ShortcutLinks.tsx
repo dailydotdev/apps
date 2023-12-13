@@ -41,15 +41,16 @@ export default function ShortcutLinks({
     isManual,
     formRef,
     onSaveChanges,
+    isTopSiteActive,
   } = useShortcutLinks();
-  const shortcutSource = isManual
-    ? ShortcutsSourceType.Custom
-    : ShortcutsSourceType.Browser;
+  const shortcutSource = isTopSiteActive
+    ? ShortcutsSourceType.Browser
+    : ShortcutsSourceType.Custom;
 
   const trackedRef = useRef(false);
 
   useEffect(() => {
-    if (!showTopSites) {
+    if (!showTopSites || !hasCheckedPermission) {
       return;
     }
 
@@ -64,7 +65,7 @@ export default function ShortcutLinks({
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: shortcutSource }),
     });
-  }, [trackEvent, showTopSites, shortcutSource]);
+  }, [trackEvent, showTopSites, shortcutSource, hasCheckedPermission]);
 
   if (!showTopSites) {
     return <></>;
