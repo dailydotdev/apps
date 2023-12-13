@@ -1,6 +1,5 @@
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import classNames from 'classnames';
-import Link from 'next/link';
 import PostSourceInfo from './PostSourceInfo';
 import { ReadArticleButton } from '../cards/ReadArticleButton';
 import { LazyImage } from '../LazyImage';
@@ -12,23 +11,7 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { SharePostTitle } from './share';
 import { combinedClicks } from '../../lib/click';
 import { SourceType } from '../../graphql/sources';
-
-interface PostLinkProps {
-  href: string;
-  as?: string;
-  target?: string;
-  rel?: string;
-  className?: string;
-  children: React.ReactNode;
-}
-
-const PostLink = ({ href, as, children, ...props }: PostLinkProps) => {
-  return (
-    <Link href={href} as={as}>
-      <a {...props}>{children}</a>
-    </Link>
-  );
-};
+import { SharedPostLink } from './common/SharedPostLink';
 
 interface SharePostContentProps {
   post: Post;
@@ -51,18 +34,6 @@ function SharePostContent({
     return shouldShowSummary ? height : 0;
   }, [shouldShowSummary, height]);
 
-  const isUnknownSource = post.sharedPost.source.id === 'unknown';
-  const postLink = isUnknownSource
-    ? {
-        href: post.sharedPost.permalink,
-        target: '_blank',
-        rel: 'noopener',
-      }
-    : {
-        href: `${post.sharedPost.commentsPermalink}?squad=${post.source.handle}&n=${post.source.name}`,
-        as: post.sharedPost.commentsPermalink,
-      };
-
   const openArticle = (e: React.MouseEvent) => {
     e.stopPropagation();
     onReadArticle();
@@ -79,12 +50,13 @@ function SharePostContent({
       <div className="flex flex-col mt-8 rounded-16 border border-theme-divider-tertiary hover:border-theme-divider-secondary">
         <div className="flex flex-col-reverse laptop:flex-row p-4 max-w-full">
           <div className="flex flex-col flex-1">
-            <PostLink
-              {...postLink}
+            <SharedPostLink
+              post={post}
+              onGoToLinkProps={combinedClicks(openArticle)}
               className="flex flex-wrap mt-4 laptop:mt-0 mb-4 font-bold typo-body"
             >
               {post.sharedPost.title}
-            </PostLink>
+            </SharedPostLink>
             <PostSourceInfo
               date={
                 post.sharedPost.readTime
@@ -108,8 +80,9 @@ function SharePostContent({
             />
           </div>
 
-          <PostLink
-            {...postLink}
+          <SharedPostLink
+            post={post}
+            onGoToLinkProps={combinedClicks(openArticle)}
             className="block overflow-hidden ml-2 w-70 rounded-2xl cursor-pointer h-fit"
           >
             <LazyImage
@@ -119,7 +92,7 @@ function SharePostContent({
               eager
               fallbackSrc={cloudinary.post.imageCoverPlaceholder}
             />
-          </PostLink>
+          </SharedPostLink>
         </div>
         {post.sharedPost.summary && (
           <>

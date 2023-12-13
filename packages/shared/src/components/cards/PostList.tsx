@@ -26,6 +26,7 @@ export const PostList = forwardRef(function PostList(
     onMenuClick,
     onShare,
     onShareClick,
+    onBookmarkClick,
     openNewTab,
     children,
     domProps = {},
@@ -88,6 +89,7 @@ export const PostList = forwardRef(function PostList(
           onReadArticleClick={isCollectionPost ? undefined : onReadArticleClick}
           onShare={onShare}
           onShareClick={onShareClick}
+          onBookmarkClick={onBookmarkClick}
           className="relative self-stretch mt-1"
           onMenuClick={(event) => onMenuClick?.(event, post)}
           insaneMode
