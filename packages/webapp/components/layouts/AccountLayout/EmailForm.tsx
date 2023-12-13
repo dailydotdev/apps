@@ -1,4 +1,8 @@
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   PasswordField,
   PasswordFieldProps,
@@ -55,7 +59,11 @@ function EmailForm({
           label={passwordProps?.label || 'Password'}
         />
       )}
-      <Button className="mt-6 ml-auto w-fit bg-theme-color-cabbage btn-quaternary">
+      <Button
+        className="mt-6 ml-auto w-fit"
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Cabbage}
+      >
         Save changes
       </Button>
     </form>
