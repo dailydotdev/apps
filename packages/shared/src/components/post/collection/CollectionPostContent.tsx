@@ -80,7 +80,7 @@ export const CollectionPostContent = ({
       )}
 
       <PostContainer
-        className={classNames('relative gap-6', className?.content)}
+        className={classNames('relative', className?.content)}
         data-testid="postContainer"
       >
         {!hasNavigation && (
@@ -114,36 +114,38 @@ export const CollectionPostContent = ({
           origin={origin}
           post={post}
         >
-          <CollectionsIntro className="tablet:hidden" />
-          <Pill
-            label="Collection"
-            className="bg-theme-overlay-float-cabbage text-theme-color-cabbage"
-          />
+          <div className="flex flex-col gap-6 mb-6">
+            <CollectionsIntro className="tablet:hidden" />
+            <Pill
+              label="Collection"
+              className="bg-theme-overlay-float-cabbage text-theme-color-cabbage"
+            />
 
-          <h1
-            className="font-bold break-words typo-large-title"
-            data-testid="post-modal-title"
-          >
-            {post.title}
-          </h1>
-          {!!updatedAt && (
-            <div className="flex items-center text-theme-label-tertiary typo-footnote">
-              <span>Last updated</span> <Separator />
-              <time dateTime={updatedAt}>{postDateFormat(updatedAt)}</time>
-            </div>
-          )}
-          {image && (
-            <div className="block overflow-hidden w-full h-auto rounded-xl cursor-pointer">
-              <LazyImage
-                imgSrc={image}
-                imgAlt="Post cover image"
-                ratio="52%"
-                eager
-                fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-              />
-            </div>
-          )}
-          <Markdown content={contentHtml} />
+            <h1
+              className="font-bold break-words typo-large-title"
+              data-testid="post-modal-title"
+            >
+              {post.title}
+            </h1>
+            {!!updatedAt && (
+              <div className="flex items-center text-theme-label-tertiary typo-footnote">
+                <span>Last updated</span> <Separator />
+                <time dateTime={updatedAt}>{postDateFormat(updatedAt)}</time>
+              </div>
+            )}
+            {image && (
+              <div className="block overflow-hidden w-full h-auto rounded-xl cursor-pointer">
+                <LazyImage
+                  imgSrc={image}
+                  imgAlt="Post cover image"
+                  ratio="52%"
+                  eager
+                  fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+                />
+              </div>
+            )}
+            <Markdown content={contentHtml} />
+          </div>
         </BasePostContent>
       </PostContainer>
       <CollectionPostWidgets
