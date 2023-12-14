@@ -63,22 +63,20 @@ export const InfinitePaginationActions = ({
 }: InfinitePaginationActionsProps): ReactElement => {
   return (
     <div className="flex justify-end items-center p-3 border-t border-theme-divider-tertiary">
-      <div className="flex ">
-        <Button
-          {...buttonProps}
-          icon={<ArrowIcon className="-rotate-90" />}
-          className="btn-tertiary"
-          disabled={!hasPrevious}
-          onClick={onPrevious}
-        />
-        <Button
-          {...buttonProps}
-          icon={<ArrowIcon className="rotate-90" />}
-          className="btn-tertiary"
-          disabled={!hasNext}
-          onClick={onNext}
-        />
-      </div>
+      <Button
+        {...buttonProps}
+        icon={<ArrowIcon className="-rotate-90" />}
+        className="btn-tertiary"
+        disabled={!hasPrevious}
+        onClick={onPrevious}
+      />
+      <Button
+        {...buttonProps}
+        icon={<ArrowIcon className="rotate-90" />}
+        className="btn-tertiary"
+        disabled={!hasNext}
+        onClick={onNext}
+      />
     </div>
   );
 };
