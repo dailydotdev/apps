@@ -7,7 +7,7 @@ module.exports = {
       'postcss-simple-vars',
       {
         variables: {
-          pageMaxWidth: '40rem',
+          pageMaxWidth: '42.5rem',
           headerHeight: '3rem',
           headerRankHeight: '4.5rem',
           navBarHeight: '3rem',

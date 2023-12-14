@@ -5,7 +5,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import SettingsIcon from '../icons/Settings';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 
 const ProfileMenu = dynamic(
@@ -14,22 +14,21 @@ const ProfileMenu = dynamic(
 
 interface ProfileButtonProps {
   className?: string;
-  atMobileSidebar?: boolean;
+  settingsIconOnly?: boolean;
 }
 
 export default function ProfileButton({
   className,
-  atMobileSidebar,
+  settingsIconOnly,
 }: ProfileButtonProps): ReactElement {
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
   const { user } = useContext(AuthContext);
 
   return (
     <>
-      {atMobileSidebar ? (
+      {settingsIconOnly ? (
         <Button
-          iconOnly
-          className="btn btn-tertiary"
+          variant={ButtonVariant.Tertiary}
           onClick={wrapHandler(() => onUpdate(!isOpen))}
           icon={<SettingsIcon />}
         />
@@ -38,14 +37,12 @@ export default function ProfileButton({
           <button
             type="button"
             className={classNames(
-              'items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline',
+              'items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline gap-2',
               className ?? 'flex',
             )}
             onClick={wrapHandler(() => onUpdate(!isOpen))}
           >
-            <span className="hidden laptop:block mr-2 ml-3">
-              {user.reputation ?? 0}
-            </span>
+            <span className="block ml-3">{user.reputation ?? 0}</span>
             <ProfilePicture user={user} size="medium" />
           </button>
         </SimpleTooltip>

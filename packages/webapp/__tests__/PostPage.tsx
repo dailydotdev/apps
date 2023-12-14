@@ -429,8 +429,8 @@ it('should open new comment modal and set the correct props', async () => {
 
 it('should not show stats when they are zero', async () => {
   renderPost();
-  const el = await screen.findByTestId('statsBar');
-  expect(el).toHaveTextContent('');
+  const el = screen.queryByTestId('statsBar');
+  expect(el).not.toBeInTheDocument();
 });
 
 it('should show num upvotes when it is greater than zero', async () => {
@@ -538,8 +538,8 @@ it('should not update post on subscription message when id is not the same', asy
       numComments: 0,
     },
   });
-  const el = await screen.findByTestId('statsBar');
-  expect(el).not.toHaveTextContent('15 Upvotes');
+  const el = screen.queryByTestId('statsBar');
+  expect(el).not.toBeInTheDocument();
 });
 
 it('should send bookmark mutation', async () => {
