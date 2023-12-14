@@ -34,8 +34,10 @@ export const PostList = forwardRef(function PostList(
 ): ReactElement {
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
-  const { trending, pinnedAt, type } = post;
-  const isVideoType = type === PostType.VideoYouTube;
+  const { trending, pinnedAt, type, sharedPost } = post;
+  const isVideoType =
+    type === PostType.VideoYouTube ||
+    sharedPost?.type === PostType.VideoYouTube;
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
