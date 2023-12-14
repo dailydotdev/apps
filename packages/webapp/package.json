@@ -102,5 +102,6 @@
     "ts-jest": "^26.5.4",
     "typescript": "^4.6.4",
     "vercel": "^21.3.3"
-  }
+  },
+  "sideEffects": ["*.css"]
 }
