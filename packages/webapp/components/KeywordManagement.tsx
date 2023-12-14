@@ -15,7 +15,11 @@ import { NextSeo } from 'next-seo';
 import ActivitySection from '@dailydotdev/shared/src/components/profile/ActivitySection';
 import Link from 'next/link';
 import { smallPostImage } from '@dailydotdev/shared/src/lib/image';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import dynamic from 'next/dynamic';
@@ -157,14 +161,14 @@ export default function KeywordManagement({
           loading={currentAction === 'allow'}
           onClick={onAllow}
           disabled={disableActions}
-          className="btn-primary"
+          variant={ButtonVariant.Primary}
         >
           Allow
         </Button>
         <Button
           disabled={disableActions}
           onClick={onSynonym}
-          className="btn-secondary"
+          variant={ButtonVariant.Secondary}
         >
           Synonym
         </Button>
@@ -172,7 +176,8 @@ export default function KeywordManagement({
           loading={currentAction === 'deny'}
           onClick={onDeny}
           disabled={disableActions}
-          className="btn-primary-ketchup"
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Ketchup}
         >
           Deny
         </Button>

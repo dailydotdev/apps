@@ -2,7 +2,8 @@ import AlertBanner from '@dailydotdev/shared/src/components/alert/AlertBanner';
 import {
   Button,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import useAccountEmailFlow from '@dailydotdev/shared/src/hooks/useAccountEmailFlow';
@@ -37,8 +38,9 @@ function EmailSentSection({
       <span className="flex flex-row gap-4 mt-4">
         <Button
           onClick={() => sendEmail(email)}
-          buttonSize={ButtonSize.XSmall}
-          className="w-fit btn-primary"
+          size={ButtonSize.XSmall}
+          variant={ButtonVariant.Primary}
+          className="w-fit"
           disabled={isLoading || resendTimer > 0}
         >
           {resendTimer === 0 ? 'Resend' : `${resendTimer}s`}
@@ -46,8 +48,9 @@ function EmailSentSection({
         {onCancel && (
           <Button
             onClick={onCancel}
-            buttonSize={ButtonSize.XSmall}
-            className="w-fit btn-secondary"
+            size={ButtonSize.XSmall}
+            variant={ButtonVariant.Secondary}
+            className="w-fit"
           >
             Cancel Request
           </Button>
