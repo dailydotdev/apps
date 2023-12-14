@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { Flipped, Flipper } from 'react-flip-toolkit';
 import HomeIcon from '@dailydotdev/shared/src/components/icons/Home';
 import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
