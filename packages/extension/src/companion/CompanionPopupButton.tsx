@@ -70,7 +70,7 @@ export const CompanionPopupButton = (): ReactElement => {
             : ButtonVariant.Secondary
         }
         color={ButtonColor.Cabbage}
-        className="mr-4 border-theme-status-cabbage hidden laptop:flex"
+        className="hidden laptop:flex mr-4 border-theme-status-cabbage"
         icon={
           <CompanionIcon
             secondary={showCompanionPermission}

@@ -14,7 +14,6 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
-import classNames from 'classnames';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import {
   AnalyticsEvent,

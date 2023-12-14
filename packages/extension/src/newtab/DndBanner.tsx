@@ -26,7 +26,7 @@ export default function DndBanner(): ReactElement {
       <Button
         size={ButtonSize.XSmall}
         variant={ButtonVariant.Tertiary}
-        className="laptop:inset-y-0 top-2 right-2 laptop:my-auto absolute"
+        className="absolute laptop:inset-y-0 top-2 right-2 laptop:my-auto"
         icon={<XIcon />}
         onClick={turnOff}
       />
