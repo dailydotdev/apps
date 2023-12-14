@@ -168,7 +168,10 @@ export function PostContent({
             createdAt={post.createdAt}
             readTime={post.readTime}
             isVideoType={isVideoType}
-            className="mt-4 mb-8 !typo-callout"
+            className={classNames(
+              'mt-4 !typo-callout',
+              isVideoType ? 'mb-4' : 'mb-8',
+            )}
           />
           {post.type !== PostType.VideoYouTube && (
             <a
