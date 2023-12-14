@@ -15,7 +15,7 @@ function ShareYouTubeContent({ post }: ShareYouTubeContentProps): ReactElement {
   return (
     <>
       <SharePostTitle post={post} />
-      <SharedLinkContainer summary={post?.sharedPost?.summary}>
+      <SharedLinkContainer className="mt-6" summary={post?.sharedPost?.summary}>
         <YoutubeVideo
           title={post?.sharedPost?.title}
           videoId={post?.sharedPost?.videoId}
