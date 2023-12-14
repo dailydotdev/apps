@@ -114,7 +114,12 @@ export const CollectionPostContent = ({
           origin={origin}
           post={post}
         >
-          <div className="flex flex-col gap-6 mb-6">
+          <div
+            className={classNames(
+              'flex flex-col gap-6 mb-6',
+              hasNavigation ? 'mt-6' : 'mt-6 tablet:mt-0',
+            )}
+          >
             <CollectionsIntro className="tablet:hidden" />
             <Pill
               label="Collection"
