@@ -40,7 +40,11 @@ export default function PostMetadata({
       )}
     >
       {isVideoType && insaneMode && (
-        <PlayIcon secondary size={IconSize.XXSmall} className="mr-1" />
+        <PlayIcon
+          secondary
+          size={IconSize.XXSmall}
+          className="my-auto mr-1 text-theme-label-primary"
+        />
       )}
       {!!description && <span>{description}</span>}
       {!!createdAt && !!description && <Separator />}
