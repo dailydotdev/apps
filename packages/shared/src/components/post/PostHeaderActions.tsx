@@ -16,6 +16,7 @@ import {
   demotePost,
   internalReadTypes,
   Post,
+  PostType,
   promotePost,
 } from '../../graphql/posts';
 import classed from '../../lib/classed';
@@ -96,13 +97,15 @@ export function PostHeaderActions({
       }
     }
   };
+  const readButtonText =
+    post.type === PostType.VideoYouTube ? 'Watch video' : 'Read post';
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
       {!isInternalReadType && onReadArticle && (
         <SimpleTooltip
           placement="bottom"
-          content="Read post"
+          content={readButtonText}
           disabled={!inlineActions}
         >
           <Button
@@ -114,7 +117,7 @@ export function PostHeaderActions({
             onClick={onReadArticle}
             data-testid="postActionsRead"
           >
-            {!inlineActions && 'Read post'}
+            {!inlineActions && readButtonText}
           </Button>
         </SimpleTooltip>
       )}
