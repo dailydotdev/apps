@@ -8,6 +8,7 @@ import { AllFeedPages } from '../lib/query';
 
 interface UseFeedLayoutProps {
   feedName?: AllFeedPages;
+  feedRelated?: boolean;
 }
 
 interface UseFeedLayout {
@@ -16,6 +17,7 @@ interface UseFeedLayout {
 
 export const useFeedLayout = ({
   feedName: feedNameProp,
+  feedRelated = true,
 }: UseFeedLayoutProps = {}): UseFeedLayout => {
   const { feedName } = useContext(ActiveFeedContext);
 
@@ -24,7 +26,7 @@ export const useFeedLayout = ({
   const isIncludedFeed = Object.values(SharedFeedPage).includes(
     (feedNameProp ?? feedName) as SharedFeedPage,
   );
-  const shouldUseFeedLayoutV1 = isV1 && isIncludedFeed;
+  const shouldUseFeedLayoutV1 = isV1 && (!feedRelated || isIncludedFeed);
 
   return {
     shouldUseFeedLayoutV1,
