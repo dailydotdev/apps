@@ -16,7 +16,7 @@ import {
   EmptyMessage,
 } from './common';
 import { ownershipGuide } from '../../lib/constants';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import ActivitySection from './ActivitySection';
 import { smallPostImage } from '../../lib/image';
 import EyeIcon from '../icons/Eye';
@@ -182,7 +182,8 @@ export default function PostsSection({
             value={user.twitter}
           />
           <Button
-            className="mt-4 w-28 btn-primary"
+            className="mt-4 w-28"
+            variant={ButtonVariant.Primary}
             type="submit"
             disabled={isLoading}
           >

@@ -54,7 +54,7 @@ export type ButtonElementType<Tag extends AllowedTags> = Tag extends 'a'
   : HTMLButtonElement;
 
 export type ButtonProps<T extends AllowedTags> = BaseButtonProps &
-  HTMLAttributes<T> &
+  HTMLAttributes<AllowedElements> &
   JSX.IntrinsicElements[T] & {
     ref?: Ref<ButtonElementType<T>>;
   };

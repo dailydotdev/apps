@@ -13,8 +13,12 @@ export function PostUpvotesCommentsCount({
 }: PostUpvotesCommentsCountProps): ReactElement {
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
+  const hasUpvotesOrCommentsOrViews =
+    upvotes > 0 || comments > 0 || post.views > 0;
 
-  return (
+  return !hasUpvotesOrCommentsOrViews ? (
+    <></>
+  ) : (
     <div
       className="flex gap-x-4 items-center my-5 text-theme-label-tertiary typo-callout"
       data-testid="statsBar"
