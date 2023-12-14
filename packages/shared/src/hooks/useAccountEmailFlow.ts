@@ -27,6 +27,7 @@ interface UseAccountEmailProps {
   onVerifyCodeSuccess?: () => void;
   onError?: (error: string) => void;
   onTimerFinished?: () => void;
+  email?: string;
 }
 
 type EmailFlow = AuthFlow.Recovery | AuthFlow.Verification;
@@ -39,6 +40,7 @@ function useAccountEmailFlow({
   onVerifyCodeSuccess,
   onError,
   onTimerFinished,
+  email: emailProp,
 }: UseAccountEmailProps): UseAccountEmail {
   const [resentCount, setResentCount] = useState(0);
   const { timer, setTimer, runTimer } = useTimer(onTimerFinished, 0);
@@ -46,9 +48,7 @@ function useAccountEmailFlow({
   const { data: emailFlow } = useQuery(
     [{ type: flow, sentCount: resentCount }],
     ({ queryKey: [{ type }] }) =>
-      flowId
-        ? getKratosFlow(AuthFlow.Recovery, flowId)
-        : initializeKratosFlow(type),
+      flowId ? getKratosFlow(flow, flowId) : initializeKratosFlow(type),
     {
       ...(flowId
         ? { ...disabledRefetch, retry: false }
@@ -91,6 +91,7 @@ function useAccountEmailFlow({
         params: {
           code,
           method: 'code',
+          email: emailProp,
           csrf_token: getNodeValue('csrf_token', emailFlow.ui.nodes),
         },
       }),

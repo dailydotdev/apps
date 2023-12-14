@@ -41,7 +41,7 @@ import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
 import EmailVerified from './EmailVerified';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import SettingsContext from '../../contexts/SettingsContext';
-import { useToastNotification } from '../../hooks/useToastNotification';
+import { useToastNotification } from '../../hooks';
 import CodeVerificationForm from './CodeVerificationForm';
 import ChangePasswordForm from './ChangePasswordForm';
 import { isTesting } from '../../lib/constants';
@@ -170,10 +170,14 @@ function AuthOptions({
   const {
     isReady: isRegistrationReady,
     registration,
+    verificationFlowId,
     validateRegistration,
     onSocialRegistration,
   } = useRegistration({
     key: ['registration_form'],
+    onInitializeVerification: () => {
+      onSetActiveDisplay(AuthDisplay.EmailVerification);
+    },
     onValidRegistration: async () => {
       setIsRegistration(true);
       const { data } = await refetchBoot();
@@ -484,7 +488,7 @@ function AuthOptions({
         </Tab>
         <Tab label={AuthDisplay.EmailVerification}>
           <AuthHeader simplified={simplified} title="Verify your email" />
-          <EmailCodeVerification email={email} />
+          <EmailCodeVerification email={email} flowId={verificationFlowId} />
         </Tab>
         <Tab label={AuthDisplay.VerifiedEmail}>
           <EmailVerified hasUser={!!user} simplified={simplified}>

@@ -12,22 +12,21 @@ import VIcon from '../icons/V';
 
 interface EmailCodeVerificationProps extends AuthFormProps {
   email: string;
+  flowId: string;
   onSubmit?: () => void;
 }
 function EmailCodeVerification({
   email,
+  flowId,
   onSubmit,
 }: EmailCodeVerificationProps): ReactElement {
-  const [flowId, setFlowId] = useState<string>();
   const [hint, setHint] = useState('');
   const { sendEmail, verifyCode, resendTimer, isLoading } = useAccountEmailFlow(
     {
       flow: AuthFlow.Verification,
+      email,
       flowId,
       onError: setHint,
-      onSuccess: (_, id) => {
-        setFlowId(id);
-      },
       onVerifyCodeSuccess: () => {
         onSubmit();
       },
@@ -74,7 +73,7 @@ function EmailCodeVerification({
         rightIcon={<VIcon className="text-theme-color-avocado" />}
       />
       <TextField
-        className={{ container: 'mt-6 w-full' }}
+        className={{ container: 'w-full' }}
         name="code"
         type="code"
         inputId="code"
@@ -84,12 +83,16 @@ function EmailCodeVerification({
         onChange={() => hint && setHint('')}
         leftIcon={<KeyIcon />}
         actionButton={
-          <Button className="btn-primary" onClick={onSendCode}>
+          <Button className="btn-primary" type="button" onClick={onSendCode}>
             {resendTimer === 0 ? 'Resend' : `Resend code ${resendTimer}s`}
           </Button>
         }
       />
-      <Button className="mt-6 btn-primary" type="submit" loading={isLoading}>
+      <Button
+        className="mt-6 w-full btn-primary"
+        type="submit"
+        loading={isLoading}
+      >
         Verify
       </Button>
     </AuthForm>

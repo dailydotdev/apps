@@ -167,9 +167,25 @@ export interface AuthSession extends Partial<LogoutSessionData> {
   issued_at: Date;
 }
 
+export enum ContinueWithAction {
+  ShowVerification = 'show_verification_ui',
+}
+
+interface Flow {
+  id: string;
+  url: string;
+  verifiable_address: string;
+}
+
+interface ContinueWith {
+  action: ContinueWithAction;
+  flow: Flow;
+}
+
 export interface SuccessfulRegistrationData {
   session: AuthSession;
   identity: Identity;
+  continue_with: ContinueWith[];
 }
 
 export interface KratosError {
