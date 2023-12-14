@@ -32,7 +32,7 @@ function SharePostContent({
   return (
     <>
       <SharePostTitle post={post} />
-      <SharedLinkContainer className="mt-8">
+      <SharedLinkContainer className="mt-8 mb-5">
         <div className="flex flex-col-reverse laptop:flex-row p-4 max-w-full">
           <div className="flex flex-col flex-1">
             <SharedPostLink
