@@ -1,5 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
-import { formToJson } from '../../lib/form';
+import React, { ReactElement, useState } from 'react';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { AuthFormProps } from './common';
@@ -11,16 +10,20 @@ import MailIcon from '../icons/Mail';
 import VIcon from '../icons/V';
 
 interface EmailCodeVerificationProps extends AuthFormProps {
+  code?: string;
   email: string;
   flowId: string;
   onSubmit?: () => void;
 }
 function EmailCodeVerification({
-  email,
+  code: codeProp,
+  email: emailProp,
   flowId,
   onSubmit,
 }: EmailCodeVerificationProps): ReactElement {
   const [hint, setHint] = useState('');
+  const [code, setCode] = useState(codeProp);
+  const [email, setEmail] = useState(emailProp);
   const { sendEmail, verifyCode, resendTimer, isLoading } = useAccountEmailFlow(
     {
       flow: AuthFlow.Verification,
@@ -40,19 +43,12 @@ function EmailCodeVerification({
     //   event_name: AuthEventNames.SubmitForgotPassword,
     // });
     setHint('');
-    const { code } = formToJson<{ code: string }>(e.currentTarget);
     await verifyCode(code);
   };
 
-  const onSendCode = () => {};
-
-  useEffect(() => {
-    if (!email || flowId) {
-      return;
-    }
-
+  const onSendCode = () => {
     sendEmail(email);
-  }, [sendEmail, email, flowId]);
+  };
 
   return (
     <AuthForm
@@ -64,12 +60,13 @@ function EmailCodeVerification({
         saveHintSpace
         className={{ container: 'w-full' }}
         leftIcon={<MailIcon />}
-        name="traits.email"
+        name="email"
         inputId="email"
         label="Email"
         type="email"
         value={email}
-        readOnly
+        readOnly={!!flowId}
+        valueChanged={setEmail}
         rightIcon={<VIcon className="text-theme-color-avocado" />}
       />
       <TextField
@@ -79,7 +76,9 @@ function EmailCodeVerification({
         inputId="code"
         label="Code"
         hint={hint}
+        defaultValue={code}
         valid={!hint}
+        valueChanged={setCode}
         onChange={() => hint && setHint('')}
         leftIcon={<KeyIcon />}
         actionButton={
