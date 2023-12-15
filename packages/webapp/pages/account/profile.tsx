@@ -7,7 +7,11 @@ import TwitterIcon from '@dailydotdev/shared/src/components/icons/Twitter';
 import { UserIcon } from '@dailydotdev/shared/src/components/icons';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import React, { ReactElement, useContext, useRef } from 'react';
 import useProfileForm, {
   UpdateProfileParameters,
@@ -52,7 +56,9 @@ const AccountProfilePage = (): ReactElement => {
       title="Profile"
       footer={
         <Button
-          className="ml-auto btn-primary-cabbage"
+          className="ml-auto"
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Cabbage}
           onClick={onSubmit}
           disabled={isLoading}
         >

@@ -12,7 +12,7 @@ import {
 } from '../../graphql/feedSettings';
 import { graphqlUrl } from '../../lib/config';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
-import { Button } from '../buttons/Button';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { SearchField } from '../fields/SearchField';
 import useDebounce from '../../hooks/useDebounce';
@@ -169,26 +169,32 @@ export function FilterOnboardingV4({
             </ElementPlaceholder>
           ))}
         {!isLoading &&
-          tags?.map((tag) => (
-            <Button
-              key={tag.name}
-              className={classNames(
-                'btn',
-                selectedTags.has(tag.name) ? 'btn-primary-cabbage' : 'btn-tag',
-              )}
-              onClick={() => {
-                onClickTag({ tag });
-              }}
-            >
-              {tag.name}
-              {!searchQuery && !!recommendedTags?.has(tag.name) && (
-                <AlertDot
-                  className="absolute top-1 right-1"
-                  color={AlertColor.Cabbage}
-                />
-              )}
-            </Button>
-          ))}
+          tags?.map((tag) => {
+            const isSelected = selectedTags.has(tag.name);
+            return (
+              <Button
+                key={tag.name}
+                className={classNames({
+                  'btn-tag': !isSelected,
+                })}
+                variant={
+                  isSelected ? ButtonVariant.Primary : ButtonVariant.Float
+                }
+                color={isSelected ? ButtonColor.Cabbage : undefined}
+                onClick={() => {
+                  onClickTag({ tag });
+                }}
+              >
+                {tag.name}
+                {!searchQuery && !!recommendedTags?.has(tag.name) && (
+                  <AlertDot
+                    className="absolute top-1 right-1"
+                    color={AlertColor.Cabbage}
+                  />
+                )}
+              </Button>
+            );
+          })}
       </div>
     </div>
   );

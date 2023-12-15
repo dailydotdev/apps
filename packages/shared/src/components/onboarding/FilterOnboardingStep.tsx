@@ -2,7 +2,7 @@ import React, { ReactElement, useContext } from 'react';
 import Container from './OnboardingStep';
 import { Modal } from '../modals/common/Modal';
 import { Justify } from '../utilities';
-import { Button } from '../buttons/Button';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import { OnboardingStep } from './common';
 import { ModalPropsContext } from '../modals/common/types';
 import { FilterOnboarding } from './FilterOnboarding';
@@ -27,12 +27,16 @@ export function FilterOnboardingStep(): ReactElement {
           </Container>
           <Modal.Footer justify={Justify.Between}>
             <Button
-              className="btn-tertiary"
+              variant={ButtonVariant.Tertiary}
               onClick={activeStepIndex === 0 ? onRequestClose : previousStep}
             >
               {activeStepIndex === 0 ? 'Close' : 'Back'}
             </Button>
-            <Button className="bg-theme-color-cabbage" onClick={nextStep}>
+            <Button
+              color={ButtonColor.Cabbage}
+              variant={ButtonVariant.Primary}
+              onClick={nextStep}
+            >
               Next
             </Button>
           </Modal.Footer>

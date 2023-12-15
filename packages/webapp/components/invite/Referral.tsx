@@ -2,7 +2,8 @@ import React, { ReactElement, useEffect } from 'react';
 import {
   Button,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -72,9 +73,10 @@ export function Referral({
           what’s out there. Maybe 😉
         </p>
         <Button
-          buttonSize={ButtonSize.Large}
+          size={ButtonSize.Large}
+          variant={ButtonVariant.Primary}
           // important has been used is some classnames to override the default styles as agreed on [thread](https://dailydotdev.slack.com/archives/C05P9ET7S9K/p1699023366663489?thread_ts=1699011522.350609&cid=C05P9ET7S9K)
-          className="p-4 mx-auto laptop:mx-0 mt-6 tablet:mt-12 max-w-[17.5rem] tablet:max-w-fit btn-primary tablet:!h-16 tablet:!p-0 tablet:!px-6"
+          className="p-4 mx-auto laptop:mx-0 mt-6 tablet:mt-12 max-w-[17.5rem] tablet:max-w-fit tablet:!h-16 tablet:!p-0 tablet:!px-6"
           tag="a"
           href={downloadBrowserExtension}
           onClick={() => {
