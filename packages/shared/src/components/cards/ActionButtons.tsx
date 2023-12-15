@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import { Post, UserPostVote } from '../../graphql/posts';
+import { Post, PostType, UserPostVote } from '../../graphql/posts';
 import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import UpvoteIcon from '../icons/Upvote';
@@ -163,7 +163,11 @@ export default function ActionButtons({
         >
           <ReadArticleButton
             className="mr-2 btn-primary"
-            href={post.permalink}
+            href={
+              post.type === PostType.Share
+                ? post.sharedPost.permalink
+                : post.permalink
+            }
             onClick={onReadArticleClick}
             openNewTab={openNewTab}
           />
