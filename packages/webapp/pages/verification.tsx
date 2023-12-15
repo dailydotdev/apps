@@ -2,6 +2,7 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import EmailCodeVerification from '@dailydotdev/shared/src/components/auth/EmailCodeVerification';
 import { useRouter } from 'next/router';
 import AuthHeader from '@dailydotdev/shared/src/components/auth/AuthHeader';
+import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
 
 const Verification = (): ReactElement => {
   const [email, setEmail] = useState<string>();
@@ -29,12 +30,14 @@ const Verification = (): ReactElement => {
   }
 
   return (
-    <div className="pt-10 mx-auto w-full max-w-[26.25rem]">
+    <div className="p-4 w-full">
+      <HeaderLogo onLogoClick={() => router.push('/')} />
       <AuthHeader title="Verify your email" simplified />
       <EmailCodeVerification
         email={email}
         flowId={flowId}
         code={router?.query?.code as string}
+        className="mx-auto max-w-[30rem]"
       />
     </div>
   );

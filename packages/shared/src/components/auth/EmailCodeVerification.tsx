@@ -1,4 +1,5 @@
 import React, { ReactElement, useState } from 'react';
+import classNames from 'classnames';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { AuthFormProps } from './common';
@@ -14,12 +15,14 @@ interface EmailCodeVerificationProps extends AuthFormProps {
   email: string;
   flowId: string;
   onSubmit?: () => void;
+  className?: string;
 }
 function EmailCodeVerification({
   code: codeProp,
   email: emailProp,
   flowId,
   onSubmit,
+  className,
 }: EmailCodeVerificationProps): ReactElement {
   const [hint, setHint] = useState('');
   const [code, setCode] = useState(codeProp);
@@ -52,7 +55,7 @@ function EmailCodeVerification({
 
   return (
     <AuthForm
-      className="flex flex-col items-end py-8 px-14"
+      className={classNames('flex flex-col items-end py-8 px-14', className)}
       onSubmit={onCodeVerification}
       data-testid="email_verification_form"
     >
