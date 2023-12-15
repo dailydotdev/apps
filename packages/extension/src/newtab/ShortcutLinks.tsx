@@ -8,9 +8,12 @@ import React, {
 } from 'react';
 import PlusIcon from '@dailydotdev/shared/src/components/icons/Plus';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
-import classNames from 'classnames';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import {
   AnalyticsEvent,
@@ -115,8 +118,10 @@ export default function ShortcutLinks({
         />
       ) : (
         <Button
-          className={classNames('btn-tertiary', className)}
-          rightIcon={<PlusIcon />}
+          className={className}
+          variant={ButtonVariant.Tertiary}
+          icon={<PlusIcon />}
+          iconPosition={ButtonIconPosition.Right}
           onClick={onOptionsOpen}
         >
           Add shortcuts

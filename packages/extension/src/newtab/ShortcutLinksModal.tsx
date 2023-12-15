@@ -1,5 +1,9 @@
 import React, { FormEventHandler, MutableRefObject, ReactElement } from 'react';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { UserIcon } from '@dailydotdev/shared/src/components/icons';
 import SitesIcon from '@dailydotdev/shared/src/components/icons/Sites';
 import {
@@ -83,13 +87,18 @@ export default function CustomLinksModal({
           <Button
             onClick={onRevokePermission}
             form="shortcuts-modal"
-            className="btn-primary-ketchup text-theme-label-primary"
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Ketchup}
             type="button"
           >
             Revoke access
           </Button>
         )}
-        <Button className="btn-primary" form="shortcuts-modal" type="submit">
+        <Button
+          variant={ButtonVariant.Primary}
+          form="shortcuts-modal"
+          type="submit"
+        >
           Save changes
         </Button>
       </Modal.Footer>
