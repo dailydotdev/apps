@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import AuthDefault from './AuthDefault';
@@ -30,6 +31,7 @@ import {
   AuthFlow,
   getKratosFlow,
   getKratosProviders,
+  KRATOS_ERROR,
   SocialRegistrationFlow,
 } from '../../lib/kratos';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
@@ -109,6 +111,7 @@ function AuthOptions({
   simplified = false,
   initialEmail = '',
 }: AuthOptionsProps): ReactElement {
+  const router = useRouter();
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -211,6 +214,21 @@ function AuthOptions({
     ...(!isTesting && { queryEnabled: !user && isRegistrationReady }),
     trigger,
     provider: chosenProvider,
+    onLoginError: (flowData) => {
+      if (!flowData?.ui?.messages?.length) {
+        return;
+      }
+
+      const unverified = flowData.ui.messages.find(
+        ({ id }) => id === KRATOS_ERROR.UNVERIFIED,
+      );
+
+      if (!unverified) {
+        return;
+      }
+
+      router.push(`/verification?email=${encodeURIComponent(email)}`);
+    },
   });
   const onProfileSuccess = async () => {
     await refetchBoot();

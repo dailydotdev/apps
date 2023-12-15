@@ -15,6 +15,7 @@ import {
   AuthSession,
   EmptyObjectLiteral,
   getKratosSession,
+  InitializationData,
   initializeKratosFlow,
   submitKratosFlow,
 } from '../lib/kratos';
@@ -43,6 +44,7 @@ interface UseLoginProps {
   provider?: string;
   session?: AuthSession;
   onSuccessfulLogin?: (() => Promise<void>) | (() => void);
+  onLoginError?: (flow: InitializationData) => void;
 }
 
 const useLogin = ({
@@ -52,6 +54,7 @@ const useLogin = ({
   queryEnabled = true,
   queryParams = {},
   session,
+  onLoginError,
 }: UseLoginProps = {}): UseLogin => {
   const { onUpdateSignBack } = useSignBack();
   const { displayToast } = useToastNotification();
@@ -87,6 +90,9 @@ const useLogin = ({
             }),
           });
           setHint(labels.auth.error.invalidEmailOrPassword);
+          if (onLoginError) {
+            onLoginError(error);
+          }
           return;
         }
 
