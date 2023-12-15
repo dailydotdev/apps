@@ -23,10 +23,12 @@ export const useFeedLayout = ({
 
   const feedLayoutVersion = useFeature(feature.feedLayout);
   const isV1 = feedLayoutVersion === FeedLayout.V1;
-  const isIncludedFeed = Object.values(SharedFeedPage).includes(
-    (feedNameProp ?? feedName) as SharedFeedPage,
-  );
-  const shouldUseFeedLayoutV1 = isV1 && (!feedRelated || isIncludedFeed);
+  const isIncludedFeed = feedRelated
+    ? Object.values(SharedFeedPage).includes(
+        (feedNameProp ?? feedName) as SharedFeedPage,
+      )
+    : !feedRelated;
+  const shouldUseFeedLayoutV1 = isV1 && isIncludedFeed;
 
   return {
     shouldUseFeedLayoutV1,

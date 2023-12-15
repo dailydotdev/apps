@@ -10,7 +10,7 @@ import dynamic from 'next/dynamic';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
-import { FeedPage, SharedFeedPage } from './utilities';
+import { FeedPage, FeedPageLayoutV1, SharedFeedPage } from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
@@ -33,7 +33,7 @@ import {
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { cloudinary } from '../lib/image';
-import { useViewSize, ViewSize } from '../hooks';
+import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
 
@@ -152,6 +152,8 @@ export default function MainFeedLayout({
   const feedVersion = useFeature(feature.feedVersion);
   const searchVersion = useFeature(feature.search);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
+  // TODO: seems like in a lot of places we are not aware of the feed context as that is initiated on the Feed...should we move context higher up? or get rid of using it in the hook?
+  const { shouldUseFeedLayoutV1 } = useFeedLayout({ feedName });
 
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
@@ -282,8 +284,10 @@ export default function MainFeedLayout({
     return isLaptop ? cloudinary.feed.bg.laptop : cloudinary.feed.bg.tablet;
   };
 
+  const FeedPageComponent = shouldUseFeedLayoutV1 ? FeedPageLayoutV1 : FeedPage;
+
   return (
-    <FeedPage className="relative">
+    <FeedPageComponent className="relative">
       {searchVersion === SearchExperiment.V1 && !isFinder && (
         <img
           className="absolute top-0 left-0 w-full max-w-[58.75rem]"
@@ -294,6 +298,6 @@ export default function MainFeedLayout({
       {isSearchOn && search}
       {feedProps && <Feed {...feedProps} />}
       {children}
-    </FeedPage>
+    </FeedPageComponent>
   );
 }
