@@ -6,6 +6,7 @@ import {
   KratosFormParams,
   KratosMessage,
   KratosMethod,
+  MessageType,
 } from './kratos';
 import { Origin } from './analytics';
 
@@ -146,8 +147,15 @@ export const errorsToJson = <T extends string>(
     {} as Record<T, string>,
   );
 
-export const getErrorMessage = (errors: KratosMessage[]): string =>
-  errors?.[0]?.text || '';
+export const getErrorMessage = (errors: KratosMessage[]): string => {
+  if (!errors?.length) {
+    return '';
+  }
+
+  const error = errors.find(({ type }) => type === MessageType.Error);
+
+  return error?.text || errors?.[0]?.text || '';
+};
 
 export const getNodeByKey = (
   key: string,
