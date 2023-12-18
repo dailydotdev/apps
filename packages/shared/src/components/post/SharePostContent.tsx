@@ -10,7 +10,6 @@ import { Post } from '../../graphql/posts';
 import SettingsContext from '../../contexts/SettingsContext';
 import { SharePostTitle } from './share';
 import { combinedClicks } from '../../lib/click';
-import { SourceType } from '../../graphql/sources';
 import { SharedPostLink } from './common/SharedPostLink';
 import { isSharedPostSquadPost } from '../utilities';
 
