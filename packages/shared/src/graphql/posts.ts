@@ -30,7 +30,13 @@ export enum PostType {
   Freeform = 'freeform',
 }
 
-export const internalReadTypes: PostType[] = [PostType.Welcome];
+export const internalReadTypes: PostType[] = [
+  PostType.Welcome,
+  PostType.Freeform,
+];
+
+export const isInternalReadType = (post: Post): boolean =>
+  internalReadTypes.includes(post?.type);
 
 export const supportedTypesForPrivateSources = [
   PostType.Article,

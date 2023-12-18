@@ -1,7 +1,12 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import { Post, PostType, UserPostVote } from '../../graphql/posts';
+import {
+  Post,
+  PostType,
+  UserPostVote,
+  isInternalReadType,
+} from '../../graphql/posts';
 import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import UpvoteIcon from '../icons/Upvote';
@@ -170,7 +175,7 @@ export default function ActionButtons({
         </SimpleTooltip>
         {insaneMode && lastActions}
       </ConditionalWrapper>
-      {insaneMode && post.type !== PostType.Freeform ? (
+      {insaneMode && !isInternalReadType(post) ? (
         <div
           className={classNames('flex justify-between', visibleOnGroupHover)}
         >
