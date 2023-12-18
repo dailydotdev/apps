@@ -32,7 +32,7 @@ export const SharedPostCardFooter = ({
         {sharedPost.title}
       </div>
 
-      <div className={classNames('flex flex-auto h-auto overflow-auto')}>
+      <div className={classNames('flex flex-auto h-auto overflow-auto w-full')}>
         <ImageComponent
           size={isShort ? IconSize.XLarge : IconSize.XXXLarge}
           alt="Shared Post Cover image"
