@@ -16,6 +16,7 @@ import { useFeedPreviewMode } from '../../hooks';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import BookmarkIcon from '../icons/Bookmark';
+import { SourceType } from '../../graphql/sources';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "share" */ '../icons/Share'),
@@ -103,6 +104,18 @@ export default function ActionButtons({
     </>
   );
 
+  const isSharedPostSquadPost =
+    post.sharedPost?.source.type === SourceType.Squad;
+
+  const insaneReadArticleLink = () => {
+    if (post.type === PostType.Share) {
+      return isSharedPostSquadPost
+        ? post.sharedPost.commentsPermalink
+        : post.sharedPost.permalink;
+    }
+    return post.permalink;
+  };
+
   return (
     <div
       className={classNames(
@@ -157,19 +170,15 @@ export default function ActionButtons({
         </SimpleTooltip>
         {insaneMode && lastActions}
       </ConditionalWrapper>
-      {insaneMode ? (
+      {insaneMode && post.type !== PostType.Freeform ? (
         <div
           className={classNames('flex justify-between', visibleOnGroupHover)}
         >
           <ReadArticleButton
             className="mr-2 btn-primary"
-            href={
-              post.type === PostType.Share
-                ? post.sharedPost.permalink
-                : post.permalink
-            }
+            href={insaneReadArticleLink()}
             onClick={onReadArticleClick}
-            openNewTab={openNewTab}
+            openNewTab={isSharedPostSquadPost ? false : openNewTab}
           />
           <OptionsButton
             className={visibleOnGroupHover}
