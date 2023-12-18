@@ -22,7 +22,8 @@ import {
   Button,
   ButtonProps,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   CustomFeedHeader,
   FeedPage,
@@ -87,7 +88,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   };
 
   const buttonProps: ButtonProps<'button'> = {
-    buttonSize: ButtonSize.Small,
+    size: ButtonSize.Small,
     icon: unfollowingSource ? <PlusIcon /> : <BlockIcon />,
     onClick: async (): Promise<void> => {
       if (user) {
@@ -113,11 +114,16 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         />
         <span className="mr-auto">{source.name}</span>
         <Button
-          className="laptop:hidden btn-secondary"
+          className="laptop:hidden"
+          variant={ButtonVariant.Secondary}
           {...buttonProps}
           aria-label={unfollowingSource ? 'Follow' : 'Block'}
         />
-        <Button className="hidden laptop:flex btn-secondary" {...buttonProps}>
+        <Button
+          className="hidden laptop:flex"
+          variant={ButtonVariant.Secondary}
+          {...buttonProps}
+        >
           {unfollowingSource ? 'Follow' : 'Block'}
         </Button>
       </CustomFeedHeader>

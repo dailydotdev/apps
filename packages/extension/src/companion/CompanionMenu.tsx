@@ -1,5 +1,9 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import UpvoteIcon from '@dailydotdev/shared/src/components/icons/Upvote';
 import CommentIcon from '@dailydotdev/shared/src/components/icons/Discuss';
 import MenuIcon from '@dailydotdev/shared/src/components/icons/Menu';
@@ -222,7 +226,8 @@ export default function CompanionMenu({
           }
           pressed={post?.userState?.vote === UserPostVote.Up}
           onClick={onToggleUpvote}
-          className="btn-tertiary-avocado"
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.Avocado}
         />
       </SimpleTooltip>
       <SimpleTooltip
@@ -232,7 +237,8 @@ export default function CompanionMenu({
         container={tooltipContainerProps}
       >
         <Button
-          className="btn-tertiary-blueCheese"
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.BlueCheese}
           pressed={post?.commented}
           icon={<CommentIcon />}
           onClick={() => {
@@ -259,7 +265,8 @@ export default function CompanionMenu({
           icon={<BookmarkIcon secondary={post?.bookmarked} />}
           pressed={post?.bookmarked}
           onClick={toggleBookmark}
-          className="btn-tertiary-bun"
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.Bun}
         />
       </SimpleTooltip>
       <SimpleTooltip
@@ -269,7 +276,8 @@ export default function CompanionMenu({
         container={tooltipContainerProps}
       >
         <Button
-          className="btn-tertiary-cabbage"
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.Cabbage}
           onClick={onShare}
           icon={<ShareIcon />}
         />
@@ -281,7 +289,7 @@ export default function CompanionMenu({
         container={tooltipContainerProps}
       >
         <Button
-          className="btn-tertiary"
+          variant={ButtonVariant.Tertiary}
           icon={<MenuIcon />}
           onClick={onContextOptions}
         />

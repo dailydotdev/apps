@@ -4,7 +4,8 @@ import CookieIcon from '@dailydotdev/shared/src/components/icons/Cookie';
 import {
   Button,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
@@ -41,8 +42,9 @@ export default function CookieBanner({
       </div>
       <Button
         onClick={close}
-        className="self-start laptop:self-stretch mt-4 btn-primary"
-        buttonSize={ButtonSize.Small}
+        className="self-start laptop:self-stretch mt-4"
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Small}
       >
         I like cookies
       </Button>

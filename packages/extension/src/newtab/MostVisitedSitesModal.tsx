@@ -1,6 +1,9 @@
 import React, { ReactElement } from 'react';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   Modal,
   ModalProps,
@@ -41,7 +44,7 @@ export default function MostVisitedSitesModal({
         </Modal.Text>
       </Modal.Body>
       <Modal.Footer justify={Justify.Center}>
-        <Button onClick={onApprove} className="btn-primary">
+        <Button onClick={onApprove} variant={ButtonVariant.Primary}>
           Add the shortcuts
         </Button>
       </Modal.Footer>

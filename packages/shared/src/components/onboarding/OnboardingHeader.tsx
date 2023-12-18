@@ -4,7 +4,7 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { cloudinary } from '../../lib/image';
 import Logo, { LogoPosition } from '../Logo';
 import { AuthProps, AuthDisplay } from '../auth/AuthOptions';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { CreateFeedButton } from './CreateFeedButton';
 import { wrapperMaxWidth } from './common';
 
@@ -78,7 +78,8 @@ export const OnboardingHeader = ({
       >
         <span className="hidden tablet:block">Already a daily.dev member?</span>
         <Button
-          className="ml-3 btn-secondary"
+          className="ml-3"
+          variant={ButtonVariant.Secondary}
           onClick={() => {
             setAuth({
               isAuthenticating: true,
