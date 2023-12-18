@@ -5,6 +5,7 @@ import { Separator } from './common';
 import { Post } from '../../graphql/posts';
 import PlayIcon from '../icons/Play';
 import { IconSize } from '../Icon';
+import { formatReadTime } from '../utilities';
 
 interface PostMetadataProps
   extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {
@@ -52,7 +53,7 @@ export default function PostMetadata({
       {!!createdAt && !!readTime && <Separator />}
       {!!readTime && (
         <span data-testid="readTime">
-          {readTime}m {timeActionContent} time
+          {formatReadTime(readTime)} {timeActionContent} time
         </span>
       )}
       {(!!createdAt || !!readTime) && !!numUpvotes && <Separator />}
