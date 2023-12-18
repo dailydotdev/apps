@@ -15,7 +15,7 @@ import styles from './InAppNotification.module.css';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { NotificationType } from './utils';
-import { ButtonSize } from '../buttons/Button';
+import { ButtonSize } from '../buttons/ButtonV2';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 
 const Container = classed(
@@ -106,10 +106,9 @@ export function InAppNotificationElement(): ReactElement {
       onMouseLeave={() => startTimer(payload.timer)}
     >
       <CloseButton
-        buttonSize={ButtonSize.XSmall}
-        className="top-3 right-3"
+        size={ButtonSize.XSmall}
+        className="top-3 right-3 !absolute"
         onClick={clearNotifications}
-        position="absolute"
       />
       <InAppNotificationItem
         {...payload.notification}

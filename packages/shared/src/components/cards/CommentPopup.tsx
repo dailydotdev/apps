@@ -3,8 +3,8 @@ import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import classNames from 'classnames';
 import commentPopupText from '../../commentPopupText';
 import CommentIcon from '../icons/Discuss';
-import { Button } from '../buttons/Button';
-import { ModalCloseButton } from '../modals/ModalCloseButton';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { ModalClose } from '../modals/common/ModalClose';
 
 const transitionDuration = 150;
 
@@ -73,10 +73,7 @@ export default function CommentPopup({
           layoutModeClass,
         )}
       >
-        <ModalCloseButton
-          onClick={onClose}
-          style={{ top: '0.5rem', right: '0.75rem' }}
-        />
+        <ModalClose onClick={onClose} className="top-2" />
         <h3 className="mr-11 ml-2 font-bold text-theme-label-primary typo-callout">
           {text.title}
         </h3>
@@ -99,11 +96,12 @@ export default function CommentPopup({
             }}
           />
           <Button
+            variant={ButtonVariant.Primary}
             icon={<CommentIcon />}
             onClick={() => onSubmit?.(comment)}
             disabled={!comment?.trim().length}
             loading={loading}
-            className={classNames('btn-primary', 'self-end')}
+            className="self-end"
           >
             Post
           </Button>

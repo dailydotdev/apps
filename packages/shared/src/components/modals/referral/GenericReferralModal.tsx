@@ -3,7 +3,7 @@ import { Modal, ModalProps } from '../common/Modal';
 import { cloudinary } from '../../../lib/image';
 import CloseButton from '../../CloseButton';
 import { ModalSize } from '../common/types';
-import { ButtonSize } from '../../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { link } from '../../../lib/links';
 import { AnalyticsEvent, TargetId, TargetType } from '../../../lib/analytics';
 import { ReferralCampaignKey, useReferralCampaign } from '../../../hooks';
@@ -36,9 +36,9 @@ function GenericReferralModal({
     <Modal {...props} onRequestClose={onRequestClose} size={ModalSize.Small}>
       <CloseButton
         onClick={onRequestClose}
-        position="absolute"
-        buttonSize={ButtonSize.Small}
-        className="top-4 right-4 z-2 !btn-secondary"
+        variant={ButtonVariant.Secondary}
+        size={ButtonSize.Small}
+        className="top-4 right-4 z-2 !absolute"
       />
       <Modal.Body>
         <div className="flex relative z-1 flex-col justify-end items-center mb-5 w-full aspect-square">

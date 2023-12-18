@@ -8,7 +8,7 @@ import {
 } from './EmptyScreen';
 import FilterIcon from './icons/Filter';
 import { PageContainer } from './utilities';
-import { ButtonSize } from './buttons/Button';
+import { ButtonSize } from './buttons/ButtonV2';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 
@@ -29,7 +29,7 @@ function FeedEmptyScreen(): ReactElement {
         </EmptyScreenDescription>
         <EmptyScreenButton
           onClick={() => openModal({ type: LazyModal.FeedFilters })}
-          buttonSize={ButtonSize.Large}
+          size={ButtonSize.Large}
         >
           Feed filters
         </EmptyScreenButton>

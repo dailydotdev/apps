@@ -7,7 +7,7 @@ import {
   EmptyScreenTitle,
 } from '../EmptyScreen';
 import EyeIcon from '../icons/Eye';
-import { ButtonSize } from '../buttons/Button';
+import { ButtonSize } from '../buttons/ButtonV2';
 
 function ReadingHistoryEmptyScreen(): ReactElement {
   return (
@@ -22,7 +22,7 @@ function ReadingHistoryEmptyScreen(): ReactElement {
         you read will be listed here.
       </EmptyScreenDescription>
       <Link href={process.env.NEXT_PUBLIC_WEBAPP_URL}>
-        <EmptyScreenButton buttonSize={ButtonSize.Large}>
+        <EmptyScreenButton size={ButtonSize.Large}>
           Back to feed
         </EmptyScreenButton>
       </Link>

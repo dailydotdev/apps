@@ -1,16 +1,10 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
-import { ButtonProps, ButtonSize } from '../../buttons/Button';
+import { ButtonProps } from '../../buttons/ButtonV2';
 import CloseButton from '../../CloseButton';
 
 function ModalCloseComponent(
-  {
-    className,
-    style,
-    onClick,
-    buttonSize = ButtonSize.Medium,
-    ...props
-  }: ButtonProps<'button'>,
+  { className, onClick, ...props }: ButtonProps<'button'>,
   ref: Ref<HTMLButtonElement>,
 ): ReactElement {
   if (!onClick) {
@@ -19,11 +13,9 @@ function ModalCloseComponent(
   return (
     <CloseButton
       {...props}
-      buttonSize={buttonSize}
       onClick={onClick}
       ref={ref}
-      className={classNames('right-2 z-1', className)}
-      style={{ position: 'absolute', ...style }}
+      className={classNames('right-2 z-1 !absolute', className)}
     />
   );
 }

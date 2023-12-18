@@ -17,7 +17,6 @@ import { Modal, ModalProps } from './common/Modal';
 import useAuthForms from '../../hooks/useAuthForms';
 import AuthOptions, { AuthDisplay } from '../auth/AuthOptions';
 import { AuthEventNames, AuthTriggers } from '../../lib/auth';
-import CloseButton from '../CloseButton';
 import { ExperimentWinner } from '../../lib/featureValues';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 
@@ -140,22 +139,15 @@ function OnboardingModal({
   const content = (() => {
     if (isAuthenticating) {
       return (
-        <>
-          <CloseButton
-            className="top-2 right-2 z-2"
-            style={{ position: 'absolute' }}
-            onClick={onClose}
-          />
-          <AuthOptions
-            className="h-full"
-            onClose={onClose}
-            formRef={formRef}
-            onSuccessfulLogin={onRegistrationSuccess}
-            onSuccessfulRegistration={onRegistrationSuccess}
-            trigger={AuthTriggers.CreateFeedFilters}
-            onDisplayChange={(display: AuthDisplay) => setScreenValue(display)}
-          />
-        </>
+        <AuthOptions
+          className="h-full"
+          onClose={onClose}
+          formRef={formRef}
+          onSuccessfulLogin={onRegistrationSuccess}
+          onSuccessfulRegistration={onRegistrationSuccess}
+          trigger={AuthTriggers.CreateFeedFilters}
+          onDisplayChange={(display: AuthDisplay) => setScreenValue(display)}
+        />
       );
     }
 

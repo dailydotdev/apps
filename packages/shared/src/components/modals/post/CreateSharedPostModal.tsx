@@ -4,7 +4,12 @@ import { ExternalLinkPreview } from '../../../graphql/posts';
 import MarkdownInput, { MarkdownRef } from '../../fields/MarkdownInput';
 import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
 import { usePostToSquad, useViewSize, ViewSize } from '../../../hooks';
-import { Button, ButtonSize } from '../../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/ButtonV2';
 import AtIcon from '../../icons/At';
 import { Divider, Justify } from '../../utilities';
 import SourceButton from '../../cards/SourceButton';
@@ -78,11 +83,12 @@ export function CreateSharedPostModal({
             <CloseButton onClick={props.onRequestClose} />
 
             <Button
-              className="btn-primary-cabbage"
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Cabbage}
               disabled={isPosting}
               loading={isPosting}
               form="share_post"
-              buttonSize={ButtonSize.Small}
+              size={ButtonSize.Small}
             >
               Post
             </Button>
@@ -137,7 +143,7 @@ export function CreateSharedPostModal({
         <Button
           icon={<AtIcon />}
           className="btn-tertiary"
-          buttonSize={ButtonSize.Small}
+          size={ButtonSize.Small}
           onClick={markdownRef?.current?.onMentionCommand}
         />
         <Divider vertical />

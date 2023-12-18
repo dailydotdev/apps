@@ -1,8 +1,7 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
 import { Modal, ModalProps } from '../common/Modal';
 import { Checkbox } from '../../fields/Checkbox';
-import { Button } from '../../buttons/Button';
+import { Button, ButtonVariant } from '../../buttons/ButtonV2';
 import CopyIcon from '../../icons/Copy';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { CampaignCtaPlacement } from '../../../graphql/settings';
@@ -65,8 +64,8 @@ function SearchReferralModal({
     >
       <CloseButton
         onClick={handleRequestClose}
-        position="absolute"
-        className="top-3 right-3 z-1 !btn-secondary"
+        variant={ButtonVariant.Secondary}
+        className="top-3 right-3 z-1 !absolute"
       />
       <Modal.Body className="laptop:flex-row">
         <span className="laptop:hidden -mx-6 -mt-6">
@@ -89,12 +88,12 @@ function SearchReferralModal({
           </p>
           <KeysRow count={availableCount} />
           <Button
+            variant={
+              noKeysAvailable ? ButtonVariant.Secondary : ButtonVariant.Primary
+            }
             tag={noKeysAvailable ? 'a' : 'button'}
             href={noKeysAvailable ? link.search.requestKeys : undefined}
-            className={classNames(
-              'mt-5',
-              noKeysAvailable ? 'btn-secondary' : 'btn-primary',
-            )}
+            className="mt-5"
             icon={
               noKeysAvailable ? undefined : <CopyIcon secondary={isCopying} />
             }

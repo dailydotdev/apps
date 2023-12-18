@@ -7,6 +7,7 @@ import { useChecklist } from '../../hooks/useChecklist';
 import { ButtonSize } from '../buttons/Button';
 import CloseButton from '../CloseButton';
 import { RankConfetti } from '../../svg/RankConfetti';
+import { ButtonVariant } from '../buttons/ButtonV2';
 
 const ChecklistCard = ({
   className,
@@ -30,8 +31,9 @@ const ChecklistCard = ({
           <p className="text-white typo-callout">{description}</p>
           {typeof onRequestClose === 'function' && (
             <CloseButton
-              buttonSize={ButtonSize.Small}
-              className="top-3 right-3 text-white border-white !absolute btn-secondary"
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Secondary}
+              className="top-3 right-3 text-white border-white !absolute"
               onClick={onRequestClose}
             />
           )}
