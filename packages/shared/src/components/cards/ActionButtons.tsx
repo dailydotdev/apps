@@ -1,12 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import {
-  Post,
-  PostType,
-  UserPostVote,
-  isInternalReadType,
-} from '../../graphql/posts';
+import { Post, UserPostVote, isInternalReadType } from '../../graphql/posts';
 import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import UpvoteIcon from '../icons/Upvote';
@@ -21,7 +16,7 @@ import { useFeedPreviewMode } from '../../hooks';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import BookmarkIcon from '../icons/Bookmark';
-import { SourceType } from '../../graphql/sources';
+import { getReadArticleLink, isSharedPostSquadPost } from '../utilities';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "share" */ '../icons/Share'),
@@ -109,18 +104,6 @@ export default function ActionButtons({
     </>
   );
 
-  const isSharedPostSquadPost =
-    post.sharedPost?.source.type === SourceType.Squad;
-
-  const insaneReadArticleLink = () => {
-    if (post.type === PostType.Share) {
-      return isSharedPostSquadPost
-        ? post.sharedPost.commentsPermalink
-        : post.sharedPost.permalink;
-    }
-    return post.permalink;
-  };
-
   return (
     <div
       className={classNames(
@@ -181,9 +164,9 @@ export default function ActionButtons({
         >
           <ReadArticleButton
             className="mr-2 btn-primary"
-            href={insaneReadArticleLink()}
+            href={getReadArticleLink(post)}
             onClick={onReadArticleClick}
-            openNewTab={isSharedPostSquadPost ? false : openNewTab}
+            openNewTab={isSharedPostSquadPost(post) ? false : openNewTab}
           />
           <OptionsButton
             className={visibleOnGroupHover}
