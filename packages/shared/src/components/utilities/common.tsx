@@ -214,3 +214,11 @@ export const getContextBottomPosition = (
 export interface WithClassNameProps {
   className?: string;
 }
+
+export const formatReadTime = (minutes: number): string => {
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return hours > 0
+    ? `${hours.toString()}h ${remainingMinutes.toString()}m`
+    : `${remainingMinutes.toString()}m`;
+};

@@ -5,6 +5,7 @@ import { SharePostTitle } from './share';
 import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
 import YoutubeVideo from '../video/YoutubeVideo';
+import { formatReadTime } from '../utilities';
 
 interface ShareYouTubeContentProps {
   post: Post;
@@ -29,7 +30,7 @@ function ShareYouTubeContent({ post }: ShareYouTubeContentProps): ReactElement {
         <PostSourceInfo
           date={
             post.sharedPost.readTime
-              ? `${post.sharedPost.readTime}m watch time`
+              ? `${formatReadTime(post.sharedPost.readTime)} watch time`
               : undefined
           }
           source={post.sharedPost.source}
