@@ -166,7 +166,7 @@ export default function ActionButtons({
             className="mr-2 btn-primary"
             href={getReadArticleLink(post)}
             onClick={onReadArticleClick}
-            openNewTab={isSharedPostSquadPost(post) ? false : openNewTab}
+            openNewTab={!isSharedPostSquadPost(post) && openNewTab}
           />
           <OptionsButton
             className={visibleOnGroupHover}
