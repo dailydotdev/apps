@@ -153,7 +153,7 @@ export function PostContent({
               {post.title}
             </a>
           </h1>
-          {isVideoPost(post) && (
+          {isVideoType && (
             <YoutubeVideo
               title={post.title}
               videoId={post.videoId}
@@ -173,7 +173,7 @@ export function PostContent({
               isVideoType ? 'mb-4' : 'mb-8',
             )}
           />
-          {!isVideoPost(post) && (
+          {!isVideoType && (
             <a
               href={post.permalink}
               title="Go to post"
