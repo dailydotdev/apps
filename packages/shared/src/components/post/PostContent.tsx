@@ -1,6 +1,12 @@
 import classNames from 'classnames';
-import React, { CSSProperties, ReactElement, ReactNode } from 'react';
-import { Post, isVideoPost } from '../../graphql/posts';
+import React, {
+  CSSProperties,
+  ReactElement,
+  ReactNode,
+  useEffect,
+} from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { Post, isVideoPost, sendViewPost } from '../../graphql/posts';
 import PostMetadata from '../cards/PostMetadata';
 import PostSummary from '../cards/PostSummary';
 import { LazyImage } from '../LazyImage';
@@ -19,6 +25,7 @@ import classed from '../../lib/classed';
 import { cloudinary } from '../../lib/image';
 import { combinedClicks } from '../../lib/click';
 import YoutubeVideo from '../video/YoutubeVideo';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export type PassedPostNavigationProps = Pick<
   PostNavigationProps,
@@ -64,12 +71,14 @@ export function PostContent({
   onRemovePost,
   backToSquad,
 }: PostContentProps): ReactElement {
+  const { user } = useAuthContext();
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
     origin,
     post,
   });
   const { onSharePost: onShare, onReadArticle } = engagementActions;
+  const { mutateAsync: onSendViewPost } = useMutation(sendViewPost);
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
@@ -89,6 +98,15 @@ export function PostContent({
     inlineActions,
     onRemovePost,
   };
+
+  // Only send view post if the post is a video type
+  useEffect(() => {
+    if (!isVideoType && (!post?.id || !user?.id)) {
+      return;
+    }
+
+    onSendViewPost(post.id);
+  }, [isVideoType, onSendViewPost, post.id, user?.id]);
 
   return (
     <PostContentContainer
