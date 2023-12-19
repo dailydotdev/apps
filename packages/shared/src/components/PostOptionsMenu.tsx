@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
-import { Post, PostType, UserPostVote } from '../graphql/posts';
+import { Post, UserPostVote, isVideoPost } from '../graphql/posts';
 import TrashIcon from './icons/Trash';
 import HammerIcon from './icons/Hammer';
 import EyeIcon from './icons/Eye';
@@ -317,7 +317,7 @@ export default function PostOptionsMenu({
     },
   ];
 
-  if (video && post?.type === PostType.VideoYouTube) {
+  if (video && isVideoPost(post)) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
       label: `Don't show video content`,

@@ -4,7 +4,7 @@ import { CardImage, CardVideoImage } from './Card';
 import FeatherIcon from '../icons/Feather';
 import PostAuthor from './PostAuthor';
 import { ProfilePicture } from '../ProfilePicture';
-import { Post } from '../../graphql/posts';
+import { Post, isVideoPost } from '../../graphql/posts';
 import { cloudinary } from '../../lib/image';
 import { visibleOnGroupHover } from './common';
 
@@ -18,15 +18,14 @@ type PostCardFooterProps = {
   showImage: boolean;
   post: Post;
   className: PostCardFooterClassName;
-  isVideoType?: boolean;
 };
 
 export const PostCardFooter = ({
   post,
   showImage,
   className,
-  isVideoType,
 }: PostCardFooterProps): ReactElement => {
+  const isVideoType = isVideoPost(post);
   const ImageComponent = isVideoType ? CardVideoImage : CardImage;
   return (
     <>

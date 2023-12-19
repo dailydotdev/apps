@@ -42,6 +42,11 @@ export const isInternalReadType = (post: Post): boolean =>
 export const isSharedPostSquadPost = (post: Post): boolean =>
   post.sharedPost?.source.type === SourceType.Squad;
 
+export const isVideoPost = (post: Post): boolean =>
+  post?.type === PostType.VideoYouTube ||
+  (post?.type === PostType.Share &&
+    post?.sharedPost?.type === PostType.VideoYouTube);
+
 type PostFlags = {
   sentAnalyticsReport: boolean;
   banned: boolean;

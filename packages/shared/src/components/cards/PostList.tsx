@@ -13,7 +13,7 @@ import PostAuthor from './PostAuthor';
 import FeedItemContainer from './FeedItemContainer';
 import { PostTagsPanel } from '../post/block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
-import { PostType } from '../../graphql/posts';
+import { isVideoPost } from '../../graphql/posts';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -34,10 +34,8 @@ export const PostList = forwardRef(function PostList(
 ): ReactElement {
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
-  const { trending, pinnedAt, type, sharedPost } = post;
-  const isVideoType =
-    type === PostType.VideoYouTube ||
-    sharedPost?.type === PostType.VideoYouTube;
+  const { trending, pinnedAt } = post;
+  const isVideoType = isVideoPost(post);
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -87,7 +85,6 @@ export const PostList = forwardRef(function PostList(
           className="relative self-stretch mt-1"
           onMenuClick={(event) => onMenuClick?.(event, post)}
           insaneMode
-          isVideoType={isVideoType}
         />
       </ListCardMain>
       {children}

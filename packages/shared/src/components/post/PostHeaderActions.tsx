@@ -15,8 +15,8 @@ import {
   banPost,
   demotePost,
   isInternalReadType,
+  isVideoPost,
   Post,
-  PostType,
   promotePost,
 } from '../../graphql/posts';
 import classed from '../../lib/classed';
@@ -96,8 +96,7 @@ export function PostHeaderActions({
       }
     }
   };
-  const readButtonText =
-    post.type === PostType.VideoYouTube ? 'Watch video' : 'Read post';
+  const readButtonText = isVideoPost(post) ? 'Watch video' : 'Read post';
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>

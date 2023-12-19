@@ -9,7 +9,7 @@ import FixedPostNavigation from './FixedPostNavigation';
 import PostSourceInfo from './PostSourceInfo';
 import { PostContentProps } from './PostContent';
 import { BasePostContent } from './BasePostContent';
-import { PostType, sendViewPost } from '../../graphql/posts';
+import { PostType, isVideoPost, sendViewPost } from '../../graphql/posts';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import SquadPostAuthor from './SquadPostAuthor';
 import SharePostContent from './SharePostContent';
@@ -72,8 +72,7 @@ function SquadPostContent({
     onSendViewPost(post.id);
   }, [post.id, onSendViewPost, user?.id]);
 
-  const isVideoShared = post?.sharedPost?.type === PostType.VideoYouTube;
-  const finalType = isVideoShared ? PostType.VideoYouTube : post?.type;
+  const finalType = isVideoPost(post) ? PostType.VideoYouTube : post?.type;
   const Content = ContentMap[finalType];
 
   return (

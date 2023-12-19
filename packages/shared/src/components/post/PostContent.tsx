@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { CSSProperties, ReactElement, ReactNode } from 'react';
-import { Post, PostType } from '../../graphql/posts';
+import { Post, isVideoPost } from '../../graphql/posts';
 import PostMetadata from '../cards/PostMetadata';
 import PostSummary from '../cards/PostSummary';
 import { LazyImage } from '../LazyImage';
@@ -72,7 +72,7 @@ export function PostContent({
   const { onSharePost: onShare, onReadArticle } = engagementActions;
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
-  const isVideoType = post.type === PostType.VideoYouTube;
+  const isVideoType = isVideoPost(post);
   const containerClass = classNames(
     'tablet:pb-0 tablet:flex-row',
     className?.container,
@@ -153,7 +153,7 @@ export function PostContent({
               {post.title}
             </a>
           </h1>
-          {post.type === PostType.VideoYouTube && (
+          {isVideoPost(post) && (
             <YoutubeVideo
               title={post.title}
               videoId={post.videoId}
@@ -173,7 +173,7 @@ export function PostContent({
               isVideoType ? 'mb-4' : 'mb-8',
             )}
           />
-          {post.type !== PostType.VideoYouTube && (
+          {!isVideoPost(post) && (
             <a
               href={post.permalink}
               title="Go to post"
