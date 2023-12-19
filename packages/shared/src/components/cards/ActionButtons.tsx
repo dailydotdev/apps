@@ -7,7 +7,6 @@ import {
   getReadPostButtonText,
   isInternalReadType,
   isSharedPostSquadPost,
-  isVideoPost,
 } from '../../graphql/posts';
 import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
@@ -76,7 +75,6 @@ export default function ActionButtons({
   className,
   insaneMode,
 }: ActionButtonsProps): ReactElement {
-  const isVideoType = isVideoPost(post);
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
   const upvoteCommentProps: ButtonProps<'button'> = {
     buttonSize: ButtonSize.Small,

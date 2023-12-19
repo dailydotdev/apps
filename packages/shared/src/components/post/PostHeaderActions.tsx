@@ -16,7 +16,6 @@ import {
   demotePost,
   getReadPostButtonText,
   isInternalReadType,
-  isVideoPost,
   Post,
   promotePost,
 } from '../../graphql/posts';
