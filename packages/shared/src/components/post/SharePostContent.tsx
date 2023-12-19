@@ -10,8 +10,8 @@ import { Post } from '../../graphql/posts';
 import SettingsContext from '../../contexts/SettingsContext';
 import { SharePostTitle } from './share';
 import { combinedClicks } from '../../lib/click';
-import { SourceType } from '../../graphql/sources';
 import { SharedPostLink } from './common/SharedPostLink';
+import { isSharedPostSquadPost } from '../utilities';
 
 interface SharePostContentProps {
   post: Post;
@@ -39,9 +39,6 @@ function SharePostContent({
     onReadArticle();
   };
 
-  const isSharedPostSquadPost =
-    post.sharedPost.source.type === SourceType.Squad;
-
   return (
     <>
       <SharePostTitle post={post} />
@@ -67,11 +64,11 @@ function SharePostContent({
             <ReadArticleButton
               className="mt-5 btn-secondary w-fit"
               href={
-                isSharedPostSquadPost
+                isSharedPostSquadPost(post)
                   ? post.sharedPost.commentsPermalink
                   : post.sharedPost.permalink
               }
-              openNewTab={isSharedPostSquadPost ? false : openNewTab}
+              openNewTab={isSharedPostSquadPost(post) ? false : openNewTab}
               title="Go to post"
               rel="noopener"
               {...combinedClicks(openArticle)}

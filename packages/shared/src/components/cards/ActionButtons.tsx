@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import { Post, PostType, UserPostVote } from '../../graphql/posts';
+import { Post, UserPostVote, isInternalReadType } from '../../graphql/posts';
 import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import UpvoteIcon from '../icons/Upvote';
@@ -16,6 +16,7 @@ import { useFeedPreviewMode } from '../../hooks';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import BookmarkIcon from '../icons/Bookmark';
+import { getReadArticleLink, isSharedPostSquadPost } from '../utilities';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "share" */ '../icons/Share'),
@@ -157,19 +158,15 @@ export default function ActionButtons({
         </SimpleTooltip>
         {insaneMode && lastActions}
       </ConditionalWrapper>
-      {insaneMode ? (
+      {insaneMode && !isInternalReadType(post) ? (
         <div
           className={classNames('flex justify-between', visibleOnGroupHover)}
         >
           <ReadArticleButton
             className="mr-2 btn-primary"
-            href={
-              post.type === PostType.Share
-                ? post.sharedPost.permalink
-                : post.permalink
-            }
+            href={getReadArticleLink(post)}
             onClick={onReadArticleClick}
-            openNewTab={openNewTab}
+            openNewTab={!isSharedPostSquadPost(post) && openNewTab}
           />
           <OptionsButton
             className={visibleOnGroupHover}

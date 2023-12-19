@@ -8,6 +8,8 @@ import classNames from 'classnames';
 import classed, { ClassedHTML } from '../../lib/classed';
 import styles from './utilities.module.css';
 import ArrowIcon from '../icons/Arrow';
+import { Post, PostType } from '../../graphql/posts';
+import { SourceType } from '../../graphql/sources';
 
 export enum Theme {
   Avocado = 'avocado',
@@ -214,3 +216,15 @@ export const getContextBottomPosition = (
 export interface WithClassNameProps {
   className?: string;
 }
+
+export const isSharedPostSquadPost = (post: Post): boolean =>
+  post.sharedPost?.source.type === SourceType.Squad;
+
+export const getReadArticleLink = (post: Post): string => {
+  if (post.type === PostType.Share) {
+    return isSharedPostSquadPost(post)
+      ? post.sharedPost.commentsPermalink
+      : post.sharedPost.permalink;
+  }
+  return post.permalink;
+};

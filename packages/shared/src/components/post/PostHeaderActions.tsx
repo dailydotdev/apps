@@ -14,13 +14,13 @@ import AuthContext from '../../contexts/AuthContext';
 import {
   banPost,
   demotePost,
-  internalReadTypes,
+  isInternalReadType,
   Post,
   promotePost,
 } from '../../graphql/posts';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { Button } from '../buttons/Button';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import PostOptionsMenu, { PostOptionsMenuProps } from '../PostOptionsMenu';
 import { ShareBookmarkProps } from './PostActions';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
@@ -59,7 +59,6 @@ export function PostHeaderActions({
   const { showPrompt } = usePrompt();
   const { onMenuClick, isOpen } = useContextMenu({ id: contextMenuId });
 
-  const isInternalReadType = internalReadTypes.includes(post?.type);
   const isModerator = user?.roles?.includes(Roles.Moderator);
 
   const banPostPrompt = async () => {
@@ -68,7 +67,8 @@ export function PostHeaderActions({
       description: 'Are you sure you want to ban this post?',
       okButton: {
         title: 'Ban',
-        className: 'btn-primary-ketchup',
+        variant: ButtonVariant.Primary,
+        color: ButtonColor.Ketchup,
       },
     };
     if (await showPrompt(options)) {
@@ -99,14 +99,16 @@ export function PostHeaderActions({
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      {!isInternalReadType && onReadArticle && (
+      {!isInternalReadType(post) && onReadArticle && (
         <SimpleTooltip
           placement="bottom"
           content="Read post"
           disabled={!inlineActions}
         >
           <Button
-            className={inlineActions ? 'btn-tertiary' : 'btn-secondary'}
+            variant={
+              inlineActions ? ButtonVariant.Tertiary : ButtonVariant.Secondary
+            }
             tag="a"
             href={post.sharedPost?.permalink ?? post.permalink}
             target={openNewTab ? '_blank' : '_self'}
@@ -128,7 +130,7 @@ export function PostHeaderActions({
       {onClose && (
         <SimpleTooltip placement="bottom" content="Close">
           <Button
-            className="btn-tertiary"
+            variant={ButtonVariant.Tertiary}
             icon={<CloseIcon />}
             onClick={(e) => onClose(e)}
           />
