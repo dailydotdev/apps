@@ -33,7 +33,7 @@ const ChecklistCard = ({
             <CloseButton
               size={ButtonSize.Small}
               variant={ButtonVariant.Secondary}
-              className="top-3 right-3 text-white border-white !absolute"
+              className="top-3 right-3 text-white border-white absolute"
               onClick={onRequestClose}
             />
           )}

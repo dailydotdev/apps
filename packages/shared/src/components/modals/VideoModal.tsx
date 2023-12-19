@@ -26,7 +26,7 @@ export default function VideoModal({
     >
       <CloseButton
         size={ButtonSize.Small}
-        className="top-3 right-3 !absolute"
+        className="top-3 right-3 absolute"
         onClick={onRequestClose}
       />
       <iframe

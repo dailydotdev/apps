@@ -83,7 +83,7 @@ export function PostTagsPanel({
       )}
     >
       <CloseButton
-        className="top-3 right-3 !absolute"
+        className="top-3 right-3 absolute"
         onClick={() => onClose()}
         size={ButtonSize.Small}
       />

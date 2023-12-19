@@ -33,7 +33,7 @@ export function SquadPromotionModal({
       <CloseButton
         size={ButtonSize.Small}
         variant={ButtonVariant.Secondary}
-        className="top-3 right-3 !absolute"
+        className="top-3 right-3 absolute"
         onClick={onRequestClose}
       />
     </Modal>
