@@ -14,6 +14,7 @@ import AuthContext from '../../contexts/AuthContext';
 import {
   banPost,
   demotePost,
+  getReadPostButtonText,
   isInternalReadType,
   isVideoPost,
   Post,
@@ -61,6 +62,7 @@ export function PostHeaderActions({
   const { onMenuClick, isOpen } = useContextMenu({ id: contextMenuId });
 
   const isModerator = user?.roles?.includes(Roles.Moderator);
+  const readButtonText = getReadPostButtonText(post);
 
   const banPostPrompt = async () => {
     const options: PromptOptions = {
@@ -96,7 +98,6 @@ export function PostHeaderActions({
       }
     }
   };
-  const readButtonText = isVideoPost(post) ? 'Watch video' : 'Read post';
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>

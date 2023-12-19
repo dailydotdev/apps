@@ -97,13 +97,13 @@ export const ArticlePostCard = forwardRef(function PostCard(
       >
         <CardTextContainer>
           <PostCardHeader
+            post={post}
             className={showFeedback ? 'hidden' : 'flex'}
             openNewTab={openNewTab}
             source={post.source}
             postLink={post.permalink}
             onMenuClick={(event) => onMenuClick?.(event, post)}
             onReadArticleClick={onReadArticleClick}
-            isVideoType={isVideoType}
           />
           <CardTitle lineClamp={showFeedback ? 'line-clamp-2' : undefined}>
             {post.title}

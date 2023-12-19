@@ -47,6 +47,9 @@ export const isVideoPost = (post: Post): boolean =>
   (post?.type === PostType.Share &&
     post?.sharedPost?.type === PostType.VideoYouTube);
 
+export const getReadPostButtonText = (post: Post): string =>
+  isVideoPost(post) ? 'Watch video' : 'Read post';
+
 type PostFlags = {
   sentAnalyticsReport: boolean;
   banned: boolean;

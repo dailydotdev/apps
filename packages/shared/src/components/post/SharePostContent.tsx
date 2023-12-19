@@ -3,7 +3,11 @@ import PostSourceInfo from './PostSourceInfo';
 import { ReadArticleButton } from '../cards/ReadArticleButton';
 import { LazyImage } from '../LazyImage';
 import { cloudinary } from '../../lib/image';
-import { Post, isSharedPostSquadPost } from '../../graphql/posts';
+import {
+  Post,
+  getReadPostButtonText,
+  isSharedPostSquadPost,
+} from '../../graphql/posts';
 import SettingsContext from '../../contexts/SettingsContext';
 import { SharePostTitle } from './share';
 import { combinedClicks } from '../../lib/click';
@@ -47,6 +51,7 @@ function SharePostContent({
               size="small"
             />
             <ReadArticleButton
+              content={getReadPostButtonText(post)}
               className="mt-5 btn-secondary w-fit"
               href={
                 isSharedPostSquadPost(post)

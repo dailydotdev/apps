@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import {
   Post,
   UserPostVote,
+  getReadPostButtonText,
   isInternalReadType,
   isSharedPostSquadPost,
   isVideoPost,
@@ -170,11 +171,11 @@ export default function ActionButtons({
           className={classNames('flex justify-between', visibleOnGroupHover)}
         >
           <ReadArticleButton
+            content={getReadPostButtonText(post)}
             className="mr-2 btn-primary"
             href={getReadArticleLink(post)}
             onClick={onReadArticleClick}
             openNewTab={!isSharedPostSquadPost(post) && openNewTab}
-            isVideoType={isVideoType}
           />
           <OptionsButton
             className={visibleOnGroupHover}

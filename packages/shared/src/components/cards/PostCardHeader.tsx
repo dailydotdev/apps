@@ -6,8 +6,10 @@ import { Source } from '../../graphql/sources';
 import { ReadArticleButton } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useFeedPreviewMode } from '../../hooks';
+import { Post, getReadPostButtonText } from '../../graphql/posts';
 
 interface CardHeaderProps {
+  post: Post;
   className?: string;
   children?: ReactNode;
   source: Source;
@@ -15,12 +17,12 @@ interface CardHeaderProps {
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   postLink: string;
   openNewTab?: boolean;
-  isVideoType?: boolean;
 }
 
 const Container = getGroupedHoverContainer('span');
 
 export const PostCardHeader = ({
+  post,
   className,
   onMenuClick,
   onReadArticleClick,
@@ -28,7 +30,6 @@ export const PostCardHeader = ({
   source,
   postLink,
   openNewTab,
-  isVideoType,
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
 
@@ -43,11 +44,11 @@ export const PostCardHeader = ({
         {!isFeedPreview && (
           <>
             <ReadArticleButton
+              content={getReadPostButtonText(post)}
               className="mr-2 btn-primary"
               href={postLink}
               onClick={onReadArticleClick}
               openNewTab={openNewTab}
-              isVideoType={isVideoType}
             />
             <OptionsButton onClick={onMenuClick} tooltipPlacement="top" />
           </>
