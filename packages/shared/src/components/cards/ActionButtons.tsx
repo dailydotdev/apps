@@ -1,7 +1,12 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import { Post, UserPostVote, isInternalReadType } from '../../graphql/posts';
+import {
+  Post,
+  UserPostVote,
+  isInternalReadType,
+  isSharedPostSquadPost,
+} from '../../graphql/posts';
 import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import UpvoteIcon from '../icons/Upvote';
@@ -16,7 +21,7 @@ import { useFeedPreviewMode } from '../../hooks';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import BookmarkIcon from '../icons/Bookmark';
-import { getReadArticleLink, isSharedPostSquadPost } from '../utilities';
+import { getReadArticleLink } from '../utilities';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "share" */ '../icons/Share'),

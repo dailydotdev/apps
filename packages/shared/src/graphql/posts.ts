@@ -1,7 +1,7 @@
 import request, { gql } from 'graphql-request';
 import { Author, Comment, Scout } from './comments';
 import { Connection } from './common';
-import { Source, Squad } from './sources';
+import { Source, SourceType, Squad } from './sources';
 import { EmptyResponse } from './emptyResponse';
 import { graphqlUrl } from '../lib/config';
 import {
@@ -38,6 +38,9 @@ export const internalReadTypes: PostType[] = [
 
 export const isInternalReadType = (post: Post): boolean =>
   internalReadTypes.includes(post?.type);
+
+export const isSharedPostSquadPost = (post: Post): boolean =>
+  post.sharedPost?.source.type === SourceType.Squad;
 
 type PostFlags = {
   sentAnalyticsReport: boolean;
