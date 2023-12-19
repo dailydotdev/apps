@@ -7,7 +7,6 @@ import { Post, isSharedPostSquadPost } from '../../graphql/posts';
 import SettingsContext from '../../contexts/SettingsContext';
 import { SharePostTitle } from './share';
 import { combinedClicks } from '../../lib/click';
-import { SourceType } from '../../graphql/sources';
 import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
 
