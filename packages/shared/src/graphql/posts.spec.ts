@@ -6,6 +6,9 @@ import {
   Post,
   getLatestChangelogPost,
   LATEST_CHANGELOG_POST_QUERY,
+  PostType,
+  isVideoPost,
+  getReadPostButtonText,
 } from './posts';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import { Connection } from './common';
@@ -90,4 +93,84 @@ it('should return latest changelog post', async () => {
 
   expect(queryCalled).toBeTruthy();
   expect(result.id).toBe('test1');
+});
+
+describe('function isVideoPost', () => {
+  it('should return true if post is video', () => {
+    const post = {
+      type: PostType.VideoYouTube,
+    } as Post;
+
+    expect(isVideoPost(post)).toBeTruthy();
+  });
+
+  it('should return false if post is not video', () => {
+    const post = {
+      type: PostType.Article,
+    } as Post;
+
+    expect(isVideoPost(post)).toBeFalsy();
+  });
+
+  it('should return true if post is shared video', () => {
+    const post = {
+      type: PostType.Share,
+      sharedPost: {
+        type: PostType.VideoYouTube,
+      },
+    } as Post;
+
+    expect(isVideoPost(post)).toBeTruthy();
+  });
+
+  it('should return false if post is shared articled', () => {
+    const post = {
+      type: PostType.Share,
+      sharedPost: {
+        type: PostType.Article,
+      },
+    } as Post;
+
+    expect(isVideoPost(post)).toBeFalsy();
+  });
+});
+
+describe('function getReadPostButtonText', () => {
+  it('should return "Read post" if post is article', () => {
+    const post = {
+      type: PostType.Article,
+    } as Post;
+
+    expect(getReadPostButtonText(post)).toEqual('Read post');
+  });
+
+  it('should return "Read post" if post is shared article', () => {
+    const post = {
+      type: PostType.Share,
+      sharedPost: {
+        type: PostType.Article,
+      },
+    } as Post;
+
+    expect(getReadPostButtonText(post)).toEqual('Read post');
+  });
+
+  it('should return "Watch video" if post is video', () => {
+    const post = {
+      type: PostType.VideoYouTube,
+    } as Post;
+
+    expect(getReadPostButtonText(post)).toEqual('Watch video');
+  });
+
+  it('should return "Watch video" if post is shared video', () => {
+    const post = {
+      type: PostType.Share,
+      sharedPost: {
+        type: PostType.VideoYouTube,
+      },
+    } as Post;
+
+    expect(getReadPostButtonText(post)).toEqual('Watch video');
+  });
 });

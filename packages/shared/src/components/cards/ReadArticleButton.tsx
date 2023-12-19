@@ -3,6 +3,7 @@ import { Button, ButtonSize } from '../buttons/Button';
 import OpenLinkIcon from '../icons/OpenLink';
 
 interface ReadArticleButtonProps {
+  content: string;
   href: string;
   className?: string;
   openNewTab?: boolean;
@@ -13,6 +14,7 @@ interface ReadArticleButtonProps {
 }
 
 export const ReadArticleButton = ({
+  content,
   openNewTab,
   buttonSize = ButtonSize.Small,
   ...props
@@ -24,6 +26,6 @@ export const ReadArticleButton = ({
     rightIcon={<OpenLinkIcon className="ml-2" secondary />}
     target={openNewTab ? '_blank' : '_self'}
   >
-    Read post
+    {content}
   </Button>
 );

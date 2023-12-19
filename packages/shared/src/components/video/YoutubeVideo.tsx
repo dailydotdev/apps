@@ -15,7 +15,7 @@ const YoutubeVideo = ({
 }: YoutubeVideoProps): ReactElement => (
   <div
     className={classNames(
-      'overflow-hidden relative pt-[56.25%] w-full',
+      'overflow-hidden relative w-full rounded-16 pt-[56.25%]',
       className,
     )}
   >

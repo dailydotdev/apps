@@ -8,8 +8,7 @@ import classNames from 'classnames';
 import classed, { ClassedHTML } from '../../lib/classed';
 import styles from './utilities.module.css';
 import ArrowIcon from '../icons/Arrow';
-import { Post, PostType } from '../../graphql/posts';
-import { SourceType } from '../../graphql/sources';
+import { Post, PostType, isSharedPostSquadPost } from '../../graphql/posts';
 
 export enum Theme {
   Avocado = 'avocado',
@@ -217,9 +216,6 @@ export interface WithClassNameProps {
   className?: string;
 }
 
-export const isSharedPostSquadPost = (post: Post): boolean =>
-  post.sharedPost?.source.type === SourceType.Squad;
-
 export const getReadArticleLink = (post: Post): string => {
   if (post.type === PostType.Share) {
     return isSharedPostSquadPost(post)
@@ -227,4 +223,12 @@ export const getReadArticleLink = (post: Post): string => {
       : post.sharedPost.permalink;
   }
   return post.permalink;
+};
+
+export const formatReadTime = (minutes: number): string => {
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return hours > 0
+    ? `${hours.toString()}h ${remainingMinutes.toString()}m`
+    : `${remainingMinutes.toString()}m`;
 };

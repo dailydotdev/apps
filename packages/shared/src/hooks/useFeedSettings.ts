@@ -33,7 +33,7 @@ export const getHasAnyFilter = (feedSettings: FeedSettings): boolean =>
   feedSettings?.excludeSources?.length > 0 ||
   feedSettings?.advancedSettings?.length > 0;
 
-interface UseFeedSettingsProps {
+export interface UseFeedSettingsProps {
   enabled?: boolean;
 }
 

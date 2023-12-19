@@ -5,6 +5,7 @@ import styles from './Card.module.css';
 import classed from '../../lib/classed';
 import { Post } from '../../graphql/posts';
 import { Image } from '../image/Image';
+import VideoImage from '../image/VideoImage';
 
 type TitleProps = HTMLAttributes<HTMLHeadingElement> & {
   lineClamp?: `line-clamp-${number}`;
@@ -43,7 +44,8 @@ export const ListCardTitle = classed(Title, 'mr-2');
 
 export const CardTextContainer = classed('div', 'flex flex-col mx-4');
 
-export const CardImage = classed(Image, 'rounded-xl h-40');
+export const CardImage = classed(Image, 'rounded-12 h-40');
+export const CardVideoImage = classed(VideoImage, 'rounded-12 h-40');
 
 export const CardSpace = classed('div', 'flex-1');
 
