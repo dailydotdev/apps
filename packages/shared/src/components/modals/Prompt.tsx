@@ -1,7 +1,6 @@
-import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { usePrompt } from '../../hooks/usePrompt';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import classed from '../../lib/classed';
 import { Modal, ModalProps } from './common/Modal';
 
@@ -25,8 +24,8 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
       description,
       content,
       promptSize = Modal.Size.XSmall,
-      cancelButton = {},
-      okButton = {},
+      cancelButton,
+      okButton,
       className = {},
     },
   } = prompt;
@@ -49,18 +48,24 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
         )}
         {content}
         <Buttons className={className.buttons}>
-          {cancelButton !== null && (
+          {cancelButton && (
             <Button
-              className={classNames('btn-secondary', className.cancel)}
+              variant={cancelButton.variant ?? ButtonVariant.Secondary}
+              color={cancelButton.color}
+              icon={cancelButton.icon}
+              iconPosition={cancelButton.iconPosition}
               onClick={onFail}
               {...cancelButton}
             >
               {cancelButton?.title ?? 'Cancel'}
             </Button>
           )}
-          {okButton !== null && (
+          {okButton && (
             <Button
-              className={classNames('btn-primary', className.ok)}
+              variant={okButton.variant ?? ButtonVariant.Primary}
+              color={okButton.color}
+              icon={okButton.icon}
+              iconPosition={okButton.iconPosition}
               onClick={onSuccess}
               {...okButton}
             >

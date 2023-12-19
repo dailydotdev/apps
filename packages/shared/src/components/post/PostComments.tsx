@@ -27,6 +27,7 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import { removePostComments } from '../../hooks/usePostById';
 import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import { ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 
 interface PostCommentsProps {
   post: Post;
@@ -89,7 +90,8 @@ export function PostComments({
         'Are you sure you want to delete your comment? This action cannot be undone.',
       okButton: {
         title: 'Delete',
-        className: 'btn-primary-cabbage',
+        variant: ButtonVariant.Primary,
+        color: ButtonColor.Cabbage,
       },
     };
     if (!(await showPrompt(options))) {
