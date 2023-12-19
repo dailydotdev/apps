@@ -101,7 +101,7 @@ export function PostContent({
 
   // Only send view post if the post is a video type
   useEffect(() => {
-    if (!isVideoType && (!post?.id || !user?.id)) {
+    if (!isVideoType || !post?.id || !user?.id) {
       return;
     }
 
