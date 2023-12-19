@@ -19,7 +19,7 @@ export const SharedPostCardFooter = ({
   return (
     <div
       className={classNames(
-        'p-3 gap-3 mb-2 rounded-12 border border-theme-divider-tertiary flex w-fit flex-auto h-auto min-h-0 w-full',
+        'p-3 gap-3 mb-2 rounded-12 border border-theme-divider-tertiary flex flex-auto h-auto min-h-0 w-full',
         isShort ? 'flex-row items-center' : 'flex-col',
       )}
     >
