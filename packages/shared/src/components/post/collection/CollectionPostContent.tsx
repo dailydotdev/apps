@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { LazyImage } from '../../LazyImage';
 import {
   ToastSubject,
@@ -22,6 +23,8 @@ import {
 } from '../common';
 import { Pill } from '../../Pill';
 import { CollectionsIntro } from '../widgets';
+import { sendViewPost } from '../../../graphql/posts';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 export const CollectionPostContent = ({
   post,
@@ -40,6 +43,7 @@ export const CollectionPostContent = ({
   onRemovePost,
   backToSquad,
 }: PostContentProps): ReactElement => {
+  const { user } = useAuthContext();
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
     origin,
@@ -65,6 +69,16 @@ export const CollectionPostContent = ({
     inlineActions,
     onRemovePost,
   };
+
+  const { mutateAsync: onSendViewPost } = useMutation(sendViewPost);
+
+  useEffect(() => {
+    if (!post?.id || !user?.id) {
+      return;
+    }
+
+    onSendViewPost(post.id);
+  }, [post?.id, onSendViewPost, user?.id]);
 
   return (
     <PostContentContainer
