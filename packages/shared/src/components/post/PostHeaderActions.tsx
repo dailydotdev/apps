@@ -14,7 +14,7 @@ import AuthContext from '../../contexts/AuthContext';
 import {
   banPost,
   demotePost,
-  internalReadTypes,
+  isInternalReadType,
   Post,
   promotePost,
 } from '../../graphql/posts';
@@ -59,7 +59,6 @@ export function PostHeaderActions({
   const { showPrompt } = usePrompt();
   const { onMenuClick, isOpen } = useContextMenu({ id: contextMenuId });
 
-  const isInternalReadType = internalReadTypes.includes(post?.type);
   const isModerator = user?.roles?.includes(Roles.Moderator);
 
   const banPostPrompt = async () => {
@@ -100,7 +99,7 @@ export function PostHeaderActions({
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      {!isInternalReadType && onReadArticle && (
+      {!isInternalReadType(post) && onReadArticle && (
         <SimpleTooltip
           placement="bottom"
           content="Read post"
