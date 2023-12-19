@@ -140,7 +140,7 @@ function EnableNotification({
             size={ButtonSize.Small}
             variant={ButtonVariant.Primary}
             color={ButtonColor.Cabbage}
-            className="mr-4 min-w-[7rem]"
+            className="mr-4"
             onClick={onEnable}
           >
             Enable notifications
