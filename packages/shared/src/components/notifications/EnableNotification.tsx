@@ -99,7 +99,7 @@ function EnableNotification({
         >
           Subscribe
         </Button>
-        <CloseButton className="right-3 absolute" onClick={onDismiss} />
+        <CloseButton className="absolute right-3" onClick={onDismiss} />
       </span>
     );
   }
@@ -171,7 +171,7 @@ function EnableNotification({
       {!showTextCloseButton && (
         <CloseButton
           size={ButtonSize.XSmall}
-          className="top-1 laptop:top-3 right-1 laptop:right-3 absolute"
+          className="absolute top-1 laptop:top-3 right-1 laptop:right-3"
           onClick={onDismiss}
         />
       )}
