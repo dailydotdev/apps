@@ -35,9 +35,9 @@ import ShareOptionsMenu from './ShareOptionsMenu';
 import { ExperimentWinner } from '../lib/featureValues';
 import { SharedFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
-import { ActiveFeedContext } from '../contexts';
+import { ActiveFeedContext, ActiveFeedNameContext } from '../contexts';
 import { useFeedLayout, useFeedVotePost } from '../hooks';
-import { AllFeedPages, RequestKey, updateCachedPagePost } from '../lib/query';
+import { RequestKey, updateCachedPagePost } from '../lib/query';
 import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
@@ -46,7 +46,6 @@ import { isNullOrUndefined } from '../lib/func';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
-  feedName: AllFeedPages;
   feedQueryKey: unknown[];
   query?: string;
   variables?: T;
@@ -93,7 +92,6 @@ const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
 };
 
 export default function Feed<T>({
-  feedName,
   feedQueryKey,
   query,
   variables,
@@ -120,10 +118,11 @@ export default function Feed<T>({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const { feedName } = useContext(ActiveFeedNameContext);
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
-  const { shouldUseFeedLayoutV1 } = useFeedLayout({ feedName });
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
     useFeed(
       feedQueryKey,
@@ -141,9 +140,8 @@ export default function Feed<T>({
     return {
       queryKey: feedQueryKey,
       items,
-      feedName,
     };
-  }, [feedQueryKey, items, feedName]);
+  }, [feedQueryKey, items]);
 
   const { ranking } = (variables as RankVariables) || {};
   const {

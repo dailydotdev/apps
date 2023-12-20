@@ -145,6 +145,8 @@ export default function MainFeedLayout({
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
+
+  // TODO: CHECK THIS OUT
   const feedName = getFeedName(feedNameProp, {
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
@@ -152,8 +154,7 @@ export default function MainFeedLayout({
   const feedVersion = useFeature(feature.feedVersion);
   const searchVersion = useFeature(feature.search);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
-  // TODO: seems like in a lot of places we are not aware of the feed context as that is initiated on the Feed...should we move context higher up? or get rid of using it in the hook?
-  const { shouldUseFeedLayoutV1 } = useFeedLayout({ feedName });
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
 
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {

@@ -31,6 +31,8 @@ import { isTesting, onboardingUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
 import { useReferralReminder } from '../hooks/referral/useReferralReminder';
+import { ActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
+import { AllFeedPages } from '../lib/query';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -50,6 +52,18 @@ export interface MainLayoutProps
 
 const feeds = Object.values(SharedFeedPage);
 
+const getFeedNameFromPathname = (path: string): string => {
+  if (path === '/') {
+    return 'default';
+  }
+
+  if (path === '/posts/finder') {
+    return 'search';
+  }
+
+  return path.replace(/^\/+/, '');
+};
+
 function MainLayout({
   children,
   greeting,
@@ -67,6 +81,8 @@ function MainLayout({
   enableSearch,
   onShowDndClick,
 }: MainLayoutProps): ReactElement {
+  const router = useRouter();
+  const { pathname } = router || {};
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
@@ -76,6 +92,18 @@ function MainLayout({
   const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
     useContext(SettingsContext);
   const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
+
+  const usePrevious = (value: string) => {
+    const ref = React.useRef<string>();
+    useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
+  };
+  const previousPathname = usePrevious(pathname);
+  const [feedName, setFeedName] = useState<AllFeedPages | string>(
+    getFeedNameFromPathname(pathname),
+  );
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useAuthErrors();
   useAuthVerificationRecovery();
@@ -86,6 +114,15 @@ function MainLayout({
     openMobileSidebar,
     setOpenMobileSidebar,
   });
+
+  useEffect(() => {
+    if (pathname !== previousPathname) {
+      const newFeedName = getFeedNameFromPathname(pathname);
+      if (newFeedName !== feedName) {
+        setFeedName(newFeedName);
+      }
+    }
+  }, [pathname, previousPathname, feedName]);
 
   const onMobileSidebarToggle = (state: boolean) => {
     trackEvent({
@@ -131,7 +168,6 @@ function MainLayout({
     );
   };
 
-  const router = useRouter();
   const page = router?.route?.substring(1).trim() as SharedFeedPage;
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
@@ -183,17 +219,26 @@ function MainLayout({
         onLogoClick={onLogoClick}
         onMobileSidebarToggle={onMobileSidebarToggle}
       />
-      <main
-        className={classNames(
-          'flex flex-row',
-          className,
-          !screenCentered && sidebarExpanded ? 'laptop:pl-60' : 'laptop:pl-11',
-          isBannerAvailable && 'laptop:pt-8',
-        )}
+      <ActiveFeedNameContext.Provider
+        value={{
+          feedName,
+          setFeedName,
+        }}
       >
-        {renderSidebar()}
-        {children}
-      </main>
+        <main
+          className={classNames(
+            'flex flex-row',
+            className,
+            !screenCentered && sidebarExpanded
+              ? 'laptop:pl-60'
+              : 'laptop:pl-11',
+            isBannerAvailable && 'laptop:pt-8',
+          )}
+        >
+          {renderSidebar()}
+          {children}
+        </main>
+      </ActiveFeedNameContext.Provider>
       <PromptElement />
     </div>
   );

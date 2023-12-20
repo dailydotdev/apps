@@ -3,8 +3,8 @@ import { useFeature } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { FeedLayout } from '../lib/featureValues';
 import { SharedFeedPage } from '../components/utilities';
-import { ActiveFeedContext } from '../contexts';
 import { AllFeedPages } from '../lib/query';
+import { ActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 
 interface UseFeedLayoutProps {
   feedName?: AllFeedPages;
@@ -19,14 +19,14 @@ export const useFeedLayout = ({
   feedName: feedNameProp,
   feedRelated = true,
 }: UseFeedLayoutProps = {}): UseFeedLayout => {
-  const { feedName } = useContext(ActiveFeedContext);
+  const { feedName } = useContext(ActiveFeedNameContext);
 
   const feedLayoutVersion = useFeature(feature.feedLayout);
   const isV1 = feedLayoutVersion === FeedLayout.V1;
   const isIncludedFeed = feedRelated
-    ? Object.values(SharedFeedPage).includes(
-        (feedNameProp ?? feedName) as SharedFeedPage,
-      )
+    ? Object.values(SharedFeedPage)
+        .filter((feedPage) => feedPage !== SharedFeedPage.Search)
+        .includes((feedNameProp ?? feedName) as SharedFeedPage)
     : !feedRelated;
   const shouldUseFeedLayoutV1 = isV1 && isIncludedFeed;
 
