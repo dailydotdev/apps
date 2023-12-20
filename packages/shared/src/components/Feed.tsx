@@ -79,6 +79,12 @@ const SharePostModal = dynamic(
   () =>
     import(/* webpackChunkName: "sharePostModal" */ './modals/SharePostModal'),
 );
+const CollectionPostModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "collectionPostModal" */ './modals/CollectionPostModal'
+    ),
+);
 
 const calculateRow = (index: number, numCards: number): number =>
   Math.floor(index / numCards);
@@ -91,6 +97,7 @@ const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Welcome]: SharePostModal,
   [PostType.Freeform]: SharePostModal,
   [PostType.VideoYouTube]: ArticlePostModal,
+  [PostType.Collection]: CollectionPostModal,
 };
 
 export default function Feed<T>({

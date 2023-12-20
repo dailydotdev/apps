@@ -20,6 +20,7 @@ import {
   PostType,
   VOTE_POST_MUTATION,
   UserPostVote,
+  VIEW_POST_MUTATION,
 } from '@dailydotdev/shared/src/graphql/posts';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
@@ -876,5 +877,45 @@ describe('downvote flow', () => {
     const undo = await screen.findByText('Undo');
     fireEvent.click(undo);
     await waitFor(() => expect(undoMutationCalled).toBeTruthy());
+  });
+});
+
+describe('collection', () => {
+  let viewPostMutationCalled = false;
+
+  it('should track page view', async () => {
+    renderPost(
+      {},
+      [
+        createPostMock({
+          type: PostType.Collection,
+        }),
+        createCommentsMock(),
+        {
+          request: {
+            query: VIEW_POST_MUTATION,
+            variables: {
+              id: '0e4005b2d3cf191f8c44c2718a457a1e',
+            },
+          },
+          result: () => {
+            viewPostMutationCalled = true;
+
+            return {
+              data: {
+                viewPost: {
+                  _: true,
+                },
+              },
+            };
+          },
+        },
+      ],
+      defaultUser,
+    );
+
+    await waitFor(() => {
+      expect(viewPostMutationCalled).toBe(true);
+    });
   });
 });

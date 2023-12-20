@@ -22,6 +22,7 @@ export const baseFeedSupportedTypes = [
   PostType.Share,
   PostType.Freeform,
   PostType.VideoYouTube,
+  PostType.Collection,
 ];
 
 export const supportedTypesForPrivateSources = [
@@ -44,6 +45,12 @@ export const FEED_POST_FRAGMENT = gql`
     }
     trending
     feedMeta
+    collectionSources {
+      handle
+      image
+    }
+    numCollectionSources
+    updatedAt
   }
   ${SHARED_POST_INFO_FRAGMENT}
 `;
@@ -76,7 +83,7 @@ const getFeedPostFragment = (fields = '') => gql`
   ${USER_POST_FRAGMENT}
 `;
 
-export const FEED_POST_CONNECTION_FRAGMENT = getFeedPostFragment();
+export const FEED_POST_CONNECTION_FRAGMENT = getFeedPostFragment('contentHtml');
 
 export const ANONYMOUS_FEED_QUERY = gql`
   query AnonymousFeed(
@@ -119,7 +126,7 @@ export const FEED_QUERY = gql`
       ...FeedPostConnection
     }
   }
-  ${getFeedPostFragment('contentHtml')}
+  ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
 export const MOST_UPVOTED_FEED_QUERY = gql`
@@ -326,5 +333,5 @@ export const PREVIEW_FEED_QUERY = gql`
       ...FeedPostConnection
     }
   }
-  ${getFeedPostFragment('contentHtml')}
+  ${FEED_POST_CONNECTION_FRAGMENT}
 `;

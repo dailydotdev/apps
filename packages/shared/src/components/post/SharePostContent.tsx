@@ -6,6 +6,7 @@ import { cloudinary } from '../../lib/image';
 import {
   Post,
   getReadPostButtonText,
+  isInternalReadType,
   isSharedPostSquadPost,
 } from '../../graphql/posts';
 import SettingsContext from '../../contexts/SettingsContext';
@@ -28,6 +29,9 @@ function SharePostContent({
     e.stopPropagation();
     onReadArticle();
   };
+
+  const shouldUseInternalLink =
+    isSharedPostSquadPost(post) || isInternalReadType(post.sharedPost);
 
   return (
     <>
@@ -54,11 +58,11 @@ function SharePostContent({
               content={getReadPostButtonText(post)}
               className="mt-5 btn-secondary w-fit"
               href={
-                isSharedPostSquadPost(post)
+                shouldUseInternalLink
                   ? post.sharedPost.commentsPermalink
                   : post.sharedPost.permalink
               }
-              openNewTab={isSharedPostSquadPost(post) ? false : openNewTab}
+              openNewTab={shouldUseInternalLink ? false : openNewTab}
               title="Go to post"
               rel="noopener"
               {...combinedClicks(openArticle)}
