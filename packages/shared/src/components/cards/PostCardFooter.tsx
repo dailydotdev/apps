@@ -50,7 +50,7 @@ export const PostCardFooter = ({
           )}
           loading="lazy"
           data-testid="postImage"
-          wrapperClassName="my-2"
+          {...(isVideoType && { wrapperClassName: 'overflow-hidden' })}
         />
       )}
       {showImage && post.author && (

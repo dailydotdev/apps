@@ -42,7 +42,7 @@ export const SharedPostCardFooter = ({
             'object-cover h-auto min-h-0',
             isShort ? 'aspect-square' : 'w-full',
           )}
-          wrapperClassName="overflow-hidden"
+          {...(isVideoType && { wrapperClassName: 'overflow-hidden' })}
           loading="lazy"
           data-testid="sharedPostImage"
         />
