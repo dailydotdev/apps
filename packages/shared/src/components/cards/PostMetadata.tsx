@@ -32,6 +32,7 @@ export default function PostMetadata({
   );
 
   const timeActionContent = isVideoType ? 'watch' : 'read';
+  const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
 
   return (
     <div
@@ -50,13 +51,13 @@ export default function PostMetadata({
       {!!description && <span>{description}</span>}
       {!!createdAt && !!description && <Separator />}
       {!!createdAt && <time dateTime={createdAt}>{date}</time>}
-      {!!createdAt && !!readTime && <Separator />}
-      {!!readTime && (
+      {!!createdAt && showReadTime && <Separator />}
+      {showReadTime && (
         <span data-testid="readTime">
           {formatReadTime(readTime)} {timeActionContent} time
         </span>
       )}
-      {(!!createdAt || !!readTime) && !!numUpvotes && <Separator />}
+      {(!!createdAt || showReadTime) && !!numUpvotes && <Separator />}
       {!!numUpvotes && (
         <span data-testid="numUpvotes">
           {numUpvotes} upvote{numUpvotes > 1 ? 's' : ''}
