@@ -164,17 +164,19 @@ export default function ActionButtons({
         </SimpleTooltip>
         {insaneMode && lastActions}
       </ConditionalWrapper>
-      {insaneMode && !isInternalReadType(post) ? (
+      {insaneMode ? (
         <div
           className={classNames('flex justify-between', visibleOnGroupHover)}
         >
-          <ReadArticleButton
-            content={getReadPostButtonText(post)}
-            className="mr-2 btn-primary"
-            href={getReadArticleLink(post)}
-            onClick={onReadArticleClick}
-            openNewTab={!isSharedPostSquadPost(post) && openNewTab}
-          />
+          {!isInternalReadType(post) && (
+            <ReadArticleButton
+              content={getReadPostButtonText(post)}
+              className="mr-2 btn-primary"
+              href={getReadArticleLink(post)}
+              onClick={onReadArticleClick}
+              openNewTab={!isSharedPostSquadPost(post) && openNewTab}
+            />
+          )}
           <OptionsButton
             className={visibleOnGroupHover}
             onClick={onMenuClick}
