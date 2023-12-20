@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { widgetClasses } from '../widgets/common';
 import { InfinitePaginationActions } from '../pagination';
@@ -40,6 +40,13 @@ export const RelatedPostsWidget = ({
   const [page, setPage] = useState(0);
   const relatedPostPage = relatedPosts?.pages[page];
   const hasRelatedPosts = isLoading || !!relatedPostPage?.edges.length;
+  const hasNextPageData = !!relatedPosts?.pages[page + 1];
+
+  useEffect(() => {
+    if (hasNextPage && !hasNextPageData) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, hasNextPageData, fetchNextPage]);
 
   if (!hasRelatedPosts) {
     return null;
@@ -103,7 +110,7 @@ export const RelatedPostsWidget = ({
       </div>
 
       <InfinitePaginationActions
-        hasNext={relatedPostPage?.pageInfo?.hasNextPage}
+        hasNext={hasNextPageData}
         hasPrevious={page > 0}
         onPrevious={() => {
           setPage((currentPage) => (currentPage ? currentPage - 1 : 0));
@@ -112,8 +119,6 @@ export const RelatedPostsWidget = ({
           if (isFetchingNextPage) {
             return;
           }
-
-          const hasNextPageData = !!relatedPosts.pages[page + 1];
 
           if (hasNextPage && !hasNextPageData) {
             await fetchNextPage();
