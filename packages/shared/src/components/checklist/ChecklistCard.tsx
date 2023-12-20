@@ -5,9 +5,9 @@ import { ChecklistStep } from './ChecklistStep';
 import { ChecklistCardProps } from '../../lib/checklist';
 import { useChecklist } from '../../hooks/useChecklist';
 import { ButtonSize } from '../buttons/Button';
-import CloseButton from '../CloseButton';
 import { RankConfetti } from '../../svg/RankConfetti';
 import { ButtonVariant } from '../buttons/ButtonV2';
+import { ModalClose } from '../modals/common/ModalClose';
 
 const ChecklistCard = ({
   className,
@@ -30,10 +30,10 @@ const ChecklistCard = ({
           <p className="mb-1 font-bold text-white typo-body">{title}</p>
           <p className="text-white typo-callout">{description}</p>
           {typeof onRequestClose === 'function' && (
-            <CloseButton
+            <ModalClose
               size={ButtonSize.Small}
               variant={ButtonVariant.Secondary}
-              className="top-3 right-3 text-white border-white absolute"
+              className="top-3 right-3"
               onClick={onRequestClose}
             />
           )}

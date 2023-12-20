@@ -17,7 +17,7 @@ import { link } from '../../../lib/links';
 import { useCopyLink } from '../../../hooks/useCopy';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetType } from '../../../lib/analytics';
-import CloseButton from '../../CloseButton';
+import { ModalClose } from '../common/ModalClose';
 
 function SearchReferralModal({
   onRequestClose,
@@ -62,10 +62,10 @@ function SearchReferralModal({
       size={isLaptop ? Modal.Size.XLarge : Modal.Size.Small}
       onRequestClose={handleRequestClose}
     >
-      <CloseButton
+      <ModalClose
         onClick={handleRequestClose}
         variant={ButtonVariant.Secondary}
-        className="top-3 right-3 z-1 absolute"
+        className="top-3 right-3"
       />
       <Modal.Body className="laptop:flex-row">
         <span className="laptop:hidden -mx-6 -mt-6">

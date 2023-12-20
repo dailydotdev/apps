@@ -18,7 +18,7 @@ import { formToJson } from '../../../lib/form';
 import { useDebouncedUrl } from '../../../hooks/input';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import { Switch } from '../../fields/Switch';
-import CloseButton from '../../CloseButton';
+import { ModalClose } from '../common/ModalClose';
 
 export interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;
@@ -80,7 +80,7 @@ export function CreateSharedPostModal({
       >
         {isMobile && (
           <div className="flex flex-row flex-1 justify-between items-center">
-            <CloseButton onClick={props.onRequestClose} />
+            <ModalClose absolute={false} onClick={props.onRequestClose} />
 
             <Button
               variant={ButtonVariant.Primary}

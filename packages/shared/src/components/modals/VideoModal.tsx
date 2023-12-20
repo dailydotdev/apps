@@ -2,8 +2,8 @@ import React, { ReactElement } from 'react';
 import ReactModal from 'react-modal';
 import { Modal } from './common/Modal';
 import { ModalKind, ModalSize } from './common/types';
-import CloseButton from '../CloseButton';
 import { ButtonSize } from '../buttons/ButtonV2';
+import { ModalClose } from './common/ModalClose';
 
 interface VideoModalProps extends ReactModal.Props {
   src: string;
@@ -24,9 +24,9 @@ export default function VideoModal({
       onRequestClose={onRequestClose}
       {...props}
     >
-      <CloseButton
+      <ModalClose
         size={ButtonSize.Small}
-        className="top-3 right-3 absolute"
+        className="top-3 right-3"
         onClick={onRequestClose}
       />
       <iframe

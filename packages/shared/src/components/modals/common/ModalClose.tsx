@@ -3,8 +3,12 @@ import classNames from 'classnames';
 import { ButtonProps } from '../../buttons/ButtonV2';
 import CloseButton from '../../CloseButton';
 
+type ModalCloseProps = ButtonProps<'button'> & {
+  absolute?: boolean;
+};
+
 function ModalCloseComponent(
-  { className, onClick, ...props }: ButtonProps<'button'>,
+  { className, onClick, absolute = true, ...props }: ModalCloseProps,
   ref: Ref<HTMLButtonElement>,
 ): ReactElement {
   if (!onClick) {
@@ -15,7 +19,7 @@ function ModalCloseComponent(
       {...props}
       onClick={onClick}
       ref={ref}
-      className={classNames('right-2 z-1 absolute', className)}
+      className={classNames('right-2 z-1', { absolute }, className)}
     />
   );
 }
