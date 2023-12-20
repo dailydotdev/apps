@@ -27,11 +27,6 @@ export const PostCardFooter = ({
 }: PostCardFooterProps): ReactElement => {
   const isVideoType = isVideoPost(post);
   const ImageComponent = isVideoType ? CardVideoImage : CardImage;
-  const videoImageProps: { wrapperClassName?: string } = {};
-  if (isVideoType) {
-    videoImageProps.wrapperClassName = 'my-2';
-  }
-
   return (
     <>
       {!showImage && post.author && (
@@ -55,7 +50,7 @@ export const PostCardFooter = ({
           )}
           loading="lazy"
           data-testid="postImage"
-          {...videoImageProps}
+          {...(isVideoType && { wrapperClassName: 'overflow-hidden' })}
         />
       )}
       {showImage && post.author && (

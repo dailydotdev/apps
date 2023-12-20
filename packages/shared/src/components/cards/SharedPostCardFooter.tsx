@@ -16,11 +16,6 @@ export const SharedPostCardFooter = ({
   isVideoType,
 }: SharedPostCardFooterProps): ReactElement => {
   const ImageComponent = isVideoType ? CardVideoImage : CardImage;
-  const videoImageProps: { wrapperClassName?: string } = {};
-  if (isVideoType) {
-    videoImageProps.wrapperClassName = 'overflow-hidden';
-  }
-
   return (
     <div
       className={classNames(
@@ -47,9 +42,9 @@ export const SharedPostCardFooter = ({
             'object-cover h-auto min-h-0',
             isShort ? 'aspect-square' : 'w-full',
           )}
+          {...(isVideoType && { wrapperClassName: 'overflow-hidden' })}
           loading="lazy"
           data-testid="sharedPostImage"
-          {...videoImageProps}
         />
       </div>
     </div>
