@@ -33,7 +33,7 @@ export const CollectionsIntro = ({
         </p>
       </div>
       <CloseButton
-        buttonSize={ButtonSize.XSmall}
+        size={ButtonSize.XSmall}
         onClick={() => completeAction(ActionType.CollectionsIntro)}
       />
     </span>
