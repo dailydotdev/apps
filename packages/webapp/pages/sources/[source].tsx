@@ -36,6 +36,7 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -48,7 +49,11 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   const { user, showLogin } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(
-    () => ({ source: source?.id, ranking: 'TIME' }),
+    () => ({
+      source: source?.id,
+      ranking: 'TIME',
+      supportedTypes: [PostType.Article, PostType.VideoYouTube],
+    }),
     [source?.id],
   );
 

@@ -14,6 +14,7 @@ import AuthContext from '../../contexts/AuthContext';
 import {
   banPost,
   demotePost,
+  getReadPostButtonText,
   isInternalReadType,
   Post,
   promotePost,
@@ -60,6 +61,7 @@ export function PostHeaderActions({
   const { onMenuClick, isOpen } = useContextMenu({ id: contextMenuId });
 
   const isModerator = user?.roles?.includes(Roles.Moderator);
+  const readButtonText = getReadPostButtonText(post);
 
   const banPostPrompt = async () => {
     const options: PromptOptions = {
@@ -102,7 +104,7 @@ export function PostHeaderActions({
       {!isInternalReadType(post) && onReadArticle && (
         <SimpleTooltip
           placement="bottom"
-          content="Read post"
+          content={readButtonText}
           disabled={!inlineActions}
         >
           <Button
@@ -116,7 +118,7 @@ export function PostHeaderActions({
             onClick={onReadArticle}
             data-testid="postActionsRead"
           >
-            {!inlineActions && 'Read post'}
+            {!inlineActions && readButtonText}
           </Button>
         </SimpleTooltip>
       )}

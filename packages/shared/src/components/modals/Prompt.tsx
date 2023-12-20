@@ -24,8 +24,8 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
       description,
       content,
       promptSize = Modal.Size.XSmall,
-      cancelButton,
-      okButton,
+      cancelButton = {},
+      okButton = {},
       className = {},
     },
   } = prompt;
@@ -48,7 +48,7 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
         )}
         {content}
         <Buttons className={className.buttons}>
-          {cancelButton && (
+          {cancelButton !== null && (
             <Button
               variant={cancelButton.variant ?? ButtonVariant.Secondary}
               color={cancelButton.color}
@@ -60,7 +60,7 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
               {cancelButton?.title ?? 'Cancel'}
             </Button>
           )}
-          {okButton && (
+          {okButton !== null && (
             <Button
               variant={okButton.variant ?? ButtonVariant.Primary}
               color={okButton.color}

@@ -6,7 +6,11 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
-import { BOOKMARKS_FEED_QUERY, SEARCH_BOOKMARKS_QUERY } from '../graphql/feed';
+import {
+  BOOKMARKS_FEED_QUERY,
+  SEARCH_BOOKMARKS_QUERY,
+  supportedTypesForPrivateSources,
+} from '../graphql/feed';
 import AuthContext from '../contexts/AuthContext';
 import { CustomFeedHeader, FeedPage, FeedPageHeader } from './utilities';
 import SearchEmptyScreen from './SearchEmptyScreen';
@@ -15,7 +19,6 @@ import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button, ButtonVariant } from './buttons/ButtonV2';
 import ShareIcon from './icons/Share';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
-import { supportedTypesForPrivateSources } from '../graphql/posts';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
