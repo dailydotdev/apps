@@ -4,7 +4,12 @@ import { ExternalLinkPreview } from '../../../graphql/posts';
 import MarkdownInput, { MarkdownRef } from '../../fields/MarkdownInput';
 import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
 import { usePostToSquad, useViewSize, ViewSize } from '../../../hooks';
-import { Button, ButtonSize } from '../../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/ButtonV2';
 import AtIcon from '../../icons/At';
 import { Divider, Justify } from '../../utilities';
 import SourceButton from '../../cards/SourceButton';
@@ -13,7 +18,7 @@ import { formToJson } from '../../../lib/form';
 import { useDebouncedUrl } from '../../../hooks/input';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import { Switch } from '../../fields/Switch';
-import CloseButton from '../../CloseButton';
+import { ModalClose } from '../common/ModalClose';
 
 export interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;
@@ -75,14 +80,15 @@ export function CreateSharedPostModal({
       >
         {isMobile && (
           <div className="flex flex-row flex-1 justify-between items-center">
-            <CloseButton onClick={props.onRequestClose} />
+            <ModalClose position="static" onClick={props.onRequestClose} />
 
             <Button
-              className="btn-primary-cabbage"
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Cabbage}
               disabled={isPosting}
               loading={isPosting}
               form="share_post"
-              buttonSize={ButtonSize.Small}
+              size={ButtonSize.Small}
             >
               Post
             </Button>
@@ -137,7 +143,7 @@ export function CreateSharedPostModal({
         <Button
           icon={<AtIcon />}
           className="btn-tertiary"
-          buttonSize={ButtonSize.Small}
+          size={ButtonSize.Small}
           onClick={markdownRef?.current?.onMentionCommand}
         />
         <Divider vertical />

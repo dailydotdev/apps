@@ -12,7 +12,7 @@ import InteractivePopup, {
 } from '../tooltips/InteractivePopup';
 import { cloudinary } from '../../lib/image';
 import CloseButton from '../CloseButton';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { SearchSubmitButton } from './SearchSubmitButton';
 import {
   SearchBarSuggestionList,
@@ -67,11 +67,14 @@ export function MobileSearch({
         <span className="flex z-1 flex-row gap-4 px-2 mr-2">
           <CloseButton
             type="button"
-            onClick={(event) => onClose(event, input)}
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) =>
+              onClose(event, input)
+            }
           />
           <Button
             type="button"
-            className="ml-auto btn-tertiary"
+            variant={ButtonVariant.Tertiary}
+            className="ml-auto"
             onClick={handleClearClick}
             disabled={!input}
           >

@@ -1,6 +1,11 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import CloseButton from '../CloseButton';
 import { cloudinary } from '../../lib/image';
 import VIcon from '../icons/V';
@@ -87,17 +92,14 @@ function EnableNotification({
         <BellNotifyIcon secondary className="mr-2" /> Never miss new posts from{' '}
         {label}
         <Button
-          className="mr-14 ml-auto btn-secondary"
-          buttonSize={ButtonSize.XSmall}
+          className="mr-14 ml-auto"
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.XSmall}
           onClick={onEnable}
         >
           Subscribe
         </Button>
-        <CloseButton
-          className="right-3"
-          position="absolute"
-          onClick={onDismiss}
-        />
+        <CloseButton className="absolute right-3" onClick={onDismiss} />
       </span>
     );
   }
@@ -135,8 +137,10 @@ function EnableNotification({
       <div className="flex mt-4 align-center">
         {!hasEnabled && (
           <Button
-            buttonSize={ButtonSize.Small}
-            className="mr-4 min-w-[7rem] btn-primary-cabbage"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
+            className="mr-4"
             onClick={onEnable}
           >
             Enable notifications
@@ -144,8 +148,8 @@ function EnableNotification({
         )}
         {showTextCloseButton && (
           <Button
-            buttonSize={ButtonSize.Small}
-            className="btn-tertiary"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Tertiary}
             onClick={onDismiss}
           >
             Dismiss
@@ -166,10 +170,9 @@ function EnableNotification({
       />
       {!showTextCloseButton && (
         <CloseButton
-          buttonSize={ButtonSize.XSmall}
-          className="top-1 laptop:top-3 right-1 laptop:right-3"
+          size={ButtonSize.XSmall}
+          className="absolute top-1 laptop:top-3 right-1 laptop:right-3"
           onClick={onDismiss}
-          position="absolute"
         />
       )}
     </div>

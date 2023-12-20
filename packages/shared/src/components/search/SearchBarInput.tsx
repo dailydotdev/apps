@@ -20,7 +20,7 @@ import { BaseField, FieldInput } from '../fields/common';
 import { AiIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { getFieldFontColor } from '../fields/BaseFieldContainer';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import CloseIcon from '../icons/MiniClose';
 import { useInputField } from '../../hooks/useInputField';
 import { SearchProgressBar } from './SearchProgressBar';
@@ -202,8 +202,8 @@ function SearchBarInputComponent(
           <div className="hidden tablet:flex gap-3 items-center">
             {hasInput && (
               <Button
-                className="btn-tertiary"
-                buttonSize={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
                 title="Clear query"
                 onClick={handleClearClick}
                 icon={<CloseIcon />}
