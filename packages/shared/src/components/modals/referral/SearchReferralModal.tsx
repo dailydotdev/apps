@@ -1,8 +1,7 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
 import { Modal, ModalProps } from '../common/Modal';
 import { Checkbox } from '../../fields/Checkbox';
-import { Button } from '../../buttons/Button';
+import { Button, ButtonVariant } from '../../buttons/ButtonV2';
 import CopyIcon from '../../icons/Copy';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { CampaignCtaPlacement } from '../../../graphql/settings';
@@ -18,7 +17,7 @@ import { link } from '../../../lib/links';
 import { useCopyLink } from '../../../hooks/useCopy';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetType } from '../../../lib/analytics';
-import CloseButton from '../../CloseButton';
+import { ModalClose } from '../common/ModalClose';
 
 function SearchReferralModal({
   onRequestClose,
@@ -63,10 +62,11 @@ function SearchReferralModal({
       size={isLaptop ? Modal.Size.XLarge : Modal.Size.Small}
       onRequestClose={handleRequestClose}
     >
-      <CloseButton
+      <ModalClose
         onClick={handleRequestClose}
-        position="absolute"
-        className="top-3 right-3 z-1 !btn-secondary"
+        variant={ButtonVariant.Secondary}
+        top="3"
+        right="3"
       />
       <Modal.Body className="laptop:flex-row">
         <span className="laptop:hidden -mx-6 -mt-6">
@@ -89,12 +89,12 @@ function SearchReferralModal({
           </p>
           <KeysRow count={availableCount} />
           <Button
+            variant={
+              noKeysAvailable ? ButtonVariant.Secondary : ButtonVariant.Primary
+            }
             tag={noKeysAvailable ? 'a' : 'button'}
             href={noKeysAvailable ? link.search.requestKeys : undefined}
-            className={classNames(
-              'mt-5',
-              noKeysAvailable ? 'btn-secondary' : 'btn-primary',
-            )}
+            className="mt-5"
             icon={
               noKeysAvailable ? undefined : <CopyIcon secondary={isCopying} />
             }

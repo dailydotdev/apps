@@ -1,6 +1,10 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
-import { AllowedTags, Button, ButtonProps } from '../buttons/Button';
+import {
+  AllowedTags,
+  Button,
+  ButtonProps,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import { SendAirplaneIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -15,17 +19,17 @@ export function SearchSubmitButton<TagName extends AllowedTags>({
   tooltipProps,
   buttonProps = {},
 }: SearchSubmitButtonProps<TagName>): ReactElement {
-  const { className } = buttonProps;
+  const { variant = ButtonVariant.Primary, ...otherButtonProps } = buttonProps;
 
   return (
     <SimpleTooltip {...tooltipProps}>
       <div>
         <Button
-          className={classNames('btn-primary', className)}
+          variant={variant}
           title="Submit"
           type="submit"
           icon={<SendAirplaneIcon size={IconSize.Medium} />}
-          {...buttonProps}
+          {...otherButtonProps}
         />
       </div>
     </SimpleTooltip>

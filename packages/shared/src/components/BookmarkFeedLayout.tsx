@@ -16,7 +16,7 @@ import { CustomFeedHeader, FeedPage, FeedPageHeader } from './utilities';
 import SearchEmptyScreen from './SearchEmptyScreen';
 import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
-import { Button } from './buttons/Button';
+import { Button, ButtonVariant } from './buttons/ButtonV2';
 import ShareIcon from './icons/Share';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 
@@ -77,6 +77,7 @@ export default function BookmarkFeedLayout({
   const shareBookmarksButton = (style: string, text?: string) => (
     <Button
       className={style}
+      variant={ButtonVariant.Secondary}
       icon={<ShareIcon secondary={showSharedBookmarks} />}
       onClick={() => setShowSharedBookmarks(true)}
     >
@@ -92,11 +93,8 @@ export default function BookmarkFeedLayout({
       </FeedPageHeader>
       <CustomFeedHeader className="flex mb-6">
         {searchChildren}
-        {shareBookmarksButton(
-          'hidden laptop:flex ml-4 btn-secondary',
-          'Share bookmarks',
-        )}
-        {shareBookmarksButton('flex laptop:hidden ml-4 btn-secondary')}
+        {shareBookmarksButton('hidden laptop:flex ml-4', 'Share bookmarks')}
+        {shareBookmarksButton('flex laptop:hidden ml-4')}
       </CustomFeedHeader>
 
       {showSharedBookmarks && (

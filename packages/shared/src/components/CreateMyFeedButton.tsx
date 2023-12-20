@@ -1,6 +1,11 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
 import PlusIcon from './icons/Plus';
-import { Button, ButtonSize } from './buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from './buttons/ButtonV2';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
 
@@ -42,8 +47,10 @@ export default function CreateMyFeedButton({
           {explainerCopy}
         </p>
         <Button
-          className="mt-4 tablet:mt-0 ml-0 tablet:ml-8 btn-primary-cabbage"
-          buttonSize={ButtonSize.Small}
+          className="mt-4 tablet:mt-0 ml-0 tablet:ml-8"
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Cabbage}
+          size={ButtonSize.Small}
           icon={<PlusIcon />}
           onClick={onClick}
           data-testid="create_myfeed"
