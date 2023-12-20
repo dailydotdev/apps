@@ -59,7 +59,11 @@ const createFeedMock = (
     loggedIn: true,
     source: 'react',
     ranking: 'TIME',
-    supportedTypes: [PostType.Article, PostType.Collection],
+    supportedTypes: [
+      PostType.Article,
+      PostType.VideoYouTube,
+      PostType.Collection,
+    ],
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
@@ -193,7 +197,11 @@ it('should show login popup when logged-out on add to feed click', async () => {
         loggedIn: false,
         source: 'react',
         ranking: 'TIME',
-        supportedTypes: [PostType.Article, PostType.Collection],
+        supportedTypes: [
+          PostType.Article,
+          PostType.VideoYouTube,
+          PostType.Collection,
+        ],
       }),
     ],
     null,

@@ -1,11 +1,11 @@
 import nock from 'nock';
 import React from 'react';
 import {
+  fireEvent,
   render,
   RenderResult,
   screen,
   waitFor,
-  fireEvent,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
@@ -16,18 +16,19 @@ import {
 } from '../../../__tests__/helpers/graphql';
 import { LoggedUser } from '../../lib/user';
 import {
+  AdvancedSettings,
+  AdvancedSettingsGroup,
+  AllTagCategoriesData,
   FEED_SETTINGS_QUERY,
   FeedSettings,
-  AllTagCategoriesData,
-  AdvancedSettings,
   UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION,
 } from '../../graphql/feedSettings';
 import AdvancedSettingsPage from './AdvancedSettings';
 import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import AlertContext, {
-  AlertContextData,
   ALERT_DEFAULTS,
+  AlertContextData,
 } from '../../contexts/AlertContext';
 
 const showLogin = jest.fn();
@@ -51,12 +52,14 @@ const createAdvancedSettingsAndFiltersMock = (
       title: 'Tech magazines',
       description: 'Description for Tech magazines',
       defaultEnabledState: true,
+      group: AdvancedSettingsGroup.Advanced,
     },
     {
       id: 2,
       title: 'Newsletters',
       description: 'Description for Newsletters',
       defaultEnabledState: true,
+      group: AdvancedSettingsGroup.Advanced,
     },
   ],
 ): MockedGraphQLResponse<AllTagCategoriesData> => ({

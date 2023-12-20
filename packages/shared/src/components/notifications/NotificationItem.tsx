@@ -146,11 +146,11 @@ function NotificationItem({
             }}
           />
         )}
-        {attachments?.map(({ image, title: attachment }) => (
+        {attachments?.map(({ title: attachment, ...props }) => (
           <NotificationItemAttachment
             key={attachment}
-            image={image}
             title={attachment}
+            {...props}
           />
         ))}
       </div>

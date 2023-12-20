@@ -1,10 +1,14 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import OpenLinkIcon from '../icons/OpenLink';
-import { PostType, internalReadTypes } from '../../graphql/posts';
+import {
+  PostType,
+  getReadPostButtonText,
+  isInternalReadType,
+} from '../../graphql/posts';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import SettingsContext from '../../contexts/SettingsContext';
 import { PostHeaderActionsProps } from './common';
 import { PostMenuOptions } from './PostMenuOptions';
@@ -27,19 +31,21 @@ export function PostHeaderActions({
 }: PostHeaderActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
 
-  const isInternalReadType = internalReadTypes.includes(post?.type);
+  const readButtonText = getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      {!isInternalReadType && onReadArticle && (
+      {!isInternalReadType(post) && !!onReadArticle && (
         <SimpleTooltip
           placement="bottom"
-          content="Read post"
+          content={readButtonText}
           disabled={!inlineActions}
         >
           <Button
-            className={inlineActions ? 'btn-tertiary' : 'btn-secondary'}
+            variant={
+              inlineActions ? ButtonVariant.Tertiary : ButtonVariant.Secondary
+            }
             tag="a"
             href={post.sharedPost?.permalink ?? post.permalink}
             target={openNewTab ? '_blank' : '_self'}
@@ -47,7 +53,7 @@ export function PostHeaderActions({
             onClick={onReadArticle}
             data-testid="postActionsRead"
           >
-            {!inlineActions && 'Read post'}
+            {!inlineActions && readButtonText}
           </Button>
         </SimpleTooltip>
       )}

@@ -1,5 +1,7 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { isVideoPost, sendViewPost } from '../../graphql/posts';
 import PostMetadata from '../cards/PostMetadata';
 import PostSummary from '../cards/PostSummary';
 import { LazyImage } from '../LazyImage';
@@ -18,6 +20,8 @@ import { BasePostContent } from './BasePostContent';
 import { cloudinary } from '../../lib/image';
 import { combinedClicks } from '../../lib/click';
 import { PostContainer, PostContentProps, PostNavigationProps } from './common';
+import YoutubeVideo from '../video/YoutubeVideo';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -39,14 +43,17 @@ export function PostContent({
   onRemovePost,
   backToSquad,
 }: PostContentProps): ReactElement {
+  const { user } = useAuthContext();
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
     origin,
     post,
   });
   const { onSharePost: onShare, onReadArticle } = engagementActions;
+  const { mutateAsync: onSendViewPost } = useMutation(sendViewPost);
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
+  const isVideoType = isVideoPost(post);
   const containerClass = classNames(
     'tablet:pb-0 tablet:flex-row',
     className?.container,
@@ -63,6 +70,15 @@ export function PostContent({
     inlineActions,
     onRemovePost,
   };
+
+  // Only send view post if the post is a video type
+  useEffect(() => {
+    if (!isVideoType || !post?.id || !user?.id) {
+      return;
+    }
+
+    onSendViewPost(post.id);
+  }, [isVideoType, onSendViewPost, post.id, user?.id]);
 
   return (
     <PostContentContainer
@@ -127,6 +143,13 @@ export function PostContent({
               {post.title}
             </a>
           </h1>
+          {isVideoType && (
+            <YoutubeVideo
+              title={post.title}
+              videoId={post.videoId}
+              className="mb-7"
+            />
+          )}
           {post.summary && (
             <PostSummary className="mb-6" summary={post.summary} />
           )}
@@ -134,25 +157,31 @@ export function PostContent({
           <PostMetadata
             createdAt={post.createdAt}
             readTime={post.readTime}
-            className="mt-4 mb-8 !typo-callout"
+            isVideoType={isVideoType}
+            className={classNames(
+              'mt-4 !typo-callout',
+              isVideoType ? 'mb-4' : 'mb-8',
+            )}
           />
-          <a
-            href={post.permalink}
-            title="Go to post"
-            target="_blank"
-            rel="noopener"
-            {...combinedClicks(onReadArticle)}
-            className="block overflow-hidden mb-10 rounded-2xl cursor-pointer"
-            style={{ maxWidth: '25.625rem' }}
-          >
-            <LazyImage
-              imgSrc={post.image}
-              imgAlt="Post cover image"
-              ratio="49%"
-              eager
-              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-            />
-          </a>
+          {!isVideoType && (
+            <a
+              href={post.permalink}
+              title="Go to post"
+              target="_blank"
+              rel="noopener"
+              {...combinedClicks(onReadArticle)}
+              className="block overflow-hidden mb-10 rounded-2xl cursor-pointer"
+              style={{ maxWidth: '25.625rem' }}
+            >
+              <LazyImage
+                imgSrc={post.image}
+                imgAlt="Post cover image"
+                ratio="49%"
+                eager
+                fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+              />
+            </a>
+          )}
           {post.toc?.length > 0 && (
             <PostToc
               post={post}

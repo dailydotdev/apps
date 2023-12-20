@@ -1,5 +1,5 @@
 import request from 'graphql-request';
-import React, { ReactNode, ReactElement, useMemo } from 'react';
+import React, { ReactNode, ReactElement, useMemo, useContext } from 'react';
 import { UseMutateAsyncFunction, useMutation } from '@tanstack/react-query';
 import {
   Alerts,
@@ -117,3 +117,6 @@ export const AlertContextProvider = ({
 };
 
 export default AlertContext;
+
+export const useAlertsContext = (): AlertContextData =>
+  useContext(AlertContext);

@@ -88,6 +88,7 @@ const PostTypeToTag: Record<PostType, FunctionComponent> = {
   [PostType.Share]: SharePostCard,
   [PostType.Welcome]: WelcomePostCard,
   [PostType.Freeform]: WelcomePostCard,
+  [PostType.VideoYouTube]: ArticlePostCard,
   [PostType.Collection]: CollectionCard,
 };
 

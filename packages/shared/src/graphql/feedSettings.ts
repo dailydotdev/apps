@@ -1,17 +1,23 @@
 import { gql } from 'graphql-request';
 import { Source } from './sources';
 
+export enum AdvancedSettingsGroup {
+  Advanced = 'advanced',
+  ContentTypes = 'content_types',
+}
+
 export interface AdvancedSettings {
   id: number;
   title: string;
   description: string;
   defaultEnabledState: boolean;
+  group: AdvancedSettingsGroup;
 }
 
-export interface FeedAdvancedSettings
-  extends Partial<Omit<AdvancedSettings, 'defaultEnabledState'>> {
+export interface FeedAdvancedSettings {
   id: number;
   enabled: boolean;
+  advancedSettings?: AdvancedSettings;
 }
 
 export interface Tag {
@@ -90,6 +96,7 @@ export const FEED_SETTINGS_QUERY = gql`
       title
       description
       defaultEnabledState
+      group
     }
   }
 `;

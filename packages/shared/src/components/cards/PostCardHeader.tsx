@@ -6,8 +6,10 @@ import { Source } from '../../graphql/sources';
 import { ReadArticleButton } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useFeedPreviewMode } from '../../hooks';
+import { Post, getReadPostButtonText } from '../../graphql/posts';
 
 interface CardHeaderProps {
+  post: Post;
   className?: string;
   children?: ReactNode;
   source: Source;
@@ -20,6 +22,7 @@ interface CardHeaderProps {
 const Container = getGroupedHoverContainer('span');
 
 export const PostCardHeader = ({
+  post,
   className,
   onMenuClick,
   onReadArticleClick,
@@ -41,6 +44,7 @@ export const PostCardHeader = ({
         {!isFeedPreview && (
           <>
             <ReadArticleButton
+              content={getReadPostButtonText(post)}
               className="mr-2 btn-primary"
               href={postLink}
               onClick={onReadArticleClick}

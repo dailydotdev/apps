@@ -1,7 +1,7 @@
 import request, { gql } from 'graphql-request';
 import { Author, Comment, Scout } from './comments';
 import { Connection } from './common';
-import { Source, Squad } from './sources';
+import { Source, SourceType, Squad } from './sources';
 import { EmptyResponse } from './emptyResponse';
 import { graphqlUrl } from '../lib/config';
 import {
@@ -29,6 +29,7 @@ export enum PostType {
   Share = 'share',
   Welcome = 'welcome',
   Freeform = 'freeform',
+  VideoYouTube = 'video:youtube',
   Collection = 'collection',
 }
 
@@ -38,13 +39,19 @@ export const internalReadTypes: PostType[] = [
   PostType.Collection,
 ];
 
-export const supportedTypesForPrivateSources = [
-  PostType.Article,
-  PostType.Share,
-  PostType.Welcome,
-  PostType.Freeform,
-  PostType.Collection,
-];
+export const isInternalReadType = (post: Post): boolean =>
+  internalReadTypes.includes(post?.type);
+
+export const isSharedPostSquadPost = (post: Post): boolean =>
+  post.sharedPost?.source.type === SourceType.Squad;
+
+export const isVideoPost = (post: Post | ReadHistoryPost): boolean =>
+  post?.type === PostType.VideoYouTube ||
+  (post?.type === PostType.Share &&
+    post?.sharedPost?.type === PostType.VideoYouTube);
+
+export const getReadPostButtonText = (post: Post): string =>
+  isVideoPost(post) ? 'Watch video' : 'Read post';
 
 type PostFlags = {
   sentAnalyticsReport: boolean;
@@ -113,6 +120,7 @@ export interface Post {
   downvoted?: boolean;
   flags: PostFlags;
   userState?: PostUserState;
+  videoId?: string;
   updatedAt?: string;
 }
 

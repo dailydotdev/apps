@@ -19,6 +19,7 @@ import { useFeedPreviewMode, usePostFeedback } from '../../hooks';
 import styles from './Card.module.css';
 import { FeedbackCard } from './FeedbackCard';
 import { Origin } from '../../lib/analytics';
+import { isVideoPost } from '../../graphql/posts';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -47,6 +48,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
+  const isVideoType = isVideoPost(post);
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -95,6 +97,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
       >
         <CardTextContainer>
           <PostCardHeader
+            post={post}
             className={showFeedback ? 'hidden' : 'flex'}
             openNewTab={openNewTab}
             source={post.source}
@@ -112,7 +115,9 @@ export const ArticlePostCard = forwardRef(function PostCard(
             <PostMetadata
               createdAt={post.createdAt}
               readTime={post.readTime}
+              isVideoType={isVideoType}
               className="mx-4"
+              insaneMode={insaneMode}
             />
           </Container>
         )}

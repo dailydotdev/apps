@@ -52,7 +52,11 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     () => ({
       source: source?.id,
       ranking: 'TIME',
-      supportedTypes: [PostType.Article, PostType.Collection],
+      supportedTypes: [
+        PostType.Article,
+        PostType.VideoYouTube,
+        PostType.Collection,
+      ],
     }),
     [source?.id],
   );

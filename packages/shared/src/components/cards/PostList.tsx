@@ -13,8 +13,8 @@ import PostAuthor from './PostAuthor';
 import FeedItemContainer from './FeedItemContainer';
 import { PostTagsPanel } from '../post/block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
-import { PostType } from '../../graphql/posts';
 import { CollectionPillSources } from '../post/collection';
+import { isVideoPost, PostType } from '../../graphql/posts';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -36,6 +36,7 @@ export const PostList = forwardRef(function PostList(
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const { trending, pinnedAt } = post;
+  const isVideoType = isVideoPost(post);
   const isCollectionPost = post.type === PostType.Collection;
 
   if (data?.showTagsPanel && post.tags.length > 0) {
@@ -78,6 +79,8 @@ export const PostList = forwardRef(function PostList(
           createdAt={post.createdAt}
           readTime={post.readTime}
           className="my-1"
+          isVideoType={isVideoType}
+          insaneMode
         >
           {post.author && <PostAuthor author={post.author} className="ml-2" />}
         </PostMetadata>

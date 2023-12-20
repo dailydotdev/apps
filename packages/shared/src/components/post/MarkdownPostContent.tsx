@@ -28,9 +28,12 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
           </a>
         </Link>
       )}
-      <Markdown content={post.contentHtml} />
+      <Markdown
+        content={post.contentHtml}
+        className={post.type !== PostType.Welcome && 'mb-5'}
+      />
       {post.type === PostType.Welcome && post.image && (
-        <div className="block overflow-hidden mt-8 max-w-sm rounded-2xl cursor-pointer h-fit">
+        <div className="block overflow-hidden mt-8 mb-5 max-w-sm rounded-2xl cursor-pointer h-fit">
           <LazyImage
             imgSrc={post.image}
             imgAlt="Post cover image"
