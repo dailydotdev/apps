@@ -46,6 +46,7 @@ import classNames from 'classnames';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Link from 'next/link';
+import { CollectionPostContent } from '@dailydotdev/shared/src/components/post/collection';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -73,6 +74,7 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   welcome: SquadPostContent,
   freeform: SquadPostContent,
   [PostType.VideoYouTube]: PostContent,
+  collection: CollectionPostContent,
 };
 
 interface PostParams extends ParsedUrlQuery {
@@ -169,6 +171,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     welcome: shareNavigation,
     freeform: shareNavigation,
     [PostType.VideoYouTube]: articleNavigation,
+    collection: articleNavigation,
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;
 

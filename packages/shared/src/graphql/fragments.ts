@@ -126,3 +126,19 @@ export const COMMENT_FRAGMENT = gql`
   }
   ${USER_SHORT_INFO_FRAGMENT}
 `;
+
+export const RELATED_POST_FRAGMENT = gql`
+  fragment RelatedPost on Post {
+    id
+    permalink
+    title
+    summary
+    createdAt
+    source {
+      id
+      handle
+      name
+      image
+    }
+  }
+`;

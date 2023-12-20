@@ -1,10 +1,10 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import { PostCardProps } from './common';
 import {
-  getPostClassNames,
-  ListCardTitle,
-  ListCardMain,
   CardButton,
+  getPostClassNames,
+  ListCardMain,
+  ListCardTitle,
 } from './Card';
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
@@ -13,7 +13,8 @@ import PostAuthor from './PostAuthor';
 import FeedItemContainer from './FeedItemContainer';
 import { PostTagsPanel } from '../post/block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
-import { isVideoPost } from '../../graphql/posts';
+import { CollectionPillSources } from '../post/collection';
+import { isVideoPost, PostType } from '../../graphql/posts';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -36,6 +37,7 @@ export const PostList = forwardRef(function PostList(
   const onPostCardClick = () => onPostClick(post);
   const { trending, pinnedAt } = post;
   const isVideoType = isVideoPost(post);
+  const isCollectionPost = post.type === PostType.Collection;
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -58,11 +60,20 @@ export const PostList = forwardRef(function PostList(
     >
       <CardButton title={post.title} onClick={onPostCardClick} />
       <ListCardMain>
-        <SourceButton
-          source={post?.source}
-          className="mb-2.5"
-          tooltipPosition="top"
-        />
+        {isCollectionPost && (
+          <CollectionPillSources
+            className="mb-2.5"
+            sources={post.collectionSources}
+            totalSources={post.numCollectionSources}
+          />
+        )}
+        {!isCollectionPost && (
+          <SourceButton
+            source={post?.source}
+            className="mb-2.5"
+            tooltipPosition="top"
+          />
+        )}
         <ListCardTitle>{post.title}</ListCardTitle>
         <PostMetadata
           createdAt={post.createdAt}
