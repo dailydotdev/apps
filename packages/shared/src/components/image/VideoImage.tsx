@@ -7,18 +7,21 @@ import { ImageProps, Image } from './Image';
 export interface VideoImageProps extends ImageProps {
   size?: IconSize;
   wrapperClassName?: string;
+  wrapperWidth?: 'w-full' | 'w-fit';
 }
 
 const VideoImage = ({
-  size = IconSize.XXXLarge,
+  size = IconSize.XLarge,
   wrapperClassName,
+  wrapperWidth = 'w-full',
   ...props
 }: VideoImageProps): ReactElement => {
   return (
     <div
       className={classNames(
         wrapperClassName,
-        'flex relative justify-center items-center w-full h-auto rounded-12',
+        wrapperWidth,
+        'flex relative justify-center items-center h-auto rounded-12',
       )}
     >
       <span className="absolute w-full h-full rounded-12 bg-overlay-tertiary-black" />

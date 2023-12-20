@@ -6,6 +6,7 @@ import {
 import { cloudinary } from '../../lib/image';
 import { Image } from '../image/Image';
 import VideoImage from '../image/VideoImage';
+import { IconSize } from '../Icon';
 
 function NotificationItemAttachment({
   image,
@@ -23,6 +24,10 @@ function NotificationItemAttachment({
         className="object-cover w-24 h-16 rounded-16"
         loading="lazy"
         fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+        {...(type === NotificationAttachmentType.Video && {
+          wrapperWidth: 'w-fit',
+          size: IconSize.XLarge,
+        })}
       />
       <span className="flex-1 ml-4 break-words typo-callout">{title}</span>
     </div>
