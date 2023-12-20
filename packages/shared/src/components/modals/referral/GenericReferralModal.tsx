@@ -38,7 +38,9 @@ function GenericReferralModal({
         onClick={onRequestClose}
         variant={ButtonVariant.Secondary}
         size={ButtonSize.Small}
-        className="top-4 right-4 z-2"
+        top="4"
+        right="4"
+        zIndex="2"
       />
       <Modal.Body>
         <div className="flex relative z-1 flex-col justify-end items-center mb-5 w-full aspect-square">

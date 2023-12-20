@@ -73,7 +73,7 @@ export default function CommentPopup({
           layoutModeClass,
         )}
       >
-        <ModalClose onClick={onClose} className="top-2" />
+        <ModalClose onClick={onClose} top="2" />
         <h3 className="mr-11 ml-2 font-bold text-theme-label-primary typo-callout">
           {text.title}
         </h3>

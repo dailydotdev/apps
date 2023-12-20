@@ -65,7 +65,8 @@ function SearchReferralModal({
       <ModalClose
         onClick={handleRequestClose}
         variant={ButtonVariant.Secondary}
-        className="top-3 right-3"
+        top="3"
+        right="3"
       />
       <Modal.Body className="laptop:flex-row">
         <span className="laptop:hidden -mx-6 -mt-6">

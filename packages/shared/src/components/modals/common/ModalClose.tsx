@@ -4,22 +4,62 @@ import { ButtonProps } from '../../buttons/ButtonV2';
 import CloseButton from '../../CloseButton';
 
 type ModalCloseProps = ButtonProps<'button'> & {
-  absolute?: boolean;
+  position?: 'absolute' | 'fixed' | 'relative' | 'sticky' | 'static';
+  zIndex?: '0' | '1' | '2';
+  right?: '0' | '1' | '2' | '3' | '4';
+  top?: '0' | '1' | '2' | '3' | '4';
+};
+
+const ZIndexToClassName = {
+  '0': 'z-0',
+  '1': 'z-1',
+  '2': 'z-2',
+};
+
+const RightToClassName = {
+  '0': 'right-0',
+  '1': 'right-1',
+  '2': 'right-2',
+  '3': 'right-3',
+  '4': 'right-4',
+};
+
+const TopToClassName = {
+  '0': 'top-0',
+  '1': 'top-1',
+  '2': 'top-2',
+  '3': 'top-3',
+  '4': 'top-4',
 };
 
 function ModalCloseComponent(
-  { className, onClick, absolute = true, ...props }: ModalCloseProps,
+  {
+    className,
+    onClick,
+    position = 'absolute',
+    zIndex = '1',
+    right = '2',
+    top,
+    ...props
+  }: ModalCloseProps,
   ref: Ref<HTMLButtonElement>,
 ): ReactElement {
   if (!onClick) {
     return null;
   }
+
   return (
     <CloseButton
       {...props}
       onClick={onClick}
       ref={ref}
-      className={classNames('right-2 z-1', { absolute }, className)}
+      className={classNames(
+        position,
+        ZIndexToClassName[zIndex],
+        RightToClassName[right],
+        top && TopToClassName[top],
+        className,
+      )}
     />
   );
 }

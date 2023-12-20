@@ -107,7 +107,8 @@ export function InAppNotificationElement(): ReactElement {
     >
       <ModalClose
         size={ButtonSize.XSmall}
-        className="top-3 right-3"
+        top="3"
+        right="3"
         onClick={clearNotifications}
       />
       <InAppNotificationItem

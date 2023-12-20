@@ -80,7 +80,7 @@ export function CreateSharedPostModal({
       >
         {isMobile && (
           <div className="flex flex-row flex-1 justify-between items-center">
-            <ModalClose absolute={false} onClick={props.onRequestClose} />
+            <ModalClose position="static" onClick={props.onRequestClose} />
 
             <Button
               variant={ButtonVariant.Primary}
