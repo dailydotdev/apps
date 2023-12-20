@@ -18,7 +18,7 @@ const VideoImage = ({
     <div
       className={classNames(
         wrapperClassName,
-        'flex relative justify-center items-center h-auto rounded-12 w-full',
+        'flex relative justify-center items-center w-full h-auto rounded-12',
       )}
     >
       <span className="absolute w-full h-full rounded-12 bg-overlay-tertiary-black" />
