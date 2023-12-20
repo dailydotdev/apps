@@ -21,9 +21,15 @@ export interface NotificationAvatar extends WithClassNameProps {
   referenceId: string;
 }
 
+export enum NotificationAttachmentType {
+  Post = 'post',
+  Video = 'video',
+}
+
 export interface NotificationAttachment {
   image: string;
   title: string;
+  type: NotificationAttachmentType;
 }
 
 export interface Notification {

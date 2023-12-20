@@ -21,6 +21,12 @@ export const baseFeedSupportedTypes = [
   PostType.Article,
   PostType.Share,
   PostType.Freeform,
+  PostType.VideoYouTube,
+];
+
+export const supportedTypesForPrivateSources = [
+  ...baseFeedSupportedTypes,
+  PostType.Welcome,
 ];
 
 const joinedTypes = baseFeedSupportedTypes.join('","');

@@ -90,6 +90,7 @@ const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Share]: SharePostModal,
   [PostType.Welcome]: SharePostModal,
   [PostType.Freeform]: SharePostModal,
+  [PostType.VideoYouTube]: ArticlePostModal,
 };
 
 export default function Feed<T>({
@@ -350,7 +351,7 @@ export default function Feed<T>({
     nextPost: (items[postMenuIndex + 1] as PostItem)?.post,
   };
 
-  const ArticleModal = PostModalMap[selectedPost?.type];
+  const PostModal = PostModalMap[selectedPost?.type];
 
   if (emptyScreen && emptyFeed) {
     return <>{emptyScreen}</>;
@@ -417,8 +418,8 @@ export default function Feed<T>({
           {...commonMenuItems}
           onHidden={onShareOptionsHidden}
         />
-        {selectedPost && ArticleModal && (
-          <ArticleModal
+        {selectedPost && PostModal && (
+          <PostModal
             isOpen={!!selectedPost}
             id={selectedPost.id}
             onRequestClose={() => onCloseModal(false)}

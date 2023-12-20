@@ -72,6 +72,7 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   share: SquadPostContent,
   welcome: SquadPostContent,
   freeform: SquadPostContent,
+  [PostType.VideoYouTube]: PostContent,
 };
 
 interface PostParams extends ParsedUrlQuery {
@@ -151,18 +152,23 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   ) : (
     <SquadPostPageNavigation squadLink={post.source.permalink} />
   );
+  const articleNavigation = router?.query?.squad ? (
+    <Link href={`/squads/${router.query.squad}`}>
+      <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
+        <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
+        Back to {router.query.n || 'Squad'}
+      </a>
+    </Link>
+  ) : (
+    <></>
+  );
+
   const navigation: Record<PostType, ReactNode> = {
-    article: !!router?.query?.squad && (
-      <Link href={`/squads/${router.query.squad}`}>
-        <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
-          <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
-          Back to {router.query.n || 'Squad'}
-        </a>
-      </Link>
-    ),
+    article: articleNavigation,
     share: shareNavigation,
     welcome: shareNavigation,
     freeform: shareNavigation,
+    [PostType.VideoYouTube]: articleNavigation,
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;
 
