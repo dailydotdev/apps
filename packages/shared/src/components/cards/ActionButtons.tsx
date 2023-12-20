@@ -164,11 +164,11 @@ export default function ActionButtons({
         </SimpleTooltip>
         {insaneMode && lastActions}
       </ConditionalWrapper>
-      {insaneMode && !isInternalReadType(post) ? (
+      {insaneMode ? (
         <div
           className={classNames('flex justify-between', visibleOnGroupHover)}
         >
-          {!!onReadArticleClick && (
+          {!isInternalReadType(post) && (
             <ReadArticleButton
               content={getReadPostButtonText(post)}
               className="mr-2 btn-primary"
