@@ -20,9 +20,10 @@ export const useFeedLayout = ({
   feedRelated = true,
 }: UseFeedLayoutProps = {}): UseFeedLayout => {
   const { feedName } = useContext(ActiveFeedNameContext);
+  console.log('feedName', feedName);
 
   const feedLayoutVersion = useFeature(feature.feedLayout);
-  const isV1 = feedLayoutVersion === FeedLayout.V1;
+  const isV1 = true;
   const isIncludedFeed = feedRelated
     ? Object.values(SharedFeedPage)
         .filter((feedPage) => feedPage !== SharedFeedPage.Search)

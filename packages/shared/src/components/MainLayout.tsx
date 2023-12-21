@@ -31,8 +31,10 @@ import { isTesting, onboardingUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
 import { useReferralReminder } from '../hooks/referral/useReferralReminder';
-import { ActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
+import { ActiveFeedNameContext } from '../contexts';
 import { AllFeedPages } from '../lib/query';
+import AlertContext from '../contexts/AlertContext';
+import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -52,16 +54,34 @@ export interface MainLayoutProps
 
 const feeds = Object.values(SharedFeedPage);
 
-const getFeedNameFromPathname = (path: string): string => {
-  if (path === '/') {
-    return 'default';
+export interface GetDefaultFeedProps {
+  hasFiltered?: boolean;
+  hasUser?: boolean;
+}
+
+export const getDefaultFeed = ({
+  hasUser,
+}: GetDefaultFeedProps): SharedFeedPage => {
+  if (!hasUser) {
+    return SharedFeedPage.Popular;
   }
 
-  if (path === '/posts/finder') {
-    return 'search';
+  return SharedFeedPage.MyFeed;
+};
+
+export const defaultFeedConditions = [null, 'default', '/', ''];
+
+export const getFeedNameFromPathname = (
+  path: string,
+  options: GetDefaultFeedProps = {},
+): SharedFeedPage => {
+  if (defaultFeedConditions.some((condition) => condition === path)) {
+    return getDefaultFeed(options);
   }
 
-  return path.replace(/^\/+/, '');
+  const [page] = path.split('?');
+
+  return page.replace(/^\/+/, '') as SharedFeedPage;
 };
 
 function MainLayout({
@@ -85,6 +105,7 @@ function MainLayout({
   const { pathname } = router || {};
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, isAuthReady } = useAuthContext();
+  const { alerts } = useContext(AlertContext);
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
@@ -101,9 +122,15 @@ function MainLayout({
     return ref.current;
   };
   const previousPathname = usePrevious(pathname);
-  const [feedName, setFeedName] = useState<AllFeedPages | string>(
-    getFeedNameFromPathname(pathname),
+  const [feedName, setFeedName] = useState<AllFeedPages>(
+    getFeedNameFromPathname(pathname, {
+      hasUser: !!user,
+      hasFiltered: !alerts?.filter,
+    }),
   );
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const { shouldUseFeedLayoutV1 } = useFeedLayout({ feedName });
+
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useAuthErrors();
   useAuthVerificationRecovery();
@@ -117,12 +144,15 @@ function MainLayout({
 
   useEffect(() => {
     if (pathname !== previousPathname) {
-      const newFeedName = getFeedNameFromPathname(pathname);
+      const newFeedName = getFeedNameFromPathname(pathname, {
+        hasUser: !!user,
+        hasFiltered: !alerts?.filter,
+      });
       if (newFeedName !== feedName) {
         setFeedName(newFeedName);
       }
     }
-  }, [pathname, previousPathname, feedName]);
+  }, [pathname, previousPathname, feedName, alerts, user]);
 
   const onMobileSidebarToggle = (state: boolean) => {
     trackEvent({
@@ -202,6 +232,8 @@ function MainLayout({
   ) {
     return null;
   }
+  const isScreenCentered =
+    isLaptop && shouldUseFeedLayoutV1 ? true : screenCentered;
 
   return (
     <div {...handlers} className="antialiased">
@@ -229,7 +261,7 @@ function MainLayout({
           className={classNames(
             'flex flex-row',
             className,
-            !screenCentered && sidebarExpanded
+            !isScreenCentered && sidebarExpanded
               ? 'laptop:pl-60'
               : 'laptop:pl-11',
             isBannerAvailable && 'laptop:pt-8',

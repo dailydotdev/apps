@@ -146,7 +146,6 @@ export default function MainFeedLayout({
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
 
-  // TODO: CHECK THIS OUT
   const feedName = getFeedName(feedNameProp, {
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
