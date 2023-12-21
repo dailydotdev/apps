@@ -12,11 +12,13 @@ import {
 } from '../lib/extensionScripts';
 
 export type ExtensionContextProviderProps = {
+  currentPage: string;
   setCurrentPage: React.Dispatch<React.SetStateAction<string>>;
   children?: ReactNode;
 };
 
 export const ExtensionContextProvider = ({
+  currentPage,
   setCurrentPage,
   children,
 }: ExtensionContextProviderProps): ReactElement => {
@@ -30,9 +32,10 @@ export const ExtensionContextProvider = ({
       getHostPermission,
       requestHostPermissions: browser.permissions.request,
       origins: HOST_PERMISSIONS,
+      currentPage,
       setCurrentPage,
     }),
-    [client, setCurrentPage, trackEvent],
+    [client, currentPage, setCurrentPage, trackEvent],
   );
 
   return (
