@@ -1,10 +1,4 @@
-import React, {
-  MutableRefObject,
-  ReactElement,
-  useContext,
-  useEffect,
-  useRef,
-} from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
@@ -37,6 +31,7 @@ import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFea
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { useHostStatus } from '@dailydotdev/shared/src/hooks/useHostPermissionStatus';
 import ExtensionPermissionsPrompt from '@dailydotdev/shared/src/components/ExtensionPermissionsPrompt';
+import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -60,16 +55,13 @@ Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
 
 const getRedirectUri = () => browser.runtime.getURL('index.html');
-function InternalApp({
-  pageRef,
-}: {
-  pageRef: MutableRefObject<string>;
-}): ReactElement {
+function InternalApp(): ReactElement {
   useError();
   useInAppNotification();
   useLazyModal();
   usePrompt();
   useWebVitals();
+  const { setCurrentPage } = useExtensionContext();
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useContentScriptStatus();
@@ -91,8 +83,7 @@ function InternalApp({
   const { dismissToast } = useToastNotification();
 
   const onPageChanged = (page: string): void => {
-    // eslint-disable-next-line no-param-reassign
-    pageRef.current = page;
+    setCurrentPage(page);
     routeChangedCallbackRef.current();
     dismissToast();
   };
@@ -110,12 +101,10 @@ function InternalApp({
   }, [unreadCount]);
 
   if (!hostGranted) {
-    return <ExtensionPermissionsPrompt pageRef={pageRef} />;
+    return <ExtensionPermissionsPrompt />;
   }
 
   if (shouldRedirectOnboarding) {
-    // eslint-disable-next-line no-param-reassign
-    pageRef.current = '/hijacking';
     return <ExtensionOnboarding />;
   }
 
@@ -141,25 +130,25 @@ const InternalAppWithFeaturesBoundary = withFeaturesBoundary(InternalApp, {
 export default function App({
   localBootData,
 }: Pick<BootDataProviderProps, 'localBootData'>): ReactElement {
-  const pageRef = useRef('/');
+  const [currentPage, setCurrentPage] = useState<string>('/');
   const deviceId = useDeviceId();
 
   return (
     <RouterContext.Provider value={router}>
       <ProgressiveEnhancementContextProvider>
         <QueryClientProvider client={queryClient}>
-          <ExtensionContextProvider>
+          <ExtensionContextProvider setCurrentPage={setCurrentPage}>
             <BootDataProvider
               app={BootApp.Extension}
               getRedirectUri={getRedirectUri}
               localBootData={localBootData}
               version={version}
-              getPage={() => pageRef.current}
+              getPage={() => currentPage}
               deviceId={deviceId}
             >
               <SubscriptionContextProvider>
                 <OnboardingContextProvider>
-                  <InternalAppWithFeaturesBoundary pageRef={pageRef} />
+                  <InternalAppWithFeaturesBoundary />
                 </OnboardingContextProvider>
               </SubscriptionContextProvider>
             </BootDataProvider>

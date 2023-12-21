@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 
 import browser from 'webextension-polyfill';
 import { useQueryClient } from '@tanstack/react-query';
@@ -12,10 +18,12 @@ import {
 } from '../lib/extensionScripts';
 
 export type ExtensionContextProviderProps = {
+  setCurrentPage: React.Dispatch<React.SetStateAction<string>>;
   children?: ReactNode;
 };
 
 export const ExtensionContextProvider = ({
+  setCurrentPage,
   children,
 }: ExtensionContextProviderProps): ReactElement => {
   const client = useQueryClient();
@@ -28,8 +36,9 @@ export const ExtensionContextProvider = ({
       getHostPermission,
       requestHostPermissions: browser.permissions.request,
       origins: HOST_PERMISSIONS,
+      setCurrentPage,
     }),
-    [client, trackEvent],
+    [client, setCurrentPage, trackEvent],
   );
 
   return (

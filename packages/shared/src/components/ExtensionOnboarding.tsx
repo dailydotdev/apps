@@ -1,12 +1,22 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import Link from 'next/link';
 import Logo, { LogoPosition } from './Logo';
 import { OnboardingTitleGradient } from './onboarding/common';
 import { onboardingUrl } from '../lib/constants';
 import { Button, ButtonSize } from './buttons/Button';
 import { cloudinary } from '../lib/image';
+import { useExtensionContext } from '../contexts/ExtensionContext';
 
 const ExtensionOnboarding = (): ReactElement => {
+  const { setCurrentPage } = useExtensionContext();
+
+  useEffect(() => {
+    setCurrentPage('/hijacking');
+    return () => {
+      setCurrentPage('/');
+    };
+  });
+
   return (
     <div className="flex overflow-hidden flex-col justify-center items-center px-7 antialiased text-center min-h-[100vh] max-h-[100vh]">
       <Logo position={LogoPosition.Relative} logoClassName="h-logo-big" />
