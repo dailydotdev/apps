@@ -10,10 +10,14 @@ const typeToClassName: Record<RaisedLabelType, string> = {
   [RaisedLabelType.Beta]: 'bg-cabbage-40',
 };
 
+type FlagProps = {
+  type: RaisedLabelType;
+  description?: string;
+};
 export function Flag({
   type = RaisedLabelType.Hot,
   description,
-}): ReactElement {
+}: FlagProps): ReactElement {
   return (
     <div
       className={classNames(

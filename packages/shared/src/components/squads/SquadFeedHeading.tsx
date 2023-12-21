@@ -1,8 +1,8 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { Button } from '../buttons/Button';
 import { PinIcon } from '../icons';
 import { Squad } from '../../graphql/sources';
-import { ActiveFeedContext, useActiveFeedContext } from '../../contexts';
+import { useActiveFeedContext } from '../../contexts';
 import { useSquadActions } from '../../hooks';
 
 interface SquadFeedHeadingProps {

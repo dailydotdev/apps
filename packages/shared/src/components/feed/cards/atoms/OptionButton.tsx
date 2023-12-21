@@ -12,7 +12,6 @@ import { Post, UserPostVote } from '../../../../graphql/posts';
 import { TooltipPosition } from '../../../tooltips/BaseTooltipContainer';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
-import { useActiveFeedContext } from '../../../../contexts';
 import useLeanPostActions from '../../../../hooks/post/useLeanPostActions';
 import PortalMenu, { MenuItemProps } from '../../../fields/PortalMenu';
 import EyeIcon from '../../../icons/Eye';
@@ -29,7 +28,6 @@ import { PinIcon } from '../../../icons';
 import HammerIcon from '../../../icons/Hammer';
 import UpvoteIcon from '../../../icons/Upvote';
 import { SimpleTooltip } from '../../../tooltips';
-import { getContextBottomPosition } from '../../../utilities';
 import MenuIcon from '../../../icons/Menu';
 import { MenuIcon as Menu } from '../../../MenuIcon';
 import { labels } from '../../../../lib';
@@ -48,7 +46,6 @@ const OptionButton = ({
 }: OptionsButtonProps): ReactElement => {
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
-  const { queryKey } = useActiveFeedContext();
   const {
     onBookmark,
     onDownvote,
@@ -62,12 +59,10 @@ const OptionButton = ({
     onBlockSource,
     onBlockTag,
     showMessageAndRemovePost,
-  } = useLeanPostActions({
-    queryKey,
-  });
+  } = useLeanPostActions();
 
   const id = `post-actions-menu-${post?.id}`;
-  const { show, hideAll } = useContextMenu({
+  const { show } = useContextMenu({
     id,
   });
 
@@ -123,7 +118,7 @@ const OptionButton = ({
 
   const onReportedPost: ReportedCallback = async (
     reportedPost,
-    { index, shouldBlockSource },
+    { shouldBlockSource },
   ): Promise<void> => {
     showMessageAndRemovePost(
       labels.reporting.reportFeedbackText,

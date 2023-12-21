@@ -6,15 +6,12 @@ import React, {
   useRef,
 } from 'react';
 import { FeedReturnType } from '../hooks/useFeed';
-import { Post } from '../graphql/posts';
-import useLeanPostActions from '../hooks/post/useLeanPostActions';
 
 export type ActiveFeedContextValue = {
   queryKey?: unknown[];
-  pinPost?: boolean;
   items: FeedReturnType['items'];
-  canPinPost?: (post: Post) => boolean;
   feedRef?: React.RefObject<HTMLDivElement>;
+  onOpenModal?: (index: number) => void;
 };
 
 const ActiveFeedContext = React.createContext<ActiveFeedContextValue>({
@@ -31,26 +28,18 @@ export const ActiveFeedContextProvider = ({
   children,
   items,
   queryKey,
-  pinPost = true,
+  onOpenModal,
 }: ActiveFeedContextProviderProps): ReactElement => {
   const feedRef = useRef();
-  const virtualGrid =
-    feedRef.current && getComputedStyle(feedRef.current).gridTemplateColumns;
 
-  // TODO: determine tracking when lean post actions are invoked from a feed type
-  const { canPinPost } = useLeanPostActions({
-    queryKey,
-  });
-
-  // console.log(virtualGrid);
   const data: ActiveFeedContextValue = useMemo(
     () => ({
       items,
       queryKey,
-      canPinPost: pinPost && canPinPost,
       feedRef,
+      onOpenModal,
     }),
-    [items, canPinPost, queryKey, pinPost],
+    [items, queryKey, onOpenModal],
   );
   return (
     <ActiveFeedContext.Provider value={data}>

@@ -39,7 +39,7 @@ import { useJoinSquad } from '@dailydotdev/shared/src/hooks';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { SimpleSquadJoinButton } from '@dailydotdev/shared/src/components/squads/SquadJoinButton';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import GenericFeedItemComponent from '@dailydotdev/shared/src/components/feed/feedItemComponent/genericFeedItemComponent';
+import GenericFeedItemComponent from '@dailydotdev/shared/src/components/feed/feedItemComponent/GenericFeedItemComponent';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { getSquadOpenGraph } from '../../../next-seo';
 

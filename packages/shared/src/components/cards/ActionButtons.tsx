@@ -33,26 +33,6 @@ export interface ActionButtonsProps {
   openNewTab?: boolean;
 }
 
-type LastActionButtonProps = {
-  onShare?: (post: Post) => unknown;
-  onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
-  post: Post;
-};
-function LastActionButton(props: LastActionButtonProps) {
-  const { onShareClick, post } = props;
-  const onClickShare = (event) => onShareClick?.(event, post);
-  return (
-    <SimpleTooltip content="Share post">
-      <Button
-        icon={<ShareIcon />}
-        buttonSize={ButtonSize.Small}
-        onClick={onClickShare}
-        className="btn-tertiary-cabbage"
-      />
-    </SimpleTooltip>
-  );
-}
-
 export default function ActionButtons({
   openNewTab,
   post,
@@ -73,12 +53,6 @@ export default function ActionButtons({
   if (isFeedPreview) {
     return null;
   }
-
-  const lastActionButton = LastActionButton({
-    post,
-    onShare,
-    onShareClick,
-  });
 
   return (
     <div

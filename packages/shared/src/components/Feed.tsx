@@ -21,6 +21,7 @@ import { AllFeedPages, RequestKey } from '../lib/query';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
+  feedItemComponent: ReactElement;
   feedName: AllFeedPages;
   feedQueryKey: unknown[];
   query?: string;
@@ -90,14 +91,9 @@ export default function Feed<T>({
         ...(isSquadFeed && { settings: { adPostLength: 2 } }),
       },
     );
-  const feedContextValue = useMemo(() => {
-    return {
-      queryKey: feedQueryKey,
-      items,
-    };
-  }, [feedQueryKey, items]);
 
   const {
+    onOpenModal,
     onCloseModal,
     onPrevious,
     onNext,
@@ -105,6 +101,14 @@ export default function Feed<T>({
     selectedPost,
     selectedPostIndex,
   } = usePostModalNavigation(items, fetchPage, updatePost, canFetchMore);
+
+  const feedContextValue = useMemo(() => {
+    return {
+      queryKey: feedQueryKey,
+      items,
+      onOpenModal,
+    };
+  }, [feedQueryKey, items, onOpenModal]);
 
   useEffect(() => {
     if (emptyFeed) {
@@ -160,6 +164,7 @@ export default function Feed<T>({
         actionButtons={actionButtons}
       >
         {items.map((item, index) => (
+          // eslint-disable-next-line react/no-array-index-key
           <FeedTag item={item} key={index} />
         ))}
         <InfiniteScrollScreenOffset ref={infiniteScrollRef} />

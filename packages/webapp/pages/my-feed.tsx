@@ -1,6 +1,6 @@
 import { NextSeo, NextSeoProps } from 'next-seo';
 import React, { ReactElement } from 'react';
-import GenericFeedItemComponent from '@dailydotdev/shared/src/components/feed/feedItemComponent/genericFeedItemComponent';
+import GenericFeedItemComponent from '@dailydotdev/shared/src/components/feed/feedItemComponent/GenericFeedItemComponent';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,

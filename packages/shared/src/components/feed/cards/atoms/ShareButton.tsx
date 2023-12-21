@@ -3,7 +3,6 @@ import { Item, useContextMenu } from '@dailydotdev/react-contexify';
 import { Post } from '../../../../graphql/posts';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { useCopyPostLink } from '../../../../hooks/useCopyPostLink';
-import { useActiveFeedContext } from '../../../../contexts';
 import AnalyticsContext from '../../../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../../../lib/feed';
 import { ShareProvider } from '../../../../lib/share';
@@ -29,10 +28,7 @@ export default function ShareButton({ post }: ShareButtonProps): ReactElement {
   const { openModal } = useLazyModal();
   const link = post && post?.commentsPermalink;
   const [, copyLink] = useCopyPostLink(link);
-  const { queryKey } = useActiveFeedContext();
-  const { onBookmark } = useLeanPostActions({
-    queryKey,
-  });
+  const { onBookmark } = useLeanPostActions();
   const { trackEvent } = useContext(AnalyticsContext);
 
   const onClick = (provider: ShareProvider) =>

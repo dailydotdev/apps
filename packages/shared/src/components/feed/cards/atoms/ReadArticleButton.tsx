@@ -1,14 +1,8 @@
 import React, { ReactElement } from 'react';
-import {
-  Button,
-  ButtonComponentProps,
-  ButtonSize,
-  StyledButtonProps,
-} from '../../../buttons/Button';
+import { Button, ButtonSize } from '../../../buttons/Button';
 import OpenLinkIcon from '../../../icons/OpenLink';
 import useLeanPostActions from '../../../../hooks/post/useLeanPostActions';
 import { Post } from '../../../../graphql/posts';
-import { useActiveFeedContext } from '../../../../contexts';
 
 interface ReadArticleButtonProps {
   className?: string;
@@ -24,9 +18,8 @@ export const ReadArticleButton = ({
   buttonSize = ButtonSize.Small,
   ...props
 }: ReadArticleButtonProps): ReactElement => {
-  const { queryKey } = useActiveFeedContext();
-  const { onDirectClick } = useLeanPostActions({ queryKey });
-  const onClickHandler = (e: React.MouseEvent) => {
+  const { onDirectClick } = useLeanPostActions();
+  const onClickHandler = () => {
     onDirectClick(post);
   };
   return (

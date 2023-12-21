@@ -1,16 +1,20 @@
 import React, { ReactElement } from 'react';
-import { Post, UserPostVote } from '../../../../graphql/posts';
+import { Post } from '../../../../graphql/posts';
 import { QuaternaryButton } from '../../../buttons/QuaternaryButton';
-import UpvoteIcon from '../../../icons/Upvote';
 import InteractionCounter from '../../../InteractionCounter';
 import { SimpleTooltip } from '../../../tooltips';
 import CommentIcon from '../../../icons/Discuss';
 import { ButtonSize } from '../../../buttons/Button';
+import { useActiveFeedContext } from '../../../../contexts';
 
 interface CommentButtonProps {
   post: Post;
 }
 export function CommentButton({ post }: CommentButtonProps): ReactElement {
+  const { items, onOpenModal } = useActiveFeedContext();
+  const postIndex = items.findIndex(
+    (item) => item.type === 'post' && item.post.id === post.id,
+  );
   return (
     <SimpleTooltip content="Comments">
       <QuaternaryButton
@@ -18,7 +22,7 @@ export function CommentButton({ post }: CommentButtonProps): ReactElement {
         icon={<CommentIcon secondary={post.commented} />}
         pressed={post.commented}
         buttonSize={ButtonSize.Small}
-        onClick={() => {}}
+        onClick={() => onOpenModal(postIndex)}
         className="btn-tertiary-blueCheese w-[4.875rem]"
       >
         <InteractionCounter value={post.numComments > 0 && post.numComments} />

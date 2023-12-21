@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import {
   useInfiniteQuery,
   UseInfiniteQueryResult,
@@ -19,7 +19,7 @@ import { SourceMember, SourceMemberRole, Squad } from '../../graphql/sources';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { updateFlagsCache } from '../../graphql/source/common';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { ActiveFeedContext, useActiveFeedContext } from '../../contexts';
+import { useActiveFeedContext } from '../../contexts';
 
 export interface UseSquadActions {
   onUnblock?: typeof unblockSquadMember;

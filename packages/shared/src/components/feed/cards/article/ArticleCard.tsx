@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import { Card } from '../atoms/Card';
 import { CardButton } from '../atoms/CardAction';
 import SourceButton from '../../../cards/SourceButton';
@@ -15,21 +15,17 @@ import { UpvoteButton } from '../atoms/UpvoteButton';
 import { CommentButton } from '../atoms/CommentButton';
 import ShareButton from '../atoms/ShareButton';
 import { CardContainer } from '../atoms/CardContainer';
-import { Post } from '../../../../graphql/posts';
 import { Image } from '../atoms/Image';
 import { cloudinary } from '../../../../lib/image';
 import OptionButton from '../atoms/OptionButton';
 import { ReadArticleButton } from '../atoms/ReadArticleButton';
+import { CardType } from '../common';
 
-export type CardType = {
-  post: Post;
-  children?: ReactNode;
-};
 export const ArticleCard = ({ post }: CardType): ReactElement => {
   return (
-    <CardContainer className="group/card">
+    <CardContainer>
       <Card>
-        <CardButton />
+        <CardButton post={post} />
         <header className="flex items-center my-1 mx-2.5 h-8">
           <SourceButton source={post.source} />
           <div className="flex invisible group-hover/card:visible flex-row gap-2 ml-auto">

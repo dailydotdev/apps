@@ -17,7 +17,6 @@ import MarkdownPostContent from './MarkdownPostContent';
 import { SquadPostWidgets } from './SquadPostWidgets';
 import { isSourcePublicSquad } from '../../graphql/squads';
 import { useAuthContext } from '../../contexts/AuthContext';
-import FurtherReadingSquad from '../widgets/FurtherReadingSquad';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -177,7 +176,6 @@ function SquadPostContent({
           </div>
           {isPublicSquad && (
             <SquadPostWidgets
-              onBookmark={onToggleBookmark}
               onShare={onSharePost}
               onReadArticle={onReadArticle}
               post={post}
@@ -187,7 +185,6 @@ function SquadPostContent({
             />
           )}
         </div>
-        <FurtherReadingSquad currentPost={post} />
       </PostContentContainer>
     </>
   );

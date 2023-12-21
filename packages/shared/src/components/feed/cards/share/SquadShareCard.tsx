@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import { CardType } from '../article/articleCard';
 import { CardContainer } from '../atoms/CardContainer';
 import { Card } from '../atoms/Card';
 import { CardButton } from '../atoms/CardAction';
@@ -13,42 +12,47 @@ import {
 import MetaContainer from '../atoms/MetaContainer';
 import { Separator } from '../../../cards/common';
 import CreatedAt from '../atoms/CreatedAt';
-import OptionsButton from '../../../buttons/OptionsButton';
 import TextImage from '../atoms/TextImage';
 import { UpvoteButton } from '../atoms/UpvoteButton';
 import { CommentButton } from '../atoms/CommentButton';
 import ShareButton from '../atoms/ShareButton';
+import { CardType } from '../common';
+import OptionButton from '../atoms/OptionButton';
+import { Flag } from '../atoms/Flag';
+import { RaisedLabelType } from '../../../cards/RaisedLabel';
 
-export const ShareCard = ({ post }: CardType): ReactElement => {
+export const SquadShareCard = ({ post }: CardType): ReactElement => {
   return (
-    <CardContainer className="group/card">
+    <CardContainer>
+      {post.pinnedAt && (
+        <Flag type={RaisedLabelType.Pinned} description="Pinned" />
+      )}
       <Card>
-        <CardButton />
+        <CardButton post={post} />
         <header className="flex relative flex-row gap-2 m-2 mb-3">
           <div className="relative">
-            <SourceButton source={post.source} size="large" />
-            <ProfilePicture
-              user={post.author}
+            <SourceButton
+              source={post.source}
               size="xsmall"
-              className="top-7 -right-2.5"
-              absolute
+              className="absolute -right-2 -bottom-2"
             />
+            <ProfilePicture user={post.author} size="large" />
           </div>
           <div className="flex flex-col flex-1 mr-6 ml-2">
             <Typography type={TypographyType.Footnote} bold>
-              Watercooler
+              {post.author.name}
             </Typography>
             <MetaContainer
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              <Typography bold>{post.author.name}</Typography>
+              <Typography bold>@{post.author.username}</Typography>
               <Separator />
               <CreatedAt createdAt={post.createdAt} />
             </MetaContainer>
           </div>
           <div className="flex invisible group-hover/card:visible flex-row gap-2 self-start ml-auto">
-            <OptionsButton tooltipPlacement="top" />
+            <OptionButton post={post} tooltipPlacement="top" />
           </div>
         </header>
         <section>

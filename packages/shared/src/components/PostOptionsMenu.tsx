@@ -37,7 +37,6 @@ import UpvoteIcon from './icons/Upvote';
 import DownvoteIcon from './icons/Downvote';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
-import { labels } from '../lib';
 import { MenuItemProps } from './fields/PortalMenu';
 import SendBackwardIcon from './icons/SendBackward';
 import BringForwardIcon from './icons/BringForward';
@@ -45,7 +44,7 @@ import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
 } from '../hooks/useBookmarkPost';
-import { ActiveFeedContext, useActiveFeedContext } from '../contexts';
+import { useActiveFeedContext } from '../contexts';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),

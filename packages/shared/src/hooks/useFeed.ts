@@ -7,9 +7,9 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import {
-  Ad,
+  Ad as AdEntity,
   FeedData,
-  Post,
+  Post as PostEntity,
   POSTS_ENGAGED_SUBSCRIPTION,
   PostsEngaged,
   PostType,
@@ -32,15 +32,19 @@ export type FeedOrPostType = FeedItemType | PostType;
 
 export type PostItem = {
   type: FeedItemType.Post;
-  post: Post;
+  post: PostEntity;
   page: number;
   index: number;
 };
-export type AdItem = { type: FeedItemType.Ad; ad: Ad };
+export type AdItem = { type: FeedItemType.Ad; ad: AdEntity };
 export type PlaceholderItem = { type: FeedItemType.Placeholder };
 export type FeedItem = PostItem | AdItem | PlaceholderItem;
 
-export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
+export type UpdateFeedPost = (
+  page: number,
+  index: number,
+  post: PostEntity,
+) => void;
 
 export type FeedReturnType = {
   items: FeedItem[];
@@ -117,11 +121,11 @@ export default function useFeed<T>(
     !isFeedPreview &&
     (!settings?.adPostLength ||
       feedQuery.data?.pages[0]?.page.edges.length > settings?.adPostLength);
-  const adsQuery = useInfiniteQuery<Ad>(
+  const adsQuery = useInfiniteQuery<AdEntity>(
     ['ads', ...feedQueryKey],
     async ({ pageParam }) => {
       const res = await fetch(`${apiUrl}/v1/a?active=${!!pageParam}`);
-      const ads: Ad[] = await res.json();
+      const ads: AdEntity[] = await res.json();
       return ads[0];
     },
     {

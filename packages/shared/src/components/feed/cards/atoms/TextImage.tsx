@@ -14,7 +14,7 @@ export default function TextImage({
   className,
 }: TextImageProps): ReactElement {
   return (
-    <Card className={className} shadow={false} padding="p-3">
+    <Card className={className} shadow={false} padding="p-3" height="">
       {text}
       <div
         className={classNames('rounded-xl', 'h-40 aspect-square')}

@@ -1,12 +1,14 @@
 import React, { ReactElement } from 'react';
 import {
   ArticleCard,
-  CardType,
+  FreeformCard,
   PlaceholderCard,
   SquadShareCard,
+  WelcomeCard,
 } from '../cards';
 import { FeedItem, FeedItemType } from '../../../hooks/useFeed';
 import { PostType } from '../../../graphql/posts';
+import { CardType } from '../cards/common';
 import { AdCard } from '../../cards/AdCard';
 
 export type LeanFeedItemComponentProps = {
@@ -16,8 +18,8 @@ export type LeanFeedItemComponentProps = {
 const ItemTypeToTag: Record<PostType, React.ComponentType<CardType>> = {
   [PostType.Article]: ArticleCard,
   [PostType.Share]: SquadShareCard,
-  [PostType.Welcome]: ArticleCard,
-  [PostType.Freeform]: ArticleCard,
+  [PostType.Welcome]: WelcomeCard,
+  [PostType.Freeform]: FreeformCard,
 };
 
 export default function SquadFeedItemComponent({

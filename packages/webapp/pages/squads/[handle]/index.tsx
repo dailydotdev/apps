@@ -36,6 +36,7 @@ import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
+import SquadFeedItemComponent from '@dailydotdev/shared/src/components/feed/feedItemComponent/SquadFeedItemComponent';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage, {
@@ -194,6 +195,7 @@ const SquadPage = ({
         <SquadPageHeader squad={squad} members={squadMembers} />
         <SquadChecklistCard squad={squad} />
         <Feed
+          feedItemComponent={SquadFeedItemComponent}
           className="px-6 pt-14 laptop:pt-10"
           feedName={OtherFeedPage.Squad}
           feedQueryKey={[
@@ -206,7 +208,7 @@ const SquadPage = ({
           forceCardMode
           showSearch={false}
           emptyScreen={<SquadEmptyScreen />}
-          options={{ refetchOnMount: true }}
+          options={{ refetchOnMount: false }}
           header={<SquadFeedHeading squad={squad} />}
           inlineHeader
           allowPin

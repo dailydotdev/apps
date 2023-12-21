@@ -31,7 +31,7 @@ import { isTesting, onboardingUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
 import { useReferralReminder } from '../hooks/referral/useReferralReminder';
-import GenericFeedItemComponent from './feed/feedItemComponent/genericFeedItemComponent';
+import GenericFeedItemComponent from './feed/feedItemComponent/GenericFeedItemComponent';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
