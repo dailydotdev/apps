@@ -20,11 +20,6 @@ module.exports = {
         bg: {
           inherit: 'inherit',
           transparent: 'transparent',
-          whatsapp: '#30B944',
-          facebook: '#4363B6',
-          reddit: '#FF4500',
-          linkedin: '#0077B5',
-          telegram: '#24A2E0',
           email: 'var(--theme-color-email)',
           primary: 'var(--theme-background-primary)',
           reverse: 'var(--theme-background-reverse)',
