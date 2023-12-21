@@ -15,7 +15,7 @@ const ExtensionOnboarding = (): ReactElement => {
     return () => {
       setCurrentPage('/');
     };
-  });
+  }, [setCurrentPage]);
 
   return (
     <div className="flex overflow-hidden flex-col justify-center items-center px-7 antialiased text-center min-h-[100vh] max-h-[100vh]">

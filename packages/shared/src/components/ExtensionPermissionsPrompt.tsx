@@ -17,7 +17,7 @@ const ExtensionPermissionsPrompt = (): ReactElement => {
     return () => {
       setCurrentPage('/');
     };
-  });
+  }, [setCurrentPage]);
 
   const handleRequestHostPermissions = async () => {
     const success = await requestHostPermissions({ origins });
