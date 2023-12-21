@@ -5,6 +5,7 @@ import { PromptOptions, usePrompt } from './usePrompt';
 import { useBoot } from './useBoot';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
+import { ButtonColor, ButtonVariant } from '../components/buttons/ButtonV2';
 
 type UseLeaveSquad = () => Promise<boolean>;
 
@@ -24,11 +25,12 @@ export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
       description: `Leaving ${squad.name} means that you will lose your access to all posts that were shared in the Squad`,
       okButton: {
         title: 'Leave',
-        className: 'btn-secondary',
+        variant: ButtonVariant.Secondary,
       },
       cancelButton: {
         title: 'Stay',
-        className: 'btn-primary-cabbage',
+        variant: ButtonVariant.Primary,
+        color: ButtonColor.Cabbage,
         type: 'button',
       },
       className: {

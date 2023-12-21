@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
-import CloseButton from '../CloseButton';
 import SquadTour from '../squads/SquadTour';
 import { Modal, ModalProps } from './common/Modal';
-import { ButtonSize } from '../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { useSquadTour } from '../../hooks/useSquadTour';
+import { ModalClose } from './common/ModalClose';
 
 function SquadTourModal({
   onRequestClose,
@@ -24,9 +24,11 @@ function SquadTourModal({
       className="overflow-hidden !border-theme-color-cabbage"
     >
       <SquadTour onClose={onModalClose} />
-      <CloseButton
-        buttonSize={ButtonSize.Small}
-        className="top-3 right-3 !absolute !btn-secondary"
+      <ModalClose
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Secondary}
+        top="3"
+        right="3"
         onClick={onModalClose}
       />
     </Modal>

@@ -5,6 +5,8 @@ import { ShareMobile } from '../ShareMobile';
 import { useAuthContext } from '../../contexts/AuthContext';
 import ShareBar from '../ShareBar';
 import { PostHeaderActions, PostHeaderActionsProps } from './PostHeaderActions';
+import FurtherReading from '../widgets/FurtherReading';
+import { PostHeaderActions } from './PostHeaderActions';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import SourceButton from '../cards/SourceButton';
 import { SourceMember, Squad } from '../../graphql/sources';
@@ -13,6 +15,7 @@ import { Origin } from '../../lib/analytics';
 import { useSquad } from '../../hooks';
 import { getSquadMembers } from '../../graphql/squads';
 import SquadMemberShortList from '../squads/SquadMemberShortList';
+import { PostHeaderActionsProps } from './common';
 
 interface PostWidgetsProps
   extends Omit<PostHeaderActionsProps, 'contextMenuId'> {

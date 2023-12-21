@@ -12,7 +12,11 @@ import {
   FilterOnboardingV4,
   OnboardingHeader,
 } from '@dailydotdev/shared/src/components/onboarding';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
@@ -220,16 +224,19 @@ export function OnboardPage(): ReactElement {
             </Title>
             <FilterOnboardingV4 className="mt-10 max-w-4xl" />
             <Button
-              className={classNames(
-                'mt-10 btn',
-                isPreviewVisible ? 'btn-primary' : 'btn-secondary',
-              )}
+              className="mt-10"
+              variant={
+                isPreviewVisible
+                  ? ButtonVariant.Primary
+                  : ButtonVariant.Secondary
+              }
               disabled={!isPreviewEnabled}
-              rightIcon={
+              icon={
                 <ArrowIcon
                   className={classNames(!isPreviewVisible && 'rotate-180')}
                 />
               }
+              iconPosition={ButtonIconPosition.Right}
               onClick={() => {
                 setPreviewVisible((current) => {
                   const newValue = !current;

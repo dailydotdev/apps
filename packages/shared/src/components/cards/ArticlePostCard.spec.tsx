@@ -11,6 +11,7 @@ import { ArticlePostCard } from './ArticlePostCard';
 import post from '../../../__tests__/fixture/post';
 import { PostCardProps, visibleOnGroupHover } from './common';
 import { AuthContextProvider } from '../../contexts/AuthContext';
+import { PostType } from '../../graphql/posts';
 
 const defaultProps: PostCardProps = {
   post,
@@ -42,6 +43,10 @@ const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
   );
 };
 
+const videoPostTypeComponentProps = {
+  post: { ...defaultProps.post, type: PostType.VideoYouTube },
+};
+
 it('should call on link click on component left click', async () => {
   renderComponent();
   const el = await screen.findByTitle('The Prosecutor’s Fallacy');
@@ -49,9 +54,18 @@ it('should call on link click on component left click', async () => {
   await waitFor(() => expect(defaultProps.onPostClick).toBeCalled());
 });
 
-it('should call on link click on component middle mouse up', async () => {
+it('should call on read post link click on component middle mouse up', async () => {
   renderComponent();
   const el = await screen.findByText('Read post');
+  el.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, button: 1 }));
+  await waitFor(() =>
+    expect(defaultProps.onReadArticleClick).toBeCalledTimes(1),
+  );
+});
+
+it('should call on watch video link click on component middle mouse up', async () => {
+  renderComponent(videoPostTypeComponentProps);
+  const el = await screen.findByText('Watch video');
   el.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, button: 1 }));
   await waitFor(() =>
     expect(defaultProps.onReadArticleClick).toBeCalledTimes(1),
@@ -100,6 +114,12 @@ it('should format read time when available', async () => {
   expect(el).toHaveTextContent('8m read time');
 });
 
+it('should change text to watch time when post type is video:youtube ', async () => {
+  renderComponent(videoPostTypeComponentProps);
+  const el = await screen.findByTestId('readTime');
+  expect(el).toHaveTextContent('8m watch time');
+});
+
 it('should hide read time when not available', async () => {
   const usePost = { ...post };
   delete usePost.readTime;
@@ -132,9 +152,28 @@ it('should open the article when clicking the read post button', async () => {
   expect(defaultProps.onReadArticleClick).toBeCalledTimes(1);
 });
 
+it('should open the video when clicking the watch video button', async () => {
+  renderComponent(videoPostTypeComponentProps);
+  const read = await screen.findByText('Watch video');
+  fireEvent.click(read);
+  expect(defaultProps.onReadArticleClick).toBeCalledTimes(1);
+});
+
 it('should show read post button on hover when in laptop size', async () => {
   renderComponent();
   const header = await screen.findByTestId('cardHeaderActions');
   expect(header).toHaveClass('flex');
   expect(header).toHaveClass(visibleOnGroupHover);
+});
+
+it('should show cover image when available', async () => {
+  renderComponent();
+  const image = await screen.findByTestId('postImage');
+  expect(image).toBeInTheDocument();
+});
+
+it('should show cover image with play icon when post is video:youtube type', async () => {
+  renderComponent(videoPostTypeComponentProps);
+  const image = await screen.findByTestId('playIconVideoPost');
+  expect(image).toBeInTheDocument();
 });

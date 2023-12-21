@@ -16,6 +16,7 @@ import { SharePostCard } from './cards/SharePostCard';
 import { WelcomePostCard } from './cards/WelcomePostCard';
 import { Origin } from '../lib/analytics';
 import { UseVotePost } from '../hooks';
+import { CollectionCard } from './cards/CollectionCard';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -47,6 +48,7 @@ export type FeedItemComponentProps = {
   onPostClick: FeedPostClick;
   onReadArticleClick: FeedPostClick;
   onShare: (post: Post, row?: number, column?: number) => void;
+  onBookmark: (post: Post, row: number, column: number) => Promise<void>;
   onMenuClick: (
     e: React.MouseEvent,
     index: number,
@@ -66,7 +68,7 @@ export type FeedItemComponentProps = {
     row: number,
     column: number,
   ) => unknown;
-  onAdClick: (ad: Ad, index: number, row: number, column: number) => void;
+  onAdClick: (ad: Ad, row: number, column: number) => void;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'>;
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {
@@ -86,6 +88,8 @@ const PostTypeToTag: Record<PostType, FunctionComponent> = {
   [PostType.Share]: SharePostCard,
   [PostType.Welcome]: WelcomePostCard,
   [PostType.Freeform]: WelcomePostCard,
+  [PostType.VideoYouTube]: ArticlePostCard,
+  [PostType.Collection]: CollectionCard,
 };
 
 export default function FeedItemComponent({
@@ -110,6 +114,7 @@ export default function FeedItemComponent({
   onPostClick,
   onShare,
   onShareClick,
+  onBookmark,
   onMenuClick,
   onCommentClick,
   onAdClick,
@@ -176,7 +181,8 @@ export default function FeedItemComponent({
           onReadArticleClick={() =>
             onReadArticleClick(item.post, index, row, column)
           }
-          onShare={(post: Post) => onShare(post, row, column)}
+          onShare={(post) => onShare(post, row, column)}
+          onBookmarkClick={(post) => onBookmark(post, row, column)}
           openNewTab={openNewTab}
           enableMenu={!!user}
           onMenuClick={(event) => onMenuClick(event, index, row, column)}
@@ -207,7 +213,7 @@ export default function FeedItemComponent({
         <AdTag
           ref={inViewRef}
           ad={item.ad}
-          onLinkClick={(ad) => onAdClick(ad, index, row, column)}
+          onLinkClick={(ad) => onAdClick(ad, row, column)}
           showImage={!insaneMode}
         />
       );

@@ -1,6 +1,9 @@
 import React, { useState, ReactElement, useContext, useEffect } from 'react';
-import classNames from 'classnames';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import CompanionIcon from '@dailydotdev/shared/src/components/icons/App';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -61,12 +64,13 @@ export const CompanionPopupButton = (): ReactElement => {
     >
       <Button
         onClick={onButtonClick}
-        className={classNames(
-          'mr-4 border-theme-status-cabbage hidden laptop:flex',
+        variant={
           showCompanionPermission
-            ? 'btn-primary-cabbage'
-            : 'btn-secondary-cabbage',
-        )}
+            ? ButtonVariant.Primary
+            : ButtonVariant.Secondary
+        }
+        color={ButtonColor.Cabbage}
+        className="hidden laptop:flex mr-4 border-theme-status-cabbage"
         icon={
           <CompanionIcon
             secondary={showCompanionPermission}

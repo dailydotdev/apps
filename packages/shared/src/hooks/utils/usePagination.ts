@@ -27,7 +27,7 @@ export const usePagination = <T = unknown>({
       () => items?.slice(limit * (page - 1), limit * page) ?? [],
       [items, limit, page],
     ),
-    onNext: useCallback(() => setPage((value) => value - 1), []),
-    onPrevious: useCallback(() => setPage((value) => value + 1), []),
+    onPrevious: useCallback(() => setPage((value) => value - 1), []),
+    onNext: useCallback(() => setPage((value) => value + 1), []),
   };
 };

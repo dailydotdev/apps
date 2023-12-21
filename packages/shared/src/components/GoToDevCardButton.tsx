@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
-import { Button, ButtonSize } from './buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from './buttons/ButtonV2';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
 
 export type GoToDevCardButtonProps = {
@@ -17,9 +17,9 @@ export default function GoToDevCardButton({
     <SimpleTooltip content={isLocked && 'Sign up to Unlock'}>
       <div className={className}>
         <Button
-          className="btn-primary"
+          variant={ButtonVariant.Primary}
           tag="a"
-          buttonSize={ButtonSize.Small}
+          size={ButtonSize.Small}
           href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}devcard`}
           disabled={isLocked}
         >

@@ -6,12 +6,14 @@ import React, {
   useRef,
 } from 'react';
 import { FeedReturnType } from '../hooks/useFeed';
+import { AllFeedPages } from '../lib/query';
 
 export type ActiveFeedContextValue = {
   queryKey?: unknown[];
   items: FeedReturnType['items'];
   feedRef?: React.RefObject<HTMLDivElement>;
   onOpenModal?: (index: number) => void;
+  feedName?: AllFeedPages;
 };
 
 const ActiveFeedContext = React.createContext<ActiveFeedContextValue>({

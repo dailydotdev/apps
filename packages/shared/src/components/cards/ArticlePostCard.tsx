@@ -19,6 +19,7 @@ import { useFeedPreviewMode, usePostFeedback } from '../../hooks';
 import styles from './Card.module.css';
 import { FeedbackCard } from './FeedbackCard';
 import { Origin } from '../../lib/analytics';
+import { isVideoPost } from '../../graphql/posts';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -28,6 +29,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
     onDownvoteClick,
     onCommentClick,
     onMenuClick,
+    onBookmarkClick,
     onShare,
     onShareClick,
     openNewTab,
@@ -46,6 +48,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
+  const isVideoType = isVideoPost(post);
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -94,6 +97,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
       >
         <CardTextContainer>
           <PostCardHeader
+            post={post}
             className={showFeedback ? 'hidden' : 'flex'}
             openNewTab={openNewTab}
             source={post.source}
@@ -111,7 +115,9 @@ export const ArticlePostCard = forwardRef(function PostCard(
             <PostMetadata
               createdAt={post.createdAt}
               readTime={post.readTime}
+              isVideoType={isVideoType}
               className="mx-4"
+              insaneMode={insaneMode}
             />
           </Container>
         )}
@@ -134,12 +140,10 @@ export const ArticlePostCard = forwardRef(function PostCard(
               onCommentClick={onCommentClick}
               onShare={onShare}
               onShareClick={onShareClick}
+              onBookmarkClick={onBookmarkClick}
               onMenuClick={(event) => onMenuClick?.(event, post)}
               onReadArticleClick={onReadArticleClick}
-              className={classNames(
-                'mx-4 justify-between',
-                !showImage && 'my-4 laptop:mb-0',
-              )}
+              className={!showImage && 'my-4 laptop:mb-0'}
             />
           )}
         </Container>

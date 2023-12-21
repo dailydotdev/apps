@@ -14,7 +14,7 @@ import { LoggedUser } from '../../lib/user';
 import { Checkbox } from '../fields/Checkbox';
 import RadialProgress from '../RadialProgress';
 import Rank from '../Rank';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import styles from './NewRankModal.module.css';
 import GoToDevCardButton from '../GoToDevCardButton';
 import useDebounce from '../../hooks/useDebounce';
@@ -182,8 +182,8 @@ export default function NewRankModal({
           <div className="flex gap-4 self-center">
             <GoToDevCardButton>Generate Dev Card</GoToDevCardButton>
             <Button
-              className="btn-primary"
-              buttonSize={ButtonSize.Small}
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
               onClick={closeModal}
             >
               Awesome!

@@ -1,22 +1,28 @@
 import {
   Button,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import MenuIcon from '@dailydotdev/shared/src/components/icons/Menu';
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import React, { MouseEventHandler, ReactElement } from 'react';
 import { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
+import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
 
 interface CustomLinksProps extends WithClassNameProps {
   links: string[];
   onOptions?: () => unknown;
+  onLinkClick?: MouseEventHandler;
 }
+
+const noop = () => undefined;
 
 export function CustomLinks({
   links,
   onOptions,
   className,
+  onLinkClick = noop,
 }: CustomLinksProps): ReactElement {
   return (
     <div
@@ -34,6 +40,7 @@ export function CustomLinks({
             i >= 4 && 'hidden laptopL:block',
           )}
           key={url}
+          {...combinedClicks(onLinkClick)}
         >
           <img
             src={`https://api.daily.dev/icon?url=${encodeURIComponent(
@@ -46,10 +53,10 @@ export function CustomLinks({
       ))}
       <SimpleTooltip placement="left" content="Edit shortcuts">
         <Button
-          className="btn-tertiary"
+          variant={ButtonVariant.Tertiary}
           icon={<MenuIcon />}
           onClick={onOptions}
-          buttonSize={ButtonSize.Small}
+          size={ButtonSize.Small}
         />
       </SimpleTooltip>
     </div>

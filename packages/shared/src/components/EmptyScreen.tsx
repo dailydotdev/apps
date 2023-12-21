@@ -1,5 +1,8 @@
+import classNames from 'classnames';
+import React, { ReactElement } from 'react';
+
 import classed from '../lib/classed';
-import { Button } from './buttons/Button';
+import { Button, ButtonProps, ButtonVariant } from './buttons/ButtonV2';
 
 export const EmptyScreenContainer = classed(
   'div',
@@ -13,7 +16,20 @@ export const EmptyScreenDescription = classed(
   'p-0 m-0 text-center text-theme-label-secondary typo-body',
 );
 
-export const EmptyScreenButton = classed(Button, 'mt-10 btn-primary');
+export const EmptyScreenButton = ({
+  className,
+  children,
+  variant = ButtonVariant.Primary,
+  ...props
+}: ButtonProps<'a' | 'button'>): ReactElement => (
+  <Button
+    variant={variant}
+    className={classNames('mt-10', className)}
+    {...props}
+  >
+    {children}
+  </Button>
+);
 
 export const EmptyScreenIcon = {
   className: 'text-theme-label-disabled',

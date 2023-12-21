@@ -11,7 +11,8 @@ import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import {
   Button,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { LoaderOverlay } from '@dailydotdev/shared/src/components/LoaderOverlay';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
@@ -74,8 +75,8 @@ const Step1 = ({
         {!loadingUser &&
           (user ? (
             <Button
-              className="btn-primary"
-              buttonSize={ButtonSize.Large}
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Large}
               onClick={() => onGenerateImage()}
               loading={isLoadingImage}
             >
@@ -83,8 +84,8 @@ const Step1 = ({
             </Button>
           ) : (
             <Button
-              className="btn-secondary"
-              buttonSize={ButtonSize.Large}
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Large}
               onClick={() => showLogin({ trigger: AuthTriggers.DevCard })}
             >
               Login to generate
@@ -186,16 +187,16 @@ const Step2 = ({
           </Tilt>
           <div className="grid grid-cols-2 gap-4 mx-2 mt-8">
             <Button
-              className="btn-primary"
-              buttonSize={ButtonSize.Large}
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Large}
               onClick={downloadImage}
               loading={downloading}
             >
               Download
             </Button>
             <Button
-              className="btn-secondary"
-              buttonSize={ButtonSize.Large}
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Large}
               onClick={() => copyLink()}
             >
               {!copyingLink ? 'Copy link' : 'Copied!'}
@@ -271,8 +272,9 @@ const Step2 = ({
               {embedCode}
             </textarea>
             <Button
-              className="mt-4 btn-secondary"
-              buttonSize={ButtonSize.Small}
+              className="mt-4"
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
               onClick={() => copyEmbed()}
             >
               {!copyingEmbed ? 'Copy code' : 'Copied!'}

@@ -1,5 +1,6 @@
 import React, { MutableRefObject, useMemo, useRef, useState } from 'react';
 import { PromptOptions, usePrompt } from './usePrompt';
+import { ButtonColor, ButtonVariant } from '../components/buttons/ButtonV2';
 
 export type CloseAuthModalFunc = (
   e: React.MouseEvent | React.KeyboardEvent | React.FormEvent,
@@ -22,11 +23,12 @@ const promptOptions: PromptOptions = {
   description: 'If you leave your changes will not be saved',
   okButton: {
     title: 'Leave',
-    className: 'btn-secondary',
+    variant: ButtonVariant.Secondary,
   },
   cancelButton: {
     title: 'Stay',
-    className: 'btn-primary-cabbage',
+    variant: ButtonVariant.Primary,
+    color: ButtonColor.Cabbage,
   },
   className: {
     buttons: 'flex-row-reverse',

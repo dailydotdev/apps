@@ -4,7 +4,8 @@ import classNames from 'classnames';
 import {
   Button,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
 import {
   AccountPageContent,
@@ -43,16 +44,18 @@ export const AccountPageContainer = ({
     <AccountPageContent className={classNames('relative', className.container)}>
       <AccountPageHeading className={classNames('sticky', className.heading)}>
         <Button
-          className="flex tablet:hidden mr-2 btn-tertiary"
+          className={classNames('flex tablet:hidden mr-2', { hidden: onBack })}
           icon={<ArrowIcon className="-rotate-90" />}
-          buttonSize={ButtonSize.XSmall}
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.XSmall}
           onClick={openSideNav}
         />
         {onBack && (
           <Button
-            className="mr-2 btn-tertiary"
+            className="mr-2"
             icon={<ArrowIcon className="-rotate-90" />}
-            buttonSize={ButtonSize.XSmall}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.XSmall}
             onClick={onBack}
           />
         )}

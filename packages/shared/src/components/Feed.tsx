@@ -48,12 +48,20 @@ const SharePostModal = dynamic(
   () =>
     import(/* webpackChunkName: "sharePostModal" */ './modals/SharePostModal'),
 );
+const CollectionPostModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "collectionPostModal" */ './modals/CollectionPostModal'
+    ),
+);
 
 const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Article]: ArticlePostModal,
   [PostType.Share]: SharePostModal,
   [PostType.Welcome]: SharePostModal,
   [PostType.Freeform]: SharePostModal,
+  [PostType.VideoYouTube]: ArticlePostModal,
+  [PostType.Collection]: CollectionPostModal,
 };
 
 export default function Feed<T>({
@@ -78,11 +86,12 @@ export default function Feed<T>({
   const { spaciness, loadedSettings } = useContext(SettingsContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
+  const { shouldUseFeedLayoutV1 } = useFeedLayout({ feedName });
   const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
     useFeed(
       feedQueryKey,
       currentSettings.pageSize,
-      isSquadFeed ? 3 : currentSettings.adSpot,
+      isSquadFeed || shouldUseFeedLayoutV1 ? 2 : currentSettings.adSpot,
       numCards,
       {
         query,

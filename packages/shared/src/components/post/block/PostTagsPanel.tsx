@@ -5,7 +5,12 @@ import { Post } from '../../../graphql/posts';
 import { isNullOrUndefined } from '../../../lib/func';
 import { PostBlockedPanel } from './PostBlockedPanel';
 import CloseButton from '../../CloseButton';
-import { Button, ButtonSize } from '../../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/ButtonV2';
 import { SourceAvatar } from '../../profile/source';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import { BlockTagSelection, getBlockedMessage } from './common';
@@ -78,10 +83,9 @@ export function PostTagsPanel({
       )}
     >
       <CloseButton
-        className="top-3 right-3"
-        position="absolute"
+        className="absolute top-3 right-3"
         onClick={() => onClose()}
-        buttonSize={ButtonSize.Small}
+        size={ButtonSize.Small}
       />
       <h4 className="font-bold typo-body">Don&apos;t show me posts from...</h4>
       <p className="mt-1 typo-callout text-theme-label-tertiary">
@@ -92,8 +96,10 @@ export function PostTagsPanel({
         role="list"
       >
         <Button
-          className={shouldBlockSource ? 'btn-primary' : 'btn-tertiaryFloat'}
-          buttonSize={ButtonSize.Small}
+          variant={
+            shouldBlockSource ? ButtonVariant.Primary : ButtonVariant.Float
+          }
+          size={ButtonSize.Small}
           icon={<SourceAvatar source={post.source} />}
           onClick={() => setShouldBlockSource(!shouldBlockSource)}
         >
@@ -110,11 +116,16 @@ export function PostTagsPanel({
         ))}
       </span>
       <span className="flex flex-row gap-2 p-3 -mx-4 mt-4 border-t border-theme-divider-tertiary">
-        <Button className="ml-auto btn-tertiary" onClick={onReport}>
+        <Button
+          className="ml-auto"
+          variant={ButtonVariant.Tertiary}
+          onClick={onReport}
+        >
           Report
         </Button>
         <Button
-          className="btn-primary-cabbage"
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Cabbage}
           onClick={() => onBlock(tags, shouldBlockSource)}
         >
           Block

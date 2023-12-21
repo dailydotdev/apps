@@ -16,7 +16,10 @@ const generateEventId = (now = new Date()): string => {
   return `${timePart}${randomStr}`;
 };
 
-export type PostOrigin = Origin.ArticlePage | Origin.ArticleModal;
+export type PostOrigin =
+  | Origin.ArticlePage
+  | Origin.ArticleModal
+  | Origin.CollectionModal;
 
 const getGlobalSharedProps = (): Partial<AnalyticsEvent> => ({
   screen_height: window.screen?.height,

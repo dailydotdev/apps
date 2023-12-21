@@ -19,7 +19,8 @@ import {
   Button,
   ButtonProps,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   CustomFeedHeader,
   customFeedIcon,
@@ -77,7 +78,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
   };
 
   const followButtonProps: ButtonProps<'button'> = {
-    buttonSize: ButtonSize.Small,
+    size: ButtonSize.Small,
     icon: tagStatus === 'followed' ? <XIcon /> : <PlusIcon />,
     onClick: async (): Promise<void> => {
       if (user) {
@@ -93,7 +94,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
   };
 
   const blockButtonProps: ButtonProps<'button'> = {
-    buttonSize: ButtonSize.Small,
+    size: ButtonSize.Small,
     icon: tagStatus === 'blocked' ? <XIcon /> : <BlockIcon />,
     onClick: async (): Promise<void> => {
       if (user) {
@@ -117,12 +118,14 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
         {tagStatus !== 'followed' && (
           <>
             <Button
-              className="laptop:hidden btn-secondary"
+              className="laptop:hidden"
+              variant={ButtonVariant.Secondary}
               {...blockButtonProps}
               aria-label={tagStatus === 'blocked' ? 'Unblock' : 'Block'}
             />
             <Button
-              className="hidden laptop:flex btn-secondary"
+              className="hidden laptop:flex"
+              variant={ButtonVariant.Secondary}
               {...blockButtonProps}
             >
               {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
@@ -133,17 +136,19 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
           <>
             <Button
               className={classNames(
-                'btn-secondary laptop:hidden',
+                'laptop:hidden',
                 tagStatus !== 'followed' && 'ml-4',
               )}
+              variant={ButtonVariant.Secondary}
               {...followButtonProps}
               aria-label={tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
             />
             <Button
               className={classNames(
-                'btn-secondary hidden laptop:flex',
+                'hidden laptop:flex',
                 tagStatus !== 'followed' && 'ml-4',
               )}
+              variant={ButtonVariant.Secondary}
               {...followButtonProps}
             >
               {tagStatus === 'followed' ? 'Unfollow' : 'Follow'}

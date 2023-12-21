@@ -1,24 +1,32 @@
+import { useContext } from 'react';
 import { useFeature } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { FeedLayout } from '../lib/featureValues';
+import { SharedFeedPage } from '../components/utilities';
+import { ActiveFeedContext } from '../contexts';
+import { AllFeedPages } from '../lib/query';
 
 interface UseFeedLayoutProps {
-  feedName: string;
+  feedName?: AllFeedPages;
 }
 
-// TODO: return type to be changed once more info is added to the return object
-export const useFeedLayout = ({
-  feedName,
-}: UseFeedLayoutProps): Record<string, unknown> => {
-  const feedLayoutVersion = useFeature(feature.feedLayout);
-  const isFeedLayoutVersion = feedLayoutVersion === FeedLayout.V1;
-  const shouldUseFeedLayout = isFeedLayoutVersion && feedName !== 'squad';
+interface UseFeedLayout {
+  shouldUseFeedLayoutV1: boolean;
+}
 
-  if (shouldUseFeedLayout) {
-    return {
-      // the values of the object can also be specific to
-      // certain components and pages and can be separated in the return
-    };
-  }
-  return {};
+export const useFeedLayout = ({
+  feedName: feedNameProp,
+}: UseFeedLayoutProps = {}): UseFeedLayout => {
+  const { feedName } = useContext(ActiveFeedContext);
+
+  const feedLayoutVersion = useFeature(feature.feedLayout);
+  const isV1 = feedLayoutVersion === FeedLayout.V1;
+  const isIncludedFeed = Object.values(SharedFeedPage).includes(
+    (feedNameProp ?? feedName) as SharedFeedPage,
+  );
+  const shouldUseFeedLayoutV1 = isV1 && isIncludedFeed;
+
+  return {
+    shouldUseFeedLayoutV1,
+  };
 };

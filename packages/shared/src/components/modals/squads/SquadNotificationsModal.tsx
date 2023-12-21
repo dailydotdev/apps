@@ -2,7 +2,7 @@ import React, { ReactElement, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Modal, ModalProps } from '../common/Modal';
 import {
-  checkHasMutedPreference,
+  checkHasStatusPreference,
   useNotificationPreference,
 } from '../../../hooks/notifications';
 import { SourceMemberRole, Squad } from '../../../graphql/sources';
@@ -10,6 +10,7 @@ import { Switch } from '../../fields/Switch';
 import { NotificationType } from '../../notifications/utils';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { NotificationPreferenceStatus } from '../../../graphql/notifications';
 
 interface SquadNotificationsModalProps extends ModalProps {
   squad: Squad;
@@ -50,17 +51,19 @@ export function SquadNotificationsModal({
     () => ({
       hideFeedPosts: squadCache?.currentMember?.flags?.hideFeedPosts,
       mutedNewPosts: preferences?.some((preference) =>
-        checkHasMutedPreference(
+        checkHasStatusPreference(
           preference,
           NotificationType.SquadPostAdded,
           squad?.id,
+          [NotificationPreferenceStatus.Muted],
         ),
       ),
       mutedNewMembers: preferences?.some((preference) =>
-        checkHasMutedPreference(
+        checkHasStatusPreference(
           preference,
           NotificationType.SquadMemberJoined,
           squad?.id,
+          [NotificationPreferenceStatus.Muted],
         ),
       ),
     }),

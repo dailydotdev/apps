@@ -1,6 +1,6 @@
 import React, { ReactElement, useMemo } from 'react';
 import { cloudinary } from '../../lib/image';
-import { Button } from '../buttons/Button';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import { FlexCentered, Justify } from '../utilities';
 import Carousel from '../containers/Carousel';
 import { ModalFooter } from '../modals/common/ModalFooter';
@@ -137,14 +137,15 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
       {({ onSwipedLeft, onSwipedRight, index }, indicator) => (
         <ModalFooter justify={Justify.Between}>
           <FooterButton
-            className="btn-tertiary"
+            variant={ButtonVariant.Tertiary}
             onClick={(e) => onSwipedRight(e)}
           >
             {index === 0 ? 'Close' : 'Back'}
           </FooterButton>
           {indicator}
           <FooterButton
-            className="btn-primary-cabbage"
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
             onClick={(e) => onSwipedLeft(e)}
           >
             {index === items.length - 1 ? 'Close' : 'Next'}

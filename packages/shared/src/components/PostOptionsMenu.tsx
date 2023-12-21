@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useMemo } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
-import { Post, UserPostVote } from '../graphql/posts';
+import { Post, UserPostVote, isVideoPost } from '../graphql/posts';
 import TrashIcon from './icons/Trash';
 import HammerIcon from './icons/Hammer';
 import EyeIcon from './icons/Eye';
@@ -45,6 +45,7 @@ import {
   useBookmarkPost,
 } from '../hooks/useBookmarkPost';
 import { useActiveFeedContext } from '../contexts';
+import { useAdvancedSettings } from '../hooks/feed';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -89,7 +90,10 @@ export default function PostOptionsMenu({
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
-  const { feedSettings } = useFeedSettings({ enabled: isOpen });
+  const { feedSettings, advancedSettings } = useFeedSettings({
+    enabled: isOpen,
+  });
+  const { onToggleSettings } = useAdvancedSettings({ enabled: false });
   const { trackEvent } = useContext(AnalyticsContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openModal } = useLazyModal();
@@ -195,6 +199,21 @@ export default function PostOptionsMenu({
     );
   };
 
+  const onUnblockSource = async (): Promise<void> => {
+    const { successful } = await onFollowSource({
+      source: post?.source,
+      requireLogin: true,
+    });
+
+    if (!successful) {
+      return;
+    }
+
+    displayToast(`${post?.source?.name} unblocked`, {
+      subject: ToastSubject.Feed,
+    });
+  };
+
   const onBlockTag = async (tag: string): Promise<void> => {
     const { successful } = await onBlockTags({
       tags: [tag],
@@ -209,6 +228,13 @@ export default function PostOptionsMenu({
     const undoAction = isTagFollowed ? onFollowTags : onUnblockTags;
     await showMessageAndRemovePost(`⛔️ #${tag} blocked`, postIndex, () =>
       undoAction({ tags: [tag], requireLogin: true }),
+    );
+  };
+  const video = advancedSettings?.find(({ title }) => title === 'Videos');
+  const onToggleVideo = async () => {
+    await onToggleSettings(video.id, true);
+    await showMessageAndRemovePost(`⛔️ Video content blocked`, postIndex, () =>
+      onToggleSettings(video.id, false),
     );
   };
 
@@ -231,6 +257,12 @@ export default function PostOptionsMenu({
       () => unhidePost(post.id),
     );
   };
+
+  const isSourceBlocked = useMemo(() => {
+    return !!feedSettings?.excludeSources?.some(
+      (excludedSource) => excludedSource.id === post?.source?.id,
+    );
+  }, [feedSettings?.excludeSources, post?.source?.id]);
 
   const postOptions: MenuItemProps[] = [
     {
@@ -265,10 +297,20 @@ export default function PostOptionsMenu({
     },
     {
       icon: <MenuIcon Icon={BlockIcon} />,
-      label: `Don't show posts from ${post?.source?.name}`,
-      action: onBlockSource,
+      label: isSourceBlocked
+        ? `Show posts from ${post?.source?.name}`
+        : `Don't show posts from ${post?.source?.name}`,
+      action: isSourceBlocked ? onUnblockSource : onBlockSource,
     },
   ];
+
+  if (video && isVideoPost(post)) {
+    postOptions.push({
+      icon: <MenuIcon Icon={BlockIcon} />,
+      label: `Don't show video content`,
+      action: onToggleVideo,
+    });
+  }
 
   post?.tags?.forEach((tag) => {
     if (tag.length) {

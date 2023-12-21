@@ -1,7 +1,6 @@
-import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { usePrompt } from '../../hooks/usePrompt';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import classed from '../../lib/classed';
 import { Modal, ModalProps } from './common/Modal';
 
@@ -51,7 +50,10 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
         <Buttons className={className.buttons}>
           {cancelButton !== null && (
             <Button
-              className={classNames('btn-secondary', className.cancel)}
+              variant={cancelButton.variant ?? ButtonVariant.Secondary}
+              color={cancelButton.color}
+              icon={cancelButton.icon}
+              iconPosition={cancelButton.iconPosition}
               onClick={onFail}
               {...cancelButton}
             >
@@ -60,7 +62,10 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
           )}
           {okButton !== null && (
             <Button
-              className={classNames('btn-primary', className.ok)}
+              variant={okButton.variant ?? ButtonVariant.Primary}
+              color={okButton.color}
+              icon={okButton.icon}
+              iconPosition={okButton.iconPosition}
               onClick={onSuccess}
               {...okButton}
             >

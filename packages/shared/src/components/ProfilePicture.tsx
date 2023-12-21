@@ -120,4 +120,5 @@ function ProfilePictureComponent(
   );
 }
 
-export const ProfilePicture = forwardRef(ProfilePictureComponent);
+const ProfilePicture = forwardRef(ProfilePictureComponent);
+export { ProfilePicture };

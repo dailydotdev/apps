@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { Flipped, Flipper } from 'react-flip-toolkit';
 import HomeIcon from '@dailydotdev/shared/src/components/icons/Home';
 import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
@@ -12,8 +12,10 @@ import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/Lin
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import {
   Button,
+  ButtonProps,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import classNames from 'classnames';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
@@ -92,12 +94,10 @@ export default function FooterNavBar(): ReactElement {
   const router = useRouter();
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
-  const buttonProps: HTMLAttributes<HTMLButtonElement> & {
-    buttonSize: ButtonSize;
-  } = {
-    className: 'btn-tertiary',
+  const buttonProps: ButtonProps<'a' | 'button'> = {
+    variant: ButtonVariant.Tertiary,
     style: { width: '100%' },
-    buttonSize: ButtonSize.Large,
+    size: ButtonSize.Large,
   };
 
   const onNavigateNotifications = () => {

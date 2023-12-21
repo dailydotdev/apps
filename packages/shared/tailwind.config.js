@@ -141,16 +141,6 @@ module.exports = {
       max: '100',
       '-1': '-1',
     },
-    maxHeight: {
-      'img-desktop': '400px',
-      'img-mobile': '280px',
-      'rank-modal': 'calc(100vh - 5rem)',
-      page: 'calc(100vh - 3.5rem)',
-      commentBox: '18.25rem',
-    },
-    minHeight: {
-      page: 'calc(100vh - 3.5rem)',
-    },
     fontFamily: {
       sans: [
         'system-ui',
@@ -179,6 +169,18 @@ module.exports = {
       responsiveModalBreakpoint: '420px',
     },
     extend: {
+      maxHeight: {
+        'img-desktop': '400px',
+        'img-mobile': '280px',
+        'rank-modal': 'calc(100vh - 5rem)',
+        page: 'calc(100vh - 3.5rem)',
+        commentBox: '18.25rem',
+        card: '23.75rem',
+      },
+      minHeight: {
+        page: 'calc(100vh - 3.5rem)',
+        card: '23.75rem',
+      },
       gap: {
         unset: 'unset',
       },
@@ -191,6 +193,7 @@ module.exports = {
         12: '0.75rem',
         14: '0.875rem',
         16: '1rem',
+        22: '1.375rem',
         24: '1.5rem',
         26: '1.625rem',
       },
@@ -218,9 +221,6 @@ module.exports = {
       height: {
         logo: '1.125rem',
         'logo-big': '2.0625rem',
-      },
-      minHeight: {
-        card: '23.75rem',
       },
     },
     lineClamp: {
