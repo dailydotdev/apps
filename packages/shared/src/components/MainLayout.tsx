@@ -35,6 +35,7 @@ import { ActiveFeedNameContext } from '../contexts';
 import { AllFeedPages } from '../lib/query';
 import AlertContext from '../contexts/AlertContext';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
+import { getFeedName } from './MainFeedLayout';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -53,36 +54,6 @@ export interface MainLayoutProps
 }
 
 const feeds = Object.values(SharedFeedPage);
-
-export interface GetDefaultFeedProps {
-  hasFiltered?: boolean;
-  hasUser?: boolean;
-}
-
-export const getDefaultFeed = ({
-  hasUser,
-}: GetDefaultFeedProps): SharedFeedPage => {
-  if (!hasUser) {
-    return SharedFeedPage.Popular;
-  }
-
-  return SharedFeedPage.MyFeed;
-};
-
-export const defaultFeedConditions = [null, 'default', '/', ''];
-
-export const getFeedNameFromPathname = (
-  path: string,
-  options: GetDefaultFeedProps = {},
-): SharedFeedPage => {
-  if (defaultFeedConditions.some((condition) => condition === path)) {
-    return getDefaultFeed(options);
-  }
-
-  const [page] = path.split('?');
-
-  return page.replace(/^\/+/, '') as SharedFeedPage;
-};
 
 function MainLayout({
   children,
@@ -123,7 +94,7 @@ function MainLayout({
   };
   const previousPathname = usePrevious(pathname);
   const [feedName, setFeedName] = useState<AllFeedPages>(
-    getFeedNameFromPathname(pathname, {
+    getFeedName(pathname, {
       hasUser: !!user,
       hasFiltered: !alerts?.filter,
     }),
@@ -144,7 +115,7 @@ function MainLayout({
 
   useEffect(() => {
     if (pathname !== previousPathname) {
-      const newFeedName = getFeedNameFromPathname(pathname, {
+      const newFeedName = getFeedName(pathname, {
         hasUser: !!user,
         hasFiltered: !alerts?.filter,
       });

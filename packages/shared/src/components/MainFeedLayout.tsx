@@ -101,12 +101,14 @@ const getQueryBasedOnLogin = (
 
 const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
 
-interface GetDefaultFeedProps {
+export interface GetDefaultFeedProps {
   hasFiltered?: boolean;
   hasUser?: boolean;
 }
 
-const getDefaultFeed = ({ hasUser }: GetDefaultFeedProps): SharedFeedPage => {
+export const getDefaultFeed = ({
+  hasUser,
+}: GetDefaultFeedProps): SharedFeedPage => {
   if (!hasUser) {
     return SharedFeedPage.Popular;
   }
@@ -114,7 +116,7 @@ const getDefaultFeed = ({ hasUser }: GetDefaultFeedProps): SharedFeedPage => {
   return SharedFeedPage.MyFeed;
 };
 
-const defaultFeedConditions = [null, 'default', '/', ''];
+export const defaultFeedConditions = [null, 'default', '/', ''];
 
 export const getFeedName = (
   path: string,
