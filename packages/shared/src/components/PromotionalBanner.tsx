@@ -1,64 +1,36 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import XIcon from './icons/MiniClose';
-import { Button, ButtonSize } from './buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from './buttons/ButtonV2';
 import { isTesting } from '../lib/constants';
 import { BannerCustomTheme, BannerTheme } from '../graphql/banner';
 import { Theme } from './utilities';
 import { useBanner } from '../hooks/useBanner';
+import CloseButton from './CloseButton';
 
 const classNamesByTheme: Record<BannerTheme, string[]> = {
   [BannerCustomTheme.CabbageOnion]: [
     'from-theme-color-cabbage to-theme-color-onion bg-gradient-to-r',
     'text-white',
-    'bg-white text-pepper-90',
   ],
   [BannerCustomTheme.WhitePepper]: [
     'bg-theme-bg-reverse',
     'text-theme-label-invert',
-    'text-white btn-primary-cabbage',
   ],
-  [Theme.Avocado]: [
-    'bg-theme-color-avocado',
-    'text-pepper-90',
-    'bg-white text-pepper-90',
-  ],
-  [Theme.Bacon]: [
-    'bg-theme-color-bacon',
-    'text-white',
-    'bg-white text-pepper-90',
-  ],
-  [Theme.BlueCheese]: [
-    'bg-theme-color-blueCheese',
-    'text-pepper-90',
-    'bg-white text-pepper-90',
-  ],
-  [Theme.Bun]: ['bg-theme-color-bun', 'text-white', 'bg-white text-pepper-90'],
-  [Theme.Burger]: [
-    'bg-theme-color-burger',
-    'text-white',
-    'bg-white text-pepper-90',
-  ],
-  [Theme.Cabbage]: [
-    'bg-theme-color-cabbage',
-    'text-white',
-    'bg-white text-pepper-90',
-  ],
-  [Theme.Cheese]: [
-    'bg-theme-color-cheese',
-    'text-pepper-90',
-    'bg-white text-pepper-90',
-  ],
-  [Theme.Ketchup]: [
-    'bg-theme-color-ketchup',
-    'text-white',
-    'bg-white text-pepper-90',
-  ],
-  [Theme.Lettuce]: [
-    'bg-theme-color-lettuce',
-    'text-pepper-90',
-    'bg-white text-pepper-90',
-  ],
+  [Theme.Avocado]: ['bg-theme-color-avocado', 'text-pepper-90'],
+  [Theme.Bacon]: ['bg-theme-color-bacon', 'text-white'],
+  [Theme.BlueCheese]: ['bg-theme-color-blueCheese', 'text-pepper-90'],
+  [Theme.Bun]: ['bg-theme-color-bun', 'text-white'],
+  [Theme.Burger]: ['bg-theme-color-burger', 'text-white'],
+  [Theme.Cabbage]: ['bg-theme-color-cabbage', 'text-white'],
+  [Theme.Cheese]: ['bg-theme-color-cheese', 'text-pepper-90'],
+  [Theme.Ketchup]: ['bg-theme-color-ketchup', 'text-white'],
+  [Theme.Lettuce]: ['bg-theme-color-lettuce', 'text-pepper-90'],
 };
 
 export default function PromotionalBanner(): ReactElement {
@@ -73,9 +45,10 @@ export default function PromotionalBanner(): ReactElement {
     return <></>;
   }
 
-  const [container, text, button] =
+  const [container, text] =
     classNamesByTheme[banner.theme] ??
     classNamesByTheme[BannerCustomTheme.CabbageOnion];
+
   return (
     <div
       className={classNames(
@@ -91,16 +64,20 @@ export default function PromotionalBanner(): ReactElement {
       <Button
         tag="a"
         href={banner.url}
-        buttonSize={ButtonSize.XSmall}
-        className={classNames('mt-2 laptop:ml-4 laptop:mt-0', button)}
+        size={ButtonSize.XSmall}
+        variant={ButtonVariant.Primary}
+        color={
+          banner.theme === BannerCustomTheme.WhitePepper
+            ? ButtonColor.Cabbage
+            : undefined
+        }
+        className="mt-2 laptop:mt-0 laptop:ml-4"
       >
         {banner.cta}
       </Button>
-      <Button
-        buttonSize={ButtonSize.XSmall}
-        className="laptop:inset-y-0 top-2 right-2 laptop:my-auto btn-tertiary"
-        style={{ position: 'absolute' }}
-        icon={<XIcon />}
+      <CloseButton
+        size={ButtonSize.XSmall}
+        className="absolute laptop:inset-y-0 top-2 right-2 laptop:my-auto"
         onClick={dismiss}
       />
     </div>

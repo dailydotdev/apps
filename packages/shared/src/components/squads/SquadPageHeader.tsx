@@ -42,7 +42,7 @@ export function SquadPageHeader({
   return (
     <FlexCol
       className={classNames(
-        'relative items-center laptopL:items-start px-6 tablet:pb-20 laptopL:pb-14 tablet:mb-6 w-full tablet:border-b laptopL:px-[4.5rem] min-h-20 border-theme-divider-tertiary',
+        'relative items-center laptopL:items-start px-6 tablet:pb-20 laptopL:pb-14 tablet:mb-6 w-full tablet:border-b laptopL:px-18 min-h-20 border-theme-divider-tertiary',
       )}
     >
       <div className="flex flex-col laptopL:flex-row items-center">
@@ -74,7 +74,7 @@ export function SquadPageHeader({
       <SquadHeaderBar
         squad={squad}
         members={members}
-        className="laptopL:absolute laptopL:top-0 laptopL:right-[4.5rem]"
+        className="laptopL:absolute laptopL:top-0 laptopL:right-18"
       />
       <EnableNotification
         contentName={squad.name}

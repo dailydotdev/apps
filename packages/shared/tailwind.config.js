@@ -209,6 +209,7 @@ module.exports = {
         screen: '100vh',
       },
       spacing: {
+        18: '4.5rem',
         22: '5.5rem',
         70: '17.5rem',
       },

@@ -1,6 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import classNames from 'classnames';
-import { Button } from './buttons/Button';
+import { Button, ButtonVariant } from './buttons/ButtonV2';
 import AuthContext from '../contexts/AuthContext';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
@@ -42,13 +41,15 @@ export default function LoginButton({
     <span className="flex flex-row gap-4">
       <Button
         onClick={() => onClick(ButtonCopy.Login)}
-        className={classNames(className, 'btn-secondary')}
+        variant={ButtonVariant.Secondary}
+        className={className}
       >
         {ButtonCopy.Login}
       </Button>
       <Button
         onClick={() => onClick(ButtonCopy.Signup)}
-        className={classNames(className, 'btn-primary')}
+        variant={ButtonVariant.Primary}
+        className={className}
       >
         {ButtonCopy.Signup}
       </Button>

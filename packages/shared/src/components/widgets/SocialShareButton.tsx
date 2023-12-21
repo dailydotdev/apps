@@ -1,16 +1,12 @@
 import React, { HTMLAttributes, ReactElement, useRef } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonProps, ButtonSize } from '../buttons/Button';
+import { Button, ButtonProps, ButtonSize } from '../buttons/ButtonV2';
 import classed from '../../lib/classed';
 
-interface SocialShareIconProps extends HTMLAttributes<HTMLButtonElement> {
-  pressed?: boolean;
-  href?: string;
+type SocialShareButtonProps = ButtonProps<'a'> & {
   icon: ReactElement;
   label: string;
-  size?: ButtonSize;
-  disabled?: boolean;
-}
+};
 
 export const ShareText = classed(
   'span',
@@ -22,42 +18,36 @@ const sizeToText = {
   [ButtonSize.Medium]: 'typo-caption1',
 };
 
-export const SocialShareIcon = ({
-  pressed,
+export const SocialShareButton = ({
   href,
   icon,
-  className,
-  onClick,
   label,
-  disabled,
   size = ButtonSize.Large,
-}: SocialShareIconProps): ReactElement => {
+  ...props
+}: SocialShareButtonProps): ReactElement => {
   const button = useRef<HTMLButtonElement>();
-  const buttonProps = href
-    ? ({
-        href,
-        rel: 'noopener',
-        target: 'blank',
-        tag: 'a',
-        disabled,
-      } as ButtonProps<'a'>)
-    : ({ onClick, disabled } as ButtonProps<'button'>);
+  const buttonProps =
+    href &&
+    ({
+      href,
+      rel: 'noopener',
+      target: 'blank',
+      tag: 'a',
+    } as ButtonProps<'a'>);
 
   return (
     <div className="flex flex-col items-center w-16">
       <Button
         {...buttonProps}
+        {...props}
         data-testid={`social-share-${label}`}
-        buttonSize={size}
-        className={className}
-        iconOnly
+        size={size}
         icon={icon}
-        pressed={pressed}
         ref={button}
       />
       <ShareText
         className={classNames(
-          'mt-1.5 max-w-[4rem] overflow-hidden overflow-ellipsis text-center',
+          'mt-1.5 max-w-16 overflow-hidden overflow-ellipsis text-center', // max-w-[4rem]
           sizeToText[size],
         )}
         onClick={() => button?.current?.click()}

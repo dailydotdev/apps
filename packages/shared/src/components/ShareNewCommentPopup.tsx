@@ -82,7 +82,7 @@ export default function ShareNewCommentPopup({
             rel="noopener"
             icon={<WhatsappIcon />}
             variant={ButtonVariant.Primary}
-            color={ButtonColor.Whatsapp}
+            color={ButtonColor.WhatsApp}
             size={ButtonSize.Small}
           >
             Whatsapp
