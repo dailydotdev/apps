@@ -1,7 +1,12 @@
 import React, { FormEvent, ReactElement, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { ProfilePicture } from '../ProfilePicture';
-import { Button, ButtonSize } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import { useAuthContext } from '../../contexts/AuthContext';
 import LockIcon from '../icons/Lock';
 import { Card } from '../cards/Card';
@@ -124,8 +129,10 @@ function SharePostBar({
         )}
         <Button
           type="submit"
-          buttonSize={ButtonSize.Medium}
-          className="mx-3 ml-auto btn-primary-cabbage"
+          size={ButtonSize.Medium}
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Cabbage}
+          className="mx-3 ml-auto"
           disabled={isLoadingPreview || !url}
           loading={isLoadingPreview}
         >

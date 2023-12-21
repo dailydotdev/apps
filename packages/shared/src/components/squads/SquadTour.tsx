@@ -95,14 +95,15 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
       {({ onSwipedLeft, onSwipedRight, index }, indicator) => (
         <ModalFooter justify={Justify.Between}>
           <FooterButton
-            className="btn-tertiary"
+            variant={ButtonVariant.Tertiary}
             onClick={(e) => onSwipedRight(e)}
           >
             {index === 0 ? 'Close' : 'Back'}
           </FooterButton>
           {indicator}
           <FooterButton
-            className="btn-primary-cabbage"
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
             onClick={(e) => onSwipedLeft(e)}
           >
             {index === items.length - 1 ? 'Close' : 'Next'}

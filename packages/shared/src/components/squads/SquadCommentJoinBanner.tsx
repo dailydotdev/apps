@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { Origin } from '../../lib/analytics';
-import { Button } from '../buttons/Button';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import { SimpleSquadJoinButton } from './SquadJoinButton';
 import { Squad } from '../../graphql/sources';
 import usePersistentContext from '../../hooks/usePersistentContext';
@@ -70,7 +70,8 @@ export const SquadCommentJoinBanner = ({
         </p>
         <div className="flex flex-row gap-3 mt-5">
           <SimpleSquadJoinButton
-            className="btn-primary-cabbage"
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
             squad={squad}
             origin={analyticsOrigin}
             onClick={() => {
@@ -81,7 +82,7 @@ export const SquadCommentJoinBanner = ({
             Join squad
           </SimpleSquadJoinButton>
           <Button
-            className="btn-tertiary"
+            variant={ButtonVariant.Tertiary}
             onClick={() => {
               setJoinSquadBannerDismissed(true);
             }}

@@ -1,6 +1,11 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import { Button, ButtonSize } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import BookmarkIcon from '../icons/Bookmark';
 import styles from '../cards/Card.module.css';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -52,9 +57,11 @@ export const SquadPostListItem = ({
       </div>
       <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
         <Button
-          className="group-hover:visible mouse:invisible mt-1 btn-tertiary-bun"
+          className="group-hover:visible mouse:invisible mt-1"
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.Bun}
           pressed={post.bookmarked}
-          buttonSize={ButtonSize.Small}
+          size={ButtonSize.Small}
           icon={<BookmarkIcon secondary={post.bookmarked} />}
           onClick={() => onBookmark(post)}
         />

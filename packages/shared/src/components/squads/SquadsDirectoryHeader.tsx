@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { cloudinary } from '../../lib/image';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import SourceBetaIcon from '../../../icons/source_beta.svg';
 import { Origin } from '../../lib/analytics';
 import { useSquadNavigation } from '../../hooks';
@@ -31,7 +31,8 @@ export const SquadsDirectoryHeader = (): ReactElement => {
             devs.
           </div>
           <Button
-            className="mb-6 btn-primary"
+            className="mb-6"
+            variant={ButtonVariant.Primary}
             tag="a"
             onClick={() => openNewSquad({ origin: Origin.SquadDirectory })}
             data-testid="squad-directory-join-waitlist"

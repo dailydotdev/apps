@@ -2,7 +2,7 @@ import React, { ReactElement, useEffect } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { SourceMemberRole, Squad } from '../../graphql/sources';
-import { Button, ButtonProps } from '../buttons/Button';
+import { Button, ButtonProps, ButtonVariant } from '../buttons/ButtonV2';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useJoinSquad, useLeaveSquad } from '../../hooks';
@@ -160,10 +160,10 @@ export const SquadJoinButton = ({
       <div>
         <SimpleSquadJoinButton
           {...rest}
-          className={classNames(
-            isCurrentMember ? 'btn-secondary' : 'btn-primary',
-            className,
-          )}
+          variant={
+            isCurrentMember ? ButtonVariant.Secondary : ButtonVariant.Primary
+          }
+          className={className}
           squad={squad}
           disabled={isMemberBlocked || isLoading}
           onClick={onLeaveSquad}
