@@ -195,7 +195,7 @@ export function PostContent({
         onShare={onShare}
         onReadArticle={onReadArticle}
         post={post}
-        className="pb-8 post-widgets"
+        className="pb-8"
         onClose={onClose}
         origin={origin}
       />
