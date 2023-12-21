@@ -65,7 +65,8 @@ function InternalApp(): ReactElement {
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useContentScriptStatus();
-  const { hostGranted } = useHostStatus();
+  const { hostGranted, isFetching: isCheckingHostPermissions } =
+    useHostStatus();
   const routeChangedCallbackRef = useTrackPageView();
 
   const { user, isAuthReady } = useAuthContext();
@@ -101,7 +102,7 @@ function InternalApp(): ReactElement {
   }, [unreadCount]);
 
   if (!hostGranted) {
-    return <ExtensionPermissionsPrompt />;
+    return isCheckingHostPermissions ? null : <ExtensionPermissionsPrompt />;
   }
 
   if (shouldRedirectOnboarding) {
