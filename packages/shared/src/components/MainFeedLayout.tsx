@@ -36,6 +36,7 @@ import { cloudinary } from '../lib/image';
 import { useViewSize, ViewSize } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
+import { FeedItem } from '../hooks/useFeed';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -82,6 +83,7 @@ export type MainFeedLayoutProps = {
   navChildren?: ReactNode;
   onFeedPageChanged: (page: SharedFeedPage) => void;
   isFinder?: boolean;
+  feedItemComponent: React.ComponentType<{ item: FeedItem }>;
 };
 
 const getQueryBasedOnLogin = (
@@ -197,6 +199,7 @@ export default function MainFeedLayout({
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (isSearchOn && searchQuery) {
       return {
+        feedItemComponent,
         feedName: SharedFeedPage.Search,
         feedQueryKey: generateQueryKey(
           SharedFeedPage.Search,
@@ -235,7 +238,7 @@ export default function MainFeedLayout({
       feedQueryKey: generateQueryKey(
         feedName,
         user,
-        ...Object.values(variables ?? {}),
+        ...(Object.values(variables ?? {}) as string[]),
       ),
       query: query.query,
       variables,

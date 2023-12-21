@@ -49,7 +49,11 @@ export const useNotificationPreference = ({
 }: UseNotificationPreferenceProps): UseNotificationPreference => {
   const { user } = useAuthContext();
   const client = useQueryClient();
-  const key = generateQueryKey(RequestKey.NotificationPreference, user, params);
+  const key = generateQueryKey(
+    RequestKey.NotificationPreference,
+    user,
+    params as unknown as string,
+  );
   const { data, isFetched, isLoading } = useQuery(
     key,
     () => getNotificationPreferences(params),

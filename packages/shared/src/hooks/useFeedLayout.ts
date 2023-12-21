@@ -1,9 +1,8 @@
-import { useContext } from 'react';
 import { useFeature } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { FeedLayout } from '../lib/featureValues';
 import { SharedFeedPage } from '../components/utilities';
-import { ActiveFeedContext } from '../contexts';
+import { useActiveFeedContext } from '../contexts';
 import { AllFeedPages } from '../lib/query';
 
 interface UseFeedLayoutProps {
@@ -17,8 +16,7 @@ interface UseFeedLayout {
 export const useFeedLayout = ({
   feedName: feedNameProp,
 }: UseFeedLayoutProps = {}): UseFeedLayout => {
-  const { feedName } = useContext(ActiveFeedContext);
-
+  const { feedName } = useActiveFeedContext();
   const feedLayoutVersion = useFeature(feature.feedLayout);
   const isV1 = feedLayoutVersion === FeedLayout.V1;
   const isIncludedFeed = Object.values(SharedFeedPage).includes(

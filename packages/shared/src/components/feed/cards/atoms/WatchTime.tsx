@@ -9,7 +9,7 @@ import { formatReadTime } from '../../../utilities';
 
 type AllowedTags = keyof Pick<JSX.IntrinsicElements, 'p'>;
 
-export default function ReadTime<TagName extends AllowedTags>({
+export default function WatchTime<TagName extends AllowedTags>({
   readTime,
   ...props
 }: Pick<Post, 'readTime'> & TypographyProps<TagName>): ReactElement {
@@ -20,7 +20,7 @@ export default function ReadTime<TagName extends AllowedTags>({
       data-testid="readTime"
       element={TypographyElement.P}
     >
-      {formatReadTime(readTime)} read time
+      {formatReadTime(readTime)} watch time
     </Typography>
   );
 }

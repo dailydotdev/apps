@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { Button, ButtonSize } from '../../../buttons/Button';
 import OpenLinkIcon from '../../../icons/OpenLink';
 import useLeanPostActions from '../../../../hooks/post/useLeanPostActions';
-import { Post } from '../../../../graphql/posts';
+import { getReadPostButtonText, Post } from '../../../../graphql/posts';
 
 interface ReadArticleButtonProps {
   className?: string;
@@ -33,7 +33,7 @@ export const ReadArticleButton = ({
       onClick={onClickHandler}
       target={openNewTab ? '_blank' : '_self'}
     >
-      Read post
+      {getReadPostButtonText(post)}
     </Button>
   );
 };

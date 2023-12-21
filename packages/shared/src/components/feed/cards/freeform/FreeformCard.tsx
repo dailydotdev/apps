@@ -1,5 +1,4 @@
 import React, { ReactElement, ReactNode, useMemo } from 'react';
-import { sanitize } from 'dompurify';
 import { Card } from '../atoms/Card';
 import { CardButton } from '../atoms/CardAction';
 import SourceButton from '../../../cards/SourceButton';
@@ -16,12 +15,11 @@ import { CommentButton } from '../atoms/CommentButton';
 import ShareButton from '../atoms/ShareButton';
 import { CardContainer } from '../atoms/CardContainer';
 import { Post } from '../../../../graphql/posts';
-import { Image } from '../atoms/Image';
-import { cloudinary } from '../../../../lib/image';
 import OptionButton from '../atoms/OptionButton';
 import { Flag } from '../atoms/Flag';
 import { RaisedLabelType } from '../../../cards/RaisedLabel';
 import { ProfilePicture } from '../../../ProfilePicture';
+import ImageOrText from '../atoms/ImageOrText';
 
 export type CardType = {
   post: Post;
@@ -35,33 +33,6 @@ export const FreeformCard = ({ post }: CardType): ReactElement => {
 
     return post.contentHtml ? 'line-clamp-4' : 'line-clamp-9';
   }, [post]);
-
-  const content = useMemo(
-    () =>
-      post?.contentHtml ? sanitize(post.contentHtml, { ALLOWED_TAGS: [] }) : '',
-    [post?.contentHtml],
-  );
-
-  const image = useMemo(() => {
-    if (post?.image) {
-      return post?.image;
-    }
-
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(post?.contentHtml, 'text/html');
-    const imgTag = doc.querySelector('img');
-    if (imgTag) {
-      return imgTag.getAttribute('src');
-    }
-
-    return undefined;
-  }, [post?.contentHtml, post?.image]);
-
-  const decodedText = useMemo(() => {
-    const span = document.createElement('div');
-    span.innerHTML = content || '';
-    return span.innerText || content;
-  }, [content]);
 
   return (
     <CardContainer>
@@ -103,25 +74,7 @@ export const FreeformCard = ({ post }: CardType): ReactElement => {
             </Typography>
           </div>
         </section>
-        <section className="flex flex-col flex-1">
-          {image && (
-            <Image
-              alt="Post Cover image"
-              src={image}
-              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-              loading="lazy"
-              className="object-cover my-2 w-full"
-            />
-          )}
-          {content && (
-            <Typography
-              type={TypographyType.Callout}
-              className="px-2 break-words line-clamp-6"
-            >
-              {decodedText}
-            </Typography>
-          )}
-        </section>
+        <ImageOrText post={post} />
         <footer className="flex flex-row justify-between mx-4">
           <UpvoteButton post={post} />
           <CommentButton post={post} />

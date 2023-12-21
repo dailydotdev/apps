@@ -10,6 +10,8 @@ import { FeedItem, FeedItemType } from '../../../hooks/useFeed';
 import { PostType } from '../../../graphql/posts';
 import { CardType } from '../cards/common';
 import { AdCard } from '../../cards/AdCard';
+import { CollectionCard } from '../../cards/CollectionCard';
+import { VideoCard } from '../cards/video/VideoCard';
 
 export type LeanFeedItemComponentProps = {
   item: FeedItem;
@@ -20,6 +22,8 @@ const ItemTypeToTag: Record<PostType, React.ComponentType<CardType>> = {
   [PostType.Share]: SquadShareCard,
   [PostType.Welcome]: WelcomeCard,
   [PostType.Freeform]: FreeformCard,
+  [PostType.Collection]: CollectionCard,
+  [PostType.VideoYouTube]: VideoCard,
 };
 
 export default function SquadFeedItemComponent({

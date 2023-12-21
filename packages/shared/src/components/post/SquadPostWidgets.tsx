@@ -4,8 +4,6 @@ import { PageWidgets } from '../utilities';
 import { ShareMobile } from '../ShareMobile';
 import { useAuthContext } from '../../contexts/AuthContext';
 import ShareBar from '../ShareBar';
-import { PostHeaderActions, PostHeaderActionsProps } from './PostHeaderActions';
-import FurtherReading from '../widgets/FurtherReading';
 import { PostHeaderActions } from './PostHeaderActions';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import SourceButton from '../cards/SourceButton';

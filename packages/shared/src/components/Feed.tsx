@@ -6,7 +6,11 @@ import React, {
   useMemo,
 } from 'react';
 import dynamic from 'next/dynamic';
-import useFeed, { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
+import useFeed, {
+  FeedItem,
+  PostItem,
+  UseFeedOptionalParams,
+} from '../hooks/useFeed';
 import { PostType } from '../graphql/posts';
 import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
@@ -18,10 +22,11 @@ import { SharedFeedPage } from './utilities';
 import { FeedContainer } from './feeds';
 import { ActiveFeedContextProvider } from '../contexts';
 import { AllFeedPages, RequestKey } from '../lib/query';
+import { useFeedLayout } from '../hooks';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'> {
-  feedItemComponent: ReactElement;
+  feedItemComponent: React.ComponentType<{ item: FeedItem }>;
   feedName: AllFeedPages;
   feedQueryKey: unknown[];
   query?: string;

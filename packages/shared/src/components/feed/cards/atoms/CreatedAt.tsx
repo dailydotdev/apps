@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, RefAttributes, useMemo } from 'react';
 import { postDateFormat } from '../../../../lib/dateFormat';
 import { Post } from '../../../../graphql/posts';
 import {
@@ -12,7 +12,9 @@ type AllowedTags = keyof Pick<JSX.IntrinsicElements, 'time'>;
 export default function CreatedAt<TagName extends AllowedTags>({
   createdAt,
   ...props
-}: Pick<Post, 'createdAt'> & TypographyProps<TagName>): ReactElement {
+}: Pick<Post, 'createdAt'> &
+  TypographyProps<TagName> &
+  RefAttributes<HTMLElement>): ReactElement {
   const date = useMemo(
     () => createdAt && postDateFormat(createdAt),
     [createdAt],
@@ -20,6 +22,7 @@ export default function CreatedAt<TagName extends AllowedTags>({
   return (
     <Typography
       {...props}
+      ref={props.ref}
       element={TypographyElement.TIME}
       dateTime={createdAt}
     >

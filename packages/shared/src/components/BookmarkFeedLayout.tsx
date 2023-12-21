@@ -19,6 +19,7 @@ import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button, ButtonVariant } from './buttons/ButtonV2';
 import ShareIcon from './icons/Share';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
+import GenericFeedItemComponent from './feed/feedItemComponent/GenericFeedItemComponent';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -46,6 +47,7 @@ export default function BookmarkFeedLayout({
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (searchQuery) {
       return {
+        feedItemComponent: GenericFeedItemComponent,
         feedName: OtherFeedPage.SearchBookmarks,
         feedQueryKey: defaultKey.concat(searchQuery),
         query: SEARCH_BOOKMARKS_QUERY,
@@ -57,6 +59,7 @@ export default function BookmarkFeedLayout({
       };
     }
     return {
+      feedItemComponent: GenericFeedItemComponent,
       feedName: OtherFeedPage.Bookmarks,
       feedQueryKey: defaultKey,
       query: BOOKMARKS_FEED_QUERY,

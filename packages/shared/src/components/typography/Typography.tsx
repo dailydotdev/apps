@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+import React, { HTMLAttributes, ReactElement, RefAttributes } from 'react';
 import classed from '../../lib/classed';
 
 export const enum TypographyElement {
@@ -27,6 +27,7 @@ export type TypographyProps<Tag extends AllowedTags> = {
   type?: TypographyType;
   color?: TypographyColor;
   bold?: boolean;
+  ref?: RefAttributes<AllowedElements>['ref'];
 } & HTMLAttributes<AllowedElements> &
   JSX.IntrinsicElements[Tag];
 

@@ -332,7 +332,6 @@ export default function PostOptionsMenu({
           index: postIndex,
           post,
           origin: Origin.PostContextMenu,
-          queryKey: feedQueryKey,
         },
       }),
   });

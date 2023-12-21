@@ -107,7 +107,7 @@ const updateMap = {
 const updatePost =
   (
     queryClient: QueryClient,
-    queryKey: string[],
+    queryKey: unknown[],
     transformKey: string,
     update: (oldPost: Post) => Partial<Post>,
   ): ((args: { id: string }) => Promise<() => void>) =>

@@ -154,7 +154,7 @@ export default function useFeed<T>(
       newItems = feedQuery.data.pages.flatMap(
         ({ page }, pageIndex): FeedItem[] => {
           const posts: FeedItem[] = page.edges.map(({ node }, index) => ({
-            type: 'post',
+            type: FeedItemType.Post,
             post: node,
             page: pageIndex,
             index,
@@ -163,12 +163,12 @@ export default function useFeed<T>(
           if (isAdsQueryEnabled) {
             if (adsQuery.data?.pages[pageIndex]) {
               posts.splice(adSpot, 0, {
-                type: 'ad',
+                type: FeedItemType.Ad,
                 ad: adsQuery.data?.pages[pageIndex],
               });
             } else {
               posts.splice(adSpot, 0, {
-                type: 'placeholder',
+                type: FeedItemType.Placeholder,
               });
             }
           }
