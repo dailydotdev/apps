@@ -202,21 +202,6 @@ export const POST_BY_ID_QUERY = gql`
       updatedAt
       numCollectionSources
     }
-    relatedCollectionPosts: relatedPosts(
-      id: $id
-      relationType: COLLECTION
-      first: ${RELATED_POSTS_PER_PAGE_DEFAULT}
-    ) {
-      edges {
-        node {
-          ...RelatedPost
-        }
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-    }
   }
   ${SHARED_POST_INFO_FRAGMENT}
   ${RELATED_POST_FRAGMENT}
