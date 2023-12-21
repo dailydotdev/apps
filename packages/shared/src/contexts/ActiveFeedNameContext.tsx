@@ -2,8 +2,8 @@ import { createContext } from 'react';
 import { AllFeedPages } from '../lib/query';
 
 export type ActiveFeedNameContextValue = {
-  feedName?: AllFeedPages | string;
-  setFeedName: (feedName: AllFeedPages | string) => void;
+  feedName?: AllFeedPages;
+  setFeedName: (feedName: AllFeedPages) => void;
 };
 
 export const ActiveFeedNameContext = createContext<ActiveFeedNameContextValue>({

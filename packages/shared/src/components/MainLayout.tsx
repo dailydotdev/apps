@@ -99,7 +99,7 @@ function MainLayout({
       hasFiltered: !alerts?.filter,
     }),
   );
-  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { shouldUseFeedLayoutV1 } = useFeedLayout({ feedName });
 
   const { isNotificationsReady, unreadCount } = useNotificationContext();
@@ -204,7 +204,7 @@ function MainLayout({
     return null;
   }
   const isScreenCentered =
-    isLaptop && shouldUseFeedLayoutV1 ? true : screenCentered;
+    isLaptopXL && shouldUseFeedLayoutV1 ? true : screenCentered;
 
   return (
     <div {...handlers} className="antialiased">
