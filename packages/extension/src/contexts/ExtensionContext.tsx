@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
 
 import browser from 'webextension-polyfill';
 import { useQueryClient } from '@tanstack/react-query';
