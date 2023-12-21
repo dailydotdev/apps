@@ -4,7 +4,7 @@ import { feature } from '../lib/featureManagement';
 import { FeedLayout } from '../lib/featureValues';
 import { SharedFeedPage } from '../components/utilities';
 import { AllFeedPages } from '../lib/query';
-import { ActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
+import { ActiveFeedNameContext } from '../contexts';
 
 interface UseFeedLayoutProps {
   feedName?: AllFeedPages;

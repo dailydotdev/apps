@@ -33,8 +33,7 @@ import { useGrowthBookContext } from './GrowthBookProvider';
 import { useReferralReminder } from '../hooks/referral/useReferralReminder';
 import { ActiveFeedNameContext } from '../contexts';
 import { AllFeedPages } from '../lib/query';
-import AlertContext from '../contexts/AlertContext';
-import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
+import { useFeedLayout, usePrevious, useViewSize, ViewSize } from '../hooks';
 import { getFeedName } from './MainFeedLayout';
 
 export interface MainLayoutProps
@@ -76,7 +75,6 @@ function MainLayout({
   const { pathname } = router || {};
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, isAuthReady } = useAuthContext();
-  const { alerts } = useContext(AlertContext);
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
@@ -84,20 +82,9 @@ function MainLayout({
   const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
     useContext(SettingsContext);
   const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
-
-  const usePrevious = (value: string) => {
-    const ref = React.useRef<string>();
-    useEffect(() => {
-      ref.current = value;
-    });
-    return ref.current;
-  };
   const previousPathname = usePrevious(pathname);
   const [feedName, setFeedName] = useState<AllFeedPages>(
-    getFeedName(pathname, {
-      hasUser: !!user,
-      hasFiltered: !alerts?.filter,
-    }),
+    getFeedName(pathname, { hasUser: !!user }),
   );
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { shouldUseFeedLayoutV1 } = useFeedLayout({ feedName });
@@ -117,13 +104,12 @@ function MainLayout({
     if (pathname !== previousPathname) {
       const newFeedName = getFeedName(pathname, {
         hasUser: !!user,
-        hasFiltered: !alerts?.filter,
       });
       if (newFeedName !== feedName) {
         setFeedName(newFeedName);
       }
     }
-  }, [pathname, previousPathname, feedName, alerts, user]);
+  }, [pathname, previousPathname, feedName, user]);
 
   const onMobileSidebarToggle = (state: boolean) => {
     trackEvent({
