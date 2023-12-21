@@ -9,6 +9,7 @@ import {
   notificationPreferenceMap,
   NotificationPreferenceStatus,
   showSourceFeedPosts,
+  subscribeNotification,
 } from '../../graphql/notifications';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -24,6 +25,7 @@ interface UseNotificationPreference {
   showSourceFeedPosts(): Promise<unknown>;
   muteNotification: typeof muteNotification;
   clearNotificationPreference: typeof clearNotificationPreference;
+  subscribeNotification: typeof subscribeNotification;
 }
 
 interface UseNotificationPreferenceProps {
@@ -31,12 +33,13 @@ interface UseNotificationPreferenceProps {
   squad?: Squad;
 }
 
-export const checkHasMutedPreference = (
+export const checkHasStatusPreference = (
   { notificationType, referenceId, status }: NotificationPreference,
   type: NotificationType,
   id: string,
+  targetStatuses: NotificationPreferenceStatus[],
 ): boolean =>
-  status === NotificationPreferenceStatus.Muted &&
+  targetStatuses.includes(status) &&
   notificationType === type &&
   referenceId === id;
 
@@ -79,8 +82,30 @@ export const useNotificationPreference = ({
 
           return oldData.filter(
             (preference) =>
-              !checkHasMutedPreference(preference, type, referenceId),
+              !checkHasStatusPreference(preference, type, referenceId, [
+                NotificationPreferenceStatus.Muted,
+                NotificationPreferenceStatus.Subscribed,
+              ]),
           );
+        });
+      },
+    },
+  );
+
+  const { mutateAsync: subscribeNotificationAsync } = useMutation(
+    subscribeNotification,
+    {
+      onSuccess: (_, { referenceId, type }) => {
+        client.setQueryData<NotificationPreference[]>(key, (oldData = []) => {
+          const preference: NotificationPreference = {
+            referenceId,
+            notificationType: type,
+            type: notificationPreferenceMap[type],
+            userId: user.id,
+            status: NotificationPreferenceStatus.Subscribed,
+          };
+
+          return [...oldData, preference];
         });
       },
     },
@@ -116,6 +141,7 @@ export const useNotificationPreference = ({
     isFetching: isLoading,
     preferences: data,
     muteNotification: muteNotificationAsync,
+    subscribeNotification: subscribeNotificationAsync,
     clearNotificationPreference: clearNotificationPreferenceAsync,
     isPreferencesReady: isFetched,
   };

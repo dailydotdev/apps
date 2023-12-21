@@ -8,9 +8,12 @@ import {
 import '@dailydotdev/shared/src/styles/globals.css';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
-import classNames from 'classnames';
 import { useUpvoteQuery } from '@dailydotdev/shared/src/hooks/useUpvoteQuery';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
@@ -57,9 +60,7 @@ export default function CompanionContent({
   return (
     <div
       ref={onContainerChange}
-      className={classNames(
-        'flex relative flex-col p-6 h-auto rounded-tl-16 border border-r-0 w-[22.5rem] border-theme-divider-quaternary bg-theme-bg-primary',
-      )}
+      className="flex relative flex-col p-6 h-auto rounded-tl-16 border border-r-0 w-[22.5rem] border-theme-divider-quaternary bg-theme-bg-primary"
     >
       <div className="flex flex-row gap-3 items-center">
         <a href={process.env.NEXT_PUBLIC_WEBAPP_URL} target="_parent">
@@ -74,10 +75,9 @@ export default function CompanionContent({
         >
           <Button
             icon={<CopyIcon />}
-            className={classNames(
-              'ml-auto',
-              copying ? 'btn-tertiary-avocado' : ' btn-tertiary',
-            )}
+            variant={ButtonVariant.Tertiary}
+            color={copying ? ButtonColor.Avocado : undefined}
+            className="ml-auto"
             onClick={trackAndCopyLink}
           />
         </SimpleTooltip>

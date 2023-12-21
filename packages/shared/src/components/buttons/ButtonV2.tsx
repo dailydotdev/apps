@@ -54,7 +54,7 @@ export type ButtonElementType<Tag extends AllowedTags> = Tag extends 'a'
   : HTMLButtonElement;
 
 export type ButtonProps<T extends AllowedTags> = BaseButtonProps &
-  HTMLAttributes<T> &
+  HTMLAttributes<AllowedElements> &
   JSX.IntrinsicElements[T] & {
     ref?: Ref<ButtonElementType<T>>;
   };
@@ -90,7 +90,7 @@ function ButtonComponent<TagName extends AllowedTags>(
       className={classNames(
         `btn inline-flex flex-row items-center justify-center border
         typo-callout font-bold
-        no-underline shadow-none cursor-pointer select-none focus-outline relative
+        no-underline shadow-none cursor-pointer select-none focus-outline
         transition duration-200 ease-in-out`,
         { iconOnly },
         iconOnly ? IconOnlySizeToClassName[size] : SizeToClassName[size],

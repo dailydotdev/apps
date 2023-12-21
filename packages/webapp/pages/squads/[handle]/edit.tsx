@@ -24,7 +24,8 @@ import { ParsedUrlQuery } from 'querystring';
 import {
   Button,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
 import {
   generateQueryKey,
@@ -99,9 +100,10 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
       <ManageSquadPageMain>
         <ManageSquadPageHeader>
           <Button
-            className="mr-2 btn-tertiary"
+            className="mr-2"
+            variant={ButtonVariant.Tertiary}
             icon={<ArrowIcon className="-rotate-90" />}
-            buttonSize={ButtonSize.XSmall}
+            size={ButtonSize.XSmall}
             onClick={() => {
               router.push(`/squads/${squad.handle}`);
             }}

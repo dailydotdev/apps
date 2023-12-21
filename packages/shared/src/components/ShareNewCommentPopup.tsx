@@ -12,15 +12,20 @@ import {
   getWhatsappShareLink,
 } from '../lib/share';
 import { Post } from '../graphql/posts';
-import { Button, ButtonSize } from './buttons/Button';
-import { ModalCloseButton } from './modals/ModalCloseButton';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from './buttons/ButtonV2';
 import classed from '../lib/classed';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
 import { useCopyLink } from '../hooks/useCopy';
 import { getCommentHash } from '../graphql/comments';
 import { IconSize } from './Icon';
+import { ModalClose } from './modals/common/ModalClose';
 
-const ShareButton = classed(Button, 'text-white');
+const ShareButton = classed(Button, 'text-theme-label-primary');
 interface ShareNewCommentPopupProps {
   onRequestClose: () => void;
   commentId: string;
@@ -41,7 +46,7 @@ export default function ShareNewCommentPopup({
       className="hidden laptop:flex fixed right-6 bottom-6 z-3 flex-col px-6 pt-10 pb-6 rounded-2xl border shadow-2 bg-theme-bg-tertiary border-theme-divider-secondary"
       style={{ width: '20.625rem' }}
     >
-      <ModalCloseButton onClick={onRequestClose} className="top-2" />
+      <ModalClose onClick={onRequestClose} top="2" />
       <Confetti
         className="absolute left-2 h-16"
         style={{ top: '-4.375rem', width: '6.25rem' }}
@@ -62,8 +67,9 @@ export default function ShareNewCommentPopup({
             target="_blank"
             rel="noopener"
             icon={<TwitterIcon />}
-            className="btn-primary-twitter"
-            buttonSize={ButtonSize.Small}
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Twitter}
+            size={ButtonSize.Small}
           >
             X
           </ShareButton>
@@ -75,8 +81,9 @@ export default function ShareNewCommentPopup({
             target="_blank"
             rel="noopener"
             icon={<WhatsappIcon />}
-            className="btn-primary-whatsapp"
-            buttonSize={ButtonSize.Small}
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Whatsapp}
+            size={ButtonSize.Small}
           >
             Whatsapp
           </ShareButton>
@@ -88,15 +95,16 @@ export default function ShareNewCommentPopup({
             target="_blank"
             rel="noopener"
             icon={<FacebookIcon />}
-            className="btn-primary-facebook"
-            buttonSize={ButtonSize.Small}
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Facebook}
+            size={ButtonSize.Small}
           >
             Facebook
           </ShareButton>
         </SimpleTooltip>
         <Button
-          className="btn-primary"
-          buttonSize={ButtonSize.Small}
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
           onClick={() => copyLink()}
           icon={<CopyIcon />}
         >

@@ -42,6 +42,8 @@ export enum Origin {
   Onboarding = 'onboarding',
   ManageTag = 'manage_tag',
   EditTag = 'edit_tag',
+  // Collection
+  CollectionModal = 'collection modal',
 }
 
 export enum AnalyticsEvent {

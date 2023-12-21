@@ -1,5 +1,8 @@
 import React, { ReactElement, useEffect } from 'react';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import KeyIcon from '@dailydotdev/shared/src/components/icons/Key';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -110,9 +113,9 @@ export function AISearchInvite({
         </p>
         <Button
           icon={<KeyIcon secondary />}
-          className="mt-12 btn-primary"
+          className="mt-12"
+          variant={ButtonVariant.Primary}
           onClick={handleAcceptClick}
-          type="button"
           loading={isLoading}
           disabled={isLoading || isSuccess}
         >

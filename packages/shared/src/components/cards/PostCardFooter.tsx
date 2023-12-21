@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { CardImage } from './Card';
+import { CardImage, CardVideoImage } from './Card';
 import FeatherIcon from '../icons/Feather';
 import PostAuthor from './PostAuthor';
 import { ProfilePicture } from '../ProfilePicture';
-import { Post } from '../../graphql/posts';
+import { Post, isVideoPost } from '../../graphql/posts';
 import { cloudinary } from '../../lib/image';
 import { visibleOnGroupHover } from './common';
 
@@ -25,6 +25,8 @@ export const PostCardFooter = ({
   showImage,
   className,
 }: PostCardFooterProps): ReactElement => {
+  const isVideoType = isVideoPost(post);
+  const ImageComponent = isVideoType ? CardVideoImage : CardImage;
   return (
     <>
       {!showImage && post.author && (
@@ -37,12 +39,18 @@ export const PostCardFooter = ({
         />
       )}
       {showImage && (
-        <CardImage
+        <ImageComponent
           alt="Post Cover image"
           src={post.image}
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-          className={classNames('object-cover my-2', className.image)}
+          className={classNames(
+            'object-cover w-full',
+            className.image,
+            !isVideoType && 'my-2',
+          )}
           loading="lazy"
+          data-testid="postImage"
+          {...(isVideoType && { wrapperClassName: 'my-2' })}
         />
       )}
       {showImage && post.author && (

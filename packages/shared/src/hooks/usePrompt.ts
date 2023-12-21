@@ -1,15 +1,14 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ReactNode, useCallback } from 'react';
-import { ButtonProps, StyledButtonProps } from '../components/buttons/Button';
+import { ButtonProps } from '../components/buttons/ButtonV2';
 import { ModalSize } from '../components/modals/common/types';
 import { generateQueryKey, RequestKey } from '../lib/query';
 
 export const PROMPT_KEY = generateQueryKey(RequestKey.Prompt, null);
 
-export type PromptButtonProps = StyledButtonProps &
-  Omit<ButtonProps<'button'>, 'onClick'> & {
-    title?: string;
-  };
+export type PromptButtonProps = Omit<ButtonProps<'button'>, 'onClick'> & {
+  title?: string;
+};
 
 export type PromptOptions = {
   title: string;
@@ -23,8 +22,6 @@ export type PromptOptions = {
     title?: string;
     description?: string;
     buttons?: string;
-    ok?: string;
-    cancel?: string;
   };
 };
 

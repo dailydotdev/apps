@@ -16,6 +16,7 @@ import { SharePostCard } from './cards/SharePostCard';
 import { WelcomePostCard } from './cards/WelcomePostCard';
 import { Origin } from '../lib/analytics';
 import { UseVotePost } from '../hooks';
+import { CollectionCard } from './cards/CollectionCard';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -87,6 +88,8 @@ const PostTypeToTag: Record<PostType, FunctionComponent> = {
   [PostType.Share]: SharePostCard,
   [PostType.Welcome]: WelcomePostCard,
   [PostType.Freeform]: WelcomePostCard,
+  [PostType.VideoYouTube]: ArticlePostCard,
+  [PostType.Collection]: CollectionCard,
 };
 
 export default function FeedItemComponent({

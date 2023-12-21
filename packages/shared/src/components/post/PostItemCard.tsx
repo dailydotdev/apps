@@ -2,7 +2,7 @@ import React, { MouseEvent, ReactElement } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { HidePostItemCardProps } from '../../graphql/users';
-import { PostItem, UserPostVote } from '../../graphql/posts';
+import { PostItem, UserPostVote, isVideoPost } from '../../graphql/posts';
 import XIcon from '../icons/MiniClose';
 import MenuIcon from '../icons/Menu';
 import classed from '../../lib/classed';
@@ -107,6 +107,7 @@ export default function PostItemCard({
               <PostMetadata
                 readTime={post.readTime}
                 numUpvotes={post.numUpvotes}
+                isVideoType={isVideoPost(post)}
               />
             </div>
             <div className="flex mt-1 tablet:mt-1 ml-4 tablet:ml-0">

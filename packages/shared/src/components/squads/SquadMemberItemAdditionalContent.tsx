@@ -1,6 +1,11 @@
 import React, { ReactElement } from 'react';
 import { SourceMember, SourceMemberRole } from '../../graphql/sources';
-import { Button, ButtonSize } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import BlockIcon from '../icons/Block';
 import MenuIcon from '../icons/Menu';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -33,7 +38,11 @@ function SquadMemberItemAdditionalContent({
     const options: PromptOptions = {
       title: 'Unblock member?',
       description: `${user.name} will now have access to join your Squad and can then post, upvote and comment`,
-      okButton: { title: 'Unblock', className: 'btn-primary-cabbage' },
+      okButton: {
+        title: 'Unblock',
+        variant: ButtonVariant.Primary,
+        color: ButtonColor.Cabbage,
+      },
       content: (
         <UserShortInfo
           disableTooltip
@@ -69,9 +78,9 @@ function SquadMemberItemAdditionalContent({
   const option = (
     <SimpleTooltip content="Member options">
       <Button
-        buttonSize={ButtonSize.Small}
-        className="m-auto mr-0 btn-tertiary"
-        iconOnly
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Tertiary}
+        className="m-auto mr-0"
         onClick={onOptionsClick}
         icon={<MenuIcon />}
       />

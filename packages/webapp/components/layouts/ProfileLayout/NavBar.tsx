@@ -10,7 +10,8 @@ import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities
 import {
   Button,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import classNames from 'classnames';
 import styles from './NavBar.module.css';
 
@@ -66,9 +67,9 @@ export default function NavBar({
           <Link href={getTabHref(tab)} passHref>
             <Button
               tag="a"
-              buttonSize={ButtonSize.Large}
+              size={ButtonSize.Large}
               pressed={selectedTab === index}
-              className="btn-tertiary"
+              variant={ButtonVariant.Tertiary}
             >
               {tab.title}
             </Button>

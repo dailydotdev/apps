@@ -1,7 +1,8 @@
 import {
   Button,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import MenuIcon from '@dailydotdev/shared/src/components/icons/Menu';
 import classNames from 'classnames';
@@ -52,10 +53,10 @@ export function CustomLinks({
       ))}
       <SimpleTooltip placement="left" content="Edit shortcuts">
         <Button
-          className="btn-tertiary"
+          variant={ButtonVariant.Tertiary}
           icon={<MenuIcon />}
           onClick={onOptions}
-          buttonSize={ButtonSize.Small}
+          size={ButtonSize.Small}
         />
       </SimpleTooltip>
     </div>
