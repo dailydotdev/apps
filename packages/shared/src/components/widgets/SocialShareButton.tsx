@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, ReactElement, useRef } from 'react';
+import React, { ReactElement, useRef } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonProps, ButtonSize } from '../buttons/ButtonV2';
 import classed from '../../lib/classed';

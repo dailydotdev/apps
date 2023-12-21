@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
 import { SocialShareButton } from './SocialShareButton';
 import CopyIcon from '../icons/Copy';
 import {

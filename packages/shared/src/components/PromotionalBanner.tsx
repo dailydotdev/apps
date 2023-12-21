@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import XIcon from './icons/MiniClose';
 import {
   Button,
   ButtonColor,
