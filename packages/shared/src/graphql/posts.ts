@@ -204,7 +204,6 @@ export const POST_BY_ID_QUERY = gql`
     }
   }
   ${SHARED_POST_INFO_FRAGMENT}
-  ${RELATED_POST_FRAGMENT}
 `;
 
 export const POST_UPVOTES_BY_ID_QUERY = gql`
