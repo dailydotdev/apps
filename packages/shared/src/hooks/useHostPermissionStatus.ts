@@ -7,6 +7,7 @@ export const hostKey = ['host_key'];
 export type UseHostStatus = {
   hostGranted: boolean;
   isFetched: boolean;
+  isFetching: boolean;
   refetch: () => void;
 };
 
@@ -17,6 +18,7 @@ export const useHostStatus = (): UseHostStatus => {
     data: hostGranted,
     isFetched,
     refetch,
+    isFetching,
   } = useQuery(
     hostKey,
     () => {
@@ -29,5 +31,5 @@ export const useHostStatus = (): UseHostStatus => {
     { ...disabledRefetch },
   );
 
-  return { hostGranted, isFetched, refetch };
+  return { hostGranted, isFetched, isFetching, refetch };
 };

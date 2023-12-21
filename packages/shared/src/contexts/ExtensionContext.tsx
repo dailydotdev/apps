@@ -13,6 +13,8 @@ export interface ExtensionContextData {
   getHostPermission?: () => Promise<boolean>;
   requestHostPermissions?: Permissions.Static['request'];
   origins?: string[];
+  currentPage?: string;
+  setCurrentPage?: React.Dispatch<React.SetStateAction<string>>;
 }
 
 // This is an empty context when used outside the extension
