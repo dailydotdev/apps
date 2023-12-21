@@ -138,7 +138,10 @@ export default function App({
     <RouterContext.Provider value={router}>
       <ProgressiveEnhancementContextProvider>
         <QueryClientProvider client={queryClient}>
-          <ExtensionContextProvider setCurrentPage={setCurrentPage}>
+          <ExtensionContextProvider
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          >
             <BootDataProvider
               app={BootApp.Extension}
               getRedirectUri={getRedirectUri}
