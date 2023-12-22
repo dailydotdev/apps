@@ -93,28 +93,28 @@ function MainLayoutHeader({
               tooltip={{ placement: 'bottom', content: 'Notifications' }}
               href={`${webappUrl}notifications`}
             >
-              <Button
-                className="hidden laptop:flex relative mr-4"
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                onClick={onNavigateNotifications}
-                icon={
-                  <BellIcon
-                    className={classNames(
-                      'hover:text-theme-label-primary',
-                      atNotificationsPage && 'text-theme-label-primary',
-                    )}
-                    secondary={atNotificationsPage}
-                  />
-                }
-                iconOnly
-              >
+              <div className="relative mr-4">
+                <Button
+                  className="hidden laptop:flex"
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  onClick={onNavigateNotifications}
+                  icon={
+                    <BellIcon
+                      className={classNames(
+                        'hover:text-theme-label-primary',
+                        atNotificationsPage && 'text-theme-label-primary',
+                      )}
+                      secondary={atNotificationsPage}
+                    />
+                  }
+                />
                 {hasNotification && (
-                  <Bubble className="top-0 right-0 px-1 shadow-bubble-cabbage translate-x-1/2 -translate-y-1/2">
+                  <Bubble className="top-0 right-0 px-1 shadow-bubble-cabbage translate-x-1/2 -translate-y-1/2 cursor-pointer">
                     {getUnreadText(unreadCount)}
                   </Bubble>
                 )}
-              </Button>
+              </div>
             </LinkWithTooltip>
           </>
         )}
