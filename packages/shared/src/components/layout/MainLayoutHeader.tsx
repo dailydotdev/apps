@@ -137,8 +137,8 @@ function MainLayoutHeader({
       {sidebarRendered !== undefined && (
         <>
           <Button
-            className="block laptop:hidden btn-tertiary"
-            iconOnly
+            className="block laptop:hidden"
+            variant={ButtonVariant.Tertiary}
             onClick={() => onMobileSidebarToggle(true)}
             icon={<HamburgerIcon secondary />}
           />
