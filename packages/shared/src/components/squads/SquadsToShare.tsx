@@ -2,13 +2,13 @@ import React, { ReactElement, MouseEvent, useMemo } from 'react';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions, Squad } from '../../graphql/sources';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
-import { SocialShareIcon } from '../widgets/SocialShareIcon';
+import { SocialShareButton } from '../widgets/SocialShareButton';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Origin } from '../../lib/analytics';
 import PlusIcon from '../icons/Plus';
 import { useSquadNavigation } from '../../hooks';
+import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { ProfileImageSize } from '../ProfilePicture';
-import { ButtonSize } from '../buttons/ButtonV2';
 
 interface SquadsToShareProps {
   isLoading?: boolean;
@@ -35,7 +35,7 @@ export function SquadsToShare({
             verifyPermission(squadItem, SourcePermissions.Post),
         )
         .map((squad) => (
-          <SocialShareIcon
+          <SocialShareButton
             key={squad.id}
             onClick={(e) => onClick(e, squad)}
             icon={
@@ -54,14 +54,16 @@ export function SquadsToShare({
   }
 
   return (
-    <SocialShareIcon
+    <SocialShareButton
       onClick={() =>
         openNewSquad({
           origin: Origin.Share,
         })
       }
       icon={<PlusIcon className="text-theme-label-invert" />}
-      className="!rounded-full btn-primary-cabbage"
+      variant={ButtonVariant.Primary}
+      color={ButtonColor.Cabbage}
+      className="!rounded-full"
       label="New Squad"
       size={size}
     />
