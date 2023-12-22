@@ -13,7 +13,7 @@ import { verifyPermission } from '../../graphql/squads';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { ActionType } from '../../graphql/actions';
-import { Button } from '../buttons/Button';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import classed from '../../lib/classed';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { link } from '../../lib/links';
@@ -103,7 +103,9 @@ export function SquadPageHeader({
               <Button
                 tag="a"
                 href={`${link.post.create}?sid=${squad?.handle}`}
-                className="w-full tablet:w-auto btn-primary-cabbage"
+                variant={ButtonVariant.Primary}
+                color={ButtonColor.Cabbage}
+                className="w-full tablet:w-auto"
               >
                 New post
               </Button>
