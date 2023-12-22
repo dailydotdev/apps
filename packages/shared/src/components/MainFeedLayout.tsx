@@ -36,6 +36,7 @@ import { cloudinary } from '../lib/image';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
+import { getFeedName } from '../lib/feed';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -100,38 +101,6 @@ const getQueryBasedOnLogin = (
 };
 
 const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
-
-export interface GetDefaultFeedProps {
-  hasFiltered?: boolean;
-  hasUser?: boolean;
-}
-
-export const getDefaultFeed = ({
-  hasUser,
-}: GetDefaultFeedProps): SharedFeedPage => {
-  if (!hasUser) {
-    return SharedFeedPage.Popular;
-  }
-
-  return SharedFeedPage.MyFeed;
-};
-
-export const defaultFeedConditions = [null, 'default', '/', ''];
-
-export const getFeedName = (
-  path: string,
-  options: GetDefaultFeedProps = {},
-): SharedFeedPage => {
-  const feed = path?.replaceAll?.('/', '') || '';
-
-  if (defaultFeedConditions.some((condition) => condition === feed)) {
-    return getDefaultFeed(options);
-  }
-
-  const [page] = feed.split('?');
-
-  return page.replace(/^\/+/, '') as SharedFeedPage;
-};
 
 export default function MainFeedLayout({
   feedName: feedNameProp,

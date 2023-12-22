@@ -1,14 +1,12 @@
-import { useContext } from 'react';
 import { useFeature } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { FeedLayout } from '../lib/featureValues';
 import { SharedFeedPage } from '../components/utilities';
 import { AllFeedPages } from '../lib/query';
-import { ActiveFeedNameContext } from '../contexts';
+import { useActiveFeedNameContext } from '../contexts';
 
 interface UseFeedLayoutProps {
   feedName?: AllFeedPages;
-  feedRelated?: boolean;
 }
 
 interface UseFeedLayout {
@@ -18,7 +16,7 @@ interface UseFeedLayout {
 export const useFeedLayout = ({
   feedName: feedNameProp,
 }: UseFeedLayoutProps = {}): UseFeedLayout => {
-  const { feedName } = useContext(ActiveFeedNameContext);
+  const { feedName } = useActiveFeedNameContext();
 
   const feedLayoutVersion = useFeature(feature.feedLayout);
   const isV1 = feedLayoutVersion === FeedLayout.V1;
