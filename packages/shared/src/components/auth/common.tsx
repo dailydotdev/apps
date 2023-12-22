@@ -6,7 +6,7 @@ import GoogleIcon from '../icons/Google';
 import GitHubIcon from '../icons/GitHub';
 import AppleIcon from '../icons/Apple';
 import classed from '../../lib/classed';
-import { IconType } from '../buttons/Button';
+import { IconType } from '../buttons/ButtonV2';
 
 export interface Provider {
   icon: IconType;

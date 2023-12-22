@@ -13,7 +13,7 @@ import {
   SocialRegistrationParameters,
 } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import ImageInput from '../fields/ImageInput';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
@@ -251,7 +251,8 @@ export const SocialRegistrationForm = ({
           <Button
             form="auth-form"
             type="submit"
-            className="w-full btn-primary"
+            className="w-full"
+            variant={ButtonVariant.Primary}
             disabled={isLoading}
           >
             Sign up

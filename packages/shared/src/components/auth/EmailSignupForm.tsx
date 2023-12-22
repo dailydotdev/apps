@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { TextField } from '../fields/TextField';
 import ArrowIcon from '../icons/Arrow';
 import MailIcon from '../icons/Mail';
@@ -31,8 +31,8 @@ function EmailSignupForm({
         valueChanged={(value) => setEmail(value)}
         actionButton={
           <Button
-            buttonSize={ButtonSize.Small}
-            className="btn-primary"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Primary}
             icon={<ArrowIcon className="rotate-90" />}
             type="submit"
             data-testid="email_signup_submit"

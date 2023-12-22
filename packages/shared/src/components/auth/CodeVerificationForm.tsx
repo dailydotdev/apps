@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { formToJson } from '../../lib/form';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { TextField } from '../fields/TextField';
 import { CloseModalFunc } from '../modals/common';
 import AuthHeader from './AuthHeader';
@@ -87,11 +87,12 @@ function CodeVerificationForm({
           onChange={() => hint && setHint('')}
           leftIcon={<KeyIcon />}
         />
-        <Button className="mt-6 btn-primary" type="submit">
+        <Button className="mt-6" variant={ButtonVariant.Primary} type="submit">
           Verify
         </Button>
         <Button
-          className="mx-auto mt-6 btn-secondary w-30"
+          className="mx-auto mt-6 w-30"
+          variant={ButtonVariant.Secondary}
           onClick={onSendEmail}
           disabled={emailSent || isLoading}
         >
