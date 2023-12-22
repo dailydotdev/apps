@@ -66,7 +66,7 @@ function InteractivePopup({
   position = InteractivePopupPosition.Center,
   closeOutsideClick,
   onClose,
-                            closeButtonVariant = ButtonVariant.Secondary,
+  closeButtonVariant = ButtonVariant.Secondary,
   ...props
 }: InteractivePopupProps): ReactElement {
   const container = useRef<HTMLDivElement>();

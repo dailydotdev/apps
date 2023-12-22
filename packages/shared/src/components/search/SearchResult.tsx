@@ -38,7 +38,7 @@ interface ContainerProps extends WithClassNameProps {
 const ContentPill = classed(Pill, 'w-full !h-3');
 
 const Container = ({ children, className }: ContainerProps) => (
-  <main className="order-2 col-span-2 w-full laptop:order-3">
+  <main className="order-2 laptop:order-3 col-span-2 w-full">
     <WidgetContainer className={classNames('flex p-4', className)}>
       {children}
     </WidgetContainer>
@@ -114,7 +114,7 @@ export function SearchResult({
 
   return (
     <Container className={className}>
-      <div className="mr-4 flex h-10 w-10 rounded-10 bg-theme-color-cabbage p-2">
+      <div className="flex p-2 mr-4 w-10 h-10 rounded-10 bg-theme-color-cabbage">
         <LogoIcon className="max-w-full" />
       </div>
       <div className="flex-1">
