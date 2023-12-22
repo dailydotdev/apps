@@ -4,6 +4,7 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
@@ -45,8 +46,10 @@ export const ActiveFeedNameContextProvider = ({
       }
     }
   }, [pathname, previousPathname, feedName, user]);
+
+  const activeFeedNameContextValue = useMemo(() => ({ feedName }), [feedName]);
   return (
-    <ActiveFeedNameContext.Provider value={{ feedName }}>
+    <ActiveFeedNameContext.Provider value={activeFeedNameContextValue}>
       {children}
     </ActiveFeedNameContext.Provider>
   );

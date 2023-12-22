@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useFeature } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { FeedLayout } from '../lib/featureValues';
@@ -20,9 +21,11 @@ export const useFeedLayout = ({
 
   const feedLayoutVersion = useFeature(feature.feedLayout);
   const isV1 = feedLayoutVersion === FeedLayout.V1;
-  const isIncludedFeed = Object.values(SharedFeedPage)
-    .filter((feedPage) => feedPage !== SharedFeedPage.Search)
-    .includes((feedNameProp ?? feedName) as SharedFeedPage);
+  const isIncludedFeed = useMemo(() => {
+    return Object.values(SharedFeedPage)
+      .filter((feedPage) => feedPage !== SharedFeedPage.Search)
+      .includes((feedNameProp ?? feedName) as SharedFeedPage);
+  }, [feedName, feedNameProp]);
   const shouldUseFeedLayoutV1 = isV1 && isIncludedFeed;
 
   return {

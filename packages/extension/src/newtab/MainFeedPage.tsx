@@ -1,8 +1,6 @@
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
-import MainFeedLayout, {
-  getFeedName,
-} from '@dailydotdev/shared/src/components/MainFeedLayout';
+import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
@@ -12,6 +10,7 @@ import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvide
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
 import DndContext from './DndContext';
