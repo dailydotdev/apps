@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode, useState } from 'react';
 import { Radio, RadioOption } from '../../fields/Radio';
-import { Button } from '../../buttons/Button';
+import { Button, ButtonVariant } from '../../buttons/ButtonV2';
 import { Modal, ModalProps } from '../common/Modal';
 import { Justify } from '../../utilities';
 import { ReportReason } from '../../../graphql/posts';
@@ -59,7 +59,7 @@ export function ReportModal({
       <Modal.Footer justify={footer ? Justify.Between : Justify.End}>
         {footer}
         <Button
-          className="btn-primary"
+          variant={ButtonVariant.Primary}
           disabled={!reason || (reason === OTHER_KEY && !note) || disabled}
           onClick={(e) => onReport(e, reason, note)}
         >

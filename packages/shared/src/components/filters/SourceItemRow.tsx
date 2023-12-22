@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { FilterItem } from './common';
 import { Source } from '../../graphql/sources';
 import { LazyImage } from '../LazyImage';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import BlockIcon from '../icons/Block';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
@@ -32,8 +32,8 @@ export default function SourceItemRow({
         content={blocked ? 'Unblock source' : 'Block source'}
       >
         <Button
-          className="right-4 my-auto btn-tertiary"
-          style={{ position: 'absolute' }}
+          className="absolute right-4 my-auto"
+          variant={ButtonVariant.Tertiary}
           onClick={() => onSourceClick?.(source)}
           icon={<BlockIcon />}
         />

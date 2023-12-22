@@ -77,7 +77,7 @@ export default function TagCategoryDropdown({
       <TagCategoryDetailsContent data-testid="tagCategoryTags">
         {tagCategory.tags.map((tag) => (
           <TagButton
-            className="mr-3 mb-3"
+            className="mr-3 mb-3 tag-button"
             tagItem={tag}
             followedTags={followedTags}
             blockedTags={blockedTags}

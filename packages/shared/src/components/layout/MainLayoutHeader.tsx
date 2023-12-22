@@ -5,7 +5,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../../lib/analytics';
 import { webappUrl } from '../../lib/constants';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import BellIcon from '../icons/Bell';
 import HamburgerIcon from '../icons/Hamburger';
 import LoginButton from '../LoginButton';
@@ -94,9 +94,9 @@ function MainLayoutHeader({
               href={`${webappUrl}notifications`}
             >
               <Button
-                className="hidden laptop:flex mr-4 btn-tertiary bg-theme-bg-secondary"
-                buttonSize={ButtonSize.Small}
-                iconOnly
+                className="relative hidden laptop:flex mr-4"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
                 onClick={onNavigateNotifications}
                 icon={
                   <BellIcon
@@ -107,6 +107,7 @@ function MainLayoutHeader({
                     secondary={atNotificationsPage}
                   />
                 }
+                iconOnly
               >
                 {hasNotification && (
                   <Bubble className="top-0 right-0 px-1 shadow-bubble-cabbage translate-x-1/2 -translate-y-1/2">

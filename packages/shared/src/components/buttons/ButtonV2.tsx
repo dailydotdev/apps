@@ -33,6 +33,7 @@ interface CommonButtonProps {
   disabled?: boolean;
   children?: ReactNode;
   tag?: React.ElementType & AllowedTags;
+  iconOnly?: boolean;
 }
 
 // when color is present, variant is required
@@ -69,6 +70,7 @@ function ButtonComponent<TagName extends AllowedTags>(
     iconPosition = ButtonIconPosition.Left,
     loading,
     pressed,
+    iconOnly: forceIconOnly = false,
     children,
     onClick,
     tag: Tag = 'button',
@@ -76,7 +78,7 @@ function ButtonComponent<TagName extends AllowedTags>(
   }: ButtonProps<TagName>,
   ref?: Ref<ButtonElementType<TagName>>,
 ): ReactElement {
-  const iconOnly = icon && !children;
+  const iconOnly = forceIconOnly || (icon && !children);
   const getIconWithSize = useGetIconWithSize(size, iconOnly, iconPosition);
   const isAnchor = Tag === 'a';
 

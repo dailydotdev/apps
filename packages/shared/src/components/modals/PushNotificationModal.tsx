@@ -5,7 +5,7 @@ import {
 } from '../../hooks/useNotificationPermissionPopup';
 import useWindowEvents from '../../hooks/useWindowEvents';
 import { cloudinary } from '../../lib/image';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { Justify } from '../utilities';
 import { Modal, ModalProps } from './common/Modal';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
@@ -58,7 +58,7 @@ function PushNotificationModal(modalProps: ModalProps): ReactElement {
         />
       </Modal.Body>
       <Modal.Footer justify={Justify.Center}>
-        <Button className="btn-primary" onClick={enableNotifications}>
+        <Button variant={ButtonVariant.Primary} onClick={enableNotifications}>
           Enable notifications
         </Button>
       </Modal.Footer>

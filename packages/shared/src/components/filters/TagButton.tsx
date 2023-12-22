@@ -5,20 +5,24 @@ import BlockIcon from '../icons/Block';
 import {
   AllowedTags,
   Button,
+  ButtonIconPosition,
   ButtonProps,
   ButtonSize,
-} from '../buttons/Button';
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
 
-interface GenericTagButtonProps extends HTMLAttributes<HTMLButtonElement> {
-  tag: string;
+interface GenericTagButtonProps
+  extends Omit<HTMLAttributes<HTMLButtonElement>, 'color'> {
+  tagItem: string;
   className?: string;
   icon?: ReactElement;
   action: () => unknown;
+  variant?: ButtonVariant;
 }
 
 export const GenericTagButton = ({
-  tag,
+  tagItem,
   className,
   icon,
   action,
@@ -26,17 +30,18 @@ export const GenericTagButton = ({
 }: GenericTagButtonProps): ReactElement => (
   <Button
     {...props}
-    buttonSize={ButtonSize.Small}
+    size={ButtonSize.Small}
     className={classNames('font-bold typo-callout', className)}
     onClick={action}
-    rightIcon={action ? icon : null}
+    icon={action ? icon : undefined}
+    iconPosition={action ? ButtonIconPosition.Right : undefined}
   >
-    {`#${tag}`}
+    {`#${tagItem}`}
   </Button>
 );
 
 const UnblockTagButton = ({
-  tag,
+  tagItem,
   className,
   action,
   ...props
@@ -46,27 +51,28 @@ const UnblockTagButton = ({
     className={classNames('btn-tagBlocked', className)}
     icon={<BlockIcon className="ml-2 text-xl transition-transform" />}
     action={action}
-    tag={tag}
+    tagItem={tagItem}
   />
 );
 
 const UnfollowTagButton = ({
-  tag,
+  tagItem,
   className,
   action,
   ...props
 }: GenericTagButtonProps) => (
   <GenericTagButton
     {...props}
-    className={classNames('btn-primary', className)}
+    className={className}
+    variant={ButtonVariant.Primary}
     icon={<PlusIcon className="ml-2 transition-transform rotate-45" />}
     action={action}
-    tag={tag}
+    tagItem={tagItem}
   />
 );
 
 const FollowTagButton = ({
-  tag,
+  tagItem,
   className,
   action,
   ...props
@@ -76,7 +82,7 @@ const FollowTagButton = ({
     className={classNames('btn-tag', className)}
     icon={<PlusIcon className="ml-2 transition-transform rotate-0" />}
     action={action}
-    tag={tag}
+    tagItem={tagItem}
   />
 );
 
@@ -102,7 +108,7 @@ export default function TagButton<Tag extends AllowedTags>({
     return (
       <UnfollowTagButton
         {...props}
-        tag={tagItem}
+        tagItem={tagItem}
         action={
           onUnfollowTags ? () => onUnfollowTags({ tags: [tagItem] }) : null
         }
@@ -114,7 +120,7 @@ export default function TagButton<Tag extends AllowedTags>({
     return (
       <UnblockTagButton
         {...props}
-        tag={tagItem}
+        tagItem={tagItem}
         action={() => onUnblockTags({ tags: [tagItem] })}
       />
     );
@@ -131,7 +137,7 @@ export default function TagButton<Tag extends AllowedTags>({
   return (
     <FollowTagButton
       {...props}
-      tag={tagItem}
+      tagItem={tagItem}
       action={onFollowTags ? () => onFollowTags({ tags: [tagItem] }) : null}
     />
   );
