@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React, { FormEvent, ReactElement, useState } from 'react';
 import { LoginPasswordParameters } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { ClickableText } from '../buttons/ClickableText';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
@@ -106,7 +106,8 @@ function LoginForm({
           </ClickableText>
         )}
         <Button
-          className="flex-1 btn-primary"
+          className="flex-1"
+          variant={ButtonVariant.Primary}
           type="submit"
           loading={!isReady}
           disabled={isLoading}
@@ -119,13 +120,9 @@ function LoginForm({
           <AlertParagraph className="flex-1 !mt-0">
             The email or password you entered doesn&apos;t match our records.
             Please try again or{' '}
-            <button
-              type="button"
-              onClick={onSignup}
-              className="font-bold underline"
-            >
+            <ClickableText onClick={onSignup} className="font-bold underline">
               create new account.
-            </button>
+            </ClickableText>
           </AlertParagraph>
         </Alert>
       )}

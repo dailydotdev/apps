@@ -14,7 +14,7 @@ import {
   RegistrationParameters,
 } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
@@ -244,7 +244,12 @@ export const RegistrationForm = ({
         )}
       >
         <Modal.Footer>
-          <Button form="auth-form" type="submit" className="w-full btn-primary">
+          <Button
+            form="auth-form"
+            type="submit"
+            className="w-full"
+            variant={ButtonVariant.Primary}
+          >
             Sign up
           </Button>
         </Modal.Footer>
