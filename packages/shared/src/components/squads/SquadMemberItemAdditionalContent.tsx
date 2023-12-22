@@ -67,7 +67,8 @@ function SquadMemberItemAdditionalContent({
     return (
       <SimpleTooltip content="Unblock">
         <Button
-          className="my-auto btn-tertiary"
+          className="my-auto"
+          variant={ButtonVariant.Tertiary}
           icon={<BlockIcon />}
           onClick={onConfirmUnblock}
         />

@@ -19,7 +19,10 @@ import classed from '@dailydotdev/shared/src/lib/classed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Link from 'next/link';
 import SourceButton from '@dailydotdev/shared/src/components/cards/SourceButton';
-import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { ParsedUrlQuery } from 'querystring';
 import {
@@ -238,8 +241,9 @@ const SquadReferral = ({
             </div>
           </div>
           <SimpleSquadJoinButton
-            className="mt-4 tablet:mt-0 tablet:ml-auto w-full tablet:w-auto btn-primary"
-            buttonSize={ButtonSize.Large}
+            className="mt-4 tablet:mt-0 tablet:ml-auto w-full tablet:w-auto"
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Large}
             onClick={onJoinClick}
             squad={source}
             origin={Origin.SquadInvitation}

@@ -1,6 +1,6 @@
 import React, { FormEvent, ReactElement, useContext, useState } from 'react';
 import { formToJson } from '../../lib/form';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import { CloseModalFunc } from '../modals/common';
@@ -72,7 +72,12 @@ function ForgotPasswordForm({
           onChange={() => hint && setHint('')}
           leftIcon={<MailIcon />}
         />
-        <Button className="mt-6 btn-primary" type="submit" disabled={isLoading}>
+        <Button
+          className="mt-6"
+          variant={ButtonVariant.Primary}
+          type="submit"
+          disabled={isLoading}
+        >
           Send verification code
         </Button>
       </AuthForm>

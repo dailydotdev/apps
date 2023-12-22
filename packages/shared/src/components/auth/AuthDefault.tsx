@@ -18,7 +18,7 @@ import AuthContainer from './AuthContainer';
 import AuthHeader from './AuthHeader';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useToastNotification } from '../../hooks/useToastNotification';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 
 interface AuthDefaultProps extends AuthFormProps {
   children?: ReactNode;
@@ -158,8 +158,8 @@ const AuthDefault = ({
             <Button
               key={label}
               icon={icon}
-              className="btn-primary"
-              buttonSize={ButtonSize.Large}
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Large}
               onClick={() => onSocialClick(value)}
               loading={!isReady}
             >

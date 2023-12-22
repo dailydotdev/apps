@@ -1,7 +1,7 @@
 import React, { FormEvent, ReactElement, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { formToJson } from '../../lib/form';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import AuthHeader from './AuthHeader';
 import { AuthFormProps, AuthModalText } from './common';
 import {
@@ -96,7 +96,12 @@ function ChangePasswordForm({
           name="password"
           className={{ container: 'w-full' }}
         />
-        <Button className="mt-6 btn-primary" type="submit" disabled={isLoading}>
+        <Button
+          className="mt-6"
+          variant={ButtonVariant.Primary}
+          type="submit"
+          disabled={isLoading}
+        >
           Change password
         </Button>
       </AuthForm>
