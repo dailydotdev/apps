@@ -2,7 +2,7 @@ import React, { FormEvent, ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
 import { ClientError } from 'graphql-request';
 import { useMutation } from '@tanstack/react-query';
-import { Button } from '../buttons/Button';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import { TextField } from '../fields/TextField';
 import AtIcon from '../icons/At';
 import Textarea from '../fields/Textarea';
@@ -292,12 +292,14 @@ export function SquadDetails({
         className={classNames(!createMode && 'px-6', 'mt-auto justify-between')}
       >
         {createMode && (
-          <Button onClick={onRequestClose} className="btn-tertiary">
+          <Button onClick={onRequestClose} variant={ButtonVariant.Tertiary}>
             Close
           </Button>
         )}
         <Button
-          className={createMode ? 'btn-primary-cabbage' : 'btn-primary w-full'}
+          variant={ButtonVariant.Primary}
+          color={createMode ? ButtonColor.Cabbage : undefined}
+          className={!createMode && 'w-full'}
           form="squad-form"
           type="submit"
           disabled={!canSubmit}
