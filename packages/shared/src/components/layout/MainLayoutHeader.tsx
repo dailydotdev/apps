@@ -94,7 +94,7 @@ function MainLayoutHeader({
               href={`${webappUrl}notifications`}
             >
               <Button
-                className="relative hidden laptop:flex mr-4"
+                className="hidden laptop:flex relative mr-4"
                 variant={ButtonVariant.Float}
                 size={ButtonSize.Small}
                 onClick={onNavigateNotifications}
