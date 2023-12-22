@@ -129,7 +129,6 @@ function SharePostBar({
         )}
         <Button
           type="submit"
-          size={ButtonSize.Medium}
           variant={ButtonVariant.Primary}
           color={ButtonColor.Cabbage}
           className="mx-3 ml-auto"
