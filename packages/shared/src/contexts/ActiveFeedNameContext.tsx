@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { useRouter } from 'next/router';
 import { AllFeedPages } from '../lib/query';
-import { usePrevious } from '../hooks';
+import { usePrevious } from '../hooks/usePrevious';
 import { useAuthContext } from './AuthContext';
 import { getFeedName } from '../lib/feed';
 
