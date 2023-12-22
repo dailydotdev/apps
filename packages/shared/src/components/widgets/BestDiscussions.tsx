@@ -1,7 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { Button, ButtonSize } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 import { Post } from '../../graphql/posts';
 import styles from '../cards/Card.module.css';
@@ -13,6 +12,12 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { ProfilePicture } from '../ProfilePicture';
 import { WidgetContainer } from './common';
 import { combinedClicks } from '../../lib/click';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 
 export type BestDiscussionsProps = {
   posts: Post[] | null;
@@ -134,10 +139,12 @@ export default function BestDiscussions({
         passHref
       >
         <Button
-          className="self-start my-2 ml-2 btn-tertiary"
-          buttonSize={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+          className="self-start my-2 ml-2"
+          size={ButtonSize.Small}
           tag="a"
-          rightIcon={<ArrowIcon className="rotate-90" />}
+          icon={<ArrowIcon className="rotate-90" />}
+          iconPosition={ButtonIconPosition.Right}
           {...combinedClicks(onLucky)}
         >
           I&apos;m feeling lucky

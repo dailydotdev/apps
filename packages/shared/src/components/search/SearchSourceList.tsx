@@ -1,7 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { widgetClasses } from '../widgets/common';
-import { Button, ButtonSize } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 import { PlaceholderSearchSource } from './PlaceholderSearchSource';
 import { PageWidgets } from '../utilities';
@@ -10,6 +9,7 @@ import { SearchChunkSource } from '../../graphql/search';
 import { PaginationActions } from '../pagination';
 import { usePagination } from '../../hooks/utils';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 
 interface SearchSourceListProps {
   sources: SearchChunkSource[];
@@ -63,9 +63,9 @@ export const SearchSourceList = ({
                 className={classNames(isSourcesOpen && 'rotate-180')}
               />
             }
-            iconOnly
-            buttonSize={ButtonSize.Small}
-            className="block laptop:hidden btn-tertiary"
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            className="block laptop:hidden"
           />
         </div>
         <div
