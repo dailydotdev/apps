@@ -87,7 +87,7 @@ function ChangelogTooltip(): ReactElement {
         className="ml-6 border shadow-2 focus:outline-none w-[24rem] max-w-[360px] bg-theme-bg-tertiary border-theme-color-cabbage"
         data-testid="changelog"
         onClose={dismissChangelog}
-        closeButtonTypeClassname={ButtonVariant.Tertiary}
+        closeButtonVariant={ButtonVariant.Tertiary}
       >
         <header className="flex flex-1 items-center py-3 px-4 border-b border-theme-divider-tertiary">
           <h3
