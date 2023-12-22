@@ -59,7 +59,7 @@ const UnfollowTagButton = ({
   <GenericTagButton
     {...props}
     className={classNames('btn-primary', className)}
-    icon={<PlusIcon className="ml-2 transition-transform rotate-45" />}
+    icon={<PlusIcon className="ml-2 rotate-45 transition-transform" />}
     action={action}
     tag={tag}
   />
@@ -74,7 +74,7 @@ const FollowTagButton = ({
   <GenericTagButton
     {...props}
     className={classNames('btn-tag', className)}
-    icon={<PlusIcon className="ml-2 transition-transform rotate-0" />}
+    icon={<PlusIcon className="ml-2 rotate-0 transition-transform" />}
     action={action}
     tag={tag}
   />
@@ -122,7 +122,7 @@ export default function TagButton<Tag extends AllowedTags>({
 
   if (!onFollowTags) {
     return (
-      <span className="flex-1 text-left truncate typo-callout text-theme-label-tertiary">
+      <span className="flex-1 truncate text-left text-theme-label-tertiary typo-callout">
         {`#${tagItem}`}
       </span>
     );

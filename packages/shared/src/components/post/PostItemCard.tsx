@@ -54,9 +54,9 @@ export default function PostItemCard({
   const { toggleUpvote, toggleDownvote } = useReadHistoryVotePost();
 
   const classes = classNames(
-    'flex relative flex-row py-3 pr-5 pl-9 w-full',
+    'relative flex w-full flex-row py-3 pl-9 pr-5',
     showVoteActions ? 'items-start tablet:items-center' : 'items-center',
-    clickable && 'hover:bg-theme-hover hover:cursor-pointer',
+    clickable && 'hover:cursor-pointer hover:bg-theme-hover',
     className,
   );
 
@@ -76,7 +76,7 @@ export default function PostItemCard({
           <Image
             src={article.image}
             alt={post.title}
-            className="object-cover w-16 laptop:w-24 h-16 rounded-16"
+            className="h-16 w-16 rounded-16 object-cover laptop:w-24"
             loading="lazy"
             fallbackSrc={cloudinary.post.imageCoverPlaceholder}
           />
@@ -96,12 +96,12 @@ export default function PostItemCard({
           />
           <div
             className={classNames(
-              'flex-1 flex',
+              'flex flex-1',
               showVoteActions ? 'flex-col tablet:flex-row' : 'items-center',
             )}
           >
-            <div className="flex flex-col flex-1 ml-4">
-              <h3 className="flex flex-1 mr-6 text-left break-words line-clamp-2 typo-callout">
+            <div className="ml-4 flex flex-1 flex-col">
+              <h3 className="mr-6 line-clamp-2 flex flex-1 break-words text-left typo-callout">
                 {post.title}
               </h3>
               <PostMetadata
@@ -110,7 +110,7 @@ export default function PostItemCard({
                 isVideoType={isVideoPost(post)}
               />
             </div>
-            <div className="flex mt-1 tablet:mt-1 ml-4 tablet:ml-0">
+            <div className="ml-4 mt-1 flex tablet:ml-0 tablet:mt-1">
               {showButtons && showVoteActions && (
                 <>
                   <Button
@@ -118,7 +118,7 @@ export default function PostItemCard({
                     className={classNames(
                       'btn-tertiary',
                       showVoteActions
-                        ? 'flex btn-tertiary-avocado'
+                        ? 'btn-tertiary-avocado flex'
                         : 'hidden laptop:flex',
                     )}
                     pressed={post?.userState?.vote === UserPostVote.Up}
@@ -137,7 +137,7 @@ export default function PostItemCard({
                     className={classNames(
                       'btn-tertiary',
                       showVoteActions
-                        ? 'flex btn-tertiary-ketchup'
+                        ? 'btn-tertiary-ketchup flex'
                         : 'hidden laptop:flex',
                     )}
                     pressed={post?.userState?.vote === UserPostVote.Down}
@@ -156,7 +156,7 @@ export default function PostItemCard({
               {showButtons && !showVoteActions && onHide && (
                 <Button
                   buttonSize={ButtonSize.Small}
-                  className="hidden laptop:flex btn-tertiary"
+                  className="btn-tertiary hidden laptop:flex"
                   icon={<XIcon />}
                   onClick={onHideClick}
                 />

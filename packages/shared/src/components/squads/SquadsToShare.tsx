@@ -61,7 +61,7 @@ export function SquadsToShare({
         })
       }
       icon={<PlusIcon className="text-theme-label-invert" />}
-      className="!rounded-full btn-primary-cabbage"
+      className="btn-primary-cabbage !rounded-full"
       label="New Squad"
       size={size}
     />

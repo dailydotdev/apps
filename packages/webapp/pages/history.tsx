@@ -66,7 +66,7 @@ const History = (): ReactElement => {
 
   return (
     <ProtectedPage seo={seo}>
-      <div className="flex laptop:hidden absolute left-0 w-full h-px top-[6.75rem] bg-theme-divider-tertiary" />
+      <div className="absolute left-0 top-[6.75rem] flex h-px w-full bg-theme-divider-tertiary laptop:hidden" />
       <ResponsivePageContainer className="relative !p-0" role="main">
         {searchValue === SearchExperiment.Control ? (
           <ReadingHistory />

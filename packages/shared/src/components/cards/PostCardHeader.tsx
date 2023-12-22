@@ -38,14 +38,14 @@ export const PostCardHeader = ({
       <SourceButton source={source} />
       {children}
       <Container
-        className="flex flex-row ml-auto"
+        className="ml-auto flex flex-row"
         data-testid="cardHeaderActions"
       >
         {!isFeedPreview && (
           <>
             <ReadArticleButton
               content={getReadPostButtonText(post)}
-              className="mr-2 btn-primary"
+              className="btn-primary mr-2"
               href={postLink}
               onClick={onReadArticleClick}
               openNewTab={openNewTab}

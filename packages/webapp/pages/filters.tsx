@@ -6,7 +6,7 @@ import {
 } from '../components/layouts/MainFooterLayout';
 
 const FiltersPage = (): ReactElement => (
-  <main className="w-full withNavBar">
+  <main className="withNavBar w-full">
     <FilterMenu />
   </main>
 );

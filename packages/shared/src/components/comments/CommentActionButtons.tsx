@@ -201,7 +201,7 @@ export default function CommentActionButtons({
           pressed={upvoted}
           onClick={toggleUpvote}
           icon={<UpvoteIcon secondary={upvoted} />}
-          className="mr-3 btn-tertiary-avocado"
+          className="btn-tertiary-avocado mr-3"
         />
       </SimpleTooltip>
       <SimpleTooltip content="Reply">
@@ -209,7 +209,7 @@ export default function CommentActionButtons({
           buttonSize={ButtonSize.Small}
           onClick={() => onComment(comment, parentId)}
           icon={<CommentIcon />}
-          className="mr-3 btn-tertiary-blueCheese"
+          className="btn-tertiary-blueCheese mr-3"
         />
       </SimpleTooltip>
       <SimpleTooltip content="Share comment">
@@ -217,7 +217,7 @@ export default function CommentActionButtons({
           buttonSize={ButtonSize.Small}
           onClick={() => onShare(comment)}
           icon={<ShareIcon />}
-          className="mr-3 btn-tertiary-cabbage"
+          className="btn-tertiary-cabbage mr-3"
         />
       </SimpleTooltip>
       {!!commentOptions && (

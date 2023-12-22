@@ -171,7 +171,7 @@ export default function ActionButtons({
           {!isInternalReadType(post) && (
             <ReadArticleButton
               content={getReadPostButtonText(post)}
-              className="mr-2 btn-primary"
+              className="btn-primary mr-2"
               href={getReadArticleLink(post)}
               onClick={onReadArticleClick}
               openNewTab={!isSharedPostSquadPost(post) && openNewTab}

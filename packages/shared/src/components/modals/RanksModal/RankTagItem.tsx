@@ -15,7 +15,7 @@ const RankTagItem = ({ tag, isColorPrimary }: RankTagProps): ReactElement => {
       <RadialProgress
         progress={isPlaceholder ? 0 : tag.readingDays}
         steps={7}
-        className={classNames('w-5 h-5', styles.radialProgress)}
+        className={classNames('h-5 w-5', styles.radialProgress)}
         isColorPrimary={isColorPrimary}
       />
       <RankTagPill className={className}>

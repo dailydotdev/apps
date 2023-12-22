@@ -59,12 +59,12 @@ function SidebarNav({
   return (
     <div
       className={classNames(
-        'flex flex-col tablet:items-center tablet:px-6 tablet:pt-6 ease-in-out transition-transform tablet:translate-x-[unset]',
+        'flex flex-col transition-transform ease-in-out tablet:translate-x-[unset] tablet:items-center tablet:px-6 tablet:pt-6',
         isOpen ? 'translate-x-0' : ' -translate-x-full',
         className,
       )}
     >
-      <span className="flex tablet:hidden flex-row justify-between items-center p-2 mb-6 w-full border-b border-theme-divider-tertiary">
+      <span className="mb-6 flex w-full flex-row items-center justify-between border-b border-theme-divider-tertiary p-2 tablet:hidden">
         <span className="ml-4 font-bold typo-title3">Account Settings</span>
         <CloseButton onClick={closeSideNav} />
       </span>
@@ -91,7 +91,7 @@ function SidebarNav({
               key={accountSidebarPage.title}
             >
               <a
-                className="w-full typo-callout text-theme-label-tertiary"
+                className="w-full text-theme-label-tertiary typo-callout"
                 target={accountSidebarPage.target}
               >
                 {accountSidebarPage.title}

@@ -58,8 +58,8 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   };
 
   return (
-    <WidgetContainer className="hidden laptop:flex flex-col p-3">
-      <p className="mb-4 typo-callout text-theme-label-tertiary">
+    <WidgetContainer className="hidden flex-col p-3 laptop:flex">
+      <p className="mb-4 text-theme-label-tertiary typo-callout">
         Would you recommend this post?
       </p>
       <div className="grid grid-cols-4 gap-2 gap-y-4">
@@ -80,7 +80,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
           size={ButtonSize.Medium}
           href={getWhatsappShareLink(href)}
           icon={<WhatsappIcon secondary />}
-          className="text-white btn-tertiary"
+          className="btn-tertiary text-white"
           onClick={() => onClick(ShareProvider.WhatsApp)}
           label="WhatsApp"
         />

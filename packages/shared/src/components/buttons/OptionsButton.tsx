@@ -18,7 +18,7 @@ const OptionsButton = ({
   <SimpleTooltip placement={tooltipPlacement} content="Options">
     <Button
       {...props}
-      className={classNames('my-auto btn-tertiary', className)}
+      className={classNames('btn-tertiary my-auto', className)}
       icon={<MenuIcon />}
       buttonSize={buttonSize}
     />

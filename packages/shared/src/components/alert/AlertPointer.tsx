@@ -43,10 +43,10 @@ const verticalCenter = '-translate-y-1/2';
 const horizontalCenter = '-translate-x-1/2';
 
 const alertContainerClasses: Record<AlertPlacement, string> = {
-  top: classNames('top-0 flex-col-reverse -translate-y-full', horizontalCenter),
-  right: classNames('translate-x-full right-0 flex-row', verticalCenter),
-  left: classNames('-translate-x-full left-0 flex-row-reverse', verticalCenter),
-  bottom: classNames('translate-y-full bottom-0 flex-col', horizontalCenter),
+  top: classNames('top-0 -translate-y-full flex-col-reverse', horizontalCenter),
+  right: classNames('right-0 translate-x-full flex-row', verticalCenter),
+  left: classNames('left-0 -translate-x-full flex-row-reverse', verticalCenter),
+  bottom: classNames('bottom-0 translate-y-full flex-col', horizontalCenter),
 };
 
 const getCenteredOffset = (offset: number) => `calc(50% - ${offset}px)`;
@@ -131,7 +131,7 @@ export default function AlertPointer({
             buttonSize={ButtonSize.XSmall}
             iconOnly
             style={{ position: 'absolute' }}
-            className="top-2 right-2 btn-tertiary"
+            className="btn-tertiary right-2 top-2"
           />
         </AlertPointerMessage>
       </AlertPointerContainer>

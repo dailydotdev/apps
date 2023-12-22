@@ -72,7 +72,7 @@ function MyFeedHeading({
       <AlertPointer {...alertProps} offset={[0, 0]}>
         <Button
           className={classNames(
-            'mr-auto btn-tertiaryFloat',
+            'btn-tertiaryFloat mr-auto',
             shouldShowHighlightPulse && 'highlight-pulse',
           )}
           onClick={onClick}
@@ -88,7 +88,7 @@ function MyFeedHeading({
     <AlertPointer {...alertProps}>
       <Button
         className={classNames(
-          'mr-auto btn-tertiary',
+          'btn-tertiary mr-auto',
           shouldShowHighlightPulse && 'highlight-pulse',
         )}
         onClick={onClick}

@@ -14,7 +14,7 @@ export const Divider = ({
   vertical = false,
 }: DividerProps): ReactElement => {
   if (vertical) {
-    return <DividerBase className={classNames(className, 'w-px h-5')} />;
+    return <DividerBase className={classNames(className, 'h-5 w-px')} />;
   }
 
   return <DividerBase className={classNames(className, 'h-px w-full')} />;

@@ -286,7 +286,7 @@ export default function MainFeedLayout({
     <FeedPage className="relative">
       {searchVersion === SearchExperiment.V1 && !isFinder && (
         <img
-          className="absolute top-0 left-0 w-full max-w-[58.75rem]"
+          className="absolute left-0 top-0 w-full max-w-[58.75rem]"
           src={getImage()}
           alt="Gradient background"
         />

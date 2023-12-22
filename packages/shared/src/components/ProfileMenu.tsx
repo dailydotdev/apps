@@ -118,7 +118,7 @@ export default function ProfileMenu({
       onClose={onClose}
       closeOutsideClick
       position={InteractivePopupPosition.ProfileMenu}
-      className="w-full border !rounded-14 laptop:max-w-[13.75rem] max-w-[21.25rem] border-theme-divider-tertiary"
+      className="w-full max-w-[21.25rem] !rounded-14 border border-theme-divider-tertiary laptop:max-w-[13.75rem]"
     >
       <LabeledImage
         src={user.image}
@@ -128,13 +128,13 @@ export default function ProfileMenu({
         <span className="font-bold typo-title3">{user.name}</span>
         <span className="mt-1 typo-callout">@{user.username}</span>
       </LabeledImage>
-      <div className="flex flex-col -mt-16">
+      <div className="-mt-16 flex flex-col">
         {items.map(({ title, buttonProps }) => (
           <Button
             key={title}
             {...buttonProps}
             textPosition="justify-start"
-            className="w-full font-normal btn-tertiary !px-5"
+            className="btn-tertiary w-full !px-5 font-normal"
           >
             {title}
           </Button>

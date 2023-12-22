@@ -59,7 +59,7 @@ export function SocialShareList({
       <SocialShareIcon
         href={getTwitterShareLink(link, description)}
         icon={<TwitterIcon />}
-        className="text-white bg-black"
+        className="bg-black text-white"
         onClick={() => onClickSocial(ShareProvider.Twitter)}
         label="X"
       />

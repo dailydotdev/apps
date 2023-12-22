@@ -21,7 +21,7 @@ export function WriteFooter({
   return (
     <span
       className={classNames(
-        'relative flex flex-col tablet:flex-row items-center',
+        'relative flex flex-col items-center tablet:flex-row',
         !sidebarRendered && 'justify-center',
         className,
       )}
@@ -41,12 +41,12 @@ export function WriteFooter({
         </Switch>
       )}
       {shouldShowCta && (
-        <div className="tablet:hidden absolute -left-4 mt-1 h-px w-[calc(100%+2rem)] bg-theme-divider-tertiary" />
+        <div className="absolute -left-4 mt-1 h-px w-[calc(100%+2rem)] bg-theme-divider-tertiary tablet:hidden" />
       )}
       <Button
         type="submit"
         className={classNames(
-          'tablet:mt-0 ml-auto w-full tablet:w-32 btn-primary-cabbage',
+          'btn-primary-cabbage ml-auto w-full tablet:mt-0 tablet:w-32',
           shouldShowCta && 'mt-6',
         )}
         disabled={isLoading}

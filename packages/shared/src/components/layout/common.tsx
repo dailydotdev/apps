@@ -134,7 +134,7 @@ export const SearchControlHeader = ({
   }
 
   return (
-    <LayoutHeader className="overflow-x-visible flex-col">
+    <LayoutHeader className="flex-col overflow-x-visible">
       {alerts?.filter && (
         <CreateMyFeedButton
           action={() =>
@@ -146,7 +146,7 @@ export const SearchControlHeader = ({
       )}
       <div
         className={classNames(
-          'flex flex-row flex-wrap gap-4 items-center mr-px w-full',
+          'mr-px flex w-full flex-row flex-wrap items-center gap-4',
           alerts.filter || !hasMyFeedAlert ? 'h-14' : 'h-32 laptop:h-16',
           !sidebarRendered && hasMyFeedAlert && 'content-start',
         )}

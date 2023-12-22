@@ -165,13 +165,13 @@ function MarkdownInput(
   return (
     <div
       className={classNames(
-        'relative flex flex-col bg-theme-float rounded-16',
+        'relative flex flex-col rounded-16 bg-theme-float',
         className?.container,
       )}
     >
       {!isNullOrUndefined(isUpdatingDraft) && (
         <SavingLabel
-          className="absolute top-3 right-3"
+          className="absolute right-3 top-3"
           isUpdating={isUpdatingDraft}
           isUptoDate={initialContent === input}
         />
@@ -203,7 +203,7 @@ function MarkdownInput(
         <ConditionalWrapper
           condition={!!timeline}
           wrapper={(component) => (
-            <span className="flex relative flex-col">
+            <span className="relative flex flex-col">
               <Divider
                 className="absolute left-8 !h-10 !bg-theme-divider-tertiary"
                 vertical
@@ -217,10 +217,10 @@ function MarkdownInput(
           <ConditionalWrapper
             condition={showUserAvatar}
             wrapper={(component) => (
-              <span className="flex flex-row w-full">
+              <span className="flex w-full flex-row">
                 <ProfilePicture
                   size="large"
-                  className={classNames('mt-3 ml-3', className?.profile)}
+                  className={classNames('ml-3 mt-3', className?.profile)}
                   user={user}
                   nativeLazyLoading
                 />
@@ -228,7 +228,7 @@ function MarkdownInput(
               </span>
             )}
           >
-            <span className="flex relative flex-1">
+            <span className="relative flex flex-1">
               <textarea
                 rows={11}
                 placeholder="Share your thoughts"
@@ -236,7 +236,7 @@ function MarkdownInput(
                 {...callbacks}
                 ref={textareaRef}
                 className={classNames(
-                  'flex flex-1 bg-transparent outline-none typo-body placeholder-theme-label-quaternary max-h-commentBox',
+                  'flex max-h-commentBox flex-1 bg-transparent placeholder-theme-label-quaternary outline-none typo-body',
                   showUserAvatar ? 'm-3' : 'm-4',
                   className?.input,
                 )}
@@ -259,7 +259,7 @@ function MarkdownInput(
         appendTo={parentSelector}
       />
       {footer ?? (
-        <span className="flex flex-row gap-3 justify-end items-center p-3 px-4 border-t border-theme-divider-tertiary text-theme-label-tertiary">
+        <span className="flex flex-row items-center justify-end gap-3 border-t border-theme-divider-tertiary p-3 px-4 text-theme-label-tertiary">
           {!!onUploadCommand && (
             <Button
               type="button"
@@ -334,7 +334,7 @@ function MarkdownInput(
           </ConditionalWrapper>
           {shouldShowSubmit && (
             <Button
-              className="ml-auto btn-primary-cabbage"
+              className="btn-primary-cabbage ml-auto"
               type="submit"
               disabled={isLoading || disabledSubmit || input === ''}
               loading={isLoading}

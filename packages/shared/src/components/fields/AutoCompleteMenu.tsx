@@ -37,7 +37,7 @@ export default function AutoCompleteMenu({
     <div
       role="menu"
       className={classNames(
-        'mt-1 react-contexify menu-secondary',
+        'react-contexify menu-secondary mt-1',
         isOpen ? 'flex flex-col' : 'hidden',
       )}
       style={{

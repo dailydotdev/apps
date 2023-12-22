@@ -73,7 +73,7 @@ export function ModalHeaderTabs(props: ModalTabsProps): ReactElement {
 const ModalHeaderStepsButton = (props: ButtonProps<'button'>) => (
   <Button
     icon={<ArrowIcon className="-rotate-90" />}
-    className="flex justify-center items-center mr-2 -ml-2 btn btn-tertiary iconOnly"
+    className="btn iconOnly btn-tertiary -ml-2 mr-2 flex items-center justify-center"
     {...props}
   />
 );

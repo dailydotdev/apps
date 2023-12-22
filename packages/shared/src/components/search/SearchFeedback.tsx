@@ -39,7 +39,7 @@ export const SearchFeedback = ({
         User guide
       </Button>
     </div>
-    <p className="py-3 px-4 border-t typo-subhead text-theme-label-quaternary border-theme-divider-tertiary">
+    <p className="border-t border-theme-divider-tertiary px-4 py-3 text-theme-label-quaternary typo-subhead">
       daily.dev Search is in beta and can make mistakes. Verify important
       information.
     </p>

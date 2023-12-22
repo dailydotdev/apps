@@ -79,7 +79,7 @@ export default function PromotionalBanner(): ReactElement {
   return (
     <div
       className={classNames(
-        'relative z-3 laptop:fixed flex flex-col items-start py-3 pl-3 pr-12 typo-footnote laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:p-0 w-full',
+        'relative z-3 flex w-full flex-col items-start py-3 pl-3 pr-12 typo-footnote laptop:fixed laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:p-0',
         container,
         text,
       )}
@@ -98,7 +98,7 @@ export default function PromotionalBanner(): ReactElement {
       </Button>
       <Button
         buttonSize={ButtonSize.XSmall}
-        className="laptop:inset-y-0 top-2 right-2 laptop:my-auto btn-tertiary"
+        className="btn-tertiary right-2 top-2 laptop:inset-y-0 laptop:my-auto"
         style={{ position: 'absolute' }}
         icon={<XIcon />}
         onClick={dismiss}

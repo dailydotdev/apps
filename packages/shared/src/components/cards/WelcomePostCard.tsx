@@ -74,7 +74,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       )}
 
       <OptionsButton
-        className="group-hover:flex laptop:hidden top-2 right-2"
+        className="right-2 top-2 group-hover:flex laptop:hidden"
         onClick={(event) => onMenuClick?.(event, post)}
         tooltipPlacement="top"
         position="absolute"

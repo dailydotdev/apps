@@ -119,7 +119,7 @@ const AccountProfilePage = (): ReactElement => {
             name="bio"
             rows={5}
             value={user.bio}
-            className={{ container: 'max-w-sm mt-6' }}
+            className={{ container: 'mt-6 max-w-sm' }}
           />
           <AccountTextField
             label="Company"

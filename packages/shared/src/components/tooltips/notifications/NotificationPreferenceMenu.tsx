@@ -92,8 +92,8 @@ export const NotificationPreferenceMenu = ({
       animation="fade"
       onHidden={onClose}
     >
-      <Item className="py-1 w-64 typo-callout" onClick={onItemClick}>
-        <span className="flex flex-row gap-1 items-center w-full">
+      <Item className="w-64 py-1 typo-callout" onClick={onItemClick}>
+        <span className="flex w-full flex-row items-center gap-1">
           <Icon />
           <Copy />
         </span>

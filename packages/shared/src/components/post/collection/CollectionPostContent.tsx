@@ -54,7 +54,7 @@ export const CollectionPostContent = ({
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
-    'tablet:pb-0 tablet:flex-row',
+    'tablet:flex-row tablet:pb-0',
     className?.container,
   );
 
@@ -130,7 +130,7 @@ export const CollectionPostContent = ({
         >
           <div
             className={classNames(
-              'flex flex-col gap-6 mb-6',
+              'mb-6 flex flex-col gap-6',
               hasNavigation ? 'mt-6' : 'mt-6 tablet:mt-0',
             )}
           >
@@ -141,7 +141,7 @@ export const CollectionPostContent = ({
             />
 
             <h1
-              className="font-bold break-words typo-large-title"
+              className="break-words font-bold typo-large-title"
               data-testid="post-modal-title"
             >
               {post.title}
@@ -153,7 +153,7 @@ export const CollectionPostContent = ({
               </div>
             )}
             {image && (
-              <div className="block overflow-hidden w-full h-auto rounded-xl cursor-pointer">
+              <div className="block h-auto w-full cursor-pointer overflow-hidden rounded-xl">
                 <LazyImage
                   imgSrc={image}
                   imgAlt="Post cover image"

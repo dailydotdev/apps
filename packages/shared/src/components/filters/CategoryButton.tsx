@@ -10,13 +10,13 @@ const ClearCategoryButton = ({
   matches: number;
   action: () => unknown;
 }) => (
-  <Button onClick={action} className="px-4 btn-secondary small">
+  <Button onClick={action} className="small btn-secondary px-4">
     Clear ({matches})
   </Button>
 );
 
 const FollowCategoryButton = ({ action }: { action: () => unknown }) => (
-  <Button onClick={action} className="px-4 btn-primary small">
+  <Button onClick={action} className="small btn-primary px-4">
     Follow all
   </Button>
 );

@@ -33,7 +33,7 @@ export const PostCardFooter = ({
         <PostAuthor
           author={post.author}
           className={classNames(
-            'hidden tablet:flex laptop:hidden mx-4 mt-2',
+            'mx-4 mt-2 hidden tablet:flex laptop:hidden',
             visibleOnGroupHover,
           )}
         />
@@ -44,7 +44,7 @@ export const PostCardFooter = ({
           src={post.image}
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
           className={classNames(
-            'object-cover w-full',
+            'w-full object-cover',
             className.image,
             !isVideoType && 'my-2',
           )}
@@ -56,12 +56,12 @@ export const PostCardFooter = ({
       {showImage && post.author && (
         <div
           className={classNames(
-            'absolute rounded-t-xl mt-2 flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout w-full',
+            'absolute z-1 mt-2 flex w-full items-center rounded-t-xl bg-theme-bg-primary px-3 py-2 font-bold text-theme-label-secondary typo-callout',
             visibleOnGroupHover,
           )}
         >
           <ProfilePicture size="small" user={post.author} />
-          <span className="flex-1 mx-3 truncate">{post.author.name}</span>
+          <span className="mx-3 flex-1 truncate">{post.author.name}</span>
           <FeatherIcon secondary className="text-2xl text-theme-status-help" />
         </div>
       )}

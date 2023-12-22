@@ -38,7 +38,7 @@ function ClickableTextComponent<Tag extends AvailableTags>(
       aria-pressed={pressed}
       ref={ref}
       className={classNames(
-        'flex flex-row items-center text-theme-label-tertiary cursor-pointer hover:underline focus:underline',
+        'flex cursor-pointer flex-row items-center text-theme-label-tertiary hover:underline focus:underline',
         inverseUnderline
           ? 'underline hover:no-underline focus:no-underline'
           : 'hover:underline focus:underline',
@@ -46,7 +46,7 @@ function ClickableTextComponent<Tag extends AvailableTags>(
         pressed && 'text-theme-label-primary',
         isLink && (textClassName || '!text-theme-label-link'),
         disabled &&
-          'text-theme-label-disabled pointer-events-none hover:no-underline',
+          'pointer-events-none text-theme-label-disabled hover:no-underline',
         className,
       )}
     >

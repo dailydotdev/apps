@@ -52,7 +52,7 @@ function PushNotificationModal(modalProps: ModalProps): ReactElement {
           Get notified of the status of your source submissions
         </Modal.Text>
         <img
-          className="my-14 mx-auto"
+          className="mx-auto my-14"
           src={cloudinary.notifications.big}
           alt="A sample browser notification"
         />

@@ -90,7 +90,7 @@ function NotificationItem({
   return (
     <div
       className={classNames(
-        'relative group flex flex-row py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active border-y border-theme-bg-primary',
+        'group relative flex flex-row border-y border-theme-bg-primary py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active',
         isUnread && 'bg-theme-float',
       )}
     >
@@ -118,7 +118,7 @@ function NotificationItem({
       )}
       {onOptionsClick && (
         <OptionsButton
-          className="hidden group-hover:flex top-3 right-2"
+          className="right-2 top-3 hidden group-hover:flex"
           position="absolute"
           type="button"
           onClick={onOptionsClick}
@@ -128,9 +128,9 @@ function NotificationItem({
         icon={icon}
         iconTheme={notificationTypeTheme[type]}
       />
-      <div className="flex flex-col flex-1 ml-4 w-full text-left typo-callout">
+      <div className="ml-4 flex w-full flex-1 flex-col text-left typo-callout">
         {hasAvatar && (
-          <span className="flex flex-row gap-2 mb-4">{avatarComponents}</span>
+          <span className="mb-4 flex flex-row gap-2">{avatarComponents}</span>
         )}
         <span
           className="break-words"

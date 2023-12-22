@@ -13,12 +13,12 @@ export default function DndBanner(): ReactElement {
   const turnOff = () => onDndSettings(null);
 
   return (
-    <div className="flex relative laptop:fixed z-3 flex-col laptop:flex-row laptop:justify-center items-start laptop:items-center laptop:p-0 py-3 pr-12 pl-3 w-full laptop:h-8 typo-footnote bg-theme-bg-onion">
+    <div className="relative z-3 flex w-full flex-col items-start bg-theme-bg-onion py-3 pl-3 pr-12 typo-footnote laptop:fixed laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:p-0">
       <strong>daily.dev in a new tab is paused</strong>
       <Button
         size={ButtonSize.XSmall}
         variant={ButtonVariant.Primary}
-        className="mt-2 laptop:mt-0 laptop:ml-4"
+        className="mt-2 laptop:ml-4 laptop:mt-0"
         onClick={turnOff}
       >
         Unpause
@@ -26,7 +26,7 @@ export default function DndBanner(): ReactElement {
       <Button
         size={ButtonSize.XSmall}
         variant={ButtonVariant.Tertiary}
-        className="absolute laptop:inset-y-0 top-2 right-2 laptop:my-auto"
+        className="absolute right-2 top-2 laptop:inset-y-0 laptop:my-auto"
         icon={<XIcon />}
         onClick={turnOff}
       />

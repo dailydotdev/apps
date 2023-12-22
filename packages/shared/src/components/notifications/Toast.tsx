@@ -100,7 +100,7 @@ const Toast = ({
         <NotifMessage>{toast.message}</NotifMessage>
         {toast?.onUndo && (
           <Button
-            className="ml-2 btn-primary"
+            className="btn-primary ml-2"
             buttonSize={ButtonSize.XSmall}
             onClick={undoAction}
             aria-label="Undo action"
@@ -109,7 +109,7 @@ const Toast = ({
           </Button>
         )}
         <Button
-          className="ml-2 btn-primary"
+          className="btn-primary ml-2"
           buttonSize={ButtonSize.Small}
           icon={<XIcon />}
           onClick={dismissToast}

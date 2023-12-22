@@ -22,7 +22,7 @@ export default function CommentAuthor({
       <ProfileLink
         href={author.permalink}
         className={classNames(
-          'overflow-hidden font-bold whitespace-nowrap w-fit commentAuthor text-theme-label-primary typo-callout',
+          'commentAuthor w-fit overflow-hidden whitespace-nowrap font-bold text-theme-label-primary typo-callout',
           className,
         )}
       >

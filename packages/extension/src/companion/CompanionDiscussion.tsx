@@ -43,18 +43,18 @@ export function CompanionDiscussion({
       style={style}
       className={classNames(
         className,
-        'pb-6 flex absolute top-full right-0 -left-px flex-col min-h-[14rem] rounded-bl-16 bg-theme-bg-primary',
+        'absolute -left-px right-0 top-full flex min-h-[14rem] flex-col rounded-bl-16 bg-theme-bg-primary pb-6',
       )}
     >
       <span className="px-6" />
-      <div className="overflow-x-hidden overflow-y-auto flex-1 px-4 mt-5 border-t border-theme-divider-tertiary">
-        <h3 className="mt-4 mb-6 ml-2 font-bold typo-callout">Discussion</h3>
+      <div className="mt-5 flex-1 overflow-y-auto overflow-x-hidden border-t border-theme-divider-tertiary px-4">
+        <h3 className="mb-6 ml-2 mt-4 font-bold typo-callout">Discussion</h3>
         <NewComment
           size="medium"
           post={post}
           className={{
             ...commentClasses,
-            container: 'mb-4 companion-new-comment-button',
+            container: 'companion-new-comment-button mb-4',
           }}
         />
         <PostComments
