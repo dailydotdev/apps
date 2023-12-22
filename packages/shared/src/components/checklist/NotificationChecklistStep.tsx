@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { ChecklistStepProps } from '../../lib/checklist';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { ChecklistStep } from './ChecklistStep';
 import BellIcon from '../icons/Bell';
 import { NotificationPromptSource } from '../../lib/analytics';
@@ -13,7 +13,11 @@ const NotificationChecklistStep = (props: ChecklistStepProps): ReactElement => {
 
   return (
     <ChecklistStep {...props}>
-      <Button icon={<BellIcon />} className="btn-primary" onClick={onEnable}>
+      <Button
+        icon={<BellIcon />}
+        variant={ButtonVariant.Primary}
+        onClick={onEnable}
+      >
         Subscribe
       </Button>
     </ChecklistStep>

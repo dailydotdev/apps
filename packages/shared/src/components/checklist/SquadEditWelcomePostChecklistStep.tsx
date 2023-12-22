@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { ChecklistStepProps } from '../../lib/checklist';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { ChecklistStep } from './ChecklistStep';
 import EditIcon from '../icons/Edit';
 import { useFindSquadWelcomePost } from '../../hooks/useFindSquadWelcomePost';
@@ -21,7 +21,7 @@ const SquadEditWelcomePostChecklistStep = ({
       <div className="flex">
         <Button
           tag="a"
-          className="btn-primary"
+          variant={ButtonVariant.Primary}
           disabled={!welcomePost}
           icon={<EditIcon />}
           href={`/posts/${welcomePost?.id}/edit`}

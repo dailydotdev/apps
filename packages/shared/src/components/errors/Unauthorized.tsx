@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import LockIcon from '../icons/Lock';
 import { PageContainerCentered } from '../utilities';
 import { IconSize } from '../Icon';
@@ -32,7 +32,11 @@ function Unauthorized({
         {description}
       </p>
       {children}
-      <Button className="mt-6 btn-primary w-fit" buttonSize={ButtonSize.Large}>
+      <Button
+        className="mt-6 w-fit"
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Large}
+      >
         Back home
       </Button>
     </PageContainerCentered>

@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import request from 'graphql-request';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { formToJson } from '../../lib/form';
 import { graphqlUrl } from '../../lib/config';
 import {
@@ -279,7 +279,7 @@ export default function SubmitArticleModal({
       <Modal.Footer justify={isSubmitted ? Justify.Center : Justify.End}>
         {(!isSubmitted || !!existingArticle) && (
           <Button
-            className="btn-primary"
+            variant={ButtonVariant.Primary}
             type="submit"
             aria-label="Submit article"
             disabled={!enableSubmission || !isEnabled || !!existingArticle}
@@ -293,7 +293,8 @@ export default function SubmitArticleModal({
         )}
         {isSubmitted && (
           <Button
-            className="flex-1 btn-primary max-w-[22.5rem]"
+            className="flex-1 max-w-[22.5rem]"
+            variant={ButtonVariant.Primary}
             aria-label="Close submit article modal"
             onClick={onRequestClose}
           >

@@ -1,7 +1,6 @@
 import React, { CSSProperties, ReactElement, ReactNode, useRef } from 'react';
 import classNames from 'classnames';
-import XIcon from '../icons/MiniClose';
-import { Button, ButtonSize } from '../buttons/Button';
+import { ButtonSize } from '../buttons/ButtonV2';
 import {
   AlertPointerMessage,
   AlertPointerCopy,
@@ -9,6 +8,7 @@ import {
   AlertPointerContainer,
 } from './common';
 import Pointer, { PointerColor } from './Pointer';
+import CloseButton from '../CloseButton';
 
 interface ClassName {
   container?: string;
@@ -124,14 +124,11 @@ export default function AlertPointer({
           ) : (
             message
           )}
-          <Button
+          <CloseButton
             data-testid="alert-close"
             onClick={onClose}
-            icon={<XIcon />}
-            buttonSize={ButtonSize.XSmall}
-            iconOnly
-            style={{ position: 'absolute' }}
-            className="top-2 right-2 btn-tertiary"
+            size={ButtonSize.XSmall}
+            className="absolute top-2 right-2"
           />
         </AlertPointerMessage>
       </AlertPointerContainer>

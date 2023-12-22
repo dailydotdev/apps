@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import { ChecklistStepProps } from '../../lib/checklist';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { ChecklistStep } from './ChecklistStep';
 import { Squad } from '../../graphql/sources';
 import { useFindSquadWelcomePost } from '../../hooks/useFindSquadWelcomePost';
@@ -18,7 +18,7 @@ const SquadFirstCommentChecklistStep = ({
   return (
     <ChecklistStep {...props}>
       <Button
-        className="btn-primary"
+        variant={ButtonVariant.Primary}
         disabled={!welcomePost}
         onClick={() => {
           router.push(
