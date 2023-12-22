@@ -120,7 +120,10 @@ function LoginForm({
           <AlertParagraph className="flex-1 !mt-0">
             The email or password you entered doesn&apos;t match our records.
             Please try again or{' '}
-            <ClickableText onClick={onSignup} className="font-bold underline">
+            <ClickableText
+              onClick={onSignup}
+              className="font-bold text-white underline hover:no-underline"
+            >
               create new account.
             </ClickableText>
           </AlertParagraph>
