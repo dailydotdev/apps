@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Logo, { LogoPosition } from './Logo';
 import { OnboardingTitleGradient } from './onboarding/common';
 import { onboardingUrl } from '../lib/constants';
-import { Button, ButtonSize } from './buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from './buttons/ButtonV2';
 import { cloudinary } from '../lib/image';
 
 const ExtensionOnboarding = (): ReactElement => {
@@ -25,8 +25,9 @@ const ExtensionOnboarding = (): ReactElement => {
       <Link href={onboardingUrl} passHref>
         <Button
           tag="a"
-          className="z-1 w-full btn-primary max-w-[18.75rem]"
-          buttonSize={ButtonSize.Large}
+          className="w-full max-w-[18.75rem]"
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Large}
         >
           Continue ➔
         </Button>

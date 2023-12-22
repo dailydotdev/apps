@@ -1,0 +1,59 @@
+import React, { ReactElement, useRef } from 'react';
+import classNames from 'classnames';
+import { Button, ButtonProps, ButtonSize } from '../buttons/ButtonV2';
+import classed from '../../lib/classed';
+
+type SocialShareButtonProps = ButtonProps<'a'> & {
+  icon: ReactElement;
+  label: string;
+};
+
+export const ShareText = classed(
+  'span',
+  'text-theme-label-tertiary cursor-pointer',
+);
+
+const sizeToText = {
+  [ButtonSize.Large]: 'typo-caption2',
+  [ButtonSize.Medium]: 'typo-caption1',
+};
+
+export const SocialShareButton = ({
+  href,
+  icon,
+  label,
+  size = ButtonSize.Large,
+  ...props
+}: SocialShareButtonProps): ReactElement => {
+  const button = useRef<HTMLButtonElement>();
+  const buttonProps =
+    href &&
+    ({
+      href,
+      rel: 'noopener',
+      target: 'blank',
+      tag: 'a',
+    } as ButtonProps<'a'>);
+
+  return (
+    <div className="flex flex-col items-center w-16">
+      <Button
+        {...buttonProps}
+        {...props}
+        data-testid={`social-share-${label}`}
+        size={size}
+        icon={icon}
+        ref={button}
+      />
+      <ShareText
+        className={classNames(
+          'mt-1.5 overflow-hidden overflow-ellipsis text-center',
+          sizeToText[size],
+        )}
+        onClick={() => button?.current?.click()}
+      >
+        {label}
+      </ShareText>
+    </div>
+  );
+};
