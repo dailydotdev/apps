@@ -118,8 +118,7 @@ function NotificationItem({
       )}
       {onOptionsClick && (
         <OptionsButton
-          className="hidden group-hover:flex top-3 right-2"
-          position="absolute"
+          className="absolute hidden group-hover:flex top-3 right-2"
           type="button"
           onClick={onOptionsClick}
         />
