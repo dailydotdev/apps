@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import EmailSentIcon from '../../../icons/mail_sent.svg';
 import useTimer from '../../hooks/useTimer';
 import {
@@ -70,7 +70,8 @@ function EmailVerificationSent({
         Still {`can't`} find the email?
       </SecondaryCenteredBodyText>
       <Button
-        className="mt-auto btn-primary"
+        className="mt-auto"
+        variant={ButtonVariant.Primary}
         disabled={timer > 0 || isLoading}
         onClick={resend}
       >

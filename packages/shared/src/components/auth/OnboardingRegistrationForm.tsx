@@ -5,7 +5,7 @@ import { AuthFormProps, getFormEmail, providerMap } from './common';
 import OrDivider from './OrDivider';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import AuthForm from './AuthForm';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
@@ -117,7 +117,8 @@ const OnboardingRegistrationForm = ({
         )}
 
         <Button
-          className="w-full btn-primary"
+          className="w-full"
+          variant={ButtonVariant.Primary}
           type="submit"
           loading={!isReady || isLoading}
         >
