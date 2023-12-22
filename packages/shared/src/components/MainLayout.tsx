@@ -208,12 +208,7 @@ function MainLayout({
         onLogoClick={onLogoClick}
         onMobileSidebarToggle={onMobileSidebarToggle}
       />
-      <ActiveFeedNameContext.Provider
-        value={{
-          feedName,
-          setFeedName,
-        }}
-      >
+      <ActiveFeedNameContext.Provider value={{ feedName }}>
         <main
           className={classNames(
             'flex flex-row',

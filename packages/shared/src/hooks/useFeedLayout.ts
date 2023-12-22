@@ -17,17 +17,14 @@ interface UseFeedLayout {
 
 export const useFeedLayout = ({
   feedName: feedNameProp,
-  feedRelated = true,
 }: UseFeedLayoutProps = {}): UseFeedLayout => {
   const { feedName } = useContext(ActiveFeedNameContext);
 
   const feedLayoutVersion = useFeature(feature.feedLayout);
   const isV1 = feedLayoutVersion === FeedLayout.V1;
-  const isIncludedFeed = feedRelated
-    ? Object.values(SharedFeedPage)
-        .filter((feedPage) => feedPage !== SharedFeedPage.Search)
-        .includes((feedNameProp ?? feedName) as SharedFeedPage)
-    : !feedRelated;
+  const isIncludedFeed = Object.values(SharedFeedPage)
+    .filter((feedPage) => feedPage !== SharedFeedPage.Search)
+    .includes((feedNameProp ?? feedName) as SharedFeedPage);
   const shouldUseFeedLayoutV1 = isV1 && isIncludedFeed;
 
   return {
