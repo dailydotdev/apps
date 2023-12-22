@@ -7,8 +7,8 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { Origin } from '../../lib/analytics';
 import PlusIcon from '../icons/Plus';
 import { useSquadNavigation } from '../../hooks';
-import { ButtonSize } from '../buttons/Button';
 import { ProfileImageSize } from '../ProfilePicture';
+import { ButtonSize } from '../buttons/ButtonV2';
 
 interface SquadsToShareProps {
   isLoading?: boolean;

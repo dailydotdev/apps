@@ -1,7 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { Button, ButtonSize } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 import BookmarkIcon from '../icons/Bookmark';
 import { Post } from '../../graphql/posts';
@@ -15,6 +14,13 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { HotLabel } from '../utilities';
 import { combinedClicks } from '../../lib/click';
+import {
+  Button,
+  ButtonColor,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -92,9 +98,11 @@ const DefaultListItem = ({
     </div>
     <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
       <Button
-        className="group-hover:visible mouse:invisible mt-1 btn-tertiary-bun"
+        variant={ButtonVariant.Tertiary}
+        color={ButtonColor.Bun}
+        className="group-hover:visible mouse:invisible mt-1"
         pressed={post.bookmarked}
-        buttonSize={ButtonSize.Small}
+        size={ButtonSize.Small}
         icon={<BookmarkIcon secondary={post.bookmarked} />}
         onClick={() => onBookmark(post)}
       />
@@ -171,10 +179,12 @@ export default function SimilarPosts({
       {Separator}
       <Link href={moreButtonHref} passHref>
         <Button
-          className="self-start my-2 ml-2 btn-tertiary"
-          buttonSize={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+          className="self-start my-2 ml-2"
+          size={ButtonSize.Small}
           tag="a"
-          rightIcon={<ArrowIcon className="rotate-90" />}
+          icon={<ArrowIcon className="rotate-90" />}
+          iconPosition={ButtonIconPosition.Right}
         >
           {moreButtonText}
         </Button>

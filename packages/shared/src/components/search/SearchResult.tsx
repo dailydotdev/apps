@@ -2,7 +2,6 @@ import React, { ReactElement, ReactNode, useCallback, useContext } from 'react';
 import { QueryKey, useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { WidgetContainer } from '../widgets/common';
-import { Button } from '../buttons/Button';
 import LogoIcon from '../../svg/LogoIcon';
 import UpvoteIcon from '../icons/Upvote';
 import DownvoteIcon from '../icons/Downvote';
@@ -22,6 +21,7 @@ import { WithClassNameProps } from '../utilities';
 import classed from '../../lib/classed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 
 export interface SearchResultProps {
   chunk: SearchChunk;
@@ -125,24 +125,24 @@ export function SearchResult({
         />
         <div className="flex pt-4">
           <Button
-            className="mr-2 btn-tertiary-avocado"
-            iconOnly
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Avocado}
+            className="mr-2"
             pressed={chunk.feedback === 1}
             icon={<UpvoteIcon secondary={chunk.feedback === 1} />}
             onClick={() => sendFeedback(chunk.feedback === 1 ? 0 : 1)}
             disabled={isInProgress}
           />
           <Button
-            className="mr-2 btn-tertiary-ketchup"
-            iconOnly
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Ketchup}
             pressed={chunk.feedback === -1}
             icon={<DownvoteIcon secondary={chunk.feedback === -1} />}
             onClick={() => sendFeedback(chunk.feedback === -1 ? 0 : -1)}
             disabled={isInProgress}
           />
           <Button
-            className="btn-tertiary"
-            iconOnly
+            variant={ButtonVariant.Tertiary}
             icon={<CopyIcon secondary={isCopying} />}
             onClick={handleCopy}
             disabled={isInProgress}
