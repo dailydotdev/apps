@@ -93,9 +93,8 @@ function MainLayoutHeader({
               tooltip={{ placement: 'bottom', content: 'Notifications' }}
               href={`${webappUrl}notifications`}
             >
-              <div className="relative mr-4">
+              <div className="hidden laptop:flex relative mr-4">
                 <Button
-                  className="hidden laptop:flex"
                   variant={ButtonVariant.Float}
                   size={ButtonSize.Small}
                   onClick={onNavigateNotifications}
