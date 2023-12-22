@@ -103,8 +103,8 @@ export default function SharedBookmarksModal({
           <div className="flex justify-between mt-4">
             <Button
               rel="noopener noreferrer"
-              className="btn-secondary"
-              buttonSize={ButtonSize.Small}
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
               href={sharingBookmarks}
               tag="a"
               target="_blank"
