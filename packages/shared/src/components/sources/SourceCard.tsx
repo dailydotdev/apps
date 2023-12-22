@@ -3,12 +3,12 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import SquadMemberShortList from '../squads/SquadMemberShortList';
 import { Card } from '../cards/Card';
-import { Button } from '../buttons/Button';
 import { SourceType, Squad } from '../../graphql/sources';
 import { Image } from '../image/Image';
 import { SquadJoinButton } from '../squads/SquadJoinButton';
 import { Origin } from '../../lib/analytics';
 import { cloudinary } from '../../lib/image';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 
 type SourceCardActionType = 'link' | 'action';
 
@@ -150,7 +150,8 @@ export const SourceCard = ({
             />
           ) : (
             <Button
-              className="w-full btn-secondary"
+              variant={ButtonVariant.Secondary}
+              className="w-full"
               onClick={action?.type === 'action' ? action?.onClick : undefined}
               tag={action?.type === 'link' ? 'a' : undefined}
               href={action?.type === 'link' && action.href}

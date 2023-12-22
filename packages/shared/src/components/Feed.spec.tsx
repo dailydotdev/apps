@@ -1,6 +1,7 @@
 import nock from 'nock';
 import React from 'react';
 import {
+  act,
   findByRole,
   findByText,
   fireEvent,
@@ -633,14 +634,20 @@ it('should report broken link', async () => {
       },
     },
   ]);
-  const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
-  const contextBtn = await screen.findByText('Report');
-  contextBtn.click();
-  const brokenLinkBtn = await screen.findByText('Broken link');
-  brokenLinkBtn.click();
-  const submitBtn = await screen.findByText('Submit report');
-  submitBtn.click();
+
+  await act(async () => {
+    const [menuBtn] = await screen.findAllByLabelText('Options');
+    menuBtn.click();
+  });
+
+  await act(async () => {
+    const contextBtn = await screen.findByText('Report');
+    contextBtn.click();
+    const brokenLinkBtn = await screen.findByText('Broken link');
+    brokenLinkBtn.click();
+    const submitBtn = await screen.findByText('Submit report');
+    submitBtn.click();
+  });
 
   await waitFor(async () => {
     await screen.findByRole('alert');
