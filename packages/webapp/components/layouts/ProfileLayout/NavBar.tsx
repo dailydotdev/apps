@@ -33,11 +33,19 @@ const basePath = `/[userId]`;
 export const tabs: Tab[] = [
   {
     path: basePath,
-    title: 'Activity',
+    title: 'Readme',
   },
   {
-    path: `${basePath}/reputation`,
-    title: 'Reputation',
+    path: `${basePath}/posts`,
+    title: 'Posts',
+  },
+  {
+    path: `${basePath}/replies`,
+    title: 'Replies',
+  },
+  {
+    path: `${basePath}/upvoted`,
+    title: 'Upvoted',
   },
 ];
 
@@ -60,14 +68,14 @@ export default function NavBar({
       spring="veryGentle"
       element="nav"
       shouldLoad={windowLoaded}
-      className={classNames('relative flex mt-6 -mx-6', styles.nav)}
+      className={classNames('relative flex px-4 justify-between', styles.nav)}
     >
       {tabs.map((tab, index) => (
         <div key={tab.path}>
           <Link href={getTabHref(tab)} passHref>
             <Button
               tag="a"
-              size={ButtonSize.Large}
+              size={ButtonSize.Small}
               pressed={selectedTab === index}
               variant={ButtonVariant.Tertiary}
             >

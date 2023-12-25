@@ -10,9 +10,9 @@ export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
+const ProfileCommentsPage = ({ profile }: ProfileLayoutProps): ReactElement => {
   return <></>;
 };
 
-ProfilePage.getLayout = getProfileLayout;
-export default ProfilePage;
+ProfileCommentsPage.getLayout = getProfileLayout;
+export default ProfileCommentsPage;

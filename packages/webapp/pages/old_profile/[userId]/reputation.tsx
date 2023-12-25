@@ -4,7 +4,7 @@ import {
   getLayout as getProfileLayout,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
-} from '../../components/layouts/ProfileLayout';
+} from '../../../components/layouts/ProfileLayout';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;

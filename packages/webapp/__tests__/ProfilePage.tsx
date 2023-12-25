@@ -31,7 +31,7 @@ import {
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
-import ProfilePage from '../pages/[userId]/index';
+import ProfilePage from '../pages/old_profile/[userId]/index';
 
 beforeEach(() => {
   nock.cleanAll();
