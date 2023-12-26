@@ -1,5 +1,5 @@
 import request, { gql } from 'graphql-request';
-import { Author, Comment, Scout } from './comments';
+import type { Author, Comment, Scout } from './comments';
 import { Connection } from './common';
 import { Source, SourceType, Squad } from './sources';
 import { EmptyResponse } from './emptyResponse';

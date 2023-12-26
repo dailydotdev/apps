@@ -69,6 +69,9 @@ export const removePostComments = (
 ): void => {
   const key = generateQueryKey(RequestKey.PostComments, null, post.id);
   client.setQueryData<PostCommentsData>(key, (data) => {
+    if (!data) {
+      return data;
+    }
     const copy = { ...data };
 
     if (commentId !== parentId) {

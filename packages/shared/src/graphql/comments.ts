@@ -4,6 +4,7 @@ import { COMMENT_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
 import { graphqlUrl } from '../lib/config';
+import type { Post } from './posts';
 
 export type ReportCommentReason =
   | 'HATEFUL'
@@ -36,6 +37,7 @@ export interface Comment {
   upvoted?: boolean;
   numUpvotes: number;
   children?: Connection<Comment>;
+  post?: Post;
 }
 
 export const getCommentHash = (id: string): string => `#c-${id}`;
@@ -101,15 +103,17 @@ export const USER_COMMENTS_QUERY = gql`
       }
       edges {
         node {
-          id
-          content
-          numUpvotes
-          createdAt
-          permalink
+          ...CommentFragment
+          post {
+            id
+            title
+            commentsPermalink
+          }
         }
       }
     }
   }
+  ${COMMENT_FRAGMENT}
 `;
 
 export const COMMENT_UPVOTES_BY_ID_QUERY = gql`

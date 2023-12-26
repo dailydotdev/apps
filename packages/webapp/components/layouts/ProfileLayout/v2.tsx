@@ -25,7 +25,7 @@ import {
 } from '@dailydotdev/shared/src/components/profile/SquadsList';
 import { useQuery } from '@tanstack/react-query';
 import {
-  USER_STATS_QUERY,
+  USER_STATS_V2_QUERY,
   UserStatsV2Data,
 } from '@dailydotdev/shared/src/graphql/users';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
@@ -96,7 +96,7 @@ export default function ProfileLayout({
   const { data: userStats } = useQuery<UserStatsV2Data>(
     ['user_stats', profile?.id],
     () =>
-      request(graphqlUrl, USER_STATS_QUERY, {
+      request(graphqlUrl, USER_STATS_V2_QUERY, {
         id: profile?.id,
       }),
     {

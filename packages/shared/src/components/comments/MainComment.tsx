@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
+import classNames from 'classnames';
 import EnableNotification from '../notifications/EnableNotification';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import SubComment from './SubComment';
@@ -17,10 +18,12 @@ import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useCommentEdit } from '../../hooks/post/useCommentEdit';
 
 export interface MainCommentProps
-  extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
+  extends Omit<CommentBoxProps, 'onEdit' | 'onComment' | 'className'> {
   permissionNotificationCommentId?: string;
   joinNotificationCommentId?: string;
   onCommented: CommentMarkdownInputProps['onCommented'];
+  commentBoxClassName?: CommentBoxProps['className'];
+  className?: string;
 }
 
 const shouldShowBannerOnComment = (
@@ -32,6 +35,7 @@ const shouldShowBannerOnComment = (
 
 export default function MainComment({
   className,
+  commentBoxClassName,
   comment,
   appendTooltipTo,
   permissionNotificationCommentId,
@@ -61,7 +65,10 @@ export default function MainComment({
 
   return (
     <section
-      className="flex flex-col items-stretch rounded-24 border border-theme-divider-tertiary scroll-mt-16"
+      className={classNames(
+        'flex flex-col items-stretch rounded-24 border border-theme-divider-tertiary scroll-mt-16',
+        className,
+      )}
       data-testid="comment"
     >
       {!editProps && (
@@ -69,7 +76,10 @@ export default function MainComment({
           {...props}
           comment={comment}
           parentId={comment.id}
-          className={{ container: 'border-b' }}
+          className={{
+            container: 'border-b',
+            ...commentBoxClassName,
+          }}
           appendTooltipTo={appendTooltipTo}
           onComment={(selected, parentId) =>
             onReplyTo({
@@ -91,7 +101,7 @@ export default function MainComment({
             onEdit(null);
             onCommented(data, isNew);
           }}
-          className={className}
+          className={commentBoxClassName}
         />
       )}
       {commentId === comment.id && (
@@ -102,7 +112,7 @@ export default function MainComment({
             onReplyTo(null);
             onCommented(...params);
           }}
-          className={className}
+          className={commentBoxClassName}
         />
       )}
       {comment.children?.edges.map(({ node }) => (
@@ -112,7 +122,7 @@ export default function MainComment({
           comment={node}
           parentComment={comment}
           appendTooltipTo={appendTooltipTo}
-          className={className}
+          className={commentBoxClassName}
           onCommented={onCommented}
         />
       ))}

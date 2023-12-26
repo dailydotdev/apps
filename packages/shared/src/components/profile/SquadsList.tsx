@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import Link from 'next/link';
 import { SourceMemberRole, Squad } from '../../graphql/sources';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { Image } from '../image/Image';
@@ -21,7 +22,9 @@ function SquadItem({
 }): ReactElement {
   return (
     <div className="flex relative flex-col p-2 bg-theme-float rounded-2xl w-[160px]">
-      <CardLink href={squad.permalink} />
+      <Link href={squad.permalink} prefetch={false} passHref>
+        <CardLink />
+      </Link>
       <div className="flex gap-2 items-center">
         <Image
           src={squad.image}
