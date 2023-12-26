@@ -51,6 +51,9 @@ import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { FeedLayout } from '@dailydotdev/shared/src/lib/featureValues';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -92,6 +95,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
+  const layout = useFeature(feature.feedLayout);
   const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = router;
   useWindowEvents(
@@ -160,15 +164,22 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   );
 
   const articleNavigation = (() => {
-    if (router?.query?.squad) {
-      return (
-        <Link href={`/squads/${router.query.squad}`}>
-          <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
-            <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
-            Back to {router.query.n || 'Squad'}
-          </a>
-        </Link>
-      );
+    const routedFromSquad = router?.query?.squad;
+    const squadLink = `/squads/${router.query.squad}`;
+
+    if (layout === FeedLayout.Control) {
+      if (routedFromSquad) {
+        return (
+          <Link href={squadLink}>
+            <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
+              <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
+              Back to {router.query.n || 'Squad'}
+            </a>
+          </Link>
+        );
+      }
+
+      return null;
     }
 
     if (globalThis?.window?.history?.length) {
@@ -176,6 +187,19 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
         <Button
           className="w-fit"
           onClick={router.back}
+          variant={ButtonVariant.Tertiary}
+          icon={<ArrowIcon className="-rotate-90" />}
+        >
+          Back
+        </Button>
+      );
+    }
+
+    if (routedFromSquad) {
+      return (
+        <Button
+          className="w-fit"
+          onClick={() => router.push(squadLink)}
           variant={ButtonVariant.Tertiary}
           icon={<ArrowIcon className="-rotate-90" />}
         >
