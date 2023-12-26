@@ -87,7 +87,7 @@ function SquadPostContent({
         className={classNames(
           'relative tablet:pb-0',
           className?.container,
-          isPublicSquad ? 'flex-1 flex-col tablet:flex-row' : ' !pb-2',
+          isPublicSquad ? 'flex-1 flex-col tablet:flex-row' : '!pb-2',
         )}
         hasNavigation={hasNavigation}
       >
