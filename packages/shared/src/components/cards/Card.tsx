@@ -35,10 +35,10 @@ const Title = ({
 
 export const FreeformCardTitle = classed(
   'h3',
-  'my-2 break-words multi-truncate font-bold typo-title3',
+  'break-words multi-truncate font-bold typo-title3',
 );
 
-export const CardTitle = classed(Title, 'my-2 break-words');
+export const CardTitle = classed(Title, 'break-words');
 
 export const ListCardTitle = classed(Title, 'mr-2');
 
