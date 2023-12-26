@@ -20,6 +20,7 @@ export enum OtherFeedPage {
   Bookmarks = 'bookmarks',
   SearchBookmarks = 'search-bookmarks',
   Preview = 'preview',
+  Author = 'author',
 }
 
 const ONE_MINUTE = 60 * 1000;
