@@ -277,6 +277,27 @@ export const AUTHOR_FEED_QUERY = gql`
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
+export const USER_UPVOTED_FEED_QUERY = gql`
+  query AuthorFeed(
+    $loggedIn: Boolean! = false
+    $userId: ID!,
+    $after: String,
+    $first: Int
+  ${SUPPORTED_TYPES}
+  ) {
+    page: userUpvotedFeed(
+      userId: $userId
+      after: $after
+      first: $first
+      ranking: TIME
+      supportedTypes: $supportedTypes
+    ) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
 export const KEYWORD_FEED_QUERY = gql`
   query KeywordFeed(
     $keyword: String!,

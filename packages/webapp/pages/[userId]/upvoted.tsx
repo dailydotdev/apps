@@ -1,4 +1,7 @@
 import React, { ReactElement } from 'react';
+import Feed, { FeedProps } from '@dailydotdev/shared/src/components/Feed';
+import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
+import { USER_UPVOTED_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import {
   ProfileLayoutProps,
   getStaticPaths as getProfileStaticPaths,
@@ -11,7 +14,18 @@ export const getStaticPaths = getProfileStaticPaths;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfileUpvotedPage = ({ profile }: ProfileLayoutProps): ReactElement => {
-  return <></>;
+  const userId = profile?.id;
+  const feedProps: FeedProps<unknown> = {
+    feedName: OtherFeedPage.UserUpvoted,
+    feedQueryKey: ['user_upvoted', userId],
+    query: USER_UPVOTED_FEED_QUERY,
+    variables: {
+      userId,
+    },
+    forceCardMode: true,
+  };
+
+  return <Feed {...feedProps} className="py-6 px-4" />;
 };
 
 ProfileUpvotedPage.getLayout = getProfileLayout;

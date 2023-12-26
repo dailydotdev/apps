@@ -140,10 +140,10 @@ export default function ProfileLayout({
           />
           <UserStats stats={stats} />
           <div className="text-theme-label-tertiary typo-callout">
-            Bio here!!!
+            {profile.bio}
           </div>
         </div>
-        <SocialChips links={social} />
+        <SocialChips links={profile} />
         <div className="flex flex-col gap-3 pl-4 mb-4">
           <div className="typo-footnote text-theme-label-tertiary">
             Active in these squads
