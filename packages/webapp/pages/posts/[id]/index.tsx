@@ -47,6 +47,10 @@ import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Link from 'next/link';
 import { CollectionPostContent } from '@dailydotdev/shared/src/components/post/collection';
+import {
+  Button,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -154,16 +158,34 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   ) : (
     <SquadPostPageNavigation squadLink={post.source.permalink} />
   );
-  const articleNavigation = router?.query?.squad ? (
-    <Link href={`/squads/${router.query.squad}`}>
-      <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
-        <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
-        Back to {router.query.n || 'Squad'}
-      </a>
-    </Link>
-  ) : (
-    <></>
-  );
+
+  const articleNavigation = (() => {
+    if (router?.query?.squad) {
+      return (
+        <Link href={`/squads/${router.query.squad}`}>
+          <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
+            <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
+            Back to {router.query.n || 'Squad'}
+          </a>
+        </Link>
+      );
+    }
+
+    if (globalThis?.window?.history?.length) {
+      return (
+        <Button
+          className="w-fit"
+          onClick={router.back}
+          variant={ButtonVariant.Tertiary}
+          icon={<ArrowIcon className="-rotate-90" />}
+        >
+          Back
+        </Button>
+      );
+    }
+
+    return null;
+  })();
 
   const navigation: Record<PostType, ReactNode> = {
     article: articleNavigation,
