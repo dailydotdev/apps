@@ -17,6 +17,11 @@ const Custom404 = dynamic(
 
 const withPillTypes = [PostType.Collection, PostType.VideoYouTube];
 
+const typeToLabel = {
+  [PostType.Collection]: 'Collection',
+  [PostType.VideoYouTube]: 'Video',
+};
+
 export const ONBOARDING_OFFSET = 120;
 
 export function BasePostContent({
@@ -56,7 +61,7 @@ export function BasePostContent({
       )}
       {withPillTypes.includes(post?.type) && (
         <span className="py-2 px-3 mt-6 font-bold capitalize rounded-8 bg-[#BF29F014] text-theme-color-cabbage typo-footnote w-fit">
-          {post.type}
+          {typeToLabel[post.type]}
         </span>
       )}
       {children}
