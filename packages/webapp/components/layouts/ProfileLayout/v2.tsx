@@ -15,13 +15,16 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import classNames from 'classnames';
 import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
-import { getLayout as getMainLayout } from '../MainLayout';
+import { HeroImage } from '@dailydotdev/shared/src/components/profile/HeroImage';
+import { UserMetadata } from '@dailydotdev/shared/src/components/profile/UserMetadata';
+import { UserStats } from '@dailydotdev/shared/src/components/profile/UserStats';
+import { SocialChips } from '@dailydotdev/shared/src/components/profile/SocialChips';
+import {
+  SquadsList,
+  SquadsListProps,
+} from '@dailydotdev/shared/src/components/profile/SquadsList';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
-import { HeroImage } from '../../profile/HeroImage';
-import { UserMetadata } from '../../profile/UserMetadata';
-import { UserStats } from '../../profile/UserStats';
-import { SocialChips } from '../../profile/SocialChips';
-import { SquadsList, SquadsListProps } from '../../profile/SquadsList';
+import { getLayout as getMainLayout } from '../MainLayout';
 import NavBar, { tabs } from './NavBar';
 
 const Custom404 = dynamic(

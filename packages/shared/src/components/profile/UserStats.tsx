@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
+import { largeNumberFormat } from '../../lib/numberFormat';
 
 export interface UserStatsProps {
   stats: { reputation: number; views: number; upvotes: number };

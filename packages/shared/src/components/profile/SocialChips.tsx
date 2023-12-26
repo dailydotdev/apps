@@ -1,11 +1,8 @@
 import React, { ReactElement } from 'react';
-import GitHubIcon from '@dailydotdev/shared/src/components/icons/GitHub';
-import TwitterIcon from '@dailydotdev/shared/src/components/icons/Twitter';
-import LinkIcon from '@dailydotdev/shared/src/components/icons/Link';
-import {
-  Button,
-  ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+import GitHubIcon from '../icons/GitHub';
+import TwitterIcon from '../icons/Twitter';
+import LinkIcon from '../icons/Link';
+import { Button, ButtonSize } from '../buttons/Button';
 
 export interface SocialChipsProps {
   links: { github?: string; twitter?: string; portfolio?: string };

@@ -1,12 +1,9 @@
 import React, { ReactElement } from 'react';
-import {
-  SourceMemberRole,
-  Squad,
-} from '@dailydotdev/shared/src/graphql/sources';
-import { Image } from '@dailydotdev/shared/src/components/image/Image';
-import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
-import SquadMemberBadge from '@dailydotdev/shared/src/components/squads/SquadMemberBadge';
-import { CardLink } from '@dailydotdev/shared/src/components/cards/Card';
+import { SourceMemberRole, Squad } from '../../graphql/sources';
+import { largeNumberFormat } from '../../lib/numberFormat';
+import { Image } from '../image/Image';
+import SquadMemberBadge from '../squads/SquadMemberBadge';
+import { CardLink } from '../cards/Card';
 
 export interface SquadsListProps {
   squads: (Pick<

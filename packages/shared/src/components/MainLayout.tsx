@@ -12,7 +12,6 @@ import PromotionalBanner from './PromotionalBanner';
 import Sidebar from './sidebar/Sidebar';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { useSwipeableSidebar } from '../hooks/useSwipeableSidebar';
 import SettingsContext from '../contexts/SettingsContext';
 import Toast from './notifications/Toast';
 import { useAuthErrors } from '../hooks/useAuthErrors';
@@ -81,11 +80,6 @@ function MainLayout({
   useAuthVerificationRecovery();
   useNotificationParams();
   useReferralReminder();
-  const handlers = useSwipeableSidebar({
-    sidebarRendered,
-    openMobileSidebar,
-    setOpenMobileSidebar,
-  });
 
   const onMobileSidebarToggle = (state: boolean) => {
     trackEvent({
@@ -168,7 +162,7 @@ function MainLayout({
   }
 
   return (
-    <div {...handlers} className="antialiased">
+    <div className="antialiased">
       {customBanner}
       {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />

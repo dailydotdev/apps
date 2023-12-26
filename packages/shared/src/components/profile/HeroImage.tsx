@@ -1,9 +1,6 @@
 import React, { ReactElement } from 'react';
-import { Image } from '@dailydotdev/shared/src/components/image/Image';
-import {
-  ProfilePicture,
-  ProfilePictureProps,
-} from '@dailydotdev/shared/src/components/ProfilePicture';
+import { Image } from '../image/Image';
+import { ProfilePicture, ProfilePictureProps } from '../ProfilePicture';
 
 export type HeroImageProps = ProfilePictureProps['user'] & {
   coverImage: string;

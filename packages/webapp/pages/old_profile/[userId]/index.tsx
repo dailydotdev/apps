@@ -41,7 +41,7 @@ import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { weeklyGoal } from '@dailydotdev/shared/src/lib/constants';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
-import CalendarHeatmap from '../../../components/CalendarHeatmap';
+import { CalendarHeatmap } from '@dailydotdev/shared/src/components/CalendarHeatmap';
 import {
   getLayout as getProfileLayout,
   getStaticProps as getProfileStaticProps,
