@@ -8,7 +8,7 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { ClientError } from 'graphql-request';
+import request, { ClientError } from 'graphql-request';
 import {
   pageBorders,
   pageContainerClassNames,
@@ -23,6 +23,12 @@ import {
   SquadsList,
   SquadsListProps,
 } from '@dailydotdev/shared/src/components/profile/SquadsList';
+import { useQuery } from '@tanstack/react-query';
+import {
+  USER_STATS_QUERY,
+  UserStatsV2Data,
+} from '@dailydotdev/shared/src/graphql/users';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import NavBar, { tabs } from './NavBar';
@@ -38,18 +44,6 @@ export interface ProfileLayoutProps {
 
 const coverImage =
   'https://pbs.twimg.com/profile_banners/2865996981/1679327024/1500x500';
-
-const stats = {
-  reputation: 27180,
-  views: 18092,
-  upvotes: 1239089,
-};
-
-const social = {
-  github: 'idoshamun',
-  twitter: 'idoshamun',
-  portfolio: 'https://shamun.dev',
-};
 
 const squads: SquadsListProps['squads'] = [
   {
@@ -97,12 +91,24 @@ export default function ProfileLayout({
 }: ProfileLayoutProps): ReactElement {
   const router = useRouter();
   const { isFallback } = router;
+  const profile = initialProfile;
+
+  const { data: userStats } = useQuery<UserStatsV2Data>(
+    ['user_stats', profile?.id],
+    () =>
+      request(graphqlUrl, USER_STATS_QUERY, {
+        id: profile?.id,
+      }),
+    {
+      enabled: !!profile,
+    },
+  );
+  const stats = { ...userStats?.userStats, reputation: profile?.reputation };
 
   if (!isFallback && !initialProfile) {
     return <Custom404 />;
   }
 
-  const profile = initialProfile;
   if (!profile) {
     return <></>;
   }
