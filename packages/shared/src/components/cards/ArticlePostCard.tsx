@@ -134,7 +134,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
           </CardTitle>
         </CardTextContainer>
         {!showFeedback && (
-          <Container className="mb-8 tablet:mb-0">
+          <Container>
             <CardSpace />
             <PostMetadata
               createdAt={post.createdAt}
