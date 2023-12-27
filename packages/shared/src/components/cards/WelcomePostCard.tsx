@@ -4,7 +4,6 @@ import { CardButton, FreeformCardTitle, getPostClassNames } from './Card';
 import ActionButtons from './ActionButtons';
 import { Container, PostCardProps } from './common';
 import OptionsButton from '../buttons/OptionsButton';
-import { WelcomePostCardHeader } from './WelcomePostCardHeader';
 import { WelcomePostCardFooter } from './WelcomePostCardFooter';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { Squad } from '../../graphql/sources';
@@ -12,6 +11,7 @@ import { ActionType } from '../../graphql/actions';
 import FeedItemContainer from './FeedItemContainer';
 import { PostType } from '../../graphql/posts';
 import { useFeedPreviewMode } from '../../hooks';
+import { SquadPostCardHeader } from './common/SquadPostCardHeader';
 
 export const WelcomePostCard = forwardRef(function SharePostCard(
   {
@@ -78,7 +78,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
         onClick={(event) => onMenuClick?.(event, post)}
         tooltipPlacement="top"
       />
-      <WelcomePostCardHeader
+      <SquadPostCardHeader
         author={post.author}
         source={post.source}
         createdAt={post.createdAt}
