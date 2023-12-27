@@ -1,29 +1,39 @@
 import React, { ReactElement } from 'react';
-import { Post } from '../../graphql/posts';
-import { ProfilePicture } from '../ProfilePicture';
-import SourceButton from './SourceButton';
-import PostMetadata from './PostMetadata';
+import { Post } from '../../../graphql/posts';
+import { ProfilePicture } from '../../ProfilePicture';
+import SourceButton from '../SourceButton';
+import PostMetadata from '../PostMetadata';
 
-type SharedPostCardHeaderProps = Pick<
+type SquadPostCardHeaderProps = Pick<
   Post,
   'author' | 'source' | 'permalink' | 'createdAt'
 > & { enableSourceHeader?: boolean };
 
-export const SharedPostCardHeader = ({
+export const SquadPostCardHeader = ({
   author,
   createdAt,
   source,
   enableSourceHeader = false,
-}: SharedPostCardHeaderProps): ReactElement => {
+}: SquadPostCardHeaderProps): ReactElement => {
+  const getDescription = () => {
+    if (!author) {
+      return undefined;
+    }
+
+    return enableSourceHeader ? author.name : `@${author.username}`;
+  };
+
   return (
     <div className="flex relative flex-row gap-2 m-2 mb-3">
       <div className="relative">
-        <ProfilePicture
-          user={author}
-          size={enableSourceHeader ? 'xsmall' : 'xlarge'}
-          className={enableSourceHeader && 'top-7 -right-2.5'}
-          absolute={enableSourceHeader}
-        />
+        {author && (
+          <ProfilePicture
+            user={author}
+            size={enableSourceHeader ? 'xsmall' : 'xlarge'}
+            className={enableSourceHeader && 'top-7 -right-2.5'}
+            absolute={enableSourceHeader}
+          />
+        )}
         <SourceButton
           source={source}
           className={!enableSourceHeader && 'absolute -right-2 -bottom-2'}
@@ -37,7 +47,7 @@ export const SharedPostCardHeader = ({
         <PostMetadata
           className="break-words line-clamp-1"
           createdAt={createdAt}
-          description={enableSourceHeader ? author.name : `@${author.username}`}
+          description={getDescription()}
         />
       </div>
     </div>
