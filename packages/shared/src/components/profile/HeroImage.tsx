@@ -3,17 +3,14 @@ import { Image } from '../image/Image';
 import { ProfilePicture, ProfilePictureProps } from '../ProfilePicture';
 
 export type HeroImageProps = ProfilePictureProps['user'] & {
-  coverImage: string;
+  cover: string;
 };
 
-export function HeroImage({
-  coverImage,
-  ...profile
-}: HeroImageProps): ReactElement {
+export function HeroImage({ cover, ...profile }: HeroImageProps): ReactElement {
   return (
     <div className="flex relative m-4 h-24">
       <Image
-        src={coverImage}
+        src={cover}
         alt="cover"
         loading="eager"
         className="object-cover absolute top-0 left-0 -z-1 w-full h-full rounded-26"

@@ -39,8 +39,8 @@ const commentClassName = {
 const analyticsOrigin = Origin.Profile;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ProfileCommentsPage = ({ profile }: ProfileLayoutProps): ReactElement => {
-  const userId = profile?.id;
+const ProfileCommentsPage = ({ user }: ProfileLayoutProps): ReactElement => {
+  const userId = user?.id;
 
   const { shareComment, openShareComment, closeShareComment } =
     useShareComment(analyticsOrigin);

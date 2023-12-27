@@ -1,25 +1,21 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
-import { SourceMemberRole, Squad } from '../../graphql/sources';
+import { SourceMember, SourceMemberRole } from '../../graphql/sources';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { Image } from '../image/Image';
 import SquadMemberBadge from '../squads/SquadMemberBadge';
 import { CardLink } from '../cards/Card';
 
 export interface SquadsListProps {
-  squads: (Pick<
-    Squad,
-    'id' | 'handle' | 'name' | 'image' | 'permalink' | 'membersCount'
-  > & {
-    role?: SourceMemberRole;
-  })[];
+  memberships: SourceMember[];
 }
 
 function SquadItem({
-  squad,
+  membership,
 }: {
-  squad: SquadsListProps['squads'][0];
+  membership: SquadsListProps['memberships'][0];
 }): ReactElement {
+  const squad = membership.source;
   return (
     <div className="flex relative flex-col p-2 bg-theme-float rounded-2xl w-[160px]">
       <Link href={squad.permalink} prefetch={false} passHref>
@@ -41,9 +37,9 @@ function SquadItem({
         </div>
       </div>
       <div className="flex items-center mt-1 h-6 text-theme-label-tertiary typo-caption2">
-        {squad.role === SourceMemberRole.Admin && (
+        {membership.role === SourceMemberRole.Admin && (
           <>
-            <SquadMemberBadge role={squad.role} removeMargins />
+            <SquadMemberBadge role={membership.role} removeMargins />
             <span className="mx-0.5">&#x2022;</span>
           </>
         )}
@@ -55,11 +51,11 @@ function SquadItem({
   );
 }
 
-export function SquadsList({ squads }: SquadsListProps): ReactElement {
+export function SquadsList({ memberships }: SquadsListProps): ReactElement {
   return (
     <div className="flex overflow-x-auto gap-2 items-center no-scrollbar">
-      {squads.map((squad) => (
-        <SquadItem key={squad.id} squad={squad} />
+      {memberships.map((membership) => (
+        <SquadItem key={membership.source.id} membership={membership} />
       ))}
     </div>
   );

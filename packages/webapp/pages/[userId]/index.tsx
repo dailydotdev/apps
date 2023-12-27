@@ -19,14 +19,8 @@ import {
   getLayout as getProfileLayout,
 } from '../../components/layouts/ProfileLayout/v2';
 
-const readmeHtml = `
-Hello world!</br></br>
-This is my readme!
-Here's a link to my <a href="https://www.daily.dev">website</a>.
-`;
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
+const ProfilePage = ({ user }: ProfileLayoutProps): ReactElement => {
   // Markdown is supported only in the client due to sanitization
   const isClient = typeof window !== 'undefined';
 
@@ -41,17 +35,17 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   } = useActivityTimeFilter();
 
   const { data: readingHistory } = useQuery<ProfileReadingData>(
-    ['reading_history', profile?.id, selectedHistoryYear],
+    ['reading_history', user?.id, selectedHistoryYear],
     () =>
       request(graphqlUrl, USER_READING_HISTORY_QUERY, {
-        id: profile?.id,
+        id: user?.id,
         before,
         after,
         version: 2,
         limit: 6,
       }),
     {
-      enabled: !!profile && tokenRefreshed && !!before && !!after,
+      enabled: !!user && tokenRefreshed && !!before && !!after,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       refetchOnMount: false,
@@ -60,7 +54,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
 
   return (
     <div className="flex flex-col gap-6 py-6 px-4">
-      {isClient && <Markdown content={readmeHtml} />}
+      {isClient && <Markdown content={user.readmeHtml} />}
       {readingHistory?.userReadingRankHistory && (
         <>
           <RanksWidget

@@ -81,7 +81,7 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <ProfileLayout profile={{ ...defaultProfile, ...profile }} />
+        <ProfileLayout user={{ ...defaultProfile, ...profile }} />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

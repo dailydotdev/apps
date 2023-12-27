@@ -249,7 +249,7 @@ const renderComponent = (
           closeLogin: jest.fn(),
         }}
       >
-        <ProfilePage profile={{ ...defaultProfile, ...profile }} />
+        <ProfilePage user={{ ...defaultProfile, ...profile }} />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

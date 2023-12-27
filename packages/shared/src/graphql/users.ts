@@ -3,6 +3,9 @@ import {
   SHARED_POST_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
+import type { PublicProfile } from '../lib/user';
+import { Connection } from './common';
+import { SourceMember } from './sources';
 
 type PostStats = {
   numPosts: number;
@@ -13,7 +16,6 @@ type CommentStats = { numComments: number; numCommentUpvotes: number };
 
 export type UserStats = PostStats & CommentStats;
 export type UserStatsData = { userStats: UserStats };
-export type UserStatsV2Data = { userStats: { views: number; upvotes: number } };
 
 export const USER_BY_ID_STATIC_FIELDS_QUERY = `
   query User($id: ID!) {
@@ -21,6 +23,7 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       id
       name
       image
+      cover
       username
       bio
       twitter
@@ -31,6 +34,7 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       reputation
       permalink
       createdAt
+      readmeHtml
     }
   }
 `;
@@ -47,14 +51,35 @@ export const USER_STATS_QUERY = gql`
   }
 `;
 
-export const USER_STATS_V2_QUERY = gql`
-  query UserStats($id: ID!) {
+export const PROFILE_V2_EXTRA_QUERY = gql`
+  query ProfileV2($id: ID!) {
     userStats(id: $id) {
       upvotes: numPostUpvotes
       views: numPostViews
     }
+    sources: publicSourceMemberships(userId: $id, first: 30) {
+      edges {
+        node {
+          role
+          source {
+            id
+            name
+            handle
+            membersCount
+            image
+            permalink
+          }
+        }
+      }
+    }
   }
 `;
+
+export type ProfileV2 = {
+  user: PublicProfile;
+  userStats: { upvotes: number; views: number };
+  sources: Connection<SourceMember>;
+};
 
 export type UserReadingRank = { currentRank: number };
 export type UserReadingRankData = { userReadingRank: UserReadingRank };

@@ -114,7 +114,7 @@ const getHistoryTitle = (
   return 'the last months';
 };
 
-const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
+const ProfilePage = ({ user: profile }: ProfileLayoutProps): ReactElement => {
   const { user, tokenRefreshed } = useContext(AuthContext);
   const fullHistory = useViewSize(ViewSize.Laptop);
   const [selectedHistoryYear, setSelectedHistoryYear] = useState(0);

@@ -13,8 +13,8 @@ export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ProfileUpvotedPage = ({ profile }: ProfileLayoutProps): ReactElement => {
-  const userId = profile?.id;
+const ProfileUpvotedPage = ({ user }: ProfileLayoutProps): ReactElement => {
+  const userId = user?.id;
   const feedProps: FeedProps<unknown> = {
     feedName: OtherFeedPage.UserUpvoted,
     feedQueryKey: ['user_upvoted', userId],

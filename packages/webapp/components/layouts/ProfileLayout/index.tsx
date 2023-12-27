@@ -55,7 +55,7 @@ const Custom404 = dynamic(
 );
 
 export interface ProfileLayoutProps {
-  profile: PublicProfile;
+  user: PublicProfile;
   children?: ReactNode;
 }
 
@@ -65,7 +65,7 @@ const sanitizeOrNull = (
 ): string | null => (value ? purify.sanitize(value) : null);
 
 export default function ProfileLayout({
-  profile: initialProfile,
+  user: initialProfile,
   children,
 }: ProfileLayoutProps): ReactElement {
   const router = useRouter();
@@ -300,7 +300,7 @@ export async function getStaticProps({
 
     return {
       props: {
-        profile,
+        user: profile,
       },
       revalidate: 60,
     };
@@ -308,7 +308,7 @@ export async function getStaticProps({
     const clientError = err as ClientError;
     if (clientError?.response?.errors?.[0]?.extensions?.code === 'FORBIDDEN') {
       return {
-        props: { profile: null },
+        props: { user: null },
         revalidate: 60,
       };
     }
