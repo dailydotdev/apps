@@ -1,11 +1,6 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import dynamicParent, {
-  DynamicParentPlaceholder,
-} from '@dailydotdev/shared/src/lib/dynamicParent';
-import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import {
   Button,
@@ -14,18 +9,6 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import classNames from 'classnames';
 import styles from './NavBar.module.css';
-
-const flipperLoader = () =>
-  import(/* webpackChunkName: "reactFlip" */ 'react-flip-toolkit');
-
-const Flipper = dynamicParent(
-  () => flipperLoader().then((mod) => mod.Flipper),
-  DynamicParentPlaceholder,
-);
-const Flipped = dynamicParent(
-  () => flipperLoader().then((mod) => mod.Flipped),
-  DynamicParentPlaceholder,
-);
 
 export type Tab = { path: string; title: string };
 
@@ -58,16 +41,11 @@ export default function NavBar({
   selectedTab,
   profile,
 }: NavBarProps): ReactElement {
-  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const getTabHref = (tab: Tab) =>
     tab.path.replace('[userId]', profile.username || profile.id);
 
   return (
-    <Flipper
-      flipKey={selectedTab}
-      spring="veryGentle"
-      element="nav"
-      shouldLoad={windowLoaded}
+    <div
       className={classNames('relative flex px-4 justify-between', styles.nav)}
     >
       {tabs.map((tab, index) => (
@@ -82,13 +60,11 @@ export default function NavBar({
               {tab.title}
             </Button>
           </Link>
-          <Flipped flipId="activeTabIndicator" shouldLoad={windowLoaded}>
-            {selectedTab === index && (
-              <ActiveTabIndicator className="bottom-0 w-4" />
-            )}
-          </Flipped>
+          {selectedTab === index && (
+            <ActiveTabIndicator className="bottom-0 w-4" />
+          )}
         </div>
       ))}
-    </Flipper>
+    </div>
   );
 }
