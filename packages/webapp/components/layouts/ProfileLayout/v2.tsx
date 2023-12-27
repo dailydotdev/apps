@@ -23,9 +23,12 @@ import { UserStats } from '@dailydotdev/shared/src/components/profile/UserStats'
 import { SocialChips } from '@dailydotdev/shared/src/components/profile/SocialChips';
 import { SquadsList } from '@dailydotdev/shared/src/components/profile/SquadsList';
 import { ProfileV2 } from '@dailydotdev/shared/src/graphql/users';
+import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
+import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import NavBar, { tabs } from './NavBar';
+import { useDynamicHeader } from '../../../../shared/src/useDynamicHeader';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../pages/404'),
@@ -43,8 +46,9 @@ export default function ProfileLayout({
 }: ProfileLayoutProps): ReactElement {
   const router = useRouter();
   const { isFallback } = router;
-
-  const stats = { ...userStats, reputation: user?.reputation };
+  const { ref: stickyRef, progress: stickyProgress } =
+    useDynamicHeader<HTMLDivElement>({ minOffset: 0, maxOffset: 48 });
+  const hideSticky = !stickyProgress;
 
   if (!isFallback && !user) {
     return <Custom404 />;
@@ -54,6 +58,7 @@ export default function ProfileLayout({
     return <></>;
   }
 
+  const stats = { ...userStats, reputation: user?.reputation };
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
   return (
@@ -73,17 +78,35 @@ export default function ProfileLayout({
         <header className="flex px-4 h-8">
           <h2 className="font-bold typo-body">Profile</h2>
         </header>
+        {!hideSticky && (
+          <div
+            className="flex fixed top-0 left-0 z-3 items-center px-4 w-full h-12 transition-transform duration-75 bg-theme-bg-primary"
+            style={{ transform: `translateY(${(stickyProgress - 1) * 100}%)` }}
+          >
+            <ProfilePicture user={user} nativeLazyLoading size="medium" />
+            <div className="flex flex-col ml-2 typo-footnote">
+              <div className="font-bold">{user.name}</div>
+              <div className="text-theme-label-tertiary">
+                {largeNumberFormat(user.reputation)} Reputation
+              </div>
+            </div>
+          </div>
+        )}
         <HeroImage
           cover={user.cover}
           image={user.image}
           username={user.username}
           id={user.id}
         />
-        <div className="flex flex-col px-4">
+        <div className="flex relative flex-col px-4">
           <UserMetadata
             username={user.username}
             name={user.name}
             createdAt={user.createdAt}
+          />
+          <div
+            ref={stickyRef}
+            className="absolute top-0 w-px h-px opacity-0 pointer-events-none"
           />
           <UserStats stats={stats} />
           <div className="text-theme-label-tertiary typo-callout">

@@ -46,7 +46,10 @@ export default function NavBar({
 
   return (
     <div
-      className={classNames('relative flex px-4 justify-between', styles.nav)}
+      className={classNames(
+        'sticky top-12 flex px-4 justify-between bg-theme-bg-primary z-1',
+        styles.nav,
+      )}
     >
       {tabs.map((tab, index) => (
         <div key={tab.path}>
