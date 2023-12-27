@@ -20,7 +20,7 @@ export const SharedPostText = ({
   }, [sharedPostTitleRef.current?.offsetHeight]);
 
   return (
-    <div className="px-2 pt-2 pb-3" ref={sharedPostTitleRef}>
+    <div className="p-2" ref={sharedPostTitleRef}>
       <p className="line-clamp-6 typo-callout">{title}</p>
     </div>
   );

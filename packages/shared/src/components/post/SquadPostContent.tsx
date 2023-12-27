@@ -120,11 +120,13 @@ function SquadPostContent({
             post={post}
           >
             <PostSourceInfo source={post.source} className="!typo-body" />
-            <SquadPostAuthor
-              author={post.author}
-              role={role}
-              date={postDateFormat(post.createdAt)}
-            />
+            {post.author && (
+              <SquadPostAuthor
+                author={post.author}
+                role={role}
+                date={postDateFormat(post.createdAt)}
+              />
+            )}
             <Content post={post} onReadArticle={onReadArticle} />
           </BasePostContent>
         </div>

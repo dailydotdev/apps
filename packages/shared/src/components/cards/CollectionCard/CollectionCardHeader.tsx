@@ -17,7 +17,7 @@ export const CollectionCardHeader = ({
   return (
     <>
       <CollectionPillSources
-        className="m-2 mb-3"
+        className="m-2"
         sources={sources}
         totalSources={totalSources}
       />
