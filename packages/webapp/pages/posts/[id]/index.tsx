@@ -169,7 +169,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     }
 
     if (!routedFromSquad) {
-      return null;
+      return <></>;
     }
 
     return (
