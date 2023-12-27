@@ -23,6 +23,14 @@ export const SquadPostCardHeader = ({
     return enableSourceHeader ? author.name : `@${author.username}`;
   };
 
+  const getHeaderName = () => {
+    if (enableSourceHeader) {
+      return source.name;
+    }
+
+    return author?.name || '';
+  };
+
   return (
     <div className="flex relative flex-row gap-2 m-2 mb-3">
       <div className="relative">
@@ -41,9 +49,7 @@ export const SquadPostCardHeader = ({
         />
       </div>
       <div className="flex flex-col flex-1 flex-grow mr-6 ml-2 typo-footnote">
-        <span className="font-bold line-clamp-2">
-          {enableSourceHeader ? source.name : author.name}
-        </span>
+        <span className="font-bold line-clamp-2">{getHeaderName()}</span>
         <PostMetadata
           className="break-words line-clamp-1"
           createdAt={createdAt}
