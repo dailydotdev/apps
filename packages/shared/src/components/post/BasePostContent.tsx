@@ -60,7 +60,7 @@ export function BasePostContent({
         <PostNavigation {...navigationProps} className={className.navigation} />
       )}
       {withPillTypes.includes(post?.type) && (
-        <span className="py-2 px-3 mt-6 font-bold capitalize rounded-8 bg-[#BF29F014] text-theme-color-cabbage typo-footnote w-fit">
+        <span className="py-2 px-3 mt-6 font-bold capitalize rounded-8 bg-theme-overlay-float-cabbage text-theme-color-cabbage typo-footnote w-fit">
           {typeToLabel[post.type]}
         </span>
       )}
