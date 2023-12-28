@@ -13,14 +13,22 @@ import { useActivityTimeFilter } from '@dailydotdev/shared/src/hooks/profile/use
 import { ReadingTagsWidget } from '@dailydotdev/shared/src/components/profile/ReadingTagsWidget';
 import { ReadingHeatmapWidget } from '@dailydotdev/shared/src/components/profile/ReadingHeatmapWidget';
 import {
-  ProfileLayoutProps,
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
+import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
+import {
+  getLayout as getProfileLayout,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
-  getLayout as getProfileLayout,
+  ProfileLayoutProps,
 } from '../../components/layouts/ProfileLayout/v2';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({ user }: ProfileLayoutProps): ReactElement => {
+  const { user: loggedUser } = useContext(AuthContext);
+  const isSameUser = loggedUser?.id === user.id;
+
   // Markdown is supported only in the client due to sanitization
   const isClient = typeof window !== 'undefined';
 
@@ -35,7 +43,7 @@ const ProfilePage = ({ user }: ProfileLayoutProps): ReactElement => {
   } = useActivityTimeFilter();
 
   const { data: readingHistory } = useQuery<ProfileReadingData>(
-    ['reading_history', user?.id, selectedHistoryYear],
+    generateQueryKey(RequestKey.ReadingStats, user, selectedHistoryYear),
     () =>
       request(graphqlUrl, USER_READING_HISTORY_QUERY, {
         id: user?.id,
@@ -54,7 +62,15 @@ const ProfilePage = ({ user }: ProfileLayoutProps): ReactElement => {
 
   return (
     <div className="flex flex-col gap-6 py-6 px-4">
-      {isClient && <Markdown content={user.readmeHtml} />}
+      {!user.readmeHtml && isSameUser ? (
+        <MyProfileEmptyScreen
+          className="items-start"
+          text="Do you love breaking production? Share with the world what has brought you so far"
+          cta="Add readme"
+        />
+      ) : (
+        isClient && <Markdown content={user.readmeHtml} />
+      )}
       {readingHistory?.userReadingRankHistory && (
         <>
           <RanksWidget

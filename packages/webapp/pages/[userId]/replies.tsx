@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode, useContext } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import {
   USER_COMMENTS_QUERY,
@@ -15,6 +15,13 @@ import { useShareComment } from '@dailydotdev/shared/src/hooks/useShareComment';
 import { useUpvoteQuery } from '@dailydotdev/shared/src/hooks/useUpvoteQuery';
 import { useDeleteComment } from '@dailydotdev/shared/src/hooks/comments/useDeleteComment';
 import MainComment from '@dailydotdev/shared/src/components/comments/MainComment';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
+import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
 import {
   ProfileLayoutProps,
   getStaticPaths as getProfileStaticPaths,
@@ -40,6 +47,9 @@ const analyticsOrigin = Origin.Profile;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfileCommentsPage = ({ user }: ProfileLayoutProps): ReactElement => {
+  const { user: loggedUser } = useContext(AuthContext);
+  const isSameUser = loggedUser?.id === user.id;
+
   const userId = user?.id;
 
   const { shareComment, openShareComment, closeShareComment } =
@@ -48,7 +58,7 @@ const ProfileCommentsPage = ({ user }: ProfileLayoutProps): ReactElement => {
   const { deleteComment } = useDeleteComment();
 
   const queryResult = useInfiniteQuery<UserCommentsData>(
-    ['user_comments', userId],
+    generateQueryKey(RequestKey.UserComments, null, userId),
     ({ pageParam }) =>
       request(graphqlUrl, USER_COMMENTS_QUERY, {
         userId,
@@ -62,41 +72,64 @@ const ProfileCommentsPage = ({ user }: ProfileLayoutProps): ReactElement => {
     },
   );
 
-  const length = queryResult?.data?.pages?.length ?? 0;
-
-  return (
-    <>
+  const length = queryResult?.data?.pages?.length;
+  const showEmptyScreen =
+    length > 0 && queryResult.data.pages[0].page.edges.length === 0;
+  let children: ReactNode;
+  if (length > 0 && !showEmptyScreen) {
+    children = (
       <InfiniteScrolling
         isFetchingNextPage={queryResult.isFetchingNextPage}
         canFetchMore={checkFetchMore(queryResult)}
         fetchNextPage={queryResult.fetchNextPage}
       >
-        {length > 0 &&
-          queryResult.data.pages.flatMap((page) =>
-            page.page.edges.map(({ node }) => (
-              <MainComment
-                key={node.id}
-                className="rounded-none border-0 border-b"
-                commentBoxClassName={commentClassName}
-                post={node.post}
-                comment={node}
-                origin={analyticsOrigin}
-                onShare={(c) => openShareComment(c, c.post)}
-                onDelete={(comment, parentId) =>
-                  deleteComment(comment.id, parentId, comment.post)
-                }
-                onShowUpvotes={(id, count) =>
-                  onShowUpvoted(id, count, 'comment')
-                }
-                onCommented={() => undefined}
-                postAuthorId={null}
-                postScoutId={null}
-                appendTooltipTo={() => document.body}
-                linkToComment
-              />
-            )),
-          )}
+        {queryResult.data.pages.flatMap((page) =>
+          page.page.edges.map(({ node }) => (
+            <MainComment
+              key={node.id}
+              className="rounded-none border-0 border-b"
+              commentBoxClassName={commentClassName}
+              post={node.post}
+              comment={node}
+              origin={analyticsOrigin}
+              onShare={(c) => openShareComment(c, c.post)}
+              onDelete={(comment, parentId) =>
+                deleteComment(comment.id, parentId, comment.post)
+              }
+              onShowUpvotes={(id, count) => onShowUpvoted(id, count, 'comment')}
+              onCommented={() => undefined}
+              postAuthorId={null}
+              postScoutId={null}
+              appendTooltipTo={() => document.body}
+              linkToComment
+            />
+          )),
+        )}
       </InfiniteScrolling>
+    );
+  } else if (showEmptyScreen) {
+    if (isSameUser) {
+      children = (
+        <MyProfileEmptyScreen
+          className="items-center py-6 px-4 text-center"
+          text="All tests have passed on the first try and you have no idea why? Time for a break. Browse the feed and join a discussion!"
+          cta="Explore posts"
+          buttonProps={{ tag: 'a', href: '/' }}
+        />
+      );
+    } else {
+      children = (
+        <ProfileEmptyScreen
+          title={`${user.name} hasn't replied to any post yet`}
+          text="Once they do, those replies will show up here."
+        />
+      );
+    }
+  }
+
+  return (
+    <>
+      {children}
       {shareComment && (
         <ShareModal
           isOpen={!!shareComment}
