@@ -19,7 +19,7 @@ export function UserMetadata({
         {name}
       </h2>
       <div className="flex items-center">
-        <span className="whitespace-nowrap text-theme-label-secondary typo-footnote text-ellipsis">
+        <span className="overflow-hidden whitespace-nowrap text-theme-label-secondary typo-footnote text-ellipsis">
           @{username}
         </span>
         <Separator />

@@ -78,11 +78,11 @@ function SquadItem({
           alt={squad.name}
           className="w-8 h-8 rounded-full"
         />
-        <div className="flex flex-col">
-          <div className="font-bold whitespace-nowrap typo-caption1 text-ellipsis">
+        <div className="flex overflow-hidden flex-col flex-1">
+          <div className="overflow-hidden font-bold whitespace-nowrap typo-caption1 text-ellipsis">
             {squad.name}
           </div>
-          <div className="whitespace-nowrap text-theme-label-quaternary typo-caption2 text-ellipsis">
+          <div className="overflow-hidden whitespace-nowrap text-theme-label-quaternary typo-caption2 text-ellipsis">
             @{squad.handle}
           </div>
         </div>
