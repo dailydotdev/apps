@@ -307,6 +307,14 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
   }
 `;
 
+export const UPLOAD_COVER_MUTATION = gql`
+  mutation UploadCoverImage($upload: Upload!) {
+    uploadCoverImage(image: $upload) {
+      cover
+    }
+  }
+`;
+
 export const GET_USERNAME_SUGGESTION = gql`
   query GenerateUniqueUsername($name: String!) {
     generateUniqueUsername(name: $name)

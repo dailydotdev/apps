@@ -52,6 +52,7 @@ export interface UserProfile {
   acceptedMarketing?: boolean;
   notificationEmail?: boolean;
   timezone?: string;
+  cover?: string;
 }
 
 export interface UserShortProfile

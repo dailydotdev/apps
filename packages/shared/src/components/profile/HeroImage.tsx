@@ -13,12 +13,16 @@ function HeroImageComponent(
 ): ReactElement {
   return (
     <div className="flex relative m-4 h-24" ref={ref}>
-      <Image
-        src={cover}
-        alt="cover"
-        loading="eager"
-        className="object-cover absolute top-0 left-0 -z-1 w-full h-full rounded-26"
-      />
+      {cover ? (
+        <Image
+          src={cover}
+          alt="cover"
+          loading="eager"
+          className="object-cover absolute top-0 left-0 -z-1 w-full h-full rounded-26"
+        />
+      ) : (
+        <div className="absolute top-0 left-0 -z-1 w-full h-full rounded-26 bg-theme-bg-secondary" />
+      )}
       <ProfilePicture
         user={profile}
         nativeLazyLoading

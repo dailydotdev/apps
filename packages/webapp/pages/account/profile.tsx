@@ -20,12 +20,19 @@ import CameraIcon from '@dailydotdev/shared/src/components/icons/Camera';
 import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { getAccountLayout } from '../../components/layouts/AccountLayout';
-import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
-import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
+import { useMutation } from '@tanstack/react-query';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import request from 'graphql-request';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
+import { UPLOAD_COVER_MUTATION } from '@dailydotdev/shared/src/graphql/users';
+import { ResponseError } from '@dailydotdev/shared/src/graphql/types';
 import { AccountTextField } from '../../components/layouts/AccountLayout/common';
+import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
+import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
+import { getAccountLayout } from '../../components/layouts/AccountLayout';
 
-const id = 'avatar_file';
+const imageId = 'avatar_file';
+const coverId = 'cover_file';
 
 const AccountProfilePage = (): ReactElement => {
   const formRef = useRef<HTMLFormElement>();
@@ -51,6 +58,28 @@ const AccountProfilePage = (): ReactElement => {
     updateUserProfile(params);
   };
 
+  const { mutate: uploadCoverImage } = useMutation<
+    LoggedUser,
+    ResponseError,
+    { image: File }
+  >(
+    ({ image }) =>
+      request(graphqlUrl, UPLOAD_COVER_MUTATION, {
+        upload: image,
+      }),
+    {
+      onSuccess: () => {
+        displayToast('Cover image updated');
+      },
+      onError: (err) => {
+        if (!err?.response?.errors?.length) {
+          return;
+        }
+        displayToast(err.response.errors[0].message);
+      },
+    },
+  );
+
   return (
     <AccountPageContainer
       title="Profile"
@@ -73,24 +102,45 @@ const AccountProfilePage = (): ReactElement => {
           description="Upload a picture to make your profile stand out and let people recognize
         your comments and contributions easily!"
         >
-          <ImageInput
-            id={id}
-            className={{ container: 'mt-6', img: 'object-cover' }}
-            initialValue={user.image}
-            hoverIcon={<CameraIcon size={IconSize.Large} />}
-            onChange={(imageBase64) => {
-              if (!imageBase64) {
-                return;
-              }
+          <div className="flex relative mt-6">
+            <ImageInput
+              id={imageId}
+              className={{ img: 'object-cover' }}
+              initialValue={user.image}
+              hoverIcon={<CameraIcon size={IconSize.Large} />}
+              onChange={(_, file) => {
+                if (!file) {
+                  return;
+                }
 
-              const input = document.getElementById(id) as HTMLInputElement;
-              const file = input.files[0];
+                updateUserProfile({
+                  image: file,
+                });
+              }}
+            />
+            <ImageInput
+              id={coverId}
+              className={{
+                root: 'flex absolute top-0 left-0 w-full',
+                container: 'border-0 bg-theme-bg-secondary',
+                img: 'object-cover',
+              }}
+              size="cover"
+              initialValue={user.cover}
+              fallbackImage={null}
+              hoverIcon={<CameraIcon size={IconSize.Large} />}
+              fileSizeLimitMB={5}
+              onChange={(_, file) => {
+                if (!file) {
+                  return;
+                }
 
-              updateUserProfile({
-                image: file,
-              });
-            }}
-          />
+                uploadCoverImage({
+                  image: file,
+                });
+              }}
+            />
+          </div>
         </AccountContentSection>
         <AccountContentSection title="Account Information">
           <AccountTextField
