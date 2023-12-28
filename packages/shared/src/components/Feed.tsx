@@ -34,7 +34,7 @@ import { Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
 import { ExperimentWinner } from '../lib/featureValues';
 import { SharedFeedPage } from './utilities';
-import { FeedContainer } from './feeds';
+import { FeedContainer, FeedContainerProps } from './feeds';
 import { ActiveFeedContext } from '../contexts';
 import { useFeedLayout, useFeedVotePost } from '../hooks';
 import { AllFeedPages, RequestKey, updateCachedPagePost } from '../lib/query';
@@ -45,7 +45,8 @@ import {
 import { isNullOrUndefined } from '../lib/func';
 
 export interface FeedProps<T>
-  extends Pick<UseFeedOptionalParams<T>, 'options'> {
+  extends Pick<UseFeedOptionalParams<T>, 'options'>,
+    Pick<FeedContainerProps, 'shortcuts'> {
   feedName: AllFeedPages;
   feedQueryKey: unknown[];
   query?: string;
@@ -58,7 +59,6 @@ export interface FeedProps<T>
   forceCardMode?: boolean;
   allowPin?: boolean;
   showSearch?: boolean;
-  besideSearch?: ReactNode;
   actionButtons?: ReactNode;
 }
 
@@ -114,7 +114,7 @@ export default function Feed<T>({
   options,
   allowPin,
   showSearch = true,
-  besideSearch,
+  shortcuts,
   actionButtons,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
@@ -376,7 +376,7 @@ export default function Feed<T>({
         inlineHeader={inlineHeader}
         className={className}
         showSearch={showSearch && isValidFeed}
-        besideSearch={besideSearch}
+        shortcuts={shortcuts}
         actionButtons={actionButtons}
       >
         {items.map((_, index) => (

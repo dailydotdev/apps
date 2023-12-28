@@ -36,6 +36,7 @@ import { cloudinary } from '../lib/image';
 import { useViewSize, ViewSize } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
+import { FeedContainerProps } from './feeds';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -72,17 +73,17 @@ const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
   },
 };
 
-export type MainFeedLayoutProps = {
+export interface MainFeedLayoutProps
+  extends Pick<FeedContainerProps, 'shortcuts'> {
   feedName: string;
   isSearchOn: boolean;
   searchQuery?: string;
   children?: ReactNode;
   searchChildren: ReactNode;
-  besideSearch?: ReactNode;
   navChildren?: ReactNode;
   onFeedPageChanged: (page: SharedFeedPage) => void;
   isFinder?: boolean;
-};
+}
 
 const getQueryBasedOnLogin = (
   tokenRefreshed: boolean,
@@ -137,7 +138,7 @@ export default function MainFeedLayout({
   isSearchOn,
   children,
   searchChildren,
-  besideSearch,
+  shortcuts,
   onFeedPageChanged,
   navChildren,
   isFinder,
@@ -247,7 +248,7 @@ export default function MainFeedLayout({
         (isUpvoted || isSortableFeed) ? (
           <SearchControlHeader {...searchProps} />
         ) : null,
-      besideSearch,
+      shortcuts,
     };
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -30,6 +30,9 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../../hooks';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { SharedFeedPage } from '../utilities';
+import { ActiveFeedContext } from '../../contexts';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -38,7 +41,7 @@ export interface FeedContainerProps {
   className?: string;
   inlineHeader?: boolean;
   showSearch?: boolean;
-  besideSearch?: ReactNode;
+  shortcuts?: ReactNode;
   actionButtons?: ReactNode;
 }
 
@@ -86,6 +89,14 @@ const getStyle = (isList: boolean, space: Spaciness): CSSProperties => {
   return {};
 };
 
+const feedNameToHeading: Record<SharedFeedPage, string> = {
+  search: 'Search',
+  'my-feed': 'For you',
+  popular: 'Popular',
+  upvoted: 'Most upvoted',
+  discussed: 'Best discussions',
+};
+
 export const FeedContainer = ({
   children,
   forceCardMode,
@@ -93,7 +104,7 @@ export const FeedContainer = ({
   className,
   inlineHeader = false,
   showSearch,
-  besideSearch,
+  shortcuts,
   actionButtons,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
@@ -106,6 +117,7 @@ export const FeedContainer = ({
   const { trackEvent } = useAnalyticsContext();
   const { completeAction, checkHasCompleted } = useActions();
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { feedName } = useContext(ActiveFeedContext);
   const router = useRouter();
   const searchValue = useFeature(feature.search);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
@@ -181,7 +193,15 @@ export const FeedContainer = ({
           )}
           {inlineHeader && header}
           {isV1Search && (
-            <span className="flex flex-row gap-3">
+            <ConditionalWrapper
+              condition={!shouldUseFeedLayoutV1}
+              wrapper={(child) => (
+                <span className="flex flex-row gap-3">
+                  {child}
+                  {shortcuts}
+                </span>
+              )}
+            >
               <SearchBarInput
                 className={{
                   container: classNames(
@@ -197,8 +217,7 @@ export const FeedContainer = ({
                 inputProps={{ onFocus: handleSearchFocus }}
                 suggestionsProps={suggestionsProps}
               />
-              {besideSearch}
-            </span>
+            </ConditionalWrapper>
           )}
           {isV1Search && (
             <span className="flex flex-row flex-1 mt-4">
@@ -206,23 +225,39 @@ export const FeedContainer = ({
                 {...suggestionsProps}
                 className="hidden tablet:flex mr-3"
               />
-              {actionButtons && (
+              {actionButtons && !shouldUseFeedLayoutV1 && (
                 <span className="flex flex-row gap-3 pl-3 ml-auto border-l border-theme-divider-tertiary">
                   {actionButtons}
                 </span>
               )}
             </span>
           )}
-          <div
-            className={classNames(
-              'grid',
-              isV1Search && 'mt-8',
-              gapClass(isList, spaciness),
-              cardClass(isList, numCards),
+          {isV1Search && shouldUseFeedLayoutV1 && shortcuts}
+          <ConditionalWrapper
+            condition={isV1Search && shouldUseFeedLayoutV1}
+            wrapper={(child) => (
+              <div className="flex flex-col mt-6 rounded-16 border border-theme-divider-tertiary">
+                <span className="flex flex-row justify-between items-center py-4 px-6 w-full">
+                  <strong className="typo-title3">
+                    {feedNameToHeading[feedName] ?? ''}
+                  </strong>
+                  <span>{actionButtons}</span>
+                </span>
+                {child}
+              </div>
             )}
           >
-            {children}
-          </div>
+            <div
+              className={classNames(
+                'grid',
+                isV1Search && !shouldUseFeedLayoutV1 && 'mt-8',
+                gapClass(isList, spaciness),
+                cardClass(isList, numCards),
+              )}
+            >
+              {children}
+            </div>
+          </ConditionalWrapper>
         </div>
       </div>
     </div>
