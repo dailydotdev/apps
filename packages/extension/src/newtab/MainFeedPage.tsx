@@ -126,7 +126,9 @@ export default function MainFeedPage({
           navChildren={!isSearchOn && <ShortcutLinks />}
           shortcuts={
             <ShortcutLinks
-              className={layout === FeedLayoutEnum.Control ? 'ml-auto' : 'mt-4'}
+              className={
+                layout === FeedLayoutEnum.Control ? 'ml-auto' : 'mt-4 w-fit'
+              }
             />
           }
         />
