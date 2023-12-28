@@ -10,8 +10,7 @@ import {
 import { graphqlUrl } from '../lib/config';
 import { LoggedUser, UserProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
-import { errorMessage } from '../graphql/common';
-import { ResponseError } from '../graphql/types';
+import { errorMessage, ResponseError } from '../graphql/common';
 
 export interface ProfileFormHint {
   portfolio?: string;

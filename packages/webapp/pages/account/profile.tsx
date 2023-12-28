@@ -25,7 +25,7 @@ import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { UPLOAD_COVER_MUTATION } from '@dailydotdev/shared/src/graphql/users';
-import { ResponseError } from '@dailydotdev/shared/src/graphql/types';
+import { ResponseError } from '@dailydotdev/shared/src/graphql/common';
 import { AccountTextField } from '../../components/layouts/AccountLayout/common';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';

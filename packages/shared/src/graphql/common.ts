@@ -1,5 +1,6 @@
 import request from 'graphql-request';
 import { QueryKey, UseInfiniteQueryOptions } from '@tanstack/react-query';
+import { GraphQLError } from 'graphql-request/dist/types';
 import type { PublicProfile, UserShortProfile } from '../lib/user';
 // GraphQL Relay pagination types
 
@@ -123,4 +124,13 @@ export const errorMessage = {
 
 export interface ReferredUsersData {
   referredUsers: Connection<PublicProfile>;
+}
+
+export interface MutationError {
+  data: unknown;
+  errors: GraphQLError[];
+}
+
+export interface ResponseError {
+  response: MutationError;
 }
