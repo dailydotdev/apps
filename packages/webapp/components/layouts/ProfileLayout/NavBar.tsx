@@ -47,7 +47,7 @@ export default function NavBar({
   return (
     <div
       className={classNames(
-        'sticky top-12 flex px-4 -mt-px justify-between bg-theme-bg-primary z-3',
+        'sticky top-12 flex -mt-px justify-around bg-theme-bg-primary z-3',
         styles.nav,
       )}
     >
