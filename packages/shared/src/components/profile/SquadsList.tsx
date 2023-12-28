@@ -21,6 +21,7 @@ import {
   PUBLIC_SOURCE_MEMBERSHIPS_QUERY,
 } from '../../graphql/users';
 import { Connection } from '../../graphql/common';
+import { AuthTriggers } from '../../lib/auth';
 
 export interface SquadsListProps {
   memberships?: Connection<SourceMember>;
@@ -34,6 +35,7 @@ function SquadItem({
   membership: SourceMember;
   loading?: boolean;
 }): ReactElement {
+  const { user, showLogin } = useContext(AuthContext);
   const router = useRouter();
   const squad = membership.source;
   const showJoin = !squad.currentMember?.role && !loading;
@@ -48,6 +50,22 @@ function SquadItem({
       onSuccess: () => router.push(squad?.permalink),
     },
   );
+
+  const onJoin = async () => {
+    if (!user) {
+      showLogin({
+        trigger: AuthTriggers.JoinSquad,
+        options: {
+          onLoginSuccess: joinSquad,
+          onRegistrationSuccess: joinSquad,
+        },
+      });
+
+      return;
+    }
+
+    await joinSquad();
+  };
 
   return (
     <div className="flex relative flex-col p-2 bg-theme-float rounded-2xl w-[160px]">
@@ -89,7 +107,7 @@ function SquadItem({
             variant={ButtonVariant.Float}
             size={ButtonSize.XSmall}
             icon={<PlusIcon />}
-            onClick={() => joinSquad()}
+            onClick={onJoin}
             loading={isLoading}
           />
         )}
