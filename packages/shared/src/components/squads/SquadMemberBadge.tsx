@@ -10,6 +10,7 @@ interface SquadMemberBadgeProps {
   className?: string;
   iconProps?: IconProps;
   removeMargins?: boolean;
+  disableResponsive?: boolean;
 }
 
 const RoleToIconMap: Partial<
@@ -24,6 +25,7 @@ const SquadMemberBadge = ({
   className,
   iconProps,
   removeMargins,
+  disableResponsive,
 }: SquadMemberBadgeProps): ReactElement => {
   const RoleIcon = RoleToIconMap[role];
 
@@ -42,6 +44,7 @@ const SquadMemberBadge = ({
       Icon={Icon}
       iconProps={iconProps}
       removeMargins={removeMargins}
+      disableResponsive={disableResponsive}
     />
   );
 };

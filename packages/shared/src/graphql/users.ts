@@ -51,27 +51,39 @@ export const USER_STATS_QUERY = gql`
   }
 `;
 
+const publicSourceMemberships = `
+sources: publicSourceMemberships(userId: $id, first: 30) {
+  edges {
+    node {
+      role
+      source {
+        id
+        name
+        handle
+        membersCount
+        image
+        permalink
+        currentMember {
+          role
+        }
+      }
+    }
+  }
+}`;
+
 export const PROFILE_V2_EXTRA_QUERY = gql`
   query ProfileV2($id: ID!) {
     userStats(id: $id) {
       upvotes: numPostUpvotes
       views: numPostViews
     }
-    sources: publicSourceMemberships(userId: $id, first: 30) {
-      edges {
-        node {
-          role
-          source {
-            id
-            name
-            handle
-            membersCount
-            image
-            permalink
-          }
-        }
-      }
-    }
+    ${publicSourceMemberships}
+  }
+`;
+
+export const PUBLIC_SOURCE_MEMBERSHIPS_QUERY = gql`
+  query PublicSourceMemberships($id: ID!) {
+    ${publicSourceMemberships}
   }
 `;
 

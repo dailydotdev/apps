@@ -1,21 +1,54 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import Link from 'next/link';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
+import request from 'graphql-request';
 import { SourceMember, SourceMemberRole } from '../../graphql/sources';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { Image } from '../image/Image';
 import SquadMemberBadge from '../squads/SquadMemberBadge';
 import { CardLink } from '../cards/Card';
+import PlusIcon from '../icons/Plus';
+import { ButtonSize, ButtonVariant } from '../buttons/common';
+import { Button } from '../buttons/ButtonV2';
+import { useJoinSquad, useToastNotification } from '../../hooks';
+import { labels } from '../../lib';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import { graphqlUrl } from '../../lib/config';
+import AuthContext from '../../contexts/AuthContext';
+import {
+  ProfileV2,
+  PUBLIC_SOURCE_MEMBERSHIPS_QUERY,
+} from '../../graphql/users';
+import { Connection } from '../../graphql/common';
 
 export interface SquadsListProps {
-  memberships: SourceMember[];
+  memberships?: Connection<SourceMember>;
+  userId: string;
 }
 
 function SquadItem({
   membership,
+  loading,
 }: {
-  membership: SquadsListProps['memberships'][0];
+  membership: SourceMember;
+  loading?: boolean;
 }): ReactElement {
+  const router = useRouter();
   const squad = membership.source;
+  const showJoin = !squad.currentMember?.role && !loading;
+  const { displayToast } = useToastNotification();
+
+  const { mutateAsync: joinSquad, isLoading } = useMutation(
+    useJoinSquad({ squad }),
+    {
+      onError: () => {
+        displayToast(labels.error.generic);
+      },
+      onSuccess: () => router.push(squad?.permalink),
+    },
+  );
+
   return (
     <div className="flex relative flex-col p-2 bg-theme-float rounded-2xl w-[160px]">
       <Link href={squad.permalink} prefetch={false} passHref>
@@ -39,23 +72,56 @@ function SquadItem({
       <div className="flex items-center mt-1 h-6 text-theme-label-tertiary typo-caption2">
         {membership.role === SourceMemberRole.Admin && (
           <>
-            <SquadMemberBadge role={membership.role} removeMargins />
+            <SquadMemberBadge
+              role={membership.role}
+              removeMargins
+              disableResponsive
+            />
             <span className="mx-0.5">&#x2022;</span>
           </>
         )}
-        <span className="whitespace-nowrap text-ellipsis">
+        <span className="overflow-hidden flex-1 whitespace-nowrap text-ellipsis">
           {largeNumberFormat(squad.membersCount)} members
         </span>
+        {showJoin && (
+          <Button
+            className="z-1 ml-auto"
+            variant={ButtonVariant.Float}
+            size={ButtonSize.XSmall}
+            icon={<PlusIcon />}
+            onClick={() => joinSquad()}
+            loading={isLoading}
+          />
+        )}
       </div>
     </div>
   );
 }
 
-export function SquadsList({ memberships }: SquadsListProps): ReactElement {
+export function SquadsList({
+  memberships: initialMembership,
+  userId,
+}: SquadsListProps): ReactElement {
+  const { user: loggedUser, tokenRefreshed } = useContext(AuthContext);
+  const { data: remoteMemberships } = useQuery<{
+    sources: ProfileV2['sources'];
+  }>(
+    generateQueryKey(RequestKey.PublicSourceMemberships, loggedUser, userId),
+    () => request(graphqlUrl, PUBLIC_SOURCE_MEMBERSHIPS_QUERY, { id: userId }),
+    {
+      enabled: !!tokenRefreshed,
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+    },
+  );
+  const memberships = remoteMemberships?.sources || initialMembership;
+  const loading = !remoteMemberships;
+
   return (
     <div className="flex overflow-x-auto gap-2 items-center no-scrollbar">
-      {memberships.map((membership) => (
-        <SquadItem key={membership.source.id} membership={membership} />
+      {memberships.edges.map(({ node }) => (
+        <SquadItem key={node.source.id} membership={node} loading={loading} />
       ))}
     </div>
   );

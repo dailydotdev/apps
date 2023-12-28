@@ -120,7 +120,7 @@ export default function ProfileLayout({
           <div className="typo-footnote text-theme-label-tertiary">
             Active in these squads
           </div>
-          <SquadsList memberships={sources.edges.map(({ node }) => node)} />
+          <SquadsList memberships={sources} userId={user.id} />
         </div>
         <NavBar selectedTab={selectedTab} profile={user} />
         {children}

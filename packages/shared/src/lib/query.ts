@@ -82,6 +82,7 @@ export enum RequestKey {
   Comment = 'comment',
   SquadTour = 'squad_tour',
   RelatedPosts = 'related_posts',
+  PublicSourceMemberships = 'public_source_memberships',
 }
 
 export type HasConnection<
