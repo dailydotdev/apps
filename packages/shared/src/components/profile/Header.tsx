@@ -1,0 +1,69 @@
+import React, { CSSProperties, ReactElement } from 'react';
+import classNames from 'classnames';
+import { PublicProfile } from '../../lib/user';
+import ShareIcon from '../icons/Share';
+import SettingsIcon from '../icons/Settings';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
+import { ProfilePicture } from '../ProfilePicture';
+import { largeNumberFormat } from '../../lib/numberFormat';
+
+export type HeaderProps = {
+  user: PublicProfile;
+  isSameUser: boolean;
+  sticky?: boolean;
+  className?: string;
+  style?: CSSProperties;
+};
+
+export function Header({
+  user,
+  isSameUser,
+  sticky,
+  className,
+  style,
+}: HeaderProps): ReactElement {
+  const [, onShareOrCopyLink] = useShareOrCopyLink({
+    text: `Check out ${user.name}'s profile on daily.dev`,
+    link: user.permalink,
+    trackObject: () => ({ event_name: 'share profile', target_id: user.id }),
+  });
+
+  return (
+    <header
+      className={classNames('flex items-center px-4 h-12', className)}
+      style={style}
+    >
+      {sticky ? (
+        <>
+          <ProfilePicture user={user} nativeLazyLoading size="medium" />
+          <div className="flex flex-col ml-2 typo-footnote">
+            <div className="font-bold">{user.name}</div>
+            <div className="text-theme-label-tertiary">
+              {largeNumberFormat(user.reputation)} Reputation
+            </div>
+          </div>
+        </>
+      ) : (
+        <h2 className="font-bold typo-body">Profile</h2>
+      )}
+      <Button
+        className="ml-auto"
+        variant={ButtonVariant.Float}
+        size={ButtonSize.Small}
+        icon={<ShareIcon />}
+        onClick={() => onShareOrCopyLink()}
+      />
+      {isSameUser && (
+        <Button
+          className="ml-2"
+          variant={ButtonVariant.Float}
+          size={ButtonSize.Small}
+          icon={<SettingsIcon />}
+          tag="a"
+          href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
+        />
+      )}
+    </header>
+  );
+}

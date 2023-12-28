@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useContext } from 'react';
 import {
   getProfileSSR,
   getProfileV2ExtraSSR,
@@ -23,11 +23,11 @@ import { UserStats } from '@dailydotdev/shared/src/components/profile/UserStats'
 import { SocialChips } from '@dailydotdev/shared/src/components/profile/SocialChips';
 import { SquadsList } from '@dailydotdev/shared/src/components/profile/SquadsList';
 import { ProfileV2 } from '@dailydotdev/shared/src/graphql/users';
-import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
-import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
 import { NextSeoProps } from 'next-seo/lib/types';
+import { Header } from '@dailydotdev/shared/src/components/profile/Header';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import NavBar, { tabs } from './NavBar';
@@ -50,6 +50,7 @@ export default function ProfileLayout({
 }: ProfileLayoutProps): ReactElement {
   const router = useRouter();
   const { isFallback } = router;
+  const { user: loggedUser } = useContext(AuthContext);
   const { ref: stickyRef, progress: stickyProgress } =
     useDynamicHeader<HTMLDivElement>();
   const hideSticky = !stickyProgress;
@@ -62,6 +63,7 @@ export default function ProfileLayout({
     return <></>;
   }
 
+  const isSameUser = loggedUser?.id === user.id;
   const stats = { ...userStats, reputation: user?.reputation };
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
@@ -83,29 +85,17 @@ export default function ProfileLayout({
       </Head>
       <NextSeo {...Seo} />
       <main
-        className={classNames(
-          pageBorders,
-          pageContainerClassNames,
-          'pb-12',
-          'py-6',
-        )}
+        className={classNames(pageBorders, pageContainerClassNames, 'pb-12')}
       >
-        <header className="flex px-4 h-8">
-          <h2 className="font-bold typo-body">Profile</h2>
-        </header>
+        <Header user={user} isSameUser={isSameUser} />
         {!hideSticky && (
-          <div
-            className="flex fixed top-0 left-0 z-3 items-center px-4 w-full h-12 transition-transform duration-75 bg-theme-bg-primary"
+          <Header
+            user={user}
+            isSameUser={isSameUser}
+            sticky
+            className="fixed top-0 left-0 z-3 w-full transition-transform duration-75 bg-theme-bg-primary"
             style={{ transform: `translateY(${(stickyProgress - 1) * 100}%)` }}
-          >
-            <ProfilePicture user={user} nativeLazyLoading size="medium" />
-            <div className="flex flex-col ml-2 typo-footnote">
-              <div className="font-bold">{user.name}</div>
-              <div className="text-theme-label-tertiary">
-                {largeNumberFormat(user.reputation)} Reputation
-              </div>
-            </div>
-          </div>
+          />
         )}
         <HeroImage
           cover={user.cover}
