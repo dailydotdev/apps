@@ -148,6 +148,12 @@ export async function getStaticProps({
   const { userId } = params;
   try {
     const user = await getProfileSSR(userId);
+    if (!user) {
+      return {
+        props: {},
+        revalidate: 60,
+      };
+    }
     const data = await getProfileV2ExtraSSR(user.id);
 
     return {
