@@ -278,7 +278,7 @@ export const AUTHOR_FEED_QUERY = gql`
 `;
 
 export const USER_UPVOTED_FEED_QUERY = gql`
-  query AuthorFeed(
+  query UpvotedFeed(
     $loggedIn: Boolean! = false
     $userId: ID!,
     $after: String,

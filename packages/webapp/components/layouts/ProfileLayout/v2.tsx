@@ -25,10 +25,14 @@ import { SquadsList } from '@dailydotdev/shared/src/components/profile/SquadsLis
 import { ProfileV2 } from '@dailydotdev/shared/src/graphql/users';
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
+import Head from 'next/head';
+import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo/lib/types';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import NavBar, { tabs } from './NavBar';
 import { useDynamicHeader } from '../../../../shared/src/useDynamicHeader';
+import { getTemplatedTitle } from '../utils';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../pages/404'),
@@ -61,12 +65,23 @@ export default function ProfileLayout({
   const stats = { ...userStats, reputation: user?.reputation };
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
+  const Seo: NextSeoProps = {
+    title: getTemplatedTitle(user.name),
+    description: user.bio ? user.bio : `Check out ${user.name}'s profile`,
+    openGraph: {
+      images: [{ url: user.image }],
+    },
+    twitter: {
+      handle: user.twitter,
+    },
+  };
+
   return (
     <>
-      {/* <Head> */}
-      {/*  <link rel="preload" as="image" href={profile.image} /> */}
-      {/* </Head> */}
-      {/* <NextSeo {...Seo} /> */}
+      <Head>
+        <link rel="preload" as="image" href={user.image} />
+      </Head>
+      <NextSeo {...Seo} />
       <main
         className={classNames(
           pageBorders,
