@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
@@ -33,7 +34,7 @@ import {
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { cloudinary } from '../lib/image';
-import { useViewSize, ViewSize } from '../hooks';
+import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
 import { FeedContainerProps } from './feeds';
@@ -150,8 +151,10 @@ export default function MainFeedLayout({
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
+  const { shouldUseFeedLayoutV1 } = useFeedLayout({ feedName });
   const feedVersion = useFeature(feature.feedVersion);
   const searchVersion = useFeature(feature.search);
+  const isV1Search = searchVersion === SearchExperiment.V1;
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
 
   let query: { query: string; variables?: Record<string, unknown> };
@@ -228,6 +231,7 @@ export default function MainFeedLayout({
     };
 
     const variables = getVariables();
+    const feedWithActions = isUpvoted || isSortableFeed;
 
     return {
       feedName,
@@ -239,15 +243,12 @@ export default function MainFeedLayout({
       query: query.query,
       variables,
       emptyScreen: <FeedEmptyScreen />,
-      header:
-        searchVersion === SearchExperiment.Control && !isSearchOn ? (
-          <SearchControlHeader {...searchProps} navChildren={navChildren} />
-        ) : null,
-      actionButtons:
-        searchVersion === SearchExperiment.V1 &&
-        (isUpvoted || isSortableFeed) ? (
-          <SearchControlHeader {...searchProps} />
-        ) : null,
+      header: searchVersion === SearchExperiment.Control && !isSearchOn && (
+        <SearchControlHeader {...searchProps} navChildren={navChildren} />
+      ),
+      actionButtons: isV1Search && feedWithActions && (
+        <SearchControlHeader {...searchProps} />
+      ),
       shortcuts,
     };
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
@@ -283,17 +284,27 @@ export default function MainFeedLayout({
     return isLaptop ? cloudinary.feed.bg.laptop : cloudinary.feed.bg.tablet;
   };
 
+  const isBothLayoutV1 = shouldUseFeedLayoutV1 && isV1Search && !isFinder;
+
   return (
     <FeedPage className="relative">
-      {searchVersion === SearchExperiment.V1 && !isFinder && (
+      {isV1Search && !isFinder && (
         <img
-          className="absolute top-0 left-0 w-full max-w-[58.75rem]"
+          className={classNames(
+            'absolute top-0 w-full max-w-[58.75rem]',
+            shouldUseFeedLayoutV1 ? 'left-1/2 -translate-x-1/2' : 'left-0',
+          )}
           src={getImage()}
           alt="Gradient background"
         />
       )}
       {isSearchOn && search}
-      {feedProps && <Feed {...feedProps} />}
+      {feedProps && (
+        <Feed
+          {...feedProps}
+          className={isBothLayoutV1 && 'laptop:!max-w-[36.5rem]'}
+        />
+      )}
       {children}
     </FeedPage>
   );

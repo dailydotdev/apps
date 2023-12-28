@@ -236,7 +236,7 @@ export const FeedContainer = ({
           <ConditionalWrapper
             condition={isV1Search && shouldUseFeedLayoutV1}
             wrapper={(child) => (
-              <div className="flex flex-col mt-6 rounded-16 border border-theme-divider-tertiary">
+              <div className="flex flex-col -mx-6 laptop:mx-0 mt-6 rounded-16 border border-theme-divider-tertiary">
                 <span className="flex flex-row justify-between items-center py-4 px-6 w-full">
                   <strong className="typo-title3">
                     {feedNameToHeading[feedName] ?? ''}

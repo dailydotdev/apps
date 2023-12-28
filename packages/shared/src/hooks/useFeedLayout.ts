@@ -14,16 +14,18 @@ interface UseFeedLayout {
   shouldUseFeedLayoutV1: boolean;
 }
 
+const checkShouldUseFeedLayoutV1 = (feedName: SharedFeedPage): boolean =>
+  Object.values(SharedFeedPage).includes(feedName) &&
+  feedName !== SharedFeedPage.Search;
+
 export const useFeedLayout = ({
   feedName: feedNameProp,
 }: UseFeedLayoutProps = {}): UseFeedLayout => {
   const { feedName } = useContext(ActiveFeedContext);
-
+  const name = (feedNameProp ?? feedName) as SharedFeedPage;
   const feedLayoutVersion = useFeature(feature.feedLayout);
   const isV1 = feedLayoutVersion === FeedLayout.V1;
-  const isIncludedFeed = Object.values(SharedFeedPage).includes(
-    (feedNameProp ?? feedName) as SharedFeedPage,
-  );
+  const isIncludedFeed = checkShouldUseFeedLayoutV1(name);
   const shouldUseFeedLayoutV1 = isV1 && isIncludedFeed;
 
   return {
