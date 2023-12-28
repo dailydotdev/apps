@@ -1,14 +1,18 @@
-import React, { ReactElement } from 'react';
+import React, { forwardRef, ReactElement, ReactNode, Ref } from 'react';
 import { Image } from '../image/Image';
 import { ProfilePicture, ProfilePictureProps } from '../ProfilePicture';
 
 export type HeroImageProps = ProfilePictureProps['user'] & {
   cover: string;
+  children?: ReactNode;
 };
 
-export function HeroImage({ cover, ...profile }: HeroImageProps): ReactElement {
+function HeroImageComponent(
+  { children, cover, ...profile }: HeroImageProps,
+  ref: Ref<HTMLDivElement>,
+): ReactElement {
   return (
-    <div className="flex relative m-4 h-24">
+    <div className="flex relative m-4 h-24" ref={ref}>
       <Image
         src={cover}
         alt="cover"
@@ -22,6 +26,9 @@ export function HeroImage({ cover, ...profile }: HeroImageProps): ReactElement {
         size="xxxxlarge"
         className="border-2 border-theme-bg-primary"
       />
+      {children}
     </div>
   );
 }
+
+export const HeroImage = forwardRef(HeroImageComponent);

@@ -47,7 +47,7 @@ export default function NavBar({
   return (
     <div
       className={classNames(
-        'sticky top-12 flex px-4 justify-between bg-theme-bg-primary z-3',
+        'sticky top-12 flex px-4 -mt-px justify-between bg-theme-bg-primary z-3',
         styles.nav,
       )}
     >
@@ -56,7 +56,7 @@ export default function NavBar({
           <Link href={getTabHref(tab)} passHref>
             <Button
               tag="a"
-              size={ButtonSize.Small}
+              size={ButtonSize.Medium}
               pressed={selectedTab === index}
               variant={ButtonVariant.Tertiary}
             >

@@ -47,7 +47,7 @@ export default function ProfileLayout({
   const router = useRouter();
   const { isFallback } = router;
   const { ref: stickyRef, progress: stickyProgress } =
-    useDynamicHeader<HTMLDivElement>({ minOffset: 0, maxOffset: 48 });
+    useDynamicHeader<HTMLDivElement>();
   const hideSticky = !stickyProgress;
 
   if (!isFallback && !user) {
@@ -97,16 +97,13 @@ export default function ProfileLayout({
           image={user.image}
           username={user.username}
           id={user.id}
+          ref={stickyRef}
         />
         <div className="flex relative flex-col px-4">
           <UserMetadata
             username={user.username}
             name={user.name}
             createdAt={user.createdAt}
-          />
-          <div
-            ref={stickyRef}
-            className="absolute top-0 w-px h-px opacity-0 pointer-events-none"
           />
           <UserStats stats={stats} />
           <div className="text-theme-label-tertiary typo-callout">

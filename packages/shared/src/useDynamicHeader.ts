@@ -1,19 +1,13 @@
-import { LegacyRef, useEffect, useRef, useState } from 'react';
+import { Ref, useEffect, useRef, useState } from 'react';
 
 export type UseDynamicHeaderRet<T extends HTMLElement> = {
-  ref: LegacyRef<T>;
+  ref: Ref<T>;
   progress: number | undefined;
 };
 
-export type UseDynamicHeaderProps = {
-  minOffset?: number;
-  maxOffset: number;
-};
-
-export const useDynamicHeader = <T extends HTMLElement>({
-  minOffset = 0,
-  maxOffset,
-}: UseDynamicHeaderProps): UseDynamicHeaderRet<T> => {
+export const useDynamicHeader = <
+  T extends HTMLElement,
+>(): UseDynamicHeaderRet<T> => {
   const ref = useRef<T>();
   const [progress, setProgress] = useState<number | undefined>();
   const onScroll = useRef<() => void>();
@@ -28,17 +22,14 @@ export const useDynamicHeader = <T extends HTMLElement>({
       const rect = trigger.getBoundingClientRect();
       const offset = -rect.y;
       let newProgress: number | undefined;
-      if (offset >= minOffset) {
-        newProgress = Math.min(
-          (offset - minOffset) / (maxOffset - minOffset),
-          1,
-        );
+      if (offset >= 0) {
+        newProgress = Math.min(offset / rect.height, 1);
       }
       if (newProgress !== progress) {
         setProgress(newProgress);
       }
     };
-  }, [ref, progress, minOffset, maxOffset]);
+  }, [ref, progress]);
 
   useEffect(() => {
     const callback = () => onScroll.current?.();
