@@ -190,7 +190,7 @@ describe('squad page', () => {
     const notfound = generateNotFoundSquadResult();
     renderComponent(handle, [createSourceMock(handle, {}, notfound)]);
     await waitForNock();
-    await screen.findByText('Oops, this page couldn’t be found');
+    await screen.findByText('Why you here?');
   });
 });
 

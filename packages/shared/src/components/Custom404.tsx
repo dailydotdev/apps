@@ -1,6 +1,8 @@
 import React, { ReactElement, ReactNode } from 'react';
-import HelloWorldSvg from '../svg/HelloWorldSvg';
+import Link from 'next/link';
 import { PageContainer } from './utilities';
+import NotFoundSvg from '../svg/NotFoundSvg';
+import { Button, ButtonVariant } from './buttons/ButtonV2';
 
 interface Custom404Props {
   children?: ReactNode;
@@ -9,17 +11,22 @@ interface Custom404Props {
 export default function Custom404({ children }: Custom404Props): ReactElement {
   return (
     <PageContainer
-      className="justify-center items-center min-h-page"
+      className="justify-center min-h-page !items-center"
       data-testid="notFound"
     >
       {children}
-      <HelloWorldSvg
-        style={{ width: '55%', maxWidth: '32.75rem' }}
-        className="self-center -mt-20 laptop:-mt-10 mb-10"
-      />
-      <h1 className="mx-9 font-bold text-center break-words-overflow typo-title1">
-        Oops, this page couldn’t be found
-      </h1>
+      <div className="flex flex-col gap-6 items-center w-full text-center max-w-[26.25rem]">
+        <NotFoundSvg />
+        <h1 className="font-bold typo-title1">Why you here?</h1>
+        <p className="typo-callout text-theme-label-tertiary">
+          Are you trying us? You’re not supposed to be here.
+        </p>
+        <Link href="/" passHref>
+          <Button tag="a" variant={ButtonVariant.Primary}>
+            Go home
+          </Button>
+        </Link>
+      </div>
     </PageContainer>
   );
 }
