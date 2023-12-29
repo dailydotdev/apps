@@ -109,7 +109,7 @@ function ButtonComponent<TagName extends AllowedTags>(
       {loading && (
         <Loader
           data-testid="buttonLoader"
-          className="absolute inset-0 m-auto !visible"
+          className="absolute m-auto !visible"
         />
       )}
     </Tag>

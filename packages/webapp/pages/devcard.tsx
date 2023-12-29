@@ -313,7 +313,10 @@ const DevCardPage = (): ReactElement => {
   const [devCardSrc, setDevCardSrc] = useState<string>();
   const [imageError, setImageError] = useState<string>();
 
-  const onError = () => setImageError(labels.error.generic);
+  const onError = () => {
+    setImageError(labels.error.generic);
+    setIsLoadingImage(false);
+  };
 
   const { mutateAsync: generateDevCard } = useMutation(
     ({ file, url }: GenerateDevCardParams = {}) =>
