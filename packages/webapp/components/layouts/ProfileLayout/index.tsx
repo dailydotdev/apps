@@ -279,7 +279,9 @@ export const getLayout = (
   page: ReactNode,
   props: ProfileLayoutProps,
 ): ReactNode =>
-  getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, null);
+  getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, null, {
+    screenCentered: false,
+  });
 
 interface ProfileParams extends ParsedUrlQuery {
   userId: string;
