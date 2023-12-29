@@ -14,7 +14,12 @@ import {
 } from '../../graphql/comments';
 import { Roles } from '../../lib/user';
 import { graphqlUrl } from '../../lib/config';
-import { Button, ButtonSize } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
@@ -197,27 +202,33 @@ export default function CommentActionButtons({
       <SimpleTooltip content="Upvote">
         <Button
           id={`comment-${comment.id}-upvote-btn`}
-          buttonSize={ButtonSize.Small}
+          size={ButtonSize.Small}
           pressed={upvoted}
           onClick={toggleUpvote}
           icon={<UpvoteIcon secondary={upvoted} />}
-          className="btn-tertiary-avocado mr-3"
+          className="mr-3"
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.Avocado}
         />
       </SimpleTooltip>
       <SimpleTooltip content="Reply">
         <Button
-          buttonSize={ButtonSize.Small}
+          size={ButtonSize.Small}
           onClick={() => onComment(comment, parentId)}
           icon={<CommentIcon />}
-          className="btn-tertiary-blueCheese mr-3"
+          className="mr-3"
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.BlueCheese}
         />
       </SimpleTooltip>
       <SimpleTooltip content="Share comment">
         <Button
-          buttonSize={ButtonSize.Small}
+          size={ButtonSize.Small}
           onClick={() => onShare(comment)}
           icon={<ShareIcon />}
-          className="btn-tertiary-cabbage mr-3"
+          className="mr-3"
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.Cabbage}
         />
       </SimpleTooltip>
       {!!commentOptions && (

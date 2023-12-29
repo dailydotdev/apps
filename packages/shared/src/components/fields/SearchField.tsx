@@ -11,7 +11,12 @@ import { BaseField, FieldInput } from './common';
 import SearchIcon from '../icons/Search';
 import CloseIcon from '../icons/MiniClose';
 import ArrowIcon from '../icons/Arrow';
-import { Button, ButtonProps, ButtonSize } from '../buttons/Button';
+import {
+  Button,
+  ButtonProps,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import { getFieldFontColor } from './BaseFieldContainer';
 
 export interface SearchFieldProps
@@ -100,20 +105,20 @@ export const SearchField = forwardRef(function SearchField(
       {!!showIcon &&
         (isSecondary && hasInput ? (
           <Button
-            type="button"
-            className="btn-tertiary mr-2"
-            buttonSize={ButtonSize.XSmall}
+            className="mr-2"
+            size={ButtonSize.XSmall}
+            variant={ButtonVariant.Tertiary}
             title="Clear query"
             onClick={onClearClick}
             icon={
-              <CloseIcon className="icon text-lg group-hover:text-theme-label-primary" />
+              <CloseIcon className="text-lg icon group-hover:text-theme-label-primary" />
             }
             disabled={!hasInput}
           />
         ) : (
           <SearchIcon
             secondary={focused}
-            className="icon mr-2 text-2xl"
+            className="mr-2 text-2xl icon"
             style={{
               color:
                 focused || hasInput
@@ -151,8 +156,8 @@ export const SearchField = forwardRef(function SearchField(
       {((hasInput && isPrimary) || isSecondary) && !!rightButtonProps && (
         <Button
           {...rightButtonProps}
-          className={isSecondary ? 'btn-primary' : 'btn-tertiary'}
-          buttonSize={rightButtonProps.buttonSize || ButtonSize.XSmall}
+          variant={isSecondary ? ButtonVariant.Primary : ButtonVariant.Tertiary}
+          size={rightButtonProps.size || ButtonSize.XSmall}
           title={rightButtonProps.title || 'Clear query'}
           onClick={
             rightButtonProps.type !== 'submit'

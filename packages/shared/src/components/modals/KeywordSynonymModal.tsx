@@ -8,7 +8,7 @@ import {
   SET_KEYWORD_AS_SYNONYM_MUTATION,
 } from '../../graphql/keywords';
 import { graphqlUrl } from '../../lib/config';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { Modal, ModalProps } from './common/Modal';
 
 export type KeywordSynonymModalProps = { selectedKeyword: string } & ModalProps;
@@ -63,7 +63,7 @@ export default function KeywordSynonymModal({
               <li className="m-0 p-0" key={keyword.value}>
                 <Button
                   onClick={() => setSynonym(keyword.value)}
-                  className="btn-tertiary"
+                  variant={ButtonVariant.Tertiary}
                 >
                   {keyword.value}
                 </Button>

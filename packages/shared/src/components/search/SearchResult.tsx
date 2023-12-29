@@ -2,7 +2,6 @@ import React, { ReactElement, ReactNode, useCallback, useContext } from 'react';
 import { QueryKey, useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { WidgetContainer } from '../widgets/common';
-import { Button } from '../buttons/Button';
 import LogoIcon from '../../svg/LogoIcon';
 import UpvoteIcon from '../icons/Upvote';
 import DownvoteIcon from '../icons/Downvote';
@@ -22,6 +21,7 @@ import { WithClassNameProps } from '../utilities';
 import classed from '../../lib/classed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 
 export interface SearchResultProps {
   chunk: SearchChunk;
@@ -38,7 +38,7 @@ interface ContainerProps extends WithClassNameProps {
 const ContentPill = classed(Pill, 'w-full !h-3');
 
 const Container = ({ children, className }: ContainerProps) => (
-  <main className="order-2 col-span-2 w-full laptop:order-3">
+  <main className="order-2 laptop:order-3 col-span-2 w-full">
     <WidgetContainer className={classNames('flex p-4', className)}>
       {children}
     </WidgetContainer>
@@ -114,7 +114,7 @@ export function SearchResult({
 
   return (
     <Container className={className}>
-      <div className="mr-4 flex h-10 w-10 rounded-10 bg-theme-color-cabbage p-2">
+      <div className="flex p-2 mr-4 w-10 h-10 rounded-10 bg-theme-color-cabbage">
         <LogoIcon className="max-w-full" />
       </div>
       <div className="flex-1">
@@ -125,24 +125,25 @@ export function SearchResult({
         />
         <div className="flex pt-4">
           <Button
-            className="btn-tertiary-avocado mr-2"
-            iconOnly
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Avocado}
+            className="mr-2"
             pressed={chunk.feedback === 1}
             icon={<UpvoteIcon secondary={chunk.feedback === 1} />}
             onClick={() => sendFeedback(chunk.feedback === 1 ? 0 : 1)}
             disabled={isInProgress}
           />
           <Button
-            className="btn-tertiary-ketchup mr-2"
-            iconOnly
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Ketchup}
+            className="mr-2"
             pressed={chunk.feedback === -1}
             icon={<DownvoteIcon secondary={chunk.feedback === -1} />}
             onClick={() => sendFeedback(chunk.feedback === -1 ? 0 : -1)}
             disabled={isInProgress}
           />
           <Button
-            className="btn-tertiary"
-            iconOnly
+            variant={ButtonVariant.Tertiary}
             icon={<CopyIcon secondary={isCopying} />}
             onClick={handleCopy}
             disabled={isInProgress}

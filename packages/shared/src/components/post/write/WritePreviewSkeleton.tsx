@@ -2,13 +2,13 @@ import React, { ReactElement } from 'react';
 import { TextField } from '../../fields/TextField';
 import { Loader } from '../../Loader';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
-import { Button } from '../../buttons/Button';
 import OpenLinkIcon from '../../icons/OpenLink';
 import {
   previewImageClass,
   WritePreviewContainer,
   WritePreviewContent,
 } from './common';
+import { Button, ButtonVariant } from '../../buttons/ButtonV2';
 
 interface WritePreviewSkeletonProps {
   link: string;
@@ -42,8 +42,8 @@ export function WritePreviewSkeleton({
         </div>
         <div className={previewImageClass} />
         <Button
+          variant={ButtonVariant.Tertiary}
           icon={<OpenLinkIcon />}
-          className="btn-tertiary"
           disabled
           type="button"
           tag="a"

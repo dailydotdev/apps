@@ -2,7 +2,12 @@ import React, { ReactElement } from 'react';
 import CopyIcon from './icons/Copy';
 import ShareIcon from './icons/Share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
-import { Button, ButtonSize } from './buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from './buttons/ButtonV2';
 import { WidgetContainer } from './widgets/common';
 import { postAnalyticsEvent } from '../lib/feed';
 import { AnalyticsEvent } from '../lib/analytics';
@@ -27,19 +32,21 @@ export function ShareMobile({ post, share, link }: Props): ReactElement {
   return (
     <WidgetContainer className="flex flex-col items-start gap-2 p-3 laptop:hidden">
       <Button
-        buttonSize={ButtonSize.Small}
+        size={ButtonSize.Small}
         onClick={() => copyLink()}
         pressed={copying}
         icon={<CopyIcon />}
-        className="btn-tertiary-avocado"
+        variant={ButtonVariant.Tertiary}
+        color={ButtonColor.Avocado}
       >
         {copying ? 'Copied!' : 'Copy link'}
       </Button>
       <Button
-        buttonSize={ButtonSize.Small}
+        size={ButtonSize.Small}
         onClick={onShare}
         icon={<ShareIcon />}
-        className="btn-tertiary-cabbage"
+        variant={ButtonVariant.Tertiary}
+        color={ButtonColor.Cabbage}
       >
         Share with your friends
       </Button>

@@ -12,7 +12,13 @@ import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import UpvoteIcon from '../icons/Upvote';
 import CommentIcon from '../icons/Discuss';
-import { Button, ButtonProps, ButtonSize } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonProps,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import OptionsButton from '../buttons/OptionsButton';
 import { ReadArticleButton } from './ReadArticleButton';
@@ -54,9 +60,10 @@ function LastActionButton(props: LastActionButtonProps) {
     <SimpleTooltip content="Share post">
       <Button
         icon={<ShareIcon />}
-        buttonSize={ButtonSize.Small}
+        size={ButtonSize.Small}
         onClick={onClickShare}
-        className="btn-tertiary-cabbage"
+        variant={ButtonVariant.Tertiary}
+        color={ButtonColor.Cabbage}
       />
     </SimpleTooltip>
   );
@@ -77,7 +84,7 @@ export default function ActionButtons({
 }: ActionButtonsProps): ReactElement {
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
   const upvoteCommentProps: ButtonProps<'button'> = {
-    buttonSize: ButtonSize.Small,
+    size: ButtonSize.Small,
   };
   const isFeedPreview = useFeedPreviewMode();
 
@@ -171,7 +178,8 @@ export default function ActionButtons({
           {!isInternalReadType(post) && (
             <ReadArticleButton
               content={getReadPostButtonText(post)}
-              className="btn-primary mr-2"
+              className="mr-2"
+              variant={ButtonVariant.Primary}
               href={getReadArticleLink(post)}
               onClick={onReadArticleClick}
               openNewTab={!isSharedPostSquadPost(post) && openNewTab}

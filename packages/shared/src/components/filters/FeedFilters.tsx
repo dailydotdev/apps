@@ -7,7 +7,7 @@ import { TagCategoryLayout } from './TagCategoryDropdown';
 import AdvancedSettingsFilter from './AdvancedSettings';
 import BlockedFilter from './BlockedFilter';
 import ArrowIcon from '../icons/Arrow';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/ButtonV2';
 import { UnblockItem, unBlockPromptOptions } from './FilterMenu';
 import { Modal, ModalProps } from '../modals/common/Modal';
 import { usePrompt } from '../../hooks/usePrompt';
@@ -60,7 +60,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
   return (
     <Modal
       {...props}
-      className="h-full flex-1 overflow-auto"
+      className="overflow-auto flex-1 h-full"
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.XLarge}
       tabs={tabs}
@@ -76,8 +76,8 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
         <Modal.Sidebar.Inner>
           <Modal.Header>
             <Button
-              buttonSize={ButtonSize.Small}
-              className="mr-2 flex -rotate-90 tablet:hidden"
+              size={ButtonSize.Small}
+              className="flex tablet:hidden mr-2 -rotate-90"
               icon={<ArrowIcon />}
               onClick={() => setIsNavOpen(true)}
             />

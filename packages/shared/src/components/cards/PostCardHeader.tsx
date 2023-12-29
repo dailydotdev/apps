@@ -7,6 +7,7 @@ import { ReadArticleButton } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useFeedPreviewMode } from '../../hooks';
 import { Post, getReadPostButtonText } from '../../graphql/posts';
+import { ButtonVariant } from '../buttons/ButtonV2';
 
 interface CardHeaderProps {
   post: Post;
@@ -38,14 +39,15 @@ export const PostCardHeader = ({
       <SourceButton source={source} />
       {children}
       <Container
-        className="ml-auto flex flex-row"
+        className="flex flex-row ml-auto"
         data-testid="cardHeaderActions"
       >
         {!isFeedPreview && (
           <>
             <ReadArticleButton
               content={getReadPostButtonText(post)}
-              className="btn-primary mr-2"
+              className="mr-2"
+              variant={ButtonVariant.Primary}
               href={postLink}
               onClick={onReadArticleClick}
               openNewTab={openNewTab}

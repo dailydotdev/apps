@@ -5,9 +5,9 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import ConditionalWrapper from '../ConditionalWrapper';
 import useWindowEvents from '../../hooks/useWindowEvents';
-import { Button, ButtonSize } from '../buttons/Button';
 import CloseIcon from '../icons/MiniClose';
 import { isNullOrUndefined } from '../../lib/func';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 
 export enum InteractivePopupPosition {
   Center = 'center',
@@ -29,7 +29,7 @@ interface InteractivePopupProps {
   position?: InteractivePopupPosition;
   closeOutsideClick?: boolean;
   onClose?: (e: MouseEvent | KeyboardEvent | MessageEvent) => void;
-  closeButtonTypeClassname?: 'btn-secondary' | 'btn-tertiary';
+  closeButtonVariant?: ButtonVariant.Secondary | ButtonVariant.Tertiary;
 }
 
 const centerClassX = 'left-1/2 -translate-x-1/2';
@@ -66,7 +66,7 @@ function InteractivePopup({
   position = InteractivePopupPosition.Center,
   closeOutsideClick,
   onClose,
-  closeButtonTypeClassname = 'btn-secondary',
+  closeButtonVariant = ButtonVariant.Secondary,
   ...props
 }: InteractivePopupProps): ReactElement {
   const container = useRef<HTMLDivElement>();
@@ -100,7 +100,7 @@ function InteractivePopup({
       <ConditionalWrapper
         condition={!validateSidebar}
         wrapper={(child) => (
-          <div className="fixed inset-0 z-modal flex flex-col items-center bg-overlay-quaternary-onion">
+          <div className="flex fixed inset-0 z-modal flex-col items-center bg-overlay-quaternary-onion">
             {child}
           </div>
         )}
@@ -108,7 +108,7 @@ function InteractivePopup({
         <div
           ref={container}
           className={classNames(
-            'fixed z-popup overflow-hidden rounded-16 bg-theme-bg-primary shadow-2',
+            'fixed z-popup bg-theme-bg-primary rounded-16 overflow-hidden shadow-2',
             className,
             classes,
             !validateSidebar && 'shadow-2',
@@ -121,12 +121,9 @@ function InteractivePopup({
           {finalPosition !== InteractivePopupPosition.ProfileMenu &&
             onClose && (
               <Button
-                buttonSize={ButtonSize.Small}
-                className={classNames(
-                  'right-2 top-2 z-1',
-                  closeButtonTypeClassname,
-                )}
-                position="absolute"
+                size={ButtonSize.Small}
+                variant={closeButtonVariant}
+                className="absolute top-2 right-2 z-1"
                 icon={<CloseIcon />}
                 onClick={(e: React.MouseEvent) => onClose(e.nativeEvent)}
                 data-testid="close-interactive-popup"

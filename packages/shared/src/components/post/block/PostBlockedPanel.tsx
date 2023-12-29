@@ -1,6 +1,6 @@
 import React, { MouseEventHandler, ReactElement } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize } from '../../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 
 interface PostBlockedPanelProps {
   className?: string;
@@ -18,15 +18,15 @@ export function PostBlockedPanel({
   return (
     <span
       className={classNames(
-        'relative flex flex-row items-center rounded-16 border border-theme-divider-tertiary p-4',
+        'flex relative flex-row items-center p-4 rounded-16 border border-theme-divider-tertiary',
         className,
       )}
     >
       {message}
       <Button
-        className="btn-tertiary right-4"
-        position="absolute"
-        buttonSize={ButtonSize.Small}
+        variant={ButtonVariant.Tertiary}
+        className="absolute right-4"
+        size={ButtonSize.Small}
         onClick={onActionClick}
       >
         {ctaCopy}

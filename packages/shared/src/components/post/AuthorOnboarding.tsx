@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { ownershipGuide } from '../../lib/constants';
-import { Button } from '../buttons/Button';
 import FeatherIcon from '../icons/Feather';
 import styles from './AuthorOnboarding.module.css';
 import { IconSize } from '../Icon';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 
 interface AuthorOnboardingProps {
   onSignUp?: () => unknown;
@@ -48,12 +48,12 @@ function AuthorOnboarding({ onSignUp }: AuthorOnboardingProps): ReactElement {
         }}
       >
         {onSignUp && (
-          <Button className="btn-primary" onClick={onSignUp}>
+          <Button variant={ButtonVariant.Primary} onClick={onSignUp}>
             Sign up
           </Button>
         )}
         <Button
-          className="btn-secondary"
+          variant={ButtonVariant.Secondary}
           tag="a"
           href={ownershipGuide}
           target="_blank"

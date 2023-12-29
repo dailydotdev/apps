@@ -16,26 +16,26 @@ export const WelcomePostCardHeader = ({
   enableSourceHeader = false,
 }: WelcomePostCardHeaderProps): ReactElement => {
   return (
-    <div className="relative m-2 mb-3 flex flex-row gap-2">
+    <div className="flex relative flex-row gap-2 m-2">
       <div className="relative">
         <ProfilePicture
           user={author}
           size={enableSourceHeader ? 'xsmall' : 'xlarge'}
-          className={enableSourceHeader && '-right-2.5 top-7'}
+          className={enableSourceHeader && 'top-7 -right-2.5'}
           absolute={enableSourceHeader}
         />
         <SourceButton
           source={source}
-          className={!enableSourceHeader && 'absolute -bottom-2 -right-2'}
+          className={!enableSourceHeader && 'absolute -right-2 -bottom-2'}
           size={enableSourceHeader ? 'large' : 'xsmall'}
         />
       </div>
-      <div className="ml-2 mr-6 flex flex-1 flex-grow flex-col typo-footnote">
-        <span className="line-clamp-2 font-bold">
+      <div className="flex flex-col flex-1 flex-grow mr-6 ml-2 typo-footnote">
+        <span className="font-bold line-clamp-2">
           {enableSourceHeader ? source.name : author.name}
         </span>
         <PostMetadata
-          className="line-clamp-1 break-words"
+          className="break-words line-clamp-1"
           createdAt={createdAt}
           description={enableSourceHeader ? author.name : `@${author.username}`}
         />

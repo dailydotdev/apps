@@ -1,29 +1,30 @@
 import React, { ReactElement } from 'react';
-import { Button, ButtonSize } from '../buttons/Button';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonProps,
+  ButtonSize,
+} from '../buttons/ButtonV2';
 import OpenLinkIcon from '../icons/OpenLink';
 
-interface ReadArticleButtonProps {
+type ReadArticleButtonProps = ButtonProps<'a'> & {
   content: string;
   href: string;
-  className?: string;
   openNewTab?: boolean;
-  buttonSize?: ButtonSize;
-  onClick?: (e: React.MouseEvent) => unknown;
-  title?: string;
-  rel?: string;
-}
+};
 
 export const ReadArticleButton = ({
   content,
   openNewTab,
-  buttonSize = ButtonSize.Small,
+  size = ButtonSize.Small,
   ...props
 }: ReadArticleButtonProps): ReactElement => (
   <Button
-    tag="a"
     {...props}
-    buttonSize={buttonSize}
-    rightIcon={<OpenLinkIcon className="ml-2" secondary />}
+    tag="a"
+    size={size}
+    icon={<OpenLinkIcon className="ml-2" secondary />}
+    iconPosition={ButtonIconPosition.Right}
     target={openNewTab ? '_blank' : '_self'}
   >
     {content}

@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
-import { SocialShareIcon } from './SocialShareIcon';
+import { SocialShareButton } from './SocialShareButton';
 import CopyIcon from '../icons/Copy';
 import {
   getEmailShareLink,
@@ -21,6 +20,7 @@ import TelegramIcon from '../icons/Telegram';
 import MailIcon from '../icons/Mail';
 import MenuIcon from '../icons/Menu';
 import { IconSize } from '../Icon';
+import { ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 
 interface SocialShareListProps {
   link: string;
@@ -44,71 +44,74 @@ export function SocialShareList({
   return (
     <>
       {onCopy && (
-        <SocialShareIcon
+        <SocialShareButton
           onClick={onCopy}
-          icon={
-            <CopyIcon
-              className={classNames('text-theme-label-invert')}
-              secondary={isCopying}
-            />
-          }
-          className="btn-primary"
+          icon={<CopyIcon secondary={isCopying} />}
+          variant={ButtonVariant.Primary}
           label={isCopying ? 'Copied!' : 'Copy link'}
         />
       )}
-      <SocialShareIcon
+      <SocialShareButton
         href={getTwitterShareLink(link, description)}
         icon={<TwitterIcon />}
-        className="bg-black text-white"
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Twitter}
         onClick={() => onClickSocial(ShareProvider.Twitter)}
         label="X"
       />
-      <SocialShareIcon
+      <SocialShareButton
         href={getWhatsappShareLink(link)}
         icon={<WhatsappIcon />}
         onClick={() => onClickSocial(ShareProvider.WhatsApp)}
-        className="bg-theme-bg-whatsapp"
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.WhatsApp}
         label="WhatsApp"
       />
-      <SocialShareIcon
+      <SocialShareButton
         href={getFacebookShareLink(link)}
         icon={<FacebookIcon />}
-        className="bg-theme-bg-facebook"
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Facebook}
         onClick={() => onClickSocial(ShareProvider.Facebook)}
         label="Facebook"
       />
-      <SocialShareIcon
+      <SocialShareButton
         href={getRedditShareLink(link, description)}
         icon={<RedditIcon />}
-        className="bg-theme-bg-reddit"
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Reddit}
         onClick={() => onClickSocial(ShareProvider.Reddit)}
         label="Reddit"
       />
-      <SocialShareIcon
+      <SocialShareButton
         href={getLinkedInShareLink(link)}
         icon={<LinkedInIcon />}
-        className="bg-theme-bg-linkedin"
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.LinkedIn}
         onClick={() => onClickSocial(ShareProvider.LinkedIn)}
         label="LinkedIn"
       />
-      <SocialShareIcon
+      <SocialShareButton
         href={getTelegramShareLink(link, description)}
         icon={<TelegramIcon />}
-        className="bg-theme-bg-telegram"
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Telegram}
         onClick={() => onClickSocial(ShareProvider.Telegram)}
         label="Telegram"
       />
-      <SocialShareIcon
+      <SocialShareButton
         href={getEmailShareLink(link, emailTitle ?? description)}
         icon={<MailIcon />}
-        className="bg-theme-bg-email"
+        variant={ButtonVariant.Primary}
+        className="bg-theme-bg-email text-theme-label-primary"
         onClick={() => onClickSocial(ShareProvider.Email)}
         label="Email"
       />
       {'share' in navigator && (
-        <SocialShareIcon
+        <SocialShareButton
           icon={<MenuIcon size={IconSize.Large} className="rotate-90" />}
-          className="bg-theme-bg-email"
+          variant={ButtonVariant.Primary}
+          className="bg-theme-bg-email text-theme-label-primary"
           onClick={onNativeShare}
           label="Share via..."
         />

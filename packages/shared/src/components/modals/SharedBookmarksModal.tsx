@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import request from 'graphql-request';
 import CopyIcon from '../icons/Copy';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { Switch } from '../fields/Switch';
 import {
   BookmarksSharingData,
@@ -84,8 +84,8 @@ export default function SharedBookmarksModal({
               fieldType="tertiary"
               actionButton={
                 <Button
-                  buttonSize={ButtonSize.Small}
-                  className="btn-tertiary"
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Tertiary}
                   icon={<CopyIcon />}
                   onClick={() => copyRssUrl()}
                 />
@@ -103,8 +103,8 @@ export default function SharedBookmarksModal({
           <div className="mt-4 flex justify-between">
             <Button
               rel="noopener noreferrer"
-              className="btn-secondary"
-              buttonSize={ButtonSize.Small}
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
               href={sharingBookmarks}
               tag="a"
               target="_blank"

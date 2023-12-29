@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 
 import { ReactMarkdownOptions } from 'react-markdown/lib/react-markdown';
 import styles from './markdown.module.css';
-import { Button, ButtonSize } from './buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from './buttons/ButtonV2';
 import CopyIcon from './icons/Copy';
 import { useCopyText } from '../hooks/useCopy';
 
@@ -155,10 +155,10 @@ const RenderMarkdown = ({
                   </span>
 
                   <Button
-                    className="btn-tertiary"
+                    variant={ButtonVariant.Tertiary}
                     icon={<CopyIcon />}
                     disabled={copying || isLoading}
-                    buttonSize={ButtonSize.XSmall}
+                    size={ButtonSize.XSmall}
                     onClick={() =>
                       copy({
                         textToCopy: String(children),

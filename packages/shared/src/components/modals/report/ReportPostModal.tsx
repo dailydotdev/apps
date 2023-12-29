@@ -10,7 +10,7 @@ import React, {
 import { RadioOption } from '../../fields/Radio';
 import { Post, ReadHistoryPost, ReportReason } from '../../../graphql/posts';
 import { Checkbox } from '../../fields/Checkbox';
-import { Button, ButtonSize } from '../../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { PostBootData } from '../../../lib/boot';
 import { ModalProps } from '../common/Modal';
 import { FlexRow } from '../../utilities';
@@ -69,8 +69,8 @@ const reportReasonsMap: Partial<
           return (
             <Button
               key={tag}
-              className={isSelected ? 'btn-primary' : 'btn-tertiaryFloat'}
-              buttonSize={ButtonSize.Small}
+              variant={isSelected ? ButtonVariant.Primary : ButtonVariant.Float}
+              size={ButtonSize.Small}
               onClick={() => {
                 if (isSelected) {
                   setSelectedTags(selectedTags.filter((t) => t !== tag));

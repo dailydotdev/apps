@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Switch } from '../../fields/Switch';
-import { Button } from '../../buttons/Button';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import useSidebarRendered from '../../../hooks/useSidebarRendered';
+import { Button, ButtonColor, ButtonVariant } from '../../buttons/ButtonV2';
 
 interface WriteFooterProps {
   isLoading?: boolean;
@@ -21,7 +21,7 @@ export function WriteFooter({
   return (
     <span
       className={classNames(
-        'relative flex flex-col items-center tablet:flex-row',
+        'relative flex flex-col tablet:flex-row items-center',
         !sidebarRendered && 'justify-center',
         className,
       )}
@@ -41,12 +41,14 @@ export function WriteFooter({
         </Switch>
       )}
       {shouldShowCta && (
-        <div className="absolute -left-4 mt-1 h-px w-[calc(100%+2rem)] bg-theme-divider-tertiary tablet:hidden" />
+        <div className="tablet:hidden absolute -left-4 mt-1 h-px w-[calc(100%+2rem)] bg-theme-divider-tertiary" />
       )}
       <Button
         type="submit"
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Cabbage}
         className={classNames(
-          'btn-primary-cabbage ml-auto w-full tablet:mt-0 tablet:w-32',
+          'tablet:mt-0 ml-auto w-full tablet:w-32',
           shouldShowCta && 'mt-6',
         )}
         disabled={isLoading}

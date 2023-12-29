@@ -3,7 +3,6 @@ import { TextField } from '../../fields/TextField';
 import LinkIcon from '../../icons/Link';
 import { SourceAvatar } from '../../profile/source';
 import { Image } from '../../image/Image';
-import { Button } from '../../buttons/Button';
 import OpenLinkIcon from '../../icons/OpenLink';
 import {
   previewImageClass,
@@ -11,6 +10,7 @@ import {
   WritePreviewContent,
 } from './common';
 import { ExternalLinkPreview } from '../../../graphql/posts';
+import { Button, ButtonVariant } from '../../buttons/ButtonV2';
 
 interface WriteLinkPreviewProps {
   link: string;
@@ -72,7 +72,7 @@ export function WriteLinkPreview({
           {!isMinimized && (
             <Button
               icon={<OpenLinkIcon />}
-              className="btn-tertiary"
+              variant={ButtonVariant.Tertiary}
               type="button"
               tag="a"
               target="_blank"

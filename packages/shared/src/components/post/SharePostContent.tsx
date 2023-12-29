@@ -14,6 +14,7 @@ import { SharePostTitle } from './share';
 import { combinedClicks } from '../../lib/click';
 import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
+import { ButtonVariant } from '../buttons/ButtonV2';
 
 interface SharePostContentProps {
   post: Post;
@@ -36,12 +37,12 @@ function SharePostContent({
   return (
     <>
       <SharePostTitle post={post} />
-      <SharedLinkContainer className="mb-5 mt-8">
-        <div className="flex max-w-full flex-col-reverse p-4 laptop:flex-row">
-          <div className="flex flex-1 flex-col">
+      <SharedLinkContainer className="mt-8 mb-5">
+        <div className="flex flex-col-reverse laptop:flex-row p-4 max-w-full">
+          <div className="flex flex-col flex-1">
             <SharedPostLink
               post={post}
-              className="mb-4 mt-4 flex flex-wrap font-bold typo-body laptop:mt-0"
+              className="flex flex-wrap mt-4 laptop:mt-0 mb-4 font-bold typo-body"
             >
               {post.sharedPost.title}
             </SharedPostLink>
@@ -56,7 +57,8 @@ function SharePostContent({
             />
             <ReadArticleButton
               content={getReadPostButtonText(post)}
-              className="btn-secondary mt-5 w-fit"
+              className="mt-5 w-fit"
+              variant={ButtonVariant.Secondary}
               href={
                 shouldUseInternalLink
                   ? post.sharedPost.commentsPermalink
@@ -72,7 +74,7 @@ function SharePostContent({
           <SharedPostLink
             post={post}
             onGoToLinkProps={combinedClicks(openArticle)}
-            className="ml-2 block h-fit w-70 cursor-pointer overflow-hidden rounded-2xl"
+            className="block overflow-hidden ml-2 w-70 rounded-2xl cursor-pointer h-fit"
           >
             <LazyImage
               imgSrc={post.sharedPost.image}

@@ -3,12 +3,12 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import SquadMemberShortList from '../squads/SquadMemberShortList';
 import { Card } from '../cards/Card';
-import { Button } from '../buttons/Button';
 import { SourceType, Squad } from '../../graphql/sources';
 import { Image } from '../image/Image';
 import { SquadJoinButton } from '../squads/SquadJoinButton';
 import { Origin } from '../../lib/analytics';
 import { cloudinary } from '../../lib/image';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 
 type SourceCardActionType = 'link' | 'action';
 
@@ -84,7 +84,7 @@ export const SourceCard = ({
     >
       <div className="h-24 rounded-t-2xl bg-theme-bg-onion">
         <Image
-          className="h-full w-full object-cover"
+          className="object-cover w-full h-full"
           src={
             source?.banner ||
             banner ||
@@ -93,17 +93,17 @@ export const SourceCard = ({
           alt="Banner image for source"
         />
       </div>
-      <div className="-mt-12 flex flex-1 flex-col rounded-t-2xl bg-theme-bg-secondary p-4">
-        <div className="mb-3 flex items-end justify-between">
+      <div className="flex flex-col flex-1 p-4 -mt-12 rounded-t-2xl bg-theme-bg-secondary">
+        <div className="flex justify-between items-end mb-3">
           <a href={source?.permalink}>
             {source?.image ? (
               <img
-                className="z-10 -mt-14 h-24 w-24 rounded-full"
+                className="-mt-14 w-24 h-24 rounded-full z-10"
                 src={source?.image}
                 alt={`${title} source`}
               />
             ) : (
-              <div className="z-10 -mt-14 flex h-24 w-24 items-center justify-center rounded-full bg-theme-bg-pepper40">
+              <div className="flex justify-center items-center -mt-14 w-24 h-24 rounded-full bg-theme-bg-pepper40 z-10">
                 {icon}
               </div>
             )}
@@ -121,8 +121,8 @@ export const SourceCard = ({
             />
           )}
         </div>
-        <div className="flex flex-1 flex-col justify-between">
-          <div className="mb-5 flex-auto">
+        <div className="flex flex-col flex-1 justify-between">
+          <div className="flex-auto mb-5">
             <a href={source?.permalink}>
               <div className="font-bold typo-title3">{title}</div>
               {subtitle && (
@@ -131,7 +131,7 @@ export const SourceCard = ({
             </a>
             {description ||
               (source?.description && (
-                <div className="multi-truncate mt-1 line-clamp-5 text-theme-label-secondary">
+                <div className="mt-1 line-clamp-5 text-theme-label-secondary multi-truncate">
                   {source?.description || description}
                 </div>
               ))}
@@ -141,7 +141,7 @@ export const SourceCard = ({
           action?.type === 'action' &&
           source?.type === SourceType.Squad ? (
             <SquadJoinButton
-              className="!btn-secondary w-full"
+              className="w-full !btn-secondary"
               squad={source}
               origin={Origin.SquadDirectory}
               onSuccess={() => router.push(source?.permalink)}
@@ -150,7 +150,8 @@ export const SourceCard = ({
             />
           ) : (
             <Button
-              className="btn-secondary w-full"
+              variant={ButtonVariant.Secondary}
+              className="w-full"
               onClick={action?.type === 'action' ? action?.onClick : undefined}
               tag={action?.type === 'link' ? 'a' : undefined}
               href={action?.type === 'link' && action.href}

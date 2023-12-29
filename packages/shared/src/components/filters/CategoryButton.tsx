@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { TagCategory } from '../../graphql/feedSettings';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
 
@@ -10,13 +10,23 @@ const ClearCategoryButton = ({
   matches: number;
   action: () => unknown;
 }) => (
-  <Button onClick={action} className="small btn-secondary px-4">
+  <Button
+    onClick={action}
+    className="px-4"
+    variant={ButtonVariant.Secondary}
+    size={ButtonSize.Small}
+  >
     Clear ({matches})
   </Button>
 );
 
 const FollowCategoryButton = ({ action }: { action: () => unknown }) => (
-  <Button onClick={action} className="small btn-primary px-4">
+  <Button
+    onClick={action}
+    className="px-4"
+    variant={ButtonVariant.Primary}
+    size={ButtonSize.Small}
+  >
     Follow all
   </Button>
 );

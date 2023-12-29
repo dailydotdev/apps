@@ -2,7 +2,7 @@ import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import FilterIcon from '../icons/Filter';
-import { Button } from '../buttons/Button';
+import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/ButtonV2';
 import AlertPointer, {
   AlertPlacement,
   AlertPointerProps,
@@ -71,8 +71,9 @@ function MyFeedHeading({
     return (
       <AlertPointer {...alertProps} offset={[0, 0]}>
         <Button
+          variant={ButtonVariant.Float}
           className={classNames(
-            'btn-tertiaryFloat mr-auto',
+            'mr-auto',
             shouldShowHighlightPulse && 'highlight-pulse',
           )}
           onClick={onClick}
@@ -87,12 +88,14 @@ function MyFeedHeading({
   return (
     <AlertPointer {...alertProps}>
       <Button
+        variant={ButtonVariant.Tertiary}
         className={classNames(
-          'btn-tertiary mr-auto',
+          'mr-auto',
           shouldShowHighlightPulse && 'highlight-pulse',
         )}
         onClick={onClick}
-        rightIcon={<FilterIcon />}
+        icon={<FilterIcon />}
+        iconPosition={ButtonIconPosition.Right}
       >
         Feed settings
       </Button>
