@@ -131,7 +131,7 @@ export default function Feed<T>({
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
-  const { shouldUseFeedLayoutV1 } = useFeedLayout({ feedName });
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
     useFeed(
       feedQueryKey,
@@ -149,9 +149,8 @@ export default function Feed<T>({
     return {
       queryKey: feedQueryKey,
       items,
-      feedName,
     };
-  }, [feedQueryKey, items, feedName]);
+  }, [feedQueryKey, items]);
 
   const { ranking } = (variables as RankVariables) || {};
   const {
