@@ -4,7 +4,7 @@ import classed from '../../../lib/classed';
 import { ModalTabs, ModalTabsProps } from './ModalTabs';
 import { ModalClose } from './ModalClose';
 import { ModalHeaderKind, ModalPropsContext } from './types';
-import { Button, ButtonProps } from '../../buttons/Button';
+import { Button, ButtonProps, ButtonVariant } from '../../buttons/ButtonV2';
 import ArrowIcon from '../../icons/Arrow';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
 import { ProgressBar } from '../../fields/ProgressBar';
@@ -73,7 +73,8 @@ export function ModalHeaderTabs(props: ModalTabsProps): ReactElement {
 const ModalHeaderStepsButton = (props: ButtonProps<'button'>) => (
   <Button
     icon={<ArrowIcon className="-rotate-90" />}
-    className="flex justify-center items-center mr-2 -ml-2 btn btn-tertiary iconOnly"
+    className="mr-2 -ml-2"
+    variant={ButtonVariant.Tertiary}
     {...props}
   />
 );

@@ -1,10 +1,15 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize } from '../buttons/Button';
 import { cloudinary } from '../../lib/image';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetType } from '../../lib/analytics';
 import { ExperimentWinner } from '../../lib/featureValues';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 
 const imageClassNames = 'absolute right-0';
 
@@ -51,8 +56,10 @@ export function PostFeedFiltersOnboarding({
           Let&apos;s super-charge your feed with the content you actually read!
         </p>
         <Button
-          className="mt-4 btn-primary-cabbage"
-          buttonSize={ButtonSize.Small}
+          className="mt-4"
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Cabbage}
+          size={ButtonSize.Small}
           tabIndex={-1}
         >
           Customize

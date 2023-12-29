@@ -20,11 +20,6 @@ module.exports = {
         bg: {
           inherit: 'inherit',
           transparent: 'transparent',
-          whatsapp: '#30B944',
-          facebook: '#4363B6',
-          reddit: '#FF4500',
-          linkedin: '#0077B5',
-          telegram: '#24A2E0',
           email: 'var(--theme-color-email)',
           primary: 'var(--theme-background-primary)',
           reverse: 'var(--theme-background-reverse)',
@@ -175,11 +170,11 @@ module.exports = {
         'rank-modal': 'calc(100vh - 5rem)',
         page: 'calc(100vh - 3.5rem)',
         commentBox: '18.25rem',
-        card: '23.75rem',
+        card: '24rem',
       },
       minHeight: {
         page: 'calc(100vh - 3.5rem)',
-        card: '23.75rem',
+        card: '24rem',
       },
       gap: {
         unset: 'unset',
@@ -209,6 +204,7 @@ module.exports = {
         screen: '100vh',
       },
       spacing: {
+        18: '4.5rem',
         22: '5.5rem',
         70: '17.5rem',
       },

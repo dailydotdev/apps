@@ -13,7 +13,12 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { ImageIcon, MarkdownIcon } from '../../icons';
-import { Button, ButtonSize } from '../../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/ButtonV2';
 import LinkIcon from '../../icons/Link';
 import AtIcon from '../../icons/At';
 import { RecommendedMentionTooltip } from '../../tooltips/RecommendedMentionTooltip';
@@ -262,17 +267,17 @@ function MarkdownInput(
         <span className="flex flex-row gap-3 justify-end items-center p-3 px-4 border-t border-theme-divider-tertiary text-theme-label-tertiary">
           {!!onUploadCommand && (
             <Button
-              type="button"
-              buttonSize={actionButtonSizes}
+              size={actionButtonSizes}
+              variant={ButtonVariant.Tertiary}
+              color={uploadingCount ? ButtonColor.Cabbage : undefined}
               className={classNames(
-                'btn-tertiary font-normal',
+                'font-normal',
                 uploadingCount && 'mr-auto text-theme-color-cabbage',
               )}
               icon={icon}
-              iconOnly={!sidebarRendered}
               onClick={() => uploadRef?.current?.click()}
             >
-              {shouldShowSubmit ? null : (
+              {!sidebarRendered || shouldShowSubmit ? null : (
                 <MarkdownUploadLabel
                   uploadingCount={uploadingCount}
                   uploadedCount={uploadedCount}
@@ -303,27 +308,24 @@ function MarkdownInput(
           >
             {!!onLinkCommand && (
               <Button
-                className="btn-tertiary"
-                type="button"
-                buttonSize={actionButtonSizes}
+                variant={ButtonVariant.Tertiary}
+                size={actionButtonSizes}
                 icon={<LinkIcon secondary />}
                 onClick={onLinkCommand}
               />
             )}
             {!!onMentionCommand && (
               <Button
-                className="btn-tertiary"
-                type="button"
-                buttonSize={actionButtonSizes}
+                variant={ButtonVariant.Tertiary}
+                size={actionButtonSizes}
                 icon={<AtIcon />}
                 onClick={onMentionCommand}
               />
             )}
             {showMarkdownGuide && (
               <Button
-                className="btn-tertiary"
-                type="button"
-                buttonSize={actionButtonSizes}
+                variant={ButtonVariant.Tertiary}
+                size={actionButtonSizes}
                 icon={<MarkdownIcon />}
                 tag="a"
                 target="_blank"
@@ -334,7 +336,9 @@ function MarkdownInput(
           </ConditionalWrapper>
           {shouldShowSubmit && (
             <Button
-              className="ml-auto btn-primary-cabbage"
+              className="ml-auto"
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Cabbage}
               type="submit"
               disabled={isLoading || disabledSubmit || input === ''}
               loading={isLoading}

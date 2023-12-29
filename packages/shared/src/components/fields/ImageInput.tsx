@@ -11,8 +11,8 @@ import { fallbackImages } from '../../lib/config';
 import EditIcon from '../icons/Edit';
 import { IconSize } from '../Icon';
 import { useToastNotification } from '../../hooks/useToastNotification';
-import { Button, ButtonSize } from '../buttons/Button';
-import MiniCloseIcon from '../icons/MiniClose';
+import { ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import CloseButton from '../CloseButton';
 
 type Size = 'medium' | 'large';
 
@@ -157,13 +157,11 @@ function ImageInput({
         )}
       </button>
       {image && closeable && (
-        <Button
-          type="button"
-          buttonSize={ButtonSize.Small}
-          position="absolute"
-          className="absolute -top-2 -right-2 !shadow-2 btn-primary"
+        <CloseButton
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Primary}
+          className="absolute -top-2 -right-2 !shadow-2"
           onClick={onClose}
-          icon={<MiniCloseIcon />}
         />
       )}
     </div>

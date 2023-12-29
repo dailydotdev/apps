@@ -16,7 +16,7 @@ import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Dropdown, DropdownProps } from '../fields/Dropdown';
-import { ButtonSize } from '../buttons/Button';
+import { ButtonSize } from '../buttons/ButtonV2';
 import CalendarIcon from '../icons/Calendar';
 import SortIcon from '../icons/Sort';
 import { IconSize } from '../Icon';

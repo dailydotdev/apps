@@ -1,7 +1,6 @@
 import React, { forwardRef, ReactElement, Ref, useRef, useState } from 'react';
 import { CardButton, getPostClassNames } from './Card';
 import ActionButtons from './ActionButtons';
-import { SharedPostCardHeader } from './SharedPostCardHeader';
 import { SharedPostText } from './SharedPostText';
 import { SharedPostCardFooter } from './SharedPostCardFooter';
 import { Container, PostCardProps } from './common';
@@ -9,6 +8,7 @@ import OptionsButton from '../buttons/OptionsButton';
 import FeedItemContainer from './FeedItemContainer';
 import { useFeedPreviewMode } from '../../hooks';
 import { isVideoPost } from '../../graphql/posts';
+import { SquadPostCardHeader } from './common/SquadPostCardHeader';
 
 export const SharePostCard = forwardRef(function SharePostCard(
   {
@@ -59,12 +59,11 @@ export const SharePostCard = forwardRef(function SharePostCard(
       )}
 
       <OptionsButton
-        className="group-hover:flex laptop:hidden top-2 right-2"
+        className="group-hover:flex laptop:hidden absolute top-2 right-2"
         onClick={(event) => onMenuClick?.(event, post)}
         tooltipPlacement="top"
-        position="absolute"
       />
-      <SharedPostCardHeader
+      <SquadPostCardHeader
         author={post.author}
         source={post.source}
         createdAt={post.createdAt}

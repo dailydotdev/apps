@@ -5,7 +5,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../../lib/analytics';
 import { webappUrl } from '../../lib/constants';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import BellIcon from '../icons/Bell';
 import HamburgerIcon from '../icons/Hamburger';
 import LoginButton from '../LoginButton';
@@ -93,27 +93,27 @@ function MainLayoutHeader({
               tooltip={{ placement: 'bottom', content: 'Notifications' }}
               href={`${webappUrl}notifications`}
             >
-              <Button
-                className="hidden laptop:flex mr-4 btn-tertiary bg-theme-bg-secondary"
-                buttonSize={ButtonSize.Small}
-                iconOnly
-                onClick={onNavigateNotifications}
-                icon={
-                  <BellIcon
-                    className={classNames(
-                      'hover:text-theme-label-primary',
-                      atNotificationsPage && 'text-theme-label-primary',
-                    )}
-                    secondary={atNotificationsPage}
-                  />
-                }
-              >
+              <div className="hidden laptop:flex relative mr-4">
+                <Button
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  onClick={onNavigateNotifications}
+                  icon={
+                    <BellIcon
+                      className={classNames(
+                        'hover:text-theme-label-primary',
+                        atNotificationsPage && 'text-theme-label-primary',
+                      )}
+                      secondary={atNotificationsPage}
+                    />
+                  }
+                />
                 {hasNotification && (
-                  <Bubble className="top-0 right-0 px-1 shadow-bubble-cabbage translate-x-1/2 -translate-y-1/2">
+                  <Bubble className="top-0 right-0 px-1 shadow-bubble-cabbage translate-x-1/2 -translate-y-1/2 cursor-pointer">
                     {getUnreadText(unreadCount)}
                   </Bubble>
                 )}
-              </Button>
+              </div>
             </LinkWithTooltip>
           </>
         )}
@@ -136,8 +136,8 @@ function MainLayoutHeader({
       {sidebarRendered !== undefined && (
         <>
           <Button
-            className="block laptop:hidden btn-tertiary"
-            iconOnly
+            className="block laptop:hidden"
+            variant={ButtonVariant.Tertiary}
             onClick={() => onMobileSidebarToggle(true)}
             icon={<HamburgerIcon secondary />}
           />

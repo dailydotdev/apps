@@ -8,7 +8,7 @@ import React, {
 import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
 import request from 'graphql-request';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { SearchField } from '../fields/SearchField';
 import { Radio } from '../fields/Radio';
 import { formToJson } from '../../lib/form';
@@ -63,7 +63,7 @@ const getFeedLabel = (label: string, link: string) => (
   <span className="flex flex-1 justify-between items-center w-full">
     {label}
     <Button
-      className="btn-tertiary"
+      variant={ButtonVariant.Tertiary}
       tag="a"
       target="_blank"
       href={link}
@@ -308,7 +308,9 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
             {showContact && (
               <Button
                 tag="a"
-                className="self-start mt-3 mb-6 btn-secondary small"
+                className="self-start mt-3 mb-6"
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
                 href="mailto:hi@daily.dev?subject=Failed to add new source"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -323,7 +325,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         {!feeds?.length && (
           <Button
             form="submit-source"
-            className="btn-primary"
+            variant={ButtonVariant.Primary}
             type="submit"
             disabled={isScraping || !enableSubmission}
             loading={isScraping}
@@ -344,7 +346,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
             </Button>
             <Button
               form="select-feed"
-              className="btn-primary"
+              variant={ButtonVariant.Primary}
               type="submit"
               disabled={!selectedFeed || !!existingSource}
               loading={checkingIfExists || requestingSource}

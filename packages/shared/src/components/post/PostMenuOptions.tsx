@@ -4,19 +4,18 @@ import React, {
   ReactElement,
   useContext,
 } from 'react';
-import classNames from 'classnames';
 import MenuIcon from '../icons/Menu';
 import CloseIcon from '../icons/MiniClose';
 import { Roles } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
 import { banPost, demotePost, Post, promotePost } from '../../graphql/posts';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { Button } from '../buttons/Button';
 import PostOptionsMenu, { PostOptionsMenuProps } from '../PostOptionsMenu';
 import { ShareBookmarkProps } from './PostActions';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { Origin } from '../../lib/analytics';
 import useContextMenu from '../../hooks/useContextMenu';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 
 export interface PostMenuOptionssProps extends ShareBookmarkProps {
   post: Post;
@@ -81,7 +80,8 @@ export function PostMenuOptions({
     <>
       <SimpleTooltip placement="bottom" content="Options">
         <Button
-          className={classNames('btn-tertiary', !inlineActions && 'ml-auto')}
+          variant={ButtonVariant.Tertiary}
+          className={!inlineActions && 'ml-auto'}
           icon={<MenuIcon />}
           onClick={onMenuClick}
         />
@@ -89,7 +89,7 @@ export function PostMenuOptions({
       {onClose && (
         <SimpleTooltip placement="bottom" content="Close">
           <Button
-            className="btn-tertiary"
+            variant={ButtonVariant.Tertiary}
             icon={<CloseIcon />}
             onClick={(e) => onClose(e)}
           />

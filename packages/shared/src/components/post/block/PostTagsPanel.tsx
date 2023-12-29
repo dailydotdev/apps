@@ -109,9 +109,9 @@ export function PostTagsPanel({
           <GenericTagButton
             key={tag}
             role="listitem"
-            className={tags[tag] ? 'btn-primary' : 'btn-tertiaryFloat'}
+            variant={tags[tag] ? ButtonVariant.Primary : ButtonVariant.Float}
             action={() => setTags({ ...tags, [tag]: !tags[tag] })}
-            tag={tag}
+            tagItem={tag}
           />
         ))}
       </span>

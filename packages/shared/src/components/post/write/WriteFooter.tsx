@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Switch } from '../../fields/Switch';
-import { Button } from '../../buttons/Button';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import useSidebarRendered from '../../../hooks/useSidebarRendered';
+import { Button, ButtonColor, ButtonVariant } from '../../buttons/ButtonV2';
 
 interface WriteFooterProps {
   isLoading?: boolean;
@@ -45,8 +45,10 @@ export function WriteFooter({
       )}
       <Button
         type="submit"
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Cabbage}
         className={classNames(
-          'tablet:mt-0 ml-auto w-full tablet:w-32 btn-primary-cabbage',
+          'tablet:mt-0 ml-auto w-full tablet:w-32',
           shouldShowCta && 'mt-6',
         )}
         disabled={isLoading}

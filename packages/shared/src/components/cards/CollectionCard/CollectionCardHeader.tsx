@@ -17,15 +17,14 @@ export const CollectionCardHeader = ({
   return (
     <>
       <CollectionPillSources
-        className="m-2 mb-3"
+        className="m-2"
         sources={sources}
         totalSources={totalSources}
       />
       <OptionsButton
-        className="group-hover:flex laptop:hidden top-3 right-3"
+        className="group-hover:flex laptop:hidden absolute top-3 right-3"
         onClick={onMenuClick}
         tooltipPlacement="top"
-        position="absolute"
       />
     </>
   );

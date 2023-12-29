@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { ChecklistStepProps } from '../../lib/checklist';
 import { ChecklistStep } from './ChecklistStep';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import BrowsersIcon from '../../../icons/browsers.svg';
 import { FlexCentered } from '../utilities';
 import { useActions } from '../../hooks/useActions';
@@ -16,7 +16,7 @@ const InstallExtensionChecklistStep = (
   return (
     <ChecklistStep {...props}>
       <Button
-        className="btn-primary"
+        variant={ButtonVariant.Primary}
         tag="a"
         href={downloadBrowserExtension}
         onClick={() => {

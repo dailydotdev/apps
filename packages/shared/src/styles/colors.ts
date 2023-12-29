@@ -13,8 +13,11 @@ export enum ColorName {
   Salt = 'salt',
   Pepper = 'pepper',
   Twitter = 'twitter',
-  Whatsapp = 'whatsapp',
+  WhatsApp = 'whatsapp',
   Facebook = 'facebook',
+  Reddit = 'reddit',
+  LinkedIn = 'linkedin',
+  Telegram = 'telegram',
 }
 
 type ColorLevels = '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90';
@@ -197,6 +200,39 @@ const colors: ColorPalette = {
     '70': '#2E4886',
     '80': '#2E4886',
     '90': '#253B76',
+  },
+  reddit: {
+    '10': '#FF4500',
+    '20': '#FF4500',
+    '30': '#FF4500',
+    '40': '#FF4500',
+    '50': '#FF4500',
+    '60': '#FF4500',
+    '70': '#FF4500',
+    '80': '#FF4500',
+    '90': '#FF4500',
+  },
+  linkedin: {
+    '10': '#0077B5',
+    '20': '#0077B5',
+    '30': '#0077B5',
+    '40': '#0077B5',
+    '50': '#0077B5',
+    '60': '#0077B5',
+    '70': '#0077B5',
+    '80': '#0077B5',
+    '90': '#0077B5',
+  },
+  telegram: {
+    '10': '#24A2E0',
+    '20': '#24A2E0',
+    '30': '#24A2E0',
+    '40': '#24A2E0',
+    '50': '#24A2E0',
+    '60': '#24A2E0',
+    '70': '#24A2E0',
+    '80': '#24A2E0',
+    '90': '#24A2E0',
   },
 };
 

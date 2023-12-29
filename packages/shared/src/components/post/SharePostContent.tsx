@@ -14,6 +14,7 @@ import { SharePostTitle } from './share';
 import { combinedClicks } from '../../lib/click';
 import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
+import { ButtonVariant } from '../buttons/ButtonV2';
 
 interface SharePostContentProps {
   post: Post;
@@ -56,7 +57,8 @@ function SharePostContent({
             />
             <ReadArticleButton
               content={getReadPostButtonText(post)}
-              className="mt-5 btn-secondary w-fit"
+              className="mt-5 w-fit"
+              variant={ButtonVariant.Secondary}
               href={
                 shouldUseInternalLink
                   ? post.sharedPost.commentsPermalink

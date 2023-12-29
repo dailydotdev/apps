@@ -14,7 +14,7 @@ import { AnalyticsEvent, TargetId, TargetType } from '../lib/analytics';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from './tooltips/InteractivePopup';
-import { AllowedTags, Button, ButtonProps } from './buttons/Button';
+import { AllowedTags, Button, ButtonProps } from './buttons/ButtonV2';
 import { LabeledImage } from './image';
 import { webappUrl } from '../lib/constants';
 
@@ -128,13 +128,12 @@ export default function ProfileMenu({
         <span className="font-bold typo-title3">{user.name}</span>
         <span className="mt-1 typo-callout">@{user.username}</span>
       </LabeledImage>
-      <div className="flex flex-col -mt-16">
+      <div className="flex relative flex-col -mt-16">
         {items.map(({ title, buttonProps }) => (
           <Button
             key={title}
             {...buttonProps}
-            textPosition="justify-start"
-            className="w-full font-normal btn-tertiary !px-5"
+            className="w-full font-normal btn-tertiary !px-5 !justify-start"
           >
             {title}
           </Button>

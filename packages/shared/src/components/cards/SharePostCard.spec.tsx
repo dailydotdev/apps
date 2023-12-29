@@ -105,7 +105,7 @@ it('should show author name and author handle when enableSourceHeader is false',
 it('should show options button on hover when in laptop size', async () => {
   renderComponent();
   const header = await screen.findByLabelText('Options');
-  expect(header).toHaveClass('flex');
+  expect(header).toHaveClass('inline-flex');
   expect(header).toHaveClass('group-hover:flex laptop:hidden');
 });
 
