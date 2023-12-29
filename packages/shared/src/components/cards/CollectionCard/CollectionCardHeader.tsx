@@ -22,7 +22,7 @@ export const CollectionCardHeader = ({
         totalSources={totalSources}
       />
       <OptionsButton
-        className="group-hover:flex laptop:hidden absolute top-3 right-3"
+        className="absolute right-3 top-3 group-hover:flex laptop:hidden"
         onClick={onMenuClick}
         tooltipPlacement="top"
       />

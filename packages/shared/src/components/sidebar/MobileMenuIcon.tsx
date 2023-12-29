@@ -31,9 +31,9 @@ export function MobileMenuIcon({
         onClick={trackAndToggleSidebarExpanded}
         variant={ButtonVariant.Primary}
         className={classNames(
-          'absolute h-6 w-6 top-3 -right-3 z-3',
+          'absolute -right-3 top-3 z-3 h-6 w-6',
           sidebarExpanded &&
-            'transition-opacity invisible group-hover:visible opacity-0 group-hover:opacity-100',
+            'invisible opacity-0 transition-opacity group-hover:visible group-hover:opacity-100',
         )}
         size={ButtonSize.XSmall}
       >
