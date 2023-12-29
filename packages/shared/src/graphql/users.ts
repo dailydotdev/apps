@@ -39,6 +39,22 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
   }
 `;
 
+export const USER_README_QUERY = `
+  query Readme($id: ID!) {
+    user(id: $id) {
+      readme
+    }
+  }
+`;
+
+export const UPDATE_README_MUTATION = `
+  mutation UpdateReadme($content: String!) {
+    updateReadme(content: $content) {
+      readmeHtml
+    }
+  }
+`;
+
 export const USER_STATS_QUERY = gql`
   query UserStats($id: ID!) {
     userStats(id: $id) {

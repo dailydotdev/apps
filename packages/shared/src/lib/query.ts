@@ -85,6 +85,7 @@ export enum RequestKey {
   PublicSourceMemberships = 'public_source_memberships',
   ReadingStats = 'reading_stats',
   UserComments = 'user_comments',
+  Readme = 'readme',
 }
 
 export type HasConnection<
