@@ -41,7 +41,7 @@ const order: (keyof SocialChipsProps['links'])[] = [
 
 export function SocialChips({ links }: SocialChipsProps): ReactElement {
   return (
-    <div className="flex overflow-x-auto gap-2 items-center pt-4 pb-6 pl-4 no-scrollbar">
+    <div className="flex overflow-x-auto tablet:flex-wrap gap-2 items-center pt-4 pb-6 pl-4 no-scrollbar">
       {order.map(
         (key) =>
           links[key] && (

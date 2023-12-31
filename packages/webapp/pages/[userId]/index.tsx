@@ -54,7 +54,7 @@ const ProfilePage = ({ user }: ProfileLayoutProps): ReactElement => {
   );
 
   return (
-    <div className="flex flex-col gap-6 py-6 px-4">
+    <div className="flex flex-col gap-6 py-6 px-4 tablet:px-6">
       <Readme user={user} />
       {readingHistory?.userReadingRankHistory && (
         <>

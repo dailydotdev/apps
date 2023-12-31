@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import {
   getProfileSSR,
   getProfileV2ExtraSSR,
@@ -12,27 +12,16 @@ import {
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { ClientError } from 'graphql-request';
-import {
-  pageBorders,
-  pageContainerClassNames,
-} from '@dailydotdev/shared/src/components/utilities';
-import classNames from 'classnames';
-import { HeroImage } from '@dailydotdev/shared/src/components/profile/HeroImage';
-import { UserMetadata } from '@dailydotdev/shared/src/components/profile/UserMetadata';
-import { UserStats } from '@dailydotdev/shared/src/components/profile/UserStats';
-import { SocialChips } from '@dailydotdev/shared/src/components/profile/SocialChips';
-import { SquadsList } from '@dailydotdev/shared/src/components/profile/SquadsList';
 import { ProfileV2 } from '@dailydotdev/shared/src/graphql/users';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { Header } from '@dailydotdev/shared/src/components/profile/Header';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import NavBar, { tabs } from './NavBar';
-import { useDynamicHeader } from '../../../../shared/src/useDynamicHeader';
 import { getTemplatedTitle } from '../utils';
+import { ProfileWidgets } from '../../../../shared/src/components/profile/ProfileWidgets';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../pages/404'),
@@ -50,10 +39,6 @@ export default function ProfileLayout({
 }: ProfileLayoutProps): ReactElement {
   const router = useRouter();
   const { isFallback } = router;
-  const { user: loggedUser } = useContext(AuthContext);
-  const { ref: stickyRef, progress: stickyProgress } =
-    useDynamicHeader<HTMLDivElement>();
-  const hideSticky = !stickyProgress;
 
   if (!isFallback && !user) {
     return <Custom404 />;
@@ -63,8 +48,6 @@ export default function ProfileLayout({
     return <></>;
   }
 
-  const isSameUser = loggedUser?.id === user.id;
-  const stats = { ...userStats, reputation: user?.reputation };
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
   const Seo: NextSeoProps = {
@@ -79,53 +62,31 @@ export default function ProfileLayout({
   };
 
   return (
-    <>
+    <div className="flex flex-col tablet:flex-row pb-12 tablet:pb-0 laptop:pb-6 laptopL:pb-0 m-auto w-full max-w-screen-laptop laptop:min-h-page laptop:border-r laptop:border-l laptop:border-theme-divider-tertiary">
       <Head>
         <link rel="preload" as="image" href={user.image} />
       </Head>
       <NextSeo {...Seo} />
-      <main
-        className={classNames(pageBorders, pageContainerClassNames, 'pb-12')}
-      >
-        <Header user={user} isSameUser={isSameUser} />
-        {!hideSticky && (
-          <Header
-            user={user}
-            isSameUser={isSameUser}
-            sticky
-            className="fixed top-0 left-0 z-3 w-full transition-transform duration-75 bg-theme-bg-primary"
-            style={{ transform: `translateY(${(stickyProgress - 1) * 100}%)` }}
-          />
-        )}
-        <HeroImage
-          cover={user.cover}
-          image={user.image}
-          username={user.username}
-          id={user.id}
-          ref={stickyRef}
+      <main className="flex relative flex-col flex-1 tablet:border-r tablet:border-theme-divider-tertiary">
+        <ProfileWidgets
+          user={user}
+          userStats={userStats}
+          sources={sources}
+          enableSticky
+          className="tablet:hidden"
         />
-        <div className="flex relative flex-col px-4">
-          <UserMetadata
-            username={user.username}
-            name={user.name}
-            createdAt={user.createdAt}
-          />
-          <UserStats stats={stats} />
-          <div className="text-theme-label-tertiary typo-callout">
-            {user.bio}
-          </div>
-        </div>
-        <SocialChips links={user} />
-        <div className="flex flex-col gap-3 pl-4 mb-4">
-          <div className="typo-footnote text-theme-label-tertiary">
-            Active in these squads
-          </div>
-          <SquadsList memberships={sources} userId={user.id} />
-        </div>
         <NavBar selectedTab={selectedTab} profile={user} />
         {children}
       </main>
-    </>
+      <PageWidgets className="hidden tablet:flex !px-0">
+        <ProfileWidgets
+          user={user}
+          userStats={userStats}
+          sources={sources}
+          className="w-full"
+        />
+      </PageWidgets>
+    </div>
   );
 }
 

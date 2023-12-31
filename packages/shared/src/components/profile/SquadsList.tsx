@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import Link from 'next/link';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
@@ -11,7 +11,12 @@ import { CardLink } from '../cards/Card';
 import PlusIcon from '../icons/Plus';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/ButtonV2';
-import { useJoinSquad, useToastNotification } from '../../hooks';
+import {
+  useJoinSquad,
+  useToastNotification,
+  useViewSize,
+  ViewSize,
+} from '../../hooks';
 import { labels } from '../../lib';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { graphqlUrl } from '../../lib/config';
@@ -68,50 +73,63 @@ function SquadItem({
   };
 
   return (
-    <div className="flex relative flex-col p-2 bg-theme-float rounded-2xl w-[160px]">
+    <div className="flex relative p-2 w-40 tablet:w-auto bg-theme-float rounded-2xl">
       <Link href={squad.permalink} prefetch={false} passHref>
         <CardLink />
       </Link>
-      <div className="flex gap-2 items-center">
-        <Image
-          src={squad.image}
-          alt={squad.name}
-          className="w-8 h-8 rounded-full"
-        />
-        <div className="flex overflow-hidden flex-col flex-1">
-          <div className="overflow-hidden font-bold whitespace-nowrap typo-caption1 text-ellipsis">
-            {squad.name}
-          </div>
-          <div className="overflow-hidden whitespace-nowrap text-theme-label-quaternary typo-caption2 text-ellipsis">
-            @{squad.handle}
+      <div className="flex flex-col">
+        <div className="flex gap-2 items-center">
+          <Image
+            src={squad.image}
+            alt={squad.name}
+            className="w-8 h-8 rounded-full"
+          />
+          <div className="flex overflow-hidden flex-col flex-1">
+            <div className="overflow-hidden font-bold whitespace-nowrap typo-caption1 text-ellipsis">
+              {squad.name}
+            </div>
+            <div className="overflow-hidden whitespace-nowrap text-theme-label-quaternary typo-caption2 text-ellipsis">
+              @{squad.handle}
+            </div>
           </div>
         </div>
-      </div>
-      <div className="flex items-center mt-1 h-6 text-theme-label-tertiary typo-caption2">
-        {membership.role === SourceMemberRole.Admin && (
-          <>
-            <SquadMemberBadge
-              role={membership.role}
-              removeMargins
-              disableResponsive
+        <div className="flex items-center mt-1 h-6 text-theme-label-tertiary typo-caption2">
+          {membership.role === SourceMemberRole.Admin && (
+            <>
+              <SquadMemberBadge
+                role={membership.role}
+                removeMargins
+                disableResponsive
+              />
+              <span className="mx-0.5">&#x2022;</span>
+            </>
+          )}
+          <span className="overflow-hidden flex-1 whitespace-nowrap text-ellipsis">
+            {largeNumberFormat(squad.membersCount)} members
+          </span>
+          {showJoin && (
+            <Button
+              className="tablet:hidden z-1 ml-auto"
+              variant={ButtonVariant.Float}
+              size={ButtonSize.XSmall}
+              icon={<PlusIcon />}
+              onClick={onJoin}
+              loading={isLoading}
             />
-            <span className="mx-0.5">&#x2022;</span>
-          </>
-        )}
-        <span className="overflow-hidden flex-1 whitespace-nowrap text-ellipsis">
-          {largeNumberFormat(squad.membersCount)} members
-        </span>
-        {showJoin && (
-          <Button
-            className="z-1 ml-auto"
-            variant={ButtonVariant.Float}
-            size={ButtonSize.XSmall}
-            icon={<PlusIcon />}
-            onClick={onJoin}
-            loading={isLoading}
-          />
-        )}
+          )}
+        </div>
       </div>
+      {showJoin && (
+        <Button
+          className="hidden tablet:flex z-1 self-center ml-auto"
+          variant={ButtonVariant.Float}
+          size={ButtonSize.Small}
+          onClick={onJoin}
+          loading={isLoading}
+        >
+          Join
+        </Button>
+      )}
     </div>
   );
 }
@@ -120,6 +138,7 @@ export function SquadsList({
   memberships: initialMembership,
   userId,
 }: SquadsListProps): ReactElement {
+  const isWide = useViewSize(ViewSize.Tablet);
   const { user: loggedUser, tokenRefreshed } = useContext(AuthContext);
   const { data: remoteMemberships } = useQuery<{
     sources: ProfileV2['sources'];
@@ -133,14 +152,29 @@ export function SquadsList({
       refetchOnReconnect: false,
     },
   );
+  const [showMore, setShowMore] = useState(false);
   const memberships = remoteMemberships?.sources || initialMembership;
   const loading = !remoteMemberships;
 
+  let { edges } = memberships;
+  if (isWide && !showMore) {
+    edges = edges.slice(0, 3);
+  }
+
   return (
-    <div className="flex overflow-x-auto gap-2 items-center no-scrollbar">
-      {memberships.edges.map(({ node }) => (
+    <div className="flex overflow-x-auto tablet:flex-col gap-2 items-center tablet:items-stretch no-scrollbar">
+      {edges.map(({ node }) => (
         <SquadItem key={node.source.id} membership={node} loading={loading} />
       ))}
+      {isWide && !showMore && edges.length < memberships.edges.length && (
+        <Button
+          variant={ButtonVariant.Float}
+          size={ButtonSize.Small}
+          onClick={() => setShowMore(true)}
+        >
+          Show more squads
+        </Button>
+      )}
     </div>
   );
 }

@@ -4,23 +4,19 @@ import { link } from '../../lib/links';
 import { TargetId, TargetType } from '../../lib/analytics';
 import ReferralSocialShareButtons from './ReferralSocialShareButtons';
 import { InviteLinkInput } from '../referral/InviteLinkInput';
-import { addClassnameModifier } from '../../lib';
 
-const ReferralWidget = ({ url }: { url: string }): ReactElement => {
+const ReferralWidget = ({
+  url,
+  className,
+}: {
+  url: string;
+  className?: string;
+}): ReactElement => {
   const inviteLink = url || link.referral.defaultUrl;
-
-  const laptopCustomScreenClassNames = addClassnameModifier(
-    '[@media(min-width:1410px)]',
-    'absolute left-full flex-col m-6 mt-0 max-w-widget h-auto',
-  );
-
   return (
     <div
       data-testid="referral-widget"
-      className={classNames(
-        'flex flex-col tablet:flex-row flex-wrap justify-between p-4 mt-6 mb-4 rounded-2xl border border-theme-divider-tertiary max-w-fit bg-theme-bg-primary',
-        laptopCustomScreenClassNames,
-      )}
+      className={classNames('flex flex-col px-6', className)}
     >
       <h3 className="mb-2 font-bold typo-title3">Invite friends</h3>
       <p className="text-theme-label-secondary typo-callout">

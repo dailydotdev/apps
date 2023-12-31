@@ -5,9 +5,9 @@ export type UseDynamicHeaderRet<T extends HTMLElement> = {
   progress: number | undefined;
 };
 
-export const useDynamicHeader = <
-  T extends HTMLElement,
->(): UseDynamicHeaderRet<T> => {
+export const useDynamicHeader = <T extends HTMLElement>(
+  enabled: boolean,
+): UseDynamicHeaderRet<T> => {
   const ref = useRef<T>();
   const [progress, setProgress] = useState<number | undefined>();
   const onScroll = useRef<() => void>();
@@ -32,6 +32,10 @@ export const useDynamicHeader = <
   }, [ref, progress]);
 
   useEffect(() => {
+    if (!enabled) {
+      return () => {};
+    }
+
     const callback = () => onScroll.current?.();
 
     window.addEventListener('scroll', callback);
@@ -39,7 +43,7 @@ export const useDynamicHeader = <
     return () => {
       window.removeEventListener('scroll', callback);
     };
-  }, [onScroll]);
+  }, [onScroll, enabled]);
 
   return {
     ref,
