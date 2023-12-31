@@ -17,9 +17,9 @@ export default function Custom404({ children }: Custom404Props): ReactElement {
       {children}
       <div className="flex flex-col gap-6 items-center w-full text-center max-w-[26.25rem]">
         <NotFoundSvg />
-        <h1 className="font-bold typo-title1">Why you here?</h1>
+        <h1 className="font-bold typo-title1">Why are you here?</h1>
         <p className="typo-callout text-theme-label-tertiary">
-          Are you trying us? You’re not supposed to be here.
+          You’re not supposed to be here.
         </p>
         <Link href="/" passHref>
           <Button tag="a" variant={ButtonVariant.Primary}>
