@@ -111,7 +111,7 @@ export function Readme({ user }: ReadmeProps): ReactElement {
       <>
         {isSameUser && (
           <Button
-            variant={ButtonVariant.Float}
+            variant={ButtonVariant.Secondary}
             size={ButtonSize.Small}
             onClick={() => setEditMode(true)}
             className="self-start"

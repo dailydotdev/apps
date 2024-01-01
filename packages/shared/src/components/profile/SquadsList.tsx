@@ -27,6 +27,7 @@ import {
 } from '../../graphql/users';
 import { Connection } from '../../graphql/common';
 import { AuthTriggers } from '../../lib/auth';
+import { webappUrl } from '../../lib/constants';
 
 export interface SquadsListProps {
   memberships?: Connection<SourceMember>;
@@ -159,6 +160,22 @@ export function SquadsList({
   let { edges } = memberships;
   if (isWide && !showMore) {
     edges = edges.slice(0, 3);
+  }
+
+  if (!edges.length) {
+    return (
+      <div className="flex overflow-hidden gap-2">
+        <Button
+          variant={ButtonVariant.Float}
+          size={ButtonSize.Large}
+          tag="a"
+          href={`${webappUrl}squads/new?origin=profile`}
+          icon={<PlusIcon />}
+        />
+        <div className="rounded-2xl border flex-[3] border-theme-divider-tertiary" />
+        <div className="rounded-l-2xl border flex-[2] border-theme-divider-tertiary" />
+      </div>
+    );
   }
 
   return (

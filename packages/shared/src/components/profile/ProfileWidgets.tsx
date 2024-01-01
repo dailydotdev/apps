@@ -11,6 +11,9 @@ import AuthContext from '../../contexts/AuthContext';
 import { ProfileV2 } from '../../graphql/users';
 import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
 import ReferralWidget from '../widgets/ReferralWidget';
+import { ButtonSize, ButtonVariant } from '../buttons/common';
+import { Button } from '../buttons/ButtonV2';
+import PlusIcon from '../icons/Plus';
 
 export interface ProfileWidgetsProps extends ProfileV2 {
   className?: string;
@@ -63,15 +66,30 @@ export function ProfileWidgets({
           createdAt={user.createdAt}
         />
         <UserStats stats={stats} />
-        {user.bio && (
+        {(user.bio || isSameUser) && (
           <div className="text-theme-label-tertiary typo-callout">
-            {user.bio}
+            {user.bio || (
+              <Button
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                tag="a"
+                href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
+                icon={<PlusIcon />}
+              >
+                Add bio
+              </Button>
+            )}
           </div>
         )}
       </div>
       <SocialChips links={user} />
       {(isSameUser || sources?.edges?.length > 0) && (
-        <div className="flex flex-col gap-3 tablet:px-4 pl-4 mb-4">
+        <div
+          className={classNames(
+            'flex flex-col gap-3 pl-4 mb-4',
+            sources?.edges?.length > 0 && 'tablet:px-4',
+          )}
+        >
           <div className="typo-footnote text-theme-label-tertiary">
             Active in these Squads
           </div>
