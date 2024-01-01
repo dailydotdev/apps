@@ -82,7 +82,7 @@ export function Readme({ user }: ReadmeProps): ReactElement {
     };
 
     children = (
-      <form className="flex flex-col" onSubmit={onSubmitForm}>
+      <form action="#" className="flex flex-col" onSubmit={onSubmitForm}>
         <MarkdownInput
           textareaProps={{
             name: 'content',
@@ -90,7 +90,7 @@ export function Readme({ user }: ReadmeProps): ReactElement {
           }}
           initialContent={remoteReadme?.user.readme}
           enabledCommand={{ upload: true, link: true, mention: false }}
-          submitCopy="Update"
+          submitCopy="Done"
           showMarkdownGuide
           onSubmit={(e) => updateReadme(e.currentTarget.value)}
           isLoading={isLoading || submitting}

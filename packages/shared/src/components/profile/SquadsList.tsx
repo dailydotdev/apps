@@ -75,7 +75,7 @@ function SquadItem({
 
   return (
     <div
-      className="flex relative p-2 w-40 tablet:w-auto bg-theme-float rounded-2xl"
+      className="flex relative items-center p-2 w-40 tablet:w-auto bg-theme-float rounded-2xl"
       data-testid={squad.id}
     >
       <Link href={squad.permalink} prefetch={false} passHref>
@@ -97,7 +97,7 @@ function SquadItem({
             </div>
           </div>
         </div>
-        <div className="flex items-center mt-1 h-6 text-theme-label-tertiary typo-caption2">
+        <div className="flex items-center mt-1 h-6 tablet:h-auto text-theme-label-tertiary typo-caption2">
           {membership.role === SourceMemberRole.Admin && (
             <>
               <SquadMemberBadge
@@ -126,7 +126,7 @@ function SquadItem({
       </div>
       {showJoin && (
         <Button
-          className="hidden tablet:flex z-1 self-center"
+          className="hidden tablet:flex z-1"
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
           onClick={onJoin}
