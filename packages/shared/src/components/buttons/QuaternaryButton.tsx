@@ -7,7 +7,12 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import { Button, AllowedTags, ButtonProps, ButtonElementType } from './Button';
+import {
+  AllowedTags,
+  Button,
+  ButtonElementType,
+  ButtonProps,
+} from './ButtonV2';
 
 type QuandaryButtonProps = {
   id: string;
@@ -44,13 +49,12 @@ function QuaternaryButtonComponent<TagName extends AllowedTags>(
         }
       : {};
   const labelDisplay = responsiveLabelClass ?? 'flex';
-
   return (
     <div
       style={style}
       className={classNames(
         { reverse },
-        props.buttonSize,
+        props.size,
         'btn-quaternary',
         'flex',
         'flex-row',
@@ -73,7 +77,7 @@ function QuaternaryButtonComponent<TagName extends AllowedTags>(
           className={classNames(
             'items-center font-bold cursor-pointer typo-callout',
             labelDisplay,
-            { readOnly: props.readOnly },
+            { readOnly: props.disabled },
           )}
         >
           {children}
