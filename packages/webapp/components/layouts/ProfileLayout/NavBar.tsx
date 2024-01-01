@@ -53,7 +53,7 @@ export default function NavBar({
     >
       {tabs.map((tab, index) => (
         <div key={tab.path}>
-          <Link href={getTabHref(tab)} passHref>
+          <Link href={getTabHref(tab)} passHref scroll={false}>
             <Button
               tag="a"
               size={ButtonSize.Medium}
