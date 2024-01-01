@@ -75,20 +75,20 @@ function SquadItem({
 
   return (
     <div
-      className="flex relative items-center p-2 w-40 tablet:w-auto bg-theme-float rounded-2xl"
+      className="flex relative items-center p-2 first:ml-4 tablet:first:ml-0 w-40 tablet:w-auto bg-theme-float hover:bg-theme-hover rounded-2xl"
       data-testid={squad.id}
     >
       <Link href={squad.permalink} prefetch={false} passHref>
         <CardLink />
       </Link>
-      <div className="flex flex-col flex-1">
+      <div className="flex overflow-hidden flex-col flex-1">
         <div className="flex gap-2 items-center">
           <Image
             src={squad.image}
             alt={squad.name}
             className="w-8 h-8 rounded-full"
           />
-          <div className="flex overflow-hidden flex-col flex-1">
+          <div className="flex flex-col flex-1">
             <div className="overflow-hidden font-bold whitespace-nowrap typo-caption1 text-ellipsis">
               {squad.name}
             </div>
@@ -98,7 +98,7 @@ function SquadItem({
           </div>
         </div>
         <div className="flex items-center mt-1 h-6 tablet:h-auto text-theme-label-tertiary typo-caption2">
-          {membership.role === SourceMemberRole.Admin && (
+          {membership.role !== SourceMemberRole.Member && (
             <>
               <SquadMemberBadge
                 role={membership.role}
@@ -139,6 +139,8 @@ function SquadItem({
   );
 }
 
+const MAX_SQUADS = 3;
+
 export function SquadsList({
   memberships: initialMembership,
   userId,
@@ -163,12 +165,12 @@ export function SquadsList({
 
   let edges = memberships?.edges || [];
   if (isWide && !showMore) {
-    edges = edges.slice(0, 3);
+    edges = edges.slice(0, MAX_SQUADS);
   }
 
   if (!edges.length) {
     return (
-      <div className="flex overflow-hidden gap-2">
+      <div className="flex overflow-hidden gap-2 pl-4">
         <Button
           variant={ButtonVariant.Float}
           size={ButtonSize.Large}
@@ -184,17 +186,17 @@ export function SquadsList({
   }
 
   return (
-    <div className="flex overflow-x-auto tablet:flex-col gap-2 items-center tablet:items-stretch no-scrollbar">
+    <div className="flex overflow-x-auto tablet:flex-col gap-2 items-center tablet:items-stretch tablet:px-4 no-scrollbar">
       {edges.map(({ node }) => (
         <SquadItem key={node.source.id} membership={node} loading={loading} />
       ))}
-      {isWide && !showMore && edges.length < memberships.edges.length && (
+      {isWide && memberships.edges.length > MAX_SQUADS && (
         <Button
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
-          onClick={() => setShowMore(true)}
+          onClick={() => setShowMore(!showMore)}
         >
-          Show more Squads
+          {showMore ? 'Show less' : 'Show more Squads'}
         </Button>
       )}
     </div>

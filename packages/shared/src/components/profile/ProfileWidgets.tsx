@@ -41,8 +41,10 @@ export function ProfileWidgets({
   });
 
   return (
-    <div className={classNames('flex flex-col', className)}>
-      <Header user={user} isSameUser={isSameUser} />
+    <div
+      className={classNames('flex flex-col gap-6 my-4 tablet:my-0', className)}
+    >
+      <Header user={user} isSameUser={isSameUser} className="-mb-2" />
       {!hideSticky && (
         <Header
           user={user}
@@ -59,7 +61,7 @@ export function ProfileWidgets({
         id={user.id}
         ref={stickyRef}
       />
-      <div className="flex relative flex-col px-4">
+      <div className="flex relative flex-col gap-6 px-4">
         <UserMetadata
           username={user.username}
           name={user.name}
@@ -84,20 +86,15 @@ export function ProfileWidgets({
       </div>
       <SocialChips links={user} />
       {(isSameUser || sources?.edges?.length > 0) && (
-        <div
-          className={classNames(
-            'flex flex-col gap-3 pl-4 mb-4',
-            sources?.edges?.length > 0 && 'tablet:px-4',
-          )}
-        >
-          <div className="typo-footnote text-theme-label-tertiary">
+        <div className="flex flex-col gap-3">
+          <div className="px-4 typo-footnote text-theme-label-tertiary">
             Active in these Squads
           </div>
           <SquadsList memberships={sources} userId={user.id} />
         </div>
       )}
       {isSameUser && (
-        <ReferralWidget url={referralUrl} className="hidden tablet:flex mt-2" />
+        <ReferralWidget url={referralUrl} className="hidden tablet:flex" />
       )}
     </div>
   );

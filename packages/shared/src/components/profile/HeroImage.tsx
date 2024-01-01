@@ -12,7 +12,7 @@ function HeroImageComponent(
   ref: Ref<HTMLDivElement>,
 ): ReactElement {
   return (
-    <div className="flex relative m-4 h-24" ref={ref}>
+    <div className="flex relative mx-4 h-24" ref={ref}>
       {cover ? (
         <Image
           src={cover}
@@ -28,7 +28,7 @@ function HeroImageComponent(
         nativeLazyLoading
         eager
         size="xxxxlarge"
-        className="border-2 border-theme-bg-primary"
+        className="border-4 border-theme-bg-primary"
       />
       {children}
     </div>

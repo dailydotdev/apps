@@ -48,7 +48,7 @@ export function SocialChips({ links }: SocialChipsProps): ReactElement {
         textPosition="justify-start"
         icon={handlers[key].icon}
         buttonSize={ButtonSize.Small}
-        className="btn-secondary border-theme-divider-tertiary typo-subhead text-theme-label-tertiary w-fit"
+        className="first:ml-4 tablet:first:ml-0 btn-secondary border-theme-divider-tertiary typo-subhead text-theme-label-tertiary w-fit"
         tag="a"
         target="_blank"
         rel="noopener"
@@ -65,7 +65,7 @@ export function SocialChips({ links }: SocialChipsProps): ReactElement {
   }
 
   return (
-    <div className="flex overflow-x-auto tablet:flex-wrap gap-2 items-center pt-4 pb-6 pl-4 no-scrollbar">
+    <div className="flex overflow-x-auto tablet:flex-wrap gap-2 items-center tablet:px-4 no-scrollbar">
       {elements}
     </div>
   );

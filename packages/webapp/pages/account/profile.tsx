@@ -1,7 +1,6 @@
 import ImageInput from '@dailydotdev/shared/src/components/fields/ImageInput';
 import AtIcon from '@dailydotdev/shared/src/components/icons/At';
 import GitHubIcon from '@dailydotdev/shared/src/components/icons/GitHub';
-import HashnodeIcon from '@dailydotdev/shared/src/components/icons/Hashnode';
 import LinkIcon from '@dailydotdev/shared/src/components/icons/Link';
 import TwitterIcon from '@dailydotdev/shared/src/components/icons/Twitter';
 import { UserIcon } from '@dailydotdev/shared/src/components/icons';
@@ -52,7 +51,6 @@ const AccountProfilePage = (): ReactElement => {
       title: values.title,
       twitter: values.twitter,
       github: values.github,
-      hashnode: values.hashnode,
       portfolio: values.portfolio,
     };
     updateUserProfile(params);
@@ -105,7 +103,10 @@ const AccountProfilePage = (): ReactElement => {
           <div className="flex relative mt-6">
             <ImageInput
               id={imageId}
-              className={{ img: 'object-cover' }}
+              className={{
+                img: 'object-cover',
+                container: 'border-4 !border-theme-bg-primary',
+              }}
               initialValue={user.image}
               hoverIcon={<CameraIcon size={IconSize.Large} />}
               onChange={(_, file) => {
@@ -206,15 +207,6 @@ const AccountProfilePage = (): ReactElement => {
             valid={!hint.github}
             name="github"
             value={user.github}
-          />
-          <AccountTextField
-            leftIcon={<HashnodeIcon />}
-            label="Hashnode"
-            inputId="hashnode"
-            hint={hint.hashnode}
-            valid={!hint.hashnode}
-            name="hashnode"
-            value={user.hashnode}
           />
           <AccountTextField
             leftIcon={<LinkIcon />}

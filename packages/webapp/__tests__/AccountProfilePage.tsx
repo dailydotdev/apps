@@ -84,9 +84,6 @@ it('should show profile social links', () => {
   const github = screen.getByPlaceholderText('GitHub');
   expect(github).toBeInTheDocument();
   expect(github).toHaveValue(defaultLoggedUser.github);
-  const hashnode = screen.getByPlaceholderText('Hashnode');
-  expect(hashnode).toBeInTheDocument();
-  expect(hashnode).toHaveValue(defaultLoggedUser.hashnode);
   const portfolio = screen.getByPlaceholderText('Your Website');
   expect(portfolio).toBeInTheDocument();
   expect(portfolio).toHaveValue(defaultLoggedUser.portfolio);
