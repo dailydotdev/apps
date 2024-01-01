@@ -325,7 +325,7 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
 
 export const UPLOAD_COVER_MUTATION = gql`
   mutation UploadCoverImage($upload: Upload!) {
-    uploadCoverImage(image: $upload) {
+    user: uploadCoverImage(image: $upload) {
       cover
     }
   }

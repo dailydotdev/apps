@@ -28,12 +28,12 @@ export function Readme({ user }: ReadmeProps): ReactElement {
   const client = useQueryClient();
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user.id;
+  const readme = user?.readmeHtml;
 
   // Markdown is supported only in the client due to sanitization
   const isClient = typeof window !== 'undefined';
 
   const [editMode, setEditMode] = useState(false);
-  const [readme, setReadme] = useState(user.readmeHtml);
 
   const queryKey = generateQueryKey(RequestKey.Readme, user);
   const { data: remoteReadme, isLoading } = useQuery<{
@@ -57,10 +57,12 @@ export function Readme({ user }: ReadmeProps): ReactElement {
     unknown,
     string
   >((content) => request(graphqlUrl, UPDATE_README_MUTATION, { content }), {
-    onSuccess: async (data) => {
+    onSuccess: async () => {
       setEditMode(false);
-      setReadme(data.updateReadme.readmeHtml);
       await client.invalidateQueries(queryKey);
+      await client.invalidateQueries(
+        generateQueryKey(RequestKey.Profile, user),
+      );
     },
     onError: (err) => {
       const clientError = err as ClientError;

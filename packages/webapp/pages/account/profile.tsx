@@ -38,7 +38,7 @@ const AccountProfilePage = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const onSuccess = () => displayToast('Profile updated');
   const { updateUserProfile, isLoading, hint } = useProfileForm({ onSuccess });
-  const { user } = useContext(AuthContext);
+  const { user, updateUser } = useContext(AuthContext);
 
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -57,7 +57,7 @@ const AccountProfilePage = (): ReactElement => {
   };
 
   const { mutate: uploadCoverImage } = useMutation<
-    LoggedUser,
+    { user: LoggedUser },
     ResponseError,
     { image: File }
   >(
@@ -66,7 +66,8 @@ const AccountProfilePage = (): ReactElement => {
         upload: image,
       }),
     {
-      onSuccess: () => {
+      onSuccess: async (res) => {
+        await updateUser({ ...user, cover: res.user.cover });
         displayToast('Cover image updated');
       },
       onError: (err) => {

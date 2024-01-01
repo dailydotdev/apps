@@ -15,6 +15,7 @@ import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
+import { getProfile } from '@dailydotdev/shared/src/lib/user';
 import {
   getLayout as getProfileLayout,
   getStaticPaths as getProfileStaticPaths,
@@ -24,8 +25,12 @@ import {
 import { Readme } from '../../../shared/src/components/profile/Readme';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ProfilePage = ({ user }: ProfileLayoutProps): ReactElement => {
-  const { tokenRefreshed } = useContext(AuthContext);
+const ProfilePage = ({
+  user: initialUser,
+}: ProfileLayoutProps): ReactElement => {
+  const { user: loggedUser, tokenRefreshed } = useContext(AuthContext);
+  const isSameUser = loggedUser?.id === initialUser?.id;
+
   const {
     selectedHistoryYear,
     setSelectedHistoryYear,
@@ -34,6 +39,19 @@ const ProfilePage = ({ user }: ProfileLayoutProps): ReactElement => {
     yearOptions,
     fullHistory,
   } = useActivityTimeFilter();
+
+  const { data: user } = useQuery(
+    generateQueryKey(RequestKey.Profile, initialUser),
+    () => getProfile(initialUser?.id),
+    {
+      placeholderData: initialUser,
+      refetchOnReconnect: false,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      // Make sure the logged in user's profile is always up to date
+      enabled: !!initialUser && isSameUser,
+    },
+  );
 
   const { data: readingHistory } = useQuery<ProfileReadingData>(
     generateQueryKey(RequestKey.ReadingStats, user, selectedHistoryYear),
