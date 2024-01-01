@@ -73,6 +73,7 @@ export function Header({
           icon={<SettingsIcon />}
           tag="a"
           href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
+          aria-label="Edit profile"
         />
       )}
     </header>

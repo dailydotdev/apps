@@ -74,7 +74,10 @@ function SquadItem({
   };
 
   return (
-    <div className="flex relative p-2 w-40 tablet:w-auto bg-theme-float rounded-2xl">
+    <div
+      className="flex relative p-2 w-40 tablet:w-auto bg-theme-float rounded-2xl"
+      data-testid={squad.id}
+    >
       <Link href={squad.permalink} prefetch={false} passHref>
         <CardLink />
       </Link>
@@ -116,6 +119,7 @@ function SquadItem({
               icon={<PlusIcon />}
               onClick={onJoin}
               loading={isLoading}
+              aria-label="Join Squad"
             />
           )}
         </div>
@@ -157,7 +161,7 @@ export function SquadsList({
   const memberships = remoteMemberships?.sources || initialMembership;
   const loading = !remoteMemberships;
 
-  let { edges } = memberships;
+  let edges = memberships?.edges || [];
   if (isWide && !showMore) {
     edges = edges.slice(0, 3);
   }
@@ -171,6 +175,7 @@ export function SquadsList({
           tag="a"
           href={`${webappUrl}squads/new?origin=profile`}
           icon={<PlusIcon />}
+          aria-label="Create a new Squad"
         />
         <div className="rounded-2xl border flex-[3] border-theme-divider-tertiary" />
         <div className="rounded-l-2xl border flex-[2] border-theme-divider-tertiary" />

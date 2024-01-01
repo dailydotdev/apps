@@ -54,6 +54,7 @@ export function SocialChips({ links }: SocialChipsProps): ReactElement {
         rel="noopener"
         href={handlers[key].href(links[key])}
         key={key}
+        data-testid={key}
       >
         {handlers[key].label(links[key])}
       </Button>
