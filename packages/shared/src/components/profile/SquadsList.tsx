@@ -77,7 +77,7 @@ function SquadItem({
       <Link href={squad.permalink} prefetch={false} passHref>
         <CardLink />
       </Link>
-      <div className="flex flex-col">
+      <div className="flex flex-col flex-1">
         <div className="flex gap-2 items-center">
           <Image
             src={squad.image}
@@ -110,7 +110,7 @@ function SquadItem({
           {showJoin && (
             <Button
               className="tablet:hidden z-1 ml-auto"
-              variant={ButtonVariant.Float}
+              variant={ButtonVariant.Secondary}
               size={ButtonSize.XSmall}
               icon={<PlusIcon />}
               onClick={onJoin}
@@ -121,8 +121,8 @@ function SquadItem({
       </div>
       {showJoin && (
         <Button
-          className="hidden tablet:flex z-1 self-center ml-auto"
-          variant={ButtonVariant.Float}
+          className="hidden tablet:flex z-1 self-center"
+          variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
           onClick={onJoin}
           loading={isLoading}
@@ -168,11 +168,11 @@ export function SquadsList({
       ))}
       {isWide && !showMore && edges.length < memberships.edges.length && (
         <Button
-          variant={ButtonVariant.Float}
+          variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
           onClick={() => setShowMore(true)}
         >
-          Show more squads
+          Show more Squads
         </Button>
       )}
     </div>

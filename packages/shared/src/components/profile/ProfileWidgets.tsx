@@ -63,15 +63,21 @@ export function ProfileWidgets({
           createdAt={user.createdAt}
         />
         <UserStats stats={stats} />
-        <div className="text-theme-label-tertiary typo-callout">{user.bio}</div>
+        {user.bio && (
+          <div className="text-theme-label-tertiary typo-callout">
+            {user.bio}
+          </div>
+        )}
       </div>
       <SocialChips links={user} />
-      <div className="flex flex-col gap-3 tablet:px-4 pl-4 mb-4">
-        <div className="typo-footnote text-theme-label-tertiary">
-          Active in these squads
+      {(isSameUser || sources?.edges?.length > 0) && (
+        <div className="flex flex-col gap-3 tablet:px-4 pl-4 mb-4">
+          <div className="typo-footnote text-theme-label-tertiary">
+            Active in these Squads
+          </div>
+          <SquadsList memberships={sources} userId={user.id} />
         </div>
-        <SquadsList memberships={sources} userId={user.id} />
-      </div>
+      )}
       {isSameUser && (
         <ReferralWidget url={referralUrl} className="hidden tablet:flex mt-2" />
       )}

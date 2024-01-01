@@ -16,7 +16,7 @@ const ReferralWidget = ({
   return (
     <div
       data-testid="referral-widget"
-      className={classNames('flex flex-col px-6', className)}
+      className={classNames('flex flex-col px-4', className)}
     >
       <h3 className="mb-2 font-bold typo-title3">Invite friends</h3>
       <p className="text-theme-label-secondary typo-callout">
@@ -28,7 +28,7 @@ const ReferralWidget = ({
         link={inviteLink}
         className={{
           input: 'typo-footnote',
-          container: 'flex flex-col my-5 w-auto tablet:w-70',
+          container: 'flex flex-col my-5',
         }}
       />
       <div className="flex justify-between items-center">

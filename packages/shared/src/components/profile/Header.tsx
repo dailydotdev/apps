@@ -47,8 +47,19 @@ export function Header({
       ) : (
         <h2 className="font-bold typo-body">Profile</h2>
       )}
+      {isSameUser && (
+        <Button
+          className="hidden tablet:flex mr-2 ml-auto"
+          variant={ButtonVariant.Float}
+          size={ButtonSize.Small}
+          tag="a"
+          href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
+        >
+          Edit profile
+        </Button>
+      )}
       <Button
-        className="ml-auto"
+        className={classNames('ml-auto', isSameUser && 'tablet:ml-0')}
         variant={ButtonVariant.Float}
         size={ButtonSize.Small}
         icon={<ShareIcon />}
@@ -56,7 +67,7 @@ export function Header({
       />
       {isSameUser && (
         <Button
-          className="ml-2"
+          className="tablet:hidden ml-2"
           variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           icon={<SettingsIcon />}

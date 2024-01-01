@@ -40,27 +40,32 @@ const order: (keyof SocialChipsProps['links'])[] = [
 ];
 
 export function SocialChips({ links }: SocialChipsProps): ReactElement {
+  const elements = order
+    .filter((key) => !!links[key])
+    .map((key) => (
+      <Button
+        spanClassName="w-fit my-2 font-normal"
+        textPosition="justify-start"
+        icon={handlers[key].icon}
+        buttonSize={ButtonSize.Small}
+        className="btn-secondary border-theme-divider-tertiary typo-subhead text-theme-label-tertiary w-fit"
+        tag="a"
+        target="_blank"
+        rel="noopener"
+        href={handlers[key].href(links[key])}
+        key={key}
+      >
+        {handlers[key].label(links[key])}
+      </Button>
+    ));
+
+  if (!elements.length) {
+    return <></>;
+  }
+
   return (
     <div className="flex overflow-x-auto tablet:flex-wrap gap-2 items-center pt-4 pb-6 pl-4 no-scrollbar">
-      {order.map(
-        (key) =>
-          links[key] && (
-            <Button
-              spanClassName="w-fit my-2 font-normal"
-              textPosition="justify-start"
-              icon={handlers[key].icon}
-              buttonSize={ButtonSize.Small}
-              className="btn-secondary border-theme-divider-tertiary typo-subhead text-theme-label-tertiary w-fit"
-              tag="a"
-              target="_blank"
-              rel="noopener"
-              href={handlers[key].href(links[key])}
-              key={key}
-            >
-              {handlers[key].label(links[key])}
-            </Button>
-          ),
-      )}
+      {elements}
     </div>
   );
 }
