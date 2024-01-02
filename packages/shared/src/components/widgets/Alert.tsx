@@ -54,7 +54,7 @@ function Alert({
   return (
     <div
       className={classNames(
-        'flex p-3 border border-theme-active border-l-4',
+        'flex border border-l-4 border-theme-active p-3',
         flexDirection,
         borderColor[type],
         children ? 'rounded-16' : 'rounded-12',
@@ -68,7 +68,7 @@ function Alert({
         />
         <span
           className={classNames(
-            'typo-callout flex flex-1',
+            'flex flex-1 typo-callout',
             children && 'font-bold',
             children && fontColor[type],
           )}

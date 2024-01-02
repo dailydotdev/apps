@@ -166,7 +166,7 @@ function BaseFieldContainer(
       {isSecondaryField && (
         <label
           className={classNames(
-            'px-2 mb-1 font-bold typo-caption1',
+            'mb-1 px-2 font-bold typo-caption1',
             className.outerLabel,
             getFieldLabelColor({
               readOnly,
@@ -185,7 +185,7 @@ function BaseFieldContainer(
         data-testid="field"
         onClick={focusInput}
         className={classNames(
-          'flex relative',
+          'relative flex',
           isSecondaryField ? 'rounded-10' : 'rounded-14',
           className.baseField,
           { readOnly, focused, invalid },
@@ -197,7 +197,7 @@ function BaseFieldContainer(
         <div
           role={invalid ? 'alert' : undefined}
           className={classNames(
-            'px-2 mt-1 typo-caption1',
+            'mt-1 px-2 typo-caption1',
             saveHintSpace && 'h-4',
             invalid ? 'text-theme-status-error' : 'text-theme-label-quaternary',
             className.hint,

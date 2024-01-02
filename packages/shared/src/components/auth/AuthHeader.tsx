@@ -23,7 +23,7 @@ function AuthHeader({
   onBack,
 }: AuthHeaderProps): ReactElement {
   if (simplified) {
-    return <h2 className="font-bold text-center typo-title2">{title}</h2>;
+    return <h2 className="text-center font-bold typo-title2">{title}</h2>;
   }
 
   return (

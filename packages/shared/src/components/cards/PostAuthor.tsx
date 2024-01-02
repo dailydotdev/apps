@@ -15,7 +15,7 @@ export default function PostAuthor({
   return (
     <div
       className={classNames(
-        'flex flex-row items-center font-bold typo-footnote text-theme-status-help',
+        'flex flex-row items-center font-bold text-theme-status-help typo-footnote',
         className,
       )}
     >

@@ -13,7 +13,7 @@ export function ProgressBar({
   return (
     <meter
       className={classNames(
-        'absolute left-0 h-1 bg-theme-color-cabbage transition-[width] appearance-none',
+        'absolute left-0 h-1 appearance-none bg-theme-color-cabbage transition-[width]',
         className,
       )}
       style={{ width: `${percentage}%` }}

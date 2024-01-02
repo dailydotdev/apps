@@ -31,7 +31,7 @@ export default function VideoModal({
         onClick={onRequestClose}
       />
       <iframe
-        className="w-full border-none aspect-video"
+        className="aspect-video w-full border-none"
         src={src}
         title={title}
         allow="encrypted-media;web-share"

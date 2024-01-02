@@ -44,7 +44,7 @@ const RanksBadges = ({
           />
         ))}
       </RanksBadgesList>
-      <Modal.Text className="mt-1 mb-3 text-center">
+      <Modal.Text className="mb-3 mt-1 text-center">
         {getNextRankText({
           rankLastWeek: previousRank,
           rank,

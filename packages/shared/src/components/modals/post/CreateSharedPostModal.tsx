@@ -79,7 +79,7 @@ export function CreateSharedPostModal({
         title={isMobile ? null : 'New post'}
       >
         {isMobile && (
-          <div className="flex flex-row flex-1 justify-between items-center">
+          <div className="flex flex-1 flex-row items-center justify-between">
             <ModalClose position="static" onClick={props.onRequestClose} />
 
             <Button
@@ -96,7 +96,7 @@ export function CreateSharedPostModal({
         )}
       </Modal.Header>
       <form
-        className="flex flex-col p-3 w-full"
+        className="flex w-full flex-col p-3"
         action="#"
         onSubmit={onFormSubmit}
         id="share_post"
@@ -112,11 +112,11 @@ export function CreateSharedPostModal({
             isLoadingPreview ? (
               <WritePreviewSkeleton
                 link={link}
-                className="flex-col-reverse m-3"
+                className="m-3 flex-col-reverse"
               />
             ) : (
               <WriteLinkPreview
-                className="flex-col-reverse m-3 !w-auto"
+                className="m-3 !w-auto flex-col-reverse"
                 preview={updatedPreview ?? preview}
                 link={link}
                 onLinkChange={onInput}
@@ -148,7 +148,7 @@ export function CreateSharedPostModal({
         />
         <Divider vertical />
         <SourceButton source={squad} size="small" />
-        <span className="flex-1 -ml-1">
+        <span className="-ml-1 flex-1">
           <strong>{squad.name}</strong>
           <span className="ml-1 text-theme-label-tertiary">
             @{squad.handle}
@@ -157,7 +157,7 @@ export function CreateSharedPostModal({
 
         {!isMobile && (
           <Button
-            className="ml-auto btn-primary-cabbage"
+            className="btn-primary-cabbage ml-auto"
             disabled={isPosting}
             loading={isPosting}
             form="share_post"

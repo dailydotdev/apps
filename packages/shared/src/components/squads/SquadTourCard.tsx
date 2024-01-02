@@ -33,7 +33,7 @@ function SquadTourCard({
         className={classNames(
           'relative',
           !bannerAsBg &&
-            'h-80 justify-center items-center bg-gradient-to-l from-cabbage-90 to-cabbage-50',
+            'h-80 items-center justify-center bg-gradient-to-l from-cabbage-90 to-cabbage-50',
         )}
       >
         {bannerAsBg ? (
@@ -63,7 +63,7 @@ function SquadTourCard({
           {title}
         </h3>
         {description && (
-          <p className="mt-2 typo-body text-theme-label-secondary">
+          <p className="mt-2 text-theme-label-secondary typo-body">
             {description}
           </p>
         )}

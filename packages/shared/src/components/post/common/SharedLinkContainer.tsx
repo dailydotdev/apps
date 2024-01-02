@@ -51,13 +51,13 @@ export function SharedLinkContainer({
           />
           <button
             type="button"
-            className="flex flex-row justify-center py-2 w-full font-bold hover:underline border-t border-theme-divider-tertiary typo-callout"
+            className="flex w-full flex-row justify-center border-t border-theme-divider-tertiary py-2 font-bold typo-callout hover:underline"
             onClick={() => setShouldShowSummary(!shouldShowSummary)}
           >
             {shouldShowSummary ? 'Hide' : 'Show'} TLDR{' '}
             <ArrowIcon
               className={classNames(
-                'ml-2 transition-transform ease-in-out duration-300',
+                'ml-2 transition-transform duration-300 ease-in-out',
                 !shouldShowSummary && 'rotate-180',
               )}
             />

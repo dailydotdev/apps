@@ -162,7 +162,7 @@ function SearchBarInputComponent(
         <BaseField
           {...props}
           className={classNames(
-            'relative items-center px-3 h-16 rounded-14 border !border-theme-divider-tertiary !bg-theme-bg-primary',
+            'relative h-16 items-center rounded-14 border !border-theme-divider-tertiary !bg-theme-bg-primary px-3',
             className?.field,
             { focused },
           )}
@@ -194,12 +194,12 @@ function SearchBarInputComponent(
             type="primary"
             autoComplete="off"
             className={classNames(
-              'flex-1 caret-theme-status-cabbage h-full',
+              'h-full flex-1 caret-theme-status-cabbage',
               getFieldFontColor({ readOnly, disabled, hasInput, focused }),
             )}
           />
 
-          <div className="hidden tablet:flex gap-3 items-center">
+          <div className="hidden items-center gap-3 tablet:flex">
             {hasInput && (
               <Button
                 variant={ButtonVariant.Tertiary}
@@ -226,7 +226,7 @@ function SearchBarInputComponent(
         <div className="mt-3">
           <SearchProgressBar max={chunk?.steps} progress={chunk?.progress} />
           {!!chunk?.status && (
-            <div className="mt-2 typo-callout text-theme-label-tertiary">
+            <div className="mt-2 text-theme-label-tertiary typo-callout">
               {chunk?.status}
             </div>
           )}

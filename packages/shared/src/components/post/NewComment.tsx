@@ -112,7 +112,7 @@ function NewCommentComponent(
     <button
       type="button"
       className={classNames(
-        'flex items-center p-3 w-full rounded-16 typo-callout border bg-theme-float hover:bg-theme-hover border-theme-divider-tertiary hover:border-theme-divider-primary',
+        'flex w-full items-center rounded-16 border border-theme-divider-tertiary bg-theme-float p-3 typo-callout hover:border-theme-divider-primary hover:bg-theme-hover',
         className?.container,
       )}
       onClick={() => onCommentClick(Origin.StartDiscussion)}
@@ -131,7 +131,7 @@ function NewCommentComponent(
       </span>
       <Button
         buttonSize={buttonSize[size]}
-        className="ml-auto btn-secondary"
+        className="btn-secondary ml-auto"
         readOnly
         tag="span"
       >

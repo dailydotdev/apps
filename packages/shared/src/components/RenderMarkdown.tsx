@@ -149,7 +149,7 @@ const RenderMarkdown = ({
           return (
             <>
               {!inline && (
-                <div className="flex justify-between items-center py-2 px-5 bg-theme-float">
+                <div className="flex items-center justify-between bg-theme-float px-5 py-2">
                   <span className="inline leading-8 text-theme-label-tertiary">
                     {language || 'code'}
                   </span>
@@ -169,7 +169,7 @@ const RenderMarkdown = ({
               )}
 
               {!inline ? (
-                <div className="py-3 px-5">
+                <div className="px-5 py-3">
                   <SyntaxHighlighterAsync
                     {...props}
                     customStyle={containerReset}

@@ -55,12 +55,12 @@ export function SubmitExternalLink({
   return (
     <span
       className={classNames(
-        'flex relative flex-col tablet:flex-row items-center',
-        isMobile ? 'border border-theme-divider-tertiary rounded-16' : '',
+        'relative flex flex-col items-center tablet:flex-row',
+        isMobile ? 'rounded-16 border border-theme-divider-tertiary' : '',
       )}
     >
       <TextField
-        className={{ container: 'flex-1 w-full' }}
+        className={{ container: 'w-full flex-1' }}
         inputId="url"
         type="url"
         label={label}
@@ -74,10 +74,10 @@ export function SubmitExternalLink({
       {(url === undefined || isMobile) && (
         <ClickableText
           className={classNames(
-            'font-bold reading-history hover:text-theme-label-primary',
+            'reading-history font-bold hover:text-theme-label-primary',
             isMobile
-              ? 'py-4 w-full justify-center'
-              : 'hidden tablet:flex absolute left-56 ml-3',
+              ? 'w-full justify-center py-4'
+              : 'absolute left-56 ml-3 hidden tablet:flex',
           )}
           inverseUnderline={!isMobile}
           onClick={() =>

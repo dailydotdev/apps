@@ -54,7 +54,7 @@ export const ContextMenu = ({
           condition={!!anchorProps}
           wrapper={(children) => <a {...anchorProps}>{children}</a>}
         >
-          <span className="flex gap-2 items-center w-full typo-callout">
+          <span className="flex w-full items-center gap-2 typo-callout">
             {icon} {label}
           </span>
         </ConditionalWrapper>

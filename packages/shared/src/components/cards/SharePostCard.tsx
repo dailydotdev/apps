@@ -59,7 +59,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
       )}
 
       <OptionsButton
-        className="group-hover:flex laptop:hidden absolute top-2 right-2"
+        className="absolute right-2 top-2 group-hover:flex laptop:hidden"
         onClick={(event) => onMenuClick?.(event, post)}
         tooltipPlacement="top"
       />
@@ -73,7 +73,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
         title={post.title}
         onHeightChange={onSharedPostTextHeightChange}
       />
-      <Container ref={containerRef} className="justify-end min-h-0">
+      <Container ref={containerRef} className="min-h-0 justify-end">
         <SharedPostCardFooter
           sharedPost={post.sharedPost}
           isShort={isSharedPostShort}

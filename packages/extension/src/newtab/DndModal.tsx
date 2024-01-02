@@ -61,7 +61,7 @@ export default function DndModal({
     >
       <Modal.Header title="Pause new tab" />
       <Modal.Body>
-        <p className="typo-callout text-theme-label-secondary">
+        <p className="text-theme-label-secondary typo-callout">
           {getDescription()}
         </p>
         {!isActive && (
@@ -79,7 +79,7 @@ export default function DndModal({
               onChange={(value: TimeFormat) => setDndTime(value)}
             />
             {dndTime !== 'CUSTOM' ? null : (
-              <div className="flex flex-row gap-4 mt-4">
+              <div className="mt-4 flex flex-row gap-4">
                 <TextField
                   className={{ container: 'w-40' }}
                   inputId="defaultURL"

@@ -35,7 +35,7 @@ export function SearchReferralBanner({
   return (
     <div
       className={classNames(
-        'flex flex-col gap-4 p-4 w-full rounded-14 bg-theme-overlay-from max-w-widget',
+        'flex w-full max-w-widget flex-col gap-4 rounded-14 bg-theme-overlay-from p-4',
         className,
       )}
     >
@@ -45,7 +45,7 @@ export function SearchReferralBanner({
           ? `Give more friends access to daily.dev's search!`
           : `Give your friends early access to daily.dev's search!`}
       </h2>
-      <p className="typo-title3 text-theme-label-secondary">
+      <p className="text-theme-label-secondary typo-title3">
         {noKeysAvailable
           ? `We noticed you have used all your invites wisely. Here's a way to get access to some more invites!`
           : `Be that cool friend who got access to yet another AI feature! You have ${availableCount} invites, use them wisely.`}
