@@ -2,7 +2,7 @@ import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
 import classNames from 'classnames';
 import { CardButton, FreeformCardTitle, getPostClassNames } from './Card';
 import ActionButtons from './ActionButtons';
-import { Container, PostCardProps } from './common';
+import { Container, generateTitleClamp, PostCardProps } from './common';
 import OptionsButton from '../buttons/OptionsButton';
 import { WelcomePostCardFooter } from './WelcomePostCardFooter';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
@@ -48,14 +48,6 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       openStep,
     );
 
-  const clamp = (() => {
-    if (image) {
-      return 'line-clamp-3';
-    }
-
-    return post.contentHtml ? 'line-clamp-4' : 'line-clamp-9';
-  })();
-
   return (
     <FeedItemContainer
       domProps={{
@@ -87,7 +79,10 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       />
       <FreeformCardTitle
         className={classNames(
-          clamp,
+          generateTitleClamp({
+            hasImage: !!image,
+            hasHtmlContent: !!post.contentHtml,
+          }),
           'px-2 font-bold !text-theme-label-primary typo-title3',
         )}
       >

@@ -1,6 +1,6 @@
 import React, { forwardRef, Ref } from 'react';
 import classNames from 'classnames';
-import { Container, PostCardProps } from '../common';
+import { Container, generateTitleClamp, PostCardProps } from '../common';
 import FeedItemContainer from '../FeedItemContainer';
 import { CollectionCardHeader } from './CollectionCardHeader';
 import {
@@ -31,13 +31,6 @@ export const CollectionCard = forwardRef(function CollectionCard(
   ref: Ref<HTMLElement>,
 ) {
   const image = usePostImage(post);
-  const clamp = (() => {
-    if (post.image) {
-      return 'line-clamp-3';
-    }
-
-    return post.contentHtml ? 'line-clamp-4' : 'line-clamp-9';
-  })();
 
   return (
     <FeedItemContainer
@@ -57,7 +50,10 @@ export const CollectionCard = forwardRef(function CollectionCard(
       />
       <FreeformCardTitle
         className={classNames(
-          clamp,
+          generateTitleClamp({
+            hasImage: !!image,
+            hasHtmlContent: !!post.contentHtml,
+          }),
           'px-2 font-bold text-theme-label-primary typo-title3',
         )}
       >
