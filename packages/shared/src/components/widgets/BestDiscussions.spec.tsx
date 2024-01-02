@@ -35,6 +35,13 @@ it('should show up to 3 articles', async () => {
   expect(await screen.findAllByRole('article')).toHaveLength(3);
 });
 
+it('should show number comments', async () => {
+  renderComponent();
+  expect(await screen.findByText('15 Comments')).toBeInTheDocument();
+  expect(await screen.findByText('5 Comments')).toBeInTheDocument();
+  expect(await screen.findByText('1 Comments')).toBeInTheDocument();
+});
+
 it('should set feeling lucky link to the first post', async () => {
   renderComponent();
   const el = await screen.findByText(`I'm feeling lucky`);

@@ -52,6 +52,9 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
     >
       {post.title}
     </h5>
+    <div className="flex items-center text-theme-label-tertiary typo-footnote">
+      <div>{post.numComments} Comments</div>
+    </div>
   </article>
 );
 
