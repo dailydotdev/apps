@@ -53,25 +53,6 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
     >
       {post.title}
     </h5>
-    <div className="flex items-center text-theme-label-tertiary typo-footnote">
-      {post.featuredComments?.length > 0 && (
-        <div
-          className="relative mr-2 h-6"
-          style={{ width: `${post.featuredComments.length + 0.5}rem` }}
-        >
-          {post.featuredComments.map((comment, index) => (
-            <ProfilePicture
-              key={comment.author.username}
-              user={comment.author}
-              size="small"
-              className="top-0"
-              style={{ left: `${index}rem`, position: 'absolute' }}
-            />
-          ))}
-        </div>
-      )}
-      <div>{post.numComments} Comments</div>
-    </div>
   </article>
 );
 

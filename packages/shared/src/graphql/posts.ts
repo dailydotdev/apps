@@ -105,7 +105,6 @@ export interface Post {
   placeholder?: string;
   read?: boolean;
   bookmarked?: boolean;
-  featuredComments?: Comment[];
   trending?: number;
   description?: string;
   summary: string;
