@@ -31,9 +31,7 @@ export const AdCard = forwardRef(function AdCard(
     <Card {...domProps} data-testid="adItem" ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <CardTextContainer>
-        <CardTitle
-          className={classNames('my-4 line-clamp-4 font-bold typo-title3')}
-        >
+        <CardTitle className="my-4 line-clamp-4 font-bold typo-title3">
           {ad.description}
         </CardTitle>
       </CardTextContainer>
