@@ -77,11 +77,6 @@ export const FURTHER_READING_QUERY = gql`
       author {
         ...UserShortInfo
       }
-      featuredComments {
-        author {
-          ...UserShortInfo
-        }
-      }
     }
   }
   ${USER_SHORT_INFO_FRAGMENT}
