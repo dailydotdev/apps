@@ -137,7 +137,7 @@ function ChangelogTooltip(): ReactElement {
               }
               pressed={post?.userState?.vote === UserPostVote.Up}
               onClick={onToggleUpvote}
-              buttonSize={ButtonSize.Small}
+              size={ButtonSize.Small}
               className="btn-tertiary-avocado"
               data-testid="changelogUpvotesButton"
             >
@@ -153,7 +153,7 @@ function ChangelogTooltip(): ReactElement {
               tag="a"
               href={post.commentsPermalink}
               onClick={dismissChangelog}
-              buttonSize={ButtonSize.Small}
+              size={ButtonSize.Small}
               className="btn-tertiary-blueCheese"
               data-testid="changelogCommentsButton"
             >

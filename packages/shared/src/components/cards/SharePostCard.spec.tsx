@@ -79,7 +79,7 @@ it('should not display publication date createdAt is empty', async () => {
 
 it('should format publication date', async () => {
   renderComponent();
-  const el = await screen.findByText('Feb 09');
+  const el = await screen.findByText('Feb 09, 2023');
   expect(el).toBeInTheDocument();
 });
 
