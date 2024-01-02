@@ -24,7 +24,7 @@ function CarouselIndicator({
   return (
     <span
       className={classNames(
-        'flex flex-row gap-1 items-center',
+        'flex flex-row items-center gap-1',
         className.container,
       )}
     >
@@ -36,7 +36,7 @@ function CarouselIndicator({
           aria-label={`carousel item #${index + 1}`}
           onClick={() => onItemClick(index)}
           className={classNames(
-            'w-1.5 h-1.5 rounded-full border border-theme-color-salt',
+            'h-1.5 w-1.5 rounded-full border border-theme-color-salt',
             active === index && 'bg-theme-color-salt',
             className.item,
           )}

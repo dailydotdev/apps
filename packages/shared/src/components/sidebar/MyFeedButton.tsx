@@ -26,14 +26,14 @@ export function MyFeedButton({
     title: 'My feed',
     path: '/my-feed',
     alert: (alerts.filter || alerts.myFeed) && !sidebarExpanded && (
-      <AlertDot className="top-0 right-2.5" color={AlertColor.Success} />
+      <AlertDot className="right-2.5 top-0" color={AlertColor.Success} />
     ),
     action: () => onNavTabClick?.('my-feed'),
   };
   const isActive = activePage === myFeedMenuItem.path;
 
   return (
-    <NavItem className="mt-0 laptop:mt-2 laptop:mb-5" active={isActive}>
+    <NavItem className="mt-0 laptop:mb-5 laptop:mt-2" active={isActive}>
       <ClickableNavItem item={myFeedMenuItem} isButton={isButton}>
         <ItemInner
           item={myFeedMenuItem}

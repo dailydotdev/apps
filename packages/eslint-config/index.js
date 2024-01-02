@@ -23,6 +23,10 @@ module.exports = {
     react: {
       version: 'detect',
     },
+    tailwindcss: {
+      callees: ["classnames", "clsx", "ctl", "classNames"],
+      officialSorting: true,
+    }
   },
   env: {
     node: true,

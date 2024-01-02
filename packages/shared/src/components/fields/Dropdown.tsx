@@ -126,7 +126,7 @@ export function Dropdown({
         type="button"
         ref={triggerRef}
         className={classNames(
-          'group flex w-full px-3 font-normal items-center bg-theme-float typo-body text-theme-label-tertiary hover:text-theme-label-primary hover:bg-theme-hover',
+          'group flex w-full items-center bg-theme-float px-3 font-normal text-theme-label-tertiary typo-body hover:bg-theme-hover hover:text-theme-label-primary',
           getButtonSizeClass(buttonSize),
           className?.button,
           iconOnly && 'items-center justify-center',
@@ -140,13 +140,13 @@ export function Dropdown({
         {icon &&
           React.cloneElement(icon as ReactElement, { secondary: isVisible })}
         <span
-          className={classNames('flex flex-1 mr-1 truncate', className.label)}
+          className={classNames('mr-1 flex flex-1 truncate', className.label)}
         >
           {selectedIndex >= 0 ? options[selectedIndex] : placeholder}
         </span>
         <ArrowIcon
           className={classNames(
-            'text-xl ml-auto transition-transform group-hover:text-theme-label-tertiary',
+            'ml-auto text-xl transition-transform group-hover:text-theme-label-tertiary',
             isVisible ? 'rotate-0' : 'rotate-180',
             styles.chevron,
             className.chevron,

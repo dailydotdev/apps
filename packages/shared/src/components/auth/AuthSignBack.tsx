@@ -53,10 +53,10 @@ export const AuthSignBack = ({
   }
 
   return (
-    <span className="flex flex-col flex-1">
+    <span className="flex flex-1 flex-col">
       <AuthHeader simplified={simplified} title="Welcome back!" />
       <AuthContainer className="items-center">
-        <p className="mb-2 text-center typo-callout text-theme-label-secondary">
+        <p className="mb-2 text-center text-theme-label-secondary typo-callout">
           Log in to access your account
           {isConnectedAccount ? (
             <>
@@ -75,7 +75,7 @@ export const AuthSignBack = ({
           wrapper={(component) => (
             <div className="relative">
               {component}
-              <span className="absolute right-0 bottom-0 p-1 bg-white rounded-8 text-theme-label-invert">
+              <span className="absolute bottom-0 right-0 rounded-8 bg-white p-1 text-theme-label-invert">
                 {providerItem.icon}
               </span>
             </div>
@@ -83,7 +83,7 @@ export const AuthSignBack = ({
         >
           <ProfilePicture user={signBack} size="xxxxlarge" />
         </ConditionalWrapper>
-        <span className="mt-1 mb-5 font-bold typo-center">
+        <span className="typo-center mb-5 mt-1 font-bold">
           {signBack.email}
         </span>
         {provider === 'password' ? (
@@ -105,7 +105,7 @@ export const AuthSignBack = ({
         />
         <AuthModalFooter
           text={{ body: "Don't have an account?", button: 'Sign up' }}
-          className={{ container: '!border-none pt-0 h-auto' }}
+          className={{ container: 'h-auto !border-none pt-0' }}
           onClick={onRegister}
         />
       </AuthContainer>

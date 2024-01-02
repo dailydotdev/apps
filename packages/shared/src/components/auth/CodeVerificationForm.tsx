@@ -69,7 +69,7 @@ function CodeVerificationForm({
         onBack={onBack}
       />
       <AuthForm
-        className="flex flex-col items-end py-8 px-14"
+        className="flex flex-col items-end px-14 py-8"
         onSubmit={onCodeVerification}
         data-testid="recovery_form"
       >
@@ -91,7 +91,7 @@ function CodeVerificationForm({
           Verify
         </Button>
         <Button
-          className="mx-auto mt-6 w-30"
+          className="w-30 mx-auto mt-6"
           variant={ButtonVariant.Secondary}
           onClick={onSendEmail}
           disabled={emailSent || isLoading}

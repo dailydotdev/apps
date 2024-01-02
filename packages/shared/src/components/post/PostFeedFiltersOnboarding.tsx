@@ -36,7 +36,7 @@ export function PostFeedFiltersOnboarding({
   return (
     <div
       className={classNames(
-        'flex relative rounded-16 border border-theme-color-cabbage items-center',
+        'relative flex items-center rounded-16 border border-theme-color-cabbage',
         className,
       )}
       onClick={onInitializeOnboarding}
@@ -51,7 +51,7 @@ export function PostFeedFiltersOnboarding({
         onInitializeOnboarding();
       }}
     >
-      <div className="py-3 px-4 w-3/5">
+      <div className="w-3/5 px-4 py-3">
         <p className="font-bold typo-callout">
           Let&apos;s super-charge your feed with the content you actually read!
         </p>

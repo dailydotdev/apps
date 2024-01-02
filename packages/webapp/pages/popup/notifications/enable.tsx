@@ -70,9 +70,9 @@ function Enable(): React.ReactElement {
   }
 
   return (
-    <main className="flex overflow-hidden flex-col justify-center items-center px-20 w-screen h-screen text-center max-h-[100%] max-w-[100%] bg-theme-overlay-float-cabbage">
-      <h1 className="relative font-bold bg-transparent typo-mega3">
-        <div className="absolute inset-0 -z-1 w-52 h-52 opacity-64 bg-theme-bg-cabbage-blur blur-[3.125rem] rounded-[3.125rem] -translate-y-[25%]" />
+    <main className="flex h-screen max-h-[100%] w-screen max-w-[100%] flex-col items-center justify-center overflow-hidden bg-theme-overlay-float-cabbage px-20 text-center">
+      <h1 className="relative bg-transparent font-bold typo-mega3">
+        <div className="absolute inset-0 -z-1 h-52 w-52 -translate-y-[25%] rounded-[3.125rem] bg-theme-bg-cabbage-blur opacity-64 blur-[3.125rem]" />
         Click allow
       </h1>
       <p className="mt-6 text-theme-label-secondary typo-body">
@@ -86,7 +86,7 @@ function Enable(): React.ReactElement {
         <InstructionContainer className="mb-1">
           <Description>1. Click on the lock icon in the search bar</Description>
           <BrowserPermissionIcon
-            className={classNames(iconClasses, 'w-full h-8 max-w-[18.75rem]')}
+            className={classNames(iconClasses, 'h-8 w-full max-w-[18.75rem]')}
           />
         </InstructionContainer>
         <InstructionContainer>
@@ -94,7 +94,7 @@ function Enable(): React.ReactElement {
             2. Enable the toggle button under the notifications section
           </Description>
           <NotificationToggleIcon
-            className={classNames(iconClasses, 'w-52 h-8')}
+            className={classNames(iconClasses, 'h-8 w-52')}
           />
         </InstructionContainer>
       </div>

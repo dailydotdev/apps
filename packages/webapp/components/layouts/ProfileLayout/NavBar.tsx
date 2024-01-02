@@ -60,7 +60,7 @@ export default function NavBar({
       spring="veryGentle"
       element="nav"
       shouldLoad={windowLoaded}
-      className={classNames('relative flex mt-6 -mx-6', styles.nav)}
+      className={classNames('relative -mx-6 mt-6 flex', styles.nav)}
     >
       {tabs.map((tab, index) => (
         <div key={tab.path}>

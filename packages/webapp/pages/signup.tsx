@@ -22,12 +22,12 @@ function Signup(): ReactElement {
   };
 
   return (
-    <div className="flex relative flex-col py-7 px-10 h-screen">
+    <div className="relative flex h-screen flex-col px-10 py-7">
       <header className="flex justify-center laptop:justify-start">
         <Logo showGreeting={false} />
       </header>
-      <main className="flex flex-col tablet:flex-row flex-1 justify-center tablet:justify-start items-center laptop:items-center mx-0 tablet:mx-8 laptopL:mx-32 h-full">
-        <div className=" flex flex-col-reverse laptop:flex-row max-w-full">
+      <main className="mx-0 flex h-full flex-1 flex-col items-center justify-center tablet:mx-8 tablet:flex-row tablet:justify-start laptop:items-center laptopL:mx-32">
+        <div className=" flex max-w-full flex-col-reverse laptop:flex-row">
           <AuthOptions
             className="h-full max-h-[40rem] min-h-[40rem]"
             formRef={formRef}
@@ -36,14 +36,14 @@ function Signup(): ReactElement {
             onSuccessfulLogin={onClose}
           />
 
-          <AuthModalHeading className="hidden tablet:block z-1 mb-10 laptop:mb-0 laptop:ml-32 typo-title1 laptop:typo-mega1">
+          <AuthModalHeading className="z-1 mb-10 hidden typo-title1 tablet:block laptop:mb-0 laptop:ml-32 laptop:typo-mega1">
             Where developers
             <br />
             grow together.
           </AuthModalHeading>
         </div>
 
-        <picture className="flex object-contain absolute right-0 z-0 items-end laptop:items-center h-full max-h-[calc(100vh-1.5rem)] laptopXL:max-h-[52.875rem]">
+        <picture className="absolute right-0 z-0 flex h-full max-h-[calc(100vh-1.5rem)] items-end object-contain laptop:items-center laptopXL:max-h-[52.875rem]">
           <source
             media="(min-width: 1020px)"
             srcSet={cloudinary.auth.login.default}

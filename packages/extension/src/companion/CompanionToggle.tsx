@@ -63,7 +63,7 @@ function CompanionToggle({
                   'icon ',
                   companionState
                     ? 'block rotate-90'
-                    : 'hidden group-hover:block -rotate-90',
+                    : 'hidden -rotate-90 group-hover:block',
                 )}
               />
             </>

@@ -59,12 +59,12 @@ export function MobileSearch({
       className="flex flex-col py-2"
     >
       <img
-        className="absolute top-0 left-0 -z-1 w-full"
+        className="absolute left-0 top-0 -z-1 w-full"
         src={cloudinary.feed.bg.mobile}
         alt="Gradient background"
       />
       <form className="flex flex-col" onSubmit={onSubmitForm}>
-        <span className="flex z-1 flex-row gap-4 px-2 mr-2">
+        <span className="z-1 mr-2 flex flex-row gap-4 px-2">
           <CloseButton
             type="button"
             onClick={(event: React.MouseEvent<HTMLButtonElement>) =>
@@ -88,7 +88,7 @@ export function MobileSearch({
           />
         </span>
         <input
-          className="p-4 mb-2 bg-transparent border-b outline-none border-theme-divider-secondary typo-body caret-theme-color-cabbage"
+          className="mb-2 border-b border-theme-divider-secondary bg-transparent p-4 caret-theme-color-cabbage outline-none typo-body"
           type="text"
           value={input}
           ref={inputRef}
@@ -96,7 +96,7 @@ export function MobileSearch({
           onInput={(e) => setInput(e.currentTarget.value)}
         />
       </form>
-      <div className="flex overflow-auto flex-col flex-1">
+      <div className="flex flex-1 flex-col overflow-auto">
         {suggestionsProps && (
           <div className="flex flex-col p-4">
             <SearchBarSuggestionList {...suggestionsProps} />

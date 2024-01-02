@@ -46,7 +46,7 @@ function IntroductionOnboarding({
               style={{
                 backgroundImage: `url(${onboardingIntroduction})`,
               }}
-              className="absolute -top-20 w-full h-full bg-cover"
+              className="absolute -top-20 h-full w-full bg-cover"
             />
             {!user && (
               <MemberAlready

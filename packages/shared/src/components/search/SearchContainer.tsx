@@ -23,8 +23,8 @@ export function SearchContainer({
   chunk,
 }: SearchContainerProps): React.ReactElement {
   return (
-    <div className="grid grid-cols-1 laptop:grid-cols-3 gap-y-6 py-8 m-auto w-full max-w-screen-laptopL">
-      <main className="flex flex-col col-span-2 px-4 laptop:px-8">
+    <div className="m-auto grid w-full max-w-screen-laptopL grid-cols-1 gap-y-6 py-8 laptop:grid-cols-3">
+      <main className="col-span-2 flex flex-col px-4 laptop:px-8">
         {isLoading ? (
           <>
             <Pill className="!h-16" />
@@ -40,8 +40,8 @@ export function SearchContainer({
         )}
         {children}
       </main>
-      <PageWidgets tablet={false} className="gap-6 items-center !px-0">
-        <SearchFeedback className="order-2 laptop:order-1 max-w-widget" />
+      <PageWidgets tablet={false} className="items-center gap-6 !px-0">
+        <SearchFeedback className="order-2 max-w-widget laptop:order-1" />
         {!!chunk && (
           <SearchSourceList
             className={classNames(

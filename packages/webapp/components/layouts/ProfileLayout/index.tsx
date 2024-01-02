@@ -151,18 +151,18 @@ export default function ProfileLayout({
       <ResponsivePageContainer>
         <section
           className={classNames(
-            'flex flex-col self-start tablet:flex-row tablet:-ml-4 tablet:-mr-4 tablet:self-stretch tablet:overflow-x-hidden w-full tablet:w-auto',
+            'flex w-full flex-col self-start tablet:-ml-4 tablet:-mr-4 tablet:w-auto tablet:flex-row tablet:self-stretch tablet:overflow-x-hidden',
             styles.header,
           )}
         >
-          <div className="flex tablet:flex-col items-center self-start tablet:px-2 tablet:pt-2 tablet:pb-4 mb-6 tablet:mb-0 rounded-2xl bg-theme-bg-secondary">
+          <div className="mb-6 flex items-center self-start rounded-2xl bg-theme-bg-secondary tablet:mb-0 tablet:flex-col tablet:px-2 tablet:pb-4 tablet:pt-2">
             <ProfilePicture user={profile} size="xxxxlarge" />
-            <div className="flex flex-col tablet:items-center mx-6 tablet:mx-0 tablet:mt-4 typo-footnote">
+            <div className="mx-6 flex flex-col typo-footnote tablet:mx-0 tablet:mt-4 tablet:items-center">
               <a
                 href={reputationGuide}
                 target="_blank"
                 rel="noopener"
-                className="my-0.5 no-underline text-theme-label-tertiary"
+                className="my-0.5 text-theme-label-tertiary no-underline"
               >
                 Reputation
               </a>
@@ -171,8 +171,8 @@ export default function ProfileLayout({
               </span>
             </div>
           </div>
-          <div className="flex flex-col tablet:flex-1 min-w-0">
-            <div className="flex items-center mb-2">
+          <div className="flex min-w-0 flex-col tablet:flex-1">
+            <div className="mb-2 flex items-center">
               <h1 className="m-0 font-bold text-theme-label-primary typo-title3">
                 {profile.name}
               </h1>
@@ -181,7 +181,7 @@ export default function ProfileLayout({
                   rank={userRank.userReadingRank.currentRank}
                   colorByRank
                   data-testid="rank"
-                  className="ml-2 w-6 h-6"
+                  className="ml-2 h-6 w-6"
                 />
               )}
             </div>
@@ -199,7 +199,7 @@ export default function ProfileLayout({
               className="mt-3 text-theme-label-quaternary typo-footnote"
               date={new Date(profile.createdAt)}
             />
-            <div className={classNames('flex mt-3 mx-0.5', styles.links)}>
+            <div className={classNames('mx-0.5 mt-3 flex', styles.links)}>
               {twitterHandle && (
                 <SimpleTooltip content="X">
                   <Button
@@ -245,7 +245,7 @@ export default function ProfileLayout({
                     target="_blank"
                     rel="noopener"
                     icon={<LinkIcon />}
-                    className="w-full btn-tertiary"
+                    className="btn-tertiary w-full"
                     responsiveLabelClass="truncate w-auto tablet:w-full self-center flex-1"
                   >
                     {portfolioLink
@@ -257,7 +257,7 @@ export default function ProfileLayout({
             </div>
             {isCurrentUserProfile && (
               <Button
-                className="self-start mt-6 mb-0.5"
+                className="mb-0.5 mt-6 self-start"
                 variant={ButtonVariant.Secondary}
                 tag="a"
                 href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}

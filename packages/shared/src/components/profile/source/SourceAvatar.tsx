@@ -22,7 +22,7 @@ export function SourceAvatar({
   return (
     <Image
       className={classNames(
-        'object-cover mr-2 rounded-full',
+        'mr-2 rounded-full object-cover',
         sizeClasses[size],
         className,
       )}

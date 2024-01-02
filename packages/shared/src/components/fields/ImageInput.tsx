@@ -108,12 +108,12 @@ function ImageInput({
   const onError = () => setImage(fallbackImage);
 
   return (
-    <div className="flex relative w-min">
+    <div className="relative flex w-min">
       <button
         type="button"
         onClick={onClick}
         className={classNames(
-          'relative flex justify-center items-center group overflow-hidden border border-theme-divider-primary',
+          'group relative flex items-center justify-center overflow-hidden border border-theme-divider-primary',
           componentSize[size],
           className?.container,
         )}
@@ -133,7 +133,7 @@ function ImageInput({
         {image ? (
           <img
             className={classNames(
-              'w-full h-full object-cover',
+              'h-full w-full object-cover',
               className?.img,
               alwaysShowHover && 'opacity-[0.8]',
               !viewOnly && 'mouse:group-hover:opacity-64',
@@ -149,7 +149,7 @@ function ImageInput({
           <span
             className={classNames(
               !alwaysShowHover && 'hidden',
-              !viewOnly && 'mouse:group-hover:block absolute',
+              !viewOnly && 'absolute mouse:group-hover:block',
             )}
           >
             {hoverIcon || <EditIcon size={sizeToIconSize[size]} secondary />}
@@ -160,7 +160,7 @@ function ImageInput({
         <CloseButton
           size={ButtonSize.Small}
           variant={ButtonVariant.Primary}
-          className="absolute -top-2 -right-2 !shadow-2"
+          className="absolute -right-2 -top-2 !shadow-2"
           onClick={onClose}
         />
       )}

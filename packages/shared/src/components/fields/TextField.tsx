@@ -123,7 +123,7 @@ function TextFieldComponent(
       )}
       <div
         className={classNames(
-          'flex flex-col flex-1 items-start max-w-full',
+          'flex max-w-full flex-1 flex-col items-start',
           actionButton && 'mr-2',
         )}
       >

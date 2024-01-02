@@ -47,7 +47,7 @@ export function SearchBarSuggestionList({
         )}
       >
         <FeedbackIcon />
-        <span className="flex flex-1 ml-2 typo-footnote">
+        <span className="ml-2 flex flex-1 typo-footnote">
           Start getting search recommendations by upvoting several posts
         </span>
       </span>
@@ -57,7 +57,7 @@ export function SearchBarSuggestionList({
   return (
     <div
       className={classNames(
-        'flex flex-wrap gap-4 w-full flex-1 tablet:h-10 overflow-hidden',
+        'flex w-full flex-1 flex-wrap gap-4 overflow-hidden tablet:h-10',
         className,
       )}
     >

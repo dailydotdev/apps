@@ -20,7 +20,7 @@ export function CardSelection({
   return (
     <button
       className={classNames(
-        'relative flex flex-col gap-1 py-3 px-4 items-center border border-theme-divider-tertiary rounded-16 hover:cursor-pointer',
+        'relative flex flex-col items-center gap-1 rounded-16 border border-theme-divider-tertiary px-4 py-3 hover:cursor-pointer',
         isActive
           ? 'border-theme-divider-primary'
           : 'border-theme-divider-tertiary',
@@ -29,11 +29,11 @@ export function CardSelection({
       type="button"
     >
       {isActive && (
-        <VIcon className="absolute -top-3 -right-3 w-6 h-6 rounded-8 bg-theme-label-primary text-theme-bg-primary" />
+        <VIcon className="absolute -right-3 -top-3 h-6 w-6 rounded-8 bg-theme-label-primary text-theme-bg-primary" />
       )}
       {icon}
       <span className="font-bold typo-callout">{title}</span>
-      <span className="typo-footnote text-theme-label-tertiary">
+      <span className="text-theme-label-tertiary typo-footnote">
         {description}
       </span>
     </button>
