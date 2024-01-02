@@ -12,7 +12,7 @@ export const AdList = forwardRef(function AdList(
     <ListCard {...domProps} data-testid="adItem" ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <ListCardMain>
-        <ListCardTitle className="font-bold line-clamp-4 typo-title3">
+        <ListCardTitle className="line-clamp-4 font-bold typo-title3">
           {ad.description}
         </ListCardTitle>
         <AdAttribution ad={ad} className="mt-2" />
