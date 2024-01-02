@@ -135,7 +135,7 @@ function SquadPostContent({
             onShare={onSharePost}
             onReadArticle={onReadArticle}
             post={post}
-            className="px-8 tablet:pl-4 mb-6 tablet:mb-0 border-l border-theme-divider-tertiary"
+            className="mb-6 border-l border-theme-divider-tertiary px-8 tablet:mb-0 tablet:pl-4"
             onClose={onClose}
             origin={origin}
           />
