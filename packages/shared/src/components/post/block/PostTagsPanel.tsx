@@ -78,21 +78,21 @@ export function PostTagsPanel({
   return (
     <div
       className={classNames(
-        'flex relative flex-col border border-theme-divider-tertiary rounded-16 p-4 pb-0',
+        'relative flex flex-col rounded-16 border border-theme-divider-tertiary p-4 pb-0',
         className,
       )}
     >
       <CloseButton
-        className="absolute top-3 right-3"
+        className="absolute right-3 top-3"
         onClick={() => onClose()}
         size={ButtonSize.Small}
       />
       <h4 className="font-bold typo-body">Don&apos;t show me posts from...</h4>
-      <p className="mt-1 typo-callout text-theme-label-tertiary">
+      <p className="mt-1 text-theme-label-tertiary typo-callout">
         Pick all the topics you are not interested to see on your feed
       </p>
       <span
-        className="flex overflow-auto flex-row flex-wrap flex-1 gap-2 content-start mt-4"
+        className="mt-4 flex flex-1 flex-row flex-wrap content-start gap-2 overflow-auto"
         role="list"
       >
         <Button
@@ -115,7 +115,7 @@ export function PostTagsPanel({
           />
         ))}
       </span>
-      <span className="flex flex-row gap-2 p-3 -mx-4 mt-4 border-t border-theme-divider-tertiary">
+      <span className="-mx-4 mt-4 flex flex-row gap-2 border-t border-theme-divider-tertiary p-3">
         <Button
           className="ml-auto"
           variant={ButtonVariant.Tertiary}

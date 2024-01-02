@@ -54,24 +54,24 @@ export const RelatedPostsWidget = ({
 
   return (
     <div className={classNames(className, 'flex flex-col', widgetClasses)}>
-      <div className="flex justify-between items-center py-1.5 laptop:py-4 px-4 rounded-16 rounded-t-16 cursor-pointer laptop:cursor-auto laptop:!pb-0">
-        <p className="font-bold typo-callout text-theme-label-quaternary laptop:text-theme-label-quaternary">
+      <div className="flex cursor-pointer items-center justify-between rounded-16 rounded-t-16 px-4 py-1.5 laptop:cursor-auto laptop:py-4 laptop:!pb-0">
+        <p className="font-bold text-theme-label-quaternary typo-callout laptop:text-theme-label-quaternary">
           {post.numCollectionSources} sources
         </p>
       </div>
-      <div className="flex flex-col pt-2 pb-0 laptop:min-h-[14rem]">
+      <div className="flex flex-col pb-0 pt-2 laptop:min-h-[14rem]">
         {isLoading && (
           <article
             aria-busy
-            className="flex flex-col items-stretch py-2 px-4 w-60 laptop:w-full"
+            className="flex w-60 flex-col items-stretch px-4 py-2 laptop:w-full"
           >
-            <div className="flex items-center mb-2">
-              <ElementPlaceholder className="mr-2 w-6 h-6 rounded-full" />
-              <ElementPlaceholder className="w-24 h-4" />
+            <div className="mb-2 flex items-center">
+              <ElementPlaceholder className="mr-2 h-6 w-6 rounded-full" />
+              <ElementPlaceholder className="h-4 w-24" />
             </div>
-            <div className="flex flex-col flex-1 items-center mb-2">
-              <ElementPlaceholder className="my-1 w-full h-4" />
-              <ElementPlaceholder className="my-1 w-full h-4" />
+            <div className="mb-2 flex flex-1 flex-col items-center">
+              <ElementPlaceholder className="my-1 h-4 w-full" />
+              <ElementPlaceholder className="my-1 h-4 w-full" />
             </div>
           </article>
         )}
@@ -80,7 +80,7 @@ export const RelatedPostsWidget = ({
             return (
               <article
                 key={relatedPost.id}
-                className="flex relative flex-col gap-2 py-2 px-4 hover:bg-theme-hover"
+                className="relative flex flex-col gap-2 px-4 py-2 hover:bg-theme-hover"
               >
                 <CardLink
                   className="cursor-pointer"
@@ -96,11 +96,11 @@ export const RelatedPostsWidget = ({
                     createdAt={relatedPost.createdAt}
                   />
                 </div>
-                <p className="line-clamp-2 typo-callout text-theme-label-link">
+                <p className="line-clamp-2 text-theme-label-link typo-callout">
                   {relatedPost.title}
                 </p>
                 {!!relatedPost.summary && (
-                  <p className="line-clamp-2 typo-footnote text-theme-label-tertiary">
+                  <p className="line-clamp-2 text-theme-label-tertiary typo-footnote">
                     {relatedPost.summary}
                   </p>
                 )}

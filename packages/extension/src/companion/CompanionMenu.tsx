@@ -205,7 +205,7 @@ export default function CompanionMenu({
   });
 
   return (
-    <div className="group flex relative flex-col gap-2 self-center p-2 my-6 w-14 rounded-l-16 border border-theme-divider-quaternary bg-theme-bg-primary">
+    <div className="group relative my-6 flex w-14 flex-col gap-2 self-center rounded-l-16 border border-theme-divider-quaternary bg-theme-bg-primary p-2">
       <CompanionToggle
         companionState={companionState}
         isAlertDisabled={!showCompanionHelper}

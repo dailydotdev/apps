@@ -57,7 +57,7 @@ export function SquadHeaderBar({
     <div
       {...props}
       className={classNames(
-        'flex flex-row gap-4 h-fit w-full tablet:w-auto justify-center',
+        'flex h-fit w-full flex-row justify-center gap-4 tablet:w-auto',
         className,
       )}
     >
@@ -80,7 +80,7 @@ export function SquadHeaderBar({
       </div>
       {showJoinButton && (
         <SquadJoinButton
-          className="flex flex-1 tablet:flex-initial tablet:ml-auto w-full tablet:w-auto"
+          className="flex w-full flex-1 tablet:ml-auto tablet:w-auto tablet:flex-initial"
           squad={squad}
           origin={Origin.SquadPage}
         />

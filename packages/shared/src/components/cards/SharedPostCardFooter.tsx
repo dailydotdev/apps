@@ -19,27 +19,27 @@ export const SharedPostCardFooter = ({
   return (
     <div
       className={classNames(
-        'p-3 gap-3 mb-2 rounded-12 border border-theme-divider-tertiary flex flex-auto h-auto min-h-0 w-full',
+        'mb-2 flex h-auto min-h-0 w-full flex-auto gap-3 rounded-12 border border-theme-divider-tertiary p-3',
         isShort ? 'flex-row items-center' : 'flex-col',
       )}
     >
       <div
         className={classNames(
-          'typo-footnote text-theme-label-secondary flex',
-          isShort ? 'line-clamp-4 pr-3 w-8/12' : 'line-clamp-2',
+          'flex text-theme-label-secondary typo-footnote',
+          isShort ? 'line-clamp-4 w-8/12 pr-3' : 'line-clamp-2',
         )}
       >
         {sharedPost.title}
       </div>
 
-      <div className={classNames('flex flex-auto h-auto overflow-auto')}>
+      <div className={classNames('flex h-auto flex-auto overflow-auto')}>
         <ImageComponent
           size={isShort ? IconSize.XLarge : IconSize.XXXLarge}
           alt="Shared Post Cover image"
           src={sharedPost.image}
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
           className={classNames(
-            'object-cover h-auto min-h-0',
+            'h-auto min-h-0 object-cover',
             isShort ? 'aspect-square' : 'w-full',
           )}
           {...(isVideoType && { wrapperClassName: 'overflow-hidden' })}

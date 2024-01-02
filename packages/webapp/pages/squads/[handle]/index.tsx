@@ -186,10 +186,10 @@ const SquadPage = ({
       fallback={<></>}
       shouldFallback={!user}
     >
-      <BaseFeedPage className="relative pt-2 laptop:pt-8 mb-4">
+      <BaseFeedPage className="relative mb-4 pt-2 laptop:pt-8">
         <div
           className={classNames(
-            'absolute top-0 w-full h-full squad-background-fade',
+            'squad-background-fade absolute top-0 h-full w-full',
             sidebarRendered && '-left-full translate-x-[60%]',
           )}
         />

@@ -15,20 +15,20 @@ export const FeedReadyMessage = ({
   return (
     <div
       className={classNames(
-        'flex items-center w-full max-w-xl laptop:flex-row flex-col laptop:text-left text-center laptop:mx-0 mx-auto',
+        'mx-auto flex w-full max-w-xl flex-col items-center text-center laptop:mx-0 laptop:flex-row laptop:text-left',
         className,
       )}
     >
       <ProfilePicture
-        className="laptop:mr-6 mb-5 laptop:mb-0"
+        className="mb-5 laptop:mb-0 laptop:mr-6"
         user={user}
         size="xxxlarge"
       />
-      <div className="flex flex-col w-full">
-        <p className="mb-2 laptop:mb-1 font-bold typo-large-title">
+      <div className="flex w-full flex-col">
+        <p className="mb-2 font-bold typo-large-title laptop:mb-1">
           Your feed is ready
         </p>
-        <p className="flex typo-callout text-theme-label-tertiary">
+        <p className="flex text-theme-label-tertiary typo-callout">
           Now that the recommendations system is up and running, consider
           reading more articles over the first week to help the feed improve.
         </p>

@@ -22,7 +22,7 @@ export function SquadSection(props: SectionCommonProps): ReactElement {
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}squads`,
       isForcedLink: true,
       rightIcon: () => (
-        <span className="font-bold typo-caption1 text-theme-label-quaternary">
+        <span className="font-bold text-theme-label-quaternary typo-caption1">
           beta
         </span>
       ),
@@ -39,7 +39,7 @@ export function SquadSection(props: SectionCommonProps): ReactElement {
     squadMenuItems.push({
       icon: () =>
         image ? (
-          <SquadImage className="w-5 h-5" {...squad} />
+          <SquadImage className="h-5 w-5" {...squad} />
         ) : (
           <DefaultSquadIcon />
         ),

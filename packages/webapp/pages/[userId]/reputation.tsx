@@ -20,7 +20,7 @@ const ProfilePage = (): ReactElement => {
         href={reputationGuide}
         target="_blank"
         rel="noopener"
-        className="no-underline text-theme-label-link"
+        className="text-theme-label-link no-underline"
       >
         learn how to earn reputation points.
       </a>

@@ -10,10 +10,10 @@ export const MangeSquadPageSkeleton = (): ReactElement => {
   return (
     <ManageSquadPageContainer>
       <ManageSquadPageMain className="items-center">
-        <ElementPlaceholder className="w-full h-48" />
-        <div className="flex flex-col items-center w-full max-w-lg">
-          <ElementPlaceholder className="mx-8 mt-6 w-full h-12 rounded-12" />
-          <ElementPlaceholder className="mx-8 mt-4 w-full h-12 rounded-12" />
+        <ElementPlaceholder className="h-48 w-full" />
+        <div className="flex w-full max-w-lg flex-col items-center">
+          <ElementPlaceholder className="mx-8 mt-6 h-12 w-full rounded-12" />
+          <ElementPlaceholder className="mx-8 mt-4 h-12 w-full rounded-12" />
         </div>
       </ManageSquadPageMain>
       <ManageSquadPageFooter />

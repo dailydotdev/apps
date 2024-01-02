@@ -14,7 +14,7 @@ function AuthorOnboarding({ onSignUp }: AuthorOnboardingProps): ReactElement {
   return (
     <section
       className={classNames(
-        'p-6 bg-theme-bg-secondary rounded-2xl mb-6',
+        'mb-6 rounded-2xl bg-theme-bg-secondary p-6',
         styles.authorOnboarding,
       )}
     >
@@ -28,7 +28,7 @@ function AuthorOnboarding({ onSignUp }: AuthorOnboardingProps): ReactElement {
         <FeatherIcon
           secondary
           size={IconSize.XLarge}
-          className="text-theme-status-help icon"
+          className="icon text-theme-status-help"
         />
         <h3>Author</h3>
         <h2>Is this post yours?</h2>
@@ -41,7 +41,7 @@ function AuthorOnboarding({ onSignUp }: AuthorOnboardingProps): ReactElement {
         <li>Gain reputation points by earning upvotes on posts you wrote</li>
       </ol>
       <div
-        className="grid grid-flow-col gap-x-4 mt-6 max-w-[18.5rem]"
+        className="mt-6 grid max-w-[18.5rem] grid-flow-col gap-x-4"
         data-testid="authorOnboarding"
         style={{
           gridTemplateColumns: '1fr max-content',

@@ -53,7 +53,7 @@ export default function CustomLinksModal({
       <Modal.Header title="Shortcuts" />
       <Modal.Body>
         <form ref={formRef} id="shortcuts-modal" onSubmit={onSubmit}>
-          <nav className="grid grid-cols-2 gap-6 mb-8">
+          <nav className="mb-8 grid grid-cols-2 gap-6">
             <CardSelection
               title="My shortcuts"
               description="Curate your own shortcuts manually"

@@ -17,7 +17,7 @@ export function Loader({
     <div
       {...props}
       className={classNames(
-        'w-5 h-5',
+        'h-5 w-5',
         className,
         styles.loader,
         invertColor && 'invert',

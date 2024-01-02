@@ -72,14 +72,14 @@ const squadTypeOptions = (userId: string) => [
     value: 'public',
     disabled: true,
     afterElement: (
-      <p className="mb-2 ml-10 typo-footnote text-theme-label-tertiary">
+      <p className="mb-2 ml-10 text-theme-label-tertiary typo-footnote">
         Everyone can see the content, and the posts may appear on the main
         feed.&nbsp;
         <a
           href={`${squadsPublicWaitlist}#user_id=${userId}`}
           rel={anchorDefaultRel}
           target="_blank"
-          className="underline text-theme-label-link"
+          className="text-theme-label-link underline"
         >
           Join waitlist
         </a>
@@ -170,7 +170,7 @@ export function SquadDetails({
     <>
       <div className={classNames('flex flex-col', className)}>
         <form
-          className="flex flex-col gap-4 items-center -mb-2"
+          className="-mb-2 flex flex-col items-center gap-4"
           onSubmit={handleSubmit}
           onBlur={handleChange}
           id="squad-form"
@@ -181,7 +181,7 @@ export function SquadDetails({
               id={squadImageId}
               fallbackImage={cloudinary.squads.imageFallback}
               className={{
-                container: '!rounded-full border-0 my-1',
+                container: 'my-1 !rounded-full border-0',
                 img: 'object-cover',
               }}
               hoverIcon={<CameraIcon size={IconSize.Large} />}
@@ -190,7 +190,7 @@ export function SquadDetails({
               size="large"
             />
           )}
-          <div className="flex flex-col gap-4 justify-center w-full max-w-lg">
+          <div className="flex w-full max-w-lg flex-col justify-center gap-4">
             <TextField
               label={createMode ? 'Name your Squad' : 'Squad name'}
               inputId="name"
@@ -218,7 +218,7 @@ export function SquadDetails({
             />
             {!isDescriptionOpen && (
               <button
-                className="mr-auto typo-callout text-theme-label-tertiary"
+                className="mr-auto text-theme-label-tertiary typo-callout"
                 type="button"
                 onClick={() => {
                   setDescriptionOpen((current) => !current);
@@ -253,8 +253,8 @@ export function SquadDetails({
                 onChange={() => {}}
               />
             </div>
-            <div className="flex flex-col tablet:flex-row gap-4 mt-2">
-              <div className="flex flex-col flex-1">
+            <div className="mt-2 flex flex-col gap-4 tablet:flex-row">
+              <div className="flex flex-1 flex-col">
                 <h4 className="mb-2 font-bold typo-body">Post permissions</h4>
                 <p className="mb-4 text-theme-label-tertiary typo-callout">
                   Choose who is allowed to post new content in this Squad.
@@ -268,7 +268,7 @@ export function SquadDetails({
                   }
                 />
               </div>
-              <div className="flex flex-col flex-1">
+              <div className="flex flex-1 flex-col">
                 <h4 className="mb-2 font-bold typo-body">
                   Invitation permissions
                 </h4>

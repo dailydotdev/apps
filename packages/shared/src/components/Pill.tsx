@@ -24,7 +24,7 @@ export const Pill = ({
     <div
       className={classNames(
         pillSizeToClassName[size],
-        'rounded-10 p-2 inline-flex items-center self-start',
+        'inline-flex items-center self-start rounded-10 p-2',
         className,
       )}
     >

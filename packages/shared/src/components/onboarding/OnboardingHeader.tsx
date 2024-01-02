@@ -34,13 +34,13 @@ export const OnboardingHeader = ({
 
   if (isFiltering) {
     return (
-      <header className="flex sticky top-0 z-3 justify-center mb-10 w-full backdrop-blur-sm">
+      <header className="sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm">
         <img
-          className="absolute top-0 right-0 left-0 w-full pointer-events-none max-h-[12.5rem]"
+          className="pointer-events-none absolute left-0 right-0 top-0 max-h-[12.5rem] w-full"
           src={getImage()}
           alt="Gradient background"
         />
-        <div className="flex justify-between items-center py-10 w-full max-w-4xl tablet:!px-6 !px-4">
+        <div className="flex w-full max-w-4xl items-center justify-between !px-4 py-10 tablet:!px-6">
           <Logo
             logoClassName={classNames('h-6')}
             position={LogoPosition.Relative}
@@ -54,7 +54,7 @@ export const OnboardingHeader = ({
   if (!showOnboardingPage) {
     return (
       <Logo
-        className="py-8 px-10 w-auto laptop:w-full"
+        className="w-auto px-10 py-8 laptop:w-full"
         position={LogoPosition.Relative}
       />
     );
@@ -63,7 +63,7 @@ export const OnboardingHeader = ({
   return (
     <header
       className={classNames(
-        'flex justify-between px-6 mt-6 tablet:mt-16 laptop:mt-20 w-full h-full flew-row',
+        'flew-row mt-6 flex h-full w-full justify-between px-6 tablet:mt-16 laptop:mt-20',
         wrapperMaxWidth,
       )}
     >

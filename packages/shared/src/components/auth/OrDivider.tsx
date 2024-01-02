@@ -10,13 +10,13 @@ function OrDivider({ className, label = 'or' }: OrDividerProps): ReactElement {
   return (
     <div
       className={classNames(
-        'flex justify-center items-center typo-callout text-theme-label-quaternary',
+        'flex items-center justify-center text-theme-label-quaternary typo-callout',
         className,
       )}
     >
-      <div className="flex-1 h-px bg-theme-divider-tertiary" />
+      <div className="h-px flex-1 bg-theme-divider-tertiary" />
       {label && <span className="px-3">{label}</span>}
-      <div className="flex-1 h-px bg-theme-divider-tertiary" />
+      <div className="h-px flex-1 bg-theme-divider-tertiary" />
     </div>
   );
 }

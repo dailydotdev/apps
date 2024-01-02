@@ -69,19 +69,19 @@ function SearchReferralModal({
         right="3"
       />
       <Modal.Body className="laptop:flex-row">
-        <span className="laptop:hidden -mx-6 -mt-6">
+        <span className="-mx-6 -mt-6 laptop:hidden">
           <img
             src={cloudinary.referralCampaign.search.bgPopupMobile}
             alt="tablet popup background"
           />
         </span>
-        <div className="flex flex-col laptop:p-2 w-full max-w-[26rem]">
-          <h1 className="laptop:mt-4 font-bold text-center laptop:text-left typo-title3 tablet:typo-title2 laptop:typo-mega2">
+        <div className="flex w-full max-w-[26rem] flex-col laptop:p-2">
+          <h1 className="text-center font-bold typo-title3 tablet:typo-title2 laptop:mt-4 laptop:text-left laptop:typo-mega2">
             {noKeysAvailable
               ? `Need more keys?`
               : `Give your friends early access to daily.dev's search!`}
           </h1>
-          <p className="mt-6 font-bold text-center laptop:text-left !font-normal typo-body tablet:typo-body laptop:typo-title3 text-theme-label-secondary">
+          <p className="mt-6 text-center font-normal text-theme-label-secondary typo-body tablet:typo-body laptop:text-left laptop:typo-title3">
             {noKeysAvailable
               ? `You've already used all your invitation keys, but you can always ask for more...`
               : `Be that cool friend who got access to yet another AI feature! You
@@ -113,7 +113,7 @@ function SearchReferralModal({
           </Checkbox>
         </div>
         <div
-          className="hidden laptop:flex flex-1 -m-6 bg-center bg-no-repeat bg-contain"
+          className="-m-6 hidden flex-1 bg-contain bg-center bg-no-repeat laptop:flex"
           style={{
             backgroundImage: `url(${cloudinary.referralCampaign.search.bgPopup})`,
           }}

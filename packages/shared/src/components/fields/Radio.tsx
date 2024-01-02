@@ -33,7 +33,7 @@ export function Radio({
   return (
     <div
       className={classNames(
-        'flex flex-col -my-0.5 items-start',
+        '-my-0.5 flex flex-col items-start',
         className.container,
       )}
     >
