@@ -1,37 +1,21 @@
 import React, { ReactElement, useMemo } from 'react';
 import { sanitize } from 'dompurify';
 import { CardImage, CardSpace } from './Card';
-import { Post } from '../../graphql/posts';
 import { cloudinary } from '../../lib/image';
 
-type WelcomePostCardFooterProps = {
-  post: Post;
-};
+interface WelcomePostCardFooterProps {
+  image?: string;
+  contentHtml?: string;
+}
 
 export const WelcomePostCardFooter = ({
-  post,
+  image,
+  contentHtml,
 }: WelcomePostCardFooterProps): ReactElement => {
   const content = useMemo(
-    () =>
-      post?.contentHtml ? sanitize(post.contentHtml, { ALLOWED_TAGS: [] }) : '',
-    [post?.contentHtml],
+    () => (contentHtml ? sanitize(contentHtml, { ALLOWED_TAGS: [] }) : ''),
+    [contentHtml],
   );
-
-  const image = useMemo(() => {
-    if (post?.image) {
-      return post?.image;
-    }
-
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(post?.contentHtml, 'text/html');
-    const imgTag = doc.querySelector('img');
-    if (imgTag) {
-      return imgTag.getAttribute('src');
-    }
-
-    return undefined;
-  }, [post?.contentHtml, post?.image]);
-
   const decodedText = useMemo(() => {
     const span = document.createElement('div');
     span.innerHTML = content || '';

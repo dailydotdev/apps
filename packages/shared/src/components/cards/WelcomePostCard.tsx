@@ -12,6 +12,7 @@ import FeedItemContainer from './FeedItemContainer';
 import { PostType } from '../../graphql/posts';
 import { useFeedPreviewMode } from '../../hooks';
 import { SquadPostCardHeader } from './common/SquadPostCardHeader';
+import { usePostImage } from '../../hooks/post/usePostImage';
 
 export const WelcomePostCard = forwardRef(function SharePostCard(
   {
@@ -35,7 +36,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
-
+  const image = usePostImage(post);
   const { openStep, isChecklistVisible } = useSquadChecklist({
     squad: post.source as Squad,
   });
@@ -48,11 +49,11 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     );
 
   const clamp = (() => {
-    if (post.image) {
+    if (image) {
       return 'line-clamp-3';
     }
 
-    return post.contentHtml ? 'line-clamp-3' : 'line-clamp-9';
+    return post.contentHtml ? 'line-clamp-4' : 'line-clamp-9';
   })();
 
   return (
@@ -93,7 +94,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
         {post.title}
       </FreeformCardTitle>
       <Container ref={containerRef}>
-        <WelcomePostCardFooter post={post} />
+        <WelcomePostCardFooter image={image} contentHtml={post.contentHtml} />
         <ActionButtons
           openNewTab={openNewTab}
           post={post}

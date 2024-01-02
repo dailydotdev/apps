@@ -12,6 +12,7 @@ import {
 import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
 import ActionButtons from '../ActionButtons';
 import PostMetadata from '../PostMetadata';
+import { usePostImage } from '../../../hooks/post/usePostImage';
 
 export const CollectionCard = forwardRef(function CollectionCard(
   {
@@ -29,12 +30,13 @@ export const CollectionCard = forwardRef(function CollectionCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
+  const image = usePostImage(post);
   const clamp = (() => {
     if (post.image) {
       return 'line-clamp-3';
     }
 
-    return post.contentHtml ? 'line-clamp-3' : 'line-clamp-9';
+    return post.contentHtml ? 'line-clamp-4' : 'line-clamp-9';
   })();
 
   return (
@@ -70,7 +72,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
       />
 
       <Container>
-        <WelcomePostCardFooter post={post} />
+        <WelcomePostCardFooter image={image} contentHtml={post.contentHtml} />
         <ActionButtons
           openNewTab={openNewTab}
           post={post}
