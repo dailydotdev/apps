@@ -13,7 +13,7 @@ import { verifyPermission } from '../../graphql/squads';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { ActionType } from '../../graphql/actions';
-import { Button } from '../buttons/Button';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import classed from '../../lib/classed';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { link } from '../../lib/links';
@@ -42,16 +42,16 @@ export function SquadPageHeader({
   return (
     <FlexCol
       className={classNames(
-        'relative items-center laptopL:items-start px-6 tablet:pb-20 laptopL:pb-14 tablet:mb-6 w-full tablet:border-b laptopL:px-[4.5rem] min-h-20 border-theme-divider-tertiary',
+        'relative min-h-20 w-full items-center border-theme-divider-tertiary px-6 tablet:mb-6 tablet:border-b tablet:pb-20 laptopL:items-start laptopL:px-18 laptopL:pb-14',
       )}
     >
-      <div className="flex flex-col laptopL:flex-row items-center">
-        <SquadImage className="w-16 tablet:w-24 h-16 tablet:h-24" {...squad} />
-        <FlexCol className="mt-4 laptopL:mt-0 laptopL:ml-6">
-          <h3 className="font-bold text-center laptopL:text-left typo-title2">
+      <div className="flex flex-col items-center laptopL:flex-row">
+        <SquadImage className="h-16 w-16 tablet:h-24 tablet:w-24" {...squad} />
+        <FlexCol className="mt-4 laptopL:ml-6 laptopL:mt-0">
+          <h3 className="text-center font-bold typo-title2 laptopL:text-left">
             {squad.name}
           </h3>
-          <h4 className="mt-1 tablet:mt-2 text-center laptopL:text-left typo-body text-theme-label-tertiary">
+          <h4 className="mt-1 text-center text-theme-label-tertiary typo-body tablet:mt-2 laptopL:text-left">
             @{squad.handle}
           </h4>
         </FlexCol>
@@ -59,7 +59,7 @@ export function SquadPageHeader({
       {squad.description && (
         <p
           className={classNames(
-            'mt-6 w-full text-center laptopL:text-left typo-body text-theme-label-tertiary',
+            'mt-6 w-full text-center text-theme-label-tertiary typo-body laptopL:text-left',
             MAX_WIDTH,
           )}
         >
@@ -69,12 +69,12 @@ export function SquadPageHeader({
       <SquadMemberShortList
         squad={squad}
         members={members}
-        className="laptopL:hidden my-6"
+        className="my-6 laptopL:hidden"
       />
       <SquadHeaderBar
         squad={squad}
         members={members}
-        className="laptopL:absolute laptopL:top-0 laptopL:right-[4.5rem]"
+        className="laptopL:absolute laptopL:right-18 laptopL:top-0"
       />
       <EnableNotification
         contentName={squad.name}
@@ -83,10 +83,10 @@ export function SquadPageHeader({
       />
       <div
         className={classNames(
-          'relative tablet:absolute flex flex-col tablet:flex-row pt-8 tablet:p-0 bottom-0 w-full tablet:translate-y-1/2 laptopL:px-0 bg-theme-bg-primary',
+          'relative bottom-0 flex w-full flex-col bg-theme-bg-primary pt-8 tablet:absolute tablet:translate-y-1/2 tablet:flex-row tablet:p-0 laptopL:px-0',
           shouldShowHighlightPulse && 'highlight-pulse',
           allowedToPost
-            ? 'justify-center items-center laptop:max-w-[41.5rem]'
+            ? 'items-center justify-center laptop:max-w-[41.5rem]'
             : 'laptop:max-w-[38.25rem]',
         )}
       >
@@ -96,14 +96,16 @@ export function SquadPageHeader({
             <>
               <Divider />
               {children}
-              <FlexCentered className="relative my-2 mx-2 w-full tablet:w-auto text-theme-label-tertiary typo-callout">
-                <span className="flex tablet:hidden absolute -left-6 h-px w-[calc(100%+3rem)] bg-theme-divider-tertiary" />
-                <span className="z-0 px-4 bg-theme-bg-primary">or</span>
+              <FlexCentered className="relative mx-2 my-2 w-full text-theme-label-tertiary typo-callout tablet:w-auto">
+                <span className="absolute -left-6 flex h-px w-[calc(100%+3rem)] bg-theme-divider-tertiary tablet:hidden" />
+                <span className="z-0 bg-theme-bg-primary px-4">or</span>
               </FlexCentered>
               <Button
                 tag="a"
                 href={`${link.post.create}?sid=${squad?.handle}`}
-                className="w-full tablet:w-auto btn-primary-cabbage"
+                variant={ButtonVariant.Primary}
+                color={ButtonColor.Cabbage}
+                className="w-full tablet:w-auto"
               >
                 New post
               </Button>

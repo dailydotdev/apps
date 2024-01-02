@@ -1,9 +1,13 @@
 import React, { CSSProperties, ReactElement, useEffect, useState } from 'react';
-import { Button, ButtonProps, ButtonSize } from './buttons/Button';
+import {
+  Button,
+  ButtonProps,
+  ButtonSize,
+  ButtonVariant,
+} from './buttons/ButtonV2';
 import ArrowIcon from './icons/Arrow';
 
 const baseStyle: CSSProperties = {
-  position: 'fixed',
   transition: 'transform 0.1s ease-out, opacity 0.1s ease-out',
   willChange: 'transform, opacity',
 };
@@ -35,15 +39,17 @@ export default function ScrollToTopButton(): ReactElement {
       <Button
         aria-label="scroll to top"
         {...props}
-        className="laptop:hidden right-4 z-2 btn-primary"
-        buttonSize={ButtonSize.Large}
-        style={{ ...style, bottom: '4.5rem' }}
+        className="fixed bottom-18 right-4 z-2 laptop:hidden"
+        size={ButtonSize.Large}
+        variant={ButtonVariant.Primary}
+        style={style}
       />
       <Button
         aria-label="scroll to top"
         {...props}
-        className="hidden laptop:flex right-8 bottom-8 z-2 btn-primary"
-        buttonSize={ButtonSize.XLarge}
+        className="fixed bottom-8 right-8 z-2 hidden laptop:flex"
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.XLarge}
         style={style}
       />
     </>

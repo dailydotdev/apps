@@ -14,13 +14,13 @@ export const SearchProgressBar = ({
   const isDone = progress >= max;
 
   return (
-    <div className="flex relative gap-3 h-2" data-testid="SearchProgressBar">
+    <div className="relative flex h-2 gap-3" data-testid="SearchProgressBar">
       {Array.from({ length: max }).map((_, index) => (
         <span
           /* eslint-disable-next-line react/no-array-index-key */
           key={index}
           className={classNames(
-            'flex-1 h-2 rounded-10 relative overflow-hidden z-0',
+            'relative z-0 h-2 flex-1 overflow-hidden rounded-10',
             index < progress || isDone
               ? 'bg-theme-status-cabbage'
               : 'bg-theme-float',
@@ -30,7 +30,7 @@ export const SearchProgressBar = ({
             <span
               className={classNames(
                 styles.animatedBar,
-                'rounded-10 h-2 w-3/5 absolute',
+                'absolute h-2 w-3/5 rounded-10',
               )}
             />
           )}

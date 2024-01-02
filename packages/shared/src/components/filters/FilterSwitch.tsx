@@ -12,7 +12,7 @@ export function FilterSwitch({
   ...props
 }: FilterSwitchProps): ReactElement {
   return (
-    <div className="flex flex-col my-4">
+    <div className="my-4 flex flex-col">
       <Switch
         className="h-8"
         defaultTypo={false}
@@ -21,7 +21,7 @@ export function FilterSwitch({
       >
         {label}
       </Switch>
-      <p className="mt-3 typo-callout text-theme-label-tertiary">
+      <p className="mt-3 text-theme-label-tertiary typo-callout">
         {description}
       </p>
     </div>

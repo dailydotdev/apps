@@ -23,7 +23,7 @@ const Title = ({
       {...rest}
       className={classNames(
         styles.title,
-        'font-bold text-theme-label-primary multi-truncate typo-title3',
+        'multi-truncate font-bold text-theme-label-primary typo-title3',
         lineClamp,
         className,
       )}
@@ -35,10 +35,10 @@ const Title = ({
 
 export const FreeformCardTitle = classed(
   'h3',
-  'my-2 break-words multi-truncate font-bold typo-title3',
+  'mt-2 break-words multi-truncate font-bold typo-title3',
 );
 
-export const CardTitle = classed(Title, 'my-2 break-words');
+export const CardTitle = classed(Title, 'mt-2 break-words');
 
 export const ListCardTitle = classed(Title, 'mr-2');
 
@@ -54,7 +54,7 @@ export const CardSpace = classed('div', 'flex-1');
 
 const clickableCardClasses = classNames(
   styles.link,
-  'absolute inset-0 w-full h-full focus-outline',
+  'focus-outline absolute inset-0 h-full w-full',
 );
 
 export const CardButton = classed('button', clickableCardClasses);
@@ -64,7 +64,7 @@ export const CardLink = classed('a', clickableCardClasses);
 export const Card = classed(
   'article',
   styles.card,
-  'relative h-full flex flex-col p-2 rounded-2xl bg-theme-bg-secondary border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
+  'relative max-h-card h-full flex flex-col p-2 rounded-2xl bg-theme-bg-secondary border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
 );
 
 export const CardHeader = classed(

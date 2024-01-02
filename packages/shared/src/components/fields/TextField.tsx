@@ -15,7 +15,7 @@ import BaseFieldContainer, {
   getFieldLabelColor,
   getFieldPlaceholder,
 } from './BaseFieldContainer';
-import { ButtonProps } from '../buttons/Button';
+import { ButtonProps } from '../buttons/ButtonV2';
 import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
 
 export interface TextFieldProps extends BaseFieldProps<HTMLInputElement> {
@@ -123,7 +123,7 @@ function TextFieldComponent(
       )}
       <div
         className={classNames(
-          'flex flex-col flex-1 items-start max-w-full',
+          'flex max-w-full flex-1 flex-col items-start',
           actionButton && 'mr-2',
         )}
       >

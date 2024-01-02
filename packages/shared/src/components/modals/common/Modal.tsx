@@ -101,13 +101,13 @@ export function Modal({
     setView(view);
   };
   const modalOverlayClassName = classNames(
-    'overlay flex fixed flex-col inset-0 items-center bg-overlay-quaternary-onion z-modal',
+    'overlay fixed inset-0 z-modal flex flex-col items-center bg-overlay-quaternary-onion',
     modalKindAndSizeToOverlayClassName[kind]?.[size],
     modalKindToOverlayClassName[kind],
     overlayClassName,
   );
   const modalClassName = classNames(
-    'antialiased modal flex flex-col relative focus:outline-none max-w-full items-center bg-theme-bg-tertiary shadow-2 border border-theme-divider-secondary rounded-16',
+    'modal relative flex max-w-full flex-col items-center rounded-16 border border-theme-divider-secondary bg-theme-bg-tertiary antialiased shadow-2 focus:outline-none',
     modalKindToClassName[kind],
     modalSizeToClassName[size],
     modalKindAndSizeToClassName[kind]?.[size],

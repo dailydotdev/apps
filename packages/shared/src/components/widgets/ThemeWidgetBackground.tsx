@@ -41,7 +41,7 @@ export const DarkNode = (
     className="bg-gradient-to-l from-[#00000044] to-[#000000]"
     style={{ boxShadow: '-8px -8px 22px #00000040' }}
   >
-    <DailyIcon className="w-6 h-3" style={{ fill: '#FFFFFF' }} />
+    <DailyIcon className="h-3 w-6" style={{ fill: '#FFFFFF' }} />
   </NodeContainer>
 );
 
@@ -56,7 +56,7 @@ export const LightNode = (
     className="bg-gradient-to-l from-[#FFFFFF44] to-[#FFFFFF]"
     style={{ boxShadow: '-8px -8px 22px #FFFFFF40' }}
   >
-    <DailyIcon className="w-6 h-3" style={{ fill: '#000000' }} />
+    <DailyIcon className="h-3 w-6" style={{ fill: '#000000' }} />
   </NodeContainer>
 );
 

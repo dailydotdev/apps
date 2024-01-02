@@ -36,18 +36,18 @@ function PostPreview({
   return (
     <div
       className={classNames(
-        'flex gap-4 items-center py-2 px-4 w-full rounded-12 border border-theme-divider-tertiary',
+        'flex w-full items-center gap-4 rounded-12 border border-theme-divider-tertiary px-4 py-2',
         className,
       )}
     >
       {isLoading ? (
-        <div className="flex flex-col flex-1 gap-3">
+        <div className="flex flex-1 flex-col gap-3">
           <ParagraphPlaceholder />
           <ParagraphPlaceholder />
           <ParagraphPlaceholder className="w-1/3" />
         </div>
       ) : (
-        <p className="flex-1 line-clamp-3 multi-truncate text-theme-label-secondary typo-caption1">
+        <p className="multi-truncate line-clamp-3 flex-1 text-theme-label-secondary typo-caption1">
           {title}
         </p>
       )}

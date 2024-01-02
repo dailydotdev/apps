@@ -3,7 +3,6 @@ import { TextField } from '../../fields/TextField';
 import LinkIcon from '../../icons/Link';
 import { SourceAvatar } from '../../profile/source';
 import { Image } from '../../image/Image';
-import { Button } from '../../buttons/Button';
 import OpenLinkIcon from '../../icons/OpenLink';
 import {
   previewImageClass,
@@ -11,6 +10,7 @@ import {
   WritePreviewContent,
 } from './common';
 import { ExternalLinkPreview } from '../../../graphql/posts';
+import { Button, ButtonVariant } from '../../buttons/ButtonV2';
 
 interface WriteLinkPreviewProps {
   link: string;
@@ -45,18 +45,18 @@ export function WriteLinkPreview({
         />
       )}
       {preview.title && preview.image && (
-        <WritePreviewContent className={isMinimized && '!py-2 !px-3'}>
-          <div className="flex flex-col flex-1 typo-footnote">
-            <span className="font-bold line-clamp-2">{preview.title}</span>
+        <WritePreviewContent className={isMinimized && '!px-3 !py-2'}>
+          <div className="flex flex-1 flex-col typo-footnote">
+            <span className="line-clamp-2 font-bold">{preview.title}</span>
             {preview.source?.id !== 'unknown' &&
               (isMinimized ? (
                 <SourceAvatar
                   size="small"
                   source={preview.source}
-                  className="absolute right-24 mt-1 mr-4"
+                  className="absolute right-24 mr-4 mt-1"
                 />
               ) : (
-                <span className="flex flex-row items-center mt-1">
+                <span className="mt-1 flex flex-row items-center">
                   <SourceAvatar size="small" source={preview.source} />
                   <span className="text-theme-label-tertiary">
                     {preview.source?.name}
@@ -72,7 +72,7 @@ export function WriteLinkPreview({
           {!isMinimized && (
             <Button
               icon={<OpenLinkIcon />}
-              className="btn-tertiary"
+              variant={ButtonVariant.Tertiary}
               type="button"
               tag="a"
               target="_blank"

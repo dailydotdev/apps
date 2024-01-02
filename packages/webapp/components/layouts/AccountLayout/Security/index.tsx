@@ -188,7 +188,7 @@ function AccountSecurityDefault({
           placement="bottom"
           disabled={hasPassword}
           content={
-            <div className="py-2 w-60 typo-subhead">
+            <div className="w-60 py-2 typo-subhead">
               You must set a password for the account before you can change your
               email address.
             </div>
@@ -271,7 +271,7 @@ function AccountSecurityDefault({
       <AccountContentSection title="🚨 Danger Zone">
         <AccountDangerZone
           onDelete={() => deleteAccountPrompt()}
-          className="overflow-hidden relative py-4 px-6 mt-6 rounded-26 border border-theme-status-error"
+          className="relative mt-6 overflow-hidden rounded-26 border border-theme-status-error px-6 py-4"
         >
           <AlertBackground className="bg-overlay-quaternary-ketchup" />
         </AccountDangerZone>

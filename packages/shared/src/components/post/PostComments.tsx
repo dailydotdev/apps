@@ -114,7 +114,7 @@ export function PostComments({
 
   if (commentsCount === 0) {
     return (
-      <div className="mt-8 mb-12 text-center text-theme-label-quaternary typo-subhead">
+      <div className="mb-12 mt-8 text-center text-theme-label-quaternary typo-subhead">
         Be the first to comment.
       </div>
     );
@@ -125,7 +125,7 @@ export function PostComments({
   }
 
   return (
-    <div className="flex flex-col gap-4 mb-12" ref={container}>
+    <div className="mb-12 flex flex-col gap-4" ref={container}>
       {comments.postComments.edges.map((e) => (
         <MainComment
           className={className}

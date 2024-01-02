@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import { FilterItem } from './common';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import TagButton from './TagButton';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -30,10 +30,10 @@ export default function TagItemRow({
 }: TagItemRowProps &
   Omit<HTMLAttributes<HTMLAnchorElement>, 'onClick'>): ReactElement {
   return (
-    <FilterItem className="relative pl-6 my-2">
+    <FilterItem className="relative my-2 pl-6">
       <TagButton
         className={!onFollowTags ? 'cursor-default' : ''}
-        buttonSize={ButtonSize.Small}
+        size={ButtonSize.Small}
         followedTags={followedTags}
         blockedTags={blockedTags}
         tagItem={tag}
@@ -43,8 +43,8 @@ export default function TagItemRow({
       />
       <SimpleTooltip placement="left" content={tooltip}>
         <Button
-          className="right-4 my-auto btn-tertiary"
-          style={{ position: 'absolute' }}
+          className="absolute right-4 my-auto"
+          variant={ButtonVariant.Tertiary}
           onClick={(event) => onClick?.(event, tag)}
           icon={rowIcon}
         />

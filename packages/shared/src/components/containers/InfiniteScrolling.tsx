@@ -34,11 +34,11 @@ function InfiniteScrolling({
   });
 
   return (
-    <div {...props} className={classNames('flex relative flex-col', className)}>
+    <div {...props} className={classNames('relative flex flex-col', className)}>
       {children}
       {isFetchingNextPage && placeholder}
       <div
-        className="absolute bottom-0 left-0 w-px h-px opacity-0 pointer-events-none"
+        className="pointer-events-none absolute bottom-0 left-0 h-px w-px opacity-0"
         ref={infiniteScrollRef}
       />
     </div>

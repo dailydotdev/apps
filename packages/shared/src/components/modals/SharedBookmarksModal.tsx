@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import request from 'graphql-request';
 import CopyIcon from '../icons/Copy';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { Switch } from '../fields/Switch';
 import {
   BookmarksSharingData,
@@ -68,7 +68,7 @@ export default function SharedBookmarksModal({
         >
           Public mode
         </Switch>
-        <p className="typo-callout text-theme-label-tertiary">
+        <p className="text-theme-label-tertiary typo-callout">
           Switching to public mode will generate a public rss feed of your
           bookmarks. Use this link to integrate and automatically share your
           bookmarks with other developers.
@@ -84,8 +84,8 @@ export default function SharedBookmarksModal({
               fieldType="tertiary"
               actionButton={
                 <Button
-                  buttonSize={ButtonSize.Small}
-                  className="btn-tertiary"
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Tertiary}
                   icon={<CopyIcon />}
                   onClick={() => copyRssUrl()}
                 />
@@ -95,23 +95,23 @@ export default function SharedBookmarksModal({
             />
           </div>
         )}
-        <div className="p-6 mt-4 rounded-16 border border-theme-divider-tertiary">
-          <p className="typo-callout text-theme-label-tertiary">
+        <div className="mt-4 rounded-16 border border-theme-divider-tertiary p-6">
+          <p className="text-theme-label-tertiary typo-callout">
             Need inspiration? we prepared some tutorials explaining some best
             practices of integrating your bookmarks with other platforms.
           </p>
-          <div className="flex justify-between mt-4">
+          <div className="mt-4 flex justify-between">
             <Button
               rel="noopener noreferrer"
-              className="btn-secondary"
-              buttonSize={ButtonSize.Small}
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
               href={sharingBookmarks}
               tag="a"
               target="_blank"
             >
               Explore tutorials
             </Button>
-            <div className="flex gap-2 items-center h-8 text-2xl">
+            <div className="flex h-8 items-center gap-2 text-2xl">
               <DiscordIcon size={IconSize.Medium} />
               <TwitterIcon size={IconSize.Medium} />
               <SlackIcon size={IconSize.Medium} />

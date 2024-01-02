@@ -90,7 +90,7 @@ const RawNavItem = classed(
 );
 
 export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (
-  <Icon className="w-5 h-5 pointer-events-none" />
+  <Icon className="pointer-events-none h-5 w-5" />
 );
 
 type ItemInnerIconProps = Pick<SidebarMenuItem, 'alert' | 'icon' | 'active'> & {
@@ -142,7 +142,7 @@ export const ItemInner = ({
       <Icon {...item} active={active} />
       <span
         className={classNames(
-          'flex flex-1 text-left transition-opacity truncate flex-row items-center',
+          'flex flex-1 flex-row items-center truncate text-left transition-opacity',
           shouldShowLabel ? 'opacity-100 delay-150' : 'opacity-0',
           item?.className?.text,
         )}

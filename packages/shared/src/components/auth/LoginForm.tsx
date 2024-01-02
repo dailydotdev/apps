@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React, { FormEvent, ReactElement, useState } from 'react';
 import { LoginPasswordParameters } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { ClickableText } from '../buttons/ClickableText';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
@@ -95,18 +95,19 @@ function LoginForm({
         saveHintSpace
         onChange={() => hint && setHint(null)}
       />
-      <span className="flex flex-row mt-4 w-full">
+      <span className="mt-4 flex w-full flex-row">
         {onForgotPassword && (
           <ClickableText
             type="button"
-            className="flex-1 underline grow-[2] btn-primary"
+            className="btn-primary flex-1 grow-[2] underline"
             onClick={() => onForgotPassword(innerEmail)}
           >
             Forgot password?
           </ClickableText>
         )}
         <Button
-          className="flex-1 btn-primary"
+          className="flex-1"
+          variant={ButtonVariant.Primary}
           type="submit"
           loading={!isReady}
           disabled={isLoading}
@@ -116,16 +117,15 @@ function LoginForm({
       </span>
       {hint && hint === labels.auth.error.invalidEmailOrPassword && (
         <Alert className="mt-6" type={AlertType.Error} flexDirection="flex-row">
-          <AlertParagraph className="flex-1 !mt-0">
+          <AlertParagraph className="!mt-0 flex-1">
             The email or password you entered doesn&apos;t match our records.
             Please try again or{' '}
-            <button
-              type="button"
+            <ClickableText
               onClick={onSignup}
-              className="font-bold underline"
+              className="font-bold text-white underline hover:no-underline"
             >
               create new account.
-            </button>
+            </ClickableText>
           </AlertParagraph>
         </Alert>
       )}

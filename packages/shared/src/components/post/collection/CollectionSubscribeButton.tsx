@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
 import {
   checkHasStatusPreference,
   useNotificationPreference,
@@ -8,9 +7,9 @@ import { NotificationType } from '../../notifications/utils';
 import { NotificationPreferenceStatus } from '../../../graphql/notifications';
 import BellDisabledIcon from '../../icons/Bell/Disabled';
 import { Post } from '../../../graphql/posts';
-import { Button } from '../../buttons/Button';
 import BellIcon from '../../icons/Bell';
 import { SimpleTooltip } from '../../tooltips';
+import { Button, ButtonVariant } from '../../buttons/ButtonV2';
 
 export type CollectionSubscribeButtonProps = {
   post: Post;
@@ -30,7 +29,7 @@ const CollectionSubscribeButtonRegular = ({
 }: CollectionSubscribeButtonViewProps): ReactElement => {
   return (
     <Button
-      className={classNames(isSubscribed ? 'btn-secondary' : 'btn-primary')}
+      variant={isSubscribed ? ButtonVariant.Secondary : ButtonVariant.Primary}
       icon={isSubscribed ? <BellDisabledIcon /> : <BellIcon />}
       disabled={isFetching}
       onClick={onClick}
@@ -48,11 +47,10 @@ const CollectionSubscribeButtonCondensed = ({
   return (
     <SimpleTooltip content={isSubscribed ? 'Unsubscribe' : 'Subscribe'}>
       <Button
-        className="btn-tertiary"
+        variant={ButtonVariant.Tertiary}
         icon={isSubscribed ? <BellDisabledIcon /> : <BellIcon />}
         disabled={isFetching}
         onClick={onClick}
-        iconOnly
       />
     </SimpleTooltip>
   );

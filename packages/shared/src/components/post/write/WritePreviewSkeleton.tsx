@@ -2,13 +2,13 @@ import React, { ReactElement } from 'react';
 import { TextField } from '../../fields/TextField';
 import { Loader } from '../../Loader';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
-import { Button } from '../../buttons/Button';
 import OpenLinkIcon from '../../icons/OpenLink';
 import {
   previewImageClass,
   WritePreviewContainer,
   WritePreviewContent,
 } from './common';
+import { Button, ButtonVariant } from '../../buttons/ButtonV2';
 
 interface WritePreviewSkeletonProps {
   link: string;
@@ -31,19 +31,19 @@ export function WritePreviewSkeleton({
         value={link}
       />
       <WritePreviewContent>
-        <span className="absolute top-2 left-2 typo-caption1 text-theme-label-quaternary">
+        <span className="absolute left-2 top-2 text-theme-label-quaternary typo-caption1">
           Fetching preview, please hold...
         </span>
-        <div className="flex flex-col flex-1 typo-footnote">
-          <div className="relative flex-flex-col">
-            <ElementPlaceholder className="w-5/6 h-2 rounded-12" />
-            <ElementPlaceholder className="mt-3 w-1/2 h-2 rounded-12" />
+        <div className="flex flex-1 flex-col typo-footnote">
+          <div className="flex-flex-col relative">
+            <ElementPlaceholder className="h-2 w-5/6 rounded-12" />
+            <ElementPlaceholder className="mt-3 h-2 w-1/2 rounded-12" />
           </div>
         </div>
         <div className={previewImageClass} />
         <Button
+          variant={ButtonVariant.Tertiary}
           icon={<OpenLinkIcon />}
-          className="btn-tertiary"
           disabled
           type="button"
           tag="a"

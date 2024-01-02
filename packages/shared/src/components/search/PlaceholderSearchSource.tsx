@@ -5,14 +5,14 @@ export const PlaceholderSearchSource = (): ReactElement => {
   return (
     <article
       aria-busy
-      className="flex flex-col items-stretch w-60 laptop:w-full"
+      className="flex w-60 flex-col items-stretch laptop:w-full"
     >
-      <div className="flex items-center mb-2">
-        <ElementPlaceholder className="mr-2 w-6 h-6 rounded-6" />
-        <ElementPlaceholder className="flex-1 h-4 rounded-xl" />
+      <div className="mb-2 flex items-center">
+        <ElementPlaceholder className="mr-2 h-6 w-6 rounded-6" />
+        <ElementPlaceholder className="h-4 flex-1 rounded-xl" />
       </div>
-      <ElementPlaceholder className="my-2 w-4/5 h-4 rounded-full" />
-      <ElementPlaceholder className="my-2 w-3/5 h-4 rounded-full" />
+      <ElementPlaceholder className="my-2 h-4 w-4/5 rounded-full" />
+      <ElementPlaceholder className="my-2 h-4 w-3/5 rounded-full" />
     </article>
   );
 };

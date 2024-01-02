@@ -12,7 +12,7 @@ export default function AdAttribution({
   className,
 }: AdAttributionProps): ReactElement {
   const elementClass = classNames(
-    'text-theme-label-quaternary typo-footnote no-underline',
+    'text-theme-label-quaternary no-underline typo-footnote',
     className,
   );
   if (ad.referralLink) {

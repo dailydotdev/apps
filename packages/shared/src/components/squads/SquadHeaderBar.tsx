@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { HTMLAttributes, ReactElement } from 'react';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import MenuIcon from '../icons/Menu';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import SquadHeaderMenu from './SquadHeaderMenu';
@@ -57,15 +57,15 @@ export function SquadHeaderBar({
     <div
       {...props}
       className={classNames(
-        'flex flex-row gap-4 h-fit w-full tablet:w-auto justify-center',
+        'flex h-fit w-full flex-row justify-center gap-4 tablet:w-auto',
         className,
       )}
     >
       <div className="relative">
         {verifyPermission(squad, SourcePermissions.Invite) && !showJoinButton && (
           <Button
+            variant={ButtonVariant.Secondary}
             className={classNames(
-              'btn-secondary',
               tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
             )}
             onClick={() => {
@@ -80,7 +80,7 @@ export function SquadHeaderBar({
       </div>
       {showJoinButton && (
         <SquadJoinButton
-          className="flex flex-1 tablet:flex-initial tablet:ml-auto w-full tablet:w-auto"
+          className="flex w-full flex-1 tablet:ml-auto tablet:w-auto tablet:flex-initial"
           squad={squad}
           origin={Origin.SquadPage}
         />
@@ -105,7 +105,7 @@ export function SquadHeaderBar({
         >
           <Button
             data-testid="squad-checklist-button"
-            className="btn-secondary"
+            variant={ButtonVariant.Secondary}
             icon={<ChecklistBIcon secondary size={IconSize.Small} />}
             onClick={() => {
               setChecklistVisible(!isChecklistVisible);
@@ -121,7 +121,7 @@ export function SquadHeaderBar({
         >
           <Button
             data-testid="squad-notification-button"
-            className="btn-secondary"
+            variant={ButtonVariant.Secondary}
             icon={
               <BellIcon
                 secondary={modal?.type === LazyModal.SquadNotifications}
@@ -139,7 +139,7 @@ export function SquadHeaderBar({
       )}
       <SimpleTooltip placement="top" content="Squad options">
         <Button
-          className="btn-secondary"
+          variant={ButtonVariant.Secondary}
           icon={<MenuIcon size={IconSize.Small} />}
           onClick={onMenuClick}
         />

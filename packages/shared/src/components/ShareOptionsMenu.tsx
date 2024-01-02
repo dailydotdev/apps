@@ -86,10 +86,10 @@ export default function ShareOptionsMenu({
       onHidden={onHidden}
     >
       {shareOptions.map(({ href, icon, text, action }) => (
-        <Item key={text} className="py-1 w-64 typo-callout" onClick={action}>
+        <Item key={text} className="w-64 py-1 typo-callout" onClick={action}>
           {href ? (
             <a
-              className="flex items-center w-full typo-callout"
+              className="flex w-full items-center typo-callout"
               data-testid={`social-share-${text}`}
               href={href}
               rel="noopener"
@@ -98,7 +98,7 @@ export default function ShareOptionsMenu({
               {icon} {text}
             </a>
           ) : (
-            <span className="flex items-center w-full typo-callout">
+            <span className="flex w-full items-center typo-callout">
               {icon} {text}
             </span>
           )}

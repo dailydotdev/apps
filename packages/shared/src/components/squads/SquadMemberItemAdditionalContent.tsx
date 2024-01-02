@@ -48,7 +48,7 @@ function SquadMemberItemAdditionalContent({
           disableTooltip
           user={user}
           className={{
-            container: 'py-3 px-6 justify-center',
+            container: 'justify-center px-6 py-3',
             textWrapper: 'max-w-fit',
           }}
         />
@@ -67,7 +67,8 @@ function SquadMemberItemAdditionalContent({
     return (
       <SimpleTooltip content="Unblock">
         <Button
-          className="my-auto btn-tertiary"
+          className="my-auto"
+          variant={ButtonVariant.Tertiary}
           icon={<BlockIcon />}
           onClick={onConfirmUnblock}
         />

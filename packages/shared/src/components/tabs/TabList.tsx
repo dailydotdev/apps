@@ -21,7 +21,7 @@ function TabList({
   const [offset, setOffset] = useState<number>(undefined);
 
   return (
-    <ul className="flex relative flex-row">
+    <ul className="relative flex flex-row">
       {items.map((tab) => (
         <button
           key={tab}
@@ -41,7 +41,7 @@ function TabList({
             setOffset(value);
           }}
           className={classNames(
-            'relative p-4 text-center typo-callout font-bold',
+            'relative p-4 text-center font-bold typo-callout',
             tab === active ? '' : 'text-theme-label-tertiary',
           )}
           onClick={() => onClick(tab)}
@@ -50,7 +50,7 @@ function TabList({
         >
           <span
             className={classNames(
-              'py-1.5 px-3 rounded-10',
+              'rounded-10 px-3 py-1.5',
               tab === active && 'bg-theme-active',
             )}
           >
@@ -61,7 +61,7 @@ function TabList({
       {offset !== undefined && (
         <div
           className={classNames(
-            'absolute bottom-0 mx-auto w-12 h-0.5 rounded transition-[left] ease-linear -translate-x-1/2 bg-theme-label-primary',
+            'absolute bottom-0 mx-auto h-0.5 w-12 -translate-x-1/2 rounded bg-theme-label-primary transition-[left] ease-linear',
             className?.indicator,
           )}
           style={{ left: offset }}

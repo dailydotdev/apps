@@ -105,7 +105,7 @@ function ButtonComponent<TagName extends AllowedTags>(
       className={classNames(
         { iconOnly, readOnly },
         buttonSize,
-        'btn flex-row items-center border typo-callout font-bold no-underline shadow-none cursor-pointer select-none focus-outline',
+        'btn shadow-none focus-outline cursor-pointer select-none flex-row items-center border font-bold no-underline typo-callout',
         textPosition,
         displayClass || 'flex',
         position,
@@ -118,7 +118,7 @@ function ButtonComponent<TagName extends AllowedTags>(
       {loading && (
         <Loader
           data-testid="buttonLoader"
-          className="hidden absolute top-0 right-0 bottom-0 left-0 m-auto btn-loader"
+          className="btn-loader absolute bottom-0 left-0 right-0 top-0 m-auto hidden"
         />
       )}
     </Tag>

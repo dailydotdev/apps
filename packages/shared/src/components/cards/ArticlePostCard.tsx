@@ -53,7 +53,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
       <PostTagsPanel
-        className="overflow-hidden h-full max-h-[23.5rem]"
+        className="h-full max-h-[23.5rem] overflow-hidden"
         post={post}
         toastOnSuccess
       />
@@ -89,8 +89,8 @@ export const ArticlePostCard = forwardRef(function PostCard(
       <div
         className={classNames(
           showFeedback
-            ? 'p-2 border !border-theme-divider-tertiary rounded-2xl overflow-hidden'
-            : 'flex flex-col flex-1',
+            ? 'overflow-hidden rounded-2xl border !border-theme-divider-tertiary p-2'
+            : 'flex flex-1 flex-col',
           showFeedback && styles.post,
           showFeedback && styles.read,
         )}
@@ -110,7 +110,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
           </CardTitle>
         </CardTextContainer>
         {!showFeedback && (
-          <Container className="mb-8 tablet:mb-0">
+          <Container>
             <CardSpace />
             <PostMetadata
               createdAt={post.createdAt}

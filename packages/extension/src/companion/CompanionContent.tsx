@@ -60,9 +60,9 @@ export default function CompanionContent({
   return (
     <div
       ref={onContainerChange}
-      className="flex relative flex-col p-6 h-auto rounded-tl-16 border border-r-0 w-[22.5rem] border-theme-divider-quaternary bg-theme-bg-primary"
+      className="relative flex h-auto w-[22.5rem] flex-col rounded-tl-16 border border-r-0 border-theme-divider-quaternary bg-theme-bg-primary p-6"
     >
-      <div className="flex flex-row gap-3 items-center">
+      <div className="flex flex-row items-center gap-3">
         <a href={process.env.NEXT_PUBLIC_WEBAPP_URL} target="_parent">
           <LogoIcon className="w-8 rounded-8" />
         </a>
@@ -82,7 +82,7 @@ export default function CompanionContent({
           />
         </SimpleTooltip>
       </div>
-      <p className="flex-1 my-4 break-words typo-callout">
+      <p className="my-4 flex-1 break-words typo-callout">
         <TLDRText>TLDR -</TLDRText>
         <span>
           {post?.summary ||

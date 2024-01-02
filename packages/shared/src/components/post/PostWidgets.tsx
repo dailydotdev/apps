@@ -30,7 +30,7 @@ export function PostWidgets({
         onReadArticle={onReadArticle}
         post={post}
         onClose={onClose}
-        className="hidden tablet:flex pt-6"
+        className="hidden pt-6 tablet:flex"
         contextMenuId="post-widgets-context"
       />
       <PostUsersHighlights post={post} />

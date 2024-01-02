@@ -26,7 +26,7 @@ export const getCaretOffset = (textarea: HTMLTextAreaElement): CaretOffset => {
   right.innerText = textarea.value.substring(textarea.selectionStart);
 
   left.setAttribute('style', 'word-break: break-word; max-width: 100%');
-  div.className = classNames(textarea.className, 'absolute invisible');
+  div.className = classNames(textarea.className, 'invisible absolute');
   div.appendChild(left);
   left.appendChild(right);
   textarea.parentElement.appendChild(div);

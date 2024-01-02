@@ -213,9 +213,9 @@ export function OnboardPage(): ReactElement {
       <div
         className={classNames(
           'flex tablet:flex-1',
-          !isFiltering && 'laptop:max-w-[37.5rem] ml-auto',
+          !isFiltering && 'ml-auto laptop:max-w-[37.5rem]',
           isFiltering &&
-            'flex flex-col items-center justify-start w-full ml-0 mb-10',
+            'mb-10 ml-0 flex w-full flex-col items-center justify-start',
         )}
       >
         {isFiltering && (
@@ -258,7 +258,7 @@ export function OnboardPage(): ReactElement {
             </Button>
             {isPreviewEnabled && isPreviewVisible && (
               <FeedLayout>
-                <p className="mt-6 -mb-4 text-center typo-body text-theme-label-secondary">
+                <p className="-mb-4 mt-6 text-center text-theme-label-secondary typo-body">
                   Change your tag selection until you&apos;re happy with your
                   feed preview.
                 </p>
@@ -279,7 +279,7 @@ export function OnboardPage(): ReactElement {
           </>
         )}
         {!isFiltering && (
-          <div className="hidden tablet:block flex-1">
+          <div className="hidden flex-1 tablet:block">
             <div className={classNames('relative', styles.videoWrapper)}>
               {
                 // eslint-disable-next-line jsx-a11y/media-has-caption
@@ -288,7 +288,7 @@ export function OnboardPage(): ReactElement {
                   autoPlay
                   muted
                   className={classNames(
-                    'absolute -top-[20%] tablet:top-0 left-0 -z-1',
+                    'absolute -top-[20%] left-0 -z-1 tablet:top-0',
                     styles.video,
                   )}
                   poster={cloudinary.onboarding.video.poster}
@@ -349,15 +349,15 @@ export function OnboardPage(): ReactElement {
       />
       <div
         className={classNames(
-          'flex flex-wrap justify-center px-6 w-full tablet:gap-10 flex-grow',
+          'flex w-full flex-grow flex-wrap justify-center px-6 tablet:gap-10',
           !isFiltering && wrapperMaxWidth,
-          !isAuthenticating && 'flex-1 content-center mt-8',
+          !isAuthenticating && 'mt-8 flex-1 content-center',
         )}
       >
         {showOnboardingPage && (
           <div
             className={classNames(
-              'flex flex-1 flex-col laptop:max-w-[27.5rem] laptop:mr-8',
+              'flex flex-1 flex-col laptop:mr-8 laptop:max-w-[27.5rem]',
             )}
           >
             <OnboardingTitleGradient className="mb-4 typo-large-title tablet:typo-mega1">
@@ -374,11 +374,11 @@ export function OnboardPage(): ReactElement {
       {showOnboardingPage && (
         <footer
           className={classNames(
-            'flex px-6 w-full h-full max-h-[10rem]',
+            'flex h-full max-h-[10rem] w-full px-6',
             wrapperMaxWidth,
           )}
         >
-          <div className="flex relative flex-col flex-1 gap-6 pb-6 tablet:mt-auto laptop:mr-8 laptop:max-w-[27.5rem]">
+          <div className="relative flex flex-1 flex-col gap-6 pb-6 tablet:mt-auto laptop:mr-8 laptop:max-w-[27.5rem]">
             <SignupDisclaimer className="mb-0 tablet:mb-10" />
 
             <TrustedCompanies
@@ -393,7 +393,7 @@ export function OnboardPage(): ReactElement {
               alt="Gradient background"
             />
           </div>
-          <div className="hidden tablet:block flex-1" />
+          <div className="hidden flex-1 tablet:block" />
         </footer>
       )}
     </Container>

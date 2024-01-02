@@ -67,7 +67,7 @@ it('should not display publication date createdAt is empty', async () => {
 
 it('should format publication date', async () => {
   renderComponent();
-  const el = await screen.findByText('Feb 09');
+  const el = await screen.findByText('Feb 09, 2023');
   expect(el).toBeInTheDocument();
 });
 
@@ -86,6 +86,6 @@ it('should display the `collection` pill in the header', async () => {
 it('should show options button on hover when in laptop size', async () => {
   renderComponent();
   const header = await screen.findByLabelText('Options');
-  expect(header).toHaveClass('flex');
+  expect(header).toHaveClass('inline-flex');
   expect(header).toHaveClass('group-hover:flex laptop:hidden');
 });

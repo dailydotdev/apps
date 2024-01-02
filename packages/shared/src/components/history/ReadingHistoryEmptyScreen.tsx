@@ -11,7 +11,7 @@ import { ButtonSize } from '../buttons/ButtonV2';
 
 function ReadingHistoryEmptyScreen(): ReactElement {
   return (
-    <div className="flex flex-col flex-1 justify-center items-center px-6 mt-20">
+    <div className="mt-20 flex flex-1 flex-col items-center justify-center px-6">
       <EyeIcon
         className={EmptyScreenIcon.className}
         style={EmptyScreenIcon.style}

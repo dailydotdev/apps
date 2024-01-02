@@ -57,7 +57,7 @@ export default function CommentPopup({
   return (
     <div
       className={classNames(
-        'absolute flex flex-col left-0 top-0 w-full h-full justify-end bg-theme-post-disabled rounded-2xl z-2 overflow-hidden',
+        'absolute left-0 top-0 z-2 flex h-full w-full flex-col justify-end overflow-hidden rounded-2xl bg-theme-post-disabled',
         !show && 'opacity-0',
       )}
       ref={containerRef}
@@ -69,18 +69,18 @@ export default function CommentPopup({
     >
       <div
         className={classNames(
-          'invert relative flex flex-col p-4 bg-theme-bg-primary rounded-2xl',
+          'invert relative flex flex-col rounded-2xl bg-theme-bg-primary p-4',
           layoutModeClass,
         )}
       >
         <ModalClose onClick={onClose} top="2" />
-        <h3 className="mr-11 ml-2 font-bold text-theme-label-primary typo-callout">
+        <h3 className="ml-2 mr-11 font-bold text-theme-label-primary typo-callout">
           {text.title}
         </h3>
         <div
           className={classNames(
             'flex',
-            listMode ? 'items-center' : 'flex-col flex-1',
+            listMode ? 'items-center' : 'flex-1 flex-col',
           )}
         >
           <textarea
@@ -88,8 +88,8 @@ export default function CommentPopup({
             onChange={(event) => setComment(event.target.value)}
             onKeyDown={onKeyDown}
             className={classNames(
-              'flex-1 px-3 bg-theme-float text-theme-label-primary resize-none typo-callout focus-outline placeholder-theme-label-tertiary caret-theme-label-link',
-              listMode ? 'h-10 mr-4 py-2.5' : 'my-4 py-3',
+              'focus-outline flex-1 resize-none bg-theme-float px-3 text-theme-label-primary placeholder-theme-label-tertiary caret-theme-label-link typo-callout',
+              listMode ? 'mr-4 h-10 py-2.5' : 'my-4 py-3',
             )}
             style={{
               borderRadius: '0.875rem',

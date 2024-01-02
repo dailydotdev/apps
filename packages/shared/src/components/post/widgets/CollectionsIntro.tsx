@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import CloseButton from '../../CloseButton';
-import { ButtonSize } from '../../buttons/Button';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
+import { ButtonSize } from '../../buttons/ButtonV2';
 
 export type CollectionsIntroProps = {
   className?: string;
@@ -21,11 +21,11 @@ export const CollectionsIntro = ({
   return (
     <span
       className={classNames(
-        'flex relative flex-row p-3 pr-2 w-full rounded-10 border border-theme-color-cabbage',
+        'relative flex w-full flex-row rounded-10 border border-theme-color-cabbage p-3 pr-2',
         className,
       )}
     >
-      <div className="flex flex-col flex-1 typo-subhead">
+      <div className="flex flex-1 flex-col typo-subhead">
         <strong>Introducing collections!</strong>
         <p className="mt-2">
           Collections are posts that aggregate all the information about

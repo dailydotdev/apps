@@ -59,7 +59,7 @@ export default function RankProgressWrapper({
         type="button"
         className={classNames(
           className,
-          'flex items-center cursor-pointer focus-outline w-full',
+          'focus-outline flex w-full cursor-pointer items-center',
           sidebarExpanded ? 'rounded-12 p-3' : 'rounded-10',
         )}
         aria-label="Open rank modal"

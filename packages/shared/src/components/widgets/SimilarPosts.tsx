@@ -1,7 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { Button, ButtonSize } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 import BookmarkIcon from '../icons/Bookmark';
 import { Post } from '../../graphql/posts';
@@ -15,6 +14,13 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { HotLabel } from '../utilities';
 import { combinedClicks } from '../../lib/click';
+import {
+  Button,
+  ButtonColor,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -49,7 +55,7 @@ const DefaultListItem = ({
 }: PostProps): ReactElement => (
   <article
     className={classNames(
-      'relative flex py-2 pl-4 pr-2 group items-start hover:bg-theme-hover',
+      'group relative flex items-start py-2 pl-4 pr-2 hover:bg-theme-hover',
       styles.card,
     )}
   >
@@ -66,13 +72,13 @@ const DefaultListItem = ({
     <div className={textContainerClassName}>
       <h5
         className={classNames(
-          'typo-callout text-theme-label-primary mb-0.5 multi-truncate break-words text-ellipsis',
+          'multi-truncate mb-0.5 text-ellipsis break-words text-theme-label-primary typo-callout',
           styles.title,
         )}
       >
         {post.title}
       </h5>
-      <div className="flex items-center typo-footnote text-theme-label-tertiary">
+      <div className="flex items-center text-theme-label-tertiary typo-footnote">
         {post.trending ? (
           <>
             <HotLabel />
@@ -92,9 +98,11 @@ const DefaultListItem = ({
     </div>
     <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
       <Button
-        className="group-hover:visible mouse:invisible mt-1 btn-tertiary-bun"
+        variant={ButtonVariant.Tertiary}
+        color={ButtonColor.Bun}
+        className="mt-1 group-hover:visible mouse:invisible"
         pressed={post.bookmarked}
-        buttonSize={ButtonSize.Small}
+        size={ButtonSize.Small}
         icon={<BookmarkIcon secondary={post.bookmarked} />}
         onClick={() => onBookmark(post)}
       />
@@ -105,7 +113,7 @@ const DefaultListItem = ({
 const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-xl my-0.5');
 
 const DefaultListItemPlaceholder = (): ReactElement => (
-  <article aria-busy className="flex relative items-start py-2 pr-2 pl-4">
+  <article aria-busy className="relative flex items-start py-2 pl-4 pr-2">
     <ElementPlaceholder className={imageClassName} />
     <div className={textContainerClassName}>
       <TextPlaceholder style={{ width: '80%' }} />
@@ -145,7 +153,7 @@ export default function SimilarPosts({
         className,
       )}
     >
-      <h4 className="py-3 pr-4 pl-6 typo-body text-theme-label-tertiary">
+      <h4 className="py-3 pl-6 pr-4 text-theme-label-tertiary typo-body">
         {title}
       </h4>
       {Separator}
@@ -171,10 +179,12 @@ export default function SimilarPosts({
       {Separator}
       <Link href={moreButtonHref} passHref>
         <Button
-          className="self-start my-2 ml-2 btn-tertiary"
-          buttonSize={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+          className="my-2 ml-2 self-start"
+          size={ButtonSize.Small}
           tag="a"
-          rightIcon={<ArrowIcon className="rotate-90" />}
+          icon={<ArrowIcon className="rotate-90" />}
+          iconPosition={ButtonIconPosition.Right}
         >
           {moreButtonText}
         </Button>

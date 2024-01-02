@@ -35,7 +35,7 @@ function EmailSentSection({
         We sent an email to verify your account. Please check your spam folder
         if you {`don't`} see the email.
       </p>
-      <span className="flex flex-row gap-4 mt-4">
+      <span className="mt-4 flex flex-row gap-4">
         <Button
           onClick={() => sendEmail(email)}
           size={ButtonSize.XSmall}

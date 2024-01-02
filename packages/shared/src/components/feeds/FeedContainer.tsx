@@ -158,13 +158,13 @@ export const FeedContainer = ({
   return (
     <div
       className={classNames(
-        'flex flex-col laptopL:mx-auto w-full',
+        'flex w-full flex-col laptopL:mx-auto',
         styles.container,
         className,
       )}
     >
       <ScrollToTopButton />
-      <div className="flex flex-col pt-2 laptopL:mx-auto w-full" style={style}>
+      <div className="flex w-full flex-col pt-2 laptopL:mx-auto" style={style}>
         {!inlineHeader && header}
         <div
           className={classNames(
@@ -185,7 +185,7 @@ export const FeedContainer = ({
               <SearchBarInput
                 className={{
                   container: classNames(
-                    'max-w-2xl w-full flex flex-1',
+                    'flex w-full max-w-2xl flex-1',
                     shouldShowPulse && 'highlight-pulse',
                   ),
                   field: 'w-full',
@@ -201,13 +201,13 @@ export const FeedContainer = ({
             </span>
           )}
           {isV1Search && (
-            <span className="flex flex-row flex-1 mt-4">
+            <span className="mt-4 flex flex-1 flex-row">
               <SearchBarSuggestionList
                 {...suggestionsProps}
-                className="hidden tablet:flex mr-3"
+                className="mr-3 hidden tablet:flex"
               />
               {actionButtons && (
-                <span className="flex flex-row gap-3 pl-3 ml-auto border-l border-theme-divider-tertiary">
+                <span className="ml-auto flex flex-row gap-3 border-l border-theme-divider-tertiary pl-3">
                   {actionButtons}
                 </span>
               )}

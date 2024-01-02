@@ -18,7 +18,7 @@ const ReferralWidget = ({ url }: { url: string }): ReactElement => {
     <div
       data-testid="referral-widget"
       className={classNames(
-        'flex flex-col tablet:flex-row flex-wrap justify-between p-4 mt-6 mb-4 rounded-2xl border border-theme-divider-tertiary max-w-fit bg-theme-bg-primary',
+        'mb-4 mt-6 flex max-w-fit flex-col flex-wrap justify-between rounded-2xl border border-theme-divider-tertiary bg-theme-bg-primary p-4 tablet:flex-row',
         laptopCustomScreenClassNames,
       )}
     >
@@ -32,11 +32,11 @@ const ReferralWidget = ({ url }: { url: string }): ReactElement => {
         link={inviteLink}
         className={{
           input: 'typo-footnote',
-          container: 'flex flex-col my-5 w-auto tablet:w-70',
+          container: 'my-5 flex w-auto flex-col tablet:w-70',
         }}
       />
-      <div className="flex justify-between items-center">
-        <p className="mr-3 typo-callout text-theme-label-tertiary">
+      <div className="flex items-center justify-between">
+        <p className="mr-3 text-theme-label-tertiary typo-callout">
           Invite via
         </p>
         <span className="flex gap-2">

@@ -36,7 +36,7 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
   }
 
   return (
-    <div className="p-4 rounded-16 border border-theme-divider-tertiary">
+    <div className="rounded-16 border border-theme-divider-tertiary p-4">
       <div className="flex flex-row justify-between">
         <SourceButton source={squad} size="xxxlarge" />
         <SquadMemberShortList
@@ -45,12 +45,12 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
           className="h-10"
         />
       </div>
-      <h3 className="mt-3 typo-title2 text-theme-label-primary">
+      <h3 className="mt-3 text-theme-label-primary typo-title2">
         {squad.name}
       </h3>
-      <h4 className="typo-callout text-theme-label-tertiary">{`@${squad.handle}`}</h4>
+      <h4 className="text-theme-label-tertiary typo-callout">{`@${squad.handle}`}</h4>
       {squad.description && (
-        <p className="mt-1 typo-callout text-theme-label-tertiary">
+        <p className="mt-1 text-theme-label-tertiary typo-callout">
           {squad.description}
         </p>
       )}
@@ -60,7 +60,7 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
         origin={Origin.ArticleModal}
       />
       {!squad.currentMember && (
-        <p className="mt-3 typo-callout text-theme-label-tertiary">
+        <p className="mt-3 text-theme-label-tertiary typo-callout">
           Join Squad to see more posts from {squad.name}
         </p>
       )}
@@ -82,7 +82,7 @@ export function SquadPostWidgets({
         onShare={onShare}
         post={post}
         onClose={onClose}
-        className="hidden tablet:flex pt-6"
+        className="hidden pt-6 tablet:flex"
         contextMenuId="post-widgets-context"
       />
       {!!squad && !squad.currentMember && <SquadCard squadSource={squad} />}

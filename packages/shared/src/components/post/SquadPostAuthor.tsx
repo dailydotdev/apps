@@ -29,7 +29,7 @@ function SquadPostAuthor({
   return (
     <span
       className={classNames(
-        'flex flex-row items-center mt-3',
+        'mt-3 flex flex-row items-center',
         className?.container,
       )}
     >
@@ -37,7 +37,7 @@ function SquadPostAuthor({
         <ProfilePicture user={author} size={size} nativeLazyLoading />
       </ProfileTooltip>
       <ProfileTooltip user={author} link={{ href: author.permalink }}>
-        <a href={author.permalink} className="flex flex-col ml-4">
+        <a href={author.permalink} className="ml-4 flex flex-col">
           <div className="flex items-center">
             <span className={classNames('font-bold', className?.name)}>
               {author.name}

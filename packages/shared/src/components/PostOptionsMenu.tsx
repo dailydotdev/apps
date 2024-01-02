@@ -403,7 +403,7 @@ export default function PostOptionsMenu({
       >
         {postOptions.map(({ icon, label, action }) => (
           <Item key={label} className="typo-callout" onClick={action}>
-            <span className="flex items-center w-full typo-callout">
+            <span className="flex w-full items-center typo-callout">
               {icon} {label}
             </span>
           </Item>

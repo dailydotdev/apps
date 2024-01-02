@@ -8,13 +8,13 @@ import React, {
 import { useRouter } from 'next/router';
 import { TimerIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
-import { Button, ButtonSize } from '../buttons/Button';
 import { useSearchHistory } from '../../hooks/search';
 import { ContextMenu, MenuItemProps } from '../fields/PortalMenu';
 import useContextMenu from '../../hooks/useContextMenu';
 import { getSearchUrl } from '../../graphql/search';
 import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 
 const contextMenuId = 'search-history-input';
 
@@ -88,8 +88,8 @@ export function SearchHistoryButton(): ReactElement {
         <div>
           <Button
             type="button"
-            className="btn-tertiary"
-            buttonSize={ButtonSize.Small}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
             title="Search history"
             onClick={onMenuOpen}
             icon={<TimerIcon />}

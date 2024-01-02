@@ -21,7 +21,7 @@ const getDateGroup = (date: Date) => {
   const label = getReadHistoryDateFormat(date);
 
   return (
-    <DateTitle key={label} className={classNames('px-6 my-3 first:mt-0')}>
+    <DateTitle key={label} className={classNames('my-3 px-6 first:mt-0')}>
       {label}
     </DateTitle>
   );
@@ -88,7 +88,7 @@ export default function ReadHistoryList({
   }, [data, onHide]);
 
   return (
-    <section className="flex relative flex-col">
+    <section className="relative flex flex-col">
       {renderList()}
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
       <PostOptionsReadingHistoryMenu

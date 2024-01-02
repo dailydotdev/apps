@@ -27,13 +27,13 @@ function SidebarList({
   return (
     <div
       className={classNames(
-        'flex flex-col tablet:items-center tablet:px-6 tablet:pt-6 ease-in-out transition-transform tablet:translate-x-[unset]',
-        'absolute tablet:relative w-full h-full max-h-[100vh] tablet:w-fit tablet:h-fit bg-theme-bg-inherit',
+        'flex flex-col transition-transform ease-in-out tablet:translate-x-[unset] tablet:items-center tablet:px-6 tablet:pt-6',
+        'absolute h-full max-h-[100vh] w-full bg-theme-bg-inherit tablet:relative tablet:h-fit tablet:w-fit',
         isOpen ? 'translate-x-0' : ' -translate-x-full',
         className,
       )}
     >
-      <span className="flex tablet:hidden flex-row justify-between items-center p-2 mb-6 w-full border-b border-theme-divider-tertiary">
+      <span className="mb-6 flex w-full flex-row items-center justify-between border-b border-theme-divider-tertiary p-2 tablet:hidden">
         <span className="ml-4 font-bold typo-title3">{title}</span>
         <CloseButton onClick={onClose} />
       </span>
