@@ -16,13 +16,13 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { getProfile } from '@dailydotdev/shared/src/lib/user';
+import { Readme } from '@dailydotdev/shared/src/components/profile/Readme';
 import {
   getLayout as getProfileLayout,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
   ProfileLayoutProps,
-} from '../../components/layouts/ProfileLayout/v2';
-import { Readme } from '../../../shared/src/components/profile/Readme';
+} from '../../components/layouts/ProfileLayout';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({

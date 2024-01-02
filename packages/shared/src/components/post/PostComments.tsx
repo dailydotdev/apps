@@ -96,7 +96,7 @@ export function PostComments({
     <div className="mb-12 flex flex-col gap-4" ref={container}>
       {comments.postComments.edges.map((e) => (
         <MainComment
-          commentBoxClassName={className}
+          className={{ commentBox: className }}
           post={post}
           origin={origin}
           commentHash={commentHash}

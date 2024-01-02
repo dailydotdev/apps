@@ -75,7 +75,7 @@ function SquadItem({
 
   return (
     <div
-      className="relative flex w-40 items-center rounded-2xl bg-theme-float p-2 first:ml-4 hover:bg-theme-hover tablet:w-auto tablet:first:ml-0"
+      className="relative flex w-40 items-center rounded-16 bg-theme-float p-2 first:ml-4 hover:bg-theme-hover tablet:w-auto tablet:first:ml-0"
       data-testid={squad.id}
     >
       <Link href={squad.permalink} prefetch={false} passHref>
@@ -89,12 +89,12 @@ function SquadItem({
             className="h-8 w-8 rounded-full"
           />
           <div className="flex flex-1 flex-col">
-            <div className="overflow-hidden text-ellipsis whitespace-nowrap font-bold typo-caption1">
+            <p className="overflow-hidden text-ellipsis whitespace-nowrap font-bold typo-caption1">
               {squad.name}
-            </div>
-            <div className="overflow-hidden text-ellipsis whitespace-nowrap text-theme-label-quaternary typo-caption2">
+            </p>
+            <p className="overflow-hidden text-ellipsis whitespace-nowrap text-theme-label-quaternary typo-caption2">
               @{squad.handle}
-            </div>
+            </p>
           </div>
         </div>
         <div className="mt-1 flex h-6 items-center text-theme-label-tertiary typo-caption2 tablet:h-auto">
@@ -179,8 +179,8 @@ export function SquadsList({
           icon={<PlusIcon />}
           aria-label="Create a new Squad"
         />
-        <div className="flex-[3] rounded-2xl border border-theme-divider-tertiary" />
-        <div className="flex-[2] rounded-l-2xl border border-theme-divider-tertiary" />
+        <div className="flex-[3] rounded-16 border border-theme-divider-tertiary" />
+        <div className="flex-[2] rounded-l-16 border border-theme-divider-tertiary" />
       </div>
     );
   }

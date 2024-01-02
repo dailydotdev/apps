@@ -11,7 +11,7 @@ import {
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
   ProfileLayoutProps,
-} from '../../components/layouts/ProfileLayout/v2';
+} from '../../components/layouts/ProfileLayout';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;

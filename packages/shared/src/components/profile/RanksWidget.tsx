@@ -23,7 +23,7 @@ const RankHistory = ({
     className="flex flex-col items-center rounded-12 border border-theme-bg-secondary p-2 font-bold typo-callout tablet:flex-row tablet:py-1 tablet:pl-2 tablet:pr-4"
     aria-label={`${rankName}: ${count}`}
   >
-    <Rank className="h-8 w-8" rank={rank} colorByRank />
+    <Rank className="size-8" rank={rank} colorByRank />
     <span className="ml-1 hidden text-theme-label-tertiary tablet:block">
       {rankName}
     </span>

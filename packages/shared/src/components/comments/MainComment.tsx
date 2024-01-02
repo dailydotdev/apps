@@ -17,13 +17,17 @@ import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useCommentEdit } from '../../hooks/post/useCommentEdit';
 
+type ClassName = {
+  container?: string;
+  commentBox?: CommentBoxProps['className'];
+};
+
 export interface MainCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment' | 'className'> {
   permissionNotificationCommentId?: string;
   joinNotificationCommentId?: string;
   onCommented: CommentMarkdownInputProps['onCommented'];
-  commentBoxClassName?: CommentBoxProps['className'];
-  className?: string;
+  className?: ClassName;
 }
 
 const shouldShowBannerOnComment = (
@@ -35,7 +39,6 @@ const shouldShowBannerOnComment = (
 
 export default function MainComment({
   className,
-  commentBoxClassName,
   comment,
   appendTooltipTo,
   permissionNotificationCommentId,
@@ -67,7 +70,7 @@ export default function MainComment({
     <section
       className={classNames(
         'flex scroll-mt-16 flex-col items-stretch rounded-24 border border-theme-divider-tertiary',
-        className,
+        className?.container,
       )}
       data-testid="comment"
     >
@@ -78,7 +81,7 @@ export default function MainComment({
           parentId={comment.id}
           className={{
             container: 'border-b',
-            ...commentBoxClassName,
+            ...className?.commentBox,
           }}
           appendTooltipTo={appendTooltipTo}
           onComment={(selected, parentId) =>
@@ -101,7 +104,7 @@ export default function MainComment({
             onEdit(null);
             onCommented(data, isNew);
           }}
-          className={commentBoxClassName}
+          className={className?.commentBox}
         />
       )}
       {commentId === comment.id && (
@@ -112,7 +115,7 @@ export default function MainComment({
             onReplyTo(null);
             onCommented(...params);
           }}
-          className={commentBoxClassName}
+          className={className?.commentBox}
         />
       )}
       {comment.children?.edges.map(({ node }) => (
@@ -122,7 +125,7 @@ export default function MainComment({
           comment={node}
           parentComment={comment}
           appendTooltipTo={appendTooltipTo}
-          className={commentBoxClassName}
+          className={className?.commentBox}
           onCommented={onCommented}
         />
       ))}

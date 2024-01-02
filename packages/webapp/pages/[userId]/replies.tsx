@@ -27,7 +27,7 @@ import {
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
   getLayout as getProfileLayout,
-} from '../../components/layouts/ProfileLayout/v2';
+} from '../../components/layouts/ProfileLayout';
 
 const ShareModal = dynamic(
   () =>
@@ -40,7 +40,10 @@ export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
 
 const commentClassName = {
-  container: 'relative border-0 rounded-none',
+  container: 'rounded-none border-0 border-b',
+  commentBox: {
+    container: 'relative border-0 rounded-none',
+  },
 };
 
 const analyticsOrigin = Origin.Profile;
@@ -87,8 +90,7 @@ const ProfileCommentsPage = ({ user }: ProfileLayoutProps): ReactElement => {
           page.page.edges.map(({ node }) => (
             <MainComment
               key={node.id}
-              className="rounded-none border-0 border-b"
-              commentBoxClassName={commentClassName}
+              className={commentClassName}
               post={node.post}
               comment={node}
               origin={analyticsOrigin}

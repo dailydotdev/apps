@@ -43,9 +43,7 @@ export function useActivityTimeFilter(): UseActivityTimeFilterRet {
     const startYear = new Date(selected, 0, 1);
 
     return [addDays(endOfYear(startYear), 1), startYear];
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedHistoryYear]);
+  }, [fullHistory, selectedHistoryYear]);
 
   return {
     selectedHistoryYear,

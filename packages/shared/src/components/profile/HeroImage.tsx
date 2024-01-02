@@ -18,10 +18,10 @@ function HeroImageComponent(
           src={cover}
           alt="cover"
           loading="eager"
-          className="absolute left-0 top-0 -z-1 h-full w-full rounded-26 object-cover"
+          className="absolute left-0 top-0 -z-1 size-full rounded-26 object-cover"
         />
       ) : (
-        <div className="absolute left-0 top-0 -z-1 h-full w-full rounded-26 bg-theme-bg-secondary" />
+        <div className="absolute left-0 top-0 -z-1 size-full rounded-26 bg-theme-bg-secondary" />
       )}
       <ProfilePicture
         user={profile}
