@@ -52,7 +52,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       return 'line-clamp-3';
     }
 
-    return post.contentHtml ? 'line-clamp-4' : 'line-clamp-9';
+    return post.contentHtml ? 'line-clamp-3' : 'line-clamp-9';
   })();
 
   return (

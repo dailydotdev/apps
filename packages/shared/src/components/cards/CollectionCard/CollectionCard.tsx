@@ -34,7 +34,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
       return 'line-clamp-3';
     }
 
-    return post.contentHtml ? 'line-clamp-4' : 'line-clamp-9';
+    return post.contentHtml ? 'line-clamp-3' : 'line-clamp-9';
   })();
 
   return (
