@@ -339,7 +339,7 @@ function AuthOptions({
   return (
     <div
       className={classNames(
-        'flex overflow-y-auto z-1 flex-col w-full rounded-16 max-w-[26.25rem]',
+        'z-1 flex w-full max-w-[26.25rem] flex-col overflow-y-auto rounded-16',
         !simplified && 'bg-theme-bg-tertiary',
         className,
       )}
@@ -485,7 +485,7 @@ function AuthOptions({
             {!user && (
               <LoginForm
                 isReady={isReady}
-                className="mx-4 tablet:mx-12 mt-8"
+                className="mx-4 mt-8 tablet:mx-12"
                 loginHint={loginHint}
                 onPasswordLogin={onPasswordLogin}
                 onForgotPassword={() =>

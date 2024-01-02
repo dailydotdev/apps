@@ -46,7 +46,7 @@ export const WelcomePostCardFooter = ({
           alt="Post Cover image"
           src={image}
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-          className="object-cover my-2"
+          className="my-2 object-cover"
           loading="lazy"
         />
       </>
@@ -54,7 +54,7 @@ export const WelcomePostCardFooter = ({
   }
   if (content) {
     return (
-      <p className="px-2 break-words line-clamp-6 typo-callout">
+      <p className="line-clamp-6 break-words px-2 typo-callout">
         {decodedText}
       </p>
     );

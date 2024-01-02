@@ -104,7 +104,7 @@ export function PostActions({
       <div className="flex items-center rounded-16 border border-theme-divider-tertiary">
         <Card
           className={classNames(
-            'flex !flex-row hover:border-theme-divider-tertiary gap-2',
+            'flex !flex-row gap-2 hover:border-theme-divider-tertiary',
             {
               'border-theme-color-avocado hover:!border-theme-color-avocado bg-theme-overlay-float-avocado':
                 post?.userState?.vote === UserPostVote.Up,
@@ -140,7 +140,7 @@ export function PostActions({
             className="btn-tertiary-ketchup"
           />
         </Card>
-        <div className="flex flex-1 justify-between items-center py-2 px-4">
+        <div className="flex flex-1 items-center justify-between px-4 py-2">
           <QuaternaryButton
             id="comment-post-btn"
             pressed={post.commented}

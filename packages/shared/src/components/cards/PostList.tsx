@@ -42,7 +42,7 @@ export const PostList = forwardRef(function PostList(
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
       <PostTagsPanel
-        className="overflow-hidden h-full max-h-[23.5rem]"
+        className="h-full max-h-[23.5rem] overflow-hidden"
         post={post}
         toastOnSuccess
       />
@@ -93,7 +93,7 @@ export const PostList = forwardRef(function PostList(
           onShare={onShare}
           onShareClick={onShareClick}
           onBookmarkClick={onBookmarkClick}
-          className="relative self-stretch mt-1"
+          className="relative mt-1 self-stretch"
           onMenuClick={(event) => onMenuClick?.(event, post)}
           insaneMode
         />

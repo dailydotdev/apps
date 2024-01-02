@@ -50,7 +50,7 @@ function AccountLoginSection({
     <AccountContentSection title={title} description={description}>
       <div
         className={classNames(
-          'grid grid-cols-1 gap-4 mt-6 w-64',
+          'mt-6 grid w-64 grid-cols-1 gap-4',
           className?.container,
         )}
       >

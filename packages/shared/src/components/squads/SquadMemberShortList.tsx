@@ -38,13 +38,13 @@ function SquadMemberShortList({
       <button
         type="button"
         className={classNames(
-          'flex flex-row-reverse items-center p-1 pl-3 hover:bg-theme-hover active:bg-theme-active rounded-12 border border-theme-divider-secondary',
+          'flex flex-row-reverse items-center rounded-12 border border-theme-divider-secondary p-1 pl-3 hover:bg-theme-hover active:bg-theme-active',
           className,
         )}
         onClick={openMemberListModal}
       >
         <span
-          className="mr-1 ml-2 min-w-[1rem]"
+          className="ml-2 mr-1 min-w-[1rem]"
           aria-label="squad-members-count"
         >
           {kFormatter(squad.membersCount)}

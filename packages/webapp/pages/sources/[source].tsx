@@ -114,7 +114,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         <img
           src={source.image}
           alt={`${source.name} logo`}
-          className="mr-2 w-6 h-6 rounded-full"
+          className="mr-2 h-6 w-6 rounded-full"
         />
         <span className="mr-auto">{source.name}</span>
         <Button

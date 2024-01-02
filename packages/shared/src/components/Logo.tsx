@@ -12,8 +12,8 @@ export enum LogoPosition {
 
 const logoPositionToClassName: Record<LogoPosition, string> = {
   [LogoPosition.Absolute]: classNames(
-    'absolute left-1/2 -translate-x-1/2 top-4 mt-0.5',
-    'laptop:relative laptop:left-[unset] laptop:top-[unset] laptop:translate-x-[unset] laptop:mt-0',
+    'absolute left-1/2 top-4 mt-0.5 -translate-x-1/2',
+    'laptop:relative laptop:left-[unset] laptop:top-[unset] laptop:mt-0 laptop:translate-x-[unset]',
   ),
   [LogoPosition.Relative]: classNames('relative mt-0.5', 'laptop:mt-0'),
 };

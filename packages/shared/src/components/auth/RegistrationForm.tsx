@@ -151,7 +151,7 @@ export const RegistrationForm = ({
       <AuthHeader simplified={simplified} title="Sign up" onBack={onBack} />
       <AuthForm
         className={classNames(
-          'gap-2 self-center place-items-center mt-6 w-full overflow-y-auto flex-1 pb-2 px-6 tablet:px-[3.75rem]',
+          'mt-6 w-full flex-1 place-items-center gap-2 self-center overflow-y-auto px-6 pb-2 tablet:px-[3.75rem]',
         )}
         ref={formRef}
         onSubmit={onSubmit}
@@ -230,7 +230,7 @@ export const RegistrationForm = ({
             required
           />
         )}
-        <span className="pb-4 border-b border-theme-divider-tertiary typo-subhead text-theme-label-secondary">
+        <span className="border-b border-theme-divider-tertiary pb-4 text-theme-label-secondary typo-subhead">
           Your email will be used to send you product and community updates
         </span>
         <Checkbox name="optOutMarketing">

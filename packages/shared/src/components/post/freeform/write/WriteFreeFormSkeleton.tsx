@@ -13,14 +13,14 @@ export function WriteFreeFormSkeleton({
   return (
     <WritePageContainer>
       <WritePostHeader isEdit={isEdit} />
-      <WritePageMain className="py-5 px-6">
-        <ElementPlaceholder className="w-40 h-24 rounded-16" />
+      <WritePageMain className="px-6 py-5">
+        <ElementPlaceholder className="h-24 w-40 rounded-16" />
         <ElementPlaceholder className="mt-6 h-12 rounded-12" />
         <ElementPlaceholder className="mt-4 h-60 rounded-12" />
-        <span className="flex flex-row items-center mt-8">
-          <ElementPlaceholder className="hidden tablet:flex w-12 h-6 rounded-6" />
-          <ElementPlaceholder className="flex-1 mr-20 tablet:ml-4 h-6 rounded-6" />
-          <ElementPlaceholder className="w-16 tablet:w-36 h-6 tablet:h-10 rounded-8 tablet:rounded-12" />
+        <span className="mt-8 flex flex-row items-center">
+          <ElementPlaceholder className="hidden h-6 w-12 rounded-6 tablet:flex" />
+          <ElementPlaceholder className="mr-20 h-6 flex-1 rounded-6 tablet:ml-4" />
+          <ElementPlaceholder className="h-6 w-16 rounded-8 tablet:h-10 tablet:w-36 tablet:rounded-12" />
         </span>
       </WritePageMain>
     </WritePageContainer>

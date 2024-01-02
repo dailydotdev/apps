@@ -16,26 +16,26 @@ export const SharedPostCardHeader = ({
   enableSourceHeader = false,
 }: SharedPostCardHeaderProps): ReactElement => {
   return (
-    <div className="flex relative flex-row gap-2 m-2">
+    <div className="relative m-2 flex flex-row gap-2">
       <div className="relative">
         <ProfilePicture
           user={author}
           size={enableSourceHeader ? 'xsmall' : 'xlarge'}
-          className={enableSourceHeader && 'top-7 -right-2.5'}
+          className={enableSourceHeader && '-right-2.5 top-7'}
           absolute={enableSourceHeader}
         />
         <SourceButton
           source={source}
-          className={!enableSourceHeader && 'absolute -right-2 -bottom-2'}
+          className={!enableSourceHeader && 'absolute -bottom-2 -right-2'}
           size={enableSourceHeader ? 'large' : 'xsmall'}
         />
       </div>
-      <div className="flex flex-col flex-1 flex-grow mr-6 ml-2 typo-footnote">
-        <span className="font-bold line-clamp-2">
+      <div className="ml-2 mr-6 flex flex-1 flex-grow flex-col typo-footnote">
+        <span className="line-clamp-2 font-bold">
           {enableSourceHeader ? source.name : author.name}
         </span>
         <PostMetadata
-          className="break-words line-clamp-1"
+          className="line-clamp-1 break-words"
           createdAt={createdAt}
           description={enableSourceHeader ? author.name : `@${author.username}`}
         />

@@ -93,7 +93,7 @@ function MainLayoutHeader({
               tooltip={{ placement: 'bottom', content: 'Notifications' }}
               href={`${webappUrl}notifications`}
             >
-              <div className="hidden laptop:flex relative mr-4">
+              <div className="relative mr-4 hidden laptop:flex">
                 <Button
                   variant={ButtonVariant.Float}
                   size={ButtonSize.Small}
@@ -109,7 +109,7 @@ function MainLayoutHeader({
                   }
                 />
                 {hasNotification && (
-                  <Bubble className="top-0 right-0 px-1 shadow-bubble-cabbage translate-x-1/2 -translate-y-1/2 cursor-pointer">
+                  <Bubble className="right-0 top-0 -translate-y-1/2 translate-x-1/2 cursor-pointer px-1 shadow-bubble-cabbage">
                     {getUnreadText(unreadCount)}
                   </Bubble>
                 )}
@@ -129,7 +129,7 @@ function MainLayoutHeader({
   return (
     <header
       className={classNames(
-        'flex relative laptop:sticky laptop:left-0 z-header flex-row laptop:flex-row justify-between items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary',
+        'relative z-header flex h-14 flex-row items-center justify-between border-b border-theme-divider-tertiary bg-theme-bg-primary px-4 py-3 tablet:px-8 laptop:sticky laptop:left-0 laptop:w-full laptop:flex-row laptop:px-4',
         hasBanner ? 'laptop:top-8' : 'laptop:top-0',
       )}
     >
@@ -141,7 +141,7 @@ function MainLayoutHeader({
             onClick={() => onMobileSidebarToggle(true)}
             icon={<HamburgerIcon secondary />}
           />
-          <div className="flex flex-row flex-1 justify-center laptop:justify-start">
+          <div className="flex flex-1 flex-row justify-center laptop:justify-start">
             <HeaderLogo
               user={user}
               onLogoClick={onLogoClick}

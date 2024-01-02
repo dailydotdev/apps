@@ -31,7 +31,7 @@ export const ProfilePictureGroup = ({
       <div
         className={classNames(
           sizeClasses[size],
-          'flex items-center justify-center rounded-full font-bold bg-theme-active typo-caption1',
+          'flex items-center justify-center rounded-full bg-theme-active font-bold typo-caption1',
         )}
       >
         +{remainingCount}

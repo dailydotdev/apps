@@ -26,7 +26,7 @@ function OnboardingStep({
   return (
     <Modal.Body
       className={classNames(
-        'flex flex-col pt-8 px-0 pb-0',
+        'flex flex-col px-0 pb-0 pt-8',
         className.container,
       )}
     >
@@ -37,7 +37,7 @@ function OnboardingStep({
         <OnboardingTitle>{title}</OnboardingTitle>
       )}
       {description && (
-        <p className="px-6 mt-3 text-center text-theme-label-secondary typo-body">
+        <p className="mt-3 px-6 text-center text-theme-label-secondary typo-body">
           {description}
         </p>
       )}

@@ -31,7 +31,7 @@ export const SquadPostListItem = ({
   return (
     <article
       className={classNames(
-        'relative flex py-2 pl-4 pr-2 group items-start hover:bg-theme-hover',
+        'group relative flex items-start py-2 pl-4 pr-2 hover:bg-theme-hover',
         styles.card,
       )}
     >
@@ -40,24 +40,24 @@ export const SquadPostListItem = ({
         title={post.title}
         {...combinedClicks(() => onLinkClick(post))}
       />
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-1 flex-col">
         <SquadPostAuthor
           className={{
             container: 'mt-0',
-            name: 'typo-callout text-theme-label-primary',
-            handle: 'typo-callout text-theme-label-quaternary',
+            name: 'text-theme-label-primary typo-callout',
+            handle: 'text-theme-label-quaternary typo-callout',
           }}
           author={post.author}
           size="large"
           date={postDateFormat(post.createdAt)}
         />
-        <p className="mt-2 line-clamp-3 typo-callout text-theme-label-primary">
+        <p className="mt-2 line-clamp-3 text-theme-label-primary typo-callout">
           {post.title}
         </p>
       </div>
       <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
         <Button
-          className="group-hover:visible mouse:invisible mt-1"
+          className="mt-1 group-hover:visible mouse:invisible"
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Bun}
           pressed={post.bookmarked}
@@ -71,10 +71,10 @@ export const SquadPostListItem = ({
 };
 
 const SquadPostListItemPlaceholder = (): ReactElement => (
-  <article aria-busy className="flex relative flex-col py-2 px-4">
-    <div className="flex flex-row flex-1 items-center mb-2">
-      <ElementPlaceholder className="mt-1 w-10 h-10 rounded-14" />
-      <div className="flex flex-col flex-1 mr-2 ml-3">
+  <article aria-busy className="relative flex flex-col px-4 py-2">
+    <div className="mb-2 flex flex-1 flex-row items-center">
+      <ElementPlaceholder className="mt-1 h-10 w-10 rounded-14" />
+      <div className="ml-3 mr-2 flex flex-1 flex-col">
         <TextPlaceholder style={{ width: '40%' }} />
         <TextPlaceholder style={{ width: '40%' }} />
       </div>

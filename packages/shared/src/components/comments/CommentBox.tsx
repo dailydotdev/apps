@@ -70,7 +70,7 @@ function CommentBox({
     <article
       ref={isCommentReferenced ? commentRef : null}
       className={classNames(
-        'flex flex-col p-4 rounded-24 hover:bg-theme-hover focus:outline',
+        'flex flex-col rounded-24 p-4 hover:bg-theme-hover focus:outline',
         isCommentReferenced
           ? 'border border-theme-color-cabbage'
           : 'border-theme-divider-tertiary',
@@ -84,14 +84,14 @@ function CommentBox({
         </Link>
       )}
       {children}
-      <header className="flex z-1 flex-row self-start">
+      <header className="z-1 flex flex-row self-start">
         <ProfileTooltip
           user={comment.author}
           tooltip={{ appendTo: appendTooltipTo }}
         >
           <ProfileImageLink user={comment.author} />
         </ProfileTooltip>
-        <div className="flex flex-col ml-3 typo-callout">
+        <div className="ml-3 flex flex-col typo-callout">
           <FlexRow>
             <CommentAuthor
               author={comment.author}
@@ -127,14 +127,14 @@ function CommentBox({
             <ProfileLink href={comment.author.permalink}>
               @{comment.author.username}
             </ProfileLink>
-            <div className="mx-2 w-0.5 h-0.5 bg-theme-label-quaternary" />
+            <div className="mx-2 h-0.5 w-0.5 bg-theme-label-quaternary" />
             <CommentPublishDate comment={comment} />
           </FlexRow>
         </div>
       </header>
       <div
         className={classNames(
-          'mt-3 break-words-overflow typo-body z-1',
+          'break-words-overflow mt-3 typo-body z-1',
           className.content,
           linkToComment && 'pointer-events-none',
         )}

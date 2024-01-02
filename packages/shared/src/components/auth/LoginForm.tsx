@@ -95,11 +95,11 @@ function LoginForm({
         saveHintSpace
         onChange={() => hint && setHint(null)}
       />
-      <span className="flex flex-row mt-4 w-full">
+      <span className="mt-4 flex w-full flex-row">
         {onForgotPassword && (
           <ClickableText
             type="button"
-            className="flex-1 underline grow-[2] btn-primary"
+            className="btn-primary flex-1 grow-[2] underline"
             onClick={() => onForgotPassword(innerEmail)}
           >
             Forgot password?
@@ -117,7 +117,7 @@ function LoginForm({
       </span>
       {hint && hint === labels.auth.error.invalidEmailOrPassword && (
         <Alert className="mt-6" type={AlertType.Error} flexDirection="flex-row">
-          <AlertParagraph className="flex-1 !mt-0">
+          <AlertParagraph className="!mt-0 flex-1">
             The email or password you entered doesn&apos;t match our records.
             Please try again or{' '}
             <ClickableText

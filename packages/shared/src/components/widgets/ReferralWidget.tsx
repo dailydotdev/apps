@@ -31,8 +31,8 @@ const ReferralWidget = ({
           container: 'flex flex-col my-5',
         }}
       />
-      <div className="flex justify-between items-center">
-        <p className="mr-3 typo-callout text-theme-label-tertiary">
+      <div className="flex items-center justify-between">
+        <p className="mr-3 text-theme-label-tertiary typo-callout">
           Invite via
         </p>
         <span className="flex gap-2">

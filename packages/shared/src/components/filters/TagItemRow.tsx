@@ -30,7 +30,7 @@ export default function TagItemRow({
 }: TagItemRowProps &
   Omit<HTMLAttributes<HTMLAnchorElement>, 'onClick'>): ReactElement {
   return (
-    <FilterItem className="relative pl-6 my-2">
+    <FilterItem className="relative my-2 pl-6">
       <TagButton
         className={!onFollowTags ? 'cursor-default' : ''}
         size={ButtonSize.Small}
