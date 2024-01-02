@@ -28,7 +28,7 @@ const ReferralWidget = ({
         link={inviteLink}
         className={{
           input: 'typo-footnote',
-          container: 'flex flex-col my-5',
+          container: 'my-5 flex flex-col',
         }}
       />
       <div className="flex items-center justify-between">

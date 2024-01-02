@@ -101,7 +101,7 @@ const AccountProfilePage = (): ReactElement => {
           description="Upload a picture to make your profile stand out and let people recognize
         your comments and contributions easily!"
         >
-          <div className="flex relative mt-6">
+          <div className="relative mt-6 flex">
             <ImageInput
               id={imageId}
               className={{
@@ -123,7 +123,7 @@ const AccountProfilePage = (): ReactElement => {
             <ImageInput
               id={coverId}
               className={{
-                root: 'flex absolute top-0 left-0 w-full',
+                root: 'absolute left-0 top-0 flex w-full',
                 container: 'border-0 bg-theme-bg-secondary',
                 img: 'object-cover',
               }}

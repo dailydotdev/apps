@@ -42,7 +42,7 @@ export function ProfileWidgets({
 
   return (
     <div
-      className={classNames('flex flex-col gap-6 my-4 tablet:my-0', className)}
+      className={classNames('my-4 flex flex-col gap-6 tablet:my-0', className)}
     >
       <Header user={user} isSameUser={isSameUser} className="-mb-2" />
       {!hideSticky && (
@@ -50,7 +50,7 @@ export function ProfileWidgets({
           user={user}
           isSameUser={isSameUser}
           sticky
-          className="fixed top-0 left-0 z-3 w-full transition-transform duration-75 bg-theme-bg-primary"
+          className="fixed left-0 top-0 z-3 w-full bg-theme-bg-primary transition-transform duration-75"
           style={{ transform: `translateY(${(stickyProgress - 1) * 100}%)` }}
         />
       )}
@@ -61,7 +61,7 @@ export function ProfileWidgets({
         id={user.id}
         ref={stickyRef}
       />
-      <div className="flex relative flex-col gap-6 px-4">
+      <div className="relative flex flex-col gap-6 px-4">
         <UserMetadata
           username={user.username}
           name={user.name}
@@ -87,7 +87,7 @@ export function ProfileWidgets({
       <SocialChips links={user} />
       {(isSameUser || sources?.edges?.length > 0) && (
         <div className="flex flex-col gap-3">
-          <div className="px-4 typo-footnote text-theme-label-tertiary">
+          <div className="px-4 text-theme-label-tertiary typo-footnote">
             Active in these Squads
           </div>
           <SquadsList memberships={sources} userId={user.id} />

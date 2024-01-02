@@ -19,7 +19,7 @@ export function ReadingTagsWidget({
         clickableTitle="top tags"
         link={weeklyGoal}
       />
-      <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3 tablet:gap-x-10 tablet:max-w-full max-w-[17rem]">
+      <div className="grid max-w-[17rem] grid-cols-1 gap-3 tablet:max-w-full tablet:grid-cols-2 tablet:gap-x-10">
         {mostReadTags?.map((tag) => (
           <ReadingTagProgress key={tag.value} tag={tag} />
         ))}

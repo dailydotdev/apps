@@ -75,29 +75,29 @@ function SquadItem({
 
   return (
     <div
-      className="flex relative items-center p-2 first:ml-4 tablet:first:ml-0 w-40 tablet:w-auto bg-theme-float hover:bg-theme-hover rounded-2xl"
+      className="relative flex w-40 items-center rounded-2xl bg-theme-float p-2 first:ml-4 hover:bg-theme-hover tablet:w-auto tablet:first:ml-0"
       data-testid={squad.id}
     >
       <Link href={squad.permalink} prefetch={false} passHref>
         <CardLink />
       </Link>
-      <div className="flex overflow-hidden flex-col flex-1">
-        <div className="flex gap-2 items-center">
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="flex items-center gap-2">
           <Image
             src={squad.image}
             alt={squad.name}
-            className="w-8 h-8 rounded-full"
+            className="h-8 w-8 rounded-full"
           />
-          <div className="flex flex-col flex-1">
-            <div className="overflow-hidden font-bold whitespace-nowrap typo-caption1 text-ellipsis">
+          <div className="flex flex-1 flex-col">
+            <div className="overflow-hidden text-ellipsis whitespace-nowrap font-bold typo-caption1">
               {squad.name}
             </div>
-            <div className="overflow-hidden whitespace-nowrap text-theme-label-quaternary typo-caption2 text-ellipsis">
+            <div className="overflow-hidden text-ellipsis whitespace-nowrap text-theme-label-quaternary typo-caption2">
               @{squad.handle}
             </div>
           </div>
         </div>
-        <div className="flex items-center mt-1 h-6 tablet:h-auto text-theme-label-tertiary typo-caption2">
+        <div className="mt-1 flex h-6 items-center text-theme-label-tertiary typo-caption2 tablet:h-auto">
           {membership.role !== SourceMemberRole.Member && (
             <>
               <SquadMemberBadge
@@ -108,12 +108,12 @@ function SquadItem({
               <span className="mx-0.5">&#x2022;</span>
             </>
           )}
-          <span className="overflow-hidden flex-1 whitespace-nowrap text-ellipsis">
+          <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
             {largeNumberFormat(squad.membersCount)} members
           </span>
           {showJoin && (
             <Button
-              className="tablet:hidden z-1 ml-auto"
+              className="z-1 ml-auto tablet:hidden"
               variant={ButtonVariant.Secondary}
               size={ButtonSize.XSmall}
               icon={<PlusIcon />}
@@ -126,7 +126,7 @@ function SquadItem({
       </div>
       {showJoin && (
         <Button
-          className="hidden tablet:flex z-1"
+          className="z-1 hidden tablet:flex"
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
           onClick={onJoin}
@@ -170,7 +170,7 @@ export function SquadsList({
 
   if (!edges.length) {
     return (
-      <div className="flex overflow-hidden gap-2 pl-4">
+      <div className="flex gap-2 overflow-hidden pl-4">
         <Button
           variant={ButtonVariant.Float}
           size={ButtonSize.Large}
@@ -179,14 +179,14 @@ export function SquadsList({
           icon={<PlusIcon />}
           aria-label="Create a new Squad"
         />
-        <div className="rounded-2xl border flex-[3] border-theme-divider-tertiary" />
-        <div className="rounded-l-2xl border flex-[2] border-theme-divider-tertiary" />
+        <div className="flex-[3] rounded-2xl border border-theme-divider-tertiary" />
+        <div className="flex-[2] rounded-l-2xl border border-theme-divider-tertiary" />
       </div>
     );
   }
 
   return (
-    <div className="flex overflow-x-auto tablet:flex-col gap-2 items-center tablet:items-stretch tablet:px-4 no-scrollbar">
+    <div className="no-scrollbar flex items-center gap-2 overflow-x-auto tablet:flex-col tablet:items-stretch tablet:px-4">
       {edges.map(({ node }) => (
         <SquadItem key={node.source.id} membership={node} loading={loading} />
       ))}

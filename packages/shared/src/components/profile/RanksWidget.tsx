@@ -20,11 +20,11 @@ const RankHistory = ({
   count,
 }: RankHistoryProps): ReactElement => (
   <div
-    className="flex flex-col tablet:flex-row items-center p-2 tablet:py-1 tablet:pr-4 tablet:pl-2 font-bold rounded-12 border typo-callout border-theme-bg-secondary"
+    className="flex flex-col items-center rounded-12 border border-theme-bg-secondary p-2 font-bold typo-callout tablet:flex-row tablet:py-1 tablet:pl-2 tablet:pr-4"
     aria-label={`${rankName}: ${count}`}
   >
-    <Rank className="w-8 h-8" rank={rank} colorByRank />
-    <span className="hidden tablet:block ml-1 text-theme-label-tertiary">
+    <Rank className="h-8 w-8" rank={rank} colorByRank />
+    <span className="ml-1 hidden text-theme-label-tertiary tablet:block">
       {rankName}
     </span>
     <span className="tablet:ml-auto">{count}</span>
@@ -47,7 +47,7 @@ export function RanksWidget({
       >
         <Dropdown
           className={{
-            container: 'hidden laptop:block ml-auto w-32 min-w-fit',
+            container: 'ml-auto hidden w-32 min-w-fit laptop:block',
           }}
           selectedIndex={selectedHistoryYear}
           options={yearOptions}
@@ -55,7 +55,7 @@ export function RanksWidget({
           buttonSize={ButtonSize.Small}
         />
       </ActivitySectionHeader>
-      <div className="grid grid-cols-5 tablet:grid-cols-3 tablet:gap-2 gap-x-1 gap-y-3 tablet:max-w-full max-w-[17rem]">
+      <div className="grid max-w-[17rem] grid-cols-5 gap-x-1 gap-y-3 tablet:max-w-full tablet:grid-cols-3 tablet:gap-2">
         {RANKS.map((rank) => (
           <RankHistory
             key={rank.level}

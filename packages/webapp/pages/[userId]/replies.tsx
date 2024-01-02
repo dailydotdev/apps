@@ -111,7 +111,7 @@ const ProfileCommentsPage = ({ user }: ProfileLayoutProps): ReactElement => {
     if (isSameUser) {
       children = (
         <MyProfileEmptyScreen
-          className="items-center py-6 px-4 tablet:px-6 text-center"
+          className="items-center px-4 py-6 text-center tablet:px-6"
           text="All tests have passed on the first try and you have no idea why? Time for a break. Browse the feed and join a discussion!"
           cta="Explore posts"
           buttonProps={{ tag: 'a', href: '/' }}

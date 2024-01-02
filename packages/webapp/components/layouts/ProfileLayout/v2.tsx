@@ -62,12 +62,12 @@ export default function ProfileLayout({
   };
 
   return (
-    <div className="flex flex-col tablet:flex-row pb-12 tablet:pb-0 laptop:pb-6 laptopL:pb-0 m-auto w-full max-w-screen-laptop laptop:min-h-page laptop:border-r laptop:border-l laptop:border-theme-divider-tertiary">
+    <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:flex-row tablet:pb-0 laptop:min-h-page laptop:border-l laptop:border-r laptop:border-theme-divider-tertiary laptop:pb-6 laptopL:pb-0">
       <Head>
         <link rel="preload" as="image" href={user.image} />
       </Head>
       <NextSeo {...Seo} />
-      <main className="flex relative flex-col flex-1 tablet:border-r tablet:border-theme-divider-tertiary">
+      <main className="relative flex flex-1 flex-col tablet:border-r tablet:border-theme-divider-tertiary">
         <ProfileWidgets
           user={user}
           userStats={userStats}
@@ -78,7 +78,7 @@ export default function ProfileLayout({
         <NavBar selectedTab={selectedTab} profile={user} />
         {children}
       </main>
-      <PageWidgets className="hidden tablet:flex !px-0">
+      <PageWidgets className="hidden !px-0 tablet:flex">
         <ProfileWidgets
           user={user}
           userStats={userStats}

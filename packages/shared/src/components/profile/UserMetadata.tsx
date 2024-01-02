@@ -15,11 +15,11 @@ export function UserMetadata({
 }: UserMetadataProps): ReactElement {
   return (
     <div className="flex flex-col text-theme-label-quaternary typo-caption2">
-      <h2 className="overflow-hidden font-bold whitespace-nowrap text-theme-label-primary typo-title3 text-ellipsis">
+      <h2 className="overflow-hidden text-ellipsis whitespace-nowrap font-bold text-theme-label-primary typo-title3">
         {name}
       </h2>
       <div className="flex items-center">
-        <span className="overflow-hidden whitespace-nowrap text-theme-label-secondary typo-footnote text-ellipsis">
+        <span className="overflow-hidden text-ellipsis whitespace-nowrap text-theme-label-secondary typo-footnote">
           @{username}
         </span>
         <Separator />

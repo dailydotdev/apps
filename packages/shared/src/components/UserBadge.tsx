@@ -25,8 +25,8 @@ const UserBadge = ({
   return (
     <span
       className={classNames(
-        'flex items-center typo-caption2 font-bold capitalize',
-        !removeMargins && 'tablet:ml-2 ml-1',
+        'flex items-center font-bold capitalize typo-caption2',
+        !removeMargins && 'ml-1 tablet:ml-2',
         !disableResponsive && 'tablet:gap-0.5 tablet:typo-footnote',
         className,
       )}

@@ -17,12 +17,12 @@ export function ProfileEmptyScreen({
   return (
     <div
       className={classNames(
-        'flex flex-col gap-4 text-center items-center py-6 px-4',
+        'flex flex-col items-center gap-4 px-4 py-6 text-center',
         className,
       )}
     >
       <h3 className="font-bold typo-title3">{title}</h3>
-      <p className="typo-callout text-theme-label-tertiary">{text}</p>
+      <p className="text-theme-label-tertiary typo-callout">{text}</p>
       {children}
     </div>
   );

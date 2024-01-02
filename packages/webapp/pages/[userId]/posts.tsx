@@ -32,7 +32,7 @@ const ProfilePostsPage = ({ user }: ProfileLayoutProps): ReactElement => {
     forceCardMode: true,
     emptyScreen: isSameUser ? (
       <MyProfileEmptyScreen
-        className="items-center py-6 px-4 tablet:px-6 text-center"
+        className="items-center px-4 py-6 text-center tablet:px-6"
         text="Hardest part of being a developer? Where do we start – it’s everything. Go on, share with us your best rant."
         cta="New post"
         buttonProps={{ tag: 'a', href: link.post.create }}
@@ -45,7 +45,7 @@ const ProfilePostsPage = ({ user }: ProfileLayoutProps): ReactElement => {
     ),
   };
 
-  return <Feed {...feedProps} className="py-6 px-4" />;
+  return <Feed {...feedProps} className="px-4 py-6" />;
 };
 
 ProfilePostsPage.getLayout = getProfileLayout;

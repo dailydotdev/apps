@@ -111,7 +111,7 @@ function ImageInput({
   const onError = () => setImage(fallbackImage);
 
   return (
-    <div className={classNames(className?.root || 'flex relative w-min z-1')}>
+    <div className={classNames(className?.root || 'relative z-1 flex w-min')}>
       <button
         type="button"
         onClick={onClick}

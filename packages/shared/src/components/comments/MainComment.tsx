@@ -66,7 +66,7 @@ export default function MainComment({
   return (
     <section
       className={classNames(
-        'flex flex-col items-stretch rounded-24 border border-theme-divider-tertiary scroll-mt-16',
+        'flex scroll-mt-16 flex-col items-stretch rounded-24 border border-theme-divider-tertiary',
         className,
       )}
       data-testid="comment"

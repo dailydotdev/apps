@@ -31,13 +31,13 @@ export function Header({
 
   return (
     <header
-      className={classNames('flex items-center px-4 h-12', className)}
+      className={classNames('flex h-12 items-center px-4', className)}
       style={style}
     >
       {sticky ? (
         <>
           <ProfilePicture user={user} nativeLazyLoading size="medium" />
-          <div className="flex flex-col ml-2 typo-footnote">
+          <div className="ml-2 flex flex-col typo-footnote">
             <div className="font-bold">{user.name}</div>
             <div className="text-theme-label-tertiary">
               {largeNumberFormat(user.reputation)} Reputation
@@ -49,7 +49,7 @@ export function Header({
       )}
       {isSameUser && (
         <Button
-          className="hidden tablet:flex mr-2 ml-auto"
+          className="ml-auto mr-2 hidden tablet:flex"
           variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           tag="a"
@@ -67,7 +67,7 @@ export function Header({
       />
       {isSameUser && (
         <Button
-          className="tablet:hidden ml-2"
+          className="ml-2 tablet:hidden"
           variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           icon={<SettingsIcon />}

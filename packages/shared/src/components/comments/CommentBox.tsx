@@ -134,7 +134,7 @@ function CommentBox({
       </header>
       <div
         className={classNames(
-          'break-words-overflow mt-3 typo-body z-1',
+          'break-words-overflow z-1 mt-3 typo-body',
           className.content,
           linkToComment && 'pointer-events-none',
         )}
@@ -153,7 +153,7 @@ function CommentBox({
           onDelete={onDelete}
           onEdit={onEdit}
           onShowUpvotes={onShowUpvotes}
-          className="mt-3 pointer-events-auto"
+          className="pointer-events-auto mt-3"
         />
       </div>
     </article>

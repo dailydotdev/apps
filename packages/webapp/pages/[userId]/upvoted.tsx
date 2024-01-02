@@ -31,7 +31,7 @@ const ProfileUpvotedPage = ({ user }: ProfileLayoutProps): ReactElement => {
     forceCardMode: true,
     emptyScreen: isSameUser ? (
       <MyProfileEmptyScreen
-        className="items-center py-6 px-4 tablet:px-6 text-center"
+        className="items-center px-4 py-6 text-center tablet:px-6"
         text="Trapped in endless meetings? Make the most of It - Find posts you love and upvote away!"
         cta="Explore posts"
         buttonProps={{ tag: 'a', href: '/' }}
@@ -44,7 +44,7 @@ const ProfileUpvotedPage = ({ user }: ProfileLayoutProps): ReactElement => {
     ),
   };
 
-  return <Feed {...feedProps} className="py-6 px-4" />;
+  return <Feed {...feedProps} className="px-4 py-6" />;
 };
 
 ProfileUpvotedPage.getLayout = getProfileLayout;
