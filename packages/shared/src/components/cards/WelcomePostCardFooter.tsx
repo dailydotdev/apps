@@ -36,9 +36,10 @@ export const WelcomePostCardFooter = ({
       </>
     );
   }
+
   if (content) {
     return (
-      <p className="px-2 break-words line-clamp-6 typo-callout">
+      <p className="px-2 mt-1 break-words line-clamp-6 typo-callout">
         {decodedText}
       </p>
     );
