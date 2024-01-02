@@ -1,5 +1,5 @@
 import request, { gql } from 'graphql-request';
-import { Author, Comment, Scout } from './comments';
+import { Author, Scout } from './comments';
 import { Connection } from './common';
 import { Source, SourceType, Squad } from './sources';
 import { EmptyResponse } from './emptyResponse';
@@ -105,7 +105,6 @@ export interface Post {
   placeholder?: string;
   read?: boolean;
   bookmarked?: boolean;
-  featuredComments?: Comment[];
   trending?: number;
   description?: string;
   summary: string;

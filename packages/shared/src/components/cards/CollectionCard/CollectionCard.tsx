@@ -1,6 +1,6 @@
 import React, { forwardRef, Ref } from 'react';
 import classNames from 'classnames';
-import { Container, PostCardProps } from '../common';
+import { Container, generateTitleClamp, PostCardProps } from '../common';
 import FeedItemContainer from '../FeedItemContainer';
 import { CollectionCardHeader } from './CollectionCardHeader';
 import {
@@ -12,6 +12,7 @@ import {
 import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
 import ActionButtons from '../ActionButtons';
 import PostMetadata from '../PostMetadata';
+import { usePostImage } from '../../../hooks/post/usePostImage';
 
 export const CollectionCard = forwardRef(function CollectionCard(
   {
@@ -29,13 +30,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
-  const clamp = (() => {
-    if (post.image) {
-      return 'line-clamp-3';
-    }
-
-    return post.contentHtml ? 'line-clamp-4' : 'line-clamp-9';
-  })();
+  const image = usePostImage(post);
 
   return (
     <FeedItemContainer
@@ -55,7 +50,10 @@ export const CollectionCard = forwardRef(function CollectionCard(
       />
       <FreeformCardTitle
         className={classNames(
-          clamp,
+          generateTitleClamp({
+            hasImage: !!image,
+            hasHtmlContent: !!post.contentHtml,
+          }),
           'px-2 font-bold text-theme-label-primary typo-title3',
         )}
       >
@@ -70,7 +68,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
       />
 
       <Container>
-        <WelcomePostCardFooter post={post} />
+        <WelcomePostCardFooter image={image} contentHtml={post.contentHtml} />
         <ActionButtons
           openNewTab={openNewTab}
           post={post}
