@@ -116,13 +116,15 @@ export default function Feed<T>({
     selectedPostIndex,
   } = usePostModalNavigation(items, fetchPage, updatePost, canFetchMore);
 
+  console.log('feedName,', feedName);
   const feedContextValue = useMemo(() => {
     return {
+      feedName,
       queryKey: feedQueryKey,
       items,
       onOpenModal,
     };
-  }, [feedQueryKey, items, onOpenModal]);
+  }, [feedQueryKey, items, onOpenModal, feedName]);
 
   useEffect(() => {
     if (emptyFeed) {

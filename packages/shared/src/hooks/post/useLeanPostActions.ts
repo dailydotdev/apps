@@ -23,7 +23,7 @@ import {
   voteMutationHandlers,
 } from '../vote';
 import { postAnalyticsEvent } from '../../lib/feed';
-import { Origin } from '../../lib/analytics';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import useReportPost from '../useReportPost';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AuthTriggers } from '../../lib/auth';
@@ -146,7 +146,7 @@ export default function useLeanPostActions({
   ) => Promise<void>;
   show: (e: React.MouseEvent) => void;
 } {
-  const { queryKey } = useActiveFeedContext();
+  const { queryKey, feedName } = useActiveFeedContext();
   const { requestMethod } = useRequestProtocol();
   const { user, showLogin } = useContext(AuthContext);
   const queryClient = useQueryClient();
@@ -416,10 +416,22 @@ export default function useLeanPostActions({
       }
 
       if (post?.userState?.vote === UserPostVote.Up) {
+        trackEvent(
+          postAnalyticsEvent(AnalyticsEvent.DownvotePost, post, {
+            columns: 1,
+            column: 1,
+            row: 1,
+            extra: {
+              origin: 'origin' ?? Origin.Feed,
+              feed: feedName,
+            },
+          }),
+        );
         await cancelPostVote({ post });
         return;
       }
 
+      trackEvent(postAnalyticsEvent(AnalyticsEvent.UpvotePost, post));
       await upvotePost({ post });
     },
     [cancelPostVote, showLogin, upvotePost, user],

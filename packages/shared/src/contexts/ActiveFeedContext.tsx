@@ -27,6 +27,7 @@ type ActiveFeedContextProviderProps = ActiveFeedContextValue & {
 };
 
 export const ActiveFeedContextProvider = ({
+  feedName,
   children,
   items,
   queryKey,
@@ -36,12 +37,13 @@ export const ActiveFeedContextProvider = ({
 
   const data: ActiveFeedContextValue = useMemo(
     () => ({
+      feedName,
       items,
       queryKey,
       feedRef,
       onOpenModal,
     }),
-    [items, queryKey, onOpenModal],
+    [items, queryKey, onOpenModal, feedName],
   );
   return (
     <ActiveFeedContext.Provider value={data}>
