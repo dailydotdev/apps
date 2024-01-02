@@ -9,7 +9,6 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
 import { postAnalyticsEvent } from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { ProfilePicture } from '../ProfilePicture';
 import { WidgetContainer } from './common';
 import { combinedClicks } from '../../lib/click';
 import {
