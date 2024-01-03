@@ -105,7 +105,7 @@ export function WriteFreeformContent({
         }
       >
         <CameraIcon secondary />
-        <span className="flex flex-row ml-1.5 font-bold typo-callout">
+        <span className="ml-1.5 flex flex-row font-bold typo-callout">
           Thumbnail
         </span>
       </ImageInput>
@@ -113,7 +113,7 @@ export function WriteFreeformContent({
         className={{ container: 'bg-theme-bg-primary' }}
         offset={[0, -12]}
         message={
-          <div className="flex flex-col w-64">
+          <div className="flex w-64 flex-col">
             <h3 className="font-bold typo-body">First time? 👋</h3>
             <p className="mt-1 typo-subhead">
               It looks like this is your first time sharing a post with the

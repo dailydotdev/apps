@@ -23,7 +23,7 @@ function ShareYouTubeContent({ post }: ShareYouTubeContentProps): ReactElement {
         />
         <SharedPostLink
           post={post}
-          className="flex flex-wrap m-4 font-bold typo-body"
+          className="m-4 flex flex-wrap font-bold typo-body"
         >
           {post.sharedPost.title}
         </SharedPostLink>

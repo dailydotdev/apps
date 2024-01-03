@@ -54,7 +54,7 @@ function EmailVerificationSent({
   };
 
   return (
-    <div className="flex flex-col flex-1 justify-center py-8 px-9 w-full">
+    <div className="flex w-full flex-1 flex-col justify-center px-9 py-8">
       <SecondaryCenteredBodyText>
         We just sent an email to:
       </SecondaryCenteredBodyText>
@@ -65,7 +65,7 @@ function EmailVerificationSent({
         Click the link in the email to verify your account. Please check your
         spam folder if you {`don't`} see the email.
       </SecondaryCenteredBodyText>
-      <EmailSentIcon className="mt-12 w-full h-48 text-white" />
+      <EmailSentIcon className="mt-12 h-48 w-full text-white" />
       <SecondaryCenteredBodyText className="my-4">
         Still {`can't`} find the email?
       </SecondaryCenteredBodyText>

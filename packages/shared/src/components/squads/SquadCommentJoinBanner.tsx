@@ -59,16 +59,16 @@ export const SquadCommentJoinBanner = ({
   return (
     <div
       className={classNames(
-        'flex flex-row flex-1 gap-4 justify-between items-start p-4 mx-3 mb-3 rounded-16 border border-theme-color-cabbage',
+        'mx-3 mb-3 flex flex-1 flex-row items-start justify-between gap-4 rounded-16 border border-theme-color-cabbage p-4',
         className,
       )}
     >
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-1 flex-col">
         <p className="flex flex-1 text-theme-label-tertiary typo-callout">
           Join {squad.name} to see more posts like this one, contribute to
           conversation and more...
         </p>
-        <div className="flex flex-row gap-3 mt-5">
+        <div className="mt-5 flex flex-row gap-3">
           <SimpleSquadJoinButton
             variant={ButtonVariant.Primary}
             color={ButtonColor.Cabbage}

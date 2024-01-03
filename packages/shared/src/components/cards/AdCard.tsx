@@ -31,21 +31,19 @@ export const AdCard = forwardRef(function AdCard(
     <Card {...domProps} data-testid="adItem" ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <CardTextContainer>
-        <CardTitle
-          className={classNames('my-4 line-clamp-4 font-bold typo-title3')}
-        >
+        <CardTitle className="my-4 line-clamp-4 font-bold typo-title3">
           {ad.description}
         </CardTitle>
       </CardTextContainer>
       <CardSpace />
       {showImage && (
-        <div className="overflow-hidden relative rounded-xl">
+        <div className="relative overflow-hidden rounded-xl">
           <CardImage
             alt="Ad image"
             src={ad.image}
             className={classNames(
-              'w-full z-1',
-              showBlurredImage && 'inset-0 m-auto absolute',
+              'z-1 w-full',
+              showBlurredImage && 'absolute inset-0 m-auto',
             )}
             style={{ objectFit: showBlurredImage ? 'contain' : 'cover' }}
           />
@@ -59,14 +57,14 @@ export const AdCard = forwardRef(function AdCard(
         </div>
       )}
       <CardTextContainer>
-        <AdAttribution ad={ad} className="mt-4 mb-2" />
+        <AdAttribution ad={ad} className="mb-2 mt-4" />
       </CardTextContainer>
       {ad.pixel?.map((pixel) => (
         <img
           src={pixel}
           key={pixel}
           data-testid="pixel"
-          className="hidden w-0 h-0"
+          className="hidden h-0 w-0"
           alt="Pixel"
         />
       ))}

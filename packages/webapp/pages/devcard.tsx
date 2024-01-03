@@ -66,7 +66,7 @@ const Step1 = ({
         width={108}
       />
       <h1 className="mt-10 font-bold typo-title1">Grab your Dev Card</h1>
-      <p className="mt-4 text-center typo-body text-theme-label-secondary max-w-[32.5rem]">
+      <p className="mt-4 max-w-[32.5rem] text-center text-theme-label-secondary typo-body">
         Your Dev Card will show you stats about the publications and topics you
         love to read. Click on “Generate now” to get your card and share it with
         your friends
@@ -163,12 +163,12 @@ const Step2 = ({
   const finalError = error || backgroundImageError;
 
   return (
-    <div className="flex flex-col self-stretch laptop:self-center mx-2 mt-5">
+    <div className="mx-2 mt-5 flex flex-col self-stretch laptop:self-center">
       <h1 className="mx-3 mb-8 font-bold typo-title1">Share your #DevCard</h1>
-      <main className="flex z-2 flex-col laptop:flex-row gap-10 laptopL:gap-20">
+      <main className="z-2 flex flex-col gap-10 laptop:flex-row laptopL:gap-20">
         <section className="flex flex-col">
           <Tilt
-            className="overflow-hidden relative self-stretch w-fit"
+            className="relative w-fit self-stretch overflow-hidden"
             glareEnable
             perspective={1000}
             glareMaxOpacity={0.25}
@@ -180,12 +180,12 @@ const Step2 = ({
             <LazyImage
               imgSrc={devCardSrc}
               imgAlt="Your Dev Card"
-              className="w-72 h-[25rem]"
+              className="h-[25rem] w-72"
               eager
             />
             {isLoadingImage && <LoaderOverlay invertColor />}
           </Tilt>
-          <div className="grid grid-cols-2 gap-4 mx-2 mt-8">
+          <div className="mx-2 mt-8 grid grid-cols-2 gap-4">
             <Button
               variant={ButtonVariant.Primary}
               size={ButtonSize.Large}
@@ -214,7 +214,7 @@ const Step2 = ({
         </section>
         <section className="flex flex-col self-stretch text-theme-label-tertiary">
           <h2 className="font-bold typo-body">Customize Style</h2>
-          <div className={classNames('flex flex-col -my-0.5 items-start mt-8')}>
+          <div className={classNames('-my-0.5 mt-8 flex flex-col items-start')}>
             <RadioItem
               disabled={isLoadingImage}
               name="timeOff"
@@ -262,10 +262,10 @@ const Step2 = ({
           {finalError && (
             <FormErrorMessage role="alert">{finalError}</FormErrorMessage>
           )}
-          <div className="flex flex-col items-start self-stretch mt-10">
+          <div className="mt-10 flex flex-col items-start self-stretch">
             <h4 className="mt-1 font-bold typo-caption1">Embed</h4>
             <textarea
-              className="self-stretch py-2 px-4 mt-1 w-80 bg-theme-float rounded-10 resize-none laptopL:w-[25rem] typo-body h-[7.75rem]"
+              className="mt-1 h-[7.75rem] w-80 resize-none self-stretch rounded-10 bg-theme-float px-4 py-2 typo-body laptopL:w-[25rem]"
               readOnly
               wrap="hard"
             >
@@ -286,7 +286,7 @@ const Step2 = ({
               defaultTypo={false}
               target="_blank"
             >
-              <GitHubIcon className="mr-2 w-auto h-auto" />
+              <GitHubIcon className="mr-2 h-auto w-auto" />
               Add DevCard to your GitHub profile
             </ClickableText>
           </div>
@@ -350,7 +350,7 @@ const DevCardPage = (): ReactElement => {
   return (
     <div
       className={classNames(
-        'page flex min-h-page flex-col justify-center items-center px-6 py-10 tablet:-mt-12 max-w-full mx-auto',
+        'page mx-auto flex min-h-page max-w-full flex-col items-center justify-center px-6 py-10 tablet:-mt-12',
         step === 1 && 'laptop:flex-row laptop:gap-20',
       )}
     >

@@ -87,7 +87,7 @@ const OnboardingRegistrationForm = ({
 
   return (
     <>
-      <AuthForm className="gap-8 mb-8" onSubmit={onEmailSignup}>
+      <AuthForm className="mb-8 gap-8" onSubmit={onEmailSignup}>
         <TextField
           leftIcon={<MailIcon size={IconSize.Small} />}
           required
@@ -100,7 +100,7 @@ const OnboardingRegistrationForm = ({
         {shouldLogin && (
           <>
             <Alert type={AlertType.Error} flexDirection="flex-row">
-              <AlertParagraph className="flex-1 !mt-0">
+              <AlertParagraph className="!mt-0 flex-1">
                 Email is taken. Existing user?{' '}
                 <button
                   type="button"
@@ -132,7 +132,7 @@ const OnboardingRegistrationForm = ({
         {signupProviders.map((provider) => (
           <Button
             key={provider.value}
-            className="flex flex-1 text-white bg-theme-active"
+            className="flex flex-1 bg-theme-active text-white"
             icon={provider.icon}
             loading={!isReady}
             onClick={() => onSocialClick(provider.value)}

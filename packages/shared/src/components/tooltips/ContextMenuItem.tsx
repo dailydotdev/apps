@@ -42,7 +42,7 @@ function ContextMenuItem({
         className={classNames('typo-callout', className)}
         onClick={action}
       >
-        <span className="flex items-center w-full">
+        <span className="flex w-full items-center">
           {icon}
           {label}
         </span>

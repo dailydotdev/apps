@@ -4,7 +4,7 @@ import { Connection } from '../../graphql/common';
 import classed from '../../lib/classed';
 import { ClickableText } from '../buttons/ClickableText';
 
-export const ActivityContainer = classed('section', 'flex flex-col mt-10');
+export const ActivityContainer = classed('section', 'flex flex-col');
 
 export const ActivitySectionTitle = classed(
   'h2',

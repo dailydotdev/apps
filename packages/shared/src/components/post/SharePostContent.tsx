@@ -37,12 +37,12 @@ function SharePostContent({
   return (
     <>
       <SharePostTitle post={post} />
-      <SharedLinkContainer className="mt-8 mb-5">
-        <div className="flex flex-col-reverse laptop:flex-row p-4 max-w-full">
-          <div className="flex flex-col flex-1">
+      <SharedLinkContainer className="mb-5 mt-8">
+        <div className="flex max-w-full flex-col-reverse p-4 laptop:flex-row">
+          <div className="flex flex-1 flex-col">
             <SharedPostLink
               post={post}
-              className="flex flex-wrap mt-4 laptop:mt-0 mb-4 font-bold typo-body"
+              className="mb-4 mt-4 flex flex-wrap font-bold typo-body laptop:mt-0"
             >
               {post.sharedPost.title}
             </SharedPostLink>
@@ -74,7 +74,7 @@ function SharePostContent({
           <SharedPostLink
             post={post}
             onGoToLinkProps={combinedClicks(openArticle)}
-            className="block overflow-hidden ml-2 w-70 rounded-2xl cursor-pointer h-fit"
+            className="ml-2 block h-fit w-70 cursor-pointer overflow-hidden rounded-2xl"
           >
             <LazyImage
               imgSrc={post.sharedPost.image}

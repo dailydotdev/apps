@@ -15,7 +15,7 @@ const Container = ({
 }: PropsWithChildren<WithClassNameProps>) => (
   <span
     className={classNames(
-      'flex flex-row justify-evenly items-center mt-10 w-full bg-center bg-no-repeat bg-cover',
+      'mt-10 flex w-full flex-row items-center justify-evenly bg-cover bg-center bg-no-repeat',
       className,
     )}
     style={{
@@ -44,7 +44,7 @@ export function KeysRow({ count }: KeysRowProps): ReactElement {
 
   if (count > 5) {
     return (
-      <Container className="!bg-contain !justify-center">
+      <Container className="!justify-center !bg-contain">
         <KeyReferralIcon size={IconSize.XXLarge} />
         <span className="font-bold typo-title2">x{count}</span>
       </Container>

@@ -71,11 +71,11 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
         title="You have been promoted"
         description={roleDescription[role]}
       >
-        <FlexCentered className="absolute top-20 left-1/2 gap-1 justify-center -translate-x-1/2">
+        <FlexCentered className="absolute left-1/2 top-20 -translate-x-1/2 justify-center gap-1">
           <span className="relative">
             <ProfilePicture user={user} size="xxxxlarge" />
             <SourceButton
-              className="absolute -right-4 -bottom-4"
+              className="absolute -bottom-4 -right-4"
               source={source}
               size="xlarge"
             />

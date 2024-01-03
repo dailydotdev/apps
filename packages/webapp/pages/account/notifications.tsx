@@ -136,12 +136,12 @@ const AccountNotificationsPage = (): ReactElement => {
           <AccountContentSection
             className={{
               heading: 'mt-0',
-              container: 'flex flex-col flex-1 w-full',
+              container: 'flex w-full flex-1 flex-col',
             }}
             title="Push notifications"
             description="The daily.dev notification system notifies you of important events such as replies, mentions, updates, etc."
           />
-          <div className="mx-4 w-px h-full bg-theme-divider-tertiary" />
+          <div className="mx-4 h-full w-px bg-theme-divider-tertiary" />
           <Switch
             data-testid="push_notification-switch"
             inputId="push_notification-switch"
@@ -162,13 +162,13 @@ const AccountNotificationsPage = (): ReactElement => {
             className="absolute -top-5 right-8"
             color={PointerColor.Cabbage}
           />
-          <div className="flex overflow-hidden relative flex-row p-4">
+          <div className="relative flex flex-row overflow-hidden p-4">
             <p className="flex-1 break-words typo-subhead">
               Switch on push notifications so you never miss exciting
               discussions, upvotes, replies or mentions on daily.dev!
             </p>
             <img
-              className="hidden laptopL:flex absolute top-4 right-14"
+              className="absolute right-14 top-4 hidden laptopL:flex"
               src={cloudinary.notifications.browser}
               alt="A sample browser notification"
             />
@@ -189,12 +189,12 @@ const AccountNotificationsPage = (): ReactElement => {
         <AccountContentSection
           className={{
             heading: 'mt-0',
-            container: 'flex flex-col flex-1 w-full',
+            container: 'flex w-full flex-1 flex-col',
           }}
           title="Email notifications"
           description="Tailor your email notifications by selecting the types of emails that are important to you."
         />
-        <div className="mx-4 w-px h-full bg-theme-divider-tertiary" />
+        <div className="mx-4 h-full w-px bg-theme-divider-tertiary" />
         <Switch
           data-testid="email_notification-switch"
           inputId="email_notification-switch"
@@ -208,7 +208,7 @@ const AccountNotificationsPage = (): ReactElement => {
         </Switch>
       </div>
       <h3 className="mt-6 font-bold typo-callout">Send me emails for:</h3>
-      <div className="grid grid-cols-1 gap-2 mt-6">
+      <div className="mt-6 grid grid-cols-1 gap-2">
         <Checkbox
           name="new_activity"
           data-testid="new_activity-switch"

@@ -1,7 +1,6 @@
 import ImageInput from '@dailydotdev/shared/src/components/fields/ImageInput';
 import AtIcon from '@dailydotdev/shared/src/components/icons/At';
 import GitHubIcon from '@dailydotdev/shared/src/components/icons/GitHub';
-import HashnodeIcon from '@dailydotdev/shared/src/components/icons/Hashnode';
 import LinkIcon from '@dailydotdev/shared/src/components/icons/Link';
 import TwitterIcon from '@dailydotdev/shared/src/components/icons/Twitter';
 import { UserIcon } from '@dailydotdev/shared/src/components/icons';
@@ -20,19 +19,26 @@ import CameraIcon from '@dailydotdev/shared/src/components/icons/Camera';
 import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { getAccountLayout } from '../../components/layouts/AccountLayout';
-import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
-import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
+import { useMutation } from '@tanstack/react-query';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import request from 'graphql-request';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
+import { UPLOAD_COVER_MUTATION } from '@dailydotdev/shared/src/graphql/users';
+import { ResponseError } from '@dailydotdev/shared/src/graphql/common';
 import { AccountTextField } from '../../components/layouts/AccountLayout/common';
+import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
+import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
+import { getAccountLayout } from '../../components/layouts/AccountLayout';
 
-const id = 'avatar_file';
+const imageId = 'avatar_file';
+const coverId = 'cover_file';
 
 const AccountProfilePage = (): ReactElement => {
   const formRef = useRef<HTMLFormElement>();
   const { displayToast } = useToastNotification();
   const onSuccess = () => displayToast('Profile updated');
   const { updateUserProfile, isLoading, hint } = useProfileForm({ onSuccess });
-  const { user } = useContext(AuthContext);
+  const { user, updateUser } = useContext(AuthContext);
 
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -45,11 +51,33 @@ const AccountProfilePage = (): ReactElement => {
       title: values.title,
       twitter: values.twitter,
       github: values.github,
-      hashnode: values.hashnode,
       portfolio: values.portfolio,
     };
     updateUserProfile(params);
   };
+
+  const { mutate: uploadCoverImage } = useMutation<
+    { user: LoggedUser },
+    ResponseError,
+    { image: File }
+  >(
+    ({ image }) =>
+      request(graphqlUrl, UPLOAD_COVER_MUTATION, {
+        upload: image,
+      }),
+    {
+      onSuccess: async (res) => {
+        await updateUser({ ...user, cover: res.user.cover });
+        displayToast('Cover image updated');
+      },
+      onError: (err) => {
+        if (!err?.response?.errors?.length) {
+          return;
+        }
+        displayToast(err.response.errors[0].message);
+      },
+    },
+  );
 
   return (
     <AccountPageContainer
@@ -73,24 +101,48 @@ const AccountProfilePage = (): ReactElement => {
           description="Upload a picture to make your profile stand out and let people recognize
         your comments and contributions easily!"
         >
-          <ImageInput
-            id={id}
-            className={{ container: 'mt-6', img: 'object-cover' }}
-            initialValue={user.image}
-            hoverIcon={<CameraIcon size={IconSize.Large} />}
-            onChange={(imageBase64) => {
-              if (!imageBase64) {
-                return;
-              }
+          <div className="relative mt-6 flex">
+            <ImageInput
+              id={imageId}
+              className={{
+                img: 'object-cover',
+                container: 'border-4 !border-theme-bg-primary',
+              }}
+              initialValue={user.image}
+              hoverIcon={<CameraIcon size={IconSize.Large} />}
+              onChange={(_, file) => {
+                if (!file) {
+                  return;
+                }
 
-              const input = document.getElementById(id) as HTMLInputElement;
-              const file = input.files[0];
+                updateUserProfile({
+                  image: file,
+                });
+              }}
+            />
+            <ImageInput
+              id={coverId}
+              className={{
+                root: 'absolute left-0 top-0 flex w-full',
+                container: 'border-0 bg-theme-bg-secondary',
+                img: 'object-cover',
+              }}
+              size="cover"
+              initialValue={user.cover}
+              fallbackImage={null}
+              hoverIcon={<CameraIcon size={IconSize.Large} />}
+              fileSizeLimitMB={5}
+              onChange={(_, file) => {
+                if (!file) {
+                  return;
+                }
 
-              updateUserProfile({
-                image: file,
-              });
-            }}
-          />
+                uploadCoverImage({
+                  image: file,
+                });
+              }}
+            />
+          </div>
         </AccountContentSection>
         <AccountContentSection title="Account Information">
           <AccountTextField
@@ -119,7 +171,7 @@ const AccountProfilePage = (): ReactElement => {
             name="bio"
             rows={5}
             value={user.bio}
-            className={{ container: 'max-w-sm mt-6' }}
+            className={{ container: 'mt-6 max-w-sm' }}
           />
           <AccountTextField
             label="Company"
@@ -156,15 +208,6 @@ const AccountProfilePage = (): ReactElement => {
             valid={!hint.github}
             name="github"
             value={user.github}
-          />
-          <AccountTextField
-            leftIcon={<HashnodeIcon />}
-            label="Hashnode"
-            inputId="hashnode"
-            hint={hint.hashnode}
-            valid={!hint.hashnode}
-            name="hashnode"
-            value={user.hashnode}
           />
           <AccountTextField
             leftIcon={<LinkIcon />}

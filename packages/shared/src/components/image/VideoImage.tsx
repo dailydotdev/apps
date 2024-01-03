@@ -18,10 +18,10 @@ const VideoImage = ({
     <div
       className={classNames(
         wrapperClassName,
-        'flex relative justify-center items-center w-full h-auto rounded-12',
+        'relative flex h-auto w-full items-center justify-center rounded-12',
       )}
     >
-      <span className="absolute w-full h-full rounded-12 bg-overlay-tertiary-black" />
+      <span className="absolute h-full w-full rounded-12 bg-overlay-tertiary-black" />
       <PlayIcon
         secondary
         size={size}

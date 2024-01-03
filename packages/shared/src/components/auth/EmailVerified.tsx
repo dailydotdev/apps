@@ -23,10 +23,10 @@ function EmailVerified({
       <EmailVerifiedIcon
         className={classNames(
           'w-full text-white',
-          children ? 'h-44' : 'h-60 mt-12',
+          children ? 'h-44' : 'mt-12 h-60',
         )}
       />
-      <p className="px-8 tablet:px-12 text-center typo-body text-theme-label-secondary">
+      <p className="px-8 text-center text-theme-label-secondary typo-body tablet:px-12">
         Your email address is now verified.
       </p>
       {children}

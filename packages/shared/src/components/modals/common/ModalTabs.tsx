@@ -27,7 +27,7 @@ export function ModalTabs({
             disabled={disabled}
             key={tabTitle}
             className={classNames(
-              'btn relative py-1.5 h-8 px-3 text-center typo-callout rounded-10',
+              'btn relative h-8 rounded-10 px-3 py-1.5 text-center typo-callout',
               disabled && 'opacity-64',
               tab === activeView
                 ? 'bg-theme-active font-bold'
@@ -40,7 +40,7 @@ export function ModalTabs({
             {tabTitle}
             {tabTitle === activeView && (
               <div
-                className="absolute mx-auto w-4 h-px bg-theme-label-primary"
+                className="absolute mx-auto h-px w-4 bg-theme-label-primary"
                 style={{ bottom: '-0.75rem', left: 'calc(50% - 0.5rem)' }}
               />
             )}

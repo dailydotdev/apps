@@ -28,17 +28,17 @@ export const FeedbackCard = ({
   const feedbackCopy = useFeature(feature.cardFeedbackCopy);
 
   return (
-    <div className="flex-1 p-6 pb-5 space-y-4">
-      <div className="flex relative justify-between">
+    <div className="flex-1 space-y-4 p-6 pb-5">
+      <div className="relative flex justify-between">
         <p className="font-bold typo-callout">{feedbackCopy}</p>
         <CloseButton
           id="close-engagement-loop-btn"
-          className="absolute -top-2.5 -right-2.5"
+          className="absolute -right-2.5 -top-2.5"
           size={ButtonSize.XSmall}
           onClick={dismissFeedback}
         />
       </div>
-      <div className="flex gap-3 items-center">
+      <div className="flex items-center gap-3">
         <Button
           id="upvote-post-btn"
           pressed={post?.userState?.vote === UserPostVote.Up}

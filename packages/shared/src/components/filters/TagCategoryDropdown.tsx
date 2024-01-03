@@ -56,14 +56,14 @@ export default function TagCategoryDropdown({
     <Container>
       <Summary
         className={classNames(
-          isSettings && 'py-5 px-4 rounded-14 bg-theme-divider-tertiary',
+          isSettings && 'rounded-14 bg-theme-divider-tertiary px-4 py-5',
           isSettings &&
             categoryFollowed &&
             'border-l-4 border-theme-status-cabbage',
         )}
       >
         <div className="flex items-center">
-          <ArrowIcon className="mr-2 text-xl transition-transform rotate-90 icon text-theme-label-tertiary" />{' '}
+          <ArrowIcon className="icon mr-2 rotate-90 text-xl text-theme-label-tertiary transition-transform" />{' '}
           <span className="mr-3 typo-title1">{tagCategory.emoji}</span>{' '}
           <h4 className="font-bold typo-callout">{tagCategory.title}</h4>{' '}
         </div>
@@ -77,7 +77,7 @@ export default function TagCategoryDropdown({
       <TagCategoryDetailsContent data-testid="tagCategoryTags">
         {tagCategory.tags.map((tag) => (
           <TagButton
-            className="mr-3 mb-3"
+            className="mb-3 mr-3"
             tagItem={tag}
             followedTags={followedTags}
             blockedTags={blockedTags}

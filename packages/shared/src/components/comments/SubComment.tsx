@@ -49,7 +49,7 @@ function SubComment({
           }
         >
           <div
-            className="absolute top-0 bottom-0 left-9 -ml-px w-0.5 bg-theme-float"
+            className="absolute bottom-0 left-9 top-0 -ml-px w-0.5 bg-theme-float"
             data-testid="subcomment"
           />
         </CommentBox>

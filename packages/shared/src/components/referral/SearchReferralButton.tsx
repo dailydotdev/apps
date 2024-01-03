@@ -42,13 +42,13 @@ export function SearchReferralButton({
     <button
       type="button"
       className={classNames(
-        'flex flex-row items-center justify-center typo-callout rounded-12 py-1 px-3 font-bold text-theme-label-tertiary bg-theme-overlay-from',
+        'flex flex-row items-center justify-center rounded-12 bg-theme-overlay-from px-3 py-1 font-bold text-theme-label-tertiary typo-callout',
         className,
       )}
       onClick={handleClick}
     >
       {availableCount}
-      <KeyReferralIcon size={IconSize.Medium} className="mt-1 ml-1" />
+      <KeyReferralIcon size={IconSize.Medium} className="ml-1 mt-1" />
     </button>
   );
 }

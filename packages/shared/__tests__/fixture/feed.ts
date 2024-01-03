@@ -70,7 +70,7 @@ const feed: Connection<Post> = {
     {
       node: {
         id: '0e4005b2d3cf191f8c44c2718a457a1e',
-        title: 'Learn SQL & MongoDb Simultaneously — The Easy Way (Part 1)',
+        title: 'Learn SQL & MongoDb Simultaneously The Easy Way (Part 1)',
         createdAt: '2020-05-16T15:16:05.000Z',
         image:
           'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',

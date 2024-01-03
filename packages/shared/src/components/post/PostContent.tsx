@@ -55,7 +55,7 @@ export function PostContent({
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
   const containerClass = classNames(
-    'tablet:pb-0 tablet:flex-row',
+    'tablet:flex-row tablet:pb-0',
     className?.container,
   );
 
@@ -103,7 +103,7 @@ export function PostContent({
             onReadArticle={onReadArticle}
             post={post}
             onClose={onClose}
-            className="flex tablet:hidden mb-4"
+            className="mb-4 flex tablet:hidden"
             contextMenuId="post-widgets-context"
           />
         )}
@@ -130,7 +130,7 @@ export function PostContent({
           post={post}
         >
           <h1
-            className="my-6 font-bold break-words typo-large-title"
+            className="my-6 break-words font-bold typo-large-title"
             data-testid="post-modal-title"
           >
             <a
@@ -170,7 +170,7 @@ export function PostContent({
               target="_blank"
               rel="noopener"
               {...combinedClicks(onReadArticle)}
-              className="block overflow-hidden mb-10 rounded-2xl cursor-pointer"
+              className="mb-10 block cursor-pointer overflow-hidden rounded-2xl"
               style={{ maxWidth: '25.625rem' }}
             >
               <LazyImage
@@ -186,7 +186,7 @@ export function PostContent({
             <PostToc
               post={post}
               collapsible
-              className="flex laptop:hidden mt-2 mb-4"
+              className="mb-4 mt-2 flex laptop:hidden"
             />
           )}
         </BasePostContent>

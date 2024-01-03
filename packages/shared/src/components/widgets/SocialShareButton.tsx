@@ -36,7 +36,7 @@ export const SocialShareButton = ({
     } as ButtonProps<'a'>);
 
   return (
-    <div className="flex flex-col items-center w-16">
+    <div className="flex w-16 flex-col items-center">
       <Button
         {...buttonProps}
         {...props}

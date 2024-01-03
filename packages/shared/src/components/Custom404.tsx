@@ -11,15 +11,15 @@ interface Custom404Props {
 export default function Custom404({ children }: Custom404Props): ReactElement {
   return (
     <PageContainer
-      className="justify-center min-h-page !items-center"
+      className="min-h-page !items-center justify-center"
       data-testid="notFound"
     >
       {children}
-      <div className="flex flex-col gap-6 items-center w-full text-center max-w-[26.25rem]">
+      <div className="flex w-full max-w-[26.25rem] flex-col items-center gap-6 text-center">
         <NotFoundSvg />
-        <h1 className="font-bold typo-title1">Why you here?</h1>
-        <p className="typo-callout text-theme-label-tertiary">
-          Are you trying us? You’re not supposed to be here.
+        <h1 className="font-bold typo-large-title">Why are you here?</h1>
+        <p className="text-theme-label-tertiary typo-callout">
+          You’re not supposed to be here.
         </p>
         <Link href="/" passHref>
           <Button tag="a" variant={ButtonVariant.Primary}>
