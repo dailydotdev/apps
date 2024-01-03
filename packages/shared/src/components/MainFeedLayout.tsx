@@ -122,7 +122,6 @@ export default function MainFeedLayout({
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
-  const { shouldUseFeedLayoutV1 } = useFeedLayout({ feedName });
   const feedVersion = useFeature(feature.feedVersion);
   const searchVersion = useFeature(feature.search);
   const isV1Search = searchVersion === SearchExperiment.V1;
@@ -257,9 +256,10 @@ export default function MainFeedLayout({
   };
 
   const isBothLayoutV1 = shouldUseFeedLayoutV1 && isV1Search && !isFinder;
+  const FeedPageComponent = shouldUseFeedLayoutV1 ? FeedPageLayoutV1 : FeedPage;
 
   return (
-    <FeedPage className="relative">
+    <FeedPageComponent className="relative">
       {isV1Search && !isFinder && (
         <img
           className={classNames(

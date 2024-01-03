@@ -32,7 +32,7 @@ import {
 } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
-import { ActiveFeedContext } from '../../contexts';
+import { useActiveFeedNameContext } from '../../contexts';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -117,7 +117,7 @@ export const FeedContainer = ({
   const { trackEvent } = useAnalyticsContext();
   const { completeAction, checkHasCompleted } = useActions();
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
-  const { feedName } = useContext(ActiveFeedContext);
+  const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
   const searchValue = useFeature(feature.search);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
@@ -236,8 +236,8 @@ export const FeedContainer = ({
           <ConditionalWrapper
             condition={isV1Search && shouldUseFeedLayoutV1}
             wrapper={(child) => (
-              <div className="flex flex-col -mx-6 laptop:mx-0 mt-6 rounded-16 border border-theme-divider-tertiary">
-                <span className="flex flex-row justify-between items-center py-4 px-6 w-full">
+              <div className="-mx-6 mt-6 flex flex-col rounded-16 border border-theme-divider-tertiary laptop:mx-0">
+                <span className="flex w-full flex-row items-center justify-between px-6 py-4">
                   <strong className="typo-title3">
                     {feedNameToHeading[feedName] ?? ''}
                   </strong>

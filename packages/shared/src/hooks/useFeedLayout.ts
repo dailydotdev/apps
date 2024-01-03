@@ -16,9 +16,8 @@ interface UseFeedLayout {
 
 const checkShouldUseFeedLayoutV1 = (feedName: SharedFeedPage): boolean =>
   Object.values(SharedFeedPage)
-  .filter((feedPage) => feedPage !== SharedFeedPage.Search)
-  .includes(feedName) &&
-  feedName !== SharedFeedPage.Search;
+    .filter((feedPage) => feedPage !== SharedFeedPage.Search)
+    .includes(feedName) && feedName !== SharedFeedPage.Search;
 
 export const useFeedLayout = ({
   feedName: feedNameProp,
@@ -27,7 +26,10 @@ export const useFeedLayout = ({
   const name = (feedNameProp ?? feedName) as SharedFeedPage;
   const feedLayoutVersion = useFeature(feature.feedLayout);
   const isV1 = feedLayoutVersion === FeedLayout.V1;
-  const isIncludedFeed = useMemo(() => checkShouldUseFeedLayoutV1(name), [name]);
+  const isIncludedFeed = useMemo(
+    () => checkShouldUseFeedLayoutV1(name),
+    [name],
+  );
   const shouldUseFeedLayoutV1 = isV1 && isIncludedFeed;
 
   return {
