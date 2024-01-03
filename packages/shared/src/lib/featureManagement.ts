@@ -21,7 +21,7 @@ const feature = {
     title: 'Where developers grow together',
     description: 'Get one personalized feed for all the knowledge you need.',
   }),
-  feedLayout: new Feature('feed_layout', FeedLayout.Control), // TODO: revert after testing
+  feedLayout: new Feature('feed_layout', FeedLayout.Control),
   cardFeedbackCopy: new Feature('card_feedback_copy', 'Did you like the post?'),
 };
 
