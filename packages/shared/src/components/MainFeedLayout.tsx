@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
-import { FeedPage, FeedPageLayoutV1, SharedFeedPage } from './utilities';
+import { FeedPage, SharedFeedPage } from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
@@ -257,15 +257,14 @@ export default function MainFeedLayout({
   };
 
   const isValidV1Layout = shouldUseFeedLayoutV1 && isV1Search && !isFinder;
-  const FeedPageComponent = shouldUseFeedLayoutV1 ? FeedPageLayoutV1 : FeedPage;
 
   return (
-    <FeedPageComponent className="relative">
+    <FeedPage className="relative">
       {isV1Search && !isFinder && (
         <img
           className={classNames(
-            'absolute top-0 w-full max-w-[58.75rem]',
-            shouldUseFeedLayoutV1 ? 'left-1/2 -translate-x-1/2' : 'left-0',
+            'absolute left-0 top-0 w-full laptop:max-w-[58.75rem]',
+            shouldUseFeedLayoutV1 && 'laptop:left-1/2 laptop:-translate-x-1/2',
           )}
           src={getImage()}
           alt="Gradient background"
@@ -279,6 +278,6 @@ export default function MainFeedLayout({
         />
       )}
       {children}
-    </FeedPageComponent>
+    </FeedPage>
   );
 }
