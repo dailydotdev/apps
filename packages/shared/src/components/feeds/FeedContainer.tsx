@@ -176,7 +176,7 @@ export const FeedContainer = ({
       )}
     >
       <ScrollToTopButton />
-      <div className="flex w-full flex-col pt-2 laptopL:mx-auto" style={style}>
+      <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
         {!inlineHeader && header}
         <div
           className={classNames(

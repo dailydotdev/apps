@@ -259,7 +259,9 @@ export default function MainFeedLayout({
   const isValidV1Layout = shouldUseFeedLayoutV1 && isV1Search && !isFinder;
 
   return (
-    <FeedPage className="relative">
+    <FeedPage
+      className={classNames('relative', shouldUseFeedLayoutV1 && '!pt-2')}
+    >
       {isV1Search && !isFinder && (
         <img
           className={classNames(
