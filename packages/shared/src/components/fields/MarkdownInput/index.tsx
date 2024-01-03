@@ -276,6 +276,7 @@ function MarkdownInput(
               )}
               icon={icon}
               onClick={() => uploadRef?.current?.click()}
+              type="button"
             >
               {!sidebarRendered || shouldShowSubmit ? null : (
                 <MarkdownUploadLabel
@@ -312,6 +313,7 @@ function MarkdownInput(
                 size={actionButtonSizes}
                 icon={<LinkIcon secondary />}
                 onClick={onLinkCommand}
+                type="button"
               />
             )}
             {!!onMentionCommand && (
@@ -320,6 +322,7 @@ function MarkdownInput(
                 size={actionButtonSizes}
                 icon={<AtIcon />}
                 onClick={onMentionCommand}
+                type="button"
               />
             )}
             {showMarkdownGuide && (

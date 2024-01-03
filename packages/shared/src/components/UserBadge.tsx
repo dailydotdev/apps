@@ -8,6 +8,8 @@ export type UserBadgeProps = {
   content: ReactNode;
   Icon: FunctionComponent<IconProps>;
   iconProps?: IconProps;
+  removeMargins?: boolean;
+  disableResponsive?: boolean;
 };
 
 const UserBadge = ({
@@ -15,18 +17,25 @@ const UserBadge = ({
   content,
   Icon,
   iconProps,
+  removeMargins,
+  disableResponsive,
 }: UserBadgeProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
 
   return (
     <span
       className={classNames(
-        'ml-1 flex items-center font-bold capitalize typo-caption2 tablet:ml-2 tablet:gap-0.5 tablet:typo-footnote',
+        'flex items-center font-bold capitalize typo-caption2',
+        !removeMargins && 'ml-1 tablet:ml-2',
+        !disableResponsive && 'tablet:gap-0.5 tablet:typo-footnote',
         className,
       )}
     >
       {typeof Icon === 'function' && (
-        <Icon size={isMobile ? IconSize.XXSmall : undefined} {...iconProps} />
+        <Icon
+          size={isMobile || disableResponsive ? IconSize.XXSmall : undefined}
+          {...iconProps}
+        />
       )}
       {content}
     </span>

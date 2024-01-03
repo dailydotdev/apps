@@ -92,6 +92,9 @@ export function CommentMarkdownInput({
 
     const comments = generateQueryKey(RequestKey.PostComments, null, postId);
     client.setQueryData<PostCommentsData>(comments, (data) => {
+      if (!data) {
+        return data;
+      }
       const copy = cloneDeep(data);
 
       if (!editCommentId) {

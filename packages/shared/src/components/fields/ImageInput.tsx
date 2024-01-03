@@ -14,9 +14,10 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 import { ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import CloseButton from '../CloseButton';
 
-type Size = 'medium' | 'large';
+type Size = 'medium' | 'large' | 'cover';
 
 interface ClassName {
+  root?: string;
   container?: string;
   img?: string;
 }
@@ -43,10 +44,12 @@ export const MEGABYTE = 1024 * 1024;
 const componentSize: Record<Size, string> = {
   medium: 'w-24 h-24 rounded-26',
   large: 'w-40 h-40 rounded-[2.5rem]',
+  cover: 'w-full h-24 rounded-26',
 };
 const sizeToIconSize: Record<Size, IconSize> = {
   medium: IconSize.Small,
   large: IconSize.Medium,
+  cover: IconSize.Small,
 };
 export const ACCEPTED_TYPES = 'image/png,image/jpeg';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
@@ -108,7 +111,7 @@ function ImageInput({
   const onError = () => setImage(fallbackImage);
 
   return (
-    <div className="relative flex w-min">
+    <div className={classNames(className?.root || 'relative z-1 flex w-min')}>
       <button
         type="button"
         onClick={onClick}

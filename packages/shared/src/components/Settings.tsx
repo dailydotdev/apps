@@ -19,9 +19,9 @@ import { CustomSwitch } from './fields/CustomSwitch';
 import AuthContext from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import { checkIsExtension } from '../lib/func';
-import { FeedLayout } from '../lib/featureValues';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
+import { FeedLayout } from '../lib/featureValues';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
