@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import {
   desktop,
-  desktopL,
+  desktopXL,
   laptop,
   laptopL,
   laptopXL,
@@ -28,7 +28,7 @@ export const feedBreakpoints = [
   laptopL,
   laptopXL,
   desktop,
-  desktopL,
+  desktopXL,
 ];
 
 const baseFeedSettings: FeedContextData[] = [
@@ -88,77 +88,41 @@ const baseFeedSettings: FeedContextData[] = [
   },
 ];
 
-const sidebarOpenFeedSettings: FeedContextData[] = [
-  {
-    pageSize: 7,
-    adSpot: 2,
-    numCards: {
-      cozy: 1,
-      eco: 1,
-      roomy: 1,
-    },
-  },
-  {
-    pageSize: 9,
-    adSpot: 0,
-    numCards: {
-      eco: 2,
-      roomy: 2,
-      cozy: 1,
-    },
-  },
-  {
-    pageSize: 13,
-    adSpot: 0,
-    numCards: {
-      eco: 3,
-      roomy: 2,
-      cozy: 2,
-    },
-  },
-  {
-    pageSize: 17,
-    adSpot: 0,
-    numCards: {
-      eco: 4,
-      roomy: 3,
-      cozy: 3,
-    },
-  },
-  {
-    pageSize: 21,
-    adSpot: 0,
-    numCards: {
-      eco: 5,
-      roomy: 4,
-      cozy: 3,
-    },
-  },
-  {
-    pageSize: 25,
-    adSpot: 0,
-    numCards: {
-      eco: 6,
-      roomy: 5,
-      cozy: 4,
-    },
-  },
-];
-
 const reversedBreakpoints = feedBreakpoints
   .map((media) => media.replace('@media ', ''))
   .reverse();
 
-const reversedSettings = baseFeedSettings.reverse();
-const reversedSettingsSidebar = sidebarOpenFeedSettings.reverse();
+const digitsRegex = /\d+/;
 
-const determineFeedSettings = ({
+const replaceDigitsWithIncrement = (str: string, increment: number): string => {
+  const match = str.match(digitsRegex);
+  if (!match) {
+    return str;
+  }
+  return str.replace(match[0], `${parseInt(match[0]) + increment}`);
+};
+
+const sidebarRenderedWidth = 44;
+const reversedBreakpointsSidebarRendered = reversedBreakpoints.map(
+  (breakpoint) => replaceDigitsWithIncrement(breakpoint, sidebarRenderedWidth),
+);
+
+const sidebarOpenWidth = 240;
+const reversedBreakpointsSidebarOpen = reversedBreakpoints.map((breakpoint) =>
+  replaceDigitsWithIncrement(breakpoint, sidebarOpenWidth),
+);
+
+const reversedSettings = baseFeedSettings.reverse();
+
+const determineBreakPoints = ({
   sidebarExpanded,
   sidebarRendered,
-}: DetermineFeedSettingsProps): FeedContextData[] => {
-  return sidebarExpanded && sidebarRendered
-    ? reversedSettingsSidebar
-    : reversedSettings;
+}: DetermineFeedSettingsProps): string[] => {
+  return sidebarRendered
+    ? sidebarExpanded
+      ? reversedBreakpointsSidebarOpen
+      : reversedBreakpointsSidebarRendered
+    : reversedBreakpoints;
 };
 
 export default function FeedLayout({
@@ -166,9 +130,10 @@ export default function FeedLayout({
 }: FeedLayoutProps): ReactElement {
   const { sidebarExpanded } = useContext(SettingsContext);
   const { sidebarRendered } = useSidebarRendered();
+
   const currentSettings = useMedia(
-    reversedBreakpoints,
-    determineFeedSettings({ sidebarExpanded, sidebarRendered }),
+    determineBreakPoints({ sidebarExpanded, sidebarRendered }),
+    reversedSettings,
     defaultFeedContextData,
   );
 
