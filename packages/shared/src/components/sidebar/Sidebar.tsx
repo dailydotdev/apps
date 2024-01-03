@@ -12,7 +12,6 @@ import {
 import AlertContext from '../../contexts/AlertContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import AuthContext from '../../contexts/AuthContext';
-import { getFeedName } from '../MainFeedLayout';
 import { ProfilePicture } from '../ProfilePicture';
 import {
   SquadSection,
@@ -24,6 +23,7 @@ import {
   SidebarBottomSection,
   ManageSection,
 } from './index';
+import { getFeedName } from '../../lib/feed';
 
 const UserSettingsModal = dynamic(
   () =>
