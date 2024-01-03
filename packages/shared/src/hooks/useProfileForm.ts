@@ -1,4 +1,3 @@
-import { GraphQLError } from 'graphql-request/dist/types';
 import request from 'graphql-request';
 import { useCallback, useContext, useState } from 'react';
 import { UseMutateFunction, useMutation } from '@tanstack/react-query';
@@ -11,7 +10,7 @@ import {
 import { graphqlUrl } from '../lib/config';
 import { LoggedUser, UserProfile } from '../lib/user';
 import { useToastNotification } from './useToastNotification';
-import { errorMessage } from '../graphql/common';
+import { errorMessage, ResponseError } from '../graphql/common';
 
 export interface ProfileFormHint {
   portfolio?: string;
@@ -20,15 +19,6 @@ export interface ProfileFormHint {
   github?: string;
   hashnode?: string;
   name?: string;
-}
-
-interface MutationError {
-  data: unknown;
-  errors: GraphQLError[];
-}
-
-interface ResponseError {
-  response: MutationError;
 }
 
 export interface UpdateProfileParameters extends Partial<UserProfile> {

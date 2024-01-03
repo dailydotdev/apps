@@ -1,6 +1,6 @@
 import React, { CSSProperties, ReactElement, ReactNode, useMemo } from 'react';
 import { addDays, differenceInDays, endOfWeek } from 'date-fns';
-import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
+import { SimpleTooltip } from './tooltips/SimpleTooltip';
 
 const BINS = 3;
 const DAYS_IN_WEEK = 7;
@@ -83,7 +83,7 @@ export type CalendarHeatmapProps<T extends { date: string }> = {
   valueToTooltip: (value: T, date: Date) => ReactNode;
 };
 
-export default function CalendarHeatmap<T extends { date: string }>({
+export function CalendarHeatmap<T extends { date: string }>({
   startDate,
   endDate,
   gutterSize = 2,

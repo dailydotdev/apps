@@ -15,6 +15,7 @@ export enum Origin {
   BlockedFilter = 'blocked filter',
   SourcePage = 'source page',
   TagPage = 'tag page',
+  Profile = 'profile',
   // squads - start
   SquadDirectory = 'squad directory',
   SquadCreation = 'squad creation',
