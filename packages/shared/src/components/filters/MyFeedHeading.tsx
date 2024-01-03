@@ -73,30 +73,20 @@ function MyFeedHeading({
         ? AlertPlacement.Right
         : AlertPlacement.Bottom,
   };
-
-  if (searchVersion === SearchExperiment.V1) {
-    return (
-      <AlertPointer {...alertProps} offset={[0, 0]}>
-        <Button
-          size={shouldUseFeedLayoutV1 ? ButtonSize.Small : ButtonSize.Medium}
-          variant={ButtonVariant.Float}
-          className={classNames(
-            'mr-auto',
-            shouldShowHighlightPulse && 'highlight-pulse',
-          )}
-          onClick={onClick}
-          icon={<FilterIcon />}
-        >
-          Feed settings
-        </Button>
-      </AlertPointer>
-    );
-  }
+  const isV1Search = searchVersion === SearchExperiment.V1;
 
   return (
-    <AlertPointer {...alertProps}>
+    <AlertPointer
+      {...alertProps}
+      offset={isV1Search ? [0, 0] : alertProps.offset}
+    >
       <Button
-        variant={ButtonVariant.Tertiary}
+        size={shouldUseFeedLayoutV1 ? ButtonSize.Small : ButtonSize.Medium}
+        variant={
+          isV1Search || shouldUseFeedLayoutV1
+            ? ButtonVariant.Float
+            : ButtonVariant.Tertiary
+        }
         className={classNames(
           'mr-auto',
           shouldShowHighlightPulse && 'highlight-pulse',

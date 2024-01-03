@@ -206,6 +206,7 @@ export const FeedContainer = ({
                 className={{
                   container: classNames(
                     'flex w-full max-w-2xl flex-1',
+                    shouldUseFeedLayoutV1 && 'mt-6',
                     shouldShowPulse && 'highlight-pulse',
                   ),
                   field: 'w-full',
@@ -232,9 +233,9 @@ export const FeedContainer = ({
               )}
             </span>
           )}
-          {isV1Search && shouldUseFeedLayoutV1 && shortcuts}
+          {shouldUseFeedLayoutV1 && shortcuts}
           <ConditionalWrapper
-            condition={isV1Search && shouldUseFeedLayoutV1}
+            condition={shouldUseFeedLayoutV1}
             wrapper={(child) => (
               <div className="-mx-6 mt-6 flex flex-col rounded-16 border border-theme-divider-tertiary laptop:mx-0">
                 <span className="flex w-full flex-row items-center justify-between px-6 py-4">

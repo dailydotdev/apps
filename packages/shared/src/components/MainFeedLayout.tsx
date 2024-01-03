@@ -214,12 +214,13 @@ export default function MainFeedLayout({
       query: query.query,
       variables,
       emptyScreen: <FeedEmptyScreen />,
-      header: searchVersion === SearchExperiment.Control && !isSearchOn && (
-        <SearchControlHeader {...searchProps} navChildren={navChildren} />
-      ),
-      actionButtons: isV1Search && feedWithActions && (
-        <SearchControlHeader {...searchProps} />
-      ),
+      header: searchVersion === SearchExperiment.Control &&
+        !isSearchOn &&
+        !shouldUseFeedLayoutV1 && (
+          <SearchControlHeader {...searchProps} navChildren={navChildren} />
+        ),
+      actionButtons: (isV1Search || shouldUseFeedLayoutV1) &&
+        feedWithActions && <SearchControlHeader {...searchProps} />,
       shortcuts,
     };
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
@@ -255,7 +256,7 @@ export default function MainFeedLayout({
     return isLaptop ? cloudinary.feed.bg.laptop : cloudinary.feed.bg.tablet;
   };
 
-  const isBothLayoutV1 = shouldUseFeedLayoutV1 && isV1Search && !isFinder;
+  const isValidV1Layout = shouldUseFeedLayoutV1 && isV1Search && !isFinder;
   const FeedPageComponent = shouldUseFeedLayoutV1 ? FeedPageLayoutV1 : FeedPage;
 
   return (
@@ -274,7 +275,7 @@ export default function MainFeedLayout({
       {feedProps && (
         <Feed
           {...feedProps}
-          className={isBothLayoutV1 && 'laptop:!max-w-[36.5rem]'}
+          className={isValidV1Layout && 'laptop:!max-w-[36.5rem]'}
         />
       )}
       {children}

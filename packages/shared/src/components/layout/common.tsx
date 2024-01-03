@@ -26,6 +26,7 @@ import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 import { useFeedName } from '../../hooks/feed/useFeedName';
+import { useFeedLayout } from '../../hooks';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -71,6 +72,7 @@ export const SearchControlHeader = ({
   const { openModal } = useLazyModal();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const openFeedFilters = () =>
     openModal({ type: LazyModal.FeedFilters, persistOnRouteChange: true });
 
@@ -89,7 +91,7 @@ export const SearchControlHeader = ({
     [SharedFeedPage.Discussed]: <FeedHeading children="Best discussions" />,
   };
 
-  if (searchVersion === SearchExperiment.V1) {
+  if (searchVersion === SearchExperiment.V1 || shouldUseFeedLayoutV1) {
     const dropdownProps: Partial<DropdownProps> = {
       className: { label: 'hidden', chevron: 'hidden', button: '!px-0' },
       dynamicMenuWidth: true,
