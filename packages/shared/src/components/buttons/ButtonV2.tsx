@@ -88,10 +88,10 @@ function ButtonComponent<TagName extends AllowedTags>(
       aria-pressed={pressed}
       ref={ref}
       className={classNames(
-        `btn inline-flex flex-row items-center justify-center border
-        typo-callout font-bold
-        no-underline shadow-none cursor-pointer select-none focus-outline
-        transition duration-200 ease-in-out`,
+        `btn shadow-none focus-outline inline-flex cursor-pointer select-none
+        flex-row items-center
+        justify-center border font-bold no-underline transition
+        duration-200 ease-in-out typo-callout`,
         { iconOnly },
         iconOnly ? IconOnlySizeToClassName[size] : SizeToClassName[size],
         !color && VariantToClassName[variant],
@@ -107,10 +107,7 @@ function ButtonComponent<TagName extends AllowedTags>(
         iconPosition === ButtonIconPosition.Right &&
         getIconWithSize(icon)}
       {loading && (
-        <Loader
-          data-testid="buttonLoader"
-          className="absolute inset-0 m-auto !visible"
-        />
+        <Loader data-testid="buttonLoader" className="absolute m-auto" />
       )}
     </Tag>
   );

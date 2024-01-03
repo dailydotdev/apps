@@ -39,7 +39,7 @@ export const PostCardHeader = ({
       <SourceButton source={source} />
       {children}
       <Container
-        className="flex flex-row ml-auto"
+        className="ml-auto flex flex-row"
         data-testid="cardHeaderActions"
       >
         {!isFeedPreview && (

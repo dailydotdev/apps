@@ -60,8 +60,8 @@ export default function PostModal({
         onRemovePost={onRemovePost}
         className={{
           fixedNavigation: { container: '!w-[inherit]', actions: 'ml-auto' },
-          navigation: { actions: 'tablet:hidden ml-auto' },
-          onboarding: 'mt-8 mb-0',
+          navigation: { actions: 'ml-auto tablet:hidden' },
+          onboarding: 'mb-0 mt-8',
         }}
       />
     </BasePostModal>

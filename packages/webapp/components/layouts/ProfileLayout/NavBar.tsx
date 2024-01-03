@@ -1,11 +1,6 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import dynamicParent, {
-  DynamicParentPlaceholder,
-} from '@dailydotdev/shared/src/lib/dynamicParent';
-import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import {
   Button,
@@ -15,29 +10,25 @@ import {
 import classNames from 'classnames';
 import styles from './NavBar.module.css';
 
-const flipperLoader = () =>
-  import(/* webpackChunkName: "reactFlip" */ 'react-flip-toolkit');
-
-const Flipper = dynamicParent(
-  () => flipperLoader().then((mod) => mod.Flipper),
-  DynamicParentPlaceholder,
-);
-const Flipped = dynamicParent(
-  () => flipperLoader().then((mod) => mod.Flipped),
-  DynamicParentPlaceholder,
-);
-
 export type Tab = { path: string; title: string };
 
 const basePath = `/[userId]`;
 export const tabs: Tab[] = [
   {
     path: basePath,
-    title: 'Activity',
+    title: 'Readme',
   },
   {
-    path: `${basePath}/reputation`,
-    title: 'Reputation',
+    path: `${basePath}/posts`,
+    title: 'Posts',
+  },
+  {
+    path: `${basePath}/replies`,
+    title: 'Replies',
+  },
+  {
+    path: `${basePath}/upvoted`,
+    title: 'Upvoted',
   },
 ];
 
@@ -50,37 +41,33 @@ export default function NavBar({
   selectedTab,
   profile,
 }: NavBarProps): ReactElement {
-  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const getTabHref = (tab: Tab) =>
     tab.path.replace('[userId]', profile.username || profile.id);
 
   return (
-    <Flipper
-      flipKey={selectedTab}
-      spring="veryGentle"
-      element="nav"
-      shouldLoad={windowLoaded}
-      className={classNames('relative flex mt-6 -mx-6', styles.nav)}
+    <div
+      className={classNames(
+        'sticky top-12 z-3 -mt-px flex justify-around bg-theme-bg-primary tablet:top-14 tablet:justify-start',
+        styles.nav,
+      )}
     >
       {tabs.map((tab, index) => (
         <div key={tab.path}>
-          <Link href={getTabHref(tab)} passHref>
+          <Link href={getTabHref(tab)} passHref scroll={false}>
             <Button
               tag="a"
-              size={ButtonSize.Large}
+              size={ButtonSize.Medium}
               pressed={selectedTab === index}
               variant={ButtonVariant.Tertiary}
             >
               {tab.title}
             </Button>
           </Link>
-          <Flipped flipId="activeTabIndicator" shouldLoad={windowLoaded}>
-            {selectedTab === index && (
-              <ActiveTabIndicator className="bottom-0 w-4" />
-            )}
-          </Flipped>
+          {selectedTab === index && (
+            <ActiveTabIndicator className="bottom-0 w-4" />
+          )}
         </div>
       ))}
-    </Flipper>
+    </div>
   );
 }

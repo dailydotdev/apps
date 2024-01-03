@@ -13,7 +13,7 @@ export const ListItemPlaceholder = ({
 }: ListItemPlaceholderProps): ReactElement => (
   <article
     aria-busy
-    className={classNames('flex relative flex-col items-start', padding)}
+    className={classNames('relative flex flex-col items-start', padding)}
   >
     <TextPlaceholder className={classNames('w-4/5', textClassName)} />
     <TextPlaceholder className={classNames('w-4/5', textClassName)} />

@@ -40,7 +40,7 @@ export function FilterOnboarding({
   return (
     <div
       className={classNames(
-        'grid gap-4 w-fit tablet:w-full tablet:grid-cols-3 grid-cols-2',
+        'grid w-fit grid-cols-2 gap-4 tablet:w-full tablet:grid-cols-3',
         className,
       )}
     >

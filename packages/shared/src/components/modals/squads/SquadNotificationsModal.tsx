@@ -141,10 +141,10 @@ export function SquadNotificationsModal({
             Notify me about new members
           </Switch>
         )}
-        <p className="typo-callout text-theme-label-tertiary">
+        <p className="text-theme-label-tertiary typo-callout">
           For more options, go to your
           <a
-            className="ml-1 underline hover:no-underline text-theme-label-link"
+            className="ml-1 text-theme-label-link underline hover:no-underline"
             href="/account/notifications"
           >
             notifications settings

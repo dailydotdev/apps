@@ -21,10 +21,10 @@ const ChecklistCard = ({
 
   return (
     <div className={className}>
-      <Card className="rounded-14 !p-0 !border-theme-color-cabbage hover:!border-theme-color-cabbage w-[340px]">
-        <div className="overflow-hidden relative p-4 bg-gradient-to-t from-cabbage-90 to-cabbage-50 rounded-t-12">
+      <Card className="w-[340px] rounded-14 !border-theme-color-cabbage !p-0 hover:!border-theme-color-cabbage">
+        <div className="relative overflow-hidden rounded-t-12 bg-gradient-to-t from-cabbage-90 to-cabbage-50 p-4">
           {isDone && (
-            <RankConfetti className="absolute top-0 right-0 bottom-0 left-0 opacity-40" />
+            <RankConfetti className="absolute bottom-0 left-0 right-0 top-0 opacity-40" />
           )}
           <p className="mb-1 font-bold text-white typo-body">{title}</p>
           <p className="text-white typo-callout">{description}</p>
@@ -37,13 +37,13 @@ const ChecklistCard = ({
               onClick={onRequestClose}
             />
           )}
-          <div className="flex gap-2 mt-6">
+          <div className="mt-6 flex gap-2">
             {steps.map((step) => {
               return (
                 <div
                   key={step.action.type}
                   className={classNames(
-                    'w-12 h-3 bg-white rounded-6',
+                    'h-3 w-12 rounded-6 bg-white',
                     !step.action.completedAt && 'opacity-24',
                   )}
                   data-testid={

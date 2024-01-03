@@ -25,7 +25,7 @@ export const PaginationActions = ({
   onPrevious,
 }: PaginationActionsProps): ReactElement => {
   return (
-    <div className="hidden laptop:flex justify-between items-center p-3 border-t border-theme-divider-tertiary">
+    <div className="hidden items-center justify-between border-t border-theme-divider-tertiary p-3 laptop:flex">
       <p className="ml-1 text-theme-label-tertiary typo-callout">
         {current}/{max}
       </p>
@@ -62,7 +62,7 @@ export const InfinitePaginationActions = ({
   onPrevious,
 }: InfinitePaginationActionsProps): ReactElement => {
   return (
-    <div className="flex justify-end items-center p-3 border-t border-theme-divider-tertiary">
+    <div className="flex items-center justify-end border-t border-theme-divider-tertiary p-3">
       <Button
         {...buttonProps}
         icon={<ArrowIcon className="-rotate-90" />}

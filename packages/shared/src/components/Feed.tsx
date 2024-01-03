@@ -60,6 +60,7 @@ export interface FeedProps<T>
   allowPin?: boolean;
   showSearch?: boolean;
   actionButtons?: ReactNode;
+  disableAds?: boolean;
 }
 
 interface RankVariables {
@@ -116,6 +117,7 @@ export default function Feed<T>({
   showSearch = true,
   shortcuts,
   actionButtons,
+  disableAds,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { trackEvent } = useContext(AnalyticsContext);
@@ -131,7 +133,7 @@ export default function Feed<T>({
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
-  const { shouldUseFeedLayoutV1 } = useFeedLayout({ feedName });
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
     useFeed(
       feedQueryKey,
@@ -142,16 +144,18 @@ export default function Feed<T>({
         query,
         variables,
         options,
-        ...(isSquadFeed && { settings: { adPostLength: 2 } }),
+        settings: {
+          disableAds,
+          adPostLength: isSquadFeed ? 2 : undefined,
+        },
       },
     );
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
       items,
-      feedName,
     };
-  }, [feedQueryKey, items, feedName]);
+  }, [feedQueryKey, items]);
 
   const { ranking } = (variables as RankVariables) || {};
   const {

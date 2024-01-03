@@ -12,13 +12,13 @@ export function WritePostHeader({
   const { squad } = useWritePostContext();
 
   return (
-    <header className="flex flex-row items-center py-4 px-6 h-14 border-b border-theme-divider-tertiary">
+    <header className="flex h-14 flex-row items-center border-b border-theme-divider-tertiary px-6 py-4">
       <h1 className="font-bold typo-title3">{isEdit ? 'Edit' : 'New'} post</h1>
       {squad && (
         <>
-          <div className="flex flex-col ml-auto text-right">
-            <span className="font-bold text typo-subhead">{squad.name}</span>
-            <span className="typo-caption1 text-theme-label-tertiary">
+          <div className="ml-auto flex flex-col text-right">
+            <span className="text font-bold typo-subhead">{squad.name}</span>
+            <span className="text-theme-label-tertiary typo-caption1">
               @{squad.handle}
             </span>
           </div>

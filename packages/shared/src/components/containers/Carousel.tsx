@@ -92,7 +92,7 @@ function Carousel({
           key={i}
           style={{ transform: `translateX(${-index * 100}%)` }}
           className={classNames(
-            'w-[inherit] transform ease-in-out duration-500',
+            'w-[inherit] transform duration-500 ease-in-out',
             className?.item,
           )}
         >

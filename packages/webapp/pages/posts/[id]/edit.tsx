@@ -110,14 +110,14 @@ function EditPost(): ReactElement {
           <ShareLink
             post={post}
             squad={squad}
-            className="py-6 px-4"
+            className="px-4 py-6"
             onPostSuccess={() => {
               onAskConfirmation(false);
               push(squad.permalink);
             }}
           />
         ) : (
-          <WriteFreeformContent className="py-6 px-4" />
+          <WriteFreeformContent className="px-4 py-6" />
         )}
       </WritePage>
     </WritePostContext.Provider>

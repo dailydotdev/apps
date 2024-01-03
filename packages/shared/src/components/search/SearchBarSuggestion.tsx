@@ -78,7 +78,7 @@ export const SearchBarSuggestion = ({
       icon={<AiIcon />}
       buttonSize={ButtonSize.Medium}
       className={classNames(
-        'btn-secondary border-theme-divider-tertiary typo-subhead text-theme-label-tertiary w-fit !h-auto min-h-[2.5rem]',
+        'btn-secondary !h-auto min-h-[2.5rem] w-fit border-theme-divider-tertiary text-theme-label-tertiary typo-subhead',
         className,
       )}
       onClick={handleSuggestionsClick}

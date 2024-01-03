@@ -2,7 +2,7 @@ import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
 import classNames from 'classnames';
 import { CardButton, FreeformCardTitle, getPostClassNames } from './Card';
 import ActionButtons from './ActionButtons';
-import { Container, PostCardProps } from './common';
+import { Container, generateTitleClamp, PostCardProps } from './common';
 import OptionsButton from '../buttons/OptionsButton';
 import { WelcomePostCardFooter } from './WelcomePostCardFooter';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
@@ -12,6 +12,7 @@ import FeedItemContainer from './FeedItemContainer';
 import { PostType } from '../../graphql/posts';
 import { useFeedPreviewMode } from '../../hooks';
 import { SquadPostCardHeader } from './common/SquadPostCardHeader';
+import { usePostImage } from '../../hooks/post/usePostImage';
 
 export const WelcomePostCard = forwardRef(function SharePostCard(
   {
@@ -35,7 +36,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
-
+  const image = usePostImage(post);
   const { openStep, isChecklistVisible } = useSquadChecklist({
     squad: post.source as Squad,
   });
@@ -46,14 +47,6 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     [ActionType.SquadFirstComment, ActionType.EditWelcomePost].includes(
       openStep,
     );
-
-  const clamp = (() => {
-    if (post.image) {
-      return 'line-clamp-3';
-    }
-
-    return post.contentHtml ? 'line-clamp-4' : 'line-clamp-9';
-  })();
 
   return (
     <FeedItemContainer
@@ -74,7 +67,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       )}
 
       <OptionsButton
-        className="group-hover:flex laptop:hidden absolute top-2 right-2"
+        className="absolute right-2 top-2 group-hover:flex laptop:hidden"
         onClick={(event) => onMenuClick?.(event, post)}
         tooltipPlacement="top"
       />
@@ -86,14 +79,17 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       />
       <FreeformCardTitle
         className={classNames(
-          clamp,
+          generateTitleClamp({
+            hasImage: !!image,
+            hasHtmlContent: !!post.contentHtml,
+          }),
           'px-2 font-bold !text-theme-label-primary typo-title3',
         )}
       >
         {post.title}
       </FreeformCardTitle>
       <Container ref={containerRef}>
-        <WelcomePostCardFooter post={post} />
+        <WelcomePostCardFooter image={image} contentHtml={post.contentHtml} />
         <ActionButtons
           openNewTab={openNewTab}
           post={post}

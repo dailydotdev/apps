@@ -23,7 +23,7 @@ const Title = ({
       {...rest}
       className={classNames(
         styles.title,
-        'font-bold text-theme-label-primary multi-truncate typo-title3',
+        'multi-truncate font-bold text-theme-label-primary typo-title3',
         lineClamp,
         className,
       )}
@@ -51,7 +51,7 @@ export const CardSpace = classed('div', 'flex-1');
 
 const clickableCardClasses = classNames(
   styles.link,
-  'absolute inset-0 w-full h-full focus-outline',
+  'focus-outline absolute inset-0 h-full w-full',
 );
 
 export const CardButton = classed('button', clickableCardClasses);

@@ -28,6 +28,7 @@ export function CustomLinks({
     <div
       className={classNames(
         'hidden laptop:flex flex-row gap-2 p-2 rounded-14 border border-theme-divider-secondary h-fit',
+        'hidden h-fit flex-row gap-2 rounded-14 border border-theme-divider-secondary p-2 laptop:flex',
         className,
       )}
     >
@@ -36,7 +37,7 @@ export function CustomLinks({
           href={url}
           rel="noopener noreferrer"
           className={classNames(
-            'focus-outline w-8 h-8 rounded-lg overflow-hidden bg-white',
+            'focus-outline h-8 w-8 overflow-hidden rounded-lg bg-white',
             i >= 4 && 'hidden laptopL:block',
           )}
           key={url}
@@ -47,7 +48,7 @@ export function CustomLinks({
               url,
             )}&size=32`}
             alt={url}
-            className="w-full h-full"
+            className="h-full w-full"
           />
         </a>
       ))}

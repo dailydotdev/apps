@@ -59,8 +59,8 @@ function LastActionButton(props: LastActionButtonProps) {
   return (
     <SimpleTooltip content="Share post">
       <Button
-        icon={<ShareIcon />}
         size={ButtonSize.Small}
+        icon={<ShareIcon />}
         onClick={onClickShare}
         variant={ButtonVariant.Tertiary}
         color={ButtonColor.Cabbage}

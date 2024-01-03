@@ -20,6 +20,8 @@ export enum OtherFeedPage {
   Bookmarks = 'bookmarks',
   SearchBookmarks = 'search-bookmarks',
   Preview = 'preview',
+  Author = 'author',
+  UserUpvoted = 'user-upvoted',
 }
 
 const ONE_MINUTE = 60 * 1000;
@@ -80,6 +82,10 @@ export enum RequestKey {
   Comment = 'comment',
   SquadTour = 'squad_tour',
   RelatedPosts = 'related_posts',
+  PublicSourceMemberships = 'public_source_memberships',
+  ReadingStats = 'reading_stats',
+  UserComments = 'user_comments',
+  Readme = 'readme',
 }
 
 export type HasConnection<

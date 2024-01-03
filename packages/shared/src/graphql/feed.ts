@@ -1,8 +1,5 @@
 import { gql } from 'graphql-request';
-import {
-  SHARED_POST_INFO_FRAGMENT,
-  SOURCE_SHORT_INFO_FRAGMENT,
-} from './fragments';
+import { SHARED_POST_INFO_FRAGMENT } from './fragments';
 import { Post, PostType } from './posts';
 import { Connection } from './common';
 
@@ -261,6 +258,7 @@ export const SEARCH_POSTS_QUERY = gql`
 
 export const AUTHOR_FEED_QUERY = gql`
   query AuthorFeed(
+    $loggedIn: Boolean! = false
     $userId: ID!,
     $after: String,
     $first: Int
@@ -273,29 +271,31 @@ export const AUTHOR_FEED_QUERY = gql`
       ranking: TIME
       supportedTypes: $supportedTypes
     ) {
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        node {
-          id
-          title
-          commentsPermalink
-          image
-          source {
-            ...SourceShortInfo
-          }
-          numUpvotes
-          numComments
-          views
-          isAuthor
-          isScout
-        }
-      }
+      ...FeedPostConnection
     }
   }
-  ${SOURCE_SHORT_INFO_FRAGMENT}
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
+export const USER_UPVOTED_FEED_QUERY = gql`
+  query UpvotedFeed(
+    $loggedIn: Boolean! = false
+    $userId: ID!,
+    $after: String,
+    $first: Int
+  ${SUPPORTED_TYPES}
+  ) {
+    page: userUpvotedFeed(
+      userId: $userId
+      after: $after
+      first: $first
+      ranking: TIME
+      supportedTypes: $supportedTypes
+    ) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
 export const KEYWORD_FEED_QUERY = gql`

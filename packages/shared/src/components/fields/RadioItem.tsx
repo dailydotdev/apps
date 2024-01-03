@@ -26,28 +26,28 @@ export function RadioItem({
           { [styles.checked]: checked },
           disabled
             ? 'text-theme-label-disabled'
-            : 'text-theme-label-tertiary pointer hover:text-theme-label-primary focus-within:text-theme-label-primary cursor-pointer',
-          'relative flex flex-row items-center typo-footnote font-bold select-none pr-3',
+            : 'pointer cursor-pointer text-theme-label-tertiary focus-within:text-theme-label-primary hover:text-theme-label-primary',
+          'relative flex select-none flex-row items-center pr-3 font-bold typo-footnote',
           className,
         )}
         htmlFor={id}
       >
         <input
           type="radio"
-          className="absolute w-0 h-0 opacity-0"
+          className="absolute h-0 w-0 opacity-0"
           checked={checked}
           disabled={disabled}
           {...props}
         />
         <span
           className={classNames(
-            'w-8 h-8 p-1.5 rounded-10 mr-1.5',
+            'mr-1.5 h-8 w-8 rounded-10 p-1.5',
             !disabled && styles.checkmark,
           )}
         >
           <span
             className={classNames(
-              'w-full h-full flex rounded-full border-2 ',
+              'flex h-full w-full rounded-full border-2 ',
               !disabled && 'border-theme-label-tertiary',
               styles.innerRing,
             )}

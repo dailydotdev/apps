@@ -53,7 +53,7 @@ const Image = (props: SourceAuthorProps) => {
         }}
       >
         <StyledImage
-          className="rounded-full cursor-pointer"
+          className="cursor-pointer rounded-full"
           imgSrc={image}
           imgAlt={name}
           background="var(--theme-background-secondary)"
@@ -82,7 +82,7 @@ const UserHighlight = (props: SourceAuthorProps) => {
   const userTypeNotSource = userType !== 'source';
 
   return (
-    <div className="flex relative flex-row p-3">
+    <div className="relative flex flex-row p-3">
       <ConditionalWrapper
         condition={userTypeNotSource}
         wrapper={(children) => (
@@ -99,7 +99,7 @@ const UserHighlight = (props: SourceAuthorProps) => {
         <Icon
           secondary
           className={classNames(
-            'absolute w-5 h-5 top-10 left-10',
+            'absolute left-10 top-10 h-5 w-5',
             userType === 'author'
               ? 'text-theme-color-cheese'
               : 'text-theme-color-bun',
@@ -114,13 +114,13 @@ const UserHighlight = (props: SourceAuthorProps) => {
           </ProfileTooltip>
         )}
       >
-        <div className="flex flex-col ml-4">
+        <div className="ml-4 flex flex-col">
           <ProfileLink className="font-bold typo-callout" href={permalink}>
             {name}
           </ProfileLink>
           {(handle || username || id) && (
             <ProfileLink
-              className="mt-0.5 typo-footnote text-theme-label-tertiary"
+              className="mt-0.5 text-theme-label-tertiary typo-footnote"
               href={permalink}
             >
               @{handle || username || id}

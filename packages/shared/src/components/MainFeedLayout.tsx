@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
-import { FeedPage, SharedFeedPage } from './utilities';
+import { FeedPage, FeedPageLayoutV1, SharedFeedPage } from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
@@ -38,6 +38,7 @@ import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
 import { FeedContainerProps } from './feeds';
+import { getFeedName } from '../lib/feed';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -103,36 +104,6 @@ const getQueryBasedOnLogin = (
 
 const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
 
-interface GetDefaultFeedProps {
-  hasFiltered?: boolean;
-  hasUser?: boolean;
-}
-
-const getDefaultFeed = ({ hasUser }: GetDefaultFeedProps): SharedFeedPage => {
-  if (!hasUser) {
-    return SharedFeedPage.Popular;
-  }
-
-  return SharedFeedPage.MyFeed;
-};
-
-const defaultFeedConditions = [null, 'default', '/', ''];
-
-export const getFeedName = (
-  path: string,
-  options: GetDefaultFeedProps = {},
-): SharedFeedPage => {
-  const feed = path?.replaceAll?.('/', '') || '';
-
-  if (defaultFeedConditions.some((condition) => condition === feed)) {
-    return getDefaultFeed(options);
-  }
-
-  const [page] = feed.split('?');
-
-  return page.replace(/^\/+/, '') as SharedFeedPage;
-};
-
 export default function MainFeedLayout({
   feedName: feedNameProp,
   searchQuery,
@@ -156,6 +127,7 @@ export default function MainFeedLayout({
   const searchVersion = useFeature(feature.search);
   const isV1Search = searchVersion === SearchExperiment.V1;
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
 
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
@@ -306,6 +278,6 @@ export default function MainFeedLayout({
         />
       )}
       {children}
-    </FeedPage>
+    </FeedPageComponent>
   );
 }
