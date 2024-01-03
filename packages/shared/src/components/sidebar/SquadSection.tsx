@@ -45,6 +45,9 @@ export function SquadSection(props: SectionCommonProps): ReactElement {
         ),
       title: name,
       path: permalink,
+      className: {
+        text: '!block',
+      },
     });
   });
 
