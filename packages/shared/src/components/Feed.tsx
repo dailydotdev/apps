@@ -261,7 +261,9 @@ export default function Feed<T>({
     await onPostClick(post, index, row, column, {
       skipPostUpdate: true,
     });
-    onPostModalOpen(index);
+    if (!shouldUseFeedLayoutV1) {
+      onPostModalOpen(index);
+    }
   };
 
   let lastShareMenuCloseTrackEvent = () => {};

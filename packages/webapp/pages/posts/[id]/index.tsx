@@ -47,6 +47,10 @@ import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Link from 'next/link';
 import { CollectionPostContent } from '@dailydotdev/shared/src/components/post/collection';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { FeedLayout } from '@dailydotdev/shared/src/lib/featureValues';
+import { PostBackButton } from '@dailydotdev/shared/src/components/post/common/PostBackButton';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -88,6 +92,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
+  const layout = useFeature(feature.feedLayout);
   const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = router;
   useWindowEvents(
@@ -154,16 +159,28 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   ) : (
     <SquadPostPageNavigation squadLink={post.source.permalink} />
   );
-  const articleNavigation = router?.query?.squad ? (
-    <Link href={`/squads/${router.query.squad}`}>
-      <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
-        <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
-        Back to {router.query.n || 'Squad'}
-      </a>
-    </Link>
-  ) : (
-    <></>
-  );
+
+  const articleNavigation = (() => {
+    const routedFromSquad = router?.query?.squad;
+    const squadLink = `/squads/${router.query.squad}`;
+
+    if (layout === FeedLayout.V1) {
+      return <PostBackButton link={routedFromSquad ? squadLink : undefined} />;
+    }
+
+    if (!routedFromSquad) {
+      return <></>;
+    }
+
+    return (
+      <Link href={squadLink}>
+        <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
+          <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
+          Back to {router.query.n || 'Squad'}
+        </a>
+      </Link>
+    );
+  })();
 
   const navigation: Record<PostType, ReactNode> = {
     article: articleNavigation,
