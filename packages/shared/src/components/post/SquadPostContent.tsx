@@ -85,9 +85,9 @@ function SquadPostContent({
       )}
       <PostContentContainer
         className={classNames(
-          'relative !pb-2 tablet:pb-0',
+          'relative tablet:pb-0',
           className?.container,
-          isPublicSquad && 'flex-1 flex-col tablet:flex-row',
+          isPublicSquad ? 'flex-1 flex-col tablet:flex-row' : '!pb-2',
         )}
         hasNavigation={hasNavigation}
       >
@@ -135,7 +135,7 @@ function SquadPostContent({
             onShare={onSharePost}
             onReadArticle={onReadArticle}
             post={post}
-            className="mb-6 px-8 tablet:pl-0"
+            className="mb-6 border-l border-theme-divider-tertiary px-8 tablet:mb-0 tablet:pl-4"
             onClose={onClose}
             origin={origin}
           />
