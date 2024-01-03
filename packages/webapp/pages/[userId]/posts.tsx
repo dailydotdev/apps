@@ -30,6 +30,7 @@ const ProfilePostsPage = ({ user }: ProfileLayoutProps): ReactElement => {
       userId,
     },
     forceCardMode: true,
+    disableAds: true,
     emptyScreen: isSameUser ? (
       <MyProfileEmptyScreen
         className="items-center px-4 py-6 text-center tablet:px-6"

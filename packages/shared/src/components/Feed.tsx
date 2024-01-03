@@ -60,6 +60,7 @@ export interface FeedProps<T>
   showSearch?: boolean;
   besideSearch?: ReactNode;
   actionButtons?: ReactNode;
+  disableAds?: boolean;
 }
 
 interface RankVariables {
@@ -116,6 +117,7 @@ export default function Feed<T>({
   showSearch = true,
   besideSearch,
   actionButtons,
+  disableAds,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { trackEvent } = useContext(AnalyticsContext);
@@ -142,7 +144,10 @@ export default function Feed<T>({
         query,
         variables,
         options,
-        ...(isSquadFeed && { settings: { adPostLength: 2 } }),
+        settings: {
+          disableAds,
+          adPostLength: isSquadFeed ? 2 : undefined,
+        },
       },
     );
   const feedContextValue = useMemo(() => {
