@@ -15,8 +15,8 @@ import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import { getProfile } from '@dailydotdev/shared/src/lib/user';
 import { Readme } from '@dailydotdev/shared/src/components/profile/Readme';
+import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import {
   getLayout as getProfileLayout,
   getStaticPaths as getProfileStaticPaths,
@@ -28,8 +28,7 @@ import {
 const ProfilePage = ({
   user: initialUser,
 }: ProfileLayoutProps): ReactElement => {
-  const { user: loggedUser, tokenRefreshed } = useContext(AuthContext);
-  const isSameUser = loggedUser?.id === initialUser?.id;
+  const { tokenRefreshed } = useContext(AuthContext);
 
   const {
     selectedHistoryYear,
@@ -40,18 +39,7 @@ const ProfilePage = ({
     fullHistory,
   } = useActivityTimeFilter();
 
-  const { data: user } = useQuery(
-    generateQueryKey(RequestKey.Profile, initialUser),
-    () => getProfile(initialUser?.id),
-    {
-      placeholderData: initialUser,
-      refetchOnReconnect: false,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      // Make sure the logged in user's profile is always up to date
-      enabled: !!initialUser && isSameUser,
-    },
-  );
+  const user = useProfile(initialUser);
 
   const { data: readingHistory } = useQuery<ProfileReadingData>(
     generateQueryKey(RequestKey.ReadingStats, user, selectedHistoryYear),
@@ -72,7 +60,7 @@ const ProfilePage = ({
   );
 
   return (
-    <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
+    <div className="flex flex-col gap-6 py-6 px-4 tablet:px-6">
       <Readme user={user} />
       {readingHistory?.userReadingRankHistory && (
         <>

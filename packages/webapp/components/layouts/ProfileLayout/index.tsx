@@ -17,6 +17,7 @@ import Head from 'next/head';
 import { NextSeo } from 'next-seo';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
+import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import NavBar, { tabs } from './NavBar';
@@ -32,13 +33,14 @@ export interface ProfileLayoutProps extends Partial<ProfileV2> {
 }
 
 export default function ProfileLayout({
-  user,
+  user: initialUser,
   userStats,
   sources,
   children,
 }: ProfileLayoutProps): ReactElement {
   const router = useRouter();
   const { isFallback } = router;
+  const user = useProfile(initialUser);
 
   if (!isFallback && !user) {
     return <Custom404 />;
