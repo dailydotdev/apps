@@ -1,5 +1,4 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
-import classNames from 'classnames';
 import { AdCardProps } from './AdCard';
 import { ListCard, ListCardMain, ListCardTitle } from './Card';
 import AdLink from './AdLink';
@@ -13,9 +12,7 @@ export const AdList = forwardRef(function AdList(
     <ListCard {...domProps} data-testid="adItem" ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <ListCardMain>
-        <ListCardTitle
-          className={classNames('line-clamp-4 font-bold typo-title3')}
-        >
+        <ListCardTitle className="line-clamp-4 font-bold typo-title3">
           {ad.description}
         </ListCardTitle>
         <AdAttribution ad={ad} className="mt-2" />
