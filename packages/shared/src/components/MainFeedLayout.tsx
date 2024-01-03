@@ -256,12 +256,16 @@ export default function MainFeedLayout({
     return isLaptop ? cloudinary.feed.bg.laptop : cloudinary.feed.bg.tablet;
   };
 
-  const isValidV1Layout = shouldUseFeedLayoutV1 && isV1Search && !isFinder;
+  const getPadding = () => {
+    if (isV1Search) {
+      return '!pt-2';
+    }
+
+    return shouldUseFeedLayoutV1 && '!pt-0';
+  };
 
   return (
-    <FeedPage
-      className={classNames('relative', shouldUseFeedLayoutV1 && '!pt-2')}
-    >
+    <FeedPage className={classNames('relative', getPadding())}>
       {isV1Search && !isFinder && (
         <img
           className={classNames(
@@ -276,7 +280,11 @@ export default function MainFeedLayout({
       {feedProps && (
         <Feed
           {...feedProps}
-          className={isValidV1Layout && 'laptop:!max-w-[36.5rem]'}
+          className={
+            (shouldUseFeedLayoutV1 || isV1Search) &&
+            !isFinder &&
+            'laptop:!max-w-[36.5rem]'
+          }
         />
       )}
       {children}

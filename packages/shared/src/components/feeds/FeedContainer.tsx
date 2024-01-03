@@ -196,7 +196,7 @@ export const FeedContainer = ({
             <ConditionalWrapper
               condition={!shouldUseFeedLayoutV1}
               wrapper={(child) => (
-                <span className="flex flex-row gap-3">
+                <span className="mt-6 flex flex-row gap-3">
                   {child}
                   {shortcuts}
                 </span>
@@ -237,7 +237,12 @@ export const FeedContainer = ({
           <ConditionalWrapper
             condition={shouldUseFeedLayoutV1}
             wrapper={(child) => (
-              <div className="-mx-6 mt-6 flex flex-col rounded-16 border border-theme-divider-tertiary laptop:mx-0">
+              <div
+                className={classNames(
+                  '-mx-6 flex flex-col rounded-16 border border-theme-divider-tertiary laptop:mx-0 laptop:mt-6',
+                  isV1Search && 'mt-6',
+                )}
+              >
                 <span className="flex w-full flex-row items-center justify-between px-6 py-4">
                   <strong className="typo-title3">
                     {feedNameToHeading[feedName] ?? ''}
