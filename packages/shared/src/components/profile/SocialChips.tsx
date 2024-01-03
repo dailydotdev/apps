@@ -44,11 +44,11 @@ export function SocialChips({ links }: SocialChipsProps): ReactElement {
     .filter((key) => !!links[key])
     .map((key) => (
       <Button
-        spanClassName="w-fit my-2 font-normal"
+        spanClassName="my-2 font-normal text-ellipsis whitespace-nowrap overflow-hidden flex-1"
         textPosition="justify-start"
         icon={handlers[key].icon}
         buttonSize={ButtonSize.Small}
-        className="btn-secondary w-fit border-theme-divider-tertiary text-theme-label-tertiary typo-subhead first:ml-4 tablet:first:ml-0"
+        className="btn-secondary w-fit max-w-full border-theme-divider-tertiary text-theme-label-tertiary typo-subhead first:ml-4 tablet:first:ml-0"
         tag="a"
         target="_blank"
         rel="noopener"

@@ -107,10 +107,7 @@ function ButtonComponent<TagName extends AllowedTags>(
         iconPosition === ButtonIconPosition.Right &&
         getIconWithSize(icon)}
       {loading && (
-        <Loader
-          data-testid="buttonLoader"
-          className="!visible absolute inset-0 m-auto"
-        />
+        <Loader data-testid="buttonLoader" className="absolute m-auto" />
       )}
     </Tag>
   );
