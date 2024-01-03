@@ -99,7 +99,7 @@ const replaceDigitsWithIncrement = (str: string, increment: number): string => {
   if (!match) {
     return str;
   }
-  return str.replace(match[0], `${parseInt(match[0]) + increment}`);
+  return str.replace(match[0], `${parseInt(match[0], 10) + increment}`);
 };
 
 const sidebarRenderedWidth = 44;
@@ -118,11 +118,12 @@ const determineBreakPoints = ({
   sidebarExpanded,
   sidebarRendered,
 }: DetermineFeedSettingsProps): string[] => {
-  return sidebarRendered
-    ? sidebarExpanded
+  if (sidebarRendered) {
+    return sidebarExpanded
       ? reversedBreakpointsSidebarOpen
-      : reversedBreakpointsSidebarRendered
-    : reversedBreakpoints;
+      : reversedBreakpointsSidebarRendered;
+  }
+  return reversedBreakpoints;
 };
 
 export default function FeedLayout({
