@@ -283,9 +283,7 @@ export default function MainFeedLayout({
         <Feed
           {...feedProps}
           className={
-            (shouldUseFeedLayoutV1 || isV1Search) &&
-            !isFinder &&
-            'laptop:!max-w-[36.5rem]'
+            shouldUseFeedLayoutV1 && !isFinder && 'laptop:!max-w-[36.5rem]'
           }
         />
       )}
