@@ -1,12 +1,5 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
-import {
-  desktop,
-  desktopXL,
-  laptop,
-  laptopL,
-  laptopXL,
-  tablet,
-} from '../styles/media';
+import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
 import FeedContext, {
   defaultFeedContextData,
   FeedContextData,
