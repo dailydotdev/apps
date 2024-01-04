@@ -22,14 +22,7 @@ type DetermineFeedSettingsProps = {
   sidebarRendered: boolean;
 };
 
-export const feedBreakpoints = [
-  tablet,
-  laptop,
-  laptopL,
-  laptopXL,
-  desktop,
-  desktopXL,
-];
+export const feedBreakpoints = [tablet, laptop, laptopL, laptopXL, desktop];
 
 const baseFeedSettings: FeedContextData[] = [
   {
@@ -75,15 +68,6 @@ const baseFeedSettings: FeedContextData[] = [
       eco: 6,
       roomy: 5,
       cozy: 4,
-    },
-  },
-  {
-    pageSize: 29,
-    adSpot: 0,
-    numCards: {
-      eco: 7,
-      roomy: 6,
-      cozy: 5,
     },
   },
 ];
