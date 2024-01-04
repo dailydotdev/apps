@@ -132,9 +132,7 @@ export function CalendarHeatmap<T extends { date: string }>({
         };
         return acc;
       }, {}),
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [values, valueToCount, startDate, endDate, bins],
+    [values, startDateWithEmptyDays, valueToCount, bins],
   );
 
   const getMonthLabelCoordinates = (weekIndex: number): [number, number] => [
