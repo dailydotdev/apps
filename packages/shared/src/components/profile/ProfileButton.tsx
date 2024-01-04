@@ -37,7 +37,7 @@ export default function ProfileButton({
           <button
             type="button"
             className={classNames(
-              'focus-outline ml-0.5 cursor-pointer items-center gap-2 rounded-lg border-none bg-theme-bg-secondary p-0 font-bold text-theme-label-primary no-underline typo-callout',
+              'focus-outline ml-0.5 cursor-pointer items-center gap-2 rounded-10 border-none bg-theme-bg-secondary p-0 font-bold text-theme-label-primary no-underline typo-callout',
               className ?? 'flex',
             )}
             onClick={wrapHandler(() => onUpdate(!isOpen))}
