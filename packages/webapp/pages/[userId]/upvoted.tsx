@@ -5,6 +5,7 @@ import { USER_UPVOTED_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
 import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import GenericFeedItemComponent from '@dailydotdev/shared/src/components/feed/feedItemComponent/GenericFeedItemComponent';
 import {
   ProfileLayoutProps,
   getStaticPaths as getProfileStaticPaths,
@@ -29,6 +30,7 @@ const ProfileUpvotedPage = ({ user }: ProfileLayoutProps): ReactElement => {
       userId,
     },
     forceCardMode: true,
+    feedItemComponent: GenericFeedItemComponent,
     disableAds: true,
     emptyScreen: isSameUser ? (
       <MyProfileEmptyScreen

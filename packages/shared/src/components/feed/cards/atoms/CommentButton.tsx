@@ -21,7 +21,7 @@ export function CommentButton({ post }: CommentButtonProps): ReactElement {
         id={`post-${post.id}-comment-btn`}
         icon={<CommentIcon secondary={post.commented} />}
         pressed={post.commented}
-        buttonSize={ButtonSize.Small}
+        size={ButtonSize.Small}
         onClick={() => onOpenModal(postIndex)}
         className="btn-tertiary-blueCheese w-[4.875rem]"
       >
