@@ -142,7 +142,7 @@ export const ItemInner = ({
       <Icon {...item} active={active} />
       <span
         className={classNames(
-          'truncate text-left transition-opacity',
+          'flex-1 truncate text-left transition-opacity',
           shouldShowLabel ? 'opacity-100 delay-150' : 'opacity-0',
           item?.className?.text,
         )}
