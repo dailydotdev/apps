@@ -5,14 +5,17 @@ import { Ad } from '../../graphql/posts';
 export type AdAttributionProps = {
   ad: Ad;
   className?: string;
+  typoClassName?: string;
 };
 
 export default function AdAttribution({
   ad,
   className,
+  typoClassName,
 }: AdAttributionProps): ReactElement {
   const elementClass = classNames(
-    'text-theme-label-quaternary no-underline typo-footnote',
+    'text-theme-label-quaternary no-underline',
+    typoClassName ?? 'typo-footnote',
     className,
   );
   if (ad.referralLink) {

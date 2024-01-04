@@ -3,20 +3,26 @@ import dynamic from 'next/dynamic';
 import { FeedItem } from '../hooks/useFeed';
 import { PostList } from './cards/PostList';
 import { ArticlePostCard } from './cards/ArticlePostCard';
+import { ArticlePostCard as ArticlePostCardV1 } from './cards/v1/ArticlePostCard';
 import { AdList } from './cards/AdList';
 import { AdCard } from './cards/AdCard';
+import { AdCard as AdCardV1 } from './cards/v1/AdCard';
 import { PlaceholderList } from './cards/PlaceholderList';
 import { PlaceholderCard } from './cards/PlaceholderCard';
+import { PlaceholderCard as PlaceholderCardV1 } from './cards/v1/PlaceholderCard';
 import { Ad, Post, PostType } from '../graphql/posts';
 import { LoggedUser } from '../lib/user';
 import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { SharePostCard } from './cards/SharePostCard';
+import { SharePostCard as SharePostCardV1 } from './cards/v1/SharePostCard';
 import { WelcomePostCard } from './cards/WelcomePostCard';
+import { WelcomePostCard as WelcomePostCardV1 } from './cards/v1/WelcomePostCard';
 import { Origin } from '../lib/analytics';
-import { UseVotePost } from '../hooks';
+import { UseVotePost, useFeedLayout } from '../hooks';
 import { CollectionCard } from './cards/CollectionCard';
+import { CollectionCard as CollectionCardV1 } from './cards/v1/CollectionCard';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -92,6 +98,22 @@ const PostTypeToTag: Record<PostType, FunctionComponent> = {
   [PostType.Collection]: CollectionCard,
 };
 
+const PostTypeToTagV1: Record<PostType, FunctionComponent> = {
+  [PostType.Article]: ArticlePostCardV1,
+  [PostType.Share]: SharePostCardV1,
+  [PostType.Welcome]: WelcomePostCardV1,
+  [PostType.Freeform]: WelcomePostCardV1,
+  [PostType.VideoYouTube]: ArticlePostCardV1,
+  [PostType.Collection]: CollectionCardV1,
+};
+
+const getPlaceHolder = (useList: boolean, isFeedLayoutV1: boolean) => {
+  if (isFeedLayoutV1) {
+    return PlaceholderCardV1;
+  }
+  return useList ? PlaceholderList : PlaceholderCard;
+};
+
 export default function FeedItemComponent({
   items,
   index,
@@ -121,7 +143,6 @@ export default function FeedItemComponent({
   onReadArticleClick,
 }: FeedItemComponentProps): ReactElement {
   const AdTag = useList ? AdList : AdCard;
-  const PlaceholderTag = useList ? PlaceholderList : PlaceholderCard;
   const item = items[index];
   const inViewRef = useTrackImpression(
     item,
@@ -132,6 +153,19 @@ export default function FeedItemComponent({
     feedName,
     ranking,
   );
+
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const PlaceholderTag = getPlaceHolder(useList, shouldUseFeedLayoutV1);
+
+  let postTypeToTag = PostTypeToTag;
+  let articlePostCard = ArticlePostCard;
+  let EffectiveAdTag = AdTag;
+
+  if (feedName !== 'squad' && shouldUseFeedLayoutV1) {
+    postTypeToTag = PostTypeToTagV1;
+    articlePostCard = ArticlePostCardV1;
+    EffectiveAdTag = AdCardV1;
+  }
 
   switch (item.type) {
     case 'post': {
@@ -144,7 +178,7 @@ export default function FeedItemComponent({
 
       const PostTag = useList
         ? PostList
-        : PostTypeToTag[item.post.type] ?? ArticlePostCard;
+        : postTypeToTag[item.post.type] ?? articlePostCard;
       return (
         <PostTag
           enableSourceHeader={
@@ -210,7 +244,7 @@ export default function FeedItemComponent({
     }
     case 'ad':
       return (
-        <AdTag
+        <EffectiveAdTag
           ref={inViewRef}
           ad={item.ad}
           onLinkClick={(ad) => onAdClick(ad, row, column)}

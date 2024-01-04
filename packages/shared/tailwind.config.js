@@ -217,6 +217,7 @@ module.exports = {
       height: {
         logo: '1.125rem',
         'logo-big': '2.0625rem',
+        50: '12.5rem',
       },
     },
     lineClamp: {
