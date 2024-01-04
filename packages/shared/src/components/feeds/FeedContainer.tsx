@@ -212,7 +212,8 @@ export const FeedContainer = ({
                 className={{
                   container: classNames(
                     'flex w-full max-w-2xl flex-1',
-                    shouldUseFeedLayoutV1 && 'mt-6 px-6 laptop:px-0',
+                    shouldUseFeedLayoutV1 &&
+                      'mt-6 px-6 pt-2 laptop:px-0 laptop:pt-0',
                     shouldShowPulse && 'highlight-pulse',
                   ),
                   field: classNames(

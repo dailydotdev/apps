@@ -245,26 +245,18 @@ export default function MainFeedLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
-  const getPadding = () => {
-    if (isV1Search) {
-      return '!pt-2';
-    }
-
-    return shouldUseFeedLayoutV1 && '!pt-0';
-  };
-
   const FeedPageComponent = shouldUseFeedLayoutV1 ? FeedPageLayoutV1 : FeedPage;
 
   return (
-    <FeedPageComponent className={classNames('relative', getPadding())}>
+    <FeedPageComponent
+      className={classNames('relative', shouldUseFeedLayoutV1 && '!pt-0')}
+    >
       {isV1Search && !shouldUseFeedLayoutV1 && !isFinder && <FeedGradientBg />}
       {isSearchOn && search}
       {feedProps && (
         <Feed
           {...feedProps}
-          className={
-            shouldUseFeedLayoutV1 && !isFinder && 'laptop:!max-w-[36.5rem]'
-          }
+          className={shouldUseFeedLayoutV1 && !isFinder && 'laptop:px-12'}
         />
       )}
       {children}
