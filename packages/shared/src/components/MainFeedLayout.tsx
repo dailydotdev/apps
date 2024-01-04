@@ -10,7 +10,7 @@ import dynamic from 'next/dynamic';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
-import { FeedPage, SharedFeedPage } from './utilities';
+import { FeedPage, FeedPageLayoutV1, SharedFeedPage } from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
@@ -33,9 +33,10 @@ import {
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { cloudinary } from '../lib/image';
-import { useViewSize, ViewSize } from '../hooks';
+import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
+import { getFeedName } from '../lib/feed';
 import { FeedItem } from '../hooks/useFeed';
 
 const SearchEmptyScreen = dynamic(
@@ -103,36 +104,6 @@ const getQueryBasedOnLogin = (
 
 const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
 
-interface GetDefaultFeedProps {
-  hasFiltered?: boolean;
-  hasUser?: boolean;
-}
-
-const getDefaultFeed = ({ hasUser }: GetDefaultFeedProps): SharedFeedPage => {
-  if (!hasUser) {
-    return SharedFeedPage.Popular;
-  }
-
-  return SharedFeedPage.MyFeed;
-};
-
-const defaultFeedConditions = [null, 'default', '/', ''];
-
-export const getFeedName = (
-  path: string,
-  options: GetDefaultFeedProps = {},
-): SharedFeedPage => {
-  const feed = path?.replaceAll?.('/', '') || '';
-
-  if (defaultFeedConditions.some((condition) => condition === feed)) {
-    return getDefaultFeed(options);
-  }
-
-  const [page] = feed.split('?');
-
-  return page.replace(/^\/+/, '') as SharedFeedPage;
-};
-
 export default function MainFeedLayout({
   feedName: feedNameProp,
   searchQuery,
@@ -155,6 +126,7 @@ export default function MainFeedLayout({
   const feedVersion = useFeature(feature.feedVersion);
   const searchVersion = useFeature(feature.search);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
 
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
@@ -287,8 +259,10 @@ export default function MainFeedLayout({
     return isLaptop ? cloudinary.feed.bg.laptop : cloudinary.feed.bg.tablet;
   };
 
+  const FeedPageComponent = shouldUseFeedLayoutV1 ? FeedPageLayoutV1 : FeedPage;
+
   return (
-    <FeedPage className="relative">
+    <FeedPageComponent className="relative">
       {searchVersion === SearchExperiment.V1 && !isFinder && (
         <img
           className="absolute left-0 top-0 w-full max-w-[58.75rem]"
@@ -299,6 +273,6 @@ export default function MainFeedLayout({
       {isSearchOn && search}
       {feedProps && <Feed {...feedProps} />}
       {children}
-    </FeedPage>
+    </FeedPageComponent>
   );
 }

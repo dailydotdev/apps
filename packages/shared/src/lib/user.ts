@@ -1,6 +1,10 @@
 import nodeFetch from 'node-fetch';
 import { apiUrl, graphqlUrl } from './config';
-import { USER_BY_ID_STATIC_FIELDS_QUERY } from '../graphql/users';
+import {
+  PROFILE_V2_EXTRA_QUERY,
+  ProfileV2,
+  USER_BY_ID_STATIC_FIELDS_QUERY,
+} from '../graphql/users';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -29,6 +33,9 @@ export interface PublicProfile {
   image: string;
   reputation: number;
   permalink: string;
+  cover?: string;
+  readmeHtml?: string;
+  readme?: string;
 }
 
 export interface UserProfile {
@@ -45,6 +52,7 @@ export interface UserProfile {
   acceptedMarketing?: boolean;
   notificationEmail?: boolean;
   timezone?: string;
+  cover?: string;
 }
 
 export interface UserShortProfile
@@ -141,12 +149,42 @@ const getProfileRequest = async (method = fetch, id: string) => {
   return response?.data?.user;
 };
 
+const getProfileV2ExtraRequest = async (
+  method = fetch,
+  id: string,
+): Promise<Omit<ProfileV2, 'user'>> => {
+  const userRes = await method(graphqlUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query: PROFILE_V2_EXTRA_QUERY,
+      variables: {
+        id,
+      },
+    }),
+  });
+  if (userRes.status === 404) {
+    throw new Error('not found');
+  }
+
+  const response = await userRes.json();
+  return response?.data;
+};
+
 export async function getProfileSSR(id: string): Promise<PublicProfile> {
   return await getProfileRequest(nodeFetch, id);
 }
 
 export async function getProfile(id: string): Promise<PublicProfile> {
   return await getProfileRequest(fetch, id);
+}
+
+export async function getProfileV2ExtraSSR(
+  id: string,
+): Promise<Omit<ProfileV2, 'user'>> {
+  return await getProfileV2ExtraRequest(nodeFetch, id);
 }
 
 export enum ReferralOriginKey {

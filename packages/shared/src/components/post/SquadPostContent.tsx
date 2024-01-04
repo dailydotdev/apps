@@ -85,9 +85,9 @@ function SquadPostContent({
       )}
       <PostContentContainer
         className={classNames(
-          'relative !pb-2 tablet:pb-0',
+          'relative tablet:pb-0',
           className?.container,
-          isPublicSquad && 'flex-1 flex-col  flex-wrap',
+          isPublicSquad ? 'flex-1 flex-col  flex-wrap' : '!pb-2',
         )}
         hasNavigation={hasNavigation}
       >
@@ -135,60 +135,11 @@ function SquadPostContent({
             onShare={onSharePost}
             onReadArticle={onReadArticle}
             post={post}
-            className="mb-6 px-8 tablet:pl-0"
+            className="mb-6 border-l border-theme-divider-tertiary px-8 tablet:mb-0 tablet:pl-4"
             onClose={onClose}
             origin={origin}
           />
         )}
-        <div className="flex flex-row">
-          <div
-            className={classNames(
-              'relative px-4 tablet:px-8',
-              className?.content,
-              isPublicSquad && 'flex flex-1 flex-col',
-            )}
-          >
-            <BasePostContent
-              className={{
-                ...className,
-                onboarding: classNames('mb-6', className?.onboarding),
-                navigation: {
-                  actions: classNames(
-                    'ml-auto',
-                    isPublicSquad && 'tablet:hidden',
-                  ),
-                  container: classNames('mb-6 pt-6'),
-                },
-              }}
-              isFallback={isFallback}
-              customNavigation={customNavigation}
-              enableShowShareNewComment={enableShowShareNewComment}
-              shouldOnboardAuthor={shouldOnboardAuthor}
-              navigationProps={navigationProps}
-              engagementProps={engagementActions}
-              origin={origin}
-              post={post}
-            >
-              <PostSourceInfo source={post.source} className="!typo-body" />
-              <SquadPostAuthor
-                author={post.author}
-                role={role}
-                date={postDateFormat(post.createdAt)}
-              />
-              <Content post={post} onReadArticle={onReadArticle} />
-            </BasePostContent>
-          </div>
-          {isPublicSquad && (
-            <SquadPostWidgets
-              onShare={onSharePost}
-              onReadArticle={onReadArticle}
-              post={post}
-              className="mb-6 px-8 tablet:pl-0"
-              onClose={onClose}
-              origin={origin}
-            />
-          )}
-        </div>
       </PostContentContainer>
     </>
   );

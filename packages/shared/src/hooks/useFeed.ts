@@ -74,6 +74,7 @@ const findIndexOfPostInData = (
 
 type UseFeedSettingParams = {
   adPostLength?: number;
+  disableAds?: boolean;
 };
 
 export interface UseFeedOptionalParams<T> {
@@ -120,7 +121,8 @@ export default function useFeed<T>(
     tokenRefreshed &&
     !isFeedPreview &&
     (!settings?.adPostLength ||
-      feedQuery.data?.pages[0]?.page.edges.length > settings?.adPostLength);
+      feedQuery.data?.pages[0]?.page.edges.length > settings?.adPostLength) &&
+    !settings?.disableAds;
   const adsQuery = useInfiniteQuery<AdEntity>(
     ['ads', ...feedQueryKey],
     async ({ pageParam }) => {

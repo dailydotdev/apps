@@ -3,6 +3,9 @@ import {
   SHARED_POST_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
+import type { PublicProfile } from '../lib/user';
+import { Connection } from './common';
+import { SourceMember } from './sources';
 
 type PostStats = {
   numPosts: number;
@@ -20,6 +23,7 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       id
       name
       image
+      cover
       username
       bio
       twitter
@@ -30,6 +34,23 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
       reputation
       permalink
       createdAt
+      readmeHtml
+    }
+  }
+`;
+
+export const USER_README_QUERY = `
+  query Readme($id: ID!) {
+    user(id: $id) {
+      readme
+    }
+  }
+`;
+
+export const UPDATE_README_MUTATION = `
+  mutation UpdateReadme($content: String!) {
+    updateReadme(content: $content) {
+      readmeHtml
     }
   }
 `;
@@ -45,6 +66,48 @@ export const USER_STATS_QUERY = gql`
     }
   }
 `;
+
+const publicSourceMemberships = `
+sources: publicSourceMemberships(userId: $id, first: 30) {
+  edges {
+    node {
+      role
+      source {
+        id
+        name
+        handle
+        membersCount
+        image
+        permalink
+        currentMember {
+          role
+        }
+      }
+    }
+  }
+}`;
+
+export const PROFILE_V2_EXTRA_QUERY = gql`
+  query ProfileV2($id: ID!) {
+    userStats(id: $id) {
+      upvotes: numPostUpvotes
+      views: numPostViews
+    }
+    ${publicSourceMemberships}
+  }
+`;
+
+export const PUBLIC_SOURCE_MEMBERSHIPS_QUERY = gql`
+  query PublicSourceMemberships($id: ID!) {
+    ${publicSourceMemberships}
+  }
+`;
+
+export type ProfileV2 = {
+  user: PublicProfile;
+  userStats: { upvotes: number; views: number };
+  sources: Connection<SourceMember>;
+};
 
 export type UserReadingRank = { currentRank: number };
 export type UserReadingRankData = { userReadingRank: UserReadingRank };
@@ -256,6 +319,14 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       createdAt
       infoConfirmed
       timezone
+    }
+  }
+`;
+
+export const UPLOAD_COVER_MUTATION = gql`
+  mutation UploadCoverImage($upload: Upload!) {
+    user: uploadCoverImage(image: $upload) {
+      cover
     }
   }
 `;

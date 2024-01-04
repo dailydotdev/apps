@@ -12,7 +12,6 @@ import PromotionalBanner from './PromotionalBanner';
 import Sidebar from './sidebar/Sidebar';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { useSwipeableSidebar } from '../hooks/useSwipeableSidebar';
 import SettingsContext from '../contexts/SettingsContext';
 import Toast from './notifications/Toast';
 import { useAuthErrors } from '../hooks/useAuthErrors';
@@ -32,6 +31,8 @@ import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
 import { useReferralReminder } from '../hooks/referral/useReferralReminder';
 import GenericFeedItemComponent from './feed/feedItemComponent/GenericFeedItemComponent';
+import { ActiveFeedNameContextProvider } from '../contexts';
+import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -52,7 +53,7 @@ export interface MainLayoutProps
 
 const feeds = Object.values(SharedFeedPage);
 
-function MainLayout({
+function MainLayoutComponent({
   children,
   greeting,
   activePage,
@@ -69,6 +70,7 @@ function MainLayout({
   enableSearch,
   onShowDndClick,
 }: MainLayoutProps): ReactElement {
+  const router = useRouter();
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
@@ -78,16 +80,15 @@ function MainLayout({
   const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
     useContext(SettingsContext);
   const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
+
+  const isLaptopXL = useViewSize(ViewSize.LaptopXL);
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useAuthErrors();
   useAuthVerificationRecovery();
   useNotificationParams();
   useReferralReminder();
-  const handlers = useSwipeableSidebar({
-    sidebarRendered,
-    openMobileSidebar,
-    setOpenMobileSidebar,
-  });
 
   const onMobileSidebarToggle = (state: boolean) => {
     trackEvent({
@@ -133,7 +134,6 @@ function MainLayout({
     );
   };
 
-  const router = useRouter();
   const page = router?.route?.substring(1).trim() as SharedFeedPage;
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
@@ -168,9 +168,11 @@ function MainLayout({
   ) {
     return null;
   }
+  const isScreenCentered =
+    isLaptopXL && shouldUseFeedLayoutV1 ? true : screenCentered;
 
   return (
-    <div {...handlers} className="antialiased">
+    <div className="antialiased">
       {customBanner}
       {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />
@@ -189,7 +191,9 @@ function MainLayout({
         className={classNames(
           'flex flex-row',
           className,
-          !screenCentered && sidebarExpanded ? 'laptop:pl-60' : 'laptop:pl-11',
+          !isScreenCentered && sidebarExpanded
+            ? 'laptop:pl-60'
+            : 'laptop:pl-11',
           isBannerAvailable && 'laptop:pt-8',
         )}
       >
@@ -200,5 +204,11 @@ function MainLayout({
     </div>
   );
 }
+
+const MainLayout = (props: MainLayoutProps): ReactElement => (
+  <ActiveFeedNameContextProvider>
+    <MainLayoutComponent {...props} />
+  </ActiveFeedNameContextProvider>
+);
 
 export default MainLayout;

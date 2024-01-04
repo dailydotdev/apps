@@ -1,7 +1,9 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
+import Link from 'next/link';
 import {
   CardButton,
+  CardLink,
   CardSpace,
   CardTextContainer,
   CardTitle,
@@ -15,7 +17,11 @@ import { Container, PostCardProps } from './common';
 import FeedItemContainer from './FeedItemContainer';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { PostTagsPanel } from '../post/block/PostTagsPanel';
-import { useFeedPreviewMode, usePostFeedback } from '../../hooks';
+import {
+  useFeedLayout,
+  useFeedPreviewMode,
+  usePostFeedback,
+} from '../../hooks';
 import styles from './Card.module.css';
 import { FeedbackCard } from './FeedbackCard';
 import { Origin } from '../../lib/analytics';
@@ -49,6 +55,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
   const isVideoType = isVideoPost(post);
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -59,6 +66,26 @@ export const ArticlePostCard = forwardRef(function PostCard(
       />
     );
   }
+
+  const renderOverlay = () => {
+    if (isFeedPreview) {
+      return null;
+    }
+
+    if (!shouldUseFeedLayoutV1) {
+      return <CardButton title={post.title} onClick={onPostCardClick} />;
+    }
+
+    return (
+      <Link href={post.commentsPermalink}>
+        <CardLink
+          title={post.title}
+          onClick={onPostCardClick}
+          href={post.commentsPermalink}
+        />
+      </Link>
+    );
+  };
 
   return (
     <FeedItemContainer
@@ -74,10 +101,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
       ref={ref}
       flagProps={{ pinnedAt, trending }}
     >
-      {!isFeedPreview && (
-        <CardButton title={post.title} onClick={onPostCardClick} />
-      )}
-
+      {renderOverlay()}
       {showFeedback && (
         <FeedbackCard
           post={post}

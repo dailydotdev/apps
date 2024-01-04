@@ -104,6 +104,12 @@ export const BaseFeedPage = classed(
 );
 
 export const FeedPage = classed(BaseFeedPage, styles.feedPage);
+export const FeedPageLayoutV1 = classed(
+  BasePageContainer,
+  pageContainerClassNames,
+  'pt-10 tablet:px-6 !ml-auto !px-0',
+  styles.feedPage,
+);
 
 export const FormErrorMessage = classed(
   'div',

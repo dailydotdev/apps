@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode } from 'react';
+import Link from 'next/link';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { Post } from '../../graphql/posts';
 import { Origin } from '../../lib/analytics';
@@ -19,6 +20,7 @@ import CommentAuthor from './CommentAuthor';
 import { CommentPublishDate } from './CommentPublishDate';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
+import { CardLink } from '../cards/Card';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -36,6 +38,7 @@ export interface CommentBoxProps extends CommentActionProps {
   parentId?: string;
   appendTooltipTo?: () => HTMLElement;
   children?: ReactNode;
+  linkToComment?: boolean;
 }
 
 function CommentBox({
@@ -55,6 +58,7 @@ function CommentBox({
   postScoutId,
   className = {},
   children,
+  linkToComment,
 }: CommentBoxProps): ReactElement {
   const isCommentReferenced = commentHash === getCommentHash(comment.id);
   const { role } = useMemberRoleForSource({
@@ -74,13 +78,18 @@ function CommentBox({
       )}
       data-testid="comment"
     >
+      {linkToComment && (
+        <Link href={comment.permalink} prefetch={false} passHref>
+          <CardLink />
+        </Link>
+      )}
       {children}
-      <header className="z-1 flex flex-row">
+      <header className="z-1 flex flex-row self-start">
         <ProfileTooltip
           user={comment.author}
           tooltip={{ appendTo: appendTooltipTo }}
         >
-          <ProfileImageLink className="z-1" user={comment.author} />
+          <ProfileImageLink user={comment.author} />
         </ProfileTooltip>
         <div className="ml-3 flex flex-col typo-callout">
           <FlexRow>
@@ -125,8 +134,9 @@ function CommentBox({
       </header>
       <div
         className={classNames(
-          'break-words-overflow mt-3 typo-body',
+          'break-words-overflow z-1 mt-3 typo-body',
           className.content,
+          linkToComment && 'pointer-events-none',
         )}
       >
         <Markdown
@@ -143,7 +153,7 @@ function CommentBox({
           onDelete={onDelete}
           onEdit={onEdit}
           onShowUpvotes={onShowUpvotes}
-          className="mt-3"
+          className="pointer-events-auto mt-3"
         />
       </div>
     </article>

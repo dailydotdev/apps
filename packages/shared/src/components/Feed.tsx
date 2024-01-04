@@ -41,6 +41,7 @@ export interface FeedProps<T>
   showSearch?: boolean;
   besideSearch?: ReactNode;
   actionButtons?: ReactNode;
+  disableAds?: boolean;
 }
 
 const ArticlePostModal = dynamic(
@@ -85,13 +86,14 @@ export default function Feed<T>({
   showSearch = true,
   besideSearch,
   actionButtons,
+  disableAds,
 }: FeedProps<T>): ReactElement {
   const FeedTag = feedItemComponent;
   const currentSettings = useContext(FeedContext);
   const { spaciness, loadedSettings } = useContext(SettingsContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
-  const { shouldUseFeedLayoutV1 } = useFeedLayout({ feedName });
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
     useFeed(
       feedQueryKey,
@@ -102,7 +104,10 @@ export default function Feed<T>({
         query,
         variables,
         options,
-        ...(isSquadFeed && { settings: { adPostLength: 2 } }),
+        settings: {
+          disableAds,
+          adPostLength: isSquadFeed ? 2 : undefined,
+        },
       },
     );
 
