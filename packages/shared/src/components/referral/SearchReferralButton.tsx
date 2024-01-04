@@ -9,7 +9,7 @@ import { KeyReferralIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetId, TargetType } from '../../lib/analytics';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 
 interface SearchReferralButtonProps {
   className?: string;
@@ -43,7 +43,6 @@ export function SearchReferralButton({
     <Button
       type="button"
       variant={ButtonVariant.Float}
-      size={ButtonSize.Small}
       className={classNames('bg-theme-overlay-from', className)}
       onClick={handleClick}
     >

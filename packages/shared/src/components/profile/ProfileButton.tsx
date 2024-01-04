@@ -37,13 +37,13 @@ export default function ProfileButton({
           <button
             type="button"
             className={classNames(
-              'focus-outline ml-0.5 cursor-pointer items-center gap-2 rounded-10 border-none bg-theme-bg-secondary p-0 font-bold text-theme-label-primary no-underline typo-callout',
+              'focus-outline h-10 cursor-pointer items-center gap-2 rounded-12 border-none bg-theme-bg-secondary p-0 font-bold text-theme-label-primary no-underline typo-callout',
               className ?? 'flex',
             )}
             onClick={wrapHandler(() => onUpdate(!isOpen))}
           >
             <span className="ml-3 block">{user.reputation ?? 0}</span>
-            <ProfilePicture user={user} size="medium" />
+            <ProfilePicture user={user} size="large" />
           </button>
         </SimpleTooltip>
       )}
