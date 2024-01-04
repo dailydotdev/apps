@@ -1,6 +1,5 @@
 import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/react';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
 import {
@@ -9,7 +8,7 @@ import {
   MostReadTag,
   ProfileReadingData,
 } from '@dailydotdev/shared/src/graphql/users';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { RANKS } from '@dailydotdev/shared/src/lib/rank';
 import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 import {
@@ -17,6 +16,7 @@ import {
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
+import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import ProfilePage from '../pages/[userId]/index';
 
 beforeEach(() => {
@@ -96,22 +96,9 @@ const renderComponent = (
 
   mocks.forEach(mockGraphQL);
   return render(
-    <QueryClientProvider client={client}>
-      <AuthContext.Provider
-        value={{
-          user: null,
-          shouldShowLogin: false,
-          showLogin: jest.fn(),
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-          getRedirectUri: jest.fn(),
-          closeLogin: jest.fn(),
-        }}
-      >
-        <ProfilePage user={{ ...defaultProfile, ...profile }} />
-      </AuthContext.Provider>
-    </QueryClientProvider>,
+    <TestBootProvider client={client} auth={{ user: null }}>
+      <ProfilePage user={{ ...defaultProfile, ...profile }} />
+    </TestBootProvider>,
   );
 };
 
