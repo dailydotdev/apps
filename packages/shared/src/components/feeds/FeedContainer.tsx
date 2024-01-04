@@ -208,7 +208,7 @@ export const FeedContainer = ({
                 className={{
                   container: classNames(
                     'flex w-full max-w-2xl flex-1',
-                    shouldUseFeedLayoutV1 && 'mt-6',
+                    shouldUseFeedLayoutV1 && 'mt-6 px-6 laptop:px-0',
                     shouldShowPulse && 'highlight-pulse',
                   ),
                   field: 'w-full',
@@ -226,7 +226,10 @@ export const FeedContainer = ({
             <span className="mt-4 flex flex-1 flex-row">
               <SearchBarSuggestionList
                 {...suggestionsProps}
-                className="mr-3 hidden tablet:flex"
+                className={classNames(
+                  'hidden tablet:flex',
+                  shouldUseFeedLayoutV1 ? 'mx-6 laptop:mx-0' : 'mr-3',
+                )}
               />
               {actionButtons && !shouldUseFeedLayoutV1 && (
                 <span className="ml-auto flex flex-row gap-3 border-l border-theme-divider-tertiary pl-3">
