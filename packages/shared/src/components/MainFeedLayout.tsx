@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
-import { FeedPage, SharedFeedPage } from './utilities';
+import { FeedPage, FeedPageLayoutV1, SharedFeedPage } from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
@@ -264,8 +264,10 @@ export default function MainFeedLayout({
     return shouldUseFeedLayoutV1 && '!pt-0';
   };
 
+  const FeedPageComponent = shouldUseFeedLayoutV1 ? FeedPageLayoutV1 : FeedPage;
+
   return (
-    <FeedPage className={classNames('relative', getPadding())}>
+    <FeedPageComponent className={classNames('relative', getPadding())}>
       {isV1Search && !isFinder && (
         <img
           className={classNames(
@@ -288,6 +290,6 @@ export default function MainFeedLayout({
         />
       )}
       {children}
-    </FeedPage>
+    </FeedPageComponent>
   );
 }

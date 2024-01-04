@@ -111,7 +111,7 @@ export const FeedPage = classed(
 export const FeedPageLayoutV1 = classed(
   BasePageContainer,
   pageContainerClassNames,
-  'pt-10 tablet:px-6 !ml-auto !px-0',
+  'pt-10 tablet:px-6 !ml-auto !px-0 !max-w-full',
   styles.feedPage,
 );
 
