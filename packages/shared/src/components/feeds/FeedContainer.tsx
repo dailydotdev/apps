@@ -35,6 +35,7 @@ import {
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
+import { FeedGradientBg } from './FeedGradientBg';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -179,16 +180,7 @@ export const FeedContainer = ({
         className,
       )}
     >
-      {isV1Search && shouldUseFeedLayoutV1 && (
-        <span
-          className="absolute left-1/2 top-0 -mt-4 h-24 w-3/5 -translate-x-1/2 -translate-y-1/2"
-          style={{
-            background:
-              'radial-gradient(ellipse farthest-side, #4E2BD7, #AC1CE4)',
-            filter: 'blur(3rem)',
-          }}
-        />
-      )}
+      {isV1Search && shouldUseFeedLayoutV1 && <FeedGradientBg />}
       <ScrollToTopButton />
       <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
         {!inlineHeader && header}
