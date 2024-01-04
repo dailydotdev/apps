@@ -67,6 +67,7 @@ export function Section({
                 : null
             }
             isButton={isItemsButton && !item?.isForcedLink}
+            className="truncate"
           >
             <ItemInner
               item={item}
