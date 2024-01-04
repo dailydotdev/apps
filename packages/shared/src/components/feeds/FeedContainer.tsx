@@ -29,6 +29,8 @@ import {
   useActions,
   ToastSubject,
   useToastNotification,
+  useViewSize,
+  ViewSize,
 } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
@@ -152,6 +154,8 @@ export const FeedContainer = ({
     trackEvent({ event_name: AnalyticsEvent.SearchHighlightAnimation });
   }, [trackEvent, shouldShowPulse]);
 
+  const isMobile = useViewSize(ViewSize.MobileL);
+
   if (!loadedSettings) {
     return <></>;
   }
@@ -222,7 +226,7 @@ export const FeedContainer = ({
               />
             </ConditionalWrapper>
           )}
-          {isV1Search && (
+          {isV1Search && !isMobile && (
             <span className="mt-4 flex flex-1 flex-row">
               <SearchBarSuggestionList
                 {...suggestionsProps}
