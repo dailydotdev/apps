@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import {
   addDays,
   endOfYear,
@@ -8,6 +8,7 @@ import {
   subYears,
 } from 'date-fns';
 import { useViewSize, ViewSize } from '../useViewSize';
+import SettingsContext from '../../contexts/SettingsContext';
 
 const BASE_YEAR = 2018;
 const currentYear = new Date().getFullYear();
@@ -28,7 +29,10 @@ type UseActivityTimeFilterRet = {
 };
 
 export function useActivityTimeFilter(): UseActivityTimeFilterRet {
-  const fullHistory = useViewSize(ViewSize.Laptop);
+  const laptop = useViewSize(ViewSize.Laptop);
+  const laptopL = useViewSize(ViewSize.LaptopL);
+  const { sidebarExpanded } = useContext(SettingsContext);
+  const fullHistory = (laptop && !sidebarExpanded) || laptopL;
   const [selectedHistoryYear, setSelectedHistoryYear] = useState(0);
   const [before, after] = useMemo<[Date, Date]>(() => {
     if (!fullHistory) {
