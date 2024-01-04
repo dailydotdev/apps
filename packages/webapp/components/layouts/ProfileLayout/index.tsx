@@ -97,7 +97,9 @@ export const getLayout = (
   props: ProfileLayoutProps,
 ): ReactNode =>
   getFooterNavBarLayout(
-    getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, null),
+    getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, null, {
+      screenCentered: false,
+    }),
   );
 
 interface ProfileParams extends ParsedUrlQuery {
