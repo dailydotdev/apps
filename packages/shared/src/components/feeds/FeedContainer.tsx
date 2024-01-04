@@ -247,7 +247,7 @@ export const FeedContainer = ({
                   <strong className="typo-title3">
                     {feedNameToHeading[feedName] ?? ''}
                   </strong>
-                  <span>{actionButtons}</span>
+                  <span className="flex flex-row gap-3">{actionButtons}</span>
                 </span>
                 {child}
               </div>

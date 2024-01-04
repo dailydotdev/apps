@@ -93,10 +93,10 @@ export const SearchControlHeader = ({
 
   if (searchVersion === SearchExperiment.V1 || shouldUseFeedLayoutV1) {
     const dropdownProps: Partial<DropdownProps> = {
-      className: { label: 'hidden', chevron: 'hidden', button: '!px-0' },
+      className: { label: 'hidden', chevron: 'hidden', button: '!px-1' },
       dynamicMenuWidth: true,
       shouldIndicateSelected: true,
-      buttonSize: ButtonSize.Medium,
+      buttonSize: shouldUseFeedLayoutV1 ? ButtonSize.Small : ButtonSize.Medium,
       iconOnly: true,
     };
     const actionButtons = [
