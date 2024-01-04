@@ -22,7 +22,7 @@ export function Flag({
     <div
       className={classNames(
         'absolute flex items-start',
-        'left-0 bottom-full ml-5 h-5',
+        'bottom-full left-0 ml-5 h-5',
       )}
     >
       <SimpleTooltip content={description}>
@@ -31,16 +31,16 @@ export function Flag({
             'flex items-center px-1',
             styles.flag,
             typeToClassName[type],
-            'h-full flex-col mouse:translate-y-4 rounded-t',
+            'h-full flex-col rounded-t mouse:translate-y-4',
           )}
         >
-          <span className="font-bold text-white uppercase typo-caption2">
+          <span className="font-bold uppercase text-white typo-caption2">
             {type}
           </span>
         </div>
       </SimpleTooltip>
       {description && (
-        <span className="mouse:hidden ml-2 typo-footnote text-theme-label-tertiary">
+        <span className="ml-2 text-theme-label-tertiary typo-footnote mouse:hidden">
           {description}
         </span>
       )}

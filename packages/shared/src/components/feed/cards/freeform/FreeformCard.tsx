@@ -41,16 +41,16 @@ export const FreeformCard = ({ post }: CardType): ReactElement => {
       )}
       <Card>
         <CardButton post={post} />
-        <header className="flex relative flex-row gap-2 m-2 mb-3">
+        <header className="relative m-2 mb-3 flex flex-row gap-2">
           <div className="relative">
             <SourceButton
               source={post.source}
               size="xsmall"
-              className="absolute -right-2 -bottom-2"
+              className="absolute -bottom-2 -right-2"
             />
             <ProfilePicture user={post.author} size="large" />
           </div>
-          <div className="flex flex-col flex-1 mr-6 ml-2">
+          <div className="ml-2 mr-6 flex flex-1 flex-col">
             <Typography type={TypographyType.Footnote} bold>
               {post.author.name}
             </Typography>
@@ -63,19 +63,19 @@ export const FreeformCard = ({ post }: CardType): ReactElement => {
               <CreatedAt createdAt={post.createdAt} />
             </MetaContainer>
           </div>
-          <div className="flex invisible group-hover/card:visible flex-row gap-2 self-start ml-auto">
+          <div className="invisible ml-auto flex flex-row gap-2 self-start group-hover/card:visible">
             <OptionButton post={post} tooltipPlacement="top" />
           </div>
         </header>
         <section>
-          <div className="px-2 pt-2 pb-3">
+          <div className="px-2 pb-3 pt-2">
             <Typography type={TypographyType.Title3} bold className={clamp}>
               {post.title}
             </Typography>
           </div>
         </section>
         <ImageOrText post={post} />
-        <footer className="flex flex-row justify-between mx-4">
+        <footer className="mx-4 flex flex-row justify-between">
           <UpvoteButton post={post} />
           <CommentButton post={post} />
           <ShareButton post={post} />

@@ -103,11 +103,7 @@ export const BaseFeedPage = classed(
   styles.feedPage,
 );
 
-export const FeedPage = classed(
-  BaseFeedPage,
-  'pt-10 px-6 laptop:px-16',
-  styles.feedPage,
-);
+export const FeedPage = classed(BaseFeedPage, styles.feedPage);
 
 export const FormErrorMessage = classed(
   'div',

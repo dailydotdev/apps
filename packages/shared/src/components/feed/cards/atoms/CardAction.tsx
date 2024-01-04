@@ -7,7 +7,7 @@ import { Post } from '../../../../graphql/posts';
 
 const clickableCardClasses = classNames(
   styles.link,
-  'absolute inset-0 w-full h-full focus-outline',
+  'focus-outline absolute inset-0 h-full w-full',
 );
 
 const RawCardButton = classed('button', clickableCardClasses);

@@ -188,7 +188,7 @@ const OptionButton = ({
           onClick={(e) => {
             show(e);
           }}
-          className={classNames('my-auto btn-tertiary', className)}
+          className={classNames('btn-tertiary my-auto', className)}
           buttonSize={buttonSize}
           icon={<MenuIcon />}
         />
@@ -201,7 +201,7 @@ const OptionButton = ({
       >
         {postOptions.map(({ icon, label, action }) => (
           <Item key={label} className="typo-callout" onClick={action}>
-            <span className="flex items-center w-full typo-callout">
+            <span className="flex w-full items-center typo-callout">
               {icon} {label}
             </span>
           </Item>

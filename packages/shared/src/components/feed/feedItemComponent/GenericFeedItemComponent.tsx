@@ -2,9 +2,9 @@ import React, { ReactElement } from 'react';
 import { ArticleCard, CardType, PlaceholderCard, ShareCard } from '../cards';
 import { FeedItem, FeedItemType } from '../../../hooks/useFeed';
 import { PostType } from '../../../graphql/posts';
-import { AdCard } from '../../cards/AdCard';
 import { VideoCard } from '../cards/video/VideoCard';
 import { CollectionCard } from '../cards/collection/CollectionCard';
+import { AdCard } from '../cards/ad/AdCard';
 
 export type LeanFeedItemComponentProps = {
   item: FeedItem;

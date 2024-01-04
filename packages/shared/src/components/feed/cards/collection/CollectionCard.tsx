@@ -24,17 +24,17 @@ export const CollectionCard = ({ post }: CardType): ReactElement => {
     <CardContainer>
       <Card>
         <CardButton post={post} />
-        <header className="flex items-center my-1 mx-2.5 h-8">
+        <header className="mx-2.5 my-1 flex h-8 items-center">
           <CollectionHeader
             sources={post.collectionSources}
             totalSources={post.numCollectionSources}
           />
-          <div className="flex invisible group-hover/card:visible flex-row gap-2 ml-auto">
+          <div className="invisible ml-auto flex flex-row gap-2 group-hover/card:visible">
             <OptionButton post={post} tooltipPlacement="top" />
           </div>
         </header>
         <section className="flex flex-1">
-          <div className="flex flex-col flex-1 mx-4">
+          <div className="mx-4 flex flex-1 flex-col">
             <Typography type={TypographyType.Title3} bold className="my-2">
               {post.title}
             </Typography>
@@ -50,7 +50,7 @@ export const CollectionCard = ({ post }: CardType): ReactElement => {
           </div>
         </section>
         <ImageOrText post={post} />
-        <footer className="flex flex-row justify-between mx-4">
+        <footer className="mx-4 flex flex-row justify-between">
           <UpvoteButton post={post} />
           <CommentButton post={post} />
           <ShareButton post={post} />

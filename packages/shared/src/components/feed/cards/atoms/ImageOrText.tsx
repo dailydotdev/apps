@@ -34,20 +34,20 @@ export default function ImageOrText({ post }: { post: Post }): ReactElement {
   }, [content]);
 
   return (
-    <section className="flex flex-col flex-1">
+    <section className="flex flex-1 flex-col">
       {image && (
         <Image
           alt="Post Cover image"
           src={image}
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
           loading="lazy"
-          className="object-cover my-2 w-full"
+          className="my-2 w-full object-cover"
         />
       )}
       {content && (
         <Typography
           type={TypographyType.Callout}
-          className="px-2 break-words line-clamp-6"
+          className="line-clamp-6 break-words px-2"
         >
           {decodedText}
         </Typography>

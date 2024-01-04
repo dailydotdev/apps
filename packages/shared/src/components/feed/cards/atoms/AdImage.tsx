@@ -8,13 +8,13 @@ type AdImageProps = { ad: Ad };
 export default function AdImage({ ad }: AdImageProps): ReactElement {
   const showBlurredImage = ad.source === 'Carbon' || ad.source === 'EthicalAds';
   return (
-    <div className="overflow-hidden relative rounded-xl">
+    <div className="relative overflow-hidden rounded-xl">
       <Image
         alt="Ad image"
         src={ad.image}
         className={classNames(
-          'w-full z-1 h-40',
-          showBlurredImage && 'inset-0 m-auto absolute',
+          'z-1 h-40 w-full',
+          showBlurredImage && 'absolute inset-0 m-auto',
         )}
         style={{ objectFit: showBlurredImage ? 'contain' : 'cover' }}
       />
@@ -22,7 +22,7 @@ export default function AdImage({ ad }: AdImageProps): ReactElement {
         <Image
           alt="Ad image background"
           src={ad.image}
-          className={classNames('-z-1 w-full h-40', styles.blur)}
+          className={classNames('-z-1 h-40 w-full', styles.blur)}
         />
       )}
     </div>

@@ -434,7 +434,7 @@ export default function useLeanPostActions({
       trackEvent(postAnalyticsEvent(AnalyticsEvent.UpvotePost, post));
       await upvotePost({ post });
     },
-    [cancelPostVote, showLogin, upvotePost, user],
+    [cancelPostVote, feedName, showLogin, trackEvent, upvotePost, user],
   );
 
   const toggleDownvote = useCallback(

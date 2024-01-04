@@ -116,7 +116,6 @@ export default function Feed<T>({
     selectedPostIndex,
   } = usePostModalNavigation(items, fetchPage, updatePost, canFetchMore);
 
-  console.log('feedName,', feedName);
   const feedContextValue = useMemo(() => {
     return {
       feedName,

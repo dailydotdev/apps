@@ -14,7 +14,7 @@ export const CollectionHeader = ({
   const hasSources = !!sources?.length;
 
   return (
-    <div className="flex relative flex-row m-2 mb-3">
+    <div className="relative m-2 mb-3 flex flex-row">
       {hasSources && (
         <ProfilePictureGroup
           className="hidden group-hover/card:flex"
@@ -23,7 +23,7 @@ export const CollectionHeader = ({
         >
           {sources.map((source) => (
             <SourceAvatar
-              className="border-2 !mr-0 border-theme-bg-primary"
+              className="!mr-0 border-2 border-theme-bg-primary"
               key={source.handle}
               source={source}
               size="medium"

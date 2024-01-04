@@ -42,40 +42,40 @@ export interface FeedContainerProps {
   actionButtons?: ReactNode;
 }
 
-const listGaps = {
-  cozy: 'gap-5',
-  roomy: 'gap-3',
-};
+// const listGaps = {
+//   cozy: 'gap-5',
+//   roomy: 'gap-3',
+// };
 
-const gridGaps = {
-  cozy: 'gap-14',
-  roomy: 'gap-12',
-};
+// const gridGaps = {
+//   cozy: 'gap-14',
+//   roomy: 'gap-12',
+// };
 
-const cardListClass = {
-  1: 'grid-cols-1',
-  2: 'grid-cols-2',
-  3: 'grid-cols-3',
-  4: 'grid-cols-4',
-  5: 'grid-cols-5',
-  6: 'grid-cols-6',
-  7: 'grid-cols-7',
-};
+// const cardListClass = {
+//   1: 'grid-cols-1',
+//   2: 'grid-cols-2',
+//   3: 'grid-cols-3',
+//   4: 'grid-cols-4',
+//   5: 'grid-cols-5',
+//   6: 'grid-cols-6',
+//   7: 'grid-cols-7',
+// };
 
-const getFeedGapPx = {
-  'gap-2': 8,
-  'gap-3': 12,
-  'gap-5': 20,
-  'gap-8': 32,
-  'gap-12': 48,
-  'gap-14': 56,
-};
+// const getFeedGapPx = {
+//   'gap-2': 8,
+//   'gap-3': 12,
+//   'gap-5': 20,
+//   'gap-8': 32,
+//   'gap-12': 48,
+//   'gap-14': 56,
+// };
 
-const gapClass = (isList: boolean, space: Spaciness) =>
-  isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
+// const gapClass = (isList: boolean, space: Spaciness) =>
+//   isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
 
-const cardClass = (isList: boolean, numberOfCards: number): string =>
-  isList ? 'grid-cols-1' : cardListClass[numberOfCards];
+// const cardClass = (isList: boolean, numberOfCards: number): string =>
+//   isList ? 'grid-cols-1' : cardListClass[numberOfCards];
 
 const getStyle = (isList: boolean, space: Spaciness): CSSProperties => {
   if (isList && space !== 'eco') {
@@ -111,11 +111,11 @@ export const FeedContainer = ({
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
   const isList = (insaneMode && numCards > 1) || shouldUseFeedLayoutV1;
-  const feedGapPx = getFeedGapPx[gapClass(isList, spaciness)];
-  const style = {
-    '--num-cards': numCards,
-    '--feed-gap': `${feedGapPx / 16}rem`,
-  } as CSSProperties;
+  // const feedGapPx = getFeedGapPx[gapClass(isList, spaciness)];
+  // const style = {
+  //   '--num-cards': numCards,
+  //   '--feed-gap': `${feedGapPx / 16}rem`,
+  // } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
   const isFinder = router.pathname === '/posts/finder';
   const isV1Search =
@@ -155,16 +155,14 @@ export const FeedContainer = ({
     completeAction(ActionType.UsedSearch);
   };
 
+  // TODO: Add padding/margin to the sub based on settings
+
   return (
     <div
-      className={classNames(
-        'flex w-full flex-col laptopL:mx-auto',
-        styles.container,
-        className,
-      )}
+      className={classNames('flex w-full flex-col laptopL:mx-auto', className)}
     >
       <ScrollToTopButton />
-      <div className="flex w-full flex-col pt-2 laptopL:mx-auto" style={style}>
+      <div className="flex w-full flex-col laptopL:mx-auto">
         {!inlineHeader && header}
         <div
           className={classNames(
@@ -215,10 +213,8 @@ export const FeedContainer = ({
           )}
           <div
             className={classNames(
-              'grid',
+              'grid grid-flow-row auto-rows-auto grid-cols-[repeat(auto-fit,_minmax(272px,_320px))] items-center justify-center	gap-4',
               isV1Search && 'mt-8',
-              gapClass(isList, spaciness),
-              cardClass(isList, numCards),
             )}
           >
             {children}

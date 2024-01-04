@@ -15,7 +15,7 @@ export default function AdLink({ ad }: AdLinkProps): ReactElement {
     <Typography
       type={TypographyType.Footnote}
       color={TypographyColor.Quaternary}
-      className="mt-4 mb-2"
+      className="mb-2 mt-4"
     >
       {ad.referralLink ? (
         <a href={ad.referralLink} target="_blank" rel={anchorDefaultRel}>

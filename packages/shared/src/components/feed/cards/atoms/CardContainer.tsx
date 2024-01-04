@@ -3,6 +3,6 @@ import classed from '../../../../lib/classed';
 
 export const CardContainer = classed(
   'div',
-  'relative min-h-card group/card w-[320px]',
+  'relative min-h-card h-full group/card max-w-80',
   styles.cardContainer,
 );

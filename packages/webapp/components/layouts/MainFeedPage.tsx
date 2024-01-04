@@ -43,7 +43,6 @@ export default function MainFeedPage({
   children,
   isFinder,
   feedItemComponent,
-  ...props
 }: MainFeedPageProps): ReactElement {
   const router = useRouter();
   const { user } = useContext(AuthContext);

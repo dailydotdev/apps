@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { PinIcon } from '../icons';
 import { Squad } from '../../graphql/sources';
