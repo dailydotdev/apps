@@ -33,12 +33,12 @@ import {
   SearchControlHeaderProps,
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
-import { cloudinary } from '../lib/image';
-import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
+import { useFeedLayout } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
 import { FeedContainerProps } from './feeds';
 import { getFeedName } from '../lib/feed';
+import { FeedGradientBg } from './feeds/FeedGradientBg';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -245,17 +245,6 @@ export default function MainFeedLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
-  const isMobile = useViewSize(ViewSize.MobileL);
-  const isLaptop = useViewSize(ViewSize.Laptop);
-
-  const getImage = () => {
-    if (isMobile) {
-      return cloudinary.feed.bg.mobile;
-    }
-
-    return isLaptop ? cloudinary.feed.bg.laptop : cloudinary.feed.bg.tablet;
-  };
-
   const getPadding = () => {
     if (isV1Search) {
       return '!pt-2';
@@ -268,16 +257,7 @@ export default function MainFeedLayout({
 
   return (
     <FeedPageComponent className={classNames('relative', getPadding())}>
-      {isV1Search && !isFinder && (
-        <img
-          className={classNames(
-            'absolute left-0 top-0 w-full laptop:max-w-[58.75rem]',
-            shouldUseFeedLayoutV1 && 'laptop:left-1/2 laptop:-translate-x-1/2',
-          )}
-          src={getImage()}
-          alt="Gradient background"
-        />
-      )}
+      {isV1Search && !shouldUseFeedLayoutV1 && !isFinder && <FeedGradientBg />}
       {isSearchOn && search}
       {feedProps && (
         <Feed

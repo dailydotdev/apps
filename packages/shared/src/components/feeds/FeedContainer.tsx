@@ -33,6 +33,7 @@ import {
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
+import { FeedGradientBg } from './FeedGradientBg';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -175,6 +176,7 @@ export const FeedContainer = ({
         className,
       )}
     >
+      {isV1Search && shouldUseFeedLayoutV1 && !isFinder && <FeedGradientBg />}
       <ScrollToTopButton />
       <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
         {!inlineHeader && header}
