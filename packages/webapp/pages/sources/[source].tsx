@@ -184,7 +184,6 @@ export async function getStaticProps({
       revalidate: 60,
     };
   } catch (err) {
-    console.log('some err');
     if (err?.response?.errors?.[0].extensions.code === ApiError.NotFound) {
       return {
         props: {
