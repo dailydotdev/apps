@@ -29,8 +29,6 @@ import {
   useActions,
   ToastSubject,
   useToastNotification,
-  useViewSize,
-  ViewSize,
 } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
@@ -153,8 +151,6 @@ export const FeedContainer = ({
     isTracked.current = true;
     trackEvent({ event_name: AnalyticsEvent.SearchHighlightAnimation });
   }, [trackEvent, shouldShowPulse]);
-
-  const isMobile = useViewSize(ViewSize.MobileL);
 
   if (!loadedSettings) {
     return <></>;
