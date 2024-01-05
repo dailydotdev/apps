@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
@@ -32,11 +33,12 @@ import {
   SearchControlHeaderProps,
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
-import { cloudinary } from '../lib/image';
-import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
+import { useFeedLayout } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
+import { FeedContainerProps } from './feeds';
 import { getFeedName } from '../lib/feed';
+import { FeedGradientBg } from './feeds/FeedGradientBg';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -73,17 +75,17 @@ const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
   },
 };
 
-export type MainFeedLayoutProps = {
+export interface MainFeedLayoutProps
+  extends Pick<FeedContainerProps, 'shortcuts'> {
   feedName: string;
   isSearchOn: boolean;
   searchQuery?: string;
   children?: ReactNode;
   searchChildren: ReactNode;
-  besideSearch?: ReactNode;
   navChildren?: ReactNode;
   onFeedPageChanged: (page: SharedFeedPage) => void;
   isFinder?: boolean;
-};
+}
 
 const getQueryBasedOnLogin = (
   tokenRefreshed: boolean,
@@ -108,7 +110,7 @@ export default function MainFeedLayout({
   isSearchOn,
   children,
   searchChildren,
-  besideSearch,
+  shortcuts,
   onFeedPageChanged,
   navChildren,
   isFinder,
@@ -122,6 +124,7 @@ export default function MainFeedLayout({
   });
   const feedVersion = useFeature(feature.feedVersion);
   const searchVersion = useFeature(feature.search);
+  const isV1Search = searchVersion === SearchExperiment.V1;
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
 
@@ -199,6 +202,7 @@ export default function MainFeedLayout({
     };
 
     const variables = getVariables();
+    const feedWithActions = isUpvoted || isSortableFeed;
 
     return {
       feedName,
@@ -210,29 +214,27 @@ export default function MainFeedLayout({
       query: query.query,
       variables,
       emptyScreen: <FeedEmptyScreen />,
-      header:
-        searchVersion === SearchExperiment.Control && !isSearchOn ? (
+      header: searchVersion === SearchExperiment.Control &&
+        !isSearchOn &&
+        !shouldUseFeedLayoutV1 && (
           <SearchControlHeader {...searchProps} navChildren={navChildren} />
-        ) : null,
-      actionButtons:
-        searchVersion === SearchExperiment.V1 &&
-        (isUpvoted || isSortableFeed) ? (
-          <SearchControlHeader {...searchProps} />
-        ) : null,
-      besideSearch,
+        ),
+      actionButtons: (isV1Search || shouldUseFeedLayoutV1) &&
+        feedWithActions && <SearchControlHeader {...searchProps} />,
+      shortcuts,
     };
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     searchVersion,
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    isSearchOn && searchQuery,
+    shouldUseFeedLayoutV1,
+    isV1Search,
+    isSearchOn,
+    searchQuery,
     query.query,
     query.variables,
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    isUpvoted && selectedPeriod,
+    isUpvoted,
+    selectedPeriod,
   ]);
 
   useEffect(() => {
@@ -243,30 +245,20 @@ export default function MainFeedLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
-  const isMobile = useViewSize(ViewSize.MobileL);
-  const isLaptop = useViewSize(ViewSize.Laptop);
-
-  const getImage = () => {
-    if (isMobile) {
-      return cloudinary.feed.bg.mobile;
-    }
-
-    return isLaptop ? cloudinary.feed.bg.laptop : cloudinary.feed.bg.tablet;
-  };
-
   const FeedPageComponent = shouldUseFeedLayoutV1 ? FeedPageLayoutV1 : FeedPage;
 
   return (
-    <FeedPageComponent className="relative">
-      {searchVersion === SearchExperiment.V1 && !isFinder && (
-        <img
-          className="absolute left-0 top-0 w-full max-w-[58.75rem]"
-          src={getImage()}
-          alt="Gradient background"
+    <FeedPageComponent
+      className={classNames('relative', shouldUseFeedLayoutV1 && '!pt-0')}
+    >
+      {isV1Search && !shouldUseFeedLayoutV1 && !isFinder && <FeedGradientBg />}
+      {isSearchOn && search}
+      {feedProps && (
+        <Feed
+          {...feedProps}
+          className={shouldUseFeedLayoutV1 && !isFinder && 'laptop:px-12'}
         />
       )}
-      {isSearchOn && search}
-      {feedProps && <Feed {...feedProps} />}
       {children}
     </FeedPageComponent>
   );

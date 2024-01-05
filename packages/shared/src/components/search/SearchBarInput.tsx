@@ -158,7 +158,11 @@ function SearchBarInputComponent(
           onSubmit={onMobileSubmit}
         />
       )}
-      <form onSubmit={onSubmit} className={className?.form}>
+      <form
+        onSubmit={onSubmit}
+        className={classNames(className?.form, 'relative')}
+      >
+        <RaisedLabel type={RaisedLabelType.Beta} />
         <BaseField
           {...props}
           className={classNames(
@@ -221,7 +225,6 @@ function SearchBarInputComponent(
           </div>
         </BaseField>
       </form>
-      <RaisedLabel type={RaisedLabelType.Beta} />
       {showProgress && (
         <div className="mt-3">
           <SearchProgressBar max={chunk?.steps} progress={chunk?.progress} />

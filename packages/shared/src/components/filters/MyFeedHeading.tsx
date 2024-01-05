@@ -2,7 +2,12 @@ import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import FilterIcon from '../icons/Filter';
-import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/ButtonV2';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import AlertPointer, {
   AlertPlacement,
   AlertPointerProps,
@@ -14,6 +19,7 @@ import { AnalyticsEvent } from '../../lib/analytics';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
+import { useFeedLayout } from '../../hooks';
 
 interface MyFeedHeadingProps {
   isAlertDisabled: boolean;
@@ -32,6 +38,7 @@ function MyFeedHeading({
   const { trackEvent } = useContext(AnalyticsContext);
   const searchVersion = useFeature(feature.search);
   const shouldShowHighlightPulse = router.query?.hset === 'true';
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
 
   const onClick = () => {
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
@@ -66,36 +73,29 @@ function MyFeedHeading({
         ? AlertPlacement.Right
         : AlertPlacement.Bottom,
   };
-
-  if (searchVersion === SearchExperiment.V1) {
-    return (
-      <AlertPointer {...alertProps} offset={[0, 0]}>
-        <Button
-          variant={ButtonVariant.Float}
-          className={classNames(
-            'mr-auto',
-            shouldShowHighlightPulse && 'highlight-pulse',
-          )}
-          onClick={onClick}
-          icon={<FilterIcon />}
-        >
-          Feed settings
-        </Button>
-      </AlertPointer>
-    );
-  }
+  const isV1Search = searchVersion === SearchExperiment.V1;
 
   return (
-    <AlertPointer {...alertProps}>
+    <AlertPointer
+      {...alertProps}
+      offset={isV1Search ? [0, 0] : alertProps.offset}
+    >
       <Button
-        variant={ButtonVariant.Tertiary}
+        size={shouldUseFeedLayoutV1 ? ButtonSize.Small : ButtonSize.Medium}
+        variant={
+          isV1Search || shouldUseFeedLayoutV1
+            ? ButtonVariant.Float
+            : ButtonVariant.Tertiary
+        }
         className={classNames(
           'mr-auto',
           shouldShowHighlightPulse && 'highlight-pulse',
         )}
         onClick={onClick}
         icon={<FilterIcon />}
-        iconPosition={ButtonIconPosition.Right}
+        iconPosition={
+          shouldUseFeedLayoutV1 ? ButtonIconPosition.Right : undefined
+        }
       >
         Feed settings
       </Button>
