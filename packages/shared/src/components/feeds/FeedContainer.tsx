@@ -230,7 +230,7 @@ export const FeedContainer = ({
               />
             </ConditionalWrapper>
           )}
-          {isV1Search && !isMobile && (
+          {isV1Search && (
             <span className="mt-4 flex flex-1 flex-row">
               <SearchBarSuggestionList
                 {...suggestionsProps}

@@ -93,7 +93,9 @@ function MyFeedHeading({
         )}
         onClick={onClick}
         icon={<FilterIcon />}
-        iconPosition={ButtonIconPosition.Right}
+        iconPosition={
+          shouldUseFeedLayoutV1 ? ButtonIconPosition.Right : undefined
+        }
       >
         Feed settings
       </Button>
