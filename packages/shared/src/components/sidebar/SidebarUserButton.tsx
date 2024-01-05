@@ -21,9 +21,9 @@ export function SidebarUserButton({
               <div className="mb-4 flex items-center">
                 <ProfileLink
                   href={user.permalink}
-                  className="focus-outline ml-0.5 flex cursor-pointer items-center rounded-lg border-none bg-theme-bg-secondary p-0 font-bold text-theme-label-primary no-underline typo-callout"
+                  className="focus-outline flex h-10 cursor-pointer items-center rounded-12 border-none bg-theme-bg-secondary p-0 font-bold text-theme-label-primary no-underline typo-callout"
                 >
-                  <ProfilePicture user={user} size="medium" />
+                  <ProfilePicture user={user} size="large" />
                   <span className="ml-2 mr-3">{user.reputation ?? 0}</span>
                 </ProfileLink>
                 <SearchReferralButton className="ml-3" />
