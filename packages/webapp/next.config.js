@@ -70,6 +70,7 @@ module.exports = withTM(
             {
               source: '/sources/daily_updates',
               destination: '/squads/daily_updates',
+              permanent: false,
             }
           ]
         },
