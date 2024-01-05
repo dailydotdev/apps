@@ -212,6 +212,7 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
       public
       description
       image
+      type
     }
   }
 `;
