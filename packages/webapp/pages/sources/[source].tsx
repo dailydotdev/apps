@@ -168,6 +168,15 @@ export async function getStaticProps({
       id: params.source,
     });
 
+    if (res.source?.type === 'squad') {
+      return {
+        redirect: {
+          destination: `/squads/${params.source}`,
+          permanent: false,
+        },
+      };
+    }
+
     return {
       props: {
         source: res.source,
@@ -175,6 +184,7 @@ export async function getStaticProps({
       revalidate: 60,
     };
   } catch (err) {
+    console.log('some err');
     if (err?.response?.errors?.[0].extensions.code === ApiError.NotFound) {
       return {
         props: {

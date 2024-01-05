@@ -91,6 +91,7 @@ export const SOURCE_QUERY = gql`
       id
       image
       name
+      type
     }
   }
 `;
