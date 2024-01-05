@@ -31,7 +31,7 @@
     @apply typo-markdown italic pl-7 my-5 border-l border-theme-divider-secondary;
   }
   & :where(pre) {
-    @apply typo-markdown relative bg-theme-float py-0 px-0 my-5 rounded-12 border border-theme-divider-quaternary;
+    @apply typo-markdown relative bg-theme-float py-7 px-6 my-5 rounded-12 border border-theme-divider-quaternary;
   }
 
   & :where(pre) > code {
