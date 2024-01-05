@@ -5,6 +5,7 @@ import { cloudinary } from '../../lib/image';
 interface UseCloudinaryAsset {
   onboardingIntroduction: string;
   scrollBlock: string;
+  notFound: string;
 }
 
 export const useThemedAsset = (): UseCloudinaryAsset => {
@@ -25,5 +26,8 @@ export const useThemedAsset = (): UseCloudinaryAsset => {
     scrollBlock: isLight
       ? cloudinary.feedFilters.scroll.light
       : cloudinary.feedFilters.scroll.dark,
+    notFound: isLight
+      ? cloudinary.generic.notFound.light
+      : cloudinary.generic.notFound.dark,
   };
 };

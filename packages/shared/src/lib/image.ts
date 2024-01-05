@@ -145,6 +145,13 @@ export const cloudinary = {
       webm: 'https://daily-now-res.cloudinary.com/video/upload/v1695808184/daily.dev_onboarding_wall_video_qzmrzm_iroigf.webm',
     },
   },
+  generic: {
+    notFound: {
+      light:
+        'https://daily-now-res.cloudinary.com/image/upload/s--DEBKQRIw--/v1704439964/webapp/NotFound.svg',
+      dark: 'https://daily-now-res.cloudinary.com/image/upload/s--QKyyqLHH--/v1704440574/webapp/NotFound-Dark.svg',
+    },
+  },
 };
 
 export const smallPostImage = (url: string): string => {
