@@ -65,6 +65,14 @@ module.exports = withTM(
         env: {
           CURRENT_VERSION: version,
         },
+        redirects: async () => {
+          return [
+            {
+              source: '/sources/daily_updates',
+              destination: '/squads/daily_updates',
+            }
+          ]
+        },
         rewrites: () => [
           {
             source: '/api/:path*',
