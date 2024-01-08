@@ -18,7 +18,7 @@ export const PlaceholderCard = forwardRef(function PlaceholderCard(
     <Card aria-busy className={classNames(className)} {...props} ref={ref}>
       <CardTextContainer>
         <CardSpace className="mb-2 flex flex-row">
-          <ElementPlaceholder className="h-10 w-10 rounded-full" />
+          <ElementPlaceholder className="size-10 rounded-full" />
           <CardSpace className="ml-4 grid content-center gap-2">
             <Text className="h-2 w-20" />
             <Text className="h-2 w-40" />
