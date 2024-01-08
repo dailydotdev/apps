@@ -4,18 +4,24 @@ import { PostType } from '../../../graphql/posts';
 
 type TypeLabelType = PostType | ReactElement | string;
 
-const typeToClassName: Record<PostType, string> = {
-  [PostType.Article]: 'text-theme-label-tertiary',
+const typeToClassName: Record<
+  PostType.Collection | PostType.VideoYouTube,
+  string
+> = {
   [PostType.Collection]: 'text-theme-color-cabbage',
-  [PostType.Freeform]: 'text-theme-label-tertiary',
-  [PostType.Share]: 'text-theme-label-tertiary',
   [PostType.VideoYouTube]: 'text-theme-color-blueCheese',
-  [PostType.Welcome]: 'text-theme-label-tertiary',
 };
 
 const typeToLabel = {
   [PostType.VideoYouTube]: 'Video',
 };
+
+const excludedTypes = new Set<PostType>([
+  PostType.Article,
+  PostType.Freeform,
+  PostType.Share,
+  PostType.Welcome,
+]);
 
 export interface TypeLabelProps {
   type: TypeLabelType;
@@ -26,13 +32,8 @@ export function TypeLabel({
   type = PostType.Article,
   className,
 }: TypeLabelProps): ReactElement {
-  // do not show tag label for these types
-  if (
-    type === PostType.Article ||
-    type === PostType.Freeform ||
-    type === PostType.Share ||
-    type === PostType.Welcome
-  ) {
+  // do not show tag label for excluded types
+  if (excludedTypes.has(type as PostType)) {
     return null;
   }
 

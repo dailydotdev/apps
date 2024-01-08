@@ -10,7 +10,7 @@ import { AdCard as AdCardV1 } from './cards/v1/AdCard';
 import { PlaceholderList } from './cards/PlaceholderList';
 import { PlaceholderCard } from './cards/PlaceholderCard';
 import { PlaceholderCard as PlaceholderCardV1 } from './cards/v1/PlaceholderCard';
-import { Ad, Post, PostType } from '../graphql/posts';
+import { Ad, Post, PostItem, PostType } from '../graphql/posts';
 import { LoggedUser } from '../lib/user';
 import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
@@ -107,11 +107,23 @@ const PostTypeToTagV1: Record<PostType, FunctionComponent> = {
   [PostType.Collection]: CollectionCardV1,
 };
 
-const getPlaceHolder = (useList: boolean, isFeedLayoutV1: boolean) => {
+const getTags = (
+  isList: boolean,
+  isFeedLayoutV1: boolean,
+  postType: PostType,
+) => {
   if (isFeedLayoutV1) {
-    return PlaceholderCardV1;
+    return {
+      PostTag: PostTypeToTagV1[postType] ?? ArticlePostCardV1,
+      AdTag: AdCardV1,
+      PlaceholderTag: PlaceholderCardV1,
+    };
   }
-  return useList ? PlaceholderList : PlaceholderCard;
+  return {
+    PostTag: isList ? PostList : PostTypeToTag[postType] ?? ArticlePostCard,
+    AdTag: isList ? AdList : AdCard,
+    PlaceholderTag: isList ? PlaceholderList : PlaceholderCard,
+  };
 };
 
 export default function FeedItemComponent({
@@ -120,7 +132,7 @@ export default function FeedItemComponent({
   row,
   column,
   columns,
-  useList,
+  useList: isList,
   insaneMode,
   openNewTab,
   postMenuIndex,
@@ -142,7 +154,6 @@ export default function FeedItemComponent({
   onAdClick,
   onReadArticleClick,
 }: FeedItemComponentProps): ReactElement {
-  const AdTag = useList ? AdList : AdCard;
   const item = items[index];
   const inViewRef = useTrackImpression(
     item,
@@ -155,13 +166,17 @@ export default function FeedItemComponent({
   );
 
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
-  const PlaceholderTag = getPlaceHolder(useList, shouldUseFeedLayoutV1);
+  const { PostTag, AdTag, PlaceholderTag } = getTags(
+    isList,
+    shouldUseFeedLayoutV1,
+    (item as PostItem).post?.type,
+  );
 
   let postTypeToTag = PostTypeToTag;
   let articlePostCard = ArticlePostCard;
   let EffectiveAdTag = AdTag;
 
-  if (feedName !== 'squad' && shouldUseFeedLayoutV1) {
+  if (shouldUseFeedLayoutV1) {
     postTypeToTag = PostTypeToTagV1;
     articlePostCard = ArticlePostCardV1;
     EffectiveAdTag = AdCardV1;
@@ -176,9 +191,6 @@ export default function FeedItemComponent({
         return null;
       }
 
-      const PostTag = useList
-        ? PostList
-        : postTypeToTag[item.post.type] ?? articlePostCard;
       return (
         <PostTag
           enableSourceHeader={
@@ -235,8 +247,8 @@ export default function FeedItemComponent({
                 comment({ post: item.post, content, row, column, columns })
               }
               loading={isSendingComment}
-              compactCard={!useList && insaneMode}
-              listMode={useList}
+              compactCard={!isList && insaneMode}
+              listMode={isList}
             />
           )}
         </PostTag>

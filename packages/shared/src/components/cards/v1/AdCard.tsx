@@ -26,14 +26,16 @@ export const AdCard = forwardRef(function AdCard(
       domProps={domProps}
       ref={ref}
       flagProps={{
-        adAttribution: <AdAttribution ad={ad} typoClassName="typo-caption1" />,
+        adAttribution: (
+          <AdAttribution ad={ad} className={{ typo: 'typo-caption1' }} />
+        ),
         type: undefined,
       }}
       data-testid="adItem"
     >
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <CardTextContainer>
-        <CardTitle className="my-4 line-clamp-4 font-bold typo-title3">
+        <CardTitle className="line-clamp-4 font-bold typo-title3">
           {ad.description}
         </CardTitle>
       </CardTextContainer>

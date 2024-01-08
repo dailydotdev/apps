@@ -8,13 +8,13 @@ interface PostCardFooterClassName {
   image?: string;
 }
 
-type PostCardFooterProps = {
+interface PostCardFooterProps {
   insaneMode: boolean;
   openNewTab: boolean;
   showImage: boolean;
   post: Post;
   className: PostCardFooterClassName;
-};
+}
 
 export const PostCardFooter = ({
   post,

@@ -57,7 +57,7 @@ export const AdCard = forwardRef(function AdCard(
         </div>
       )}
       <CardTextContainer>
-        <AdAttribution ad={ad} className="mb-2 mt-4" />
+        <AdAttribution ad={ad} className={{ main: 'mb-2 mt-4' }} />
       </CardTextContainer>
       {ad.pixel?.map((pixel) => (
         <img

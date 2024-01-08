@@ -1,6 +1,7 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import styles from './InteractionCounter.module.css';
+import classNames from 'classnames';
 
 export type InteractionCounterProps = {
   className?: string;
@@ -43,7 +44,11 @@ export default function InteractionCounter({
 
   return (
     <span
-      className={`relative overflow-hidden ${styles.interactionCounter} ${className}`}
+      className={classNames(
+        'relative overflow-hidden',
+        styles.interactionCounter,
+        className,
+      )}
       {...props}
     >
       <span

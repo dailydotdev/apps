@@ -12,7 +12,7 @@ import BookmarkIcon from '../../icons/Bookmark';
 import DownvoteIcon from '../../icons/Downvote';
 
 const ShareIcon = dynamic(
-  () => import(/* webpackChunkName: "share" */ '../../icons/Share'),
+  () => import(/* webpackChunkName: "shareIcon" */ '../../icons/Share'),
 );
 
 export interface ActionButtonsProps {

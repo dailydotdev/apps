@@ -77,53 +77,51 @@ export const ArticlePostCard = forwardRef(function PostCard(
         />
       ) : (
         <>
-          <div>
-            <CardTextContainer>
-              <PostCardHeader
-                post={post}
-                className={showFeedback ? 'hidden' : 'flex'}
-                openNewTab={openNewTab}
-                source={post.source}
-                postLink={post.permalink}
-                onMenuClick={(event) => onMenuClick?.(event, post)}
-                onReadArticleClick={onReadArticleClick}
-              />
-              <CardTitle
-                lineClamp={showFeedback ? 'line-clamp-2' : undefined}
-                className={!!post.read && 'text-theme-label-tertiary'}
-              >
-                {post.title}
-              </CardTitle>
+          <CardTextContainer>
+            <PostCardHeader
+              post={post}
+              className={showFeedback ? 'hidden' : 'flex'}
+              openNewTab={openNewTab}
+              source={post.source}
+              postLink={post.permalink}
+              onMenuClick={(event) => onMenuClick?.(event, post)}
+              onReadArticleClick={onReadArticleClick}
+            />
+            <CardTitle
+              lineClamp={showFeedback ? 'line-clamp-2' : undefined}
+              className={!!post.read && 'text-theme-label-tertiary'}
+            >
+              {post.title}
+            </CardTitle>
+          </CardTextContainer>
+          {post.summary && (
+            <CardTextContainer className="mt-4 text-theme-label-secondary">
+              {post.summary}
             </CardTextContainer>
-            {post.summary && (
-              <CardTextContainer className="mt-4 text-theme-label-secondary">
-                {post.summary}
-              </CardTextContainer>
-            )}
-            <Container>
-              <PostCardFooter
-                insaneMode={insaneMode}
-                openNewTab={openNewTab}
-                post={post}
-                showImage={showImage}
-                className={{
-                  image: classNames(showFeedback && 'mb-0'),
-                }}
-              />
-              <ActionButtons
-                className="mt-4"
-                openNewTab={openNewTab}
-                post={post}
-                onUpvoteClick={onUpvoteClick}
-                onDownvoteClick={onDownvoteClick}
-                onCommentClick={onCommentClick}
-                onShareClick={onShareClick}
-                onBookmarkClick={onBookmarkClick}
-                onMenuClick={(event) => onMenuClick?.(event, post)}
-                onReadArticleClick={onReadArticleClick}
-              />
-            </Container>
-          </div>
+          )}
+          <Container>
+            <PostCardFooter
+              insaneMode={insaneMode}
+              openNewTab={openNewTab}
+              post={post}
+              showImage={showImage}
+              className={{
+                image: classNames(showFeedback && 'mb-0'),
+              }}
+            />
+            <ActionButtons
+              className="mt-4"
+              openNewTab={openNewTab}
+              post={post}
+              onUpvoteClick={onUpvoteClick}
+              onDownvoteClick={onDownvoteClick}
+              onCommentClick={onCommentClick}
+              onShareClick={onShareClick}
+              onBookmarkClick={onBookmarkClick}
+              onMenuClick={(event) => onMenuClick?.(event, post)}
+              onReadArticleClick={onReadArticleClick}
+            />
+          </Container>
           {children}
         </>
       )}
