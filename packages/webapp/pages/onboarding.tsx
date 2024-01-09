@@ -52,7 +52,6 @@ import { OtherFeedPage, RequestKey } from '@dailydotdev/shared/src/lib/query';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import GenericFeedItemComponent from '@dailydotdev/shared/src/components/feed/feedItemComponent/GenericFeedItemComponent';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';

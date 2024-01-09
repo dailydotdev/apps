@@ -168,11 +168,25 @@ export const FeedContainer = ({
     completeAction(ActionType.UsedSearch);
   };
 
+  const gap = (space: Spaciness) => {
+    switch (space) {
+      case 'cozy':
+        return 'gap-14';
+      case 'roomy':
+        return 'gap-12';
+      default:
+        return 'gap-8';
+    }
+  };
+
   // TODO: Add padding/margin to the sub based on settings
 
   return (
     <div
-      className={classNames('relative flex w-full flex-col laptopL:mx-auto', className)}
+      className={classNames(
+        'relative flex w-full flex-col laptopL:mx-auto',
+        className,
+      )}
     >
       {isV1Search && shouldUseFeedLayoutV1 && <FeedGradientBg />}
       <ScrollToTopButton />
@@ -259,10 +273,12 @@ export const FeedContainer = ({
                 {child}
               </div>
             )}
-          ><div
-            className={classNames(
-              'grid grid-flow-row auto-rows-auto grid-cols-[repeat(auto-fit,_minmax(272px,_320px))] items-center justify-center	gap-4',
-                isV1Search && !shouldUseFeedLayoutV1 &&'mt-8',
+          >
+            <div
+              className={classNames(
+                'grid grid-flow-row auto-rows-auto grid-cols-[repeat(auto-fit,_minmax(272px,_320px))] items-center justify-center',
+                gap(spaciness),
+                isV1Search && !shouldUseFeedLayoutV1 && 'mt-8',
               )}
             >
               {children}
