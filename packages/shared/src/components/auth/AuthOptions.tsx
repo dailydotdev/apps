@@ -21,7 +21,6 @@ import {
   getNodeValue,
   RegistrationError,
 } from '../../lib/auth';
-import useWindowEvents from '../../hooks/useWindowEvents';
 import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
 import AuthHeader from './AuthHeader';
@@ -30,7 +29,6 @@ import {
   AuthFlow,
   getKratosFlow,
   getKratosProviders,
-  SocialRegistrationFlow,
 } from '../../lib/kratos';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { providers } from './common';
@@ -53,6 +51,7 @@ import {
 import { LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
 import OnboardingRegistrationForm from './OnboardingRegistrationForm';
+import { useEventListener } from '../../hooks';
 
 export enum AuthDisplay {
   Default = 'default',
@@ -239,70 +238,67 @@ function AuthOptions({
     onSetActiveDisplay(AuthDisplay.CodeVerification);
   };
 
-  useWindowEvents<SocialRegistrationFlow>(
-    'message',
-    AuthEvent.SocialRegistration,
-    async (e) => {
-      if (e.data?.flow) {
-        const connected = await getKratosFlow(
-          AuthFlow.Registration,
-          e.data.flow,
+  useEventListener(globalThis, 'message', async (e) => {
+    if (e.data?.eventKey !== AuthEvent.SocialRegistration) {
+      return undefined;
+    }
+
+    if (e.data?.flow) {
+      const connected = await getKratosFlow(AuthFlow.Registration, e.data.flow);
+
+      trackEvent({
+        event_name: AuthEventNames.RegistrationError,
+        extra: JSON.stringify({
+          error: {
+            flowId: connected?.id,
+            messages: connected?.ui?.messages,
+          },
+          origin: 'window registration flow error',
+        }),
+      });
+
+      if (
+        [4010002, 4010003, 4000007].includes(connected?.ui?.messages?.[0]?.id)
+      ) {
+        const registerUser = {
+          name: getNodeValue('traits.name', connected.ui.nodes),
+          email: getNodeValue('traits.email', connected.ui.nodes),
+          image: getNodeValue('traits.image', connected.ui.nodes),
+        };
+        const { result } = await getKratosProviders(connected.id);
+        setIsConnected(true);
+        await onSignBackLogin(registerUser, result[0] as SignBackProvider);
+        return onSetActiveDisplay(AuthDisplay.SignBack);
+      }
+
+      return displayToast(labels.auth.error.generic);
+    }
+    const bootResponse = await refetchBoot();
+    if (!bootResponse.data.user || !('email' in bootResponse.data.user)) {
+      trackEvent({
+        event_name: AuthEventNames.SubmitSignUpFormError,
+        extra: JSON.stringify({
+          error: 'Could not find email on social registration',
+        }),
+      });
+      return displayToast(labels.auth.error.generic);
+    }
+
+    if (!e.data?.social_registration) {
+      const { data: boot } = bootResponse;
+
+      if (boot.user) {
+        onSignBackLogin(
+          boot.user as LoggedUser,
+          chosenProvider as SignBackProvider,
         );
-
-        trackEvent({
-          event_name: AuthEventNames.RegistrationError,
-          extra: JSON.stringify({
-            error: {
-              flowId: connected?.id,
-              messages: connected?.ui?.messages,
-            },
-            origin: 'window registration flow error',
-          }),
-        });
-
-        if (
-          [4010002, 4010003, 4000007].includes(connected?.ui?.messages?.[0]?.id)
-        ) {
-          const registerUser = {
-            name: getNodeValue('traits.name', connected.ui.nodes),
-            email: getNodeValue('traits.email', connected.ui.nodes),
-            image: getNodeValue('traits.image', connected.ui.nodes),
-          };
-          const { result } = await getKratosProviders(connected.id);
-          setIsConnected(true);
-          await onSignBackLogin(registerUser, result[0] as SignBackProvider);
-          return onSetActiveDisplay(AuthDisplay.SignBack);
-        }
-
-        return displayToast(labels.auth.error.generic);
-      }
-      const bootResponse = await refetchBoot();
-      if (!bootResponse.data.user || !('email' in bootResponse.data.user)) {
-        trackEvent({
-          event_name: AuthEventNames.SubmitSignUpFormError,
-          extra: JSON.stringify({
-            error: 'Could not find email on social registration',
-          }),
-        });
-        return displayToast(labels.auth.error.generic);
       }
 
-      if (!e.data?.social_registration) {
-        const { data: boot } = bootResponse;
+      return onSuccessfulLogin?.();
+    }
 
-        if (boot.user) {
-          onSignBackLogin(
-            boot.user as LoggedUser,
-            chosenProvider as SignBackProvider,
-          );
-        }
-
-        return onSuccessfulLogin?.();
-      }
-
-      return onSetActiveDisplay(AuthDisplay.SocialRegistration);
-    },
-  );
+    return onSetActiveDisplay(AuthDisplay.SocialRegistration);
+  });
 
   const onEmailRegistration = (emailAd: string) => {
     // before displaying registration, ensure the email doesn't exist

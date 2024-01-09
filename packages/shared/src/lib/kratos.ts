@@ -1,4 +1,4 @@
-import { MessageEventData } from '../hooks/useWindowEvents';
+import { MessageEventData } from '../hooks/useEventListener';
 import { authUrl, heimdallUrl } from './constants';
 
 export type EmptyObjectLiteral = Record<string, never | string>;
