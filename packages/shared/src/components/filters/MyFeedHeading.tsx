@@ -11,6 +11,7 @@ import {
 import AlertPointer, {
   AlertPlacement,
   AlertPointerProps,
+  OffsetXY,
 } from '../alert/AlertPointer';
 import { filterAlertMessage } from './FeedFilters';
 import { Alerts } from '../../graphql/alerts';
@@ -19,7 +20,7 @@ import { AnalyticsEvent } from '../../lib/analytics';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
-import { useFeedLayout } from '../../hooks';
+import { useFeedLayout, useViewSize, ViewSize } from '../../hooks';
 
 interface MyFeedHeadingProps {
   isAlertDisabled: boolean;
@@ -39,6 +40,8 @@ function MyFeedHeading({
   const searchVersion = useFeature(feature.search);
   const shouldShowHighlightPulse = router.query?.hset === 'true';
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const isV1Search = searchVersion === SearchExperiment.V1;
 
   const onClick = () => {
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
@@ -53,8 +56,35 @@ function MyFeedHeading({
     }
   };
 
+  const isControlSearch = searchVersion === SearchExperiment.Control;
+  const getPlacement = () => {
+    if (shouldUseFeedLayoutV1) {
+      return isMobile || isControlSearch
+        ? AlertPlacement.Bottom
+        : AlertPlacement.Top;
+    }
+
+    if (sidebarRendered && isControlSearch) {
+      return AlertPlacement.Right;
+    }
+
+    return AlertPlacement.Bottom;
+  };
+
+  const getOffset = (): OffsetXY => {
+    if (shouldUseFeedLayoutV1) {
+      return [0, 8];
+    }
+
+    if (isV1Search) {
+      return [0, 0];
+    }
+
+    return sidebarRendered ? [4, 0] : [-32, 4];
+  };
+
   const alertProps: Omit<AlertPointerProps, 'children'> = {
-    offset: sidebarRendered ? [4, 0] : [-32, 4],
+    offset: getOffset(),
     isAlertDisabled,
     onClose: () => onUpdateAlerts({ myFeed: null }),
     className: {
@@ -62,24 +92,19 @@ function MyFeedHeading({
       message: classNames(
         'bg-theme-bg-primary',
         !sidebarRendered ? 'ml-4' : null,
-        searchVersion === SearchExperiment.V1 && '-left-20',
+        !shouldUseFeedLayoutV1 &&
+          searchVersion === SearchExperiment.V1 &&
+          '-left-20',
       ),
       wrapper: 'mr-auto',
       container: 'z-tooltip',
     },
     message: filterAlertMessage,
-    placement:
-      sidebarRendered && searchVersion === SearchExperiment.Control
-        ? AlertPlacement.Right
-        : AlertPlacement.Bottom,
+    placement: getPlacement(),
   };
-  const isV1Search = searchVersion === SearchExperiment.V1;
 
   return (
-    <AlertPointer
-      {...alertProps}
-      offset={isV1Search ? [0, 0] : alertProps.offset}
-    >
+    <AlertPointer {...alertProps}>
       <Button
         size={shouldUseFeedLayoutV1 ? ButtonSize.Small : ButtonSize.Medium}
         variant={
