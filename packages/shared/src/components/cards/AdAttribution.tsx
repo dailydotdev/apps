@@ -10,13 +10,11 @@ interface AdClassName {
 export interface AdAttributionProps {
   ad: Ad;
   className?: AdClassName;
-  typoClassName?: string;
 }
 
 export default function AdAttribution({
   ad,
   className,
-  typoClassName,
 }: AdAttributionProps): ReactElement {
   const elementClass = classNames(
     'text-theme-label-quaternary no-underline',

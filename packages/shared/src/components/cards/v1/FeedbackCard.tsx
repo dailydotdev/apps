@@ -41,7 +41,7 @@ export const FeedbackCard = ({
           onClick={dismissFeedback}
         />
       </div>
-      <div className="flex items-center gap-3">
+      <div className="relative flex items-center gap-3">
         <Button
           id="upvote-post-btn"
           pressed={post?.userState?.vote === UserPostVote.Up}

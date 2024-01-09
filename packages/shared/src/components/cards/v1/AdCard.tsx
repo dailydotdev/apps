@@ -55,7 +55,7 @@ export const AdCard = forwardRef(function AdCard(
             <CardImage
               alt="Ad image background"
               src={ad.image}
-              className={classNames('-z-1 w-full')}
+              className="-z-1 w-full blur-20"
             />
           )}
         </div>

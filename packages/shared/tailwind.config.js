@@ -219,6 +219,9 @@ module.exports = {
         'logo-big': '2.0625rem',
         50: '12.5rem',
       },
+      blur: {
+        20: '1.25rem',
+      }
     },
     lineClamp: {
       1: '1',

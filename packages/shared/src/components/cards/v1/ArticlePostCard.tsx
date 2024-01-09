@@ -80,7 +80,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
           <CardTextContainer>
             <PostCardHeader
               post={post}
-              className={showFeedback ? 'hidden' : 'flex'}
+              className={'flex'}
               openNewTab={openNewTab}
               source={post.source}
               postLink={post.permalink}
@@ -88,7 +88,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
               onReadArticleClick={onReadArticleClick}
             />
             <CardTitle
-              lineClamp={showFeedback ? 'line-clamp-2' : undefined}
+              lineClamp={undefined}
               className={!!post.read && 'text-theme-label-tertiary'}
             >
               {post.title}
@@ -105,9 +105,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
               openNewTab={openNewTab}
               post={post}
               showImage={showImage}
-              className={{
-                image: classNames(showFeedback && 'mb-0'),
-              }}
+              className={{}}
             />
             <ActionButtons
               className="mt-4"

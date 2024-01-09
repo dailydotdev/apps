@@ -21,11 +21,6 @@ export interface RaisedLabelProps {
   className?: string | undefined;
 }
 
-const Spacer = classed(
-  'div',
-  'mt-[7px] w-2 h-1 bg-theme-bg-primary  group-hover:bg-theme-bg-secondary group-focus:bg-theme-bg-secondary group-focus:mt-1.5',
-);
-
 export function RaisedLabel({
   type = RaisedLabelType.Hot,
   description,
@@ -34,22 +29,20 @@ export function RaisedLabel({
   return (
     <div
       className={classNames(
-        'absolute -top-2 right-2 flex flex-row px-2',
+        'absolute -top-[1px] right-2 flex flex-row px-2 bg-theme-bg-primary group-hover:bg-theme-bg-secondary group-focus:bg-theme-bg-secondary group-focus:-top-0.5',
         className,
       )}
     >
-      <Spacer />
       <SimpleTooltip content={description}>
         <div
           className={classNames(
-            'h-4 rounded-sm px-2 font-bold uppercase text-white typo-caption2',
+            'relative -top-2 h-4 rounded-sm px-2 font-bold uppercase text-white typo-caption2',
             typeToClassName[type],
           )}
         >
           {type}
         </div>
       </SimpleTooltip>
-      <Spacer />
     </div>
   );
 }

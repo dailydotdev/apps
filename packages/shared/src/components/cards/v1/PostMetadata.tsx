@@ -55,7 +55,8 @@ export default function PostMetadata({
         )}
         {!!createdAt && showReadTime && <Separator />}
         {!!createdAt && <time dateTime={createdAt}>{date}</time>}
-        {/* {(!!createdAt || showReadTime) && !!numUpvotes && <Separator />}
+        {/* TODO: WT-2005 leaving this here in case it's needed to implement the footers properly
+        {(!!createdAt || showReadTime) && !!numUpvotes && <Separator />}
       {!!numUpvotes && (
         <span data-testid="numUpvotes">
           {numUpvotes} upvote{numUpvotes > 1 ? 's' : ''}

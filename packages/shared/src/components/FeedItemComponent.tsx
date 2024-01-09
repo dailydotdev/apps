@@ -172,16 +172,6 @@ export default function FeedItemComponent({
     (item as PostItem).post?.type,
   );
 
-  let postTypeToTag = PostTypeToTag;
-  let articlePostCard = ArticlePostCard;
-  let EffectiveAdTag = AdTag;
-
-  if (shouldUseFeedLayoutV1) {
-    postTypeToTag = PostTypeToTagV1;
-    articlePostCard = ArticlePostCardV1;
-    EffectiveAdTag = AdCardV1;
-  }
-
   switch (item.type) {
     case 'post': {
       if (
@@ -256,7 +246,7 @@ export default function FeedItemComponent({
     }
     case 'ad':
       return (
-        <EffectiveAdTag
+        <AdTag
           ref={inViewRef}
           ad={item.ad}
           onLinkClick={(ad) => onAdClick(ad, row, column)}

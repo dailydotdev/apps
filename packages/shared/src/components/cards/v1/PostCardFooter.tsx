@@ -29,7 +29,8 @@ export const PostCardFooter = ({
   }
   return (
     <>
-      {/* {!showImage && post.author && (
+      {/* TODO: WT-2007 leaving this here in case it's needed to implement the footers properly
+      {!showImage && post.author && (
         <PostAuthor
           author={post.author}
           className={classNames(
@@ -51,7 +52,8 @@ export const PostCardFooter = ({
         data-testid="postImage"
         {...(isVideoType && { wrapperClassName: 'mt-4' })}
       />
-      {/* {showImage && post.author && (
+      {/* TODO: WT-2007 leaving this here in case it's needed to implement the footers properly
+      {showImage && post.author && (
         <div
           className={classNames(
             'absolute z-1 mt-2 flex w-full items-center rounded-t-xl bg-theme-bg-primary px-3 py-2 font-bold text-theme-label-secondary typo-callout',
