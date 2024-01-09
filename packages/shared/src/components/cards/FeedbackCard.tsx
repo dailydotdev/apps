@@ -25,12 +25,13 @@ export const FeedbackCard = ({
   onDownvoteClick,
 }: FeedbackCardProps): ReactElement => {
   const { dismissFeedback } = usePostFeedback({ post });
-  const feedbackCopy = useFeature(feature.cardFeedbackCopy);
 
   return (
     <div className="flex-1 space-y-4 p-6 pb-5">
       <div className="relative flex justify-between">
-        <p className="font-bold typo-callout">{feedbackCopy}</p>
+        <p className="font-bold typo-callout">
+          Want to see more posts like this?
+        </p>
         <CloseButton
           id="close-engagement-loop-btn"
           className="absolute -right-2.5 -top-2.5"
