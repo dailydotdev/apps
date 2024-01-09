@@ -2,9 +2,9 @@ import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
 import { CardImage, CardSpace, CardTextContainer, CardTitle } from './Card';
 import { Ad } from '../../../graphql/posts';
-import AdLink from '../AdLink';
 import AdAttribution from '../AdAttribution';
 import FeedItemContainer from './FeedItemContainer';
+import getLinkProps from './AdLink';
 
 type Callback = (ad: Ad) => unknown;
 
@@ -32,8 +32,8 @@ export const AdCard = forwardRef(function AdCard(
         type: undefined,
       }}
       data-testid="adItem"
+      linkProps={getLinkProps(ad, onLinkClick)}
     >
-      <AdLink ad={ad} onLinkClick={onLinkClick} />
       <CardTextContainer>
         <CardTitle className="line-clamp-4 font-bold typo-title3">
           {ad.description}

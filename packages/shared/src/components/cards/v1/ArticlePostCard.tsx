@@ -1,7 +1,5 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
-import classNames from 'classnames';
-import Link from 'next/link';
-import { CardLink, CardTextContainer, CardTitle } from './Card';
+import { CardTextContainer, CardTitle } from './Card';
 import ActionButtons from './ActionButtons';
 import { PostCardHeader } from './PostCardHeader';
 import { PostCardFooter } from './PostCardFooter';
@@ -57,16 +55,12 @@ export const ArticlePostCard = forwardRef(function PostCard(
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending, type }}
-      link={
-        !isFeedPreview && (
-          <Link href={post.commentsPermalink}>
-            <CardLink
-              title={post.title}
-              onClick={onPostCardClick}
-              href={post.commentsPermalink}
-            />
-          </Link>
-        )
+      linkProps={
+        !isFeedPreview && {
+          title: post.title,
+          onClick: onPostCardClick,
+          href: post.commentsPermalink,
+        }
       }
     >
       {showFeedback ? (
@@ -81,7 +75,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
           <CardTextContainer>
             <PostCardHeader
               post={post}
-              className={'flex'}
+              className="flex"
               openNewTab={openNewTab}
               source={post.source}
               postLink={post.permalink}

@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
-import classed from '../../../lib/classed';
 
 export enum RaisedLabelType {
   Hot = 'Hot',
@@ -19,17 +18,21 @@ export interface RaisedLabelProps {
   type: RaisedLabelType;
   description?: string;
   className?: string | undefined;
+  focus?: boolean;
 }
 
 export function RaisedLabel({
   type = RaisedLabelType.Hot,
   description,
   className,
+  focus = false,
 }: RaisedLabelProps): ReactElement {
   return (
     <div
       className={classNames(
-        'absolute -top-[1px] right-2 flex flex-row px-2 bg-theme-bg-primary group-hover:bg-theme-bg-secondary group-focus:bg-theme-bg-secondary group-focus:-top-0.5',
+        'absolute right-2 flex flex-row px-2 group-hover:bg-theme-bg-secondary group-focus:-top-0.5 group-focus:bg-theme-bg-secondary',
+        !focus && '-top-[1px] bg-theme-bg-primary',
+        focus && '-top-0.5 bg-theme-bg-secondary',
         className,
       )}
     >

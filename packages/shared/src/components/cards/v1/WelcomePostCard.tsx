@@ -1,6 +1,6 @@
 import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
 import classNames from 'classnames';
-import { CardButton, FreeformCardTitle } from './Card';
+import { FreeformCardTitle } from './Card';
 import ActionButtons from './ActionButtons';
 import { Container, generateTitleClamp, PostCardProps } from '../common';
 import OptionsButton from '../../buttons/OptionsButton';
@@ -58,10 +58,12 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       }}
       ref={ref}
       flagProps={{ pinnedAt, type: postType }}
-      link={
-        !isFeedPreview && (
-          <CardButton title={post.title} onClick={onPostCardClick} />
-        )
+      linkProps={
+        !isFeedPreview && {
+          title: post.title,
+          onClick: onPostCardClick,
+          href: post.commentsPermalink,
+        }
       }
     >
       <OptionsButton

@@ -58,7 +58,6 @@ export const Card = classed(
   'article',
   `group relative w-full flex flex-col py-6 px-4 border-t border-theme-divider-tertiary
    hover:bg-theme-float
-   focus:bg-theme-float focus:border-2 focus:border-theme-focus
   `,
 );
 

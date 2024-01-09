@@ -1,7 +1,7 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
-import styles from './InteractionCounter.module.css';
 import classNames from 'classnames';
+import styles from './InteractionCounter.module.css';
 
 export type InteractionCounterProps = {
   className?: string;

@@ -1,5 +1,4 @@
 import React, { forwardRef, ReactElement, Ref, useRef, useState } from 'react';
-import { CardButton } from './Card';
 import ActionButtons from './ActionButtons';
 import { SharedPostText } from '../SharedPostText';
 import { SharedPostCardFooter } from '../SharedPostCardFooter';
@@ -48,10 +47,12 @@ export const SharePostCard = forwardRef(function SharePostCard(
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending, type }}
-      link={
-        !isFeedPreview && (
-          <CardButton title={post.title} onClick={onPostCardClick} />
-        )
+      linkProps={
+        !isFeedPreview && {
+          title: post.title,
+          onClick: onPostCardClick,
+          href: post.commentsPermalink,
+        }
       }
     >
       <OptionsButton

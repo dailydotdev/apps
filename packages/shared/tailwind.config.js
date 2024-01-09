@@ -221,7 +221,7 @@ module.exports = {
       },
       blur: {
         20: '1.25rem',
-      }
+      },
     },
     lineClamp: {
       1: '1',
