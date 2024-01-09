@@ -9,8 +9,6 @@ import DownvoteIcon from '../../icons/Downvote';
 import UpvoteIcon from '../../icons/Upvote';
 import { Post, UserPostVote } from '../../../graphql/posts';
 import { usePostFeedback } from '../../../hooks';
-import { useFeature } from '../../GrowthBookProvider';
-import { feature } from '../../../lib/featureManagement';
 import CloseButton from '../../CloseButton';
 import { PostCardFooter } from './PostCardFooter';
 
@@ -28,12 +26,13 @@ export const FeedbackCard = ({
   showImage = true,
 }: FeedbackCardProps): ReactElement => {
   const { dismissFeedback } = usePostFeedback({ post });
-  const feedbackCopy = useFeature(feature.cardFeedbackCopy);
 
   return (
     <div className="flex-1 space-y-4">
       <div className="relative flex justify-between">
-        <p className="font-bold typo-callout">{feedbackCopy}</p>
+        <p className="font-bold typo-callout">
+          Want to see more posts like this?
+        </p>
         <CloseButton
           id="close-engagement-loop-btn"
           className="absolute -right-2.5 -top-2.5"
