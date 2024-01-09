@@ -18,7 +18,7 @@ interface ClassName {
   label?: string;
 }
 
-type OffsetXY = [number?, number?];
+export type OffsetXY = [number?, number?];
 
 export enum AlertPlacement {
   Top = 'top',
