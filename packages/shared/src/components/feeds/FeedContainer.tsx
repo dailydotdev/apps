@@ -30,6 +30,10 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../../hooks';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { SharedFeedPage } from '../utilities';
+import { useActiveFeedNameContext } from '../../contexts';
+import { FeedGradientBg } from './FeedGradientBg';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -38,7 +42,7 @@ export interface FeedContainerProps {
   className?: string;
   inlineHeader?: boolean;
   showSearch?: boolean;
-  besideSearch?: ReactNode;
+  shortcuts?: ReactNode;
   actionButtons?: ReactNode;
 }
 
@@ -86,6 +90,14 @@ const getStyle = (isList: boolean, space: Spaciness): CSSProperties => {
   return {};
 };
 
+const feedNameToHeading: Record<SharedFeedPage, string> = {
+  search: 'Search',
+  'my-feed': 'For you',
+  popular: 'Popular',
+  upvoted: 'Most upvoted',
+  discussed: 'Best discussions',
+};
+
 export const FeedContainer = ({
   children,
   forceCardMode,
@@ -93,7 +105,7 @@ export const FeedContainer = ({
   className,
   inlineHeader = false,
   showSearch,
-  besideSearch,
+  shortcuts,
   actionButtons,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
@@ -106,6 +118,7 @@ export const FeedContainer = ({
   const { trackEvent } = useAnalyticsContext();
   const { completeAction, checkHasCompleted } = useActions();
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
   const searchValue = useFeature(feature.search);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
@@ -159,8 +172,9 @@ export const FeedContainer = ({
 
   return (
     <div
-      className={classNames('flex w-full flex-col laptopL:mx-auto', className)}
+      className={classNames('relative flex w-full flex-col laptopL:mx-auto', className)}
     >
+      {isV1Search && shouldUseFeedLayoutV1 && <FeedGradientBg />}
       <ScrollToTopButton />
       <div className="flex w-full flex-col laptopL:mx-auto">
         {!inlineHeader && header}
@@ -179,14 +193,27 @@ export const FeedContainer = ({
           )}
           {inlineHeader && header}
           {isV1Search && (
-            <span className="flex flex-row gap-3">
+            <ConditionalWrapper
+              condition={!shouldUseFeedLayoutV1}
+              wrapper={(child) => (
+                <span className="mt-6 flex flex-row gap-3">
+                  {child}
+                  {shortcuts}
+                </span>
+              )}
+            >
               <SearchBarInput
                 className={{
                   container: classNames(
                     'flex w-full max-w-2xl flex-1',
+                    shouldUseFeedLayoutV1 &&
+                      'mt-6 px-6 pt-2 laptop:px-0 laptop:pt-0',
                     shouldShowPulse && 'highlight-pulse',
                   ),
-                  field: 'w-full',
+                  field: classNames(
+                    'w-full',
+                    shouldUseFeedLayoutV1 && '!bg-transparent',
+                  ),
                   form: 'w-full',
                 }}
                 showProgress={false}
@@ -195,30 +222,52 @@ export const FeedContainer = ({
                 inputProps={{ onFocus: handleSearchFocus }}
                 suggestionsProps={suggestionsProps}
               />
-              {besideSearch}
-            </span>
+            </ConditionalWrapper>
           )}
           {isV1Search && (
             <span className="mt-4 flex flex-1 flex-row">
               <SearchBarSuggestionList
                 {...suggestionsProps}
-                className="mr-3 hidden tablet:flex"
+                className={classNames(
+                  'hidden tablet:flex',
+                  shouldUseFeedLayoutV1 ? 'mx-6 laptop:mx-0' : 'mr-3',
+                )}
               />
-              {actionButtons && (
+              {actionButtons && !shouldUseFeedLayoutV1 && (
                 <span className="ml-auto flex flex-row gap-3 border-l border-theme-divider-tertiary pl-3">
                   {actionButtons}
                 </span>
               )}
             </span>
           )}
-          <div
+          {shouldUseFeedLayoutV1 && shortcuts}
+          <ConditionalWrapper
+            condition={shouldUseFeedLayoutV1}
+            wrapper={(child) => (
+              <div
+                className={classNames(
+                  'flex flex-col rounded-16 border border-theme-divider-tertiary laptop:mx-0 laptop:mt-6',
+                  isV1Search && 'mt-6',
+                )}
+              >
+                <span className="flex w-full flex-row items-center justify-between px-6 py-4">
+                  <strong className="typo-title3">
+                    {feedNameToHeading[feedName] ?? ''}
+                  </strong>
+                  <span className="flex flex-row gap-3">{actionButtons}</span>
+                </span>
+                {child}
+              </div>
+            )}
+          ><div
             className={classNames(
               'grid grid-flow-row auto-rows-auto grid-cols-[repeat(auto-fit,_minmax(272px,_320px))] items-center justify-center	gap-4',
-              isV1Search && 'mt-8',
-            )}
-          >
-            {children}
-          </div>
+                isV1Search && !shouldUseFeedLayoutV1 &&'mt-8',
+              )}
+            >
+              {children}
+            </div>
+          </ConditionalWrapper>
         </div>
       </div>
     </div>

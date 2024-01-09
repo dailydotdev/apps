@@ -1,5 +1,6 @@
 import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
+import classNames from 'classnames';
 import { navBtnClass, SidebarMenuItem } from './common';
 
 interface ClickableNavItemProps
@@ -22,7 +23,7 @@ export function ClickableNavItem({
       <button
         {...props}
         type="button"
-        className={navBtnClass}
+        className={classNames(navBtnClass, props.className)}
         onClick={showLogin}
       >
         {children}
@@ -37,7 +38,7 @@ export function ClickableNavItem({
           {...(item.action && { onClick: item.action })}
           {...props}
           target={item?.target}
-          className={navBtnClass}
+          className={classNames(navBtnClass, props.className)}
           rel="noopener noreferrer"
         >
           {children}

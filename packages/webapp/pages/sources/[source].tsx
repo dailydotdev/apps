@@ -170,6 +170,15 @@ export async function getStaticProps({
       id: params.source,
     });
 
+    if (res.source?.type === 'squad') {
+      return {
+        redirect: {
+          destination: `/squads/${params.source}`,
+          permanent: false,
+        },
+      };
+    }
+
     return {
       props: {
         source: res.source,

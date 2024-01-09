@@ -271,6 +271,15 @@ export async function getServerSideProps({
 
     const [{ source: squad }, referringUser] = await Promise.all(promises);
 
+    if (squad?.type === 'machine') {
+      return {
+        redirect: {
+          destination: `/sources/${handle}`,
+          permanent: false,
+        },
+      };
+    }
+
     setCacheHeader();
 
     return {

@@ -5,7 +5,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../../lib/analytics';
 import { webappUrl } from '../../lib/constants';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import BellIcon from '../icons/Bell';
 import HamburgerIcon from '../icons/Hamburger';
 import LoginButton from '../LoginButton';
@@ -82,8 +82,8 @@ function MainLayoutHeader({
       <>
         <CreatePostButton
           className={classNames(
-            'mr-0 laptop:mr-4',
-            optOutWeeklyGoal ? 'tablet:mr-0' : 'tablet:mr-4',
+            'mr-0 laptop:mr-3',
+            optOutWeeklyGoal ? 'tablet:mr-0' : 'tablet:mr-3',
           )}
         />
         {!hideButton && user && (
@@ -93,10 +93,9 @@ function MainLayoutHeader({
               tooltip={{ placement: 'bottom', content: 'Notifications' }}
               href={`${webappUrl}notifications`}
             >
-              <div className="relative mr-4 hidden laptop:flex">
+              <div className="relative mr-3 hidden laptop:flex">
                 <Button
                   variant={ButtonVariant.Float}
-                  size={ButtonSize.Small}
                   onClick={onNavigateNotifications}
                   icon={
                     <BellIcon
@@ -109,7 +108,7 @@ function MainLayoutHeader({
                   }
                 />
                 {hasNotification && (
-                  <Bubble className="right-0 top-0 -translate-y-1/2 translate-x-1/2 cursor-pointer px-1 shadow-bubble-cabbage">
+                  <Bubble className="-right-1.5 -top-1.5 cursor-pointer px-1">
                     {getUnreadText(unreadCount)}
                   </Bubble>
                 )}

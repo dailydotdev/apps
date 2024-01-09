@@ -27,6 +27,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
     openNewTab,
     onReadArticleClick,
     onPostClick,
+    onBookmarkClick,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
@@ -79,6 +80,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
           className={classNames('mx-4 mt-auto justify-between')}
+          onBookmarkClick={onBookmarkClick}
         />
       </Container>
       {children}

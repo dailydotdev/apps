@@ -41,16 +41,18 @@ export const SquadPostListItem = ({
         {...combinedClicks(() => onLinkClick(post))}
       />
       <div className="flex flex-1 flex-col">
-        <SquadPostAuthor
-          className={{
-            container: 'mt-0',
-            name: 'text-theme-label-primary typo-callout',
-            handle: 'text-theme-label-quaternary typo-callout',
-          }}
-          author={post.author}
-          size="large"
-          date={postDateFormat(post.createdAt)}
-        />
+        {post?.author && (
+          <SquadPostAuthor
+            className={{
+              container: 'mt-0',
+              name: 'text-theme-label-primary typo-callout',
+              handle: 'text-theme-label-quaternary typo-callout',
+            }}
+            author={post.author}
+            size="large"
+            date={postDateFormat(post.createdAt)}
+          />
+        )}
         <p className="mt-2 line-clamp-3 text-theme-label-primary typo-callout">
           {post.title}
         </p>

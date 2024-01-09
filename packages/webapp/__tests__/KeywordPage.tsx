@@ -16,6 +16,9 @@ import {
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import SettingsContext, {
+  ThemeMode,
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
 import KeywordsPage from '../pages/backoffice/keywords/[value]';
 
 jest.mock('next/router', () => ({
@@ -77,7 +80,23 @@ const renderComponent = (
           getRedirectUri: jest.fn(),
         }}
       >
-        <KeywordsPage keyword={defaultKeyword.value} />
+        <SettingsContext.Provider
+          value={{
+            spaciness: 'eco',
+            openNewTab: true,
+            setTheme: jest.fn(),
+            themeMode: ThemeMode.Dark,
+            setSpaciness: jest.fn(),
+            toggleOpenNewTab: jest.fn(),
+            insaneMode: false,
+            loadedSettings: true,
+            toggleInsaneMode: jest.fn(),
+            showTopSites: true,
+            toggleShowTopSites: jest.fn(),
+          }}
+        >
+          <KeywordsPage keyword={defaultKeyword.value} />
+        </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

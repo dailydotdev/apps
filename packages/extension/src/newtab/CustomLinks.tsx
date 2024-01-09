@@ -27,7 +27,7 @@ export function CustomLinks({
   return (
     <div
       className={classNames(
-        'ml-auto hidden h-fit flex-row gap-2 rounded-14 border border-theme-divider-secondary p-2 laptop:flex',
+        'hidden h-fit flex-row gap-2 rounded-14 border border-theme-divider-secondary p-2 laptop:flex',
         className,
       )}
     >

@@ -19,13 +19,14 @@ import useFeedInfiniteScroll, {
 } from '../hooks/feed/useFeedInfiniteScroll';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { SharedFeedPage } from './utilities';
-import { FeedContainer } from './feeds';
+import { FeedContainer, FeedContainerProps } from './feeds';
 import { ActiveFeedContextProvider } from '../contexts';
 import { AllFeedPages, RequestKey } from '../lib/query';
 import { useFeedLayout } from '../hooks';
 
 export interface FeedProps<T>
-  extends Pick<UseFeedOptionalParams<T>, 'options'> {
+  extends Pick<UseFeedOptionalParams<T>, 'options'>,
+    Pick<FeedContainerProps, 'shortcuts'> {
   feedItemComponent: React.ComponentType<{ item: FeedItem }>;
   feedName: AllFeedPages;
   feedQueryKey: unknown[];
@@ -39,7 +40,6 @@ export interface FeedProps<T>
   forceCardMode?: boolean;
   allowPin?: boolean;
   showSearch?: boolean;
-  besideSearch?: ReactNode;
   actionButtons?: ReactNode;
   disableAds?: boolean;
 }
@@ -84,7 +84,7 @@ export default function Feed<T>({
   forceCardMode,
   options,
   showSearch = true,
-  besideSearch,
+  shortcuts,
   actionButtons,
   disableAds,
 }: FeedProps<T>): ReactElement {
@@ -180,7 +180,7 @@ export default function Feed<T>({
         inlineHeader={inlineHeader}
         className={className}
         showSearch={showSearch && isValidFeed}
-        besideSearch={besideSearch}
+        shortcuts={shortcuts}
         actionButtons={actionButtons}
       >
         {items.map((item, index) => (

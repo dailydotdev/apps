@@ -17,12 +17,7 @@ const feature = {
   search: new Feature('search', SearchExperiment.Control),
   lowImps: new Feature('feed_low_imps'),
   bookmarkOnCard: new Feature('bookmark_on_card', false),
-  onboardingCopy: new Feature('onboarding_copy', {
-    title: 'Where developers grow together',
-    description: 'Get one personalized feed for all the knowledge you need.',
-  }),
   feedLayout: new Feature('feed_layout', FeedLayout.Control),
-  cardFeedbackCopy: new Feature('card_feedback_copy', 'Did you like the post?'),
 };
 
 export { feature };
