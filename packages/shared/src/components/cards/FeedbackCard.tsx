@@ -9,8 +9,6 @@ import DownvoteIcon from '../icons/Downvote';
 import UpvoteIcon from '../icons/Upvote';
 import { Post, UserPostVote } from '../../graphql/posts';
 import { usePostFeedback } from '../../hooks';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
 import CloseButton from '../CloseButton';
 
 interface FeedbackCardProps {
