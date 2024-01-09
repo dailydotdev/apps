@@ -15,6 +15,7 @@ interface FeedItemContainerProps {
   flagProps?: FlagProps;
   children: ReactNode;
   domProps: HTMLAttributes<HTMLDivElement>;
+  link?: ReactElement;
 }
 
 interface FlagProps extends Pick<Post, 'pinnedAt' | 'trending' | 'type'> {
@@ -22,7 +23,7 @@ interface FlagProps extends Pick<Post, 'pinnedAt' | 'trending' | 'type'> {
 }
 
 function FeedItemContainer(
-  { flagProps, children, domProps }: FeedItemContainerProps,
+  { flagProps, children, domProps, link }: FeedItemContainerProps,
   ref?: Ref<HTMLElement>,
 ): ReactElement {
   const { adAttribution, pinnedAt, trending, type } = flagProps;
@@ -45,6 +46,7 @@ function FeedItemContainer(
       ref={ref}
       className={domProps?.className}
     >
+      {link}
       <fieldset>
         {showTypeLabel && (
           <TypeLabel

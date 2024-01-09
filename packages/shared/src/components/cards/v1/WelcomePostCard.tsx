@@ -1,6 +1,6 @@
 import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
 import classNames from 'classnames';
-import { CardButton, FreeformCardTitle, getPostClassNames } from '../Card';
+import { CardButton, FreeformCardTitle } from './Card';
 import ActionButtons from './ActionButtons';
 import { Container, generateTitleClamp, PostCardProps } from '../common';
 import OptionsButton from '../../buttons/OptionsButton';
@@ -51,20 +51,19 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     <FeedItemContainer
       domProps={{
         ...domProps,
-        className: getPostClassNames(
-          post,
+        className: classNames(
           domProps.className,
-          'min-h-card',
           shouldShowHighlightPulse && 'highlight-pulse',
         ),
       }}
       ref={ref}
       flagProps={{ pinnedAt, type: postType }}
+      link={
+        !isFeedPreview && (
+          <CardButton title={post.title} onClick={onPostCardClick} />
+        )
+      }
     >
-      {!isFeedPreview && (
-        <CardButton title={post.title} onClick={onPostCardClick} />
-      )}
-
       <OptionsButton
         className="absolute right-2 top-2 group-hover:flex laptop:hidden"
         onClick={(event) => onMenuClick?.(event, post)}

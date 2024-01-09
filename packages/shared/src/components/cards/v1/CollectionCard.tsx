@@ -3,12 +3,7 @@ import classNames from 'classnames';
 import { Container, generateTitleClamp, PostCardProps } from '../common';
 import FeedItemContainer from './FeedItemContainer';
 import { CollectionCardHeader } from '../CollectionCard/CollectionCardHeader';
-import {
-  getPostClassNames,
-  FreeformCardTitle,
-  CardSpace,
-  CardButton,
-} from '../Card';
+import { FreeformCardTitle, CardSpace, CardButton } from './Card';
 import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
 import ActionButtons from './ActionButtons';
 import PostMetadata from './PostMetadata';
@@ -35,13 +30,12 @@ export const CollectionCard = forwardRef(function CollectionCard(
     <FeedItemContainer
       domProps={{
         ...domProps,
-        className: getPostClassNames(post, domProps.className, 'min-h-card'),
+        className: domProps.className,
       }}
       ref={ref}
       flagProps={{ pinnedAt: post.pinnedAt, type: post.type }}
+      link={<CardButton title={post.title} onClick={() => onPostClick(post)} />}
     >
-      <CardButton title={post.title} onClick={() => onPostClick(post)} />
-
       <CollectionCardHeader
         sources={post.collectionSources}
         totalSources={post.numCollectionSources}

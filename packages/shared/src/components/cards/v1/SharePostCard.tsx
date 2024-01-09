@@ -1,5 +1,5 @@
 import React, { forwardRef, ReactElement, Ref, useRef, useState } from 'react';
-import { CardButton, getPostClassNames } from '../Card';
+import { CardButton } from './Card';
 import ActionButtons from './ActionButtons';
 import { SharedPostText } from '../SharedPostText';
 import { SharedPostCardFooter } from '../SharedPostCardFooter';
@@ -44,19 +44,16 @@ export const SharePostCard = forwardRef(function SharePostCard(
     <FeedItemContainer
       domProps={{
         ...domProps,
-        className: getPostClassNames(
-          post,
-          domProps.className,
-          'min-h-card max-h-card',
-        ),
+        className: domProps.className,
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending, type }}
+      link={
+        !isFeedPreview && (
+          <CardButton title={post.title} onClick={onPostCardClick} />
+        )
+      }
     >
-      {!isFeedPreview && (
-        <CardButton title={post.title} onClick={onPostCardClick} />
-      )}
-
       <OptionsButton
         className="absolute right-2 top-2 group-hover:flex laptop:hidden"
         onClick={(event) => onMenuClick?.(event, post)}

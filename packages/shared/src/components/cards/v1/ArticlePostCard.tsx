@@ -57,17 +57,18 @@ export const ArticlePostCard = forwardRef(function PostCard(
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending, type }}
+      link={
+        !isFeedPreview && (
+          <Link href={post.commentsPermalink}>
+            <CardLink
+              title={post.title}
+              onClick={onPostCardClick}
+              href={post.commentsPermalink}
+            />
+          </Link>
+        )
+      }
     >
-      {!isFeedPreview && (
-        <Link href={post.commentsPermalink}>
-          <CardLink
-            title={post.title}
-            onClick={onPostCardClick}
-            href={post.commentsPermalink}
-          />
-        </Link>
-      )}
-
       {showFeedback ? (
         <FeedbackCard
           post={post}
