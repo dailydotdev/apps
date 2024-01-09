@@ -101,7 +101,7 @@ const useEventListener = <
   eventType: K,
   listener: GenericEventListener<MapEventMapsToEvent<M, K>[number]>,
   options?: TUseEventListenerOptions,
-): undefined => {
+): void => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handlerRef = useRef<any>(listener);
   handlerRef.current = listener;
