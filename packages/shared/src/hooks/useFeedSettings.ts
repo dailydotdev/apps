@@ -25,7 +25,7 @@ export interface FeedSettingsReturnType {
   isLoading: boolean;
   hasAnyFilter?: boolean;
   advancedSettings: AdvancedSettings[];
-  checkEnabledSettings(value: number): boolean;
+  checkSettingsEnabledState(value: number): boolean;
 }
 
 export const getHasAnyFilter = (feedSettings: FeedSettings): boolean =>
@@ -54,16 +54,18 @@ export default function useFeedSettings({
   );
 
   const { tagsCategories, feedSettings, advancedSettings } = feedQuery;
-  const checkEnabledSettings = useCallback(
-    (value: number) => {
-      const advancedSetting = advancedSettings?.find(({ id }) => id === value);
+  const checkSettingsEnabledState = useCallback(
+    (idParam: number) => {
+      const advancedSetting = advancedSettings?.find(
+        ({ id }) => id === idParam,
+      );
 
       if (!advancedSettings) {
         return false;
       }
 
       const setting = feedSettings?.advancedSettings?.find(
-        ({ id }) => id === value,
+        ({ id }) => id === idParam,
       );
 
       return setting?.enabled ?? advancedSetting.defaultEnabledState;
@@ -77,6 +79,6 @@ export default function useFeedSettings({
     isLoading,
     advancedSettings,
     hasAnyFilter: getHasAnyFilter(feedSettings),
-    checkEnabledSettings,
+    checkSettingsEnabledState,
   };
 }

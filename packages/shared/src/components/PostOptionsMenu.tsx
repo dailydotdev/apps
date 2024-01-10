@@ -90,7 +90,7 @@ export default function PostOptionsMenu({
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
-  const { feedSettings, advancedSettings, checkEnabledSettings } =
+  const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({ enabled: isOpen });
   const { onUpdateSettings } = useAdvancedSettings({ enabled: false });
   const { trackEvent } = useContext(AnalyticsContext);
@@ -242,7 +242,7 @@ export default function PostOptionsMenu({
   };
   const video = advancedSettings?.find(({ title }) => title === 'Videos');
   const onToggleVideo = async () => {
-    const isEnabled = checkEnabledSettings(video?.id);
+    const isEnabled = checkSettingsEnabledState(video?.id);
     const icon = isEnabled ? '⛔️' : '✅';
     const label = isEnabled ? 'blocked' : 'unblocked';
     await onUpdateSettings(video.id, !isEnabled);
@@ -320,7 +320,7 @@ export default function PostOptionsMenu({
   ];
 
   if (video && isVideoPost(post)) {
-    const isEnabled = checkEnabledSettings(video.id);
+    const isEnabled = checkSettingsEnabledState(video.id);
     const label = isEnabled ? `Don't show` : 'Show';
     postOptions.push({
       icon: <MenuIcon Icon={isEnabled ? BlockIcon : PlusIcon} />,
