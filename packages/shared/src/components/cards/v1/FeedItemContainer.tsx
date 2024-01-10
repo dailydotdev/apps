@@ -14,7 +14,6 @@ import { Card, CardLink } from './Card';
 import { RaisedLabel, RaisedLabelType } from './RaisedLabel';
 import { useFeedPreviewMode } from '../../../hooks';
 import { TypeLabel } from './TypeLabel';
-import ConditionalWrapper from '../../ConditionalWrapper';
 
 interface FeedItemContainerProps {
   flagProps?: FlagProps;
@@ -53,24 +52,22 @@ function FeedItemContainer(
       className={classNames(domProps?.className, focus && 'bg-theme-float')}
     >
       {linkProps && (
-        <ConditionalWrapper
-          condition={!linkProps.href.startsWith('https://')}
-          wrapper={(child) => <Link href={linkProps.href}>{child}</Link>}
-        >
+        <Link href={linkProps.href}>
           <CardLink
             {...linkProps}
             onFocus={() => setFocus(true)}
             onBlur={() => setFocus(false)}
           />
-        </ConditionalWrapper>
+        </Link>
       )}
       <fieldset>
         {showTypeLabel && (
           <TypeLabel
             type={adAttribution ?? type}
             className={classNames(
-              'absolute -top-2 left-2',
-              focus && 'bg-theme-bg-secondary',
+              'absolute -top-[9px] left-2',
+              !focus && '-top-[9px]', // taking the border width into account
+              focus && '-top-2.5 bg-theme-bg-secondary',
             )}
           />
         )}

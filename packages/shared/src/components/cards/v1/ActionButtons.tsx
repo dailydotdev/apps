@@ -10,29 +10,17 @@ import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
 import { useFeedPreviewMode } from '../../../hooks';
 import BookmarkIcon from '../../icons/Bookmark';
 import DownvoteIcon from '../../icons/Downvote';
+import { ActionButtonsProps } from '../ActionButtons';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "shareIcon" */ '../../icons/Share'),
 );
 
-export interface ActionButtonsProps {
-  post: Post;
-  onMenuClick?: (e: React.MouseEvent) => unknown;
-  onUpvoteClick?: (post: Post) => unknown;
-  onDownvoteClick?: (post: Post) => unknown;
-  onCommentClick?: (post: Post) => unknown;
-  onBookmarkClick?: (post: Post) => unknown;
+interface ShareButtonProps {
   onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
-  onReadArticleClick?: (e: React.MouseEvent) => unknown;
-  className?: string;
-  insaneMode?: boolean;
-  openNewTab?: boolean;
+  post: Post;
 }
 
-type ShareButtonProps = {
-  onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
-  post: Post;
-};
 function ShareButton(props: ShareButtonProps) {
   const { onShareClick, post } = props;
   const onClickShare = (event) => onShareClick?.(event, post);
@@ -49,6 +37,10 @@ function ShareButton(props: ShareButtonProps) {
   );
 }
 
+interface ActionButtonsPropsV1 extends ActionButtonsProps {
+  onDownvoteClick?: (post: Post) => unknown;
+}
+
 export default function ActionButtons({
   post,
   onUpvoteClick,
@@ -57,7 +49,7 @@ export default function ActionButtons({
   onBookmarkClick,
   onShareClick,
   className,
-}: ActionButtonsProps): ReactElement {
+}: ActionButtonsPropsV1): ReactElement {
   const isFeedPreview = useFeedPreviewMode();
 
   if (isFeedPreview) {

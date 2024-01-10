@@ -4,7 +4,7 @@ import { Card, CardSpace, CardTextContainer } from './Card';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
 import classed from '../../../lib/classed';
 
-const Text = classed(ElementPlaceholder, 'rounded-xl');
+const Text = classed(ElementPlaceholder, 'rounded-12');
 
 export type PlaceholderCardProps = {
   showImage?: boolean;
