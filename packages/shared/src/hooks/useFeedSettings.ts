@@ -60,7 +60,7 @@ export default function useFeedSettings({
         ({ id }) => id === idParam,
       );
 
-      if (!advancedSettings) {
+      if (!advancedSetting) {
         return false;
       }
 
