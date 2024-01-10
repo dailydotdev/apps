@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useCallback, useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { request } from 'graphql-request';
 import {
@@ -19,13 +19,14 @@ export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   'feedSettings',
 ];
 
-export type FeedSettingsReturnType = {
+export interface FeedSettingsReturnType {
   tagsCategories: TagCategory[];
   feedSettings: FeedSettings;
   isLoading: boolean;
   hasAnyFilter?: boolean;
   advancedSettings: AdvancedSettings[];
-};
+  checkEnabledSettings(value: number): boolean;
+}
 
 export const getHasAnyFilter = (feedSettings: FeedSettings): boolean =>
   feedSettings?.includeTags?.length > 0 ||
@@ -53,14 +54,29 @@ export default function useFeedSettings({
   );
 
   const { tagsCategories, feedSettings, advancedSettings } = feedQuery;
+  const checkEnabledSettings = useCallback(
+    (value: number) => {
+      const advancedSetting = advancedSettings?.find(({ id }) => id === value);
 
-  return useMemo(() => {
-    return {
-      tagsCategories,
-      feedSettings,
-      isLoading,
-      advancedSettings,
-      hasAnyFilter: getHasAnyFilter(feedSettings),
-    };
-  }, [tagsCategories, feedSettings, isLoading, advancedSettings]);
+      if (!advancedSettings) {
+        return false;
+      }
+
+      const setting = feedSettings?.advancedSettings?.find(
+        ({ id }) => id === value,
+      );
+
+      return setting?.enabled ?? advancedSetting.defaultEnabledState;
+    },
+    [advancedSettings, feedSettings],
+  );
+
+  return {
+    tagsCategories,
+    feedSettings,
+    isLoading,
+    advancedSettings,
+    hasAnyFilter: getHasAnyFilter(feedSettings),
+    checkEnabledSettings,
+  };
 }

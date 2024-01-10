@@ -12,15 +12,12 @@ import HammerIcon from './icons/Hammer';
 import EyeIcon from './icons/Eye';
 import BlockIcon from './icons/Block';
 import FlagIcon from './icons/Flag';
-import { ReportedCallback } from './modals/report/ReportPostModal';
+import { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
-import {
-  ToastSubject,
-  useToastNotification,
-} from '../hooks/useToastNotification';
+import { ToastSubject, useToastNotification } from '../hooks';
 import {
   AllFeedPages,
   generateQueryKey,
@@ -48,6 +45,7 @@ import {
 } from '../hooks/useBookmarkPost';
 import { ActiveFeedContext } from '../contexts';
 import { useAdvancedSettings } from '../hooks/feed';
+import PlusIcon from './icons/Plus';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -92,10 +90,9 @@ export default function PostOptionsMenu({
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
-  const { feedSettings, advancedSettings } = useFeedSettings({
-    enabled: isOpen,
-  });
-  const { onToggleSettings } = useAdvancedSettings({ enabled: false });
+  const { feedSettings, advancedSettings, checkEnabledSettings } =
+    useFeedSettings({ enabled: isOpen });
+  const { onUpdateSettings } = useAdvancedSettings({ enabled: false });
   const { trackEvent } = useContext(AnalyticsContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openModal } = useLazyModal();
@@ -245,9 +242,14 @@ export default function PostOptionsMenu({
   };
   const video = advancedSettings?.find(({ title }) => title === 'Videos');
   const onToggleVideo = async () => {
-    await onToggleSettings(video.id, true);
-    await showMessageAndRemovePost(`⛔️ Video content blocked`, postIndex, () =>
-      onToggleSettings(video.id, false),
+    const isEnabled = checkEnabledSettings(video?.id);
+    const icon = isEnabled ? '⛔️' : '✅';
+    const label = isEnabled ? 'blocked' : 'unblocked';
+    await onUpdateSettings(video.id, !isEnabled);
+    await showMessageAndRemovePost(
+      `${icon} Video content ${label}`,
+      postIndex,
+      () => onUpdateSettings(video.id, isEnabled),
     );
   };
 
@@ -318,18 +320,21 @@ export default function PostOptionsMenu({
   ];
 
   if (video && isVideoPost(post)) {
+    const isEnabled = checkEnabledSettings(video.id);
+    const label = isEnabled ? `Don't show` : 'Show';
     postOptions.push({
-      icon: <MenuIcon Icon={BlockIcon} />,
-      label: `Don't show video content`,
+      icon: <MenuIcon Icon={isEnabled ? BlockIcon : PlusIcon} />,
+      label: `${label} video content`,
       action: onToggleVideo,
     });
   }
 
   post?.tags?.forEach((tag) => {
     if (tag.length) {
+      const isBlocked = feedSettings?.blockedTags?.includes(tag);
       postOptions.push({
-        icon: <MenuIcon Icon={BlockIcon} />,
-        label: `Not interested in #${tag}`,
+        icon: <MenuIcon Icon={isBlocked ? PlusIcon : BlockIcon} />,
+        label: isBlocked ? `Follow #${tag}` : `Not interested in #${tag}`,
         action: () => onBlockTag(tag),
       });
     }
