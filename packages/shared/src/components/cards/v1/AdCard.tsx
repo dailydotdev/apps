@@ -1,16 +1,10 @@
 import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
-import {
-  Card,
-  CardImage,
-  CardSpace,
-  CardTextContainer,
-  CardTitle,
-} from './Card';
-import { Ad } from '../../graphql/posts';
-import styles from './Card.module.css';
-import AdLink from './AdLink';
-import AdAttribution from './AdAttribution';
+import { CardImage, CardSpace, CardTextContainer, CardTitle } from './Card';
+import { Ad } from '../../../graphql/posts';
+import AdAttribution from '../AdAttribution';
+import FeedItemContainer from './FeedItemContainer';
+import getLinkProps from './AdLink';
 
 type Callback = (ad: Ad) => unknown;
 
@@ -28,16 +22,26 @@ export const AdCard = forwardRef(function AdCard(
   const showBlurredImage = ad.source === 'Carbon' || ad.source === 'EthicalAds';
 
   return (
-    <Card {...domProps} data-testid="adItem" ref={ref}>
-      <AdLink ad={ad} onLinkClick={onLinkClick} />
+    <FeedItemContainer
+      domProps={domProps}
+      ref={ref}
+      flagProps={{
+        adAttribution: (
+          <AdAttribution ad={ad} className={{ typo: 'typo-caption1' }} />
+        ),
+        type: undefined,
+      }}
+      data-testid="adItem"
+      linkProps={getLinkProps(ad, onLinkClick)}
+    >
       <CardTextContainer>
-        <CardTitle className="my-4 line-clamp-4 font-bold typo-title3">
+        <CardTitle className="line-clamp-4 font-bold typo-title3">
           {ad.description}
         </CardTitle>
       </CardTextContainer>
       <CardSpace />
       {showImage && (
-        <div className="relative overflow-hidden rounded-xl">
+        <div className="relative overflow-hidden rounded-12">
           <CardImage
             alt="Ad image"
             src={ad.image}
@@ -51,14 +55,11 @@ export const AdCard = forwardRef(function AdCard(
             <CardImage
               alt="Ad image background"
               src={ad.image}
-              className={classNames('-z-1 w-full', styles.blur)}
+              className="-z-1 w-full blur-20"
             />
           )}
         </div>
       )}
-      <CardTextContainer>
-        <AdAttribution ad={ad} className={{ main: 'mb-2 mt-4' }} />
-      </CardTextContainer>
       {ad.pixel?.map((pixel) => (
         <img
           src={pixel}
@@ -68,6 +69,6 @@ export const AdCard = forwardRef(function AdCard(
           alt="Pixel"
         />
       ))}
-    </Card>
+    </FeedItemContainer>
   );
 });

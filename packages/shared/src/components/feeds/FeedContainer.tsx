@@ -75,8 +75,16 @@ const getFeedGapPx = {
   'gap-14': 56,
 };
 
-const gapClass = (isList: boolean, space: Spaciness) =>
-  isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
+const gapClass = (
+  isList: boolean,
+  isFeedLayoutV1: boolean,
+  space: Spaciness,
+) => {
+  if (isFeedLayoutV1) {
+    return '';
+  }
+  return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
+};
 
 const cardClass = (isList: boolean, numberOfCards: number): string =>
   isList ? 'grid-cols-1' : cardListClass[numberOfCards];
@@ -124,7 +132,8 @@ export const FeedContainer = ({
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
   const isList = (insaneMode && numCards > 1) || shouldUseFeedLayoutV1;
-  const feedGapPx = getFeedGapPx[gapClass(isList, spaciness)];
+  const feedGapPx =
+    getFeedGapPx[gapClass(isList, shouldUseFeedLayoutV1, spaciness)];
   const style = {
     '--num-cards': numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
@@ -266,7 +275,7 @@ export const FeedContainer = ({
               className={classNames(
                 'grid',
                 isV1Search && !shouldUseFeedLayoutV1 && 'mt-8',
-                gapClass(isList, spaciness),
+                gapClass(isList, shouldUseFeedLayoutV1, spaciness),
                 cardClass(isList, numCards),
               )}
             >
