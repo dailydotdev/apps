@@ -65,7 +65,7 @@ function FeedItemContainer(
           <TypeLabel
             type={adAttribution ?? type}
             className={classNames(
-              'absolute -top-[9px] left-2',
+              'absolute left-2',
               !focus && '-top-[9px]', // taking the border width into account
               focus && '-top-2.5 bg-theme-bg-secondary',
             )}
