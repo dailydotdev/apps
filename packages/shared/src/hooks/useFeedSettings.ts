@@ -56,11 +56,9 @@ export default function useFeedSettings({
   const { tagsCategories, feedSettings, advancedSettings } = feedQuery;
   const checkSettingsEnabledState = useCallback(
     (idParam: number) => {
-      const advancedSetting = advancedSettings?.find(
-        ({ id }) => id === idParam,
-      );
+      const advanced = advancedSettings?.find(({ id }) => id === idParam);
 
-      if (!advancedSetting) {
+      if (!advanced) {
         return false;
       }
 
@@ -68,7 +66,7 @@ export default function useFeedSettings({
         ({ id }) => id === idParam,
       );
 
-      return setting?.enabled ?? advancedSetting.defaultEnabledState;
+      return setting?.enabled ?? advanced.defaultEnabledState;
     },
     [advancedSettings, feedSettings],
   );
