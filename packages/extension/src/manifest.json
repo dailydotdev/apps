@@ -1,5 +1,6 @@
 {
   "manifest_version": 3,
+  "__firefox__manifest_version": 2,
   "version": "0.0.0",
   "name": "daily.dev | The homepage developers deserve",
   "short_name": "daily.dev",
@@ -11,7 +12,14 @@
     "128": "icons/128.png"
   },
   "__prod__permissions": ["scripting"],
-  "__prod__host_permissions": [
+  "__prod|chrome|opera|edge__host_permissions": [
+    "https://daily.dev/",
+    "https://*.daily.dev/",
+    "https://dailynow.co/",
+    "https://*.dailynow.co/"
+  ],
+  "__firefox|prod__permissions": [
+    "scripting",
     "https://daily.dev/",
     "https://*.daily.dev/",
     "https://dailynow.co/",
@@ -19,13 +27,21 @@
   ],
   "__dev__permissions": ["storage", "scripting"],
   "__dev__host_permissions": ["http://localhost/", "http://*.local.com/"],
+  "__firefox|dev__permissions": ["storage", "http://localhost/", "http://*.local.com/"],
   "optional_permissions": ["topSites"],
   "__firefox__optional_permissions": ["topSites", "*://*/*"],
   "__chrome|opera|edge__optional_host_permissions": [ "*://*/*"],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"
   },
-  "action": {
+  "__firefox__content_security_policy": "script-src 'self'; object-src 'self';",
+  "__chrome|opera|edge__action": {
+    "default_icon": {
+      "16": "icons/action_16.png",
+      "32": "icons/action_32.png"
+    }
+  },
+  "__firefox__browser_action": {
     "default_icon": {
       "16": "icons/action_16.png",
       "32": "icons/action_32.png"
@@ -44,9 +60,9 @@
       "matches": ["*://*/*"]
     }
   ],
+  "__firefox__web_accessible_resources":  ["index.html", "companion.html", "js/companion.bundle.js", "css/companion.css"],
   "__firefox__browser_specific_settings": {
     "gecko": {
-      "id": "{ae4ac76b-bf34-4c73-9972-6572871719d5}",
       "strict_min_version": "54.0"
     }
   },

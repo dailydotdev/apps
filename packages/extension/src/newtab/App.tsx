@@ -37,8 +37,8 @@ import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFea
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { useHostStatus } from '@dailydotdev/shared/src/hooks/useHostPermissionStatus';
 import ExtensionPermissionsPrompt from '@dailydotdev/shared/src/components/ExtensionPermissionsPrompt';
-import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
+import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
