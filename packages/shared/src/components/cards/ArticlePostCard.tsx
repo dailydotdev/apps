@@ -1,7 +1,9 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
+import Link from 'next/link';
 import {
   CardButton,
+  CardLink,
   CardSpace,
   CardTextContainer,
   CardTitle,
@@ -15,10 +17,15 @@ import { Container, PostCardProps } from './common';
 import FeedItemContainer from './FeedItemContainer';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { PostTagsPanel } from '../post/block/PostTagsPanel';
-import { useFeedPreviewMode, usePostFeedback } from '../../hooks';
+import {
+  useFeedLayout,
+  useFeedPreviewMode,
+  usePostFeedback,
+} from '../../hooks';
 import styles from './Card.module.css';
 import { FeedbackCard } from './FeedbackCard';
 import { Origin } from '../../lib/analytics';
+import { isVideoPost } from '../../graphql/posts';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -28,6 +35,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
     onDownvoteClick,
     onCommentClick,
     onMenuClick,
+    onBookmarkClick,
     onShare,
     onShareClick,
     openNewTab,
@@ -46,16 +54,38 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
+  const isVideoType = isVideoPost(post);
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
       <PostTagsPanel
-        className="overflow-hidden h-full max-h-[23.5rem]"
+        className="h-full max-h-[23.5rem] overflow-hidden"
         post={post}
         toastOnSuccess
       />
     );
   }
+
+  const renderOverlay = () => {
+    if (isFeedPreview) {
+      return null;
+    }
+
+    if (!shouldUseFeedLayoutV1) {
+      return <CardButton title={post.title} onClick={onPostCardClick} />;
+    }
+
+    return (
+      <Link href={post.commentsPermalink}>
+        <CardLink
+          title={post.title}
+          onClick={onPostCardClick}
+          href={post.commentsPermalink}
+        />
+      </Link>
+    );
+  };
 
   return (
     <FeedItemContainer
@@ -71,10 +101,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
       ref={ref}
       flagProps={{ pinnedAt, trending }}
     >
-      {!isFeedPreview && (
-        <CardButton title={post.title} onClick={onPostCardClick} />
-      )}
-
+      {renderOverlay()}
       {showFeedback && (
         <FeedbackCard
           post={post}
@@ -86,14 +113,15 @@ export const ArticlePostCard = forwardRef(function PostCard(
       <div
         className={classNames(
           showFeedback
-            ? 'p-2 border !border-theme-divider-tertiary rounded-2xl overflow-hidden'
-            : 'flex flex-col flex-1',
+            ? 'overflow-hidden rounded-2xl border !border-theme-divider-tertiary p-2'
+            : 'flex flex-1 flex-col',
           showFeedback && styles.post,
           showFeedback && styles.read,
         )}
       >
         <CardTextContainer>
           <PostCardHeader
+            post={post}
             className={showFeedback ? 'hidden' : 'flex'}
             openNewTab={openNewTab}
             source={post.source}
@@ -106,12 +134,14 @@ export const ArticlePostCard = forwardRef(function PostCard(
           </CardTitle>
         </CardTextContainer>
         {!showFeedback && (
-          <Container className="mb-8 tablet:mb-0">
+          <Container>
             <CardSpace />
             <PostMetadata
               createdAt={post.createdAt}
               readTime={post.readTime}
+              isVideoType={isVideoType}
               className="mx-4"
+              insaneMode={insaneMode}
             />
           </Container>
         )}
@@ -134,12 +164,10 @@ export const ArticlePostCard = forwardRef(function PostCard(
               onCommentClick={onCommentClick}
               onShare={onShare}
               onShareClick={onShareClick}
+              onBookmarkClick={onBookmarkClick}
               onMenuClick={(event) => onMenuClick?.(event, post)}
               onReadArticleClick={onReadArticleClick}
-              className={classNames(
-                'mx-4 justify-between',
-                !showImage && 'my-4 laptop:mb-0',
-              )}
+              className={!showImage && 'my-4 laptop:mb-0'}
             />
           )}
         </Container>

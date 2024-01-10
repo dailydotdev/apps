@@ -1,5 +1,6 @@
 import {
   InfiniteData,
+  MutationCache,
   QueryClient,
   QueryClientConfig,
   QueryKey,
@@ -19,13 +20,17 @@ export enum OtherFeedPage {
   Bookmarks = 'bookmarks',
   SearchBookmarks = 'search-bookmarks',
   Preview = 'preview',
+  Author = 'author',
+  UserUpvoted = 'user-upvoted',
 }
 
 const ONE_MINUTE = 60 * 1000;
 const THIRTY_MINUTES = ONE_MINUTE * 30;
+const FIVE_MINUTES = ONE_MINUTE * 5;
 export const STALE_TIME = 30 * 1000;
 
 export enum StaleTime {
+  Default = FIVE_MINUTES,
   FeedSettings = ONE_MINUTE,
   Tooltip = THIRTY_MINUTES,
   Base = STALE_TIME,
@@ -76,6 +81,11 @@ export enum RequestKey {
   Prompt = 'prompt',
   Comment = 'comment',
   SquadTour = 'squad_tour',
+  RelatedPosts = 'related_posts',
+  PublicSourceMemberships = 'public_source_memberships',
+  ReadingStats = 'reading_stats',
+  UserComments = 'user_comments',
+  Readme = 'readme',
 }
 
 export type HasConnection<
@@ -129,7 +139,19 @@ export const updateInfiniteCache = <
   });
 };
 
+export const mutationSuccessSubscribers: Map<
+  string,
+  MutationCache['config']['onSuccess']
+> = new Map();
+
+export const globalMutationCache = new MutationCache({
+  onSuccess: (...args) => {
+    mutationSuccessSubscribers.forEach((subscriber) => subscriber(...args));
+  },
+});
+
 export const defaultQueryClientConfig: QueryClientConfig = {
+  mutationCache: globalMutationCache,
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: process.env.NODE_ENV !== 'development',

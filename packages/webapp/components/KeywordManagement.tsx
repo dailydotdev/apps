@@ -15,7 +15,11 @@ import { NextSeo } from 'next-seo';
 import ActivitySection from '@dailydotdev/shared/src/components/profile/ActivitySection';
 import Link from 'next/link';
 import { smallPostImage } from '@dailydotdev/shared/src/lib/image';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import dynamic from 'next/dynamic';
@@ -103,7 +107,7 @@ export default function KeywordManagement({
     <ResponsivePageContainer>
       <NextSeo title="Pending Keywords" nofollow noindex />
       <h1 className="m-0 font-bold typo-title2">{keyword.value}</h1>
-      <div className="flex justify-between items-center my-1 text-theme-label-tertiary typo-callout">
+      <div className="my-1 flex items-center justify-between text-theme-label-tertiary typo-callout">
         <span>Occurrences: {keyword.occurrences}</span>
         <span>{subtitle}</span>
       </div>
@@ -126,15 +130,15 @@ export default function KeywordManagement({
               target="_blank"
               rel="noopener noreferrer"
               aria-label={post.title}
-              className="flex items-start tablet:items-center py-3 no-underline"
+              className="flex items-start py-3 no-underline tablet:items-center"
             >
               <LazyImage
                 imgSrc={smallPostImage(post.image)}
                 imgAlt="Post cover image"
-                className="w-16 h-16 rounded-2xl"
+                className="h-16 w-16 rounded-2xl"
               />
               <p
-                className="flex-1 self-center p-0 tablet:mr-6 ml-4 whitespace-pre-wrap break-words-overflow text-theme-label-primary typo-callout multi-truncate"
+                className="break-words-overflow multi-truncate ml-4 flex-1 self-center whitespace-pre-wrap p-0 text-theme-label-primary typo-callout tablet:mr-6"
                 style={{
                   maxHeight: '3.75rem',
                   maxWidth: '19.25rem',
@@ -149,7 +153,7 @@ export default function KeywordManagement({
       />
       <div
         className={classNames(
-          'fixed flex left-0 right-0 bottom-0 w-full items-center justify-between mx-auto py-6 px-4 bg-theme-bg-primary',
+          'fixed bottom-0 left-0 right-0 mx-auto flex w-full items-center justify-between bg-theme-bg-primary px-4 py-6',
           styles.buttons,
         )}
       >
@@ -157,14 +161,14 @@ export default function KeywordManagement({
           loading={currentAction === 'allow'}
           onClick={onAllow}
           disabled={disableActions}
-          className="btn-primary"
+          variant={ButtonVariant.Primary}
         >
           Allow
         </Button>
         <Button
           disabled={disableActions}
           onClick={onSynonym}
-          className="btn-secondary"
+          variant={ButtonVariant.Secondary}
         >
           Synonym
         </Button>
@@ -172,7 +176,8 @@ export default function KeywordManagement({
           loading={currentAction === 'deny'}
           onClick={onDeny}
           disabled={disableActions}
-          className="btn-primary-ketchup"
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Ketchup}
         >
           Deny
         </Button>

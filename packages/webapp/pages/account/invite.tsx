@@ -90,7 +90,7 @@ const AccountInvitePage = (): ReactElement => {
         targetId={TargetId.InviteFriendsPage}
         link={inviteLink}
       />
-      <span className="p-0.5 my-4 font-bold typo-callout text-theme-label-tertiary">
+      <span className="my-4 p-0.5 font-bold text-theme-label-tertiary typo-callout">
         or invite via
       </span>
       <div className="flex flex-row flex-wrap gap-2 gap-y-4">
@@ -115,7 +115,7 @@ const AccountInvitePage = (): ReactElement => {
             className: 'mt-4',
           }}
           emptyPlaceholder={
-            <div className="flex flex-col items-center mt-16 text-theme-label-secondary">
+            <div className="mt-16 flex flex-col items-center text-theme-label-secondary">
               <InviteIcon size={IconSize.XXXLarge} />
               <p className="mt-2 typo-body">No referred members found</p>
             </div>
@@ -131,7 +131,7 @@ const AccountInvitePage = (): ReactElement => {
               createdAt,
             }: UserShortProfile): React.ReactNode {
               return (
-                <span className="mt-2 typo-callout text-theme-label-secondary">
+                <span className="mt-2 text-theme-label-secondary typo-callout">
                   @{username}
                   <Separator />
                   <time dateTime={createdAt}>

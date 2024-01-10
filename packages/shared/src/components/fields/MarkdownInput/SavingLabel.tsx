@@ -38,7 +38,7 @@ export function SavingLabel({
   return (
     <span
       className={classNames(
-        'flex flex-row items-center gap-1 typo-callout font-bold text-theme-label-tertiary',
+        'flex flex-row items-center gap-1 font-bold text-theme-label-tertiary typo-callout',
         className,
       )}
     >

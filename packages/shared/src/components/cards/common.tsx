@@ -29,6 +29,7 @@ export const Container = classed('div', 'relative flex flex-1 flex-col');
 export interface PostCardProps {
   post: Post;
   onPostClick?: Callback;
+  onBookmarkClick?: Callback;
   onUpvoteClick?: (post: Post, origin?: Origin) => unknown;
   onDownvoteClick?: (post: Post, origin?: Origin) => unknown;
   onCommentClick?: Callback;
@@ -45,3 +46,19 @@ export interface PostCardProps {
   children?: ReactNode;
   domProps?: HTMLAttributes<HTMLDivElement>;
 }
+
+interface GenerateTitleClampProps {
+  hasImage?: boolean;
+  hasHtmlContent?: boolean;
+}
+
+export const generateTitleClamp = ({
+  hasImage,
+  hasHtmlContent,
+}: GenerateTitleClampProps = {}): string => {
+  if (hasImage) {
+    return 'line-clamp-3';
+  }
+
+  return hasHtmlContent ? 'line-clamp-4' : 'line-clamp-9';
+};

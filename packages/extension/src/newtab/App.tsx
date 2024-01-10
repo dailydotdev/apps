@@ -38,6 +38,7 @@ import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/Lazy
 import { useHostStatus } from '@dailydotdev/shared/src/hooks/useHostPermissionStatus';
 import ExtensionPermissionsPrompt from '@dailydotdev/shared/src/components/ExtensionPermissionsPrompt';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
+import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -75,6 +76,7 @@ function InternalApp({
   const { contentScriptGranted } = useContentScriptStatus();
   const { hostGranted } = useHostStatus();
   const routeChangedCallbackRef = useTrackPageView();
+  useConsoleLogo();
 
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();

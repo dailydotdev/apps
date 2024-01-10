@@ -1,15 +1,15 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import { Modal, ModalProps } from '../common/Modal';
 import { cloudinary } from '../../../lib/image';
-import CloseButton from '../../CloseButton';
 import { ModalSize } from '../common/types';
-import { ButtonSize } from '../../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { link } from '../../../lib/links';
 import { AnalyticsEvent, TargetId, TargetType } from '../../../lib/analytics';
 import { ReferralCampaignKey, useReferralCampaign } from '../../../hooks';
 import ReferralSocialShareButtons from '../../widgets/ReferralSocialShareButtons';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 import { InviteLinkInput } from '../../referral/InviteLinkInput';
+import { ModalClose } from '../common/ModalClose';
 
 function GenericReferralModal({
   onRequestClose,
@@ -34,16 +34,18 @@ function GenericReferralModal({
 
   return (
     <Modal {...props} onRequestClose={onRequestClose} size={ModalSize.Small}>
-      <CloseButton
+      <ModalClose
         onClick={onRequestClose}
-        position="absolute"
-        buttonSize={ButtonSize.Small}
-        className="top-4 right-4 z-2 !btn-secondary"
+        variant={ButtonVariant.Secondary}
+        size={ButtonSize.Small}
+        top="4"
+        right="4"
+        zIndex="2"
       />
       <Modal.Body>
-        <div className="flex relative z-1 flex-col justify-end items-center mb-5 w-full aspect-square">
+        <div className="relative z-1 mb-5 flex aspect-square w-full flex-col items-center justify-end">
           <h1 className="mb-4 font-bold typo-mega3">Invite friends</h1>
-          <p className="typo-title3 text-theme-label-secondary">
+          <p className="text-theme-label-secondary typo-title3">
             And make Ido (our CTO) smile again.
           </p>
         </div>
@@ -52,7 +54,7 @@ function GenericReferralModal({
             cloudinary.referralCampaign.generic[!shareState ? 'sad' : 'happy']
           }
           alt={!shareState ? 'CTO Ido looking sad' : 'CTO Ido looking happy'}
-          className="object-cover absolute top-0 left-0 z-0 w-full aspect-square"
+          className="absolute left-0 top-0 z-0 aspect-square w-full object-cover"
         />
         <InviteLinkInput
           targetId={TargetId.GenericReferralPopup}
@@ -60,8 +62,8 @@ function GenericReferralModal({
           onCopy={() => setShareState(true)}
           text={{ initial: 'Copy link 😀', copied: 'Copied 😉' }}
         />
-        <div className="flex gap-3 justify-center items-center mt-7">
-          <p className="mr-1 typo-callout text-theme-label-tertiary">
+        <div className="mt-7 flex items-center justify-center gap-3">
+          <p className="mr-1 text-theme-label-tertiary typo-callout">
             Invite via
           </p>
           <ReferralSocialShareButtons

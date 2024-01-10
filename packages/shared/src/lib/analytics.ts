@@ -15,6 +15,7 @@ export enum Origin {
   BlockedFilter = 'blocked filter',
   SourcePage = 'source page',
   TagPage = 'tag page',
+  Profile = 'profile',
   // squads - start
   SquadDirectory = 'squad directory',
   SquadCreation = 'squad creation',
@@ -42,6 +43,8 @@ export enum Origin {
   Onboarding = 'onboarding',
   ManageTag = 'manage_tag',
   EditTag = 'edit_tag',
+  // Collection
+  CollectionModal = 'collection modal',
 }
 
 export enum AnalyticsEvent {
@@ -118,6 +121,10 @@ export enum AnalyticsEvent {
   // Referral campaign
   CopyReferralLink = 'copy referral link',
   InviteReferral = 'invite referral',
+  // Shortcuts
+  RevokeShortcutAccess = 'revoke shortcut access',
+  SaveShortcutAccess = 'save shortcut access',
+  OpenShortcutConfig = 'open shortcut config',
 }
 
 export enum FeedItemTitle {
@@ -141,6 +148,7 @@ export enum TargetType {
   InviteFriendsPage = 'invite friends page',
   ProfilePage = 'profile page',
   GenericReferralPopup = 'generic referral popup',
+  Shortcuts = 'shortcuts',
 }
 
 export enum TargetId {
@@ -180,4 +188,9 @@ export enum NotificationPromptSource {
   SquadPostCommentary = 'squad post commentary',
   SquadPostModal = 'squad post modal',
   SquadChecklist = 'squad checklist',
+}
+
+export enum ShortcutsSourceType {
+  Custom = 'custom',
+  Browser = 'browser',
 }

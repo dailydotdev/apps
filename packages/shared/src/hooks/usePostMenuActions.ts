@@ -14,6 +14,7 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { useVotePost } from './vote/useVotePost';
 import { Origin } from '../lib/analytics';
 import { useBlockPostPanel } from './post/useBlockPostPanel';
+import { ButtonColor, ButtonVariant } from '../components/buttons/ButtonV2';
 
 interface UsePostMenuActions {
   onConfirmDeletePost: () => Promise<void>;
@@ -45,7 +46,8 @@ const deletePromptOptions: PromptOptions = {
     'Are you sure you want to delete this post? This action cannot be undone.',
   okButton: {
     title: 'Delete',
-    className: 'btn-primary-cabbage',
+    variant: ButtonVariant.Primary,
+    color: ButtonColor.Cabbage,
   },
 };
 

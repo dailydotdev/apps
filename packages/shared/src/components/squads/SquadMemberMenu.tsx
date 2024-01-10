@@ -19,6 +19,7 @@ import { ContextMenu, MenuItemProps } from '../fields/PortalMenu';
 import { UseSquadActions } from '../../hooks/squads/useSquadActions';
 import { verifyPermission } from '../../graphql/squads';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 
 interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
   squad: Squad;
@@ -124,13 +125,17 @@ export default function SquadMemberMenu({
     const hasConfirmed = await showPrompt({
       title: `${title}?`,
       description: promptDescription[title](member.user.name, squad.name),
-      okButton: { title, className: 'btn-primary-cabbage' },
+      okButton: {
+        title,
+        variant: ButtonVariant.Primary,
+        color: ButtonColor.Cabbage,
+      },
       content: (
         <UserShortInfo
           user={member.user}
           disableTooltip
           className={{
-            container: 'py-3 px-6 justify-center',
+            container: 'justify-center px-6 py-3',
             textWrapper: 'max-w-fit',
           }}
         />

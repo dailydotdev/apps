@@ -1,8 +1,9 @@
 import React, { ReactElement, useContext } from 'react';
+import classNames from 'classnames';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { Button, ButtonSize } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 
 interface MobileMenuIconProps {
   sidebarExpanded: boolean;
@@ -28,17 +29,19 @@ export function MobileMenuIcon({
     >
       <Button
         onClick={trackAndToggleSidebarExpanded}
-        position="absolute"
-        className={`btn btn-primary h-6 w-6 top-3 -right-3 z-3 ${
+        variant={ButtonVariant.Primary}
+        className={classNames(
+          'absolute -right-3 top-3 z-3 h-6 w-6',
           sidebarExpanded &&
-          'transition-opacity invisible group-hover:visible opacity-0 group-hover:opacity-100'
-        }`}
-        buttonSize={ButtonSize.XSmall}
+            'invisible opacity-0 transition-opacity group-hover:visible group-hover:opacity-100',
+        )}
+        size={ButtonSize.XSmall}
       >
         <ArrowIcon
-          className={`typo-title3 ${
-            sidebarExpanded ? '-rotate-90' : 'rotate-90'
-          }`}
+          className={classNames(
+            'typo-title3',
+            sidebarExpanded ? '-rotate-90' : 'rotate-90',
+          )}
         />
       </Button>
     </SimpleTooltip>

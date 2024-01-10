@@ -6,16 +6,19 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
-import { BOOKMARKS_FEED_QUERY, SEARCH_BOOKMARKS_QUERY } from '../graphql/feed';
+import {
+  BOOKMARKS_FEED_QUERY,
+  SEARCH_BOOKMARKS_QUERY,
+  supportedTypesForPrivateSources,
+} from '../graphql/feed';
 import AuthContext from '../contexts/AuthContext';
 import { CustomFeedHeader, FeedPage, FeedPageHeader } from './utilities';
 import SearchEmptyScreen from './SearchEmptyScreen';
 import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
-import { Button } from './buttons/Button';
+import { Button, ButtonVariant } from './buttons/ButtonV2';
 import ShareIcon from './icons/Share';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
-import { supportedTypesForPrivateSources } from '../graphql/posts';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -74,6 +77,7 @@ export default function BookmarkFeedLayout({
   const shareBookmarksButton = (style: string, text?: string) => (
     <Button
       className={style}
+      variant={ButtonVariant.Secondary}
       icon={<ShareIcon secondary={showSharedBookmarks} />}
       onClick={() => setShowSharedBookmarks(true)}
     >
@@ -87,13 +91,10 @@ export default function BookmarkFeedLayout({
       <FeedPageHeader className="mb-5">
         <h3 className="font-bold typo-callout">Bookmarks</h3>
       </FeedPageHeader>
-      <CustomFeedHeader className="flex mb-6">
+      <CustomFeedHeader className="mb-6 flex">
         {searchChildren}
-        {shareBookmarksButton(
-          'hidden laptop:flex ml-4 btn-secondary',
-          'Share bookmarks',
-        )}
-        {shareBookmarksButton('flex laptop:hidden ml-4 btn-secondary')}
+        {shareBookmarksButton('hidden laptop:flex ml-4', 'Share bookmarks')}
+        {shareBookmarksButton('flex laptop:hidden ml-4')}
       </CustomFeedHeader>
 
       {showSharedBookmarks && (

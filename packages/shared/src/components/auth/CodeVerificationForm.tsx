@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { formToJson } from '../../lib/form';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { TextField } from '../fields/TextField';
 import { CloseModalFunc } from '../modals/common';
 import AuthHeader from './AuthHeader';
@@ -69,7 +69,7 @@ function CodeVerificationForm({
         onBack={onBack}
       />
       <AuthForm
-        className="flex flex-col items-end py-8 px-14"
+        className="flex flex-col items-end px-14 py-8"
         onSubmit={onCodeVerification}
         data-testid="recovery_form"
       >
@@ -87,11 +87,12 @@ function CodeVerificationForm({
           onChange={() => hint && setHint('')}
           leftIcon={<KeyIcon />}
         />
-        <Button className="mt-6 btn-primary" type="submit">
+        <Button className="mt-6" variant={ButtonVariant.Primary} type="submit">
           Verify
         </Button>
         <Button
-          className="mx-auto mt-6 btn-secondary w-30"
+          className="w-30 mx-auto mt-6"
+          variant={ButtonVariant.Secondary}
           onClick={onSendEmail}
           disabled={emailSent || isLoading}
         >

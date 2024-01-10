@@ -53,7 +53,7 @@ const modalKindToClassName: Record<ModalKind, string> = {
     'h-full max-h-[calc(100vh-2.5rem)] mobileL:h-[40rem] mobileL:max-h-[calc(100vh-5rem)]',
   [ModalKind.FlexibleCenter]:
     'mx-4 max-w-[calc(100vw-2rem)] max-h-[min(calc(100vh),40rem)] mobileL:max-h-[min(calc(100vh-5rem),40rem)]',
-  [ModalKind.FlexibleTop]: 'max-h-full h-auto',
+  [ModalKind.FlexibleTop]: 'h-auto',
   [ModalKind.FixedBottom]: 'rounded-b-none max-h-[34.75rem]',
 };
 const modalKindAndSizeToClassName: Partial<
@@ -101,13 +101,13 @@ export function Modal({
     setView(view);
   };
   const modalOverlayClassName = classNames(
-    'overlay flex fixed flex-col inset-0 items-center bg-overlay-quaternary-onion z-modal',
+    'overlay fixed inset-0 z-modal flex flex-col items-center bg-overlay-quaternary-onion',
     modalKindAndSizeToOverlayClassName[kind]?.[size],
     modalKindToOverlayClassName[kind],
     overlayClassName,
   );
   const modalClassName = classNames(
-    'antialiased modal flex flex-col relative focus:outline-none max-w-full items-center bg-theme-bg-tertiary shadow-2 border border-theme-divider-secondary rounded-16',
+    'modal relative flex max-w-full flex-col items-center rounded-16 border border-theme-divider-secondary bg-theme-bg-tertiary antialiased shadow-2 focus:outline-none',
     modalKindToClassName[kind],
     modalSizeToClassName[size],
     modalKindAndSizeToClassName[kind]?.[size],

@@ -11,6 +11,7 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import 'focus-visible';
 import Modal from 'react-modal';
+import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -76,6 +77,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useInAppNotification();
   const { modal, closeModal } = useLazyModal();
   usePrompt();
+  useConsoleLogo();
 
   useEffect(() => {
     updateCookieBanner(user);

@@ -26,7 +26,7 @@ export function ModalSidebarList({
 }: ModalSidebarListProps): ReactElement {
   const { activeView, tabs, setActiveView } = useContext(ModalPropsContext);
   return (
-    <nav className={classNames('bg-theme-bg-primary z-2', className)}>
+    <nav className={classNames('z-2 bg-theme-bg-primary', className)}>
       <SidebarList
         className="z-1 pb-6"
         active={activeView}
@@ -57,7 +57,7 @@ export function ModalSidebar({
   className,
 }: ModalSidebarProps): ReactElement {
   return (
-    <div className={classNames('flex flex-row w-full h-full', className)}>
+    <div className={classNames('flex h-full w-full flex-row', className)}>
       {children}
     </div>
   );

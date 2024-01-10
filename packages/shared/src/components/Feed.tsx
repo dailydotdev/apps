@@ -34,9 +34,9 @@ import { Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
 import { ExperimentWinner } from '../lib/featureValues';
 import { SharedFeedPage } from './utilities';
-import { FeedContainer } from './feeds';
+import { FeedContainer, FeedContainerProps } from './feeds';
 import { ActiveFeedContext } from '../contexts';
-import { useFeedVotePost } from '../hooks';
+import { useFeedLayout, useFeedVotePost } from '../hooks';
 import { AllFeedPages, RequestKey, updateCachedPagePost } from '../lib/query';
 import {
   mutateBookmarkFeedPost,
@@ -45,7 +45,8 @@ import {
 import { isNullOrUndefined } from '../lib/func';
 
 export interface FeedProps<T>
-  extends Pick<UseFeedOptionalParams<T>, 'options'> {
+  extends Pick<UseFeedOptionalParams<T>, 'options'>,
+    Pick<FeedContainerProps, 'shortcuts'> {
   feedName: AllFeedPages;
   feedQueryKey: unknown[];
   query?: string;
@@ -58,8 +59,8 @@ export interface FeedProps<T>
   forceCardMode?: boolean;
   allowPin?: boolean;
   showSearch?: boolean;
-  besideSearch?: ReactNode;
   actionButtons?: ReactNode;
+  disableAds?: boolean;
 }
 
 interface RankVariables {
@@ -79,6 +80,12 @@ const SharePostModal = dynamic(
   () =>
     import(/* webpackChunkName: "sharePostModal" */ './modals/SharePostModal'),
 );
+const CollectionPostModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "collectionPostModal" */ './modals/CollectionPostModal'
+    ),
+);
 
 const calculateRow = (index: number, numCards: number): number =>
   Math.floor(index / numCards);
@@ -90,6 +97,8 @@ const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Share]: SharePostModal,
   [PostType.Welcome]: SharePostModal,
   [PostType.Freeform]: SharePostModal,
+  [PostType.VideoYouTube]: ArticlePostModal,
+  [PostType.Collection]: CollectionPostModal,
 };
 
 export default function Feed<T>({
@@ -106,8 +115,9 @@ export default function Feed<T>({
   options,
   allowPin,
   showSearch = true,
-  besideSearch,
+  shortcuts,
   actionButtons,
+  disableAds,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { trackEvent } = useContext(AnalyticsContext);
@@ -123,17 +133,21 @@ export default function Feed<T>({
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
     useFeed(
       feedQueryKey,
       currentSettings.pageSize,
-      isSquadFeed ? 3 : currentSettings.adSpot,
+      isSquadFeed || shouldUseFeedLayoutV1 ? 2 : currentSettings.adSpot,
       numCards,
       {
         query,
         variables,
         options,
-        ...(isSquadFeed && { settings: { adPostLength: 2 } }),
+        settings: {
+          disableAds,
+          adPostLength: isSquadFeed ? 2 : undefined,
+        },
       },
     );
   const feedContextValue = useMemo(() => {
@@ -247,7 +261,9 @@ export default function Feed<T>({
     await onPostClick(post, index, row, column, {
       skipPostUpdate: true,
     });
-    onPostModalOpen(index);
+    if (!shouldUseFeedLayoutV1) {
+      onPostModalOpen(index);
+    }
   };
 
   let lastShareMenuCloseTrackEvent = () => {};
@@ -305,7 +321,7 @@ export default function Feed<T>({
     );
   };
 
-  const onAdClick = (ad: Ad, index: number, row: number, column: number) => {
+  const onAdClick = (ad: Ad, row: number, column: number) => {
     trackEvent(
       adAnalyticsEvent('click', ad, {
         columns: virtualizedNumCards,
@@ -315,6 +331,18 @@ export default function Feed<T>({
       }),
     );
   };
+
+  const onCardBookmark = (post: Post, row: number, column: number) =>
+    onBookmark({
+      post,
+      origin,
+      opts: {
+        row,
+        column,
+        columns: virtualizedNumCards,
+        ...feedAnalyticsExtra(feedName, ranking),
+      },
+    });
 
   const onShareClick = (post: Post, row?: number, column?: number) =>
     openSharePost(post, virtualizedNumCards, column, row);
@@ -336,7 +364,7 @@ export default function Feed<T>({
     nextPost: (items[postMenuIndex + 1] as PostItem)?.post,
   };
 
-  const ArticleModal = PostModalMap[selectedPost?.type];
+  const PostModal = PostModalMap[selectedPost?.type];
 
   if (emptyScreen && emptyFeed) {
     return <>{emptyScreen}</>;
@@ -354,10 +382,10 @@ export default function Feed<T>({
         inlineHeader={inlineHeader}
         className={className}
         showSearch={showSearch && isValidFeed}
-        besideSearch={besideSearch}
+        shortcuts={shortcuts}
         actionButtons={actionButtons}
       >
-        {items.map((item, index) => (
+        {items.map((_, index) => (
           <FeedItemComponent
             items={items}
             index={index}
@@ -376,6 +404,7 @@ export default function Feed<T>({
             user={user}
             feedName={feedName}
             ranking={ranking}
+            onBookmark={onCardBookmark}
             toggleUpvote={toggleUpvote}
             toggleDownvote={toggleDownvote}
             onPostClick={onPostCardClick}
@@ -402,8 +431,8 @@ export default function Feed<T>({
           {...commonMenuItems}
           onHidden={onShareOptionsHidden}
         />
-        {selectedPost && ArticleModal && (
-          <ArticleModal
+        {selectedPost && PostModal && (
+          <PostModal
             isOpen={!!selectedPost}
             id={selectedPost.id}
             onRequestClose={() => onCloseModal(false)}

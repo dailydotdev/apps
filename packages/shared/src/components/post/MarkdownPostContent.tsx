@@ -13,7 +13,7 @@ interface MarkdownPostContentProps {
 function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
   return (
     <>
-      <h1 className="my-6 font-bold whitespace-pre-line typo-title2">
+      <h1 className="my-6 whitespace-pre-line font-bold typo-title2">
         {post.title}
       </h1>
       {post.type === PostType.Freeform && post.image && (
@@ -22,15 +22,18 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
             <Image
               src={post.image}
               alt="Post cover image"
-              className="object-cover mb-10 w-full h-auto rounded-xl max-h-[62.5rem]"
+              className="mb-10 h-auto max-h-[62.5rem] w-full rounded-xl object-cover"
               fallbackSrc={cloudinary.post.imageCoverPlaceholder}
             />
           </a>
         </Link>
       )}
-      <Markdown content={post.contentHtml} />
+      <Markdown
+        content={post.contentHtml}
+        className={post.type !== PostType.Welcome && 'mb-5'}
+      />
       {post.type === PostType.Welcome && post.image && (
-        <div className="block overflow-hidden mt-8 max-w-sm rounded-2xl cursor-pointer h-fit">
+        <div className="mb-5 mt-8 block h-fit max-w-sm cursor-pointer overflow-hidden rounded-2xl">
           <LazyImage
             imgSrc={post.image}
             imgAlt="Post cover image"

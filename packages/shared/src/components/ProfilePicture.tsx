@@ -80,6 +80,7 @@ function ProfilePictureComponent(
     rounded = size,
     className,
     nativeLazyLoading,
+    eager,
     ...props
   }: ProfilePictureProps,
   ref?: Ref<HTMLImageElement>,
@@ -103,7 +104,7 @@ function ProfilePictureComponent(
         alt={`${user.username || user.id}'s profile`}
         onError={onError}
         className={classes}
-        loading={isCompanion ? 'eager' : 'lazy'}
+        loading={eager || isCompanion ? 'eager' : 'lazy'}
       />
     );
   }
@@ -120,4 +121,5 @@ function ProfilePictureComponent(
   );
 }
 
-export const ProfilePicture = forwardRef(ProfilePictureComponent);
+const ProfilePicture = forwardRef(ProfilePictureComponent);
+export { ProfilePicture };

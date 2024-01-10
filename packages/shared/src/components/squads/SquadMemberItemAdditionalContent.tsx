@@ -1,6 +1,11 @@
 import React, { ReactElement } from 'react';
 import { SourceMember, SourceMemberRole } from '../../graphql/sources';
-import { Button, ButtonSize } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import BlockIcon from '../icons/Block';
 import MenuIcon from '../icons/Menu';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -33,13 +38,17 @@ function SquadMemberItemAdditionalContent({
     const options: PromptOptions = {
       title: 'Unblock member?',
       description: `${user.name} will now have access to join your Squad and can then post, upvote and comment`,
-      okButton: { title: 'Unblock', className: 'btn-primary-cabbage' },
+      okButton: {
+        title: 'Unblock',
+        variant: ButtonVariant.Primary,
+        color: ButtonColor.Cabbage,
+      },
       content: (
         <UserShortInfo
           disableTooltip
           user={user}
           className={{
-            container: 'py-3 px-6 justify-center',
+            container: 'justify-center px-6 py-3',
             textWrapper: 'max-w-fit',
           }}
         />
@@ -58,7 +67,8 @@ function SquadMemberItemAdditionalContent({
     return (
       <SimpleTooltip content="Unblock">
         <Button
-          className="my-auto btn-tertiary"
+          className="my-auto"
+          variant={ButtonVariant.Tertiary}
           icon={<BlockIcon />}
           onClick={onConfirmUnblock}
         />
@@ -69,9 +79,9 @@ function SquadMemberItemAdditionalContent({
   const option = (
     <SimpleTooltip content="Member options">
       <Button
-        buttonSize={ButtonSize.Small}
-        className="m-auto mr-0 btn-tertiary"
-        iconOnly
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Tertiary}
+        className="m-auto mr-0"
         onClick={onOptionsClick}
         icon={<MenuIcon />}
       />

@@ -1,7 +1,7 @@
 import React, { FormEvent, ReactElement, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { ProfilePicture } from '../ProfilePicture';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import { useAuthContext } from '../../contexts/AuthContext';
 import LockIcon from '../icons/Lock';
 import { Card } from '../cards/Card';
@@ -71,7 +71,7 @@ function SharePostBar({
     return (
       <Card
         className={classNames(
-          'flex gap-1.5 items-center py-5 px-3 !flex-row hover:border-theme-divider-tertiary text-theme-label-quaternary',
+          'flex !flex-row items-center gap-1.5 px-3 py-5 text-theme-label-quaternary hover:border-theme-divider-tertiary',
           className,
         )}
       >
@@ -85,12 +85,12 @@ function SharePostBar({
     <form
       onSubmit={onSubmit}
       className={classNames(
-        'flex flex-col tablet:flex-row items-center rounded-16 typo-callout border overflow-hidden',
-        'bg-theme-float focus-within:border-theme-divider-primary border-theme-divider-tertiary hover:border-theme-divider-primary',
+        'flex flex-col items-center overflow-hidden rounded-16 border typo-callout tablet:flex-row',
+        'border-theme-divider-tertiary bg-theme-float focus-within:border-theme-divider-primary hover:border-theme-divider-primary',
         className,
       )}
     >
-      <span className="flex relative flex-row items-center w-full">
+      <span className="relative flex w-full flex-row items-center">
         <ProfilePicture
           className="m-3"
           user={user}
@@ -104,7 +104,7 @@ function SharePostBar({
           name="share-post-bar"
           placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
           className={classNames(
-            'pl-1 tablet:min-w-[11rem] outline-none bg-theme-bg-transparent text-theme-label-primary focus:placeholder-theme-label-quaternary hover:placeholder-theme-label-primary typo-body flex-1 w-full tablet:flex-none tablet:w-auto',
+            'w-full flex-1 bg-theme-bg-transparent pl-1 text-theme-label-primary outline-none typo-body hover:placeholder-theme-label-primary focus:placeholder-theme-label-quaternary tablet:w-auto tablet:min-w-[11rem] tablet:flex-none',
             !shouldRenderReadingHistory && '!flex-1 pr-2',
           )}
           onInput={(e) => setUrl(e.currentTarget.value)}
@@ -114,7 +114,7 @@ function SharePostBar({
         />
         {shouldRenderReadingHistory && (
           <ClickableText
-            className="hidden tablet:flex ml-1.5 font-bold reading-history hover:text-theme-label-primary"
+            className="reading-history ml-1.5 hidden font-bold hover:text-theme-label-primary tablet:flex"
             inverseUnderline
             onClick={onOpenHistory}
             type="button"
@@ -124,8 +124,9 @@ function SharePostBar({
         )}
         <Button
           type="submit"
-          buttonSize={ButtonSize.Medium}
-          className="mx-3 ml-auto btn-primary-cabbage"
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Cabbage}
+          className="mx-3 ml-auto"
           disabled={isLoadingPreview || !url}
           loading={isLoadingPreview}
         >
@@ -133,7 +134,7 @@ function SharePostBar({
         </Button>
       </span>
       <button
-        className="flex tablet:hidden justify-center items-center py-5 w-full font-bold border-t text-theme-label-tertiary typo-callout border-theme-divider-tertiary"
+        className="flex w-full items-center justify-center border-t border-theme-divider-tertiary py-5 font-bold text-theme-label-tertiary typo-callout tablet:hidden"
         type="button"
         onClick={onOpenHistory}
       >

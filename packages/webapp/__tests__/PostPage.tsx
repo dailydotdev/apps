@@ -20,6 +20,7 @@ import {
   PostType,
   VOTE_POST_MUTATION,
   UserPostVote,
+  VIEW_POST_MUTATION,
 } from '@dailydotdev/shared/src/graphql/posts';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
@@ -429,8 +430,8 @@ it('should open new comment modal and set the correct props', async () => {
 
 it('should not show stats when they are zero', async () => {
   renderPost();
-  const el = await screen.findByTestId('statsBar');
-  expect(el).toHaveTextContent('');
+  const el = screen.queryByTestId('statsBar');
+  expect(el).not.toBeInTheDocument();
 });
 
 it('should show num upvotes when it is greater than zero', async () => {
@@ -538,8 +539,8 @@ it('should not update post on subscription message when id is not the same', asy
       numComments: 0,
     },
   });
-  const el = await screen.findByTestId('statsBar');
-  expect(el).not.toHaveTextContent('15 Upvotes');
+  const el = screen.queryByTestId('statsBar');
+  expect(el).not.toBeInTheDocument();
 });
 
 it('should send bookmark mutation', async () => {
@@ -876,5 +877,45 @@ describe('downvote flow', () => {
     const undo = await screen.findByText('Undo');
     fireEvent.click(undo);
     await waitFor(() => expect(undoMutationCalled).toBeTruthy());
+  });
+});
+
+describe('collection', () => {
+  let viewPostMutationCalled = false;
+
+  it('should track page view', async () => {
+    renderPost(
+      {},
+      [
+        createPostMock({
+          type: PostType.Collection,
+        }),
+        createCommentsMock(),
+        {
+          request: {
+            query: VIEW_POST_MUTATION,
+            variables: {
+              id: '0e4005b2d3cf191f8c44c2718a457a1e',
+            },
+          },
+          result: () => {
+            viewPostMutationCalled = true;
+
+            return {
+              data: {
+                viewPost: {
+                  _: true,
+                },
+              },
+            };
+          },
+        },
+      ],
+      defaultUser,
+    );
+
+    await waitFor(() => {
+      expect(viewPostMutationCalled).toBe(true);
+    });
   });
 });

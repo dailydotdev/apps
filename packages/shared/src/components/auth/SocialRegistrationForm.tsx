@@ -13,7 +13,7 @@ import {
   SocialRegistrationParameters,
 } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import ImageInput from '../fields/ImageInput';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
@@ -154,7 +154,7 @@ export const SocialRegistrationForm = ({
       <AuthHeader simplified={simplified} title={title} />
       <AuthForm
         className={classNames(
-          'gap-2 self-center place-items-center mt-6 w-full overflow-y-auto flex-1 pb-2 px-6 tablet:px-[3.75rem]',
+          'mt-6 w-full flex-1 place-items-center gap-2 self-center overflow-y-auto px-6 pb-2 tablet:px-[3.75rem]',
           className,
         )}
         ref={formRef}
@@ -234,7 +234,7 @@ export const SocialRegistrationForm = ({
             }}
           />
         )}
-        <span className="pb-4 border-b border-theme-divider-tertiary typo-subhead text-theme-label-secondary">
+        <span className="border-b border-theme-divider-tertiary pb-4 text-theme-label-secondary typo-subhead">
           Your email will be used to send you product and community updates
         </span>
         <Checkbox name="optOutMarketing" className="font-normal">
@@ -251,7 +251,8 @@ export const SocialRegistrationForm = ({
           <Button
             form="auth-form"
             type="submit"
-            className="w-full btn-primary"
+            className="w-full"
+            variant={ButtonVariant.Primary}
             disabled={isLoading}
           >
             Sign up

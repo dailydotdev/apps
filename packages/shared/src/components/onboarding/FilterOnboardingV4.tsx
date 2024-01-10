@@ -12,7 +12,7 @@ import {
 } from '../../graphql/feedSettings';
 import { graphqlUrl } from '../../lib/config';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
-import { Button } from '../buttons/Button';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { SearchField } from '../fields/SearchField';
 import useDebounce from '../../hooks/useDebounce';
@@ -154,41 +154,47 @@ export function FilterOnboardingV4({
   const tags = searchQuery && !isSearchLoading ? searchTags : onboardingTags;
 
   return (
-    <div className={classNames(className, 'w-full flex flex-col items-center')}>
+    <div className={classNames(className, 'flex w-full flex-col items-center')}>
       <SearchField
         inputId="search-filters"
         placeholder="javascript, php, git, etc…"
         className="mb-10 w-full max-w-xs"
         valueChanged={onSearch}
       />
-      <div className="flex flex-row flex-wrap gap-4 justify-center">
+      <div className="flex flex-row flex-wrap justify-center gap-4">
         {isLoading &&
           placeholderTags.map((item) => (
-            <ElementPlaceholder key={item} className="h-10 btn btn-tag">
+            <ElementPlaceholder key={item} className="btn btn-tag h-10">
               <span className="invisible">{item}</span>
             </ElementPlaceholder>
           ))}
         {!isLoading &&
-          tags?.map((tag) => (
-            <Button
-              key={tag.name}
-              className={classNames(
-                'btn',
-                selectedTags.has(tag.name) ? 'btn-primary-cabbage' : 'btn-tag',
-              )}
-              onClick={() => {
-                onClickTag({ tag });
-              }}
-            >
-              {tag.name}
-              {!searchQuery && !!recommendedTags?.has(tag.name) && (
-                <AlertDot
-                  className="absolute top-1 right-1"
-                  color={AlertColor.Cabbage}
-                />
-              )}
-            </Button>
-          ))}
+          tags?.map((tag) => {
+            const isSelected = selectedTags.has(tag.name);
+            return (
+              <Button
+                key={tag.name}
+                className={classNames({
+                  'btn-tag': !isSelected,
+                })}
+                variant={
+                  isSelected ? ButtonVariant.Primary : ButtonVariant.Float
+                }
+                color={isSelected ? ButtonColor.Cabbage : undefined}
+                onClick={() => {
+                  onClickTag({ tag });
+                }}
+              >
+                {tag.name}
+                {!searchQuery && !!recommendedTags?.has(tag.name) && (
+                  <AlertDot
+                    className="absolute right-1 top-1"
+                    color={AlertColor.Cabbage}
+                  />
+                )}
+              </Button>
+            );
+          })}
       </div>
     </div>
   );

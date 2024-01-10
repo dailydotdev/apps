@@ -17,9 +17,9 @@ import { Modal, ModalProps } from './common/Modal';
 import useAuthForms from '../../hooks/useAuthForms';
 import AuthOptions, { AuthDisplay } from '../auth/AuthOptions';
 import { AuthEventNames, AuthTriggers } from '../../lib/auth';
-import CloseButton from '../CloseButton';
 import { ExperimentWinner } from '../../lib/featureValues';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
+import { ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 
 interface OnboardingModalProps extends ModalProps {
   mode?: OnboardingMode;
@@ -37,13 +37,12 @@ const promptOptions: PromptOptions = {
     'You will lose any personalization preferences you have chosen if you quit. Continue to personalize your feed?',
   okButton: {
     title: 'Quit',
+    variant: ButtonVariant.Primary,
+    color: ButtonColor.Ketchup,
   },
   cancelButton: {
     title: 'Continue',
-  },
-  className: {
-    cancel: 'btn-secondary',
-    ok: 'btn-primary-ketchup',
+    variant: ButtonVariant.Secondary,
   },
 };
 
@@ -140,22 +139,15 @@ function OnboardingModal({
   const content = (() => {
     if (isAuthenticating) {
       return (
-        <>
-          <CloseButton
-            className="top-2 right-2 z-2"
-            style={{ position: 'absolute' }}
-            onClick={onClose}
-          />
-          <AuthOptions
-            className="h-full"
-            onClose={onClose}
-            formRef={formRef}
-            onSuccessfulLogin={onRegistrationSuccess}
-            onSuccessfulRegistration={onRegistrationSuccess}
-            trigger={AuthTriggers.CreateFeedFilters}
-            onDisplayChange={(display: AuthDisplay) => setScreenValue(display)}
-          />
-        </>
+        <AuthOptions
+          className="h-full"
+          onClose={onClose}
+          formRef={formRef}
+          onSuccessfulLogin={onRegistrationSuccess}
+          onSuccessfulRegistration={onRegistrationSuccess}
+          trigger={AuthTriggers.CreateFeedFilters}
+          onDisplayChange={(display: AuthDisplay) => setScreenValue(display)}
+        />
       );
     }
 

@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import LockIcon from '../icons/Lock';
 import { PageContainerCentered } from '../utilities';
 import { IconSize } from '../Icon';
@@ -25,14 +25,18 @@ function Unauthorized({
         className="self-center text-theme-label-secondary"
         size={IconSize.XXLarge}
       />
-      <h1 className="px-16 font-bold text-center break-words-overflow typo-title1">
+      <h1 className="break-words-overflow px-16 text-center font-bold typo-title1">
         {title}
       </h1>
       <p className="px-10 text-center text-theme-label-tertiary">
         {description}
       </p>
       {children}
-      <Button className="mt-6 btn-primary w-fit" buttonSize={ButtonSize.Large}>
+      <Button
+        className="mt-6 w-fit"
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Large}
+      >
         Back home
       </Button>
     </PageContainerCentered>

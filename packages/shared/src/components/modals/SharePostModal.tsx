@@ -6,7 +6,7 @@ import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import SquadPostContent from '../post/SquadPostContent';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import { ONBOARDING_OFFSET } from '../post/BasePostContent';
-import { PassedPostNavigationProps } from '../post/PostContent';
+import { PassedPostNavigationProps } from '../post/common';
 import { Post, PostType } from '../../graphql/posts';
 import EnableNotification from '../notifications/EnableNotification';
 import { isSourcePublicSquad } from '../../graphql/squads';
@@ -60,8 +60,8 @@ export default function PostModal({
         onRemovePost={onRemovePost}
         className={{
           fixedNavigation: { container: '!w-[inherit]', actions: 'ml-auto' },
-          navigation: { actions: 'tablet:hidden ml-auto' },
-          onboarding: 'mt-8 mb-0',
+          navigation: { actions: 'ml-auto tablet:hidden' },
+          onboarding: 'mb-0 mt-8',
         }}
       />
     </BasePostModal>

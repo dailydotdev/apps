@@ -1,15 +1,13 @@
 import React, { ReactElement, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
-import { PostNavigationProps } from './PostNavigation';
 import { postDateFormat } from '../../lib/dateFormat';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import FixedPostNavigation from './FixedPostNavigation';
 import PostSourceInfo from './PostSourceInfo';
-import { PostContentProps } from './PostContent';
 import { BasePostContent } from './BasePostContent';
-import { PostType, sendViewPost } from '../../graphql/posts';
+import { PostType, isVideoPost, sendViewPost } from '../../graphql/posts';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import SquadPostAuthor from './SquadPostAuthor';
 import SharePostContent from './SharePostContent';
@@ -17,11 +15,14 @@ import MarkdownPostContent from './MarkdownPostContent';
 import { SquadPostWidgets } from './SquadPostWidgets';
 import { isSourcePublicSquad } from '../../graphql/squads';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { PostContentProps, PostNavigationProps } from './common';
+import ShareYouTubeContent from './ShareYouTubeContent';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
   [PostType.Welcome]: MarkdownPostContent,
   [PostType.Share]: SharePostContent,
+  [PostType.VideoYouTube]: ShareYouTubeContent,
 };
 
 function SquadPostContent({
@@ -70,7 +71,8 @@ function SquadPostContent({
     onSendViewPost(post.id);
   }, [post.id, onSendViewPost, user?.id]);
 
-  const Content = ContentMap[post?.type];
+  const finalType = isVideoPost(post) ? PostType.VideoYouTube : post?.type;
+  const Content = ContentMap[finalType];
 
   return (
     <>
@@ -83,9 +85,9 @@ function SquadPostContent({
       )}
       <PostContentContainer
         className={classNames(
-          'relative tablet:pb-0 !pb-2',
+          'relative tablet:pb-0',
           className?.container,
-          isPublicSquad && 'flex-1 flex-col tablet:flex-row',
+          isPublicSquad ? 'flex-1 flex-col tablet:flex-row' : '!pb-2',
         )}
         hasNavigation={hasNavigation}
       >
@@ -93,7 +95,7 @@ function SquadPostContent({
           className={classNames(
             'relative px-4 tablet:px-8',
             className?.content,
-            isPublicSquad && 'flex flex-col flex-1',
+            isPublicSquad && 'flex flex-1 flex-col',
           )}
         >
           <BasePostContent
@@ -118,11 +120,13 @@ function SquadPostContent({
             post={post}
           >
             <PostSourceInfo source={post.source} className="!typo-body" />
-            <SquadPostAuthor
-              author={post.author}
-              role={role}
-              date={postDateFormat(post.createdAt)}
-            />
+            {post.author && (
+              <SquadPostAuthor
+                author={post.author}
+                role={role}
+                date={postDateFormat(post.createdAt)}
+              />
+            )}
             <Content post={post} onReadArticle={onReadArticle} />
           </BasePostContent>
         </div>
@@ -131,7 +135,7 @@ function SquadPostContent({
             onShare={onSharePost}
             onReadArticle={onReadArticle}
             post={post}
-            className="px-8 tablet:pl-0 mb-6"
+            className="mb-6 border-l border-theme-divider-tertiary px-8 tablet:mb-0 tablet:pl-4"
             onClose={onClose}
             origin={origin}
           />

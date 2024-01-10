@@ -5,7 +5,12 @@ import { Post } from '../../../graphql/posts';
 import { isNullOrUndefined } from '../../../lib/func';
 import { PostBlockedPanel } from './PostBlockedPanel';
 import CloseButton from '../../CloseButton';
-import { Button, ButtonSize } from '../../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/ButtonV2';
 import { SourceAvatar } from '../../profile/source';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import { BlockTagSelection, getBlockedMessage } from './common';
@@ -73,27 +78,28 @@ export function PostTagsPanel({
   return (
     <div
       className={classNames(
-        'flex relative flex-col border border-theme-divider-tertiary rounded-16 p-4 pb-0',
+        'relative flex flex-col rounded-16 border border-theme-divider-tertiary p-4 pb-0',
         className,
       )}
     >
       <CloseButton
-        className="top-3 right-3"
-        position="absolute"
+        className="absolute right-3 top-3"
         onClick={() => onClose()}
-        buttonSize={ButtonSize.Small}
+        size={ButtonSize.Small}
       />
       <h4 className="font-bold typo-body">Don&apos;t show me posts from...</h4>
-      <p className="mt-1 typo-callout text-theme-label-tertiary">
+      <p className="mt-1 text-theme-label-tertiary typo-callout">
         Pick all the topics you are not interested to see on your feed
       </p>
       <span
-        className="flex overflow-auto flex-row flex-wrap flex-1 gap-2 content-start mt-4"
+        className="mt-4 flex flex-1 flex-row flex-wrap content-start gap-2 overflow-auto"
         role="list"
       >
         <Button
-          className={shouldBlockSource ? 'btn-primary' : 'btn-tertiaryFloat'}
-          buttonSize={ButtonSize.Small}
+          variant={
+            shouldBlockSource ? ButtonVariant.Primary : ButtonVariant.Float
+          }
+          size={ButtonSize.Small}
           icon={<SourceAvatar source={post.source} />}
           onClick={() => setShouldBlockSource(!shouldBlockSource)}
         >
@@ -103,18 +109,23 @@ export function PostTagsPanel({
           <GenericTagButton
             key={tag}
             role="listitem"
-            className={tags[tag] ? 'btn-primary' : 'btn-tertiaryFloat'}
+            variant={tags[tag] ? ButtonVariant.Primary : ButtonVariant.Float}
             action={() => setTags({ ...tags, [tag]: !tags[tag] })}
-            tag={tag}
+            tagItem={tag}
           />
         ))}
       </span>
-      <span className="flex flex-row gap-2 p-3 -mx-4 mt-4 border-t border-theme-divider-tertiary">
-        <Button className="ml-auto btn-tertiary" onClick={onReport}>
+      <span className="-mx-4 mt-4 flex flex-row gap-2 border-t border-theme-divider-tertiary p-3">
+        <Button
+          className="ml-auto"
+          variant={ButtonVariant.Tertiary}
+          onClick={onReport}
+        >
           Report
         </Button>
         <Button
-          className="btn-primary-cabbage"
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Cabbage}
           onClick={() => onBlock(tags, shouldBlockSource)}
         >
           Block

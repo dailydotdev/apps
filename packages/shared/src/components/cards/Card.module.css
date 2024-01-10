@@ -2,20 +2,6 @@
   filter: blur(1.25rem);
 }
 
-.actionButtons {
-  & > * {
-    margin-left: 0.25rem;
-
-    &:first-child {
-      margin-left: 0;
-    }
-
-    &:global(.ml-auto) {
-      margin-left: auto;
-    }
-  }
-}
-
 .card {
   & > * {
     pointer-events: none;

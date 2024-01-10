@@ -5,7 +5,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../../lib/analytics';
 import { webappUrl } from '../../lib/constants';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import BellIcon from '../icons/Bell';
 import HamburgerIcon from '../icons/Hamburger';
 import LoginButton from '../LoginButton';
@@ -82,8 +82,8 @@ function MainLayoutHeader({
       <>
         <CreatePostButton
           className={classNames(
-            'mr-0 laptop:mr-4',
-            optOutWeeklyGoal ? 'tablet:mr-0' : 'tablet:mr-4',
+            'mr-0 laptop:mr-3',
+            optOutWeeklyGoal ? 'tablet:mr-0' : 'tablet:mr-3',
           )}
         />
         {!hideButton && user && (
@@ -93,27 +93,26 @@ function MainLayoutHeader({
               tooltip={{ placement: 'bottom', content: 'Notifications' }}
               href={`${webappUrl}notifications`}
             >
-              <Button
-                className="hidden laptop:flex mr-4 btn-tertiary bg-theme-bg-secondary"
-                buttonSize={ButtonSize.Small}
-                iconOnly
-                onClick={onNavigateNotifications}
-                icon={
-                  <BellIcon
-                    className={classNames(
-                      'hover:text-theme-label-primary',
-                      atNotificationsPage && 'text-theme-label-primary',
-                    )}
-                    secondary={atNotificationsPage}
-                  />
-                }
-              >
+              <div className="relative mr-3 hidden laptop:flex">
+                <Button
+                  variant={ButtonVariant.Float}
+                  onClick={onNavigateNotifications}
+                  icon={
+                    <BellIcon
+                      className={classNames(
+                        'hover:text-theme-label-primary',
+                        atNotificationsPage && 'text-theme-label-primary',
+                      )}
+                      secondary={atNotificationsPage}
+                    />
+                  }
+                />
                 {hasNotification && (
-                  <Bubble className="top-0 right-0 px-1 shadow-bubble-cabbage translate-x-1/2 -translate-y-1/2">
+                  <Bubble className="-right-1.5 -top-1.5 cursor-pointer px-1">
                     {getUnreadText(unreadCount)}
                   </Bubble>
                 )}
-              </Button>
+              </div>
             </LinkWithTooltip>
           </>
         )}
@@ -129,19 +128,19 @@ function MainLayoutHeader({
   return (
     <header
       className={classNames(
-        'flex relative laptop:sticky laptop:left-0 z-header flex-row laptop:flex-row justify-between items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary',
+        'relative z-header flex h-14 flex-row items-center justify-between border-b border-theme-divider-tertiary bg-theme-bg-primary px-4 py-3 tablet:px-8 laptop:sticky laptop:left-0 laptop:w-full laptop:flex-row laptop:px-4',
         hasBanner ? 'laptop:top-8' : 'laptop:top-0',
       )}
     >
       {sidebarRendered !== undefined && (
         <>
           <Button
-            className="block laptop:hidden btn-tertiary"
-            iconOnly
+            className="block laptop:hidden"
+            variant={ButtonVariant.Tertiary}
             onClick={() => onMobileSidebarToggle(true)}
             icon={<HamburgerIcon secondary />}
           />
-          <div className="flex flex-row flex-1 justify-center laptop:justify-start">
+          <div className="flex flex-1 flex-row justify-center laptop:justify-start">
             <HeaderLogo
               user={user}
               onLogoClick={onLogoClick}

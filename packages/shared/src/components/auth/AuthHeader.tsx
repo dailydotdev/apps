@@ -4,7 +4,7 @@ import React, {
   KeyboardEvent,
   ReactElement,
 } from 'react';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import ArrowIcon from '../icons/Arrow';
 import { Modal } from '../modals/common/Modal';
 import { ModalHeaderKind } from '../modals/common/types';
@@ -23,7 +23,7 @@ function AuthHeader({
   onBack,
 }: AuthHeaderProps): ReactElement {
   if (simplified) {
-    return <h2 className="font-bold text-center typo-title2">{title}</h2>;
+    return <h2 className="text-center font-bold typo-title2">{title}</h2>;
   }
 
   return (
@@ -35,7 +35,8 @@ function AuthHeader({
       {onBack && (
         <Button
           icon={<ArrowIcon className="-rotate-90" />}
-          className="mr-2 btn-tertiary"
+          variant={ButtonVariant.Tertiary}
+          className="mr-2"
           onClick={onBack}
         />
       )}

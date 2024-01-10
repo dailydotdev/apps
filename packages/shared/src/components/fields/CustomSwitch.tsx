@@ -70,7 +70,7 @@ export function CustomSwitch({
   return (
     <label
       className={classNames(
-        'group relative flex h-9 w-fit cursor-pointer typo-callout font-bold',
+        'group relative flex h-9 w-fit cursor-pointer font-bold typo-callout',
         className,
       )}
       htmlFor={inputId}
@@ -79,7 +79,7 @@ export function CustomSwitch({
         id={inputId}
         name={name}
         type="checkbox"
-        className="absolute w-0 h-0 opacity-0"
+        className="absolute h-0 w-0 opacity-0"
         checked={checked}
         onChange={onToggle}
       />
@@ -109,10 +109,10 @@ export function CustomSwitch({
               ),
             })}
       </ContentContainer>
-      <span className="absolute inset-0 my-auto h-7 bg-cabbage-50 rounded-10 opacity-24 group-hover:opacity-32" />
+      <span className="absolute inset-0 my-auto h-7 rounded-10 bg-cabbage-50 opacity-24 group-hover:opacity-32" />
       <span
         className={classNames(
-          'absolute  top-0 h-full rounded-xl z-1',
+          'absolute  top-0 z-1 h-full rounded-xl',
           styles.knob,
         )}
         style={{

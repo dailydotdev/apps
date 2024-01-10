@@ -1,5 +1,8 @@
 import React, { ReactElement, useEffect } from 'react';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import KeyIcon from '@dailydotdev/shared/src/components/icons/Key';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -88,31 +91,31 @@ export function AISearchInvite({
   }, [redirectTo, search]);
 
   return (
-    <div className="flex overflow-hidden relative flex-col flex-1 justify-center items-center laptop:items-start p-6 h-full min-h-page">
+    <div className="relative flex h-full min-h-page flex-1 flex-col items-center justify-center overflow-hidden p-6 laptop:items-start">
       <DailyDevLogo />
-      <div className="flex relative z-1 flex-col laptop:ml-3 w-full tablet:max-w-[27.5rem] laptopL:ml-[9.75rem]">
-        <span className="flex flex-col laptop:flex-row gap-3 tablet:gap-4 laptop:gap-2 items-center laptop:items-start mb-6 tablet:mb-10 laptop:mb-8">
+      <div className="relative z-1 flex w-full flex-col tablet:max-w-[27.5rem] laptop:ml-3 laptopL:ml-[9.75rem]">
+        <span className="mb-6 flex flex-col items-center gap-3 tablet:mb-10 tablet:gap-4 laptop:mb-8 laptop:flex-row laptop:items-start laptop:gap-2">
           <ProfileImageLink user={referringUser} />
-          <p className="text-center laptop:text-left text-theme-label-tertiary typo-callout">
+          <p className="text-center text-theme-label-tertiary typo-callout laptop:text-left">
             {referringUser.name}
             <br />
             invites you to try daily.dev search
           </p>
         </span>
-        <h1 className="w-full font-bold text-center laptop:text-left break-words-overflow typo-large-title tablet:typo-mega3">
+        <h1 className="break-words-overflow w-full text-center font-bold typo-large-title tablet:typo-mega3 laptop:text-left">
           {referringUser.name.split(' ')[0]} gave you early access to daily.dev
           search!
         </h1>
-        <p className="mt-6 text-center laptop:text-left text-theme-label-secondary">
+        <p className="mt-6 text-center text-theme-label-secondary laptop:text-left">
           This isn’t just another search engine; it’s a search engine that’s
           both fine-tuned for developers and fully integrated into the daily.dev
           ecosystem.
         </p>
         <Button
           icon={<KeyIcon secondary />}
-          className="mt-12 btn-primary"
+          className="mt-12"
+          variant={ButtonVariant.Primary}
           onClick={handleAcceptClick}
-          type="button"
           loading={isLoading}
           disabled={isLoading || isSuccess}
         >
@@ -122,17 +125,17 @@ export function AISearchInvite({
       <img
         src={cloudinary.referralCampaign.search.bg}
         alt="search input depicting our new AI search feature"
-        className="hidden laptop:block absolute right-0 z-0 tablet:w-1/2"
+        className="absolute right-0 z-0 hidden tablet:w-1/2 laptop:block"
       />
       <img
         src={cloudinary.referralCampaign.search.bgPopupMobile}
         alt="search input depicting our new AI search feature"
-        className="hidden tablet:block laptop:hidden max-w-[27.5rem]"
+        className="hidden max-w-[27.5rem] tablet:block laptop:hidden"
       />
       <img
         src={cloudinary.referralCampaign.search.bgMobile}
         alt="search input depicting our new AI search feature"
-        className="block tablet:hidden absolute inset-0 z-0 w-full translate-y-1/2 top-[unset]"
+        className="absolute inset-0 top-[unset] z-0 block w-full translate-y-1/2 tablet:hidden"
       />
     </div>
   );

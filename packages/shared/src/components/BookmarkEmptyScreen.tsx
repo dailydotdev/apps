@@ -1,14 +1,14 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import BookmarkIcon from './icons/Bookmark';
-import { Button, ButtonSize } from './buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from './buttons/ButtonV2';
 import { EmptyScreenIcon } from './EmptyScreen';
 
 export default function BookmarkEmptyScreen(): ReactElement {
   return (
-    <main className="flex inset-0 flex-col justify-center items-center px-6 mx-auto mt-12 max-w-full withNavBar text-theme-label-secondary">
+    <main className="withNavBar inset-0 mx-auto mt-12 flex max-w-full flex-col items-center justify-center px-6 text-theme-label-secondary">
       <BookmarkIcon
-        className="m-0 icon text-theme-label-tertiary"
+        className="icon m-0 text-theme-label-tertiary"
         style={EmptyScreenIcon.style}
       />
       <h1
@@ -22,7 +22,7 @@ export default function BookmarkEmptyScreen(): ReactElement {
         later. Each post you bookmark will be stored here.
       </p>
       <Link href="/" passHref>
-        <Button className="btn-primary" tag="a" buttonSize={ButtonSize.Large}>
+        <Button variant={ButtonVariant.Primary} tag="a" size={ButtonSize.Large}>
           Back to feed
         </Button>
       </Link>

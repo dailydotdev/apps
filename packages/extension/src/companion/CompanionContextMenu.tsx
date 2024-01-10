@@ -96,7 +96,7 @@ export default function CompanionContextMenu({
         </Item>
         <Item>
           <a
-            className="flex items-center w-full"
+            className="flex w-full items-center"
             href={postData?.commentsPermalink}
           >
             <CommentIcon size={IconSize.Small} className="mr-2" /> View
@@ -108,7 +108,7 @@ export default function CompanionContextMenu({
         </Item>
         <Item>
           <a
-            className="flex items-center w-full"
+            className="flex w-full items-center"
             href={feedback}
             target="_blank"
           >

@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { Flipped, Flipper } from 'react-flip-toolkit';
 import HomeIcon from '@dailydotdev/shared/src/components/icons/Home';
 import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
@@ -12,8 +12,10 @@ import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/Lin
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import {
   Button,
+  ButtonProps,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import classNames from 'classnames';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
@@ -68,7 +70,7 @@ export const tabs: Tab[] = [
     icon: (active: boolean, unreadCount) => (
       <span className="relative">
         {unreadCount > 0 ? (
-          <Bubble className="top-0 right-0 px-1 translate-x-1/2">
+          <Bubble className="right-0 top-0 translate-x-1/2 px-1">
             {getUnreadText(unreadCount)}
           </Bubble>
         ) : null}
@@ -92,12 +94,10 @@ export default function FooterNavBar(): ReactElement {
   const router = useRouter();
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
-  const buttonProps: HTMLAttributes<HTMLButtonElement> & {
-    buttonSize: ButtonSize;
-  } = {
-    className: 'btn-tertiary',
+  const buttonProps: ButtonProps<'a' | 'button'> = {
+    variant: ButtonVariant.Tertiary,
     style: { width: '100%' },
-    buttonSize: ButtonSize.Large,
+    size: ButtonSize.Large,
   };
 
   const onNavigateNotifications = () => {
@@ -118,7 +118,7 @@ export default function FooterNavBar(): ReactElement {
       spring="veryGentle"
       element="nav"
       className={classNames(
-        'fixed grid left-0 bottom-0 w-full grid-flow-col items-center bg-theme-bg-primary border-t border-theme-divider-tertiary z-2',
+        'fixed bottom-0 left-0 z-2 grid w-full grid-flow-col items-center border-t border-theme-divider-tertiary bg-theme-bg-primary',
         styles.footerNavBar,
       )}
     >

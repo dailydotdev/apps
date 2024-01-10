@@ -14,10 +14,6 @@ import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
 import ScrollToTopButton from '../ScrollToTopButton';
 import styles from '../Feed.module.css';
-import {
-  ToastSubject,
-  useToastNotification,
-} from '../../hooks/useToastNotification';
 import { SearchBarInput, SearchBarSuggestionList } from '../search';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
@@ -25,10 +21,19 @@ import { SearchExperiment } from '../../lib/featureValues';
 import { webappUrl } from '../../lib/constants';
 import { useSearchSuggestions } from '../../hooks/search';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { FeedReadyMessage } from '../onboarding';
+import {
+  useFeedLayout,
+  useActions,
+  ToastSubject,
+  useToastNotification,
+} from '../../hooks';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { SharedFeedPage } from '../utilities';
+import { useActiveFeedNameContext } from '../../contexts';
+import { FeedGradientBg } from './FeedGradientBg';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -37,7 +42,7 @@ export interface FeedContainerProps {
   className?: string;
   inlineHeader?: boolean;
   showSearch?: boolean;
-  besideSearch?: ReactNode;
+  shortcuts?: ReactNode;
   actionButtons?: ReactNode;
 }
 
@@ -70,8 +75,16 @@ const getFeedGapPx = {
   'gap-14': 56,
 };
 
-const gapClass = (isList: boolean, space: Spaciness) =>
-  isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
+const gapClass = (
+  isList: boolean,
+  isFeedLayoutV1: boolean,
+  space: Spaciness,
+) => {
+  if (isFeedLayoutV1) {
+    return '';
+  }
+  return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
+};
 
 const cardClass = (isList: boolean, numberOfCards: number): string =>
   isList ? 'grid-cols-1' : cardListClass[numberOfCards];
@@ -85,6 +98,14 @@ const getStyle = (isList: boolean, space: Spaciness): CSSProperties => {
   return {};
 };
 
+const feedNameToHeading: Record<SharedFeedPage, string> = {
+  search: 'Search',
+  'my-feed': 'For you',
+  popular: 'Popular',
+  upvoted: 'Most upvoted',
+  discussed: 'Best discussions',
+};
+
 export const FeedContainer = ({
   children,
   forceCardMode,
@@ -92,7 +113,7 @@ export const FeedContainer = ({
   className,
   inlineHeader = false,
   showSearch,
-  besideSearch,
+  shortcuts,
   actionButtons,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
@@ -104,12 +125,15 @@ export const FeedContainer = ({
   } = useContext(SettingsContext);
   const { trackEvent } = useAnalyticsContext();
   const { completeAction, checkHasCompleted } = useActions();
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
   const searchValue = useFeature(feature.search);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
-  const isList = insaneMode && numCards > 1;
-  const feedGapPx = getFeedGapPx[gapClass(isList, spaciness)];
+  const isList = (insaneMode && numCards > 1) || shouldUseFeedLayoutV1;
+  const feedGapPx =
+    getFeedGapPx[gapClass(isList, shouldUseFeedLayoutV1, spaciness)];
   const style = {
     '--num-cards': numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
@@ -156,13 +180,14 @@ export const FeedContainer = ({
   return (
     <div
       className={classNames(
-        'flex flex-col laptopL:mx-auto w-full',
+        'relative flex w-full flex-col laptopL:mx-auto',
         styles.container,
         className,
       )}
     >
+      {isV1Search && shouldUseFeedLayoutV1 && <FeedGradientBg />}
       <ScrollToTopButton />
-      <div className="flex flex-col pt-2 laptopL:mx-auto w-full" style={style}>
+      <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
         {!inlineHeader && header}
         <div
           className={classNames(
@@ -179,14 +204,27 @@ export const FeedContainer = ({
           )}
           {inlineHeader && header}
           {isV1Search && (
-            <span className="flex flex-row gap-3">
+            <ConditionalWrapper
+              condition={!shouldUseFeedLayoutV1}
+              wrapper={(child) => (
+                <span className="mt-6 flex flex-row gap-3">
+                  {child}
+                  {shortcuts}
+                </span>
+              )}
+            >
               <SearchBarInput
                 className={{
                   container: classNames(
-                    'max-w-2xl w-full flex flex-1',
+                    'flex w-full max-w-2xl flex-1',
+                    shouldUseFeedLayoutV1 &&
+                      'mt-6 px-6 pt-2 laptop:px-0 laptop:pt-0',
                     shouldShowPulse && 'highlight-pulse',
                   ),
-                  field: 'w-full',
+                  field: classNames(
+                    'w-full',
+                    shouldUseFeedLayoutV1 && '!bg-transparent',
+                  ),
                   form: 'w-full',
                 }}
                 showProgress={false}
@@ -195,32 +233,55 @@ export const FeedContainer = ({
                 inputProps={{ onFocus: handleSearchFocus }}
                 suggestionsProps={suggestionsProps}
               />
-              {besideSearch}
-            </span>
+            </ConditionalWrapper>
           )}
           {isV1Search && (
-            <span className="flex flex-row flex-1 mt-4">
+            <span className="mt-4 flex flex-1 flex-row">
               <SearchBarSuggestionList
                 {...suggestionsProps}
-                className="hidden tablet:flex mr-3"
+                className={classNames(
+                  'hidden tablet:flex',
+                  shouldUseFeedLayoutV1 ? 'mx-6 laptop:mx-0' : 'mr-3',
+                )}
               />
-              {actionButtons && (
-                <span className="flex flex-row gap-3 pl-3 ml-auto border-l border-theme-divider-tertiary">
+              {actionButtons && !shouldUseFeedLayoutV1 && (
+                <span className="ml-auto flex flex-row gap-3 border-l border-theme-divider-tertiary pl-3">
                   {actionButtons}
                 </span>
               )}
             </span>
           )}
-          <div
-            className={classNames(
-              'grid',
-              isV1Search && 'mt-8',
-              gapClass(isList, spaciness),
-              cardClass(isList, numCards),
+          {shouldUseFeedLayoutV1 && shortcuts}
+          <ConditionalWrapper
+            condition={shouldUseFeedLayoutV1}
+            wrapper={(child) => (
+              <div
+                className={classNames(
+                  'flex flex-col rounded-16 border border-theme-divider-tertiary laptop:mx-0 laptop:mt-6',
+                  isV1Search && 'mt-6',
+                )}
+              >
+                <span className="flex w-full flex-row items-center justify-between px-6 py-4">
+                  <strong className="typo-title3">
+                    {feedNameToHeading[feedName] ?? ''}
+                  </strong>
+                  <span className="flex flex-row gap-3">{actionButtons}</span>
+                </span>
+                {child}
+              </div>
             )}
           >
-            {children}
-          </div>
+            <div
+              className={classNames(
+                'grid',
+                isV1Search && !shouldUseFeedLayoutV1 && 'mt-8',
+                gapClass(isList, shouldUseFeedLayoutV1, spaciness),
+                cardClass(isList, numCards),
+              )}
+            >
+              {children}
+            </div>
+          </ConditionalWrapper>
         </div>
       </div>
     </div>

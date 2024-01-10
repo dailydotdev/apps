@@ -12,7 +12,11 @@ import {
   FilterOnboardingV4,
   OnboardingHeader,
 } from '@dailydotdev/shared/src/components/onboarding';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
@@ -37,10 +41,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import {
-  useFeature,
-  useGrowthBookContext,
-} from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanies';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
@@ -51,7 +52,6 @@ import { OtherFeedPage, RequestKey } from '@dailydotdev/shared/src/lib/query';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -90,7 +90,6 @@ export function OnboardPage(): ReactElement {
   const { feedSettings } = useFeedSettings();
   const targetId = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-  const { title, description } = useFeature(feature.onboardingCopy);
 
   const onClickNext = () => {
     let screen = OnboardingStep.Intro;
@@ -208,9 +207,9 @@ export function OnboardPage(): ReactElement {
       <div
         className={classNames(
           'flex tablet:flex-1',
-          !isFiltering && 'laptop:max-w-[37.5rem] ml-auto',
+          !isFiltering && 'ml-auto laptop:max-w-[37.5rem]',
           isFiltering &&
-            'flex flex-col items-center justify-start w-full ml-0 mb-10',
+            'mb-10 ml-0 flex w-full flex-col items-center justify-start',
         )}
       >
         {isFiltering && (
@@ -220,16 +219,19 @@ export function OnboardPage(): ReactElement {
             </Title>
             <FilterOnboardingV4 className="mt-10 max-w-4xl" />
             <Button
-              className={classNames(
-                'mt-10 btn',
-                isPreviewVisible ? 'btn-primary' : 'btn-secondary',
-              )}
+              className="mt-10"
+              variant={
+                isPreviewVisible
+                  ? ButtonVariant.Primary
+                  : ButtonVariant.Secondary
+              }
               disabled={!isPreviewEnabled}
-              rightIcon={
+              icon={
                 <ArrowIcon
                   className={classNames(!isPreviewVisible && 'rotate-180')}
                 />
               }
+              iconPosition={ButtonIconPosition.Right}
               onClick={() => {
                 setPreviewVisible((current) => {
                   const newValue = !current;
@@ -250,7 +252,7 @@ export function OnboardPage(): ReactElement {
             </Button>
             {isPreviewEnabled && isPreviewVisible && (
               <FeedLayout>
-                <p className="mt-6 -mb-4 text-center typo-body text-theme-label-secondary">
+                <p className="-mb-4 mt-6 text-center text-theme-label-secondary typo-body">
                   Change your tag selection until you&apos;re happy with your
                   feed preview.
                 </p>
@@ -270,7 +272,7 @@ export function OnboardPage(): ReactElement {
           </>
         )}
         {!isFiltering && (
-          <div className="hidden tablet:block flex-1">
+          <div className="hidden flex-1 tablet:block">
             <div className={classNames('relative', styles.videoWrapper)}>
               {
                 // eslint-disable-next-line jsx-a11y/media-has-caption
@@ -279,7 +281,7 @@ export function OnboardPage(): ReactElement {
                   autoPlay
                   muted
                   className={classNames(
-                    'absolute -top-[20%] tablet:top-0 left-0 -z-1',
+                    'absolute -top-[20%] left-0 -z-1 tablet:top-0',
                     styles.video,
                   )}
                   poster={cloudinary.onboarding.video.poster}
@@ -340,22 +342,26 @@ export function OnboardPage(): ReactElement {
       />
       <div
         className={classNames(
-          'flex flex-wrap justify-center px-6 w-full tablet:gap-10 flex-grow',
+          'flex w-full flex-grow flex-wrap justify-center px-6 tablet:gap-10',
           !isFiltering && wrapperMaxWidth,
-          !isAuthenticating && 'flex-1 content-center mt-8',
+          !isAuthenticating && 'mt-8 flex-1 content-center',
         )}
       >
         {showOnboardingPage && (
           <div
             className={classNames(
-              'flex flex-1 flex-col laptop:max-w-[27.5rem] laptop:mr-8',
+              'flex flex-1 flex-col laptop:mr-8 laptop:max-w-[27.5rem]',
             )}
           >
             <OnboardingTitleGradient className="mb-4 typo-large-title tablet:typo-mega1">
-              {title}
+              Where developers suffer together
             </OnboardingTitleGradient>
 
-            <h2 className="mb-8 typo-body tablet:typo-title2">{description}</h2>
+            <h2 className="mb-8 typo-body tablet:typo-title2">
+              We know how hard it is to be a developer. It doesn&apos;t have to
+              be. Personalized news feed, dev community and search, much better
+              than what&apos;s out there. Maybe ;)
+            </h2>
 
             {getAuthOptions()}
           </div>
@@ -365,11 +371,11 @@ export function OnboardPage(): ReactElement {
       {showOnboardingPage && (
         <footer
           className={classNames(
-            'flex px-6 w-full h-full max-h-[10rem]',
+            'flex h-full max-h-[10rem] w-full px-6',
             wrapperMaxWidth,
           )}
         >
-          <div className="flex relative flex-col flex-1 gap-6 pb-6 tablet:mt-auto laptop:mr-8 laptop:max-w-[27.5rem]">
+          <div className="relative flex flex-1 flex-col gap-6 pb-6 tablet:mt-auto laptop:mr-8 laptop:max-w-[27.5rem]">
             <SignupDisclaimer className="mb-0 tablet:mb-10" />
 
             <TrustedCompanies
@@ -384,7 +390,7 @@ export function OnboardPage(): ReactElement {
               alt="Gradient background"
             />
           </div>
-          <div className="hidden tablet:block flex-1" />
+          <div className="hidden flex-1 tablet:block" />
         </footer>
       )}
     </Container>

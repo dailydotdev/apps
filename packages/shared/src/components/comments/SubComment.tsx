@@ -32,9 +32,10 @@ function SubComment({
           key={comment.id}
           parentId={parentComment.id}
           comment={comment}
-          onEdit={(selected) =>
+          onEdit={({ id, lastUpdatedAt }) =>
             onEdit({
-              commentId: selected.id,
+              commentId: id,
+              lastUpdatedAt,
               parentCommentId: parentComment.id,
             })
           }
@@ -48,7 +49,7 @@ function SubComment({
           }
         >
           <div
-            className="absolute top-0 bottom-0 left-9 -ml-px w-0.5 bg-theme-float"
+            className="absolute bottom-0 left-9 top-0 -ml-px w-0.5 bg-theme-float"
             data-testid="subcomment"
           />
         </CommentBox>

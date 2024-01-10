@@ -1,7 +1,6 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
-import classNames from 'classnames';
 import useFeedSettings from '../../hooks/useFeedSettings';
-import { Button, ButtonElementType } from '../buttons/Button';
+import { Button, ButtonElementType, ButtonVariant } from '../buttons/ButtonV2';
 import { SimpleTooltip } from '../tooltips';
 import { isTesting } from '../../lib/constants';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
@@ -29,7 +28,8 @@ export const CreateFeedButton = ({
     >
       <div>
         <Button
-          className={classNames('btn btn-primary', className)}
+          className={className}
+          variant={ButtonVariant.Primary}
           disabled={!canCreateFeed}
           onClick={onClick}
         >

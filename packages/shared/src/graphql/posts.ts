@@ -1,10 +1,11 @@
 import request, { gql } from 'graphql-request';
-import { Author, Comment, Scout } from './comments';
+import type { Author, Scout } from './comments';
 import { Connection } from './common';
-import { Source, Squad } from './sources';
+import { Source, SourceType, Squad } from './sources';
 import { EmptyResponse } from './emptyResponse';
 import { graphqlUrl } from '../lib/config';
 import {
+  RELATED_POST_FRAGMENT,
   SHARED_POST_INFO_FRAGMENT,
   SOURCE_SHORT_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
@@ -28,16 +29,29 @@ export enum PostType {
   Share = 'share',
   Welcome = 'welcome',
   Freeform = 'freeform',
+  VideoYouTube = 'video:youtube',
+  Collection = 'collection',
 }
 
-export const internalReadTypes: PostType[] = [PostType.Welcome];
-
-export const supportedTypesForPrivateSources = [
-  PostType.Article,
-  PostType.Share,
+export const internalReadTypes: PostType[] = [
   PostType.Welcome,
   PostType.Freeform,
+  PostType.Collection,
 ];
+
+export const isInternalReadType = (post: Post): boolean =>
+  internalReadTypes.includes(post?.type);
+
+export const isSharedPostSquadPost = (post: Post): boolean =>
+  post.sharedPost?.source.type === SourceType.Squad;
+
+export const isVideoPost = (post: Post | ReadHistoryPost): boolean =>
+  post?.type === PostType.VideoYouTube ||
+  (post?.type === PostType.Share &&
+    post?.sharedPost?.type === PostType.VideoYouTube);
+
+export const getReadPostButtonText = (post: Post): string =>
+  isVideoPost(post) ? 'Watch video' : 'Read post';
 
 type PostFlags = {
   sentAnalyticsReport: boolean;
@@ -78,6 +92,8 @@ export interface Post {
   readTime?: number;
   tags?: string[];
   source?: Source | Squad;
+  collectionSources?: Source[];
+  numCollectionSources?: number;
   upvoted?: boolean;
   commented?: boolean;
   commentsPermalink: string;
@@ -89,7 +105,6 @@ export interface Post {
   placeholder?: string;
   read?: boolean;
   bookmarked?: boolean;
-  featuredComments?: Comment[];
   trending?: number;
   description?: string;
   summary: string;
@@ -104,7 +119,16 @@ export interface Post {
   downvoted?: boolean;
   flags: PostFlags;
   userState?: PostUserState;
+  videoId?: string;
+  updatedAt?: string;
 }
+
+export type RelatedPost = Pick<
+  Post,
+  'id' | 'permalink' | 'title' | 'summary' | 'createdAt'
+> & {
+  source: Pick<Source, 'id' | 'handle' | 'name' | 'image'>;
+};
 
 export interface Ad {
   pixel?: string[];
@@ -150,7 +174,10 @@ export interface PostItem {
 
 export interface PostData {
   post: Post;
+  relatedCollectionPosts?: Connection<RelatedPost>;
 }
+
+export const RELATED_POSTS_PER_PAGE_DEFAULT = 5;
 
 export const POST_BY_ID_QUERY = gql`
   query Post($id: ID!) {
@@ -171,9 +198,27 @@ export const POST_BY_ID_QUERY = gql`
         text
         id
       }
+      updatedAt
+      numCollectionSources
+    }
+    relatedCollectionPosts: relatedPosts(
+      id: $id
+      relationType: COLLECTION
+      first: ${RELATED_POSTS_PER_PAGE_DEFAULT}
+    ) {
+      edges {
+        node {
+          ...RelatedPost
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
     }
   }
   ${SHARED_POST_INFO_FRAGMENT}
+  ${RELATED_POST_FRAGMENT}
 `;
 
 export const POST_UPVOTES_BY_ID_QUERY = gql`
@@ -220,6 +265,8 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
         id
       }
       type
+      updatedAt
+      numCollectionSources
     }
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}
@@ -616,3 +663,34 @@ export const uploadContentImage = async (
 
   return res.uploadContentImage;
 };
+
+export enum PostRelationType {
+  Collection = 'COLLECTION',
+}
+
+export const RELATED_POSTS_QUERY = gql`
+  query relatedPosts(
+    $id: ID!
+    $relationType: PostRelationType!
+    $after: String
+    $first: Int
+  ) {
+    relatedPosts(
+      id: $id
+      relationType: $relationType
+      after: $after
+      first: $first
+    ) {
+      edges {
+        node {
+          ...RelatedPost
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+  ${RELATED_POST_FRAGMENT}
+`;

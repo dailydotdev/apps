@@ -9,6 +9,7 @@ import { KeyReferralIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetId, TargetType } from '../../lib/analytics';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 
 interface SearchReferralButtonProps {
   className?: string;
@@ -39,16 +40,14 @@ export function SearchReferralButton({
   }
 
   return (
-    <button
+    <Button
       type="button"
-      className={classNames(
-        'flex flex-row items-center justify-center typo-callout rounded-12 py-1 px-3 font-bold text-theme-label-tertiary bg-theme-overlay-from',
-        className,
-      )}
+      variant={ButtonVariant.Float}
+      className={classNames('bg-theme-overlay-from', className)}
       onClick={handleClick}
     >
       {availableCount}
-      <KeyReferralIcon size={IconSize.Medium} className="mt-1 ml-1" />
-    </button>
+      <KeyReferralIcon size={IconSize.Medium} className="-mr-1 ml-1 mt-1" />
+    </Button>
   );
 }

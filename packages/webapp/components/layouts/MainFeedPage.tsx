@@ -51,9 +51,7 @@ export default function MainFeedPage({
       router.replace('/');
     } else if (isFinderPage) {
       setIsSearchOn(true);
-      if (!feedName) {
-        setFeedName('popular');
-      }
+      setFeedName('search');
     } else {
       const newFeed = getFeedName(router?.pathname);
       if (isSearchOn) {

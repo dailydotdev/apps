@@ -9,21 +9,21 @@ import {
 } from '../../hooks/useInAppNotification';
 import classed from '../../lib/classed';
 import { isTouchDevice } from '../../lib/tooltip';
-import CloseButton from '../CloseButton';
 import { InAppNotificationItem } from './InAppNotificationItem';
 import styles from './InAppNotification.module.css';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { NotificationType } from './utils';
-import { ButtonSize } from '../buttons/Button';
+import { ButtonSize } from '../buttons/ButtonV2';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
+import { ModalClose } from '../modals/common/ModalClose';
 
 const Container = classed(
   'div',
   classNames(
     styles.inAppNotificationContainer,
     'animate-bounce',
-    'fixed right-1/2 translate-x-1/2 laptop:translate-x-0 laptop:right-10 bg-theme-bg-notification border border-theme-active rounded-16 in-app-notification slide-in z-max w-[22.5rem] h-22',
+    'in-app-notification slide-in fixed right-1/2 z-max h-22 w-[22.5rem] translate-x-1/2 rounded-16 border border-theme-active bg-theme-bg-notification laptop:right-10 laptop:translate-x-0',
   ),
 );
 
@@ -105,11 +105,11 @@ export function InAppNotificationElement(): ReactElement {
       onMouseEnter={stopTimer}
       onMouseLeave={() => startTimer(payload.timer)}
     >
-      <CloseButton
-        buttonSize={ButtonSize.XSmall}
-        className="top-3 right-3"
+      <ModalClose
+        size={ButtonSize.XSmall}
+        top="3"
+        right="3"
         onClick={clearNotifications}
-        position="absolute"
       />
       <InAppNotificationItem
         {...payload.notification}

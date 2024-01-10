@@ -1,24 +1,8 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import {
-  getProfile,
   getProfileSSR,
-  PublicProfile,
+  getProfileV2ExtraSSR,
 } from '@dailydotdev/shared/src/lib/user';
-import { NextSeoProps } from 'next-seo/lib/types';
-import Head from 'next/head';
-import { NextSeo } from 'next-seo';
-import JoinedDate from '@dailydotdev/shared/src/components/profile/JoinedDate';
-import GitHubIcon from '@dailydotdev/shared/src/components/icons/GitHub';
-import TwitterIcon from '@dailydotdev/shared/src/components/icons/Twitter';
-import HashnodeIcon from '@dailydotdev/shared/src/components/icons/Hashnode';
-import LinkIcon from '@dailydotdev/shared/src/components/icons/Link';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import {
@@ -27,270 +11,84 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { reputationGuide } from '@dailydotdev/shared/src/lib/constants';
-import { useQuery } from '@tanstack/react-query';
-import Rank from '@dailydotdev/shared/src/components/Rank';
-import request, { ClientError } from 'graphql-request';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
-import {
-  USER_READING_RANK_QUERY,
-  UserReadingRankData,
-} from '@dailydotdev/shared/src/graphql/users';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
-import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
-import classNames from 'classnames';
-import DOMPurify from 'dompurify';
-import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
-import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import ReferralWidget from '@dailydotdev/shared/src/components/widgets/ReferralWidget';
-import {
-  ReferralCampaignKey,
-  useReferralCampaign,
-} from '@dailydotdev/shared/src/hooks';
-import styles from './index.module.css';
-import NavBar, { tabs } from './NavBar';
+import { ClientError } from 'graphql-request';
+import { ProfileV2 } from '@dailydotdev/shared/src/graphql/users';
+import Head from 'next/head';
+import { NextSeo } from 'next-seo';
+import { NextSeoProps } from 'next-seo/lib/types';
+import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
+import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
+import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
+import NavBar, { tabs } from './NavBar';
 import { getTemplatedTitle } from '../utils';
+import { ProfileWidgets } from '../../../../shared/src/components/profile/ProfileWidgets';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../pages/404'),
 );
 
-export interface ProfileLayoutProps {
-  profile: PublicProfile;
+export interface ProfileLayoutProps extends Partial<ProfileV2> {
   children?: ReactNode;
 }
 
-const sanitizeOrNull = (
-  purify: DOMPurify.DOMPurifyI,
-  value: string,
-): string | null => (value ? purify.sanitize(value) : null);
-
 export default function ProfileLayout({
-  profile: initialProfile,
+  user: initialUser,
+  userStats,
+  sources,
   children,
 }: ProfileLayoutProps): ReactElement {
   const router = useRouter();
   const { isFallback } = router;
-  const { user } = useContext(AuthContext);
-  const { isReady, url } = useReferralCampaign({
-    campaignKey: ReferralCampaignKey.Generic,
-    enabled: initialProfile?.id === user?.id,
-  });
+  const user = useProfile(initialUser);
 
-  if (!isFallback && !initialProfile) {
+  if (!isFallback && !user) {
     return <Custom404 />;
+  }
+
+  if (!user) {
+    return <></>;
   }
 
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
-  const queryKey = ['profile', initialProfile?.id];
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { data: fetchedProfile } = useQuery<PublicProfile>(
-    queryKey,
-    () => getProfile(initialProfile.id),
-    {
-      initialData: initialProfile,
-      enabled: !!initialProfile,
+  const Seo: NextSeoProps = {
+    title: getTemplatedTitle(user.name),
+    description: user.bio ? user.bio : `Check out ${user.name}'s profile`,
+    openGraph: {
+      images: [{ url: user.image }],
     },
-  );
-
-  // Needed because sometimes initialProfile is defined and fetchedProfile is not
-  const profile = fetchedProfile ?? initialProfile;
-  const isCurrentUserProfile = profile && profile.id === user?.id;
-
-  const userRankQueryKey = ['userRank', initialProfile?.id];
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { data: userRank } = useQuery<UserReadingRankData>(
-    userRankQueryKey,
-    () =>
-      request(graphqlUrl, USER_READING_RANK_QUERY, {
-        id: initialProfile?.id,
-        version: 2,
-      }),
-    {
-      enabled: !!initialProfile,
+    twitter: {
+      handle: user.twitter,
     },
-  );
-
-  const Seo: NextSeoProps = profile
-    ? {
-        title: getTemplatedTitle(profile.name),
-        description: profile.bio
-          ? profile.bio
-          : `Check out ${profile.name}'s profile`,
-        openGraph: {
-          images: [{ url: profile.image }],
-        },
-        twitter: {
-          handle: profile.twitter,
-        },
-      }
-    : {};
-
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [twitterHandle, setTwitterHandle] = useState<string>();
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [githubHandle, setGithubHandle] = useState<string>();
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [hashnodeHandle, setHashnodeHandle] = useState<string>();
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [portfolioLink, setPortfolioLink] = useState<string>();
-
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    if (profile) {
-      const purify = DOMPurify(window);
-      setTwitterHandle(sanitizeOrNull(purify, profile.twitter));
-      setGithubHandle(sanitizeOrNull(purify, profile.github));
-      setHashnodeHandle(sanitizeOrNull(purify, profile.hashnode));
-      setPortfolioLink(sanitizeOrNull(purify, profile.portfolio));
-    }
-  }, [profile]);
-
-  const isLoadingReferral = isCurrentUserProfile && !isReady;
-
-  if ((isFallback && !initialProfile) || isLoadingReferral) {
-    return <></>;
-  }
+  };
 
   return (
-    <>
+    <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:flex-row tablet:pb-0 laptop:min-h-page laptop:border-l laptop:border-r laptop:border-theme-divider-tertiary laptop:pb-6 laptopL:pb-0">
       <Head>
-        <link rel="preload" as="image" href={profile.image} />
+        <link rel="preload" as="image" href={user.image} />
       </Head>
       <NextSeo {...Seo} />
-      <ResponsivePageContainer>
-        <section
-          className={classNames(
-            'flex flex-col self-start tablet:flex-row tablet:-ml-4 tablet:-mr-4 tablet:self-stretch tablet:overflow-x-hidden w-full tablet:w-auto',
-            styles.header,
-          )}
-        >
-          <div className="flex tablet:flex-col items-center self-start tablet:px-2 tablet:pt-2 tablet:pb-4 mb-6 tablet:mb-0 rounded-2xl bg-theme-bg-secondary">
-            <ProfilePicture user={profile} size="xxxxlarge" />
-            <div className="flex flex-col tablet:items-center mx-6 tablet:mx-0 tablet:mt-4 typo-footnote">
-              <a
-                href={reputationGuide}
-                target="_blank"
-                rel="noopener"
-                className="my-0.5 no-underline text-theme-label-tertiary"
-              >
-                Reputation
-              </a>
-              <span className="my-0.5 font-bold text-theme-label-primary typo-title1">
-                {profile.reputation}
-              </span>
-            </div>
-          </div>
-          <div className="flex flex-col tablet:flex-1 min-w-0">
-            <div className="flex items-center mb-2">
-              <h1 className="m-0 font-bold text-theme-label-primary typo-title3">
-                {profile.name}
-              </h1>
-              {userRank?.userReadingRank?.currentRank > 0 && (
-                <Rank
-                  rank={userRank.userReadingRank.currentRank}
-                  colorByRank
-                  data-testid="rank"
-                  className="ml-2 w-6 h-6"
-                />
-              )}
-            </div>
-            {profile.username && (
-              <h2 className="m-0 font-normal text-theme-label-secondary typo-callout">
-                @{profile.username}
-              </h2>
-            )}
-            {profile.bio && (
-              <p className="mt-3 break-words text-theme-label-tertiary typo-callout">
-                {profile.bio}
-              </p>
-            )}
-            <JoinedDate
-              className="mt-3 text-theme-label-quaternary typo-footnote"
-              date={new Date(profile.createdAt)}
-            />
-            <div className={classNames('flex mt-3 mx-0.5', styles.links)}>
-              {twitterHandle && (
-                <SimpleTooltip content="X">
-                  <Button
-                    tag="a"
-                    href={`https://twitter.com/${twitterHandle}`}
-                    target="_blank"
-                    rel="noopener"
-                    icon={<TwitterIcon />}
-                    className="btn-tertiary"
-                  />
-                </SimpleTooltip>
-              )}
-              {githubHandle && (
-                <SimpleTooltip content="GitHub">
-                  <Button
-                    tag="a"
-                    href={`https://github.com/${githubHandle}`}
-                    target="_blank"
-                    rel="noopener"
-                    icon={<GitHubIcon secondary />}
-                    className="btn-tertiary"
-                  />
-                </SimpleTooltip>
-              )}
-              {hashnodeHandle && (
-                <SimpleTooltip content="Hashnode">
-                  <Button
-                    tag="a"
-                    href={`https://hashnode.com/@${hashnodeHandle}`}
-                    target="_blank"
-                    rel="noopener"
-                    icon={<HashnodeIcon secondary />}
-                    className="btn-tertiary"
-                  />
-                </SimpleTooltip>
-              )}
-              {portfolioLink && (
-                <SimpleTooltip content="Portfolio">
-                  <QuaternaryButton
-                    tag="a"
-                    href={portfolioLink}
-                    id="portfolio-link"
-                    target="_blank"
-                    rel="noopener"
-                    icon={<LinkIcon />}
-                    className="w-full btn-tertiary"
-                    responsiveLabelClass="truncate w-auto tablet:w-full self-center flex-1"
-                  >
-                    {portfolioLink
-                      .replace(/(^\w+:|^)\/\//, '')
-                      .replace(/\/?(\?.*)?$/, '')}
-                  </QuaternaryButton>
-                </SimpleTooltip>
-              )}
-            </div>
-            {isCurrentUserProfile && (
-              <Button
-                className="self-start mt-6 mb-0.5 btn-secondary"
-                tag="a"
-                href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
-              >
-                Account details
-              </Button>
-            )}
-          </div>
-        </section>
-        {isCurrentUserProfile && <ReferralWidget url={url} />}
-        <NavBar selectedTab={selectedTab} profile={profile} />
+      <main className="relative flex flex-1 flex-col tablet:border-r tablet:border-theme-divider-tertiary">
+        <ProfileWidgets
+          user={user}
+          userStats={userStats}
+          sources={sources}
+          enableSticky
+          className="tablet:hidden"
+        />
+        <NavBar selectedTab={selectedTab} profile={user} />
         {children}
-      </ResponsivePageContainer>
-    </>
+      </main>
+      <PageWidgets className="hidden !px-0 tablet:flex">
+        <ProfileWidgets
+          user={user}
+          userStats={userStats}
+          sources={sources}
+          className="w-full"
+        />
+      </PageWidgets>
+    </div>
   );
 }
 
@@ -298,7 +96,11 @@ export const getLayout = (
   page: ReactNode,
   props: ProfileLayoutProps,
 ): ReactNode =>
-  getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, null);
+  getFooterNavBarLayout(
+    getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, null, {
+      screenCentered: false,
+    }),
+  );
 
 interface ProfileParams extends ParsedUrlQuery {
   userId: string;
@@ -315,11 +117,19 @@ export async function getStaticProps({
 > {
   const { userId } = params;
   try {
-    const profile = await getProfileSSR(userId);
+    const user = await getProfileSSR(userId);
+    if (!user) {
+      return {
+        props: {},
+        revalidate: 60,
+      };
+    }
+    const data = await getProfileV2ExtraSSR(user.id);
 
     return {
       props: {
-        profile,
+        user,
+        ...data,
       },
       revalidate: 60,
     };
@@ -327,7 +137,7 @@ export async function getStaticProps({
     const clientError = err as ClientError;
     if (clientError?.response?.errors?.[0]?.extensions?.code === 'FORBIDDEN') {
       return {
-        props: { profile: null },
+        props: {},
         revalidate: 60,
       };
     }

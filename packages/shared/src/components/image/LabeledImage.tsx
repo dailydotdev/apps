@@ -27,13 +27,13 @@ export function LabeledImage({
     <Container className={classNames(className?.container, 'relative')}>
       <img
         className={classNames(
-          'w-full bg-cover opacity-64 aspect-square',
+          'aspect-square w-full bg-cover object-cover opacity-64',
           className?.image,
         )}
         src={src}
         alt={alt}
       />
-      <div className="flex absolute bottom-0 -mb-px w-full h-full bg-gradient-to-t to-transparent from-theme-bg-primary from-15%" />
+      <div className="absolute bottom-0 -mb-px flex h-full w-full bg-gradient-to-t from-theme-bg-primary from-15% to-transparent" />
       <Container className={classNames('absolute', className?.content)}>
         {children}
       </Container>

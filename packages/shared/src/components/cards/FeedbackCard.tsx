@@ -1,10 +1,15 @@
 import React, { MouseEventHandler, ReactElement } from 'react';
-import { Button, ButtonSize } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import DownvoteIcon from '../icons/Downvote';
-import MiniCloseIcon from '../icons/MiniClose';
 import UpvoteIcon from '../icons/Upvote';
 import { Post, UserPostVote } from '../../graphql/posts';
 import { usePostFeedback } from '../../hooks';
+import CloseButton from '../CloseButton';
 
 interface FeedbackCardProps {
   post: Post;
@@ -20,19 +25,19 @@ export const FeedbackCard = ({
   const { dismissFeedback } = usePostFeedback({ post });
 
   return (
-    <div className="flex-1 p-6 pb-5 space-y-4">
-      <div className="flex relative justify-between">
-        <p className="font-bold typo-callout">Did you like the post?</p>
-        <Button
+    <div className="flex-1 space-y-4 p-6 pb-5">
+      <div className="relative flex justify-between">
+        <p className="font-bold typo-callout">
+          Want to see more posts like this?
+        </p>
+        <CloseButton
           id="close-engagement-loop-btn"
-          className="-top-2.5 -right-2.5 btn-tertiary"
-          position="absolute"
-          buttonSize={ButtonSize.XSmall}
-          icon={<MiniCloseIcon />}
+          className="absolute -right-2.5 -top-2.5"
+          size={ButtonSize.XSmall}
           onClick={dismissFeedback}
         />
       </div>
-      <div className="flex gap-3 items-center">
+      <div className="flex items-center gap-3">
         <Button
           id="upvote-post-btn"
           pressed={post?.userState?.vote === UserPostVote.Up}
@@ -40,8 +45,9 @@ export const FeedbackCard = ({
           icon={
             <UpvoteIcon secondary={post?.userState?.vote === UserPostVote.Up} />
           }
+          variant={ButtonVariant.Secondary}
+          color={ButtonColor.Avocado}
           aria-label="Upvote"
-          className="btn-secondary-avocado"
         />
         <Button
           id="downvote-post-btn"
@@ -52,8 +58,9 @@ export const FeedbackCard = ({
               secondary={post?.userState?.vote === UserPostVote.Down}
             />
           }
+          variant={ButtonVariant.Secondary}
+          color={ButtonColor.Ketchup}
           aria-label="Downvote"
-          className="btn-secondary-ketchup"
         />
       </div>
     </div>

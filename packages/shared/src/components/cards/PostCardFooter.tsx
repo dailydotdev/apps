@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { CardImage } from './Card';
+import { CardImage, CardVideoImage } from './Card';
 import FeatherIcon from '../icons/Feather';
 import PostAuthor from './PostAuthor';
 import { ProfilePicture } from '../ProfilePicture';
-import { Post } from '../../graphql/posts';
+import { Post, isVideoPost } from '../../graphql/posts';
 import { cloudinary } from '../../lib/image';
 import { visibleOnGroupHover } from './common';
 
@@ -25,35 +25,43 @@ export const PostCardFooter = ({
   showImage,
   className,
 }: PostCardFooterProps): ReactElement => {
+  const isVideoType = isVideoPost(post);
+  const ImageComponent = isVideoType ? CardVideoImage : CardImage;
   return (
     <>
       {!showImage && post.author && (
         <PostAuthor
           author={post.author}
           className={classNames(
-            'hidden tablet:flex laptop:hidden mx-4 mt-2',
+            'mx-4 mt-2 hidden tablet:flex laptop:hidden',
             visibleOnGroupHover,
           )}
         />
       )}
       {showImage && (
-        <CardImage
+        <ImageComponent
           alt="Post Cover image"
           src={post.image}
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-          className={classNames('object-cover my-2', className.image)}
+          className={classNames(
+            'w-full object-cover',
+            className.image,
+            !isVideoType && 'my-2',
+          )}
           loading="lazy"
+          data-testid="postImage"
+          {...(isVideoType && { wrapperClassName: 'my-2' })}
         />
       )}
       {showImage && post.author && (
         <div
           className={classNames(
-            'absolute rounded-t-xl mt-2 flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout w-full',
+            'absolute z-1 mt-2 flex w-full items-center rounded-t-xl bg-theme-bg-primary px-3 py-2 font-bold text-theme-label-secondary typo-callout',
             visibleOnGroupHover,
           )}
         >
           <ProfilePicture size="small" user={post.author} />
-          <span className="flex-1 mx-3 truncate">{post.author.name}</span>
+          <span className="mx-3 flex-1 truncate">{post.author.name}</span>
           <FeatherIcon secondary className="text-2xl text-theme-status-help" />
         </div>
       )}

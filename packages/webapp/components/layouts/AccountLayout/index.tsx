@@ -43,9 +43,9 @@ export default function AccountLayout({
         <link rel="preload" as="image" href={profile.image} />
       </Head>
       <NextSeo {...Seo} />
-      <main className="flex relative flex-row flex-1 items-stretch pt-0 mx-auto w-full laptop:max-w-[calc(100vw-17.5rem)]">
+      <main className="relative mx-auto flex w-full flex-1 flex-row items-stretch pt-0 laptop:max-w-[calc(100vw-17.5rem)]">
         <SidebarNav
-          className="absolute tablet:relative z-3 ml-auto w-full h-full border-l tablet:w-[unset] bg-theme-bg-primary border-theme-divider-tertiary"
+          className="absolute z-3 ml-auto h-full w-full border-l border-theme-divider-tertiary bg-theme-bg-primary tablet:relative tablet:w-[unset]"
           basePath="account"
         />
         {children}

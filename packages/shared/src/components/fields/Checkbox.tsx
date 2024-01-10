@@ -48,7 +48,7 @@ export const Checkbox = forwardRef(function Checkbox(
   return (
     <label
       className={classNames(
-        'relative inline-flex items-center text-theme-label-tertiary z-1 cursor-pointer select-none font-bold typo-footnote p-1 pr-3',
+        'relative z-1 inline-flex cursor-pointer select-none items-center p-1 pr-3 font-bold text-theme-label-tertiary typo-footnote',
         styles.label,
         className,
         { checked: actualChecked, disabled },
@@ -61,7 +61,7 @@ export const Checkbox = forwardRef(function Checkbox(
         disabled={disabled}
         id={id}
         type="checkbox"
-        className="absolute w-0 h-0 opacity-0"
+        className="absolute h-0 w-0 opacity-0"
         name={name}
         checked={checked}
         onChange={onChange}
@@ -69,12 +69,12 @@ export const Checkbox = forwardRef(function Checkbox(
       />
       <div
         className={classNames(
-          'relative flex w-5 h-5 items-center justify-center rounded-md border-2 border-theme-divider-primary mr-3 z-1',
+          'relative z-1 mr-3 flex h-5 w-5 items-center justify-center rounded-md border-2 border-theme-divider-primary',
           styles.checkmark,
         )}
       >
         <VIcon
-          className="w-full h-full opacity-0 icon text-theme-label-primary"
+          className="icon h-full w-full text-theme-label-primary opacity-0"
           style={{ transition: 'opacity 0.1s linear' }}
         />
       </div>

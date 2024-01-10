@@ -1,6 +1,7 @@
 import nock from 'nock';
 import React from 'react';
 import {
+  act,
   findByRole,
   findByText,
   fireEvent,
@@ -50,6 +51,7 @@ import {
   AllTagCategoriesData,
   FEED_SETTINGS_QUERY,
   FeedSettings,
+  REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
 import Toast from './notifications/Toast';
@@ -58,6 +60,7 @@ import { LazyModalElement } from './modals/LazyModalElement';
 import { feature } from '../lib/featureManagement';
 import { SearchExperiment } from '../lib/featureValues';
 import { AuthTriggers } from '../lib/auth';
+import { SourceType } from '../graphql/sources';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -631,14 +634,20 @@ it('should report broken link', async () => {
       },
     },
   ]);
-  const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
-  const contextBtn = await screen.findByText('Report');
-  contextBtn.click();
-  const brokenLinkBtn = await screen.findByText('Broken link');
-  brokenLinkBtn.click();
-  const submitBtn = await screen.findByText('Submit report');
-  submitBtn.click();
+
+  await act(async () => {
+    const [menuBtn] = await screen.findAllByLabelText('Options');
+    menuBtn.click();
+  });
+
+  await act(async () => {
+    const contextBtn = await screen.findByText('Report');
+    contextBtn.click();
+    const brokenLinkBtn = await screen.findByText('Broken link');
+    brokenLinkBtn.click();
+    const submitBtn = await screen.findByText('Submit report');
+    submitBtn.click();
+  });
 
   await waitFor(async () => {
     await screen.findByRole('alert');
@@ -812,6 +821,62 @@ it('should block a source', async () => {
     expect(data).toBeTruthy();
   });
   const contextBtn = await screen.findByText("Don't show posts from Echo JS");
+  contextBtn.click();
+
+  await waitFor(async () => {
+    await screen.findByRole('alert');
+    const feed = await screen.findByTestId('posts-feed');
+
+    return expect(feed).toHaveAttribute('aria-live', 'assertive');
+  });
+
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+});
+
+it('should unblock a source', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
+    {
+      request: {
+        query: REMOVE_FILTERS_FROM_FEED_MUTATION,
+        variables: { filters: { excludeSources: ['echojs'] } },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  menuBtn.click();
+  mockGraphQL(
+    createTagsSettingsMock({
+      includeTags: [],
+      blockedTags: [],
+      excludeSources: [
+        {
+          id: 'echojs',
+          name: 'Echo JS',
+          handle: 'echojs',
+          image: 'https://s1.com/echojs.jpg',
+          permalink: 'https://s1.com/echojs',
+          type: SourceType.Machine,
+          public: true,
+        },
+      ],
+    }),
+  );
+  await waitFor(async () => {
+    const data = await queryClient.getQueryData(
+      getFeedSettingsQueryKey(defaultUser),
+    );
+    expect(data).toBeTruthy();
+  });
+  const contextBtn = await screen.findByText('Show posts from Echo JS');
   contextBtn.click();
 
   await waitFor(async () => {

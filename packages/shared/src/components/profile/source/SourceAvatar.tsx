@@ -4,11 +4,11 @@ import { Image } from '../../image/Image';
 import { Source } from '../../../graphql/sources';
 import { ProfileImageSize, sizeClasses } from '../../ProfilePicture';
 
-interface SourceAvatarProps {
-  source: Source;
+export type SourceAvatarProps = {
+  source: Pick<Source, 'image' | 'handle'>;
   className?: string;
   size?: ProfileImageSize;
-}
+};
 
 export function SourceAvatar({
   source,
@@ -22,7 +22,7 @@ export function SourceAvatar({
   return (
     <Image
       className={classNames(
-        'object-cover mr-2 rounded-full',
+        'mr-2 rounded-full object-cover',
         sizeClasses[size],
         className,
       )}

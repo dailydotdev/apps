@@ -1,16 +1,22 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { link } from '../../lib/links';
 import { TargetId, TargetType } from '../../lib/analytics';
 import ReferralSocialShareButtons from './ReferralSocialShareButtons';
 import { InviteLinkInput } from '../referral/InviteLinkInput';
 
-const ReferralWidget = ({ url }: { url: string }): ReactElement => {
+const ReferralWidget = ({
+  url,
+  className,
+}: {
+  url: string;
+  className?: string;
+}): ReactElement => {
   const inviteLink = url || link.referral.defaultUrl;
-
   return (
     <div
       data-testid="referral-widget"
-      className="flex laptopL:absolute laptopL:left-full flex-col tablet:flex-row laptopL:flex-col flex-wrap justify-between p-4 laptopL:m-6 mt-6 laptopL:mt-0 mb-4 laptopL:max-w-widget laptopL:h-auto rounded-2xl border border-theme-divider-tertiary max-w-fit bg-theme-bg-primary"
+      className={classNames('flex flex-col px-4', className)}
     >
       <h3 className="mb-2 font-bold typo-title3">Invite friends</h3>
       <p className="text-theme-label-secondary typo-callout">
@@ -22,11 +28,11 @@ const ReferralWidget = ({ url }: { url: string }): ReactElement => {
         link={inviteLink}
         className={{
           input: 'typo-footnote',
-          container: 'flex flex-col my-5 w-auto tablet:w-70',
+          container: 'my-5 flex flex-col',
         }}
       />
-      <div className="flex justify-between items-center">
-        <p className="mr-3 typo-callout text-theme-label-tertiary">
+      <div className="flex items-center justify-between">
+        <p className="mr-3 text-theme-label-tertiary typo-callout">
           Invite via
         </p>
         <span className="flex gap-2">

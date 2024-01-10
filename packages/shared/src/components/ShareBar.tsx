@@ -18,9 +18,9 @@ import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { LazyModal } from './modals/common/types';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { Squad } from '../graphql/sources';
-import { SocialShareIcon } from './widgets/SocialShareIcon';
+import { SocialShareButton } from './widgets/SocialShareButton';
 import { SquadsToShare } from './squads/SquadsToShare';
-import { ButtonSize } from './buttons/Button';
+import { ButtonSize, ButtonVariant } from './buttons/ButtonV2';
 
 interface ShareBarProps {
   post: Post;
@@ -58,16 +58,16 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   };
 
   return (
-    <WidgetContainer className="hidden laptop:flex flex-col p-3">
-      <p className="mb-4 typo-callout text-theme-label-tertiary">
+    <WidgetContainer className="hidden flex-col p-3 laptop:flex">
+      <p className="mb-4 text-theme-label-tertiary typo-callout">
         Would you recommend this post?
       </p>
       <div className="grid grid-cols-4 gap-2 gap-y-4">
-        <SocialShareIcon
+        <SocialShareButton
           size={ButtonSize.Medium}
+          variant={ButtonVariant.Tertiary}
           onClick={trackAndCopyLink}
           pressed={copying}
-          className="btn-tertiary"
           icon={
             <CopyIcon
               className={copying && 'text-theme-color-avocado'}
@@ -76,27 +76,28 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
           }
           label={copying ? 'Copied!' : 'Copy link'}
         />
-        <SocialShareIcon
+        <SocialShareButton
           size={ButtonSize.Medium}
+          variant={ButtonVariant.Tertiary}
           href={getWhatsappShareLink(href)}
           icon={<WhatsappIcon secondary />}
-          className="text-white btn-tertiary"
+          className="text-white"
           onClick={() => onClick(ShareProvider.WhatsApp)}
           label="WhatsApp"
         />
-        <SocialShareIcon
+        <SocialShareButton
           size={ButtonSize.Medium}
+          variant={ButtonVariant.Tertiary}
           href={getFacebookShareLink(href)}
           icon={<FacebookIcon secondary />}
-          className="btn-tertiary"
           onClick={() => onClick(ShareProvider.Facebook)}
           label="Facebook"
         />
-        <SocialShareIcon
+        <SocialShareButton
           size={ButtonSize.Medium}
+          variant={ButtonVariant.Tertiary}
           href={getTwitterShareLink(href, post?.title)}
           icon={<TwitterIcon />}
-          className="btn-tertiary"
           onClick={() => onClick(ShareProvider.Twitter)}
           label="X"
         />

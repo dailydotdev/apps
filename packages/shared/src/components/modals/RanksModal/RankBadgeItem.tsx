@@ -62,8 +62,8 @@ const RankBadgeItem = ({
             ? itemRank.border
             : 'border-theme-divider-tertiary border-opacity-32',
           showRank === itemRank.level
-            ? 'w-16 h-16'
-            : 'w-10 h-10 border rounded-12',
+            ? 'h-16 w-16'
+            : 'h-10 w-10 rounded-12 border',
         )}
       >
         {showRank === itemRank.level && (
@@ -72,7 +72,7 @@ const RankBadgeItem = ({
             steps={finalRankCompleted ? 0 : itemRank.steps}
             className={classNames(
               styles.radialProgress,
-              'w-full h-full absolute inset-0',
+              'absolute inset-0 h-full w-full',
             )}
             style={
               {
@@ -89,7 +89,7 @@ const RankBadgeItem = ({
         <Rank
           rank={itemRank.level}
           className={classNames(
-            showRank === itemRank.level ? 'w-10 h-10' : 'w-8 h-8',
+            showRank === itemRank.level ? 'h-10 w-10' : 'h-8 w-8',
           )}
           colorByRank={isColorByRank}
           style={{ opacity: isColorByRank ? 1 : 0.32 }}

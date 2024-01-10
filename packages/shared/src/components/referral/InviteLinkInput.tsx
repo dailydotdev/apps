@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { TextField } from '../fields/TextField';
 import { AnalyticsEvent, TargetId } from '../../lib/analytics';
 import { useCopyLink } from '../../hooks/useCopy';
@@ -59,8 +59,8 @@ export function InviteLinkInput({
       fieldType="tertiary"
       actionButton={
         <Button
-          buttonSize={ButtonSize.Small}
-          className="btn-primary"
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Primary}
           onClick={onCopyClick}
         >
           {renderText()}

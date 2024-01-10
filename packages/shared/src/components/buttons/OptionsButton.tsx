@@ -1,6 +1,12 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { AllowedTags, Button, ButtonProps, ButtonSize } from './Button';
+import {
+  AllowedTags,
+  Button,
+  ButtonProps,
+  ButtonSize,
+  ButtonVariant,
+} from './ButtonV2';
 import MenuIcon from '../icons/Menu';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
@@ -12,15 +18,17 @@ type OptionsButtonProps = ButtonProps<AllowedTags> & {
 const OptionsButton = ({
   className,
   tooltipPlacement = 'left',
-  buttonSize = ButtonSize.Small,
+  size = ButtonSize.Small,
+  icon = <MenuIcon />,
   ...props
 }: OptionsButtonProps): ReactElement => (
   <SimpleTooltip placement={tooltipPlacement} content="Options">
     <Button
       {...props}
-      className={classNames('my-auto btn-tertiary', className)}
-      icon={<MenuIcon />}
-      buttonSize={buttonSize}
+      className={classNames('my-auto', className)}
+      variant={ButtonVariant.Tertiary}
+      icon={icon}
+      size={size}
     />
   </SimpleTooltip>
 );

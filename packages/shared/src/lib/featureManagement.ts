@@ -1,5 +1,5 @@
 import { JSONValue } from '@growthbook/growthbook';
-import { SearchExperiment } from './featureValues';
+import { FeedLayout, SearchExperiment } from './featureValues';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -16,10 +16,8 @@ const feature = {
   feedVersion: new Feature('feed_version', 15),
   search: new Feature('search', SearchExperiment.Control),
   lowImps: new Feature('feed_low_imps'),
-  onboardingCopy: new Feature('onboarding_copy', {
-    title: 'Where developers grow together',
-    description: 'Get one personalized feed for all the knowledge you need.',
-  }),
+  bookmarkOnCard: new Feature('bookmark_on_card', false),
+  feedLayout: new Feature('feed_layout', FeedLayout.Control),
 };
 
 export { feature };

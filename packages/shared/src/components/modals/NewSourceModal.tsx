@@ -8,7 +8,7 @@ import React, {
 import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
 import request from 'graphql-request';
-import { Button } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { SearchField } from '../fields/SearchField';
 import { Radio } from '../fields/Radio';
 import { formToJson } from '../../lib/form';
@@ -60,10 +60,10 @@ type ScrapeSourceResponse =
   | ScrapeSourceUnavailable;
 
 const getFeedLabel = (label: string, link: string) => (
-  <span className="flex flex-1 justify-between items-center w-full">
+  <span className="flex w-full flex-1 items-center justify-between">
     {label}
     <Button
-      className="btn-tertiary"
+      variant={ButtonVariant.Tertiary}
       tag="a"
       target="_blank"
       href={link}
@@ -224,7 +224,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
           feed.
         </Modal.Text>
         <a
-          className="mb-2 font-bold underline typo-callout text-theme-label-link"
+          className="mb-2 font-bold text-theme-label-link underline typo-callout"
           target="_blank"
           rel="noopener"
           href={contentGuidelines}
@@ -232,7 +232,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
           Content guidelines
         </a>
         <form
-          className="flex flex-col w-full"
+          className="flex w-full flex-col"
           ref={scrapeFormRef}
           onSubmit={onScrapeSubmit}
           aria-busy={isScraping}
@@ -273,11 +273,11 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         )}
         {!!feeds?.length && !existingSource && (
           <>
-            <div className="self-start mb-6 typo-callout text-theme-label-tertiary">
+            <div className="mb-6 self-start text-theme-label-tertiary typo-callout">
               {feeds.length} RSS feed{feeds.length > 1 ? 's' : ''} found
             </div>
             <form
-              className="flex flex-col items-center w-full"
+              className="flex w-full flex-col items-center"
               id="select-feed"
               onSubmit={onSubmitFeed}
             >
@@ -287,7 +287,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
                 onChange={setSelectedFeed}
                 value={selectedFeed}
                 className={{
-                  container: 'self-start w-full',
+                  container: 'w-full self-start',
                   content: 'w-full pr-0',
                 }}
               />
@@ -299,7 +299,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
             <div
               id="new-source-field-desc"
               className={classNames(
-                'typo-callout text-theme-status-error self-start',
+                'self-start text-theme-status-error typo-callout',
                 !showContact && 'mb-6',
               )}
             >
@@ -308,7 +308,9 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
             {showContact && (
               <Button
                 tag="a"
-                className="self-start mt-3 mb-6 btn-secondary small"
+                className="mb-6 mt-3 self-start"
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
                 href="mailto:hi@daily.dev?subject=Failed to add new source"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -323,7 +325,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         {!feeds?.length && (
           <Button
             form="submit-source"
-            className="btn-primary"
+            variant={ButtonVariant.Primary}
             type="submit"
             disabled={isScraping || !enableSubmission}
             loading={isScraping}
@@ -344,7 +346,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
             </Button>
             <Button
               form="select-feed"
-              className="btn-primary"
+              variant={ButtonVariant.Primary}
               type="submit"
               disabled={!selectedFeed || !!existingSource}
               loading={checkingIfExists || requestingSource}

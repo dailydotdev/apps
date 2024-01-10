@@ -1,7 +1,8 @@
 import {
   Button,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
 import React, { ReactElement, Ref, forwardRef } from 'react';
@@ -23,7 +24,7 @@ const CompanionPermissionComponent = (
     "We'll ask for extra permissions so we can show the companion directly on the original content!";
 
   return (
-    <div ref={ref} className="flex flex-row gap-4 max-w-full typo-callout">
+    <div ref={ref} className="flex max-w-full flex-row gap-4 typo-callout">
       <CompanionSection className="shrink">
         <p className="font-bold" data-testid="companion_permission_title">
           {title}
@@ -35,13 +36,14 @@ const CompanionPermissionComponent = (
           {description}
         </p>
         <Button
-          className="mt-1 w-[12.5rem] btn btn-primary"
+          className="mt-1 w-[12.5rem]"
           onClick={() =>
             requestContentScripts({
               origin: 'companion permission popup',
             })
           }
-          buttonSize={ButtonSize.Small}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Primary}
         >
           {button}
         </Button>
@@ -50,14 +52,14 @@ const CompanionPermissionComponent = (
         <a
           target="_blank"
           href={companionExplainerVideo}
-          className="flex relative justify-center items-center"
+          className="relative flex items-center justify-center"
         >
           <img
             src="https://daily-now-res.cloudinary.com/image/upload/v1655218347/public/companion_preview_v2.png"
             alt="Companion video preview"
-            className="rounded-10 w-[11.25rem] h-[6.875]"
+            className="h-[6.875] w-[11.25rem] rounded-10"
           />
-          <PlayIcon secondary className="absolute w-10 h-10" />
+          <PlayIcon secondary className="absolute h-10 w-10" />
         </a>
         <ClickableText
           tag="a"

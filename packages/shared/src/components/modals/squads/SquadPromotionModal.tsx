@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
 import { Modal, ModalProps } from '../common/Modal';
-import CloseButton from '../../CloseButton';
-import { ButtonSize } from '../../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import PromotionTour from '../../squads/PromotionTour';
 import { useSquad } from '../../../hooks';
+import { ModalClose } from '../common/ModalClose';
 
 interface SquadPromotionModalProps extends ModalProps {
   handle: string;
@@ -30,9 +30,11 @@ export function SquadPromotionModal({
       className="overflow-hidden !border-theme-color-cabbage"
     >
       <PromotionTour onClose={onRequestClose} source={squad} />
-      <CloseButton
-        buttonSize={ButtonSize.Small}
-        className="top-3 right-3 !absolute !btn-secondary"
+      <ModalClose
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Secondary}
+        top="3"
+        right="3"
         onClick={onRequestClose}
       />
     </Modal>

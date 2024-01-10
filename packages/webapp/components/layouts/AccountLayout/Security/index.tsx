@@ -2,7 +2,8 @@ import { getProviderMapClone } from '@dailydotdev/shared/src/components/auth/com
 import {
   Button,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import LockIcon from '@dailydotdev/shared/src/components/icons/Lock';
 import MailIcon from '@dailydotdev/shared/src/components/icons/Mail';
 import AccountDangerZone from '@dailydotdev/shared/src/components/profile/AccountDangerZone';
@@ -187,7 +188,7 @@ function AccountSecurityDefault({
           placement="bottom"
           disabled={hasPassword}
           content={
-            <div className="py-2 w-60 typo-subhead">
+            <div className="w-60 py-2 typo-subhead">
               You must set a password for the account before you can change your
               email address.
             </div>
@@ -209,8 +210,9 @@ function AccountSecurityDefault({
         )}
         {hasPassword && (
           <Button
-            buttonSize={ButtonSize.Small}
-            className="mt-6 w-fit btn-secondary"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Secondary}
+            className="mt-6 w-fit"
             onClick={() => onSwitchDisplay(Display.ChangeEmail)}
           >
             Change email
@@ -218,7 +220,7 @@ function AccountSecurityDefault({
         )}
       </AccountContentSection>
       <AccountLoginSection
-        className={{ button: 'btn-primary' }}
+        buttonVariant={ButtonVariant.Primary}
         title="Add login account"
         description="Add more accounts to ensure you never lose access to your daily.dev
         profile and to make login quick and easy cross device"
@@ -233,7 +235,8 @@ function AccountSecurityDefault({
         description="Remove the connection between daily.dev and authorized login providers."
         providerAction={({ provider }) => unlinkProvider(provider)}
         providerActionType="unlink"
-        className={{ button: 'btn-secondary hover:bg-theme-color-ketchup' }}
+        className={{ button: 'hover:bg-theme-color-ketchup' }}
+        buttonVariant={ButtonVariant.Secondary}
         providers={removeProviderList.filter(({ value }) =>
           userProviders?.result.includes(value),
         )}
@@ -257,8 +260,9 @@ function AccountSecurityDefault({
           />
           <Button
             type="submit"
-            buttonSize={ButtonSize.Small}
-            className="mt-6 w-fit btn-secondary"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Secondary}
+            className="mt-6 w-fit"
           >
             Set password
           </Button>
@@ -267,7 +271,7 @@ function AccountSecurityDefault({
       <AccountContentSection title="🚨 Danger Zone">
         <AccountDangerZone
           onDelete={() => deleteAccountPrompt()}
-          className="overflow-hidden relative py-4 px-6 mt-6 rounded-26 border border-theme-status-error"
+          className="relative mt-6 overflow-hidden rounded-26 border border-theme-status-error px-6 py-4"
         >
           <AlertBackground className="bg-overlay-quaternary-ketchup" />
         </AccountDangerZone>

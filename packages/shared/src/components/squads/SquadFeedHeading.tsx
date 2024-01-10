@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { PinIcon } from '../icons';
 import { Squad } from '../../graphql/sources';
 import { ActiveFeedContext } from '../../contexts';
@@ -34,10 +34,10 @@ function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
   );
 
   return (
-    <div className="flex flex-row flex-wrap gap-4 justify-end items-center pb-6 w-full">
-      <span className="flex flex-row gap-3 pl-3 ml-auto border-l border-theme-divider-tertiary">
+    <div className="flex w-full flex-row flex-wrap items-center justify-end gap-4 pb-6">
+      <span className="ml-auto flex flex-row gap-3 border-l border-theme-divider-tertiary pl-3">
         <Button
-          className="btn-tertiaryFloat"
+          variant={ButtonVariant.Float}
           onClick={onClick}
           icon={<PinIcon />}
         >

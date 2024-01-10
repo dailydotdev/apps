@@ -1,13 +1,14 @@
 import React, { forwardRef, ReactElement, Ref, useRef, useState } from 'react';
 import { CardButton, getPostClassNames } from './Card';
 import ActionButtons from './ActionButtons';
-import { SharedPostCardHeader } from './SharedPostCardHeader';
 import { SharedPostText } from './SharedPostText';
 import { SharedPostCardFooter } from './SharedPostCardFooter';
 import { Container, PostCardProps } from './common';
 import OptionsButton from '../buttons/OptionsButton';
 import FeedItemContainer from './FeedItemContainer';
 import { useFeedPreviewMode } from '../../hooks';
+import { isVideoPost } from '../../graphql/posts';
+import { SquadPostCardHeader } from './common/SquadPostCardHeader';
 
 export const SharePostCard = forwardRef(function SharePostCard(
   {
@@ -18,6 +19,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
     onMenuClick,
     onShare,
     onShareClick,
+    onBookmarkClick,
     openNewTab,
     children,
     onReadArticleClick,
@@ -37,12 +39,17 @@ export const SharePostCard = forwardRef(function SharePostCard(
     setSharedPostShort(containerRef.current.offsetHeight - height < 40);
   };
   const isFeedPreview = useFeedPreviewMode();
+  const isVideoType = isVideoPost(post);
 
   return (
     <FeedItemContainer
       domProps={{
         ...domProps,
-        className: getPostClassNames(post, domProps.className, 'min-h-card'),
+        className: getPostClassNames(
+          post,
+          domProps.className,
+          'min-h-card max-h-card',
+        ),
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending }}
@@ -52,12 +59,11 @@ export const SharePostCard = forwardRef(function SharePostCard(
       )}
 
       <OptionsButton
-        className="group-hover:flex laptop:hidden top-2 right-2"
+        className="absolute right-2 top-2 group-hover:flex laptop:hidden"
         onClick={(event) => onMenuClick?.(event, post)}
         tooltipPlacement="top"
-        position="absolute"
       />
-      <SharedPostCardHeader
+      <SquadPostCardHeader
         author={post.author}
         source={post.source}
         createdAt={post.createdAt}
@@ -67,10 +73,11 @@ export const SharePostCard = forwardRef(function SharePostCard(
         title={post.title}
         onHeightChange={onSharedPostTextHeightChange}
       />
-      <Container ref={containerRef}>
+      <Container ref={containerRef} className="min-h-0 justify-end">
         <SharedPostCardFooter
           sharedPost={post.sharedPost}
           isShort={isSharedPostShort}
+          isVideoType={isVideoType}
         />
         <ActionButtons
           openNewTab={openNewTab}
@@ -79,9 +86,9 @@ export const SharePostCard = forwardRef(function SharePostCard(
           onCommentClick={onCommentClick}
           onShare={onShare}
           onShareClick={onShareClick}
+          onBookmarkClick={onBookmarkClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
-          className="justify-between mx-4"
         />
       </Container>
       {children}

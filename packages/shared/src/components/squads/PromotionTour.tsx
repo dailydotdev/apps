@@ -1,6 +1,6 @@
 import React, { ReactElement, useMemo } from 'react';
 import { cloudinary } from '../../lib/image';
-import { Button } from '../buttons/Button';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import { FlexCentered, Justify } from '../utilities';
 import Carousel from '../containers/Carousel';
 import { ModalFooter } from '../modals/common/ModalFooter';
@@ -71,11 +71,11 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
         title="You have been promoted"
         description={roleDescription[role]}
       >
-        <FlexCentered className="absolute top-20 left-1/2 gap-1 justify-center -translate-x-1/2">
+        <FlexCentered className="absolute left-1/2 top-20 -translate-x-1/2 justify-center gap-1">
           <span className="relative">
             <ProfilePicture user={user} size="xxxxlarge" />
             <SourceButton
-              className="absolute -right-4 -bottom-4"
+              className="absolute -bottom-4 -right-4"
               source={source}
               size="xlarge"
             />
@@ -137,14 +137,15 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
       {({ onSwipedLeft, onSwipedRight, index }, indicator) => (
         <ModalFooter justify={Justify.Between}>
           <FooterButton
-            className="btn-tertiary"
+            variant={ButtonVariant.Tertiary}
             onClick={(e) => onSwipedRight(e)}
           >
             {index === 0 ? 'Close' : 'Back'}
           </FooterButton>
           {indicator}
           <FooterButton
-            className="btn-primary-cabbage"
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
             onClick={(e) => onSwipedLeft(e)}
           >
             {index === items.length - 1 ? 'Close' : 'Next'}

@@ -1,5 +1,8 @@
 import React, { ReactElement } from 'react';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
@@ -41,11 +44,12 @@ function CompanionToggle({
         container={tooltipContainerProps}
       >
         <Button
-          className={classNames(
-            companionState
-              ? 'btn-secondary'
-              : 'btn-tertiary group-hover:btn-secondary',
-          )}
+          variant={
+            companionState ? ButtonVariant.Secondary : ButtonVariant.Tertiary
+          }
+          className={classNames({
+            'group-hover:btn-secondary': !companionState,
+          })}
           icon={
             <>
               <LogoIcon
@@ -59,7 +63,7 @@ function CompanionToggle({
                   'icon ',
                   companionState
                     ? 'block rotate-90'
-                    : 'hidden group-hover:block -rotate-90',
+                    : 'hidden -rotate-90 group-hover:block',
                 )}
               />
             </>

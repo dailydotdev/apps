@@ -1,6 +1,11 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode } from 'react';
-import { Button, ButtonSize } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 
 interface AccountDangerZoneProps {
   onDelete: () => void;
@@ -15,7 +20,7 @@ function AccountDangerZone({
 }: AccountDangerZoneProps): ReactElement {
   return (
     <section className={classNames('flex flex-col', className)}>
-      <div className="typo-callout text-theme-label-tertiary">
+      <div className="text-theme-label-tertiary typo-callout">
         Deleting your account will:
         <br />
         <br />
@@ -46,8 +51,10 @@ function AccountDangerZone({
       {children}
       <Button
         onClick={onDelete}
-        buttonSize={ButtonSize.Small}
-        className="self-start mt-6 btn-primary-ketchup text-theme-label-primary"
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Ketchup}
+        className="mt-6 self-start"
       >
         Delete account
       </Button>

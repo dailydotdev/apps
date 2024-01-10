@@ -1,6 +1,11 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
 import PlusIcon from './icons/Plus';
-import { Button, ButtonSize } from './buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from './buttons/ButtonV2';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
 
@@ -36,14 +41,16 @@ export default function CreateMyFeedButton({
   }, [buttonCopy]);
 
   return (
-    <div className="flex flex-col items-center mb-4 w-full">
-      <div className="flex flex-col tablet:flex-row items-center p-2 rounded-12 border shadow-2-cabbage border-theme-color-cabbage">
-        <p className="ml-2 text-center tablet:text-left transition-all typo-footnote">
+    <div className="mb-4 flex w-full flex-col items-center">
+      <div className="flex flex-col items-center rounded-12 border border-theme-color-cabbage p-2 shadow-2-cabbage tablet:flex-row">
+        <p className="ml-2 text-center transition-all typo-footnote tablet:text-left">
           {explainerCopy}
         </p>
         <Button
-          className="mt-4 tablet:mt-0 ml-0 tablet:ml-8 btn-primary-cabbage"
-          buttonSize={ButtonSize.Small}
+          className="ml-0 mt-4 tablet:ml-8 tablet:mt-0"
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Cabbage}
+          size={ButtonSize.Small}
           icon={<PlusIcon />}
           onClick={onClick}
           data-testid="create_myfeed"

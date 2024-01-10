@@ -19,7 +19,7 @@ export const SquadImage = ({
     src={image ?? cloudinary.squads.imageFallback}
     alt={`${handle}'s logo`}
     fallbackSrc={cloudinary.squads.imageFallback}
-    className={classNames('object-cover rounded-full', className)}
+    className={classNames('rounded-full object-cover', className)}
     loading="lazy"
   />
 );
