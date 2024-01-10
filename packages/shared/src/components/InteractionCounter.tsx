@@ -1,10 +1,15 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
+import classNames from 'classnames';
 import styles from './InteractionCounter.module.css';
 
-export type InteractionCounterProps = { value: number | null };
+export type InteractionCounterProps = {
+  className?: string;
+  value: number | null;
+};
 
 export default function InteractionCounter({
+  className,
   value,
   ...props
 }: InteractionCounterProps): ReactElement {
@@ -25,7 +30,11 @@ export default function InteractionCounter({
   }, [value]);
 
   if (shownValue === value) {
-    return <span {...props}>{shownValue}</span>;
+    return (
+      <span className={className} {...props}>
+        {shownValue}
+      </span>
+    );
   }
 
   const updateShownValue = () => {
@@ -35,7 +44,11 @@ export default function InteractionCounter({
 
   return (
     <span
-      className={`relative overflow-hidden ${styles.interactionCounter}`}
+      className={classNames(
+        'relative overflow-hidden',
+        styles.interactionCounter,
+        className,
+      )}
       {...props}
     >
       <span
