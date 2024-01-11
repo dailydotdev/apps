@@ -292,7 +292,7 @@ export default function PostOptionsMenu({
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
 
-  if (!bookmarkOnCard) {
+  if (!bookmarkOnCard && !shouldUseFeedLayoutV1) {
     postOptions.push({
       icon: (
         <MenuIcon
@@ -306,7 +306,7 @@ export default function PostOptionsMenu({
     });
   }
 
-  if (shouldUseFeedLayoutV1) {
+  if (!shouldUseFeedLayoutV1) {
     postOptions.push({
       icon: (
         <MenuIcon
