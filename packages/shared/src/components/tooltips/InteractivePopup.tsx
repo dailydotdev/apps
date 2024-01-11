@@ -81,7 +81,7 @@ function InteractivePopup({
   const classes = positionClass[finalPosition];
 
   useEventListener(globalThis, 'click', (e) => {
-    if (!closeOutsideClick || validateSidebar) {
+    if (!closeOutsideClick && validateSidebar) {
       return;
     }
 

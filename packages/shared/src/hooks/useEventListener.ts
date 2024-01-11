@@ -135,7 +135,9 @@ const useEventListener = <
   }
 
   useEffect(() => {
-    const eventListener = handlerRef.current;
+    const eventListener = (...args) => {
+      return handlerRef.current(...args);
+    };
     const targetElement =
       target && 'current' in target ? target.current : (target as T);
 
