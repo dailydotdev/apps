@@ -17,7 +17,7 @@ import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
-import { ToastSubject, useToastNotification } from '../hooks';
+import { ToastSubject, useFeedLayout, useToastNotification } from '../hooks';
 import {
   AllFeedPages,
   generateQueryKey,
@@ -289,6 +289,7 @@ export default function PostOptionsMenu({
     },
   ];
 
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
 
   if (!bookmarkOnCard) {
@@ -305,8 +306,8 @@ export default function PostOptionsMenu({
     });
   }
 
-  postOptions.push(
-    {
+  if (shouldUseFeedLayoutV1) {
+    postOptions.push({
       icon: (
         <MenuIcon
           className={classNames(
@@ -319,15 +320,16 @@ export default function PostOptionsMenu({
       ),
       label: 'Downvote',
       action: onToggleDownvotePost,
-    },
-    {
-      icon: <MenuIcon Icon={BlockIcon} />,
-      label: isSourceBlocked
-        ? `Show posts from ${post?.source?.name}`
-        : `Don't show posts from ${post?.source?.name}`,
-      action: isSourceBlocked ? onUnblockSource : onBlockSource,
-    },
-  );
+    });
+  }
+
+  postOptions.push({
+    icon: <MenuIcon Icon={BlockIcon} />,
+    label: isSourceBlocked
+      ? `Show posts from ${post?.source?.name}`
+      : `Don't show posts from ${post?.source?.name}`,
+    action: isSourceBlocked ? onUnblockSource : onBlockSource,
+  });
 
   if (video && isVideoPost(post)) {
     const isEnabled = checkSettingsEnabledState(video.id);
