@@ -46,6 +46,8 @@ import {
 import { ActiveFeedContext } from '../contexts';
 import { useAdvancedSettings } from '../hooks/feed';
 import PlusIcon from './icons/Plus';
+import { useFeature } from './GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -285,7 +287,12 @@ export default function PostOptionsMenu({
       label: 'Hide',
       action: onHidePost,
     },
-    {
+  ];
+
+  const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
+
+  if (!bookmarkOnCard) {
+    postOptions.push({
       icon: (
         <MenuIcon
           secondary={post?.bookmarked}
@@ -295,7 +302,10 @@ export default function PostOptionsMenu({
       ),
       label: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
       action: onToggleBookmark,
-    },
+    });
+  }
+
+  postOptions.push(
     {
       icon: (
         <MenuIcon
@@ -317,7 +327,7 @@ export default function PostOptionsMenu({
         : `Don't show posts from ${post?.source?.name}`,
       action: isSourceBlocked ? onUnblockSource : onBlockSource,
     },
-  ];
+  );
 
   if (video && isVideoPost(post)) {
     const isEnabled = checkSettingsEnabledState(video.id);
