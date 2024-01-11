@@ -154,7 +154,9 @@ async function handleMessages(
 
 browser.runtime.onMessage.addListener(handleMessages);
 
-browser.action.onClicked.addListener(() => {
+// since we are using V2 on FF / V3 on Chrome,
+// we need to support both action (V3) & browserAction (V2) APIs
+(browser.action || browser.browserAction).onClicked.addListener(() => {
   const url = browser.runtime.getURL('index.html?source=button');
   browser.tabs.create({ url, active: true });
 });
