@@ -12,6 +12,9 @@ import { Origin } from '../lib/analytics';
 import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import LinkIcon from './icons/Link';
+import { useFeature } from './GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
+import { useFeedLayout } from '../hooks';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -53,13 +56,20 @@ export default function ShareOptionsMenu({
     copyLink();
     onClick(ShareProvider.CopyLink);
   };
+
+  const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+
   const shareOptions: ShareOption[] = [
     {
       icon: <MenuIcon Icon={ShareIcon} />,
       text: 'Share post via...',
       action: () => onShare(post),
     },
-    {
+  ];
+
+  if (!bookmarkOnCard && !shouldUseFeedLayoutV1) {
+    shareOptions.push({
       icon: (
         <MenuIcon
           secondary={post?.bookmarked}
@@ -69,13 +79,14 @@ export default function ShareOptionsMenu({
       ),
       text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
       action: onBookmark,
-    },
-    {
-      icon: <MenuIcon Icon={LinkIcon} />,
-      text: 'Copy link to post',
-      action: trackAndCopyLink,
-    },
-  ];
+    });
+  }
+
+  shareOptions.push({
+    icon: <MenuIcon Icon={LinkIcon} />,
+    text: 'Copy link to post',
+    action: trackAndCopyLink,
+  });
 
   return (
     <PortalMenu

@@ -17,7 +17,7 @@ import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
-import { ToastSubject, useToastNotification } from '../hooks';
+import { ToastSubject, useFeedLayout, useToastNotification } from '../hooks';
 import {
   AllFeedPages,
   generateQueryKey,
@@ -46,6 +46,8 @@ import {
 import { ActiveFeedContext } from '../contexts';
 import { useAdvancedSettings } from '../hooks/feed';
 import PlusIcon from './icons/Plus';
+import { useFeature } from './GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -285,7 +287,13 @@ export default function PostOptionsMenu({
       label: 'Hide',
       action: onHidePost,
     },
-    {
+  ];
+
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
+
+  if (!bookmarkOnCard && !shouldUseFeedLayoutV1) {
+    postOptions.push({
       icon: (
         <MenuIcon
           secondary={post?.bookmarked}
@@ -295,8 +303,11 @@ export default function PostOptionsMenu({
       ),
       label: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
       action: onToggleBookmark,
-    },
-    {
+    });
+  }
+
+  if (!shouldUseFeedLayoutV1) {
+    postOptions.push({
       icon: (
         <MenuIcon
           className={classNames(
@@ -309,15 +320,16 @@ export default function PostOptionsMenu({
       ),
       label: 'Downvote',
       action: onToggleDownvotePost,
-    },
-    {
-      icon: <MenuIcon Icon={BlockIcon} />,
-      label: isSourceBlocked
-        ? `Show posts from ${post?.source?.name}`
-        : `Don't show posts from ${post?.source?.name}`,
-      action: isSourceBlocked ? onUnblockSource : onBlockSource,
-    },
-  ];
+    });
+  }
+
+  postOptions.push({
+    icon: <MenuIcon Icon={BlockIcon} />,
+    label: isSourceBlocked
+      ? `Show posts from ${post?.source?.name}`
+      : `Don't show posts from ${post?.source?.name}`,
+    action: isSourceBlocked ? onUnblockSource : onBlockSource,
+  });
 
   if (video && isVideoPost(post)) {
     const isEnabled = checkSettingsEnabledState(video.id);
