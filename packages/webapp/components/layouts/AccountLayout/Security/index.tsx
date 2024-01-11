@@ -21,6 +21,7 @@ import {
   AuthFlow,
   AuthSession,
   getKratosSettingsFlow,
+  KRATOS_ERROR,
   KratosProviderData,
 } from '@dailydotdev/shared/src/lib/kratos';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
@@ -154,8 +155,7 @@ function AccountSecurityDefault({
       const flow = await getKratosSettingsFlow(AuthFlow.Settings, e.data.flow);
       const { ui } = flow;
       const error = ui.messages[0]?.id;
-      if (error === 4000007) {
-        // Provider is already linked to another account
+      if (error === KRATOS_ERROR.EXISTING_USER) {
         alreadyLinkedProvider(linkProvider);
       }
     }

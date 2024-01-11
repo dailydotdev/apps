@@ -27,6 +27,7 @@ import AuthHeader from './AuthHeader';
 import {
   AuthEvent,
   AuthFlow,
+  KRATOS_ERROR,
   getKratosFlow,
   getKratosProviders,
 } from '../../lib/kratos';
@@ -258,7 +259,11 @@ function AuthOptions({
       });
 
       if (
-        [4010002, 4010003, 4000007].includes(connected?.ui?.messages?.[0]?.id)
+        [
+          KRATOS_ERROR.NO_STRATEGY_TO_LOGIN,
+          KRATOS_ERROR.NO_STRATEGY_TO_SIGNUP,
+          KRATOS_ERROR.EXISTING_USER,
+        ].includes(connected?.ui?.messages?.[0]?.id)
       ) {
         const registerUser = {
           name: getNodeValue('traits.name', connected.ui.nodes),
