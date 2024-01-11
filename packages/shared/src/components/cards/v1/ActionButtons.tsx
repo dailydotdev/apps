@@ -11,8 +11,6 @@ import { useFeedPreviewMode } from '../../../hooks';
 import BookmarkIcon from '../../icons/Bookmark';
 import DownvoteIcon from '../../icons/Downvote';
 import { ActionButtonsProps } from '../ActionButtons';
-import { useFeature } from '../../GrowthBookProvider';
-import { feature } from '../../../lib/featureManagement';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "shareIcon" */ '../../icons/Share'),
@@ -53,7 +51,6 @@ export default function ActionButtons({
   className,
 }: ActionButtonsPropsV1): ReactElement {
   const isFeedPreview = useFeedPreviewMode();
-  const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
 
   if (isFeedPreview) {
     return null;
@@ -128,21 +125,17 @@ export default function ActionButtons({
           />
         </Button>
       </SimpleTooltip>
-      {bookmarkOnCard && (
-        <SimpleTooltip
-          content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
-        >
-          <Button
-            id={`post-${post.id}-bookmark-btn`}
-            className="ml-2"
-            icon={<BookmarkIcon secondary={post.bookmarked} />}
-            onClick={() => onBookmarkClick(post)}
-            color={ButtonColor.Bun}
-            pressed={post.bookmarked}
-            variant={ButtonVariant.Float}
-          />
-        </SimpleTooltip>
-      )}
+      <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
+        <Button
+          id={`post-${post.id}-bookmark-btn`}
+          className="ml-2"
+          icon={<BookmarkIcon secondary={post.bookmarked} />}
+          onClick={() => onBookmarkClick(post)}
+          color={ButtonColor.Bun}
+          pressed={post.bookmarked}
+          variant={ButtonVariant.Float}
+        />
+      </SimpleTooltip>
       {shareButton}
     </div>
   );
