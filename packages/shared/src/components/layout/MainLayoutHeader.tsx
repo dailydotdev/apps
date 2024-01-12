@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import React, { ReactElement, ReactNode, useContext, useState } from 'react';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
@@ -26,6 +26,12 @@ import {
   ViewSize,
 } from '../../hooks';
 import { SearchReferralButton } from '../referral/SearchReferralButton';
+import ReadingStreakIcon from '../icons/ReadingStreak';
+import { SimpleTooltip } from '../tooltips';
+import { ReadingStreakPopup } from '../streak/popup';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { ReadingStreaksExperiment } from '../../lib/featureValues';
 
 export interface MainLayoutHeaderProps {
   greeting?: boolean;
@@ -49,8 +55,10 @@ function MainLayoutHeader({
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
+  const readingStreak = useFeature(feature.readingStreaks);
   const hideButton = loadingUser;
   const isMobile = useViewSize(ViewSize.MobileL);
+  const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
 
   const headerButton = (() => {
     if (hideButton) {
@@ -77,23 +85,44 @@ function MainLayoutHeader({
     campaignKey: ReferralCampaignKey.Search,
   });
 
+  const streak = 0;
+
   const renderButtons = () => {
     return (
       <>
-        <CreatePostButton
-          className={classNames(
-            'mr-0 laptop:mr-3',
-            optOutWeeklyGoal ? 'tablet:mr-0' : 'tablet:mr-3',
-          )}
-        />
+        <CreatePostButton />
+        {user && readingStreak === ReadingStreaksExperiment.V1 && (
+          <SimpleTooltip
+            interactive
+            showArrow={false}
+            visible={shouldShowStreaks}
+            container={{
+              paddingClassName: 'p-4',
+              bgClassName: 'bg-theme-bg-tertiary',
+              textClassName: 'text-theme-label-primary typo-callout',
+              className: 'border border-theme-divider-tertiary',
+            }}
+            content={<ReadingStreakPopup />}
+          >
+            <Button
+              type="button"
+              icon={<ReadingStreakIcon />}
+              variant={ButtonVariant.Float}
+              onClick={() => setShouldShowStreaks((state) => !state)}
+              className="gap-1 text-theme-color-bacon"
+            >
+              {streak}
+            </Button>
+          </SimpleTooltip>
+        )}
         {!hideButton && user && (
           <>
-            {sidebarRendered && <SearchReferralButton className="mr-3" />}
+            {sidebarRendered && <SearchReferralButton />}
             <LinkWithTooltip
               tooltip={{ placement: 'bottom', content: 'Notifications' }}
               href={`${webappUrl}notifications`}
             >
-              <div className="relative mr-3 hidden laptop:flex">
+              <div className="relative hidden laptop:flex">
                 <Button
                   variant={ButtonVariant.Float}
                   onClick={onNavigateNotifications}
@@ -128,7 +157,7 @@ function MainLayoutHeader({
   return (
     <header
       className={classNames(
-        'relative z-header flex h-14 flex-row items-center justify-between border-b border-theme-divider-tertiary bg-theme-bg-primary px-4 py-3 tablet:px-8 laptop:sticky laptop:left-0 laptop:w-full laptop:flex-row laptop:px-4',
+        'relative z-header flex h-14 flex-row items-center justify-between gap-3 border-b border-theme-divider-tertiary bg-theme-bg-primary px-4 py-3 tablet:px-8 laptop:sticky laptop:left-0 laptop:w-full laptop:flex-row laptop:px-4',
         hasBanner ? 'laptop:top-8' : 'laptop:top-0',
       )}
     >
