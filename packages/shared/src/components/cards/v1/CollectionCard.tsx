@@ -2,12 +2,12 @@ import React, { forwardRef, Ref } from 'react';
 import classNames from 'classnames';
 import { Container, generateTitleClamp, PostCardProps } from '../common';
 import FeedItemContainer from './FeedItemContainer';
-import { CollectionCardHeader } from '../CollectionCard/CollectionCardHeader';
-import { FreeformCardTitle, CardSpace } from './Card';
+import { CardTitle, CardSpace } from './Card';
 import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
 import ActionButtons from './ActionButtons';
-import PostMetadata from './PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
+import { PostCardHeader } from './PostCardHeader';
+import { CollectionPillSources } from '../../post/collection';
 
 export const CollectionCard = forwardRef(function CollectionCard(
   {
@@ -40,30 +40,32 @@ export const CollectionCard = forwardRef(function CollectionCard(
         href: post.commentsPermalink,
       }}
     >
-      <CollectionCardHeader
-        sources={post.collectionSources}
-        totalSources={post.numCollectionSources}
+      <PostCardHeader
+        post={post}
         onMenuClick={(event) => onMenuClick?.(event, post)}
-      />
-      <FreeformCardTitle
+      >
+        <CollectionPillSources
+          className={{
+            main: classNames(!!post.collectionSources?.length && '-my-0.5'),
+            avatar: 'group-hover:border-theme-bg-secondary',
+          }}
+          sources={post.collectionSources}
+          totalSources={post.numCollectionSources}
+          alwaysShowSources
+        />
+      </PostCardHeader>
+      <CardTitle
         className={classNames(
           generateTitleClamp({
             hasImage: !!image,
             hasHtmlContent: !!post.contentHtml,
           }),
-          'px-2 font-bold text-theme-label-primary typo-title3',
         )}
       >
         {post.title}
-      </FreeformCardTitle>
+      </CardTitle>
 
       {!!post.image && <CardSpace />}
-      <PostMetadata
-        createdAt={post.createdAt}
-        readTime={post.readTime}
-        className={classNames('m-2', post.image ? 'mb-0' : 'mb-4')}
-      />
-
       <Container>
         <WelcomePostCardFooter image={image} contentHtml={post.contentHtml} />
         <ActionButtons
