@@ -15,3 +15,8 @@ export enum FeedLayout {
   Control = 'control',
   V1 = 'v1',
 }
+
+export enum ReadingStreaksExperiment {
+  Control = 'control',
+  V1 = 'v1',
+}
