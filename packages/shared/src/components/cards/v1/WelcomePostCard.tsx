@@ -1,9 +1,8 @@
 import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
 import classNames from 'classnames';
-import { FreeformCardTitle } from './Card';
+import { CardTitle } from './Card';
 import ActionButtons from './ActionButtons';
 import { Container, generateTitleClamp, PostCardProps } from '../common';
-import OptionsButton from '../../buttons/OptionsButton';
 import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
 import { useSquadChecklist } from '../../../hooks/useSquadChecklist';
 import { Squad } from '../../../graphql/sources';
@@ -11,8 +10,9 @@ import { ActionType } from '../../../graphql/actions';
 import FeedItemContainer from './FeedItemContainer';
 import { PostType } from '../../../graphql/posts';
 import { useFeedPreviewMode } from '../../../hooks';
-import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
+import { PostCardHeader } from './PostCardHeader';
 import { usePostImage } from '../../../hooks/post/usePostImage';
+import SquadHeaderPicture from '../common/SquadHeaderPicture';
 
 export const WelcomePostCard = forwardRef(function SharePostCard(
   {
@@ -66,28 +66,33 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
         }
       }
     >
-      <OptionsButton
-        className="absolute right-2 top-2 group-hover:flex laptop:hidden"
-        onClick={(event) => onMenuClick?.(event, post)}
-        tooltipPlacement="top"
-      />
-      <SquadPostCardHeader
-        author={post.author}
-        source={post.source}
-        createdAt={post.createdAt}
-        enableSourceHeader={enableSourceHeader}
-      />
-      <FreeformCardTitle
+      <PostCardHeader
+        post={post}
+        onMenuClick={(event) => onMenuClick?.(event, post)}
+        metadata={{
+          topLabel: enableSourceHeader ? post.source.name : post.author.name,
+          bottomLabel: enableSourceHeader
+            ? post.author.name
+            : `@${post.source.handle ?? post.sharedPost.source.handle}`,
+        }}
+      >
+        <SquadHeaderPicture
+          author={post.author}
+          source={post.source}
+          reverse={!enableSourceHeader}
+        />
+      </PostCardHeader>
+      <CardTitle
         className={classNames(
           generateTitleClamp({
             hasImage: !!image,
             hasHtmlContent: !!post.contentHtml,
           }),
-          'px-2 font-bold !text-theme-label-primary typo-title3',
+          'multi-truncate',
         )}
       >
         {post.title}
-      </FreeformCardTitle>
+      </CardTitle>
       <Container ref={containerRef}>
         <WelcomePostCardFooter image={image} contentHtml={post.contentHtml} />
         <ActionButtons

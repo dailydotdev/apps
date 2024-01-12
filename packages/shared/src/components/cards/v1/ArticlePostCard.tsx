@@ -10,6 +10,9 @@ import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { useFeedPreviewMode, usePostFeedback } from '../../../hooks';
 import { FeedbackCard } from './FeedbackCard';
 import { Origin } from '../../../lib/analytics';
+import SourceButton from '../SourceButton';
+import { isVideoPost } from '../../../graphql/posts';
+import PostReadTime from './PostReadTime';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -75,13 +78,22 @@ export const ArticlePostCard = forwardRef(function PostCard(
           <CardTextContainer>
             <PostCardHeader
               post={post}
-              className="flex"
               openNewTab={openNewTab}
-              source={post.source}
               postLink={post.permalink}
               onMenuClick={(event) => onMenuClick?.(event, post)}
               onReadArticleClick={onReadArticleClick}
-            />
+              metadata={{
+                topLabel: post.source.name,
+                bottomLabel: (
+                  <PostReadTime
+                    readTime={post.readTime}
+                    isVideoType={isVideoPost(post)}
+                  />
+                ),
+              }}
+            >
+              <SourceButton size="large" source={post.source} />
+            </PostCardHeader>
             <CardTitle
               lineClamp={undefined}
               className={!!post.read && 'text-theme-label-tertiary'}
