@@ -109,7 +109,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     options: { initialData, retry: false },
   });
   const containerClass = classNames(
-    'max-w-screen-laptop border-r pb-20 laptop:min-h-page laptop:pb-6 laptopL:pb-0',
+    'max-w-screen-laptop pb-20 laptop:min-h-page laptop:pb-6 laptopL:pb-0',
     [PostType.Share, PostType.Welcome, PostType.Freeform].includes(
       post?.type,
     ) &&
