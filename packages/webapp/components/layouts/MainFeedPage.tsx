@@ -29,7 +29,7 @@ const getFeedName = (path: string): string => {
     return 'default';
   }
 
-  if (path === '/posts/finder') {
+  if (path.startsWith('/search')) {
     return 'search';
   }
 
@@ -42,7 +42,7 @@ export default function MainFeedPage({
 }: MainFeedPageProps): ReactElement {
   const router = useRouter();
   const { user } = useContext(AuthContext);
-  const isFinderPage = router?.pathname === '/search' || isFinder;
+  const isFinderPage = router?.pathname === '/search/posts' || isFinder;
   const [feedName, setFeedName] = useState(getFeedName(router?.pathname));
   const [isSearchOn, setIsSearchOn] = useState(isFinderPage);
   useEffect(() => {

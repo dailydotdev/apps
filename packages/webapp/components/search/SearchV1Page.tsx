@@ -4,7 +4,10 @@ import { SearchResult } from '@dailydotdev/shared/src/components/search';
 import { useChat } from '@dailydotdev/shared/src/hooks';
 import { SearchContainer } from '@dailydotdev/shared/src/components/search/SearchContainer';
 import { useRouter } from 'next/router';
-import { searchPageUrl } from '@dailydotdev/shared/src/graphql/search';
+import {
+  SearchProviderEnum,
+  getSearchUrl,
+} from '@dailydotdev/shared/src/graphql/search';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { getLayout as getMainLayout } from '../layouts/MainLayout';
@@ -26,7 +29,10 @@ const SearchPage = (): ReactElement => {
       return;
     }
 
-    const newRoute = `${searchPageUrl}?id=${sessionId}`;
+    const newRoute = getSearchUrl({
+      id: sessionId,
+      provider: SearchProviderEnum.Chat,
+    });
 
     router.replace(newRoute, undefined, {
       shallow: true,
@@ -62,9 +68,13 @@ const SearchPage = (): ReactElement => {
   return (
     <SearchContainer
       onSubmit={(event, value) => {
-        router.push(searchPageUrl, undefined, {
-          shallow: true,
-        });
+        router.push(
+          getSearchUrl({ provider: SearchProviderEnum.Chat }),
+          undefined,
+          {
+            shallow: true,
+          },
+        );
 
         handleSubmit(event, value);
       }}

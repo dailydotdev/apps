@@ -6,7 +6,12 @@ import { webappUrl } from '../lib/constants';
 import { Post } from './posts';
 import { labels } from '../lib';
 
-export const searchPageUrl = `${webappUrl}search`;
+export enum SearchProviderEnum {
+  Posts = 'posts',
+  Chat = 'chat',
+}
+
+const searchPageUrl = `${webappUrl}search`;
 
 export enum SearchChunkErrorCode {
   StoppedGenerating = '-2',
@@ -246,21 +251,26 @@ export const updateSearchData = (
 
 interface SearchUrlParams {
   id?: string;
-  question?: string;
+  query?: string;
+  provider: SearchProviderEnum;
 }
 
 export const getSearchUrl = (params: SearchUrlParams): string => {
-  const { id, question } = params;
+  const { id, query, provider = SearchProviderEnum.Posts } = params;
   const searchParams = new URLSearchParams();
 
-  if (!id && !question) {
-    throw new Error('Must have at least one parameter');
+  if (!provider) {
+    throw new Error('provider is required');
+  }
+
+  if (provider !== SearchProviderEnum.Posts) {
+    searchParams.append('provider', provider);
   }
 
   if (id) {
     searchParams.append('id', id);
-  } else if (question) {
-    searchParams.append('q', question);
+  } else if (query) {
+    searchParams.append('q', query);
   }
 
   return `${searchPageUrl}?${searchParams}`;

@@ -5,9 +5,6 @@ import SearchIcon from '../icons/Search';
 import UpvoteIcon from '../icons/Upvote';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { SearchExperiment } from '../../lib/featureValues';
 
 interface DiscoverSectionProps extends SectionCommonProps {
   isItemsButton?: boolean;
@@ -21,8 +18,6 @@ export function DiscoverSection({
   enableSearch,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement {
-  const searchValue = useFeature(feature.search);
-  const isControlSearch = searchValue === SearchExperiment.Control;
   const discoverMenuItems: SidebarMenuItem[] = [
     {
       icon: (active: boolean) => (
@@ -52,9 +47,9 @@ export function DiscoverSection({
       icon: (active: boolean) => (
         <ListIcon Icon={() => <SearchIcon secondary={active} />} />
       ),
-      title: isControlSearch ? 'Search' : 'Post finder',
-      hideOnMobile: isControlSearch,
-      path: isControlSearch ? '/search' : '/posts/finder',
+      title: 'Search',
+      hideOnMobile: true,
+      path: '/search',
       action: enableSearch,
     },
   ];

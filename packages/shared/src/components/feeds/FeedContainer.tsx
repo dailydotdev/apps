@@ -18,7 +18,6 @@ import { SearchBarInput, SearchBarSuggestionList } from '../search';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
-import { webappUrl } from '../../lib/constants';
 import { useSearchSuggestions } from '../../hooks/search';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { ActionType } from '../../graphql/actions';
@@ -34,6 +33,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
 import { FeedGradientBg } from './FeedGradientBg';
+import { SearchProviderEnum, getSearchUrl } from '../../graphql/search';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -139,7 +139,7 @@ export const FeedContainer = ({
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
-  const isFinder = router.pathname === '/posts/finder';
+  const isFinder = router.pathname === '/search/posts';
   const isV1Search =
     searchValue === SearchExperiment.V1 && showSearch && !isFinder;
 
@@ -167,7 +167,12 @@ export const FeedContainer = ({
 
   const onSearch = (event: FormEvent, input: string) => {
     event.preventDefault();
-    router.push(`${webappUrl}search?q=${encodeURIComponent(input)}`);
+    router.push(
+      getSearchUrl({
+        provider: SearchProviderEnum.Chat,
+        query: input,
+      }),
+    );
   };
   const handleSearchFocus = () => {
     if (!shouldShowPulse) {

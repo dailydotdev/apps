@@ -12,8 +12,11 @@ import {
   FeedLayout as FeedLayoutEnum,
   SearchExperiment,
 } from '@dailydotdev/shared/src/lib/featureValues';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
+import {
+  SearchProviderEnum,
+  getSearchUrl,
+} from '@dailydotdev/shared/src/graphql/search';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
 import DndContext from './DndContext';
@@ -50,7 +53,9 @@ export default function MainFeedPage({
   const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
     if (searchVersion !== SearchExperiment.Control) {
-      window.location.assign(`${webappUrl}posts/finder`);
+      window.location.assign(
+        getSearchUrl({ provider: SearchProviderEnum.Posts }),
+      );
       return;
     }
 

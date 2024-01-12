@@ -175,6 +175,10 @@ export const getFeedName = (
     return getDefaultFeed(options);
   }
 
+  if (feed.startsWith('search')) {
+    return SharedFeedPage.Search;
+  }
+
   const [page] = feed.split('?');
 
   return page.replace(/^\/+/, '') as SharedFeedPage;
