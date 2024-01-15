@@ -4,7 +4,6 @@ import { Post } from '../../graphql/posts';
 import { cloudinary } from '../../lib/image';
 import { IconSize } from '../Icon';
 import { CardImage, CardVideoImage } from './Card';
-import share from '../icons/Share';
 
 type SharedPostCardFooterProps = {
   isShort: boolean;
@@ -26,7 +25,7 @@ export const SharedPostCardFooter = ({
     >
       <div
         className={classNames(
-          'text-secondary flex flex-col mobileL:flex-1',
+          'flex flex-col mobileL:flex-1',
           isShort ? 'line-clamp-4 w-8/12 pr-3' : 'line-clamp-2',
         )}
       >

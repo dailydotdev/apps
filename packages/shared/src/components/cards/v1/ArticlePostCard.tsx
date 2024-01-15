@@ -58,7 +58,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
   }
 
   const ImageComponent = isVideoType ? CardVideoImage : CardImage;
-  console.log({ post });
 
   return (
     <FeedItemContainer

@@ -23,7 +23,6 @@ export const FeedbackCard = ({
   post,
   onUpvoteClick,
   onDownvoteClick,
-  showImage = true,
 }: FeedbackCardProps): ReactElement => {
   const { dismissFeedback } = usePostFeedback({ post });
 
