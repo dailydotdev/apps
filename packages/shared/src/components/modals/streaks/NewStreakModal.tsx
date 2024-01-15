@@ -70,7 +70,9 @@ export default function FirstStreakModal({
           ? 'New streak record!'
           : `${currentStreak} days streak`}
       </strong>
-      <Paragraph className="mt-5 typo-body">
+      <Paragraph
+        className={classNames('typo-body', shouldShowSplash ? 'mt-3' : 'mt-5')}
+      >
         {shouldShowSplash
           ? 'Epic win! You are on a league of your own'
           : `New milestone reached! You are unstoppable. Your previous record was
