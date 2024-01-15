@@ -14,7 +14,7 @@ import { Checkbox } from '../../fields/Checkbox';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { ModalClose } from '../common/ModalClose';
-import SplashIcon from '../../icons/Splash';
+import { SplashIcon } from '../../icons/Splash';
 
 interface FirstStreakModalProps extends LazyModalCommonProps {
   currentStreak: number;
@@ -66,11 +66,15 @@ export default function FirstStreakModal({
           shouldShowSplash ? 'mt-20' : 'mt-10',
         )}
       >
-        {currentStreak} days streak
+        {shouldShowSplash
+          ? 'New streak record!'
+          : `${currentStreak} days streak`}
       </strong>
       <Paragraph className="mt-5 typo-body">
-        New milestone reached! You are unstoppable. Your previous record was{' '}
-        {previousStreak} days.
+        {shouldShowSplash
+          ? 'Epic win! You are on a league of your own'
+          : `New milestone reached! You are unstoppable. Your previous record was
+        ${previousStreak} days.`}
       </Paragraph>
       <Paragraph className="mt-10 typo-callout">Brag about it via...</Paragraph>
       <span className="mt-3 flex flex-row gap-2">
