@@ -4,6 +4,7 @@ import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { useRouter } from 'next/router';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
+import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import SearchV1Page from '../../../components/search/SearchV1Page';
 import { GetSearchLayout } from '../../../components/layouts/SearchLayout';
 
@@ -30,4 +31,4 @@ const SearchChatPage = (): ReactElement => {
 
 SearchChatPage.getLayout = GetSearchLayout;
 
-export default withFeaturesBoundary(SearchChatPage);
+export default withFeaturesBoundary<unknown, MainLayoutProps>(SearchChatPage);
