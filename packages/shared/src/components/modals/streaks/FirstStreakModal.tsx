@@ -3,17 +3,21 @@ import { LazyModalCommonProps, Modal } from '../common/Modal';
 import { DayStreak, Streak } from '../../streak/popup';
 import { IconSize } from '../../Icon';
 import { Button, ButtonVariant } from '../../buttons/ButtonV2';
+import CloseButton from '../../CloseButton';
 
-export default function FirstStreakModal(
-  props: LazyModalCommonProps,
-): ReactElement {
+export default function FirstStreakModal({
+  onRequestClose,
+  ...props
+}: LazyModalCommonProps): ReactElement {
   return (
     <Modal
       {...props}
+      onRequestClose={onRequestClose}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.XSmall}
       className="p-6"
     >
+      <CloseButton className="right-2 top-2" onClick={onRequestClose} />
       <span className="flex w-full flex-row items-end gap-2">
         <DayStreak
           className="opacity-32"
