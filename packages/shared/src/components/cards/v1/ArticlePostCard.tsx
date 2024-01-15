@@ -57,6 +57,14 @@ export const ArticlePostCard = forwardRef(function PostCard(
     );
   }
 
+  const title =
+    post.title.length > 300 ? `${post.title.slice(0, 300)}...` : post.title;
+  const maxSummaryLength = Math.max(0, 300 - post.title.length);
+  const summary =
+    post.summary && post.summary.length > maxSummaryLength
+      ? `${post.summary.slice(0, maxSummaryLength)}...`
+      : post.summary;
+
   const ImageComponent = isVideoType ? CardVideoImage : CardImage;
 
   return (
@@ -111,12 +119,12 @@ export const ArticlePostCard = forwardRef(function PostCard(
                   lineClamp={undefined}
                   className={!!post.read && 'text-theme-label-tertiary'}
                 >
-                  {post.title}
+                  {title}
                 </CardTitle>
 
                 {post.summary && (
                   <CardTextContainer className="mt-4 text-theme-label-secondary">
-                    {post.summary}
+                    {summary}
                   </CardTextContainer>
                 )}
               </div>
