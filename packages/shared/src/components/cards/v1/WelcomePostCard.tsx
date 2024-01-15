@@ -56,9 +56,9 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
   );
 
   const decodedText = useMemo(() => {
-    const span = document.createElement('div');
-    span.innerHTML = content || '';
-    return span.innerText || content;
+    const paragraph = document.createElement('p');
+    paragraph.innerHTML = content || '';
+    return paragraph.innerText || content;
   }, [content]);
 
   return (
@@ -99,7 +99,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
         </PostCardHeader>
 
         <CardContent>
-          <div className="mr-4 flex-shrink flex-grow">
+          <div className="mr-4 flex-1">
             <CardTitle
               className={classNames(
                 generateTitleClamp({
