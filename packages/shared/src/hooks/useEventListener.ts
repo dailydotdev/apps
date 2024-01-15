@@ -154,7 +154,7 @@ const useEventListener = <
         );
       }
     };
-  }, [target, eventType, eventOptions, listener]);
+  }, [target, eventType, eventOptions]);
 };
 
 export { useEventListener };
