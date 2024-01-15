@@ -35,7 +35,7 @@ export const AdCard = forwardRef(function AdCard(
       linkProps={getLinkProps(ad, onLinkClick)}
     >
       <CardContent>
-        <CardTitle className="mr-4 line-clamp-4 font-bold typo-title3">
+        <CardTitle className="mr-4 line-clamp-4 flex-1 font-bold typo-title3">
           {ad.description}
         </CardTitle>
 

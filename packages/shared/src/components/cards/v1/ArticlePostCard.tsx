@@ -14,7 +14,11 @@ import { Container, PostCardProps } from '../common';
 import FeedItemContainer from './FeedItemContainer';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
-import { useFeedPreviewMode, usePostFeedback } from '../../../hooks';
+import {
+  useFeedPreviewMode,
+  usePostFeedback,
+  useTruncatedSummary,
+} from '../../../hooks';
 import { FeedbackCard } from './FeedbackCard';
 import { Origin } from '../../../lib/analytics';
 import SourceButton from '../SourceButton';
@@ -50,20 +54,13 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
+  const { title, summary } = useTruncatedSummary(post);
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
       <PostTagsPanel className="overflow-hidden" post={post} toastOnSuccess />
     );
   }
-
-  const title =
-    post.title.length > 300 ? `${post.title.slice(0, 300)}...` : post.title;
-  const maxSummaryLength = Math.max(0, 300 - post.title.length);
-  const summary =
-    post.summary && post.summary.length > maxSummaryLength
-      ? `${post.summary.slice(0, maxSummaryLength)}...`
-      : post.summary;
 
   const ImageComponent = isVideoType ? CardVideoImage : CardImage;
 
