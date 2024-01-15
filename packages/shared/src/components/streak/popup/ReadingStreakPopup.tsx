@@ -1,32 +1,25 @@
 import React, { ReactElement } from 'react';
+import { addDays, subDays } from 'date-fns';
 import { Button, ButtonVariant } from '../../buttons/ButtonV2';
 import { StreakSection } from './StreakSection';
 import { DayStreak, Streak } from './DayStreak';
 import { ButtonSize } from '../../buttons/Button';
 
 const today = new Date();
-const days = 9;
-const list = Array.from<number>({ length: days }).fill(1);
+const dateToday = today.getDate();
+const list = [
+  subDays(today, 4),
+  subDays(today, 3),
+  subDays(today, 2),
+  subDays(today, 1),
+  today,
+  addDays(today, 1),
+  addDays(today, 2),
+  addDays(today, 3),
+  addDays(today, 4),
+]; // these dates will then be compared to the user's post views
 
 export function ReadingStreakPopup(): ReactElement {
-  // this is just a dummy logic to simulate the popup with different values
-  const getStreak = (index: number) => {
-    const day = today.getDay();
-    if (index === day) {
-      return Streak.Pending;
-    }
-
-    if (day > index) {
-      return Streak.Completed;
-    }
-
-    if (index === 6 || index === 7) {
-      return Streak.Freeze;
-    }
-
-    return Streak.Upcoming;
-  };
-
   return (
     <div className="flex flex-col">
       <div className="flex flex-row">
@@ -34,9 +27,36 @@ export function ReadingStreakPopup(): ReactElement {
         <StreakSection streak={100} label="Longest streak 🏆" />
       </div>
       <div className="mt-6 flex flex-row gap-2">
-        {list.map((value, index) => (
-          <DayStreak key={value} streak={getStreak(index)} day={index} />
-        ))}
+        {list.map((value) => {
+          const day = value.getDay();
+          const date = value.getDate();
+
+          // this is just a dummy logic to simulate the popup with different values
+          const getStreak = () => {
+            if (date === dateToday) {
+              return Streak.Pending;
+            }
+
+            if (day === 0 || day === 6) {
+              return Streak.Freeze;
+            }
+
+            if (dateToday > date) {
+              return Streak.Completed;
+            }
+
+            return Streak.Upcoming;
+          };
+
+          return (
+            <DayStreak
+              key={value.getTime()}
+              streak={getStreak()}
+              day={day}
+              shouldShowArrow={date === dateToday}
+            />
+          );
+        })}
       </div>
       <Button
         type="button"
