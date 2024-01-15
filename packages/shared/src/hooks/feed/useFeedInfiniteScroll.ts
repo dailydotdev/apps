@@ -9,7 +9,7 @@ export interface UseFeedInfiniteScrollProps {
 
 export const InfiniteScrollScreenOffset = classed(
   'div',
-  'bottom-screen desktopL:bottom-screen-20 left-0 w-px h-px opacity-0 pointer-events-none',
+  'bottom-screen desktopL:bottom-screen-20 w-px h-px opacity-0 pointer-events-none',
 );
 
 export default function useFeedInfiniteScroll({
