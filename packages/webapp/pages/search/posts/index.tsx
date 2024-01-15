@@ -7,6 +7,7 @@ import {
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
+import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
 import SearchControlPage from '../../../components/search/SearchControlPage';
 
 const SearchPostsPage = (): ReactElement => {
@@ -35,4 +36,4 @@ const SearchPostsPage = (): ReactElement => {
 SearchPostsPage.getLayout = SearchControlPage.getLayout;
 SearchPostsPage.layoutProps = SearchControlPage.layoutProps;
 
-export default SearchPostsPage;
+export default withFeaturesBoundary(SearchPostsPage);

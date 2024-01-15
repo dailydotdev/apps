@@ -3,10 +3,11 @@ import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvide
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { useRouter } from 'next/router';
+import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
 import SearchV1Page from '../../../components/search/SearchV1Page';
 import { GetSearchLayout } from '../../../components/layouts/SearchLayout';
 
-const SearchPage = (): ReactElement => {
+const SearchChatPage = (): ReactElement => {
   const searchVersion = useFeature(feature.search);
   const router = useRouter();
 
@@ -27,6 +28,6 @@ const SearchPage = (): ReactElement => {
   return null;
 };
 
-SearchPage.getLayout = GetSearchLayout;
+SearchChatPage.getLayout = GetSearchLayout;
 
-export default SearchPage;
+export default withFeaturesBoundary(SearchChatPage);
