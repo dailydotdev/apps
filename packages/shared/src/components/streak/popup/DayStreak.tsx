@@ -14,16 +14,20 @@ export enum Streak {
 interface DayStreakProps {
   streak: Streak;
   day: number;
+  shouldShowArrow?: boolean;
 }
 
-const today = new Date();
 const dayInitial = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const Circle = classed(
   'div',
   'w-7 h-7 rounded-full border border-theme-divider-tertiary',
 );
 
-export function DayStreak({ streak, day }: DayStreakProps): ReactElement {
+export function DayStreak({
+  streak,
+  day,
+  shouldShowArrow,
+}: DayStreakProps): ReactElement {
   const renderIcon = () => {
     if (streak === Streak.Completed || streak === Streak.Pending) {
       return (
@@ -45,7 +49,7 @@ export function DayStreak({ streak, day }: DayStreakProps): ReactElement {
 
   return (
     <div className="relative flex flex-col items-center gap-1">
-      {day === today.getDay() && (
+      {shouldShowArrow && (
         <TriangleArrowIcon
           className="absolute -top-4 text-theme-color-bacon"
           size={IconSize.XXSmall}
