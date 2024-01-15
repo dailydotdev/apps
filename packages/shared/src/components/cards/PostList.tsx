@@ -62,7 +62,7 @@ export const PostList = forwardRef(function PostList(
       <ListCardMain>
         {isCollectionPost && (
           <CollectionPillSources
-            className="mb-2.5"
+            className={{ main: 'mb-2.5' }}
             sources={post.collectionSources}
             totalSources={post.numCollectionSources}
           />
