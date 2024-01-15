@@ -1,8 +1,15 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
-import { CardTextContainer, CardTitle } from './Card';
+import classNames from 'classnames';
+import {
+  CardContainer,
+  CardContent,
+  CardImage,
+  CardTextContainer,
+  CardTitle,
+  CardVideoImage,
+} from './Card';
 import ActionButtons from './ActionButtons';
 import { PostCardHeader } from './PostCardHeader';
-import { PostCardFooter } from './PostCardFooter';
 import { Container, PostCardProps } from '../common';
 import FeedItemContainer from './FeedItemContainer';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
@@ -13,6 +20,7 @@ import { Origin } from '../../../lib/analytics';
 import SourceButton from '../SourceButton';
 import { isVideoPost } from '../../../graphql/posts';
 import PostReadTime from './PostReadTime';
+import { cloudinary } from '../../../lib/image';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -27,7 +35,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
     openNewTab,
     children,
     showImage = true,
-    insaneMode,
     onReadArticleClick,
     domProps = {},
   }: PostCardProps,
@@ -36,6 +43,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const { className, style } = domProps;
   const { data } = useBlockPostPanel(post);
   const { type, pinnedAt, trending } = post;
+  const isVideoType = isVideoPost(post);
 
   const onPostCardClick = () => onPostClick?.(post);
 
@@ -48,6 +56,9 @@ export const ArticlePostCard = forwardRef(function PostCard(
       <PostTagsPanel className="overflow-hidden" post={post} toastOnSuccess />
     );
   }
+
+  const ImageComponent = isVideoType ? CardVideoImage : CardImage;
+  console.log({ post });
 
   return (
     <FeedItemContainer
@@ -75,7 +86,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
         />
       ) : (
         <>
-          <CardTextContainer>
+          <CardContainer>
             <PostCardHeader
               post={post}
               openNewTab={openNewTab}
@@ -94,26 +105,39 @@ export const ArticlePostCard = forwardRef(function PostCard(
             >
               <SourceButton size="large" source={post.source} />
             </PostCardHeader>
-            <CardTitle
-              lineClamp={undefined}
-              className={!!post.read && 'text-theme-label-tertiary'}
-            >
-              {post.title}
-            </CardTitle>
-          </CardTextContainer>
-          {post.summary && (
-            <CardTextContainer className="mt-4 text-theme-label-secondary">
-              {post.summary}
-            </CardTextContainer>
-          )}
+
+            <CardContent>
+              <div className="mr-4 flex-shrink flex-grow">
+                <CardTitle
+                  lineClamp={undefined}
+                  className={!!post.read && 'text-theme-label-tertiary'}
+                >
+                  {post.title}
+                </CardTitle>
+
+                {post.summary && (
+                  <CardTextContainer className="mt-4 text-theme-label-secondary">
+                    {post.summary}
+                  </CardTextContainer>
+                )}
+              </div>
+
+              <ImageComponent
+                alt="Post Cover image"
+                src={post.image}
+                fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+                className={classNames(
+                  'object-cover mobileL:w-56',
+                  !isVideoType && 'mt-4',
+                )}
+                loading="lazy"
+                data-testid="postImage"
+                {...(isVideoType && { wrapperClassName: 'mt-4' })}
+              />
+            </CardContent>
+          </CardContainer>
+
           <Container>
-            <PostCardFooter
-              insaneMode={insaneMode}
-              openNewTab={openNewTab}
-              post={post}
-              showImage={showImage}
-              className={{}}
-            />
             <ActionButtons
               className="mt-4"
               openNewTab={openNewTab}
