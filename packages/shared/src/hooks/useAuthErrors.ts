@@ -1,10 +1,15 @@
-import useWindowEvents from './useWindowEvents';
-import { AuthEvent, getKratosError, ErrorEvent } from '../lib/kratos';
+import { AuthEvent, getKratosError } from '../lib/kratos';
 import { useToastNotification } from './useToastNotification';
+import { useEventListener } from './useEventListener';
 
 export function useAuthErrors(): void {
   const { displayToast } = useToastNotification();
-  useWindowEvents<ErrorEvent>('message', AuthEvent.Error, async (e) => {
+
+  useEventListener(globalThis, 'message', async (e) => {
+    if (e.data?.eventKey !== AuthEvent.Error) {
+      return;
+    }
+
     if (!e.data?.id) {
       return;
     }

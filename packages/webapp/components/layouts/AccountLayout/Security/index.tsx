@@ -21,10 +21,9 @@ import {
   AuthFlow,
   AuthSession,
   getKratosSettingsFlow,
+  KRATOS_ERROR,
   KratosProviderData,
-  SocialRegistrationFlow,
 } from '@dailydotdev/shared/src/lib/kratos';
-import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
@@ -33,6 +32,7 @@ import {
   usePrompt,
 } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
+import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import {
@@ -146,24 +146,20 @@ function AccountSecurityDefault({
     }
   };
 
-  useWindowEvents<SocialRegistrationFlow>(
-    'message',
-    AuthEvent.SocialRegistration,
-    async (e) => {
-      if (e.data?.flow) {
-        const flow = await getKratosSettingsFlow(
-          AuthFlow.Settings,
-          e.data.flow,
-        );
-        const { ui } = flow;
-        const error = ui.messages[0]?.id;
-        if (error === 4000007) {
-          // Provider is already linked to another account
-          alreadyLinkedProvider(linkProvider);
-        }
+  useEventListener(globalThis, 'message', async (e) => {
+    if (e.data?.eventKey !== AuthEvent.SocialRegistration) {
+      return;
+    }
+
+    if (e.data?.flow) {
+      const flow = await getKratosSettingsFlow(AuthFlow.Settings, e.data.flow);
+      const { ui } = flow;
+      const error = ui.messages[0]?.id;
+      if (error === KRATOS_ERROR.EXISTING_USER) {
+        alreadyLinkedProvider(linkProvider);
       }
-    },
-  );
+    }
+  });
 
   const onChangePassword = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
