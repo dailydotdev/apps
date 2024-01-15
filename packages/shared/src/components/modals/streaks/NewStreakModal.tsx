@@ -1,4 +1,5 @@
 import React, { ReactElement, useState } from 'react';
+import classNames from 'classnames';
 import { LazyModalCommonProps, Modal } from '../common/Modal';
 import FireIcon from '../../icons/Fire';
 import classed from '../../../lib/classed';
@@ -13,6 +14,7 @@ import { Checkbox } from '../../fields/Checkbox';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { ModalClose } from '../common/ModalClose';
+import SplashIcon from '../../icons/Splash';
 
 interface FirstStreakModalProps extends LazyModalCommonProps {
   currentStreak: number;
@@ -29,6 +31,7 @@ export default function FirstStreakModal({
 }: FirstStreakModalProps): ReactElement {
   const [isChecked, setIsChecked] = useState(false);
   const { completeAction } = useActions();
+  const shouldShowSplash = currentStreak > 20;
   const onClose = (e: React.MouseEvent | React.KeyboardEvent) => {
     if (isChecked) {
       completeAction(ActionType.OptOutStreaks);
@@ -46,11 +49,25 @@ export default function FirstStreakModal({
       onRequestClose={onClose}
     >
       <ModalClose onClick={onRequestClose} className="right-2 top-2" />
-      <span className="relative flex items-center justify-center">
-        <FireIcon className="h-[10rem] w-[10rem] text-theme-color-bacon" />
+      <span className="relative flex flex-col items-center justify-center">
+        {shouldShowSplash ? (
+          <SplashIcon className="ml-2 h-[10rem] w-[15rem] text-theme-color-bacon" />
+        ) : (
+          <FireIcon className="h-[10rem] w-[10rem] text-theme-color-bacon" />
+        )}
         <strong className="typo-tera absolute">{currentStreak}</strong>
+        {shouldShowSplash && (
+          <span className="typo-tera absolute mt-44">🏆</span>
+        )}
       </span>
-      <strong className="mt-10 typo-title1">{currentStreak} days streak</strong>
+      <strong
+        className={classNames(
+          'typo-title1',
+          shouldShowSplash ? 'mt-20' : 'mt-10',
+        )}
+      >
+        {currentStreak} days streak
+      </strong>
       <Paragraph className="mt-5 typo-body">
         New milestone reached! You are unstoppable. Your previous record was{' '}
         {previousStreak} days.
