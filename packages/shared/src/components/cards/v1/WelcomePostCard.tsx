@@ -124,7 +124,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
               alt="Post Cover image"
               src={image}
               fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-              className="my-2 object-cover mobileL:w-56"
+              className="my-2 object-cover mobileXL:w-56"
               loading="lazy"
             />
           )}

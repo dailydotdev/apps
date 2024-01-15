@@ -1,7 +1,7 @@
 import React, { forwardRef, ReactElement, Ref, useRef, useState } from 'react';
 import ActionButtons from './ActionButtons';
 import { SharedPostText } from '../SharedPostText';
-import { SharedPostCardFooter } from '../SharedPostCardFooter';
+import { SharedPostCardFooter } from './SharedPostCardFooter';
 import { Container, PostCardProps } from '../common';
 import FeedItemContainer from './FeedItemContainer';
 import { useFeedPreviewMode } from '../../../hooks';
