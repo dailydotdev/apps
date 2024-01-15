@@ -1,5 +1,6 @@
 export const mobileM = `@media (min-width: 356px)`;
 export const mobileL = `@media (min-width: 420px)`;
+export const mobileXL = `@media (min-width: 500px)`;
 export const tablet = `@media (min-width: 656px)`;
 export const laptop = `@media (min-width: 1020px)`;
 export const laptopL = `@media (min-width: 1360px)`;

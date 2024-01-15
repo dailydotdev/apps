@@ -11,7 +11,7 @@ const BodyContainer = classed('div', 'flex flex-col w-full pb-6');
 
 const PageBodyContainer = classed(
   BodyContainer,
-  'm-auto w-full laptop:border-l laptop:border-theme-divider-tertiary',
+  'm-auto w-full laptop:border-x laptop:border-theme-divider-tertiary',
 );
 
 function PostContentContainer({
