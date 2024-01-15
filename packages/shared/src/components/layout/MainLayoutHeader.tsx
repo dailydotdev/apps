@@ -32,6 +32,7 @@ import { ReadingStreakPopup } from '../streak/popup';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { ReadingStreaksExperiment } from '../../lib/featureValues';
+import { useReadingStreak } from '../../hooks/streaks';
 
 export interface MainLayoutHeaderProps {
   greeting?: boolean;
@@ -85,7 +86,7 @@ function MainLayoutHeader({
     campaignKey: ReferralCampaignKey.Search,
   });
 
-  const streak = 0;
+  const { currentStreak } = useReadingStreak();
 
   const renderButtons = () => {
     return (
@@ -111,7 +112,7 @@ function MainLayoutHeader({
               onClick={() => setShouldShowStreaks((state) => !state)}
               className="gap-1 text-theme-color-bacon"
             >
-              {streak}
+              {currentStreak}
             </Button>
           </SimpleTooltip>
         )}
