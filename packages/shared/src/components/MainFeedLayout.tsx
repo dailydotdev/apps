@@ -256,7 +256,7 @@ export default function MainFeedLayout({
       {feedProps && (
         <Feed
           {...feedProps}
-          className={shouldUseFeedLayoutV1 && !isFinder && 'laptop:px-12'}
+          className={shouldUseFeedLayoutV1 && !isFinder && 'laptop:px-6'}
         />
       )}
       {children}
