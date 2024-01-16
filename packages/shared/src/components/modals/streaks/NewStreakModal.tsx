@@ -1,7 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { LazyModalCommonProps, Modal } from '../common/Modal';
-import FireIcon from '../../icons/Fire';
 import classed from '../../../lib/classed';
 import TwitterIcon from '../../icons/Twitter';
 import { ButtonVariant } from '../../buttons/common';
@@ -50,15 +49,24 @@ export default function FirstStreakModal({
       <ModalClose onClick={onRequestClose} className="right-2 top-2" />
       <Modal.Body className="items-center">
         <span className="relative flex flex-col items-center justify-center">
-          {shouldShowSplash ? (
-            <img
-              src={cloudinary.streak.splash}
-              alt="A splash design for background"
-              className="ml-2 h-[10rem] w-[15rem] text-theme-color-bacon"
-            />
-          ) : (
-            <FireIcon className="h-[10rem] w-[10rem] text-theme-color-bacon" />
-          )}
+          <img
+            src={
+              shouldShowSplash
+                ? cloudinary.streak.splash
+                : cloudinary.streak.fire
+            }
+            alt={
+              shouldShowSplash
+                ? 'A splash design for background'
+                : 'A large fire icon'
+            }
+            className={classNames(
+              'text-theme-color-bacon',
+              shouldShowSplash
+                ? 'ml-2 h-[10rem] w-[15rem] text-theme-color-bacon'
+                : 'h-[10rem] w-[10rem] ',
+            )}
+          />
           <strong className="typo-tera absolute">{currentStreak}</strong>
           {shouldShowSplash && (
             <span className="typo-tera absolute mt-44">🏆</span>

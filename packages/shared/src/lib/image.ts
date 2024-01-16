@@ -155,6 +155,7 @@ export const cloudinary = {
   streak: {
     splash:
       'https://daily-now-res.cloudinary.com/image/upload/v1705386465/Splash_v1lxjk.svg',
+    fire: 'https://daily-now-res.cloudinary.com/image/upload/v1705386465/Hot_nrqvv5.svg',
   },
 };
 
