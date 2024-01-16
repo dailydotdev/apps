@@ -152,6 +152,10 @@ export const cloudinary = {
       dark: 'https://daily-now-res.cloudinary.com/image/upload/s--QKyyqLHH--/v1704440574/webapp/NotFound-Dark.svg',
     },
   },
+  streak: {
+    splash:
+      'https://daily-now-res.cloudinary.com/image/upload/v1705386465/Splash_v1lxjk.svg',
+  },
 };
 
 export const smallPostImage = (url: string): string => {

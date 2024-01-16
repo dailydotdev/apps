@@ -14,7 +14,7 @@ import { Checkbox } from '../../fields/Checkbox';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { ModalClose } from '../common/ModalClose';
-import { SplashIcon } from '../../icons/Splash';
+import { cloudinary } from '../../../lib/image';
 
 interface FirstStreakModalProps extends LazyModalCommonProps {
   currentStreak: number;
@@ -51,7 +51,11 @@ export default function FirstStreakModal({
       <Modal.Body className="items-center">
         <span className="relative flex flex-col items-center justify-center">
           {shouldShowSplash ? (
-            <SplashIcon className="ml-2 h-[10rem] w-[15rem] text-theme-color-bacon" />
+            <img
+              src={cloudinary.streak.splash}
+              alt="A splash design for background"
+              className="ml-2 h-[10rem] w-[15rem] text-theme-color-bacon"
+            />
           ) : (
             <FireIcon className="h-[10rem] w-[10rem] text-theme-color-bacon" />
           )}
