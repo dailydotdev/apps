@@ -78,7 +78,9 @@ export default function FirstStreakModal({
           : `New milestone reached! You are unstoppable. Your previous record was
         ${previousStreak} days.`}
       </Paragraph>
-      <Paragraph className="mt-10 typo-callout">Brag about it via...</Paragraph>
+      <Paragraph className="mt-10 typo-callout">
+        <strong>Brag about it via...</strong>
+      </Paragraph>
       <span className="mt-3 flex flex-row gap-2">
         <SocialShareButton
           href="" // what should be the link
