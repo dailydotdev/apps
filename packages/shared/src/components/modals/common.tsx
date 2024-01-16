@@ -98,9 +98,7 @@ const GenericReferralModal = dynamic(
 
 const NewStreakModal = dynamic(
   () =>
-    import(
-      /* webpackChunkName: "newStreakModal" */ './streaks/NewStreakModal'
-    ),
+    import(/* webpackChunkName: "newStreakModal" */ './streaks/NewStreakModal'),
 );
 
 export const modals = {
