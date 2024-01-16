@@ -36,7 +36,9 @@ export const SharedPostCardFooter = ({
           className={classNames(
             'h-auto min-h-0 w-full object-cover mobileL:w-56 mobileXL:h-auto mobileXL:w-40 mobileXXL:w-56',
           )}
-          {...(isVideoType && { wrapperClassName: 'overflow-hidden' })}
+          {...(isVideoType && {
+            wrapperClassName: 'mobileXL:w-40 mobileXXL:w-56',
+          })}
           loading="lazy"
           data-testid="sharedPostImage"
         />
