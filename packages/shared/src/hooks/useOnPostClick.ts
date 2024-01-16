@@ -15,7 +15,7 @@ import {
 import { Post, PostType } from '../graphql/posts';
 import { Origin } from '../lib/analytics';
 import { ActiveFeedContext } from '../contexts';
-import { updateCachedPagePost } from '../lib/query';
+import { AllFeedPages, updateCachedPagePost } from '../lib/query';
 import { usePostFeedback } from './usePostFeedback';
 import { FeedLayoutV1FeedPages, useFeedLayout } from './useFeedLayout';
 import { SharedFeedPage } from '../components/utilities';
@@ -39,17 +39,21 @@ export type FeedPostClick = ({
 }) => Promise<void>;
 
 const getFeedQueryKeys = (client: QueryClient): QueryKey[] => {
-  const queryKeys = client
+  return client
     .getQueryCache()
     .findAll()
-    .map((query) => query.queryKey);
-
-  // filter only query keys for supported feed layout v1 feeds
-  const keys = queryKeys.filter(
-    (key) =>
-      Array.isArray(key) && key.length > 0 && FeedLayoutV1FeedPages.has(key[0]),
-  );
-  return keys;
+    .reduce((queryKeys, query) => {
+      const key = query.queryKey;
+      // filter only query keys for supported feed layout v1 feeds
+      if (
+        Array.isArray(key) &&
+        key.length > 0 &&
+        FeedLayoutV1FeedPages.has(key[0])
+      ) {
+        queryKeys.push(key);
+      }
+      return queryKeys;
+    }, []);
 };
 
 interface PostItem {
@@ -96,8 +100,8 @@ export default function useOnPostClick({
   const { incrementReadingRank } = useIncrementReadingRank();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const { shouldUseFeedLayoutV1 } = useFeedLayout({
-    // need to provide something, otherwise it's always false
-    feedName: SharedFeedPage.MyFeed,
+    // need to provide something, in case feedName is undefined (such as on post page)
+    feedName: (feedName as AllFeedPages) || SharedFeedPage.MyFeed,
   });
 
   const { isLowImpsEnabled } = usePostFeedback();
@@ -156,7 +160,7 @@ export default function useOnPostClick({
             }
 
             updateFeedPostCache({ index: postIndex });
-          } else if (shouldUseFeedLayoutV1) {
+          } else if (!feedName && shouldUseFeedLayoutV1) {
             const trySetPostRead = (queryKey: QueryKey, id: string) => {
               const updateFeedPost = updateCachedPagePost(
                 queryKey as unknown[],
@@ -184,6 +188,6 @@ export default function useOnPostClick({
       },
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [columns, feedName, ranking, origin],
+    [columns, feedName, feedQueryKey, ranking, origin, shouldUseFeedLayoutV1],
   );
 }
