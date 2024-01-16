@@ -134,22 +134,30 @@ export default function Feed<T>({
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
-  const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
-    useFeed(
-      feedQueryKey,
-      currentSettings.pageSize,
-      isSquadFeed || shouldUseFeedLayoutV1 ? 2 : currentSettings.adSpot,
-      numCards,
-      {
-        query,
-        variables,
-        options,
-        settings: {
-          disableAds,
-          adPostLength: isSquadFeed ? 2 : undefined,
-        },
+  const {
+    items,
+    updatePost,
+    removePost,
+    fetchPage,
+    canFetchMore,
+    emptyFeed,
+    isFetching,
+    isInitialLoading,
+  } = useFeed(
+    feedQueryKey,
+    currentSettings.pageSize,
+    isSquadFeed || shouldUseFeedLayoutV1 ? 2 : currentSettings.adSpot,
+    numCards,
+    {
+      query,
+      variables,
+      options,
+      settings: {
+        disableAds,
+        adPostLength: isSquadFeed ? 2 : undefined,
       },
-    );
+    },
+  );
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
@@ -416,7 +424,9 @@ export default function Feed<T>({
             onReadArticleClick={onReadArticleClick}
           />
         ))}
-        <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
+        {!isFetching && !isInitialLoading && (
+          <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
+        )}
         <PostOptionsMenu
           {...commonMenuItems}
           feedName={feedName}
