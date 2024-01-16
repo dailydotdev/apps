@@ -3,13 +3,13 @@ import {
   ENABLE_NOTIFICATION_WINDOW_KEY,
   PermissionEvent,
 } from '../../hooks/useNotificationPermissionPopup';
-import useWindowEvents from '../../hooks/useWindowEvents';
 import { cloudinary } from '../../lib/image';
 import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { Justify } from '../utilities';
 import { Modal, ModalProps } from './common/Modal';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { NotificationPromptSource } from '../../lib/analytics';
+import { useEventListener } from '../../hooks';
 
 function PushNotificationModal(modalProps: ModalProps): ReactElement {
   const { onRequestClose } = modalProps;
@@ -25,19 +25,19 @@ function PushNotificationModal(modalProps: ModalProps): ReactElement {
     }
   };
 
-  useWindowEvents<PermissionEvent>(
-    'message',
-    ENABLE_NOTIFICATION_WINDOW_KEY,
-    (e) => {
-      const { permission } = e?.data ?? {};
+  useEventListener(globalThis, 'message', async (e) => {
+    if (e.data?.eventKey !== ENABLE_NOTIFICATION_WINDOW_KEY) {
+      return;
+    }
 
-      if (!permission || permission !== 'granted') {
-        return;
-      }
+    const { permission }: PermissionEvent = e?.data ?? {};
 
-      onRequestClose(null);
-    },
-  );
+    if (!permission || permission !== 'granted') {
+      return;
+    }
+
+    onRequestClose(null);
+  });
 
   return (
     <Modal
