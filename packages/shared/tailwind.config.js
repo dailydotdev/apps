@@ -155,6 +155,7 @@ module.exports = {
     screens: {
       mobileL: '420px',
       mobileXL: '500px',
+      mobileXXL: '550px',
       tablet: '656px',
       laptop: '1020px',
       laptopL: '1360px',
