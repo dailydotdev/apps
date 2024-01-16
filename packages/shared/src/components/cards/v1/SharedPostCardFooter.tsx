@@ -34,7 +34,7 @@ export const SharedPostCardFooter = ({
           src={sharedPost.image}
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
           className={classNames(
-            'h-auto min-h-0 w-full object-cover mobileL:w-56 mobileXL:w-40 mobileXXL:w-56',
+            'h-auto min-h-0 w-full object-cover mobileL:w-56 mobileXL:h-auto mobileXL:w-40 mobileXXL:w-56',
           )}
           {...(isVideoType && { wrapperClassName: 'overflow-hidden' })}
           loading="lazy"

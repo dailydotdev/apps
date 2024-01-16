@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { Container, generateTitleClamp, PostCardProps } from '../common';
 import FeedItemContainer from './FeedItemContainer';
 import {
+  CardImage,
   CardTitle,
   CardSpace,
   CardContainer,
@@ -13,7 +14,6 @@ import ActionButtons from './ActionButtons';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { PostCardHeader } from './PostCardHeader';
 import { CollectionPillSources } from '../../post/collection';
-import { CardImage } from '../Card';
 import { cloudinary } from '../../../lib/image';
 import { useTruncatedSummary } from '../../../hooks';
 
@@ -90,7 +90,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
               alt="Post Cover image"
               src={image}
               fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-              className="my-2 object-cover mobileXL:h-28 mobileXL:w-40 mobileXXL:h-auto mobileXXL:w-56"
+              className="my-2 object-cover"
               loading="lazy"
             />
           )}

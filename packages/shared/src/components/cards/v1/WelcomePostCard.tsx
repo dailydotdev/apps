@@ -1,7 +1,7 @@
 import React, { forwardRef, ReactElement, Ref, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { sanitize } from 'dompurify';
-import { CardContainer, CardContent, CardTitle } from './Card';
+import { CardContainer, CardContent, CardTitle, CardImage } from './Card';
 import ActionButtons from './ActionButtons';
 import { Container, generateTitleClamp, PostCardProps } from '../common';
 import { useSquadChecklist } from '../../../hooks/useSquadChecklist';
@@ -13,7 +13,6 @@ import { useFeedPreviewMode, useTruncatedSummary } from '../../../hooks';
 import { PostCardHeader } from './PostCardHeader';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import SquadHeaderPicture from '../common/SquadHeaderPicture';
-import { CardImage } from '../Card';
 import { cloudinary } from '../../../lib/image';
 
 export const WelcomePostCard = forwardRef(function SharePostCard(
@@ -126,7 +125,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
               alt="Post Cover image"
               src={image}
               fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-              className="my-2 object-cover mobileXL:h-28 mobileXL:w-40 mobileXXL:h-auto mobileXXL:w-56"
+              className="my-2 object-cover"
               loading="lazy"
             />
           )}
