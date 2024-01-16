@@ -14,10 +14,14 @@ interface UseFeedLayout {
   shouldUseFeedLayoutV1: boolean;
 }
 
+export const FeedLayoutV1FeedPages = new Set(
+  Object.values(SharedFeedPage).filter(
+    (feedPage) => feedPage !== SharedFeedPage.Search,
+  ),
+);
+
 const checkShouldUseFeedLayoutV1 = (feedName: SharedFeedPage): boolean =>
-  Object.values(SharedFeedPage)
-    .filter((feedPage) => feedPage !== SharedFeedPage.Search)
-    .includes(feedName) && feedName !== SharedFeedPage.Search;
+  FeedLayoutV1FeedPages.has(feedName) && feedName !== SharedFeedPage.Search;
 
 export const useFeedLayout = ({
   feedName: feedNameProp,
