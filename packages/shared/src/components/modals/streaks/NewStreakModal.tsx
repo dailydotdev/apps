@@ -88,7 +88,7 @@ export default function FirstStreakModal({
         <Paragraph className="mt-10 typo-callout">
           <strong>Brag about it via...</strong>
         </Paragraph>
-        <span className="mt-3 flex flex-row gap-2">
+        <div className="mt-3 flex flex-row gap-2">
           <SocialShareButton
             href="" // what should be the link
             icon={<TwitterIcon />}
@@ -114,7 +114,7 @@ export default function FirstStreakModal({
             variant={ButtonVariant.Float}
             label="WhatsApp"
           />
-        </span>
+        </div>
         <Checkbox
           name="show_streaks"
           className="mt-10"
