@@ -1,4 +1,4 @@
-import React, { forwardRef, ReactElement, Ref, useRef, useState } from 'react';
+import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
 import ActionButtons from './ActionButtons';
 import { SharedPostText } from '../SharedPostText';
 import { SharedPostCardFooter } from './SharedPostCardFooter';
