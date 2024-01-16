@@ -4,7 +4,7 @@ import { SharedPostText } from '../SharedPostText';
 import { SharedPostCardFooter } from './SharedPostCardFooter';
 import { Container, PostCardProps } from '../common';
 import FeedItemContainer from './FeedItemContainer';
-import { useFeedPreviewMode } from '../../../hooks';
+import { useFeedPreviewMode, useTruncatedSummary } from '../../../hooks';
 import { isVideoPost } from '../../../graphql/posts';
 import { PostCardHeader } from './PostCardHeader';
 import SquadHeaderPicture from '../common/SquadHeaderPicture';
@@ -28,16 +28,10 @@ export const SharePostCard = forwardRef(function SharePostCard(
 ): ReactElement {
   const { pinnedAt, trending, type } = post;
   const onPostCardClick = () => onPostClick(post);
-  const [isSharedPostShort, setSharedPostShort] = useState(true);
   const containerRef = useRef<HTMLDivElement>();
-  const onSharedPostTextHeightChange = (height: number) => {
-    if (!containerRef.current) {
-      return;
-    }
-    setSharedPostShort(containerRef.current.offsetHeight - height < 40);
-  };
   const isFeedPreview = useFeedPreviewMode();
   const isVideoType = isVideoPost(post);
+  const { title } = useTruncatedSummary(post);
 
   return (
     <FeedItemContainer
@@ -71,14 +65,10 @@ export const SharePostCard = forwardRef(function SharePostCard(
           reverse={!enableSourceHeader}
         />
       </PostCardHeader>
-      <SharedPostText
-        title={post.title}
-        onHeightChange={onSharedPostTextHeightChange}
-      />
+      <SharedPostText title={title} />
       <Container ref={containerRef} className="min-h-0 justify-end">
         <SharedPostCardFooter
           sharedPost={post.sharedPost}
-          isShort={isSharedPostShort}
           isVideoType={isVideoType}
         />
         <ActionButtons

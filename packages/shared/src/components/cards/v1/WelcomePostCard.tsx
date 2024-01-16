@@ -9,7 +9,7 @@ import { Squad } from '../../../graphql/sources';
 import { ActionType } from '../../../graphql/actions';
 import FeedItemContainer from './FeedItemContainer';
 import { PostType } from '../../../graphql/posts';
-import { useFeedPreviewMode } from '../../../hooks';
+import { useFeedPreviewMode, useTruncatedSummary } from '../../../hooks';
 import { PostCardHeader } from './PostCardHeader';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import SquadHeaderPicture from '../common/SquadHeaderPicture';
@@ -41,6 +41,8 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
   const { openStep, isChecklistVisible } = useSquadChecklist({
     squad: post.source as Squad,
   });
+
+  const { title } = useTruncatedSummary(post);
 
   const shouldShowHighlightPulse =
     postType === PostType.Welcome &&
@@ -109,7 +111,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
                 'multi-truncate',
               )}
             >
-              {post.title}
+              {title}
             </CardTitle>
 
             {content && (
