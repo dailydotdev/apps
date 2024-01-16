@@ -48,7 +48,7 @@ export const Checkbox = forwardRef(function Checkbox(
   return (
     <label
       className={classNames(
-        'relative z-1 inline-flex cursor-pointer select-none items-center p-1 pr-3 font-bold text-theme-label-tertiary typo-footnote',
+        'relative z-1 inline-flex cursor-pointer select-none items-center p-1 pr-3 text-theme-label-tertiary typo-footnote',
         styles.label,
         className,
         { checked: actualChecked, disabled },
