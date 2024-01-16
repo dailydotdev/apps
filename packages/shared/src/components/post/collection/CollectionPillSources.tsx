@@ -22,7 +22,7 @@ export const CollectionPillSources = ({
   const hasSources = !!sources?.length;
 
   return (
-    <div className={classNames(className, 'relative flex flex-row')}>
+    <div className={classNames(className?.main, 'relative flex flex-row')}>
       {hasSources && (
         <ProfilePictureGroup
           className={classNames({
@@ -35,7 +35,7 @@ export const CollectionPillSources = ({
             <SourceAvatar
               className={classNames(
                 '-my-0.5 !mr-0 box-content border-2 border-theme-bg-primary',
-                className.avatar,
+                className?.avatar,
               )}
               key={source.handle}
               source={source}
