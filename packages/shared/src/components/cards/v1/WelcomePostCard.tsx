@@ -41,8 +41,6 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     squad: post.source as Squad,
   });
 
-  const { title } = useTruncatedSummary(post);
-
   const shouldShowHighlightPulse =
     postType === PostType.Welcome &&
     isChecklistVisible &&
@@ -56,11 +54,13 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     [post.contentHtml],
   );
 
+  const { title, summary } = useTruncatedSummary(post, content);
+
   const decodedText = useMemo(() => {
     const paragraph = document.createElement('p');
-    paragraph.innerHTML = content || '';
-    return paragraph.innerText || content;
-  }, [content]);
+    paragraph.innerHTML = summary || '';
+    return paragraph.innerText || summary;
+  }, [summary]);
 
   return (
     <FeedItemContainer
