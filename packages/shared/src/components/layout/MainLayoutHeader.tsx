@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode, useContext, useState } from 'react';
+import React, { ReactElement, ReactNode, useContext } from 'react';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
@@ -26,13 +26,8 @@ import {
   ViewSize,
 } from '../../hooks';
 import { SearchReferralButton } from '../referral/SearchReferralButton';
-import ReadingStreakIcon from '../icons/ReadingStreak';
-import { SimpleTooltip } from '../tooltips';
-import { ReadingStreakPopup } from '../streak/popup';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { ReadingStreaksExperiment } from '../../lib/featureValues';
-import { useReadingStreak } from '../../hooks/streaks';
+import { useStreakExperiment } from '../../hooks/streaks';
+import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 
 export interface MainLayoutHeaderProps {
   greeting?: boolean;
@@ -56,10 +51,9 @@ function MainLayoutHeader({
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
-  const readingStreak = useFeature(feature.readingStreaks);
+  const { shouldShowStreak } = useStreakExperiment();
   const hideButton = loadingUser;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
 
   const headerButton = (() => {
     if (hideButton) {
@@ -86,36 +80,11 @@ function MainLayoutHeader({
     campaignKey: ReferralCampaignKey.Search,
   });
 
-  const { currentStreak } = useReadingStreak();
-
   const renderButtons = () => {
     return (
       <>
         <CreatePostButton />
-        {user && readingStreak === ReadingStreaksExperiment.V1 && (
-          <SimpleTooltip
-            interactive
-            showArrow={false}
-            visible={shouldShowStreaks}
-            container={{
-              paddingClassName: 'p-4',
-              bgClassName: 'bg-theme-bg-tertiary',
-              textClassName: 'text-theme-label-primary typo-callout',
-              className: 'border border-theme-divider-tertiary',
-            }}
-            content={<ReadingStreakPopup />}
-          >
-            <Button
-              type="button"
-              icon={<ReadingStreakIcon />}
-              variant={ButtonVariant.Float}
-              onClick={() => setShouldShowStreaks((state) => !state)}
-              className="gap-1 text-theme-color-bacon"
-            >
-              {currentStreak}
-            </Button>
-          </SimpleTooltip>
-        )}
+        {user && shouldShowStreak && <ReadingStreakButton />}
         {!hideButton && user && (
           <>
             {sidebarRendered && <SearchReferralButton />}
