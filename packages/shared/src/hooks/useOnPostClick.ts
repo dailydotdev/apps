@@ -167,7 +167,7 @@ export default function useOnPostClick({
                 queryKey,
               ) as InfiniteData<FeedData>;
 
-              const { post: foundPost, page, index } = findPost(data, post.id);
+              const { post: foundPost, page, index } = findPost(data, id);
               if (foundPost) {
                 updateFeedPost(page, index, {
                   ...foundPost,
@@ -176,9 +176,9 @@ export default function useOnPostClick({
               }
             };
 
-            for (const key of getFeedQueryKeys(client)) {
+            getFeedQueryKeys(client).forEach((key) => {
               trySetPostRead(key, post.id);
-            }
+            });
           }
         }
       },
