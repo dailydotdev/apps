@@ -7,7 +7,7 @@ import { ButtonSize } from '../../buttons/Button';
 
 const today = new Date();
 const dateToday = today.getDate();
-const list = [
+const streakDays = [
   subDays(today, 4),
   subDays(today, 3),
   subDays(today, 2),
@@ -27,7 +27,7 @@ export function ReadingStreakPopup(): ReactElement {
         <StreakSection streak={100} label="Longest streak 🏆" />
       </div>
       <div className="mt-6 flex flex-row gap-2">
-        {list.map((value) => {
+        {streakDays.map((value) => {
           const day = value.getDay();
           const date = value.getDate();
 

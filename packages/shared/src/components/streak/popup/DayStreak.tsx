@@ -1,8 +1,10 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import ReadingStreakIcon from '../../icons/ReadingStreak';
 import classed from '../../../lib/classed';
 import TriangleArrowIcon from '../../icons/Arrow/Triangle';
-import { IconSize } from '../../Icon';
+import { IconSize, iconSizeToClassName } from '../../Icon';
+import { isNullOrUndefined } from '../../../lib/func';
 
 export enum Streak {
   Completed = 'completed',
@@ -13,19 +15,23 @@ export enum Streak {
 
 interface DayStreakProps {
   streak: Streak;
-  day: number;
+  day?: number;
+  size?: IconSize;
+  className?: string;
   shouldShowArrow?: boolean;
 }
 
 const dayInitial = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const Circle = classed(
   'div',
-  'w-7 h-7 rounded-full border border-theme-divider-tertiary',
+  'rounded-full border border-theme-divider-tertiary',
 );
 
 export function DayStreak({
   streak,
   day,
+  size = IconSize.Medium,
+  className,
   shouldShowArrow,
 }: DayStreakProps): ReactElement {
   const renderIcon = () => {
@@ -33,14 +39,19 @@ export function DayStreak({
       return (
         <ReadingStreakIcon
           secondary={streak === Streak.Completed}
-          size={IconSize.Medium}
+          className={className}
+          size={size}
         />
       );
     }
 
     return (
       <Circle
-        className={streak === Streak.Freeze && 'bg-theme-label-disabled'}
+        className={classNames(
+          className,
+          iconSizeToClassName[size],
+          streak === Streak.Freeze && 'bg-theme-label-disabled',
+        )}
       />
     );
   };
@@ -56,7 +67,7 @@ export function DayStreak({
         />
       )}
       {renderIcon()}
-      {dayInitial[finalDay]}
+      {!isNullOrUndefined(day) ? dayInitial[finalDay] : null}
     </div>
   );
 }

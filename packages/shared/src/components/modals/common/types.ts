@@ -41,6 +41,7 @@ export enum LazyModal {
   GenericReferral = 'genericReferral',
   Video = 'video',
   NewStreak = 'newStreak',
+  FirstStreak = 'FirstStreak',
 }
 
 export type ModalTabItem = {
