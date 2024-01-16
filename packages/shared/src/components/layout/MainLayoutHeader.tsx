@@ -26,8 +26,8 @@ import {
   ViewSize,
 } from '../../hooks';
 import { SearchReferralButton } from '../referral/SearchReferralButton';
-import { useStreakExperiment } from '../../hooks/streaks';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
+import { useStreakExperiment } from '../../hooks/streaks';
 
 export interface MainLayoutHeaderProps {
   greeting?: boolean;
@@ -54,7 +54,6 @@ function MainLayoutHeader({
   const { shouldShowStreak } = useStreakExperiment();
   const hideButton = loadingUser;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
 
   const headerButton = (() => {
     if (hideButton) {
@@ -80,8 +79,6 @@ function MainLayoutHeader({
   const { isReady } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Search,
   });
-
-  const { currentStreak } = useReadingStreak();
 
   const renderButtons = () => {
     return (
