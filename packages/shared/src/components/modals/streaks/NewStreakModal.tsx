@@ -49,9 +49,9 @@ export default function FirstStreakModal({
               shouldShowSplash ? 'ml-2 w-[15rem]' : 'w-[10rem] ',
             )}
           />
-          <strong className="typo-tera absolute">{currentStreak}</strong>
+          <strong className="absolute typo-tera">{currentStreak}</strong>
           {shouldShowSplash && (
-            <span className="typo-tera absolute mt-44">🏆</span>
+            <span className="absolute mt-44 typo-tera">🏆</span>
           )}
         </span>
         <strong
