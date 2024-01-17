@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { SearchPanelInput } from './SearchPanelInput';
 import { SearchProviderEnum } from '../../../graphql/search';
@@ -12,6 +18,10 @@ import { SearchExperiment } from '../../../lib/featureValues';
 import { FeedGradientBg } from '../../feeds/FeedGradientBg';
 import Portal from '../../tooltips/Portal';
 import SettingsContext from '../../../contexts/SettingsContext';
+import { useActions } from '../../../hooks';
+import { ActionType } from '../../../graphql/actions';
+import { AnalyticsEvent } from '../../../lib/analytics';
+import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 
 export type SearchPanelProps = {
   className?: string;
@@ -20,6 +30,11 @@ export type SearchPanelProps = {
 export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   const searchVersion = useFeature(feature.search);
   const { sidebarExpanded } = useContext(SettingsContext);
+  const { trackEvent } = useAnalyticsContext();
+  const { completeAction, checkHasCompleted } = useActions();
+
+  const isTracked = useRef(false);
+  const shouldShowPulse = !checkHasCompleted(ActionType.UsedSearchPanel);
 
   const [state, setState] = useState(() => {
     return {
@@ -71,12 +86,28 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
       <div className={classNames(className, 'relative flex flex-col')}>
         <SearchPanelInput
           className={{
-            container: 'w-[35rem]',
+            container: classNames(
+              'w-[35rem]',
+              shouldShowPulse && 'highlight-pulse',
+            ),
           }}
           valueChanged={(newValue) => {
             setState((currentState) => {
               return { ...currentState, query: newValue };
             });
+          }}
+          inputProps={{
+            onFocus: () => {
+              if (!isTracked.current && shouldShowPulse) {
+                isTracked.current = true;
+
+                trackEvent({
+                  event_name: AnalyticsEvent.SearchHighlightAnimation,
+                });
+              }
+
+              completeAction(ActionType.UsedSearchPanel);
+            },
           }}
         >
           <div

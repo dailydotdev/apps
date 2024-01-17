@@ -31,9 +31,7 @@ export type SearchPanelInputProps = {
   className?: SearchPanelInputClassName;
   valueChanged?: (value: string) => void;
   onSubmit?: (event: FormEvent, input: string) => void;
-  inputProps?: InputHTMLAttributes<HTMLInputElement> & {
-    value: string;
-  };
+  inputProps?: InputHTMLAttributes<HTMLInputElement>;
   children?: ReactNode;
 };
 
@@ -51,6 +49,9 @@ export const SearchPanelInput = ({
     value,
     readOnly,
     disabled,
+    onFocus: externalOnFocus,
+    onBlur: externalOnBlur,
+    onClick: externalOnClick,
     placeholder = searchPanel.isActive
       ? 'Search posts or ask a question...'
       : 'Search',
@@ -141,14 +142,22 @@ export const SearchPanelInput = ({
             {...inputProps}
             placeholder={placeholder}
             ref={inputRef}
-            onFocus={() => {
+            onFocus={(event) => {
               onFocus();
+              externalOnFocus?.(event);
 
               trackEvent({ event_name: AnalyticsEvent.FocusSearch });
 
               searchPanel.setActive(true);
             }}
-            onClick={onInputClick}
+            onBlur={(event) => {
+              onBlur();
+              externalOnBlur?.(event);
+            }}
+            onClick={(event) => {
+              onInputClick();
+              externalOnClick?.(event);
+            }}
             onInput={onInput}
             type="primary"
             autoComplete="off"

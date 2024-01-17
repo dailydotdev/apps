@@ -3,8 +3,6 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
-  useEffect,
-  useRef,
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
@@ -16,16 +14,8 @@ import styles from '../Feed.module.css';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
-import { AnalyticsEvent } from '../../lib/analytics';
-import { ActionType } from '../../graphql/actions';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { FeedReadyMessage } from '../onboarding';
-import {
-  useFeedLayout,
-  useActions,
-  ToastSubject,
-  useToastNotification,
-} from '../../hooks';
+import { useFeedLayout, ToastSubject, useToastNotification } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
@@ -118,8 +108,6 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
-  const { trackEvent } = useAnalyticsContext();
-  const { checkHasCompleted } = useActions();
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
@@ -137,20 +125,6 @@ export const FeedContainer = ({
   const isFinder = router.pathname === '/search/posts';
   const isV1Search =
     searchValue === SearchExperiment.V1 && showSearch && !isFinder;
-
-  const isTracked = useRef(false);
-  const shouldShowPulse =
-    checkHasCompleted(ActionType.AcceptedSearch) &&
-    !checkHasCompleted(ActionType.UsedSearch);
-
-  useEffect(() => {
-    if (!shouldShowPulse || isTracked.current) {
-      return;
-    }
-
-    isTracked.current = true;
-    trackEvent({ event_name: AnalyticsEvent.SearchHighlightAnimation });
-  }, [trackEvent, shouldShowPulse]);
 
   if (!loadedSettings) {
     return <></>;
