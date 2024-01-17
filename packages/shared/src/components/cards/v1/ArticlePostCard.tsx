@@ -87,6 +87,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
           onUpvoteClick={() => onUpvoteClick(post, Origin.FeedbackCard)}
           onDownvoteClick={() => onDownvoteClick(post, Origin.FeedbackCard)}
           showImage={showImage}
+          isVideoType={isVideoType}
         />
       ) : (
         <>
