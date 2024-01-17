@@ -17,7 +17,6 @@ export enum ActionType {
   AcceptedSearch = 'accepted_search',
   UsedSearch = 'used_search',
   CollectionsIntro = 'collections_intro',
-  OptOutStreaks = 'opt_out_streaks',
 }
 
 export interface Action {
