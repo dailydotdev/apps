@@ -38,3 +38,11 @@ export const getRandomNumber = (min: number, max: number): number => {
 
   return Math.floor(Math.random() * range) + min;
 };
+
+export const isSpecialKeyPressed = ({
+  event,
+}: {
+  event: MouseEvent | KeyboardEvent;
+}): boolean => {
+  return event.ctrlKey || event.metaKey;
+};
