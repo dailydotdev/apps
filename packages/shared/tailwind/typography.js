@@ -86,6 +86,11 @@ module.exports = plugin(({ addUtilities }) => {
       'font-size': '0.6875rem',
       'line-height': '1rem',
     },
+
+    '.typo-tera': {
+      'font-size': '5rem',
+      'line-height': '5.375rem',
+    },
   };
 
   addUtilities(utils);
