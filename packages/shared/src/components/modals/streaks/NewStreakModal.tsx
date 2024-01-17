@@ -63,7 +63,7 @@ export default function FirstStreakModal({
             className={classNames(
               'text-theme-color-bacon',
               shouldShowSplash
-                ? 'ml-2 h-[10rem] w-[15rem] text-theme-color-bacon'
+                ? 'ml-2 h-[10rem] w-[15rem]'
                 : 'h-[10rem] w-[10rem] ',
             )}
           />
