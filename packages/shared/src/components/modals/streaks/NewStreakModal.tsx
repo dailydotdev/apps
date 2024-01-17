@@ -1,12 +1,11 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { LazyModalCommonProps, Modal } from '../common/Modal';
 import classed from '../../../lib/classed';
 import { Checkbox } from '../../fields/Checkbox';
-import { useActions } from '../../../hooks';
-import { ActionType } from '../../../graphql/actions';
 import { ModalClose } from '../common/ModalClose';
 import { cloudinary } from '../../../lib/image';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
 
 interface FirstStreakModalProps extends LazyModalCommonProps {
   currentStreak: number;
@@ -21,23 +20,15 @@ export default function FirstStreakModal({
   onRequestClose,
   ...props
 }: FirstStreakModalProps): ReactElement {
-  const [isChecked, setIsChecked] = useState(false);
-  const { completeAction } = useActions();
+  const { toggleOptOutWeeklyGoal, optOutWeeklyGoal } = useSettingsContext();
   const shouldShowSplash = currentStreak > 20;
-  const onClose = (e: React.MouseEvent | React.KeyboardEvent) => {
-    if (isChecked) {
-      completeAction(ActionType.OptOutStreaks);
-    }
-
-    onRequestClose(e);
-  };
 
   return (
     <Modal
       {...props}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.XSmall}
-      onRequestClose={onClose}
+      onRequestClose={onRequestClose}
     >
       <ModalClose onClick={onRequestClose} className="right-2 top-2" />
       <Modal.Body className="items-center">
@@ -87,8 +78,8 @@ export default function FirstStreakModal({
         <Checkbox
           name="show_streaks"
           className="mt-10"
-          checked={isChecked}
-          onToggle={() => setIsChecked((state) => !state)}
+          checked={optOutWeeklyGoal}
+          onToggle={toggleOptOutWeeklyGoal}
         >
           Never show this again
         </Checkbox>
