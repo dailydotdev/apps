@@ -31,10 +31,11 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   const searchVersion = useFeature(feature.search);
   const { sidebarExpanded } = useContext(SettingsContext);
   const { trackEvent } = useAnalyticsContext();
-  const { completeAction, checkHasCompleted } = useActions();
+  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
 
   const isTracked = useRef(false);
-  const shouldShowPulse = !checkHasCompleted(ActionType.UsedSearchPanel);
+  const shouldShowPulse =
+    isActionsFetched && !checkHasCompleted(ActionType.UsedSearchPanel);
 
   const [state, setState] = useState(() => {
     return {
