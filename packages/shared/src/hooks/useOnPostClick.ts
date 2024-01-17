@@ -15,11 +15,11 @@ import {
 import { Post, PostType } from '../graphql/posts';
 import { Origin } from '../lib/analytics';
 import { ActiveFeedContext } from '../contexts';
-import { AllFeedPages, updateCachedPagePost } from '../lib/query';
+import { updateCachedPagePost } from '../lib/query';
 import { usePostFeedback } from './usePostFeedback';
-import { FeedLayoutV1FeedPages, useFeedLayout } from './useFeedLayout';
-import { SharedFeedPage } from '../components/utilities';
+import { FeedLayoutV1FeedPages } from './useFeedLayout';
 import { FeedData } from '../graphql/feed';
+import { useFeatureFeedLayoutV1 } from './useFeatureFeedLayoutV1';
 
 interface PostClickOptionalProps {
   skipPostUpdate?: boolean;
@@ -99,10 +99,7 @@ export default function useOnPostClick({
   const { trackEvent } = useContext(AnalyticsContext);
   const { incrementReadingRank } = useIncrementReadingRank();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
-  const { shouldUseFeedLayoutV1 } = useFeedLayout({
-    // need to provide something, in case feedName is undefined (such as on post page)
-    feedName: (feedName as AllFeedPages) || SharedFeedPage.MyFeed,
-  });
+  const isFeedLayoutV1 = useFeatureFeedLayoutV1();
 
   const { isLowImpsEnabled } = usePostFeedback();
 
@@ -160,7 +157,7 @@ export default function useOnPostClick({
             }
 
             updateFeedPostCache({ index: postIndex });
-          } else if (!feedName && shouldUseFeedLayoutV1) {
+          } else if (!feedName && isFeedLayoutV1) {
             const trySetPostRead = (queryKey: QueryKey, id: string) => {
               const updateFeedPost = updateCachedPagePost(
                 queryKey as unknown[],
@@ -186,8 +183,19 @@ export default function useOnPostClick({
           }
         }
       },
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [columns, feedName, feedQueryKey, ranking, origin, shouldUseFeedLayoutV1],
+    [
+      client,
+      columns,
+      eventName,
+      feedName,
+      feedQueryKey,
+      incrementReadingRank,
+      isFeedLayoutV1,
+      isLowImpsEnabled,
+      items,
+      ranking,
+      origin,
+      trackEvent,
+    ],
   );
 }

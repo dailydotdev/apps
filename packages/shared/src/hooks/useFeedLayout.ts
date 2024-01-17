@@ -1,10 +1,8 @@
 import { useMemo } from 'react';
-import { useFeature } from '../components/GrowthBookProvider';
-import { feature } from '../lib/featureManagement';
-import { FeedLayout } from '../lib/featureValues';
 import { SharedFeedPage } from '../components/utilities';
 import { AllFeedPages } from '../lib/query';
 import { useActiveFeedNameContext } from '../contexts';
+import { useFeatureFeedLayoutV1 } from './useFeatureFeedLayoutV1';
 
 interface UseFeedLayoutProps {
   feedName?: AllFeedPages;
@@ -28,8 +26,7 @@ export const useFeedLayout = ({
 }: UseFeedLayoutProps = {}): UseFeedLayout => {
   const { feedName } = useActiveFeedNameContext();
   const name = (feedNameProp ?? feedName) as SharedFeedPage;
-  const feedLayoutVersion = useFeature(feature.feedLayout);
-  const isV1 = feedLayoutVersion === FeedLayout.V1;
+  const isV1 = useFeatureFeedLayoutV1();
   const isIncludedFeed = useMemo(
     () => checkShouldUseFeedLayoutV1(name),
     [name],
