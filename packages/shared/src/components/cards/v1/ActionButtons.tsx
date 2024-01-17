@@ -84,10 +84,19 @@ export default function ActionButtons({
             variant={ButtonVariant.Tertiary}
           />
         </SimpleTooltip>
-        <InteractionCounter
-          className="font-bold text-theme-label-tertiary typo-callout"
-          value={post.numUpvotes}
-        />
+        {post?.numUpvotes > 0 && (
+          <InteractionCounter
+            className={classNames(
+              '!min-w-[2ch] font-bold tabular-nums typo-callout',
+              post?.userState?.vote === UserPostVote.Up &&
+                'text-theme-color-avocado',
+              post?.userState?.vote === UserPostVote.Down &&
+                'text-theme-color-ketchup',
+              !post?.userState?.vote && 'text-theme-label-tertiary',
+            )}
+            value={post?.numUpvotes}
+          />
+        )}
         <SimpleTooltip
           content={
             post?.userState?.vote === UserPostVote.Down
@@ -119,10 +128,17 @@ export default function ActionButtons({
           onClick={() => onCommentClick?.(post)}
           variant={ButtonVariant.Float}
         >
-          <InteractionCounter
-            className="text-theme-label-tertiary"
-            value={post.numComments}
-          />
+          {post?.numComments > 0 ? (
+            <InteractionCounter
+              className={classNames(
+                'tabular-nums',
+                post.commented
+                  ? 'text-theme-color-blueCheese'
+                  : 'text-theme-label-tertiary',
+              )}
+              value={post.numComments}
+            />
+          ) : null}
         </Button>
       </SimpleTooltip>
       <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>

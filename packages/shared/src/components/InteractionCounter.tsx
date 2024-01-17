@@ -1,7 +1,6 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import classNames from 'classnames';
-import styles from './InteractionCounter.module.css';
 
 export type InteractionCounterProps = {
   className?: string;
@@ -15,7 +14,6 @@ export default function InteractionCounter({
 }: InteractionCounterProps): ReactElement {
   const [shownValue, setShownValue] = useState(value);
   const [animate, setAnimate] = useState(false);
-
   useEffect(() => {
     if (value !== shownValue) {
       if (value < shownValue) {
@@ -29,9 +27,14 @@ export default function InteractionCounter({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
+  const elementClassName = classNames(
+    'flex h-5 min-w-[1ch] flex-col items-center overflow-hidden',
+    className,
+  );
+
   if (shownValue === value) {
     return (
-      <span className={className} {...props}>
+      <span className={elementClassName} {...props}>
         {shownValue}
       </span>
     );
@@ -42,26 +45,24 @@ export default function InteractionCounter({
     setShownValue(value);
   };
 
+  const childClassName =
+    'h-5 inline-block transition-[opacity,transform] ease-in-out duration-300 will-change-[opacity,transform]';
+
   return (
-    <span
-      className={classNames(
-        'relative overflow-hidden',
-        styles.interactionCounter,
-        className,
-      )}
-      {...props}
-    >
+    <span className={elementClassName} {...props}>
       <span
-        className={
-          animate ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'
-        }
+        className={classNames(
+          childClassName,
+          animate ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100',
+        )}
       >
         {shownValue}
       </span>
       <span
-        className={`absolute left-0 top-0 ${
-          animate ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
-        }`}
+        className={classNames(
+          childClassName,
+          animate ? '-translate-y-full opacity-100' : 'translate-y-0 opacity-0',
+        )}
         onTransitionEnd={updateShownValue}
       >
         {value}
