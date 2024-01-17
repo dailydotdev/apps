@@ -2,13 +2,6 @@ import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { LazyModalCommonProps, Modal } from '../common/Modal';
 import classed from '../../../lib/classed';
-import TwitterIcon from '../../icons/Twitter';
-import { ButtonVariant } from '../../buttons/common';
-import { ButtonColor } from '../../buttons/ButtonV2';
-import { SocialShareButton } from '../../widgets/SocialShareButton';
-import WhatsappIcon from '../../icons/Whatsapp';
-import StraightArrowIcon from '../../icons/Arrow/Straight';
-import { IconSize } from '../../Icon';
 import { Checkbox } from '../../fields/Checkbox';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
@@ -42,7 +35,7 @@ export default function FirstStreakModal({
   return (
     <Modal
       {...props}
-      kind={Modal.Kind.FlexibleTop}
+      kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.XSmall}
       onRequestClose={onClose}
     >
@@ -93,36 +86,6 @@ export default function FirstStreakModal({
             : `New milestone reached! You are unstoppable. Your previous record was
         ${previousStreak} days.`}
         </Paragraph>
-        <Paragraph className="mt-10 typo-callout">
-          <strong>Brag about it via...</strong>
-        </Paragraph>
-        <div className="mt-3 flex flex-row gap-2">
-          <SocialShareButton
-            href="" // what should be the link
-            icon={<TwitterIcon />}
-            variant={ButtonVariant.Primary}
-            color={ButtonColor.Twitter}
-            label="X"
-          />
-          <SocialShareButton
-            href="" // what should be the link
-            icon={<WhatsappIcon />}
-            variant={ButtonVariant.Primary}
-            color={ButtonColor.WhatsApp}
-            label="WhatsApp"
-          />
-          <SocialShareButton
-            href="" // what should be the link
-            icon={
-              <StraightArrowIcon
-                className="text-theme-label-tertiary"
-                size={IconSize.Small}
-              />
-            }
-            variant={ButtonVariant.Float}
-            label="WhatsApp"
-          />
-        </div>
         <Checkbox
           name="show_streaks"
           className="mt-10"
