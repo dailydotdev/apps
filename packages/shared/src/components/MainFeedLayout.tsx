@@ -38,7 +38,7 @@ import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
 import { FeedContainerProps } from './feeds';
 import { getFeedName } from '../lib/feed';
-import { FeedGradientBg } from './feeds/FeedGradientBg';
+import { searchPanelGradientElementId } from './search';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -251,7 +251,7 @@ export default function MainFeedLayout({
     <FeedPageComponent
       className={classNames('relative', shouldUseFeedLayoutV1 && '!pt-0')}
     >
-      {isV1Search && !shouldUseFeedLayoutV1 && !isFinder && <FeedGradientBg />}
+      <div id={searchPanelGradientElementId} />
       {isSearchOn && search}
       {feedProps && (
         <Feed

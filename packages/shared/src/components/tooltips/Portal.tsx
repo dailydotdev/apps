@@ -5,12 +5,16 @@ import { getCompanionWrapper } from '../../lib/extension';
 
 interface PortalProps {
   children: ReactNode;
+  container?: Element;
 }
 
-function Portal({ children }: PortalProps): ReturnType<typeof createPortal> {
+function Portal({
+  children,
+  container,
+}: PortalProps): ReturnType<typeof createPortal> {
   const { isCompanion } = useRequestProtocol();
 
-  const container = useMemo(() => {
+  const defaultContainer = useMemo(() => {
     if (typeof globalThis?.document === 'undefined') {
       return null;
     }
@@ -22,11 +26,13 @@ function Portal({ children }: PortalProps): ReturnType<typeof createPortal> {
     return globalThis?.document?.body;
   }, [isCompanion]);
 
-  if (!container) {
+  const portalContainer = container || defaultContainer;
+
+  if (!portalContainer) {
     return null;
   }
 
-  return createPortal(children, container);
+  return createPortal(children, portalContainer);
 }
 
 export default Portal;

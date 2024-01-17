@@ -131,7 +131,6 @@ export const SearchPanelInput = ({
               ? 'rounded-t-2xl'
               : 'rounded-2xl',
           )}
-          data-testid="searchBar"
           ref={fieldRef}
         >
           <AiIcon

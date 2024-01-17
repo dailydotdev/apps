@@ -1,17 +1,26 @@
-import React, { ReactElement, useMemo, useState } from 'react';
+import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { SearchPanelInput } from './SearchPanelInput';
 import { SearchProviderEnum } from '../../../graphql/search';
 import { SearchPanelContext } from './SearchPanelContext';
-import { minQueryLength } from './common';
+import { minQueryLength, searchPanelGradientElementId } from './common';
 import { SearchPanelAction } from './SearchPanelAction';
 import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
+import { useFeature } from '../../GrowthBookProvider';
+import { feature } from '../../../lib/featureManagement';
+import { SearchExperiment } from '../../../lib/featureValues';
+import { FeedGradientBg } from '../../feeds/FeedGradientBg';
+import Portal from '../../tooltips/Portal';
+import SettingsContext from '../../../contexts/SettingsContext';
 
 export type SearchPanelProps = {
   className?: string;
 };
 
 export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
+  const searchVersion = useFeature(feature.search);
+  const { sidebarExpanded } = useContext(SettingsContext);
+
   const [state, setState] = useState(() => {
     return {
       provider: SearchProviderEnum.Posts,
@@ -38,6 +47,25 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
 
   const showDropdown = state.isActive && state.query.length >= minQueryLength;
 
+  const gradientContainer = useMemo(() => {
+    if (typeof state.isActive === 'undefined') {
+      return undefined;
+    }
+
+    if (typeof document === 'undefined') {
+      return undefined;
+    }
+
+    return (
+      document.getElementById(searchPanelGradientElementId) ||
+      document.createElement('div') // unmounted div to not show the gradient
+    );
+  }, [state.isActive]);
+
+  if (searchVersion !== SearchExperiment.V1) {
+    return null;
+  }
+
   return (
     <SearchPanelContext.Provider value={searchPanelContextValue}>
       <div className={classNames(className, 'relative flex flex-col')}>
@@ -62,6 +90,16 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
           )}
         </SearchPanelInput>
       </div>
+
+      <Portal container={gradientContainer}>
+        <FeedGradientBg
+          className={classNames(
+            '-top-9 -z-1 opacity-0 transition-opacity duration-500',
+            sidebarExpanded ? '!-left-60' : '!-left-11',
+            state.isActive ? 'opacity-100' : 'opacity-0',
+          )}
+        />
+      </Portal>
     </SearchPanelContext.Provider>
   );
 };
