@@ -98,6 +98,8 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
           }}
           inputProps={{
             onFocus: () => {
+              searchPanelContextValue.setActive(true);
+
               if (!isTracked.current && shouldShowPulse) {
                 isTracked.current = true;
 
@@ -107,6 +109,9 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
               }
 
               completeAction(ActionType.UsedSearchPanel);
+            },
+            onBlur: () => {
+              searchPanelContextValue.setActive(false);
             },
           }}
         >

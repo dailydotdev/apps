@@ -5,3 +5,4 @@ export * from './squads';
 export * from './RenderMarkdown';
 export * from './cards';
 export * from './withFeaturesBoundary';
+export * from './KeyboardShortcutLabel';

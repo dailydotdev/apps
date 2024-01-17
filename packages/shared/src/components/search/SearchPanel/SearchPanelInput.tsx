@@ -4,6 +4,7 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
+  useMemo,
   useRef,
 } from 'react';
 import classNames from 'classnames';
@@ -18,8 +19,13 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { AuthTriggers } from '../../../lib/auth';
 import { SearchPanelContext } from './SearchPanelContext';
 import { useEventListener } from '../../../hooks';
-import { isNullOrUndefined, isSpecialKeyPressed } from '../../../lib/func';
+import {
+  isAppleDevice,
+  isNullOrUndefined,
+  isSpecialKeyPressed,
+} from '../../../lib/func';
 import { minQueryLength } from './common';
+import { KeyboadShortcutLabel } from '../../KeyboardShortcutLabel';
 
 export type SearchPanelInputClassName = {
   container?: string;
@@ -114,6 +120,10 @@ export const SearchPanelInput = ({
   const showDropdown =
     searchPanel.isActive && searchPanel.query.length >= minQueryLength;
 
+  const shortcutKeys = useMemo(() => {
+    return [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
+  }, []);
+
   return (
     <div className={classNames(className?.container, 'hidden laptop:flex')}>
       <form
@@ -147,8 +157,6 @@ export const SearchPanelInput = ({
               externalOnFocus?.(event);
 
               trackEvent({ event_name: AnalyticsEvent.FocusSearch });
-
-              searchPanel.setActive(true);
             }}
             onBlur={(event) => {
               onBlur();
@@ -166,6 +174,11 @@ export const SearchPanelInput = ({
               getFieldFontColor({ readOnly, disabled, hasInput, focused }),
             )}
           />
+          <div className="hidden items-center gap-3 tablet:flex">
+            {!searchPanel.isActive && (
+              <KeyboadShortcutLabel keys={shortcutKeys} />
+            )}
+          </div>
         </BaseField>
         {children}
       </form>
