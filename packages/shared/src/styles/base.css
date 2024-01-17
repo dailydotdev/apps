@@ -47,6 +47,7 @@ body {
   --theme-background-primary: theme('colors.pepper.90');
   --theme-background-reverse: #ffffff;
   --theme-background-secondary: theme('colors.pepper.70');
+  --theme-background-secondary-blur: theme('colors.pepper.70')CC;
   --theme-background-tertiary: theme('colors.pepper.80');
   --theme-background-notification: theme('colors.pepper.50');
   --theme-background-bun: theme('colors.bun.80');
@@ -171,6 +172,7 @@ body {
   --theme-background-primary: #ffffff;
   --theme-background-reverse: theme('colors.pepper.90');
   --theme-background-secondary: theme('colors.salt.10');
+  --theme-background-secondary-blur: theme('colors.salt.10')CC;
   --theme-background-tertiary: theme('colors.salt.20');
   --theme-background-notification: theme('colors.salt.50');
   --theme-background-bacon: theme('colors.bacon.20');

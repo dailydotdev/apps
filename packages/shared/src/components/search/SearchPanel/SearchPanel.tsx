@@ -79,18 +79,20 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
             });
           }}
         >
-          {showDropdown && (
-            <div className="absolute w-full items-center rounded-b-2xl border border-theme-divider-quaternary !bg-theme-bg-secondary px-3 py-2 duration-200 ease-in-out">
-              <div className="flex flex-col">
-                <SearchPanelAction provider={SearchProviderEnum.Posts} />
-                <SearchPanelAction provider={SearchProviderEnum.Chat} />
-                <SearchPanelPostSuggestions title="Posts" />
-              </div>
+          <div
+            className={classNames(
+              'absolute top-[3.7rem] w-full items-center rounded-b-2xl border border-theme-divider-quaternary !bg-theme-bg-secondary-blur !bg-opacity-[0.8] px-3 py-2 backdrop-blur-md transition-opacity duration-200 ease-in-out',
+              showDropdown ? 'opacity-100' : 'opacity-0',
+            )}
+          >
+            <div className="flex flex-col">
+              <SearchPanelAction provider={SearchProviderEnum.Posts} />
+              <SearchPanelAction provider={SearchProviderEnum.Chat} />
+              <SearchPanelPostSuggestions title="Posts" />
             </div>
-          )}
+          </div>
         </SearchPanelInput>
       </div>
-
       <Portal container={gradientContainer}>
         <FeedGradientBg
           className={classNames(
