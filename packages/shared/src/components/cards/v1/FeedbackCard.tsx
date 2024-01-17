@@ -10,7 +10,6 @@ import UpvoteIcon from '../../icons/Upvote';
 import { Post, UserPostVote } from '../../../graphql/posts';
 import { usePostFeedback } from '../../../hooks';
 import CloseButton from '../../CloseButton';
-import { PostCardFooter } from './PostCardFooter';
 
 interface FeedbackCardProps {
   post: Post;
@@ -23,7 +22,6 @@ export const FeedbackCard = ({
   post,
   onUpvoteClick,
   onDownvoteClick,
-  showImage = true,
 }: FeedbackCardProps): ReactElement => {
   const { dismissFeedback } = usePostFeedback({ post });
 
@@ -73,15 +71,6 @@ export const FeedbackCard = ({
             {post.summary}
           </p>
         )}
-        <PostCardFooter
-          className={{
-            image: 'mb-0',
-          }}
-          post={post}
-          showImage={showImage}
-          insaneMode={false}
-          openNewTab
-        />
       </div>
     </div>
   );
