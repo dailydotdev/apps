@@ -54,10 +54,8 @@ export default function FirstStreakModal({
                 : 'A large fire icon'
             }
             className={classNames(
-              'text-theme-color-bacon',
-              shouldShowSplash
-                ? 'ml-2 h-[10rem] w-[15rem]'
-                : 'h-[10rem] w-[10rem] ',
+              'h-[10rem] text-theme-color-bacon',
+              shouldShowSplash ? 'ml-2 w-[15rem]' : 'w-[10rem] ',
             )}
           />
           <strong className="typo-tera absolute">{currentStreak}</strong>
