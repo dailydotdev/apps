@@ -16,6 +16,7 @@ const iconToProviderMap: Record<
   FunctionComponent<IconProps>
 > = {
   [SearchProviderEnum.Posts]: SearchIcon,
+  // TODO AS-3-search-merge replace with correct icon
   [SearchProviderEnum.Chat]: AiIcon,
 };
 
