@@ -31,7 +31,7 @@ export function Header({
 
   return (
     <header
-      className={classNames('flex h-14 items-center px-4', className)}
+      className={classNames('flex h-12 items-center px-4', className)}
       style={style}
     >
       {sticky ? (

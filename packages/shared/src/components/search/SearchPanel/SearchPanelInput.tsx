@@ -139,8 +139,8 @@ export const SearchPanelInput = ({
               ? 'h-14 translate-y-1 border !border-theme-divider-quaternary shadow-3'
               : 'h-12',
             searchPanel.isActive && showDropdown
-              ? 'rounded-t-2xl'
-              : 'rounded-2xl',
+              ? 'rounded-t-16'
+              : 'rounded-16',
           )}
           ref={fieldRef}
         >

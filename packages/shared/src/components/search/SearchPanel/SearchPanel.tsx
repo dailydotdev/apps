@@ -12,9 +12,6 @@ import { SearchPanelContext } from './SearchPanelContext';
 import { minQueryLength, searchPanelGradientElementId } from './common';
 import { SearchPanelAction } from './SearchPanelAction';
 import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
-import { useFeature } from '../../GrowthBookProvider';
-import { feature } from '../../../lib/featureManagement';
-import { SearchExperiment } from '../../../lib/featureValues';
 import { FeedGradientBg } from '../../feeds/FeedGradientBg';
 import Portal from '../../tooltips/Portal';
 import SettingsContext from '../../../contexts/SettingsContext';
@@ -28,7 +25,6 @@ export type SearchPanelProps = {
 };
 
 export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
-  const searchVersion = useFeature(feature.search);
   const { sidebarExpanded } = useContext(SettingsContext);
   const { trackEvent } = useAnalyticsContext();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
@@ -78,10 +74,6 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
     );
   }, [state.isActive]);
 
-  if (searchVersion !== SearchExperiment.V1) {
-    return null;
-  }
-
   return (
     <SearchPanelContext.Provider value={searchPanelContextValue}>
       <div className={classNames(className, 'relative flex flex-col')}>
@@ -118,7 +110,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
         >
           <div
             className={classNames(
-              'absolute top-[3.7rem] w-full items-center rounded-b-2xl border border-theme-divider-quaternary !bg-theme-bg-secondary-blur !bg-opacity-[0.8] px-3 py-2 backdrop-blur-md transition-opacity duration-200 ease-in-out',
+              'absolute top-[3.7rem] w-full items-center rounded-b-16 border border-theme-divider-quaternary !bg-theme-bg-secondary-blur !bg-opacity-[0.8] px-3 py-2 backdrop-blur-md transition-opacity duration-200 ease-in-out',
               showDropdown ? 'opacity-100' : 'opacity-0',
             )}
           >
@@ -142,3 +134,5 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
     </SearchPanelContext.Provider>
   );
 };
+
+export default SearchPanel;

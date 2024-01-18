@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useContext } from 'react';
+import dynamic from 'next/dynamic';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
@@ -28,7 +29,9 @@ import {
 import { SearchReferralButton } from '../referral/SearchReferralButton';
 import { useStreakExperiment } from '../../hooks/streaks';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
-import { SearchPanel } from '../search';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { SearchExperiment } from '../../lib/featureValues';
 
 export interface MainLayoutHeaderProps {
   greeting?: boolean;
@@ -40,6 +43,13 @@ export interface MainLayoutHeaderProps {
   onMobileSidebarToggle: (state: boolean) => unknown;
 }
 
+const SearchPanel = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "searchPanel" */ '../search/SearchPanel/SearchPanel'
+    ),
+);
+
 function MainLayoutHeader({
   greeting,
   hasBanner,
@@ -49,6 +59,7 @@ function MainLayoutHeader({
   onLogoClick,
   onMobileSidebarToggle,
 }: MainLayoutHeaderProps): ReactElement {
+  const searchVersion = useFeature(feature.search);
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
@@ -147,7 +158,7 @@ function MainLayoutHeader({
               greeting={greeting}
             />
           </div>
-          <SearchPanel />
+          {searchVersion === SearchExperiment.V1 && <SearchPanel />}
           {isReady ? renderButtons() : null}
         </>
       )}

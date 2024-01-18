@@ -45,7 +45,7 @@ export const SearchPanelPostSuggestions = ({
   return (
     <div className={classNames(className, 'flex flex-col')}>
       <div className="relative my-2">
-        <hr className="absolute top-[50%] w-full translate-y-[-50%] border-theme-divider-tertiary" />
+        <hr className="absolute top-1/2 w-full translate-y-1/2 border-theme-divider-tertiary" />
         <span className="relative mx-2 inline-flex w-auto flex-1 bg-theme-bg-secondary px-3 font-bold typo-footnote">
           {title}
         </span>
