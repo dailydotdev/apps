@@ -25,7 +25,7 @@ export const CollectionPillSources = ({
     <div
       className={classNames(
         className?.main,
-        'relative flex flex-row pointer-events-none',
+        'pointer-events-none relative flex flex-row',
       )}
     >
       {hasSources && (
