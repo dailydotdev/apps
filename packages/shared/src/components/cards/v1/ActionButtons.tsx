@@ -12,6 +12,7 @@ import BookmarkIcon from '../../icons/Bookmark';
 import DownvoteIcon from '../../icons/Downvote';
 import { ActionButtonsProps } from '../ActionButtons';
 import { combinedClicks } from '../../../lib/click';
+import Link from 'next/link';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "shareIcon" */ '../../icons/Share'),
@@ -111,22 +112,24 @@ export default function ActionButtons({
         </SimpleTooltip>
       </div>
       <SimpleTooltip content="Comments">
-        <Button
-          id={`post-${post.id}-comment-btn`}
-          className="ml-2"
-          color={ButtonColor.BlueCheese}
-          icon={<CommentIcon secondary={post.commented} />}
-          tag="a"
-          href={post.commentsPermalink}
-          pressed={post.commented}
-          variant={ButtonVariant.Float}
-          {...combinedClicks(() => onCommentClick?.(post))}
-        >
-          <InteractionCounter
-            className="text-theme-label-tertiary"
-            value={post.numComments}
-          />
-        </Button>
+        <Link href={post.commentsPermalink}>
+          <Button
+            id={`post-${post.id}-comment-btn`}
+            className="ml-2"
+            color={ButtonColor.BlueCheese}
+            icon={<CommentIcon secondary={post.commented} />}
+            tag="a"
+            href={post.commentsPermalink}
+            pressed={post.commented}
+            variant={ButtonVariant.Float}
+            {...combinedClicks(() => onCommentClick?.(post))}
+          >
+            <InteractionCounter
+              className="text-theme-label-tertiary"
+              value={post.numComments}
+            />
+          </Button>
+        </Link>
       </SimpleTooltip>
       <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
         <Button
