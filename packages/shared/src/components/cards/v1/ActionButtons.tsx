@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { Post, UserPostVote } from '../../../graphql/posts';
 import InteractionCounter from '../../InteractionCounter';
 import UpvoteIcon from '../../icons/Upvote';
@@ -11,6 +12,7 @@ import { useFeedPreviewMode } from '../../../hooks';
 import BookmarkIcon from '../../icons/Bookmark';
 import DownvoteIcon from '../../icons/Downvote';
 import { ActionButtonsProps } from '../ActionButtons';
+import { combinedClicks } from '../../../lib/click';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "shareIcon" */ '../../icons/Share'),
@@ -110,20 +112,24 @@ export default function ActionButtons({
         </SimpleTooltip>
       </div>
       <SimpleTooltip content="Comments">
-        <Button
-          id={`post-${post.id}-comment-btn`}
-          className="ml-2"
-          color={ButtonColor.BlueCheese}
-          icon={<CommentIcon secondary={post.commented} />}
-          pressed={post.commented}
-          onClick={() => onCommentClick?.(post)}
-          variant={ButtonVariant.Float}
-        >
-          <InteractionCounter
-            className="text-theme-label-tertiary"
-            value={post.numComments}
-          />
-        </Button>
+        <Link href={post.commentsPermalink}>
+          <Button
+            id={`post-${post.id}-comment-btn`}
+            className="ml-2"
+            color={ButtonColor.BlueCheese}
+            icon={<CommentIcon secondary={post.commented} />}
+            tag="a"
+            href={post.commentsPermalink}
+            pressed={post.commented}
+            variant={ButtonVariant.Float}
+            {...combinedClicks(() => onCommentClick?.(post))}
+          >
+            <InteractionCounter
+              className="text-theme-label-tertiary"
+              value={post.numComments}
+            />
+          </Button>
+        </Link>
       </SimpleTooltip>
       <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
         <Button

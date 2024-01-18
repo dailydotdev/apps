@@ -317,16 +317,17 @@ export default function Feed<T>({
     row: number,
     column: number,
   ): void => {
-    onPostModalOpen(index, () =>
-      trackEvent(
-        postAnalyticsEvent('comments click', post, {
-          columns: virtualizedNumCards,
-          column,
-          row,
-          ...feedAnalyticsExtra(feedName, ranking),
-        }),
-      ),
+    trackEvent(
+      postAnalyticsEvent('comments click', post, {
+        columns: virtualizedNumCards,
+        column,
+        row,
+        ...feedAnalyticsExtra(feedName, ranking),
+      }),
     );
+    if (!shouldUseFeedLayoutV1) {
+      onPostModalOpen(index);
+    }
   };
 
   const onAdClick = (ad: Ad, row: number, column: number) => {
