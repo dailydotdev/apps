@@ -1,9 +1,0 @@
-.interactionCounter {
-  min-width: 1ch;
-
-  & > * {
-    display: inline-block;
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-    will-change: opacity, transform;
-  }
-}
