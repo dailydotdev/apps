@@ -110,7 +110,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
         >
           <div
             className={classNames(
-              'absolute top-[3.7rem] w-full items-center rounded-b-16 border border-theme-divider-quaternary !bg-theme-bg-secondary-blur !bg-opacity-[0.8] px-3 py-2 backdrop-blur-md transition-opacity duration-200 ease-in-out',
+              'absolute top-[3.7rem] w-full items-center rounded-b-16 border border-theme-divider-quaternary !bg-theme-bg-secondary !bg-opacity-[0.8] px-3 py-2 backdrop-blur-md transition-opacity duration-200 ease-in-out',
               showDropdown ? 'opacity-100' : 'opacity-0',
             )}
           >
