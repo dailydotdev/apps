@@ -11,6 +11,7 @@ import { useFeedPreviewMode } from '../../../hooks';
 import BookmarkIcon from '../../icons/Bookmark';
 import DownvoteIcon from '../../icons/Downvote';
 import { ActionButtonsProps } from '../ActionButtons';
+import { combinedClicks } from '../../../lib/click';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "shareIcon" */ '../../icons/Share'),
@@ -115,9 +116,11 @@ export default function ActionButtons({
           className="ml-2"
           color={ButtonColor.BlueCheese}
           icon={<CommentIcon secondary={post.commented} />}
+          tag="a"
+          href={post.commentsPermalink}
           pressed={post.commented}
-          onClick={() => onCommentClick?.(post)}
           variant={ButtonVariant.Float}
+          {...combinedClicks(() => onCommentClick?.(post))}
         >
           <InteractionCounter
             className="text-theme-label-tertiary"
