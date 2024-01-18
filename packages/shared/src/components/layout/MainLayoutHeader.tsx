@@ -151,7 +151,7 @@ function MainLayoutHeader({
             onClick={() => onMobileSidebarToggle(true)}
             icon={<HamburgerIcon secondary />}
           />
-          <div className="flex justify-center laptop:justify-start">
+          <div className="flex flex-1 justify-center laptop:flex-none laptop:justify-start">
             <HeaderLogo
               user={user}
               onLogoClick={onLogoClick}
