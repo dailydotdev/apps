@@ -14,6 +14,7 @@ import {
 } from '@dailydotdev/shared/src/lib/featureValues';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
+import classNames from 'classnames';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
 import DndContext from './DndContext';
@@ -125,9 +126,12 @@ export default function MainFeedPage({
           navChildren={!isSearchOn && <ShortcutLinks />}
           shortcuts={
             <ShortcutLinks
-              className={
-                layout === FeedLayoutEnum.Control ? 'ml-auto' : 'mt-4 w-fit'
-              }
+              className={classNames(
+                'hidden',
+                layout === FeedLayoutEnum.Control
+                  ? 'ml-auto border-theme-divider-secondary laptop:flex'
+                  : 'mx-6 mt-4 w-fit border-theme-divider-tertiary tablet:flex tabletL:mx-0',
+              )}
             />
           }
         />

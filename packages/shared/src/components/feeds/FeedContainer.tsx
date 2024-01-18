@@ -216,9 +216,10 @@ export const FeedContainer = ({
               <SearchBarInput
                 className={{
                   container: classNames(
-                    'flex w-full max-w-2xl flex-1',
-                    shouldUseFeedLayoutV1 &&
-                      'mt-6 px-6 pt-2 laptop:px-0 laptop:pt-0',
+                    'flex w-full flex-1',
+                    shouldUseFeedLayoutV1
+                      ? 'mt-6 w-full px-6 tabletL:px-0'
+                      : 'max-w-2xl',
                     shouldShowPulse && 'highlight-pulse',
                   ),
                   field: classNames(
@@ -236,12 +237,11 @@ export const FeedContainer = ({
             </ConditionalWrapper>
           )}
           {isV1Search && (
-            <span className="mt-4 flex flex-1 flex-row">
+            <span className="mt-4 hidden flex-1 flex-row tablet:flex">
               <SearchBarSuggestionList
                 {...suggestionsProps}
                 className={classNames(
-                  'hidden tablet:flex',
-                  shouldUseFeedLayoutV1 ? 'mx-6 laptop:mx-0' : 'mr-3',
+                  shouldUseFeedLayoutV1 ? 'mx-6 tabletL:mx-0' : 'mr-3',
                 )}
               />
               {actionButtons && !shouldUseFeedLayoutV1 && (

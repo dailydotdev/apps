@@ -9,6 +9,7 @@ import classNames from 'classnames';
 import React, { MouseEventHandler, ReactElement } from 'react';
 import { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
 import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 
 interface CustomLinksProps extends WithClassNameProps {
   links: string[];
@@ -24,10 +25,12 @@ export function CustomLinks({
   className,
   onLinkClick = noop,
 }: CustomLinksProps): ReactElement {
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+
   return (
     <div
       className={classNames(
-        'hidden h-fit flex-row gap-2 rounded-14 border border-theme-divider-secondary p-2 laptop:flex',
+        'h-fit flex-row gap-2 rounded-14 border p-2',
         className,
       )}
     >
@@ -54,7 +57,7 @@ export function CustomLinks({
       <SimpleTooltip placement="left" content="Edit shortcuts">
         <Button
           variant={ButtonVariant.Tertiary}
-          icon={<MenuIcon />}
+          icon={<MenuIcon className={shouldUseFeedLayoutV1 && 'rotate-90'} />}
           onClick={onOptions}
           size={ButtonSize.Small}
         />
