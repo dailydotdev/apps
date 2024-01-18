@@ -54,5 +54,5 @@ export const isAppleDevice = (): boolean => {
     return false;
   }
 
-  return appleDeviceMatch.test(window.navigator.userAgent);
+  return appleDeviceMatch.test(window.navigator.platform);
 };

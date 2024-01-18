@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import React, { Fragment, ReactElement } from 'react';
 
 export type KeyboadShortcutLabelProps = {
   className?: string;
@@ -14,11 +14,8 @@ export const KeyboadShortcutLabel = ({
     <div className={classNames(className, 'flex')}>
       {keys.map((item, index) => {
         return (
-          <>
-            <span
-              className="flex min-w-5 justify-center rounded-8 border border-theme-divider-tertiary bg-theme-bg-secondary px-2 py-0.5 text-theme-label-tertiary typo-footnote"
-              key={item}
-            >
+          <Fragment key={item}>
+            <span className="flex min-w-5 justify-center rounded-8 border border-theme-divider-tertiary bg-theme-bg-secondary px-2 py-0.5 text-theme-label-tertiary typo-footnote">
               {item}
             </span>
             {index !== keys.length - 1 && (
@@ -26,7 +23,7 @@ export const KeyboadShortcutLabel = ({
                 +
               </span>
             )}
-          </>
+          </Fragment>
         );
       })}
     </div>

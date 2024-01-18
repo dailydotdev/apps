@@ -4,7 +4,6 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
-  useMemo,
   useRef,
 } from 'react';
 import classNames from 'classnames';
@@ -40,6 +39,8 @@ export type SearchPanelInputProps = {
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
   children?: ReactNode;
 };
+
+const shortcutKeys = [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
 
 export const SearchPanelInput = ({
   onSubmit: handleSubmit,
@@ -119,10 +120,6 @@ export const SearchPanelInput = ({
 
   const showDropdown =
     searchPanel.isActive && searchPanel.query.length >= minQueryLength;
-
-  const shortcutKeys = useMemo(() => {
-    return [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
-  }, []);
 
   return (
     <div className={classNames(className?.container, 'hidden laptop:flex')}>
