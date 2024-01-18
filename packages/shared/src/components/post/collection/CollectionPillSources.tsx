@@ -22,7 +22,12 @@ export const CollectionPillSources = ({
   const hasSources = !!sources?.length;
 
   return (
-    <div className={classNames(className?.main, 'relative flex flex-row')}>
+    <div
+      className={classNames(
+        className?.main,
+        'pointer-events-none relative flex flex-row',
+      )}
+    >
       {hasSources && (
         <ProfilePictureGroup
           className={classNames({

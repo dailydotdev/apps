@@ -17,18 +17,18 @@ export default function SquadHeaderPicture({
 }: SquadHeaderPictureProps): ReactElement {
   if (reverse) {
     return (
-      <>
+      <div className="relative">
         {!!author && <ProfilePicture user={author} size="large" />}
         <SourceButton
           size="xsmall"
           source={source}
           className="absolute -bottom-2.5 -right-2.5"
         />
-      </>
+      </div>
     );
   }
   return (
-    <>
+    <div className="relative">
       <SourceButton size="large" source={source} />
       {!!author && (
         <ProfilePicture
@@ -38,6 +38,6 @@ export default function SquadHeaderPicture({
           absolute
         />
       )}
-    </>
+    </div>
   );
 }
