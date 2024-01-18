@@ -139,7 +139,7 @@ function MainLayoutHeader({
   return (
     <header
       className={classNames(
-        'relative z-header flex h-16 flex-row items-center justify-between gap-3 border-b border-theme-divider-tertiary bg-theme-bg-primary px-4 py-3 tablet:px-8 laptop:sticky laptop:left-0 laptop:w-full laptop:flex-row laptop:px-4',
+        'relative z-header flex h-14 flex-row items-center justify-between gap-3 border-b border-theme-divider-tertiary bg-theme-bg-primary px-4 py-3 tablet:px-8 laptop:sticky laptop:left-0 laptop:h-16 laptop:w-full laptop:flex-row laptop:px-4',
         hasBanner ? 'laptop:top-8' : 'laptop:top-0',
       )}
     >
@@ -151,7 +151,7 @@ function MainLayoutHeader({
             onClick={() => onMobileSidebarToggle(true)}
             icon={<HamburgerIcon secondary />}
           />
-          <div className="flex flex-row justify-center laptop:justify-start">
+          <div className="flex justify-center laptop:justify-start">
             <HeaderLogo
               user={user}
               onLogoClick={onLogoClick}
