@@ -30,7 +30,10 @@ export function CustomLinks({
   return (
     <div
       className={classNames(
-        'h-fit flex-row gap-2 rounded-14 border p-2',
+        'hidden h-fit flex-row gap-2 rounded-14 border p-2',
+        shouldUseFeedLayoutV1
+          ? 'border-theme-divider-tertiary tablet:flex'
+          : 'border-theme-divider-secondary laptop:flex',
         className,
       )}
     >

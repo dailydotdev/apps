@@ -127,10 +127,9 @@ export default function MainFeedPage({
           shortcuts={
             <ShortcutLinks
               className={classNames(
-                'hidden',
                 layout === FeedLayoutEnum.Control
-                  ? 'ml-auto border-theme-divider-secondary laptop:flex'
-                  : 'mx-6 mt-4 w-fit border-theme-divider-tertiary tablet:flex tabletL:mx-0',
+                  ? 'ml-auto'
+                  : 'mt-4 w-fit [@media(width<=680px)]:mx-6',
               )}
             />
           }
