@@ -18,11 +18,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { AuthTriggers } from '../../../lib/auth';
 import { SearchPanelContext } from './SearchPanelContext';
 import { useEventListener } from '../../../hooks';
-import {
-  isAppleDevice,
-  isNullOrUndefined,
-  isSpecialKeyPressed,
-} from '../../../lib/func';
+import { isAppleDevice, isNullOrUndefined } from '../../../lib/func';
 import { minQueryLength } from './common';
 import { KeyboadShortcutLabel } from '../../KeyboardShortcutLabel';
 
@@ -93,18 +89,6 @@ export const SearchPanelInput = ({
 
     return setInput(finalValue);
   };
-
-  useEventListener(globalThis, 'keydown', (event) => {
-    if (isSpecialKeyPressed({ event }) && event.key === 'k') {
-      event.preventDefault();
-
-      if (searchPanel.isActive) {
-        inputRef.current?.blur();
-      } else {
-        inputRef.current.focus();
-      }
-    }
-  });
 
   useEventListener(globalThis, 'click', (event) => {
     if (

@@ -15,10 +15,11 @@ import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
 import { FeedGradientBg } from '../../feeds/FeedGradientBg';
 import Portal from '../../tooltips/Portal';
 import SettingsContext from '../../../contexts/SettingsContext';
-import { useActions } from '../../../hooks';
+import { useActions, useEventListener } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { AnalyticsEvent } from '../../../lib/analytics';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
+import { isSpecialKeyPressed } from '../../../lib/func';
 
 export type SearchPanelProps = {
   className?: string;
@@ -41,7 +42,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
     };
   });
 
-  const searchPanelContextValue = useMemo(() => {
+  const searchPanel = useMemo(() => {
     return {
       ...state,
       setProvider: (provider: SearchProviderEnum) => {
@@ -74,8 +75,20 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
     );
   }, [state.isActive]);
 
+  useEventListener(globalThis, 'keydown', (event) => {
+    if (isSpecialKeyPressed({ event }) && event.key === 'k') {
+      event.preventDefault();
+
+      if (searchPanel.isActive) {
+        searchPanel.setActive(false);
+      } else {
+        searchPanel.setActive(true);
+      }
+    }
+  });
+
   return (
-    <SearchPanelContext.Provider value={searchPanelContextValue}>
+    <SearchPanelContext.Provider value={searchPanel}>
       <div className={classNames(className, 'relative flex flex-col')}>
         <SearchPanelInput
           className={{
@@ -91,7 +104,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
           }}
           inputProps={{
             onFocus: () => {
-              searchPanelContextValue.setActive(true);
+              searchPanel.setActive(true);
 
               if (!isTracked.current && shouldShowPulse) {
                 isTracked.current = true;
@@ -103,23 +116,21 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
 
               completeAction(ActionType.UsedSearchPanel);
             },
-            onBlur: () => {
-              searchPanelContextValue.setActive(false);
-            },
           }}
         >
-          <div
-            className={classNames(
-              'absolute top-[3.7rem] w-full items-center rounded-b-16 border border-theme-divider-quaternary !bg-theme-bg-secondary !bg-opacity-[0.8] px-3 py-2 backdrop-blur-md transition-opacity duration-200 ease-in-out',
-              showDropdown ? 'opacity-100' : 'opacity-0',
-            )}
-          >
-            <div className="flex flex-col">
-              <SearchPanelAction provider={SearchProviderEnum.Posts} />
-              <SearchPanelAction provider={SearchProviderEnum.Chat} />
-              <SearchPanelPostSuggestions title="Posts" />
+          {showDropdown && (
+            <div
+              className={classNames(
+                'absolute top-[3.7rem] w-full items-center rounded-b-16 border border-theme-divider-quaternary !bg-theme-bg-secondary px-3 py-2 backdrop-blur-md',
+              )}
+            >
+              <div className="flex flex-col">
+                <SearchPanelAction provider={SearchProviderEnum.Posts} />
+                <SearchPanelAction provider={SearchProviderEnum.Chat} />
+                <SearchPanelPostSuggestions title="Posts" />
+              </div>
             </div>
-          </div>
+          )}
         </SearchPanelInput>
       </div>
       <Portal container={gradientContainer}>
