@@ -5,8 +5,8 @@ export const useTruncatedSummary = (
   sanitizedSummary?: string,
 ): { summary?: string; title: string } => {
   const title =
-    post.title.length > 300 ? `${post.title.slice(0, 300)}...` : post.title;
-  const maxSummaryLength = Math.max(0, 300 - post.title.length);
+    post.title?.length > 300 ? `${post.title.slice(0, 300)}...` : post.title;
+  const maxSummaryLength = Math.max(0, 300 - post.title?.length || 0);
   const summary = sanitizedSummary || post.summary;
   const truncatedSummary =
     summary && summary.length > maxSummaryLength
