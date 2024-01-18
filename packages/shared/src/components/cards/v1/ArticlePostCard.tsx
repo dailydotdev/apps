@@ -131,7 +131,10 @@ export const ArticlePostCard = forwardRef(function PostCard(
                 alt="Post Cover image"
                 src={post.image}
                 fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-                className={classNames('object-cover', !isVideoType && 'mt-4')}
+                className={classNames(
+                  'object-cover mobileXXL:self-start mobileXXL:object-fill',
+                  !isVideoType && 'mt-4',
+                )}
                 loading="lazy"
                 data-testid="postImage"
                 {...(isVideoType && {
