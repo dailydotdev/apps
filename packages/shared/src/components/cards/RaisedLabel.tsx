@@ -38,7 +38,7 @@ export function RaisedLabel({
   return (
     <div
       className={classNames(
-        'absolute flex items-start',
+        'absolute flex items-start overflow-hidden',
         listMode ? 'right-full top-0 mt-5' : 'bottom-full left-0 ml-5 h-5',
         className,
       )}
