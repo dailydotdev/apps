@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { Post, UserPostVote } from '../../../graphql/posts';
 import InteractionCounter from '../../InteractionCounter';
 import UpvoteIcon from '../../icons/Upvote';
@@ -12,7 +13,6 @@ import BookmarkIcon from '../../icons/Bookmark';
 import DownvoteIcon from '../../icons/Downvote';
 import { ActionButtonsProps } from '../ActionButtons';
 import { combinedClicks } from '../../../lib/click';
-import Link from 'next/link';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "shareIcon" */ '../../icons/Share'),
