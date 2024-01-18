@@ -108,7 +108,11 @@ export const ArticlePostCard = forwardRef(function PostCard(
                 ),
               }}
             >
-              <SourceButton size="large" source={post.source} />
+              <SourceButton
+                size="large"
+                source={post.source}
+                className="relative"
+              />
             </PostCardHeader>
 
             <CardContent>

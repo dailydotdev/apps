@@ -47,7 +47,7 @@ export const PostCardHeader = ({
 
   return (
     <CardHeader className={className}>
-      <div className="relative">{children}</div>
+      {children}
       <PostMetadata
         className={classNames(
           'mr-2 flex-1',
