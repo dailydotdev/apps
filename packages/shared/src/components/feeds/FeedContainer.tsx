@@ -218,7 +218,7 @@ export const FeedContainer = ({
                   container: classNames(
                     'flex w-full flex-1',
                     shouldUseFeedLayoutV1
-                      ? 'mt-6 w-full [@media(width<=680px)]:px-6'
+                      ? 'mt-6 [@media(width<=680px)]:px-6'
                       : 'max-w-2xl',
                     shouldShowPulse && 'highlight-pulse',
                   ),
