@@ -15,11 +15,10 @@ import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
 import { FeedGradientBg } from '../../feeds/FeedGradientBg';
 import Portal from '../../tooltips/Portal';
 import SettingsContext from '../../../contexts/SettingsContext';
-import { useActions, useEventListener } from '../../../hooks';
+import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { AnalyticsEvent } from '../../../lib/analytics';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
-import { isSpecialKeyPressed } from '../../../lib/func';
 
 export type SearchPanelProps = {
   className?: string;
@@ -74,18 +73,6 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
       document.createElement('div') // unmounted div to not show the gradient
     );
   }, [state.isActive]);
-
-  useEventListener(globalThis, 'keydown', (event) => {
-    if (isSpecialKeyPressed({ event }) && event.key === 'k') {
-      event.preventDefault();
-
-      if (searchPanel.isActive) {
-        searchPanel.setActive(false);
-      } else {
-        searchPanel.setActive(true);
-      }
-    }
-  });
 
   return (
     <SearchPanelContext.Provider value={searchPanel}>
