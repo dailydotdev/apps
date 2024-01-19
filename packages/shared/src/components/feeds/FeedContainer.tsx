@@ -162,7 +162,7 @@ export const FeedContainer = ({
                 <span className="flex flex-row gap-3">{child}</span>
               )}
             >
-              {shortcuts}
+              {!!shortcuts && shortcuts}
             </ConditionalWrapper>
           )}
           {isV1Search && (
