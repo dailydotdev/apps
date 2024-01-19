@@ -121,13 +121,13 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
           {showDropdown && (
             <div
               className={classNames(
-                'absolute top-[3.7rem] w-full items-center rounded-b-16 border border-theme-divider-quaternary !bg-theme-bg-secondary px-3 py-2 backdrop-blur-md',
+                'absolute top-[3.7rem] w-full items-center rounded-b-16 border border-theme-divider-quaternary !bg-overlay-float-salt px-3 py-2 backdrop-blur-3xl',
               )}
             >
               <div className="flex flex-col">
                 <SearchPanelAction provider={SearchProviderEnum.Posts} />
                 <SearchPanelAction provider={SearchProviderEnum.Chat} />
-                <SearchPanelPostSuggestions title="Posts" />
+                <SearchPanelPostSuggestions title="Posts on daily.dev" />
               </div>
             </div>
           )}

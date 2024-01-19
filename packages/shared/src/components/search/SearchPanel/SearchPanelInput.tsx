@@ -113,7 +113,7 @@ export const SearchPanelInput = ({
       >
         <BaseField
           className={classNames(
-            'relative translate-y-0 items-center !bg-theme-bg-secondary px-4 py-1 duration-200 ease-in-out',
+            'relative translate-y-0 items-center !bg-overlay-float-salt px-4 py-1 backdrop-blur-3xl duration-200 ease-in-out',
             className?.field,
             { focused },
             searchPanel.isActive

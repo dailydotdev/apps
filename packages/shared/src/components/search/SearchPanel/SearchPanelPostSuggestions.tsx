@@ -44,11 +44,12 @@ export const SearchPanelPostSuggestions = ({
 
   return (
     <div className={classNames(className, 'flex flex-col')}>
-      <div className="relative my-2">
-        <hr className="absolute top-1/2 w-full translate-y-1/2 border-theme-divider-tertiary" />
-        <span className="relative mx-2 inline-flex w-auto flex-1 bg-theme-bg-secondary px-3 font-bold typo-footnote">
+      <div className="relative my-2 flex items-center justify-start gap-2">
+        <hr className="w-2 border-theme-divider-tertiary" />
+        <span className="w-autofont-bold relative inline-flex font-bold typo-footnote">
           {title}
         </span>
+        <hr className="flex-1 border-theme-divider-tertiary" />
       </div>
       {suggestions.map((suggestion) => {
         return (
