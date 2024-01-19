@@ -216,9 +216,10 @@ export const FeedContainer = ({
               <SearchBarInput
                 className={{
                   container: classNames(
-                    'flex w-full max-w-2xl flex-1',
-                    shouldUseFeedLayoutV1 &&
-                      'mt-6 px-6 pt-2 laptop:px-0 laptop:pt-0',
+                    'flex w-full flex-1',
+                    shouldUseFeedLayoutV1
+                      ? 'mt-6 [@media(width<=680px)]:px-6'
+                      : 'max-w-2xl',
                     shouldShowPulse && 'highlight-pulse',
                   ),
                   field: classNames(
@@ -236,13 +237,15 @@ export const FeedContainer = ({
             </ConditionalWrapper>
           )}
           {isV1Search && (
-            <span className="mt-4 flex flex-1 flex-row">
+            <span
+              className={classNames(
+                'mt-4 hidden flex-1 flex-row tablet:flex',
+                shouldUseFeedLayoutV1 && '[@media(width<=680px)]:mx-6',
+              )}
+            >
               <SearchBarSuggestionList
                 {...suggestionsProps}
-                className={classNames(
-                  'hidden tablet:flex',
-                  shouldUseFeedLayoutV1 ? 'mx-6 laptop:mx-0' : 'mr-3',
-                )}
+                className={classNames(!shouldUseFeedLayoutV1 && 'mr-3')}
               />
               {actionButtons && !shouldUseFeedLayoutV1 && (
                 <span className="ml-auto flex flex-row gap-3 border-l border-theme-divider-tertiary pl-3">
@@ -257,7 +260,7 @@ export const FeedContainer = ({
             wrapper={(child) => (
               <div
                 className={classNames(
-                  'flex flex-col rounded-16 border border-theme-divider-tertiary laptop:mx-0 laptop:mt-6',
+                  'flex flex-col rounded-16 border border-theme-divider-tertiary tablet:mt-6',
                   isV1Search && 'mt-6',
                 )}
               >
