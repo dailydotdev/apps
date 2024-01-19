@@ -17,6 +17,7 @@ import {
   SearchProviderEnum,
   getSearchUrl,
 } from '@dailydotdev/shared/src/graphql/search';
+import classNames from 'classnames';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
 import DndContext from './DndContext';
@@ -130,9 +131,11 @@ export default function MainFeedPage({
           navChildren={!isSearchOn && <ShortcutLinks />}
           shortcuts={
             <ShortcutLinks
-              className={
-                layout === FeedLayoutEnum.Control ? 'ml-auto' : 'mt-4 w-fit'
-              }
+              className={classNames(
+                layout === FeedLayoutEnum.Control
+                  ? 'ml-auto'
+                  : 'mt-4 w-fit [@media(width<=680px)]:mx-6',
+              )}
             />
           }
         />

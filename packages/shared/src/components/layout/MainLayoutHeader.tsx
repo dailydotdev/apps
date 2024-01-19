@@ -27,11 +27,11 @@ import {
   ViewSize,
 } from '../../hooks';
 import { SearchReferralButton } from '../referral/SearchReferralButton';
-import { useStreakExperiment } from '../../hooks/streaks';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
+import { useStreakExperiment } from '../../hooks/streaks';
 
 export interface MainLayoutHeaderProps {
   greeting?: boolean;

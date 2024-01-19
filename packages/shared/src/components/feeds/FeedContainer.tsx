@@ -180,7 +180,7 @@ export const FeedContainer = ({
             wrapper={(child) => (
               <div
                 className={classNames(
-                  'flex flex-col rounded-16 border border-theme-divider-tertiary laptop:mx-0 laptop:mt-6',
+                  'flex flex-col rounded-16 border border-theme-divider-tertiary tablet:mt-6',
                   isV1Search && 'mt-6',
                 )}
               >
