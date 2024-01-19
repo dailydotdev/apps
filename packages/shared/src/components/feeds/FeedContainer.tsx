@@ -203,17 +203,13 @@ export const FeedContainer = ({
           {showFeedReadyMessage && (
             <FeedReadyMessage
               className={{
-                main: classNames(
-                  shouldUseFeedLayoutV1
-                    ? 'mt-8 mb-8 w-full laptop:gap-4 [@media(width<=680px)]:px-6'
-                    : 'mb-10 max-w-xl laptop:gap-6',
-                ),
-                textContainer: classNames(
-                  shouldUseFeedLayoutV1 ? 'laptop:flex-1' : 'flex flex-col',
-                ),
-                header: classNames(
-                  shouldUseFeedLayoutV1 ? 'mb-0.5' : 'mb-2 laptop:mb-1',
-                ),
+                main: shouldUseFeedLayoutV1
+                  ? 'mb-8 mt-8 w-full laptop:gap-4 [@media(width<=680px)]:px-6'
+                  : 'mb-10 max-w-xl laptop:gap-6',
+                textContainer: shouldUseFeedLayoutV1
+                  ? 'laptop:flex-1'
+                  : 'flex flex-col',
+                header: shouldUseFeedLayoutV1 ? 'mb-0.5' : 'mb-2 laptop:mb-1',
               }}
             />
           )}
