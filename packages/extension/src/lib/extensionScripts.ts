@@ -21,15 +21,27 @@ export const HOST_PERMISSIONS = [
 ];
 
 let hasInjectedScripts = false;
+const companionScriptId = 'daily-companion-app';
 
 export const registerBrowserContentScripts = async (): Promise<void> => {
   if (hasInjectedScripts) {
     return null;
   }
 
+  const registeredScripts = await browser.scripting.getRegisteredContentScripts(
+    {
+      ids: [companionScriptId],
+    },
+  );
+
+  if (registeredScripts.length) {
+    hasInjectedScripts = true;
+    return null;
+  }
+
   await browser.scripting.registerContentScripts([
     {
-      id: `companion-${Date.now()}`,
+      id: companionScriptId,
       matches: ['*://*/*'],
       css: ['css/daily-companion-app.css'],
       js: ['js/content.bundle.js', 'js/companion.bundle.js'],

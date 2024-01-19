@@ -127,7 +127,7 @@ function InternalApp(): ReactElement {
   );
 }
 const InternalAppWithFeaturesBoundary = withFeaturesBoundary(InternalApp, {
-  fallback: ExtensionPermissionsPrompt,
+  fallback: null,
 });
 
 export default function App({

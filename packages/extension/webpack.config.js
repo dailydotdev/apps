@@ -51,9 +51,6 @@ const baseConfig = {
 
   resolve: {
     extensions: ['.svg', '.ts', '.tsx', '.js', '.json'],
-    alias: {
-      fetch: false, // or point to a file that exports the global fetch
-    },
   },
 
   module: {

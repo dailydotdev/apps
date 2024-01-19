@@ -27,14 +27,14 @@ const ExtensionPermissionsPrompt = (): ReactElement => {
   };
 
   return (
-    <div className="flex overflow-hidden flex-col justify-center items-center px-7 antialiased text-center min-h-[100vh] max-h-[100vh]">
+    <div className="flex max-h-[100vh] min-h-[100vh] flex-col items-center justify-center overflow-hidden px-7 text-center antialiased">
       <Logo position={LogoPosition.Relative} logoClassName="h-logo-big" />
 
       <OnboardingTitleGradient className="my-6 typo-mega2 tablet:typo-mega1">
         Let&apos;s get started
       </OnboardingTitleGradient>
 
-      <p className="mb-9 tablet:mb-16 max-w-[40rem] typo-title3 tablet:typo-title2">
+      <p className="mb-9 max-w-[40rem] typo-title3 tablet:mb-16 tablet:typo-title2">
         To get started, please allow us to manage data on the
         &apos;daily.dev&apos; domain. This is solely for technical purposes,
         like login and authentication. We value your privacy -- no fishy stuff
@@ -42,7 +42,7 @@ const ExtensionPermissionsPrompt = (): ReactElement => {
       </p>
 
       <Button
-        className="z-1 w-full btn-primary max-w-[18.75rem]"
+        className="btn-primary z-1 w-full max-w-[18.75rem]"
         buttonSize={ButtonSize.Large}
         onClick={handleRequestHostPermissions}
       >

@@ -21,9 +21,9 @@ export const useHostStatus = (): UseHostStatus => {
     isFetching,
   } = useQuery(
     hostKey,
-    () => {
+    async () => {
       if (typeof getHostPermission === 'function') {
-        return getHostPermission();
+        return await getHostPermission();
       }
 
       return false;

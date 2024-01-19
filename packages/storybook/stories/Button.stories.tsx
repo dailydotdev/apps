@@ -1,12 +1,25 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import type { Meta, StoryObj } from '@storybook/react';
+import classNames from 'classnames';
+
+import {
+  Button,
+  ButtonSize,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import ShareIcon from '@dailydotdev/shared/src/components/icons/Share';
 
 const meta: Meta<typeof Button> = {
   component: Button,
+  parameters: {
+    controls: {
+      expanded: true,
+    },
+  },
   argTypes: {
-    type: {
-      control: { type: "radio" },
-      options: ["button", "submit", "reset"],
+    href: {
+      control: 'text',
+    },
+    onClick: {
+      control: 'object',
     },
   },
 };
@@ -15,26 +28,100 @@ export default meta;
 
 type Story = StoryObj<typeof Button>;
 
-/*
- *👇 Render functions are a framework specific feature to allow you control on how the component renders.
- * See https://storybook.js.org/docs/react/api/csf
- * to learn how to use render functions.
- */
-export const Primary: Story = {
-  render: (props) => (
-    <Button
-      className="btn btn-primary-cabbage"
-      {...props}
-      onClick={(): void => {
-        // eslint-disable-next-line no-alert -- alert for demo
-        alert("Hello from Turborepo!");
-      }}
-    >
-      Hello
-    </Button>
+export const Sizes: Story = {
+  render: ({ children, ...props }) => (
+    <div className="grid grid-cols-3 gap-4">
+      <h2>Size</h2>
+      <h2>Button</h2>
+      <h2>IconOnly Button</h2>
+      {Object.values(ButtonSize)
+        .reverse()
+        .map((size) => (
+          <>
+            <span key={size + '_header'}>{size}</span>
+            <span key={size}>
+              <Button {...props} buttonSize={size}>
+                {children}
+              </Button>
+            </span>
+            <span key={size + '_iconOnly'}>
+              <Button {...props} buttonSize={size} icon={<ShareIcon />} />
+            </span>
+          </>
+        ))}
+    </div>
   ),
-  name: "Button",
+  name: 'Sizes',
   args: {
-    children: "Hello",
+    children: 'Button',
+    className: 'btn-primary',
+  },
+};
+
+export const Variants: Story = {
+  render: ({ className, children, ...props }) => (
+    <div className="grid grid-cols-4 gap-4">
+      <h2>Primary</h2>
+      <h2>Secondary</h2>
+      <h2>Tertiary</h2>
+      <h2>Float</h2>
+      <span>
+        <Button {...props} className={classNames(className, 'btn-primary')}>
+          {children}
+        </Button>
+      </span>
+      <span>
+        <Button {...props} className={classNames(className, 'btn-secondary')}>
+          {children}
+        </Button>
+      </span>
+      <span>
+        <Button {...props} className={classNames(className, 'btn-tertiary')}>
+          {children}
+        </Button>
+      </span>
+      <span>
+        <Button
+          {...props}
+          className={classNames(className, 'btn-tertiaryFloat')}
+        >
+          {children}
+        </Button>
+      </span>
+    </div>
+  ),
+  name: 'Variants',
+  args: {
+    children: 'Button',
+  },
+};
+
+export const Icon: Story = {
+  render: ({ children, icon, rightIcon, ...props }) => (
+    <div className="grid grid-cols-3 gap-4">
+      <h2>Icon left</h2>
+      <h2>Icon right</h2>
+      <h2>Icon only</h2>
+      <span>
+        <Button {...props} icon={icon}>
+          {children}
+        </Button>
+      </span>
+      <span>
+        <Button {...props} rightIcon={rightIcon}>
+          {children}
+        </Button>
+      </span>
+      <span>
+        <Button {...props} icon={icon} iconOnly />
+      </span>
+    </div>
+  ),
+  name: 'Icon',
+  args: {
+    children: 'Share',
+    icon: <ShareIcon />,
+    rightIcon: <ShareIcon />,
+    className: 'btn-primary',
   },
 };
