@@ -13,3 +13,4 @@ export * from './SearchHistory';
 export * from './SearchSkeleton';
 export * from './SearchEmpty';
 export * from './common';
+export * from './SearchPanel';

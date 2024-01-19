@@ -38,3 +38,21 @@ export const getRandomNumber = (min: number, max: number): number => {
 
   return Math.floor(Math.random() * range) + min;
 };
+
+export const isSpecialKeyPressed = ({
+  event,
+}: {
+  event: MouseEvent | KeyboardEvent;
+}): boolean => {
+  return event.ctrlKey || event.metaKey;
+};
+
+const appleDeviceMatch = /(Mac|iPhone|iPod|iPad)/i;
+
+export const isAppleDevice = (): boolean => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  return appleDeviceMatch.test(window.navigator.platform);
+};

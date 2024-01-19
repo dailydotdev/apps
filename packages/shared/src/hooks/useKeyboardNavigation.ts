@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { isSpecialKeyPressed } from '../lib/func';
 
 type Keypress = [string, (e: KeyboardEvent) => unknown];
 
@@ -36,6 +37,10 @@ export const useKeyboardNavigation = (
       }
 
       if (base.getAttribute('contenteditable') === 'true') {
+        return;
+      }
+
+      if (isSpecialKeyPressed({ event: e })) {
         return;
       }
 

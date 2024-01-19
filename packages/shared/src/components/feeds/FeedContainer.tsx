@@ -1,11 +1,8 @@
 import React, {
   CSSProperties,
-  FormEvent,
   ReactElement,
   ReactNode,
   useContext,
-  useEffect,
-  useRef,
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
@@ -14,26 +11,14 @@ import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
 import ScrollToTopButton from '../ScrollToTopButton';
 import styles from '../Feed.module.css';
-import { SearchBarInput, SearchBarSuggestionList } from '../search';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
-import { useSearchSuggestions } from '../../hooks/search';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import { ActionType } from '../../graphql/actions';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { FeedReadyMessage } from '../onboarding';
-import {
-  useFeedLayout,
-  useActions,
-  ToastSubject,
-  useToastNotification,
-} from '../../hooks';
+import { useFeedLayout, ToastSubject, useToastNotification } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
-import { FeedGradientBg } from './FeedGradientBg';
-import { SearchProviderEnum, getSearchUrl } from '../../graphql/search';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -123,8 +108,6 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
-  const { trackEvent } = useAnalyticsContext();
-  const { completeAction, checkHasCompleted } = useActions();
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
@@ -143,44 +126,9 @@ export const FeedContainer = ({
   const isV1Search =
     searchValue === SearchExperiment.V1 && showSearch && !isFinder;
 
-  const suggestionsProps = useSearchSuggestions({
-    origin: Origin.HomePage,
-    disabled: !isV1Search,
-  });
-  const isTracked = useRef(false);
-  const shouldShowPulse =
-    checkHasCompleted(ActionType.AcceptedSearch) &&
-    !checkHasCompleted(ActionType.UsedSearch);
-
-  useEffect(() => {
-    if (!shouldShowPulse || isTracked.current) {
-      return;
-    }
-
-    isTracked.current = true;
-    trackEvent({ event_name: AnalyticsEvent.SearchHighlightAnimation });
-  }, [trackEvent, shouldShowPulse]);
-
   if (!loadedSettings) {
     return <></>;
   }
-
-  const onSearch = (event: FormEvent, input: string) => {
-    event.preventDefault();
-    router.push(
-      getSearchUrl({
-        provider: SearchProviderEnum.Chat,
-        query: input,
-      }),
-    );
-  };
-  const handleSearchFocus = () => {
-    if (!shouldShowPulse) {
-      return;
-    }
-
-    completeAction(ActionType.UsedSearch);
-  };
 
   return (
     <div
@@ -190,7 +138,6 @@ export const FeedContainer = ({
         className,
       )}
     >
-      {isV1Search && shouldUseFeedLayoutV1 && <FeedGradientBg />}
       <ScrollToTopButton />
       <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
         {!inlineHeader && header}
@@ -212,45 +159,16 @@ export const FeedContainer = ({
             <ConditionalWrapper
               condition={!shouldUseFeedLayoutV1}
               wrapper={(child) => (
-                <span className="mt-6 flex flex-row gap-3">
-                  {child}
-                  {shortcuts}
-                </span>
+                <span className="flex flex-row gap-3">{child}</span>
               )}
             >
-              <SearchBarInput
-                className={{
-                  container: classNames(
-                    'flex w-full max-w-2xl flex-1',
-                    shouldUseFeedLayoutV1 &&
-                      'mt-6 px-6 pt-2 laptop:px-0 laptop:pt-0',
-                    shouldShowPulse && 'highlight-pulse',
-                  ),
-                  field: classNames(
-                    'w-full',
-                    shouldUseFeedLayoutV1 && '!bg-transparent',
-                  ),
-                  form: 'w-full',
-                }}
-                showProgress={false}
-                onSubmit={onSearch}
-                shouldShowPopup
-                inputProps={{ onFocus: handleSearchFocus }}
-                suggestionsProps={suggestionsProps}
-              />
+              {shortcuts}
             </ConditionalWrapper>
           )}
           {isV1Search && (
-            <span className="mt-4 flex flex-1 flex-row">
-              <SearchBarSuggestionList
-                {...suggestionsProps}
-                className={classNames(
-                  'hidden tablet:flex',
-                  shouldUseFeedLayoutV1 ? 'mx-6 laptop:mx-0' : 'mr-3',
-                )}
-              />
+            <span className="flex flex-1 flex-row">
               {actionButtons && !shouldUseFeedLayoutV1 && (
-                <span className="ml-auto flex flex-row gap-3 border-l border-theme-divider-tertiary pl-3">
+                <span className="mr-auto flex flex-row gap-3 border-theme-divider-tertiary pr-3">
                   {actionButtons}
                 </span>
               )}

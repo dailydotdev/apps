@@ -3,7 +3,13 @@ import classNames from 'classnames';
 import { useFeedLayout } from '../../hooks';
 import { cloudinary } from '../../lib/image';
 
-export function FeedGradientBg(): ReactElement {
+export type FeedGradientBgProps = {
+  className?: string;
+};
+
+export function FeedGradientBg({
+  className,
+}: FeedGradientBgProps): ReactElement {
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
 
   return (
@@ -19,8 +25,8 @@ export function FeedGradientBg(): ReactElement {
       />
       <img
         className={classNames(
-          'absolute left-0 top-0 w-full laptop:max-w-[58.75rem]',
-          shouldUseFeedLayoutV1 && 'laptop:left-1/2 laptop:-translate-x-1/2',
+          className,
+          'absolute left-0 right-0 top-0 mx-auto w-full laptop:max-w-[58.75rem]',
         )}
         src={cloudinary.feed.bg.mobile}
         alt="Gradient background"

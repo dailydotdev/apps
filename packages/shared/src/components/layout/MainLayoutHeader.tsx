@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useContext } from 'react';
+import dynamic from 'next/dynamic';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
@@ -28,6 +29,9 @@ import {
 import { SearchReferralButton } from '../referral/SearchReferralButton';
 import { useStreakExperiment } from '../../hooks/streaks';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { SearchExperiment } from '../../lib/featureValues';
 
 export interface MainLayoutHeaderProps {
   greeting?: boolean;
@@ -39,6 +43,13 @@ export interface MainLayoutHeaderProps {
   onMobileSidebarToggle: (state: boolean) => unknown;
 }
 
+const SearchPanel = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "searchPanel" */ '../search/SearchPanel/SearchPanel'
+    ),
+);
+
 function MainLayoutHeader({
   greeting,
   hasBanner,
@@ -48,6 +59,8 @@ function MainLayoutHeader({
   onLogoClick,
   onMobileSidebarToggle,
 }: MainLayoutHeaderProps): ReactElement {
+  const searchVersion = useFeature(feature.search);
+  const isSearchV1 = searchVersion === SearchExperiment.V1;
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
@@ -82,7 +95,7 @@ function MainLayoutHeader({
 
   const renderButtons = () => {
     return (
-      <>
+      <div className="flex gap-3">
         <CreatePostButton />
         {user && shouldShowStreak && <ReadingStreakButton />}
         {!hideButton && user && (
@@ -120,7 +133,7 @@ function MainLayoutHeader({
         {!sidebarRendered && !optOutWeeklyGoal && !isMobile && (
           <MobileHeaderRankProgress />
         )}
-      </>
+      </div>
     );
   };
 
@@ -129,6 +142,7 @@ function MainLayoutHeader({
       className={classNames(
         'relative z-header flex h-14 flex-row items-center justify-between gap-3 border-b border-theme-divider-tertiary bg-theme-bg-primary px-4 py-3 tablet:px-8 laptop:sticky laptop:left-0 laptop:w-full laptop:flex-row laptop:px-4',
         hasBanner ? 'laptop:top-8' : 'laptop:top-0',
+        isSearchV1 && 'laptop:h-16',
       )}
     >
       {sidebarRendered !== undefined && (
@@ -139,13 +153,14 @@ function MainLayoutHeader({
             onClick={() => onMobileSidebarToggle(true)}
             icon={<HamburgerIcon secondary />}
           />
-          <div className="flex flex-1 flex-row justify-center laptop:justify-start">
+          <div className="flex flex-1 justify-center laptop:flex-none laptop:justify-start">
             <HeaderLogo
               user={user}
               onLogoClick={onLogoClick}
               greeting={greeting}
             />
           </div>
+          {isSearchV1 && <SearchPanel />}
           {isReady ? renderButtons() : null}
         </>
       )}
