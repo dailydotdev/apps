@@ -2,7 +2,6 @@ import React, {
   CSSProperties,
   ReactElement,
   ReactNode,
-  useCallback,
   useContext,
   useState,
 } from 'react';
@@ -34,7 +33,6 @@ import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOf
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
 import SquadPostPageNavigation from '@dailydotdev/shared/src/components/post/SquadPostPageNavigation';
-import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { ONBOARDING_OFFSET } from '@dailydotdev/shared/src/components/post/BasePostContent';
@@ -51,6 +49,7 @@ import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvide
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { FeedLayout } from '@dailydotdev/shared/src/lib/featureValues';
 import { PostBackButton } from '@dailydotdev/shared/src/components/post/common/PostBackButton';
+import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -85,8 +84,6 @@ interface PostParams extends ParsedUrlQuery {
   id: string;
 }
 
-const CHECK_POPSTATE = 'popstate_key';
-
 const PostPage = ({ id, initialData }: Props): ReactElement => {
   const { showArticleOnboarding } = useContext(OnboardingContext);
   const [position, setPosition] =
@@ -95,21 +92,17 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const layout = useFeature(feature.feedLayout);
   const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = router;
-  useWindowEvents(
-    'popstate',
-    CHECK_POPSTATE,
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    useCallback(() => router.reload(), []),
-    { validateKey: false },
-  );
+
+  useEventListener(globalThis, 'popstate', () => {
+    router.reload();
+  });
 
   const { post, isError, isFetched, isPostLoadingOrFetching } = usePostById({
     id,
     options: { initialData, retry: false },
   });
   const containerClass = classNames(
-    'max-w-screen-laptop border-r pb-20 laptop:min-h-page laptop:pb-6 laptopL:pb-0',
+    'max-w-screen-laptop pb-20 laptop:min-h-page laptop:pb-6 laptopL:pb-0',
     [PostType.Share, PostType.Welcome, PostType.Freeform].includes(
       post?.type,
     ) &&

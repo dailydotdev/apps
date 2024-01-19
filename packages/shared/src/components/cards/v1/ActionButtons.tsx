@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { Post, UserPostVote } from '../../../graphql/posts';
 import InteractionCounter from '../../InteractionCounter';
 import UpvoteIcon from '../../icons/Upvote';
@@ -11,6 +12,7 @@ import { useFeedPreviewMode } from '../../../hooks';
 import BookmarkIcon from '../../icons/Bookmark';
 import DownvoteIcon from '../../icons/Downvote';
 import { ActionButtonsProps } from '../ActionButtons';
+import { combinedClicks } from '../../../lib/click';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "shareIcon" */ '../../icons/Share'),
@@ -84,10 +86,17 @@ export default function ActionButtons({
             variant={ButtonVariant.Tertiary}
           />
         </SimpleTooltip>
-        <InteractionCounter
-          className="font-bold text-theme-label-tertiary typo-callout"
-          value={post.numUpvotes}
-        />
+        {post?.numUpvotes > 0 && (
+          <InteractionCounter
+            className={classNames(
+              '!min-w-[2ch] font-bold tabular-nums typo-callout',
+              post?.userState?.vote === UserPostVote.Up
+                ? 'text-theme-color-avocado'
+                : 'text-theme-label-tertiary',
+            )}
+            value={post?.numUpvotes}
+          />
+        )}
         <SimpleTooltip
           content={
             post?.userState?.vote === UserPostVote.Down
@@ -110,20 +119,31 @@ export default function ActionButtons({
         </SimpleTooltip>
       </div>
       <SimpleTooltip content="Comments">
-        <Button
-          id={`post-${post.id}-comment-btn`}
-          className="ml-2"
-          color={ButtonColor.BlueCheese}
-          icon={<CommentIcon secondary={post.commented} />}
-          pressed={post.commented}
-          onClick={() => onCommentClick?.(post)}
-          variant={ButtonVariant.Float}
-        >
-          <InteractionCounter
-            className="text-theme-label-tertiary"
-            value={post.numComments}
-          />
-        </Button>
+        <Link href={post.commentsPermalink}>
+          <Button
+            id={`post-${post.id}-comment-btn`}
+            className="ml-2"
+            color={ButtonColor.BlueCheese}
+            icon={<CommentIcon secondary={post.commented} />}
+            tag="a"
+            href={post.commentsPermalink}
+            pressed={post.commented}
+            variant={ButtonVariant.Float}
+            {...combinedClicks(() => onCommentClick?.(post))}
+          >
+            {post?.numComments > 0 ? (
+              <InteractionCounter
+                className={classNames(
+                  'tabular-nums',
+                  post.commented
+                    ? 'text-theme-color-blueCheese'
+                    : 'text-theme-label-tertiary',
+                )}
+                value={post.numComments}
+              />
+            ) : null}
+          </Button>
+        </Link>
       </SimpleTooltip>
       <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
         <Button

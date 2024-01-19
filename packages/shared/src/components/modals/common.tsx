@@ -96,6 +96,18 @@ const GenericReferralModal = dynamic(
     ),
 );
 
+const NewStreakModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "newStreakModal" */ './streaks/NewStreakModal'),
+);
+
+const FirstStreakModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "firstStreakModal" */ './streaks/FirstStreakModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -113,6 +125,8 @@ export const modals = {
   [LazyModal.SearchReferral]: SearchReferralModal,
   [LazyModal.GenericReferral]: GenericReferralModal,
   [LazyModal.Video]: VideoModal,
+  [LazyModal.NewStreak]: NewStreakModal,
+  [LazyModal.FirstStreak]: FirstStreakModal,
 };
 
 type GetComponentProps<T> = T extends

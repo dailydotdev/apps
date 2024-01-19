@@ -40,9 +40,17 @@ export const CardTitle = classed(Title, 'mt-4 break-words');
 export const ListCardTitle = classed(Title, 'mr-2');
 
 export const CardTextContainer = classed('div', 'flex flex-col');
+export const CardContainer = classed('div', 'flex flex-col');
+export const CardContent = classed('div', 'flex flex-col mobileXL:flex-row');
 
-export const CardImage = classed(Image, 'rounded-12 h-50');
-export const CardVideoImage = classed(VideoImage, 'rounded-12 h-50');
+export const CardImage = classed(
+  Image,
+  'rounded-12 h-50 mobileXL:h-28 mobileXL:w-40 mobileXXL:h-auto mobileXXL:w-56',
+);
+export const CardVideoImage = classed(
+  VideoImage,
+  'rounded-12 h-50 mobileXL:h-28 mobileXL:w-40 mobileXXL:h-auto mobileXXL:w-56',
+);
 
 export const CardSpace = classed('div', 'flex-1');
 
@@ -63,5 +71,5 @@ export const Card = classed(
 
 export const CardHeader = classed(
   'div',
-  'flex items-center h-8 items-center my-1',
+  'flex flex-row items-center items-center mb-2',
 );

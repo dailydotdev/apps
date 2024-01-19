@@ -1,18 +1,19 @@
-import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
+import React, { forwardRef, ReactElement, Ref, useMemo, useRef } from 'react';
 import classNames from 'classnames';
-import { FreeformCardTitle } from './Card';
+import { sanitize } from 'dompurify';
+import { CardContainer, CardContent, CardTitle, CardImage } from './Card';
 import ActionButtons from './ActionButtons';
 import { Container, generateTitleClamp, PostCardProps } from '../common';
-import OptionsButton from '../../buttons/OptionsButton';
-import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
 import { useSquadChecklist } from '../../../hooks/useSquadChecklist';
 import { Squad } from '../../../graphql/sources';
 import { ActionType } from '../../../graphql/actions';
 import FeedItemContainer from './FeedItemContainer';
 import { PostType } from '../../../graphql/posts';
-import { useFeedPreviewMode } from '../../../hooks';
-import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
+import { useFeedPreviewMode, useTruncatedSummary } from '../../../hooks';
+import { PostCardHeader } from './PostCardHeader';
 import { usePostImage } from '../../../hooks/post/usePostImage';
+import SquadHeaderPicture from '../common/SquadHeaderPicture';
+import { cloudinary } from '../../../lib/image';
 
 export const WelcomePostCard = forwardRef(function SharePostCard(
   {
@@ -47,6 +48,20 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       openStep,
     );
 
+  const content = useMemo(
+    () =>
+      post.contentHtml ? sanitize(post.contentHtml, { ALLOWED_TAGS: [] }) : '',
+    [post.contentHtml],
+  );
+
+  const { title, summary } = useTruncatedSummary(post, content);
+
+  const decodedText = useMemo(() => {
+    const paragraph = document.createElement('p');
+    paragraph.innerHTML = summary || '';
+    return paragraph.innerText || summary;
+  }, [summary]);
+
   return (
     <FeedItemContainer
       domProps={{
@@ -66,30 +81,58 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
         }
       }
     >
-      <OptionsButton
-        className="absolute right-2 top-2 group-hover:flex laptop:hidden"
-        onClick={(event) => onMenuClick?.(event, post)}
-        tooltipPlacement="top"
-      />
-      <SquadPostCardHeader
-        author={post.author}
-        source={post.source}
-        createdAt={post.createdAt}
-        enableSourceHeader={enableSourceHeader}
-      />
-      <FreeformCardTitle
-        className={classNames(
-          generateTitleClamp({
-            hasImage: !!image,
-            hasHtmlContent: !!post.contentHtml,
-          }),
-          'px-2 font-bold !text-theme-label-primary typo-title3',
-        )}
-      >
-        {post.title}
-      </FreeformCardTitle>
+      <CardContainer>
+        <PostCardHeader
+          post={post}
+          onMenuClick={(event) => onMenuClick?.(event, post)}
+          metadata={{
+            topLabel: enableSourceHeader ? post.source.name : post.author.name,
+            bottomLabel: enableSourceHeader
+              ? post.author.name
+              : `@${post.source.handle ?? post.sharedPost.source.handle}`,
+          }}
+        >
+          <SquadHeaderPicture
+            author={post.author}
+            source={post.source}
+            reverse={!enableSourceHeader}
+          />
+        </PostCardHeader>
+
+        <CardContent>
+          <div className="mr-4 flex-1">
+            <CardTitle
+              className={classNames(
+                generateTitleClamp({
+                  hasImage: !!image,
+                  hasHtmlContent: !!post.contentHtml,
+                }),
+                'multi-truncate',
+              )}
+            >
+              {title}
+            </CardTitle>
+
+            {content && (
+              <p className="my-4 line-clamp-6 break-words typo-callout">
+                {decodedText}
+              </p>
+            )}
+          </div>
+
+          {image && (
+            <CardImage
+              alt="Post Cover image"
+              src={image}
+              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+              className="my-2 object-cover"
+              loading="lazy"
+            />
+          )}
+        </CardContent>
+      </CardContainer>
+
       <Container ref={containerRef}>
-        <WelcomePostCardFooter image={image} contentHtml={post.contentHtml} />
         <ActionButtons
           openNewTab={openNewTab}
           post={post}

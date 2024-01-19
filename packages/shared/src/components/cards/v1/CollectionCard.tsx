@@ -2,12 +2,20 @@ import React, { forwardRef, Ref } from 'react';
 import classNames from 'classnames';
 import { Container, generateTitleClamp, PostCardProps } from '../common';
 import FeedItemContainer from './FeedItemContainer';
-import { CollectionCardHeader } from '../CollectionCard/CollectionCardHeader';
-import { FreeformCardTitle, CardSpace } from './Card';
-import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
+import {
+  CardImage,
+  CardTitle,
+  CardSpace,
+  CardContainer,
+  CardContent,
+  CardTextContainer,
+} from './Card';
 import ActionButtons from './ActionButtons';
-import PostMetadata from './PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
+import { PostCardHeader } from './PostCardHeader';
+import { CollectionPillSources } from '../../post/collection';
+import { cloudinary } from '../../../lib/image';
+import { useTruncatedSummary } from '../../../hooks';
 
 export const CollectionCard = forwardRef(function CollectionCard(
   {
@@ -25,6 +33,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
   ref: Ref<HTMLElement>,
 ) {
   const image = usePostImage(post);
+  const { title, summary } = useTruncatedSummary(post);
 
   return (
     <FeedItemContainer
@@ -40,32 +49,56 @@ export const CollectionCard = forwardRef(function CollectionCard(
         href: post.commentsPermalink,
       }}
     >
-      <CollectionCardHeader
-        sources={post.collectionSources}
-        totalSources={post.numCollectionSources}
-        onMenuClick={(event) => onMenuClick?.(event, post)}
-      />
-      <FreeformCardTitle
-        className={classNames(
-          generateTitleClamp({
-            hasImage: !!image,
-            hasHtmlContent: !!post.contentHtml,
-          }),
-          'px-2 font-bold text-theme-label-primary typo-title3',
-        )}
-      >
-        {post.title}
-      </FreeformCardTitle>
+      <CardContainer>
+        <PostCardHeader
+          post={post}
+          onMenuClick={(event) => onMenuClick?.(event, post)}
+        >
+          <CollectionPillSources
+            className={{
+              main: classNames(!!post.collectionSources?.length && '-my-0.5'),
+              avatar: 'group-hover:border-theme-bg-secondary',
+            }}
+            sources={post.collectionSources}
+            totalSources={post.numCollectionSources}
+            alwaysShowSources
+          />
+        </PostCardHeader>
+
+        <CardContent>
+          <div className="mb-4 mr-4 flex-1">
+            <CardTitle
+              className={classNames(
+                generateTitleClamp({
+                  hasImage: !!image,
+                  hasHtmlContent: !!post.contentHtml,
+                }),
+              )}
+            >
+              {title}
+            </CardTitle>
+
+            {post.summary && (
+              <CardTextContainer className="mt-4 text-theme-label-secondary">
+                {summary}
+              </CardTextContainer>
+            )}
+          </div>
+
+          {image && (
+            <CardImage
+              alt="Post Cover image"
+              src={image}
+              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+              className="my-2 object-cover"
+              loading="lazy"
+            />
+          )}
+        </CardContent>
+      </CardContainer>
 
       {!!post.image && <CardSpace />}
-      <PostMetadata
-        createdAt={post.createdAt}
-        readTime={post.readTime}
-        className={classNames('m-2', post.image ? 'mb-0' : 'mb-4')}
-      />
-
       <Container>
-        <WelcomePostCardFooter image={image} contentHtml={post.contentHtml} />
         <ActionButtons
           openNewTab={openNewTab}
           post={post}

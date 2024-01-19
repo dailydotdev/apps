@@ -32,12 +32,13 @@ export const ActiveFeedNameContextProvider = ({
   const { pathname } = router || {};
   const { user } = useAuthContext();
   const previousPathname = usePrevious(pathname);
+  const previousUserId = usePrevious(user?.id);
   const [feedName, setFeedName] = useState<AllFeedPages>(
     getFeedName(pathname, { hasUser: !!user }),
   );
 
   useEffect(() => {
-    if (pathname !== previousPathname) {
+    if (pathname !== previousPathname || user?.id !== previousUserId) {
       const newFeedName = getFeedName(pathname, {
         hasUser: !!user,
       });
@@ -45,7 +46,7 @@ export const ActiveFeedNameContextProvider = ({
         setFeedName(newFeedName);
       }
     }
-  }, [pathname, previousPathname, feedName, user]);
+  }, [pathname, previousPathname, feedName, user, previousUserId]);
 
   const activeFeedNameContextValue = useMemo(() => ({ feedName }), [feedName]);
   return (
