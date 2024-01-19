@@ -89,18 +89,19 @@ function MainLayoutHeader({
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
   };
-  const { isReady } = useReferralCampaign({
-    campaignKey: ReferralCampaignKey.Search,
-  });
 
-  const renderButtons = () => {
+  const RenderButtons = () => {
+    const { isReady } = useReferralCampaign({
+      campaignKey: ReferralCampaignKey.Search,
+    });
+
     return (
       <div className="flex gap-3">
         <CreatePostButton />
         {user && shouldShowStreak && <ReadingStreakButton />}
         {!hideButton && user && (
           <>
-            {sidebarRendered && <SearchReferralButton />}
+            {isReady && sidebarRendered && <SearchReferralButton />}
             <LinkWithTooltip
               tooltip={{ placement: 'bottom', content: 'Notifications' }}
               href={`${webappUrl}notifications`}
@@ -160,8 +161,8 @@ function MainLayoutHeader({
               greeting={greeting}
             />
           </div>
-          {isSearchV1 && <SearchPanel />}
-          {isReady ? renderButtons() : null}
+          {isSearchV1 && <SearchPanel className="mx-auto" />}
+          <RenderButtons />
         </>
       )}
     </header>
