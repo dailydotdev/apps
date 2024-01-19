@@ -19,7 +19,7 @@ export const FeedReadyMessage = ({
   return (
     <div
       className={classNames(
-        'mx-auto flex w-full flex-col items-center text-center laptop:mx-0 laptop:flex-row laptop:text-left gap-5',
+        'mx-auto flex w-full flex-col items-center gap-5 text-center laptop:mx-0 laptop:flex-row laptop:text-left',
         className.main,
       )}
     >
