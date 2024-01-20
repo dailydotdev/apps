@@ -66,7 +66,10 @@ export const SharePostCard = forwardRef(function SharePostCard(
         />
       </PostCardHeader>
       <SharedPostText title={title} />
-      <Container ref={containerRef} className="min-h-0 justify-end">
+      <Container
+        ref={containerRef}
+        className="pointer-events-none min-h-0 justify-end"
+      >
         <SharedPostCardFooter
           sharedPost={post.sharedPost}
           isVideoType={isVideoType}
