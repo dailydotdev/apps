@@ -33,7 +33,7 @@ import {
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
-import { FeedGradientBg } from './FeedGradientBg';
+import { cloudinary } from '../../lib/image';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -176,6 +176,7 @@ export const FeedContainer = ({
 
     completeAction(ActionType.UsedSearch);
   };
+  const showFeedReadyMessage = router.query?.welcome === 'true';
 
   return (
     <div
@@ -185,7 +186,13 @@ export const FeedContainer = ({
         className,
       )}
     >
-      {isV1Search && shouldUseFeedLayoutV1 && <FeedGradientBg />}
+      {isV1Search && shouldUseFeedLayoutV1 && (
+        <img
+          className="absolute left-0 top-0 w-full -translate-y-1/2"
+          src={cloudinary.feed.bg.layoutV1}
+          alt="Gradient background"
+        />
+      )}
       <ScrollToTopButton />
       <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
         {!inlineHeader && header}
@@ -199,8 +206,18 @@ export const FeedContainer = ({
           aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
           data-testid="posts-feed"
         >
-          {router.query?.welcome === 'true' && (
-            <FeedReadyMessage className="mb-10" />
+          {showFeedReadyMessage && (
+            <FeedReadyMessage
+              className={{
+                main: shouldUseFeedLayoutV1
+                  ? 'mb-8 mt-8 w-full laptop:gap-4 [@media(width<=680px)]:px-6'
+                  : 'mb-10 max-w-xl laptop:gap-6',
+                textContainer: shouldUseFeedLayoutV1
+                  ? 'laptop:flex-1'
+                  : 'flex flex-col',
+                header: shouldUseFeedLayoutV1 ? 'mb-0.5' : 'mb-2 laptop:mb-1',
+              }}
+            />
           )}
           {inlineHeader && header}
           {isV1Search && (
@@ -216,9 +233,10 @@ export const FeedContainer = ({
               <SearchBarInput
                 className={{
                   container: classNames(
-                    'flex w-full max-w-2xl flex-1',
-                    shouldUseFeedLayoutV1 &&
-                      'mt-6 px-6 pt-2 laptop:px-0 laptop:pt-0',
+                    'flex w-full flex-1',
+                    shouldUseFeedLayoutV1
+                      ? 'mt-6 [@media(width<=680px)]:px-6'
+                      : 'max-w-2xl',
                     shouldShowPulse && 'highlight-pulse',
                   ),
                   field: classNames(
@@ -236,13 +254,15 @@ export const FeedContainer = ({
             </ConditionalWrapper>
           )}
           {isV1Search && (
-            <span className="mt-4 flex flex-1 flex-row">
+            <span
+              className={classNames(
+                'mt-4 hidden flex-1 flex-row tablet:flex',
+                shouldUseFeedLayoutV1 && '[@media(width<=680px)]:mx-6',
+              )}
+            >
               <SearchBarSuggestionList
                 {...suggestionsProps}
-                className={classNames(
-                  'hidden tablet:flex',
-                  shouldUseFeedLayoutV1 ? 'mx-6 laptop:mx-0' : 'mr-3',
-                )}
+                className={classNames(!shouldUseFeedLayoutV1 && 'mr-3')}
               />
               {actionButtons && !shouldUseFeedLayoutV1 && (
                 <span className="ml-auto flex flex-row gap-3 border-l border-theme-divider-tertiary pl-3">
@@ -257,7 +277,7 @@ export const FeedContainer = ({
             wrapper={(child) => (
               <div
                 className={classNames(
-                  'flex flex-col rounded-16 border border-theme-divider-tertiary laptop:mx-0 laptop:mt-6',
+                  'flex flex-col rounded-16 border border-theme-divider-tertiary tablet:mt-6',
                   isV1Search && 'mt-6',
                 )}
               >

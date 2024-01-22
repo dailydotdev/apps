@@ -14,6 +14,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
     post,
     onPostClick,
     onUpvoteClick,
+    onDownvoteClick,
     onCommentClick,
     onMenuClick,
     onShareClick,
@@ -66,7 +67,10 @@ export const SharePostCard = forwardRef(function SharePostCard(
         />
       </PostCardHeader>
       <SharedPostText title={title} />
-      <Container ref={containerRef} className="min-h-0 justify-end">
+      <Container
+        ref={containerRef}
+        className="pointer-events-none min-h-0 justify-end"
+      >
         <SharedPostCardFooter
           sharedPost={post.sharedPost}
           isVideoType={isVideoType}
@@ -75,6 +79,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
           openNewTab={openNewTab}
           post={post}
           onUpvoteClick={onUpvoteClick}
+          onDownvoteClick={onDownvoteClick}
           onCommentClick={onCommentClick}
           onShareClick={onShareClick}
           onBookmarkClick={onBookmarkClick}

@@ -23,6 +23,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
     post,
     domProps = {},
     onUpvoteClick,
+    onDownvoteClick,
     onCommentClick,
     onMenuClick,
     onShareClick,
@@ -79,7 +80,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
             </CardTitle>
 
             {post.summary && (
-              <CardTextContainer className="mt-4 text-theme-label-secondary">
+              <CardTextContainer className="mt-4 text-theme-label-secondary typo-body">
                 {summary}
               </CardTextContainer>
             )}
@@ -98,11 +99,12 @@ export const CollectionCard = forwardRef(function CollectionCard(
       </CardContainer>
 
       {!!post.image && <CardSpace />}
-      <Container>
+      <Container className="pointer-events-none">
         <ActionButtons
           openNewTab={openNewTab}
           post={post}
           onUpvoteClick={onUpvoteClick}
+          onDownvoteClick={onDownvoteClick}
           onCommentClick={onCommentClick}
           onShareClick={onShareClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}

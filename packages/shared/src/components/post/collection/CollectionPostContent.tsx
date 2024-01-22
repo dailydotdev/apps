@@ -131,7 +131,7 @@ export const CollectionPostContent = ({
           <div
             className={classNames(
               'mb-6 flex flex-col gap-6',
-              hasNavigation ? 'mt-6' : 'mt-6 tablet:mt-0',
+              hasNavigation || customNavigation ? 'mt-6' : 'mt-6 tablet:mt-0',
             )}
           >
             <CollectionsIntro className="tablet:hidden" />
