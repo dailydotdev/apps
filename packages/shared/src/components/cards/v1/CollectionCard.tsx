@@ -79,7 +79,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
             </CardTitle>
 
             {post.summary && (
-              <CardTextContainer className="mt-4 text-theme-label-secondary text-base">
+              <CardTextContainer className="mt-4 text-theme-label-secondary typo-body">
                 {summary}
               </CardTextContainer>
             )}

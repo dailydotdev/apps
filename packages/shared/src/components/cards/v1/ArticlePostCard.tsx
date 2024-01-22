@@ -116,7 +116,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
                 </CardTitle>
 
                 {post.summary && (
-                  <CardTextContainer className="mt-4 text-theme-label-secondary text-base">
+                  <CardTextContainer className="mt-4 text-theme-label-secondary typo-body">
                     {summary}
                   </CardTextContainer>
                 )}
