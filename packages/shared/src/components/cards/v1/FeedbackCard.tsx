@@ -1,5 +1,4 @@
 import React, { MouseEventHandler, ReactElement } from 'react';
-import classNames from 'classnames';
 import {
   Button,
   ButtonColor,
