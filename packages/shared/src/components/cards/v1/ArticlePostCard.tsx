@@ -144,8 +144,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
               />
             </CardContent>
           </CardContainer>
-
-          <Container>
+          <Container className="pointer-events-none">
             <ActionButtons
               className="mt-4"
               openNewTab={openNewTab}
