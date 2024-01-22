@@ -132,7 +132,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
         </CardContent>
       </CardContainer>
 
-      <Container ref={containerRef}>
+      <Container ref={containerRef} className="pointer-events-none">
         <ActionButtons
           openNewTab={openNewTab}
           post={post}
