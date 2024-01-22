@@ -152,9 +152,9 @@ export default function ActionButtons({
           <Link href={post.commentsPermalink}>
             <Button
               id={`post-${post.id}-comment-btn`}
-              className="pointer-events-auto ml-2"
+              className="pointer-events-auto ml-2 hover:text-theme-color-blueCheese"
               color={ButtonColor.BlueCheese}
-              icon={<CommentIcon secondary={post.commented} />}
+              icon={<CommentIcon />}
               tag="a"
               href={post.commentsPermalink}
               pressed={post.commented}
@@ -163,12 +163,7 @@ export default function ActionButtons({
             >
               {post?.numComments > 0 ? (
                 <InteractionCounter
-                  className={classNames(
-                    'tabular-nums',
-                    post.commented
-                      ? 'text-theme-color-blueCheese'
-                      : 'text-theme-label-tertiary',
-                  )}
+                  className="tabular-nums"
                   value={post.numComments}
                 />
               ) : null}
