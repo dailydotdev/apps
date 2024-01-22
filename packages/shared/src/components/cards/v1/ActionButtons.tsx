@@ -32,7 +32,7 @@ function ShareButton(props: ShareButtonProps) {
   return (
     <SimpleTooltip content="Share post">
       <Button
-        className="ml-2"
+        className="pointer-events-auto ml-2"
         icon={<ShareIcon />}
         onClick={onClickShare}
         color={ButtonColor.Cabbage}
@@ -98,6 +98,7 @@ export default function ActionButtons({
             }
           >
             <Button
+              className="pointer-events-auto"
               id={`post-${post.id}-upvote-btn`}
               color={ButtonColor.Avocado}
               icon={
@@ -129,6 +130,7 @@ export default function ActionButtons({
             }
           >
             <Button
+              className="pointer-events-auto"
               id={`post-${post.id}-downvote-btn`}
               color={ButtonColor.Ketchup}
               icon={
@@ -146,7 +148,7 @@ export default function ActionButtons({
           <Link href={post.commentsPermalink}>
             <Button
               id={`post-${post.id}-comment-btn`}
-              className="ml-2"
+              className="pointer-events-auto ml-2"
               color={ButtonColor.BlueCheese}
               icon={<CommentIcon secondary={post.commented} />}
               tag="a"
@@ -174,7 +176,7 @@ export default function ActionButtons({
         >
           <Button
             id={`post-${post.id}-bookmark-btn`}
-            className="ml-2"
+            className="pointer-events-auto ml-2"
             icon={<BookmarkIcon secondary={post.bookmarked} />}
             onClick={() => onBookmarkClick(post)}
             color={ButtonColor.Bun}
