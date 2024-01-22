@@ -120,7 +120,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
       <Portal container={gradientContainer}>
         <FeedGradientBg
           className={classNames(
-            '-z-1 -translate-y-3/4 opacity-0 transition-opacity duration-500',
+            '-z-1 hidden -translate-y-3/4 opacity-0 transition-opacity duration-500 laptop:block',
             sidebarExpanded ? '!-left-60' : '!-left-11',
             state.isActive ? 'opacity-100' : 'opacity-0',
           )}
