@@ -135,7 +135,7 @@ export const SearchPanelInput = ({
             className?.field,
             { focused },
             searchPanel.isActive
-              ? 'h-14 translate-y-1 border !border-theme-divider-quaternary shadow-3'
+              ? 'h-14 translate-y-1 border !border-theme-divider-quaternary shadow-2'
               : 'h-12',
             searchPanel.isActive && showDropdown
               ? 'rounded-t-16'
