@@ -30,7 +30,7 @@ export function RaisedLabel({
   return (
     <div
       className={classNames(
-        'absolute right-2 flex flex-row px-2 group-hover:bg-theme-bg-secondary group-focus:-top-0.5 group-focus:bg-theme-bg-secondary',
+        'absolute right-3 flex flex-row group-hover:bg-theme-bg-secondary group-focus:-top-0.5 group-focus:bg-theme-bg-secondary',
         !focus && '-top-px bg-theme-bg-primary',
         focus && '-top-0.5 bg-theme-bg-secondary',
         className,

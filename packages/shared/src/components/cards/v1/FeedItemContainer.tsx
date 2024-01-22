@@ -65,7 +65,7 @@ function FeedItemContainer(
           <TypeLabel
             focus={focus}
             type={adAttribution ?? type}
-            className="absolute left-2"
+            className="absolute left-3"
           />
         )}
         {showFlag && (
