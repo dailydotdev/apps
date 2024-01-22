@@ -141,7 +141,7 @@ function MainLayoutHeader({
   return (
     <header
       className={classNames(
-        'relative z-header flex h-14 flex-row items-center justify-between gap-3 border-b border-theme-divider-tertiary bg-theme-bg-primary px-4 py-3 tablet:px-8 laptop:sticky laptop:left-0 laptop:w-full laptop:flex-row laptop:px-4',
+        'relative z-header flex h-14 flex-row items-center justify-between gap-3 border-b border-theme-divider-tertiary bg-overlay-primary-pepper px-4 py-3 tablet:px-8 laptop:sticky laptop:left-0 laptop:w-full laptop:flex-row laptop:px-4',
         hasBanner ? 'laptop:top-8' : 'laptop:top-0',
         isSearchV1 && 'laptop:h-16',
       )}

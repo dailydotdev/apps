@@ -12,13 +12,13 @@ import { SearchPanelContext } from './SearchPanelContext';
 import { minQueryLength, searchPanelGradientElementId } from './common';
 import { SearchPanelAction } from './SearchPanelAction';
 import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
-import { FeedGradientBg } from '../../feeds/FeedGradientBg';
 import { Portal } from '../../tooltips/Portal';
 import SettingsContext from '../../../contexts/SettingsContext';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { AnalyticsEvent } from '../../../lib/analytics';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
+import { FeedGradientBg } from '../../feeds/FeedGradientBg';
 
 export type SearchPanelProps = {
   className?: string;
@@ -105,7 +105,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
           {showDropdown && (
             <div
               className={classNames(
-                'absolute top-[3.7rem] w-full items-center rounded-b-16 border border-theme-divider-quaternary !bg-overlay-float-salt px-3 py-2 backdrop-blur-3xl',
+                'absolute top-[3.7rem] w-full items-center rounded-b-16 border border-theme-divider-quaternary !bg-overlay-float-salt px-3 py-2 backdrop-blur-[3.75rem]',
               )}
             >
               <div className="flex flex-col">
@@ -120,7 +120,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
       <Portal container={gradientContainer}>
         <FeedGradientBg
           className={classNames(
-            '-top-9 -z-1 opacity-0 transition-opacity duration-500',
+            '-z-1 -translate-y-3/4 opacity-0 transition-opacity duration-500',
             sidebarExpanded ? '!-left-60' : '!-left-11',
             state.isActive ? 'opacity-100' : 'opacity-0',
           )}
