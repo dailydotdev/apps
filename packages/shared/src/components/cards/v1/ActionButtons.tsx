@@ -43,7 +43,7 @@ function ShareButton(props: ShareButtonProps) {
 }
 
 interface ActionButtonsPropsV1 extends ActionButtonsProps {
-  onDownvoteClick?: (post: Post) => Promise<void>;
+  onDownvoteClick?: (post: Post) => unknown;
 }
 
 export default function ActionButtons({
