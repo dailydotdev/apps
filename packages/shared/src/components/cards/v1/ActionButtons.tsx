@@ -157,7 +157,6 @@ export default function ActionButtons({
               icon={<CommentIcon />}
               tag="a"
               href={post.commentsPermalink}
-              pressed={post.commented}
               variant={ButtonVariant.Float}
               {...combinedClicks(() => onCommentClick?.(post))}
             >
