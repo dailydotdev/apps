@@ -20,6 +20,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     post,
     onPostClick,
     onUpvoteClick,
+    onDownvoteClick,
     onCommentClick,
     onMenuClick,
     onShareClick,
@@ -137,6 +138,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
           openNewTab={openNewTab}
           post={post}
           onUpvoteClick={onUpvoteClick}
+          onDownvoteClick={onDownvoteClick}
           onCommentClick={onCommentClick}
           onShareClick={onShareClick}
           onBookmarkClick={onBookmarkClick}

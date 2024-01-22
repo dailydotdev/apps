@@ -23,6 +23,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
     post,
     domProps = {},
     onUpvoteClick,
+    onDownvoteClick,
     onCommentClick,
     onMenuClick,
     onShareClick,
@@ -103,6 +104,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
           openNewTab={openNewTab}
           post={post}
           onUpvoteClick={onUpvoteClick}
+          onDownvoteClick={onDownvoteClick}
           onCommentClick={onCommentClick}
           onShareClick={onShareClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}
