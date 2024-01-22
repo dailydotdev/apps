@@ -1,4 +1,5 @@
 import React, { MouseEventHandler, ReactElement } from 'react';
+import classNames from 'classnames';
 import {
   Button,
   ButtonColor,
@@ -84,7 +85,7 @@ export const FeedbackCard = ({
           alt="Post Cover image"
           src={post.image}
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-          className="object-cover"
+          className="!h-full max-h-[5rem] object-cover"
           loading="lazy"
           data-testid="postImage"
           {...(isVideoType && {
