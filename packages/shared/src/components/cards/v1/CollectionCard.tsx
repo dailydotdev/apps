@@ -98,7 +98,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
       </CardContainer>
 
       {!!post.image && <CardSpace />}
-      <Container>
+      <Container className="pointer-events-none">
         <ActionButtons
           openNewTab={openNewTab}
           post={post}
