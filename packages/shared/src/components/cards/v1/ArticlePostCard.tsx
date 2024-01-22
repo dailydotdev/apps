@@ -130,7 +130,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
                 loading="lazy"
                 data-testid="postImage"
                 {...(isVideoType && {
-                  wrapperClassName: 'mt-4 mobileXL:w-40 mobileXXL:w-56',
+                  wrapperClassName: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',
                 })}
               />
             </CardContent>
