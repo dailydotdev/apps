@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useRef } from 'react';
-import Portal from './Portal';
+import { RootPortal } from './Portal';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -95,7 +95,7 @@ function InteractivePopup({
   });
 
   return (
-    <Portal>
+    <RootPortal>
       <ConditionalWrapper
         condition={!validateSidebar}
         wrapper={(child) => (
@@ -131,7 +131,7 @@ function InteractivePopup({
           {children}
         </div>
       </ConditionalWrapper>
-    </Portal>
+    </RootPortal>
   );
 }
 

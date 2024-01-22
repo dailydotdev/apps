@@ -10,7 +10,7 @@ export interface VideoImageProps extends ImageProps {
 }
 
 const VideoImage = ({
-  size = IconSize.XXXLarge,
+  size = IconSize.XXLarge,
   wrapperClassName,
   ...props
 }: VideoImageProps): ReactElement => {
@@ -18,7 +18,7 @@ const VideoImage = ({
     <div
       className={classNames(
         wrapperClassName,
-        'pointer-events-none relative flex h-auto w-full items-center justify-center rounded-12',
+        'pointer-events-none relative flex h-auto max-h-fit w-full items-center justify-center rounded-12',
       )}
     >
       <span className="absolute h-full w-full rounded-12 bg-overlay-tertiary-black" />

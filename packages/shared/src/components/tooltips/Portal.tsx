@@ -1,20 +1,30 @@
-import { ReactNode, useMemo } from 'react';
+import React, { ReactElement, ReactNode, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
 
 interface PortalProps {
   children: ReactNode;
-  container?: Element;
+  container: Element;
 }
 
-function Portal({
+export const Portal = ({
   children,
   container,
-}: PortalProps): ReturnType<typeof createPortal> {
+}: PortalProps): ReturnType<typeof createPortal> => {
+  if (!container) {
+    return null;
+  }
+
+  return createPortal(children, container);
+};
+
+export const RootPortal = ({
+  children,
+}: Pick<PortalProps, 'children'>): ReactElement => {
   const { isCompanion } = useRequestProtocol();
 
-  const defaultContainer = useMemo(() => {
+  const container = useMemo(() => {
     if (typeof globalThis?.document === 'undefined') {
       return null;
     }
@@ -26,13 +36,5 @@ function Portal({
     return globalThis?.document?.body;
   }, [isCompanion]);
 
-  const portalContainer = container || defaultContainer;
-
-  if (!portalContainer) {
-    return null;
-  }
-
-  return createPortal(children, portalContainer);
-}
-
-export default Portal;
+  return <Portal container={container}>{children}</Portal>;
+};

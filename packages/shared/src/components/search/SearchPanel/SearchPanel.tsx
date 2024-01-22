@@ -13,7 +13,7 @@ import { minQueryLength, searchPanelGradientElementId } from './common';
 import { SearchPanelAction } from './SearchPanelAction';
 import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
 import { FeedGradientBg } from '../../feeds/FeedGradientBg';
-import Portal from '../../tooltips/Portal';
+import { Portal } from '../../tooltips/Portal';
 import SettingsContext from '../../../contexts/SettingsContext';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
@@ -68,10 +68,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
       return undefined;
     }
 
-    return (
-      document.getElementById(searchPanelGradientElementId) ||
-      document.createElement('div') // unmounted div to not show the gradient
-    );
+    return document.getElementById(searchPanelGradientElementId);
   }, [state.isActive]);
 
   return (
