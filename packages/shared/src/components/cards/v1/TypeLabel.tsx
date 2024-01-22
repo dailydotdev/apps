@@ -26,11 +26,13 @@ const excludedTypes = new Set<PostType>([
 export interface TypeLabelProps {
   type: TypeLabelType;
   className?: string | undefined;
+  focus?: boolean;
 }
 
 export function TypeLabel({
   type = PostType.Article,
   className,
+  focus,
 }: TypeLabelProps): ReactElement {
   // do not show tag label for excluded types
   if (excludedTypes.has(type as PostType)) {
@@ -40,12 +42,21 @@ export function TypeLabel({
   return (
     <legend
       className={classNames(
-        'rounded bg-theme-bg-primary px-2 font-bold capitalize typo-caption1 group-hover:bg-theme-bg-secondary group-focus:bg-theme-bg-secondary',
+        'rounded bg-theme-bg-primary font-bold capitalize typo-caption1',
         typeToClassName[type as PostType] ?? 'text-theme-label-tertiary',
+        !focus && '-top-[9px]', // taking the border width into account
+        focus && '-top-2.5',
         className,
       )}
     >
-      {typeToLabel[type as PostType] ?? type}
+      <div
+        className={classNames(
+          'rounded px-2 group-hover:bg-theme-float group-focus:bg-theme-float',
+          focus && 'bg-theme-float',
+        )}
+      >
+        {typeToLabel[type as PostType] ?? type}
+      </div>
     </legend>
   );
 }
