@@ -10,7 +10,7 @@ export interface VideoImageProps extends ImageProps {
 }
 
 const VideoImage = ({
-  size = IconSize.XXXLarge,
+  size = IconSize.XXLarge,
   wrapperClassName,
   ...props
 }: VideoImageProps): ReactElement => {
