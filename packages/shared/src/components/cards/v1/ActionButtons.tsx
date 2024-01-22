@@ -113,19 +113,21 @@ export default function ActionButtons({
               pressed={post?.userState?.vote === UserPostVote.Up}
               onClick={() => onUpvoteClick?.(post)}
               variant={ButtonVariant.Tertiary}
-            />
+            >
+              {post?.numUpvotes > 0 ? (
+                <InteractionCounter
+                  className={classNames(
+                    '!min-w-[2ch] font-bold tabular-nums typo-callout',
+                    post?.userState?.vote === UserPostVote.Up
+                      ? 'text-theme-color-avocado'
+                      : 'text-theme-label-tertiary',
+                  )}
+                  value={post?.numUpvotes}
+                />
+              ) : null}
+            </Button>
           </SimpleTooltip>
-          {post?.numUpvotes > 0 && (
-            <InteractionCounter
-              className={classNames(
-                '!min-w-[2ch] font-bold tabular-nums typo-callout',
-                post?.userState?.vote === UserPostVote.Up
-                  ? 'text-theme-color-avocado'
-                  : 'text-theme-label-tertiary',
-              )}
-              value={post?.numUpvotes}
-            />
-          )}
+          <div className="box-border border border-theme-float py-2.5" />
           <SimpleTooltip
             content={
               post?.userState?.vote === UserPostVote.Down
