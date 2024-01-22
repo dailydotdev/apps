@@ -153,6 +153,10 @@ const AccountProfilePage = (): ReactElement => {
             valid={!hint.name}
             leftIcon={<UserIcon />}
             value={user.name}
+            className={{ 
+              input: 'bg-clip-text',
+              container: 'mt-6 max-w-sm' 
+            }}
           />
           <AccountTextField
             label="Username"
@@ -162,6 +166,10 @@ const AccountProfilePage = (): ReactElement => {
             name="username"
             leftIcon={<AtIcon />}
             value={user.username}
+            className={{ 
+              input: 'bg-clip-text',
+              container: 'mt-6 max-w-sm' 
+            }}
           />
         </AccountContentSection>
         <AccountContentSection title="About">
@@ -178,12 +186,20 @@ const AccountProfilePage = (): ReactElement => {
             inputId="company"
             name="company"
             value={user.company}
+            className={{ 
+              input: 'bg-clip-text',
+              container: 'mt-6 max-w-sm' 
+            }}
           />
           <AccountTextField
             label="Job Title"
             inputId="title"
             name="title"
             value={user.title}
+            className={{ 
+              input: 'bg-clip-text',
+              container: 'mt-6 max-w-sm' 
+            }}
           />
         </AccountContentSection>
         <AccountContentSection
@@ -199,6 +215,10 @@ const AccountProfilePage = (): ReactElement => {
             valid={!hint.twitter}
             name="twitter"
             value={user.twitter}
+            className={{ 
+              input: 'bg-clip-text',
+              container: 'mt-6 max-w-sm' 
+            }}
           />
           <AccountTextField
             leftIcon={<GitHubIcon />}
@@ -208,6 +228,10 @@ const AccountProfilePage = (): ReactElement => {
             valid={!hint.github}
             name="github"
             value={user.github}
+            className={{ 
+              input: 'bg-clip-text',
+              container: 'mt-6 max-w-sm' 
+            }}
           />
           <AccountTextField
             leftIcon={<LinkIcon />}
@@ -217,6 +241,10 @@ const AccountProfilePage = (): ReactElement => {
             valid={!hint.portfolio}
             name="portfolio"
             value={user.portfolio}
+            className={{ 
+              input: 'bg-clip-text',
+              container: 'mt-6 max-w-sm' 
+            }}
           />
         </AccountContentSection>
       </form>

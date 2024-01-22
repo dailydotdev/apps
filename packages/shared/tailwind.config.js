@@ -238,7 +238,21 @@ module.exports = {
     },
   },
   // eslint-disable-next-line global-require
-  plugins: [caret, typography, buttons],
+  plugins: [
+    caret, 
+    typography, 
+    buttons,
+    function ({ addUtilities }) {
+      const newUtilities = {
+        '.bg-clip-text': {
+          'background-clip': 'text',
+          '-webkit-background-clip': 'text',
+          '-webkit-text-fill-color': '#ffffff',
+        },
+      }
+      addUtilities(newUtilities)
+    }
+  ],
   corePlugins: {
     invert: false,
   },
