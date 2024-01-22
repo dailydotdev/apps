@@ -7,6 +7,8 @@ export const cloudinary = {
         'https://daily-now-res.cloudinary.com/image/upload/s--1kZ8h30a--/f_auto/v1692271284/public/Tablet-ask-bg',
       mobile:
         'https://daily-now-res.cloudinary.com/image/upload/s--TiBUzfrQ--/f_auto/v1692271284/public/Mobile-ask-bg',
+      layoutV1:
+        'https://daily-now-res.cloudinary.com/image/upload/s--zkEyMCOC--/f_auto/v1705675789/public/Search_Gradient',
     },
   },
   post: {
