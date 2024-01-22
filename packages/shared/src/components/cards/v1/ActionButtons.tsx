@@ -43,7 +43,7 @@ function ShareButton(props: ShareButtonProps) {
 }
 
 interface ActionButtonsPropsV1 extends ActionButtonsProps {
-  onDownvoteClick?: (post: Post) => unknown;
+  onDownvoteClick?: (post: Post) => Promise<void>;
 }
 
 export default function ActionButtons({
@@ -68,23 +68,27 @@ export default function ActionButtons({
     onShareClick,
   });
 
-  const onToggleDownvote = () => {
+  const onToggleDownvote = async () => {
     if (post.userState?.vote !== UserPostVote.Down) {
       onShowPanel();
     } else {
       onClose(true);
     }
 
-    onDownvoteClick?.(post);
+    await onDownvoteClick?.(post);
   };
 
   return (
     <ConditionalWrapper
-      condition={showTagsPanel !== undefined}
+      condition={showTagsPanel === true}
       wrapper={(children) => (
         <div className="flex flex-col">
           {children}
-          <PostTagsPanel post={post} className="mt-4" toastOnSuccess={false} />
+          <PostTagsPanel
+            post={post}
+            className="pointer-events-auto mt-4"
+            toastOnSuccess={false}
+          />
         </div>
       )}
     >
