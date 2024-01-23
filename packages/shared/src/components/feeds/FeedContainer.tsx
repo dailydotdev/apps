@@ -33,7 +33,7 @@ import {
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
-import { FeedGradientBg } from './FeedGradientBg';
+import { cloudinary } from '../../lib/image';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -186,7 +186,13 @@ export const FeedContainer = ({
         className,
       )}
     >
-      {isV1Search && shouldUseFeedLayoutV1 && <FeedGradientBg />}
+      {isV1Search && shouldUseFeedLayoutV1 && (
+        <img
+          className="absolute left-0 top-0 w-full -translate-y-1/2"
+          src={cloudinary.feed.bg.layoutV1}
+          alt="Gradient background"
+        />
+      )}
       <ScrollToTopButton />
       <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
         {!inlineHeader && header}

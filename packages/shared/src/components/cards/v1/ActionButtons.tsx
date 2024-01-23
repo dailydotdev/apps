@@ -102,7 +102,7 @@ export default function ActionButtons({
             }
           >
             <Button
-              className="pointer-events-auto"
+              className="pointer-events-auto hover:text-theme-color-avocado"
               id={`post-${post.id}-upvote-btn`}
               color={ButtonColor.Avocado}
               icon={
@@ -113,19 +113,21 @@ export default function ActionButtons({
               pressed={post?.userState?.vote === UserPostVote.Up}
               onClick={() => onUpvoteClick?.(post)}
               variant={ButtonVariant.Tertiary}
-            />
+            >
+              {post?.numUpvotes > 0 ? (
+                <InteractionCounter
+                  className={classNames(
+                    '!min-w-[2ch] font-bold tabular-nums typo-callout',
+                    post?.userState?.vote === UserPostVote.Up
+                      ? 'text-theme-color-avocado'
+                      : 'text-theme-label-tertiary',
+                  )}
+                  value={post?.numUpvotes}
+                />
+              ) : null}
+            </Button>
           </SimpleTooltip>
-          {post?.numUpvotes > 0 && (
-            <InteractionCounter
-              className={classNames(
-                '!min-w-[2ch] font-bold tabular-nums typo-callout',
-                post?.userState?.vote === UserPostVote.Up
-                  ? 'text-theme-color-avocado'
-                  : 'text-theme-label-tertiary',
-              )}
-              value={post?.numUpvotes}
-            />
-          )}
+          <div className="box-border border border-theme-float py-2.5" />
           <SimpleTooltip
             content={
               post?.userState?.vote === UserPostVote.Down
@@ -152,7 +154,7 @@ export default function ActionButtons({
           <Link href={post.commentsPermalink}>
             <Button
               id={`post-${post.id}-comment-btn`}
-              className="pointer-events-auto ml-2"
+              className="pointer-events-auto ml-2 hover:text-theme-color-blueCheese"
               color={ButtonColor.BlueCheese}
               icon={<CommentIcon secondary={post.commented} />}
               tag="a"

@@ -23,6 +23,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
     post,
     domProps = {},
     onUpvoteClick,
+    onDownvoteClick,
     onCommentClick,
     onMenuClick,
     onShareClick,
@@ -79,7 +80,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
             </CardTitle>
 
             {post.summary && (
-              <CardTextContainer className="mt-4 text-theme-label-secondary">
+              <CardTextContainer className="mt-4 text-theme-label-secondary typo-body">
                 {summary}
               </CardTextContainer>
             )}
@@ -90,7 +91,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
               alt="Post Cover image"
               src={image}
               fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-              className="my-2 object-cover"
+              className="my-2 object-cover mobileXXL:self-start mobileXXL:object-fill"
               loading="lazy"
             />
           )}
@@ -103,6 +104,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
           openNewTab={openNewTab}
           post={post}
           onUpvoteClick={onUpvoteClick}
+          onDownvoteClick={onDownvoteClick}
           onCommentClick={onCommentClick}
           onShareClick={onShareClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}
