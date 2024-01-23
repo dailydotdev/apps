@@ -14,7 +14,7 @@ type UseSearchSuggestions = (data: {
   'origin' | 'suggestions' | 'isLoading'
 >;
 
-export const useSearchSuggestions: UseSearchSuggestions = ({
+export const useSearchQuestionRecommendations: UseSearchSuggestions = ({
   disabled,
   ...args
 }) => {
