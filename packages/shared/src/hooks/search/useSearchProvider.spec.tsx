@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react-hooks';
 import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
-import Post from '../../../__tests__/fixture/post';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { Alerts } from '../../graphql/alerts';
@@ -15,13 +14,9 @@ import {
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 
 const client = new QueryClient();
-const defaultPost = Post;
 const noop = jest.fn();
 const updateAlerts = jest.fn();
-const defaultAlerts: Alerts = {
-  changelog: false,
-  lastChangelog: new Date(defaultPost.createdAt).toISOString(),
-};
+const defaultAlerts: Alerts = {};
 
 const Wrapper = ({ children }) => {
   return (
