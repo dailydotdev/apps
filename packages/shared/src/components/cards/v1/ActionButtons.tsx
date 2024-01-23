@@ -117,7 +117,7 @@ export default function ActionButtons({
               {post?.numUpvotes > 0 ? (
                 <InteractionCounter
                   className={classNames(
-                    '!min-w-[2ch] font-bold tabular-nums typo-callout',
+                    '!min-w-[2ch] font-bold tabular-nums typo-callout ml-1 -mr-2',
                     post?.userState?.vote === UserPostVote.Up
                       ? 'text-theme-color-avocado'
                       : 'text-theme-label-tertiary',
@@ -166,7 +166,7 @@ export default function ActionButtons({
               {post?.numComments > 0 ? (
                 <InteractionCounter
                   className={classNames(
-                    'tabular-nums',
+                    'tabular-nums ml-1 -mr-2',
                     post.commented
                       ? 'text-theme-color-blueCheese'
                       : 'text-theme-label-tertiary',
