@@ -489,5 +489,7 @@ details.right-icon {
 }
 
 input {
+  @apply bg-clip-text;
+  
   -webkit-text-fill-color: var(--theme-label-primary);
 }
