@@ -51,7 +51,13 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
       },
       setActive: (isActive: boolean) => {
         setState((currentState) => {
-          return { ...currentState, isActive };
+          return {
+            ...currentState,
+            isActive,
+            provider: currentState
+              ? currentState.provider
+              : SearchProviderEnum.Posts,
+          };
         });
       },
     };
