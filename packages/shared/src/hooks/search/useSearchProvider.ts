@@ -53,8 +53,3 @@ export const useSearchProvider = (): UseSearchProvider => {
     },
   };
 };
-
-export type UseSearchProviderSuggestions = {
-  isLoading: boolean;
-  suggestions: SearchSuggestionResult;
-};
