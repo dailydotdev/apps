@@ -102,7 +102,7 @@ export default function ActionButtons({
             }
           >
             <Button
-              className="pointer-events-auto"
+              className="pointer-events-auto hover:text-theme-color-avocado"
               id={`post-${post.id}-upvote-btn`}
               color={ButtonColor.Avocado}
               icon={
