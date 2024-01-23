@@ -289,3 +289,13 @@ export const sendSearchQuery = async (
 
   return new EventSource(`${searchQueryUrl}?${params}`);
 };
+
+export type SearchSuggestion = {
+  title: string;
+};
+
+export type SearchSuggestionResult = {
+  hits: SearchSuggestion[];
+};
+
+export const minSearchQueryLength = 3;

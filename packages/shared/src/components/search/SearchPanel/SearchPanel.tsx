@@ -7,9 +7,12 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { SearchPanelInput } from './SearchPanelInput';
-import { SearchProviderEnum } from '../../../graphql/search';
+import {
+  SearchProviderEnum,
+  minSearchQueryLength,
+} from '../../../graphql/search';
 import { SearchPanelContext } from './SearchPanelContext';
-import { minQueryLength, searchPanelGradientElementId } from './common';
+import { searchPanelGradientElementId } from './common';
 import { SearchPanelAction } from './SearchPanelAction';
 import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
 import { Portal } from '../../tooltips/Portal';
@@ -57,7 +60,8 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
     };
   }, [state]);
 
-  const showDropdown = state.isActive && state.query.length >= minQueryLength;
+  const showDropdown =
+    state.isActive && state.query.length >= minSearchQueryLength;
 
   const gradientContainer = useMemo(() => {
     if (typeof state.isActive === 'undefined') {
