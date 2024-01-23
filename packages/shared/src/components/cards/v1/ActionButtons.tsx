@@ -166,7 +166,7 @@ export default function ActionButtons({
               <CommentIcon secondary={post.commented} size={IconSize.Medium} />
               {post?.numComments > 0 ? (
                 <InteractionCounter
-                  className="ml-1.5 -mr-0.5 tabular-nums"
+                  className="-mr-0.5 ml-1.5 tabular-nums"
                   value={post.numComments}
                 />
               ) : null}
