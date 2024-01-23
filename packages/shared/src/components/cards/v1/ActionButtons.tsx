@@ -154,7 +154,7 @@ export default function ActionButtons({
           <Link href={post.commentsPermalink}>
             <Button
               id={`post-${post.id}-comment-btn`}
-              className="pointer-events-auto ml-2"
+              className="pointer-events-auto ml-2 hover:text-theme-color-blueCheese"
               color={ButtonColor.BlueCheese}
               icon={<CommentIcon secondary={post.commented} />}
               tag="a"
