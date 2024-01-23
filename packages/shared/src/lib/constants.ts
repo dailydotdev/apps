@@ -59,8 +59,3 @@ export const authUrl =
 export const heimdallUrl = isDevelopment
   ? process.env.NEXT_PUBLIC_HEIMDALL_URL || 'http://127.0.0.1:3000'
   : authUrl;
-
-export const extensionHostPermissions = [
-  'https://daily.dev/',
-  'https://*.daily.dev/',
-];

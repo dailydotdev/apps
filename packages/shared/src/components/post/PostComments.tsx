@@ -59,7 +59,7 @@ export function PostComments({
         requestMethod(
           graphqlUrl,
           POST_COMMENTS_QUERY,
-          { postId: id, [initialDataKey]: comments, first: 50 },
+          { postId: id, [initialDataKey]: comments, first: 500 },
           { requestKey: JSON.stringify(queryKey) },
         ),
       {

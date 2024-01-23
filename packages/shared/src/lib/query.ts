@@ -86,6 +86,7 @@ export enum RequestKey {
   ReadingStats = 'reading_stats',
   UserComments = 'user_comments',
   Readme = 'readme',
+  Host = 'host',
 }
 
 export type HasConnection<

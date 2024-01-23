@@ -1,7 +1,7 @@
 import React, { ReactElement, useEffect } from 'react';
 import Logo, { LogoPosition } from './Logo';
 import { OnboardingTitleGradient } from './onboarding/common';
-import { Button, ButtonSize } from './buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from './buttons/ButtonV2';
 import { cloudinary } from '../lib/image';
 import { useExtensionContext } from '../contexts/ExtensionContext';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
@@ -27,7 +27,7 @@ const ExtensionPermissionsPrompt = (): ReactElement => {
   };
 
   return (
-    <div className="flex max-h-[100vh] min-h-[100vh] flex-col items-center justify-center overflow-hidden px-7 text-center antialiased">
+    <div className="flex max-h-screen min-h-screen flex-col items-center justify-center overflow-hidden px-7 text-center antialiased">
       <Logo position={LogoPosition.Relative} logoClassName="h-logo-big" />
 
       <OnboardingTitleGradient className="my-6 typo-mega2 tablet:typo-mega1">
@@ -42,8 +42,9 @@ const ExtensionPermissionsPrompt = (): ReactElement => {
       </p>
 
       <Button
-        className="btn-primary z-1 w-full max-w-[18.75rem]"
-        buttonSize={ButtonSize.Large}
+        className="z-1 w-full max-w-[18.75rem]"
+        size={ButtonSize.Large}
+        variant={ButtonVariant.Primary}
         onClick={handleRequestHostPermissions}
       >
         Enable access ➔
