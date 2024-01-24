@@ -28,7 +28,7 @@ export default function InteractionCounter({
   }, [value]);
 
   const elementClassName = classNames(
-    'flex h-5 min-w-[1ch] flex-col items-center overflow-hidden',
+    'flex h-5 min-w-[1ch] flex-col overflow-hidden',
     className,
   );
 
