@@ -17,6 +17,7 @@ import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { IconSize } from '../../Icon';
+import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "shareIcon" */ '../../icons/Share'),
@@ -144,31 +145,32 @@ export default function ActionButtons({
             />
           </SimpleTooltip>
         </div>
-        <SimpleTooltip content="Comments">
-          <Link href={post.commentsPermalink}>
-            <Button
-              id={`post-${post.id}-comment-btn`}
-              className={classNames(
-                'pointer-events-auto ml-2',
-                post?.numComments > 0 ? '!pl-3' : '!px-1',
-              )}
-              color={ButtonColor.BlueCheese}
-              tag="a"
-              href={post.commentsPermalink}
-              pressed={post.commented}
-              variant={ButtonVariant.Float}
-              {...combinedClicks(() => onCommentClick?.(post))}
-            >
-              <CommentIcon secondary={post.commented} size={IconSize.Medium} />
-              {post?.numComments > 0 ? (
-                <InteractionCounter
-                  className="-mr-0.5 ml-1.5 tabular-nums"
-                  value={post.numComments}
-                />
-              ) : null}
-            </Button>
-          </Link>
-        </SimpleTooltip>
+        <LinkWithTooltip
+          tooltip={{ content: 'Comment' }}
+          href={post.commentsPermalink}
+        >
+          <Button
+            id={`post-${post.id}-comment-btn`}
+            className={classNames(
+              'pointer-events-auto ml-2',
+              post?.numComments > 0 ? '!pl-3' : '!px-1',
+            )}
+            color={ButtonColor.BlueCheese}
+            tag="a"
+            href={post.commentsPermalink}
+            pressed={post.commented}
+            variant={ButtonVariant.Float}
+            {...combinedClicks(() => onCommentClick?.(post))}
+          >
+            <CommentIcon secondary={post.commented} size={IconSize.Medium} />
+            {post?.numComments > 0 ? (
+              <InteractionCounter
+                className="-mr-0.5 ml-1.5 tabular-nums"
+                value={post.numComments}
+              />
+            ) : null}
+          </Button>
+        </LinkWithTooltip>
         <SimpleTooltip
           content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
         >
