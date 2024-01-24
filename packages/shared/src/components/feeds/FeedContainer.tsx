@@ -12,7 +12,6 @@ import { useRouter } from 'next/router';
 import { Spaciness } from '../../graphql/settings';
 import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
-import ScrollToTopButton from '../ScrollToTopButton';
 import styles from '../Feed.module.css';
 import { SearchBarInput, SearchBarSuggestionList } from '../search';
 import { useFeature } from '../GrowthBookProvider';
@@ -187,7 +186,6 @@ export const FeedContainer = ({
       )}
     >
       {isV1Search && shouldUseFeedLayoutV1 && <FeedGradientBg />}
-      <ScrollToTopButton />
       <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
         {!inlineHeader && header}
         <div
