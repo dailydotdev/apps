@@ -16,6 +16,7 @@ import { combinedClicks } from '../../../lib/click';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
+import { IconSize } from '../../Icon';
 
 const ShareIcon = dynamic(
   () => import(/* webpackChunkName: "shareIcon" */ '../../icons/Share'),
@@ -102,26 +103,23 @@ export default function ActionButtons({
             }
           >
             <Button
-              className="pointer-events-auto"
+              className={classNames(
+                'pointer-events-auto',
+                post?.numUpvotes > 0 ? '!pl-1 !pr-3' : '!px-1',
+              )}
               id={`post-${post.id}-upvote-btn`}
               color={ButtonColor.Avocado}
-              icon={
-                <UpvoteIcon
-                  secondary={post?.userState?.vote === UserPostVote.Up}
-                />
-              }
               pressed={post?.userState?.vote === UserPostVote.Up}
               onClick={() => onUpvoteClick?.(post)}
               variant={ButtonVariant.Tertiary}
             >
+              <UpvoteIcon
+                secondary={post?.userState?.vote === UserPostVote.Up}
+                size={IconSize.Medium}
+              />
               {post?.numUpvotes > 0 ? (
                 <InteractionCounter
-                  className={classNames(
-                    '!min-w-[2ch] font-bold tabular-nums typo-callout',
-                    post?.userState?.vote === UserPostVote.Up
-                      ? 'text-theme-color-avocado'
-                      : 'text-theme-label-tertiary',
-                  )}
+                  className="ml-1.5 !min-w-[2ch] tabular-nums"
                   value={post?.numUpvotes}
                 />
               ) : null}
@@ -154,23 +152,21 @@ export default function ActionButtons({
           <Link href={post.commentsPermalink}>
             <Button
               id={`post-${post.id}-comment-btn`}
-              className="pointer-events-auto ml-2 hover:text-theme-color-blueCheese"
+              className={classNames(
+                'pointer-events-auto ml-2',
+                post?.numUpvotes > 0 ? '!pl-3' : '!px-1',
+              )}
               color={ButtonColor.BlueCheese}
-              icon={<CommentIcon secondary={post.commented} />}
               tag="a"
               href={post.commentsPermalink}
               pressed={post.commented}
               variant={ButtonVariant.Float}
               {...combinedClicks(() => onCommentClick?.(post))}
             >
+              <CommentIcon secondary={post.commented} size={IconSize.Medium} />
               {post?.numComments > 0 ? (
                 <InteractionCounter
-                  className={classNames(
-                    'tabular-nums',
-                    post.commented
-                      ? 'text-theme-color-blueCheese'
-                      : 'text-theme-label-tertiary',
-                  )}
+                  className="-mr-0.5 ml-1.5 tabular-nums"
                   value={post.numComments}
                 />
               ) : null}
