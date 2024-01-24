@@ -33,7 +33,7 @@ import {
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
-import { cloudinary } from '../../lib/image';
+import { FeedGradientBg } from './FeedGradientBg';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -186,12 +186,7 @@ export const FeedContainer = ({
         className,
       )}
     >
-      {isV1Search && shouldUseFeedLayoutV1 && (
-        <div className="absolute -top-24 left-1/2 flex -translate-x-1/2 flex-row justify-center">
-          <span className="z-1 size-40 translate-x-6 rounded-full bg-theme-color-cabbage blur-[5rem]" />
-          <span className="z-0 h-40 w-70 -translate-x-6 rounded-[50%] bg-theme-color-onion blur-[5rem]" />
-        </div>
-      )}
+      {isV1Search && shouldUseFeedLayoutV1 && <FeedGradientBg />}
       <ScrollToTopButton />
       <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
         {!inlineHeader && header}
