@@ -118,7 +118,7 @@ export default function ActionButtons({
               />
               {post?.numUpvotes > 0 ? (
                 <InteractionCounter
-                  className="ml-1.5 !min-w-[2ch] tabular-nums"
+                  className="ml-1.5 tabular-nums"
                   value={post?.numUpvotes}
                 />
               ) : null}
