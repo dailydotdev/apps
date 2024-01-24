@@ -85,11 +85,7 @@ export default function ActionButtons({
       wrapper={(children) => (
         <div className="flex flex-col">
           {children}
-          <PostTagsPanel
-            post={post}
-            className="pointer-events-auto mt-4"
-            toastOnSuccess={false}
-          />
+          <PostTagsPanel post={post} className="pointer-events-auto mt-4" />
         </div>
       )}
     >
