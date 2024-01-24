@@ -23,9 +23,9 @@ import {
   isNullOrUndefined,
   isSpecialKeyPressed,
 } from '../../../lib/func';
-import { minQueryLength } from './common';
 import { KeyboadShortcutLabel } from '../../KeyboardShortcutLabel';
 import { SearchPanelProvider } from './SearchPanelProvider';
+import { minSearchQueryLength } from '../../../graphql/search';
 
 export type SearchPanelInputClassName = {
   container?: string;
@@ -108,7 +108,7 @@ export const SearchPanelInput = ({
   });
 
   const showDropdown =
-    searchPanel.isActive && searchPanel.query.length >= minQueryLength;
+    searchPanel.isActive && searchPanel.query.length >= minSearchQueryLength;
 
   useEventListener(globalThis, 'keydown', (event) => {
     if (isSpecialKeyPressed({ event }) && event.key === 'k') {

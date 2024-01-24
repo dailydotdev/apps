@@ -20,6 +20,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     post,
     onPostClick,
     onUpvoteClick,
+    onDownvoteClick,
     onCommentClick,
     onMenuClick,
     onShareClick,
@@ -125,7 +126,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
               alt="Post Cover image"
               src={image}
               fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-              className="my-2 object-cover"
+              className="my-2 object-cover mobileXXL:self-start"
               loading="lazy"
             />
           )}
@@ -137,6 +138,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
           openNewTab={openNewTab}
           post={post}
           onUpvoteClick={onUpvoteClick}
+          onDownvoteClick={onDownvoteClick}
           onCommentClick={onCommentClick}
           onShareClick={onShareClick}
           onBookmarkClick={onBookmarkClick}

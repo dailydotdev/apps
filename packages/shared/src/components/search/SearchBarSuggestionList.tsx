@@ -28,7 +28,7 @@ export function SearchBarSuggestionList({
   const { user, showLogin } = useContext(AuthContext);
 
   if (isLoading) {
-    return <Pill className={className} />;
+    return <Pill className={classNames('!h-10 w-1/2', className)} />;
   }
 
   if (!user) {
@@ -46,7 +46,7 @@ export function SearchBarSuggestionList({
     return (
       <span
         className={classNames(
-          'flex flex-row items-center text-theme-label-quaternary',
+          'flex h-10 flex-row items-center text-theme-label-quaternary',
           className,
         )}
       >
