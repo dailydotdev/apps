@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { SearchBarInput, SearchBarInputProps } from './SearchBarInput';
 import { SearchBarSuggestionList } from './SearchBarSuggestionList';
 import Alert, { AlertType } from '../widgets/Alert';
-import { useSearchSuggestions } from '../../hooks/search';
+import { useSearchQuestionRecommendations } from '../../hooks/search';
 import { Origin } from '../../lib/analytics';
 import { labels } from '../../lib';
 import { isNullOrUndefined } from '../../lib/func';
@@ -21,7 +21,9 @@ export function SearchBar({
   isLoading,
   ...props
 }: SearchBarProps): ReactElement {
-  const suggestionsProps = useSearchSuggestions({ origin: Origin.SearchPage });
+  const suggestionsProps = useSearchQuestionRecommendations({
+    origin: Origin.SearchPage,
+  });
 
   return (
     <div className={classNames('w-full', className?.container)}>
