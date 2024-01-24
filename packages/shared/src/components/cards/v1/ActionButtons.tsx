@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
 import { Post, UserPostVote } from '../../../graphql/posts';
 import InteractionCounter from '../../InteractionCounter';
 import UpvoteIcon from '../../icons/Upvote';
