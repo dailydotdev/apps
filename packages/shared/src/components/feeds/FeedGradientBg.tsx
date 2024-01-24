@@ -11,9 +11,8 @@ export function FeedGradientBg(): ReactElement {
     <div
       className={classNames(
         'absolute -top-24 flex flex-row-reverse justify-center',
-        shouldUseFeedLayoutV1
-          ? centered
-          : classNames(centered, 'laptop:left-0 laptop:translate-x-0'),
+        centered,
+        !shouldUseFeedLayoutV1 && 'laptop:left-0 laptop:translate-x-0',
       )}
     >
       <span className="h-40 w-70 -translate-x-6 rounded-[50%] bg-theme-color-onion blur-[5rem]" />
