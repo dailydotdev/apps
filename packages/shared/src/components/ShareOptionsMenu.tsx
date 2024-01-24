@@ -1,6 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import { Post } from '../graphql/posts';
 import ShareIcon from './icons/Share';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -92,7 +93,7 @@ export default function ShareOptionsMenu({
     <PortalMenu
       disableBoundariesCheck
       id={contextId}
-      className="menu-primary"
+      className={classNames('menu-primary', shouldUseFeedLayoutV1 && 'left-0')}
       animation="fade"
       onHidden={onHidden}
     >
