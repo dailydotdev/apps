@@ -119,7 +119,10 @@ function SquadPostContent({
             origin={origin}
             post={post}
           >
-            <PostSourceInfo source={post.source} className="!typo-body" />
+            <PostSourceInfo
+              source={post.source}
+              className={classNames('!typo-body', customNavigation && 'mt-6')}
+            />
             {post.author && (
               <SquadPostAuthor
                 author={post.author}

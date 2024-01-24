@@ -116,7 +116,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
                 </CardTitle>
 
                 {post.summary && (
-                  <CardTextContainer className="mt-4 text-theme-label-secondary">
+                  <CardTextContainer className="mt-4 text-theme-label-secondary typo-body">
                     {summary}
                   </CardTextContainer>
                 )}
@@ -126,7 +126,10 @@ export const ArticlePostCard = forwardRef(function PostCard(
                 alt="Post Cover image"
                 src={post.image}
                 fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-                className={classNames('object-cover', !isVideoType && 'mt-4')}
+                className={classNames(
+                  'object-cover mobileXXL:self-start',
+                  !isVideoType && 'mt-4',
+                )}
                 loading="lazy"
                 data-testid="postImage"
                 {...(isVideoType && {
