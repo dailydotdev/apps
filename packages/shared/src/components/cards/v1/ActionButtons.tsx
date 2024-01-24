@@ -88,7 +88,7 @@ export default function ActionButtons({
           <PostTagsPanel
             post={post}
             className="pointer-events-auto mt-4"
-            toastOnSuccess
+           
           />
         </div>
       )}
