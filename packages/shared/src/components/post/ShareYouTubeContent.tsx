@@ -6,13 +6,17 @@ import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
 import YoutubeVideo from '../video/YoutubeVideo';
 import { formatReadTime } from '../utilities';
+import { combinedClicks } from '../../lib/click';
 
 interface ShareYouTubeContentProps {
   post: Post;
   onReadArticle: () => Promise<void>;
 }
 
-function ShareYouTubeContent({ post }: ShareYouTubeContentProps): ReactElement {
+function ShareYouTubeContent({
+  post,
+  onReadArticle,
+}: ShareYouTubeContentProps): ReactElement {
   return (
     <>
       <SharePostTitle post={post} />
@@ -23,6 +27,7 @@ function ShareYouTubeContent({ post }: ShareYouTubeContentProps): ReactElement {
         />
         <SharedPostLink
           post={post}
+          onGoToLinkProps={combinedClicks(onReadArticle)}
           className="m-4 flex flex-wrap font-bold typo-body"
         >
           {post.sharedPost.title}
