@@ -187,11 +187,10 @@ export const FeedContainer = ({
       )}
     >
       {isV1Search && shouldUseFeedLayoutV1 && (
-        <img
-          className="absolute left-0 top-0 w-full -translate-y-1/2"
-          src={cloudinary.feed.bg.layoutV1}
-          alt="Gradient background"
-        />
+        <div className="absolute -top-24 left-1/2 flex -translate-x-1/2 flex-row justify-center">
+          <span className="z-1 size-40 translate-x-6 rounded-full bg-theme-color-cabbage blur-[5rem]" />
+          <span className="z-0 h-40 w-70 -translate-x-6 rounded-[50%] bg-theme-color-onion blur-[5rem]" />
+        </div>
       )}
       <ScrollToTopButton />
       <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
