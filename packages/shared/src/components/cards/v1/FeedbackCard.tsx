@@ -38,8 +38,8 @@ export const FeedbackCard = ({
         </p>
         <CloseButton
           id="close-engagement-loop-btn"
-          className="absolute -right-2.5 -top-2.5"
-          size={ButtonSize.XSmall}
+          className="absolute -right-2 -top-4"
+          size={ButtonSize.Small}
           onClick={dismissFeedback}
         />
       </div>
@@ -84,7 +84,7 @@ export const FeedbackCard = ({
           alt="Post Cover image"
           src={post.image}
           fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-          className="object-cover"
+          className="!h-full max-h-[5rem] object-cover"
           loading="lazy"
           data-testid="postImage"
           {...(isVideoType && {
