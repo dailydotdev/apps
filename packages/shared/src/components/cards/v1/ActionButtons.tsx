@@ -154,7 +154,7 @@ export default function ActionButtons({
               id={`post-${post.id}-comment-btn`}
               className={classNames(
                 'pointer-events-auto ml-2',
-                post?.numUpvotes > 0 ? '!pl-3' : '!px-1',
+                post?.numComments > 0 ? '!pl-3' : '!px-1',
               )}
               color={ButtonColor.BlueCheese}
               tag="a"
