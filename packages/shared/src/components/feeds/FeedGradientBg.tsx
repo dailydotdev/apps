@@ -7,9 +7,9 @@ export function FeedGradientBg(): ReactElement {
 
   if (shouldUseFeedLayoutV1) {
     return (
-      <div className="absolute -top-24 left-1/2 flex -translate-x-1/2 flex-row justify-center">
-        <span className="z-1 size-40 translate-x-6 rounded-full bg-theme-color-cabbage blur-[5rem]" />
-        <span className="z-0 h-40 w-70 -translate-x-6 rounded-[50%] bg-theme-color-onion blur-[5rem]" />
+      <div className="absolute -top-24 left-1/2 flex -translate-x-1/2 flex-row-reverse justify-center">
+        <span className="h-40 w-70 -translate-x-6 rounded-[50%] bg-theme-color-onion blur-[5rem]" />
+        <span className="size-40 translate-x-6 rounded-full bg-theme-color-cabbage blur-[5rem]" />
       </div>
     );
   }
