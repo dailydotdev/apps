@@ -1,4 +1,5 @@
 import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
+import Link from 'next/link';
 import ActionButtons from './ActionButtons';
 import { SharedPostText } from '../SharedPostText';
 import { SharedPostCardFooter } from './SharedPostCardFooter';
@@ -54,7 +55,15 @@ export const SharePostCard = forwardRef(function SharePostCard(
         post={post}
         onMenuClick={(event) => onMenuClick?.(event, post)}
         metadata={{
-          topLabel: enableSourceHeader ? post.source.name : post.author.name,
+          topLabel: enableSourceHeader ? (
+            <Link href={post.source.permalink}>
+              <a href={post.source.permalink} className="relative z-1">
+                {post.source.name}
+              </a>
+            </Link>
+          ) : (
+            post.author.name
+          ),
           bottomLabel: enableSourceHeader
             ? post.author.name
             : `@${post.sharedPost?.source.handle}`,
