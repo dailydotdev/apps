@@ -94,6 +94,10 @@ export const SearchPanelInput = ({
 
     const provider = searchPanel.provider ?? defaultSearchProvider;
 
+    searchPanel.setActive({
+      isActive: false,
+    });
+
     return search({ provider, query: finalValue });
   };
 
