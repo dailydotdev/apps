@@ -2,7 +2,7 @@ import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { AuthFormProps, providerMap } from './common';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
-import { Button } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 
 const signupProviders = [providerMap.google, providerMap.github];
 
@@ -49,9 +49,10 @@ const OnboardingRegistrationForm = ({
         {signupProviders.map((provider) => (
           <Button
             key={provider.value}
-            className="flex h-12  bg-theme-active text-white"
             icon={provider.icon}
             loading={!isReady}
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Large}
             onClick={() => onSocialClick(provider.value)}
           >
             {provider.label}
