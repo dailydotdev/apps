@@ -7,12 +7,14 @@ interface SharedLinkContainerProps {
   children: ReactNode;
   summary?: string;
   className?: string;
+  wrapper?: (node: ReactNode) => ReactNode;
 }
 
 export function SharedLinkContainer({
   children,
   summary,
   className,
+  wrapper,
 }: SharedLinkContainerProps): ReactElement {
   const [height, setHeight] = useState<number>(null);
   const [shouldShowSummary, setShouldShowSummary] = useState(true);
@@ -24,6 +26,24 @@ export function SharedLinkContainer({
     return shouldShowSummary ? height : 0;
   }, [shouldShowSummary, height]);
 
+  const postSummary = (
+    <PostSummary
+      ref={(el) => {
+        if (!el?.offsetHeight || height !== null) {
+          return;
+        }
+
+        setHeight(el.offsetHeight);
+      }}
+      style={{ height: tldrHeight }}
+      className={classNames(
+        'mx-4 transition-all duration-300 ease-in-out',
+        shouldShowSummary && 'mb-4',
+      )}
+      summary={summary}
+    />
+  );
+
   return (
     <div
       className={classNames(
@@ -34,21 +54,7 @@ export function SharedLinkContainer({
       {children}
       {summary && (
         <>
-          <PostSummary
-            ref={(el) => {
-              if (!el?.offsetHeight || height !== null) {
-                return;
-              }
-
-              setHeight(el.offsetHeight);
-            }}
-            style={{ height: tldrHeight }}
-            className={classNames(
-              'mx-4 transition-all duration-300 ease-in-out',
-              shouldShowSummary && 'mb-4',
-            )}
-            summary={summary}
-          />
+          {wrapper ? wrapper(postSummary) : postSummary}
           <button
             type="button"
             className="flex w-full flex-row justify-center border-t border-theme-divider-tertiary py-2 font-bold typo-callout hover:underline"
