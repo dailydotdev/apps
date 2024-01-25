@@ -6,8 +6,8 @@ import { SearchPanelItem } from './SearchPanelItem';
 import { IconProps } from '../../Icon';
 import { MagicIcon } from '../../icons';
 import SearchIcon from '../../icons/Search';
-import { defaultSearchProvider } from './common';
 import { useSearchProvider } from '../../../hooks/search';
+import { useSearchPanelAction } from './useSearchPanelAction';
 
 export type SearchPanelActionProps = {
   provider: SearchProviderEnum;
@@ -36,14 +36,7 @@ export const SearchPanelAction = ({
   const searchPanel = useContext(SearchPanelContext);
   const Icon = iconToProviderMap[provider];
   const { search } = useSearchProvider();
-
-  const onActive = () => {
-    searchPanel.setProvider(provider);
-  };
-
-  const onInactive = () => {
-    searchPanel.setProvider(defaultSearchProvider);
-  };
+  const itemProps = useSearchPanelAction({ provider });
 
   return (
     <SearchPanelItem
@@ -51,10 +44,7 @@ export const SearchPanelAction = ({
       onClick={() => {
         search({ provider, query: searchPanel.query });
       }}
-      onMouseEnter={onActive}
-      onMouseLeave={onInactive}
-      onFocus={onActive}
-      onBlur={onInactive}
+      {...itemProps}
     >
       <span className="text-theme-label-tertiary typo-callout">
         {searchPanel.query}

@@ -1,12 +1,12 @@
-import React, { FunctionComponent, ReactElement } from 'react';
+import React, { FunctionComponent, ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { SearchProviderEnum } from '../../../graphql/search';
 import { IconProps, IconSize } from '../../Icon';
 import { MagicIcon } from '../../icons';
+import { SearchPanelContext } from './SearchPanelContext';
 
 export type SearchPanelProviderProps = {
   className?: string;
-  provider: SearchProviderEnum;
 };
 
 const providerToComponentMap: Record<
@@ -28,9 +28,9 @@ const providerToComponentMap: Record<
 
 export const SearchPanelProvider = ({
   className,
-  provider,
 }: SearchPanelProviderProps): ReactElement => {
-  const Component = providerToComponentMap[provider];
+  const searchPanel = useContext(SearchPanelContext);
+  const Component = providerToComponentMap[searchPanel.provider];
 
   if (!Component) {
     return null;

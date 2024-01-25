@@ -13,7 +13,10 @@ import {
   SearchProviderEnum,
   minSearchQueryLength,
 } from '../../../graphql/search';
-import { SearchPanelContext } from './SearchPanelContext';
+import {
+  SearchPanelContext,
+  SearchPanelContextValue,
+} from './SearchPanelContext';
 import { SearchPanelAction } from './SearchPanelAction';
 import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
 import SettingsContext from '../../../contexts/SettingsContext';
@@ -39,7 +42,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
 
   const [state, setState] = useState(() => {
     return {
-      provider: SearchProviderEnum.Posts,
+      provider: undefined,
       query: '',
       isActive: false,
     };
@@ -49,15 +52,15 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
     queryClient.setQueryData(searchPanelGradientQueryKey, state.isActive);
   }, [queryClient, state.isActive]);
 
-  const searchPanel = useMemo(() => {
+  const searchPanel = useMemo<SearchPanelContextValue>(() => {
     return {
       ...state,
-      setProvider: (provider: SearchProviderEnum) => {
+      setProvider: ({ provider, text }) => {
         setState((currentState) => {
-          return { ...currentState, provider };
+          return { ...currentState, provider, providerText: text || undefined };
         });
       },
-      setActive: (isActive: boolean) => {
+      setActive: ({ isActive }) => {
         setState((currentState) => {
           return {
             ...currentState,
@@ -90,8 +93,11 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
             });
           }}
           inputProps={{
+            value: state.query,
             onFocus: () => {
-              searchPanel.setActive(true);
+              searchPanel.setActive({
+                isActive: true,
+              });
 
               if (!isTracked.current && shouldShowPulse) {
                 isTracked.current = true;
