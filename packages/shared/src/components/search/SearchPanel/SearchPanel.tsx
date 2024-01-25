@@ -40,7 +40,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
     return {
       provider: SearchProviderEnum.Posts,
       query: '',
-      isActive: true,
+      isActive: false,
     };
   });
 
