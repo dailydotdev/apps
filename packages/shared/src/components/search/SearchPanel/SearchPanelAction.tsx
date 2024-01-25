@@ -1,13 +1,13 @@
-import { useRouter } from 'next/router';
 import React, { FunctionComponent, ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import { SearchProviderEnum, getSearchUrl } from '../../../graphql/search';
+import { SearchProviderEnum } from '../../../graphql/search';
 import { SearchPanelContext } from './SearchPanelContext';
 import { SearchPanelItem } from './SearchPanelItem';
 import { IconProps } from '../../Icon';
 import { MagicIcon } from '../../icons';
 import SearchIcon from '../../icons/Search';
 import { defaultSearchProvider } from './common';
+import { useSearchProvider } from '../../../hooks/search';
 
 export type SearchPanelActionProps = {
   provider: SearchProviderEnum;
@@ -33,9 +33,9 @@ const iconToProviderMap: Record<
 export const SearchPanelAction = ({
   provider,
 }: SearchPanelActionProps): ReactElement => {
-  const router = useRouter();
   const searchPanel = useContext(SearchPanelContext);
   const Icon = iconToProviderMap[provider];
+  const { search } = useSearchProvider();
 
   const onActive = () => {
     searchPanel.setProvider(provider);
@@ -49,23 +49,16 @@ export const SearchPanelAction = ({
     <SearchPanelItem
       icon={<Icon />}
       onClick={() => {
-        router.push(
-          getSearchUrl({
-            provider,
-            query: searchPanel.query,
-          }),
-          undefined,
-          {
-            shallow: true,
-          },
-        );
+        search({ provider, query: searchPanel.query });
       }}
       onMouseEnter={onActive}
       onMouseLeave={onInactive}
       onFocus={onActive}
       onBlur={onInactive}
     >
-      <span className="text-theme-label-tertiary typo-callout">{provider}</span>
+      <span className="text-theme-label-tertiary typo-callout">
+        {searchPanel.query}
+      </span>
     </SearchPanelItem>
   );
 };

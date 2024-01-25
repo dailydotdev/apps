@@ -1,9 +1,11 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { useRouter } from 'next/router';
 import SearchIcon from '../../icons/Search';
 import { SearchPanelItem } from './SearchPanelItem';
 import { SearchProviderEnum, getSearchUrl } from '../../../graphql/search';
+import { useSearchProviderSuggestions } from '../../../hooks/search';
+import { SearchPanelContext } from './SearchPanelContext';
 
 export type SearchPanelPostSuggestionsProps = {
   className?: string;
@@ -15,19 +17,12 @@ export const SearchPanelPostSuggestions = ({
   title,
 }: SearchPanelPostSuggestionsProps): ReactElement => {
   const router = useRouter();
+  const searchPanel = useContext(SearchPanelContext);
 
-  // TODO AS-3-search-merge replace with useSearchProvider hook
-  const suggestions = [
-    {
-      title: 'Opinion: How to be a better developer?',
-    },
-    {
-      title: 'How to learn Java script?',
-    },
-    {
-      title: 'How to build React applications faster with Bun',
-    },
-  ];
+  const { suggestions } = useSearchProviderSuggestions({
+    provider: SearchProviderEnum.Posts,
+    query: searchPanel.query,
+  });
 
   const onSuggestionClick = (suggestion: { title: string }) => {
     router.push(
@@ -42,6 +37,10 @@ export const SearchPanelPostSuggestions = ({
     );
   };
 
+  if (!suggestions?.hits?.length) {
+    return null;
+  }
+
   return (
     <div className={classNames(className, 'flex flex-col')}>
       <div className="relative my-2 flex items-center justify-start gap-2">
@@ -51,7 +50,7 @@ export const SearchPanelPostSuggestions = ({
         </span>
         <hr className="flex-1 border-theme-divider-tertiary" />
       </div>
-      {suggestions.map((suggestion) => {
+      {suggestions?.hits?.map((suggestion) => {
         return (
           <SearchPanelItem
             key={suggestion.title}
