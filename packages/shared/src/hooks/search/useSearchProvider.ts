@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router';
+import { useCallback } from 'react';
 import {
   SEARCH_POST_SUGGESTIONS,
   SearchProviderEnum,
@@ -31,25 +32,33 @@ export const useSearchProvider = (): UseSearchProvider => {
   const { requestMethod } = useRequestProtocol();
 
   return {
-    search: ({ provider, query }) => {
-      router.push(getSearchUrl({ query, provider }));
-    },
-    getSuggestions: async ({ provider, query }) => {
-      const graphqlQuery = searchProviderSuggestionsQueryMap[provider];
+    search: useCallback(
+      ({ provider, query }) => {
+        router.push(getSearchUrl({ query, provider }), undefined, {
+          shallow: true,
+        });
+      },
+      [router],
+    ),
+    getSuggestions: useCallback(
+      async ({ provider, query }) => {
+        const graphqlQuery = searchProviderSuggestionsQueryMap[provider];
 
-      if (!graphqlQuery) {
-        return {
-          hits: [],
-        };
-      }
+        if (!graphqlQuery) {
+          return {
+            hits: [],
+          };
+        }
 
-      const result = await requestMethod<{
-        searchPostSuggestions: SearchSuggestionResult;
-      }>(graphqlUrl, searchProviderSuggestionsQueryMap[provider], {
-        query,
-      });
+        const result = await requestMethod<{
+          searchPostSuggestions: SearchSuggestionResult;
+        }>(graphqlUrl, searchProviderSuggestionsQueryMap[provider], {
+          query,
+        });
 
-      return result.searchPostSuggestions;
-    },
+        return result.searchPostSuggestions;
+      },
+      [requestMethod],
+    ),
   };
 };
