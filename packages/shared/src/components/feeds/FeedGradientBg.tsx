@@ -10,7 +10,7 @@ export function FeedGradientBg(): ReactElement {
   return (
     <div
       className={classNames(
-        'absolute -top-40 flex flex-row-reverse justify-center',
+        'absolute -top-40 flex max-w-full flex-row-reverse justify-center',
         centered,
         !shouldUseFeedLayoutV1 && 'laptop:left-0 laptop:translate-x-0',
       )}
