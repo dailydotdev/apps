@@ -26,7 +26,7 @@ function ShareYouTubeContent({
       <SharedLinkContainer
         className="my-5"
         summary={post?.sharedPost?.summary}
-        wrapper={(node) => (
+        Wrapper={(node) => (
           <ConditionalWrapper
             condition={!isUnknownSource}
             wrapper={(comp) => (

@@ -7,14 +7,14 @@ interface SharedLinkContainerProps {
   children: ReactNode;
   summary?: string;
   className?: string;
-  wrapper?: (node: ReactNode) => ReactNode;
+  Wrapper?: (node: ReactNode) => ReactNode;
 }
 
 export function SharedLinkContainer({
   children,
   summary,
   className,
-  wrapper,
+  Wrapper,
 }: SharedLinkContainerProps): ReactElement {
   const [height, setHeight] = useState<number>(null);
   const [shouldShowSummary, setShouldShowSummary] = useState(true);
@@ -54,7 +54,7 @@ export function SharedLinkContainer({
       {children}
       {summary && (
         <>
-          {wrapper ? wrapper(postSummary) : postSummary}
+          {Wrapper ? Wrapper(postSummary) : postSummary}
           <button
             type="button"
             className="flex w-full flex-row justify-center border-t border-theme-divider-tertiary py-2 font-bold typo-callout hover:underline"
