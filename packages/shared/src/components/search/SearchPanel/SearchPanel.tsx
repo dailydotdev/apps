@@ -65,9 +65,8 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
           return {
             ...currentState,
             isActive,
-            provider: currentState
-              ? currentState.provider
-              : SearchProviderEnum.Posts,
+            provider: currentState ? currentState.provider : undefined,
+            providerText: undefined,
           };
         });
       },
