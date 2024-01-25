@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { cloudinary } from '../../lib/image';
+
+const centered = 'left-1/2 -translate-x-1/2';
 
 export type FeedGradientBgProps = {
   className?: string;
@@ -10,13 +11,15 @@ export function FeedGradientBg({
   className,
 }: FeedGradientBgProps): ReactElement {
   return (
-    <img
+    <div
       className={classNames(
         className,
-        'absolute left-0 right-0 top-0 mx-auto w-full laptop:max-w-[58.75rem]',
+        'absolute -top-40 flex max-w-full flex-row-reverse justify-center',
+        centered,
       )}
-      src={cloudinary.search.gradient.common}
-      alt="Gradient background"
-    />
+    >
+      <span className="h-40 w-70 -translate-x-6 rounded-[50%] bg-theme-color-onion blur-[5rem]" />
+      <span className="size-40 translate-x-6 rounded-full bg-theme-color-cabbage blur-[5rem]" />
+    </div>
   );
 }

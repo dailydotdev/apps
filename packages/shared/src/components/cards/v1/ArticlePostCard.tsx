@@ -1,5 +1,6 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
+import Link from 'next/link';
 import {
   CardContainer,
   CardContent,
@@ -90,7 +91,13 @@ export const ArticlePostCard = forwardRef(function PostCard(
               onMenuClick={(event) => onMenuClick?.(event, post)}
               onReadArticleClick={onReadArticleClick}
               metadata={{
-                topLabel: post.source.name,
+                topLabel: (
+                  <Link href={post.source.permalink}>
+                    <a href={post.source.permalink} className="relative z-1">
+                      {post.source.name}
+                    </a>
+                  </Link>
+                ),
                 bottomLabel: (
                   <PostReadTime
                     readTime={post.readTime}
