@@ -1,40 +1,20 @@
-import React, { FunctionComponent, ReactElement, useContext } from 'react';
-import classNames from 'classnames';
+import React, { ReactElement, useContext } from 'react';
 import { SearchProviderEnum } from '../../../graphql/search';
 import { SearchPanelContext } from './SearchPanelContext';
 import { SearchPanelItem } from './SearchPanelItem';
-import { IconProps } from '../../Icon';
-import { MagicIcon } from '../../icons';
-import SearchIcon from '../../icons/Search';
 import { useSearchProvider } from '../../../hooks/search';
 import { useSearchPanelAction } from './useSearchPanelAction';
+import { providerToIconMap } from './common';
 
 export type SearchPanelActionProps = {
   provider: SearchProviderEnum;
-};
-
-const iconToProviderMap: Record<
-  SearchProviderEnum,
-  FunctionComponent<IconProps>
-> = {
-  [SearchProviderEnum.Posts]: SearchIcon,
-  [SearchProviderEnum.Chat]: ({ className, ...rest }: IconProps) => (
-    <MagicIcon
-      className={classNames(
-        className,
-        'rounded-6 bg-gradient-to-t from-onion-40 to-cabbage-40 p-0.5 text-white',
-      )}
-      secondary
-      {...rest}
-    />
-  ),
 };
 
 export const SearchPanelAction = ({
   provider,
 }: SearchPanelActionProps): ReactElement => {
   const searchPanel = useContext(SearchPanelContext);
-  const Icon = iconToProviderMap[provider];
+  const Icon = providerToIconMap[provider];
   const { search } = useSearchProvider();
   const itemProps = useSearchPanelAction({ provider });
 

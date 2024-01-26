@@ -2,11 +2,19 @@ import React, { ReactElement, useMemo } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import {
+  SearchProviderButton,
+  providerToLabelTextMap,
+} from '@dailydotdev/shared/src/components';
+import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../layouts/MainFeedPage';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 const baseSeo: NextSeoProps = {
   openGraph: { ...defaultOpenGraph },
@@ -16,6 +24,8 @@ const baseSeo: NextSeoProps = {
 const Search = (): ReactElement => {
   const router = useRouter();
   const { query } = router;
+  const searchVersion = useFeature(feature.search);
+  const isSearchV1 = searchVersion === SearchExperiment.V1;
 
   const seo = useMemo(() => {
     if ('q' in query) {
@@ -31,6 +41,18 @@ const Search = (): ReactElement => {
   return (
     <>
       <NextSeo {...seo} {...baseSeo} />
+      {isSearchV1 && (
+        <SearchProviderButton
+          className="mt-4"
+          provider={SearchProviderEnum.Chat}
+          query={query.q as string}
+        >
+          <span className="text-white">Search posts on daily.dev instead</span>
+          <span className="ml-2 typo-footnote">
+            {providerToLabelTextMap[SearchProviderEnum.Chat]}
+          </span>
+        </SearchProviderButton>
+      )}
     </>
   );
 };
