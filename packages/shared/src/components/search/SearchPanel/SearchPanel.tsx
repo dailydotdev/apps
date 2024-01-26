@@ -20,11 +20,12 @@ import {
 import { SearchPanelAction } from './SearchPanelAction';
 import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
 import SettingsContext from '../../../contexts/SettingsContext';
-import { useActions } from '../../../hooks';
+import { useActions, useEventListener } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { AnalyticsEvent } from '../../../lib/analytics';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 import { searchPanelGradientQueryKey } from './common';
+import { ArrowKeyEnum } from '../../../lib/func';
 
 export type SearchPanelProps = {
   className?: string;
@@ -47,6 +48,8 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
       isActive: false,
     };
   });
+
+  const searchPanelRef = useRef<HTMLDivElement>();
 
   useEffect(() => {
     queryClient.setQueryData(searchPanelGradientQueryKey, state.isActive);
@@ -73,12 +76,57 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
     };
   }, [state]);
 
+  useEventListener(searchPanelRef, 'keydown', (event) => {
+    if (!state.isActive || !searchPanelRef.current) {
+      return;
+    }
+
+    const navigableElements = [
+      ...searchPanelRef.current.querySelectorAll<HTMLElement>(
+        '[data-search-panel-item]',
+      ),
+    ];
+    let activeElementIndex = navigableElements.findIndex(
+      (element) => element.getAttribute('data-search-panel-active') === 'true',
+    );
+
+    if (activeElementIndex === -1) {
+      activeElementIndex = 0;
+    }
+
+    const keyToIndexModifier: Partial<Record<ArrowKeyEnum, number>> = {
+      [ArrowKeyEnum.Up]: -1,
+      [ArrowKeyEnum.Down]: 1,
+    };
+
+    const supportedKeys = [ArrowKeyEnum.Up, ArrowKeyEnum.Down];
+
+    const pressedKey = supportedKeys.find((key) => key === event.key);
+
+    if (!pressedKey) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const indexModifier = keyToIndexModifier[pressedKey];
+
+    const nextElement = navigableElements[activeElementIndex + indexModifier];
+
+    if (nextElement) {
+      nextElement.focus();
+    }
+  });
+
   const showDropdown =
     state.isActive && state.query.length >= minSearchQueryLength;
 
   return (
     <SearchPanelContext.Provider value={searchPanel}>
-      <div className={classNames(className, 'relative flex flex-col')}>
+      <div
+        ref={searchPanelRef}
+        className={classNames(className, 'relative flex flex-col')}
+      >
         <SearchPanelInput
           className={{
             container: classNames(

@@ -56,3 +56,10 @@ export const isAppleDevice = (): boolean => {
 
   return appleDeviceMatch.test(window.navigator.platform);
 };
+
+export enum ArrowKeyEnum {
+  Up = 'ArrowUp',
+  Right = 'ArrowRight',
+  Down = 'ArrowDown',
+  Left = 'ArrowLeft',
+}

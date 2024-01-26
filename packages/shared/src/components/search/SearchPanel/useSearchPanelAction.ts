@@ -8,11 +8,13 @@ export type UseSearchPanelActionProps = {
   text?: string;
 };
 
+export type SearchPanelActionEventHandler = (event: Event) => void;
+
 export type UseSearchPanelAction = {
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
-  onFocus: () => void;
-  onBlur: () => void;
+  onMouseEnter: SearchPanelActionEventHandler;
+  onMouseLeave: SearchPanelActionEventHandler;
+  onFocus: SearchPanelActionEventHandler;
+  onBlur: SearchPanelActionEventHandler;
 };
 
 export const useSearchPanelAction = ({
@@ -37,7 +39,21 @@ export const useSearchPanelAction = ({
   return {
     onMouseEnter: onActive,
     onMouseLeave: onInactive,
-    onFocus: onActive,
-    onBlur: onInactive,
+    onFocus: (event) => {
+      if (event?.target instanceof HTMLElement) {
+        const element = event.target;
+        element.setAttribute('data-search-panel-active', 'true');
+      }
+
+      onActive();
+    },
+    onBlur: (event) => {
+      if (event?.target instanceof HTMLElement) {
+        const element = event.target;
+        element.removeAttribute('data-search-panel-active');
+      }
+
+      onInactive();
+    },
   };
 };

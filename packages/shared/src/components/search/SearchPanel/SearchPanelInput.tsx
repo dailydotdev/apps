@@ -162,6 +162,7 @@ export const SearchPanelInput = ({
           />
           <FieldInput
             {...inputProps}
+            data-search-panel-item="true"
             placeholder={placeholder}
             ref={inputRef}
             onFocus={(event) => {
