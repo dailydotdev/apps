@@ -136,7 +136,13 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
           }}
           valueChanged={(newValue) => {
             setState((currentState) => {
-              return { ...currentState, query: newValue };
+              return {
+                ...currentState,
+                query: newValue,
+                // reset provider label while typing
+                provider: undefined,
+                providerText: undefined,
+              };
             });
           }}
           inputProps={{
