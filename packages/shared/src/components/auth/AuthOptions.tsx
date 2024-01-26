@@ -506,14 +506,18 @@ function AuthOptions({
         </Tab>
         <Tab label={AuthDisplay.EmailVerification}>
           <AuthHeader simplified={simplified} title="Verify your email" />
-          <EmailCodeVerification email={email} flowId={verificationFlowId} />
+          <EmailCodeVerification
+            email={email}
+            flowId={verificationFlowId}
+            onSubmit={onProfileSuccess}
+          />
         </Tab>
         <Tab label={AuthDisplay.VerifiedEmail}>
           <EmailVerified hasUser={!!user} simplified={simplified}>
             {!user && (
               <LoginForm
                 isReady={isReady}
-                className="mx-4 tablet:mx-12 mt-8"
+                className="mx-4 mt-8 tablet:mx-12"
                 loginHint={loginHint}
                 onPasswordLogin={onPasswordLogin}
                 onForgotPassword={() =>

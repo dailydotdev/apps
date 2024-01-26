@@ -86,7 +86,8 @@ const seo: NextSeoProps = {
 export function OnboardPage(): ReactElement {
   const router = useRouter();
   const isTracked = useRef(false);
-  const { user, isAuthReady } = useAuthContext();
+  const { user, isAuthReady, anonymous } = useAuthContext();
+  const shouldVerify = anonymous?.shouldVerify;
   const [isFiltering, setIsFiltering] = useState(false);
   const [finishedOnboarding, setFinishedOnboarding] = useState(false);
   const { onShouldUpdateFilters } = useOnboardingContext();
@@ -96,9 +97,12 @@ export function OnboardPage(): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const [hasSelectTopics, setHasSelectTopics] = useState(false);
   const [auth, setAuth] = useState<AuthProps>({
-    isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY),
+    isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY) || shouldVerify,
     isLoginFlow: false,
-    defaultDisplay: AuthDisplay.OnboardingSignup,
+    defaultDisplay: shouldVerify
+      ? AuthDisplay.EmailVerification
+      : AuthDisplay.OnboardingSignup,
+    ...(anonymous?.email && { email: anonymous.email }),
   });
   const { isAuthenticating, isLoginFlow, email, defaultDisplay } = auth;
   const isPageReady = growthbook?.ready && isAuthReady;
@@ -249,14 +253,14 @@ export function OnboardPage(): ReactElement {
         {isFiltering && onboardingV4 === OnboardingV4.Control && (
           <>
             <Title className="text-center typo-title1">{title}</Title>
-            <p className="mt-3 mb-10 text-center text-theme-label-secondary typo-title3">
+            <p className="mb-10 mt-3 text-center text-theme-label-secondary typo-title3">
               Pick a few subjects that interest you. <br />
               You can always change these later.
             </p>
-            <FilterOnboarding className="grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6 mt-4" />
-            <div className="flex sticky bottom-0 z-3 flex-col items-center py-4 mt-4 w-full">
-              <div className="flex absolute inset-0 -z-1 w-full h-1/2 bg-gradient-to-t to-transparent from-theme-bg-primary" />
-              <div className="flex absolute inset-0 top-1/2 -z-1 w-full h-1/2 bg-theme-bg-primary" />
+            <FilterOnboarding className="mt-4 grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-6" />
+            <div className="sticky bottom-0 z-3 mt-4 flex w-full flex-col items-center py-4">
+              <div className="absolute inset-0 -z-1 flex h-1/2 w-full bg-gradient-to-t from-theme-bg-primary to-transparent" />
+              <div className="absolute inset-0 top-1/2 -z-1 flex h-1/2 w-full bg-theme-bg-primary" />
               <Button className="btn-primary w-[22.5rem]" onClick={onClickNext}>
                 Next
               </Button>
@@ -300,7 +304,7 @@ export function OnboardPage(): ReactElement {
             </Button>
             {isPreviewEnabled && isPreviewVisible && (
               <FeedLayout>
-                <p className="mt-6 -mb-4 text-center typo-body text-theme-label-secondary">
+                <p className="-mb-4 mt-6 text-center text-theme-label-secondary typo-body">
                   Change your tag selection until you&apos;re happy with your
                   feed preview.
                 </p>
@@ -320,7 +324,7 @@ export function OnboardPage(): ReactElement {
           </>
         )}
         {!isFiltering && (
-          <div className="hidden tablet:block flex-1">
+          <div className="hidden flex-1 tablet:block">
             <div className={classNames('relative', styles.videoWrapper)}>
               {
                 // eslint-disable-next-line jsx-a11y/media-has-caption
@@ -362,7 +366,7 @@ export function OnboardPage(): ReactElement {
     return <ProgressBar percentage={isAuthenticating ? percentage : 0} />;
   };
 
-  const showOnboardingPage = !isAuthenticating && !isFiltering;
+  const showOnboardingPage = !isAuthenticating && !isFiltering && !shouldVerify;
 
   if (!isPageReady) {
     return null;
@@ -421,7 +425,7 @@ export function OnboardPage(): ReactElement {
             wrapperMaxWidth,
           )}
         >
-          <div className="flex relative flex-col flex-1 gap-6 pb-6 tablet:mt-auto laptop:mr-8 laptop:max-w-[27.5rem]">
+          <div className="relative flex flex-1 flex-col gap-6 pb-6 tablet:mt-auto laptop:mr-8 laptop:max-w-[27.5rem]">
             <SignupDisclaimer className="mb-0 tablet:mb-10" />
 
             <TrustedCompanies
@@ -436,7 +440,7 @@ export function OnboardPage(): ReactElement {
               alt="Gradient background"
             />
           </div>
-          <div className="hidden tablet:block flex-1" />
+          <div className="hidden flex-1 tablet:block" />
         </footer>
       )}
     </Container>

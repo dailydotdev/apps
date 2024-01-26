@@ -27,17 +27,18 @@ function EmailCodeVerification({
   const [hint, setHint] = useState('');
   const [code, setCode] = useState(codeProp);
   const [email, setEmail] = useState(emailProp);
-  const { sendEmail, verifyCode, resendTimer, isLoading } = useAccountEmailFlow(
-    {
+  const { sendEmail, verifyCode, resendTimer, isLoading, autoResend } =
+    useAccountEmailFlow({
       flow: AuthFlow.Verification,
-      email,
       flowId,
       onError: setHint,
       onVerifyCodeSuccess: () => {
         onSubmit();
       },
-    },
-  );
+    });
+  if (autoResend && !hint) {
+    setHint('Please click resend code to get a new code.');
+  }
 
   const onCodeVerification = async (e) => {
     e.preventDefault();
@@ -46,7 +47,7 @@ function EmailCodeVerification({
     //   event_name: AuthEventNames.SubmitForgotPassword,
     // });
     setHint('');
-    await verifyCode(code);
+    await verifyCode({ code });
   };
 
   const onSendCode = () => {
@@ -91,9 +92,10 @@ function EmailCodeVerification({
         }
       />
       <Button
-        className="mt-6 w-full btn-primary"
+        className="btn-primary mt-6 w-full"
         type="submit"
         loading={isLoading}
+        disabled={autoResend}
       >
         Verify
       </Button>

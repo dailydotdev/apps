@@ -46,6 +46,7 @@ export enum AccountSecurityDisplay {
   Default = 'default',
   ChangePassword = 'change_password',
   ChangeEmail = 'change_email',
+  VerifyEmail = 'verify_email',
   ConnectEmail = 'connect_email',
 }
 

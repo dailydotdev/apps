@@ -357,6 +357,18 @@ export const getKratosSession = async (): Promise<AuthSession> => {
   return res.json();
 };
 
+export const getVerificationSession = async (): Promise<any> => {
+  const res = await fetch(`${heimdallUrl}/api/get_verification_flow`, {
+    credentials: 'include',
+  });
+
+  if (res.status === 401) {
+    throw new Error('No active session');
+  }
+
+  return res.json();
+};
+
 export const KRATOS_ERROR = {
   INVALID_TOKEN: 4060004,
   EXISTING_USER: 4000007,

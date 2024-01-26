@@ -1,21 +1,24 @@
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   PasswordField,
   PasswordFieldProps,
 } from '@dailydotdev/shared/src/components/fields/PasswordField';
-import { TextFieldProps } from '@dailydotdev/shared/src/components/fields/TextField';
+import {
+  TextField,
+  TextFieldProps,
+} from '@dailydotdev/shared/src/components/fields/TextField';
 import classNames from 'classnames';
-import React, {
-  Dispatch,
-  FormEvent,
-  ReactElement,
-  SetStateAction,
-} from 'react';
+import React, { Dispatch, ReactElement, SetStateAction, useState } from 'react';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import useAccountEmailFlow from '@dailydotdev/shared/src/hooks/useAccountEmailFlow';
+import { AuthFlow } from '@dailydotdev/shared/src/lib/kratos';
+import useTimer from '@dailydotdev/shared/src/hooks/useTimer';
 import { CommonTextField } from './common';
 
 export interface EmailFormProps {
-  onSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  onSubmit: (email: string) => void;
+  onVerifySuccess: () => Promise<void>;
   className?: string;
+  verificationId?: string;
   emailProps?: Partial<TextFieldProps>;
   passwordProps?: Partial<PasswordFieldProps>;
   hint?: string;
@@ -24,25 +27,53 @@ export interface EmailFormProps {
 
 function EmailForm({
   onSubmit,
+  onVerifySuccess,
   className,
   hint,
   setHint,
   emailProps = {},
   passwordProps,
+  verificationId,
 }: EmailFormProps): ReactElement {
+  const [code, setCode] = useState<string>();
+  const [email, setEmail] = useState<string>();
+  const { timer, setTimer, runTimer } = useTimer(null, 0);
+  const { verifyCode } = useAccountEmailFlow({
+    flow: AuthFlow.Verification,
+    flowId: verificationId,
+    onError: setHint,
+    onVerifyCodeSuccess: () => {
+      onVerifySuccess();
+    },
+  });
+
+  const onCodeVerification = async (e) => {
+    e.preventDefault();
+    // Verify required analytics
+    // trackEvent({
+    //   event_name: AuthEventNames.SubmitForgotPassword,
+    // });
+    setHint('');
+    await verifyCode({ code, altFlowId: verificationId });
+  };
+
+  const onSubmitEmail = () => {
+    onSubmit(email);
+    setTimer(60);
+    runTimer();
+  };
+
   return (
-    <form
-      className={classNames('flex flex-col', className)}
-      onSubmit={onSubmit}
-    >
+    <form className={classNames('flex flex-col gap-3', className)}>
       <CommonTextField
         type="email"
         inputId="new_email"
         name="traits.email"
-        value={emailProps?.value}
         hint={hint}
         valid={!hint}
         label={emailProps?.label || 'Email'}
+        value={email}
+        valueChanged={setEmail}
         onChange={() => setHint(null)}
       />
       {passwordProps && (
@@ -55,8 +86,34 @@ function EmailForm({
           label={passwordProps?.label || 'Password'}
         />
       )}
-      <Button className="mt-6 ml-auto w-fit bg-theme-color-cabbage btn-quaternary">
-        Save changes
+      <TextField
+        className={{ container: 'w-full' }}
+        name="code"
+        type="code"
+        inputId="code"
+        label="Enter 6-digit code"
+        hint={hint}
+        defaultValue={code}
+        valid={!hint}
+        valueChanged={setCode}
+        onChange={() => hint && setHint('')}
+        actionButton={
+          <Button
+            className="btn-primary"
+            type="button"
+            disabled={!email || timer > 0}
+            onClick={onSubmitEmail}
+          >
+            {timer === 0 ? 'Send code' : `Resend code ${timer}s`}
+          </Button>
+        }
+      />
+      <Button
+        className="btn-primary mt-3 w-fit"
+        disabled={!code}
+        onClick={onCodeVerification}
+      >
+        Change email
       </Button>
     </form>
   );
