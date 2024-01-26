@@ -34,9 +34,7 @@ export const useSearchProvider = (): UseSearchProvider => {
   return {
     search: useCallback(
       ({ provider, query }) => {
-        router.push(getSearchUrl({ query, provider }), undefined, {
-          shallow: true,
-        });
+        router.push(getSearchUrl({ query, provider }));
       },
       [router],
     ),
