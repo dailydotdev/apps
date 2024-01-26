@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { HTMLAttributes, useContext } from 'react';
 import { SearchProviderEnum } from '../../../graphql/search';
 import { SearchPanelContext } from './SearchPanelContext';
 import { providerToLabelTextMap } from './common';
@@ -11,10 +11,10 @@ export type UseSearchPanelActionProps = {
 export type SearchPanelActionEventHandler = (event: Event) => void;
 
 export type UseSearchPanelAction = {
-  onMouseEnter: SearchPanelActionEventHandler;
-  onMouseLeave: SearchPanelActionEventHandler;
-  onFocus: SearchPanelActionEventHandler;
-  onBlur: SearchPanelActionEventHandler;
+  onMouseEnter: HTMLAttributes<HTMLButtonElement>['onMouseEnter'];
+  onMouseLeave: HTMLAttributes<HTMLButtonElement>['onMouseLeave'];
+  onFocus: HTMLAttributes<HTMLButtonElement>['onFocus'];
+  onBlur: HTMLAttributes<HTMLButtonElement>['onBlur'];
 };
 
 export const useSearchPanelAction = ({
