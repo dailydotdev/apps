@@ -5,6 +5,7 @@ import { PromptOptions, usePrompt } from './usePrompt';
 import { useBoot } from './useBoot';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
+import { ButtonColor, ButtonVariant } from '../components/buttons/ButtonV2';
 
 interface UseDeleteSquadModal {
   onDeleteSquad: () => void;
@@ -33,11 +34,12 @@ export const useDeleteSquad = ({
         : `Deleting your Squad will free up your handle and members you invited will not be able to join`,
       okButton: {
         title: 'Delete',
-        className: 'btn-secondary',
+        variant: ButtonVariant.Secondary,
       },
       cancelButton: {
         title: 'No, keep it',
-        className: 'btn-primary-cabbage',
+        variant: ButtonVariant.Primary,
+        color: ButtonColor.Cabbage,
       },
       className: {
         buttons: 'flex-row-reverse',

@@ -1,8 +1,6 @@
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
-import MainFeedLayout, {
-  getFeedName,
-} from '@dailydotdev/shared/src/components/MainFeedLayout';
+import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
@@ -10,8 +8,13 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
+import {
+  FeedLayout as FeedLayoutEnum,
+  SearchExperiment,
+} from '@dailydotdev/shared/src/lib/featureValues';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
+import classNames from 'classnames';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
 import DndContext from './DndContext';
@@ -43,6 +46,7 @@ export default function MainFeedPage({
   const [feedName, setFeedName] = useState<string>('default');
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
+  const layout = useFeature(feature.feedLayout);
   useCompanionSettings();
   const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
@@ -120,7 +124,15 @@ export default function MainFeedPage({
             />
           }
           navChildren={!isSearchOn && <ShortcutLinks />}
-          besideSearch={<ShortcutLinks className="ml-auto" />}
+          shortcuts={
+            <ShortcutLinks
+              className={classNames(
+                layout === FeedLayoutEnum.Control
+                  ? 'ml-auto'
+                  : 'mt-4 w-fit [@media(width<=680px)]:mx-6',
+              )}
+            />
+          }
         />
       </FeedLayout>
       <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />

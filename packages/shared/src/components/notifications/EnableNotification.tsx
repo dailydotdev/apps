@@ -1,6 +1,11 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import CloseButton from '../CloseButton';
 import { cloudinary } from '../../lib/image';
 import VIcon from '../icons/V';
@@ -80,24 +85,21 @@ function EnableNotification({
     return (
       <span
         className={classNames(
-          'flex relative flex-row items-center p-3 w-full font-bold bg-gradient-to-r from-theme-color-water to-theme-color-onion typo-body',
+          'relative flex w-full flex-row items-center bg-gradient-to-r from-theme-color-water to-theme-color-onion p-3 font-bold typo-body',
           containerClassName[source],
         )}
       >
         <BellNotifyIcon secondary className="mr-2" /> Never miss new posts from{' '}
         {label}
         <Button
-          className="mr-14 ml-auto btn-secondary"
-          buttonSize={ButtonSize.XSmall}
+          className="ml-auto mr-14"
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.XSmall}
           onClick={onEnable}
         >
           Subscribe
         </Button>
-        <CloseButton
-          className="right-3"
-          position="absolute"
-          onClick={onDismiss}
-        />
+        <CloseButton className="absolute right-3" onClick={onDismiss} />
       </span>
     );
   }
@@ -105,7 +107,7 @@ function EnableNotification({
   return (
     <div
       className={classNames(
-        'overflow-hidden relative py-4 typo-callout border-theme-color-cabbage',
+        'relative overflow-hidden border-theme-color-cabbage py-4 typo-callout',
         classes,
         className,
       )}
@@ -116,7 +118,7 @@ function EnableNotification({
           {`Push notifications${isEnabled ? ' successfully enabled' : ''}`}
         </span>
       )}
-      <p className="mt-2 w-full tablet:w-3/5 text-theme-label-tertiary">
+      <p className="mt-2 w-full text-theme-label-tertiary tablet:w-3/5">
         {isEnabled ? (
           <>
             Changing your{' '}
@@ -132,11 +134,13 @@ function EnableNotification({
           message
         )}
       </p>
-      <div className="flex mt-4 align-center">
+      <div className="align-center mt-4 flex">
         {!hasEnabled && (
           <Button
-            buttonSize={ButtonSize.Small}
-            className="mr-4 min-w-[7rem] btn-primary-cabbage"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
+            className="mr-4"
             onClick={onEnable}
           >
             Enable notifications
@@ -144,8 +148,8 @@ function EnableNotification({
         )}
         {showTextCloseButton && (
           <Button
-            buttonSize={ButtonSize.Small}
-            className="btn-tertiary"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Tertiary}
             onClick={onDismiss}
           >
             Dismiss
@@ -154,7 +158,7 @@ function EnableNotification({
       </div>
       <img
         className={classNames(
-          'hidden tablet:flex absolute w-[7.5rem] -bottom-2',
+          'absolute -bottom-2 hidden w-[7.5rem] tablet:flex',
           isEnabled ? 'right-14' : 'right-4',
         )}
         src={
@@ -166,10 +170,9 @@ function EnableNotification({
       />
       {!showTextCloseButton && (
         <CloseButton
-          buttonSize={ButtonSize.XSmall}
-          className="top-1 laptop:top-3 right-1 laptop:right-3"
+          size={ButtonSize.XSmall}
+          className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
           onClick={onDismiss}
-          position="absolute"
         />
       )}
     </div>

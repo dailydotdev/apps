@@ -134,7 +134,7 @@ export default function PostsSearch({
   return (
     <>
       <SearchField
-        className={classNames('flex-1 compact', className)}
+        className={classNames('compact flex-1', className)}
         inputId="posts-search"
         fieldSize="medium"
         placeholder={placeholder ?? 'Find posts'}

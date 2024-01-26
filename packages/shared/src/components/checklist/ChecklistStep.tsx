@@ -19,7 +19,7 @@ const ChecklistStep = ({
     <div className={className.container}>
       <button
         type="button"
-        className="flex justify-between items-center w-full"
+        className="flex w-full items-center justify-between"
         data-testid="checklist-step"
         onClick={(event) => {
           event.preventDefault();
@@ -27,17 +27,17 @@ const ChecklistStep = ({
           onToggle(step.action);
         }}
       >
-        <div className="flex flex-1 gap-1 items-center flex-start">
+        <div className="flex-start flex flex-1 items-center gap-1">
           <div
             className={classNames(
-              'w-10 h-10 flex justify-center items-center -ml-2 text-theme-label-tertiary',
+              '-ml-2 flex h-10 w-10 items-center justify-center text-theme-label-tertiary',
               isCompleted && 'text-theme-label-quaternary',
             )}
             id={step.action.type}
           >
             <div
               className={classNames(
-                isActive && 'p-1 rounded-full bg-theme-bg-cabbage-opacity-24',
+                isActive && 'rounded-full bg-theme-bg-cabbage-opacity-24 p-1',
               )}
               data-testid={`checklist-step-${isActive ? 'active' : 'inactive'}`}
             >
@@ -56,7 +56,7 @@ const ChecklistStep = ({
           </div>
           <p
             className={classNames(
-              'typo-callout flex-1 text-left',
+              'flex-1 text-left typo-callout',
               isActive ? 'font-bold text-theme-label-primary' : 'font-normal',
               isCompleted
                 ? 'text-theme-label-quaternary'

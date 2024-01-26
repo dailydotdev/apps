@@ -3,19 +3,26 @@ import dynamic from 'next/dynamic';
 import { FeedItem } from '../hooks/useFeed';
 import { PostList } from './cards/PostList';
 import { ArticlePostCard } from './cards/ArticlePostCard';
+import { ArticlePostCard as ArticlePostCardV1 } from './cards/v1/ArticlePostCard';
 import { AdList } from './cards/AdList';
 import { AdCard } from './cards/AdCard';
+import { AdCard as AdCardV1 } from './cards/v1/AdCard';
 import { PlaceholderList } from './cards/PlaceholderList';
 import { PlaceholderCard } from './cards/PlaceholderCard';
-import { Ad, Post, PostType } from '../graphql/posts';
+import { PlaceholderCard as PlaceholderCardV1 } from './cards/v1/PlaceholderCard';
+import { Ad, Post, PostItem, PostType } from '../graphql/posts';
 import { LoggedUser } from '../lib/user';
 import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { SharePostCard } from './cards/SharePostCard';
+import { SharePostCard as SharePostCardV1 } from './cards/v1/SharePostCard';
 import { WelcomePostCard } from './cards/WelcomePostCard';
+import { WelcomePostCard as WelcomePostCardV1 } from './cards/v1/WelcomePostCard';
 import { Origin } from '../lib/analytics';
-import { UseVotePost } from '../hooks';
+import { UseVotePost, useFeedLayout } from '../hooks';
+import { CollectionCard } from './cards/CollectionCard';
+import { CollectionCard as CollectionCardV1 } from './cards/v1/CollectionCard';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -47,6 +54,7 @@ export type FeedItemComponentProps = {
   onPostClick: FeedPostClick;
   onReadArticleClick: FeedPostClick;
   onShare: (post: Post, row?: number, column?: number) => void;
+  onBookmark: (post: Post, row: number, column: number) => Promise<void>;
   onMenuClick: (
     e: React.MouseEvent,
     index: number,
@@ -66,7 +74,7 @@ export type FeedItemComponentProps = {
     row: number,
     column: number,
   ) => unknown;
-  onAdClick: (ad: Ad, index: number, row: number, column: number) => void;
+  onAdClick: (ad: Ad, row: number, column: number) => void;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'>;
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {
@@ -86,6 +94,36 @@ const PostTypeToTag: Record<PostType, FunctionComponent> = {
   [PostType.Share]: SharePostCard,
   [PostType.Welcome]: WelcomePostCard,
   [PostType.Freeform]: WelcomePostCard,
+  [PostType.VideoYouTube]: ArticlePostCard,
+  [PostType.Collection]: CollectionCard,
+};
+
+const PostTypeToTagV1: Record<PostType, FunctionComponent> = {
+  [PostType.Article]: ArticlePostCardV1,
+  [PostType.Share]: SharePostCardV1,
+  [PostType.Welcome]: WelcomePostCardV1,
+  [PostType.Freeform]: WelcomePostCardV1,
+  [PostType.VideoYouTube]: ArticlePostCardV1,
+  [PostType.Collection]: CollectionCardV1,
+};
+
+const getTags = (
+  isList: boolean,
+  isFeedLayoutV1: boolean,
+  postType: PostType,
+) => {
+  if (isFeedLayoutV1) {
+    return {
+      PostTag: PostTypeToTagV1[postType] ?? ArticlePostCardV1,
+      AdTag: AdCardV1,
+      PlaceholderTag: PlaceholderCardV1,
+    };
+  }
+  return {
+    PostTag: isList ? PostList : PostTypeToTag[postType] ?? ArticlePostCard,
+    AdTag: isList ? AdList : AdCard,
+    PlaceholderTag: isList ? PlaceholderList : PlaceholderCard,
+  };
 };
 
 export default function FeedItemComponent({
@@ -94,7 +132,7 @@ export default function FeedItemComponent({
   row,
   column,
   columns,
-  useList,
+  useList: isList,
   insaneMode,
   openNewTab,
   postMenuIndex,
@@ -110,13 +148,12 @@ export default function FeedItemComponent({
   onPostClick,
   onShare,
   onShareClick,
+  onBookmark,
   onMenuClick,
   onCommentClick,
   onAdClick,
   onReadArticleClick,
 }: FeedItemComponentProps): ReactElement {
-  const AdTag = useList ? AdList : AdCard;
-  const PlaceholderTag = useList ? PlaceholderList : PlaceholderCard;
   const item = items[index];
   const inViewRef = useTrackImpression(
     item,
@@ -128,6 +165,13 @@ export default function FeedItemComponent({
     ranking,
   );
 
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { PostTag, AdTag, PlaceholderTag } = getTags(
+    isList,
+    shouldUseFeedLayoutV1,
+    (item as PostItem).post?.type,
+  );
+
   switch (item.type) {
     case 'post': {
       if (
@@ -137,9 +181,6 @@ export default function FeedItemComponent({
         return null;
       }
 
-      const PostTag = useList
-        ? PostList
-        : PostTypeToTag[item.post.type] ?? ArticlePostCard;
       return (
         <PostTag
           enableSourceHeader={
@@ -150,10 +191,10 @@ export default function FeedItemComponent({
             ...item.post,
           }}
           data-testid="postItem"
-          onUpvoteClick={(post) => {
+          onUpvoteClick={(post, origin = Origin.Feed) => {
             toggleUpvote({
               post,
-              origin: Origin.Feed,
+              origin,
               opts: {
                 columns,
                 column,
@@ -161,10 +202,10 @@ export default function FeedItemComponent({
               },
             });
           }}
-          onDownvoteClick={(post) => {
+          onDownvoteClick={(post, origin = Origin.Feed) => {
             toggleDownvote({
               post,
-              origin: Origin.Feed,
+              origin,
               opts: {
                 columns,
                 column,
@@ -176,7 +217,8 @@ export default function FeedItemComponent({
           onReadArticleClick={() =>
             onReadArticleClick(item.post, index, row, column)
           }
-          onShare={(post: Post) => onShare(post, row, column)}
+          onShare={(post) => onShare(post, row, column)}
+          onBookmarkClick={(post) => onBookmark(post, row, column)}
           openNewTab={openNewTab}
           enableMenu={!!user}
           onMenuClick={(event) => onMenuClick(event, index, row, column)}
@@ -195,8 +237,8 @@ export default function FeedItemComponent({
                 comment({ post: item.post, content, row, column, columns })
               }
               loading={isSendingComment}
-              compactCard={!useList && insaneMode}
-              listMode={useList}
+              compactCard={!isList && insaneMode}
+              listMode={isList}
             />
           )}
         </PostTag>
@@ -207,7 +249,7 @@ export default function FeedItemComponent({
         <AdTag
           ref={inViewRef}
           ad={item.ad}
-          onLinkClick={(ad) => onAdClick(ad, index, row, column)}
+          onLinkClick={(ad) => onAdClick(ad, row, column)}
           showImage={!insaneMode}
         />
       );

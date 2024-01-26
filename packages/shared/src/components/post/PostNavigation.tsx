@@ -1,34 +1,11 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import ArrowIcon from '../icons/Arrow';
-import { PostHeaderActions, PostHeaderActionsProps } from './PostHeaderActions';
+import { PostHeaderActions } from './PostHeaderActions';
 import { PostPosition } from '../../hooks/usePostModalNavigation';
-
-type PostActions = Pick<
-  PostHeaderActionsProps,
-  | 'post'
-  | 'onClose'
-  | 'onShare'
-  | 'onReadArticle'
-  | 'inlineActions'
-  | 'onRemovePost'
->;
-
-export interface PostNavigationClassName {
-  container?: string;
-  actions?: string;
-  title?: string;
-}
-
-export interface PostNavigationProps extends PostActions {
-  postPosition?: PostPosition;
-  onPreviousPost?: () => unknown;
-  onNextPost?: () => unknown;
-  className?: PostNavigationClassName;
-  children?: ReactNode;
-}
+import { PostNavigationProps } from './common';
 
 function PostNavigation({
   postPosition,
@@ -41,7 +18,7 @@ function PostNavigation({
   return (
     <div
       className={classNames(
-        'flex flex-row gap-2 items-center',
+        'flex flex-row items-center gap-2',
         className?.container,
       )}
       role="navigation"
@@ -49,7 +26,7 @@ function PostNavigation({
       {onPreviousPost && (
         <SimpleTooltip content="Previous">
           <Button
-            className="-rotate-90 btn-tertiary"
+            className="btn-tertiary -rotate-90"
             icon={<ArrowIcon />}
             onClick={onPreviousPost}
             disabled={[PostPosition.First, PostPosition.Only].includes(
@@ -61,7 +38,7 @@ function PostNavigation({
       {onNextPost && (
         <SimpleTooltip content="Next">
           <Button
-            className="rotate-90 btn-tertiary"
+            className="btn-tertiary rotate-90"
             icon={<ArrowIcon />}
             onClick={onNextPost}
             disabled={[PostPosition.Last, PostPosition.Only].includes(

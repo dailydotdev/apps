@@ -38,8 +38,8 @@ export function RaisedLabel({
   return (
     <div
       className={classNames(
-        'absolute flex items-start',
-        listMode ? 'top-0 right-full mt-5' : 'left-0 bottom-full ml-5 h-5',
+        'absolute flex items-start overflow-hidden',
+        listMode ? 'right-full top-0 mt-5' : 'bottom-full left-0 ml-5 h-5',
         className,
       )}
     >
@@ -50,17 +50,17 @@ export function RaisedLabel({
             styles.flag,
             typeToClassName[type],
             listMode
-              ? 'h-5 w-full justify-center mouse:translate-x-9 rounded-l'
-              : 'h-full flex-col mouse:translate-y-4 rounded-t',
+              ? 'h-5 w-full justify-center rounded-l mouse:translate-x-9'
+              : 'h-full flex-col rounded-t mouse:translate-y-4',
           )}
         >
-          <span className="font-bold text-white uppercase typo-caption2">
+          <span className="font-bold uppercase text-white typo-caption2">
             {type}
           </span>
         </div>
       </SimpleTooltip>
       {!listMode && description && (
-        <span className="mouse:hidden ml-2 typo-footnote text-theme-label-tertiary">
+        <span className="ml-2 text-theme-label-tertiary typo-footnote mouse:hidden">
           {description}
         </span>
       )}

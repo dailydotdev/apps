@@ -1,4 +1,8 @@
 import {
+  Button,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+import {
   PasswordField,
   PasswordFieldProps,
 } from '@dailydotdev/shared/src/components/fields/PasswordField';
@@ -8,7 +12,6 @@ import {
 } from '@dailydotdev/shared/src/components/fields/TextField';
 import classNames from 'classnames';
 import React, { Dispatch, ReactElement, SetStateAction, useState } from 'react';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import useAccountEmailFlow from '@dailydotdev/shared/src/hooks/useAccountEmailFlow';
 import { AuthFlow } from '@dailydotdev/shared/src/lib/kratos';
 import useTimer from '@dailydotdev/shared/src/hooks/useTimer';
@@ -99,7 +102,7 @@ function EmailForm({
         onChange={() => hint && setHint('')}
         actionButton={
           <Button
-            className="btn-primary"
+            variant={ButtonVariant.Primary}
             type="button"
             disabled={!email || timer > 0}
             onClick={onSubmitEmail}
@@ -109,8 +112,9 @@ function EmailForm({
         }
       />
       <Button
-        className="btn-primary mt-3 w-fit"
+        className="mt-3 w-fit"
         disabled={!code}
+        variant={ButtonVariant.Primary}
         onClick={onCodeVerification}
       >
         Change email

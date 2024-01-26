@@ -6,7 +6,7 @@ import RanksTags from './RanksTags';
 import DevCardFooter from './DevCardFooter';
 import { RanksModalProps } from './common';
 import AuthContext from '../../../contexts/AuthContext';
-import { Button } from '../../buttons/Button';
+import { Button, ButtonVariant } from '../../buttons/ButtonV2';
 import { RANKS } from '../../../lib/rank';
 import { AuthTriggers } from '../../../lib/auth';
 import { Modal } from '../common/Modal';
@@ -44,15 +44,16 @@ export default function RanksModal({
           previousRank={previousRank}
         />
         {!user && (
-          <div className="flex flex-col items-center mt-2 mb-7">
+          <div className="mb-7 mt-2 flex flex-col items-center">
             <span className="typo-footnote">
               Sign up to add your weekly achievements to your profile.
             </span>
             <Button
               className={classNames(
-                'mt-3 w-40 btn-primary',
+                'mt-3 w-40',
                 rank && RANKS[rank].background,
               )}
+              variant={ButtonVariant.Primary}
               onClick={() => showLogin({ trigger: AuthTriggers.RanksModal })}
             >
               Sign up

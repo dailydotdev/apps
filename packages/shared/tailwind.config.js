@@ -20,11 +20,6 @@ module.exports = {
         bg: {
           inherit: 'inherit',
           transparent: 'transparent',
-          whatsapp: '#30B944',
-          facebook: '#4363B6',
-          reddit: '#FF4500',
-          linkedin: '#0077B5',
-          telegram: '#24A2E0',
           email: 'var(--theme-color-email)',
           primary: 'var(--theme-background-primary)',
           reverse: 'var(--theme-background-reverse)',
@@ -141,16 +136,6 @@ module.exports = {
       max: '100',
       '-1': '-1',
     },
-    maxHeight: {
-      'img-desktop': '400px',
-      'img-mobile': '280px',
-      'rank-modal': 'calc(100vh - 5rem)',
-      page: 'calc(100vh - 3.5rem)',
-      commentBox: '18.25rem',
-    },
-    minHeight: {
-      page: 'calc(100vh - 3.5rem)',
-    },
     fontFamily: {
       sans: [
         'system-ui',
@@ -169,6 +154,8 @@ module.exports = {
     },
     screens: {
       mobileL: '420px',
+      mobileXL: '500px',
+      mobileXXL: '550px',
       tablet: '656px',
       laptop: '1020px',
       laptopL: '1360px',
@@ -179,6 +166,18 @@ module.exports = {
       responsiveModalBreakpoint: '420px',
     },
     extend: {
+      maxHeight: {
+        'img-desktop': '400px',
+        'img-mobile': '280px',
+        'rank-modal': 'calc(100vh - 5rem)',
+        page: 'calc(100vh - 3.5rem)',
+        commentBox: '18.25rem',
+        card: '24rem',
+      },
+      minHeight: {
+        page: 'calc(100vh - 3.5rem)',
+        card: '24rem',
+      },
       gap: {
         unset: 'unset',
       },
@@ -191,6 +190,7 @@ module.exports = {
         12: '0.75rem',
         14: '0.875rem',
         16: '1rem',
+        22: '1.375rem',
         24: '1.5rem',
         26: '1.625rem',
       },
@@ -206,6 +206,7 @@ module.exports = {
         screen: '100vh',
       },
       spacing: {
+        18: '4.5rem',
         22: '5.5rem',
         70: '17.5rem',
       },
@@ -218,9 +219,10 @@ module.exports = {
       height: {
         logo: '1.125rem',
         'logo-big': '2.0625rem',
+        50: '12.5rem',
       },
-      minHeight: {
-        card: '23.75rem',
+      blur: {
+        20: '1.25rem',
       },
     },
     lineClamp: {

@@ -4,7 +4,8 @@ import classNames from 'classnames';
 import {
   Button,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
 import {
   AccountPageContent,
@@ -43,28 +44,31 @@ export const AccountPageContainer = ({
     <AccountPageContent className={classNames('relative', className.container)}>
       <AccountPageHeading className={classNames('sticky', className.heading)}>
         <Button
-          className="flex tablet:hidden mr-2 btn-tertiary"
+          className={classNames('mr-2 flex tablet:hidden', { hidden: onBack })}
           icon={<ArrowIcon className="-rotate-90" />}
-          buttonSize={ButtonSize.XSmall}
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.XSmall}
           onClick={openSideNav}
         />
         {onBack && (
           <Button
-            className="mr-2 btn-tertiary"
+            className="mr-2"
             icon={<ArrowIcon className="-rotate-90" />}
-            buttonSize={ButtonSize.XSmall}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.XSmall}
             onClick={onBack}
           />
         )}
         {title}
-        {actions && <span className="flex flex-row ml-auto">{actions}</span>}
+        {actions && <span className="ml-auto flex flex-row">{actions}</span>}
       </AccountPageHeading>
       <AccountPageSection
+        /* eslint-disable-next-line tailwindcss/no-contradicting-classname */
         className={classNames(
           'h-full overflow-y-scroll',
           footer
-            ? '!min-h-[calc(100dvh-11.25rem)] !max-h-[calc(100dvh-11.25rem)] min-h-[calc(100vh-11.25rem)] max-h-[calc(100vh-11.25rem)]'
-            : '!min-h-[calc(100dvh-7.25rem)] !max-h-[calc(100dvh-7.25rem)] min-h-[calc(100vh-7.25rem)] max-h-[calc(100vh-7.25rem)]',
+            ? '!max-h-[calc(100dvh-11.25rem)] max-h-[calc(100vh-11.25rem)] !min-h-[calc(100dvh-11.25rem)] min-h-[calc(100vh-11.25rem)]'
+            : '!max-h-[calc(100dvh-7.25rem)] max-h-[calc(100vh-7.25rem)] !min-h-[calc(100dvh-7.25rem)] min-h-[calc(100vh-7.25rem)]',
           className.section,
         )}
       >
@@ -73,7 +77,7 @@ export const AccountPageContainer = ({
       {footer && (
         <div
           className={classNames(
-            'flex flex-row gap-3 sticky p-3 border-t border-theme-divider-tertiary',
+            'sticky flex flex-row gap-3 border-t border-theme-divider-tertiary p-3',
             className.footer,
           )}
         >

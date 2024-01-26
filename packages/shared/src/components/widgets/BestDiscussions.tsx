@@ -1,7 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { Button, ButtonSize } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 import { Post } from '../../graphql/posts';
 import styles from '../cards/Card.module.css';
@@ -10,9 +9,14 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
 import { postAnalyticsEvent } from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { ProfilePicture } from '../ProfilePicture';
 import { WidgetContainer } from './common';
 import { combinedClicks } from '../../lib/click';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 
 export type BestDiscussionsProps = {
   posts: Post[] | null;
@@ -30,7 +34,7 @@ type PostProps = {
 const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
   <article
     className={classNames(
-      'relative flex flex-col py-3 px-4 group items-start hover:bg-theme-hover',
+      'group relative flex flex-col items-start px-4 py-3 hover:bg-theme-hover',
       styles.card,
     )}
   >
@@ -42,29 +46,13 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
     </Link>
     <h5
       className={classNames(
-        'typo-callout text-theme-label-primary mb-2 multi-truncate',
+        'multi-truncate mb-2 text-theme-label-primary typo-callout',
         styles.title,
       )}
     >
       {post.title}
     </h5>
-    <div className="flex items-center typo-footnote text-theme-label-tertiary">
-      {post.featuredComments?.length > 0 && (
-        <div
-          className="relative mr-2 h-6"
-          style={{ width: `${post.featuredComments.length + 0.5}rem` }}
-        >
-          {post.featuredComments.map((comment, index) => (
-            <ProfilePicture
-              key={comment.author.username}
-              user={comment.author}
-              size="small"
-              className="top-0"
-              style={{ left: `${index}rem`, position: 'absolute' }}
-            />
-          ))}
-        </div>
-      )}
+    <div className="flex items-center text-theme-label-tertiary typo-footnote">
       <div>{post.numComments} Comments</div>
     </div>
   </article>
@@ -73,7 +61,7 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
 const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-xl my-0.5');
 
 const ListItemPlaceholder = (): ReactElement => (
-  <article aria-busy className="flex relative flex-col items-start py-3 px-4">
+  <article aria-busy className="relative flex flex-col items-start px-4 py-3">
     <TextPlaceholder style={{ width: '80%' }} />
     <TextPlaceholder style={{ width: '80%' }} />
     <TextPlaceholder style={{ width: '40%' }} />
@@ -109,7 +97,7 @@ export default function BestDiscussions({
 
   return (
     <BestDiscussionsContainer className={className}>
-      <h4 className="py-3 pr-4 pl-6 typo-body text-theme-label-tertiary">
+      <h4 className="py-3 pl-6 pr-4 text-theme-label-tertiary typo-body">
         Best discussions
       </h4>
       {Separator}
@@ -134,10 +122,12 @@ export default function BestDiscussions({
         passHref
       >
         <Button
-          className="self-start my-2 ml-2 btn-tertiary"
-          buttonSize={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+          className="my-2 ml-2 self-start"
+          size={ButtonSize.Small}
           tag="a"
-          rightIcon={<ArrowIcon className="rotate-90" />}
+          icon={<ArrowIcon className="rotate-90" />}
+          iconPosition={ButtonIconPosition.Right}
           {...combinedClicks(onLucky)}
         >
           I&apos;m feeling lucky

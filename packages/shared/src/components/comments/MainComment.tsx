@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
+import classNames from 'classnames';
 import EnableNotification from '../notifications/EnableNotification';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import SubComment from './SubComment';
@@ -14,12 +15,19 @@ import { Squad } from '../../graphql/sources';
 import { Comment } from '../../graphql/comments';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
+import { useCommentEdit } from '../../hooks/post/useCommentEdit';
+
+type ClassName = {
+  container?: string;
+  commentBox?: CommentBoxProps['className'];
+};
 
 export interface MainCommentProps
-  extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
+  extends Omit<CommentBoxProps, 'onEdit' | 'onComment' | 'className'> {
   permissionNotificationCommentId?: string;
   joinNotificationCommentId?: string;
   onCommented: CommentMarkdownInputProps['onCommented'];
+  className?: ClassName;
 }
 
 const shouldShowBannerOnComment = (
@@ -55,30 +63,40 @@ export default function MainComment({
     !props.post.source?.currentMember &&
     !isJoinSquadBannerDismissed;
 
-  const { replyComment, inputProps, onReplyTo } = useComments(props.post);
-  const {
-    replyComment: editComment,
-    inputProps: editProps,
-    onReplyTo: onEdit,
-  } = useComments(props.post);
+  const { commentId, inputProps, onReplyTo } = useComments(props.post);
+  const { inputProps: editProps, onEdit } = useCommentEdit();
 
   return (
     <section
-      className="flex flex-col items-stretch rounded-24 border border-theme-divider-tertiary scroll-mt-16"
+      className={classNames(
+        'flex scroll-mt-16 flex-col items-stretch rounded-24 border border-theme-divider-tertiary',
+        className?.container,
+      )}
       data-testid="comment"
     >
-      {!editComment && (
+      {!editProps && (
         <CommentBox
           {...props}
           comment={comment}
           parentId={comment.id}
-          className={{ container: 'border-b' }}
+          className={{
+            container: 'border-b',
+            ...className?.commentBox,
+          }}
           appendTooltipTo={appendTooltipTo}
-          onComment={(selected, parentId) => onReplyTo([selected, parentId])}
-          onEdit={(selected) => onEdit([selected, null, true])}
+          onComment={(selected, parentId) =>
+            onReplyTo({
+              username: selected.author.username,
+              parentCommentId: parentId,
+              commentId: selected.id,
+            })
+          }
+          onEdit={({ id, lastUpdatedAt }) =>
+            onEdit({ commentId: id, lastUpdatedAt })
+          }
         />
       )}
-      {editComment && (
+      {editProps && (
         <CommentMarkdownInput
           {...editProps}
           post={props.post}
@@ -86,10 +104,10 @@ export default function MainComment({
             onEdit(null);
             onCommented(data, isNew);
           }}
-          className={className}
+          className={className?.commentBox}
         />
       )}
-      {replyComment?.id === comment.id && (
+      {commentId === comment.id && (
         <CommentMarkdownInput
           {...inputProps}
           post={props.post}
@@ -97,7 +115,7 @@ export default function MainComment({
             onReplyTo(null);
             onCommented(...params);
           }}
-          className={className}
+          className={className?.commentBox}
         />
       )}
       {comment.children?.edges.map(({ node }) => (
@@ -107,7 +125,7 @@ export default function MainComment({
           comment={node}
           parentComment={comment}
           appendTooltipTo={appendTooltipTo}
-          className={className}
+          className={className?.commentBox}
           onCommented={onCommented}
         />
       ))}

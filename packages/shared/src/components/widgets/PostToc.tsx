@@ -44,7 +44,7 @@ export default function PostToc({
           rel="noopener"
           title={item.text}
           onClick={onLinkClick}
-          className="flex-1 py-2 px-4 truncate hover:bg-theme-hover typo-callout"
+          className="flex-1 truncate px-4 py-2 typo-callout hover:bg-theme-hover"
         >
           {item.text}
         </a>
@@ -58,7 +58,7 @@ export default function PostToc({
     return (
       <details
         className={classNames(
-          'flex-col rounded-2xl overflow-hidden select-none',
+          'select-none flex-col overflow-hidden rounded-2xl',
           styles.details,
           className,
         )}
@@ -78,7 +78,7 @@ export default function PostToc({
   return (
     <WidgetContainer
       className={classNames(
-        'flex-col rounded-2xl pb-3 overflow-hidden border border-theme-divider-quaternary',
+        'flex-col overflow-hidden rounded-2xl border border-theme-divider-quaternary pb-3',
         className,
       )}
     >

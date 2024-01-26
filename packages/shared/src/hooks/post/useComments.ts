@@ -1,6 +1,4 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Comment } from '../../graphql/comments';
-import { CommentMarkdownInputProps } from '../../components/fields/MarkdownInput/CommentMarkdownInput';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
@@ -8,42 +6,39 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { Post } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
+import { CommentWrite, CommentWriteProps } from './common';
 
-type IsEdit = boolean;
-type ParentId = string;
-type ReplyTo = [Comment, ParentId, IsEdit?];
+interface ReplyTo extends CommentWriteProps {
+  username: string;
+}
 
-const initialState: ReplyTo = [null, null, false];
-
-interface UseComments {
-  replyComment: Comment;
-  onReplyTo: (params: ReplyTo | null) => void;
-  inputProps: Partial<CommentMarkdownInputProps>;
+interface UseComments extends CommentWrite {
+  commentId: string;
+  onReplyTo: (params: ReplyTo) => void;
 }
 
 export const useComments = (post: Post): UseComments => {
   const { trackEvent } = useAnalyticsContext();
   const { user, showLogin } = useAuthContext();
-  const [replyTo, setReplyTo] = useState(initialState);
+  const [replyTo, setReplyTo] = useState<ReplyTo>(null);
 
   const inputProps = useMemo(() => {
-    const [replyComment, parentId, isEdit] = replyTo;
-    const replyToUsername =
-      isEdit || user?.username === replyComment?.author.username
-        ? null
-        : replyComment?.author.username;
-    const replyToContent = replyToUsername ? `@${replyToUsername} ` : undefined;
+    if (!replyTo) {
+      return null;
+    }
+
+    const { username, parentCommentId } = replyTo ?? {};
+    const replyToContent = username ? `@${username} ` : undefined;
 
     return {
-      replyTo: replyToUsername,
-      initialContent: isEdit ? replyComment?.content : replyToContent,
-      editCommentId: isEdit ? replyComment?.id : null,
-      parentCommentId: parentId,
+      parentCommentId,
+      replyTo: username,
+      initialContent: replyToContent,
     };
-  }, [user, replyTo]);
+  }, [replyTo]);
 
   const onReplyTo = useCallback(
-    (params: ReplyTo | null) => {
+    (params: ReplyTo) => {
       if (!user) {
         return showLogin({ trigger: AuthTriggers.Comment });
       }
@@ -56,14 +51,22 @@ export const useComments = (post: Post): UseComments => {
         );
       }
 
-      return setReplyTo(params === null ? initialState : params);
+      if (!params) {
+        return setReplyTo(null);
+      }
+
+      if (params.username === user.username) {
+        return setReplyTo({ ...params, username: null });
+      }
+
+      return setReplyTo(params);
     },
     [user, showLogin, trackEvent, post],
   );
 
   return {
-    replyComment: replyTo[0],
     onReplyTo,
     inputProps,
+    commentId: replyTo?.commentId,
   };
 };

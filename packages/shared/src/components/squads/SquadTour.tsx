@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import { cloudinary } from '../../lib/image';
-import { Button } from '../buttons/Button';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import { Justify } from '../utilities';
 import Carousel from '../containers/Carousel';
 import { ModalFooter } from '../modals/common/ModalFooter';
@@ -33,11 +33,13 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
           className={{ container: 'h-[29.25rem]', banner: '!pt-0' }}
         />
         <ModalFooter>
-          <FooterButton className="btn-tertiary" onClick={onClose}>
+          <FooterButton variant={ButtonVariant.Tertiary} onClick={onClose}>
             Close
           </FooterButton>
           <FooterButton
-            className="ml-auto btn-primary-cabbage"
+            className="ml-auto"
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
             onClick={() => {
               onTourIndexChange(0);
               setShouldShowCarousel(true);
@@ -93,14 +95,15 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
       {({ onSwipedLeft, onSwipedRight, index }, indicator) => (
         <ModalFooter justify={Justify.Between}>
           <FooterButton
-            className="btn-tertiary"
+            variant={ButtonVariant.Tertiary}
             onClick={(e) => onSwipedRight(e)}
           >
             {index === 0 ? 'Close' : 'Back'}
           </FooterButton>
           {indicator}
           <FooterButton
-            className="btn-primary-cabbage"
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
             onClick={(e) => onSwipedLeft(e)}
           >
             {index === items.length - 1 ? 'Close' : 'Next'}

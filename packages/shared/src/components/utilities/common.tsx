@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import classed, { ClassedHTML } from '../../lib/classed';
 import styles from './utilities.module.css';
 import ArrowIcon from '../icons/Arrow';
+import { Post, PostType, isSharedPostSquadPost } from '../../graphql/posts';
 
 export enum Theme {
   Avocado = 'avocado',
@@ -37,7 +38,7 @@ export const pageBorders =
 const pagePaddings = 'px-4 tablet:px-8';
 const basePageClassNames = classNames(
   styles.pageContainer,
-  'relative flex flex-col w-full z-1',
+  'relative z-1 flex w-full flex-col',
 );
 
 export const BasePageContainer = classed(
@@ -107,6 +108,12 @@ export const FeedPage = classed(
   'pt-10 px-6 laptop:px-16',
   styles.feedPage,
 );
+export const FeedPageLayoutV1 = classed(
+  BasePageContainer,
+  pageContainerClassNames,
+  'pt-10 tablet:px-6 !ml-auto !px-0',
+  styles.feedPage,
+);
 
 export const FormErrorMessage = classed(
   'div',
@@ -146,7 +153,7 @@ export const TLDRText = classed(
 );
 
 export const HotLabel = (): ReactElement => (
-  <div className="py-px px-2 font-bold text-white uppercase rounded typo-caption2 bg-theme-status-error">
+  <div className="rounded bg-theme-status-error px-2 py-px font-bold uppercase text-white typo-caption2">
     Hot
   </div>
 );
@@ -176,7 +183,7 @@ export enum SharedFeedPage {
 
 export const FeedHeading = classed(
   'h3',
-  'flex flex-row flex-1 items-center typo-headline',
+  'flex flex-row flex-1 items-center typo-body font-bold',
 );
 
 export const getShouldRedirect = (
@@ -214,3 +221,20 @@ export const getContextBottomPosition = (
 export interface WithClassNameProps {
   className?: string;
 }
+
+export const getReadArticleLink = (post: Post): string => {
+  if (post.type === PostType.Share) {
+    return isSharedPostSquadPost(post)
+      ? post.sharedPost.commentsPermalink
+      : post.sharedPost.permalink;
+  }
+  return post.permalink;
+};
+
+export const formatReadTime = (minutes: number): string => {
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return hours > 0
+    ? `${hours.toString()}h ${remainingMinutes.toString()}m`
+    : `${remainingMinutes.toString()}m`;
+};

@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import PostNavigation, { PostNavigationProps } from './PostNavigation';
+import PostNavigation from './PostNavigation';
+import { PostNavigationProps } from './common';
 
 function FixedPostNavigation({
   onPreviousPost,
@@ -24,8 +25,8 @@ function FixedPostNavigation({
       post={post}
       className={{
         container: classNames(
-          'fixed z-3 bg-theme-bg-secondary border border-theme-divider-tertiary py-4 px-6 top-0 ml-0 w-full',
-          'laptop:left-[unset] max-w-full',
+          'fixed top-0 z-3 ml-0 w-full border border-theme-divider-tertiary bg-theme-bg-secondary px-6 py-4',
+          'max-w-full laptop:left-[unset]',
           className?.container,
         ),
         actions: className?.actions,
@@ -36,14 +37,14 @@ function FixedPostNavigation({
     >
       <div
         className={classNames(
-          'overflow-hidden flex-col flex-1 ml-2',
+          'ml-2 flex-1 flex-col overflow-hidden',
           hasNavigation && 'hidden tablet:flex',
         )}
       >
-        <span className="overflow-hidden whitespace-nowrap typo-footnote text-ellipsis text-theme-label-tertiary">
+        <span className="overflow-hidden text-ellipsis whitespace-nowrap text-theme-label-tertiary typo-footnote">
           {content.subtitle}
         </span>
-        <h3 className="overflow-hidden font-bold whitespace-nowrap text-ellipsis typo-headline">
+        <h3 className="overflow-hidden text-ellipsis whitespace-nowrap font-bold typo-body">
           {content.title}
         </h3>
       </div>

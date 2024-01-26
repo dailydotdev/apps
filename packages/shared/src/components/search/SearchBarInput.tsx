@@ -20,13 +20,12 @@ import { BaseField, FieldInput } from '../fields/common';
 import { AiIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { getFieldFontColor } from '../fields/BaseFieldContainer';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import CloseIcon from '../icons/MiniClose';
 import { useInputField } from '../../hooks/useInputField';
 import { SearchProgressBar } from './SearchProgressBar';
 import { SearchChunk } from '../../graphql/search';
-import { useMedia } from '../../hooks';
-import { tablet } from '../../styles/media';
+import { useViewSize, ViewSize } from '../../hooks';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { SearchSubmitButton } from './SearchSubmitButton';
 import { MobileSearch } from './MobileSearch';
@@ -82,11 +81,7 @@ function SearchBarInputComponent(
   } = inputProps;
   const { inputRef, focused, hasInput, onFocus, onBlur, onInput, setInput } =
     useInputField(value, valueChanged);
-  const isTabletAbove = useMedia(
-    [tablet.replace('@media ', '')],
-    [true],
-    false,
-  );
+  const isTabletAbove = useViewSize(ViewSize.Tablet);
 
   const lastChunkIdRef = useRef(chunk?.id);
 
@@ -163,11 +158,15 @@ function SearchBarInputComponent(
           onSubmit={onMobileSubmit}
         />
       )}
-      <form onSubmit={onSubmit} className={className?.form}>
+      <form
+        onSubmit={onSubmit}
+        className={classNames(className?.form, 'relative')}
+      >
+        <RaisedLabel type={RaisedLabelType.Beta} />
         <BaseField
           {...props}
           className={classNames(
-            'relative items-center px-3 h-16 rounded-14 border !border-theme-divider-tertiary !bg-theme-bg-primary',
+            'relative h-16 items-center rounded-14 border !border-theme-divider-tertiary !bg-theme-bg-primary px-3',
             className?.field,
             { focused },
           )}
@@ -199,16 +198,16 @@ function SearchBarInputComponent(
             type="primary"
             autoComplete="off"
             className={classNames(
-              'flex-1 caret-theme-status-cabbage h-full',
+              'h-full flex-1 caret-theme-status-cabbage',
               getFieldFontColor({ readOnly, disabled, hasInput, focused }),
             )}
           />
 
-          <div className="hidden tablet:flex gap-3 items-center">
+          <div className="hidden items-center gap-3 tablet:flex">
             {hasInput && (
               <Button
-                className="btn-tertiary"
-                buttonSize={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
                 title="Clear query"
                 onClick={handleClearClick}
                 icon={<CloseIcon />}
@@ -226,12 +225,11 @@ function SearchBarInputComponent(
           </div>
         </BaseField>
       </form>
-      <RaisedLabel type={RaisedLabelType.Beta} />
       {showProgress && (
         <div className="mt-3">
           <SearchProgressBar max={chunk?.steps} progress={chunk?.progress} />
           {!!chunk?.status && (
-            <div className="mt-2 typo-callout text-theme-label-tertiary">
+            <div className="mt-2 text-theme-label-tertiary typo-callout">
               {chunk?.status}
             </div>
           )}

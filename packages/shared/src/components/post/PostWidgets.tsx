@@ -5,8 +5,9 @@ import AuthContext from '../../contexts/AuthContext';
 import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
 import { PostUsersHighlights } from '../widgets/PostUsersHighlights';
-import { PostHeaderActions, PostHeaderActionsProps } from './PostHeaderActions';
+import { PostHeaderActions } from './PostHeaderActions';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
+import { PostHeaderActionsProps } from './common';
 
 interface PostWidgetsProps
   extends Omit<PostHeaderActionsProps, 'contextMenuId'> {
@@ -29,7 +30,7 @@ export function PostWidgets({
         onReadArticle={onReadArticle}
         post={post}
         onClose={onClose}
-        className="hidden tablet:flex pt-6"
+        className="hidden pt-6 tablet:flex"
         contextMenuId="post-widgets-context"
       />
       <PostUsersHighlights post={post} />

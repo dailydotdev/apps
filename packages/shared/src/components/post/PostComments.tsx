@@ -5,28 +5,23 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { graphqlUrl } from '../../lib/config';
 import AuthContext from '../../contexts/AuthContext';
 import {
   Comment,
   POST_COMMENTS_QUERY,
   PostCommentsData,
-  deleteComment,
 } from '../../graphql/comments';
 import { Post } from '../../graphql/posts';
 import MainComment, { MainCommentProps } from '../comments/MainComment';
 import PlaceholderCommentList from '../comments/PlaceholderCommentList';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { initialDataKey } from '../../lib/constants';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { useToastNotification } from '../../hooks/useToastNotification';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../../lib/feed';
-import { removePostComments } from '../../hooks/usePostById';
+import { Origin } from '../../lib/analytics';
 import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import { useDeleteComment } from '../../hooks/comments/useDeleteComment';
 
 interface PostCommentsProps {
   post: Post;
@@ -52,13 +47,9 @@ export function PostComments({
   onCommented,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
-  const client = useQueryClient();
   const container = useRef<HTMLDivElement>();
   const { tokenRefreshed } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
-  const { displayToast } = useToastNotification();
   const { requestMethod } = useRequestProtocol();
-  const { showPrompt } = usePrompt();
   const queryKey = generateQueryKey(RequestKey.PostComments, null, id);
   const { data: comments, isLoading: isLoadingComments } =
     useQuery<PostCommentsData>(
@@ -79,28 +70,7 @@ export function PostComments({
   const { hash: commentHash } = window.location;
   const commentsCount = comments?.postComments?.edges?.length || 0;
   const commentRef = useRef<HTMLElement>(null);
-  const deleteCommentPrompt = async (
-    commentId: string,
-    parentId: string | null,
-  ) => {
-    const options: PromptOptions = {
-      title: 'Delete comment?',
-      description:
-        'Are you sure you want to delete your comment? This action cannot be undone.',
-      okButton: {
-        title: 'Delete',
-        className: 'btn-primary-cabbage',
-      },
-    };
-    if (!(await showPrompt(options))) {
-      return;
-    }
-
-    trackEvent(postAnalyticsEvent(AnalyticsEvent.DeleteComment, post));
-    await deleteComment(commentId, requestMethod);
-    displayToast('The comment has been deleted');
-    removePostComments(client, post, commentId, parentId);
-  };
+  const { deleteComment } = useDeleteComment();
 
   const [scrollToComment, setScrollToComment] = useState(!!commentHash);
   useEffect(() => {
@@ -112,7 +82,7 @@ export function PostComments({
 
   if (commentsCount === 0) {
     return (
-      <div className="mt-8 mb-12 text-center text-theme-label-quaternary typo-subhead">
+      <div className="mb-12 mt-8 text-center text-theme-label-quaternary typo-subhead">
         Be the first to comment.
       </div>
     );
@@ -123,10 +93,10 @@ export function PostComments({
   }
 
   return (
-    <div className="flex flex-col gap-4 mb-12" ref={container}>
+    <div className="mb-12 flex flex-col gap-4" ref={container}>
       {comments.postComments.edges.map((e) => (
         <MainComment
-          className={className}
+          className={{ commentBox: className }}
           post={post}
           origin={origin}
           commentHash={commentHash}
@@ -135,7 +105,7 @@ export function PostComments({
           key={e.node.id}
           onShare={onShare}
           onDelete={(comment, parentId) =>
-            deleteCommentPrompt(comment.id, parentId)
+            deleteComment(comment.id, parentId, post)
           }
           onShowUpvotes={onClickUpvote}
           postAuthorId={post.author?.id}

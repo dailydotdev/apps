@@ -1,15 +1,11 @@
 import classNames from 'classnames';
 import React, { Dispatch, ReactElement, SetStateAction } from 'react';
-import { useMedia } from '../../hooks';
-import { OnboardingV4 } from '../../lib/featureValues';
+import { useViewSize, ViewSize } from '../../hooks';
 import { cloudinary } from '../../lib/image';
-import { tablet, laptop } from '../../styles/media';
 import Logo, { LogoPosition } from '../Logo';
 import { AuthProps, AuthDisplay } from '../auth/AuthOptions';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { CreateFeedButton } from './CreateFeedButton';
-import { feature } from '../../lib/featureManagement';
-import { useFeature } from '../GrowthBookProvider';
 import { wrapperMaxWidth } from './common';
 
 type OnboardingHeaderProps = {
@@ -25,31 +21,28 @@ export const OnboardingHeader = ({
   setAuth,
   onClickNext,
 }: OnboardingHeaderProps): ReactElement => {
-  const onboardingV4 = useFeature(feature.onboardingV4);
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
-  const isTablet = !useMedia([laptop.replace('@media ', '')], [true], false);
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const getImage = () => {
     if (isMobile) {
       return cloudinary.feed.bg.mobile;
     }
 
-    return isTablet ? cloudinary.feed.bg.tablet : cloudinary.feed.bg.laptop;
+    return isLaptop ? cloudinary.feed.bg.laptop : cloudinary.feed.bg.tablet;
   };
 
-  if (isFiltering && onboardingV4 === OnboardingV4.V4) {
+  if (isFiltering) {
     return (
-      <header className="flex sticky top-0 z-3 justify-center mb-10 w-full backdrop-blur-sm">
+      <header className="sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm">
         <img
-          className="absolute top-0 right-0 left-0 w-full pointer-events-none max-h-[12.5rem]"
+          className="pointer-events-none absolute left-0 right-0 top-0 max-h-[12.5rem] w-full"
           src={getImage()}
           alt="Gradient background"
         />
-        <div className="flex justify-between items-center py-10 w-full max-w-4xl tablet:!px-6 !px-4">
+        <div className="flex w-full max-w-4xl items-center justify-between !px-4 py-10 tablet:!px-6">
           <Logo
-            logoClassName={classNames(
-              onboardingV4 === OnboardingV4.V4 && 'h-6',
-            )}
+            logoClassName={classNames('h-6')}
             position={LogoPosition.Relative}
           />
           <CreateFeedButton onClick={onClickNext} />
@@ -61,7 +54,7 @@ export const OnboardingHeader = ({
   if (!showOnboardingPage) {
     return (
       <Logo
-        className="py-8 px-10 w-auto laptop:w-full"
+        className="w-auto px-10 py-8 laptop:w-full"
         position={LogoPosition.Relative}
       />
     );
@@ -70,7 +63,7 @@ export const OnboardingHeader = ({
   return (
     <header
       className={classNames(
-        'flex justify-between px-6 mt-6 tablet:mt-16 laptop:mt-20 w-full h-full flew-row',
+        'flew-row mt-6 flex h-full w-full justify-between px-6 tablet:mt-16 laptop:mt-20',
         wrapperMaxWidth,
       )}
     >
@@ -85,7 +78,8 @@ export const OnboardingHeader = ({
       >
         <span className="hidden tablet:block">Already a daily.dev member?</span>
         <Button
-          className="ml-3 btn-secondary"
+          className="ml-3"
+          variant={ButtonVariant.Secondary}
           onClick={() => {
             setAuth({
               isAuthenticating: true,

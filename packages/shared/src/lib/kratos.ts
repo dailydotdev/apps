@@ -1,4 +1,4 @@
-import { MessageEventData } from '../hooks/useWindowEvents';
+import { MessageEventData } from '../hooks/useEventListener';
 import { authUrl, heimdallUrl } from './constants';
 
 export type EmptyObjectLiteral = Record<string, never | string>;
@@ -262,12 +262,11 @@ export const getKratosError = async (id: string): Promise<ErrorData> => {
 export const checkKratosEmail = async (
   email: string,
 ): Promise<KratosEmailData> => {
-  const res = await fetch(
-    `${heimdallUrl}/api/check_email?email_address=${email}`,
-    {
-      method: 'POST',
-    },
-  );
+  const url = new URL(`${heimdallUrl}/api/check_email`);
+  url.searchParams.append('email_address', email);
+  const res = await fetch(url.toString(), {
+    method: 'POST',
+  });
   return res.json();
 };
 
@@ -369,9 +368,12 @@ export const getVerificationSession = async (): Promise<any> => {
   return res.json();
 };
 
-export const KRATOS_ERROR = {
+// https://github.com/ory/docs/blob/9b86ed78da2fad0eb8bfaebfcc1a81f70d55e675/docs/kratos/concepts/messages.json
+export const KRATOS_ERROR = Object.freeze<Record<string, number>>({
   INVALID_TOKEN: 4060004,
   EXISTING_USER: 4000007,
   SINGLE_OIDC: 4000001,
+  NO_STRATEGY_TO_LOGIN: 4010002,
+  NO_STRATEGY_TO_SIGNUP: 4010003,
   UNVERIFIED: 4000010,
-};
+});

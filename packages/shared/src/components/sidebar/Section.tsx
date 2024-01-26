@@ -51,7 +51,7 @@ export function Section({
         <NavHeader
           className={classNames(
             'hidden laptop:flex',
-            sidebarExpanded ? 'opacity-100 px-3' : 'opacity-0 px-0',
+            sidebarExpanded ? 'px-3 opacity-100' : 'px-0 opacity-0',
           )}
         >
           {title}
@@ -67,6 +67,7 @@ export function Section({
                 : null
             }
             isButton={isItemsButton && !item?.isForcedLink}
+            className="truncate"
           >
             <ItemInner
               item={item}

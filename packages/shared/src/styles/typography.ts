@@ -48,12 +48,6 @@ export const typoTitle3 = `
   line-height: 1.625rem;
 `;
 
-export const typoHeadline = `
-  font-size: 1.0625rem;
-  line-height: 1.5rem;
-  font-weight: bold;
-`;
-
 export const typoBody = `
   font-size: 1.0625rem;
   line-height: 1.375rem;
@@ -87,4 +81,9 @@ export const typoCaption1 = `
 export const typoCaption2 = `
   font-size: 0.6875rem;
   line-height: 1rem;
+`;
+
+export const typoTera = `
+  font-size: 5rem;
+  line-height: 5.375rem;
 `;

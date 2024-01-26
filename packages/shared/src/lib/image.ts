@@ -7,6 +7,8 @@ export const cloudinary = {
         'https://daily-now-res.cloudinary.com/image/upload/s--1kZ8h30a--/f_auto/v1692271284/public/Tablet-ask-bg',
       mobile:
         'https://daily-now-res.cloudinary.com/image/upload/s--TiBUzfrQ--/f_auto/v1692271284/public/Mobile-ask-bg',
+      layoutV1:
+        'https://daily-now-res.cloudinary.com/image/upload/s--zkEyMCOC--/f_auto/v1705675789/public/Search_Gradient',
     },
   },
   post: {
@@ -144,6 +146,18 @@ export const cloudinary = {
       mp4: 'https://daily-now-res.cloudinary.com/video/upload/v1695807779/daily.dev_onboarding_wall_video_qzmrzm.mp4',
       webm: 'https://daily-now-res.cloudinary.com/video/upload/v1695808184/daily.dev_onboarding_wall_video_qzmrzm_iroigf.webm',
     },
+  },
+  generic: {
+    notFound: {
+      light:
+        'https://daily-now-res.cloudinary.com/image/upload/s--DEBKQRIw--/v1704439964/webapp/NotFound.svg',
+      dark: 'https://daily-now-res.cloudinary.com/image/upload/s--QKyyqLHH--/v1704440574/webapp/NotFound-Dark.svg',
+    },
+  },
+  streak: {
+    splash:
+      'https://daily-now-res.cloudinary.com/image/upload/v1705386465/Splash_v1lxjk.svg',
+    fire: 'https://daily-now-res.cloudinary.com/image/upload/v1705386465/Hot_nrqvv5.svg',
   },
 };
 

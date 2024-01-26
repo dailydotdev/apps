@@ -7,10 +7,11 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
-import { FeedPage, SharedFeedPage } from './utilities';
+import { FeedPage, FeedPageLayoutV1, SharedFeedPage } from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
@@ -32,11 +33,12 @@ import {
   SearchControlHeaderProps,
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
-import { cloudinary } from '../lib/image';
-import { useMedia } from '../hooks';
-import { laptop, tablet } from '../styles/media';
+import { useFeedLayout } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
+import { FeedContainerProps } from './feeds';
+import { getFeedName } from '../lib/feed';
+import { FeedGradientBg } from './feeds/FeedGradientBg';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -73,17 +75,17 @@ const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
   },
 };
 
-export type MainFeedLayoutProps = {
+export interface MainFeedLayoutProps
+  extends Pick<FeedContainerProps, 'shortcuts'> {
   feedName: string;
   isSearchOn: boolean;
   searchQuery?: string;
   children?: ReactNode;
   searchChildren: ReactNode;
-  besideSearch?: ReactNode;
   navChildren?: ReactNode;
   onFeedPageChanged: (page: SharedFeedPage) => void;
   isFinder?: boolean;
-};
+}
 
 const getQueryBasedOnLogin = (
   tokenRefreshed: boolean,
@@ -102,43 +104,13 @@ const getQueryBasedOnLogin = (
 
 const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
 
-interface GetDefaultFeedProps {
-  hasFiltered?: boolean;
-  hasUser?: boolean;
-}
-
-const getDefaultFeed = ({ hasUser }: GetDefaultFeedProps): SharedFeedPage => {
-  if (!hasUser) {
-    return SharedFeedPage.Popular;
-  }
-
-  return SharedFeedPage.MyFeed;
-};
-
-const defaultFeedConditions = [null, 'default', '/', ''];
-
-export const getFeedName = (
-  path: string,
-  options: GetDefaultFeedProps = {},
-): SharedFeedPage => {
-  const feed = path?.replaceAll?.('/', '') || '';
-
-  if (defaultFeedConditions.some((condition) => condition === feed)) {
-    return getDefaultFeed(options);
-  }
-
-  const [page] = feed.split('?');
-
-  return page.replace(/^\/+/, '') as SharedFeedPage;
-};
-
 export default function MainFeedLayout({
   feedName: feedNameProp,
   searchQuery,
   isSearchOn,
   children,
   searchChildren,
-  besideSearch,
+  shortcuts,
   onFeedPageChanged,
   navChildren,
   isFinder,
@@ -152,7 +124,9 @@ export default function MainFeedLayout({
   });
   const feedVersion = useFeature(feature.feedVersion);
   const searchVersion = useFeature(feature.search);
+  const isV1Search = searchVersion === SearchExperiment.V1;
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
 
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
@@ -228,6 +202,7 @@ export default function MainFeedLayout({
     };
 
     const variables = getVariables();
+    const feedWithActions = isUpvoted || isSortableFeed;
 
     return {
       feedName,
@@ -239,29 +214,27 @@ export default function MainFeedLayout({
       query: query.query,
       variables,
       emptyScreen: <FeedEmptyScreen />,
-      header:
-        searchVersion === SearchExperiment.Control && !isSearchOn ? (
+      header: searchVersion === SearchExperiment.Control &&
+        !isSearchOn &&
+        !shouldUseFeedLayoutV1 && (
           <SearchControlHeader {...searchProps} navChildren={navChildren} />
-        ) : null,
-      actionButtons:
-        searchVersion === SearchExperiment.V1 &&
-        (isUpvoted || isSortableFeed) ? (
-          <SearchControlHeader {...searchProps} />
-        ) : null,
-      besideSearch,
+        ),
+      actionButtons: (isV1Search || shouldUseFeedLayoutV1) &&
+        feedWithActions && <SearchControlHeader {...searchProps} />,
+      shortcuts,
     };
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     searchVersion,
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    isSearchOn && searchQuery,
+    shouldUseFeedLayoutV1,
+    isV1Search,
+    isSearchOn,
+    searchQuery,
     query.query,
     query.variables,
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    isUpvoted && selectedPeriod,
+    isUpvoted,
+    selectedPeriod,
   ]);
 
   useEffect(() => {
@@ -272,29 +245,21 @@ export default function MainFeedLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
-  const isTablet = !useMedia([laptop.replace('@media ', '')], [true], false);
-
-  const getImage = () => {
-    if (isMobile) {
-      return cloudinary.feed.bg.mobile;
-    }
-
-    return isTablet ? cloudinary.feed.bg.tablet : cloudinary.feed.bg.laptop;
-  };
+  const FeedPageComponent = shouldUseFeedLayoutV1 ? FeedPageLayoutV1 : FeedPage;
 
   return (
-    <FeedPage className="relative">
-      {searchVersion === SearchExperiment.V1 && !isFinder && (
-        <img
-          className="absolute top-0 left-0 w-full max-w-[58.75rem]"
-          src={getImage()}
-          alt="Gradient background"
+    <FeedPageComponent
+      className={classNames('relative', shouldUseFeedLayoutV1 && '!pt-0')}
+    >
+      {isV1Search && !shouldUseFeedLayoutV1 && !isFinder && <FeedGradientBg />}
+      {isSearchOn && search}
+      {feedProps && (
+        <Feed
+          {...feedProps}
+          className={shouldUseFeedLayoutV1 && !isFinder && 'laptop:px-6'}
         />
       )}
-      {isSearchOn && search}
-      {feedProps && <Feed {...feedProps} />}
       {children}
-    </FeedPage>
+    </FeedPageComponent>
   );
 }

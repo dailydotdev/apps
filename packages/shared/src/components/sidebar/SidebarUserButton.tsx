@@ -18,20 +18,20 @@ export function SidebarUserButton({
         <li className="flex flex-col p-6 pt-2">
           {user && user?.infoConfirmed ? (
             <>
-              <div className="flex items-center mb-4">
+              <div className="mb-4 flex items-center">
                 <ProfileLink
                   href={user.permalink}
-                  className="flex items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline"
+                  className="focus-outline flex h-10 cursor-pointer items-center rounded-12 border-none bg-theme-bg-secondary p-0 font-bold text-theme-label-primary no-underline typo-callout"
                 >
-                  <ProfilePicture user={user} size="medium" />
-                  <span className="mr-3 ml-2">{user.reputation ?? 0}</span>
+                  <ProfilePicture user={user} size="large" />
+                  <span className="ml-2 mr-3">{user.reputation ?? 0}</span>
                 </ProfileLink>
                 <SearchReferralButton className="ml-3" />
                 <div className="flex-1" />
-                <ProfileButton atMobileSidebar />
+                <ProfileButton settingsIconOnly />
               </div>
               <strong className="mb-0.5 typo-callout">{user.name}</strong>
-              <p className="typo-footnote text-theme-label-secondary">
+              <p className="text-theme-label-secondary typo-footnote">
                 @{user.username}
               </p>
             </>

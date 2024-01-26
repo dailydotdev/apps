@@ -22,7 +22,8 @@ import {
   Button,
   ButtonProps,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   CustomFeedHeader,
   FeedPage,
@@ -35,6 +36,7 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -47,7 +49,15 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   const { user, showLogin } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(
-    () => ({ source: source?.id, ranking: 'TIME' }),
+    () => ({
+      source: source?.id,
+      ranking: 'TIME',
+      supportedTypes: [
+        PostType.Article,
+        PostType.VideoYouTube,
+        PostType.Collection,
+      ],
+    }),
     [source?.id],
   );
 
@@ -82,7 +92,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   };
 
   const buttonProps: ButtonProps<'button'> = {
-    buttonSize: ButtonSize.Small,
+    size: ButtonSize.Small,
     icon: unfollowingSource ? <PlusIcon /> : <BlockIcon />,
     onClick: async (): Promise<void> => {
       if (user) {
@@ -104,15 +114,20 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         <img
           src={source.image}
           alt={`${source.name} logo`}
-          className="mr-2 w-6 h-6 rounded-full"
+          className="mr-2 h-6 w-6 rounded-full"
         />
         <span className="mr-auto">{source.name}</span>
         <Button
-          className="laptop:hidden btn-secondary"
+          className="laptop:hidden"
+          variant={ButtonVariant.Secondary}
           {...buttonProps}
           aria-label={unfollowingSource ? 'Follow' : 'Block'}
         />
-        <Button className="hidden laptop:flex btn-secondary" {...buttonProps}>
+        <Button
+          className="hidden laptop:flex"
+          variant={ButtonVariant.Secondary}
+          {...buttonProps}
+        >
           {unfollowingSource ? 'Follow' : 'Block'}
         </Button>
       </CustomFeedHeader>
@@ -152,6 +167,15 @@ export async function getStaticProps({
     const res = await request<SourceData>(graphqlUrl, SOURCE_QUERY, {
       id: params.source,
     });
+
+    if (res.source?.type === 'squad') {
+      return {
+        redirect: {
+          destination: `/squads/${params.source}`,
+          permanent: false,
+        },
+      };
+    }
 
     return {
       props: {

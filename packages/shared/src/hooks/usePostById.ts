@@ -9,9 +9,15 @@ import {
 } from '@tanstack/react-query';
 import { graphqlUrl } from '../lib/config';
 import { useAuthContext } from '../contexts/AuthContext';
-import { Post, PostData, POST_BY_ID_QUERY } from '../graphql/posts';
+import {
+  Post,
+  PostData,
+  POST_BY_ID_QUERY,
+  RelatedPost,
+} from '../graphql/posts';
 import { PostCommentsData } from '../graphql/comments';
 import { generateQueryKey, RequestKey } from '../lib/query';
+import { Connection } from '../graphql/common';
 
 interface UsePostByIdProps {
   id: string;
@@ -20,6 +26,7 @@ interface UsePostByIdProps {
 
 interface UsePostById extends Pick<UseQueryResult, 'isError' | 'isFetched'> {
   post: Post;
+  relatedCollectionPosts?: Connection<RelatedPost>;
   isPostLoadingOrFetching?: boolean;
 }
 
@@ -62,6 +69,9 @@ export const removePostComments = (
 ): void => {
   const key = generateQueryKey(RequestKey.PostComments, null, post.id);
   client.setQueryData<PostCommentsData>(key, (data) => {
+    if (!data) {
+      return data;
+    }
     const copy = { ...data };
 
     if (commentId !== parentId) {
@@ -112,11 +122,12 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
   return useMemo(
     () => ({
       post: post?.post,
+      relatedCollectionPosts: post?.relatedCollectionPosts,
       isError,
       isFetched,
       isPostLoadingOrFetching: (isLoading || isFetching) && !isRefetching,
     }),
-    [post?.post, isError, isFetched, isLoading, isFetching, isRefetching],
+    [post, isError, isFetched, isLoading, isFetching, isRefetching],
   );
 };
 

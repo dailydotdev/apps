@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -7,14 +7,22 @@ import { useObjectPurify } from '../../hooks/useDomPurify';
 import NotificationItemIcon from './NotificationIcon';
 import NotificationItemAttachment from './NotificationItemAttachment';
 import NotificationItemAvatar from './NotificationItemAvatar';
-import { notificationTypeTheme } from './utils';
+import { NotificationType, notificationTypeTheme } from './utils';
 import OptionsButton from '../buttons/OptionsButton';
 import { KeyboardCommand } from '../../lib/element';
+import { ProfilePicture } from '../ProfilePicture';
+import { ProfilePictureGroup } from '../ProfilePictureGroup';
 
 export interface NotificationItemProps
   extends Pick<
     Notification,
-    'type' | 'icon' | 'title' | 'description' | 'avatars' | 'attachments'
+    | 'type'
+    | 'icon'
+    | 'title'
+    | 'description'
+    | 'avatars'
+    | 'attachments'
+    | 'numTotalAvatars'
   > {
   isUnread?: boolean;
   targetUrl: string;
@@ -37,6 +45,7 @@ function NotificationItem({
   onClick,
   onOptionsClick,
   targetUrl,
+  numTotalAvatars,
 }: NotificationItemProps): ReactElement {
   const {
     isReady,
@@ -45,26 +54,43 @@ function NotificationItem({
   } = useObjectPurify({ title, description });
   const router = useRouter();
 
+  const filteredAvatars = useMemo(() => {
+    return avatars?.filter((avatar) => avatar) || [];
+  }, [avatars]);
+
   if (!isReady) {
     return null;
   }
 
   const avatarComponents =
-    avatars
-      ?.map?.((avatar) => (
-        <NotificationItemAvatar
-          key={avatar.referenceId}
-          className="z-1"
-          {...avatar}
-        />
-      ))
-      .filter((avatar) => avatar) ?? [];
-  const hasAvatar = avatarComponents.length > 0;
+    type === NotificationType.CollectionUpdated ? (
+      <ProfilePictureGroup total={numTotalAvatars} size="medium">
+        {filteredAvatars.map((avatar) => (
+          <ProfilePicture
+            key={avatar.referenceId}
+            rounded="full"
+            size="medium"
+            user={{ image: avatar.image }}
+          />
+        ))}
+      </ProfilePictureGroup>
+    ) : (
+      filteredAvatars
+        .map((avatar) => (
+          <NotificationItemAvatar
+            key={avatar.referenceId}
+            className="z-1"
+            {...avatar}
+          />
+        ))
+        .filter((avatar) => avatar) ?? []
+    );
+  const hasAvatar = filteredAvatars.length > 0;
 
   return (
     <div
       className={classNames(
-        'relative group flex flex-row py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active border-y border-theme-bg-primary',
+        'group relative flex flex-row border-y border-theme-bg-primary py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active',
         isUnread && 'bg-theme-float',
       )}
     >
@@ -92,8 +118,7 @@ function NotificationItem({
       )}
       {onOptionsClick && (
         <OptionsButton
-          className="hidden group-hover:flex top-3 right-2"
-          position="absolute"
+          className="absolute right-2 top-3 hidden group-hover:flex"
           type="button"
           onClick={onOptionsClick}
         />
@@ -102,9 +127,9 @@ function NotificationItem({
         icon={icon}
         iconTheme={notificationTypeTheme[type]}
       />
-      <div className="flex flex-col flex-1 ml-4 w-full text-left typo-callout">
+      <div className="ml-4 flex w-full flex-1 flex-col text-left typo-callout">
         {hasAvatar && (
-          <span className="flex flex-row gap-2 mb-4">{avatarComponents}</span>
+          <span className="mb-4 flex flex-row gap-2">{avatarComponents}</span>
         )}
         <span
           className="break-words"
@@ -120,11 +145,11 @@ function NotificationItem({
             }}
           />
         )}
-        {attachments?.map(({ image, title: attachment }) => (
+        {attachments?.map(({ title: attachment, ...props }) => (
           <NotificationItemAttachment
             key={attachment}
-            image={image}
             title={attachment}
+            {...props}
           />
         ))}
       </div>

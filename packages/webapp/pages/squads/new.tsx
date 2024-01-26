@@ -83,7 +83,7 @@ const NewSquad = (): ReactElement => {
           style={{
             backgroundImage: `url(${cloudinary.squads.createSquad})`,
           }}
-          className="flex flex-col justify-center items-center mb-6 w-full h-52 bg-cover"
+          className="mb-6 flex h-52 w-full flex-col items-center justify-center bg-cover"
         >
           <SourceIcon size={IconSize.XXXLarge} />
           <SquadTitle className="mb-2">Create new Squad</SquadTitle>

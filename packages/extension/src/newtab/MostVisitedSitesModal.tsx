@@ -1,6 +1,9 @@
 import React, { ReactElement } from 'react';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   Modal,
   ModalProps,
@@ -32,7 +35,7 @@ export default function MostVisitedSitesModal({
               : '/mvs_google.jpg'
           }
           imgAlt="Image of the browser's default home screen"
-          className="my-8 mx-auto w-full rounded-2xl max-w-[22rem]"
+          className="mx-auto my-8 w-full max-w-[22rem] rounded-2xl"
           ratio="45.8%"
           eager
         />
@@ -41,7 +44,7 @@ export default function MostVisitedSitesModal({
         </Modal.Text>
       </Modal.Body>
       <Modal.Footer justify={Justify.Center}>
-        <Button onClick={onApprove} className="btn-primary">
+        <Button onClick={onApprove} variant={ButtonVariant.Primary}>
           Add the shortcuts
         </Button>
       </Modal.Footer>

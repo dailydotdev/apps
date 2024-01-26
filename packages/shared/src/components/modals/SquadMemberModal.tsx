@@ -46,12 +46,12 @@ const InitialItem = ({ squad }: { squad: Squad }) => {
     <button
       type="button"
       disabled={copying}
-      className="flex justify-start items-center py-3 px-6 hover:bg-theme-hover"
+      className="flex items-center justify-start px-6 py-3 hover:bg-theme-hover"
       onClick={() => {
         trackAndCopyLink();
       }}
     >
-      <FlexCentered className="mr-4 w-12 h-12 bg-theme-float rounded-10">
+      <FlexCentered className="mr-4 h-12 w-12 rounded-10 bg-theme-float">
         <LinkIcon size={IconSize.Large} className="text-salt-90" />
       </FlexCentered>
       <p className="text-salt-90 typo-callout">Copy invitation link</p>
@@ -127,7 +127,7 @@ export function SquadMemberModal({
             />
           ),
           emptyPlaceholder: query ? (
-            <FlexCentered className="p-10 typo-callout text-theme-label-tertiary">
+            <FlexCentered className="p-10 text-theme-label-tertiary typo-callout">
               No user found
             </FlexCentered>
           ) : (

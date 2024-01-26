@@ -6,8 +6,7 @@ import LinkIcon from '../../icons/Link';
 import { ClickableText } from '../../buttons/ClickableText';
 import { LazyModal } from '../../modals/common/types';
 import { useLazyModal } from '../../../hooks/useLazyModal';
-import { useMedia } from '../../../hooks';
-import { tablet } from '../../../styles/media';
+import { useViewSize, ViewSize } from '../../../hooks';
 import { WritePreviewSkeleton } from './WritePreviewSkeleton';
 import { WriteLinkPreview } from './WriteLinkPreview';
 import { useDebouncedUrl } from '../../../hooks/input';
@@ -25,7 +24,7 @@ export function SubmitExternalLink({
   getLinkPreview,
   preview,
 }: SubmitExternalLinkProps): ReactElement {
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
+  const isMobile = useViewSize(ViewSize.MobileL);
   const { openModal } = useLazyModal();
   const [url, setUrl] = useState<string>(undefined);
   const shouldShorten = url !== undefined || isMobile;
@@ -56,12 +55,12 @@ export function SubmitExternalLink({
   return (
     <span
       className={classNames(
-        'flex relative flex-col tablet:flex-row items-center',
-        isMobile ? 'border border-theme-divider-tertiary rounded-16' : '',
+        'relative flex flex-col items-center tablet:flex-row',
+        isMobile ? 'rounded-16 border border-theme-divider-tertiary' : '',
       )}
     >
       <TextField
-        className={{ container: 'flex-1 w-full' }}
+        className={{ container: 'w-full flex-1' }}
         inputId="url"
         type="url"
         label={label}
@@ -75,10 +74,10 @@ export function SubmitExternalLink({
       {(url === undefined || isMobile) && (
         <ClickableText
           className={classNames(
-            'font-bold reading-history hover:text-theme-label-primary',
+            'reading-history font-bold hover:text-theme-label-primary',
             isMobile
-              ? 'py-4 w-full justify-center'
-              : 'hidden tablet:flex absolute left-56 ml-3',
+              ? 'w-full justify-center py-4'
+              : 'absolute left-56 ml-3 hidden tablet:flex',
           )}
           inverseUnderline={!isMobile}
           onClick={() =>

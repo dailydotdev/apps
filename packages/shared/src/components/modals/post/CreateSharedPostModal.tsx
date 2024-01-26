@@ -3,8 +3,13 @@ import { Modal, ModalProps } from '../common/Modal';
 import { ExternalLinkPreview } from '../../../graphql/posts';
 import MarkdownInput, { MarkdownRef } from '../../fields/MarkdownInput';
 import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
-import { usePostToSquad, useMedia } from '../../../hooks';
-import { Button, ButtonSize } from '../../buttons/Button';
+import { usePostToSquad, useViewSize, ViewSize } from '../../../hooks';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/ButtonV2';
 import AtIcon from '../../icons/At';
 import { Divider, Justify } from '../../utilities';
 import SourceButton from '../../cards/SourceButton';
@@ -13,8 +18,7 @@ import { formToJson } from '../../../lib/form';
 import { useDebouncedUrl } from '../../../hooks/input';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import { Switch } from '../../fields/Switch';
-import CloseButton from '../../CloseButton';
-import { tablet } from '../../../styles/media';
+import { ModalClose } from '../common/ModalClose';
 
 export interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;
@@ -32,7 +36,7 @@ export function CreateSharedPostModal({
   const [link, setLink] = useState(preview?.permalink ?? preview?.url ?? '');
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
+  const isMobile = useViewSize(ViewSize.MobileL);
   const {
     getLinkPreview,
     isLoadingPreview,
@@ -75,15 +79,16 @@ export function CreateSharedPostModal({
         title={isMobile ? null : 'New post'}
       >
         {isMobile && (
-          <div className="flex flex-row flex-1 justify-between items-center">
-            <CloseButton onClick={props.onRequestClose} />
+          <div className="flex flex-1 flex-row items-center justify-between">
+            <ModalClose position="static" onClick={props.onRequestClose} />
 
             <Button
-              className="btn-primary-cabbage"
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Cabbage}
               disabled={isPosting}
               loading={isPosting}
               form="share_post"
-              buttonSize={ButtonSize.Small}
+              size={ButtonSize.Small}
             >
               Post
             </Button>
@@ -91,7 +96,7 @@ export function CreateSharedPostModal({
         )}
       </Modal.Header>
       <form
-        className="flex flex-col p-3 w-full"
+        className="flex w-full flex-col p-3"
         action="#"
         onSubmit={onFormSubmit}
         id="share_post"
@@ -107,11 +112,11 @@ export function CreateSharedPostModal({
             isLoadingPreview ? (
               <WritePreviewSkeleton
                 link={link}
-                className="flex-col-reverse m-3"
+                className="m-3 flex-col-reverse"
               />
             ) : (
               <WriteLinkPreview
-                className="flex-col-reverse m-3 !w-auto"
+                className="m-3 !w-auto flex-col-reverse"
                 preview={updatedPreview ?? preview}
                 link={link}
                 onLinkChange={onInput}
@@ -138,12 +143,12 @@ export function CreateSharedPostModal({
         <Button
           icon={<AtIcon />}
           className="btn-tertiary"
-          buttonSize={ButtonSize.Small}
+          size={ButtonSize.Small}
           onClick={markdownRef?.current?.onMentionCommand}
         />
         <Divider vertical />
         <SourceButton source={squad} size="small" />
-        <span className="flex-1 -ml-1">
+        <span className="-ml-1 flex-1">
           <strong>{squad.name}</strong>
           <span className="ml-1 text-theme-label-tertiary">
             @{squad.handle}
@@ -152,7 +157,7 @@ export function CreateSharedPostModal({
 
         {!isMobile && (
           <Button
-            className="ml-auto btn-primary-cabbage"
+            className="btn-primary-cabbage ml-auto"
             disabled={isPosting}
             loading={isPosting}
             form="share_post"

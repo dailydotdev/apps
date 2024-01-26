@@ -16,7 +16,7 @@ import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Dropdown, DropdownProps } from '../fields/Dropdown';
-import { ButtonSize } from '../buttons/Button';
+import { ButtonSize } from '../buttons/ButtonV2';
 import CalendarIcon from '../icons/Calendar';
 import SortIcon from '../icons/Sort';
 import { IconSize } from '../Icon';
@@ -26,6 +26,7 @@ import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 import { useFeedName } from '../../hooks/feed/useFeedName';
+import { useFeedLayout } from '../../hooks';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -71,6 +72,7 @@ export const SearchControlHeader = ({
   const { openModal } = useLazyModal();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const openFeedFilters = () =>
     openModal({ type: LazyModal.FeedFilters, persistOnRouteChange: true });
 
@@ -89,12 +91,12 @@ export const SearchControlHeader = ({
     [SharedFeedPage.Discussed]: <FeedHeading children="Best discussions" />,
   };
 
-  if (searchVersion === SearchExperiment.V1) {
+  if (searchVersion === SearchExperiment.V1 || shouldUseFeedLayoutV1) {
     const dropdownProps: Partial<DropdownProps> = {
-      className: { label: 'hidden', chevron: 'hidden', button: '!px-0' },
+      className: { label: 'hidden', chevron: 'hidden', button: '!px-1' },
       dynamicMenuWidth: true,
       shouldIndicateSelected: true,
-      buttonSize: ButtonSize.Medium,
+      buttonSize: shouldUseFeedLayoutV1 ? ButtonSize.Small : ButtonSize.Medium,
       iconOnly: true,
     };
     const actionButtons = [
@@ -134,7 +136,7 @@ export const SearchControlHeader = ({
   }
 
   return (
-    <LayoutHeader className="overflow-x-visible flex-col">
+    <LayoutHeader className="flex-col overflow-x-visible">
       {alerts?.filter && (
         <CreateMyFeedButton
           action={() =>
@@ -146,7 +148,7 @@ export const SearchControlHeader = ({
       )}
       <div
         className={classNames(
-          'flex flex-row flex-wrap gap-4 items-center mr-px w-full',
+          'mr-px flex w-full flex-row flex-wrap items-center gap-4',
           alerts.filter || !hasMyFeedAlert ? 'h-14' : 'h-32 laptop:h-16',
           !sidebarRendered && hasMyFeedAlert && 'content-start',
         )}

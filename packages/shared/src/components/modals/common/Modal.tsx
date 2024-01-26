@@ -53,13 +53,14 @@ const modalKindToClassName: Record<ModalKind, string> = {
     'h-full max-h-[calc(100vh-2.5rem)] mobileL:h-[40rem] mobileL:max-h-[calc(100vh-5rem)]',
   [ModalKind.FlexibleCenter]:
     'mx-4 max-w-[calc(100vw-2rem)] max-h-[min(calc(100vh),40rem)] mobileL:max-h-[min(calc(100vh-5rem),40rem)]',
-  [ModalKind.FlexibleTop]: 'max-h-full h-auto',
+  [ModalKind.FlexibleTop]: 'h-auto',
   [ModalKind.FixedBottom]: 'rounded-b-none max-h-[34.75rem]',
 };
 const modalKindAndSizeToClassName: Partial<
   Record<ModalKind, Partial<Record<ModalSize, string>>>
 > = {
   [ModalKind.FlexibleTop]: {
+    [ModalSize.XSmall]: 'laptop:mt-14 laptop:mb-10',
     [ModalSize.Medium]:
       'h-full mobileL:h-auto min-h-[25rem] max-h-[calc(100vh-10rem)]',
     [ModalSize.Large]: 'laptop:mt-14 laptop:mb-10',
@@ -101,13 +102,13 @@ export function Modal({
     setView(view);
   };
   const modalOverlayClassName = classNames(
-    'overlay flex fixed flex-col inset-0 items-center bg-overlay-quaternary-onion z-modal',
+    'overlay fixed inset-0 z-modal flex flex-col items-center bg-overlay-quaternary-onion',
     modalKindAndSizeToOverlayClassName[kind]?.[size],
     modalKindToOverlayClassName[kind],
     overlayClassName,
   );
   const modalClassName = classNames(
-    'antialiased modal flex flex-col relative focus:outline-none max-w-full items-center bg-theme-bg-tertiary shadow-2 border border-theme-divider-secondary rounded-16',
+    'modal relative flex max-w-full flex-col items-center rounded-16 border border-theme-divider-secondary bg-theme-bg-tertiary antialiased shadow-2 focus:outline-none',
     modalKindToClassName[kind],
     modalSizeToClassName[size],
     modalKindAndSizeToClassName[kind]?.[size],
@@ -146,7 +147,7 @@ export const ModalTitle = classed(
   'h1',
   'typo-title1 font-bold text-center mb-4',
 );
-export const ModalSubtitle = classed('strong', 'typo-headline mb-2');
+export const ModalSubtitle = classed('strong', 'typo-body font-bold mb-2');
 export const ModalText = classed('p', 'typo-callout text-theme-label-tertiary');
 
 Modal.Size = ModalSize;

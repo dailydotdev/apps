@@ -6,6 +6,7 @@ import React, {
 } from 'react';
 import { Post } from '../../graphql/posts';
 import classed, { ClassedHTML } from '../../lib/classed';
+import { Origin } from '../../lib/analytics';
 
 export const Separator = (): ReactElement => (
   <span className="mx-1">&#x2022;</span>
@@ -28,8 +29,9 @@ export const Container = classed('div', 'relative flex flex-1 flex-col');
 export interface PostCardProps {
   post: Post;
   onPostClick?: Callback;
-  onUpvoteClick?: (post: Post) => unknown;
-  onDownvoteClick?: (post: Post, downvoted: boolean | number) => unknown;
+  onBookmarkClick?: Callback;
+  onUpvoteClick?: (post: Post, origin?: Origin) => unknown;
+  onDownvoteClick?: (post: Post, origin?: Origin) => unknown;
   onCommentClick?: Callback;
   onMenuClick?: (event: React.MouseEvent, post: Post) => unknown;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
@@ -44,3 +46,19 @@ export interface PostCardProps {
   children?: ReactNode;
   domProps?: HTMLAttributes<HTMLDivElement>;
 }
+
+interface GenerateTitleClampProps {
+  hasImage?: boolean;
+  hasHtmlContent?: boolean;
+}
+
+export const generateTitleClamp = ({
+  hasImage,
+  hasHtmlContent,
+}: GenerateTitleClampProps = {}): string => {
+  if (hasImage) {
+    return 'line-clamp-3';
+  }
+
+  return hasHtmlContent ? 'line-clamp-4' : 'line-clamp-9';
+};

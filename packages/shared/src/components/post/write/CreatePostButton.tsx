@@ -1,13 +1,11 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { Button, ButtonSize } from '../../buttons/Button';
 import { link } from '../../../lib/links';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useMedia, useSquad } from '../../../hooks';
-import { laptop } from '../../../styles/media';
+import { useSquad, useViewSize, ViewSize } from '../../../hooks';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 
 interface CreatePostButtonProps {
   className?: string;
@@ -18,7 +16,7 @@ export function CreatePostButton({
 }: CreatePostButtonProps): ReactElement {
   const { user, isAuthReady, squads } = useAuthContext();
   const { route, query } = useRouter();
-  const isTablet = !useMedia([laptop.replace('@media ', '')], [true], false);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const handle = route === '/squads/[handle]' ? (query.handle as string) : '';
   const { squad } = useSquad({ handle });
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
@@ -44,14 +42,15 @@ export function CreatePostButton({
 
   return (
     <Button
-      className={classNames('btn-secondary', className)}
+      variant={ButtonVariant.Secondary}
+      className={className}
       disabled={getIsDisabled()}
       tag="a"
       href={
         link.post.create +
         (squad && allowedToPost ? `?sid=${squad.handle}` : '')
       }
-      buttonSize={isTablet ? ButtonSize.Small : ButtonSize.Medium}
+      size={isLaptop ? ButtonSize.Medium : ButtonSize.Small}
     >
       New post
     </Button>

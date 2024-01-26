@@ -8,8 +8,7 @@ import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
 import { Comment } from '../../graphql/comments';
 import { Modal, ModalProps } from './common/Modal';
 import { ExperimentWinner } from '../../lib/featureValues';
-import { useMedia } from '../../hooks';
-import { tablet } from '../../styles/media';
+import { useViewSize, ViewSize } from '../../hooks';
 
 type ShareModalProps = {
   post: Post;
@@ -30,7 +29,7 @@ export default function ShareModal({
 }: ShareModalProps): ReactElement {
   const isComment = !!comment;
   const { trackEvent } = useContext(AnalyticsContext);
-  const isMobile = !useMedia([tablet.replace('@media ', '')], [true], false);
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   const baseTrackingEvent = (
     eventName: string,

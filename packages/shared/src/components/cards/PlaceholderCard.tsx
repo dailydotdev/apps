@@ -19,14 +19,14 @@ export const PlaceholderCard = forwardRef(function PlaceholderCard(
       aria-busy
       className={classNames(
         className,
-        'flex flex-col rounded-2xl p-2 bg-theme-post-disabled',
+        'flex flex-col rounded-2xl bg-theme-post-disabled p-2',
         'min-h-card',
       )}
       {...props}
       ref={ref}
     >
       <CardTextContainer>
-        <ElementPlaceholder className="my-2 w-6 h-6 rounded-full" />
+        <ElementPlaceholder className="my-2 size-6 rounded-full" />
         <Text style={{ width: '100%' }} />
         <Text style={{ width: '100%' }} />
         <Text style={{ width: '80%' }} />

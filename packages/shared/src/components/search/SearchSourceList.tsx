@@ -1,7 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { widgetClasses } from '../widgets/common';
-import { Button, ButtonSize } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
 import { PlaceholderSearchSource } from './PlaceholderSearchSource';
 import { PageWidgets } from '../utilities';
@@ -10,6 +9,7 @@ import { SearchChunkSource } from '../../graphql/search';
 import { PaginationActions } from '../pagination';
 import { usePagination } from '../../hooks/utils';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 
 interface SearchSourceListProps {
   sources: SearchChunkSource[];
@@ -38,11 +38,11 @@ export const SearchSourceList = ({
 
   return (
     <PageWidgets tablet={false} className={classNames(className, 'relative')}>
-      <i className="hidden laptop:block absolute top-8 -left-8 w-12 h-px bg-theme-divider-tertiary" />
+      <i className="absolute -left-8 top-8 hidden h-px w-12 bg-theme-divider-tertiary laptop:block" />
       <div className={classNames('flex flex-col', widgetClasses)}>
         <div
           className={classNames(
-            'cursor-pointer laptop:cursor-auto flex justify-between items-center py-1.5 laptop:py-4 px-4 laptop:!pb-0 laptop:bg-transparent rounded-t-16 bg-theme-bg-secondary',
+            'flex cursor-pointer items-center justify-between rounded-t-16 bg-theme-bg-secondary px-4 py-1.5 laptop:cursor-auto laptop:bg-transparent laptop:py-4 laptop:!pb-0',
             isSourcesOpen ? 'rounded-t-16' : 'rounded-16',
           )}
           role="button"
@@ -51,7 +51,7 @@ export const SearchSourceList = ({
           onKeyDown={handleSourceClick}
           onClick={handleSourceClick}
         >
-          <p className="font-bold typo-callout text-theme-label-quaternary laptop:text-theme-label-quaternary">
+          <p className="font-bold text-theme-label-quaternary typo-callout laptop:text-theme-label-quaternary">
             Sources{' '}
             <span className="inline-block laptop:hidden">
               ({sources?.length ?? 1})
@@ -63,14 +63,14 @@ export const SearchSourceList = ({
                 className={classNames(isSourcesOpen && 'rotate-180')}
               />
             }
-            iconOnly
-            buttonSize={ButtonSize.Small}
-            className="block laptop:hidden btn-tertiary"
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            className="block laptop:hidden"
           />
         </div>
         <div
           className={classNames(
-            'gap-4 p-4 laptop:min-h-[14rem] overflow-x-scroll flex-col',
+            'flex-col gap-4 overflow-x-scroll p-4 laptop:min-h-[14rem]',
             isSourcesOpen ? 'flex' : 'hidden laptop:flex',
           )}
         >

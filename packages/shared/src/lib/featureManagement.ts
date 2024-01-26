@@ -1,8 +1,8 @@
 import { JSONValue } from '@growthbook/growthbook';
 import {
-  OnboardingFilteringTitle,
+  FeedLayout,
+  ReadingStreaksExperiment,
   SearchExperiment,
-  OnboardingV4,
 } from './featureValues';
 
 export class Feature<T extends JSONValue> {
@@ -18,13 +18,14 @@ export class Feature<T extends JSONValue> {
 
 const feature = {
   feedVersion: new Feature('feed_version', 15),
-  onboardingV4: new Feature('onboarding_v4', OnboardingV4.Control),
   search: new Feature('search', SearchExperiment.Control),
-  onboardingFilterTitle: new Feature(
-    'onboarding_filtering_title',
-    OnboardingFilteringTitle.Control,
-  ),
   lowImps: new Feature('feed_low_imps'),
+  bookmarkOnCard: new Feature('bookmark_on_card', false),
+  feedLayout: new Feature('feed_layout', FeedLayout.Control),
+  readingStreaks: new Feature(
+    'reading_streaks',
+    ReadingStreaksExperiment.Control,
+  ),
 };
 
 export { feature };

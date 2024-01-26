@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request';
-import { UserShortProfile } from '../lib/user';
-import { Connection } from './common';
+import type { UserShortProfile } from '../lib/user';
+import type { Connection } from './common';
 
 export enum SourceMemberRole {
   Member = 'member',
@@ -91,6 +91,7 @@ export const SOURCE_QUERY = gql`
       id
       image
       name
+      type
     }
   }
 `;

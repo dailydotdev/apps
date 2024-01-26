@@ -6,6 +6,7 @@ import {
   CommentMarkdownInputProps,
 } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
+import { useCommentEdit } from '../../hooks/post/useCommentEdit';
 
 export interface SubCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
@@ -20,32 +21,40 @@ function SubComment({
   onCommented,
   ...props
 }: SubCommentProps): ReactElement {
-  const { replyComment, onReplyTo, inputProps } = useComments(props.post);
-  const {
-    replyComment: editComment,
-    inputProps: editProps,
-    onReplyTo: onEdit,
-  } = useComments(props.post);
+  const { inputProps, commentId, onReplyTo } = useComments(props.post);
+  const { inputProps: editProps, onEdit } = useCommentEdit();
 
   return (
     <>
-      {!editComment && (
+      {!editProps && (
         <CommentBox
           {...props}
           key={comment.id}
           parentId={parentComment.id}
           comment={comment}
-          onEdit={(selected) => onEdit([selected, parentComment.id, true])}
+          onEdit={({ id, lastUpdatedAt }) =>
+            onEdit({
+              commentId: id,
+              lastUpdatedAt,
+              parentCommentId: parentComment.id,
+            })
+          }
           className={{ container: 'relative', content: 'ml-14' }}
-          onComment={(selected, parent) => onReplyTo([comment, parent])}
+          onComment={(selected, parent) =>
+            onReplyTo({
+              username: comment.author.username,
+              parentCommentId: parent,
+              commentId: selected.id,
+            })
+          }
         >
           <div
-            className="absolute top-0 bottom-0 left-9 -ml-px w-0.5 bg-theme-float"
+            className="absolute bottom-0 left-9 top-0 -ml-px w-0.5 bg-theme-float"
             data-testid="subcomment"
           />
         </CommentBox>
       )}
-      {editComment && (
+      {editProps && (
         <CommentMarkdownInput
           {...editProps}
           post={props.post}
@@ -56,7 +65,7 @@ function SubComment({
           className={className}
         />
       )}
-      {replyComment?.id === comment.id && (
+      {commentId === comment.id && (
         <CommentMarkdownInput
           {...inputProps}
           className={className}

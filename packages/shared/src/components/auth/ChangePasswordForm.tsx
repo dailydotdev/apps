@@ -1,7 +1,7 @@
 import React, { FormEvent, ReactElement, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { formToJson } from '../../lib/form';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import AuthHeader from './AuthHeader';
 import { AuthFormProps, AuthModalText } from './common';
 import {
@@ -76,7 +76,7 @@ function ChangePasswordForm({
     <>
       <AuthHeader simplified={simplified} title="Create a new password" />
       <AuthForm
-        className="flex flex-col items-end py-8 px-14"
+        className="flex flex-col items-end px-14 py-8"
         onSubmit={onChangePasswordSubmit}
         data-testid="recovery_form"
       >
@@ -96,7 +96,12 @@ function ChangePasswordForm({
           name="password"
           className={{ container: 'w-full' }}
         />
-        <Button className="mt-6 btn-primary" type="submit" disabled={isLoading}>
+        <Button
+          className="mt-6"
+          variant={ButtonVariant.Primary}
+          type="submit"
+          disabled={isLoading}
+        >
           Change password
         </Button>
       </AuthForm>

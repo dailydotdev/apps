@@ -1,6 +1,6 @@
 import React, { AnchorHTMLAttributes, ReactElement } from 'react';
 import { Item, Menu, MenuProps } from '@dailydotdev/react-contexify';
-import Portal from '../tooltips/Portal';
+import { RootPortal } from '../tooltips/Portal';
 import ConditionalWrapper from '../ConditionalWrapper';
 import useContextMenu from '../../hooks/useContextMenu';
 
@@ -17,9 +17,9 @@ export default function PortalMenu({
   };
 
   return (
-    <Portal>
+    <RootPortal>
       <Menu {...props} id={id} onHidden={onHidden} />
-    </Portal>
+    </RootPortal>
   );
 }
 
@@ -54,7 +54,7 @@ export const ContextMenu = ({
           condition={!!anchorProps}
           wrapper={(children) => <a {...anchorProps}>{children}</a>}
         >
-          <span className="flex gap-2 items-center w-full typo-callout">
+          <span className="flex w-full items-center gap-2 typo-callout">
             {icon} {label}
           </span>
         </ConditionalWrapper>

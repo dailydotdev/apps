@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Button } from '../buttons/Button';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import { Modal } from '../modals/common/Modal';
 import { StepComponentProps } from '../modals/common/ModalStepsWrapper';
 import { Justify } from '../utilities';
@@ -46,7 +46,7 @@ function IntroductionOnboarding({
               style={{
                 backgroundImage: `url(${onboardingIntroduction})`,
               }}
-              className="absolute -top-20 w-full h-full bg-cover"
+              className="absolute -top-20 h-full w-full bg-cover"
             />
             {!user && (
               <MemberAlready
@@ -61,10 +61,14 @@ function IntroductionOnboarding({
             )}
           </Container>
           <Modal.Footer justify={Justify.Between}>
-            <Button className="btn-tertiary" onClick={onClose}>
+            <Button variant={ButtonVariant.Tertiary} onClick={onClose}>
               Skip
             </Button>
-            <Button className="bg-theme-color-cabbage" onClick={nextStep}>
+            <Button
+              color={ButtonColor.Cabbage}
+              variant={ButtonVariant.Primary}
+              onClick={nextStep}
+            >
               Continue
             </Button>
           </Modal.Footer>

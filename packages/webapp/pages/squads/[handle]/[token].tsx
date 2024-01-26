@@ -19,7 +19,10 @@ import classed from '@dailydotdev/shared/src/lib/classed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Link from 'next/link';
 import SourceButton from '@dailydotdev/shared/src/components/cards/SourceButton';
-import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { ParsedUrlQuery } from 'querystring';
 import {
@@ -204,16 +207,16 @@ const SquadReferral = ({
   return (
     <PageContainer className="relative items-center pt-10 tablet:pt-20">
       <NextSeo {...seo} />
-      <div className="absolute -top-4 right-0 tablet:-right-20 left-0 tablet:-left-20 h-40 rounded-26 max-w-[100vw] squad-background-fade" />
+      <div className="squad-background-fade absolute -top-4 left-0 right-0 h-40 max-w-[100vw] rounded-26 tablet:-left-20 tablet:-right-20" />
       <h1 className="typo-title1">You are invited to join {source.name}</h1>
       <BodyParagraph className="mt-6">
         {source.name} is your place to stay up to date as a Squad. You and your
         Squad members can share knowledge and content in one place. Join now to
         start collaborating.
       </BodyParagraph>
-      <span className="flex flex-row items-center mt-8" data-testid="inviter">
+      <span className="mt-8 flex flex-row items-center" data-testid="inviter">
         <ProfileImageLink user={user} />
-        <BodyParagraph className="flex-1 ml-4">
+        <BodyParagraph className="ml-4 flex-1">
           <HighlightedText>{user.name}</HighlightedText>{' '}
           <Link href={user.permalink}>
             <a href={user.permalink}>(@{user.username})</a>
@@ -221,12 +224,14 @@ const SquadReferral = ({
           has invited you to <HighlightedText>{source.name}</HighlightedText>
         </BodyParagraph>
       </span>
-      <div className="flex flex-col p-6 my-8 w-full rounded-24 border border-theme-color-cabbage">
-        <span className="flex flex-col tablet:flex-row items-start tablet:items-center">
-          <div className="flex flex-row flex-1 items-start">
+      <div className="my-8 flex w-full flex-col rounded-24 border border-theme-color-cabbage p-6">
+        <span className="flex flex-col items-start tablet:flex-row tablet:items-center">
+          <div className="flex flex-1 flex-row items-start">
             <SourceButton source={source} size="xxlarge" />
-            <div className="flex flex-col flex-1 mr-0 tablet:mr-4 ml-4">
-              <h2 className="flex flex-col typo-headline">{source.name}</h2>
+            <div className="ml-4 mr-0 flex flex-1 flex-col tablet:mr-4">
+              <h2 className="flex flex-col font-bold typo-body">
+                {source.name}
+              </h2>
               <BodyParagraph className="mt-2">@{source.handle}</BodyParagraph>
               {source.description && (
                 <BodyParagraph className="mt-4 break-words">
@@ -236,8 +241,9 @@ const SquadReferral = ({
             </div>
           </div>
           <SimpleSquadJoinButton
-            className="mt-4 tablet:mt-0 tablet:ml-auto w-full tablet:w-auto btn-primary"
-            buttonSize={ButtonSize.Large}
+            className="mt-4 w-full tablet:ml-auto tablet:mt-0 tablet:w-auto"
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Large}
             onClick={onJoinClick}
             squad={source}
             origin={Origin.SquadInvitation}
@@ -250,7 +256,7 @@ const SquadReferral = ({
       <BodyParagraph data-testid="waiting-users">
         {user.name} {othersLabel} waiting for you inside. Join them now!
       </BodyParagraph>
-      <span className="flex flex-row flex-wrap gap-2 mt-6">
+      <span className="mt-6 flex flex-row flex-wrap gap-2">
         {others.slice(0, 10).map(({ node }) => (
           <ProfileImageLink key={node.user.id} user={node.user} />
         ))}

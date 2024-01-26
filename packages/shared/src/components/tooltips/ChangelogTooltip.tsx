@@ -16,6 +16,7 @@ import { UserPostVote } from '../../graphql/posts';
 import InteractivePopup, { InteractivePopupPosition } from './InteractivePopup';
 import { Origin } from '../../lib/analytics';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
+import { ButtonVariant } from '../buttons/common';
 
 const toastMessageMap = {
   error: 'Something went wrong, try again later',
@@ -83,22 +84,22 @@ function ChangelogTooltip(): ReactElement {
     !!post && (
       <InteractivePopup
         position={InteractivePopupPosition.LeftEnd}
-        className="ml-6 border shadow-2 focus:outline-none w-[24rem] max-w-[360px] bg-theme-bg-tertiary border-theme-color-cabbage"
+        className="ml-6 w-[24rem] max-w-[360px] border border-theme-color-cabbage bg-theme-bg-tertiary shadow-2 focus:outline-none"
         data-testid="changelog"
         onClose={dismissChangelog}
-        closeButtonTypeClassname="btn-tertiary"
+        closeButtonVariant={ButtonVariant.Tertiary}
       >
-        <header className="flex flex-1 items-center py-3 px-4 border-b border-theme-divider-tertiary">
+        <header className="flex flex-1 items-center border-b border-theme-divider-tertiary px-4 py-3">
           <h3
-            className="font-bold typo-title3 text-theme-label-primary"
+            className="font-bold text-theme-label-primary typo-title3"
             data-testid="changelogNewReleaseTag"
           >
             New release
           </h3>
         </header>
-        <section className="flex flex-col flex-1 p-5 h-full shrink max-h-full">
+        <section className="flex h-full max-h-full flex-1 shrink flex-col p-5">
           <Image
-            className="object-cover rounded-lg w-[207px] h-[108px]"
+            className="h-[108px] w-[207px] rounded-lg object-cover"
             alt="Post cover image"
             src={post.image}
             fallbackSrc={cloudinary.post.imageCoverPlaceholder}
@@ -120,13 +121,13 @@ function ChangelogTooltip(): ReactElement {
           </time>
           {!!post.summary && (
             <div
-              className="mt-2 w text-theme-label-tertiary typo-callout"
+              className="w mt-2 text-theme-label-tertiary typo-callout"
               data-testid="changelogSummary"
             >
               {post.summary}
             </div>
           )}
-          <div className="flex mt-4">
+          <div className="mt-4 flex">
             <QuaternaryButton
               id={`post-${post.id}-upvote-btn`}
               icon={
@@ -136,7 +137,7 @@ function ChangelogTooltip(): ReactElement {
               }
               pressed={post?.userState?.vote === UserPostVote.Up}
               onClick={onToggleUpvote}
-              buttonSize={ButtonSize.Small}
+              size={ButtonSize.Small}
               className="btn-tertiary-avocado"
               data-testid="changelogUpvotesButton"
             >
@@ -152,7 +153,7 @@ function ChangelogTooltip(): ReactElement {
               tag="a"
               href={post.commentsPermalink}
               onClick={dismissChangelog}
-              buttonSize={ButtonSize.Small}
+              size={ButtonSize.Small}
               className="btn-tertiary-blueCheese"
               data-testid="changelogCommentsButton"
             >
@@ -163,7 +164,7 @@ function ChangelogTooltip(): ReactElement {
             </QuaternaryButton>
           </div>
         </section>
-        <footer className="flex justify-between items-center p-3 w-full h-16 border-t border-theme-divider-tertiary">
+        <footer className="flex h-16 w-full items-center justify-between border-t border-theme-divider-tertiary p-3">
           <Button
             className="btn-tertiary"
             onClick={dismissChangelog}

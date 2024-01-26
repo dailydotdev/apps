@@ -19,6 +19,9 @@ import { CustomSwitch } from './fields/CustomSwitch';
 import AuthContext from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import { checkIsExtension } from '../lib/func';
+import { useFeature } from './GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
+import { FeedLayout } from '../lib/featureValues';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -61,6 +64,7 @@ export default function Settings({
   ...props
 }: HTMLAttributes<HTMLDivElement>): ReactElement {
   const isExtension = checkIsExtension();
+  const isFeedV1 = useFeature(feature.feedLayout) === FeedLayout.V1;
   const { user, showLogin } = useContext(AuthContext);
   const {
     spaciness,
@@ -107,19 +111,21 @@ export default function Settings({
 
   return (
     <div className={classNames('flex', 'flex-col', className)} {...props}>
-      <Section className="!mt-0">
-        <SectionTitle>Layout</SectionTitle>
-        <CustomSwitch
-          inputId="layout-switch"
-          name="insaneMode"
-          leftContent={<CardIcon secondary={!insaneMode} />}
-          rightContent={<LineIcon secondary={insaneMode} />}
-          checked={insaneMode}
-          className="mx-1.5"
-          onToggle={toggleInsaneMode}
-        />
-      </Section>
-      <Section>
+      {!isFeedV1 && (
+        <Section className="!mt-0">
+          <SectionTitle>Layout</SectionTitle>
+          <CustomSwitch
+            inputId="layout-switch"
+            name="insaneMode"
+            leftContent={<CardIcon secondary={!insaneMode} />}
+            rightContent={<LineIcon secondary={insaneMode} />}
+            checked={insaneMode}
+            className="mx-1.5"
+            onToggle={toggleInsaneMode}
+          />
+        </Section>
+      )}
+      <Section className={isFeedV1 && '!mt-0'}>
         <SectionTitle>Theme</SectionTitle>
         <Radio
           name="theme"
@@ -128,15 +134,17 @@ export default function Settings({
           onChange={setTheme}
         />
       </Section>
-      <Section>
-        <SectionTitle>Density</SectionTitle>
-        <Radio
-          name="density"
-          options={densities}
-          value={spaciness}
-          onChange={setSpaciness}
-        />
-      </Section>
+      {!isFeedV1 && (
+        <Section>
+          <SectionTitle>Density</SectionTitle>
+          <Radio
+            name="density"
+            options={densities}
+            value={spaciness}
+            onChange={setSpaciness}
+          />
+        </Section>
+      )}
       <Section>
         <SectionTitle>Preferences</SectionTitle>
         <SectionContent>

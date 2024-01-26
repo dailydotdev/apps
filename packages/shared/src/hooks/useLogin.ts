@@ -19,12 +19,12 @@ import {
   initializeKratosFlow,
   submitKratosFlow,
 } from '../lib/kratos';
-import useWindowEvents from './useWindowEvents';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { useToastNotification } from './useToastNotification';
 import { SignBackProvider, useSignBack } from './auth/useSignBack';
 import { LoggedUser } from '../lib/user';
 import { labels } from '../lib';
+import { useEventListener } from './useEventListener';
 
 const LOGIN_FLOW_NOT_AVAILABLE_TOAST =
   'An error occurred, please refresh the page.';
@@ -164,7 +164,11 @@ const useLogin = ({
     [displayToast, login?.ui, onPasswordLogin],
   );
 
-  useWindowEvents('message', AuthEvent.Login, async () => {
+  useEventListener(globalThis, 'message', async (e) => {
+    if (e.data?.eventKey !== AuthEvent.Login) {
+      return;
+    }
+
     if (!session) {
       const { data: boot } = await refetchBoot();
 

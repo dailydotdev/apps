@@ -52,12 +52,6 @@ module.exports = plugin(({ addUtilities }) => {
       'line-height': '1.625rem',
     },
 
-    '.typo-headline': {
-      'font-size': '1.0625rem',
-      'line-height': '1.5rem',
-      'font-weight': 'bold',
-    },
-
     '.typo-markdown': {
       'font-size': '1.0625rem',
       'line-height': '1.75rem',
@@ -91,6 +85,11 @@ module.exports = plugin(({ addUtilities }) => {
     '.typo-caption2': {
       'font-size': '0.6875rem',
       'line-height': '1rem',
+    },
+
+    '.typo-tera': {
+      'font-size': '5rem',
+      'line-height': '5.375rem',
     },
   };
 

@@ -13,8 +13,7 @@ import {
   TabContainer,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
 import { SearchHistory } from '@dailydotdev/shared/src/components';
-import { useMedia } from '@dailydotdev/shared/src/hooks';
-import { laptop } from '@dailydotdev/shared/src/styles/media';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
@@ -27,7 +26,7 @@ import { HistoryType, ReadingHistory } from '../components/history';
 const History = (): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const searchValue = useFeature(feature.search);
-  const isLaptop = useMedia([laptop.replace('@media ', '')], [true], false);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const seo = (
     <NextSeo
       title={
@@ -67,7 +66,7 @@ const History = (): ReactElement => {
 
   return (
     <ProtectedPage seo={seo}>
-      <div className="flex laptop:hidden absolute left-0 w-full h-px top-[6.75rem] bg-theme-divider-tertiary" />
+      <div className="absolute left-0 top-[6.75rem] flex h-px w-full bg-theme-divider-tertiary laptop:hidden" />
       <ResponsivePageContainer className="relative !p-0" role="main">
         {searchValue === SearchExperiment.Control ? (
           <ReadingHistory />

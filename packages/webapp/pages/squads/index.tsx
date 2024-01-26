@@ -65,7 +65,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
       <NextSeo {...seo} />
 
       <FeedLayout>
-        <BaseFeedPage className="relative pt-2 laptop:pt-8 mb-4">
+        <BaseFeedPage className="relative mb-4 pt-2 laptop:pt-8">
           <InfiniteScrolling
             isFetchingNextPage={queryResult.isFetchingNextPage}
             canFetchMore={checkFetchMore(queryResult)}

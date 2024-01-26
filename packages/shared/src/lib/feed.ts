@@ -3,6 +3,7 @@ import { Ad, Post, ReadHistoryPost } from '../graphql/posts';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
 import { PostBootData } from './boot';
 import { Origin } from './analytics';
+import { SharedFeedPage } from '../components/utilities';
 
 export function optimisticPostUpdateInFeed(
   items: FeedItem[],
@@ -146,3 +147,35 @@ export function adAnalyticsEvent(
     extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
   };
 }
+
+export interface GetDefaultFeedProps {
+  hasFiltered?: boolean;
+  hasUser?: boolean;
+}
+
+export const getDefaultFeed = ({
+  hasUser,
+}: GetDefaultFeedProps): SharedFeedPage => {
+  if (!hasUser) {
+    return SharedFeedPage.Popular;
+  }
+
+  return SharedFeedPage.MyFeed;
+};
+
+export const defaultFeedConditions = [null, 'default', '/', ''];
+
+export const getFeedName = (
+  path: string,
+  options: GetDefaultFeedProps = {},
+): SharedFeedPage => {
+  const feed = path?.replaceAll?.('/', '') || '';
+
+  if (defaultFeedConditions.some((condition) => condition === feed)) {
+    return getDefaultFeed(options);
+  }
+
+  const [page] = feed.split('?');
+
+  return page.replace(/^\/+/, '') as SharedFeedPage;
+};

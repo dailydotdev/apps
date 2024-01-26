@@ -84,6 +84,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     views
     numUpvotes
     numComments
+    videoId
     scout {
       ...UserShortInfo
     }
@@ -113,7 +114,6 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
 export const COMMENT_FRAGMENT = gql`
   fragment CommentFragment on Comment {
     id
-    content
     contentHtml
     createdAt
     lastUpdatedAt
@@ -125,4 +125,20 @@ export const COMMENT_FRAGMENT = gql`
     }
   }
   ${USER_SHORT_INFO_FRAGMENT}
+`;
+
+export const RELATED_POST_FRAGMENT = gql`
+  fragment RelatedPost on Post {
+    id
+    permalink
+    title
+    summary
+    createdAt
+    source {
+      id
+      handle
+      name
+      image
+    }
+  }
 `;

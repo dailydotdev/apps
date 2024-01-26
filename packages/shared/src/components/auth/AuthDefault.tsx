@@ -11,14 +11,13 @@ import AuthModalFooter from './AuthModalFooter';
 import { AuthFormProps, Provider, getFormEmail } from './common';
 import EmailSignupForm from './EmailSignupForm';
 import LoginForm, { LoginFormParams } from './LoginForm';
-import OrDivider from './OrDivider';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
 import AuthHeader from './AuthHeader';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useToastNotification } from '../../hooks/useToastNotification';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 
 interface AuthDefaultProps extends AuthFormProps {
   children?: ReactNode;
@@ -136,19 +135,11 @@ const AuthDefault = ({
     return <EmailSignupForm onSubmit={onEmailSignup} isReady={isReady} />;
   };
 
-  const getOrDivider = () => {
-    if (!providers.length || disablePassword) {
-      return null;
-    }
-
-    return <OrDivider />;
-  };
-
   return (
     <>
       <AuthHeader simplified={simplified} title={title} />
       {simplified && !shouldLogin && (
-        <p className="px-6 mt-3 text-center whitespace-pre-line text-theme-label-secondary typo-body">
+        <p className="mt-3 whitespace-pre-line px-6 text-center text-theme-label-secondary typo-body">
           Once you sign up, your personal feed will be ready to explore.
         </p>
       )}
@@ -158,8 +149,8 @@ const AuthDefault = ({
             <Button
               key={label}
               icon={icon}
-              className="btn-primary"
-              buttonSize={ButtonSize.Large}
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Large}
               onClick={() => onSocialClick(value)}
               loading={!isReady}
             >
@@ -167,7 +158,6 @@ const AuthDefault = ({
             </Button>
           ))}
         </div>
-        {getOrDivider()}
         {getForm()}
       </AuthContainer>
       <div className="flex flex-1" />

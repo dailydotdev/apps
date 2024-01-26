@@ -4,7 +4,11 @@ import { ProfilePicture } from '../ProfilePicture';
 import AuthContext from '../../contexts/AuthContext';
 
 export type FeedReadyMessageProps = {
-  className?: string;
+  className?: {
+    main?: string;
+    textContainer?: string;
+    header?: string;
+  };
 };
 
 export const FeedReadyMessage = ({
@@ -15,20 +19,18 @@ export const FeedReadyMessage = ({
   return (
     <div
       className={classNames(
-        'flex items-center w-full max-w-xl laptop:flex-row flex-col laptop:text-left text-center laptop:mx-0 mx-auto',
-        className,
+        'mx-auto flex w-full flex-col items-center gap-5 text-center laptop:mx-0 laptop:flex-row laptop:text-left',
+        className.main,
       )}
     >
-      <ProfilePicture
-        className="laptop:mr-6 mb-5 laptop:mb-0"
-        user={user}
-        size="xxxlarge"
-      />
-      <div className="flex flex-col w-full">
-        <p className="mb-2 laptop:mb-1 font-bold typo-large-title">
+      <ProfilePicture user={user} size="xxxlarge" />
+      <div className={classNames('w-full', className.textContainer)}>
+        <p
+          className={classNames('font-bold typo-large-title', className.header)}
+        >
           Your feed is ready
         </p>
-        <p className="flex typo-callout text-theme-label-tertiary">
+        <p className="flex text-theme-label-tertiary typo-callout">
           Now that the recommendations system is up and running, consider
           reading more articles over the first week to help the feed improve.
         </p>

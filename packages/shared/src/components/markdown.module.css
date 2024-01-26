@@ -13,10 +13,10 @@
     @apply font-bold typo-title3 mt-8 mb-6;
   }
   & :where(h3) {
-    @apply font-bold typo-headline mt-7 mb-5;
+    @apply font-bold typo-body mt-7 mb-5;
   }
   & :where(h4) {
-    @apply typo-headline mt-6 mb-4;
+    @apply typo-body font-bold mt-6 mb-4;
   }
   & :where(h5) {
     @apply text-theme-label-tertiary font-bold typo-markdown mt-5 mb-4;
@@ -31,7 +31,7 @@
     @apply typo-markdown italic pl-7 my-5 border-l border-theme-divider-secondary;
   }
   & :where(pre) {
-    @apply typo-markdown relative bg-theme-float py-0 px-0 my-5 rounded-12 border border-theme-divider-quaternary;
+    @apply typo-markdown relative bg-theme-float py-7 px-6 my-5 rounded-12 border border-theme-divider-quaternary;
   }
 
   & :where(pre) > code {
@@ -39,7 +39,7 @@
     color: var(--theme-highlight-label);
   }
   & :not(pre) > code {
-    @apply bg-theme-float typo-footnote border border-theme-divider-quaternary px-1 rounded-6;
+    @apply bg-theme-float typo-footnote border border-theme-divider-quaternary px-1 rounded-6 box-decoration-clone;
   }
   & :where(ul) {
     @apply list-disc my-5 pl-7;

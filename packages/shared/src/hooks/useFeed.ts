@@ -42,6 +42,8 @@ export type FeedReturnType = {
   canFetchMore: boolean;
   emptyFeed: boolean;
   isLoading: boolean;
+  isFetching: boolean;
+  isInitialLoading: boolean;
 };
 
 const findIndexOfPostInData = (
@@ -62,6 +64,7 @@ const findIndexOfPostInData = (
 
 type UseFeedSettingParams = {
   adPostLength?: number;
+  disableAds?: boolean;
 };
 
 export interface UseFeedOptionalParams<T> {
@@ -108,7 +111,8 @@ export default function useFeed<T>(
     tokenRefreshed &&
     !isFeedPreview &&
     (!settings?.adPostLength ||
-      feedQuery.data?.pages[0]?.page.edges.length > settings?.adPostLength);
+      feedQuery.data?.pages[0]?.page.edges.length > settings?.adPostLength) &&
+    !settings?.disableAds;
   const adsQuery = useInfiniteQuery<Ad>(
     ['ads', ...feedQueryKey],
     async ({ pageParam }) => {
@@ -215,5 +219,7 @@ export default function useFeed<T>(
     emptyFeed:
       !feedQuery?.data?.pages[0]?.page.edges.length && !feedQuery.isFetching,
     isLoading: feedQuery.isLoading,
+    isFetching: feedQuery.isFetching,
+    isInitialLoading: feedQuery.isInitialLoading,
   };
 }

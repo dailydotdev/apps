@@ -1,8 +1,8 @@
+import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import {
-  FeedData,
+  SOURCE_FEED_QUERY,
   supportedTypesForPrivateSources,
-} from '@dailydotdev/shared/src/graphql/posts';
-import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+} from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import React from 'react';
 import {
@@ -190,7 +190,7 @@ describe('squad page', () => {
     const notfound = generateNotFoundSquadResult();
     renderComponent(handle, [createSourceMock(handle, {}, notfound)]);
     await waitForNock();
-    await screen.findByText('Oops, this page couldn’t be found');
+    await screen.findByText('Why are you here?');
   });
 });
 

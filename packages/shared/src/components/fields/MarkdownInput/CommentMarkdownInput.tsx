@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
+import cloneDeep from 'lodash.clonedeep';
 import { defaultMarkdownCommands } from '../../../hooks/input';
 import MarkdownInput, { MarkdownRef } from './index';
 import {
@@ -91,7 +92,10 @@ export function CommentMarkdownInput({
 
     const comments = generateQueryKey(RequestKey.PostComments, null, postId);
     client.setQueryData<PostCommentsData>(comments, (data) => {
-      const copy = { ...data };
+      if (!data) {
+        return data;
+      }
+      const copy = cloneDeep(data);
 
       if (!editCommentId) {
         const edge = generateCommentEdge(comment);
@@ -229,7 +233,7 @@ export function CommentMarkdownInput({
         submitCopy={editCommentId ? 'Update' : 'Comment'}
         timeline={
           replyTo ? (
-            <span className="py-2 pl-12 typo-caption1 text-theme-label-tertiary">
+            <span className="py-2 pl-12 text-theme-label-tertiary typo-caption1">
               Reply to
               <span className="ml-2 font-bold text-theme-label-primary">
                 {replyTo}

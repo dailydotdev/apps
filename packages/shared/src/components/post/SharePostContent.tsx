@@ -1,34 +1,20 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
-import classNames from 'classnames';
-import Link from 'next/link';
+import React, { ReactElement, useContext } from 'react';
 import PostSourceInfo from './PostSourceInfo';
 import { ReadArticleButton } from '../cards/ReadArticleButton';
 import { LazyImage } from '../LazyImage';
 import { cloudinary } from '../../lib/image';
-import PostSummary from '../cards/PostSummary';
-import ArrowIcon from '../icons/Arrow';
-import { Post } from '../../graphql/posts';
+import {
+  Post,
+  getReadPostButtonText,
+  isInternalReadType,
+  isSharedPostSquadPost,
+} from '../../graphql/posts';
 import SettingsContext from '../../contexts/SettingsContext';
 import { SharePostTitle } from './share';
 import { combinedClicks } from '../../lib/click';
-import { SourceType } from '../../graphql/sources';
-
-interface PostLinkProps {
-  href: string;
-  as?: string;
-  target?: string;
-  rel?: string;
-  className?: string;
-  children: React.ReactNode;
-}
-
-const PostLink = ({ href, as, children, ...props }: PostLinkProps) => {
-  return (
-    <Link href={href} as={as}>
-      <a {...props}>{children}</a>
-    </Link>
-  );
-};
+import { SharedLinkContainer } from './common/SharedLinkContainer';
+import { SharedPostLink } from './common/SharedPostLink';
+import { ButtonVariant } from '../buttons/ButtonV2';
 
 interface SharePostContentProps {
   post: Post;
@@ -40,49 +26,27 @@ function SharePostContent({
   onReadArticle,
 }: SharePostContentProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
-  const [height, setHeight] = useState<number>(null);
-  const [shouldShowSummary, setShouldShowSummary] = useState(true);
-
-  const tldrHeight = useMemo(() => {
-    if (height === null) {
-      return 'auto';
-    }
-
-    return shouldShowSummary ? height : 0;
-  }, [shouldShowSummary, height]);
-
-  const isUnknownSource = post.sharedPost.source.id === 'unknown';
-  const postLink = isUnknownSource
-    ? {
-        href: post.sharedPost.permalink,
-        target: '_blank',
-        rel: 'noopener',
-      }
-    : {
-        href: `${post.sharedPost.commentsPermalink}?squad=${post.source.handle}&n=${post.source.name}`,
-        as: post.sharedPost.commentsPermalink,
-      };
-
   const openArticle = (e: React.MouseEvent) => {
     e.stopPropagation();
     onReadArticle();
   };
 
-  const isSharedPostSquadPost =
-    post.sharedPost.source.type === SourceType.Squad;
+  const shouldUseInternalLink =
+    isSharedPostSquadPost(post) || isInternalReadType(post.sharedPost);
 
   return (
     <>
       <SharePostTitle post={post} />
-      <div className="flex flex-col mt-8 rounded-16 border border-theme-divider-tertiary hover:border-theme-divider-secondary">
-        <div className="flex flex-col-reverse laptop:flex-row p-4 max-w-full">
-          <div className="flex flex-col flex-1">
-            <PostLink
-              {...postLink}
-              className="flex flex-wrap mt-4 laptop:mt-0 mb-4 font-bold typo-body"
+      <SharedLinkContainer className="mb-5 mt-8">
+        <div className="flex max-w-full flex-col-reverse p-4 laptop:flex-row">
+          <div className="flex flex-1 flex-col">
+            <SharedPostLink
+              post={post}
+              onGoToLinkProps={combinedClicks(openArticle)}
+              className="mb-4 mt-4 flex flex-wrap font-bold typo-body laptop:mt-0"
             >
               {post.sharedPost.title}
-            </PostLink>
+            </SharedPostLink>
             <PostSourceInfo
               date={
                 post.sharedPost.readTime
@@ -93,22 +57,25 @@ function SharePostContent({
               size="small"
             />
             <ReadArticleButton
-              className="mt-5 btn-secondary w-fit"
+              content={getReadPostButtonText(post)}
+              className="mt-5 w-fit"
+              variant={ButtonVariant.Secondary}
               href={
-                isSharedPostSquadPost
+                shouldUseInternalLink
                   ? post.sharedPost.commentsPermalink
                   : post.sharedPost.permalink
               }
-              openNewTab={isSharedPostSquadPost ? false : openNewTab}
+              openNewTab={shouldUseInternalLink ? false : openNewTab}
               title="Go to post"
               rel="noopener"
               {...combinedClicks(openArticle)}
             />
           </div>
 
-          <PostLink
-            {...postLink}
-            className="block overflow-hidden ml-2 w-70 rounded-2xl cursor-pointer h-fit"
+          <SharedPostLink
+            post={post}
+            onGoToLinkProps={combinedClicks(openArticle)}
+            className="ml-2 block h-fit w-70 cursor-pointer overflow-hidden rounded-2xl"
           >
             <LazyImage
               imgSrc={post.sharedPost.image}
@@ -117,41 +84,9 @@ function SharePostContent({
               eager
               fallbackSrc={cloudinary.post.imageCoverPlaceholder}
             />
-          </PostLink>
+          </SharedPostLink>
         </div>
-        {post.sharedPost.summary && (
-          <>
-            <PostSummary
-              ref={(el) => {
-                if (!el?.offsetHeight || height !== null) {
-                  return;
-                }
-
-                setHeight(el.offsetHeight);
-              }}
-              style={{ height: tldrHeight }}
-              className={classNames(
-                'mx-4 transition-all duration-300 ease-in-out',
-                shouldShowSummary && 'mb-4',
-              )}
-              summary={post.sharedPost.summary}
-            />
-            <button
-              type="button"
-              className="flex flex-row justify-center py-2 w-full font-bold hover:underline border-t border-theme-divider-tertiary typo-callout"
-              onClick={() => setShouldShowSummary(!shouldShowSummary)}
-            >
-              {shouldShowSummary ? 'Hide' : 'Show'} TLDR{' '}
-              <ArrowIcon
-                className={classNames(
-                  'ml-2 transition-transform ease-in-out duration-300',
-                  !shouldShowSummary && 'rotate-180',
-                )}
-              />
-            </button>
-          </>
-        )}
-      </div>
+      </SharedLinkContainer>
     </>
   );
 }

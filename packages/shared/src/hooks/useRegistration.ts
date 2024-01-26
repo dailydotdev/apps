@@ -14,6 +14,7 @@ import {
   ContinueWithAction,
   InitializationData,
   initializeKratosFlow,
+  KRATOS_ERROR,
   submitKratosFlow,
   SuccessfulRegistrationData,
 } from '../lib/kratos';
@@ -45,7 +46,7 @@ interface UseRegistration {
 
 type FormParams = Omit<RegistrationParameters, 'csrf_token'>;
 
-const EMAIL_EXISTS_ERROR_ID = 4000007;
+const EMAIL_EXISTS_ERROR_ID = KRATOS_ERROR.EXISTING_USER;
 
 const useRegistration = ({
   key,

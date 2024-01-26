@@ -23,7 +23,7 @@ export function ModalFooter({
   return (
     <footer
       className={classNames(
-        'flex gap-3 items-center p-3 w-full h-16 border-t border-theme-divider-tertiary',
+        'flex h-16 w-full items-center gap-3 border-t border-theme-divider-tertiary p-3',
         justify,
         className,
       )}

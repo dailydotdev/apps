@@ -7,15 +7,18 @@ import { TagCategoryLayout } from './TagCategoryDropdown';
 import AdvancedSettingsFilter from './AdvancedSettings';
 import BlockedFilter from './BlockedFilter';
 import ArrowIcon from '../icons/Arrow';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize } from '../buttons/ButtonV2';
 import { UnblockItem, unBlockPromptOptions } from './FilterMenu';
 import { Modal, ModalProps } from '../modals/common/Modal';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
+import { ContentTypesFilter } from './ContentTypesFilter';
+import AppIcon from '../icons/App';
 
 enum FilterMenuTitle {
   Tags = 'Manage tags',
   Advanced = 'Advanced',
+  ContentTypes = 'Content types',
   Blocked = 'Blocked items',
 }
 
@@ -46,6 +49,10 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
       options: { icon: <FilterIcon /> },
     },
     {
+      title: FilterMenuTitle.ContentTypes,
+      options: { icon: <AppIcon /> },
+    },
+    {
       title: FilterMenuTitle.Blocked,
       options: { icon: <BlockIcon /> },
     },
@@ -53,7 +60,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
   return (
     <Modal
       {...props}
-      className="overflow-auto flex-1 h-full"
+      className="h-full flex-1 overflow-auto"
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.XLarge}
       tabs={tabs}
@@ -69,8 +76,8 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
         <Modal.Sidebar.Inner>
           <Modal.Header>
             <Button
-              buttonSize={ButtonSize.Small}
-              className="flex tablet:hidden mr-2 -rotate-90"
+              size={ButtonSize.Small}
+              className="mr-2 flex -rotate-90 tablet:hidden"
               icon={<ArrowIcon />}
               onClick={() => setIsNavOpen(true)}
             />
@@ -80,6 +87,9 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
           </Modal.Body>
           <Modal.Body view={FilterMenuTitle.Advanced}>
             <AdvancedSettingsFilter />
+          </Modal.Body>
+          <Modal.Body view={FilterMenuTitle.ContentTypes}>
+            <ContentTypesFilter />
           </Modal.Body>
           <Modal.Body view={FilterMenuTitle.Blocked}>
             <BlockedFilter onUnblockItem={unBlockPrompt} />

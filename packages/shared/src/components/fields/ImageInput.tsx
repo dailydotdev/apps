@@ -11,12 +11,13 @@ import { fallbackImages } from '../../lib/config';
 import EditIcon from '../icons/Edit';
 import { IconSize } from '../Icon';
 import { useToastNotification } from '../../hooks/useToastNotification';
-import { Button, ButtonSize } from '../buttons/Button';
-import MiniCloseIcon from '../icons/MiniClose';
+import { ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import CloseButton from '../CloseButton';
 
-type Size = 'medium' | 'large';
+type Size = 'medium' | 'large' | 'cover';
 
 interface ClassName {
+  root?: string;
   container?: string;
   img?: string;
 }
@@ -43,10 +44,12 @@ export const MEGABYTE = 1024 * 1024;
 const componentSize: Record<Size, string> = {
   medium: 'w-24 h-24 rounded-26',
   large: 'w-40 h-40 rounded-[2.5rem]',
+  cover: 'w-full h-24 rounded-26',
 };
 const sizeToIconSize: Record<Size, IconSize> = {
   medium: IconSize.Small,
   large: IconSize.Medium,
+  cover: IconSize.Small,
 };
 export const ACCEPTED_TYPES = 'image/png,image/jpeg';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
@@ -108,12 +111,12 @@ function ImageInput({
   const onError = () => setImage(fallbackImage);
 
   return (
-    <div className="flex relative w-min">
+    <div className={classNames(className?.root || 'relative z-1 flex w-min')}>
       <button
         type="button"
         onClick={onClick}
         className={classNames(
-          'relative flex justify-center items-center group overflow-hidden border border-theme-divider-primary',
+          'group relative flex items-center justify-center overflow-hidden border border-theme-divider-primary',
           componentSize[size],
           className?.container,
         )}
@@ -133,7 +136,7 @@ function ImageInput({
         {image ? (
           <img
             className={classNames(
-              'w-full h-full object-cover',
+              'h-full w-full object-cover',
               className?.img,
               alwaysShowHover && 'opacity-[0.8]',
               !viewOnly && 'mouse:group-hover:opacity-64',
@@ -149,7 +152,7 @@ function ImageInput({
           <span
             className={classNames(
               !alwaysShowHover && 'hidden',
-              !viewOnly && 'mouse:group-hover:block absolute',
+              !viewOnly && 'absolute mouse:group-hover:block',
             )}
           >
             {hoverIcon || <EditIcon size={sizeToIconSize[size]} secondary />}
@@ -157,13 +160,11 @@ function ImageInput({
         )}
       </button>
       {image && closeable && (
-        <Button
-          type="button"
-          buttonSize={ButtonSize.Small}
-          position="absolute"
-          className="absolute -top-2 -right-2 !shadow-2 btn-primary"
+        <CloseButton
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Primary}
+          className="absolute -right-2 -top-2 !shadow-2"
           onClick={onClose}
-          icon={<MiniCloseIcon />}
         />
       )}
     </div>

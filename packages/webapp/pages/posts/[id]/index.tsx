@@ -2,7 +2,6 @@ import React, {
   CSSProperties,
   ReactElement,
   ReactNode,
-  useCallback,
   useContext,
   useState,
 } from 'react';
@@ -34,7 +33,6 @@ import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOf
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
 import SquadPostPageNavigation from '@dailydotdev/shared/src/components/post/SquadPostPageNavigation';
-import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { ONBOARDING_OFFSET } from '@dailydotdev/shared/src/components/post/BasePostContent';
@@ -46,6 +44,12 @@ import classNames from 'classnames';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Link from 'next/link';
+import { CollectionPostContent } from '@dailydotdev/shared/src/components/post/collection';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { FeedLayout } from '@dailydotdev/shared/src/lib/featureValues';
+import { PostBackButton } from '@dailydotdev/shared/src/components/post/common/PostBackButton';
+import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -72,36 +76,33 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   share: SquadPostContent,
   welcome: SquadPostContent,
   freeform: SquadPostContent,
+  [PostType.VideoYouTube]: PostContent,
+  collection: CollectionPostContent,
 };
 
 interface PostParams extends ParsedUrlQuery {
   id: string;
 }
 
-const CHECK_POPSTATE = 'popstate_key';
-
 const PostPage = ({ id, initialData }: Props): ReactElement => {
   const { showArticleOnboarding } = useContext(OnboardingContext);
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
+  const layout = useFeature(feature.feedLayout);
   const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = router;
-  useWindowEvents(
-    'popstate',
-    CHECK_POPSTATE,
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    useCallback(() => router.reload(), []),
-    { validateKey: false },
-  );
+
+  useEventListener(globalThis, 'popstate', () => {
+    router.reload();
+  });
 
   const { post, isError, isFetched, isPostLoadingOrFetching } = usePostById({
     id,
     options: { initialData, retry: false },
   });
   const containerClass = classNames(
-    'pb-20 laptop:pb-6 laptopL:pb-0 max-w-screen-laptop border-r laptop:min-h-page',
+    'max-w-screen-laptop pb-20 laptop:min-h-page laptop:pb-6 laptopL:pb-0',
     [PostType.Share, PostType.Welcome, PostType.Freeform].includes(
       post?.type,
     ) &&
@@ -151,18 +152,36 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   ) : (
     <SquadPostPageNavigation squadLink={post.source.permalink} />
   );
-  const navigation: Record<PostType, ReactNode> = {
-    article: !!router?.query?.squad && (
-      <Link href={`/squads/${router.query.squad}`}>
+
+  const articleNavigation = (() => {
+    const routedFromSquad = router?.query?.squad;
+    const squadLink = `/squads/${router.query.squad}`;
+
+    if (layout === FeedLayout.V1) {
+      return <PostBackButton link={routedFromSquad ? squadLink : undefined} />;
+    }
+
+    if (!routedFromSquad) {
+      return <></>;
+    }
+
+    return (
+      <Link href={squadLink}>
         <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
           <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
           Back to {router.query.n || 'Squad'}
         </a>
       </Link>
-    ),
+    );
+  })();
+
+  const navigation: Record<PostType, ReactNode> = {
+    article: articleNavigation,
     share: shareNavigation,
     welcome: shareNavigation,
     freeform: shareNavigation,
+    [PostType.VideoYouTube]: articleNavigation,
+    collection: articleNavigation,
   };
   const customNavigation = navigation[post?.type] ?? navigation.article;
 
