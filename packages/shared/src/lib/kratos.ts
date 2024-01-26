@@ -167,6 +167,13 @@ export interface AuthSession extends Partial<LogoutSessionData> {
   issued_at: Date;
 }
 
+export interface VerificationSession {
+  ok?: boolean;
+  result?: {
+    flow_id?: string;
+  };
+}
+
 export enum ContinueWithAction {
   ShowVerification = 'show_verification_ui',
 }
@@ -356,17 +363,18 @@ export const getKratosSession = async (): Promise<AuthSession> => {
   return res.json();
 };
 
-export const getVerificationSession = async (): Promise<any> => {
-  const res = await fetch(`${heimdallUrl}/api/get_verification_flow`, {
-    credentials: 'include',
-  });
+export const getVerificationSession =
+  async (): Promise<VerificationSession> => {
+    const res = await fetch(`${heimdallUrl}/api/get_verification_flow`, {
+      credentials: 'include',
+    });
 
-  if (res.status === 401) {
-    throw new Error('No active session');
-  }
+    if (res.status === 401) {
+      throw new Error('No active session');
+    }
 
-  return res.json();
-};
+    return res.json();
+  };
 
 // https://github.com/ory/docs/blob/9b86ed78da2fad0eb8bfaebfcc1a81f70d55e675/docs/kratos/concepts/messages.json
 export const KRATOS_ERROR = Object.freeze<Record<string, number>>({

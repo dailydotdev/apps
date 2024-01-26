@@ -12,7 +12,7 @@ const Verification = (): ReactElement => {
   }
 
   return (
-    <div className="p-4 w-full">
+    <div className="w-full p-4">
       <HeaderLogo onLogoClick={() => router.push('/')} />
       <AuthHeader title="Verify your email" simplified />
       <EmailCodeVerification

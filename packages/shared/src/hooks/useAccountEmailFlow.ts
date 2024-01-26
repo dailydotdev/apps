@@ -7,7 +7,13 @@ import {
   initializeKratosFlow,
   submitKratosFlow,
 } from '../lib/kratos';
-import { getErrorMessage, getNodeByKey, getNodeValue } from '../lib/auth';
+import {
+  getErrorMessage,
+  getNodeByKey,
+  getNodeValue,
+  ValidateChangeEmail,
+  VerifyEmail,
+} from '../lib/auth';
 import useTimer from './useTimer';
 import { disabledRefetch } from '../lib/func';
 import { authUrl } from '../lib/constants';
@@ -119,7 +125,7 @@ function useAccountEmailFlow({
           code,
           method: 'code',
         },
-      }),
+      } as VerifyEmail),
     {
       onSuccess: ({ error }) => {
         if (error) {

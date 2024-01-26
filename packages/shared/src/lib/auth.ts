@@ -125,6 +125,11 @@ export interface SettingsParameters extends AuthPostParams {
   unlink?: string;
 }
 
+interface VerifyEmailParameters extends AuthPostParams {
+  code: string;
+  method: string;
+}
+
 export type ErrorMessages<T extends string | number> = { [key in T]?: string };
 export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;
 export type ValidateRegistrationParams =
@@ -135,6 +140,7 @@ export type ValidateLoginParams = KratosFormParams<
 export type SettingsParams = KratosFormParams<SettingsParameters>;
 export type ValidateResetPassword = KratosFormParams<ResetPasswordParameters>;
 export type ValidateChangeEmail = KratosFormParams<RegistrationParameters>;
+export type VerifyEmail = KratosFormParams<VerifyEmailParameters>;
 
 export const errorsToJson = <T extends string>(
   data: InitializationData,

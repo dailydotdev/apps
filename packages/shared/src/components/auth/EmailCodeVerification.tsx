@@ -56,7 +56,7 @@ function EmailCodeVerification({
 
   return (
     <AuthForm
-      className={classNames('flex flex-col items-end py-8 px-14', className)}
+      className={classNames('flex flex-col items-end px-14 py-8', className)}
       onSubmit={onCodeVerification}
       data-testid="email_verification_form"
     >

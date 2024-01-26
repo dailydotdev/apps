@@ -41,7 +41,7 @@ import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
 import EmailVerified from './EmailVerified';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import SettingsContext from '../../contexts/SettingsContext';
-import { useToastNotification } from '../../hooks';
+import { useToastNotification, useEventListener } from '../../hooks';
 import CodeVerificationForm from './CodeVerificationForm';
 import ChangePasswordForm from './ChangePasswordForm';
 import { isTesting } from '../../lib/constants';
@@ -53,7 +53,6 @@ import {
 import { LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
 import OnboardingRegistrationForm from './OnboardingRegistrationForm';
-import { useEventListener } from '../../hooks';
 import EmailCodeVerification from './EmailCodeVerification';
 
 export enum AuthDisplay {
