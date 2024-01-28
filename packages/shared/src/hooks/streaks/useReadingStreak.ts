@@ -1,15 +1,22 @@
-interface UseReadingStreak {
-  maxStreak: number;
-  currentStreak: number;
+import { useQuery } from '@tanstack/react-query';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import { getReadingStreak, UserStreak } from '../../graphql/users';
+import { useAuthContext } from '../../contexts/AuthContext';
+
+interface UserReadingStreak {
+  streak: UserStreak;
   loading: boolean;
 }
 
-export const useReadingStreak = (): UseReadingStreak => {
-  const streak = 0; // TODO: make this a query in a separate ticket
+export const useReadingStreak = (): UserReadingStreak => {
+  const { user } = useAuthContext();
+  const { data: streak } = useQuery(
+    generateQueryKey(RequestKey.UserStreak, user),
+    getReadingStreak,
+  );
 
   return {
-    maxStreak: 44,
-    currentStreak: streak,
+    streak,
     loading: false,
   };
 };

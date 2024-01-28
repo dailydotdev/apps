@@ -7,7 +7,7 @@ import { useReadingStreak } from '../../hooks/streaks';
 
 export function ReadingStreakButton(): ReactElement {
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
-  const { currentStreak } = useReadingStreak();
+  const { streak } = useReadingStreak();
 
   return (
     <SimpleTooltip
@@ -20,7 +20,8 @@ export function ReadingStreakButton(): ReactElement {
         textClassName: 'text-theme-label-primary typo-callout',
         className: 'border border-theme-divider-tertiary',
       }}
-      content={<ReadingStreakPopup />}
+      content={<ReadingStreakPopup streak={streak} />}
+      onClickOutside={() => setShouldShowStreaks(false)}
     >
       <Button
         type="button"
@@ -29,7 +30,7 @@ export function ReadingStreakButton(): ReactElement {
         onClick={() => setShouldShowStreaks((state) => !state)}
         className="gap-1 text-theme-color-bacon"
       >
-        {currentStreak}
+        {streak?.current}
       </Button>
     </SimpleTooltip>
   );
