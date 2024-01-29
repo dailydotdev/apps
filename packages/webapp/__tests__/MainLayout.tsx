@@ -1,19 +1,23 @@
 import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+} from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import MainLayout from '../components/layouts/MainLayout';
 
 const showLogin = jest.fn();
-let client: QueryClient;
 
 beforeEach(() => {
   showLogin.mockReset();
 });
 
 const renderLayout = (user: LoggedUser = null): RenderResult => {
-  client = new QueryClient();
+  const client = new QueryClient();
 
   return render(
     <TestBootProvider client={client} auth={{ user, showLogin }}>
@@ -32,7 +36,7 @@ const renderLayout = (user: LoggedUser = null): RenderResult => {
 it('should show login when clicking on the button', async () => {
   renderLayout();
   const [el] = await screen.findAllByText('Log in');
-  el.click();
+  fireEvent.click(el);
   expect(showLogin).toBeCalledTimes(1);
 });
 
