@@ -31,7 +31,7 @@ export const SearchProviderButton = ({
         className,
         'border-theme-divider-tertiary text-theme-label-tertiary typo-subhead',
       )}
-      icon={<Icon className="mr-2" />}
+      icon={<Icon className="mr-2 rounded-6 p-0.5" />}
       iconPosition={ButtonIconPosition.Left}
       type={ButtonVariant.Secondary}
       onClick={() => {

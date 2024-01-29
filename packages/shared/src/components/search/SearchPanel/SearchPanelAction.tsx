@@ -20,7 +20,7 @@ export const SearchPanelAction = ({
 
   return (
     <SearchPanelItem
-      icon={<Icon />}
+      icon={<Icon className="rounded-6 p-0.5" />}
       onClick={() => {
         search({ provider, query: searchPanel.query });
       }}
