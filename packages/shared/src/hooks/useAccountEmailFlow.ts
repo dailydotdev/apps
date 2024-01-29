@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   AuthFlow,
@@ -68,14 +68,17 @@ function useAccountEmailFlow({
     },
   );
 
-  if (existingFlow?.result?.flow_id && !activeFlow) {
-    setActiveFlow(existingFlow.result.flow_id);
-  }
+  useEffect(() => {
+    if (existingFlow?.result?.flow_id && !activeFlow) {
+      setActiveFlow(existingFlow.result.flow_id);
+    }
+  }, [activeFlow, existingFlow.result.flow_id]);
 
-  const enabled =
-    flow === AuthFlow.Recovery
+  const enabled = useMemo(() => {
+    return flow === AuthFlow.Recovery
       ? true
       : !existingFlowLoading && !activeFlow && !autoResend;
+  }, [flow, existingFlowLoading, activeFlow, autoResend]);
 
   const { data: emailFlow } = useQuery(
     [{ type: flow }],
@@ -87,10 +90,12 @@ function useAccountEmailFlow({
     },
   );
 
-  if (emailFlow?.id && !activeFlow) {
-    setActiveFlow(emailFlow.id);
-    setAutoResend(true);
-  }
+  useEffect(() => {
+    if (emailFlow?.id && !activeFlow) {
+      setActiveFlow(emailFlow.id);
+      setAutoResend(true);
+    }
+  }, [activeFlow, emailFlow.id]);
 
   const { mutateAsync: sendEmail, isLoading } = useMutation(
     (email: string) =>

@@ -369,7 +369,7 @@ export const getVerificationSession =
       credentials: 'include',
     });
 
-    if (res.status === 401) {
+    if (!res.ok) {
       throw new Error('No active session');
     }
 

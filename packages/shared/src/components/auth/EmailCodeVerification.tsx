@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
@@ -9,6 +9,8 @@ import AuthForm from './AuthForm';
 import KeyIcon from '../icons/Key';
 import MailIcon from '../icons/Mail';
 import VIcon from '../icons/V';
+import { AuthEventNames } from '../../lib/auth';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 interface EmailCodeVerificationProps extends AuthFormProps {
   code?: string;
@@ -24,6 +26,7 @@ function EmailCodeVerification({
   onSubmit,
   className,
 }: EmailCodeVerificationProps): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const [hint, setHint] = useState('');
   const [code, setCode] = useState(codeProp);
   const [email, setEmail] = useState(emailProp);
@@ -36,16 +39,18 @@ function EmailCodeVerification({
         onSubmit();
       },
     });
-  if (autoResend && !hint) {
-    setHint('Please click resend code to get a new code.');
-  }
+
+  useEffect(() => {
+    if (autoResend && !hint) {
+      setHint('Please click resend code to get a new code.');
+    }
+  }, [autoResend, hint]);
 
   const onCodeVerification = async (e) => {
     e.preventDefault();
-    // Verify required analytics
-    // trackEvent({
-    //   event_name: AuthEventNames.SubmitForgotPassword,
-    // });
+    trackEvent({
+      event_name: AuthEventNames.VerifyEmail,
+    });
     setHint('');
     await verifyCode({ code });
   };

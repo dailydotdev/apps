@@ -136,13 +136,7 @@ const AuthDefault = ({
     return <EmailSignupForm onSubmit={onEmailSignup} isReady={isReady} />;
   };
 
-  const getOrDivider = () => {
-    if (!providers.length || disablePassword) {
-      return null;
-    }
-
-    return <OrDivider />;
-  };
+  const renderOrDivider = providers.length || !disablePassword;
 
   return (
     <>
@@ -167,7 +161,7 @@ const AuthDefault = ({
             </Button>
           ))}
         </div>
-        {getOrDivider()}
+        {renderOrDivider && <OrDivider />}
         {getForm()}
       </AuthContainer>
       <div className="flex flex-1" />
