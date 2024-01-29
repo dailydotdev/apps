@@ -152,10 +152,10 @@ function useAccountEmailFlow({
       token: getNodeValue('csrf_token', emailFlow?.ui?.nodes),
       resendTimer: timer,
       isLoading,
-      flow: '',
+      flow: emailFlow?.id,
       autoResend,
     }),
-    [isLoading, timer, autoResend, verifyCode, sendEmail],
+    [sendEmail, verifyCode, emailFlow, timer, isLoading, autoResend],
   );
 }
 
