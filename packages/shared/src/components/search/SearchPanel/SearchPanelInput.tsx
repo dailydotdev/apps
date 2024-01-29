@@ -136,6 +136,19 @@ export const SearchPanelInput = ({
     }
   });
 
+  useEventListener(globalThis, 'keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+
+      if (searchPanel.isActive) {
+        inputRef.current?.blur();
+        searchPanel.setActive({
+          isActive: false,
+        });
+      }
+    }
+  });
+
   return (
     <div className={classNames(className?.container, 'hidden laptop:flex')}>
       <form
@@ -162,6 +175,7 @@ export const SearchPanelInput = ({
           />
           <FieldInput
             {...inputProps}
+            data-search-panel-item="true"
             placeholder={placeholder}
             ref={inputRef}
             onFocus={(event) => {

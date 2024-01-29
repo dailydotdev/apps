@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { HTMLAttributes, useContext } from 'react';
 import { SearchProviderEnum } from '../../../graphql/search';
 import { SearchPanelContext } from './SearchPanelContext';
 import { providerToLabelTextMap } from './common';
@@ -8,11 +8,13 @@ export type UseSearchPanelActionProps = {
   text?: string;
 };
 
+export type SearchPanelActionEventHandler = (event: Event) => void;
+
 export type UseSearchPanelAction = {
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
-  onFocus: () => void;
-  onBlur: () => void;
+  onMouseEnter: HTMLAttributes<HTMLButtonElement>['onMouseEnter'];
+  onMouseLeave: HTMLAttributes<HTMLButtonElement>['onMouseLeave'];
+  onFocus: HTMLAttributes<HTMLButtonElement>['onFocus'];
+  onBlur: HTMLAttributes<HTMLButtonElement>['onBlur'];
 };
 
 export const useSearchPanelAction = ({
@@ -37,7 +39,21 @@ export const useSearchPanelAction = ({
   return {
     onMouseEnter: onActive,
     onMouseLeave: onInactive,
-    onFocus: onActive,
-    onBlur: onInactive,
+    onFocus: (event) => {
+      if (event?.target instanceof HTMLElement) {
+        const element = event.target;
+        element.setAttribute('data-search-panel-active', 'true');
+      }
+
+      onActive();
+    },
+    onBlur: (event) => {
+      if (event?.target instanceof HTMLElement) {
+        const element = event.target;
+        element.removeAttribute('data-search-panel-active');
+      }
+
+      onInactive();
+    },
   };
 };
