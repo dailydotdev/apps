@@ -1,6 +1,9 @@
 import React, { ReactElement, useEffect } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
-import { SearchResult } from '@dailydotdev/shared/src/components/search';
+import {
+  SearchProviderButton,
+  SearchResult,
+} from '@dailydotdev/shared/src/components/search';
 import { useChat } from '@dailydotdev/shared/src/hooks';
 import { SearchContainer } from '@dailydotdev/shared/src/components/search/SearchContainer';
 import { useRouter } from 'next/router';
@@ -84,13 +87,22 @@ const SearchPage = (): ReactElement => {
     >
       <NextSeo {...seo} />
       {(!!content || !!data) && (
-        <SearchResult
-          queryKey={queryKey}
-          isInProgress={isLoading}
-          chunk={chunk}
-          searchMessageProps={{ isLoading }}
-          className="mt-6"
-        />
+        <div>
+          <SearchResult
+            queryKey={queryKey}
+            isInProgress={isLoading}
+            chunk={chunk}
+            searchMessageProps={{ isLoading }}
+            className="mt-6"
+          />
+          <SearchProviderButton
+            className="order-4 mt-4"
+            provider={SearchProviderEnum.Posts}
+            query={query}
+          >
+            <span>Search posts on daily.dev instead</span>
+          </SearchProviderButton>
+        </div>
       )}
     </SearchContainer>
   );
