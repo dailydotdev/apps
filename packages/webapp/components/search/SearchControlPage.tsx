@@ -41,13 +41,13 @@ const Search = (): ReactElement => {
   return (
     <>
       <NextSeo {...seo} {...baseSeo} />
-      {isSearchV1 && (
+      {isSearchV1 && !!query.q && (
         <SearchProviderButton
           className="mt-4"
           provider={SearchProviderEnum.Chat}
           query={query.q as string}
         >
-          <span className="text-white">Search posts on daily.dev instead</span>
+          <span className="text-white">{query.q}</span>
           <span className="ml-2 typo-footnote">
             {providerToLabelTextMap[SearchProviderEnum.Chat]}
           </span>
