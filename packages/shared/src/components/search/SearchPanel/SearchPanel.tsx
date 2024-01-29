@@ -26,6 +26,9 @@ import { AnalyticsEvent } from '../../../lib/analytics';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 import { searchPanelGradientQueryKey } from './common';
 import { ArrowKeyEnum } from '../../../lib/func';
+import ArrowIcon from '../../icons/Arrow';
+import { useSearchProvider } from '../../../hooks/search';
+import { SearchPanelCustomAction } from './SearchPanelCustomAction';
 
 export type SearchPanelProps = {
   className?: string;
@@ -36,6 +39,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   useContext(SettingsContext);
   const { trackEvent } = useAnalyticsContext();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
+  const { search } = useSearchProvider();
 
   const isTracked = useRef(false);
   const shouldShowPulse =
@@ -174,6 +178,19 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
                 <SearchPanelAction provider={SearchProviderEnum.Posts} />
                 <SearchPanelAction provider={SearchProviderEnum.Chat} />
                 <SearchPanelPostSuggestions title="Posts on daily.dev" />
+                <SearchPanelCustomAction
+                  provider={SearchProviderEnum.Posts}
+                  onClick={() => {
+                    search({
+                      provider: SearchProviderEnum.Posts,
+                      query: state.query,
+                    });
+                  }}
+                >
+                  <div className="flex items-center justify-center text-theme-label-tertiary typo-subhead">
+                    See more posts <ArrowIcon className="!size-4 rotate-90" />
+                  </div>
+                </SearchPanelCustomAction>
               </div>
             </div>
           )}

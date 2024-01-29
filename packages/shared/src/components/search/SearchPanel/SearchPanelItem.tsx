@@ -7,7 +7,7 @@ import {
 } from './SearchPanelInputContainer';
 
 export type SearchPanelItemProps = {
-  icon: IconType;
+  icon?: IconType;
 } & SearchPanelItemContainerProps;
 
 export const SearchPanelItem = ({
@@ -23,7 +23,7 @@ export const SearchPanelItem = ({
         'flex w-full gap-2 overflow-hidden rounded-12 p-2 hover:bg-theme-float',
       )}
     >
-      {icon}
+      {!!icon && icon}
       {children}
     </SearchPanelItemContainer>
   );
