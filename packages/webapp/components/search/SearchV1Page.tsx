@@ -68,6 +68,8 @@ const SearchPage = (): ReactElement => {
     },
   };
 
+  const searchedQuery = data?.chunks[0]?.prompt || query;
+
   return (
     <SearchContainer
       onSubmit={(event, value) => {
@@ -98,7 +100,7 @@ const SearchPage = (): ReactElement => {
           <SearchProviderButton
             className="order-4 mt-4"
             provider={SearchProviderEnum.Posts}
-            query={query}
+            query={searchedQuery}
           >
             <span>Search posts on daily.dev instead</span>
           </SearchProviderButton>
