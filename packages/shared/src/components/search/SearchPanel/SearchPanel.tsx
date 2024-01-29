@@ -1,34 +1,38 @@
 import React, {
   ReactElement,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
+import { useQueryClient } from '@tanstack/react-query';
 import { SearchPanelInput } from './SearchPanelInput';
 import {
   SearchProviderEnum,
   minSearchQueryLength,
 } from '../../../graphql/search';
-import { SearchPanelContext } from './SearchPanelContext';
-import { searchPanelGradientElementId } from './common';
+import {
+  SearchPanelContext,
+  SearchPanelContextValue,
+} from './SearchPanelContext';
 import { SearchPanelAction } from './SearchPanelAction';
 import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
-import { Portal } from '../../tooltips/Portal';
 import SettingsContext from '../../../contexts/SettingsContext';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { AnalyticsEvent } from '../../../lib/analytics';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
-import { FeedGradientBg } from '../../feeds/FeedGradientBg';
+import { searchPanelGradientQueryKey } from './common';
 
 export type SearchPanelProps = {
   className?: string;
 };
 
 export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
-  const { sidebarExpanded } = useContext(SettingsContext);
+  const queryClient = useQueryClient();
+  useContext(SettingsContext);
   const { trackEvent } = useAnalyticsContext();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
 
@@ -38,23 +42,32 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
 
   const [state, setState] = useState(() => {
     return {
-      provider: SearchProviderEnum.Posts,
+      provider: undefined,
       query: '',
       isActive: false,
     };
   });
 
-  const searchPanel = useMemo(() => {
+  useEffect(() => {
+    queryClient.setQueryData(searchPanelGradientQueryKey, state.isActive);
+  }, [queryClient, state.isActive]);
+
+  const searchPanel = useMemo<SearchPanelContextValue>(() => {
     return {
       ...state,
-      setProvider: (provider: SearchProviderEnum) => {
+      setProvider: ({ provider, text }) => {
         setState((currentState) => {
-          return { ...currentState, provider };
+          return { ...currentState, provider, providerText: text || undefined };
         });
       },
-      setActive: (isActive: boolean) => {
+      setActive: ({ isActive }) => {
         setState((currentState) => {
-          return { ...currentState, isActive };
+          return {
+            ...currentState,
+            isActive,
+            provider: currentState ? currentState.provider : undefined,
+            providerText: undefined,
+          };
         });
       },
     };
@@ -62,18 +75,6 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
 
   const showDropdown =
     state.isActive && state.query.length >= minSearchQueryLength;
-
-  const gradientContainer = useMemo(() => {
-    if (typeof state.isActive === 'undefined') {
-      return undefined;
-    }
-
-    if (typeof document === 'undefined') {
-      return undefined;
-    }
-
-    return document.getElementById(searchPanelGradientElementId);
-  }, [state.isActive]);
 
   return (
     <SearchPanelContext.Provider value={searchPanel}>
@@ -91,8 +92,11 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
             });
           }}
           inputProps={{
+            value: state.query,
             onFocus: () => {
-              searchPanel.setActive(true);
+              searchPanel.setActive({
+                isActive: true,
+              });
 
               if (!isTracked.current && shouldShowPulse) {
                 isTracked.current = true;
@@ -121,17 +125,6 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
           )}
         </SearchPanelInput>
       </div>
-      <Portal container={gradientContainer}>
-        <FeedGradientBg
-          className={classNames(
-            'right-0 -z-1 hidden translate-x-0 opacity-0 transition-opacity duration-500 laptop:flex',
-            sidebarExpanded
-              ? '!-left-32 !max-w-[calc(100%)]'
-              : '!max-w-[calc(100% - 2.75rem)] !-left-6',
-            state.isActive ? 'opacity-100' : 'opacity-0',
-          )}
-        />
-      </Portal>
     </SearchPanelContext.Provider>
   );
 };

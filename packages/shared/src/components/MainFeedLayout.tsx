@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
@@ -20,7 +21,9 @@ import {
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
 import { generateQueryKey } from '../lib/query';
-import SettingsContext from '../contexts/SettingsContext';
+import SettingsContext, {
+  useSettingsContext,
+} from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
 import { useFeature } from './GrowthBookProvider';
@@ -38,7 +41,9 @@ import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
 import { FeedContainerProps } from './feeds';
 import { getFeedName } from '../lib/feed';
-import { searchPanelGradientElementId } from './search';
+import { searchPanelGradientQueryKey } from './search';
+import { disabledRefetch } from '../lib/func';
+import { FeedGradientBg } from './feeds/FeedGradientBg';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -118,6 +123,8 @@ export default function MainFeedLayout({
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
+  const queryClient = useQueryClient();
+  const { sidebarExpanded } = useSettingsContext();
   const feedName = getFeedName(feedNameProp, {
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
@@ -247,11 +254,25 @@ export default function MainFeedLayout({
 
   const FeedPageComponent = shouldUseFeedLayoutV1 ? FeedPageLayoutV1 : FeedPage;
 
+  const { data: isSearchPanelGradientActive } = useQuery(
+    searchPanelGradientQueryKey,
+    () => queryClient.getQueryData(searchPanelGradientQueryKey) ?? false,
+    disabledRefetch,
+  );
+
   return (
     <FeedPageComponent
       className={classNames('relative', shouldUseFeedLayoutV1 && '!pt-0')}
     >
-      <div id={searchPanelGradientElementId} />
+      {isSearchPanelGradientActive && (
+        <FeedGradientBg
+          className={classNames(
+            'right-0 -z-1 hidden translate-x-0 opacity-0 transition-opacity duration-500 laptop:flex',
+            sidebarExpanded ? '!-left-32' : '!-left-6',
+            isSearchPanelGradientActive ? 'opacity-100' : 'opacity-0',
+          )}
+        />
+      )}
       {isSearchOn && search}
       {feedProps && (
         <Feed

@@ -24,7 +24,11 @@ import {
   isSpecialKeyPressed,
 } from '../../../lib/func';
 import { KeyboadShortcutLabel } from '../../KeyboardShortcutLabel';
+import { SearchPanelProvider } from './SearchPanelProvider';
 import { minSearchQueryLength } from '../../../graphql/search';
+import { SearchPanelInputCursor } from './SearchPanelInputCursor';
+import { useSearchProvider } from '../../../hooks/search';
+import { defaultSearchProvider } from './common';
 
 export type SearchPanelInputClassName = {
   container?: string;
@@ -35,7 +39,6 @@ export type SearchPanelInputClassName = {
 export type SearchPanelInputProps = {
   className?: SearchPanelInputClassName;
   valueChanged?: (value: string) => void;
-  onSubmit?: (event: FormEvent, input: string) => void;
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
   children?: ReactNode;
 };
@@ -43,12 +46,12 @@ export type SearchPanelInputProps = {
 const shortcutKeys = [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
 
 export const SearchPanelInput = ({
-  onSubmit: handleSubmit,
   className,
   inputProps,
   valueChanged,
   children,
 }: SearchPanelInputProps): ReactElement => {
+  const { search } = useSearchProvider();
   const searchPanel = useContext(SearchPanelContext);
   const fieldRef = useRef<HTMLInputElement>();
   const { trackEvent } = useAnalyticsContext();
@@ -82,16 +85,20 @@ export const SearchPanelInput = ({
 
     const finalValue = input ?? inputRef.current.value;
 
-    if (typeof handleSubmit === 'function') {
-      handleSubmit(event, finalValue);
+    trackEvent({
+      event_name: AnalyticsEvent.SubmitSearch,
+      extra: JSON.stringify({ query: finalValue }),
+    });
 
-      trackEvent({
-        event_name: AnalyticsEvent.SubmitSearch,
-        extra: JSON.stringify({ query: finalValue }),
-      });
-    }
+    setInput(finalValue);
 
-    return setInput(finalValue);
+    const provider = searchPanel.provider ?? defaultSearchProvider;
+
+    searchPanel.setActive({
+      isActive: false,
+    });
+
+    return search({ provider, query: finalValue });
   };
 
   useEventListener(globalThis, 'click', (event) => {
@@ -102,7 +109,9 @@ export const SearchPanelInput = ({
     ) {
       onBlur();
 
-      searchPanel.setActive(false);
+      searchPanel.setActive({
+        isActive: false,
+      });
     }
   });
 
@@ -115,10 +124,14 @@ export const SearchPanelInput = ({
 
       if (searchPanel.isActive) {
         inputRef.current?.blur();
-        searchPanel.setActive(false);
+        searchPanel.setActive({
+          isActive: false,
+        });
       } else {
         inputRef.current?.focus();
-        searchPanel.setActive(true);
+        searchPanel.setActive({
+          isActive: true,
+        });
       }
     }
   });
@@ -131,7 +144,7 @@ export const SearchPanelInput = ({
       >
         <BaseField
           className={classNames(
-            'relative translate-y-0 items-center !bg-overlay-float-salt px-4 py-1 backdrop-blur-[3.75rem] duration-200 ease-in-out',
+            'relative translate-y-0 items-center !bg-overlay-float-salt !px-3 py-1 backdrop-blur-[3.75rem] duration-200 ease-in-out',
             className?.field,
             { focused },
             searchPanel.isActive
@@ -173,9 +186,15 @@ export const SearchPanelInput = ({
               getFieldFontColor({ readOnly, disabled, hasInput, focused }),
             )}
           />
-          <div className="hidden items-center gap-3 tablet:flex">
+          <div className="z-1 hidden items-center gap-3 tablet:flex">
             {!searchPanel.isActive && (
               <KeyboadShortcutLabel keys={shortcutKeys} />
+            )}
+            {searchPanel.isActive && (
+              <>
+                <SearchPanelInputCursor />
+                <SearchPanelProvider />
+              </>
             )}
           </div>
         </BaseField>

@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { Fragment, ReactElement } from 'react';
+import React, { Fragment, ReactElement, useEffect, useState } from 'react';
 
 export type KeyboadShortcutLabelProps = {
   className?: string;
@@ -10,6 +10,19 @@ export const KeyboadShortcutLabel = ({
   className,
   keys,
 }: KeyboadShortcutLabelProps): ReactElement => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // keyboard shortcut buttons are most of the times dependant
+    // on browser features so we don't render them in SSR to
+    // avoid hydration mismatches
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
   return (
     <div className={classNames(className, 'flex')}>
       {keys.map((item, index) => {

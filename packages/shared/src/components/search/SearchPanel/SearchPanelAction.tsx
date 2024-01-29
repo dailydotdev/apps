@@ -1,11 +1,13 @@
 import React, { FunctionComponent, ReactElement, useContext } from 'react';
+import classNames from 'classnames';
 import { SearchProviderEnum } from '../../../graphql/search';
-import { IconProps } from '../../Icon';
-import { AiIcon } from '../../icons';
-import SearchIcon from '../../icons/Search';
 import { SearchPanelContext } from './SearchPanelContext';
 import { SearchPanelItem } from './SearchPanelItem';
+import { IconProps } from '../../Icon';
+import { MagicIcon } from '../../icons';
+import SearchIcon from '../../icons/Search';
 import { useSearchProvider } from '../../../hooks/search';
+import { useSearchPanelAction } from './useSearchPanelAction';
 
 export type SearchPanelActionProps = {
   provider: SearchProviderEnum;
@@ -16,8 +18,16 @@ const iconToProviderMap: Record<
   FunctionComponent<IconProps>
 > = {
   [SearchProviderEnum.Posts]: SearchIcon,
-  // TODO AS-3-search-merge replace with correct icon
-  [SearchProviderEnum.Chat]: AiIcon,
+  [SearchProviderEnum.Chat]: ({ className, ...rest }: IconProps) => (
+    <MagicIcon
+      className={classNames(
+        className,
+        'rounded-6 bg-gradient-to-t from-theme-color-onion to-theme-color-cabbage p-0.5 text-white',
+      )}
+      secondary
+      {...rest}
+    />
+  ),
 };
 
 export const SearchPanelAction = ({
@@ -26,6 +36,7 @@ export const SearchPanelAction = ({
   const searchPanel = useContext(SearchPanelContext);
   const Icon = iconToProviderMap[provider];
   const { search } = useSearchProvider();
+  const itemProps = useSearchPanelAction({ provider });
 
   return (
     <SearchPanelItem
@@ -33,6 +44,7 @@ export const SearchPanelAction = ({
       onClick={() => {
         search({ provider, query: searchPanel.query });
       }}
+      {...itemProps}
     >
       <span className="text-theme-label-tertiary typo-callout">
         {searchPanel.query}

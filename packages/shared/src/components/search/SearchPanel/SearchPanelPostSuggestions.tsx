@@ -2,14 +2,45 @@ import classNames from 'classnames';
 import React, { ReactElement, useContext } from 'react';
 import { useRouter } from 'next/router';
 import SearchIcon from '../../icons/Search';
-import { SearchPanelItem } from './SearchPanelItem';
-import { SearchProviderEnum, getSearchUrl } from '../../../graphql/search';
+import { SearchPanelItem, SearchPanelItemProps } from './SearchPanelItem';
+import {
+  SearchProviderEnum,
+  SearchSuggestion,
+  getSearchUrl,
+} from '../../../graphql/search';
 import { useSearchProviderSuggestions } from '../../../hooks/search';
 import { SearchPanelContext } from './SearchPanelContext';
+import { useDomPurify } from '../../../hooks/useDomPurify';
+import { useSearchPanelAction } from './useSearchPanelAction';
 
 export type SearchPanelPostSuggestionsProps = {
   className?: string;
   title: string;
+};
+
+const PanelItem = ({
+  suggestion,
+  ...rest
+}: Omit<SearchPanelItemProps, 'icon'> & { suggestion: SearchSuggestion }) => {
+  const itemProps = useSearchPanelAction({
+    provider: SearchProviderEnum.Posts,
+    text: suggestion.title,
+  });
+  const purify = useDomPurify();
+  const purifySanitize = purify?.sanitize;
+
+  return (
+    <SearchPanelItem {...rest} icon={<SearchIcon />} {...itemProps}>
+      {!!purifySanitize && (
+        <span
+          className="text-theme-label-tertiary typo-subhead [&>strong]:text-white"
+          dangerouslySetInnerHTML={{
+            __html: purifySanitize(suggestion.title),
+          }}
+        />
+      )}
+    </SearchPanelItem>
+  );
 };
 
 export const SearchPanelPostSuggestions = ({
@@ -52,17 +83,13 @@ export const SearchPanelPostSuggestions = ({
       </div>
       {suggestions?.hits?.map((suggestion) => {
         return (
-          <SearchPanelItem
+          <PanelItem
             key={suggestion.title}
-            icon={<SearchIcon />}
+            suggestion={suggestion}
             onClick={() => {
               onSuggestionClick(suggestion);
             }}
-          >
-            <span className="text-theme-label-tertiary typo-subhead">
-              {suggestion.title}
-            </span>
-          </SearchPanelItem>
+          />
         );
       })}
     </div>

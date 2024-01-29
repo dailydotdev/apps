@@ -9,3 +9,4 @@ export * from './Key/KeyReferral';
 export * from './Key/KeyReferralOutline';
 export * from './Timer';
 export * from './Invite';
+export * from './Magic';
