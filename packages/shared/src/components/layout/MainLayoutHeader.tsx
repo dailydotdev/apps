@@ -27,7 +27,7 @@ import {
 } from '../../hooks';
 import { SearchReferralButton } from '../referral/SearchReferralButton';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
-import { useStreakExperiment } from '../../hooks/streaks';
+import { useReadingStreak } from '../../hooks/streaks';
 
 export interface MainLayoutHeaderProps {
   greeting?: boolean;
@@ -51,8 +51,8 @@ function MainLayoutHeader({
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
-  const { shouldShowStreak } = useStreakExperiment();
-  const hideButton = loadingUser;
+  const { streak, isEnabled, isLoading } = useReadingStreak();
+  const hideButton = loadingUser || (isEnabled && isLoading);
   const isMobile = useViewSize(ViewSize.MobileL);
 
   const headerButton = (() => {
@@ -83,10 +83,10 @@ function MainLayoutHeader({
   const renderButtons = () => {
     return (
       <>
-        <CreatePostButton />
-        {user && shouldShowStreak && <ReadingStreakButton />}
         {!hideButton && user && (
           <>
+            <CreatePostButton />
+            {streak && <ReadingStreakButton streak={streak} />}
             {sidebarRendered && <SearchReferralButton />}
             <LinkWithTooltip
               tooltip={{ placement: 'bottom', content: 'Notifications' }}

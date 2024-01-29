@@ -3,11 +3,16 @@ import { ReadingStreakPopup } from './popup';
 import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import ReadingStreakIcon from '../icons/ReadingStreak';
 import { SimpleTooltip } from '../tooltips';
-import { useReadingStreak } from '../../hooks/streaks';
+import { UserStreak } from '../../graphql/users';
 
-export function ReadingStreakButton(): ReactElement {
+interface ReadingStreakButtonProps {
+  streak: UserStreak;
+}
+
+export function ReadingStreakButton({
+  streak,
+}: ReadingStreakButtonProps): ReactElement {
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
-  const { streak } = useReadingStreak();
 
   return (
     <SimpleTooltip

@@ -40,12 +40,15 @@ export function ReadingStreakPopup({
     return streakDays.map((value) => {
       const day = value.getDay();
       const date = value.getDate();
-      const isCompleted = history?.some(({ date: historyDate, reads }) => {
-        const dateToCompare = new Date(historyDate);
-        const sameDate = isSameDay(dateToCompare, value);
+      const isFuture = value > today;
+      const isCompleted =
+        !isFuture &&
+        history?.some(({ date: historyDate, reads }) => {
+          const dateToCompare = new Date(historyDate);
+          const sameDate = isSameDay(dateToCompare, value);
 
-        return sameDate && reads > 0;
-      });
+          return sameDate && reads > 0;
+        });
 
       const getStreak = () => {
         if (isCompleted) {
