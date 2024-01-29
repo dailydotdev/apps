@@ -72,7 +72,7 @@ function useAccountEmailFlow({
     if (existingFlow?.result?.flow_id && !activeFlow) {
       setActiveFlow(existingFlow.result.flow_id);
     }
-  }, [activeFlow, existingFlow.result.flow_id]);
+  }, [activeFlow, existingFlow?.result?.flow_id]);
 
   const enabled = useMemo(() => {
     return flow === AuthFlow.Recovery
@@ -95,7 +95,7 @@ function useAccountEmailFlow({
       setActiveFlow(emailFlow.id);
       setAutoResend(true);
     }
-  }, [activeFlow, emailFlow.id]);
+  }, [activeFlow, emailFlow?.id]);
 
   const { mutateAsync: sendEmail, isLoading } = useMutation(
     (email: string) =>
