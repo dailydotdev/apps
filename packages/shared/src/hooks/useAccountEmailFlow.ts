@@ -11,7 +11,6 @@ import {
   getErrorMessage,
   getNodeByKey,
   getNodeValue,
-  ValidateChangeEmail,
   VerifyEmail,
 } from '../lib/auth';
 import useTimer from './useTimer';
