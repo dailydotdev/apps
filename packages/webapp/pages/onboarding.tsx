@@ -314,6 +314,73 @@ export function OnboardPage(): ReactElement {
     return <ProgressBar percentage={isAuthenticating ? percentage : 0} />;
   };
 
+  const getPixelTracking = () => {
+    return (
+      <>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+              n.queue=[];t=b.createElement(e);t.async=!0;
+              t.src=v;s=b.getElementsByTagName(e)[0];
+              s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '519268979315924');
+            fbq('track', 'PageView');
+          `,
+          }}
+        />
+
+        <noscript>
+          <img
+            alt="Facebook Pixel"
+            height="1"
+            width="1"
+            style={{ display: 'none' }}
+            src="https://www.facebook.com/tr?id=519268979315924&ev=PageView&noscript=1"
+          />
+        </noscript>
+      </>
+    );
+  };
+
+  const getGtagTracking = () => {
+    return (
+      <>
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-88PBR8PHX0"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('set', 'developer_id.dZGVlNj', true);
+              gtag('config', 'G-88PBR8PHX0');
+            `,
+          }}
+        />
+      </>
+    );
+  };
+
+  const trackAnalyticsSignUp = () => {
+    if (typeof gtag === 'function') {
+      gtag('event', 'signup', {
+        send_to: 'AW-619408403/8JaXCNWU7voBEJPYracC',
+      });
+    }
+
+    if (typeof fbq === 'function') {
+      fbq('track', 'signup');
+    }
+  };
+
   const showOnboardingPage = !isAuthenticating && !isFiltering;
 
   if (!isPageReady) {
@@ -333,6 +400,8 @@ export function OnboardPage(): ReactElement {
     // eslint-disable-next-line @dailydotdev/daily-dev-eslint-rules/no-custom-color
     <Container className="bg-[#0e1019]">
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
+      {getPixelTracking()}
+      {getGtagTracking()}
       {getProgressBar()}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
