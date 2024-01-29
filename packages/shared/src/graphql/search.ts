@@ -299,3 +299,5 @@ export type SearchSuggestionResult = {
 };
 
 export const minSearchQueryLength = 3;
+
+export const sanitizeSearchTitleMatch = /<(\/?)strong>/g;

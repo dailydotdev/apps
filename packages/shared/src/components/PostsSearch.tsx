@@ -7,7 +7,10 @@ import { SearchField } from './fields/SearchField';
 import { useAutoComplete } from '../hooks/useAutoComplete';
 import { graphqlUrl } from '../lib/config';
 import useDebounce from '../hooks/useDebounce';
-import { SEARCH_POST_SUGGESTIONS } from '../graphql/search';
+import {
+  SEARCH_POST_SUGGESTIONS,
+  sanitizeSearchTitleMatch,
+} from '../graphql/search';
 import { SEARCH_BOOKMARKS_SUGGESTIONS } from '../graphql/feed';
 import { SEARCH_READING_HISTORY_SUGGESTIONS } from '../graphql/users';
 
@@ -98,7 +101,7 @@ export default function PostsSearch({
   }, [searchResults, isLoading]);
 
   const submitQuery = async (item?: string) => {
-    const itemQuery = item?.replace?.(/<(\/?)strong>/g, '');
+    const itemQuery = item?.replace?.(sanitizeSearchTitleMatch, '');
     await onSubmitQuery(itemQuery || query);
     if (itemQuery) {
       setInitialQuery(itemQuery);

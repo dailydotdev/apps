@@ -1,14 +1,16 @@
 import classNames from 'classnames';
 import React, { ReactElement, useContext } from 'react';
-import { useRouter } from 'next/router';
 import SearchIcon from '../../icons/Search';
 import { SearchPanelItem, SearchPanelItemProps } from './SearchPanelItem';
 import {
   SearchProviderEnum,
   SearchSuggestion,
-  getSearchUrl,
+  sanitizeSearchTitleMatch,
 } from '../../../graphql/search';
-import { useSearchProviderSuggestions } from '../../../hooks/search';
+import {
+  useSearchProvider,
+  useSearchProviderSuggestions,
+} from '../../../hooks/search';
 import { SearchPanelContext } from './SearchPanelContext';
 import { useDomPurify } from '../../../hooks/useDomPurify';
 import { useSearchPanelAction } from './useSearchPanelAction';
@@ -47,8 +49,8 @@ export const SearchPanelPostSuggestions = ({
   className,
   title,
 }: SearchPanelPostSuggestionsProps): ReactElement => {
-  const router = useRouter();
   const searchPanel = useContext(SearchPanelContext);
+  const { search } = useSearchProvider();
 
   const { suggestions } = useSearchProviderSuggestions({
     provider: SearchProviderEnum.Posts,
@@ -56,16 +58,9 @@ export const SearchPanelPostSuggestions = ({
   });
 
   const onSuggestionClick = (suggestion: { title: string }) => {
-    router.push(
-      getSearchUrl({
-        provider: SearchProviderEnum.Posts,
-        query: suggestion.title,
-      }),
-      undefined,
-      {
-        shallow: true,
-      },
-    );
+    const searchQuery = suggestion.title.replace(sanitizeSearchTitleMatch, '');
+
+    search({ provider: SearchProviderEnum.Posts, query: searchQuery });
   };
 
   if (!suggestions?.hits?.length) {

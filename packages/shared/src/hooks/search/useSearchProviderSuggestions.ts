@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import {
@@ -8,7 +9,9 @@ import {
 } from './useSearchProvider';
 import { minSearchQueryLength } from '../../graphql/search';
 
-export type UseSearchProviderSuggestionsProps = UseSearchProviderProps;
+export type UseSearchProviderSuggestionsProps = {
+  limit?: number;
+} & UseSearchProviderProps;
 
 export type UseSearchProviderSuggestions = {
   isLoading: boolean;
@@ -18,6 +21,7 @@ export type UseSearchProviderSuggestions = {
 export const useSearchProviderSuggestions = ({
   provider,
   query,
+  limit = 3,
 }: UseSearchProviderSuggestionsProps): UseSearchProviderSuggestions => {
   const { user } = useAuthContext();
   const { getSuggestions } = useSearchProvider();
@@ -34,6 +38,19 @@ export const useSearchProviderSuggestions = ({
       enabled: query?.length >= minSearchQueryLength,
       staleTime: StaleTime.Default,
       keepPreviousData: true,
+      select: useCallback(
+        (currentData) => {
+          if (!currentData) {
+            return currentData;
+          }
+
+          return {
+            ...currentData,
+            hits: currentData?.hits?.slice(0, limit) || [],
+          };
+        },
+        [limit],
+      ),
     },
   );
 
