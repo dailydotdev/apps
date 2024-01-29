@@ -1,4 +1,4 @@
-import { useContext, HTMLAttributes } from 'react';
+import { HTMLAttributes, useContext } from 'react';
 import { SearchProviderEnum } from '../../../graphql/search';
 import { SearchPanelContext } from './SearchPanelContext';
 import { providerToLabelTextMap } from './common';
