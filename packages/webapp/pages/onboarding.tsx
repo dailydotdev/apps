@@ -52,6 +52,10 @@ import { OtherFeedPage, RequestKey } from '@dailydotdev/shared/src/lib/query';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
+import {
+  GtagTracking,
+  PixelTracking,
+} from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -333,6 +337,8 @@ export function OnboardPage(): ReactElement {
     // eslint-disable-next-line @dailydotdev/daily-dev-eslint-rules/no-custom-color
     <Container className="bg-[#0e1019]">
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
+      <PixelTracking />
+      <GtagTracking />
       {getProgressBar()}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
