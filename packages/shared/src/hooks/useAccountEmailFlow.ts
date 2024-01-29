@@ -53,16 +53,17 @@ function useAccountEmailFlow({
   onTimerFinished,
 }: UseAccountEmailProps): UseAccountEmail {
   const [activeFlow, setActiveFlow] = useState(flowId);
-
   const [autoResend, setAutoResend] = useState(false);
   const { timer, setTimer, runTimer } = useTimer(onTimerFinished, 0);
+
+  const existingEnabled = flow === AuthFlow.Verification && !flowId;
 
   const { data: existingFlow, isLoading: existingFlowLoading } = useQuery(
     ['existing_flow'],
     getVerificationSession,
     {
       ...disabledRefetch,
-      enabled: !flowId,
+      enabled: existingEnabled,
       retry: false,
     },
   );
@@ -71,13 +72,18 @@ function useAccountEmailFlow({
     setActiveFlow(existingFlow.result.flow_id);
   }
 
+  const enabled =
+    flow === AuthFlow.Recovery
+      ? true
+      : !existingFlowLoading && !activeFlow && !autoResend;
+
   const { data: emailFlow } = useQuery(
     [{ type: flow }],
     ({ queryKey: [{ type }] }) =>
       flowId ? getKratosFlow(flow, flowId) : initializeKratosFlow(type),
     {
       ...disabledRefetch,
-      enabled: !existingFlowLoading && !activeFlow && !autoResend,
+      enabled,
     },
   );
 
@@ -143,7 +149,7 @@ function useAccountEmailFlow({
     () => ({
       sendEmail,
       verifyCode,
-      token: '',
+      token: getNodeValue('csrf_token', emailFlow?.ui?.nodes),
       resendTimer: timer,
       isLoading,
       flow: '',

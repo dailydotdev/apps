@@ -31,7 +31,7 @@ function CodeVerificationForm({
   const [emailSent, setEmailSent] = useState(false);
   const { sendEmail, verifyCode, resendTimer, isLoading } = useAccountEmailFlow(
     {
-      flow: AuthFlow.Recovery,
+      flow: AuthFlow.Verification,
       flowId: initialFlow,
       onTimerFinished: () => setEmailSent(false),
       onError: setHint,
