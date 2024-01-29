@@ -1,10 +1,15 @@
 import React, { ReactElement } from 'react';
 import Script from 'next/script';
+import { isProduction } from '../../lib/constants';
 
 export const FB_PIXEL_ID = '519268979315924';
 export const GA_TRACKING_ID = 'G-88PBR8PHX0';
 
 export const PixelTracking = (): ReactElement => {
+  if (!isProduction) {
+    return null;
+  }
+
   return (
     <>
       <Script
@@ -27,6 +32,10 @@ export const PixelTracking = (): ReactElement => {
 };
 
 export const GtagTracking = (): ReactElement => {
+  if (!isProduction) {
+    return null;
+  }
+
   return (
     <>
       <Script
