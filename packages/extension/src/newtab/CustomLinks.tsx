@@ -26,6 +26,8 @@ export function CustomLinks({
   onLinkClick = noop,
 }: CustomLinksProps): ReactElement {
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
+  const iconSize = Math.round(32 * pixelRatio);
 
   return (
     <div
@@ -51,7 +53,7 @@ export function CustomLinks({
           <img
             src={`https://api.daily.dev/icon?url=${encodeURIComponent(
               url,
-            )}&size=32`}
+            )}&size=${iconSize}`}
             alt={url}
             className="h-full w-full"
           />
