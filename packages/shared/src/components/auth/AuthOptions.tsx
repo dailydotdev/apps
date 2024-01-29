@@ -54,6 +54,7 @@ import { LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
 import OnboardingRegistrationForm from './OnboardingRegistrationForm';
 import EmailCodeVerification from './EmailCodeVerification';
+import { trackAnalyticsSignUp } from './OnboardingAnalytics';
 
 export enum AuthDisplay {
   Default = 'default',
@@ -242,6 +243,7 @@ function AuthOptions({
 
   const isReady = isTesting ? true : isLoginReady && isRegistrationReady;
   const onProviderClick = (provider: string, login = true) => {
+    trackAnalyticsSignUp();
     trackEvent({
       event_name: 'click',
       target_type: login
