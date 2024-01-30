@@ -4,7 +4,8 @@ import { SearchPanelContext } from './SearchPanelContext';
 import { SearchPanelItem } from './SearchPanelItem';
 import { useSearchProvider } from '../../../hooks/search';
 import { useSearchPanelAction } from './useSearchPanelAction';
-import { providerToIconMap } from './common';
+import { providerToIconMap, providerToLabelTextMap } from './common';
+import { IconSize } from '../../Icon';
 
 export type SearchPanelActionProps = {
   provider: SearchProviderEnum;
@@ -20,14 +21,17 @@ export const SearchPanelAction = ({
 
   return (
     <SearchPanelItem
-      icon={<Icon className="rounded-6 p-0.5" />}
+      icon={<Icon className="rounded-6 p-0.5" size={IconSize.Small} />}
       onClick={() => {
         search({ provider, query: searchPanel.query });
       }}
       {...itemProps}
     >
       <span className="text-theme-label-tertiary typo-callout">
-        {searchPanel.query}
+        {searchPanel.query}{' '}
+        <span className="text-theme-label-quaternary typo-footnote">
+          {providerToLabelTextMap[provider]}
+        </span>
       </span>
     </SearchPanelItem>
   );
