@@ -20,35 +20,39 @@ export const HOST_PERMISSIONS = [
   'https://*.daily.dev/*',
 ];
 
-let hasInjectedScripts = false;
+const hasInjectedScripts = false;
 const companionScriptId = 'daily-companion-app';
 
 export const registerBrowserContentScripts = async (): Promise<void> => {
-  if (hasInjectedScripts) {
-    return null;
-  }
-
-  const registeredScripts = await browser.scripting.getRegisteredContentScripts(
-    {
-      ids: [companionScriptId],
-    },
-  );
-
-  if (registeredScripts.length) {
-    hasInjectedScripts = true;
-    return null;
-  }
-
-  await browser.scripting.registerContentScripts([
-    {
-      id: companionScriptId,
+  if (browser.scripting === undefined) {
+    // TODO: this needs to be switched to browser.scripting when bumping FF to V3 as well
+    await browser.contentScripts.register({
       matches: ['*://*/*'],
-      css: ['css/daily-companion-app.css'],
-      js: ['js/content.bundle.js', 'js/companion.bundle.js'],
-    },
-  ]);
+      css: [{ file: 'css/daily-companion-app.css' }],
+      js: [
+        { file: 'js/content.bundle.js' },
+        { file: 'js/companion.bundle.js' },
+      ],
+    });
+  } else {
+    const registeredScripts =
+      await browser.scripting.getRegisteredContentScripts({
+        ids: [companionScriptId],
+      });
 
-  hasInjectedScripts = true;
+    if (registeredScripts.length) {
+      return null;
+    }
+
+    await browser.scripting.registerContentScripts([
+      {
+        id: companionScriptId,
+        matches: ['*://*/*'],
+        css: ['css/daily-companion-app.css'],
+        js: ['js/content.bundle.js', 'js/companion.bundle.js'],
+      },
+    ]);
+  }
 
   return null;
 };
@@ -64,7 +68,6 @@ export const getContentScriptPermissionAndRegister =
 
     if (permission && !hasInjectedScripts) {
       await registerBrowserContentScripts();
-      hasInjectedScripts = true;
     }
   };
 

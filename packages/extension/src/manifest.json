@@ -19,7 +19,6 @@
     "https://*.dailynow.co/"
   ],
   "__firefox|prod__permissions": [
-    "scripting",
     "https://daily.dev/",
     "https://*.daily.dev/",
     "https://dailynow.co/",
