@@ -442,11 +442,11 @@ interface ReadingDay {
 
 export const getReadingStreak30Days = async (
   id: string,
+  start: Date = subDays(new Date(), 30),
 ): Promise<ReadingDay[]> => {
   const today = new Date();
-  const last30Days = subDays(today, 30);
   const res = await request(graphqlUrl, USER_STREAK_HISTORY, {
-    after: last30Days.toISOString(),
+    after: start.toISOString(),
     before: today.toISOString(),
     id,
   });
