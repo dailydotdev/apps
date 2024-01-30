@@ -30,7 +30,7 @@ import { minSearchQueryLength } from '../../../graphql/search';
 import { SearchPanelInputCursor } from './SearchPanelInputCursor';
 import { useSearchProvider } from '../../../hooks/search';
 import { defaultSearchProvider } from './common';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
+import { Button, ButtonSize } from '../../buttons/ButtonV2';
 import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 
 export type SearchPanelInputClassName = {
@@ -231,7 +231,16 @@ export const SearchPanelInput = ({
               icon={<ClearIcon secondary />}
             />
             <div className="-mr-3 flex h-full items-center border-l border-theme-float">
-              <Button type={ButtonVariant.Secondary}>Cancel</Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  searchPanel.setActive({
+                    isActive: false,
+                  });
+                }}
+              >
+                Cancel
+              </Button>
             </div>
           </div>
         </BaseField>
