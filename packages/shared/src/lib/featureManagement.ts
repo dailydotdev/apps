@@ -4,6 +4,7 @@ import {
   ReadingStreaksExperiment,
   SearchExperiment,
 } from './featureValues';
+import { cloudinary } from './image';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -26,6 +27,11 @@ const feature = {
     'reading_streaks',
     ReadingStreaksExperiment.Control,
   ),
+  onboardingVisual: new Feature('onboarding_visual', {
+    poster: cloudinary.onboarding.video.poster,
+    webm: cloudinary.onboarding.video.webm,
+    mp4: cloudinary.onboarding.video.mp4,
+  }),
 };
 
 export { feature };
