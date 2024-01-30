@@ -22,6 +22,7 @@ jest.mock('webextension-polyfill', () => {
       register: jest.fn(),
     },
     scripting: {
+      getRegisteredContentScripts: jest.fn().mockImplementation(() => []),
       registerContentScripts: jest.fn(),
     },
     runtime: {
