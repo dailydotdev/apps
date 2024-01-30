@@ -18,7 +18,7 @@ import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { AuthTriggers } from '../../../lib/auth';
 import { SearchPanelContext } from './SearchPanelContext';
-import { useEventListener } from '../../../hooks';
+import { ViewSize, useEventListener, useViewSize } from '../../../hooks';
 import {
   isAppleDevice,
   isNullOrUndefined,
@@ -31,7 +31,6 @@ import { SearchPanelInputCursor } from './SearchPanelInputCursor';
 import { useSearchProvider } from '../../../hooks/search';
 import { defaultSearchProvider } from './common';
 import { Button, ButtonSize } from '../../buttons/ButtonV2';
-import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 
 export type SearchPanelInputClassName = {
   container?: string;
@@ -72,6 +71,7 @@ export const SearchPanelInput = ({
   const { inputRef, focused, hasInput, onFocus, onBlur, onInput, setInput } =
     useInputField(value, valueChanged);
   const { isLoggedIn, showLogin } = useAuthContext();
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const onInputClick = () => {
     if (!isLoggedIn) {
@@ -160,7 +160,7 @@ export const SearchPanelInput = ({
       >
         <BaseField
           className={classNames(
-            'relative translate-y-0 items-center !bg-overlay-float-salt !px-3 backdrop-blur-[3.75rem] duration-200 ease-in-out laptop:py-1',
+            'relative translate-y-0 items-center !bg-theme-bg-secondary !px-3 duration-200 ease-in-out laptop:!bg-overlay-float-salt laptop:py-1 laptop:backdrop-blur-[3.75rem]',
             className?.field,
             { focused },
             searchPanel.isActive
@@ -209,13 +209,20 @@ export const SearchPanelInput = ({
             )}
             {searchPanel.isActive && (
               <>
-                <SearchPanelInputCursor />
+                {isLaptop && <SearchPanelInputCursor />}
                 <SearchPanelProvider />
               </>
             )}
           </div>
-          <div className="flex h-full items-center laptop:hidden">
-            <QuaternaryButton
+          {!isLaptop && (
+            <SearchPanelInputCursor
+              className={{
+                main: '-z-1',
+              }}
+            />
+          )}
+          <div className="-mr-2 flex h-full items-center bg-theme-bg-secondary laptop:hidden">
+            <Button
               id="search-panel-input-clear-button"
               type="button"
               className="mr-2"

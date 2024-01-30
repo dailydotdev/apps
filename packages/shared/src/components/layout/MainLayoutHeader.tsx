@@ -170,7 +170,7 @@ function MainLayoutHeader({
               className={classNames(
                 'mx-auto',
                 isSearchPage
-                  ? 'fixed left-2 right-2 top-18 laptop:relative laptop:top-0'
+                  ? 'absolute left-2 right-2 top-18 laptop:relative laptop:top-0'
                   : 'hidden laptop:flex',
               )}
             />
