@@ -8,6 +8,7 @@ import { ButtonSize } from '../../buttons/Button';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { getReadingStreak30Days, UserStreak } from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { Weekends } from '../../../lib/dateFormat';
 
 const today = new Date();
 const dateToday = today.getDate();
@@ -55,7 +56,7 @@ export function ReadingStreakPopup({
           return Streak.Completed;
         }
 
-        if (day === 0 || day === 6) {
+        if (Weekends.includes(day)) {
           return Streak.Freeze;
         }
 
