@@ -155,7 +155,7 @@ export const GrowthBookProvider = ({
       };
     }
     gb.setAttributes(atts);
-  }, [app, user, deviceId, gb, version, experimentation?.a]);
+  }, [app, user, deviceId, gb, version, experimentation?.a, isMobile]);
 
   const featuresReadyContextValue = useMemo<FeaturesReadyContextValue>(() => {
     return {
