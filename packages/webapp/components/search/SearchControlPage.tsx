@@ -7,9 +7,6 @@ import {
   providerToLabelTextMap,
 } from '@dailydotdev/shared/src/components';
 import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
@@ -24,8 +21,6 @@ const baseSeo: NextSeoProps = {
 const Search = (): ReactElement => {
   const router = useRouter();
   const { query } = router;
-  const searchVersion = useFeature(feature.search);
-  const isSearchV1 = searchVersion === SearchExperiment.V1;
 
   const seo = useMemo(() => {
     if ('q' in query) {
@@ -41,19 +36,29 @@ const Search = (): ReactElement => {
   return (
     <>
       <NextSeo {...seo} {...baseSeo} />
-      {isSearchV1 && !!query.q && (
-        <SearchProviderButton
-          className="mt-4"
-          provider={SearchProviderEnum.Chat}
-          query={query.q as string}
-        >
-          <span className="text-white">{query.q}</span>
-          <span className="ml-2 typo-footnote">
-            {providerToLabelTextMap[SearchProviderEnum.Chat]}
-          </span>
-        </SearchProviderButton>
-      )}
     </>
+  );
+};
+
+const AiSearchProviderButton = () => {
+  const router = useRouter();
+  const searchQuery = router.query?.q?.toString();
+
+  if (!searchQuery) {
+    return null;
+  }
+
+  return (
+    <SearchProviderButton
+      className="mx-auto mt-6 laptop:mx-0"
+      provider={SearchProviderEnum.Chat}
+      query={searchQuery}
+    >
+      <span className="text-white">{searchQuery}</span>
+      <span className="ml-2 typo-footnote">
+        {providerToLabelTextMap[SearchProviderEnum.Chat]}
+      </span>
+    </SearchProviderButton>
   );
 };
 
@@ -61,6 +66,7 @@ Search.getLayout = getMainFeedLayout;
 Search.layoutProps = {
   ...mainFeedLayoutProps,
   isFinder: true,
+  searchChildren: <AiSearchProviderButton />,
 };
 
 export default Search;

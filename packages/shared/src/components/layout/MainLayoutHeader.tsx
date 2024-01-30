@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
@@ -67,6 +68,8 @@ function MainLayoutHeader({
   const { shouldShowStreak } = useStreakExperiment();
   const hideButton = loadingUser;
   const isMobile = useViewSize(ViewSize.MobileL);
+  const router = useRouter();
+  const isSearchPage = router.pathname.startsWith('/search');
 
   const headerButton = (() => {
     if (hideButton) {
@@ -144,6 +147,7 @@ function MainLayoutHeader({
         'relative z-header flex h-14 flex-row items-center justify-between gap-3 border-b border-theme-divider-tertiary bg-overlay-primary-pepper px-4 py-3 before:absolute before:bottom-0 before:left-0 before:right-0 before:top-0 before:-z-1 before:backdrop-blur-[3.75rem] tablet:px-8 laptop:sticky laptop:left-0 laptop:w-full laptop:flex-row laptop:px-4',
         hasBanner ? 'laptop:top-8' : 'laptop:top-0',
         isSearchV1 && 'laptop:h-16',
+        isSearchPage && 'mb-16 laptop:mb-0',
       )}
     >
       {sidebarRendered !== undefined && (
@@ -161,7 +165,16 @@ function MainLayoutHeader({
               greeting={greeting}
             />
           </div>
-          {isSearchV1 && <SearchPanel className="mx-auto" />}
+          {isSearchV1 && (
+            <SearchPanel
+              className={classNames(
+                'mx-auto',
+                isSearchPage
+                  ? 'fixed left-2 right-2 top-18 laptop:relative laptop:top-0'
+                  : 'hidden laptop:flex',
+              )}
+            />
+          )}
           <RenderButtons />
         </>
       )}

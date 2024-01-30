@@ -1,6 +1,7 @@
 import React, {
   FormEvent,
   InputHTMLAttributes,
+  MouseEvent,
   ReactElement,
   ReactNode,
   useContext,
@@ -11,7 +12,7 @@ import { BaseField, FieldInput } from '../../fields/common';
 import { AnalyticsEvent } from '../../../lib/analytics';
 import { IconSize } from '../../Icon';
 import { getFieldFontColor } from '../../fields/BaseFieldContainer';
-import { AiIcon } from '../../icons';
+import { AiIcon, ClearIcon } from '../../icons';
 import { useInputField } from '../../../hooks/useInputField';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -29,6 +30,8 @@ import { minSearchQueryLength } from '../../../graphql/search';
 import { SearchPanelInputCursor } from './SearchPanelInputCursor';
 import { useSearchProvider } from '../../../hooks/search';
 import { defaultSearchProvider } from './common';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
+import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 
 export type SearchPanelInputClassName = {
   container?: string;
@@ -150,22 +153,22 @@ export const SearchPanelInput = ({
   });
 
   return (
-    <div className={classNames(className?.container, 'hidden laptop:flex')}>
+    <div className={classNames(className?.container)}>
       <form
         onSubmit={onSubmit}
         className={classNames(className?.form, 'relative w-full')}
       >
         <BaseField
           className={classNames(
-            'relative translate-y-0 items-center !bg-overlay-float-salt !px-3 py-1 backdrop-blur-[3.75rem] duration-200 ease-in-out',
+            'relative translate-y-0 items-center !bg-overlay-float-salt !px-3 backdrop-blur-[3.75rem] duration-200 ease-in-out laptop:py-1',
             className?.field,
             { focused },
             searchPanel.isActive
-              ? 'h-14 translate-y-1 border !border-theme-divider-quaternary shadow-2'
+              ? 'h-12 border !border-theme-divider-quaternary laptop:h-14 laptop:translate-y-1 laptop:shadow-2'
               : 'h-12',
             searchPanel.isActive && showDropdown
-              ? 'rounded-t-16'
-              : 'rounded-16',
+              ? 'rounded-12 laptop:rounded-b-none laptop:rounded-t-16'
+              : 'rounded-12 laptop:rounded-16',
           )}
           ref={fieldRef}
         >
@@ -200,7 +203,7 @@ export const SearchPanelInput = ({
               getFieldFontColor({ readOnly, disabled, hasInput, focused }),
             )}
           />
-          <div className="z-1 hidden items-center gap-3 tablet:flex">
+          <div className="z-1 hidden items-center gap-3 laptop:flex">
             {!searchPanel.isActive && (
               <KeyboadShortcutLabel keys={shortcutKeys} />
             )}
@@ -210,6 +213,26 @@ export const SearchPanelInput = ({
                 <SearchPanelProvider />
               </>
             )}
+          </div>
+          <div className="flex h-full items-center laptop:hidden">
+            <QuaternaryButton
+              id="search-panel-input-clear-button"
+              type="button"
+              className="mr-2"
+              size={ButtonSize.XSmall}
+              title="Clear query"
+              onClick={(event: MouseEvent): void => {
+                event.stopPropagation();
+
+                setInput('');
+
+                inputRef.current?.focus();
+              }}
+              icon={<ClearIcon secondary />}
+            />
+            <div className="-mr-3 flex h-full items-center border-l border-theme-float">
+              <Button type={ButtonVariant.Secondary}>Cancel</Button>
+            </div>
           </div>
         </BaseField>
         {children}

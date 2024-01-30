@@ -86,7 +86,7 @@ export interface MainFeedLayoutProps
   isSearchOn: boolean;
   searchQuery?: string;
   children?: ReactNode;
-  searchChildren: ReactNode;
+  searchChildren?: ReactNode;
   navChildren?: ReactNode;
   onFeedPageChanged: (page: SharedFeedPage) => void;
   isFinder?: boolean;
@@ -171,7 +171,7 @@ export default function MainFeedLayout({
   const search = (
     <LayoutHeader>
       {navChildren}
-      {isSearchOn ? searchChildren : undefined}
+      {isSearchOn && searchChildren ? searchChildren : undefined}
     </LayoutHeader>
   );
 
@@ -260,9 +260,11 @@ export default function MainFeedLayout({
     disabledRefetch,
   );
 
+  const disableTopPadding = isFinder || shouldUseFeedLayoutV1;
+
   return (
     <FeedPageComponent
-      className={classNames('relative', shouldUseFeedLayoutV1 && '!pt-0')}
+      className={classNames('relative', disableTopPadding && '!pt-0')}
     >
       {isSearchPanelGradientActive && (
         <FeedGradientBg
