@@ -39,7 +39,8 @@ const AccountProfilePage = (): ReactElement => {
   const onSuccess = () => displayToast('Profile updated');
   const { updateUserProfile, isLoading, hint } = useProfileForm({ onSuccess });
   const { user, updateUser } = useContext(AuthContext);
-  const [coverImage, setCoverImage] = useState<string>(null);
+  const [coverImage, setCoverImage] = useState<string>(user.cover);
+  const currentCoverImage = coverImage || user.cover;
 
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -130,9 +131,9 @@ const AccountProfilePage = (): ReactElement => {
                 img: 'object-cover',
               }}
               size="cover"
-              initialValue={user.cover}
+              initialValue={currentCoverImage}
               fallbackImage={null}
-              alwaysShowHover={!user.cover && !coverImage}
+              alwaysShowHover={!currentCoverImage}
               hoverIcon={
                 <span className="ml-26 mr-3 flex flex-wrap items-center justify-center text-theme-label-secondary">
                   <CameraIcon size={IconSize.Large} />
