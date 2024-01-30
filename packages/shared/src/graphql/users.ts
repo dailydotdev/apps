@@ -447,7 +447,7 @@ export const getReadingStreak30Days = async (
   const last30Days = subDays(today, 30);
   const res = await request(graphqlUrl, USER_STREAK_HISTORY, {
     after: last30Days.toISOString(),
-    before: today,
+    before: today.toISOString(),
     id,
   });
 
