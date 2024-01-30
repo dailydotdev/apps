@@ -11,7 +11,7 @@ import {
   ButtonColor,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
-import React, { ReactElement, useContext, useRef } from 'react';
+import React, { ReactElement, useContext, useRef, useState } from 'react';
 import useProfileForm, {
   UpdateProfileParameters,
 } from '@dailydotdev/shared/src/hooks/useProfileForm';
@@ -39,6 +39,8 @@ const AccountProfilePage = (): ReactElement => {
   const onSuccess = () => displayToast('Profile updated');
   const { updateUserProfile, isLoading, hint } = useProfileForm({ onSuccess });
   const { user, updateUser } = useContext(AuthContext);
+  const [coverImage, setCoverImage] = useState<string>(user.cover);
+  const currentCoverImage = coverImage || user.cover;
 
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -124,15 +126,25 @@ const AccountProfilePage = (): ReactElement => {
               id={coverId}
               className={{
                 root: 'absolute left-0 top-0 flex w-full',
-                container: 'border-0 bg-theme-bg-secondary',
+                container:
+                  'border-0 bg-theme-bg-secondary hover:bg-theme-bg-tertiary',
                 img: 'object-cover',
               }}
               size="cover"
-              initialValue={user.cover}
+              initialValue={currentCoverImage}
               fallbackImage={null}
-              hoverIcon={<CameraIcon size={IconSize.Large} />}
+              alwaysShowHover={!currentCoverImage}
+              hoverIcon={
+                <span className="ml-26 mr-3 flex flex-wrap items-center justify-center text-theme-label-secondary">
+                  <CameraIcon size={IconSize.Large} />
+                  <span className="ml-1.5 font-bold typo-callout">
+                    Upload cover image
+                  </span>
+                </span>
+              }
               fileSizeLimitMB={5}
-              onChange={(_, file) => {
+              onChange={(fileName, file) => {
+                setCoverImage(fileName);
                 if (!file) {
                   return;
                 }
