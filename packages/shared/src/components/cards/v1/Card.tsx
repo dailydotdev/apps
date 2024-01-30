@@ -45,17 +45,17 @@ export const CardContent = classed('div', 'flex flex-col mobileXL:flex-row');
 
 export const CardImage = classed(
   Image,
-  'rounded-12 h-50 mobileXL:h-28 mobileXL:w-40 mobileXXL:h-auto mobileXXL:w-56',
+  'rounded-12 max-h-[calc(100vw-34px)] mobileXL:aspect-auto mobileXL:max-h-40 mobileXL:w-40 mobileXXL:max-h-56 mobileXXL:w-56',
 );
 export const CardVideoImage = classed(
   VideoImage,
-  'rounded-12 h-50 mobileXL:h-28 mobileXL:w-40 mobileXXL:h-auto mobileXXL:w-56',
+  'rounded-12 max-h-[calc(100vw-34px)] mobileXL:max-h-40 mobileXL:w-40 mobileXXL:max-h-56 mobileXXL:w-56',
 );
 
 export const CardSpace = classed('div', 'flex-1');
 
 const clickableCardClasses = classNames(
-  'focus-outline absolute inset-0 block h-full w-full',
+  'focus-outline absolute inset-0 block h-full w-full rounded-16',
 );
 
 export const CardButton = classed('button', clickableCardClasses);
@@ -64,7 +64,7 @@ export const CardLink = classed('a', clickableCardClasses);
 
 export const Card = classed(
   'article',
-  `group relative w-full flex flex-col py-6 px-4 border-t border-theme-divider-tertiary
+  `group relative w-full flex flex-col py-6 px-4 border-t border-theme-divider-tertiary rounded-16
    hover:bg-theme-float
   `,
 );

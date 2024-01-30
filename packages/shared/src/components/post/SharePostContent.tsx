@@ -42,6 +42,7 @@ function SharePostContent({
           <div className="flex flex-1 flex-col">
             <SharedPostLink
               post={post}
+              onGoToLinkProps={combinedClicks(openArticle)}
               className="mb-4 mt-4 flex flex-wrap font-bold typo-body laptop:mt-0"
             >
               {post.sharedPost.title}

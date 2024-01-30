@@ -12,14 +12,13 @@ import { useRouter } from 'next/router';
 import { Spaciness } from '../../graphql/settings';
 import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
-import ScrollToTopButton from '../ScrollToTopButton';
 import styles from '../Feed.module.css';
 import { SearchBarInput, SearchBarSuggestionList } from '../search';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 import { webappUrl } from '../../lib/constants';
-import { useSearchSuggestions } from '../../hooks/search';
+import { useSearchQuestionRecommendations } from '../../hooks/search';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { ActionType } from '../../graphql/actions';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
@@ -143,7 +142,7 @@ export const FeedContainer = ({
   const isV1Search =
     searchValue === SearchExperiment.V1 && showSearch && !isFinder;
 
-  const suggestionsProps = useSearchSuggestions({
+  const suggestionsProps = useSearchQuestionRecommendations({
     origin: Origin.HomePage,
     disabled: !isV1Search,
   });
@@ -187,7 +186,6 @@ export const FeedContainer = ({
       )}
     >
       {isV1Search && shouldUseFeedLayoutV1 && <FeedGradientBg />}
-      <ScrollToTopButton />
       <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
         {!inlineHeader && header}
         <div

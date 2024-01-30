@@ -1,2 +1,2 @@
-export * from './useSearchSuggestions';
+export * from './useSearchQuestionRecommendations';
 export * from './useSearchHistory';

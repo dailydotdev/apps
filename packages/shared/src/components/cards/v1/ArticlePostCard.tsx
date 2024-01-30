@@ -1,5 +1,6 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
+import Link from 'next/link';
 import {
   CardContainer,
   CardContent,
@@ -12,8 +13,6 @@ import ActionButtons from './ActionButtons';
 import { PostCardHeader } from './PostCardHeader';
 import { Container, PostCardProps } from '../common';
 import FeedItemContainer from './FeedItemContainer';
-import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
-import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import {
   useFeedPreviewMode,
   usePostFeedback,
@@ -45,7 +44,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { className, style } = domProps;
-  const { data } = useBlockPostPanel(post);
   const { type, pinnedAt, trending } = post;
   const isVideoType = isVideoPost(post);
 
@@ -55,12 +53,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
   const { title, summary } = useTruncatedSummary(post);
-
-  if (data?.showTagsPanel && post.tags.length > 0) {
-    return (
-      <PostTagsPanel className="overflow-hidden" post={post} toastOnSuccess />
-    );
-  }
 
   const ImageComponent = isVideoType ? CardVideoImage : CardImage;
 
@@ -99,7 +91,13 @@ export const ArticlePostCard = forwardRef(function PostCard(
               onMenuClick={(event) => onMenuClick?.(event, post)}
               onReadArticleClick={onReadArticleClick}
               metadata={{
-                topLabel: post.source.name,
+                topLabel: (
+                  <Link href={post.source.permalink}>
+                    <a href={post.source.permalink} className="relative z-1">
+                      {post.source.name}
+                    </a>
+                  </Link>
+                ),
                 bottomLabel: (
                   <PostReadTime
                     readTime={post.readTime}
@@ -125,7 +123,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
                 </CardTitle>
 
                 {post.summary && (
-                  <CardTextContainer className="mt-4 text-theme-label-secondary">
+                  <CardTextContainer className="mt-4 text-theme-label-secondary typo-body">
                     {summary}
                   </CardTextContainer>
                 )}
@@ -135,17 +133,19 @@ export const ArticlePostCard = forwardRef(function PostCard(
                 alt="Post Cover image"
                 src={post.image}
                 fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-                className={classNames('object-cover', !isVideoType && 'mt-4')}
+                className={classNames(
+                  'object-cover mobileXXL:self-start',
+                  !isVideoType && 'mt-4',
+                )}
                 loading="lazy"
                 data-testid="postImage"
                 {...(isVideoType && {
-                  wrapperClassName: 'mt-4 mobileXL:w-40 mobileXXL:w-56',
+                  wrapperClassName: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',
                 })}
               />
             </CardContent>
           </CardContainer>
-
-          <Container>
+          <Container className="pointer-events-none">
             <ActionButtons
               className="mt-4"
               openNewTab={openNewTab}
