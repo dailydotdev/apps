@@ -4,7 +4,7 @@ import { SearchPanelContext } from './SearchPanelContext';
 import { SearchPanelItem } from './SearchPanelItem';
 import { useSearchProvider } from '../../../hooks/search';
 import { useSearchPanelAction } from './useSearchPanelAction';
-import { providerToIconMap } from './common';
+import { providerToIconMap, providerToLabelTextMap } from './common';
 import { IconSize } from '../../Icon';
 
 export type SearchPanelActionProps = {
@@ -27,7 +27,12 @@ export const SearchPanelAction = ({
       }}
       {...itemProps}
     >
-      <span className="typo-callout">{searchPanel.query}</span>
+      <span className="typo-callout">
+        {searchPanel.query}{' '}
+        <span className="text-theme-label-quaternary typo-footnote">
+          {providerToLabelTextMap[provider]}
+        </span>
+      </span>
     </SearchPanelItem>
   );
 };
