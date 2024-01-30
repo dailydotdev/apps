@@ -3,8 +3,6 @@ import Icon, { IconProps } from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-const PowerIcon = (props: IconProps): ReactElement => (
+export const PowerIcon = (props: IconProps): ReactElement => (
   <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );
-
-export default PowerIcon;

@@ -6,10 +6,9 @@ import { ReadArticleButton } from '../ReadArticleButton';
 import { getGroupedHoverContainer } from '../common';
 import { useFeedPreviewMode } from '../../../hooks';
 import { Post, PostType } from '../../../graphql/posts';
-import { ButtonVariant } from '../../buttons/ButtonV2';
+import { ButtonVariant } from '../../buttons/common';
 import PostMetadata, { PostMetadataProps } from './PostMetadata';
-import MenuIcon from '../../icons/Menu';
-import OpenLinkIcon from '../../icons/OpenLink';
+import { MenuIcon, OpenLinkIcon } from '../../icons';
 import { useReadPostButtonText } from './hooks';
 
 interface CardHeaderProps {

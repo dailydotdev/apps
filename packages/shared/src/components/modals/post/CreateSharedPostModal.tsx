@@ -10,7 +10,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/ButtonV2';
-import AtIcon from '../../icons/At';
+import { AtIcon } from '../../icons';
 import { Divider, Justify } from '../../utilities';
 import SourceButton from '../../cards/SourceButton';
 import { Squad } from '../../../graphql/sources';

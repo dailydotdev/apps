@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import FeatherIcon from '../icons/Feather';
+import { FeatherIcon } from '../icons';
 import { Author } from '../../graphql/comments';
 
 interface PostAuthorProps {

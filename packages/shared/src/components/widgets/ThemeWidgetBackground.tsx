@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React, { CSSProperties, ReactElement, ReactNode } from 'react';
 import classed from '../../lib/classed';
-import DailyIcon from '../icons/DailyIcon';
+import { DailyIcon } from '../icons';
 
 interface ThemeWidgetBackgroundProps {
   style?: CSSProperties;

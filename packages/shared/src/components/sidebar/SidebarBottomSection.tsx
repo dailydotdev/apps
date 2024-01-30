@@ -1,8 +1,6 @@
 import React, { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
-import DocsIcon from '../icons/Docs';
-import FeedbackIcon from '../icons/Feedback';
-import TerminalIcon from '../icons/Terminal';
+import { DocsIcon, FeedbackIcon, TerminalIcon } from '../icons';
 import SidebarRankProgress from '../SidebarRankProgress';
 import { ListIcon, Nav, SidebarMenuItem } from './common';
 import InvitePeople from './InvitePeople';

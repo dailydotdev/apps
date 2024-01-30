@@ -4,7 +4,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import MenuIcon from '@dailydotdev/shared/src/components/icons/Menu';
+import { MenuIcon } from '@dailydotdev/shared/src/components/icons';
 import classNames from 'classnames';
 import React, { MouseEventHandler, ReactElement } from 'react';
 import { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';

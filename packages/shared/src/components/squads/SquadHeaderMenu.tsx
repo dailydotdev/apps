@@ -2,28 +2,29 @@ import React, { ReactElement, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useMutation } from '@tanstack/react-query';
-import ExitIcon from '../icons/Exit';
 import {
   Squad,
   SourcePermissions,
   SourceMemberRole,
 } from '../../graphql/sources';
-import TrashIcon from '../icons/Trash';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useDeleteSquad } from '../../hooks/useDeleteSquad';
-import { useLeaveSquad } from '../../hooks/useLeaveSquad';
+import { useLeaveSquad, useSquadNavigation } from '../../hooks';
 import ContextMenuItem, { ContextMenuIcon } from '../tooltips/ContextMenuItem';
 import { verifyPermission } from '../../graphql/squads';
-import SettingsIcon from '../icons/Settings';
+import {
+  SettingsIcon,
+  TrashIcon,
+  FeedbackIcon,
+  TourIcon,
+  LinkIcon,
+  ExitIcon,
+} from '../icons';
 import { squadFeedback } from '../../lib/constants';
-import FeedbackIcon from '../icons/Feedback';
-import TourIcon from '../icons/Tour';
-import { useSquadNavigation } from '../../hooks';
 import { MenuItemProps } from '../fields/PortalMenu';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { Origin } from '../../lib/analytics';
-import LinkIcon from '../icons/Link';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),

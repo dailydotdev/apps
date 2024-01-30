@@ -6,8 +6,7 @@ import {
   Notification,
   NotificationPreferenceStatus,
 } from '../../../graphql/notifications';
-import BellIcon from '../../icons/Bell';
-import BellDisabledIcon from '../../icons/Bell/Disabled';
+import { BellIcon, BellDisabledIcon } from '../../icons';
 import { notificationMutingCopy } from '../../notifications/utils';
 import { useNotificationPreference } from '../../../hooks/notifications';
 

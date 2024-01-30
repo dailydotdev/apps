@@ -5,9 +5,8 @@ import {
 } from '../../../hooks/notifications';
 import { NotificationType } from '../../notifications/utils';
 import { NotificationPreferenceStatus } from '../../../graphql/notifications';
-import BellDisabledIcon from '../../icons/Bell/Disabled';
+import { BellDisabledIcon, BellIcon } from '../../icons';
 import { Post } from '../../../graphql/posts';
-import BellIcon from '../../icons/Bell';
 import { SimpleTooltip } from '../../tooltips';
 import { Button, ButtonVariant } from '../../buttons/ButtonV2';
 

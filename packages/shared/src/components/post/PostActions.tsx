@@ -1,16 +1,18 @@
 import React, { ReactElement, useContext } from 'react';
 import { QueryKey, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
-import UpvoteIcon from '../icons/Upvote';
-import CommentIcon from '../icons/Discuss';
+import {
+  UpvoteIcon,
+  DiscussIcon as CommentIcon,
+  ShareIcon,
+  BookmarkIcon,
+  DownvoteIcon,
+} from '../icons';
 import { Post, UserPostVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
-import ShareIcon from '../icons/Share';
 import { useVotePost } from '../../hooks';
 import { Origin } from '../../lib/analytics';
-import BookmarkIcon from '../icons/Bookmark';
-import DownvoteIcon from '../icons/Downvote';
 import { Card } from '../cards/Card';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PostTagsPanel } from './block/PostTagsPanel';

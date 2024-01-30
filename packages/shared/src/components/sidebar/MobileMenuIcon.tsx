@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import ArrowIcon from '../icons/Arrow';
+import { ArrowIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 

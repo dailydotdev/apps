@@ -8,7 +8,7 @@ import { largeNumberFormat } from '../../lib/numberFormat';
 import { Image } from '../image/Image';
 import SquadMemberBadge from '../squads/SquadMemberBadge';
 import { CardLink } from '../cards/Card';
-import PlusIcon from '../icons/Plus';
+import { PlusIcon } from '../icons';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/ButtonV2';
 import {

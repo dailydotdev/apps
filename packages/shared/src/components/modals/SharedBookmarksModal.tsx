@@ -1,7 +1,13 @@
 import React, { ReactElement } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import request from 'graphql-request';
-import CopyIcon from '../icons/Copy';
+import {
+  CopyIcon,
+  TwitterIcon,
+  SlackIcon,
+  DiscordIcon,
+  GitHubIcon,
+} from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { Switch } from '../fields/Switch';
 import {
@@ -11,10 +17,6 @@ import {
 } from '../../graphql/bookmarksSharing';
 import { graphqlUrl } from '../../lib/config';
 import { TextField } from '../fields/TextField';
-import TwitterIcon from '../icons/Twitter';
-import SlackIcon from '../icons/Slack';
-import DiscordIcon from '../icons/Discord';
-import GithubIcon from '../icons/GitHub';
 import { useCopyLink } from '../../hooks/useCopy';
 import { sharingBookmarks } from '../../lib/constants';
 import { Modal, ModalProps } from './common/Modal';
@@ -115,7 +117,7 @@ export default function SharedBookmarksModal({
               <DiscordIcon size={IconSize.Medium} />
               <TwitterIcon size={IconSize.Medium} />
               <SlackIcon size={IconSize.Medium} />
-              <GithubIcon size={IconSize.Medium} />
+              <GitHubIcon size={IconSize.Medium} />
             </div>
           </div>
         </div>

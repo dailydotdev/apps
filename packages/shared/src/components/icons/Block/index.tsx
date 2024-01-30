@@ -3,8 +3,6 @@ import Icon, { IconProps } from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-const BlockIcon = (props: IconProps): ReactElement => (
+export const BlockIcon = (props: IconProps): ReactElement => (
   <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );
-
-export default BlockIcon;

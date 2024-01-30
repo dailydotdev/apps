@@ -6,9 +6,9 @@ import {
   EmptyScreenIcon,
   EmptyScreenTitle,
 } from './EmptyScreen';
-import FilterIcon from './icons/Filter';
+import { FilterIcon } from './icons';
 import { PageContainer } from './utilities';
-import { ButtonSize } from './buttons/ButtonV2';
+import { ButtonSize } from './buttons/common';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 

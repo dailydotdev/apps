@@ -1,8 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import CopyIcon from './icons/Copy';
-import WhatsappIcon from './icons/Whatsapp';
-import TwitterIcon from './icons/Twitter';
-import FacebookIcon from './icons/Facebook';
+import { CopyIcon, WhatsappIcon, TwitterIcon, FacebookIcon } from './icons';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import {
@@ -20,7 +17,7 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { Squad } from '../graphql/sources';
 import { SocialShareButton } from './widgets/SocialShareButton';
 import { SquadsToShare } from './squads/SquadsToShare';
-import { ButtonSize, ButtonVariant } from './buttons/ButtonV2';
+import { ButtonSize, ButtonVariant } from './buttons/common';
 
 interface ShareBarProps {
   post: Post;

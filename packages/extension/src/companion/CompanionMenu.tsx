@@ -4,12 +4,14 @@ import {
   ButtonColor,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
-import UpvoteIcon from '@dailydotdev/shared/src/components/icons/Upvote';
-import CommentIcon from '@dailydotdev/shared/src/components/icons/Discuss';
-import MenuIcon from '@dailydotdev/shared/src/components/icons/Menu';
-import ShareIcon from '@dailydotdev/shared/src/components/icons/Share';
+import {
+  UpvoteIcon,
+  DiscussIcon as CommentIcon,
+  MenuIcon,
+  ShareIcon,
+  BookmarkIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
 import Modal from 'react-modal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';

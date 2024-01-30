@@ -17,7 +17,7 @@ import SearchEmptyScreen from './SearchEmptyScreen';
 import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button, ButtonVariant } from './buttons/ButtonV2';
-import ShareIcon from './icons/Share';
+import { ShareIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 
 export type BookmarkFeedLayoutProps = {

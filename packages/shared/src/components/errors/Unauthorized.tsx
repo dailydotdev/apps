@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode } from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
-import LockIcon from '../icons/Lock';
+import { LockIcon } from '../icons';
 import { PageContainerCentered } from '../utilities';
 import { IconSize } from '../Icon';
 

@@ -6,8 +6,7 @@ import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../../lib/analytics';
 import { webappUrl } from '../../lib/constants';
 import { Button, ButtonVariant } from '../buttons/ButtonV2';
-import BellIcon from '../icons/Bell';
-import HamburgerIcon from '../icons/Hamburger';
+import { BellIcon, HamburgerIcon } from '../icons';
 import LoginButton from '../LoginButton';
 import MobileHeaderRankProgress from '../MobileHeaderRankProgress';
 import {

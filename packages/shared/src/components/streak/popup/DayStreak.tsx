@@ -1,8 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import ReadingStreakIcon from '../../icons/ReadingStreak';
+import { ReadingStreakIcon, TriangleArrowIcon } from '../../icons';
 import classed from '../../../lib/classed';
-import TriangleArrowIcon from '../../icons/Arrow/Triangle';
 import { IconSize, iconSizeToClassName } from '../../Icon';
 import { isNullOrUndefined } from '../../../lib/func';
 

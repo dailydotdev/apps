@@ -1,14 +1,11 @@
 import React, { ReactElement, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  ToastNotification,
-  TOAST_NOTIF_KEY,
-} from '../../hooks/useToastNotification';
+import { ToastNotification, TOAST_NOTIF_KEY } from '../../hooks';
 import classed from '../../lib/classed';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import styles from './Toast.module.css';
-import XIcon from '../icons/MiniClose';
+import { MiniCloseIcon as XIcon } from '../icons';
 import { isTouchDevice } from '../../lib/tooltip';
 import {
   NotifContainer,
