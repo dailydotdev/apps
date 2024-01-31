@@ -216,13 +216,6 @@ export const SearchPanelInput = ({
               </>
             )}
           </div>
-          {!isLaptop && (
-            <SearchPanelInputCursor
-              className={{
-                main: '-z-1',
-              }}
-            />
-          )}
           <div className="-mr-2 flex h-full items-center bg-theme-bg-secondary laptop:hidden">
             {!!searchPanel.query && (
               <Button
