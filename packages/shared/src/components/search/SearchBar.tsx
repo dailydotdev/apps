@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { SearchBarInput, SearchBarInputProps } from './SearchBarInput';
+import { SearchBarInputProps } from './SearchBarInput';
 import { SearchBarSuggestionList } from './SearchBarSuggestionList';
 import Alert, { AlertType } from '../widgets/Alert';
 import { useSearchQuestionRecommendations } from '../../hooks/search';
@@ -10,34 +10,18 @@ import { isNullOrUndefined } from '../../lib/func';
 
 export type SearchBarProps = Pick<
   SearchBarInputProps,
-  'className' | 'valueChanged' | 'onSubmit' | 'showProgress' | 'chunk'
+  'className' | 'showProgress' | 'chunk'
 > & {
   isLoading?: boolean;
 };
 
-export function SearchBar({
-  className,
-  chunk,
-  isLoading,
-  ...props
-}: SearchBarProps): ReactElement {
+export function SearchBar({ className, chunk }: SearchBarProps): ReactElement {
   const suggestionsProps = useSearchQuestionRecommendations({
     origin: Origin.SearchPage,
   });
 
   return (
     <div className={classNames('w-full', className?.container)}>
-      <SearchBarInput
-        {...props}
-        chunk={chunk}
-        shouldShowPopup
-        inputProps={{ id: 'search' }}
-        className={{
-          container: 'w-full max-w-[48rem]',
-          field: className?.field,
-        }}
-        suggestionsProps={suggestionsProps}
-      />
       {!isNullOrUndefined(chunk?.error?.code) && (
         <Alert
           className="my-4"

@@ -1,23 +1,21 @@
 import React, { ReactNode } from 'react';
 import classNames from 'classnames';
-import { SearchBar } from './SearchBar';
 import { SearchFeedback } from './SearchFeedback';
 import { SearchBarInputProps } from './SearchBarInput';
 import { Pill } from '../utilities/loaders';
 import { PageWidgets } from '../utilities';
 import { SearchReferralBanner } from './SearchReferralBanner';
 import { SearchSourceList } from './SearchSourceList';
+import { SearchBar } from './SearchBar';
 
 interface SearchContainerProps extends Pick<SearchBarInputProps, 'chunk'> {
   children: ReactNode;
   isLoading?: boolean;
   isInProgress?: boolean;
-  onSubmit(event: React.MouseEvent, value: string): void;
 }
 
 export function SearchContainer({
   children,
-  onSubmit,
   isLoading,
   isInProgress,
   chunk,
@@ -31,12 +29,7 @@ export function SearchContainer({
             <Pill className="mt-3 !h-2" />
           </>
         ) : (
-          <SearchBar
-            onSubmit={onSubmit}
-            chunk={chunk}
-            showProgress
-            isLoading={isLoading}
-          />
+          <SearchBar chunk={chunk} showProgress isLoading={isLoading} />
         )}
         {children}
       </main>

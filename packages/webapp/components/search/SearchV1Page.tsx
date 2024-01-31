@@ -72,17 +72,6 @@ const SearchPage = (): ReactElement => {
 
   return (
     <SearchContainer
-      onSubmit={(event, value) => {
-        router.push(
-          getSearchUrl({ provider: SearchProviderEnum.Chat }),
-          undefined,
-          {
-            shallow: true,
-          },
-        );
-
-        handleSubmit(event, value);
-      }}
       chunk={chunk}
       isLoading={!router?.isReady}
       isInProgress={isLoading}
