@@ -8,7 +8,7 @@ import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
 import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import AuthForm from './AuthForm';
 import { TextField } from '../fields/TextField';
-import MailIcon from '../icons/Mail';
+import { MailIcon } from '../icons';
 import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 

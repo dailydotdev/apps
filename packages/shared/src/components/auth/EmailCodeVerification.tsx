@@ -6,9 +6,7 @@ import { AuthFormProps } from './common';
 import { AuthFlow } from '../../lib/kratos';
 import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import AuthForm from './AuthForm';
-import KeyIcon from '../icons/Key';
-import MailIcon from '../icons/Mail';
-import VIcon from '../icons/V';
+import { KeyIcon, MailIcon, VIcon } from '../icons';
 import { AuthEventNames } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 

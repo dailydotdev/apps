@@ -2,10 +2,9 @@ import React, { ReactElement, useState } from 'react';
 import SignupDisclaimer from './SignupDisclaimer';
 import AuthForm from './AuthForm';
 import { TextField } from '../fields/TextField';
-import MailIcon from '../icons/Mail';
+import { MailIcon, ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
-import ArrowIcon from '../icons/Arrow';
 
 interface EmailSignupFormProps {
   onSubmit: (e: React.FormEvent) => unknown;
