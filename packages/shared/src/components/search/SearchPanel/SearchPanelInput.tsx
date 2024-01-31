@@ -101,6 +101,8 @@ export const SearchPanelInput = ({
       isActive: false,
     });
 
+    inputRef.current?.blur();
+
     return search({ provider, query: finalValue });
   };
 
