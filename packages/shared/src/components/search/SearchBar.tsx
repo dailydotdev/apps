@@ -27,15 +27,15 @@ export function SearchBar({
 
   return (
     <div className={classNames('w-full', className?.container)}>
-      {showProgress && (
-        <>
+      {showProgress && !!chunk?.steps && (
+        <div className="mb-4">
           <SearchProgressBar max={chunk?.steps} progress={chunk?.progress} />
           {!!chunk?.status && (
             <div className="mt-2 text-theme-label-tertiary typo-callout">
               {chunk?.status}
             </div>
           )}
-        </>
+        </div>
       )}
       {!isNullOrUndefined(chunk?.error?.code) && (
         <Alert
@@ -47,10 +47,7 @@ export function SearchBar({
       {(!chunk || chunk?.error?.message) && (
         <SearchBarSuggestionList
           {...suggestionsProps}
-          className={classNames(
-            !chunk?.error?.message && 'mt-4',
-            'hidden tablet:flex',
-          )}
+          className={classNames('hidden tablet:flex')}
         />
       )}
     </div>

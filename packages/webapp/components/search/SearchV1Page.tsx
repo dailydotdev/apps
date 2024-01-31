@@ -84,7 +84,6 @@ const SearchPage = (): ReactElement => {
             isInProgress={isLoading}
             chunk={chunk}
             searchMessageProps={{ isLoading }}
-            className="mt-6"
           />
           <SearchProviderButton
             className="order-4 mx-auto mt-5 laptop:ml-0"
