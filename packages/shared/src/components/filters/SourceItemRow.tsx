@@ -3,7 +3,7 @@ import { FilterItem } from './common';
 import { Source } from '../../graphql/sources';
 import { LazyImage } from '../LazyImage';
 import { Button, ButtonVariant } from '../buttons/ButtonV2';
-import BlockIcon from '../icons/Block';
+import { BlockIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export default function SourceItemRow({

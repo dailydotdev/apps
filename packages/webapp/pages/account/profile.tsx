@@ -1,9 +1,12 @@
 import ImageInput from '@dailydotdev/shared/src/components/fields/ImageInput';
-import AtIcon from '@dailydotdev/shared/src/components/icons/At';
-import GitHubIcon from '@dailydotdev/shared/src/components/icons/GitHub';
-import LinkIcon from '@dailydotdev/shared/src/components/icons/Link';
-import TwitterIcon from '@dailydotdev/shared/src/components/icons/Twitter';
-import { UserIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  AtIcon,
+  GitHubIcon,
+  LinkIcon,
+  TwitterIcon,
+  UserIcon,
+  CameraIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import {
@@ -15,7 +18,6 @@ import React, { ReactElement, useContext, useRef, useState } from 'react';
 import useProfileForm, {
   UpdateProfileParameters,
 } from '@dailydotdev/shared/src/hooks/useProfileForm';
-import CameraIcon from '@dailydotdev/shared/src/components/icons/Camera';
 import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';

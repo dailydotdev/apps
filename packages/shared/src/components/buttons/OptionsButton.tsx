@@ -7,7 +7,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from './ButtonV2';
-import MenuIcon from '../icons/Menu';
+import { MenuIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 

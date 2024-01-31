@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { ProfilePicture } from '../ProfilePicture';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import { useAuthContext } from '../../contexts/AuthContext';
-import LockIcon from '../icons/Lock';
+import { LockIcon } from '../icons';
 import { Card } from '../cards/Card';
 import { IconSize } from '../Icon';
 import { usePostToSquad, useViewSize, ViewSize } from '../../hooks';

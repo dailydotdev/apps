@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { CardImage, CardVideoImage } from './Card';
-import FeatherIcon from '../icons/Feather';
+import { FeatherIcon } from '../icons';
 import PostAuthor from './PostAuthor';
 import { ProfilePicture } from '../ProfilePicture';
 import { Post, isVideoPost } from '../../graphql/posts';

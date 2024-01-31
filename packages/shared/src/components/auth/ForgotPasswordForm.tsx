@@ -2,7 +2,7 @@ import React, { FormEvent, ReactElement, useContext, useState } from 'react';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { TextField } from '../fields/TextField';
-import MailIcon from '../icons/Mail';
+import { MailIcon } from '../icons';
 import { CloseModalFunc } from '../modals/common';
 import AuthHeader from './AuthHeader';
 import { AuthFormProps, AuthModalText } from './common';

@@ -6,9 +6,7 @@ import {
   getWhatsappShareLink,
   ShareProvider,
 } from '../../lib/share';
-import WhatsappIcon from '../icons/Whatsapp';
-import FacebookIcon from '../icons/Facebook';
-import TwitterIcon from '../icons/Twitter';
+import { TwitterIcon, FacebookIcon, WhatsappIcon } from '../icons';
 import { link } from '../../lib/links';
 import { labels } from '../../lib';
 import { SimpleTooltip } from '../tooltips';

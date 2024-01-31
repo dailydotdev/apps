@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Loader } from '../../Loader';
-import VIcon from '../../icons/V';
+import { VIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 
 interface SavingLabelProps {

@@ -34,7 +34,7 @@ import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral/Inv
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
-import { InviteIcon } from '../../../shared/src/components/icons/Invite';
+import { InviteIcon } from '../../../shared/src/components/icons';
 
 const AccountInvitePage = (): ReactElement => {
   const { user } = useAuthContext();

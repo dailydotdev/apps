@@ -13,8 +13,7 @@ import { Switch } from './fields/Switch';
 import SettingsContext, {
   themes as layoutThemes,
 } from '../contexts/SettingsContext';
-import CardIcon from './icons/Card';
-import LineIcon from './icons/Line';
+import { CardIcon, LineIcon } from './icons';
 import { CustomSwitch } from './fields/CustomSwitch';
 import AuthContext from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';

@@ -8,7 +8,7 @@ import {
   ButtonIconPosition,
   AllowedTags,
 } from './ButtonV2';
-import UpvoteIcon from '../icons/Upvote';
+import { UpvoteIcon } from '../icons';
 
 const renderComponent = <Tag extends AllowedTags>(
   props: Partial<ButtonProps<Tag>> = {},

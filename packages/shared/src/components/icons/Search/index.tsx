@@ -3,7 +3,7 @@ import Icon, { IconProps } from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-const SearchIcon = ({ size, ...rest }: IconProps): ReactElement => (
+export const SearchIcon = ({ size, ...rest }: IconProps): ReactElement => (
   <Icon
     {...rest}
     size={size}
@@ -11,5 +11,3 @@ const SearchIcon = ({ size, ...rest }: IconProps): ReactElement => (
     IconSecondary={FilledIcon}
   />
 );
-
-export default SearchIcon;

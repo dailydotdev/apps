@@ -10,7 +10,7 @@ import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import { AuthEventNames } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthForm from './AuthForm';
-import KeyIcon from '../icons/Key';
+import { KeyIcon } from '../icons';
 
 interface CodeVerificationFormProps extends AuthFormProps {
   initialEmail: string;

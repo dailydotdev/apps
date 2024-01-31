@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import Icon, { IconProps } from '../../Icon';
 import SquadIcon from './primary.svg';
 
-const DefaultSquadIcon = (props: IconProps): ReactElement => (
+export const DefaultSquadIcon = (props: IconProps): ReactElement => (
   <Icon
     className="text-white"
     {...props}
@@ -10,5 +10,3 @@ const DefaultSquadIcon = (props: IconProps): ReactElement => (
     IconSecondary={SquadIcon}
   />
 );
-
-export default DefaultSquadIcon;

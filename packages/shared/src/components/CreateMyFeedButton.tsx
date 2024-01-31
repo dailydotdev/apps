@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
-import PlusIcon from './icons/Plus';
+import { PlusIcon } from './icons';
 import {
   Button,
   ButtonColor,

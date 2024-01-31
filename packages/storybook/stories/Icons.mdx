@@ -1,0 +1,32 @@
+import { Meta, IconGallery, IconItem } from '@storybook/addon-docs';
+import * as icons from '@dailydotdev/shared/src/components/icons';
+
+<Meta title="Icon/All" />
+
+# Primary icons
+
+<IconGallery>
+{
+    Object.values(icons).map((IconComponent) => {
+      return (
+        <IconItem name={IconComponent.displayName} key={IconComponent.displayName}>
+          <IconComponent style={{color: "black"}} />
+        </IconItem>
+      );
+    })
+  }
+</IconGallery>
+
+# Secondary icons
+
+<IconGallery>
+  {
+    Object.values(icons).map((IconComponent) => {
+      return (
+        <IconItem name={IconComponent.displayName} key={IconComponent.displayName}>
+          <IconComponent style={{color: "black"}} secondary />
+        </IconItem>
+      );
+    })
+  }
+</IconGallery>

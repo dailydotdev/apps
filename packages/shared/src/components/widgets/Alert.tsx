@@ -1,8 +1,6 @@
 import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import FeedbackIcon from '../icons/Feedback/index';
-import AlertIcon from '../icons/Alert';
-import CheckIcon from '../icons/V';
+import { AlertIcon, FeedbackIcon, VIcon as CheckIcon } from '../icons';
 import classed from '../../lib/classed';
 import { IconSize } from '../Icon';
 

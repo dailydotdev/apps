@@ -4,8 +4,7 @@ import {
   ButtonColor,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
-import { UserIcon } from '@dailydotdev/shared/src/components/icons';
-import SitesIcon from '@dailydotdev/shared/src/components/icons/Sites';
+import { UserIcon, SitesIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   Modal,
   ModalProps,

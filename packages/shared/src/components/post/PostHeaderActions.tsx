@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import OpenLinkIcon from '../icons/OpenLink';
+import { OpenLinkIcon } from '../icons';
 import {
   PostType,
   getReadPostButtonText,

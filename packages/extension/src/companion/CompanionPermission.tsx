@@ -6,7 +6,7 @@ import {
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
 import React, { forwardRef, ReactElement, Ref } from 'react';
-import PlayIcon from '@dailydotdev/shared/src/components/icons/Play';
+import { PlayIcon } from '@dailydotdev/shared/src/components/icons';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { useExtensionPermission } from '@dailydotdev/shared/src/hooks';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';

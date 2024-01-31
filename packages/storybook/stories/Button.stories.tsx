@@ -5,7 +5,7 @@ import {
   Button,
   ButtonSize,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import ShareIcon from '@dailydotdev/shared/src/components/icons/Share';
+import { ShareIcon } from '@dailydotdev/shared/src/components/icons';
 
 const meta: Meta<typeof Button> = {
   component: Button,

@@ -6,7 +6,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/ButtonV2';
-import BookmarkIcon from '../icons/Bookmark';
+import { BookmarkIcon } from '../icons';
 import styles from '../cards/Card.module.css';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Post } from '../../graphql/posts';

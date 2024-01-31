@@ -3,9 +3,7 @@ import { QueryKey, useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { WidgetContainer } from '../widgets/common';
 import LogoIcon from '../../svg/LogoIcon';
-import UpvoteIcon from '../icons/Upvote';
-import DownvoteIcon from '../icons/Downvote';
-import CopyIcon from '../icons/Copy';
+import { UpvoteIcon, DownvoteIcon, CopyIcon } from '../icons';
 import { SearchMessage, SearchMessageProps } from './SearchMessage';
 import {
   Search,
@@ -14,7 +12,7 @@ import {
   updateSearchData,
 } from '../../graphql/search';
 import { useCopyText } from '../../hooks/useCopy';
-import { useToastNotification } from '../../hooks/useToastNotification';
+import { useToastNotification } from '../../hooks';
 import { labels } from '../../lib';
 import { Pill } from '../utilities/loaders';
 import { WithClassNameProps } from '../utilities';

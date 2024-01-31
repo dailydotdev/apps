@@ -5,7 +5,7 @@ import React, {
   ReactElement,
 } from 'react';
 import { Button, ButtonVariant } from '../buttons/ButtonV2';
-import ArrowIcon from '../icons/Arrow';
+import { ArrowIcon } from '../icons';
 import { Modal } from '../modals/common/Modal';
 import { ModalHeaderKind } from '../modals/common/types';
 

@@ -1,14 +1,17 @@
 import { ComponentType } from 'react';
 import classed from '../../lib/classed';
 import { IconProps } from '../Icon';
-import BellIcon from '../icons/Bell';
-import CommunityPicksIcon from '../icons/CommunityPicksIcon';
-import DailyIcon from '../icons/DailyIcon';
-import DiscussIcon from '../icons/Discuss';
-import EyeIcon from '../icons/Eye';
-import UpvoteIcon from '../icons/Upvote';
-import BlockIcon from '../icons/Block';
-import { UserIcon, StarIcon } from '../icons';
+import {
+  BellIcon,
+  CommunityPicksIcon,
+  DailyIcon,
+  DiscussIcon,
+  EyeIcon,
+  UpvoteIcon,
+  BlockIcon,
+  UserIcon,
+  StarIcon,
+} from '../icons';
 
 export const NotifContainer = classed(
   'div',

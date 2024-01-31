@@ -1,6 +1,10 @@
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
-import LockIcon from '@dailydotdev/shared/src/components/icons/Lock';
-import SettingsIcon from '@dailydotdev/shared/src/components/icons/Settings';
+import {
+  LockIcon,
+  SettingsIcon,
+  BellIcon,
+  InviteIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { pageBorders } from '@dailydotdev/shared/src/components/utilities';
 import classed from '@dailydotdev/shared/src/lib/classed';
@@ -13,8 +17,6 @@ import {
   requestFeature,
   termsOfService,
 } from '@dailydotdev/shared/src/lib/constants';
-import BellIcon from '@dailydotdev/shared/src/components/icons/Bell';
-import { InviteIcon } from '@dailydotdev/shared/src/components/icons';
 
 export interface ManageSocialProvidersProps {
   type: ManageSocialProviderTypes;

@@ -4,7 +4,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
-import KeyIcon from '@dailydotdev/shared/src/components/icons/Key';
+import { KeyIcon } from '@dailydotdev/shared/src/components/icons';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { useMutation } from '@tanstack/react-query';

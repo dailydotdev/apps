@@ -13,9 +13,8 @@ import {
   TriggerEvent,
   useContextMenu,
 } from '@dailydotdev/react-contexify';
-import ArrowIcon from '../icons/Arrow';
+import { ArrowIcon, VIcon } from '../icons';
 import styles from './Dropdown.module.css';
-import VIcon from '../icons/V';
 
 interface ClassName {
   container?: string;

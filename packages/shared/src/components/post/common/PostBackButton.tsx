@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import { ButtonVariant } from '../../buttons/common';
-import ArrowIcon from '../../icons/Arrow';
+import { ArrowIcon } from '../../icons';
 import { Button } from '../../buttons/ButtonV2';
 import { FeedLayout } from '../../../lib/featureValues';
 import { useFeature } from '../../GrowthBookProvider';

@@ -2,7 +2,7 @@ import React, { FormEventHandler, ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { ExternalLinkPreview, ReadHistoryPost } from '../../../graphql/posts';
 import { TextField } from '../../fields/TextField';
-import LinkIcon from '../../icons/Link';
+import { LinkIcon } from '../../icons';
 import { ClickableText } from '../../buttons/ClickableText';
 import { LazyModal } from '../../modals/common/types';
 import { useLazyModal } from '../../../hooks/useLazyModal';

@@ -1,9 +1,13 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import AuthContext from '../contexts/AuthContext';
-import PowerIcon from './icons/Power';
-import { InviteIcon, KeyReferralOutlineIcon, UserIcon } from './icons';
-import DevCardIcon from './icons/DevCard';
-import SettingsIcon from './icons/Settings';
+import {
+  PowerIcon,
+  InviteIcon,
+  KeyReferralOutlineIcon,
+  UserIcon,
+  DevCardIcon,
+  SettingsIcon,
+} from './icons';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { useSettingsContext } from '../contexts/SettingsContext';

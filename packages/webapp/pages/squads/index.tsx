@@ -16,7 +16,7 @@ import {
   SourceCardBorderColor,
   SquadsDirectoryHeader,
 } from '@dailydotdev/shared/src/components';
-import EditIcon from '@dailydotdev/shared/src/components/icons/Edit';
+import { EditIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { squadsPublicSuggestion } from '@dailydotdev/shared/src/lib/constants';
 import { GetStaticPropsResult } from 'next';

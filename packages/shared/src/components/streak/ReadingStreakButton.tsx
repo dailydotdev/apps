@@ -1,7 +1,7 @@
 import React, { ReactElement, useState } from 'react';
 import { ReadingStreakPopup } from './popup';
 import { Button, ButtonVariant } from '../buttons/ButtonV2';
-import ReadingStreakIcon from '../icons/ReadingStreak';
+import { ReadingStreakIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
 import { UserStreak } from '../../graphql/users';
 

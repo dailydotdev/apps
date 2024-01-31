@@ -28,7 +28,7 @@ import PushNotificationModal from './PushNotificationModal';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import Alert, { AlertType } from '../widgets/Alert';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
-import OpenLinkIcon from '../icons/OpenLink';
+import { OpenLinkIcon } from '../icons';
 import { DISMISS_PERMISSION_BANNER } from '../../hooks/useEnableNotification';
 
 interface RSS {

@@ -3,8 +3,12 @@ import classNames from 'classnames';
 import Link from 'next/link';
 import { HidePostItemCardProps } from '../../graphql/users';
 import { PostItem, UserPostVote, isVideoPost } from '../../graphql/posts';
-import XIcon from '../icons/MiniClose';
-import MenuIcon from '../icons/Menu';
+import {
+  MiniCloseIcon as XIcon,
+  MenuIcon,
+  UpvoteIcon,
+  DownvoteIcon,
+} from '../icons';
 import classed from '../../lib/classed';
 import PostMetadata from '../cards/PostMetadata';
 import { ProfilePicture } from '../ProfilePicture';
@@ -12,8 +16,6 @@ import { Image } from '../image/Image';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { cloudinary } from '../../lib/image';
 import { useReadHistoryVotePost } from '../../hooks';
-import UpvoteIcon from '../icons/Upvote';
-import DownvoteIcon from '../icons/Downvote';
 import { Origin } from '../../lib/analytics';
 import {
   Button,

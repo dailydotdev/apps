@@ -6,15 +6,14 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/ButtonV2';
-import BlockIcon from '../icons/Block';
-import MenuIcon from '../icons/Menu';
+import { BlockIcon, MenuIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import SquadMemberBadge from './SquadMemberBadge';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
 import { ModalSize } from '../modals/common/types';
-import { useToastNotification } from '../../hooks/useToastNotification';
+import { useToastNotification } from '../../hooks';
 
 interface SquadMemberActionsProps {
   member: SourceMember;
