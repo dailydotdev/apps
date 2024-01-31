@@ -176,7 +176,11 @@ export default function MainFeedLayout({
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
-    if (isSearchOn && searchQuery) {
+    if (isSearchOn) {
+      if (!searchQuery) {
+        return null;
+      }
+
       return {
         feedName: SharedFeedPage.Search,
         feedQueryKey: generateQueryKey(

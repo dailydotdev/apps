@@ -274,7 +274,11 @@ export const getSearchUrl = (params: SearchUrlParams): string => {
     searchParams.append('q', query);
   }
 
-  return `${searchPageUrl}?${searchParams}`;
+  const searchParamsString = searchParams.toString();
+
+  return `${searchPageUrl}${
+    searchParamsString ? `?${searchParamsString}` : ''
+  }`;
 };
 
 export const searchQueryUrl = `${apiUrl}/search/query`;

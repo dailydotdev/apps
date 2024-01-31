@@ -7,11 +7,15 @@ import {
   providerToLabelTextMap,
 } from '@dailydotdev/shared/src/components';
 import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
+import { MagicIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import classNames from 'classnames';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../layouts/MainFeedPage';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 const baseSeo: NextSeoProps = {
   openGraph: { ...defaultOpenGraph },
@@ -21,6 +25,8 @@ const baseSeo: NextSeoProps = {
 const Search = (): ReactElement => {
   const router = useRouter();
   const { query } = router;
+  const searchQuery = query?.q?.toString();
+  const { sidebarExpanded } = useSettingsContext();
 
   const seo = useMemo(() => {
     if ('q' in query) {
@@ -36,6 +42,26 @@ const Search = (): ReactElement => {
   return (
     <>
       <NextSeo {...seo} {...baseSeo} />
+      {!searchQuery && (
+        <div
+          className={classNames(
+            'flex w-full max-w-[32rem] flex-col items-center gap-4  self-center px-6',
+            sidebarExpanded ? '!-left-32' : '!-left-6',
+          )}
+        >
+          <MagicIcon
+            className="text-overlay-tertiary-salt"
+            secondary
+            size={IconSize.XXXLarge}
+          />
+          <h2 className="font-bold text-theme-label-primary typo-title2">
+            Ready to dive in?
+          </h2>
+          <p className="text-theme-label-tertiary typo-callout">
+            Start your search to explore a world of developer resources.
+          </p>
+        </div>
+      )}
     </>
   );
 };
