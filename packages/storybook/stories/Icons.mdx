@@ -3,7 +3,7 @@ import * as icons from '@dailydotdev/shared/src/components/icons';
 
 <Meta title="Icon/All" />
 
-# All icons available
+# Primary icons
 
 <IconGallery>
 {
@@ -11,6 +11,20 @@ import * as icons from '@dailydotdev/shared/src/components/icons';
       return (
         <IconItem name={IconComponent.displayName} key={IconComponent.displayName}>
           <IconComponent style={{color: "black"}} />
+        </IconItem>
+      );
+    })
+  }
+</IconGallery>
+
+# Secondary icons
+
+<IconGallery>
+  {
+    Object.values(icons).map((IconComponent) => {
+      return (
+        <IconItem name={IconComponent.displayName} key={IconComponent.displayName}>
+          <IconComponent style={{color: "black"}} secondary />
         </IconItem>
       );
     })
