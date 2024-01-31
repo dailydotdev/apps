@@ -11,10 +11,18 @@ import {
   TextFieldProps,
 } from '@dailydotdev/shared/src/components/fields/TextField';
 import classNames from 'classnames';
-import React, { Dispatch, ReactElement, SetStateAction, useState } from 'react';
+import React, {
+  Dispatch,
+  ReactElement,
+  SetStateAction,
+  useContext,
+  useState,
+} from 'react';
 import useAccountEmailFlow from '@dailydotdev/shared/src/hooks/useAccountEmailFlow';
 import { AuthFlow } from '@dailydotdev/shared/src/lib/kratos';
 import useTimer from '@dailydotdev/shared/src/hooks/useTimer';
+import { AuthEventNames } from '@dailydotdev/shared/src/lib/auth';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { CommonTextField } from './common';
 
 export interface EmailFormProps {
@@ -38,6 +46,7 @@ function EmailForm({
   passwordProps,
   verificationId,
 }: EmailFormProps): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const [code, setCode] = useState<string>();
   const [email, setEmail] = useState<string>();
   const { timer, setTimer, runTimer } = useTimer(null, 0);
@@ -52,10 +61,9 @@ function EmailForm({
 
   const onCodeVerification = async (e) => {
     e.preventDefault();
-    // Verify required analytics
-    // trackEvent({
-    //   event_name: AuthEventNames.SubmitForgotPassword,
-    // });
+    trackEvent({
+      event_name: AuthEventNames.VerifyEmail,
+    });
     setHint('');
     await verifyCode({ code, altFlowId: verificationId });
   };
@@ -95,6 +103,7 @@ function EmailForm({
         type="code"
         inputId="code"
         label="Enter 6-digit code"
+        placeholder="Enter 6-digit code"
         hint={hint}
         defaultValue={code}
         valid={!hint}
@@ -112,6 +121,7 @@ function EmailForm({
         }
       />
       <Button
+        data-testid="change_email_btn"
         className="mt-3 w-fit"
         disabled={!code}
         variant={ButtonVariant.Primary}
