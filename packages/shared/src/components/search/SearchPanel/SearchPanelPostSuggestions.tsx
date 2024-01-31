@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React, { ReactElement, useContext } from 'react';
 import { useRouter } from 'next/router';
-import SearchIcon from '../../icons/Search';
+import { SearchIcon } from '../../icons';
 import { SearchPanelItem, SearchPanelItemProps } from './SearchPanelItem';
 import {
   SearchProviderEnum,

@@ -2,8 +2,7 @@ import React, { FunctionComponent } from 'react';
 import classNames from 'classnames';
 import { SearchProviderEnum } from '../../../graphql/search';
 import { IconProps } from '../../Icon';
-import { MagicIcon } from '../../icons';
-import SearchIcon from '../../icons/Search';
+import { MagicIcon, SearchIcon } from '../../icons';
 
 export const searchPanelGradientQueryKey = ['search-panel-active-gradient'];
 

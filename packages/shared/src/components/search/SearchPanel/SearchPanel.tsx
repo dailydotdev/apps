@@ -27,7 +27,7 @@ import { AnalyticsEvent } from '../../../lib/analytics';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 import { searchPanelGradientQueryKey } from './common';
 import { ArrowKeyEnum } from '../../../lib/func';
-import ArrowIcon from '../../icons/Arrow';
+import { ArrowIcon } from '../../icons';
 import { useSearchProvider } from '../../../hooks/search';
 import { SearchPanelCustomAction } from './SearchPanelCustomAction';
 
