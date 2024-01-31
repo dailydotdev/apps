@@ -637,7 +637,7 @@ export const UPLOAD_IMAGE_MUTATION = gql`
   }
 `;
 
-export const imageSizeLimitMB = 5;
+export const imageSizeLimitMB = 20;
 export const allowedFileSize = imageSizeLimitMB * MEGABYTE;
 export const allowedContentImage = [...acceptedTypesList, 'image/gif'];
 
