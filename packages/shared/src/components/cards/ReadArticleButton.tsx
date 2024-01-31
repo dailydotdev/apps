@@ -5,7 +5,7 @@ import {
   ButtonProps,
   ButtonSize,
 } from '../buttons/ButtonV2';
-import OpenLinkIcon from '../icons/OpenLink';
+import { OpenLinkIcon } from '../icons';
 
 type ReadArticleButtonProps = ButtonProps<'a'> & {
   content: string;

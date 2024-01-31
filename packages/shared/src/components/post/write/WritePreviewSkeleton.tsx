@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { TextField } from '../../fields/TextField';
 import { Loader } from '../../Loader';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
-import OpenLinkIcon from '../../icons/OpenLink';
+import { OpenLinkIcon } from '../../icons';
 import {
   previewImageClass,
   WritePreviewContainer,

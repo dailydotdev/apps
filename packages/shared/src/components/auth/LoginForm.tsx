@@ -6,7 +6,7 @@ import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { ClickableText } from '../buttons/ClickableText';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
-import MailIcon from '../icons/Mail';
+import { MailIcon } from '../icons';
 import AuthForm from './AuthForm';
 import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';

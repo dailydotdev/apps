@@ -7,7 +7,7 @@ import React, {
 import classNames from 'classnames';
 import classed, { ClassedHTML } from '../../lib/classed';
 import styles from './utilities.module.css';
-import ArrowIcon from '../icons/Arrow';
+import { ArrowIcon } from '../icons';
 import { Post, PostType, isSharedPostSquadPost } from '../../graphql/posts';
 
 export enum Theme {

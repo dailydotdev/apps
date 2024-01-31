@@ -3,7 +3,7 @@ import Script from 'next/script';
 import { isProduction } from '../../lib/constants';
 
 export const FB_PIXEL_ID = '519268979315924';
-export const GA_TRACKING_ID = 'G-88PBR8PHX0';
+export const GA_TRACKING_ID = 'AW-619408403';
 
 export const PixelTracking = (): ReactElement => {
   if (!isProduction) {
@@ -54,9 +54,7 @@ export const GtagTracking = (): ReactElement => {
 
 export const trackAnalyticsSignUp = (): void => {
   if (typeof globalThis.gtag === 'function') {
-    globalThis.gtag('event', 'signup', {
-      send_to: 'AW-619408403/8JaXCNWU7voBEJPYracC',
-    });
+    globalThis.gtag('event', 'signup');
   }
 
   if (typeof globalThis.fbq === 'function') {

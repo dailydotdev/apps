@@ -4,7 +4,7 @@ import { RootPortal } from './Portal';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import ConditionalWrapper from '../ConditionalWrapper';
-import CloseIcon from '../icons/MiniClose';
+import { MiniCloseIcon as CloseIcon } from '../icons';
 import { isNullOrUndefined } from '../../lib/func';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { useEventListener } from '../../hooks';

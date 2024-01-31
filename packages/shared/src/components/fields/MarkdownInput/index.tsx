@@ -12,15 +12,13 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import { ImageIcon, MarkdownIcon } from '../../icons';
+import { ImageIcon, MarkdownIcon, LinkIcon, AtIcon } from '../../icons';
 import {
   Button,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../../buttons/ButtonV2';
-import LinkIcon from '../../icons/Link';
-import AtIcon from '../../icons/At';
 import { RecommendedMentionTooltip } from '../../tooltips/RecommendedMentionTooltip';
 import {
   UseMarkdownInput,

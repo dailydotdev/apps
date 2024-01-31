@@ -7,11 +7,22 @@ import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import { Post, UserPostVote, isVideoPost } from '../graphql/posts';
-import TrashIcon from './icons/Trash';
-import HammerIcon from './icons/Hammer';
-import EyeIcon from './icons/Eye';
-import BlockIcon from './icons/Block';
-import FlagIcon from './icons/Flag';
+import {
+  TrashIcon,
+  HammerIcon,
+  EyeIcon,
+  BlockIcon,
+  FlagIcon,
+  BookmarkIcon,
+  PlusIcon,
+  EditIcon,
+  UpvoteIcon,
+  DownvoteIcon,
+  SendBackwardIcon,
+  BringForwardIcon,
+  PinIcon,
+} from './icons';
+
 import { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -25,27 +36,19 @@ import {
 } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { ShareBookmarkProps } from './post/PostActions';
-import BookmarkIcon from './icons/Bookmark';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
-import { PinIcon } from './icons';
 import { getPostByIdKey } from '../hooks/usePostById';
-import EditIcon from './icons/Edit';
-import UpvoteIcon from './icons/Upvote';
-import DownvoteIcon from './icons/Downvote';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
 import { MenuItemProps } from './fields/PortalMenu';
-import SendBackwardIcon from './icons/SendBackward';
-import BringForwardIcon from './icons/BringForward';
 import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
 } from '../hooks/useBookmarkPost';
 import { ActiveFeedContext } from '../contexts';
 import { useAdvancedSettings } from '../hooks/feed';
-import PlusIcon from './icons/Plus';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 

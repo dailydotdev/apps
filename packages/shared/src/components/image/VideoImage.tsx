@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import PlayIcon from '../icons/Play';
+import { PlayIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ImageProps, Image } from './Image';
 

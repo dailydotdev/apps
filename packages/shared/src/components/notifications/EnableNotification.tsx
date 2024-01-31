@@ -8,10 +8,9 @@ import {
 } from '../buttons/ButtonV2';
 import CloseButton from '../CloseButton';
 import { cloudinary } from '../../lib/image';
-import VIcon from '../icons/V';
+import { VIcon, BellNotifyIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
 import { NotificationPromptSource } from '../../lib/analytics';
-import BellNotifyIcon from '../icons/Bell/Notify';
 import { useEnableNotification } from '../../hooks/useEnableNotification';
 
 type EnableNotificationProps = {

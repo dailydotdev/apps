@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { TagCategory } from '../../graphql/feedSettings';
-import ArrowIcon from '../icons/Arrow';
+import { ArrowIcon } from '../icons';
 import CategoryButton from './CategoryButton';
 import TagButton from './TagButton';
 import {

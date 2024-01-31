@@ -72,6 +72,8 @@ export enum RequestKey {
   Auth = 'auth',
   Profile = 'profile',
   CurrentSession = 'current_session',
+  ReadingStreak30Days = 'reading_streak_30_days',
+  UserStreak = 'user_streak',
   PersonalizedDigest = 'personalizedDigest',
   Changelog = 'changelog',
   Tags = 'tags',

@@ -1,6 +1,7 @@
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
+import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
@@ -95,40 +96,45 @@ export default function MainFeedPage({
   };
 
   return (
-    <MainLayout
-      greeting
-      mainPage
-      isNavItemsButton
-      activePage={activePage}
-      onLogoClick={onLogoClick}
-      showDnd={showDnd}
-      dndActive={isDndActive}
-      onShowDndClick={() => setShowDnd(true)}
-      enableSearch={enableSearch}
-      onNavTabClick={onNavTabClick}
-      screenCentered={false}
-      customBanner={isDndActive && <DndBanner />}
-      additionalButtons={!loadingUser && <CompanionPopupButton />}
-    >
-      <FeedLayout>
-        <MainFeedLayout
-          feedName={feedName}
-          isSearchOn={isSearchOn}
-          searchQuery={searchQuery}
-          onFeedPageChanged={onNavTabClick}
-          navChildren={!isSearchOn && <ShortcutLinks />}
-          shortcuts={
-            <ShortcutLinks
-              className={classNames(
-                layout === FeedLayoutEnum.Control
-                  ? 'ml-auto'
-                  : 'mt-4 w-fit [@media(width<=680px)]:mx-6',
-              )}
-            />
-          }
-        />
-      </FeedLayout>
-      <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />
-    </MainLayout>
+    <>
+      <div className="fixed bottom-0 left-0 z-2 w-full">
+        <ScrollToTopButton />
+      </div>
+      <MainLayout
+        greeting
+        mainPage
+        isNavItemsButton
+        activePage={activePage}
+        onLogoClick={onLogoClick}
+        showDnd={showDnd}
+        dndActive={isDndActive}
+        onShowDndClick={() => setShowDnd(true)}
+        enableSearch={enableSearch}
+        onNavTabClick={onNavTabClick}
+        screenCentered={false}
+        customBanner={isDndActive && <DndBanner />}
+        additionalButtons={!loadingUser && <CompanionPopupButton />}
+      >
+        <FeedLayout>
+          <MainFeedLayout
+            feedName={feedName}
+            isSearchOn={isSearchOn}
+            searchQuery={searchQuery}
+            onFeedPageChanged={onNavTabClick}
+            navChildren={!isSearchOn && <ShortcutLinks />}
+            shortcuts={
+              <ShortcutLinks
+                className={classNames(
+                  layout === FeedLayoutEnum.Control
+                    ? 'ml-auto'
+                    : 'mt-4 w-fit [@media(width<=680px)]:mx-6',
+                )}
+              />
+            }
+          />
+        </FeedLayout>
+        <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />
+      </MainLayout>
+    </>
   );
 }

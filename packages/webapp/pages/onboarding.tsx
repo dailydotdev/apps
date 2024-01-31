@@ -41,7 +41,10 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import {
+  useFeature,
+  useGrowthBookContext,
+} from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanies';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
@@ -51,11 +54,12 @@ import Feed from '@dailydotdev/shared/src/components/Feed';
 import { OtherFeedPage, RequestKey } from '@dailydotdev/shared/src/lib/query';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   GtagTracking,
   PixelTracking,
 } from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -92,6 +96,7 @@ export function OnboardPage(): ReactElement {
   const { isAuthenticating, isLoginFlow, email, defaultDisplay } = auth;
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
+  const onboardingVisual = useFeature(feature.onboardingVisual);
   const targetId = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
 
@@ -288,16 +293,10 @@ export function OnboardPage(): ReactElement {
                     'absolute -top-[20%] left-0 -z-1 tablet:top-0',
                     styles.video,
                   )}
-                  poster={cloudinary.onboarding.video.poster}
+                  poster={onboardingVisual.poster}
                 >
-                  <source
-                    src={cloudinary.onboarding.video.webm}
-                    type="video/webm"
-                  />
-                  <source
-                    src={cloudinary.onboarding.video.mp4}
-                    type="video/mp4"
-                  />
+                  <source src={onboardingVisual.webm} type="video/webm" />
+                  <source src={onboardingVisual.mp4} type="video/mp4" />
                 </video>
               }
             </div>

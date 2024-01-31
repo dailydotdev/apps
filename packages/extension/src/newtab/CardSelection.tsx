@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import VIcon from '@dailydotdev/shared/src/components/icons/V';
+import { VIcon } from '@dailydotdev/shared/src/components/icons';
 import React, { ReactElement, ReactNode } from 'react';
 
 interface CardSelectionProps {

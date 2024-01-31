@@ -1,13 +1,18 @@
 import React, { ReactElement, useState } from 'react';
 import { ReadingStreakPopup } from './popup';
 import { Button, ButtonVariant } from '../buttons/ButtonV2';
-import ReadingStreakIcon from '../icons/ReadingStreak';
+import { ReadingStreakIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
-import { useReadingStreak } from '../../hooks/streaks';
+import { UserStreak } from '../../graphql/users';
 
-export function ReadingStreakButton(): ReactElement {
+interface ReadingStreakButtonProps {
+  streak: UserStreak;
+}
+
+export function ReadingStreakButton({
+  streak,
+}: ReadingStreakButtonProps): ReactElement {
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
-  const { currentStreak } = useReadingStreak();
 
   return (
     <SimpleTooltip
@@ -20,7 +25,8 @@ export function ReadingStreakButton(): ReactElement {
         textClassName: 'text-theme-label-primary typo-callout',
         className: 'border border-theme-divider-tertiary',
       }}
-      content={<ReadingStreakPopup />}
+      content={<ReadingStreakPopup streak={streak} />}
+      onClickOutside={() => setShouldShowStreaks(false)}
     >
       <Button
         type="button"
@@ -29,7 +35,7 @@ export function ReadingStreakButton(): ReactElement {
         onClick={() => setShouldShowStreaks((state) => !state)}
         className="gap-1 text-theme-color-bacon"
       >
-        {currentStreak}
+        {streak?.current}
       </Button>
     </SimpleTooltip>
   );

@@ -1,8 +1,7 @@
 import React, { CSSProperties, ReactElement } from 'react';
 import classNames from 'classnames';
 import { PublicProfile } from '../../lib/user';
-import ShareIcon from '../icons/Share';
-import SettingsIcon from '../icons/Settings';
+import { ShareIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { ProfilePicture } from '../ProfilePicture';

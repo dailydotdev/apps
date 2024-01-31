@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
-import ArrowIcon from '../icons/Arrow';
+import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { feature } from '../../lib/featureManagement';
 import { FeedLayout } from '../../lib/featureValues';

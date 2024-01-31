@@ -208,6 +208,7 @@ module.exports = {
       spacing: {
         18: '4.5rem',
         22: '5.5rem',
+        26: '6.5rem',
         70: '17.5rem',
       },
       maxWidth: {

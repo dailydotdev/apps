@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { SearchBarSuggestion, SuggestionOrigin } from './SearchBarSuggestion';
 import { PlaceholderSearchSuggestion } from './PlaceholderSearchSuggestion';
 import AuthContext from '../../contexts/AuthContext';
-import FeedbackIcon from '../icons/Feedback';
+import { FeedbackIcon } from '../icons';
 import {
   getSearchUrl,
   SearchProviderEnum,

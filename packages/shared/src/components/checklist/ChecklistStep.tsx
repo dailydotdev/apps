@@ -1,9 +1,8 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { IconSize } from '../Icon';
-import ArrowIcon from '../icons/Arrow';
+import { ArrowIcon, ChecklistAIcon } from '../icons';
 import { ChecklistStepProps } from '../../lib/checklist';
-import ChecklistAIcon from '../icons/ChecklistA';
 
 const ChecklistStep = ({
   className = {},

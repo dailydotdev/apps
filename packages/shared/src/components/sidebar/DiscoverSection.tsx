@@ -1,8 +1,5 @@
 import React, { ReactElement } from 'react';
-import DiscussIcon from '../icons/Discuss';
-import HotIcon from '../icons/Hot';
-import SearchIcon from '../icons/Search';
-import UpvoteIcon from '../icons/Upvote';
+import { DiscussIcon, HotIcon, SearchIcon, UpvoteIcon } from '../icons';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
 

@@ -13,7 +13,7 @@ import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
 import ReferralWidget from '../widgets/ReferralWidget';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/ButtonV2';
-import PlusIcon from '../icons/Plus';
+import { PlusIcon } from '../icons';
 
 export interface ProfileWidgetsProps extends ProfileV2 {
   className?: string;

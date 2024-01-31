@@ -8,10 +8,10 @@ import React, {
 } from 'react';
 import { blobToBase64 } from '../../lib/blob';
 import { fallbackImages } from '../../lib/config';
-import EditIcon from '../icons/Edit';
+import { EditIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { useToastNotification } from '../../hooks/useToastNotification';
-import { ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { ButtonSize, ButtonVariant } from '../buttons/common';
 import CloseButton from '../CloseButton';
 
 type Size = 'medium' | 'large' | 'cover';

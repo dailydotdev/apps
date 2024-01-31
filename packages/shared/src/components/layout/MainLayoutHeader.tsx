@@ -8,8 +8,7 @@ import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../../lib/analytics';
 import { webappUrl } from '../../lib/constants';
 import { Button, ButtonVariant } from '../buttons/ButtonV2';
-import BellIcon from '../icons/Bell';
-import HamburgerIcon from '../icons/Hamburger';
+import { BellIcon, HamburgerIcon } from '../icons';
 import LoginButton from '../LoginButton';
 import MobileHeaderRankProgress from '../MobileHeaderRankProgress';
 import {
@@ -29,10 +28,10 @@ import {
 } from '../../hooks';
 import { SearchReferralButton } from '../referral/SearchReferralButton';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
+import { useReadingStreak } from '../../hooks/streaks';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
-import { useStreakExperiment } from '../../hooks/streaks';
 
 export interface MainLayoutHeaderProps {
   greeting?: boolean;
@@ -65,8 +64,8 @@ function MainLayoutHeader({
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
-  const { shouldShowStreak } = useStreakExperiment();
-  const hideButton = loadingUser;
+  const { streak, isEnabled, isLoading } = useReadingStreak();
+  const hideButton = loadingUser || (isEnabled && isLoading);
   const isMobile = useViewSize(ViewSize.MobileL);
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
@@ -101,7 +100,7 @@ function MainLayoutHeader({
     return (
       <div className="flex gap-3">
         <CreatePostButton />
-        {user && shouldShowStreak && <ReadingStreakButton />}
+        {streak && <ReadingStreakButton streak={streak} />}
         {!hideButton && user && (
           <>
             {isReady && sidebarRendered && <SearchReferralButton />}

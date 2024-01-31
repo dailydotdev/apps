@@ -1,15 +1,17 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import { Post, UserPostVote } from '../../../graphql/posts';
 import InteractionCounter from '../../InteractionCounter';
-import UpvoteIcon from '../../icons/Upvote';
-import CommentIcon from '../../icons/Discuss';
+import {
+  UpvoteIcon,
+  BookmarkIcon,
+  DownvoteIcon,
+  DiscussIcon as CommentIcon,
+  ShareIcon,
+} from '../../icons';
 import { Button, ButtonColor, ButtonVariant } from '../../buttons/ButtonV2';
 import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
 import { useFeedPreviewMode } from '../../../hooks';
-import BookmarkIcon from '../../icons/Bookmark';
-import DownvoteIcon from '../../icons/Downvote';
 import { ActionButtonsProps } from '../ActionButtons';
 import { combinedClicks } from '../../../lib/click';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
@@ -17,10 +19,6 @@ import ConditionalWrapper from '../../ConditionalWrapper';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { IconSize } from '../../Icon';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
-
-const ShareIcon = dynamic(
-  () => import(/* webpackChunkName: "shareIcon" */ '../../icons/Share'),
-);
 
 interface ShareButtonProps {
   onShareClick?: (event: React.MouseEvent, post: Post) => unknown;

@@ -4,7 +4,7 @@ import SourceItemList from './SourceItemList';
 import TagItemList from './TagItemList';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import useTagAndSource from '../../hooks/useTagAndSource';
-import BlockIcon from '../icons/Block';
+import { BlockIcon } from '../icons';
 import { Origin } from '../../lib/analytics';
 
 export default function BlockedFilter({

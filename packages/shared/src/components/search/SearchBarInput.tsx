@@ -17,11 +17,10 @@ import {
   RaisedLabelType,
 } from '../cards/RaisedLabel';
 import { BaseField, FieldInput } from '../fields/common';
-import { AiIcon } from '../icons';
+import { AiIcon, MiniCloseIcon as CloseIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { getFieldFontColor } from '../fields/BaseFieldContainer';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
-import CloseIcon from '../icons/MiniClose';
 import { useInputField } from '../../hooks/useInputField';
 import { SearchProgressBar } from './SearchProgressBar';
 import { SearchChunk } from '../../graphql/search';

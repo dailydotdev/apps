@@ -6,8 +6,8 @@ import {
   EmptyScreenIcon,
   EmptyScreenTitle,
 } from '../EmptyScreen';
-import EyeIcon from '../icons/Eye';
-import { ButtonSize } from '../buttons/ButtonV2';
+import { EyeIcon } from '../icons';
+import { ButtonSize } from '../buttons/common';
 
 function ReadingHistoryEmptyScreen(): ReactElement {
   return (
