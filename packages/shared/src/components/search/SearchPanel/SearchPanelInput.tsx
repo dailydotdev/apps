@@ -222,21 +222,23 @@ export const SearchPanelInput = ({
             />
           )}
           <div className="-mr-2 flex h-full items-center bg-theme-bg-secondary laptop:hidden">
-            <Button
-              id="search-panel-input-clear-button"
-              type="button"
-              className="mr-2"
-              size={ButtonSize.XSmall}
-              title="Clear query"
-              onClick={(event: MouseEvent): void => {
-                event.stopPropagation();
+            {!!searchPanel.query && (
+              <Button
+                id="search-panel-input-clear-button"
+                type="button"
+                className="mr-2"
+                size={ButtonSize.XSmall}
+                title="Clear query"
+                onClick={(event: MouseEvent): void => {
+                  event.stopPropagation();
 
-                setInput('');
+                  setInput('');
 
-                inputRef.current?.focus();
-              }}
-              icon={<ClearIcon secondary />}
-            />
+                  inputRef.current?.focus();
+                }}
+                icon={<ClearIcon secondary />}
+              />
+            )}
             <div className="-mr-3 flex h-full items-center border-l border-theme-float">
               <Button
                 type="button"
