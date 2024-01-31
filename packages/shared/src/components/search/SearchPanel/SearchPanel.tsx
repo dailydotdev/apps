@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { SearchPanelInput } from './SearchPanelInput';
 import {
   SearchProviderEnum,
@@ -40,6 +41,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   const { trackEvent } = useAnalyticsContext();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const { search } = useSearchProvider();
+  const { query } = useRouter();
 
   const isTracked = useRef(false);
   const shouldShowPulse =
@@ -58,6 +60,22 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   useEffect(() => {
     queryClient.setQueryData(searchPanelGradientQueryKey, state.isActive);
   }, [queryClient, state.isActive]);
+
+  useEffect(() => {
+    const searchQuery = query?.q?.toString();
+
+    if (!searchQuery) {
+      return;
+    }
+
+    setState((currentState) => {
+      if (!currentState.query) {
+        return { ...currentState, query: searchQuery };
+      }
+
+      return currentState;
+    });
+  }, [query?.q]);
 
   const searchPanel = useMemo<SearchPanelContextValue>(() => {
     return {
@@ -129,12 +147,13 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
     <SearchPanelContext.Provider value={searchPanel}>
       <div
         ref={searchPanelRef}
-        className={classNames(className, 'relative flex flex-col')}
+        className={classNames(className, 'flex flex-col')}
+        data-testid="search-panel"
       >
         <SearchPanelInput
           className={{
             container: classNames(
-              'w-[35rem]',
+              'w-full laptop:w-[35rem]',
               shouldShowPulse && 'highlight-pulse',
             ),
           }}
@@ -171,10 +190,10 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
           {showDropdown && (
             <div
               className={classNames(
-                'absolute top-[3.7rem] w-full items-center rounded-b-16 border border-theme-divider-quaternary !bg-overlay-float-salt px-3 py-2 shadow-2 backdrop-blur-[3.75rem]',
+                'absolute top-[3.7rem] w-full items-center rounded-b-16 border-none border-theme-divider-quaternary bg-theme-bg-primary px-3 py-2 laptop:h-auto laptop:border laptop:bg-overlay-float-salt laptop:shadow-2 laptop:backdrop-blur-[3.75rem]',
               )}
             >
-              <div className="flex flex-col">
+              <div className="flex flex-1 flex-col">
                 <SearchPanelAction provider={SearchProviderEnum.Posts} />
                 <SearchPanelAction provider={SearchProviderEnum.Chat} />
                 <SearchPanelPostSuggestions title="Posts on daily.dev" />

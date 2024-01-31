@@ -24,13 +24,6 @@ import DndContext from './DndContext';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
 import { useCompanionSettings } from '../companion/useCompanionSettings';
 
-const PostsSearch = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "postsSearch" */ '@dailydotdev/shared/src/components/PostsSearch'
-    ),
-);
-
 const DndModal = dynamic(
   () => import(/* webpackChunkName: "dndModal" */ './DndModal'),
 );
@@ -123,11 +116,6 @@ export default function MainFeedPage({
           isSearchOn={isSearchOn}
           searchQuery={searchQuery}
           onFeedPageChanged={onNavTabClick}
-          searchChildren={
-            <PostsSearch
-              onSubmitQuery={async (query) => setSearchQuery(query)}
-            />
-          }
           navChildren={!isSearchOn && <ShortcutLinks />}
           shortcuts={
             <ShortcutLinks

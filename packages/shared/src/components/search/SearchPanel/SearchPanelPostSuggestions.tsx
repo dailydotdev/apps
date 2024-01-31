@@ -35,7 +35,7 @@ const PanelItem = ({
     <SearchPanelItem {...rest} icon={<SearchIcon />} {...itemProps}>
       {!!purifySanitize && (
         <span
-          className="text-theme-label-tertiary typo-subhead [&>strong]:text-white"
+          className="typo-subhead [&>strong]:text-white"
           dangerouslySetInnerHTML={{
             __html: purifySanitize(suggestion.title),
           }}
@@ -71,7 +71,7 @@ export const SearchPanelPostSuggestions = ({
     <div className={classNames(className, 'flex flex-col')}>
       <div className="relative my-2 flex items-center justify-start gap-2">
         <hr className="w-2 border-theme-divider-tertiary" />
-        <span className="w-autofont-bold relative inline-flex font-bold typo-footnote">
+        <span className="relative inline-flex font-bold typo-footnote">
           {title}
         </span>
         <hr className="flex-1 border-theme-divider-tertiary" />

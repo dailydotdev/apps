@@ -27,7 +27,7 @@ export const SearchPanelAction = ({
       }}
       {...itemProps}
     >
-      <span className="text-theme-label-tertiary typo-callout">
+      <span className="typo-callout">
         {searchPanel.query}{' '}
         <span className="text-theme-label-quaternary typo-footnote">
           {providerToLabelTextMap[provider]}

@@ -47,13 +47,13 @@ const renderComponent = (
 it('should render the search page control', async () => {
   feature.search.defaultValue = SearchExperiment.Control;
   renderComponent(getMainFeedLayout, SearchExperiment.Control);
-  const text = screen.queryByTestId('searchBar');
+  const text = screen.queryByTestId('search-panel');
   expect(text).not.toBeInTheDocument();
 });
 
 it('should render the search page v1', async () => {
   feature.search.defaultValue = SearchExperiment.V1;
   renderComponent(undefined, SearchExperiment.V1);
-  const text = screen.queryByTestId('searchBar');
+  const text = screen.queryByTestId('search-panel');
   expect(text).toBeInTheDocument();
 });

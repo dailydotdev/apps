@@ -102,6 +102,11 @@ export function SearchResult({
       <Container className={classNames('flex-col gap-2 p-6', className)}>
         <ContentPill />
         <ContentPill />
+        <ContentPill />
+        <ContentPill />
+        <ContentPill />
+        <ContentPill />
+        <ContentPill className="!w-5/6" />
         <ContentPill className="!w-5/6" />
         <ContentPill className="!w-1/2" />
       </Container>

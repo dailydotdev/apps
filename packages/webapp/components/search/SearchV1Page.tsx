@@ -72,33 +72,21 @@ const SearchPage = (): ReactElement => {
 
   return (
     <SearchContainer
-      onSubmit={(event, value) => {
-        router.push(
-          getSearchUrl({ provider: SearchProviderEnum.Chat }),
-          undefined,
-          {
-            shallow: true,
-          },
-        );
-
-        handleSubmit(event, value);
-      }}
       chunk={chunk}
       isLoading={!router?.isReady}
       isInProgress={isLoading}
     >
       <NextSeo {...seo} />
       {(!!content || !!data) && (
-        <div>
+        <div className="flex flex-col justify-center">
           <SearchResult
             queryKey={queryKey}
             isInProgress={isLoading}
             chunk={chunk}
             searchMessageProps={{ isLoading }}
-            className="mt-6"
           />
           <SearchProviderButton
-            className="order-4 mt-4"
+            className="order-4 mx-auto mt-5 laptop:ml-0"
             provider={SearchProviderEnum.Posts}
             query={searchedQuery}
           >
