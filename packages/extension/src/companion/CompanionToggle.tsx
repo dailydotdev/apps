@@ -3,7 +3,7 @@ import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
-import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import classNames from 'classnames';

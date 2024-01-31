@@ -1,10 +1,9 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { WidgetContainer } from '../widgets/common';
-import FeedbackIcon from '../icons/Feedback';
+import { FeedbackIcon, DocsIcon } from '../icons';
 import { ListCardDivider } from '../cards/Card';
 import { searchDocs, searchFeedback } from '../../lib/constants';
-import DocsIcon from '../icons/Docs';
 import { WithClassNameProps } from '../utilities';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 

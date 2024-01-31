@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
-import ArrowIcon from '../icons/Arrow';
+import { ArrowIcon } from '../icons';
 
 export interface SidebarListItemProps
   extends HTMLAttributes<HTMLButtonElement | HTMLAnchorElement> {

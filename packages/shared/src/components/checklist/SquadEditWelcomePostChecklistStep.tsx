@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { ChecklistStepProps } from '../../lib/checklist';
 import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { ChecklistStep } from './ChecklistStep';
-import EditIcon from '../icons/Edit';
+import { EditIcon } from '../icons';
 import { useFindSquadWelcomePost } from '../../hooks/useFindSquadWelcomePost';
 import { Squad } from '../../graphql/sources';
 import usePostById from '../../hooks/usePostById';

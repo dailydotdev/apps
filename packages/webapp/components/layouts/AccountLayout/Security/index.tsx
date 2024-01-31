@@ -4,8 +4,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
-import LockIcon from '@dailydotdev/shared/src/components/icons/Lock';
-import MailIcon from '@dailydotdev/shared/src/components/icons/Mail';
+import { LockIcon, MailIcon } from '@dailydotdev/shared/src/components/icons';
 import AccountDangerZone from '@dailydotdev/shared/src/components/profile/AccountDangerZone';
 import { AlertBackground } from '@dailydotdev/shared/src/components/alert/common';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';

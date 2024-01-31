@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import AuthContext from '../../contexts/AuthContext';
 import { ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import SettingsIcon from '../icons/Settings';
+import { SettingsIcon } from '../icons';
 import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 

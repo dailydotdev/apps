@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import PlusIcon from '@dailydotdev/shared/src/components/icons/Plus';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import {
   Button,

@@ -54,7 +54,7 @@ import Feed from '@dailydotdev/shared/src/components/Feed';
 import { OtherFeedPage, RequestKey } from '@dailydotdev/shared/src/lib/query';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   GtagTracking,
   PixelTracking,

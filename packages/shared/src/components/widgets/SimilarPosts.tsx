@@ -1,8 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import ArrowIcon from '../icons/Arrow';
-import BookmarkIcon from '../icons/Bookmark';
+import { BookmarkIcon, ArrowIcon } from '../icons';
 import { Post } from '../../graphql/posts';
 import styles from '../cards/Card.module.css';
 import { LazyImage } from '../LazyImage';

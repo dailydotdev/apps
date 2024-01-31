@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import MagnifyingIcon from './icons/Search';
+import { SearchIcon as MagnifyingIcon } from './icons';
 import { EmptyScreenIcon } from './EmptyScreen';
 
 export default function SearchEmptyScreen(): ReactElement {

@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import { ReactMarkdownOptions } from 'react-markdown/lib/react-markdown';
 import styles from './markdown.module.css';
 import { Button, ButtonSize, ButtonVariant } from './buttons/ButtonV2';
-import CopyIcon from './icons/Copy';
+import { CopyIcon } from './icons';
 import { useCopyText } from '../hooks/useCopy';
 
 const ReactMarkdown = dynamic(

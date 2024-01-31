@@ -12,7 +12,7 @@ import useContextMenu from '../../hooks/useContextMenu';
 import SquadMemberMenu from '../squads/SquadMemberMenu';
 import { Origin } from '../../lib/analytics';
 import { IconSize } from '../Icon';
-import LinkIcon from '../icons/Link';
+import { LinkIcon } from '../icons';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { FlexCentered } from '../utilities';
 import { useSquadActions } from '../../hooks';

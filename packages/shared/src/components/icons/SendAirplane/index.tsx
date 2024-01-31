@@ -6,5 +6,3 @@ import FilledIcon from './filled.svg';
 export const SendAirplaneIcon = (props: IconProps): ReactElement => (
   <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );
-
-export default SendAirplaneIcon;

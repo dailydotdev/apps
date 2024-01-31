@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { TagCategory } from '../../graphql/feedSettings';
 import classed from '../../lib/classed';
-import VIcon from '../icons/V';
+import { VIcon } from '../icons';
 
 export type ButtonEvent =
   | React.MouseEvent<HTMLButtonElement>

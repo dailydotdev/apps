@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import Icon, { IconProps } from '../../Icon';
-import PlusIcon from '../Plus';
+import { PlusIcon } from '../Plus';
 
 const Primary = () => (
   <div className="rounded-6 bg-theme-bg-secondary">
@@ -8,8 +8,6 @@ const Primary = () => (
   </div>
 );
 
-const NewSquadIcon = (props: IconProps): ReactElement => (
+export const NewSquadIcon = (props: IconProps): ReactElement => (
   <Icon {...props} IconPrimary={Primary} IconSecondary={Primary} />
 );
-
-export default NewSquadIcon;

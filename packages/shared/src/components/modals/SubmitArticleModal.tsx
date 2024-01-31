@@ -25,7 +25,7 @@ import {
 import PostItemCard from '../post/PostItemCard';
 import { PostItem } from '../../graphql/posts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import LinkIcon from '../icons/Link';
+import { LinkIcon } from '../icons';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Modal, ModalProps } from './common/Modal';
 import EnableNotification from '../notifications/EnableNotification';

@@ -41,7 +41,7 @@ import { ModalSize } from '@dailydotdev/shared/src/components/modals/common/type
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
-import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Link from 'next/link';
 import { CollectionPostContent } from '@dailydotdev/shared/src/components/post/collection';

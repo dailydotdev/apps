@@ -1,14 +1,16 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import AmazonIcon from './icons/Amazon';
-import AppleIcon from './icons/Apple';
-import MicrosoftIcon from './icons/Microsoft';
-import GitLabIcon from './icons/GitLab';
-import GoogleIcon from './icons/Google';
-import JetBrainsIcon from './icons/JetBrains';
-import DigitalOceanIcon from './icons/DigitalOcean';
-import RedisIcon from './icons/Redis';
-import SpotifyIcon from './icons/Spotify';
+import {
+  AmazonIcon,
+  AppleIcon,
+  MicrosoftIcon,
+  GitLabIcon,
+  GoogleIcon,
+  JetBrainsIcon,
+  DigitalOceanIcon,
+  RedisIcon,
+  SpotifyIcon,
+} from './icons';
 import { IconSize } from './Icon';
 
 export const TRUSTES_COMPANIES_MAP = {

@@ -3,10 +3,14 @@ import { Item, useContextMenu } from '@dailydotdev/react-contexify';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
-import UpvoteIcon from '../icons/Upvote';
-import CommentIcon from '../icons/Discuss';
-import TrashIcon from '../icons/Trash';
-import EditIcon from '../icons/Edit';
+import {
+  UpvoteIcon,
+  DiscussIcon as CommentIcon,
+  TrashIcon,
+  EditIcon,
+  ShareIcon,
+  FlagIcon,
+} from '../icons';
 import {
   CANCEL_COMMENT_UPVOTE_MUTATION,
   Comment,
@@ -23,7 +27,6 @@ import {
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import ShareIcon from '../icons/Share';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { getContextBottomPosition, upvoteCommentEventName } from '../utilities';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -35,7 +38,6 @@ import classed from '../../lib/classed';
 import OptionsButton from '../buttons/OptionsButton';
 import { SourcePermissions } from '../../graphql/sources';
 import { RequestKey } from '../../lib/query';
-import FlagIcon from '../icons/Flag';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { labels } from '../../lib';

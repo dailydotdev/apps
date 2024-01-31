@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { postDateFormat } from '../../lib/dateFormat';
 import { Separator } from './common';
 import { Post } from '../../graphql/posts';
-import PlayIcon from '../icons/Play';
+import { PlayIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { formatReadTime } from '../utilities';
 

@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { Modal, ModalProps } from '../common/Modal';
 import { Checkbox } from '../../fields/Checkbox';
 import { Button, ButtonVariant } from '../../buttons/ButtonV2';
-import CopyIcon from '../../icons/Copy';
+import { CopyIcon } from '../../icons';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { CampaignCtaPlacement } from '../../../graphql/settings';
 import {

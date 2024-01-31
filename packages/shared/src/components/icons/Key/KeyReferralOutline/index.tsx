@@ -6,5 +6,3 @@ import FilledIcon from './filled.svg';
 export const KeyReferralOutlineIcon = (props: IconProps): ReactElement => (
   <Icon {...props} IconPrimary={FilledIcon} IconSecondary={OutlinedIcon} />
 );
-
-export default KeyReferralOutlineIcon;

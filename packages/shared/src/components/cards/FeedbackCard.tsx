@@ -5,8 +5,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/ButtonV2';
-import DownvoteIcon from '../icons/Downvote';
-import UpvoteIcon from '../icons/Upvote';
+import { DownvoteIcon, UpvoteIcon } from '../icons';
 import { Post, UserPostVote } from '../../graphql/posts';
 import { usePostFeedback } from '../../hooks';
 import CloseButton from '../CloseButton';
