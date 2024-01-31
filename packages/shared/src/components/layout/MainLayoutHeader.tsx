@@ -69,7 +69,7 @@ function MainLayoutHeader({
   const hideButton = loadingUser;
   const isMobile = useViewSize(ViewSize.MobileL);
   const router = useRouter();
-  const isSearchPage = router.pathname.startsWith('/search');
+  const isSearchPage = !!router.pathname?.startsWith('/search');
 
   const headerButton = (() => {
     if (hideButton) {

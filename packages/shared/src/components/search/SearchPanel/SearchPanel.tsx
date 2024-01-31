@@ -148,6 +148,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
       <div
         ref={searchPanelRef}
         className={classNames(className, 'flex flex-col')}
+        data-testid="search-panel"
       >
         <SearchPanelInput
           className={{

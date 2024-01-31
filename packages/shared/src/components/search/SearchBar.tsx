@@ -27,7 +27,7 @@ export function SearchBar({
 
   return (
     <div className={classNames('w-full', className?.container)}>
-      {showProgress && !!chunk?.steps && (
+      {showProgress && (
         <div className="mb-4">
           <SearchProgressBar max={chunk?.steps} progress={chunk?.progress} />
           {!!chunk?.status && (

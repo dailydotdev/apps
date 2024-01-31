@@ -29,7 +29,11 @@ export function SearchContainer({
             <Pill className="mt-3 !h-2" />
           </>
         ) : (
-          <SearchBar chunk={chunk} showProgress isLoading={isLoading} />
+          <SearchBar
+            chunk={chunk}
+            showProgress={!!chunk?.steps}
+            isLoading={isLoading}
+          />
         )}
         {children}
       </main>
