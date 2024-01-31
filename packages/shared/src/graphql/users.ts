@@ -1,4 +1,5 @@
-import { gql } from 'graphql-request';
+import request, { gql } from 'graphql-request';
+import { subDays } from 'date-fns';
 import {
   SHARED_POST_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
@@ -6,6 +7,7 @@ import {
 import type { PublicProfile } from '../lib/user';
 import { Connection } from './common';
 import { SourceMember } from './sources';
+import { graphqlUrl } from '../lib/config';
 
 type PostStats = {
   numPosts: number;
@@ -230,6 +232,15 @@ export const USER_READING_HISTORY_QUERY = gql`
   }
 `;
 
+export const USER_STREAK_HISTORY = gql`
+  query UserStreakHistory($id: ID!, $after: String!, $before: String!) {
+    userReadHistory(id: $id, after: $after, before: $before) {
+      date
+      reads
+    }
+  }
+`;
+
 const READING_HISTORY_FRAGMENT = gql`
   fragment ReadingHistoryFragment on ReadingHistory {
     timestamp
@@ -423,3 +434,46 @@ export const UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION = gql`
     }
   }
 `;
+
+interface ReadingDay {
+  date: string;
+  reads: number;
+}
+
+export const getReadingStreak30Days = async (
+  id: string,
+  start: Date = subDays(new Date(), 30),
+): Promise<ReadingDay[]> => {
+  const today = new Date();
+  const res = await request(graphqlUrl, USER_STREAK_HISTORY, {
+    after: start.toISOString(),
+    before: today.toISOString(),
+    id,
+  });
+
+  return res.userReadHistory;
+};
+
+export const USER_STREAK_QUERY = gql`
+  query UserStreak {
+    userStreak {
+      max
+      total
+      current
+      lastViewAt
+    }
+  }
+`;
+
+export interface UserStreak {
+  max: number;
+  total: number;
+  current: number;
+  lastViewAt: Date;
+}
+
+export const getReadingStreak = async (): Promise<UserStreak> => {
+  const res = await request(graphqlUrl, USER_STREAK_QUERY);
+
+  return res.userStreak;
+};

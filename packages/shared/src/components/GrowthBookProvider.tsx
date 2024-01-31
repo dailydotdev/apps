@@ -24,6 +24,7 @@ import { BootApp, BootCacheData } from '../lib/boot';
 import { apiUrl } from '../lib/config';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
 import { Feature } from '../lib/featureManagement';
+import { useViewSize, ViewSize } from '../hooks/useViewSize';
 
 export type FeaturesReadyContextValue = {
   ready: boolean;
@@ -77,6 +78,7 @@ export const GrowthBookProvider = ({
       retry: 3,
     },
   );
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   const callback = useRef<Context['trackingCallback']>();
   const [gb] = useState<GrowthBook>(
@@ -133,6 +135,7 @@ export const GrowthBookProvider = ({
       deviceId,
       version,
       platform: app,
+      mobile: isMobile,
       ...experimentation?.a,
     };
 
@@ -152,7 +155,7 @@ export const GrowthBookProvider = ({
       };
     }
     gb.setAttributes(atts);
-  }, [app, user, deviceId, gb, version, experimentation?.a]);
+  }, [app, user, deviceId, gb, version, experimentation?.a, isMobile]);
 
   const featuresReadyContextValue = useMemo<FeaturesReadyContextValue>(() => {
     return {
