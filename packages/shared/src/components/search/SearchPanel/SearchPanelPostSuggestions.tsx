@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, useContext } from 'react';
+import { useRouter } from 'next/router';
 import SearchIcon from '../../icons/Search';
 import { SearchPanelItem, SearchPanelItemProps } from './SearchPanelItem';
 import {
@@ -49,6 +50,7 @@ export const SearchPanelPostSuggestions = ({
   className,
   title,
 }: SearchPanelPostSuggestionsProps): ReactElement => {
+  const router = useRouter();
   const searchPanel = useContext(SearchPanelContext);
   const { search } = useSearchProvider();
 
@@ -57,7 +59,13 @@ export const SearchPanelPostSuggestions = ({
     query: searchPanel.query,
   });
 
-  const onSuggestionClick = (suggestion: { title: string }) => {
+  const onSuggestionClick = (suggestion: SearchSuggestion) => {
+    if (suggestion.id) {
+      router.push(`/posts/${suggestion.id}`);
+
+      return;
+    }
+
     const searchQuery = suggestion.title.replace(sanitizeSearchTitleMatch, '');
 
     search({ provider: SearchProviderEnum.Posts, query: searchQuery });

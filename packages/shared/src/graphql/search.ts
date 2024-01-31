@@ -77,6 +77,7 @@ export const SEARCH_POST_SUGGESTIONS = gql`
   query SearchPostSuggestions($query: String!) {
     searchPostSuggestions(query: $query) {
       hits {
+        id
         title
       }
     }
@@ -291,6 +292,7 @@ export const sendSearchQuery = async (
 };
 
 export type SearchSuggestion = {
+  id?: string;
   title: string;
 };
 
