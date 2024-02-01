@@ -11,10 +11,10 @@ export type UseSearchPanelActionProps = {
 export type SearchPanelActionEventHandler = (event: Event) => void;
 
 export type UseSearchPanelAction = {
-  onMouseEnter: HTMLAttributes<HTMLButtonElement>['onMouseEnter'];
-  onMouseLeave: HTMLAttributes<HTMLButtonElement>['onMouseLeave'];
-  onFocus: HTMLAttributes<HTMLButtonElement>['onFocus'];
-  onBlur: HTMLAttributes<HTMLButtonElement>['onBlur'];
+  onMouseEnter: HTMLAttributes<HTMLElement>['onMouseEnter'];
+  onMouseLeave: HTMLAttributes<HTMLElement>['onMouseLeave'];
+  onFocus: HTMLAttributes<HTMLElement>['onFocus'];
+  onBlur: HTMLAttributes<HTMLElement>['onBlur'];
 };
 
 export const useSearchPanelAction = ({

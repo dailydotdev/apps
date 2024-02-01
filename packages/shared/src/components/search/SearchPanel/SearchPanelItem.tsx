@@ -20,7 +20,7 @@ export const SearchPanelItem = ({
       {...props}
       className={classNames(
         props.className,
-        'flex w-full items-center gap-2 overflow-hidden rounded-12 p-2 hover:bg-theme-float laptop:text-theme-label-tertiary',
+        'flex w-full items-center gap-2 overflow-hidden rounded-12 p-2 hover:bg-theme-float focus:bg-theme-float laptop:text-theme-label-tertiary',
       )}
     >
       {!!icon && icon}

@@ -25,7 +25,11 @@ import { useActions, useEventListener } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { AnalyticsEvent } from '../../../lib/analytics';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
-import { searchPanelGradientQueryKey } from './common';
+import {
+  defaultSearchProvider,
+  providerToLabelTextMap,
+  searchPanelGradientQueryKey,
+} from './common';
 import { ArrowKeyEnum } from '../../../lib/func';
 import { ArrowIcon } from '../../icons';
 import { useSearchProvider } from '../../../hooks/search';
@@ -52,6 +56,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
       provider: undefined,
       query: '',
       isActive: false,
+      providerText: undefined,
     };
   });
 
@@ -90,8 +95,6 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
           return {
             ...currentState,
             isActive,
-            provider: currentState ? currentState.provider : undefined,
-            providerText: undefined,
           };
         });
       },
@@ -105,7 +108,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
 
     const navigableElements = [
       ...searchPanelRef.current.querySelectorAll<HTMLElement>(
-        '[data-search-panel-item]',
+        '[data-search-panel-item="true"]',
       ),
     ];
     let activeElementIndex = navigableElements.findIndex(
@@ -164,7 +167,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
                 query: newValue,
                 // reset provider label while typing
                 provider: undefined,
-                providerText: undefined,
+                providerText: providerToLabelTextMap[defaultSearchProvider],
               };
             });
           }}

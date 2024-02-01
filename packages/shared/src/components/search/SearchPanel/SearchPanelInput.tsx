@@ -29,8 +29,9 @@ import { SearchPanelProvider } from './SearchPanelProvider';
 import { minSearchQueryLength } from '../../../graphql/search';
 import { SearchPanelInputCursor } from './SearchPanelInputCursor';
 import { useSearchProvider } from '../../../hooks/search';
-import { defaultSearchProvider } from './common';
+import { defaultSearchProvider, providerToLabelTextMap } from './common';
 import { Button, ButtonSize } from '../../buttons/ButtonV2';
+import { useSearchPanelAction } from './useSearchPanelAction';
 
 export type SearchPanelInputClassName = {
   container?: string;
@@ -154,6 +155,11 @@ export const SearchPanelInput = ({
     }
   });
 
+  const itemProps = useSearchPanelAction({
+    provider: undefined,
+    text: providerToLabelTextMap[defaultSearchProvider],
+  });
+
   return (
     <div className={classNames(className?.container)}>
       <form
@@ -186,12 +192,14 @@ export const SearchPanelInput = ({
             onFocus={(event) => {
               onFocus();
               externalOnFocus?.(event);
+              itemProps.onFocus(event);
 
               trackEvent({ event_name: AnalyticsEvent.FocusSearch });
             }}
             onBlur={(event) => {
               onBlur();
               externalOnBlur?.(event);
+              itemProps.onBlur(event);
             }}
             onClick={(event) => {
               onInputClick();
@@ -209,12 +217,13 @@ export const SearchPanelInput = ({
             {!searchPanel.isActive && (
               <KeyboadShortcutLabel keys={shortcutKeys} />
             )}
-            {searchPanel.isActive && (
-              <>
-                {isLaptop && <SearchPanelInputCursor />}
-                <SearchPanelProvider />
-              </>
-            )}
+            {searchPanel.isActive &&
+              searchPanel.query.length >= minSearchQueryLength && (
+                <>
+                  {isLaptop && <SearchPanelInputCursor />}
+                  <SearchPanelProvider />
+                </>
+              )}
           </div>
           <div className="-mr-2 flex h-full items-center bg-theme-bg-secondary laptop:hidden">
             {!!searchPanel.query && (

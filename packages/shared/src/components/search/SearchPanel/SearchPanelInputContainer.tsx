@@ -9,7 +9,7 @@ export const SearchPanelItemContainer = ({
   ...props
 }: SearchPanelItemContainerProps): ReactElement => {
   return (
-    <button type="button" {...props} data-search-panel-item="true">
+    <button type="button" data-search-panel-item="true" {...props}>
       {children}
     </button>
   );
