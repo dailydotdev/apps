@@ -273,8 +273,10 @@ export default function MainFeedLayout({
       {isSearchPanelGradientActive && (
         <FeedGradientBg
           className={classNames(
-            'right-0 -z-1 hidden translate-x-0 opacity-0 transition-opacity duration-500 laptop:flex',
-            sidebarExpanded ? '!-left-32' : '!-left-6',
+            'right-0 -z-1 translate-x-0 opacity-0 transition-opacity duration-500',
+            sidebarExpanded
+              ? '!left-0 laptop:!-left-32'
+              : '!left-0 laptop:!-left-6',
             isSearchPanelGradientActive ? 'opacity-100' : 'opacity-0',
           )}
         />

@@ -18,7 +18,7 @@ export function FeedGradientBg({
         centered,
       )}
     >
-      <span className="h-40 w-70 -translate-x-6 rounded-[50%] bg-theme-color-onion blur-[5rem]" />
+      <span className="h-40 w-60 -translate-x-6 rounded-[50%] bg-theme-color-onion blur-[5rem] laptop:w-70" />
       <span className="size-40 translate-x-6 rounded-full bg-theme-color-cabbage blur-[5rem]" />
     </div>
   );
