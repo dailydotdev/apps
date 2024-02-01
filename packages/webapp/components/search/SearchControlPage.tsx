@@ -54,10 +54,10 @@ const Search = (): ReactElement => {
             secondary
             size={IconSize.XXXLarge}
           />
-          <h2 className="font-bold text-theme-label-primary typo-title2">
+          <h2 className="text-center font-bold text-theme-label-primary typo-title2">
             Ready to dive in?
           </h2>
-          <p className="text-theme-label-tertiary typo-callout">
+          <p className="text-center text-theme-label-tertiary typo-callout">
             Start your search to explore a world of developer resources.
           </p>
         </div>
