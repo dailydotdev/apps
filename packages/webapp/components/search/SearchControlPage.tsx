@@ -1,16 +1,22 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { CSSProperties, ReactElement, useContext, useMemo } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
 import {
   SearchProviderButton,
+  gapClass,
+  getFeedGapPx,
   providerToLabelTextMap,
 } from '@dailydotdev/shared/src/components';
 import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
 import { MagicIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import classNames from 'classnames';
-import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import SettingsContext, {
+  useSettingsContext,
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
+import styles from '@dailydotdev/shared/src/components/Feed.module.css';
+import FeedContext from '@dailydotdev/shared/src/contexts/FeedContext';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import {
   getMainFeedLayout,
@@ -69,22 +75,36 @@ const Search = (): ReactElement => {
 const AiSearchProviderButton = () => {
   const router = useRouter();
   const searchQuery = router.query?.q?.toString();
+  const { spaciness, insaneMode } = useContext(SettingsContext);
+  const currentSettings = useContext(FeedContext);
+  const numCards = currentSettings.numCards[spaciness ?? 'eco'];
+  const isList = insaneMode && numCards > 1;
+  const feedGapPx = getFeedGapPx[gapClass(isList, false, spaciness)];
+  const style = {
+    '--num-cards': !isList ? numCards : undefined,
+    '--feed-gap': `${feedGapPx / 16}rem`,
+  } as CSSProperties;
 
   if (!searchQuery) {
     return null;
   }
 
   return (
-    <SearchProviderButton
-      className="mx-auto mt-6 laptop:mx-0"
-      provider={SearchProviderEnum.Chat}
-      query={searchQuery}
+    <div
+      className={classNames('mx-auto flex w-full', styles.cards)}
+      style={style}
     >
-      <span className="text-theme-label-primary">{searchQuery}</span>
-      <span className="ml-2 typo-footnote">
-        {providerToLabelTextMap[SearchProviderEnum.Chat]}
-      </span>
-    </SearchProviderButton>
+      <SearchProviderButton
+        className="mx-auto mt-6 laptop:mx-0"
+        provider={SearchProviderEnum.Chat}
+        query={searchQuery}
+      >
+        <span className="text-theme-label-primary">{searchQuery}</span>
+        <span className="ml-2 typo-footnote">
+          {providerToLabelTextMap[SearchProviderEnum.Chat]}
+        </span>
+      </SearchProviderButton>
+    </div>
   );
 };
 
