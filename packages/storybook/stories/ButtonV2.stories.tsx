@@ -13,6 +13,10 @@ const meta: Meta<typeof Button> = {
     controls: {
       expanded: true,
     },
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/file/C7n8EiXBwV1sYIEHkQHS8R/daily.dev---Design-System?type=design&node-id=1177-4542&mode=design&t=G2RMnPc48y6jEo5a-0",
+    },
   },
   argTypes: {
     href: {
@@ -105,4 +109,10 @@ export const Icon: Story = {
     icon: <ShareIcon />,
     variant: ButtonVariant.Primary,
   },
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/file/C7n8EiXBwV1sYIEHkQHS8R/daily.dev---Design-System?type=design&node-id=1115-10302&mode=design&t=G2RMnPc48y6jEo5a-0",
+    },
+  }
 };

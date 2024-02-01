@@ -13,6 +13,7 @@ const config: StorybookConfig = {
     '@storybook/addon-essentials',
     '@storybook/addon-themes',
     '@storybook/addon-interactions',
+    '@storybook/addon-designs'
   ],
   framework: '@storybook/react-vite',
   docs: {
