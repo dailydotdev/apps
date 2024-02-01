@@ -6,7 +6,7 @@ export default function SearchEmptyScreen(): ReactElement {
   return (
     <div className="flex w-full max-w-[32rem] flex-col items-center gap-4 self-center px-6">
       <MagnifyingIcon
-        className="text-overlay-tertiary-salt"
+        className="text-theme-label-disabled"
         size={IconSize.XXXLarge}
       />
       <h2 className="text-center typo-title2">No results found</h2>

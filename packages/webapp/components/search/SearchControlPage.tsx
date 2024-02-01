@@ -50,7 +50,7 @@ const Search = (): ReactElement => {
           )}
         >
           <MagicIcon
-            className="text-overlay-tertiary-salt"
+            className="text-theme-label-disabled"
             secondary
             size={IconSize.XXXLarge}
           />
