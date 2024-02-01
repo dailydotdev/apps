@@ -234,18 +234,20 @@ export const SearchPanelInput = ({
                 icon={<ClearIcon secondary />}
               />
             )}
-            <div className="-mr-3 flex h-full items-center border-l border-theme-float">
-              <Button
-                type="button"
-                onClick={() => {
-                  searchPanel.setActive({
-                    isActive: false,
-                  });
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
+            {searchPanel.isActive && (
+              <div className="-mr-3 flex h-full items-center border-l border-theme-float">
+                <Button
+                  type="button"
+                  onClick={() => {
+                    searchPanel.setActive({
+                      isActive: false,
+                    });
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            )}
           </div>
         </BaseField>
         {children}
