@@ -1,19 +1,16 @@
 import React, { ReactElement } from 'react';
 import { SearchIcon as MagnifyingIcon } from './icons';
-import { EmptyScreenIcon } from './EmptyScreen';
+import { IconSize } from './Icon';
 
 export default function SearchEmptyScreen(): ReactElement {
   return (
-    <div
-      className="flex w-full flex-col self-center px-6"
-      style={{ maxWidth: '32.5rem' }}
-    >
+    <div className="flex w-full max-w-[32rem] flex-col items-center gap-4 self-center px-6">
       <MagnifyingIcon
-        className="self-center text-theme-label-disabled"
-        style={EmptyScreenIcon.style}
+        className="text-theme-label-disabled"
+        size={IconSize.XXXLarge}
       />
-      <h2 className="my-4 text-center typo-title1">No results found</h2>
-      <p className="m-0 p-0 text-center text-theme-label-secondary typo-callout">
+      <h2 className="text-center typo-title2">No results found</h2>
+      <p className="text-center text-theme-label-secondary typo-callout">
         We cannot find the posts you are searching for. 🤷‍♀️
       </p>
     </div>
