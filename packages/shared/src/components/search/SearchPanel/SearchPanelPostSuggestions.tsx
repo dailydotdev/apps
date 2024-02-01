@@ -36,7 +36,7 @@ const PanelItem = ({
     <SearchPanelItem {...rest} icon={<SearchIcon />} {...itemProps}>
       {!!purifySanitize && (
         <span
-          className="typo-subhead [&>strong]:text-white"
+          className="typo-subhead [&>strong]:text-theme-label-primary"
           dangerouslySetInnerHTML={{
             __html: purifySanitize(suggestion.title),
           }}

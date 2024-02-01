@@ -80,7 +80,7 @@ const AiSearchProviderButton = () => {
       provider={SearchProviderEnum.Chat}
       query={searchQuery}
     >
-      <span className="text-white">{searchQuery}</span>
+      <span className="text-theme-label-primary">{searchQuery}</span>
       <span className="ml-2 typo-footnote">
         {providerToLabelTextMap[SearchProviderEnum.Chat]}
       </span>
