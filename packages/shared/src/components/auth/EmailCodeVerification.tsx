@@ -9,6 +9,7 @@ import AuthForm from './AuthForm';
 import { KeyIcon, MailIcon, VIcon } from '../icons';
 import { AuthEventNames } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 
 interface EmailCodeVerificationProps extends AuthFormProps {
   code?: string;
@@ -26,6 +27,7 @@ function EmailCodeVerification({
 }: EmailCodeVerificationProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const [hint, setHint] = useState('');
+  const [alert, setAlert] = useState({ firstAlert: true, alert: false });
   const [code, setCode] = useState(codeProp);
   const [email, setEmail] = useState(emailProp);
   const { sendEmail, verifyCode, resendTimer, isLoading, autoResend } =
@@ -39,10 +41,10 @@ function EmailCodeVerification({
     });
 
   useEffect(() => {
-    if (autoResend && !hint) {
-      setHint('Please click resend code to get a new code.');
+    if (autoResend && !alert.alert && alert.firstAlert === true) {
+      setAlert({ firstAlert: false, alert: true });
     }
-  }, [autoResend, hint]);
+  }, [autoResend, alert]);
 
   const onCodeVerification = async (e) => {
     e.preventDefault();
@@ -50,10 +52,12 @@ function EmailCodeVerification({
       event_name: AuthEventNames.VerifyEmail,
     });
     setHint('');
+    setAlert({ firstAlert: false, alert: false });
     await verifyCode({ code });
   };
 
   const onSendCode = () => {
+    setAlert({ firstAlert: false, alert: false });
     sendEmail(email);
   };
 
@@ -89,7 +93,12 @@ function EmailCodeVerification({
         onChange={() => hint && setHint('')}
         leftIcon={<KeyIcon />}
         actionButton={
-          <Button className="btn-primary" type="button" onClick={onSendCode}>
+          <Button
+            className="btn-primary"
+            type="button"
+            onClick={onSendCode}
+            disabled={resendTimer > 0}
+          >
             {resendTimer === 0 ? 'Resend' : `Resend code ${resendTimer}s`}
           </Button>
         }
@@ -102,6 +111,14 @@ function EmailCodeVerification({
       >
         Verify
       </Button>
+      {alert.alert && (
+        <Alert className="mt-6" type={AlertType.Error} flexDirection="flex-row">
+          <AlertParagraph className="!mt-0 flex-1">
+            Your session expired, please click the resend button above to get a
+            new code.
+          </AlertParagraph>
+        </Alert>
+      )}
     </AuthForm>
   );
 }

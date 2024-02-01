@@ -110,7 +110,6 @@ function AuthOptions({
   simplified = false,
   initialEmail = '',
 }: AuthOptionsProps): ReactElement {
-  const router = useRouter();
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -137,7 +136,11 @@ function AuthOptions({
   const [chosenProvider, setChosenProvider] = useState<string>(null);
   const [isRegistration, setIsRegistration] = useState(false);
   const windowPopup = useRef<Window>(null);
-  const onLoginCheck = () => {
+  const onLoginCheck = (shouldVerify?: boolean) => {
+    if (shouldVerify) {
+      onSetActiveDisplay(AuthDisplay.EmailVerification);
+      return;
+    }
     if (isRegistration) {
       return;
     }
@@ -213,20 +216,8 @@ function AuthOptions({
     ...(!isTesting && { queryEnabled: !user && isRegistrationReady }),
     trigger,
     provider: chosenProvider,
-    onLoginError: (flowData) => {
-      if (!flowData?.ui?.messages?.length) {
-        return;
-      }
-
-      const unverified = flowData.ui.messages.find(
-        ({ id }) => id === KRATOS_ERROR.UNVERIFIED,
-      );
-
-      if (!unverified) {
-        return;
-      }
-
-      router.push(`/verification?email=${encodeURIComponent(email)}`);
+    onLoginError: () => {
+      return displayToast(labels.auth.error.generic);
     },
   });
   const onProfileSuccess = async () => {

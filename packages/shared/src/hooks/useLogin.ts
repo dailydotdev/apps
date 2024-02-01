@@ -43,7 +43,9 @@ interface UseLoginProps {
   trigger?: string;
   provider?: string;
   session?: AuthSession;
-  onSuccessfulLogin?: (() => Promise<void>) | (() => void);
+  onSuccessfulLogin?:
+    | (() => Promise<void>)
+    | ((shouldVerify?: boolean) => void);
   onLoginError?: (flow: InitializationData) => void;
 }
 
@@ -98,11 +100,11 @@ const useLogin = ({
 
         const { data: boot } = await refetchBoot();
 
-        if (boot.user) {
+        if (boot.user && !boot.user.shouldVerify) {
           onUpdateSignBack(boot.user as LoggedUser, 'password');
         }
 
-        onSuccessfulLogin?.();
+        onSuccessfulLogin?.(boot?.user?.shouldVerify);
       },
     },
   );
