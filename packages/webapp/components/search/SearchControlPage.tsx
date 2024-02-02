@@ -95,7 +95,7 @@ const AiSearchProviderButton = () => {
       style={style}
     >
       <SearchProviderButton
-        className="mx-auto mt-6 laptop:mx-0"
+        className="mx-auto mb-2 mt-6 laptop:mx-0"
         provider={SearchProviderEnum.Chat}
         query={searchQuery}
       >
