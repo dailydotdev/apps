@@ -7,7 +7,6 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import AuthDefault from './AuthDefault';
