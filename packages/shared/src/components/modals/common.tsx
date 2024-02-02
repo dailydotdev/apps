@@ -78,13 +78,6 @@ const VerifySession = dynamic(
     ),
 );
 
-const SearchReferralModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "searchReferralModal" */ './referral/SearchReferralModal'
-    ),
-);
-
 const VideoModal = dynamic(
   () => import(/* webpackChunkName: "videoModal" */ './VideoModal'),
 );
@@ -122,7 +115,6 @@ export const modals = {
   [LazyModal.NewSource]: NewSource,
   [LazyModal.FeedFilters]: FeedFilters,
   [LazyModal.VerifySession]: VerifySession,
-  [LazyModal.SearchReferral]: SearchReferralModal,
   [LazyModal.GenericReferral]: GenericReferralModal,
   [LazyModal.Video]: VideoModal,
   [LazyModal.NewStreak]: NewStreakModal,

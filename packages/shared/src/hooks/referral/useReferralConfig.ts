@@ -19,12 +19,6 @@ export const useReferralConfig = ({
   };
 
   switch (campaign as ReferralCampaignKey) {
-    case ReferralCampaignKey.Search:
-      return {
-        ...defaultValues,
-        redirectTo: '/my-feed',
-      };
-
     case ReferralCampaignKey.Generic:
     default:
       return {

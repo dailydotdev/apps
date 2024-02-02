@@ -20,13 +20,7 @@ import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { Bubble } from '../tooltips/utils';
 import HeaderLogo from './HeaderLogo';
 import { CreatePostButton } from '../post/write';
-import {
-  ReferralCampaignKey,
-  useReferralCampaign,
-  useViewSize,
-  ViewSize,
-} from '../../hooks';
-import { SearchReferralButton } from '../referral/SearchReferralButton';
+import { useViewSize, ViewSize } from '../../hooks';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { useFeature } from '../GrowthBookProvider';
@@ -93,17 +87,12 @@ function MainLayoutHeader({
   };
 
   const RenderButtons = () => {
-    const { isReady } = useReferralCampaign({
-      campaignKey: ReferralCampaignKey.Search,
-    });
-
     return (
       <div className="flex gap-3">
         <CreatePostButton />
         {streak && <ReadingStreakButton streak={streak} />}
         {!hideButton && user && (
           <>
-            {isReady && sidebarRendered && <SearchReferralButton />}
             <LinkWithTooltip
               tooltip={{ placement: 'bottom', content: 'Notifications' }}
               href={`${webappUrl}notifications`}
