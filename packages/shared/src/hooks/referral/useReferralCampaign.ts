@@ -5,7 +5,7 @@ import { REFERRAL_CAMPAIGN_QUERY } from '../../graphql/users';
 import { graphqlUrl } from '../../lib/config';
 import { RequestKey, generateQueryKey, STALE_TIME } from '../../lib/query';
 import AuthContext from '../../contexts/AuthContext';
-import { feature, Feature } from '../../lib/featureManagement';
+import { Feature } from '../../lib/featureManagement';
 import { useFeatureIsOn } from '../../components/GrowthBookProvider';
 import { isTesting } from '../../lib/constants';
 
@@ -25,7 +25,6 @@ export interface UseReferralCampaign extends ReferralCampaign {
 
 export enum ReferralCampaignKey {
   Generic = 'generic',
-  Search = 'search',
 }
 
 export type UseReferralCampaignProps = {
@@ -35,9 +34,7 @@ export type UseReferralCampaignProps = {
 
 const campaignFeatureFlagMap: Partial<
   Record<ReferralCampaignKey, Feature<string>>
-> = {
-  search: feature.search,
-};
+> = {};
 
 const useReferralCampaign = ({
   campaignKey,

@@ -4,7 +4,6 @@ import { SearchFeedback } from './SearchFeedback';
 import { SearchBarInputProps } from './SearchBarInput';
 import { Pill } from '../utilities/loaders';
 import { PageWidgets } from '../utilities';
-import { SearchReferralBanner } from './SearchReferralBanner';
 import { SearchSourceList } from './SearchSourceList';
 import { SearchBar } from './SearchBar';
 
@@ -51,7 +50,6 @@ export function SearchContainer({
             isLoading={isInProgress}
           />
         )}
-        <SearchReferralBanner className="order-last" />
       </PageWidgets>
     </div>
   );
