@@ -88,15 +88,14 @@ export const SearchPanelInput = ({
     }
 
     const finalValue = input ?? inputRef.current.value;
+    const provider = searchPanel.provider ?? defaultSearchProvider;
 
     trackEvent({
       event_name: AnalyticsEvent.SubmitSearch,
-      extra: JSON.stringify({ query: finalValue }),
+      extra: JSON.stringify({ query: finalValue, provider }),
     });
 
     setInput(finalValue);
-
-    const provider = searchPanel.provider ?? defaultSearchProvider;
 
     searchPanel.setActive({
       isActive: false,
