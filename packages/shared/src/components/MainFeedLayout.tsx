@@ -176,11 +176,13 @@ export default function MainFeedLayout({
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
-    if (isSearchOn) {
-      if (!searchQuery) {
-        return null;
-      }
+    // in v1 search by default we do not show any results but empty state
+    // so returning false so feed does not do any requests
+    if (isV1Search && isSearchOn && !searchQuery) {
+      return null;
+    }
 
+    if (isSearchOn && searchQuery) {
       return {
         feedName: SharedFeedPage.Search,
         feedQueryKey: generateQueryKey(
@@ -264,7 +266,7 @@ export default function MainFeedLayout({
     disabledRefetch,
   );
 
-  const disableTopPadding = isFinder || shouldUseFeedLayoutV1;
+  const disableTopPadding = (isFinder && isV1Search) || shouldUseFeedLayoutV1;
 
   return (
     <FeedPageComponent

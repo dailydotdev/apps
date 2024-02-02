@@ -17,22 +17,34 @@ import SettingsContext, {
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import styles from '@dailydotdev/shared/src/components/Feed.module.css';
 import FeedContext from '@dailydotdev/shared/src/contexts/FeedContext';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
+import dynamic from 'next/dynamic';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../layouts/MainFeedPage';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 const baseSeo: NextSeoProps = {
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };
 
+const PostsSearch = dynamic(
+  () =>
+    import(/* webpackChunkName: "routerPostsSearch" */ '../RouterPostsSearch'),
+  { ssr: false },
+);
+
 const Search = (): ReactElement => {
   const router = useRouter();
   const { query } = router;
   const searchQuery = query?.q?.toString();
   const { sidebarExpanded } = useSettingsContext();
+  const searchVersion = useFeature(feature.search);
+  const isV1Search = searchVersion === SearchExperiment.V1;
 
   const seo = useMemo(() => {
     if ('q' in query) {
@@ -48,7 +60,7 @@ const Search = (): ReactElement => {
   return (
     <>
       <NextSeo {...seo} {...baseSeo} />
-      {!searchQuery && (
+      {isV1Search && !searchQuery && (
         <div
           className={classNames(
             'flex w-full max-w-[32rem] flex-col items-center gap-4  self-center px-6',
@@ -73,6 +85,7 @@ const Search = (): ReactElement => {
 };
 
 const AiSearchProviderButton = () => {
+  const searchVersion = useFeature(feature.search);
   const router = useRouter();
   const searchQuery = router.query?.q?.toString();
   const { spaciness, insaneMode } = useContext(SettingsContext);
@@ -84,6 +97,10 @@ const AiSearchProviderButton = () => {
     '--num-cards': !isList ? numCards : undefined,
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
+
+  if (searchVersion === SearchExperiment.Control) {
+    return <PostsSearch />;
+  }
 
   if (!searchQuery) {
     return null;
