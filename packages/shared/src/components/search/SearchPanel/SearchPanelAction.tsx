@@ -37,7 +37,7 @@ export const SearchPanelAction = ({
       tabIndex={isDefaultProvider ? -1 : undefined}
       {...itemProps}
     >
-      <span className="typo-callout">
+      <span className="flex-shrink overflow-hidden overflow-ellipsis whitespace-nowrap typo-callout">
         {searchPanel.query}{' '}
         <span className="text-theme-label-quaternary typo-footnote">
           {providerToLabelTextMap[provider]}
