@@ -150,7 +150,8 @@ function MainLayoutHeader({
             <HeaderLogo
               user={user}
               onLogoClick={onLogoClick}
-              greeting={greeting}
+              // currently isSearchV1 we do not show greeting
+              greeting={isSearchV1 ? false : greeting}
             />
           </div>
           {isSearchV1 && (

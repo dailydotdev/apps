@@ -3,7 +3,7 @@ import { CSSTransition } from 'react-transition-group';
 import { get as getCache, set as setCache } from 'idb-keyval';
 import { isSameDay } from 'date-fns';
 import { LoggedUser } from '../lib/user';
-import { laptopXL } from '../styles/media';
+import { laptopL } from '../styles/media';
 import useDebounce from '../hooks/useDebounce';
 
 type GreetingData = { text: string; emoji: string };
@@ -75,7 +75,7 @@ export default function Greeting({
 
   useEffect(() => {
     (async () => {
-      const media = window.matchMedia(laptopXL.replace('@media ', ''));
+      const media = window.matchMedia(laptopL.replace('@media ', ''));
       if (!media.matches) {
         return;
       }
