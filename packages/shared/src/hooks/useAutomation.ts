@@ -25,7 +25,8 @@ export function useAutomation<
 ): UseAutomationRet<TData, TError, TVariables> {
   const { mutateAsync, isLoading } = useMutation<TData, TError, TVariables>(
     async (vars) => {
-      const url = `${apiUrl}/auto/${name}`;
+      // Vercel proxy is limited to 30 seconds 🙈
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/auto/${name}`;
       const res = await fetch(url, {
         method: 'POST',
         credentials: 'include',
