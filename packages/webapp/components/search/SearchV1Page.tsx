@@ -13,11 +13,14 @@ import {
 } from '@dailydotdev/shared/src/graphql/search';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { labels } from '@dailydotdev/shared/src/lib';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { getLayout as getMainLayout } from '../layouts/MainLayout';
 import { getTemplatedTitle } from '../layouts/utils';
 
 const SearchPage = (): ReactElement => {
   const router = useRouter();
+  const { trackEvent } = useAnalyticsContext();
   const query = router?.query?.q as string;
   const sessionIdQuery = router?.query?.id as string;
   const { data, isLoading, queryKey, handleSubmit } = useChat({
@@ -89,6 +92,16 @@ const SearchPage = (): ReactElement => {
             className="order-4 mx-auto mt-5 laptop:ml-0"
             provider={SearchProviderEnum.Posts}
             query={searchedQuery}
+            onClick={() => {
+              trackEvent({
+                event_name: AnalyticsEvent.SwitchSearch,
+                extra: JSON.stringify({
+                  from: SearchProviderEnum.Chat,
+                  to: SearchProviderEnum.Posts,
+                  query: searchedQuery,
+                }),
+              });
+            }}
           >
             <span>Search posts on daily.dev instead</span>
           </SearchProviderButton>

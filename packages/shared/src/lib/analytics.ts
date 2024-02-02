@@ -112,6 +112,7 @@ export enum AnalyticsEvent {
   AcceptInvitation = 'accept invitation',
   DownloadExtension = 'download extension',
   SearchHighlightAnimation = 'highlight search',
+  SwitchSearch = 'switch search',
   // search end
   RequestContentScripts = 'request content scripts',
   ApproveContentScripts = 'approve content scripts',
