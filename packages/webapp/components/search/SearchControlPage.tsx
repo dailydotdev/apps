@@ -21,6 +21,8 @@ import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvide
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import dynamic from 'next/dynamic';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
@@ -87,6 +89,7 @@ const Search = (): ReactElement => {
 const AiSearchProviderButton = () => {
   const searchVersion = useFeature(feature.search);
   const router = useRouter();
+  const { trackEvent } = useAnalyticsContext();
   const searchQuery = router.query?.q?.toString();
   const { spaciness, insaneMode } = useContext(SettingsContext);
   const currentSettings = useContext(FeedContext);
@@ -115,6 +118,16 @@ const AiSearchProviderButton = () => {
         className="mx-auto mb-2 mt-6 laptop:mx-0"
         provider={SearchProviderEnum.Chat}
         query={searchQuery}
+        onClick={() => {
+          trackEvent({
+            event_name: AnalyticsEvent.SwitchSearch,
+            extra: JSON.stringify({
+              from: SearchProviderEnum.Posts,
+              to: SearchProviderEnum.Chat,
+              query: searchQuery,
+            }),
+          });
+        }}
       >
         <span className="text-theme-label-primary">{searchQuery}</span>
         <span className="ml-2 typo-footnote">

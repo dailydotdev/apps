@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import { SearchProviderEnum } from '../../../graphql/search';
 import {
@@ -14,13 +14,14 @@ export type SearchProviderButtonProps = {
   provider: SearchProviderEnum;
   query: string;
   children: ReactNode;
-};
+} & Pick<HTMLAttributes<HTMLButtonElement>, 'onClick'>;
 
 export const SearchProviderButton = ({
   className,
   provider,
   query,
   children,
+  onClick,
 }: SearchProviderButtonProps): ReactElement => {
   const { search } = useSearchProvider();
   const Icon = providerToIconMap[provider];
@@ -34,7 +35,9 @@ export const SearchProviderButton = ({
       icon={<Icon className="mr-2 rounded-6 p-0.5" />}
       iconPosition={ButtonIconPosition.Left}
       type={ButtonVariant.Secondary}
-      onClick={() => {
+      onClick={(event) => {
+        onClick?.(event);
+
         search({ provider, query });
       }}
     >
