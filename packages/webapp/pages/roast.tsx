@@ -77,7 +77,7 @@ const Step1 = ({
         onClick={onClick}
         loading={isLoadingImage}
       >
-        Roast me - I'm ready
+        Roast me - I&apos;m ready
       </Button>
       {error && <FormErrorMessage role="alert">{error}</FormErrorMessage>}
     </div>
