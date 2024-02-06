@@ -17,6 +17,7 @@ import {
   useAutomation,
 } from '@dailydotdev/shared/src/hooks/useAutomation';
 import { HttpError } from '@dailydotdev/shared/src/lib/errors';
+import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -37,44 +38,49 @@ type StepProps = {
   error?: string;
 };
 
+const themes: { label: string; value: string }[] = [
+  { label: 'Maximum suffering', value: 'max' },
+  { label: 'Medium suffering', value: 'medium' },
+  { label: 'Mild suffering', value: 'mild' },
+];
+const themesLabels = themes.map((t) => t.label);
+
 const Step1 = ({
   onGenerateImage,
   isLoadingImage,
   error,
 }: StepProps): ReactElement => {
-  const { user, showLogin, loadingUser } = useContext(AuthContext);
+  const { user, showLogin } = useContext(AuthContext);
+  const [themeIndex, setThemeIndex] = useState(0);
+  const onClick = user
+    ? () => onGenerateImage({ theme: themes[themeIndex].value })
+    : () => showLogin({ trigger: AuthTriggers.Roast });
 
   return (
-    <>
-      <h1 className="mt-10 font-bold typo-title1">Roast!</h1>
-      <p className="mt-4 max-w-[32.5rem] text-center text-theme-label-secondary typo-body">
-        Your Dev Card will show you stats about the publications and topics you
-        love to read. Click on “Generate now” to get your card and share it with
-        your friends
-      </p>
-      <div className="mt-10 h-12">
-        {!loadingUser &&
-          (user ? (
-            <Button
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Large}
-              onClick={() => onGenerateImage({})}
-              loading={isLoadingImage}
-            >
-              Get Roasted
-            </Button>
-          ) : (
-            <Button
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Large}
-              onClick={() => showLogin({ trigger: AuthTriggers.DevCard })}
-            >
-              Login to generate
-            </Button>
-          ))}
+    <div className="flex flex-col items-center gap-8">
+      <h2 className="font-bold typo-title2">
+        Get roasted based on your reading history
+      </h2>
+      <div className="flex flex-col items-center gap-4">
+        <p className="font-bold text-theme-label-tertiary typo-body">
+          Suffering level:
+        </p>
+        <Dropdown
+          options={themesLabels}
+          selectedIndex={themeIndex}
+          onChange={(_, index) => setThemeIndex(index)}
+        />
       </div>
+      <Button
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Large}
+        onClick={onClick}
+        loading={isLoadingImage}
+      >
+        Roast me - I'm ready
+      </Button>
       {error && <FormErrorMessage role="alert">{error}</FormErrorMessage>}
-    </>
+    </div>
   );
 };
 
@@ -98,39 +104,46 @@ const Step2 = ({ roast, error }: StepProps): ReactElement => {
   };
 
   return (
-    <div className="mx-2 mt-5 flex flex-col self-stretch laptop:self-center">
-      <h1 className="mx-3 mb-8 font-bold typo-title1">Share your #Roast</h1>
-      <main className="z-2 flex flex-col gap-10 laptop:flex-row laptopL:gap-20">
-        <section className="flex flex-col">
-          <LazyImage
-            imgSrc={roast.image}
-            imgAlt={roast.text}
-            className="h-[25rem] w-72"
-            eager
-          />
-          <div className="mx-2 mt-8 grid grid-cols-2 gap-4">
-            <Button
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Large}
-              onClick={downloadImage}
-              loading={downloading}
-            >
-              Download
-            </Button>
-          </div>
-        </section>
-        <section className="flex flex-col self-stretch text-theme-label-tertiary">
-          {error && <FormErrorMessage role="alert">{error}</FormErrorMessage>}
-        </section>
-      </main>
+    <div className="flex flex-col items-center gap-8">
+      <div className="flex flex-col items-center gap-4">
+        <h2 className="font-bold typo-title2">Your roast is ready 🤬</h2>
+        <p className="text-theme-label-tertiary typo-body">
+          Download and share #IGotRoasted 📸
+        </p>
+      </div>
+      <LazyImage
+        imgSrc={roast.image}
+        imgAlt={roast.text}
+        ratio="70%"
+        className="w-full"
+        eager
+      />
+      <div className="flex flex-row justify-center gap-4">
+        <Button
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Large}
+          onClick={() => window.location.reload()}
+        >
+          Start over
+        </Button>
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Large}
+          onClick={downloadImage}
+          loading={downloading}
+        >
+          Download image
+        </Button>
+      </div>
+      {error && <FormErrorMessage role="alert">{error}</FormErrorMessage>}
     </div>
   );
 };
 
-// TODO: Add the correct SEO
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Roaster 🐓'),
-  description: "It's show time!!!",
+  title: getTemplatedTitle('Get Roasted'),
+  description:
+    'Experience the most brutally honest developer roast of your life. Perfect for those who love a good ego check mixed with tech wisdom. Warning: Not for the faint of heart or the easily offended.',
   openGraph: {
     ...defaultOpenGraph,
     type: 'website',
@@ -141,7 +154,11 @@ const seo: NextSeoProps = {
 const RoastPage = (): ReactElement => {
   const [step, setStep] = useState(0);
   const [isLoadingImage, setIsLoadingImage] = useState(false);
-  const [roast, setRoast] = useState<RoastResponse>();
+  const [roast, setRoast] = useState<RoastResponse>({
+    image:
+      'https://cdn.renderform.io/ydOkVgHU61yY4Li60lSJ/results/req-c866b874-3518-41fd-b55d-ca9e0d54f3b8.jpg',
+    text: '...',
+  });
   const [imageError, setImageError] = useState<string>();
 
   const onError = (err?: HttpError) => {
