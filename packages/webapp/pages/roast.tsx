@@ -58,7 +58,7 @@ const Step1 = ({ onGenerateImage, error }: StepProps): ReactElement => {
         imgSrc="https://daily-now-res.cloudinary.com/image/upload/s--bLTH_SfU--/f_auto/v1707242870/public/Roast-emoji.png.png"
         imgAlt="Devil emoji"
         ratio="80%"
-        className="-mb-12 w-[340px]"
+        className="-mb-12 w-[21.25rem]"
       />
       <div className="flex flex-col items-center gap-8">
         <h2 className="text-center font-bold typo-title2">
@@ -107,7 +107,7 @@ const Step2 = ({ roast, error }: StepProps): ReactElement => {
   };
 
   return (
-    <div className="flex w-full max-w-[800px] flex-col items-center gap-8">
+    <div className="flex w-full max-w-[50rem] flex-col items-center gap-8">
       <div className="flex flex-col items-center gap-4">
         <h2 className="text-center font-bold typo-title2	">
           Your roast is ready 🤬
@@ -153,7 +153,7 @@ const Loading = (): ReactElement => {
           imgSrc="https://daily-now-res.cloudinary.com/image/upload/s--a3Z3K5Tg--/v1707244220/public/Blurry%20colors.png.png"
           imgAlt="Gradient"
           ratio="80%"
-          className="w-[340px]"
+          className="w-[21.25rem]"
         />
         <div
           className="absolute bottom-0 left-0 right-0 top-0 flex animate-bounce items-center	justify-center typo-tera"

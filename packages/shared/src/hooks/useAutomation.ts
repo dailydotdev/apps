@@ -3,7 +3,6 @@ import {
   UseMutateAsyncFunction,
   useMutation,
 } from '@tanstack/react-query';
-import { apiUrl } from '../lib/config';
 import { HttpError } from '../lib/errors';
 
 export enum Automation {
