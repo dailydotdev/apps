@@ -249,7 +249,7 @@ const RoastPage = (): ReactElement => {
   return (
     <div
       className={classNames(
-        'page mx-auto flex min-h-page w-full flex-col items-center justify-center px-6 py-10 tablet:-mt-12',
+        'page mx-auto flex min-h-page w-full flex-col items-center justify-center px-6',
         step === 1 && 'laptop:flex-row laptop:gap-20',
       )}
     >
