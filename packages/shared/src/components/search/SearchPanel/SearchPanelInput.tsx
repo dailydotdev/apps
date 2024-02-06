@@ -212,20 +212,13 @@ export const SearchPanelInput = ({
               getFieldFontColor({ readOnly, disabled, hasInput, focused }),
             )}
           />
-          <div className="z-1 hidden items-center gap-3 laptop:flex">
-            {!searchPanel.isActive && (
-              <KeyboadShortcutLabel keys={shortcutKeys} />
+          <div
+            className={classNames(
+              'flex h-full items-center bg-theme-bg-secondary',
+              searchPanel.isActive && '-mr-2',
             )}
-            {searchPanel.isActive &&
-              searchPanel.query.length >= minSearchQueryLength && (
-                <>
-                  {isLaptop && <SearchPanelInputCursor />}
-                  <SearchPanelProvider />
-                </>
-              )}
-          </div>
-          <div className="-mr-2 flex h-full items-center bg-theme-bg-secondary laptop:hidden">
-            {!!searchPanel.query && (
+          >
+            {searchPanel.isActive && !!searchPanel.query && (
               <Button
                 id="search-panel-input-clear-button"
                 type="button"
@@ -243,7 +236,7 @@ export const SearchPanelInput = ({
               />
             )}
             {searchPanel.isActive && (
-              <div className="-mr-3 flex h-full items-center border-l border-theme-float">
+              <div className="flex h-full items-center border-l border-theme-float laptop:hidden">
                 <Button
                   type="button"
                   onClick={() => {
@@ -256,6 +249,18 @@ export const SearchPanelInput = ({
                 </Button>
               </div>
             )}
+          </div>
+          <div className="z-1 hidden items-center gap-3 laptop:flex">
+            {!searchPanel.isActive && (
+              <KeyboadShortcutLabel keys={shortcutKeys} />
+            )}
+            {searchPanel.isActive &&
+              searchPanel.query.length >= minSearchQueryLength && (
+                <>
+                  {isLaptop && <SearchPanelInputCursor />}
+                  <SearchPanelProvider className="ml-2" />
+                </>
+              )}
           </div>
         </BaseField>
         {children}
