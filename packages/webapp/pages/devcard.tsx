@@ -13,12 +13,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
-import {
-  LoaderOverlay,
-} from '@dailydotdev/shared/src/components/LoaderOverlay';
-import {
-  ClickableText,
-} from '@dailydotdev/shared/src/components/buttons/ClickableText';
+import { LoaderOverlay } from '@dailydotdev/shared/src/components/LoaderOverlay';
+import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import request from 'graphql-request';
 import { useMutation } from '@tanstack/react-query';
@@ -29,18 +25,17 @@ import { FormErrorMessage } from '@dailydotdev/shared/src/components/utilities';
 import Tilt from 'react-parallax-tilt';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
-import DevCardPlaceholder
-  from '@dailydotdev/shared/src/components/DevCardPlaceholder';
+import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
 import useReadingRank from '@dailydotdev/shared/src/hooks/useReadingRank';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { devCard } from '@dailydotdev/shared/src/lib/constants';
 import { labels } from '@dailydotdev/shared/src/lib';
+import { useActions } from '@dailydotdev/shared/src/hooks';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { DevCardData, GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
-import { useActions } from '@dailydotdev/shared/src/hooks';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 
 const TWO_MEGABYTES = 2 * 1024 * 1024;
 
@@ -75,8 +70,8 @@ const Step1 = ({
       <h1 className="mt-10 font-bold typo-title1">Generate your DevCard</h1>
       <p className="mt-4 max-w-[23.5rem] text-center text-theme-label-secondary typo-callout">
         Flexing is fun, and doing it with a DevCard takes it to the next level.
-        Generate a DevCard to showcase your activity on daily.dev,
-        including your reading habits, top topics, and more.
+        Generate a DevCard to showcase your activity on daily.dev, including
+        your reading habits, top topics, and more.
       </p>
       <div className="mt-10 h-12">
         {!loadingUser &&
@@ -366,7 +361,7 @@ const DevCardPage = (): ReactElement => {
       )}
     >
       <NextSeo {...seo} />
-      {isDevCardGenerated? <Step2 {...stepProps} /> : <Step1 {...stepProps} /> }
+      {isDevCardGenerated ? <Step2 {...stepProps} /> : <Step1 {...stepProps} />}
     </div>
   );
 };
