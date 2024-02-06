@@ -193,7 +193,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
           {showDropdown && (
             <div
               className={classNames(
-                'absolute top-[3.7rem] w-full items-center rounded-b-16 border-none border-theme-divider-quaternary bg-theme-bg-primary px-3 py-2 laptop:h-auto laptop:border laptop:bg-overlay-float-salt laptop:shadow-2 laptop:backdrop-blur-[3.75rem]',
+                'absolute top-[3.7rem] w-full items-center rounded-b-16 border-0 border-theme-divider-tertiary bg-theme-bg-primary px-3 py-2 laptop:h-auto laptop:border laptop:bg-theme-bg-secondary laptop:shadow-2',
               )}
             >
               <div className="flex flex-1 flex-col">
