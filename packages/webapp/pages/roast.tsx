@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, ReactNode, useContext, useState } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   Button,
@@ -45,11 +45,7 @@ const themes: { label: string; value: string }[] = [
 ];
 const themesLabels = themes.map((t) => t.label);
 
-const Step1 = ({
-  onGenerateImage,
-  isLoadingImage,
-  error,
-}: StepProps): ReactElement => {
+const Step1 = ({ onGenerateImage, error }: StepProps): ReactElement => {
   const { user, showLogin } = useContext(AuthContext);
   const [themeIndex, setThemeIndex] = useState(0);
   const onClick = user
@@ -57,30 +53,37 @@ const Step1 = ({
     : () => showLogin({ trigger: AuthTriggers.Roast });
 
   return (
-    <div className="flex flex-col items-center gap-8">
-      <h2 className="font-bold typo-title2">
-        Get roasted based on your reading history
-      </h2>
-      <div className="flex flex-col items-center gap-4">
-        <p className="font-bold text-theme-label-tertiary typo-body">
-          Suffering level:
-        </p>
-        <Dropdown
-          options={themesLabels}
-          selectedIndex={themeIndex}
-          onChange={(_, index) => setThemeIndex(index)}
-        />
+    <>
+      <LazyImage
+        imgSrc="https://daily-now-res.cloudinary.com/image/upload/s--bLTH_SfU--/f_auto/v1707242870/public/Roast-emoji.png.png"
+        imgAlt="Devil emoji"
+        ratio="80%"
+        className="-mb-12 w-[340px]"
+      />
+      <div className="flex flex-col items-center gap-8">
+        <h2 className="text-center font-bold typo-title2">
+          Get roasted based on your reading history
+        </h2>
+        <div className="flex flex-col items-center gap-4">
+          <p className="font-bold text-theme-label-tertiary typo-body">
+            Suffering level:
+          </p>
+          <Dropdown
+            options={themesLabels}
+            selectedIndex={themeIndex}
+            onChange={(_, index) => setThemeIndex(index)}
+          />
+        </div>
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Large}
+          onClick={onClick}
+        >
+          Roast me - I&apos;m ready
+        </Button>
+        {error && <FormErrorMessage role="alert">{error}</FormErrorMessage>}
       </div>
-      <Button
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Large}
-        onClick={onClick}
-        loading={isLoadingImage}
-      >
-        Roast me - I&apos;m ready
-      </Button>
-      {error && <FormErrorMessage role="alert">{error}</FormErrorMessage>}
-    </div>
+    </>
   );
 };
 
@@ -104,17 +107,19 @@ const Step2 = ({ roast, error }: StepProps): ReactElement => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-8">
+    <div className="flex w-full max-w-[800px] flex-col items-center gap-8">
       <div className="flex flex-col items-center gap-4">
-        <h2 className="font-bold typo-title2">Your roast is ready 🤬</h2>
-        <p className="text-theme-label-tertiary typo-body">
+        <h2 className="text-center font-bold typo-title2	">
+          Your roast is ready 🤬
+        </h2>
+        <p className="text-center text-theme-label-tertiary typo-body">
           Download and share #IGotRoasted 📸
         </p>
       </div>
       <LazyImage
         imgSrc={roast.image}
         imgAlt={roast.text}
-        ratio="70%"
+        ratio="75%"
         className="w-full"
         eager
       />
@@ -140,6 +145,41 @@ const Step2 = ({ roast, error }: StepProps): ReactElement => {
   );
 };
 
+const Loading = (): ReactElement => {
+  return (
+    <>
+      <div className="relative -mb-12">
+        <LazyImage
+          imgSrc="https://daily-now-res.cloudinary.com/image/upload/s--a3Z3K5Tg--/v1707244220/public/Blurry%20colors.png.png"
+          imgAlt="Gradient"
+          ratio="80%"
+          className="w-[340px]"
+        />
+        <div
+          className="absolute bottom-0 left-0 right-0 top-0 flex animate-bounce items-center	justify-center typo-tera"
+          style={{ animationDuration: '800ms' }}
+        >
+          😈
+        </div>
+      </div>
+      <h2 className="text-center font-bold typo-title2">
+        Roasting in progress... Brace yourself
+      </h2>
+      <p className="mt-4 text-center text-theme-label-tertiary typo-body">
+        It takes 40 seconds to roast a developer, wanna play{' '}
+        <a
+          href="https://buzzwordquiz.dev/"
+          target="_blank"
+          className="underline"
+        >
+          buzzword quiz
+        </a>{' '}
+        in the meantime?
+      </p>
+    </>
+  );
+};
+
 const seo: NextSeoProps = {
   title: getTemplatedTitle('Get Roasted'),
   description:
@@ -154,11 +194,7 @@ const seo: NextSeoProps = {
 const RoastPage = (): ReactElement => {
   const [step, setStep] = useState(0);
   const [isLoadingImage, setIsLoadingImage] = useState(false);
-  const [roast, setRoast] = useState<RoastResponse>({
-    image:
-      'https://cdn.renderform.io/ydOkVgHU61yY4Li60lSJ/results/req-c866b874-3518-41fd-b55d-ca9e0d54f3b8.jpg',
-    text: '...',
-  });
+  const [roast, setRoast] = useState<RoastResponse>();
   const [imageError, setImageError] = useState<string>();
 
   const onError = (err?: HttpError) => {
@@ -200,15 +236,25 @@ const RoastPage = (): ReactElement => {
     isLoadingImage,
     error: imageError,
   };
+
+  let child: ReactNode;
+  if (isLoadingImage) {
+    child = <Loading />;
+  } else if (!step) {
+    child = <Step1 {...stepProps} />;
+  } else {
+    child = <Step2 {...stepProps} />;
+  }
+
   return (
     <div
       className={classNames(
-        'page mx-auto flex min-h-page max-w-full flex-col items-center justify-center px-6 py-10 tablet:-mt-12',
+        'page mx-auto flex min-h-page w-full flex-col items-center justify-center px-6 py-10 tablet:-mt-12',
         step === 1 && 'laptop:flex-row laptop:gap-20',
       )}
     >
       <NextSeo {...seo} />
-      {!step ? <Step1 {...stepProps} /> : <Step2 {...stepProps} />}
+      {child}
     </div>
   );
 };
