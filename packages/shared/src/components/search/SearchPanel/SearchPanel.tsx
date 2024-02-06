@@ -36,7 +36,12 @@ import { useSearchProvider } from '../../../hooks/search';
 import { SearchPanelCustomAction } from './SearchPanelCustomAction';
 
 export type SearchPanelProps = {
-  className?: string;
+  className?: SearchPanelClassName;
+};
+
+export type SearchPanelClassName = {
+  container?: string;
+  field?: string;
 };
 
 export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
@@ -150,7 +155,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
     <SearchPanelContext.Provider value={searchPanel}>
       <div
         ref={searchPanelRef}
-        className={classNames(className, 'flex flex-col')}
+        className={classNames(className?.container, 'flex flex-col')}
         data-testid="search-panel"
       >
         <SearchPanelInput
@@ -159,6 +164,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
               'w-full laptop:w-[35rem]',
               shouldShowPulse && 'highlight-pulse',
             ),
+            field: className?.field,
           }}
           valueChanged={(newValue) => {
             setState((currentState) => {

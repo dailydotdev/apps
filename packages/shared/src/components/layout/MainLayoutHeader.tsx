@@ -156,12 +156,15 @@ function MainLayoutHeader({
           </div>
           {isSearchV1 && (
             <SearchPanel
-              className={classNames(
-                'mx-auto bg-theme-bg-primary px-2 py-3 laptop:bg-transparent',
-                isSearchPage
-                  ? 'absolute left-0 right-0 top-14 laptop:relative laptop:top-0'
-                  : 'hidden laptop:flex',
-              )}
+              className={{
+                container: classNames(
+                  'mx-auto bg-theme-bg-primary py-3 laptop:bg-transparent',
+                  isSearchPage
+                    ? 'absolute left-0 right-0 top-14 laptop:relative laptop:top-0'
+                    : 'hidden laptop:flex',
+                ),
+                field: 'mx-2 laptop:mx-auto',
+              }}
             />
           )}
           <RenderButtons />
