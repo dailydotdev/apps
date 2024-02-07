@@ -147,6 +147,7 @@ export const USER_TOOLTIP_CONTENT_QUERY = gql`
       image
       bio
       permalink
+      createdAt
     }
   }
 `;
@@ -405,7 +406,6 @@ export const REFERRED_USERS_QUERY = gql`
       edges {
         node {
           ...UserShortInfo
-          createdAt
         }
       }
     }

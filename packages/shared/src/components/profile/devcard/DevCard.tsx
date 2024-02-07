@@ -1,7 +1,6 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
-import { LoggedUser } from '../../../lib/user';
 import { Separator } from '../../cards/common';
 import { postDateFormat } from '../../../lib/dateFormat';
 import { Divider } from '../../utilities';
@@ -20,6 +19,7 @@ import { EyeIcon, ReputationIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { largeNumberFormat } from '../../../lib/numberFormat';
 import ConditionalWrapper from '../../ConditionalWrapper';
+import { Author } from '../../../graphql/comments';
 
 export enum DevCardType {
   Vertical = 'vertical',
@@ -29,7 +29,7 @@ export enum DevCardType {
 
 interface DevCardProps {
   type?: DevCardType;
-  user: LoggedUser;
+  user: Author;
   tags?: string[];
   theme?: UserRank;
 }

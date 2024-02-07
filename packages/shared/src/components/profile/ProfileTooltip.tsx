@@ -8,10 +8,8 @@ import {
   LinkWithTooltipProps,
 } from '../tooltips/LinkWithTooltip';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import {
-  ProfileTooltipContent,
-  ProfileTooltipContentProps,
-} from './ProfileTooltipContent';
+import { ProfileTooltipContentProps } from './ProfileTooltipContent';
+import { DevCard, DevCardType } from './devcard';
 
 export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   children: ReactElement;
@@ -34,7 +32,6 @@ export function ProfileTooltip({
   link,
   scrollingContainer,
   tooltip = {},
-  ...rest
 }: Omit<ProfileTooltipProps, 'user'> & {
   user?: Partial<Author>;
 }): ReactElement {
@@ -65,15 +62,10 @@ export function ProfileTooltip({
     interactive: true,
     onShow,
     onHide,
-    container: {
-      paddingClassName: profileTooltipClasses.padding,
-      roundedClassName: profileTooltipClasses.roundness,
-      bgClassName: profileTooltipClasses.background,
-      className: profileTooltipClasses.classNames,
-    },
+    container: { bgClassName: null },
     content:
       data?.user && !isLoading ? (
-        <ProfileTooltipContent user={data.user} data={data} {...rest} />
+        <DevCard user={data.user} type={DevCardType.Compact} />
       ) : null,
     ...tooltip,
   };
