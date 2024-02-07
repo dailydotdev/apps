@@ -26,7 +26,6 @@ import Tilt from 'react-parallax-tilt';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
-import useReadingRank from '@dailydotdev/shared/src/hooks/useReadingRank';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { devCard } from '@dailydotdev/shared/src/lib/constants';
 import { labels } from '@dailydotdev/shared/src/lib';
@@ -57,16 +56,10 @@ const Step1 = ({
   error,
 }: StepProps): ReactElement => {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
-  const { rank } = useReadingRank();
 
   return (
     <>
-      <DevCardPlaceholder
-        profileImage={user?.image}
-        rank={rank}
-        isLocked={!user}
-        width={108}
-      />
+      <DevCardPlaceholder profileImage={user?.image} />
       <h1 className="mt-10 font-bold typo-title1">Generate your DevCard</h1>
       <p className="mt-4 max-w-[23.5rem] text-center text-theme-label-secondary typo-callout">
         Flexing is fun, and doing it with a DevCard takes it to the next level.
