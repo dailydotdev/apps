@@ -95,3 +95,16 @@ export const SOURCE_QUERY = gql`
     }
   }
 `;
+
+export const FAVORITE_SOURCES_QUERY = gql`
+  query FavoriteSources($userId: ID!, $limit: Int) {
+    favoriteSources(userId: $userId, limit: $limit) {
+      id
+      image
+      name
+      handle
+      permalink
+      type
+    }
+  }
+`;

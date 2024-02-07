@@ -99,3 +99,4 @@ export * from './User';
 export * from './UserShare';
 export * from './V';
 export * from './Whatsapp';
+export * from './Reputation';

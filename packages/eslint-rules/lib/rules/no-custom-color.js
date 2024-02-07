@@ -20,6 +20,7 @@ const alwaysValidClasses = [
   'bg-no-repeat',
   'bg-center',
   'bg-contain',
+  'text-opacity-64', // refactor to something that would filter all text-opacity-*
 ];
 const findTargetClassNames = (classNames) => {
   if (!classNames) {

@@ -25,9 +25,20 @@ export interface Rank {
   border: string;
   color: string;
 }
+
+export enum UserRank {
+  Iron = 'Iron',
+  Bronze = 'Bronze',
+  Silver = 'Silver',
+  Gold = 'Gold',
+  Platinum = 'Platinum',
+  Diamond = 'Diamond',
+  Legendary = 'Legendary',
+}
+
 export const RANKS: Rank[] = [
   {
-    name: 'Iron',
+    name: UserRank.Iron,
     steps: 1,
     level: 1,
     background: 'bg-theme-divider-primary',
@@ -35,7 +46,7 @@ export const RANKS: Rank[] = [
     color: 'text-theme-label-tertiary',
   },
   {
-    name: 'Bronze',
+    name: UserRank.Bronze,
     steps: 2,
     level: 2,
     background: 'bg-theme-color-burger',
@@ -43,7 +54,7 @@ export const RANKS: Rank[] = [
     color: 'text-theme-color-burger',
   },
   {
-    name: 'Silver',
+    name: UserRank.Silver,
     steps: 3,
     level: 3,
     background: 'bg-theme-color-salt',
@@ -51,7 +62,7 @@ export const RANKS: Rank[] = [
     color: 'text-theme-color-salt',
   },
   {
-    name: 'Gold',
+    name: UserRank.Gold,
     steps: 4,
     level: 4,
     background: 'bg-theme-color-cheese',
@@ -59,7 +70,7 @@ export const RANKS: Rank[] = [
     color: 'text-theme-color-cheese',
   },
   {
-    name: 'Platinum',
+    name: UserRank.Platinum,
     steps: 5,
     level: 5,
     background: 'bg-theme-color-blueCheese',
@@ -67,7 +78,7 @@ export const RANKS: Rank[] = [
     color: 'text-theme-color-blueCheese',
   },
   {
-    name: 'Diamond',
+    name: UserRank.Diamond,
     steps: 6,
     level: 6,
     background: 'bg-theme-color-cabbage',
@@ -75,7 +86,7 @@ export const RANKS: Rank[] = [
     color: 'text-theme-color-cabbage',
   },
   {
-    name: 'Legendary',
+    name: UserRank.Legendary,
     steps: 7,
     level: 7,
     background: 'bg-theme-color-bacon',
