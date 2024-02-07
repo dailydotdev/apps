@@ -13,9 +13,14 @@ import {
   FeedLayout as FeedLayoutEnum,
   SearchExperiment,
 } from '@dailydotdev/shared/src/lib/featureValues';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
+import {
+  SearchProviderEnum,
+  getSearchUrl,
+} from '@dailydotdev/shared/src/graphql/search';
 import classNames from 'classnames';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
 import DndContext from './DndContext';
@@ -42,6 +47,7 @@ export default function MainFeedPage({
 }: MainFeedPageProps): ReactElement {
   const searchVersion = useFeature(feature.search);
   const { alerts } = useContext(AlertContext);
+  const { trackEvent } = useAnalyticsContext();
   const [isSearchOn, setIsSearchOn] = useState(false);
   const { user, loadingUser } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>('default');
@@ -52,7 +58,9 @@ export default function MainFeedPage({
   const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
     if (searchVersion !== SearchExperiment.Control) {
-      window.location.assign(`${webappUrl}posts/finder`);
+      window.location.assign(
+        getSearchUrl({ provider: SearchProviderEnum.Posts }),
+      );
       return;
     }
 
@@ -125,7 +133,20 @@ export default function MainFeedPage({
             onFeedPageChanged={onNavTabClick}
             searchChildren={
               <PostsSearch
-                onSubmitQuery={async (query) => setSearchQuery(query)}
+                onSubmitQuery={async (query) => {
+                  trackEvent({
+                    event_name: AnalyticsEvent.SubmitSearch,
+                    extra: JSON.stringify({
+                      query,
+                      provider: SearchProviderEnum.Posts,
+                    }),
+                  });
+
+                  setSearchQuery(query);
+                }}
+                onFocus={() => {
+                  trackEvent({ event_name: AnalyticsEvent.FocusSearch });
+                }}
               />
             }
             navChildren={!isSearchOn && <ShortcutLinks />}

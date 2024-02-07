@@ -50,6 +50,8 @@ export * from './Hot';
 export * from './Image';
 export * from './Integration';
 export * from './Invite';
+export * from './Magic';
+export * from './Clear';
 export * from './JetBrains';
 export * from './Key';
 export * from './Layout';

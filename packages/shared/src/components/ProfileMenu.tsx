@@ -3,18 +3,10 @@ import AuthContext from '../contexts/AuthContext';
 import {
   PowerIcon,
   InviteIcon,
-  KeyReferralOutlineIcon,
   UserIcon,
   DevCardIcon,
   SettingsIcon,
 } from './icons';
-import { useLazyModal } from '../hooks/useLazyModal';
-import { LazyModal } from './modals/common/types';
-import { useSettingsContext } from '../contexts/SettingsContext';
-import { CampaignCtaPlacement } from '../graphql/settings';
-import { ReferralCampaignKey, useReferralCampaign } from '../hooks';
-import { useAnalyticsContext } from '../contexts/AnalyticsContext';
-import { AnalyticsEvent, TargetId, TargetType } from '../lib/analytics';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from './tooltips/InteractivePopup';
@@ -34,27 +26,8 @@ interface ProfileMenuProps {
 export default function ProfileMenu({
   onClose,
 }: ProfileMenuProps): ReactElement {
-  const { openModal } = useLazyModal();
-  const { trackEvent } = useAnalyticsContext();
-  const { campaignCtaPlacement } = useSettingsContext();
   const { user, logout } = useContext(AuthContext);
-  const { referralToken, availableCount } = useReferralCampaign({
-    campaignKey: ReferralCampaignKey.Search,
-  });
-  const showSearchReferral =
-    !!referralToken &&
-    campaignCtaPlacement === CampaignCtaPlacement.ProfileMenu;
-
   const items: ListItem[] = useMemo(() => {
-    const handleReferralClick = () => {
-      trackEvent({
-        event_name: AnalyticsEvent.Click,
-        target_type: TargetType.SearchInviteButton,
-        target_id: TargetId.InviteProfileMenu,
-      });
-      openModal({ type: LazyModal.SearchReferral });
-    };
-
     const list: ListItem[] = [
       {
         title: 'Profile',
@@ -82,16 +55,6 @@ export default function ProfileMenu({
       },
     ];
 
-    if (showSearchReferral) {
-      list.push({
-        title: `${availableCount} Search invites`,
-        buttonProps: {
-          icon: <KeyReferralOutlineIcon secondary />,
-          onClick: handleReferralClick,
-        },
-      });
-    }
-
     list.push(
       {
         title: 'Invite friends',
@@ -111,7 +74,7 @@ export default function ProfileMenu({
     );
 
     return list;
-  }, [trackEvent, logout, availableCount, openModal, showSearchReferral, user]);
+  }, [logout, user]);
 
   if (!user) {
     return <></>;
