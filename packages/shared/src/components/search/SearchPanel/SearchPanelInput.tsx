@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { BaseField, FieldInput } from '../../fields/common';
-import { AnalyticsEvent } from '../../../lib/analytics';
+import { AnalyticsEvent, TargetId } from '../../../lib/analytics';
 import { IconSize } from '../../Icon';
 import { getFieldFontColor } from '../../fields/BaseFieldContainer';
 import { AiIcon, ClearIcon } from '../../icons';
@@ -136,6 +136,11 @@ export const SearchPanelInput = ({
         inputRef.current?.focus();
         searchPanel.setActive({
           isActive: true,
+        });
+
+        trackEvent({
+          event_name: AnalyticsEvent.KeyboardShortcutTriggered,
+          target_id: TargetId.SearchActivation,
         });
       }
     }
