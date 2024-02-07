@@ -167,7 +167,7 @@ export function DevCard({
           />
           <span className="absolute bottom-0 left-0 flex w-full translate-y-1/2 flex-row gap-3 rounded-16 bg-pepper-90 p-4 text-white shadow-2">
             <StatsSection
-              amount={8800}
+              amount={user.reputation}
               label="Reputation"
               iconClassName="text-onion-40"
               Icon={ReputationIcon}

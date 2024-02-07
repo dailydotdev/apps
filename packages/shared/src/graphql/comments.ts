@@ -22,6 +22,7 @@ export interface Author {
   username: string;
   bio?: string;
   createdAt?: Date;
+  reputation?: number;
 }
 
 export type Scout = Author;
