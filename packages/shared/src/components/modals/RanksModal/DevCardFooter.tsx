@@ -12,7 +12,6 @@ const devCardText = ({ user }: DevCardTextProps): string => {
 };
 
 export default function DevCardFooter({
-  rank,
   user,
   isLocked,
 }: DevCardFooterProps): ReactElement {
