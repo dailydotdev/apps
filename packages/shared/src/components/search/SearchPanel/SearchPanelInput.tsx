@@ -172,15 +172,14 @@ export const SearchPanelInput = ({
       >
         <BaseField
           className={classNames(
-            'relative translate-y-0 items-center border-0 !bg-theme-bg-secondary !px-3 duration-200 ease-in-out laptop:py-1 laptop:backdrop-blur-[3.75rem]',
+            'relative h-12 translate-y-0 items-center rounded-12 border-0 !bg-theme-bg-secondary !px-3 duration-200 ease-in-out laptop:py-1 laptop:backdrop-blur-[3.75rem]',
             className?.field,
             { focused },
-            searchPanel.isActive
-              ? 'h-12 !border-theme-divider-tertiary laptop:h-14 laptop:translate-y-1 laptop:border laptop:shadow-2'
-              : 'h-12',
+            searchPanel.isActive &&
+              '!border-theme-divider-tertiary laptop:h-14 laptop:translate-y-1 laptop:border laptop:shadow-2',
             searchPanel.isActive && showDropdown
-              ? 'rounded-12 laptop:rounded-b-none laptop:rounded-t-16'
-              : 'rounded-12 laptop:rounded-16',
+              ? 'laptop:rounded-b-none laptop:rounded-t-16'
+              : 'laptop:rounded-16',
           )}
           ref={fieldRef}
         >
