@@ -21,3 +21,4 @@ export * from './useFeedLayout';
 export * from './usePrevious';
 export * from './useEventListener';
 export * from './useTruncatedSummary';
+export * from './useScrollRestoration';
