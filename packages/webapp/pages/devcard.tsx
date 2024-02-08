@@ -31,6 +31,7 @@ import {
   DevCard,
   DevCardTheme,
   DevCardType,
+  requiredPoints,
   themeToLinearGradient,
 } from '@dailydotdev/shared/src/components/profile/devcard';
 import { WidgetContainer } from '@dailydotdev/shared/src/components/widgets/common';
@@ -42,6 +43,7 @@ import {
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 import { DevCardData } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
+import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import { GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -284,16 +286,33 @@ const Step2 = ({
                 <h3 className="typo-title4 mb-2 font-bold">Theme</h3>
 
                 <div className="flex flex-row flex-wrap">
-                  {Object.keys(themeToLinearGradient).map((theme) => (
-                    <button
-                      key={theme}
-                      type="button"
-                      aria-label={`Select ${theme} theme`}
-                      className="mb-3 mr-3 h-10 w-10 rounded-full"
-                      style={{ background: themeToLinearGradient[theme] }}
-                      onClick={() => onSelectTheme(theme as DevCardTheme)}
-                    />
-                  ))}
+                  {Object.keys(themeToLinearGradient).map((theme) => {
+                    const isLocked = user?.reputation < requiredPoints[theme];
+                    return (
+                      <SimpleTooltip
+                        key={theme}
+                        content={
+                          isLocked
+                            ? `Earn ${requiredPoints[theme]} reputation points to unlock this theme`
+                            : null
+                        }
+                      >
+                        <span>
+                          <button
+                            disabled={isLocked}
+                            type="button"
+                            aria-label={`Select ${theme} theme`}
+                            className={classNames(
+                              'mb-3 mr-3 h-10 w-10 rounded-full',
+                              isLocked && 'opacity-32',
+                            )}
+                            style={{ background: themeToLinearGradient[theme] }}
+                            onClick={() => onSelectTheme(theme as DevCardTheme)}
+                          />
+                        </span>
+                      </SimpleTooltip>
+                    );
+                  })}
                 </div>
                 <h3 className="typo-title4 mb-2 mt-5 font-bold">Cover image</h3>
                 <p className="text-theme-label-tertiary typo-callout">
