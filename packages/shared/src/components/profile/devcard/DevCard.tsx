@@ -55,7 +55,7 @@ const StatsSection = ({
   return (
     <span className="flex flex-row items-center gap-1">
       <strong>
-        <h2 className="typo-title3">{largeNumberFormat(amount)}</h2>
+        <h2 className="text-white typo-title3">{largeNumberFormat(amount)}</h2>
       </strong>
       <Icon size={IconSize.XSmall} secondary className={iconClassName} />
       <span className="text-salt-90 typo-caption2">{label}</span>
@@ -129,16 +129,23 @@ export function DevCard({
       return { sources: res.sources, totalReads };
     },
   );
+
+  const isHorizontal = type === DevCardType.Horizontal;
+  const isVertical = type === DevCardType.Vertical;
+  const isIron = theme === DevCardTheme.Iron;
+
   const favorites = (
     <>
       <TagLinks
         buttonProps={{ variant: ButtonVariant.Secondary }}
         className={{
-          container: type === DevCardType.Horizontal && 'pb-3',
+          container: isHorizontal && 'pb-3',
           tag: classNames(
-            'border-pepper-90 text-pepper-90',
-            type === DevCardType.Vertical &&
-              '!block max-w-[5rem] overflow-hidden text-ellipsis',
+            'pt-0.5 !typo-caption1',
+            isIron
+              ? 'border-white text-white'
+              : 'border-pepper-90 text-pepper-90',
+            isVertical && '!block max-w-[5rem] overflow-hidden text-ellipsis',
           ),
         }}
         tags={
@@ -166,14 +173,14 @@ export function DevCard({
     <RoundedContainer
       className={classNames(
         'm-4 flex h-fit p-2',
-        type === DevCardType.Horizontal
+        isHorizontal
           ? 'w-[37.75rem] flex-row-reverse'
           : 'w-[20.25rem] flex-col',
       )}
       style={{ background: bg }}
     >
       <ConditionalWrapper
-        condition={type === DevCardType.Horizontal}
+        condition={isHorizontal}
         wrapper={(component) => (
           <div className="flex w-full max-w-[20.25rem] flex-col gap-4 rounded-[32px]">
             {component}
@@ -186,7 +193,7 @@ export function DevCard({
         <div
           className={classNames(
             'relative flex flex-col bg-cover p-2 pb-10',
-            type === DevCardType.Horizontal
+            isHorizontal
               ? 'rounded-[32px] border-8 border-salt-90'
               : 'rounded-12',
           )}
@@ -202,15 +209,15 @@ export function DevCard({
             alt={`avatar of ${user.name}`}
             className={classNames(
               '-rotate-3 border-white',
-              type === DevCardType.Horizontal ? 'border-8' : 'border-4',
+              isHorizontal ? 'border-8' : 'border-4',
               {
-                'size-40 rounded-[48px]': type === DevCardType.Vertical,
-                'size-24 rounded-[32px]': type === DevCardType.Horizontal,
+                'size-40 rounded-[48px]': isVertical,
+                'size-24 rounded-[32px]': isHorizontal,
                 'size-20 rounded-24': type === DevCardType.Compact,
               },
             )}
           />
-          <span className="absolute bottom-0 left-0 flex w-full translate-y-1/2 flex-row gap-3 rounded-16 bg-pepper-90 p-4 text-white shadow-2">
+          <span className="absolute bottom-0 left-0 flex w-full translate-y-1/2 flex-row gap-3 rounded-16 bg-pepper-90 p-4 shadow-2">
             <StatsSection
               amount={user.reputation}
               label="Reputation"
@@ -237,34 +244,41 @@ export function DevCard({
       >
         <h2
           className={classNames(
-            'text-pepper-90',
-            type === DevCardType.Horizontal ? 'typo-mega2' : 'typo-title2',
+            isIron ? 'text-white' : 'text-pepper-90',
+            isHorizontal ? 'typo-mega2' : 'typo-title2',
           )}
         >
           <strong>{user.name}</strong>
         </h2>
         <span
           className={classNames(
-            'text-pepper-10',
-            type === DevCardType.Horizontal ? 'typo-callout' : 'typo-footnote',
+            isIron ? 'text-white' : 'text-pepper-10',
+            isHorizontal ? 'typo-callout' : 'typo-footnote',
           )}
         >
           @{user.username}
           <Separator />
-          <time className="text-pepper-90 text-opacity-64 typo-caption1">
+          <time
+            className={classNames(
+              'text-opacity-64 typo-caption1',
+              isIron ? 'text-white' : 'text-pepper-90',
+            )}
+          >
             {postDateFormat(user.createdAt)}
           </time>
         </span>
-        {type === DevCardType.Horizontal && <Divider />}
+        {isHorizontal && <Divider />}
         <p
           className={classNames(
-            'text-pepper-10',
-            type === DevCardType.Horizontal ? 'typo-callout' : 'typo-caption1',
+            isIron ? 'text-white' : 'text-pepper-10',
+            isHorizontal ? 'typo-callout' : 'typo-caption1',
           )}
         >
           {user.bio}
         </p>
-        {type !== DevCardType.Horizontal && <Divider />}
+        {type !== DevCardType.Horizontal && (
+          <Divider className={isIron && 'bg-salt-90 opacity-32'} />
+        )}
         {type !== DevCardType.Horizontal && favorites}
       </div>
     </RoundedContainer>
