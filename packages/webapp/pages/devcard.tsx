@@ -38,10 +38,9 @@ import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import { DevCardData } from '@dailydotdev/shared/src/graphql/users';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useActions } from '@dailydotdev/shared/src/hooks';
-import { GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
+import { DevCardData, GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -379,6 +378,8 @@ const DevCardPage = (): ReactElement => {
           if (oldData) {
             return { ...oldData, theme, showBorder, isProfileCover };
           }
+
+          return null;
         });
       },
       onSuccess({ devCard }) {
