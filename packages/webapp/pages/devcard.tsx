@@ -224,7 +224,7 @@ const Step2 = ({
         <WidgetContainer className="flex w-[420px] flex-col  self-stretch ">
           <div
             className={classNames(
-              'sticky top-12 flex justify-around tablet:top-14 tablet:justify-start',
+              'sticky top-12 flex justify-around rounded-24 bg-theme-bg-primary tablet:top-14 tablet:justify-start',
               styles.nav,
             )}
           >
