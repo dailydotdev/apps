@@ -40,6 +40,8 @@ export const useScrollRestoration = (): void => {
 
   useEffect(() => {
     if (!restorablePaths.some((path) => pathname.startsWith(path))) {
+      window.scrollTo(0, 0);
+
       return;
     }
 
