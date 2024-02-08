@@ -1,4 +1,4 @@
-import Custom404 from '@dailydotdev/shared/src/components/Custom404';
+import React from 'react';
 import {
   DevCard,
   DevCardType,
