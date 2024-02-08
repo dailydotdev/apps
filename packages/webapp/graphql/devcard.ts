@@ -8,10 +8,10 @@ export type DevCardData = { devCard: DevCard };
 
 export const GENERATE_DEVCARD_MUTATION = gql`
   mutation GenerateDevCard(
-    $theme: String
+    $theme: DevCardTheme
     $isProfileCover: Boolean
     $showBorder: Boolean
-    $type: String
+    $type: DevCardType
   ) {
     devCard: generateDevCard(
       theme: $theme

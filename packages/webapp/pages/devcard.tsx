@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { GitHubIcon } from '@dailydotdev/shared/src/components/icons';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
@@ -9,7 +9,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import request from 'graphql-request';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import {
@@ -29,15 +29,25 @@ import {
 } from '@dailydotdev/shared/src/components/profile/devcard';
 import { WidgetContainer } from '@dailydotdev/shared/src/components/widgets/common';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
-import { DevCardData, GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
+import { DevCardData } from '@dailydotdev/shared/src/graphql/users';
+import {
+  DevCardData as DevCardDataUrl,
+  GENERATE_DEVCARD_MUTATION,
+} from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import styles from '../components/layouts/ProfileLayout/NavBar.module.css';
 
 interface GenerateDevCardParams {
-  file?: File;
-  url?: string;
+  theme?: string;
+  type?: string;
+  isProfileCover?: boolean;
+  showBorder?: boolean;
 }
 
 type StepProps = {
@@ -121,6 +131,14 @@ const Step2 = ({
   };
 
   const finalError = error;
+
+  useEffect(() => {
+    onGenerateImage({
+      type: cardType === DevCardType.Vertical ? 'DEFAULT' : 'WIDE',
+      isProfileCover: profileCover,
+      showBorder,
+    });
+  }, [onGenerateImage, cardType, profileCover, showBorder]);
 
   return (
     <div className="mx-2 mt-14 flex flex-col self-stretch">
@@ -321,6 +339,8 @@ const seo: NextSeoProps = {
 };
 
 const DevCardPage = (): ReactElement => {
+  const { user } = useContext(AuthContext);
+  const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
   const [isLoadingImage, setIsLoadingImage] = useState(false);
   const [devCardSrc, setDevCardSrc] = useState<string>();
@@ -328,30 +348,30 @@ const DevCardPage = (): ReactElement => {
 
   const onError = () => {
     setImageError(labels.error.generic);
-    setIsLoadingImage(false);
   };
 
   const { mutateAsync: generateDevCard } = useMutation(
-    ({ file, url }: GenerateDevCardParams = {}) =>
+    ({ theme, type, isProfileCover, showBorder }: GenerateDevCardParams = {}) =>
       request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
-        file,
-        url,
+        theme,
+        type,
+        isProfileCover,
+        showBorder,
       }),
     {
-      onMutate() {
-        setImageError(null);
-        setIsLoadingImage(true);
+      onMutate({ theme, isProfileCover, showBorder }) {
+        const devCardQueryKey = generateQueryKey(RequestKey.DevCard, {
+          id: user.id,
+        });
+
+        queryClient.setQueryData(devCardQueryKey, (oldData: DevCardData) => {
+          if (oldData) {
+            return { ...oldData, theme, showBorder, isProfileCover };
+          }
+        });
       },
-      onSuccess(data: DevCardData) {
-        const img = new Image();
-        const { imageUrl } = data.devCard;
-        img.src = imageUrl;
-        img.onload = () => {
-          setDevCardSrc(imageUrl);
-          setIsLoadingImage(false);
-          setStep(1);
-        };
-        img.onerror = onError;
+      onSuccess() {
+        setStep(2);
       },
       onError,
     },
