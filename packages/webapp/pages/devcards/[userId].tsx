@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import {
   DevCard,
   DevCardType,
 } from '@dailydotdev/shared/src/components/profile/DevCard';
-import { ReactElement } from 'react';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
