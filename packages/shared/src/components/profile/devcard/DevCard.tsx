@@ -173,116 +173,126 @@ export function DevCard({
     <RoundedContainer
       className={classNames(
         'm-4 flex h-fit p-2',
-        isHorizontal
-          ? 'w-[37.75rem] flex-row-reverse'
-          : 'w-[20.25rem] flex-col',
+        !isHorizontal && 'w-[20.25rem] flex-col',
       )}
       style={{ background: bg }}
     >
       <ConditionalWrapper
         condition={isHorizontal}
         wrapper={(component) => (
-          <div className="flex w-full max-w-[20.25rem] flex-col gap-4 rounded-[32px]">
+          <div
+            className="ml-2 flex w-[37.75rem] flex-row-reverse rounded-[32px]"
+            style={{ boxShadow }}
+          >
             {component}
-            <div className="relative mt-4 flex flex-col gap-4 p-2">
-              {favorites}
-            </div>
           </div>
         )}
       >
+        <ConditionalWrapper
+          condition={isHorizontal}
+          wrapper={(component) => (
+            <div className="flex w-full max-w-[20.25rem] flex-col gap-4 rounded-[32px]">
+              {component}
+              <div className="relative mt-4 flex flex-col gap-4 p-2">
+                {favorites}
+              </div>
+            </div>
+          )}
+        >
+          <div
+            className={classNames(
+              'relative flex flex-col bg-cover p-2 pb-10',
+              isHorizontal
+                ? 'rounded-[32px] border-8 border-salt-90'
+                : 'rounded-12',
+            )}
+            style={{
+              backgroundImage: `url(${cloudinary.devcard.defaultCoverImage})`,
+            }}
+          >
+            {type !== DevCardType.Horizontal && (
+              <RoundedContainer className="absolute -inset-2 border-8 border-salt-90" />
+            )}
+            <img
+              src={user.image}
+              alt={`avatar of ${user.name}`}
+              className={classNames(
+                '-rotate-3 border-white',
+                isHorizontal ? 'border-8' : 'border-4',
+                {
+                  'size-40 rounded-[48px]': isVertical,
+                  'size-24 rounded-[32px]': isHorizontal,
+                  'size-20 rounded-24': type === DevCardType.Compact,
+                },
+              )}
+            />
+            <span className="absolute bottom-0 left-0 flex w-full translate-y-1/2 flex-row gap-3 rounded-16 bg-pepper-90 p-4 shadow-2">
+              <StatsSection
+                amount={user.reputation}
+                label="Reputation"
+                iconClassName="text-onion-40"
+                Icon={ReputationIcon}
+              />
+              <StatsSection
+                amount={data?.totalReads}
+                label="Posts read"
+                iconClassName="text-cabbage-40"
+                Icon={EyeIcon}
+              />
+            </span>
+          </div>
+        </ConditionalWrapper>
         <div
           className={classNames(
-            'relative flex flex-col bg-cover p-2 pb-10',
-            isHorizontal
-              ? 'rounded-[32px] border-8 border-salt-90'
-              : 'rounded-12',
+            'relative mt-4 flex flex-1 flex-col gap-3 p-4',
+            type !== DevCardType.Horizontal && 'rounded-24 pt-8',
           )}
           style={{
-            backgroundImage: `url(${cloudinary.devcard.defaultCoverImage})`,
+            boxShadow: type !== DevCardType.Horizontal ? boxShadow : undefined,
           }}
         >
-          {type !== DevCardType.Horizontal && (
-            <RoundedContainer className="absolute -inset-2 border-8 border-salt-90" />
-          )}
-          <img
-            src={user.image}
-            alt={`avatar of ${user.name}`}
-            className={classNames(
-              '-rotate-3 border-white',
-              isHorizontal ? 'border-8' : 'border-4',
-              {
-                'size-40 rounded-[48px]': isVertical,
-                'size-24 rounded-[32px]': isHorizontal,
-                'size-20 rounded-24': type === DevCardType.Compact,
-              },
-            )}
-          />
-          <span className="absolute bottom-0 left-0 flex w-full translate-y-1/2 flex-row gap-3 rounded-16 bg-pepper-90 p-4 shadow-2">
-            <StatsSection
-              amount={user.reputation}
-              label="Reputation"
-              iconClassName="text-onion-40"
-              Icon={ReputationIcon}
-            />
-            <StatsSection
-              amount={data?.totalReads}
-              label="Posts read"
-              iconClassName="text-cabbage-40"
-              Icon={EyeIcon}
-            />
-          </span>
-        </div>
-      </ConditionalWrapper>
-      <div
-        className={classNames(
-          'relative mt-4 flex flex-1 flex-col gap-3 p-4',
-          type !== DevCardType.Horizontal && 'rounded-24 pt-8',
-        )}
-        style={{
-          boxShadow: type !== DevCardType.Horizontal ? boxShadow : undefined,
-        }}
-      >
-        <div className="flex flex-col gap-0.5">
-          <h2
-            className={classNames(
-              isIron ? 'text-white' : 'text-pepper-90',
-              isHorizontal ? 'typo-mega2' : 'typo-title2',
-            )}
-          >
-            <strong>{user.name}</strong>
-          </h2>
-          <span
-            className={classNames(
-              isIron ? 'text-white' : 'text-pepper-10',
-              isHorizontal ? 'typo-callout' : 'typo-footnote',
-            )}
-          >
-            @{user.username}
-            <Separator />
-            <time
+          <div className="flex flex-col gap-0.5">
+            <h2
               className={classNames(
-                'text-opacity-64 typo-caption1',
                 isIron ? 'text-white' : 'text-pepper-90',
+                isHorizontal ? 'typo-mega2' : 'typo-title2',
               )}
             >
-              {postDateFormat(user.createdAt)}
-            </time>
-          </span>
-          {isHorizontal && <Divider className="my-2 opacity-32" />}
-          <p
-            className={classNames(
-              isIron ? 'text-white' : 'text-pepper-10',
-              isHorizontal ? 'typo-callout' : 'typo-caption1',
-            )}
-          >
-            {user.bio}
-          </p>
+              <strong>{user.name}</strong>
+            </h2>
+            <span
+              className={classNames(
+                isIron ? 'text-white' : 'text-pepper-10',
+                isHorizontal ? 'typo-callout' : 'typo-footnote',
+              )}
+            >
+              @{user.username}
+              <Separator />
+              <time
+                className={classNames(
+                  'text-opacity-64 typo-caption1',
+                  isIron ? 'text-white' : 'text-pepper-90',
+                )}
+              >
+                {postDateFormat(user.createdAt)}
+              </time>
+            </span>
+            {isHorizontal && <Divider className="my-2 opacity-32" />}
+            <p
+              className={classNames(
+                isIron ? 'text-white' : 'text-pepper-10',
+                isHorizontal ? 'typo-callout' : 'typo-caption1',
+              )}
+            >
+              {user.bio}
+            </p>
+          </div>
+          {type !== DevCardType.Horizontal && (
+            <Divider className={isIron && 'bg-salt-90 opacity-32'} />
+          )}
+          {type !== DevCardType.Horizontal && favorites}
         </div>
-        {type !== DevCardType.Horizontal && (
-          <Divider className={isIron && 'bg-salt-90 opacity-32'} />
-        )}
-        {type !== DevCardType.Horizontal && favorites}
-      </div>
+      </ConditionalWrapper>
     </RoundedContainer>
   );
 }
