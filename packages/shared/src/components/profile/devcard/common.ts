@@ -45,16 +45,3 @@ export const themeToLinearGradient = {
     `linear-gradient(135.18deg, ${colors.ketchup['10']} 0%, ${colors.bacon['10']} 24.16%, ${colors.bun['10']} 40%, ${colors.bacon['10']} 71.33%, ${colors.ketchup['10']} 100%),\n` +
     `linear-gradient(180deg, ${colors.salt['20']} 0%, ${colors.salt['10']} 85.42%)`,
 };
-
-export interface DevCardData {
-  id: string;
-  user: PublicProfile;
-  createdAt: string;
-  theme: DevCardTheme;
-  isProfileCover: boolean;
-  showBorder: boolean;
-  reputation: number;
-  articlesRead: number;
-  tags: string[];
-  sources: Source[];
-}

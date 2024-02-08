@@ -1,24 +1,14 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { useQuery } from '@tanstack/react-query';
 import { Separator } from '../../cards/common';
 import { postDateFormat } from '../../../lib/dateFormat';
 import { Divider } from '../../utilities';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
-import { useRequestProtocol } from '../../../hooks/useRequestProtocol';
-import { graphqlUrl } from '../../../lib/config';
-import { cloudinary } from '../../../lib/image';
 import ConditionalWrapper from '../../ConditionalWrapper';
-import { DEV_CARD_QUERY } from '../../../graphql/users';
 import { DevCardStats } from './DevCardStats';
-import {
-  devCardBoxShadow,
-  DevCardTheme,
-  DevCardType,
-  DevCardData,
-} from './common';
+import { devCardBoxShadow, DevCardTheme, DevCardType } from './common';
 import { DevCardFooter } from './DevCardFooter';
 import { DevCardContainer } from './DevCardContainer';
+import { useDevCard } from '../../../hooks/profile/useDevCard';
 
 interface DevCardProps {
   type?: DevCardType;
@@ -29,38 +19,16 @@ export function DevCard({
   type = DevCardType.Vertical,
   userId,
 }: DevCardProps): ReactElement {
-  const { requestMethod } = useRequestProtocol();
-  const { data: devcard, isLoading } = useQuery<DevCardData>(
-    generateQueryKey(RequestKey.DevCard, { id: userId }),
-    async () => {
-      const res = await requestMethod(graphqlUrl, DEV_CARD_QUERY, {
-        id: userId,
-      });
-
-      return res.devCard;
-    },
-    { staleTime: StaleTime.Default },
-  );
+  const { devcard, isLoading, coverImage } = useDevCard(userId);
 
   if (isLoading || !devcard) {
     return null;
   }
 
-  const {
-    theme,
-    user,
-    articlesRead,
-    tags,
-    isProfileCover,
-    sources,
-    showBorder,
-  } = devcard;
+  const { theme, user, articlesRead, tags, sources, showBorder } = devcard;
   const isHorizontal = type === DevCardType.Horizontal;
   const isVertical = type === DevCardType.Vertical;
   const isIron = theme === DevCardTheme.Iron;
-  const coverImage =
-    (isProfileCover ? user.cover : undefined) ??
-    cloudinary.devcard.defaultCoverImage;
 
   const footer = (
     <DevCardFooter tags={tags} sources={sources} type={type} theme={theme} />

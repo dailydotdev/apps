@@ -12,6 +12,7 @@ export interface DevCardFooterProps {
   sources: Source[];
   type: DevCardType;
   theme: DevCardTheme;
+  shouldShowLogo?: boolean;
 }
 
 export function DevCardFooter({
@@ -19,13 +20,17 @@ export function DevCardFooter({
   tags,
   sources,
   theme,
+  shouldShowLogo = true,
 }: DevCardFooterProps): ReactElement {
   return (
     <>
       <TagLinks
         buttonProps={{ variant: ButtonVariant.Secondary }}
         className={{
-          container: type === DevCardType.Horizontal && 'pb-3',
+          container: classNames(
+            type === DevCardType.Horizontal && 'pb-3',
+            !shouldShowLogo && 'justify-center px-2',
+          ),
           tag: classNames(
             'pt-0.5 !typo-caption1',
             theme === DevCardTheme.Iron
@@ -42,9 +47,11 @@ export function DevCardFooter({
           <SourceButton key={source.id} source={source} size="small" />
         ))}
       </div>
-      <span className="absolute bottom-0 right-0 rounded-br-24 rounded-tl-24 bg-pepper-90 px-4 py-3">
-        <Logo showGreeting={false} />
-      </span>
+      {shouldShowLogo && (
+        <span className="absolute bottom-0 right-0 rounded-br-24 rounded-tl-24 bg-pepper-90 px-4 py-3">
+          <Logo showGreeting={false} />
+        </span>
+      )}
     </>
   );
 }
