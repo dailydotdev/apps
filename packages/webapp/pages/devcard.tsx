@@ -29,6 +29,7 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { labels } from '@dailydotdev/shared/src/lib';
 import {
   DevCard,
+  DevCardTheme,
   DevCardType,
   themeToLinearGradient,
 } from '@dailydotdev/shared/src/components/profile/devcard';
@@ -40,7 +41,8 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useActions } from '@dailydotdev/shared/src/hooks';
-import { DevCardData, GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
+import { DevCardData } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
+import { GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -146,6 +148,15 @@ const Step2 = ({
     });
   }, [onGenerateImage, cardType, profileCover, showBorder]);
 
+  const client = useQueryClient();
+  const onSelectTheme = (theme: DevCardTheme) => {
+    const key = generateQueryKey(RequestKey.DevCard, { id: user.id });
+    client.setQueryData(key, (oldData: DevCardData) => {
+      return { ...oldData, theme };
+    });
+  };
+
+  // @ts-ignore
   return (
     <div className="mx-2 mt-14 flex flex-col self-stretch">
       <main className="z-2 flex flex-col gap-10 laptop:flex-row laptopL:gap-20">
@@ -274,12 +285,14 @@ const Step2 = ({
 
                 <div className="flex flex-row flex-wrap">
                   {Object.keys(themeToLinearGradient).map((theme) => (
-                    <>
-                      <div
-                        className="mb-3 mr-3 h-10 w-10 rounded-full"
-                        style={{ background: themeToLinearGradient[theme] }}
-                      />
-                    </>
+                    <button
+                      key={theme}
+                      type="button"
+                      aria-label={`Select ${theme} theme`}
+                      className="mb-3 mr-3 h-10 w-10 rounded-full"
+                      style={{ background: themeToLinearGradient[theme] }}
+                      onClick={() => onSelectTheme(theme as DevCardTheme)}
+                    />
                   ))}
                 </div>
                 <h3 className="typo-title4 mb-2 mt-5 font-bold">Cover image</h3>
@@ -353,6 +366,7 @@ const DevCardPage = (): ReactElement => {
   const [devCardSrc, setDevCardSrc] = useState<string>();
   const [imageError, setImageError] = useState<string>();
   const { completeAction, checkHasCompleted } = useActions();
+  const [shouldShowCard, setShouldShowCard] = useState(false);
   const isDevCardGenerated = checkHasCompleted(ActionType.DevCardGenerate);
 
   const onError = () => {
@@ -369,16 +383,22 @@ const DevCardPage = (): ReactElement => {
         showBorder,
       }),
     {
-      onMutate({ theme, isProfileCover, showBorder }) {
-        const devCardQueryKey = generateQueryKey(RequestKey.DevCard, {
-          id: user.id,
-        });
+      onMutate(vars) {
+        setShouldShowCard(true);
 
-        queryClient.setQueryData(devCardQueryKey, (oldData: DevCardData) => {
-          if (oldData) {
-            return { ...oldData, theme, showBorder, isProfileCover };
-          }
-        });
+        if (vars) {
+          const { theme, isProfileCover, showBorder } = vars;
+          const devCardQueryKey = generateQueryKey(RequestKey.DevCard, {
+            id: user.id,
+          });
+
+          // eslint-disable-next-line consistent-return
+          queryClient.setQueryData(devCardQueryKey, (oldData: DevCardData) => {
+            if (oldData) {
+              return { ...oldData, theme, showBorder, isProfileCover };
+            }
+          });
+        }
       },
       onSuccess({ devCard }) {
         const img = new Image();
@@ -409,7 +429,11 @@ const DevCardPage = (): ReactElement => {
       )}
     >
       <NextSeo {...seo} />
-      {isDevCardGenerated ? <Step2 {...stepProps} /> : <Step1 {...stepProps} />}
+      {isDevCardGenerated || shouldShowCard ? (
+        <Step2 {...stepProps} />
+      ) : (
+        <Step1 {...stepProps} />
+      )}
     </div>
   );
 };
