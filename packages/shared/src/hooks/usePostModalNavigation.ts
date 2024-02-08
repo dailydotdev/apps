@@ -1,4 +1,3 @@
-import { useRouter } from 'next/router';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { Post, PostType } from '../graphql/posts';
@@ -37,7 +36,6 @@ export const usePostModalNavigation = (
   const [openedPostIndex, setOpenedPostIndex] = useState<number>(null);
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
   const { trackEvent } = useContext(AnalyticsContext);
-  const router = useRouter();
   const scrollPositionOnFeed = useRef(0);
 
   const changeHistory = (data: unknown, title: string, url: string) => {
@@ -110,7 +108,6 @@ export const usePostModalNavigation = (
       });
 
       if (index === -1) {
-        router.reload();
         return;
       }
 

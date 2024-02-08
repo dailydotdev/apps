@@ -36,7 +36,7 @@ import {
   SearchControlHeaderProps,
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
-import { useFeedLayout } from '../hooks';
+import { useFeedLayout, useScrollRestoration } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
 import { FeedContainerProps } from './feeds';
@@ -120,6 +120,7 @@ export default function MainFeedLayout({
   navChildren,
   isFinder,
 }: MainFeedLayoutProps): ReactElement {
+  useScrollRestoration();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
