@@ -160,7 +160,7 @@ const Step2 = ({
   return (
     <div className="mx-2 mt-14 flex flex-col self-stretch">
       <main className="z-2 flex flex-col gap-10 laptop:flex-row laptopL:gap-20">
-        <section className="align-center flex max-w-[600px] flex-col">
+        <section className="align-center flex flex-col">
           <h1 className="mx-3 mb-8 text-center font-bold typo-title1">
             Share your #DevCard!
           </h1>
