@@ -490,9 +490,6 @@ export const DEV_CARD_QUERY = gql`
   query DevCardById($id: ID!) {
     devCard(id: $id) {
       id
-      user {
-        ...UserShortInfo
-      }
       createdAt
       theme
       isProfileCover
@@ -500,8 +497,13 @@ export const DEV_CARD_QUERY = gql`
       reputation
       articlesRead
       tags
-      sources
+      sources {
+        id
+        name
+        handle
+        image
+        permalink
+      }
     }
   }
-  ${USER_SHORT_INFO_FRAGMENT}
 `;

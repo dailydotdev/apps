@@ -70,7 +70,7 @@ enum DevCardTheme {
   Legendary = 'legendary',
 }
 
-const themeToLinearGradient = {
+export const themeToLinearGradient = {
   [DevCardTheme.Default]: `linear-gradient(0deg, #FFFFFF, #FFFFFF), linear-gradient(152.83deg, #FFFFFF 51.92%, ${colors.salt['20']} 85.8%)`,
   [DevCardTheme.Iron]:
     `linear-gradient(135.48deg, ${colors.pepper['10']} 0%, ${colors.pepper['90']} 20%, ${colors.pepper['10']} 47.5%, #2C303A 67%, ${colors.pepper['90']} 83%, ${colors.pepper['10']} 100%),\n` +
@@ -219,13 +219,13 @@ export function DevCard({
             />
             <span className="absolute bottom-0 left-0 flex w-full translate-y-1/2 flex-row gap-3 rounded-16 bg-pepper-90 p-4 shadow-2">
               <StatsSection
-                amount={user.reputation}
+                amount={user.reputation || 0}
                 label="Reputation"
                 iconClassName="text-onion-40"
                 Icon={ReputationIcon}
               />
               <StatsSection
-                amount={articlesRead}
+                amount={articlesRead || 0}
                 label="Posts read"
                 iconClassName="text-cabbage-40"
                 Icon={EyeIcon}
