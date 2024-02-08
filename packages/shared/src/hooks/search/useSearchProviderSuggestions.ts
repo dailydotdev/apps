@@ -37,7 +37,6 @@ export const useSearchProviderSuggestions = ({
     {
       enabled: query?.length >= minSearchQueryLength,
       staleTime: StaleTime.Default,
-      keepPreviousData: true,
       select: useCallback(
         (currentData) => {
           if (!currentData) {
