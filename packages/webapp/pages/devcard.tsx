@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { GitHubIcon } from '@dailydotdev/shared/src/components/icons';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
@@ -107,7 +113,11 @@ const Step2 = ({
   error,
 }: StepProps): ReactElement => {
   const { user } = useContext(AuthContext);
-  const embedCode = `<a href="https://app.daily.dev/${user?.username}"><img src="${devCardSrc}" width="400" alt="${user?.name}'s Dev Card"/></a>`;
+  const embedCode = useMemo(
+    () =>
+      `<a href="https://app.daily.dev/${user?.username}"><img src="${devCardSrc}" width="400" alt="${user?.name}'s Dev Card"/></a>`,
+    [user?.name, user?.username, devCardSrc],
+  );
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
   const [downloading, setDownloading] = useState(false);
   const [selectedTab, setSelectedTab] = useState(0);
@@ -240,9 +250,8 @@ const Step2 = ({
                   className="mt-4 h-[7.75rem] w-full resize-none self-stretch rounded-10 bg-theme-float px-4 py-2 text-theme-label-tertiary laptopL:w-[25rem]"
                   readOnly
                   wrap="hard"
-                >
-                  {embedCode}
-                </textarea>
+                  value={embedCode}
+                />
                 <Button
                   className="mt-4"
                   variant={ButtonVariant.Secondary}
@@ -370,8 +379,9 @@ const DevCardPage = (): ReactElement => {
           }
         });
       },
-      onSuccess() {
+      onSuccess({ devCard }) {
         setStep(2);
+        setDevCardSrc(devCard.imageUrl);
       },
       onError,
     },
@@ -386,7 +396,7 @@ const DevCardPage = (): ReactElement => {
   return (
     <div
       className={classNames(
-        'page mx-auto flex min-h-page max-w-full flex-col items-center justify-center px-6 py-10 tablet:-mt-12',
+        'page mx-auto flex min-h-page max-w-full flex-col justify-center px-6 py-10 tablet:-mt-12',
         step === 1 && 'laptop:flex-row laptop:gap-20',
       )}
     >
