@@ -378,8 +378,6 @@ const DevCardPage = (): ReactElement => {
           if (oldData) {
             return { ...oldData, theme, showBorder, isProfileCover };
           }
-
-          return null;
         });
       },
       onSuccess({ devCard }) {
