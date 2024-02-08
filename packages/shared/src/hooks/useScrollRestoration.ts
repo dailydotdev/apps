@@ -4,18 +4,17 @@ import { useRouter } from 'next/router';
 
 const scrollPositions: Record<string, number> = {};
 
-const restorablePaths = [
-  '/',
-  '/my-feed',
-  '/popular',
-  '/search',
-  '/upvoted',
-  '/discussed',
-  '/squads',
-  '/sources',
-];
-
 export const useScrollRestoration = (): void => {
+  const { pathname } = useRouter();
+
+  useEffect(() => {
+    const scrollPosition = scrollPositions[pathname] || 0;
+
+    window.scrollTo(0, scrollPosition);
+  }, [pathname]);
+};
+
+export const useScrollRestorationCollection = (): void => {
   const { pathname } = useRouter();
 
   useEffect(() => {
@@ -36,17 +35,5 @@ export const useScrollRestoration = (): void => {
 
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [pathname]);
-
-  useEffect(() => {
-    if (!restorablePaths.some((path) => pathname.startsWith(path))) {
-      window.scrollTo(0, 0);
-
-      return;
-    }
-
-    const scrollPosition = scrollPositions[pathname] || 0;
-
-    window.scrollTo(0, scrollPosition);
   }, [pathname]);
 };
