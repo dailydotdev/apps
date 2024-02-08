@@ -13,7 +13,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import {
@@ -41,10 +41,13 @@ import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 import { DevCardData } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
+import request from 'graphql-request';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import styles from '../components/layouts/ProfileLayout/NavBar.module.css';
+import { GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 
 interface GenerateDevCardParams {
   theme?: string;
@@ -104,10 +107,15 @@ const Step1 = ({
 
 const Step2 = ({
   onGenerateImage,
-  devCardSrc,
   isLoadingImage,
 }: StepProps): ReactElement => {
+  const [devCardSrc, setDevCardSrc] = useState<string>();
   const { user } = useContext(AuthContext);
+  const client = useQueryClient();
+  const key = useMemo(
+    () => generateQueryKey(RequestKey.DevCard, { id: user.id }),
+    [user],
+  );
   const embedCode = useMemo(
     () =>
       `<a href="https://app.daily.dev/${user?.username}"><img src="${devCardSrc}" width="400" alt="${user?.name}'s Dev Card"/></a>`,
@@ -135,6 +143,29 @@ const Step2 = ({
     setDownloading(false);
   };
 
+  const { mutateAsync: onGenerate } = useMutation(
+    () => {
+      const { theme, isProfileCover } = client.getQueryData(key) as DevCardData;
+
+      return request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
+        theme,
+        type: cardType,
+        isProfileCover,
+        showBorder,
+      });
+    },
+    {
+      onSuccess: (data) => {
+        if (!data?.devCard?.imageUrl) {
+          return;
+        }
+
+        setDevCardSrc(data.devCard.imageUrl);
+        downloadImage();
+      },
+    },
+  );
+
   useEffect(() => {
     onGenerateImage({
       type: cardType === DevCardType.Vertical ? 'DEFAULT' : 'WIDE',
@@ -143,9 +174,7 @@ const Step2 = ({
     });
   }, [onGenerateImage, cardType, profileCover, showBorder]);
 
-  const client = useQueryClient();
   const onSelectTheme = (theme: DevCardTheme) => {
-    const key = generateQueryKey(RequestKey.DevCard, { id: user.id });
     client.setQueryData(key, (oldData: DevCardData) => {
       return { ...oldData, theme };
     });
@@ -185,7 +214,7 @@ const Step2 = ({
             className="mx-auto mt-4 grow-0 self-start"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
-            onClick={downloadImage}
+            onClick={() => onGenerate()}
             loading={downloading}
           >
             Download DevCard
