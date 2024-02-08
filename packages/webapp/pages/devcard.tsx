@@ -13,9 +13,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
-import request from 'graphql-request';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import {
@@ -26,7 +24,6 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { labels } from '@dailydotdev/shared/src/lib';
 import {
   DevCard,
   DevCardTheme,
@@ -44,7 +41,6 @@ import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 import { DevCardData } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
-import { GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -110,7 +106,6 @@ const Step2 = ({
   onGenerateImage,
   devCardSrc,
   isLoadingImage,
-  error,
 }: StepProps): ReactElement => {
   const { user } = useContext(AuthContext);
   const embedCode = useMemo(
@@ -139,8 +134,6 @@ const Step2 = ({
     document.body.removeChild(link);
     setDownloading(false);
   };
-
-  const finalError = error;
 
   useEffect(() => {
     onGenerateImage({
@@ -356,10 +349,6 @@ const Step2 = ({
                 </Switch>
               </>
             )}
-
-            {finalError && (
-              <FormErrorMessage role="alert">{finalError}</FormErrorMessage>
-            )}
           </div>
         </WidgetContainer>
       </main>
@@ -379,66 +368,18 @@ const seo: NextSeoProps = {
 };
 
 const DevCardPage = (): ReactElement => {
-  const { user } = useContext(AuthContext);
-  const queryClient = useQueryClient();
-  const [isLoadingImage, setIsLoadingImage] = useState(false);
-  const [devCardSrc, setDevCardSrc] = useState<string>();
-  const [imageError, setImageError] = useState<string>();
   const { completeAction, checkHasCompleted } = useActions();
   const [shouldShowCard, setShouldShowCard] = useState(false);
   const isDevCardGenerated = checkHasCompleted(ActionType.DevCardGenerate);
 
-  const onError = () => {
-    setImageError(labels.error.generic);
-    setIsLoadingImage(false);
-  };
-
-  const { mutateAsync: generateDevCard } = useMutation(
-    ({ theme, type, isProfileCover, showBorder }: GenerateDevCardParams = {}) =>
-      request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
-        theme,
-        type,
-        isProfileCover,
-        showBorder,
-      }),
-    {
-      onMutate(vars) {
-        setShouldShowCard(true);
-
-        if (vars) {
-          const { theme, isProfileCover, showBorder } = vars;
-          const devCardQueryKey = generateQueryKey(RequestKey.DevCard, {
-            id: user.id,
-          });
-
-          // eslint-disable-next-line consistent-return
-          queryClient.setQueryData(devCardQueryKey, (oldData: DevCardData) => {
-            if (oldData) {
-              return { ...oldData, theme, showBorder, isProfileCover };
-            }
-          });
-        }
-      },
-      onSuccess({ devCard }) {
-        const img = new Image();
-        const { imageUrl } = devCard;
-        img.src = imageUrl;
-        img.onload = () => {
-          setDevCardSrc(imageUrl);
-          setIsLoadingImage(false);
-          completeAction(ActionType.DevCardGenerate);
-        };
-        img.onerror = onError;
-      },
-      onError,
-    },
-  );
-
   const stepProps: StepProps = {
-    onGenerateImage: generateDevCard,
-    devCardSrc,
-    isLoadingImage,
-    error: imageError,
+    onGenerateImage: () => {
+      setShouldShowCard(true);
+      completeAction(ActionType.DevCardGenerate);
+    },
+    devCardSrc: '',
+    isLoadingImage: false,
+    error: undefined,
   };
   return (
     <div
