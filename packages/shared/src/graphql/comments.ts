@@ -21,6 +21,8 @@ export interface Author {
   permalink: string;
   username: string;
   bio?: string;
+  createdAt?: string;
+  reputation?: number;
 }
 
 export type Scout = Author;

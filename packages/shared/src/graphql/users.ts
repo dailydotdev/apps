@@ -6,7 +6,7 @@ import {
 } from './fragments';
 import type { PublicProfile } from '../lib/user';
 import { Connection } from './common';
-import { SourceMember } from './sources';
+import { Source, SourceMember } from './sources';
 import { graphqlUrl } from '../lib/config';
 
 type PostStats = {
@@ -141,14 +141,10 @@ export const USER_TOOLTIP_CONTENT_QUERY = gql`
       value
     }
     user(id: $id) @include(if: $requestUserInfo) {
-      id
-      name
-      username
-      image
-      bio
-      permalink
+      ...UserShortInfo
     }
   }
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export type Tag = {
@@ -405,7 +401,6 @@ export const REFERRED_USERS_QUERY = gql`
       edges {
         node {
           ...UserShortInfo
-          createdAt
         }
       }
     }
@@ -477,3 +472,36 @@ export const getReadingStreak = async (): Promise<UserStreak> => {
 
   return res.userStreak;
 };
+
+export interface DevCardData {
+  id: string;
+  user: PublicProfile;
+  createdAt: string;
+  theme: string;
+  isProfileCover: boolean;
+  showBorder: boolean;
+  reputation: number;
+  articlesRead: number;
+  tags: string[];
+  sources: Source[];
+}
+
+export const DEV_CARD_QUERY = gql`
+  query DevCardById($id: ID!) {
+    devCard(id: $id) {
+      id
+      user {
+        ...UserShortInfo
+      }
+      createdAt
+      theme
+      isProfileCover
+      showBorder
+      reputation
+      articlesRead
+      tags
+      sources
+    }
+  }
+  ${USER_SHORT_INFO_FRAGMENT}
+`;
