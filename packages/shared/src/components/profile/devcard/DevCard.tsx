@@ -181,7 +181,7 @@ export function DevCard({
         condition={isHorizontal}
         wrapper={(component) => (
           <div
-            className="ml-2 flex w-[37.75rem] flex-row-reverse rounded-[32px]"
+            className="flex w-[37.75rem] flex-row-reverse rounded-[32px] pl-2"
             style={{ boxShadow }}
           >
             {component}
