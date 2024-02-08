@@ -6,13 +6,11 @@ import React, { ReactElement, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   AuthFlow,
-  ContinueWithAction,
   getKratosProviders,
   getKratosSession,
   initializeKratosFlow,
   KRATOS_ERROR,
   submitKratosFlow,
-  SuccessfulRegistrationData,
 } from '@dailydotdev/shared/src/lib/kratos';
 import {
   getNodeValue,
@@ -43,7 +41,6 @@ const AccountSecurityPage = (): ReactElement => {
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
-  const [verificationId, setVerificationId] = useState<string>(null);
   const [hint, setHint] = useState<string>(null);
   const { onUpdateSignBack, signBack, provider } = useSignBack();
   const providersKey = generateQueryKey(RequestKey.Providers, user);
@@ -97,7 +94,7 @@ const AccountSecurityPage = (): ReactElement => {
       return submitKratosFlow(params);
     },
     {
-      onSuccess: async ({ data, redirect, error, code }, params) => {
+      onSuccess: async ({ redirect, error, code }, params) => {
         if (redirect && code === 403) {
           const onVerified = () => changeEmail(params);
           initializePrivilegedSession(redirect, onVerified);
@@ -108,26 +105,26 @@ const AccountSecurityPage = (): ReactElement => {
           if (error?.ui?.messages[0]?.id === KRATOS_ERROR.EXISTING_USER) {
             setHint('This email address is already in use');
           }
+
+          return;
         }
 
-        const successfulData = data as SuccessfulRegistrationData;
-
-        if (successfulData?.continue_with?.length) {
-          const continueWith = successfulData.continue_with.find(
-            ({ action }) => action === ContinueWithAction.ShowVerification,
-          );
-
-          if (continueWith) {
-            setVerificationId(continueWith.flow.id);
-          }
-        }
+        setActiveDisplay(Display.Default);
+        await client.invalidateQueries(sessionKey);
       },
     },
   );
 
   const { data: session } = useQuery(sessionKey, getKratosSession);
-  const onChangeEmail = async (email: string) => {
-    if (!email) {
+  const onChangeEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement;
+    const input = Array.from(form.elements).find(
+      (el) => el.getAttribute('name') === 'traits.email',
+    ) as HTMLInputElement;
+    const changedEmail = input?.value?.trim();
+
+    if (!changedEmail) {
       return;
     }
 
@@ -138,19 +135,13 @@ const AccountSecurityPage = (): ReactElement => {
       params: {
         csrf_token: csrfToken,
         method: 'profile',
-        'traits.email': email,
+        'traits.email': changedEmail,
         'traits.name': getNodeValue('traits.name', nodes),
         'traits.username': getNodeValue('traits.username', nodes),
         'traits.image': getNodeValue('traits.image', nodes),
         'traits.userId': getNodeValue('traits.userId', nodes),
       },
     });
-  };
-
-  const onVerifySuccess = async (): Promise<void> => {
-    displayToast('Your email address has been updated.');
-    setActiveDisplay(Display.Default);
-    await client.invalidateQueries(sessionKey);
   };
 
   const { mutateAsync: updateSettings } = useMutation(
@@ -216,8 +207,6 @@ const AccountSecurityPage = (): ReactElement => {
           onSwitchDisplay={setActiveDisplay}
           hint={hint}
           setHint={setHint}
-          verificationId={verificationId}
-          onVerifySuccess={onVerifySuccess}
         />
       </Tab>
     </TabContainer>

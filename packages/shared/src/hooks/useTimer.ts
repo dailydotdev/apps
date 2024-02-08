@@ -18,9 +18,7 @@ export default function useTimer<T = unknown>(
       setTimer((_timer) => _timer - 1);
       runTimer();
     } else {
-      if (callback) {
-        callback();
-      }
+      callback();
       clearTimer();
     }
   }, 1000);

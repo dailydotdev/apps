@@ -81,8 +81,7 @@ const seo: NextSeoProps = {
 export function OnboardPage(): ReactElement {
   const router = useRouter();
   const isTracked = useRef(false);
-  const { user, isAuthReady, anonymous } = useAuthContext();
-  const shouldVerify = anonymous?.shouldVerify;
+  const { user, isAuthReady } = useAuthContext();
   const [isFiltering, setIsFiltering] = useState(false);
   const [finishedOnboarding, setFinishedOnboarding] = useState(false);
   const { onShouldUpdateFilters } = useOnboardingContext();
@@ -90,12 +89,9 @@ export function OnboardPage(): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const [hasSelectTopics, setHasSelectTopics] = useState(false);
   const [auth, setAuth] = useState<AuthProps>({
-    isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY) || shouldVerify,
+    isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY),
     isLoginFlow: false,
-    defaultDisplay: shouldVerify
-      ? AuthDisplay.EmailVerification
-      : AuthDisplay.OnboardingSignup,
-    ...(anonymous?.email && { email: anonymous.email }),
+    defaultDisplay: AuthDisplay.OnboardingSignup,
   });
   const { isAuthenticating, isLoginFlow, email, defaultDisplay } = auth;
   const isPageReady = growthbook?.ready && isAuthReady;
@@ -321,7 +317,7 @@ export function OnboardPage(): ReactElement {
     return <ProgressBar percentage={isAuthenticating ? percentage : 0} />;
   };
 
-  const showOnboardingPage = !isAuthenticating && !isFiltering && !shouldVerify;
+  const showOnboardingPage = !isAuthenticating && !isFiltering;
 
   if (!isPageReady) {
     return null;

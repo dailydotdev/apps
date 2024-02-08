@@ -167,32 +167,9 @@ export interface AuthSession extends Partial<LogoutSessionData> {
   issued_at: Date;
 }
 
-export interface VerificationSession {
-  ok?: boolean;
-  result?: {
-    flow_id?: string;
-  };
-}
-
-export enum ContinueWithAction {
-  ShowVerification = 'show_verification_ui',
-}
-
-interface Flow {
-  id: string;
-  url: string;
-  verifiable_address: string;
-}
-
-interface ContinueWith {
-  action: ContinueWithAction;
-  flow: Flow;
-}
-
 export interface SuccessfulRegistrationData {
   session: AuthSession;
   identity: Identity;
-  continue_with: ContinueWith[];
 }
 
 export interface KratosError {
@@ -363,19 +340,6 @@ export const getKratosSession = async (): Promise<AuthSession> => {
   return res.json();
 };
 
-export const getVerificationSession =
-  async (): Promise<VerificationSession> => {
-    const res = await fetch(`${heimdallUrl}/api/get_verification_flow`, {
-      credentials: 'include',
-    });
-
-    if (!res.ok) {
-      throw new Error('No active session');
-    }
-
-    return res.json();
-  };
-
 // https://github.com/ory/docs/blob/9b86ed78da2fad0eb8bfaebfcc1a81f70d55e675/docs/kratos/concepts/messages.json
 export const KRATOS_ERROR = Object.freeze<Record<string, number>>({
   INVALID_TOKEN: 4060004,
@@ -383,5 +347,4 @@ export const KRATOS_ERROR = Object.freeze<Record<string, number>>({
   SINGLE_OIDC: 4000001,
   NO_STRATEGY_TO_LOGIN: 4010002,
   NO_STRATEGY_TO_SIGNUP: 4010003,
-  UNVERIFIED: 4000010,
 });

@@ -17,8 +17,6 @@ export interface AnonymousUser {
   isFirstVisit?: boolean;
   referralId?: string;
   referralOrigin?: string;
-  email?: string; // Needed for users that need to verify
-  shouldVerify?: boolean;
 }
 
 export interface PublicProfile {

@@ -1,41 +1,28 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   AuthFlow,
   getKratosFlow,
-  getVerificationSession,
   initializeKratosFlow,
   submitKratosFlow,
 } from '../lib/kratos';
-import {
-  getErrorMessage,
-  getNodeByKey,
-  getNodeValue,
-  VerifyEmail,
-} from '../lib/auth';
+import { getErrorMessage, getNodeByKey, getNodeValue } from '../lib/auth';
 import useTimer from './useTimer';
 import { disabledRefetch } from '../lib/func';
-import { authUrl } from '../lib/constants';
 
 interface UseAccountEmail {
   sendEmail: (email: string) => Promise<unknown>;
-  verifyCode: ({
-    code,
-    altFlowId,
-  }: {
-    code: string;
-    altFlowId?: string;
-  }) => Promise<unknown>;
+  verifyCode: (code: string) => Promise<unknown>;
   resendTimer: number;
   isLoading?: boolean;
   token?: string;
   flow?: string;
-  autoResend?: boolean;
 }
 
 interface UseAccountEmailProps {
   flow: EmailFlow;
   flowId?: string;
+  isQueryEnabled?: boolean;
   onSuccess?: (email, id) => void;
   onVerifyCodeSuccess?: () => void;
   onError?: (error: string) => void;
@@ -47,55 +34,27 @@ type EmailFlow = AuthFlow.Recovery | AuthFlow.Verification;
 function useAccountEmailFlow({
   flow,
   flowId,
+  isQueryEnabled,
   onSuccess,
   onVerifyCodeSuccess,
   onError,
   onTimerFinished,
 }: UseAccountEmailProps): UseAccountEmail {
-  const [activeFlow, setActiveFlow] = useState(flowId);
-  const [autoResend, setAutoResend] = useState(false);
+  const [resentCount, setResentCount] = useState(0);
   const { timer, setTimer, runTimer } = useTimer(onTimerFinished, 0);
 
-  const existingEnabled = flow === AuthFlow.Verification && !flowId;
-
-  const { data: existingFlow, isLoading: existingFlowLoading } = useQuery(
-    ['existing_flow'],
-    getVerificationSession,
-    {
-      ...disabledRefetch,
-      enabled: existingEnabled,
-      retry: false,
-    },
-  );
-
-  useEffect(() => {
-    if (existingFlow?.result?.flow_id && !activeFlow) {
-      setActiveFlow(existingFlow.result.flow_id);
-    }
-  }, [activeFlow, existingFlow?.result?.flow_id]);
-
-  const enabled = useMemo(() => {
-    return flow === AuthFlow.Recovery
-      ? true
-      : !existingFlowLoading && !activeFlow && !autoResend;
-  }, [flow, existingFlowLoading, activeFlow, autoResend]);
-
   const { data: emailFlow } = useQuery(
-    [{ type: flow }],
+    [{ type: flow, sentCount: resentCount }],
     ({ queryKey: [{ type }] }) =>
-      flowId ? getKratosFlow(flow, flowId) : initializeKratosFlow(type),
+      flowId
+        ? getKratosFlow(AuthFlow.Recovery, flowId)
+        : initializeKratosFlow(type),
     {
-      ...disabledRefetch,
-      enabled,
+      ...(flowId
+        ? { ...disabledRefetch, retry: false }
+        : { enabled: isQueryEnabled }),
     },
   );
-
-  useEffect(() => {
-    if (emailFlow?.id && !activeFlow) {
-      setActiveFlow(emailFlow.id);
-      setAutoResend(true);
-    }
-  }, [activeFlow, emailFlow?.id]);
 
   const { mutateAsync: sendEmail, isLoading } = useMutation(
     (email: string) =>
@@ -103,7 +62,7 @@ function useAccountEmailFlow({
         action: emailFlow.ui.action,
         params: {
           email,
-          method: 'code',
+          method: flow === AuthFlow.Recovery ? 'code' : 'link',
           csrf_token: getNodeValue('csrf_token', emailFlow.ui.nodes),
         },
       }),
@@ -117,25 +76,24 @@ function useAccountEmailFlow({
           return onError?.(message);
         }
 
-        setAutoResend(false);
         setTimer(60);
         runTimer();
+        setResentCount((value) => value + 1);
         return onSuccess?.(variables, emailFlow.id);
       },
     },
   );
 
   const { mutateAsync: verifyCode } = useMutation(
-    ({ code, altFlowId }: { code: string; altFlowId?: string }) =>
+    (code: string) =>
       submitKratosFlow({
-        action: `${authUrl}/self-service/verification?flow=${
-          altFlowId ?? activeFlow
-        }`,
+        action: emailFlow.ui.action,
         params: {
           code,
           method: 'code',
+          csrf_token: getNodeValue('csrf_token', emailFlow.ui.nodes),
         },
-      } as VerifyEmail),
+      }),
     {
       onSuccess: ({ error }) => {
         if (error) {
@@ -158,9 +116,10 @@ function useAccountEmailFlow({
       resendTimer: timer,
       isLoading,
       flow: emailFlow?.id,
-      autoResend,
     }),
-    [sendEmail, verifyCode, emailFlow, timer, isLoading, autoResend],
+    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [emailFlow, isLoading, timer],
   );
 }
 

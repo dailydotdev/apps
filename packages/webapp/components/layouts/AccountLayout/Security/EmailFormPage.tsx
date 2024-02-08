@@ -5,9 +5,7 @@ import EmailForm, { EmailFormProps } from '../EmailForm';
 
 interface EmailFormPageProps extends EmailFormProps {
   onSwitchDisplay: (display: Display) => void;
-  onVerifySuccess: () => Promise<void>;
   title: string;
-  verificationId?: string;
 }
 
 function EmailFormPage({
