@@ -180,9 +180,9 @@ const Step2 = ({
           <div>{user && <DevCard userId={user.id} type={cardType} />}</div>
 
           <Button
-            className="mt-4"
+            className="mt-4 grow-0 self-start"
             variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
+            size={ButtonSize.Medium}
             onClick={downloadImage}
             loading={downloading}
           >
@@ -206,6 +206,7 @@ const Step2 = ({
               >
                 Embed
               </Button>
+
               {selectedTab === 0 && (
                 <ActiveTabIndicator className="bottom-0 w-10" />
               )}
@@ -220,6 +221,7 @@ const Step2 = ({
               >
                 Customize
               </Button>
+
               {selectedTab === 1 && (
                 <ActiveTabIndicator className="bottom-0 w-14" />
               )}
@@ -326,10 +328,11 @@ const Step2 = ({
                 </Switch>
               </>
             )}
+
+            {finalError && (
+              <FormErrorMessage role="alert">{finalError}</FormErrorMessage>
+            )}
           </div>
-          {finalError && (
-            <FormErrorMessage role="alert">{finalError}</FormErrorMessage>
-          )}
         </WidgetContainer>
       </main>
     </div>
