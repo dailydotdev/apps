@@ -1,6 +1,4 @@
 import colors from '../../../styles/colors';
-import { PublicProfile } from '../../../lib/user';
-import { Source } from '../../../graphql/sources';
 
 export const devCardBoxShadow = '1px 1px 1px rgb(0 0 0 /30%)';
 
