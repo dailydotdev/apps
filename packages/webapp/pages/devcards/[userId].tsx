@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import {
   DevCard,
   DevCardType,
-} from '@dailydotdev/shared/src/components/profile/DevCard';
+} from '@dailydotdev/shared/src/components/profile/devcard';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
