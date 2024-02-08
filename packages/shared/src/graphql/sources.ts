@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
 import type { UserShortProfile } from '../lib/user';
 import type { Connection } from './common';
+import { UserReadHistory } from './users';
 
 export enum SourceMemberRole {
   Member = 'member',
@@ -97,8 +98,8 @@ export const SOURCE_QUERY = gql`
 `;
 
 export const FAVORITE_SOURCES_QUERY = gql`
-  query FavoriteSources($userId: ID!, $limit: Int) {
-    favoriteSources(userId: $userId, limit: $limit) {
+  query FavoriteSources($userId: ID!, $limit: Int, $after: String) {
+    sources: favoriteSources(userId: $userId, limit: $limit) {
       id
       image
       name
@@ -106,5 +107,14 @@ export const FAVORITE_SOURCES_QUERY = gql`
       permalink
       type
     }
+    history: userReadHistory(id: $userId, after: $after) {
+      date
+      reads
+    }
   }
 `;
+
+export interface DevCardData {
+  sources: Source[];
+  history: UserReadHistory[];
+}

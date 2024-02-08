@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { Separator } from '../../cards/common';
@@ -10,7 +10,11 @@ import classed from '../../../lib/classed';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useRequestProtocol } from '../../../hooks/useRequestProtocol';
 import { graphqlUrl } from '../../../lib/config';
-import { FAVORITE_SOURCES_QUERY, Source } from '../../../graphql/sources';
+import {
+  DevCardData,
+  FAVORITE_SOURCES_QUERY,
+  Source,
+} from '../../../graphql/sources';
 import SourceButton from '../../cards/SourceButton';
 import Logo from '../../Logo';
 import { ButtonVariant } from '../../buttons/common';
@@ -72,6 +76,11 @@ const StatsSection = ({
   );
 };
 
+interface DevCardQueryData {
+  sources: Source[];
+  totalReads: number;
+}
+
 export function DevCard({
   type = DevCardType.Vertical,
   user,
@@ -79,14 +88,22 @@ export function DevCard({
   theme,
 }: DevCardProps): ReactElement {
   const { requestMethod } = useRequestProtocol();
-  const { data: sources } = useQuery<Source[]>(
+  const { data, isLoading } = useQuery<DevCardQueryData>(
     generateQueryKey(RequestKey.Source, user, 'favorite'),
     async () => {
-      const res = await requestMethod(graphqlUrl, FAVORITE_SOURCES_QUERY, {
-        userId: user.id,
-      });
+      const res = await requestMethod<DevCardData>(
+        graphqlUrl,
+        FAVORITE_SOURCES_QUERY,
+        {
+          userId: user.id,
+          after: user.createdAt.toISOString(),
+        },
+      );
 
-      return res.favoriteSources;
+      const totalReads = res.history?.reduce((acc, val) => acc + val.reads, 0);
+      console.log(res);
+
+      return { sources: res.sources, totalReads };
     },
   );
   const bg = rankToThemeClass[theme] ?? 'bg-white';
@@ -107,7 +124,7 @@ export function DevCard({
         }
       />
       <div className="flex flex-row gap-1">
-        {sources?.map((source) => (
+        {data?.sources?.map((source) => (
           <SourceButton key={source.id} source={source} size="small" />
         ))}
       </div>
@@ -116,6 +133,10 @@ export function DevCard({
       </span>
     </>
   );
+
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <RoundedContainer
@@ -173,7 +194,7 @@ export function DevCard({
               Icon={ReputationIcon}
             />
             <StatsSection
-              amount={8800}
+              amount={data?.totalReads}
               label="Posts read"
               iconClassName="text-cabbage-40"
               Icon={EyeIcon}
