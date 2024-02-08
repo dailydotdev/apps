@@ -2,7 +2,6 @@ import request, { gql } from 'graphql-request';
 import { subDays } from 'date-fns';
 import {
   SHARED_POST_INFO_FRAGMENT,
-  SOURCE_SHORT_INFO_FRAGMENT,
   USER_SHORT_INFO_FRAGMENT,
 } from './fragments';
 import type { PublicProfile } from '../lib/user';
