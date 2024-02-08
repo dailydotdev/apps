@@ -187,7 +187,7 @@ const Step2 = ({
           <div>{user && <DevCard userId={user.id} type={cardType} />}</div>
 
           <Button
-            className="mt-4 grow-0 self-start"
+            className="mx-auto mt-4 grow-0 self-start"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
             onClick={downloadImage}
