@@ -180,7 +180,6 @@ const Step2 = ({
     });
   };
 
-  // @ts-ignore
   return (
     <div className="mx-2 mt-14 flex flex-col self-stretch">
       <main className="z-2 flex flex-col gap-10 laptop:flex-row laptopL:gap-20">
