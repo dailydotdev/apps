@@ -31,7 +31,7 @@ interface DevCardProps {
   userId: string;
 }
 
-const RoundedContainer = classed('div', 'rounded-[32px]');
+const RoundedContainer = classed('div', 'rounded-32');
 
 interface StatsSectionProps {
   Icon: typeof ReputationIcon;
@@ -71,24 +71,24 @@ enum DevCardTheme {
 }
 
 const themeToLinearGradient = {
-  [DevCardTheme.Default]: `linear-gradient(0deg, #FFFFFF, #FFFFFF), linear-gradient(152.83deg, #FFFFFF 51.92%, ${colors.salt['20']} 85.8%)`,
+  [DevCardTheme.Default]: `linear-gradient(0deg, ${colors.salt['0']}, ${colors.salt['0']}), linear-gradient(152.83deg, ${colors.salt['0']} 51.92%, ${colors.salt['20']} 85.8%)`,
   [DevCardTheme.Iron]:
-    `linear-gradient(135.48deg, ${colors.pepper['10']} 0%, ${colors.pepper['90']} 20%, ${colors.pepper['10']} 47.5%, #2C303A 67%, ${colors.pepper['90']} 83%, ${colors.pepper['10']} 100%),\n` +
+    `linear-gradient(135.48deg, ${colors.pepper['10']} 0%, ${colors.pepper['90']} 20%, ${colors.pepper['10']} 47.5%, ${colors.pepper['50']} 67%, ${colors.pepper['90']} 83%, ${colors.pepper['10']} 100%),\n` +
     `linear-gradient(180deg, ${colors.salt['20']} 0%, ${colors.salt['10']} 85.42%)`,
   [DevCardTheme.Bronze]:
-    `linear-gradient(135.48deg, #C98463 0%, ${colors.burger['40']} 20%, #FFB760 47.5%, #C98463 67%, ${colors.burger['40']} 83%, #C98463 100%),\n` +
+    `linear-gradient(135.48deg, ${colors.burger['10']} 0%, ${colors.burger['40']} 20%, ${colors.burger['10']} 47.5%, ${colors.burger['10']} 67%, ${colors.burger['40']} 83%, ${colors.burger['10']} 100%),\n` +
     `linear-gradient(180deg, ${colors.salt['20']} 0%, ${colors.salt['10']} 85.42%)`,
   [DevCardTheme.Silver]:
-    'linear-gradient(135.11deg, #A8B3CE 0%, #F6F8FC 18%, #CFD6E5 31.5%, #FFFFFF 49.19%, #CFD6E5 61.5%, #A8B3CE 78.5%, #CFD6E5 95.5%),\n' +
+    `linear-gradient(135.11deg, ${colors.salt['90']} 0%, ${colors.salt['10']} 18%, ${colors.salt['50']} 31.5%, ${colors.salt['0']} 49.19%, ${colors.salt['50']} 61.5%, ${colors.salt['90']} 78.5%, ${colors.salt['50']} 95.5%),\n` +
     `linear-gradient(180deg, ${colors.salt['20']} 0%, ${colors.salt['10']} 85.42%)`,
   [DevCardTheme.Gold]:
-    `linear-gradient(135deg, ${colors.bun['10']} 0%, #FFF86E 27.5%, ${colors.bun['10']} 50%, #FFF86E 75%, ${colors.bun['10']} 100%),\n` +
+    `linear-gradient(135deg, ${colors.bun['10']} 0%, ${colors.cheese['10']} 27.5%, ${colors.bun['10']} 50%, ${colors.cheese['10']} 75%, ${colors.bun['10']} 100%),\n` +
     `linear-gradient(180deg, ${colors.salt['20']} 0%, ${colors.salt['10']} 85.42%)`,
   [DevCardTheme.Platinum]:
-    'linear-gradient(135.18deg, #75F3BB 0%, #95EEF4 24.16%, #77A6F5 40%, #75F3BB 71.33%, #77A6F5 100%),\n' +
+    `linear-gradient(135.18deg, ${colors.avocado['10']} 0%, ${colors.blueCheese['10']} 24.16%, ${colors.water['10']} 40%, ${colors.avocado['10']} 71.33%, ${colors.water['10']} 100%),\n` +
     `linear-gradient(180deg, ${colors.salt['20']} 0%, ${colors.salt['10']} 85.42%)`,
   [DevCardTheme.Diamond]:
-    'linear-gradient(135.18deg, #E769FB 0%, #9E70F8 24.16%, #68A6FD 40%, #9E70F8 71.33%, #D473F4 100%),\n' +
+    `linear-gradient(135.18deg, ${colors.cabbage['10']} 0%, ${colors.onion['10']} 24.16%, ${colors.water['10']} 40%, ${colors.onion['10']} 71.33%, ${colors.cabbage['10']} 100%),\n` +
     `linear-gradient(180deg, ${colors.salt['20']} 0%, ${colors.salt['10']} 85.42%)`,
   [DevCardTheme.Legendary]:
     `linear-gradient(135.18deg, ${colors.ketchup['10']} 0%, ${colors.bacon['10']} 24.16%, ${colors.bun['10']} 40%, ${colors.bacon['10']} 71.33%, ${colors.ketchup['10']} 100%),\n` +
@@ -171,30 +171,30 @@ export function DevCard({
       <ConditionalWrapper
         condition={isHorizontal}
         wrapper={(component) => (
-          <div
-            className="flex w-[37.75rem] flex-row-reverse rounded-[32px] pl-2"
+          <RoundedContainer
+            className="flex w-[37.75rem] flex-row-reverse pl-2"
             style={{ boxShadow }}
           >
             {component}
-          </div>
+          </RoundedContainer>
         )}
       >
         <ConditionalWrapper
           condition={isHorizontal}
           wrapper={(component) => (
-            <div className="flex w-full max-w-[20.25rem] flex-col gap-4 rounded-[32px]">
+            <RoundedContainer className="flex w-full max-w-[20.25rem] flex-col gap-4">
               {component}
               <div className="relative mt-4 flex flex-col gap-4 p-2">
                 {favorites}
               </div>
-            </div>
+            </RoundedContainer>
           )}
         >
           <div
             className={classNames(
               'relative flex flex-col bg-cover p-2 pb-10',
               isHorizontal
-                ? 'rounded-[32px] border-8 border-salt-90'
+                ? 'rounded-32 border-8 border-salt-90'
                 : 'rounded-12',
             )}
             style={{
@@ -211,8 +211,8 @@ export function DevCard({
                 '-rotate-3 border-white',
                 showBorder && (isHorizontal ? 'border-8' : 'border-4'),
                 {
-                  'size-40 rounded-[48px]': isVertical,
-                  'size-24 rounded-[32px]': isHorizontal,
+                  'size-40 rounded-48': isVertical,
+                  'size-24 rounded-32': isHorizontal,
                   'size-20 rounded-24': type === DevCardType.Compact,
                 },
               )}

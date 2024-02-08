@@ -43,7 +43,7 @@ export const MEGABYTE = 1024 * 1024;
 
 const componentSize: Record<Size, string> = {
   medium: 'w-24 h-24 rounded-26',
-  large: 'w-40 h-40 rounded-[2.5rem]',
+  large: 'w-40 h-40 rounded-40',
   cover: 'w-full h-24 rounded-26',
 };
 const sizeToIconSize: Record<Size, IconSize> = {
