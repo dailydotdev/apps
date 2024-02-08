@@ -72,7 +72,7 @@ function Enable(): React.ReactElement {
   return (
     <main className="flex h-screen max-h-[100%] w-screen max-w-[100%] flex-col items-center justify-center overflow-hidden bg-theme-overlay-float-cabbage px-20 text-center">
       <h1 className="relative bg-transparent font-bold typo-mega3">
-        <div className="rounded-50 absolute inset-0 -z-1 h-52 w-52 -translate-y-[25%] bg-theme-bg-cabbage-blur opacity-64 blur-[3.125rem]" />
+        <div className="absolute inset-0 -z-1 size-52 -translate-y-[25%] rounded-50 bg-theme-bg-cabbage-blur opacity-64 blur-[3.125rem]" />
         Click allow
       </h1>
       <p className="mt-6 text-theme-label-secondary typo-body">
