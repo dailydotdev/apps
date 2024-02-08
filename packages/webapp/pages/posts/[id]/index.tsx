@@ -49,7 +49,6 @@ import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvide
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { FeedLayout } from '@dailydotdev/shared/src/lib/featureValues';
 import { PostBackButton } from '@dailydotdev/shared/src/components/post/common/PostBackButton';
-import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -92,10 +91,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const layout = useFeature(feature.feedLayout);
   const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = router;
-
-  useEventListener(globalThis, 'popstate', () => {
-    router.reload();
-  });
 
   const { post, isError, isFetched, isPostLoadingOrFetching } = usePostById({
     id,
