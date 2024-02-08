@@ -6,7 +6,7 @@ import { postDateFormat } from '../../../lib/dateFormat';
 import { Divider } from '../../utilities';
 import { TagLinks } from '../../TagLinks';
 import classed from '../../../lib/classed';
-import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { useRequestProtocol } from '../../../hooks/useRequestProtocol';
 import { graphqlUrl } from '../../../lib/config';
 import SourceButton from '../../cards/SourceButton';
@@ -109,6 +109,7 @@ export function DevCard({
 
       return res.devCard;
     },
+    { staleTime: StaleTime.Default },
   );
 
   if (isLoading || !devcard) {
