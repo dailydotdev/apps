@@ -39,6 +39,8 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { DevCardData } from '@dailydotdev/shared/src/graphql/users';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { useActions } from '@dailydotdev/shared/src/hooks';
 import { GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -68,12 +70,12 @@ const Step1 = ({
 
   return (
     <>
-      <DevCardPlaceholder profileImage={user?.image} width={108} />
-      <h1 className="mt-10 font-bold typo-title1">Grab your Dev Card</h1>
-      <p className="mt-4 max-w-[32.5rem] text-center text-theme-label-secondary typo-body">
-        Your Dev Card will show you stats about the publications and topics you
-        love to read. Click on “Generate now” to get your card and share it with
-        your friends
+      <DevCardPlaceholder profileImage={user?.image} />
+      <h1 className="mt-10 font-bold typo-title1">Generate your DevCard</h1>
+      <p className="mt-4 max-w-[23.5rem] text-center text-theme-label-secondary typo-callout">
+        Flexing is fun, and doing it with a DevCard takes it to the next level.
+        Generate a DevCard to showcase your activity on daily.dev, including
+        your reading habits, top topics, and more.
       </p>
       <div className="mt-10 h-12">
         {!loadingUser &&
@@ -348,13 +350,15 @@ const seo: NextSeoProps = {
 const DevCardPage = (): ReactElement => {
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
-  const [step, setStep] = useState(1);
   const [isLoadingImage, setIsLoadingImage] = useState(false);
   const [devCardSrc, setDevCardSrc] = useState<string>();
   const [imageError, setImageError] = useState<string>();
+  const { completeAction, checkHasCompleted } = useActions();
+  const isDevCardGenerated = checkHasCompleted(ActionType.DevCardGenerate);
 
   const onError = () => {
     setImageError(labels.error.generic);
+    setIsLoadingImage(false);
   };
 
   const { mutateAsync: generateDevCard } = useMutation(
@@ -378,8 +382,15 @@ const DevCardPage = (): ReactElement => {
         });
       },
       onSuccess({ devCard }) {
-        setStep(2);
-        setDevCardSrc(devCard.imageUrl);
+        const img = new Image();
+        const { imageUrl } = devCard;
+        img.src = imageUrl;
+        img.onload = () => {
+          setDevCardSrc(imageUrl);
+          setIsLoadingImage(false);
+          completeAction(ActionType.DevCardGenerate);
+        };
+        img.onerror = onError;
       },
       onError,
     },
@@ -394,12 +405,12 @@ const DevCardPage = (): ReactElement => {
   return (
     <div
       className={classNames(
-        'page mx-auto flex min-h-page max-w-full flex-col justify-center px-6 py-10 tablet:-mt-12',
-        step === 1 && 'laptop:flex-row laptop:gap-20',
+        'page mx-auto flex min-h-page max-w-full flex-col items-center justify-center px-6 py-10 tablet:-mt-12',
+        isDevCardGenerated && 'laptop:flex-row laptop:gap-20',
       )}
     >
       <NextSeo {...seo} />
-      {!step ? <Step1 {...stepProps} /> : <Step2 {...stepProps} />}
+      {isDevCardGenerated ? <Step2 {...stepProps} /> : <Step1 {...stepProps} />}
     </div>
   );
 };
