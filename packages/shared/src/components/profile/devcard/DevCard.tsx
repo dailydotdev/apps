@@ -9,11 +9,7 @@ import classed from '../../../lib/classed';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useRequestProtocol } from '../../../hooks/useRequestProtocol';
 import { graphqlUrl } from '../../../lib/config';
-import {
-  DevCardData,
-  FAVORITE_SOURCES_QUERY,
-  Source,
-} from '../../../graphql/sources';
+import { FAVORITE_SOURCES_QUERY, Source } from '../../../graphql/sources';
 import SourceButton from '../../cards/SourceButton';
 import Logo from '../../Logo';
 import { ButtonVariant } from '../../buttons/common';
@@ -24,6 +20,7 @@ import { largeNumberFormat } from '../../../lib/numberFormat';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { Author } from '../../../graphql/comments';
 import colors from '../../../styles/colors';
+import { DevCardData } from '../../../graphql/users';
 
 export enum DevCardType {
   Vertical = 'vertical',

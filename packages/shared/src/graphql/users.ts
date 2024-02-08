@@ -6,7 +6,7 @@ import {
 } from './fragments';
 import type { PublicProfile } from '../lib/user';
 import { Connection } from './common';
-import { SourceMember } from './sources';
+import { Source, SourceMember } from './sources';
 import { graphqlUrl } from '../lib/config';
 
 type PostStats = {
@@ -180,6 +180,11 @@ export const MY_READING_RANK_QUERY = gql`
     }
   }
 `;
+
+export interface DevCardData {
+  sources: Source[];
+  history: UserReadHistory[];
+}
 
 export type ProfileReadingData = UserReadingRankHistoryData &
   UserReadHistoryData &

@@ -1,7 +1,6 @@
 import { gql } from 'graphql-request';
 import type { UserShortProfile } from '../lib/user';
 import type { Connection } from './common';
-import { UserReadHistory } from './users';
 
 export enum SourceMemberRole {
   Member = 'member',
@@ -118,8 +117,3 @@ export const FAVORITE_SOURCES_QUERY = gql`
     }
   }
 `;
-
-export interface DevCardData {
-  sources: Source[];
-  history: UserReadHistory[];
-}
