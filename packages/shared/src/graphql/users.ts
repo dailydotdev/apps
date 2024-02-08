@@ -181,11 +181,6 @@ export const MY_READING_RANK_QUERY = gql`
   }
 `;
 
-export interface DevCardData {
-  sources: Source[];
-  history: UserReadHistory[];
-}
-
 export type ProfileReadingData = UserReadingRankHistoryData &
   UserReadHistoryData &
   UserReadingTopTagsData;
@@ -477,3 +472,36 @@ export const getReadingStreak = async (): Promise<UserStreak> => {
 
   return res.userStreak;
 };
+
+export interface DevCardData {
+  id: string;
+  user: PublicProfile;
+  createdAt: string;
+  theme: string;
+  isProfileCover: boolean;
+  showBorder: boolean;
+  reputation: number;
+  articlesRead: number;
+  tags: string[];
+  sources: Source[];
+}
+
+export const DEV_CARD_QUERY = gql`
+  query DevCardById($id: ID!) {
+    devCard(id: $id) {
+      id
+      user {
+        ...UserShortInfo
+      }
+      createdAt
+      theme
+      isProfileCover
+      showBorder
+      reputation
+      articlesRead
+      tags
+      sources
+    }
+  }
+  ${USER_SHORT_INFO_FRAGMENT}
+`;

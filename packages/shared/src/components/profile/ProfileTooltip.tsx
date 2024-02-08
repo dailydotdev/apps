@@ -1,7 +1,6 @@
 import React, { ReactElement, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Author } from '../../graphql/comments';
-import { useProfileTooltip } from '../../hooks/useProfileTooltip';
 import { TooltipProps } from '../tooltips/BaseTooltip';
 import {
   LinkWithTooltip,
@@ -35,10 +34,6 @@ export function ProfileTooltip({
 }: Omit<ProfileTooltipProps, 'user'> & {
   user?: Partial<Author>;
 }): ReactElement {
-  const { data, fetchInfo, isLoading } = useProfileTooltip({
-    userId: user.id,
-    requestUserInfo: true,
-  });
   const query = useQueryClient();
   const handler = useRef<() => void>();
 
@@ -63,24 +58,19 @@ export function ProfileTooltip({
     onShow,
     onHide,
     container: { bgClassName: null },
-    content:
-      data?.user && !isLoading ? (
-        <DevCard user={data.user} type={DevCardType.Compact} />
-      ) : null,
+    content: user ? (
+      <DevCard userId={user?.id} type={DevCardType.Compact} />
+    ) : null,
     ...tooltip,
   };
 
   if (link) {
     return (
-      <LinkWithTooltip {...link} tooltip={{ ...props, onTrigger: fetchInfo }}>
+      <LinkWithTooltip {...link} tooltip={props}>
         {children}
       </LinkWithTooltip>
     );
   }
 
-  return (
-    <SimpleTooltip {...props} onTrigger={fetchInfo}>
-      {children}
-    </SimpleTooltip>
-  );
+  return <SimpleTooltip {...props}>{children}</SimpleTooltip>;
 }

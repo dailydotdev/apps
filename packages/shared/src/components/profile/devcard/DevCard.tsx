@@ -9,7 +9,6 @@ import classed from '../../../lib/classed';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useRequestProtocol } from '../../../hooks/useRequestProtocol';
 import { graphqlUrl } from '../../../lib/config';
-import { FAVORITE_SOURCES_QUERY, Source } from '../../../graphql/sources';
 import SourceButton from '../../cards/SourceButton';
 import Logo from '../../Logo';
 import { ButtonVariant } from '../../buttons/common';
@@ -18,9 +17,8 @@ import { EyeIcon, ReputationIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { largeNumberFormat } from '../../../lib/numberFormat';
 import ConditionalWrapper from '../../ConditionalWrapper';
-import { Author } from '../../../graphql/comments';
 import colors from '../../../styles/colors';
-import { DevCardData } from '../../../graphql/users';
+import { DEV_CARD_QUERY, DevCardData } from '../../../graphql/users';
 
 export enum DevCardType {
   Vertical = 'vertical',
@@ -30,9 +28,7 @@ export enum DevCardType {
 
 interface DevCardProps {
   type?: DevCardType;
-  user: Author;
-  tags?: string[];
-  theme?: DevCardTheme;
+  userId: string;
 }
 
 const RoundedContainer = classed('div', 'rounded-[32px]');
@@ -99,40 +95,34 @@ const themeToLinearGradient = {
     `linear-gradient(180deg, ${colors.salt['20']} 0%, ${colors.salt['10']} 85.42%)`,
 };
 
-interface DevCardQueryData {
-  sources: Source[];
-  totalReads: number;
-}
-
 export function DevCard({
   type = DevCardType.Vertical,
-  user,
-  tags,
-  theme = DevCardTheme.Default,
+  userId,
 }: DevCardProps): ReactElement {
   const { requestMethod } = useRequestProtocol();
-  const { data, isLoading } = useQuery<DevCardQueryData>(
-    generateQueryKey(RequestKey.Source, user, 'favorite'),
+  const { data: devcard, isLoading } = useQuery<DevCardData>(
+    generateQueryKey(RequestKey.DevCard, { id: userId }),
     async () => {
-      const res = await requestMethod<DevCardData>(
-        graphqlUrl,
-        FAVORITE_SOURCES_QUERY,
-        {
-          userId: user.id,
-          after: new Date(user.createdAt).toISOString(),
-          before: new Date().toISOString(),
-        },
-      );
+      const res = await requestMethod(graphqlUrl, DEV_CARD_QUERY, {
+        id: userId,
+      });
 
-      const totalReads = res.history?.reduce((acc, val) => acc + val.reads, 0);
-
-      return { sources: res.sources, totalReads };
+      return res.devCard;
     },
   );
 
+  if (isLoading || !devcard) {
+    return null;
+  }
+
+  const { theme, user, articlesRead, tags, isProfileCover, sources } = devcard;
+  const bg = themeToLinearGradient[theme] ?? themeToLinearGradient.default;
   const isHorizontal = type === DevCardType.Horizontal;
   const isVertical = type === DevCardType.Vertical;
   const isIron = theme === DevCardTheme.Iron;
+  const coverImage =
+    (isProfileCover ? user.cover : undefined) ??
+    cloudinary.devcard.defaultCoverImage;
 
   const favorites = (
     <>
@@ -148,12 +138,10 @@ export function DevCard({
             isVertical && '!block max-w-[5rem] overflow-hidden text-ellipsis',
           ),
         }}
-        tags={
-          tags ?? ['javascript', 'career', 'typescript', 'devtools', 'react']
-        }
+        tags={tags}
       />
       <div className="flex flex-row gap-1">
-        {data?.sources?.map((source) => (
+        {sources?.map((source) => (
           <SourceButton key={source.id} source={source} size="small" />
         ))}
       </div>
@@ -162,12 +150,6 @@ export function DevCard({
       </span>
     </>
   );
-
-  const bg = themeToLinearGradient[theme] ?? themeToLinearGradient.default;
-
-  if (isLoading) {
-    return null;
-  }
 
   return (
     <RoundedContainer
@@ -207,7 +189,7 @@ export function DevCard({
                 : 'rounded-12',
             )}
             style={{
-              backgroundImage: `url(${cloudinary.devcard.defaultCoverImage})`,
+              backgroundImage: `url(${coverImage})`,
             }}
           >
             {type !== DevCardType.Horizontal && (
@@ -234,7 +216,7 @@ export function DevCard({
                 Icon={ReputationIcon}
               />
               <StatsSection
-                amount={data?.totalReads}
+                amount={articlesRead}
                 label="Posts read"
                 iconClassName="text-cabbage-40"
                 Icon={EyeIcon}
