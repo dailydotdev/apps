@@ -21,7 +21,7 @@ export interface Author {
   permalink: string;
   username: string;
   bio?: string;
-  createdAt?: Date;
+  createdAt?: string;
   reputation?: number;
 }
 

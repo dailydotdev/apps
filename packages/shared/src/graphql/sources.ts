@@ -98,7 +98,12 @@ export const SOURCE_QUERY = gql`
 `;
 
 export const FAVORITE_SOURCES_QUERY = gql`
-  query FavoriteSources($userId: ID!, $limit: Int, $after: String) {
+  query FavoriteSources(
+    $userId: ID!
+    $limit: Int
+    $after: String!
+    $before: String!
+  ) {
     sources: favoriteSources(userId: $userId, limit: $limit) {
       id
       image
@@ -107,7 +112,7 @@ export const FAVORITE_SOURCES_QUERY = gql`
       permalink
       type
     }
-    history: userReadHistory(id: $userId, after: $after) {
+    history: userReadHistory(id: $userId, after: $after, before: $before) {
       date
       reads
     }

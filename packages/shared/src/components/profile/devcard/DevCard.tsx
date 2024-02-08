@@ -96,12 +96,12 @@ export function DevCard({
         FAVORITE_SOURCES_QUERY,
         {
           userId: user.id,
-          after: user.createdAt.toISOString(),
+          after: new Date(user.createdAt).toISOString(),
+          before: new Date().toISOString(),
         },
       );
 
       const totalReads = res.history?.reduce((acc, val) => acc + val.reads, 0);
-      console.log(res);
 
       return { sources: res.sources, totalReads };
     },
