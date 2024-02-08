@@ -10,6 +10,10 @@ const overlayColor = (color) => {
   if (color === 'pepper') {
     return colors[color]['90'];
   }
+  if (color === 'salt') {
+    return colors[color]['90'];
+  }
+
   return colors[color]['50'];
 };
 

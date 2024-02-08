@@ -17,6 +17,7 @@ export enum ActionType {
   AcceptedSearch = 'accepted_search',
   UsedSearch = 'used_search',
   CollectionsIntro = 'collections_intro',
+  UsedSearchPanel = 'used_search_panel',
 }
 
 export interface Action {

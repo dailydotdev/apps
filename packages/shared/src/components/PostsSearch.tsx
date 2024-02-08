@@ -1,4 +1,10 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, {
+  HTMLAttributes,
+  ReactElement,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import dynamic from 'next/dynamic';
 import { useQuery } from '@tanstack/react-query';
 import request from 'graphql-request';
@@ -7,7 +13,10 @@ import { SearchField } from './fields/SearchField';
 import { useAutoComplete } from '../hooks/useAutoComplete';
 import { graphqlUrl } from '../lib/config';
 import useDebounce from '../hooks/useDebounce';
-import { SEARCH_POST_SUGGESTIONS } from '../graphql/search';
+import {
+  SEARCH_POST_SUGGESTIONS,
+  sanitizeSearchTitleMatch,
+} from '../graphql/search';
 import { SEARCH_BOOKMARKS_SUGGESTIONS } from '../graphql/feed';
 import { SEARCH_READING_HISTORY_SUGGESTIONS } from '../graphql/users';
 
@@ -21,14 +30,14 @@ const AutoCompleteMenu = dynamic(
   },
 );
 
-export interface PostsSearchProps {
+export type PostsSearchProps = {
   initialQuery?: string;
   placeholder?: string;
   suggestionType?: string;
   autoFocus?: boolean;
   className?: string;
   onSubmitQuery: (query: string) => Promise<unknown>;
-}
+} & Pick<HTMLAttributes<HTMLInputElement>, 'onFocus'>;
 
 const SEARCH_TYPES = {
   searchPostSuggestions: SEARCH_POST_SUGGESTIONS,
@@ -43,6 +52,7 @@ export default function PostsSearch({
   onSubmitQuery,
   className,
   suggestionType = 'searchPostSuggestions',
+  onFocus,
 }: PostsSearchProps): ReactElement {
   const searchBoxRef = useRef<HTMLDivElement>();
   const [initialQuery, setInitialQuery] = useState<string>();
@@ -98,7 +108,7 @@ export default function PostsSearch({
   }, [searchResults, isLoading]);
 
   const submitQuery = async (item?: string) => {
-    const itemQuery = item?.replace?.(/<(\/?)strong>/g, '');
+    const itemQuery = item?.replace?.(sanitizeSearchTitleMatch, '');
     await onSubmitQuery(itemQuery || query);
     if (itemQuery) {
       setInitialQuery(itemQuery);
@@ -147,7 +157,13 @@ export default function PostsSearch({
             hideMenu();
           }
         }}
-        onFocus={() => items?.length && showSuggestions()}
+        onFocus={(event) => {
+          onFocus?.(event);
+
+          if (items?.length) {
+            showSuggestions();
+          }
+        }}
         aria-haspopup="true"
         aria-expanded={isOpen}
       />
