@@ -242,40 +242,42 @@ export function DevCard({
           boxShadow: type !== DevCardType.Horizontal ? boxShadow : undefined,
         }}
       >
-        <h2
-          className={classNames(
-            isIron ? 'text-white' : 'text-pepper-90',
-            isHorizontal ? 'typo-mega2' : 'typo-title2',
-          )}
-        >
-          <strong>{user.name}</strong>
-        </h2>
-        <span
-          className={classNames(
-            isIron ? 'text-white' : 'text-pepper-10',
-            isHorizontal ? 'typo-callout' : 'typo-footnote',
-          )}
-        >
-          @{user.username}
-          <Separator />
-          <time
+        <div className="flex flex-col gap-0.5">
+          <h2
             className={classNames(
-              'text-opacity-64 typo-caption1',
               isIron ? 'text-white' : 'text-pepper-90',
+              isHorizontal ? 'typo-mega2' : 'typo-title2',
             )}
           >
-            {postDateFormat(user.createdAt)}
-          </time>
-        </span>
-        {isHorizontal && <Divider />}
-        <p
-          className={classNames(
-            isIron ? 'text-white' : 'text-pepper-10',
-            isHorizontal ? 'typo-callout' : 'typo-caption1',
-          )}
-        >
-          {user.bio}
-        </p>
+            <strong>{user.name}</strong>
+          </h2>
+          <span
+            className={classNames(
+              isIron ? 'text-white' : 'text-pepper-10',
+              isHorizontal ? 'typo-callout' : 'typo-footnote',
+            )}
+          >
+            @{user.username}
+            <Separator />
+            <time
+              className={classNames(
+                'text-opacity-64 typo-caption1',
+                isIron ? 'text-white' : 'text-pepper-90',
+              )}
+            >
+              {postDateFormat(user.createdAt)}
+            </time>
+          </span>
+          {isHorizontal && <Divider className="my-2 opacity-32" />}
+          <p
+            className={classNames(
+              isIron ? 'text-white' : 'text-pepper-10',
+              isHorizontal ? 'typo-callout' : 'typo-caption1',
+            )}
+          >
+            {user.bio}
+          </p>
+        </div>
         {type !== DevCardType.Horizontal && (
           <Divider className={isIron && 'bg-salt-90 opacity-32'} />
         )}
