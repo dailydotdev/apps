@@ -245,7 +245,7 @@ export function DevCard({
         <div
           className={classNames(
             'relative mt-4 flex flex-1 flex-col gap-3 p-4',
-            type !== DevCardType.Horizontal && 'rounded-24 pt-8',
+            type !== DevCardType.Horizontal && 'rounded-b-24 pt-8',
           )}
           style={{
             boxShadow: type !== DevCardType.Horizontal ? boxShadow : undefined,
