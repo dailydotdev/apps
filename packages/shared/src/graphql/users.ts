@@ -6,7 +6,7 @@ import {
 } from './fragments';
 import type { PublicProfile } from '../lib/user';
 import { Connection } from './common';
-import { Source, SourceMember } from './sources';
+import { SourceMember } from './sources';
 import { graphqlUrl } from '../lib/config';
 
 type PostStats = {
@@ -473,19 +473,6 @@ export const getReadingStreak = async (): Promise<UserStreak> => {
   return res.userStreak;
 };
 
-export interface DevCardData {
-  id: string;
-  user: PublicProfile;
-  createdAt: string;
-  theme: string;
-  isProfileCover: boolean;
-  showBorder: boolean;
-  reputation: number;
-  articlesRead: number;
-  tags: string[];
-  sources: Source[];
-}
-
 export const DEV_CARD_QUERY = gql`
   query DevCardById($id: ID!) {
     devCard(id: $id) {
@@ -500,11 +487,9 @@ export const DEV_CARD_QUERY = gql`
       articlesRead
       tags
       sources {
-        id
         name
-        handle
-        image
         permalink
+        image
       }
     }
   }
