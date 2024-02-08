@@ -80,7 +80,7 @@ export const usePostModalNavigation = (
     setOpenedPostIndex(null);
     setCurrentPage(undefined);
     if (!fromPopState) {
-      window.scrollTo(0, scrollPositionOnFeed.current);
+      // window.scrollTo(0, scrollPositionOnFeed.current);
 
       changeHistory({}, `Feed`, currentPage);
     }

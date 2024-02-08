@@ -36,7 +36,7 @@ import { ExperimentWinner } from '../lib/featureValues';
 import { SharedFeedPage } from './utilities';
 import { FeedContainer, FeedContainerProps } from './feeds';
 import { ActiveFeedContext } from '../contexts';
-import { useFeedLayout, useFeedVotePost } from '../hooks';
+import { useFeedLayout, useFeedVotePost, useScrollRestoration } from '../hooks';
 import { AllFeedPages, RequestKey, updateCachedPagePost } from '../lib/query';
 import {
   mutateBookmarkFeedPost,
@@ -119,6 +119,7 @@ export default function Feed<T>({
   actionButtons,
   disableAds,
 }: FeedProps<T>): ReactElement {
+  useScrollRestoration();
   const origin = Origin.Feed;
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
