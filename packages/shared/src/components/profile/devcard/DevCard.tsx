@@ -116,7 +116,15 @@ export function DevCard({
     return null;
   }
 
-  const { theme, user, articlesRead, tags, isProfileCover, sources } = devcard;
+  const {
+    theme,
+    user,
+    articlesRead,
+    tags,
+    isProfileCover,
+    sources,
+    showBorder,
+  } = devcard;
   const bg = themeToLinearGradient[theme] ?? themeToLinearGradient.default;
   const isHorizontal = type === DevCardType.Horizontal;
   const isVertical = type === DevCardType.Vertical;
@@ -201,7 +209,7 @@ export function DevCard({
               alt={`avatar of ${user.name}`}
               className={classNames(
                 '-rotate-3 border-white',
-                isHorizontal ? 'border-8' : 'border-4',
+                showBorder && (isHorizontal ? 'border-8' : 'border-4'),
                 {
                   'size-40 rounded-[48px]': isVertical,
                   'size-24 rounded-[32px]': isHorizontal,
