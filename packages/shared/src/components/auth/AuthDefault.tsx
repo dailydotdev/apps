@@ -18,6 +18,7 @@ import AuthHeader from './AuthHeader';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import OrDivider from './OrDivider';
 
 interface AuthDefaultProps extends AuthFormProps {
   children?: ReactNode;
@@ -135,6 +136,8 @@ const AuthDefault = ({
     return <EmailSignupForm onSubmit={onEmailSignup} isReady={isReady} />;
   };
 
+  const renderOrDivider = providers.length || !disablePassword;
+
   return (
     <>
       <AuthHeader simplified={simplified} title={title} />
@@ -158,6 +161,7 @@ const AuthDefault = ({
             </Button>
           ))}
         </div>
+        {renderOrDivider && <OrDivider />}
         {getForm()}
       </AuthContainer>
       <div className="flex flex-1" />

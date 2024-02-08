@@ -6,6 +6,7 @@ import {
   KratosFormParams,
   KratosMessage,
   KratosMethod,
+  MessageType,
 } from './kratos';
 import { Origin } from './analytics';
 
@@ -24,6 +25,7 @@ export enum AuthEventNames {
   SubmitForgotPassword = 'submit forgot password',
   RegistrationError = 'registration error',
   RegistrationInitializationError = 'registration initialization error',
+  VerifyEmail = 'verify email',
 }
 
 export enum AuthTriggers {
@@ -125,6 +127,11 @@ export interface SettingsParameters extends AuthPostParams {
   unlink?: string;
 }
 
+interface VerifyEmailParameters extends AuthPostParams {
+  code: string;
+  method: string;
+}
+
 export type ErrorMessages<T extends string | number> = { [key in T]?: string };
 export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;
 export type ValidateRegistrationParams =
@@ -135,6 +142,7 @@ export type ValidateLoginParams = KratosFormParams<
 export type SettingsParams = KratosFormParams<SettingsParameters>;
 export type ValidateResetPassword = KratosFormParams<ResetPasswordParameters>;
 export type ValidateChangeEmail = KratosFormParams<RegistrationParameters>;
+export type VerifyEmail = KratosFormParams<VerifyEmailParameters>;
 
 export const errorsToJson = <T extends string>(
   data: InitializationData,
@@ -147,8 +155,15 @@ export const errorsToJson = <T extends string>(
     {} as Record<T, string>,
   );
 
-export const getErrorMessage = (errors: KratosMessage[]): string =>
-  errors?.[0]?.text || '';
+export const getErrorMessage = (errors: KratosMessage[]): string => {
+  if (!errors?.length) {
+    return '';
+  }
+
+  const error = errors.find(({ type }) => type === MessageType.Error);
+
+  return error?.text || errors?.[0]?.text || '';
+};
 
 export const getNodeByKey = (
   key: string,
