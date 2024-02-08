@@ -55,6 +55,7 @@ export enum AuthTriggers {
   SearchSuggestion = 'search suggestion',
   LoginPage = 'login page',
   GenericReferral = 'generic referral',
+  Roast = 'roast',
 }
 
 export type AuthTriggersType =
