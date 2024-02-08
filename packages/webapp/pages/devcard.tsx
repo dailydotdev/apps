@@ -25,7 +25,6 @@ import {
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
-import useReadingRank from '@dailydotdev/shared/src/hooks/useReadingRank';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { labels } from '@dailydotdev/shared/src/lib';
 import {
@@ -40,10 +39,7 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { DevCardData } from '@dailydotdev/shared/src/graphql/users';
-import {
-  DevCardData as DevCardDataUrl,
-  GENERATE_DEVCARD_MUTATION,
-} from '../graphql/devcard';
+import { GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -69,7 +65,6 @@ const Step1 = ({
   error,
 }: StepProps): ReactElement => {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
-  const { rank } = useReadingRank();
 
   return (
     <>
