@@ -11,5 +11,15 @@ module.exports = {
     'typo-mega1',
     'typo-giga2',
     'typo-giga1',
+    'bg-background-default',
+    'bg-background-subtle',
+    'bg-background-popover',
+    'bg-background-post-post',
+    'bg-background-post-disabled',
+    'bg-accent-burger-subtlest',
+    'bg-accent-burger-subtler',
+    'bg-accent-burger-subtle',
+    'bg-accent-burger-default',
+    'bg-accent-burger-bolder',
   ]
 };

@@ -11,6 +11,24 @@ module.exports = {
     colors: {
       ...colors,
       overlay,
+      background: {
+        default: 'var(--theme-background-default)',
+        subtle: 'var(--theme-background-subtle)',
+        popover: 'var(--theme-background-popover)',
+        post: {
+          post: 'var(--theme-background-post-post)',
+          disabled: 'var(--theme-background-post-disabled)',
+        },
+      },
+      accent: {
+        burger: {
+          subtlest: 'var(--theme-accent-burger-subtlest)',
+          subtler: 'var(--theme-accent-burger-subtler)',
+          subtle: 'var(--theme-accent-burger-subtle)',
+          default: 'var(--theme-accent-burger)',
+          bolder: 'var(--theme-accent-burger-bolder)',
+        },
+      },
       theme: {
         active: 'var(--theme-active)',
         focus: 'var(--theme-focus)',

@@ -37,6 +37,19 @@ body {
 }
 
 @define-mixin dark-mode {
+  --theme-background-default: theme('colors.pepper.90');
+  --theme-background-subtle: theme('colors.pepper.70');
+  --theme-background-popover: theme('colors.pepper.70');
+  --theme-background-post-post: theme('colors.pepper.70');
+  --theme-background-post-disabled: var(--theme-background-default);
+
+  /* Accent colors */
+  --theme-accent-burger-subtlest: theme('colors.burger.10');
+  --theme-accent-burger-subtler: theme('colors.burger.20');
+  --theme-accent-burger-subtle: theme('colors.burger.30');
+  --theme-accent-burger: theme('colors.burger.40');
+  --theme-accent-burger-bolder: theme('colors.burger.50');
+
   --theme-active: theme('colors.salt.90')33;
   --theme-focus: theme('colors.blueCheese.40');
   --theme-float: theme('colors.salt.90')14;
@@ -490,6 +503,6 @@ details.right-icon {
 
 input {
   @apply bg-clip-text;
-  
+
   -webkit-text-fill-color: var(--theme-label-primary);
 }
