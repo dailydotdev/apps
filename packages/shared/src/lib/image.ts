@@ -161,7 +161,7 @@ export const cloudinary = {
   },
   devcard: {
     defaultCoverImage:
-      'https://s3-alpha-sig.figma.com/img/49ce/0824/73cb55195cba281ff2aaefde4a83f88d?Expires=1708300800&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=ML5EVkJLLpkNFv327CTitgGzDCTc5tj8Ob5yLYlQoVRy6yDeyy-TRs8uJSocZfuQWZbZ~YE9boQIU8paA86KZR01fZDl5VukPG~W0eAUmBtjM~VeDT1eP0EPSng35MpUdOLeh970kyOAyilaQwj~JzOrieE91IadbqTnZrED4CjWCpUsfzS33zU5uw9kljcPEbHEEuKoqv24ct0ZcEmXCCqqn8N534zZMCFgA0Ywbc~sh0IO1IxPtOA8zC3mZTgNvImUfR43~Tmq8JuwrouPVY1t33EcSebG~RueHu2xe5Yc~x9QTQzDiFzUJo3047TaO1rq9I~FBp1R6bcpW7MC-A__',
+      'https://daily-now-res.cloudinary.com/image/upload/s--b9BjE_Vi--/f_auto/v1707404283/card-cover_emugw3',
   },
 };
 
