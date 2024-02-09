@@ -5,7 +5,12 @@ import { postDateFormat } from '../../../lib/dateFormat';
 import { Divider } from '../../utilities';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { DevCardStats } from './DevCardStats';
-import { devCardBoxShadow, DevCardTheme, DevCardType } from './common';
+import {
+  devCardBoxShadow,
+  DevCardTheme,
+  DevCardType,
+  RoundedContainer,
+} from './common';
 import { DevCardFooter } from './DevCardFooter';
 import { DevCardContainer } from './DevCardContainer';
 import { useDevCard } from '../../../hooks/profile/useDevCard';
@@ -14,8 +19,6 @@ interface DevCardProps {
   type?: DevCardType;
   userId: string;
 }
-
-const RoundedContainer = classed('div', 'rounded-32');
 
 export function DevCard({
   type = DevCardType.Vertical,
