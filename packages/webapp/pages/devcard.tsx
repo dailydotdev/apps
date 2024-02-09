@@ -6,7 +6,11 @@ import React, {
   useState,
 } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { GitHubIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  GitHubIcon,
+  OpenLinkIcon,
+  TwitterIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import {
   Button,
@@ -40,6 +44,7 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useActions } from '@dailydotdev/shared/src/hooks';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { DevCardData, GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -149,7 +154,7 @@ const Step2 = ({
   return (
     <div className="mx-2 mt-14 flex flex-col self-stretch">
       <main className="z-2 flex flex-col gap-10 laptop:flex-row laptopL:gap-20">
-        <section className="align-center flex max-w-[600px] flex-col">
+        <section className="align-center flex w-full flex-1 flex-col">
           <h1 className="mx-3 mb-8 text-center font-bold typo-title1">
             Share your #DevCard!
           </h1>
@@ -186,7 +191,7 @@ const Step2 = ({
           </Button>
         </section>
 
-        <WidgetContainer className="flex w-[420px] flex-col  self-stretch ">
+        <WidgetContainer className="flex w-full max-w-[26.5rem] flex-col self-stretch">
           <div
             className={classNames(
               'sticky top-12 flex justify-around tablet:top-14 tablet:justify-start',
@@ -224,7 +229,7 @@ const Step2 = ({
             </div>
           </div>
 
-          <div className="p-4">
+          <div className="grid gap-8 p-5">
             {selectedTab === 0 && (
               <>
                 <p className="text-theme-label-tertiary typo-callout">
@@ -233,38 +238,51 @@ const Step2 = ({
                   (now called X, but we still like the old name better).
                 </p>
 
-                <h3 className="typo-title4 mb-2 mt-5 font-bold">
-                  <GitHubIcon className="mr-2 h-auto w-auto" /> Embed the
-                  DevCard on your GitHub profile
-                </h3>
+                <div>
+                  <h3 className="typo-title4 flex font-bold">
+                    <GitHubIcon className="mr-2" size={IconSize.Small} />
+                    Embed the DevCard on your GitHub profile
+                  </h3>
 
-                <p className="text-theme-label-tertiary typo-callout">
-                  Find out how to put your DevCard in your GitHub README and
-                  make it update automatically using GitHub Actions. Full
-                  tutorial
-                </p>
+                  <p className="mt-2 text-theme-label-tertiary typo-callout">
+                    Find out how to put your DevCard in your GitHub README and
+                    make it update automatically using GitHub Actions.{' '}
+                    <a href="..TODO.." className="inline-block typo-subhead">
+                      Full tutorial{' '}
+                      <OpenLinkIcon
+                        className="mb-1 inline-block"
+                        size={IconSize.XXSmall}
+                      />
+                    </a>
+                  </p>
 
-                <textarea
-                  className="mt-4 h-[7.75rem] w-full resize-none self-stretch rounded-10 bg-theme-float px-4 py-2 text-theme-label-tertiary laptopL:w-[25rem]"
-                  readOnly
-                  wrap="hard"
-                  value={embedCode}
-                />
-                <Button
-                  className="mt-4"
-                  variant={ButtonVariant.Secondary}
-                  size={ButtonSize.Small}
-                  onClick={() => copyEmbed()}
-                >
-                  {!copyingEmbed ? 'Copy code' : 'Copied!'}
-                </Button>
+                  <textarea
+                    className="mt-4 h-[7.75rem] w-full resize-none self-stretch rounded-10 bg-theme-float px-4 py-2 text-theme-label-tertiary laptopL:w-[25rem]"
+                    readOnly
+                    wrap="hard"
+                    value={embedCode}
+                  />
+                  <Button
+                    className="mt-2"
+                    variant={ButtonVariant.Secondary}
+                    size={ButtonSize.Small}
+                    onClick={() => copyEmbed()}
+                  >
+                    {!copyingEmbed ? 'Copy code' : 'Copied!'}
+                  </Button>
+                </div>
 
-                <h3 className="typo-title4 mb-2 mt-5 font-bold">
-                  Use as X header
-                </h3>
-                <p className="text-theme-label-tertiary typo-callout">
-                  Level up your Twitter game with a DevCard header image!
-                </p>
+                <div>
+                  <span>
+                    <TwitterIcon size={IconSize.Small} />
+                    <h3 className="typo-title4 inline-box mr-2 font-bold">
+                      Use as X header
+                    </h3>
+                  </span>
+                  <p className="mt-2 text-theme-label-tertiary typo-callout">
+                    Level up your Twitter game with a DevCard header image!
+                  </p>
+                </div>
               </>
             )}
 
