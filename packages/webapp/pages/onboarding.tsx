@@ -300,8 +300,7 @@ export function OnboardPage(): ReactElement {
                 </video>
               }
             </div>
-
-            <TrustedCompanies />
+            {onboardingVisual.showCompanies && <TrustedCompanies />}
           </div>
         )}
       </div>
