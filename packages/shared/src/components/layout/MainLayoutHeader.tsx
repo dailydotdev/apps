@@ -26,6 +26,7 @@ import { useReadingStreak } from '../../hooks/streaks';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
+import classed from '../../lib/classed';
 
 export interface MainLayoutHeaderProps {
   greeting?: boolean;
@@ -44,6 +45,11 @@ const SearchPanel = dynamic(
     ),
 );
 
+const HeaderPlaceholder = classed(
+  'div',
+  'h-10 rounded-12 bg-theme-bg-secondary',
+);
+
 function MainLayoutHeader({
   greeting,
   hasBanner,
@@ -59,7 +65,7 @@ function MainLayoutHeader({
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
   const { streak, isEnabled, isLoading } = useReadingStreak();
-  const hideButton = loadingUser || (isEnabled && isLoading);
+  const hideButton = isEnabled && isLoading;
   const isMobile = useViewSize(ViewSize.MobileL);
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
@@ -67,6 +73,10 @@ function MainLayoutHeader({
   const headerButton = (() => {
     if (hideButton) {
       return null;
+    }
+
+    if (loadingUser) {
+      return <HeaderPlaceholder className="w-22" />;
     }
 
     if (user && user?.infoConfirmed) {
@@ -89,7 +99,8 @@ function MainLayoutHeader({
   const RenderButtons = () => {
     return (
       <div className="flex gap-3">
-        <CreatePostButton />
+        {!!user && <CreatePostButton />}
+        {loadingUser && <HeaderPlaceholder className="w-26" />}
         {streak && <ReadingStreakButton streak={streak} />}
         {!hideButton && user && (
           <>
