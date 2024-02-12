@@ -32,12 +32,12 @@ export function DevCardFooter({
             !shouldShowLogo && 'justify-center px-2',
           ),
           tag: classNames(
-            'pt-0.5 !typo-caption1',
+            'typo-caption1',
             theme === DevCardTheme.Iron
               ? 'border-white text-white'
               : 'border-pepper-90 text-pepper-90',
             type === DevCardType.Vertical &&
-              '!block max-w-[5rem] overflow-hidden text-ellipsis',
+              '!block !leading-[1.375rem] max-w-[5rem] overflow-hidden text-ellipsis',
           ),
         }}
         tags={tags}
