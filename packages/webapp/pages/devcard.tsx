@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { GitHubIcon } from '@dailydotdev/shared/src/components/icons';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
@@ -16,10 +10,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
-import {
-  ActiveTabIndicator,
-  FormErrorMessage,
-} from '@dailydotdev/shared/src/components/utilities';
+import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
@@ -49,25 +40,11 @@ import { getTemplatedTitle } from '../components/layouts/utils';
 import styles from '../components/layouts/ProfileLayout/NavBar.module.css';
 import { GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 
-interface GenerateDevCardParams {
-  theme?: string;
-  type?: string;
-  isProfileCover?: boolean;
-  showBorder?: boolean;
+interface Step1Props {
+  onGenerateImage(): void;
 }
 
-type StepProps = {
-  onGenerateImage: (params?: GenerateDevCardParams) => unknown;
-  devCardSrc?: string;
-  isLoadingImage: boolean;
-  error?: string;
-};
-
-const Step1 = ({
-  onGenerateImage,
-  isLoadingImage,
-  error,
-}: StepProps): ReactElement => {
+const Step1 = ({ onGenerateImage }: Step1Props): ReactElement => {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
 
   return (
@@ -86,7 +63,6 @@ const Step1 = ({
               variant={ButtonVariant.Primary}
               size={ButtonSize.Large}
               onClick={() => onGenerateImage()}
-              loading={isLoadingImage}
             >
               Generate now
             </Button>
@@ -100,15 +76,11 @@ const Step1 = ({
             </Button>
           ))}
       </div>
-      {error && <FormErrorMessage role="alert">{error}</FormErrorMessage>}
     </>
   );
 };
 
-const Step2 = ({
-  onGenerateImage,
-  isLoadingImage,
-}: StepProps): ReactElement => {
+const Step2 = (): ReactElement => {
   const [devCardSrc, setDevCardSrc] = useState<string>();
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
@@ -143,7 +115,7 @@ const Step2 = ({
     setDownloading(false);
   };
 
-  const { mutateAsync: onGenerate } = useMutation(
+  const { mutateAsync: onGenerate, isLoading } = useMutation(
     () => {
       const { theme, isProfileCover } = client.getQueryData(key) as DevCardData;
 
@@ -166,14 +138,6 @@ const Step2 = ({
     },
   );
 
-  useEffect(() => {
-    onGenerateImage({
-      type: cardType === DevCardType.Vertical ? 'DEFAULT' : 'WIDE',
-      isProfileCover: profileCover,
-      showBorder,
-    });
-  }, [onGenerateImage, cardType, profileCover, showBorder]);
-
   const onSelectTheme = (theme: DevCardTheme) => {
     client.setQueryData(key, (oldData: DevCardData) => {
       return { ...oldData, theme };
@@ -189,7 +153,7 @@ const Step2 = ({
           </h1>
           <div className="flex grow-0 flex-row justify-center">
             <RadioItem
-              disabled={isLoadingImage}
+              disabled={isLoading}
               name="vertical"
               checked={cardType === DevCardType.Vertical}
               onChange={() => setCardType(DevCardType.Vertical)}
@@ -198,7 +162,7 @@ const Step2 = ({
             </RadioItem>
 
             <RadioItem
-              disabled={isLoadingImage}
+              disabled={isLoading}
               name="horizontal"
               checked={cardType === DevCardType.Horizontal}
               onChange={() => setCardType(DevCardType.Horizontal)}
@@ -214,7 +178,7 @@ const Step2 = ({
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
             onClick={() => onGenerate()}
-            loading={downloading}
+            loading={downloading || isLoading}
           >
             Download DevCard
           </Button>
@@ -320,7 +284,7 @@ const Step2 = ({
                       >
                         <span>
                           <button
-                            disabled={isLocked}
+                            disabled={isLocked || isLoading}
                             type="button"
                             aria-label={`Select ${theme} theme`}
                             className={classNames(
@@ -342,7 +306,7 @@ const Step2 = ({
                 </p>
 
                 <RadioItem
-                  disabled={isLoadingImage}
+                  disabled={isLoading}
                   name="defaultCover"
                   checked={!profileCover}
                   onChange={() => setProfileCover(false)}
@@ -352,7 +316,7 @@ const Step2 = ({
                 </RadioItem>
 
                 <RadioItem
-                  disabled={isLoadingImage}
+                  disabled={isLoading}
                   name="profileCover"
                   checked={profileCover}
                   onChange={() => setProfileCover(true)}
@@ -397,18 +361,8 @@ const seo: NextSeoProps = {
 
 const DevCardPage = (): ReactElement => {
   const { completeAction, checkHasCompleted } = useActions();
-  const [shouldShowCard, setShouldShowCard] = useState(false);
   const isDevCardGenerated = checkHasCompleted(ActionType.DevCardGenerate);
 
-  const stepProps: StepProps = {
-    onGenerateImage: () => {
-      setShouldShowCard(true);
-      completeAction(ActionType.DevCardGenerate);
-    },
-    devCardSrc: '',
-    isLoadingImage: false,
-    error: undefined,
-  };
   return (
     <div
       className={classNames(
@@ -417,10 +371,12 @@ const DevCardPage = (): ReactElement => {
       )}
     >
       <NextSeo {...seo} />
-      {isDevCardGenerated || shouldShowCard ? (
-        <Step2 {...stepProps} />
+      {isDevCardGenerated ? (
+        <Step2 />
       ) : (
-        <Step1 {...stepProps} />
+        <Step1
+          onGenerateImage={() => completeAction(ActionType.DevCardGenerate)}
+        />
       )}
     </div>
   );
