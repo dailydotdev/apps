@@ -278,7 +278,7 @@ const Step2 = (): ReactElement => {
                   size={ButtonSize.Small}
                   onClick={() => onGenerate({ type: DevCardType.Twitter })}
                 >
-                  {!copyingEmbed ? 'Copy code' : 'Copied!'}
+                  Download X cover image
                 </Button>
               </>
             )}
