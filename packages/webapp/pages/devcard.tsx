@@ -431,7 +431,7 @@ const DevCardPage = (): ReactElement => {
       )}
     >
       <NextSeo {...seo} />
-      {true ? (
+      {isDevCardGenerated ? (
         <Step2 />
       ) : (
         <Step1
