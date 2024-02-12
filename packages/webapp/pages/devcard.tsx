@@ -38,7 +38,10 @@ import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import styles from '../components/layouts/ProfileLayout/NavBar.module.css';
-import { GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
+import {
+  GENERATE_DEVCARD_MUTATION,
+  GenerateDevCardParams,
+} from '../graphql/devcard';
 
 interface Step1Props {
   onGenerateImage(): void;
@@ -96,9 +99,13 @@ const Step2 = (): ReactElement => {
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
   const [downloading, setDownloading] = useState(false);
   const [selectedTab, setSelectedTab] = useState(0);
-  const [cardType, setCardType] = useState(DevCardType.Vertical);
-  const [profileCover, setProfileCover] = useState(true);
-  const [showBorder, setShowBorder] = useState(true);
+  const [{ type, theme, showBorder, isProfileCover }, setUpdatePreference] =
+    useState<GenerateDevCardParams>({
+      type: DevCardType.Vertical,
+      theme: DevCardTheme.Default,
+      showBorder: true,
+      isProfileCover: false,
+    });
 
   const downloadImage = async (): Promise<void> => {
     setDownloading(true);
@@ -116,16 +123,13 @@ const Step2 = (): ReactElement => {
   };
 
   const { mutateAsync: onGenerate, isLoading } = useMutation(
-    () => {
-      const { theme, isProfileCover } = client.getQueryData(key) as DevCardData;
-
-      return request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
+    () =>
+      request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
+        type,
         theme,
-        type: cardType,
-        isProfileCover,
         showBorder,
-      });
-    },
+        isProfileCover,
+      }),
     {
       onSuccess: (data) => {
         if (!data?.devCard?.imageUrl) {
@@ -138,11 +142,17 @@ const Step2 = (): ReactElement => {
     },
   );
 
-  const onSelectTheme = (theme: DevCardTheme) => {
-    client.setQueryData(key, (oldData: DevCardData) => {
-      return { ...oldData, theme };
+  const onUpdatePreference = (props: Partial<GenerateDevCardParams>) =>
+    setUpdatePreference((prev) => {
+      const updated = { ...prev, ...props };
+
+      client.setQueryData(key, (oldData: DevCardData) => ({
+        ...oldData,
+        ...updated,
+      }));
+
+      return updated;
     });
-  };
 
   return (
     <div className="mx-2 mt-14 flex flex-col self-stretch">
@@ -155,8 +165,10 @@ const Step2 = (): ReactElement => {
             <RadioItem
               disabled={isLoading}
               name="vertical"
-              checked={cardType === DevCardType.Vertical}
-              onChange={() => setCardType(DevCardType.Vertical)}
+              checked={type === DevCardType.Vertical}
+              onChange={() =>
+                onUpdatePreference({ type: DevCardType.Vertical })
+              }
             >
               Vertical
             </RadioItem>
@@ -164,14 +176,16 @@ const Step2 = (): ReactElement => {
             <RadioItem
               disabled={isLoading}
               name="horizontal"
-              checked={cardType === DevCardType.Horizontal}
-              onChange={() => setCardType(DevCardType.Horizontal)}
+              checked={type === DevCardType.Horizontal}
+              onChange={() =>
+                onUpdatePreference({ type: DevCardType.Horizontal })
+              }
             >
               Horizontal
             </RadioItem>
           </div>
 
-          <div>{user && <DevCard userId={user.id} type={cardType} />}</div>
+          <div>{user && <DevCard userId={user.id} type={type} />}</div>
 
           <Button
             className="mx-auto mt-4 grow-0 self-start"
@@ -271,14 +285,14 @@ const Step2 = (): ReactElement => {
                 <h3 className="typo-title4 mb-2 font-bold">Theme</h3>
 
                 <div className="flex flex-row flex-wrap">
-                  {Object.keys(themeToLinearGradient).map((theme) => {
-                    const isLocked = user?.reputation < requiredPoints[theme];
+                  {Object.keys(themeToLinearGradient).map((value) => {
+                    const isLocked = user?.reputation < requiredPoints[value];
                     return (
                       <SimpleTooltip
-                        key={theme}
+                        key={value}
                         content={
                           isLocked
-                            ? `Earn ${requiredPoints[theme]} reputation points to unlock this theme`
+                            ? `Earn ${requiredPoints[value]} reputation points to unlock this theme`
                             : null
                         }
                       >
@@ -286,13 +300,19 @@ const Step2 = (): ReactElement => {
                           <button
                             disabled={isLocked || isLoading}
                             type="button"
-                            aria-label={`Select ${theme} theme`}
+                            aria-label={`Select ${value} theme`}
                             className={classNames(
                               'mb-3 mr-3 h-10 w-10 rounded-full',
                               isLocked && 'opacity-32',
+                              theme === value &&
+                                'border-4 border-theme-color-cabbage',
                             )}
-                            style={{ background: themeToLinearGradient[theme] }}
-                            onClick={() => onSelectTheme(theme as DevCardTheme)}
+                            style={{ background: themeToLinearGradient[value] }}
+                            onClick={() =>
+                              onUpdatePreference({
+                                theme: value as DevCardTheme,
+                              })
+                            }
                           />
                         </span>
                       </SimpleTooltip>
@@ -308,8 +328,8 @@ const Step2 = (): ReactElement => {
                 <RadioItem
                   disabled={isLoading}
                   name="defaultCover"
-                  checked={!profileCover}
-                  onChange={() => setProfileCover(false)}
+                  checked={!isProfileCover}
+                  onChange={() => onUpdatePreference({ isProfileCover: false })}
                   className="my-1.5 truncate"
                 >
                   Default
@@ -318,8 +338,8 @@ const Step2 = (): ReactElement => {
                 <RadioItem
                   disabled={isLoading}
                   name="profileCover"
-                  checked={profileCover}
-                  onChange={() => setProfileCover(true)}
+                  checked={isProfileCover}
+                  onChange={() => onUpdatePreference({ isProfileCover: true })}
                   className="my-1.5 truncate"
                 >
                   Use profile cover
@@ -335,7 +355,9 @@ const Step2 = (): ReactElement => {
                   compact={false}
                   name="showBorder"
                   checked={showBorder}
-                  onToggle={() => setShowBorder(!showBorder)}
+                  onToggle={() =>
+                    onUpdatePreference({ showBorder: !showBorder })
+                  }
                 >
                   Show border
                 </Switch>
