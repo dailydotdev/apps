@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import GitHubIcon from '@dailydotdev/shared/src/components/icons/GitHub';
+import { GitHubIcon } from '@dailydotdev/shared/src/components/icons';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import {
   Button,

@@ -5,7 +5,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from './buttons/ButtonV2';
-import ArrowIcon from './icons/Arrow';
+import { ArrowIcon } from './icons';
 
 const baseStyle: CSSProperties = {
   transition: 'transform 0.1s ease-out, opacity 0.1s ease-out',

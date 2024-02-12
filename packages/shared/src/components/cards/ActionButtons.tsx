@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import {
   Post,
   UserPostVote,
@@ -10,8 +9,12 @@ import {
 } from '../../graphql/posts';
 import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
-import UpvoteIcon from '../icons/Upvote';
-import CommentIcon from '../icons/Discuss';
+import {
+  UpvoteIcon,
+  DiscussIcon as CommentIcon,
+  BookmarkIcon,
+  ShareIcon,
+} from '../icons';
 import {
   Button,
   ButtonColor,
@@ -27,12 +30,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { useFeedPreviewMode } from '../../hooks';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import BookmarkIcon from '../icons/Bookmark';
 import { getReadArticleLink } from '../utilities';
-
-const ShareIcon = dynamic(
-  () => import(/* webpackChunkName: "share" */ '../icons/Share'),
-);
 
 export interface ActionButtonsProps {
   post: Post;

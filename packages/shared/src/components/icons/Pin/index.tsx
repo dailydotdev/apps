@@ -6,5 +6,3 @@ import FilledIcon from './filled.svg';
 export const PinIcon = (props: IconProps): ReactElement => (
   <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );
-
-export default PinIcon;

@@ -6,7 +6,12 @@ import { webappUrl } from '../lib/constants';
 import { Post } from './posts';
 import { labels } from '../lib';
 
-export const searchPageUrl = `${webappUrl}search`;
+export enum SearchProviderEnum {
+  Posts = 'posts',
+  Chat = 'chat',
+}
+
+const searchPageUrl = `${webappUrl}search`;
 
 export enum SearchChunkErrorCode {
   StoppedGenerating = '-2',
@@ -72,6 +77,7 @@ export const SEARCH_POST_SUGGESTIONS = gql`
   query SearchPostSuggestions($query: String!) {
     searchPostSuggestions(query: $query) {
       hits {
+        id
         title
       }
     }
@@ -246,24 +252,33 @@ export const updateSearchData = (
 
 interface SearchUrlParams {
   id?: string;
-  question?: string;
+  query?: string;
+  provider: SearchProviderEnum;
 }
 
 export const getSearchUrl = (params: SearchUrlParams): string => {
-  const { id, question } = params;
+  const { id, query, provider = SearchProviderEnum.Posts } = params;
   const searchParams = new URLSearchParams();
 
-  if (!id && !question) {
-    throw new Error('Must have at least one parameter');
+  if (!provider) {
+    throw new Error('provider is required');
+  }
+
+  if (provider !== SearchProviderEnum.Posts) {
+    searchParams.append('provider', provider);
   }
 
   if (id) {
     searchParams.append('id', id);
-  } else if (question) {
-    searchParams.append('q', question);
+  } else if (query) {
+    searchParams.append('q', query);
   }
 
-  return `${searchPageUrl}?${searchParams}`;
+  const searchParamsString = searchParams.toString();
+
+  return `${searchPageUrl}${
+    searchParamsString ? `?${searchParamsString}` : ''
+  }`;
 };
 
 export const searchQueryUrl = `${apiUrl}/search/query`;
@@ -279,3 +294,16 @@ export const sendSearchQuery = async (
 
   return new EventSource(`${searchQueryUrl}?${params}`);
 };
+
+export type SearchSuggestion = {
+  id?: string;
+  title: string;
+};
+
+export type SearchSuggestionResult = {
+  hits: SearchSuggestion[];
+};
+
+export const minSearchQueryLength = 3;
+
+export const sanitizeSearchTitleMatch = /<(\/?)strong>/g;

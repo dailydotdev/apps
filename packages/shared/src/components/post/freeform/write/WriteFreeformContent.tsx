@@ -5,7 +5,7 @@ import React, {
   useRef,
 } from 'react';
 import ImageInput from '../../../fields/ImageInput';
-import CameraIcon from '../../../icons/Camera';
+import { CameraIcon } from '../../../icons';
 import { TextField } from '../../../fields/TextField';
 import MarkdownInput from '../../../fields/MarkdownInput';
 import { WritePageMain } from './common';
@@ -17,7 +17,7 @@ import {
 import { formToJson } from '../../../../lib/form';
 import useDebounce from '../../../../hooks/useDebounce';
 import AlertPointer, { AlertPlacement } from '../../../alert/AlertPointer';
-import { useActions } from '../../../../hooks/useActions';
+import { useActions } from '../../../../hooks';
 import { ActionType } from '../../../../graphql/actions';
 import useSidebarRendered from '../../../../hooks/useSidebarRendered';
 import { base64ToFile } from '../../../../lib/base64';

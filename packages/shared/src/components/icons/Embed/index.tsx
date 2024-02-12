@@ -3,8 +3,6 @@ import Icon, { IconProps } from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-const EmbedIcon = (props: IconProps): ReactElement => (
+export const EmbedIcon = (props: IconProps): ReactElement => (
   <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );
-
-export default EmbedIcon;

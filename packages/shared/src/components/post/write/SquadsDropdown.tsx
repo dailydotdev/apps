@@ -1,11 +1,11 @@
 import React, { ReactElement } from 'react';
 import { SourceAvatar, SourceShortInfo } from '../../profile/source';
-import SquadIcon from '../../icons/Squad';
+import { SquadIcon } from '../../icons';
 import { Dropdown } from '../../fields/Dropdown';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
-import { ButtonSize } from '../../buttons/ButtonV2';
+import { ButtonSize } from '../../buttons/common';
 
 interface SquadsDropdownProps {
   onSelect: (index: number) => void;

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { cookiePolicy } from '@dailydotdev/shared/src/lib/constants';
-import CookieIcon from '@dailydotdev/shared/src/components/icons/Cookie';
+import { CookieIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   Button,
   ButtonSize,

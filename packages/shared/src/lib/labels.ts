@@ -4,6 +4,7 @@ export const labels = {
   },
   error: {
     generic: '🚫 Something went wrong, please try again.',
+    rateLimit: '⌛️ Rate limit exceeded, please try again later.',
   },
   squads: {
     forbidden: '🚫 You no longer have access to this Squad.',

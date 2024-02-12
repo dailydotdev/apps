@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import FilterIcon from '../icons/Filter';
+import { FilterIcon } from '../icons';
 import {
   Button,
   ButtonIconPosition,

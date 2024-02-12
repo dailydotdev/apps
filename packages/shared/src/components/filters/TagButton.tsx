@@ -1,7 +1,6 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import classNames from 'classnames';
-import PlusIcon from '../icons/Plus';
-import BlockIcon from '../icons/Block';
+import { PlusIcon, BlockIcon } from '../icons';
 import {
   AllowedTags,
   Button,

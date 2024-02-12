@@ -8,9 +8,7 @@ import React, {
 import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
-import SearchIcon from '../icons/Search';
-import CloseIcon from '../icons/MiniClose';
-import ArrowIcon from '../icons/Arrow';
+import { SearchIcon, MiniCloseIcon as CloseIcon, ArrowIcon } from '../icons';
 import {
   Button,
   ButtonProps,

@@ -1,7 +1,7 @@
 import React, { ReactElement, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
-import MagnifyingIcon from '../icons/Search';
+import { SearchIcon as MagnifyingIcon } from '../icons';
 import { useDomPurify } from '../../hooks/useDomPurify';
 
 const preventDefault = (e: React.MouseEvent) => e.preventDefault();

@@ -1,10 +1,12 @@
 import React, { ReactElement, useContext } from 'react';
 import AuthContext from '../contexts/AuthContext';
-import TwitterIcon from './icons/Twitter';
-import WhatsappIcon from './icons/Whatsapp';
-import FacebookIcon from './icons/Facebook';
-import CopyIcon from './icons/Copy';
-import ShareIcon from './icons/Share';
+import {
+  TwitterIcon,
+  WhatsappIcon,
+  FacebookIcon,
+  CopyIcon,
+  ShareIcon,
+} from './icons';
 import Confetti from '../svg/ConfettiSvg';
 import {
   getFacebookShareLink,

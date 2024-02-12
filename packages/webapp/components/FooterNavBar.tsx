@@ -1,12 +1,13 @@
 import React, { ReactElement, useContext } from 'react';
 import { Flipped, Flipper } from 'react-flip-toolkit';
 import classNames from 'classnames';
-
-import HomeIcon from '@dailydotdev/shared/src/components/icons/Home';
-import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
-import SearchIcon from '@dailydotdev/shared/src/components/icons/Search';
-import FilterIcon from '@dailydotdev/shared/src/components/icons/Filter';
-import BellIcon from '@dailydotdev/shared/src/components/icons/Bell';
+import {
+  HomeIcon,
+  BookmarkIcon,
+  SearchIcon,
+  FilterIcon,
+  BellIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';

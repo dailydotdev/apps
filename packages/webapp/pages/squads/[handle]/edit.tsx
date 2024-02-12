@@ -26,7 +26,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
-import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   generateQueryKey,
   RequestKey,

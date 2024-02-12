@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import React, { HTMLAttributes, ReactElement } from 'react';
 import { Button, ButtonVariant } from '../buttons/ButtonV2';
-import MenuIcon from '../icons/Menu';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import SquadHeaderMenu from './SquadHeaderMenu';
 import useContextMenu from '../../hooks/useContextMenu';
@@ -9,7 +8,6 @@ import SquadMemberShortList, {
   SquadMemberShortListProps,
 } from './SquadMemberShortList';
 import { IconSize } from '../Icon';
-import AddUserIcon from '../icons/AddUser';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { Origin } from '../../lib/analytics';
@@ -17,11 +15,10 @@ import { TourScreenIndex } from './SquadTour';
 import { useSquadTour } from '../../hooks/useSquadTour';
 import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions } from '../../graphql/sources';
-import ChecklistBIcon from '../icons/ChecklistB';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { isTesting } from '../../lib/constants';
 import { SquadJoinButton } from './SquadJoinButton';
-import BellIcon from '../icons/Bell';
+import { BellIcon, ChecklistBIcon, AddUserIcon, MenuIcon } from '../icons';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 

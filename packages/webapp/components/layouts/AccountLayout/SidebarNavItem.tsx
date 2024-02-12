@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode } from 'react';
-import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import Link from 'next/link';
 
 interface SidebarNavItemProps {

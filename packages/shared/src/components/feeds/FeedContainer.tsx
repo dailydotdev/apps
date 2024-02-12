@@ -1,38 +1,24 @@
 import React, {
   CSSProperties,
-  FormEvent,
   ReactElement,
   ReactNode,
   useContext,
-  useEffect,
-  useRef,
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { Spaciness } from '../../graphql/settings';
 import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
+import ScrollToTopButton from '../ScrollToTopButton';
 import styles from '../Feed.module.css';
-import { SearchBarInput, SearchBarSuggestionList } from '../search';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
-import { webappUrl } from '../../lib/constants';
-import { useSearchQuestionRecommendations } from '../../hooks/search';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import { ActionType } from '../../graphql/actions';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { FeedReadyMessage } from '../onboarding';
-import {
-  useFeedLayout,
-  useActions,
-  ToastSubject,
-  useToastNotification,
-} from '../../hooks';
+import { useFeedLayout, ToastSubject, useToastNotification } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
-import { FeedGradientBg } from './FeedGradientBg';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -65,7 +51,7 @@ const cardListClass = {
   7: 'grid-cols-7',
 };
 
-const getFeedGapPx = {
+export const getFeedGapPx = {
   'gap-2': 8,
   'gap-3': 12,
   'gap-5': 20,
@@ -74,11 +60,11 @@ const getFeedGapPx = {
   'gap-14': 56,
 };
 
-const gapClass = (
+export const gapClass = (
   isList: boolean,
   isFeedLayoutV1: boolean,
   space: Spaciness,
-) => {
+): string => {
   if (isFeedLayoutV1) {
     return '';
   }
@@ -122,8 +108,6 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
-  const { trackEvent } = useAnalyticsContext();
-  const { completeAction, checkHasCompleted } = useActions();
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
@@ -138,43 +122,14 @@ export const FeedContainer = ({
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
-  const isFinder = router.pathname === '/posts/finder';
+  const isFinder = router.pathname === '/search/posts';
   const isV1Search =
     searchValue === SearchExperiment.V1 && showSearch && !isFinder;
-
-  const suggestionsProps = useSearchQuestionRecommendations({
-    origin: Origin.HomePage,
-    disabled: !isV1Search,
-  });
-  const isTracked = useRef(false);
-  const shouldShowPulse =
-    checkHasCompleted(ActionType.AcceptedSearch) &&
-    !checkHasCompleted(ActionType.UsedSearch);
-
-  useEffect(() => {
-    if (!shouldShowPulse || isTracked.current) {
-      return;
-    }
-
-    isTracked.current = true;
-    trackEvent({ event_name: AnalyticsEvent.SearchHighlightAnimation });
-  }, [trackEvent, shouldShowPulse]);
 
   if (!loadedSettings) {
     return <></>;
   }
 
-  const onSearch = (event: FormEvent, input: string) => {
-    event.preventDefault();
-    router.push(`${webappUrl}search?q=${encodeURIComponent(input)}`);
-  };
-  const handleSearchFocus = () => {
-    if (!shouldShowPulse) {
-      return;
-    }
-
-    completeAction(ActionType.UsedSearch);
-  };
   const showFeedReadyMessage = router.query?.welcome === 'true';
 
   return (
@@ -185,7 +140,7 @@ export const FeedContainer = ({
         className,
       )}
     >
-      {isV1Search && shouldUseFeedLayoutV1 && <FeedGradientBg />}
+      <ScrollToTopButton />
       <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
         {!inlineHeader && header}
         <div
@@ -216,48 +171,16 @@ export const FeedContainer = ({
             <ConditionalWrapper
               condition={!shouldUseFeedLayoutV1}
               wrapper={(child) => (
-                <span className="mt-6 flex flex-row gap-3">
-                  {child}
-                  {shortcuts}
-                </span>
+                <span className="flex flex-row gap-3">{child}</span>
               )}
             >
-              <SearchBarInput
-                className={{
-                  container: classNames(
-                    'flex w-full flex-1',
-                    shouldUseFeedLayoutV1
-                      ? 'mt-6 [@media(width<=680px)]:px-6'
-                      : 'max-w-2xl',
-                    shouldShowPulse && 'highlight-pulse',
-                  ),
-                  field: classNames(
-                    'w-full',
-                    shouldUseFeedLayoutV1 && '!bg-transparent',
-                  ),
-                  form: 'w-full',
-                }}
-                showProgress={false}
-                onSubmit={onSearch}
-                shouldShowPopup
-                inputProps={{ onFocus: handleSearchFocus }}
-                suggestionsProps={suggestionsProps}
-              />
+              {!!shortcuts && shortcuts}
             </ConditionalWrapper>
           )}
           {isV1Search && (
-            <span
-              className={classNames(
-                'mt-4 hidden flex-1 flex-row tablet:flex',
-                shouldUseFeedLayoutV1 && '[@media(width<=680px)]:mx-6',
-              )}
-            >
-              <SearchBarSuggestionList
-                {...suggestionsProps}
-                className={classNames(!shouldUseFeedLayoutV1 && 'mr-3')}
-              />
+            <span className="flex flex-1 flex-row">
               {actionButtons && !shouldUseFeedLayoutV1 && (
-                <span className="ml-auto flex flex-row gap-3 border-l border-theme-divider-tertiary pl-3">
+                <span className="mr-auto flex flex-row gap-3 border-theme-divider-tertiary pr-3">
                   {actionButtons}
                 </span>
               )}

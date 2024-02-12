@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import ArrowIcon from '../icons/Arrow';
+import { ArrowIcon } from '../icons';
 import { Post } from '../../graphql/posts';
 import styles from '../cards/Card.module.css';
 import { CardLink } from '../cards/Card';

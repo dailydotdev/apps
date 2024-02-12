@@ -4,8 +4,7 @@ import React, {
   ReactElement,
   useContext,
 } from 'react';
-import MenuIcon from '../icons/Menu';
-import CloseIcon from '../icons/MiniClose';
+import { MenuIcon, MiniCloseIcon as CloseIcon } from '../icons';
 import { Roles } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
 import { banPost, demotePost, Post, promotePost } from '../../graphql/posts';

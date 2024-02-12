@@ -1,11 +1,8 @@
 import React, { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
-import DocsIcon from '../icons/Docs';
-import FeedbackIcon from '../icons/Feedback';
-import TerminalIcon from '../icons/Terminal';
+import { DocsIcon, FeedbackIcon, TerminalIcon } from '../icons';
 import SidebarRankProgress from '../SidebarRankProgress';
 import { ListIcon, Nav, SidebarMenuItem } from './common';
-import InvitePeople from './InvitePeople';
 import { Section, SectionCommonProps } from './Section';
 import { docs, feedback } from '../../lib/constants';
 import { useChangelog } from '../../hooks/useChangelog';
@@ -57,7 +54,6 @@ export function SidebarBottomSection({
   return (
     <Nav>
       <Section {...props} items={bottomMenuItems} isItemsButton={false} />
-      <InvitePeople {...props} />
       {props.sidebarExpanded && !optOutWeeklyGoal && (
         <SidebarRankProgress {...props} disableNewRankPopup={showSettings} />
       )}

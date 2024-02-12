@@ -7,29 +7,24 @@ import React, {
 } from 'react';
 import { useRouter } from 'next/router';
 import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
-import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
-import dynamic from 'next/dynamic';
+import MainFeedLayout, {
+  MainFeedLayoutProps,
+} from '@dailydotdev/shared/src/components/MainFeedLayout';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import { getLayout } from './FeedLayout';
 
-const PostsSearch = dynamic(
-  () =>
-    import(/* webpackChunkName: "routerPostsSearch" */ '../RouterPostsSearch'),
-  { ssr: false },
-);
-
 export type MainFeedPageProps = {
   children?: ReactNode;
   isFinder?: boolean;
-};
+} & Pick<MainFeedLayoutProps, 'searchChildren'>;
 
 const getFeedName = (path: string): string => {
   if (path === '/') {
     return 'default';
   }
 
-  if (path === '/posts/finder') {
+  if (path.startsWith('/search')) {
     return 'search';
   }
 
@@ -39,10 +34,11 @@ const getFeedName = (path: string): string => {
 export default function MainFeedPage({
   children,
   isFinder,
+  searchChildren,
 }: MainFeedPageProps): ReactElement {
   const router = useRouter();
   const { user } = useContext(AuthContext);
-  const isFinderPage = router?.pathname === '/search' || isFinder;
+  const isFinderPage = router?.pathname === '/search/posts' || isFinder;
   const [feedName, setFeedName] = useState(getFeedName(router?.pathname));
   const [isSearchOn, setIsSearchOn] = useState(isFinderPage);
   useEffect(() => {
@@ -77,8 +73,8 @@ export default function MainFeedPage({
       isSearchOn={isSearchOn}
       onFeedPageChanged={(page) => router.replace(`/${page}`)}
       searchQuery={router.query?.q?.toString()}
-      searchChildren={<PostsSearch />}
       isFinder={isFinder}
+      searchChildren={searchChildren}
     >
       {children}
     </MainFeedLayout>

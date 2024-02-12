@@ -1,17 +1,26 @@
 import React, { ReactElement, useEffect } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
-import { SearchResult } from '@dailydotdev/shared/src/components/search';
+import {
+  SearchProviderButton,
+  SearchResult,
+} from '@dailydotdev/shared/src/components/search';
 import { useChat } from '@dailydotdev/shared/src/hooks';
 import { SearchContainer } from '@dailydotdev/shared/src/components/search/SearchContainer';
 import { useRouter } from 'next/router';
-import { searchPageUrl } from '@dailydotdev/shared/src/graphql/search';
+import {
+  SearchProviderEnum,
+  getSearchUrl,
+} from '@dailydotdev/shared/src/graphql/search';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { labels } from '@dailydotdev/shared/src/lib';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { getLayout as getMainLayout } from '../layouts/MainLayout';
 import { getTemplatedTitle } from '../layouts/utils';
 
 const SearchPage = (): ReactElement => {
   const router = useRouter();
+  const { trackEvent } = useAnalyticsContext();
   const query = router?.query?.q as string;
   const sessionIdQuery = router?.query?.id as string;
   const { data, isLoading, queryKey, handleSubmit } = useChat({
@@ -26,7 +35,10 @@ const SearchPage = (): ReactElement => {
       return;
     }
 
-    const newRoute = `${searchPageUrl}?id=${sessionId}`;
+    const newRoute = getSearchUrl({
+      id: sessionId,
+      provider: SearchProviderEnum.Chat,
+    });
 
     router.replace(newRoute, undefined, {
       shallow: true,
@@ -59,28 +71,41 @@ const SearchPage = (): ReactElement => {
     },
   };
 
+  const searchedQuery = data?.chunks[0]?.prompt || query;
+
   return (
     <SearchContainer
-      onSubmit={(event, value) => {
-        router.push(searchPageUrl, undefined, {
-          shallow: true,
-        });
-
-        handleSubmit(event, value);
-      }}
       chunk={chunk}
       isLoading={!router?.isReady}
       isInProgress={isLoading}
     >
       <NextSeo {...seo} />
       {(!!content || !!data) && (
-        <SearchResult
-          queryKey={queryKey}
-          isInProgress={isLoading}
-          chunk={chunk}
-          searchMessageProps={{ isLoading }}
-          className="mt-6"
-        />
+        <div className="flex flex-col justify-center">
+          <SearchResult
+            queryKey={queryKey}
+            isInProgress={isLoading}
+            chunk={chunk}
+            searchMessageProps={{ isLoading }}
+          />
+          <SearchProviderButton
+            className="order-4 mx-auto mt-5 laptop:ml-0"
+            provider={SearchProviderEnum.Posts}
+            query={searchedQuery}
+            onClick={() => {
+              trackEvent({
+                event_name: AnalyticsEvent.SwitchSearch,
+                extra: JSON.stringify({
+                  from: SearchProviderEnum.Chat,
+                  to: SearchProviderEnum.Posts,
+                  query: searchedQuery,
+                }),
+              });
+            }}
+          >
+            <span>Search posts on daily.dev instead</span>
+          </SearchProviderButton>
+        </div>
       )}
     </SearchContainer>
   );

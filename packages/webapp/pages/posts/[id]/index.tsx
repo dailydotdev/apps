@@ -41,7 +41,7 @@ import { ModalSize } from '@dailydotdev/shared/src/components/modals/common/type
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
-import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Link from 'next/link';
 import { CollectionPostContent } from '@dailydotdev/shared/src/components/post/collection';
@@ -49,7 +49,6 @@ import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvide
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { FeedLayout } from '@dailydotdev/shared/src/lib/featureValues';
 import { PostBackButton } from '@dailydotdev/shared/src/components/post/common/PostBackButton';
-import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -92,10 +91,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const layout = useFeature(feature.feedLayout);
   const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = router;
-
-  useEventListener(globalThis, 'popstate', () => {
-    router.reload();
-  });
 
   const { post, isError, isFetched, isPostLoadingOrFetching } = usePostById({
     id,

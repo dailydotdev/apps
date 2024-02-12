@@ -3,8 +3,12 @@ import classNames from 'classnames';
 import { SearchBarSuggestion, SuggestionOrigin } from './SearchBarSuggestion';
 import { PlaceholderSearchSuggestion } from './PlaceholderSearchSuggestion';
 import AuthContext from '../../contexts/AuthContext';
-import FeedbackIcon from '../icons/Feedback';
-import { getSearchUrl, SearchQuestion } from '../../graphql/search';
+import { FeedbackIcon } from '../icons';
+import {
+  getSearchUrl,
+  SearchProviderEnum,
+  SearchQuestion,
+} from '../../graphql/search';
 import { Pill } from '../utilities/loaders';
 import { AuthTriggers } from '../../lib/auth';
 
@@ -69,7 +73,8 @@ export function SearchBarSuggestionList({
           prompt={suggestion.question}
           key={suggestion.id}
           href={getSearchUrl({
-            question: suggestion.question,
+            query: suggestion.question,
+            provider: SearchProviderEnum.Chat,
           })}
         >
           {suggestion.question}

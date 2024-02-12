@@ -1,8 +1,11 @@
 import React, { ReactElement, useState } from 'react';
-import CommentIcon from '@dailydotdev/shared/src/components/icons/Discuss';
-import FlagIcon from '@dailydotdev/shared/src/components/icons/Flag';
-import FeedbackIcon from '@dailydotdev/shared/src/components/icons/Feedback';
-import EyeIcon from '@dailydotdev/shared/src/components/icons/Eye';
+import {
+  DiscussIcon as CommentIcon,
+  FlagIcon,
+  FeedbackIcon,
+  EyeIcon,
+  DownvoteIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import { Item, Menu } from '@dailydotdev/react-contexify';
 import {
   ReportPostModal,
@@ -17,7 +20,6 @@ import {
   usePrompt,
 } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import DownvoteIcon from '@dailydotdev/shared/src/components/icons/Downvote';
 import classNames from 'classnames';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { labels } from '@dailydotdev/shared/src/lib';

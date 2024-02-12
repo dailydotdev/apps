@@ -1,7 +1,6 @@
 import React, { ReactElement, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import EmbedIcon from '../icons/Embed';
-import LinkIcon from '../icons/Link';
+import { EmbedIcon, LinkIcon } from '../icons';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
 import { useLazyModal } from '../../hooks/useLazyModal';

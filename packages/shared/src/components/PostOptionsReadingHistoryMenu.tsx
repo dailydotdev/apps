@@ -4,9 +4,7 @@ import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { QueryClient, QueryKey, useQueryClient } from '@tanstack/react-query';
 import { ReadHistoryPost } from '../graphql/posts';
-import ShareIcon from './icons/Share';
-import BookmarkIcon from './icons/Bookmark';
-import XIcon from './icons/MiniClose';
+import { ShareIcon, BookmarkIcon, MiniCloseIcon as XIcon } from './icons';
 import {
   UseBookmarkPostRollback,
   useBookmarkPost,

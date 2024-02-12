@@ -70,7 +70,30 @@ module.exports = withTM(
             source: '/api/:path*',
             destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
           },
+          {
+            source: '/search',
+            destination: '/search/:provider',
+            has: [
+              {
+                type: 'query',
+                key: 'provider'
+              }
+            ]
+          },
+          {
+            source: '/search',
+            destination: '/search/posts'
+          }
         ],
+        redirects: () => {
+          return [
+            {
+              source: '/posts/finder',
+              destination: '/search?provider=posts',
+              permanent: false
+            }
+          ]
+        },
         headers: async () => {
           return [
               {

@@ -1,6 +1,5 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import AuthContext from '../../contexts/AuthContext';
-import FlagIcon from '../icons/Flag';
 import { reportSquadMember } from '../../lib/constants';
 import { IconSize } from '../Icon';
 import {
@@ -9,16 +8,13 @@ import {
   SourcePermissions,
   Squad,
 } from '../../graphql/sources';
-import BlockIcon from '../icons/Block';
-import { StarIcon, UserIcon } from '../icons';
-import SquadIcon from '../icons/Squad';
+import { StarIcon, UserIcon, SquadIcon, BlockIcon, FlagIcon } from '../icons';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
 import { ModalSize } from '../modals/common/types';
 import { ContextMenu, MenuItemProps } from '../fields/PortalMenu';
-import { UseSquadActions } from '../../hooks/squads/useSquadActions';
+import { UseSquadActions, useToastNotification } from '../../hooks';
 import { verifyPermission } from '../../graphql/squads';
-import { useToastNotification } from '../../hooks/useToastNotification';
 import { ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 
 interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
