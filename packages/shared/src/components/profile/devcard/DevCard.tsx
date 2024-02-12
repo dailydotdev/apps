@@ -5,7 +5,12 @@ import { postDateFormat } from '../../../lib/dateFormat';
 import { Divider } from '../../utilities';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { DevCardStats } from './DevCardStats';
-import { devCardBoxShadow, DevCardTheme, DevCardType } from './common';
+import {
+  devCardBoxShadow,
+  DevCardTheme,
+  DevCardType,
+  RoundedContainer,
+} from './common';
 import { DevCardFooter } from './DevCardFooter';
 import { DevCardContainer } from './DevCardContainer';
 import { useDevCard } from '../../../hooks/profile/useDevCard';
@@ -42,30 +47,30 @@ export function DevCard({
       <ConditionalWrapper
         condition={isHorizontal}
         wrapper={(component) => (
-          <div
-            className="flex w-[37.75rem] flex-row-reverse rounded-[32px] pl-2"
+          <RoundedContainer
+            className="flex w-[37.75rem] flex-row-reverse pl-2"
             style={{ boxShadow: devCardBoxShadow }}
           >
             {component}
-          </div>
+          </RoundedContainer>
         )}
       >
         <ConditionalWrapper
           condition={isHorizontal}
           wrapper={(component) => (
-            <div className="flex w-full max-w-[20.25rem] flex-col gap-4 rounded-[32px]">
+            <RoundedContainer className="flex w-full max-w-[20.25rem] flex-col gap-4">
               {component}
               <div className="relative mt-4 flex flex-col gap-4 p-2">
                 {footer}
               </div>
-            </div>
+            </RoundedContainer>
           )}
         >
           <div
             className={classNames(
               'relative flex flex-col bg-cover p-2 pb-10',
               isHorizontal
-                ? 'rounded-[32px] border-8 border-salt-90'
+                ? 'rounded-32 border-8 border-salt-90'
                 : 'rounded-12',
             )}
             style={{
@@ -73,7 +78,7 @@ export function DevCard({
             }}
           >
             {type !== DevCardType.Horizontal && (
-              <div className="absolute -inset-2 rounded-[32px] border-8 border-salt-90" />
+              <RoundedContainer className="absolute -inset-2 border-8 border-salt-90" />
             )}
             <img
               src={user.image}
@@ -82,8 +87,8 @@ export function DevCard({
                 '-rotate-3 border-white',
                 showBorder && (isHorizontal ? 'border-8' : 'border-4'),
                 {
-                  'size-40 rounded-[48px]': isVertical,
-                  'size-24 rounded-[32px]': isHorizontal,
+                  'size-40 rounded-48': isVertical,
+                  'size-24 rounded-32': isHorizontal,
                   'size-20 rounded-24': type === DevCardType.Compact,
                 },
               )}
