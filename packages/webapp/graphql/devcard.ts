@@ -13,7 +13,7 @@ export const GENERATE_DEVCARD_MUTATION = gql`
     $isProfileCover: Boolean
     $showBorder: Boolean
   ) {
-    devCard: generateDevCard(
+    devCard: generateDevCardV2(
       theme: $theme
       type: $type
       isProfileCover: $isProfileCover
