@@ -153,7 +153,7 @@ function MainLayoutHeader({
               greeting={isSearchV1 ? false : greeting}
             />
           </div>
-          {isSearchV1 && (
+          {isSearchV1 && !!user && (
             <SearchPanel
               className={{
                 container: classNames(
