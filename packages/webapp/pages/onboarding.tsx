@@ -96,7 +96,16 @@ export function OnboardPage(): ReactElement {
   const { isAuthenticating, isLoginFlow, email, defaultDisplay } = auth;
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
-  const onboardingVisual = useFeature(feature.onboardingVisual);
+  type OnboardingVisual = {
+    showCompanies?: boolean;
+    image?: string;
+    poster?: string;
+    webm?: string;
+    mp4?: string;
+  };
+  const onboardingVisual: OnboardingVisual = useFeature(
+    feature.onboardingVisual,
+  );
   const targetId = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
 
@@ -283,7 +292,7 @@ export function OnboardPage(): ReactElement {
         {!isFiltering && (
           <div className="hidden flex-1 tablet:block">
             <div className={classNames('relative', styles.videoWrapper)}>
-              {
+              {onboardingVisual?.poster ? (
                 // eslint-disable-next-line jsx-a11y/media-has-caption
                 <video
                   loop
@@ -298,7 +307,16 @@ export function OnboardPage(): ReactElement {
                   <source src={onboardingVisual.webm} type="video/webm" />
                   <source src={onboardingVisual.mp4} type="video/mp4" />
                 </video>
-              }
+              ) : (
+                <img
+                  src={onboardingVisual.image}
+                  alt="Onboarding cover"
+                  className={classNames(
+                    'absolute -top-[20%] left-0 -z-1 tablet:top-0',
+                    styles.video,
+                  )}
+                />
+              )}
             </div>
             {onboardingVisual.showCompanies && <TrustedCompanies />}
           </div>
@@ -348,7 +366,7 @@ export function OnboardPage(): ReactElement {
         className={classNames(
           'flex w-full flex-grow flex-wrap justify-center px-6 tablet:gap-10',
           !isFiltering && wrapperMaxWidth,
-          !isAuthenticating && 'mt-8 flex-1 content-center',
+          !isAuthenticating && 'mt-7.5 flex-1 content-center',
         )}
       >
         {showOnboardingPage && (
