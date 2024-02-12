@@ -8,6 +8,7 @@ import {
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
+import { useRouter } from 'next/router';
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
   return { paths: [], fallback: 'blocking' };
@@ -25,7 +26,7 @@ export async function getStaticProps({
   if (!userId) {
     return {
       notFound: true,
-      revalidate: 60,
+      revalidate: false,
     };
   }
 
@@ -35,10 +36,21 @@ export async function getStaticProps({
   };
 }
 
+const devCardTypeMap = {
+  default: DevCardType.Vertical,
+  wide: DevCardType.Horizontal,
+  x: DevCardType.Compact,
+};
+
 const DevCardPage = ({ userId }: DevCardPageProps): ReactElement => {
+  const { query } = useRouter();
+  const type =
+    devCardTypeMap[(query?.type as string)?.toLocaleLowerCase()] ??
+    DevCardType.Vertical;
+
   return (
-    <div id="screenshot_wrapper" className="w-[356px]">
-      <DevCard userId={userId} type={DevCardType.Vertical} />
+    <div id="screenshot_wrapper" className="w-fit">
+      <DevCard userId={userId} type={type} />
     </div>
   );
 };
