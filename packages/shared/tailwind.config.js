@@ -129,6 +129,7 @@ module.exports = {
       3: '3',
       rank: '3',
       header: '4',
+      postNavigation: '5',
       sidebar: '7',
       tooltip: '8',
       popup: '9',
