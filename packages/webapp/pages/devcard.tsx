@@ -277,6 +277,7 @@ const Step2 = (): ReactElement => {
                   variant={ButtonVariant.Secondary}
                   size={ButtonSize.Small}
                   onClick={() => onGenerate({ type: DevCardType.Twitter })}
+                  loading={downloading || isLoading}
                 >
                   Download X cover image
                 </Button>
