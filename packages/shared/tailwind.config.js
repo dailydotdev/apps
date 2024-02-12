@@ -134,7 +134,7 @@ module.exports = {
       tooltip: '80',
       popup: '90',
       modal: '100',
-      cookie: '200',
+      cookie: '2000',
       max: '1000',
       '-1': '-1',
     },
