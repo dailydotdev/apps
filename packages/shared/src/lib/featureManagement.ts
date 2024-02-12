@@ -28,7 +28,7 @@ const feature = {
     ReadingStreaksExperiment.Control,
   ),
   onboardingVisual: new Feature('onboarding_visual', {
-    showCompanies: false,
+    showCompanies: true,
     poster: cloudinary.onboarding.video.poster,
     webm: cloudinary.onboarding.video.webm,
     mp4: cloudinary.onboarding.video.mp4,
