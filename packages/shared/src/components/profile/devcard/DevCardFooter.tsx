@@ -42,7 +42,7 @@ export function DevCardFooter({
         }}
         tags={tags}
       />
-      <div className="flex flex-row gap-1">
+      <div className="flex h-6 flex-row gap-1">
         {sources?.map((source) => (
           <SourceButton key={source.id} source={source} size="small" />
         ))}

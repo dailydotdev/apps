@@ -113,7 +113,7 @@ const Step2 = ({
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
   const key = useMemo(
-    () => generateQueryKey(RequestKey.DevCard, { id: user.id }),
+    () => generateQueryKey(RequestKey.DevCard, { id: user?.id }),
     [user],
   );
   const embedCode = useMemo(
