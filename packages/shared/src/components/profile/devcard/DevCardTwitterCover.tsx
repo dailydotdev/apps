@@ -4,16 +4,16 @@ import { devCardBoxShadow, DevCardTheme, DevCardType } from './common';
 import { DevCardStats } from './DevCardStats';
 import { DevCardFooter } from './DevCardFooter';
 import Logo from '../../Logo';
-import { useDevCard } from '../../../hooks/profile/useDevCard';
+import { UseDevCard } from '../../../hooks/profile/useDevCard';
 
 interface DevCardTwitterCoverProps {
-  userId: string;
+  data: UseDevCard;
 }
 
 export function DevCardTwitterCover({
-  userId,
+  data,
 }: DevCardTwitterCoverProps): ReactElement {
-  const { devcard, coverImage } = useDevCard(userId);
+  const { devcard, coverImage } = data ?? {};
 
   if (!devcard) {
     return null;

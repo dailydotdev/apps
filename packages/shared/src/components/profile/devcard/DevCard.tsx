@@ -9,6 +9,7 @@ import { devCardBoxShadow, DevCardTheme, DevCardType } from './common';
 import { DevCardFooter } from './DevCardFooter';
 import { DevCardContainer } from './DevCardContainer';
 import { useDevCard } from '../../../hooks/profile/useDevCard';
+import { DevCardTwitterCover } from './DevCardTwitterCover';
 
 interface DevCardProps {
   type?: DevCardType;
@@ -19,10 +20,15 @@ export function DevCard({
   type = DevCardType.Vertical,
   userId,
 }: DevCardProps): ReactElement {
-  const { devcard, isLoading, coverImage } = useDevCard(userId);
+  const data = useDevCard(userId);
+  const { devcard, isLoading, coverImage } = data ?? {};
 
   if (isLoading || !devcard) {
     return null;
+  }
+
+  if (type === DevCardType.Twitter) {
+    return <DevCardTwitterCover data={data} />;
   }
 
   const { theme, user, articlesRead, tags, sources, showBorder } = devcard;

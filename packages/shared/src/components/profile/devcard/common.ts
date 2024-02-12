@@ -6,6 +6,7 @@ export enum DevCardType {
   Vertical = 'vertical',
   Horizontal = 'horizontal',
   Compact = 'compact',
+  Twitter = 'twitter',
 }
 
 export enum DevCardTheme {

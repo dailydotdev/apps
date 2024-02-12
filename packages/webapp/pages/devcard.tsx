@@ -10,6 +10,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
+import { useDownloadUrl } from '@dailydotdev/shared/src/hooks/utils';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
@@ -106,29 +107,23 @@ const Step2 = (): ReactElement => {
       showBorder: true,
       isProfileCover: false,
     });
+  const { onDownloadUrl } = useDownloadUrl();
 
-  const downloadImage = async (): Promise<void> => {
+  const downloadImage = async (url?: string): Promise<void> => {
+    const finalUrl = url ?? devCardSrc;
     setDownloading(true);
-    const image = await fetch(devCardSrc);
-    const imageBlog = await image.blob();
-    const imageURL = URL.createObjectURL(imageBlog);
-
-    const link = document.createElement('a');
-    link.href = imageURL;
-    link.download = `${user.username}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    await onDownloadUrl({ url: finalUrl, filename: `${user.username}.png` });
     setDownloading(false);
   };
 
   const { mutateAsync: onGenerate, isLoading } = useMutation(
-    () =>
+    (params: Partial<GenerateDevCardParams> = {}) =>
       request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
         type,
         theme,
         showBorder,
         isProfileCover,
+        ...params,
       }),
     {
       onSuccess: (data) => {
@@ -191,7 +186,7 @@ const Step2 = (): ReactElement => {
             className="mx-auto mt-4 grow-0 self-start"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
-            onClick={() => onGenerate()}
+            onClick={() => onGenerate({})}
             loading={downloading || isLoading}
           >
             Download DevCard
@@ -277,6 +272,14 @@ const Step2 = (): ReactElement => {
                 <p className="text-theme-label-tertiary typo-callout">
                   Level up your Twitter game with a DevCard header image!
                 </p>
+                <Button
+                  className="mt-5"
+                  variant={ButtonVariant.Secondary}
+                  size={ButtonSize.Small}
+                  onClick={() => onGenerate({ type: DevCardType.Twitter })}
+                >
+                  {!copyingEmbed ? 'Copy code' : 'Copied!'}
+                </Button>
               </>
             )}
 
