@@ -37,7 +37,7 @@ export function DevCardFooter({
               ? 'border-white text-white'
               : 'border-pepper-90 text-pepper-90',
             type === DevCardType.Vertical &&
-              '!block !leading-[1.375rem] max-w-[5rem] overflow-hidden text-ellipsis',
+              '!block max-w-[5rem] overflow-hidden text-ellipsis !leading-[1.375rem]',
           ),
         }}
         tags={tags}
