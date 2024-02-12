@@ -171,12 +171,12 @@ module.exports = {
         'img-desktop': '400px',
         'img-mobile': '280px',
         'rank-modal': 'calc(100vh - 5rem)',
-        page: 'calc(100vh - 3.5rem)',
+        page: 'calc(100vh - 4rem)',
         commentBox: '18.25rem',
         card: '24rem',
       },
       minHeight: {
-        page: 'calc(100vh - 3.5rem)',
+        page: 'calc(100vh - 4rem)',
         card: '24rem',
       },
       gap: {
