@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   GitHubIcon,
@@ -43,6 +49,10 @@ import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/SocialShareList';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
+import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -96,6 +106,7 @@ const Step2 = (): ReactElement => {
   const [devCardSrc, setDevCardSrc] = useState<string>();
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
+  const { trackEvent } = useAnalyticsContext();
   const key = useMemo(
     () => generateQueryKey(RequestKey.DevCard, { id: user?.id }),
     [user],
@@ -106,6 +117,7 @@ const Step2 = (): ReactElement => {
     [user?.name, user?.username, devCardSrc],
   );
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
+  const [copyingLink, copyLink] = useCopyLink(() => devCardSrc);
   const [downloading, setDownloading] = useState(false);
   const [selectedTab, setSelectedTab] = useState(0);
   const [{ type, theme, showBorder, isProfileCover }, setUpdatePreference] =
@@ -115,6 +127,13 @@ const Step2 = (): ReactElement => {
       showBorder: true,
       isProfileCover: false,
     });
+  const [, onShareOrCopyLink] = useShareOrCopyLink({
+    text: 'Checkout my DevCard', // TODO: check with product
+    link: devCardSrc,
+    trackObject: () => ({
+      event_name: AnalyticsEvent.CopyDevcardLink, // TODO: check with product + Dave
+    }),
+  });
 
   const downloadImage = async (): Promise<void> => {
     setDownloading(true);
@@ -150,6 +169,13 @@ const Step2 = (): ReactElement => {
       },
     },
   );
+
+  const onTrackShare = (provider: ShareProvider) => {
+    trackEvent({
+      event_name: AnalyticsEvent.CopyDevcardLink,
+      target_id: provider,
+    });
+  };
 
   const onUpdatePreference = (props: Partial<GenerateDevCardParams>) =>
     setUpdatePreference((prev) => {
@@ -324,16 +350,17 @@ const Step2 = (): ReactElement => {
                       Share
                     </h3>
                   </span>
-                  {/* TODO: fix social share links */}
-                  {/* <SocialShareList */}
-                  {/*  link=/!* Todo: devcard link *!/ */}
-                  {/*  description=/!* Todo: devcard desc *!/ */}
-                  {/*  isCopying={copying} */}
-                  {/*  onCopy=/!* Todo: copy devcard link *!/ */}
-                  {/*  onNativeShare=/!* Todo: devcard link native share *!/ */}
-                  {/*  onClickSocial=/!* Todo: devcard social buttons track *!/ */}
-                  {/*  emailTitle="Checkout my DevCard" */}
-                  {/* /> */}
+                  <div className="mt-3 flex flex-row flex-wrap gap-3 gap-y-3">
+                    <SocialShareList
+                      link={devCardSrc}
+                      description="Checkout my DevCard" // TODO: check with product
+                      isCopying={copyingLink}
+                      onCopy={copyLink}
+                      onNativeShare={onShareOrCopyLink}
+                      onClickSocial={onTrackShare} // TODO: check with product + Dave
+                      emailTitle="Checkout my DevCard" // TODO: check with product
+                    />
+                  </div>
                 </div>
               </>
             )}
