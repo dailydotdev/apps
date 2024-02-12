@@ -20,6 +20,7 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { devCard } from '@dailydotdev/shared/src/lib/constants';
 import {
   DevCard,
   DevCardTheme,
@@ -41,11 +42,15 @@ import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/SocialShareList';
+import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import styles from '../components/layouts/ProfileLayout/NavBar.module.css';
-import { GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
+import {
+  GENERATE_DEVCARD_MUTATION,
+  GenerateDevCardParams,
+} from '../graphql/devcard';
 
 interface Step1Props {
   onGenerateImage(): void;
@@ -103,9 +108,13 @@ const Step2 = (): ReactElement => {
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
   const [downloading, setDownloading] = useState(false);
   const [selectedTab, setSelectedTab] = useState(0);
-  const [cardType, setCardType] = useState(DevCardType.Vertical);
-  const [profileCover, setProfileCover] = useState(true);
-  const [showBorder, setShowBorder] = useState(true);
+  const [{ type, theme, showBorder, isProfileCover }, setUpdatePreference] =
+    useState<GenerateDevCardParams>({
+      type: DevCardType.Vertical,
+      theme: DevCardTheme.Default,
+      showBorder: true,
+      isProfileCover: false,
+    });
 
   const downloadImage = async (): Promise<void> => {
     setDownloading(true);
@@ -123,16 +132,13 @@ const Step2 = (): ReactElement => {
   };
 
   const { mutateAsync: onGenerate, isLoading } = useMutation(
-    () => {
-      const { theme, isProfileCover } = client.getQueryData(key) as DevCardData;
-
-      return request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
+    () =>
+      request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
+        type,
         theme,
-        type: cardType,
-        isProfileCover,
         showBorder,
-      });
-    },
+        isProfileCover,
+      }),
     {
       onSuccess: (data) => {
         if (!data?.devCard?.imageUrl) {
@@ -145,11 +151,17 @@ const Step2 = (): ReactElement => {
     },
   );
 
-  const onSelectTheme = (theme: DevCardTheme) => {
-    client.setQueryData(key, (oldData: DevCardData) => {
-      return { ...oldData, theme };
+  const onUpdatePreference = (props: Partial<GenerateDevCardParams>) =>
+    setUpdatePreference((prev) => {
+      const updated = { ...prev, ...props };
+
+      client.setQueryData(key, (oldData: DevCardData) => ({
+        ...oldData,
+        ...updated,
+      }));
+
+      return updated;
     });
-  };
 
   return (
     <div className="mx-2 mt-14 flex flex-col self-stretch">
@@ -162,8 +174,10 @@ const Step2 = (): ReactElement => {
             <RadioItem
               disabled={isLoading}
               name="vertical"
-              checked={cardType === DevCardType.Vertical}
-              onChange={() => setCardType(DevCardType.Vertical)}
+              checked={type === DevCardType.Vertical}
+              onChange={() =>
+                onUpdatePreference({ type: DevCardType.Vertical })
+              }
             >
               Vertical
             </RadioItem>
@@ -171,14 +185,16 @@ const Step2 = (): ReactElement => {
             <RadioItem
               disabled={isLoading}
               name="horizontal"
-              checked={cardType === DevCardType.Horizontal}
-              onChange={() => setCardType(DevCardType.Horizontal)}
+              checked={type === DevCardType.Horizontal}
+              onChange={() =>
+                onUpdatePreference({ type: DevCardType.Horizontal })
+              }
             >
               Horizontal
             </RadioItem>
           </div>
 
-          <div>{user && <DevCard userId={user.id} type={cardType} />}</div>
+          <div>{user && <DevCard userId={user.id} type={type} />}</div>
 
           <Button
             className="mx-auto mt-4 grow-0 self-start"
@@ -207,6 +223,7 @@ const Step2 = (): ReactElement => {
               >
                 Embed
               </Button>
+
               {selectedTab === 0 && (
                 <ActiveTabIndicator className="bottom-0 w-10" />
               )}
@@ -228,7 +245,7 @@ const Step2 = (): ReactElement => {
             </div>
           </div>
 
-          <div className="grid gap-8 p-5">
+          <div className="flex flex-col gap-8 p-5">
             {selectedTab === 0 && (
               <>
                 <p className="text-theme-label-tertiary typo-callout">
@@ -243,20 +260,26 @@ const Step2 = (): ReactElement => {
                     Embed the DevCard on your GitHub profile
                   </h3>
 
-                  <p className="mt-2 text-theme-label-tertiary typo-callout">
+                  <p className="mt-2 inline-block text-theme-label-tertiary typo-callout">
                     Find out how to put your DevCard in your GitHub README and
                     make it update automatically using GitHub Actions.{' '}
-                    <a href="..TODO.." className="inline-block typo-subhead">
+                    <ClickableText
+                      tag="a"
+                      defaultTypo={false}
+                      href={`${devCard}?utm_source=webapp&utm_medium=devcard&utm_campaign=devcardguide&utm_id=inapp`}
+                      className="!inline typo-subhead"
+                      target="_blank"
+                    >
                       Full tutorial{' '}
                       <OpenLinkIcon
                         className="mb-1 inline-block"
                         size={IconSize.XXSmall}
                       />
-                    </a>
+                    </ClickableText>
                   </p>
 
                   <textarea
-                    className="mt-4 h-[7.75rem] w-full resize-none self-stretch rounded-10 bg-theme-float px-4 py-2 text-theme-label-tertiary laptopL:w-[25rem]"
+                    className="mt-4 h-[7.75rem] w-full resize-none self-stretch rounded-10 bg-theme-float px-4 py-2 text-theme-label-tertiary"
                     readOnly
                     wrap="hard"
                     value={embedCode}
@@ -321,14 +344,14 @@ const Step2 = (): ReactElement => {
                   <h3 className="typo-title4 mb-2 font-bold">Theme</h3>
 
                   <div className="flex flex-row flex-wrap">
-                    {Object.keys(themeToLinearGradient).map((theme) => {
-                      const isLocked = user?.reputation < requiredPoints[theme];
+                    {Object.keys(themeToLinearGradient).map((value) => {
+                      const isLocked = user?.reputation < requiredPoints[value];
                       return (
                         <SimpleTooltip
-                          key={theme}
+                          key={value}
                           content={
                             isLocked
-                              ? `Earn ${requiredPoints[theme]} reputation points to unlock this theme`
+                              ? `Earn ${requiredPoints[value]} reputation points to unlock this theme`
                               : null
                           }
                         >
@@ -336,16 +359,20 @@ const Step2 = (): ReactElement => {
                             <button
                               disabled={isLocked || isLoading}
                               type="button"
-                              aria-label={`Select ${theme} theme`}
+                              aria-label={`Select ${value} theme`}
                               className={classNames(
                                 'mb-3 mr-3 h-10 w-10 rounded-full',
                                 isLocked && 'opacity-32',
+                                theme === value &&
+                                  'border-4 border-theme-color-cabbage',
                               )}
                               style={{
-                                background: themeToLinearGradient[theme],
+                                background: themeToLinearGradient[value],
                               }}
                               onClick={() =>
-                                onSelectTheme(theme as DevCardTheme)
+                                onUpdatePreference({
+                                  theme: value as DevCardTheme,
+                                })
                               }
                             />
                           </span>
@@ -364,8 +391,10 @@ const Step2 = (): ReactElement => {
                   <RadioItem
                     disabled={isLoading}
                     name="defaultCover"
-                    checked={!profileCover}
-                    onChange={() => setProfileCover(false)}
+                    checked={!isProfileCover}
+                    onChange={() =>
+                      onUpdatePreference({ isProfileCover: false })
+                    }
                     className="my-1.5 truncate"
                   >
                     Default
@@ -374,27 +403,27 @@ const Step2 = (): ReactElement => {
                   <RadioItem
                     disabled={isLoading}
                     name="profileCover"
-                    checked={profileCover}
-                    onChange={() => setProfileCover(true)}
+                    checked={isProfileCover}
+                    onChange={() =>
+                      onUpdatePreference({ isProfileCover: true })
+                    }
                     className="my-1.5 truncate"
                   >
                     Use profile cover
                   </RadioItem>
                 </div>
-
                 <div>
                   <h3 className="typo-title4 mb-2 font-bold">Profile image</h3>
-                  <p className="text-theme-label-tertiary typo-callout">
-                    Turn off toggle to ensure transparent images blend
-                    seamlessly into any background
-                  </p>
+
                   <Switch
                     inputId="show-border"
                     className="my-3"
                     compact={false}
                     name="showBorder"
                     checked={showBorder}
-                    onToggle={() => setShowBorder(!showBorder)}
+                    onToggle={() =>
+                      onUpdatePreference({ showBorder: !showBorder })
+                    }
                   >
                     Show border
                   </Switch>
@@ -431,7 +460,7 @@ const DevCardPage = (): ReactElement => {
       )}
     >
       <NextSeo {...seo} />
-      {isDevCardGenerated ? (
+      {true ? (
         <Step2 />
       ) : (
         <Step1
