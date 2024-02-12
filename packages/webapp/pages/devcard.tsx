@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { GitHubIcon } from '@dailydotdev/shared/src/components/icons';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
@@ -13,23 +7,19 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
-import request from 'graphql-request';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
-import {
-  ActiveTabIndicator,
-  FormErrorMessage,
-} from '@dailydotdev/shared/src/components/utilities';
+import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { labels } from '@dailydotdev/shared/src/lib';
 import {
   DevCard,
+  DevCardTheme,
   DevCardType,
+  requiredPoints,
   themeToLinearGradient,
 } from '@dailydotdev/shared/src/components/profile/devcard';
 import { WidgetContainer } from '@dailydotdev/shared/src/components/widgets/common';
@@ -40,31 +30,21 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useActions } from '@dailydotdev/shared/src/hooks';
-import { DevCardData, GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
+import { DevCardData } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
+import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
+import request from 'graphql-request';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import styles from '../components/layouts/ProfileLayout/NavBar.module.css';
+import { GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 
-interface GenerateDevCardParams {
-  theme?: string;
-  type?: string;
-  isProfileCover?: boolean;
-  showBorder?: boolean;
+interface Step1Props {
+  onGenerateImage(): void;
 }
 
-type StepProps = {
-  onGenerateImage: (params?: GenerateDevCardParams) => unknown;
-  devCardSrc?: string;
-  isLoadingImage: boolean;
-  error?: string;
-};
-
-const Step1 = ({
-  onGenerateImage,
-  isLoadingImage,
-  error,
-}: StepProps): ReactElement => {
+const Step1 = ({ onGenerateImage }: Step1Props): ReactElement => {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
 
   return (
@@ -83,7 +63,6 @@ const Step1 = ({
               variant={ButtonVariant.Primary}
               size={ButtonSize.Large}
               onClick={() => onGenerateImage()}
-              loading={isLoadingImage}
             >
               Generate now
             </Button>
@@ -97,18 +76,18 @@ const Step1 = ({
             </Button>
           ))}
       </div>
-      {error && <FormErrorMessage role="alert">{error}</FormErrorMessage>}
     </>
   );
 };
 
-const Step2 = ({
-  onGenerateImage,
-  devCardSrc,
-  isLoadingImage,
-  error,
-}: StepProps): ReactElement => {
+const Step2 = (): ReactElement => {
+  const [devCardSrc, setDevCardSrc] = useState<string>();
   const { user } = useContext(AuthContext);
+  const client = useQueryClient();
+  const key = useMemo(
+    () => generateQueryKey(RequestKey.DevCard, { id: user?.id }),
+    [user],
+  );
   const embedCode = useMemo(
     () =>
       `<a href="https://app.daily.dev/${user?.username}"><img src="${devCardSrc}" width="400" alt="${user?.name}'s Dev Card"/></a>`,
@@ -136,26 +115,45 @@ const Step2 = ({
     setDownloading(false);
   };
 
-  const finalError = error;
+  const { mutateAsync: onGenerate, isLoading } = useMutation(
+    () => {
+      const { theme, isProfileCover } = client.getQueryData(key) as DevCardData;
 
-  useEffect(() => {
-    onGenerateImage({
-      type: cardType === DevCardType.Vertical ? 'DEFAULT' : 'WIDE',
-      isProfileCover: profileCover,
-      showBorder,
+      return request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
+        theme,
+        type: cardType,
+        isProfileCover,
+        showBorder,
+      });
+    },
+    {
+      onSuccess: (data) => {
+        if (!data?.devCard?.imageUrl) {
+          return;
+        }
+
+        setDevCardSrc(data.devCard.imageUrl);
+        downloadImage();
+      },
+    },
+  );
+
+  const onSelectTheme = (theme: DevCardTheme) => {
+    client.setQueryData(key, (oldData: DevCardData) => {
+      return { ...oldData, theme };
     });
-  }, [onGenerateImage, cardType, profileCover, showBorder]);
+  };
 
   return (
     <div className="mx-2 mt-14 flex flex-col self-stretch">
       <main className="z-2 flex flex-col gap-10 laptop:flex-row laptopL:gap-20">
-        <section className="align-center flex max-w-[600px] flex-col">
+        <section className="align-center flex flex-col">
           <h1 className="mx-3 mb-8 text-center font-bold typo-title1">
             Share your #DevCard!
           </h1>
           <div className="flex grow-0 flex-row justify-center">
             <RadioItem
-              disabled={isLoadingImage}
+              disabled={isLoading}
               name="vertical"
               checked={cardType === DevCardType.Vertical}
               onChange={() => setCardType(DevCardType.Vertical)}
@@ -164,7 +162,7 @@ const Step2 = ({
             </RadioItem>
 
             <RadioItem
-              disabled={isLoadingImage}
+              disabled={isLoading}
               name="horizontal"
               checked={cardType === DevCardType.Horizontal}
               onChange={() => setCardType(DevCardType.Horizontal)}
@@ -176,11 +174,11 @@ const Step2 = ({
           <div>{user && <DevCard userId={user.id} type={cardType} />}</div>
 
           <Button
-            className="mt-4 grow-0 self-start"
+            className="mx-auto mt-4 grow-0 self-start"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
-            onClick={downloadImage}
-            loading={downloading}
+            onClick={() => onGenerate()}
+            loading={downloading || isLoading}
           >
             Download DevCard
           </Button>
@@ -189,7 +187,7 @@ const Step2 = ({
         <WidgetContainer className="flex w-[420px] flex-col  self-stretch ">
           <div
             className={classNames(
-              'sticky top-12 flex justify-around tablet:top-14 tablet:justify-start',
+              'sticky top-12 flex justify-around rounded-24 bg-theme-bg-primary tablet:top-14 tablet:justify-start',
               styles.nav,
             )}
           >
@@ -273,14 +271,33 @@ const Step2 = ({
                 <h3 className="typo-title4 mb-2 font-bold">Theme</h3>
 
                 <div className="flex flex-row flex-wrap">
-                  {Object.keys(themeToLinearGradient).map((theme) => (
-                    <>
-                      <div
-                        className="mb-3 mr-3 h-10 w-10 rounded-full"
-                        style={{ background: themeToLinearGradient[theme] }}
-                      />
-                    </>
-                  ))}
+                  {Object.keys(themeToLinearGradient).map((theme) => {
+                    const isLocked = user?.reputation < requiredPoints[theme];
+                    return (
+                      <SimpleTooltip
+                        key={theme}
+                        content={
+                          isLocked
+                            ? `Earn ${requiredPoints[theme]} reputation points to unlock this theme`
+                            : null
+                        }
+                      >
+                        <span>
+                          <button
+                            disabled={isLocked || isLoading}
+                            type="button"
+                            aria-label={`Select ${theme} theme`}
+                            className={classNames(
+                              'mb-3 mr-3 h-10 w-10 rounded-full',
+                              isLocked && 'opacity-32',
+                            )}
+                            style={{ background: themeToLinearGradient[theme] }}
+                            onClick={() => onSelectTheme(theme as DevCardTheme)}
+                          />
+                        </span>
+                      </SimpleTooltip>
+                    );
+                  })}
                 </div>
                 <h3 className="typo-title4 mb-2 mt-5 font-bold">Cover image</h3>
                 <p className="text-theme-label-tertiary typo-callout">
@@ -289,7 +306,7 @@ const Step2 = ({
                 </p>
 
                 <RadioItem
-                  disabled={isLoadingImage}
+                  disabled={isLoading}
                   name="defaultCover"
                   checked={!profileCover}
                   onChange={() => setProfileCover(false)}
@@ -299,7 +316,7 @@ const Step2 = ({
                 </RadioItem>
 
                 <RadioItem
-                  disabled={isLoadingImage}
+                  disabled={isLoading}
                   name="profileCover"
                   checked={profileCover}
                   onChange={() => setProfileCover(true)}
@@ -324,10 +341,6 @@ const Step2 = ({
                 </Switch>
               </>
             )}
-
-            {finalError && (
-              <FormErrorMessage role="alert">{finalError}</FormErrorMessage>
-            )}
           </div>
         </WidgetContainer>
       </main>
@@ -347,60 +360,9 @@ const seo: NextSeoProps = {
 };
 
 const DevCardPage = (): ReactElement => {
-  const { user } = useContext(AuthContext);
-  const queryClient = useQueryClient();
-  const [isLoadingImage, setIsLoadingImage] = useState(false);
-  const [devCardSrc, setDevCardSrc] = useState<string>();
-  const [imageError, setImageError] = useState<string>();
   const { completeAction, checkHasCompleted } = useActions();
   const isDevCardGenerated = checkHasCompleted(ActionType.DevCardGenerate);
 
-  const onError = () => {
-    setImageError(labels.error.generic);
-    setIsLoadingImage(false);
-  };
-
-  const { mutateAsync: generateDevCard } = useMutation(
-    ({ theme, type, isProfileCover, showBorder }: GenerateDevCardParams = {}) =>
-      request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
-        theme,
-        type,
-        isProfileCover,
-        showBorder,
-      }),
-    {
-      onMutate({ theme, isProfileCover, showBorder }) {
-        const devCardQueryKey = generateQueryKey(RequestKey.DevCard, {
-          id: user.id,
-        });
-
-        queryClient.setQueryData(devCardQueryKey, (oldData: DevCardData) => {
-          if (oldData) {
-            return { ...oldData, theme, showBorder, isProfileCover };
-          }
-        });
-      },
-      onSuccess({ devCard }) {
-        const img = new Image();
-        const { imageUrl } = devCard;
-        img.src = imageUrl;
-        img.onload = () => {
-          setDevCardSrc(imageUrl);
-          setIsLoadingImage(false);
-          completeAction(ActionType.DevCardGenerate);
-        };
-        img.onerror = onError;
-      },
-      onError,
-    },
-  );
-
-  const stepProps: StepProps = {
-    onGenerateImage: generateDevCard,
-    devCardSrc,
-    isLoadingImage,
-    error: imageError,
-  };
   return (
     <div
       className={classNames(
@@ -409,7 +371,13 @@ const DevCardPage = (): ReactElement => {
       )}
     >
       <NextSeo {...seo} />
-      {isDevCardGenerated ? <Step2 {...stepProps} /> : <Step1 {...stepProps} />}
+      {isDevCardGenerated ? (
+        <Step2 />
+      ) : (
+        <Step1
+          onGenerateImage={() => completeAction(ActionType.DevCardGenerate)}
+        />
+      )}
     </div>
   );
 };

@@ -43,3 +43,14 @@ export const themeToLinearGradient = {
     `linear-gradient(135.18deg, ${colors.ketchup['10']} 0%, ${colors.bacon['10']} 24.16%, ${colors.bun['10']} 40%, ${colors.bacon['10']} 71.33%, ${colors.ketchup['10']} 100%),\n` +
     `linear-gradient(180deg, ${colors.salt['20']} 0%, ${colors.salt['10']} 85.42%)`,
 };
+
+export const requiredPoints: Record<DevCardTheme, number> = {
+  [DevCardTheme.Default]: 10,
+  [DevCardTheme.Iron]: 20,
+  [DevCardTheme.Bronze]: 50,
+  [DevCardTheme.Silver]: 100,
+  [DevCardTheme.Gold]: 500,
+  [DevCardTheme.Platinum]: 1000,
+  [DevCardTheme.Diamond]: 5000,
+  [DevCardTheme.Legendary]: 10000,
+};
