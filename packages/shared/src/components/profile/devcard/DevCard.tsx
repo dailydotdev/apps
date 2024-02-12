@@ -84,7 +84,7 @@ export function DevCard({
               src={user.image}
               alt={`avatar of ${user.name}`}
               className={classNames(
-                '-rotate-3 border-white',
+                '-rotate-3 border-white object-cover',
                 showBorder && (isHorizontal ? 'border-8' : 'border-4'),
                 {
                   'size-40 rounded-48': isVertical,
