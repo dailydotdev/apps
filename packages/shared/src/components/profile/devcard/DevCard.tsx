@@ -55,7 +55,7 @@ export function DevCard({
       sources={sources}
       type={type}
       theme={theme}
-      elementsClickable={usedAs === DevCardUsage.DevCardImage}
+      elementsClickable={usedAs !== DevCardUsage.DevCardImage}
     />
   );
 
