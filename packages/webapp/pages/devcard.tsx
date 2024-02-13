@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   GitHubIcon,
@@ -54,6 +48,7 @@ import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopy
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { labels } from '@dailydotdev/shared/src/lib';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -62,7 +57,6 @@ import {
   GENERATE_DEVCARD_MUTATION,
   GenerateDevCardParams,
 } from '../graphql/devcard';
-import { labels } from '@dailydotdev/shared/src/lib';
 
 interface Step1Props {
   onGenerateImage(): void;
@@ -155,8 +149,6 @@ const Step2 = (): ReactElement => {
 
   const { mutateAsync: onGenerate, isLoading } = useMutation(
     (params: Partial<GenerateDevCardParams> = {}) => {
-      const { theme, type, ...rest } = params;
-
       const devCardTypeMap = {
         [DevCardType.Vertical]: 'DEFAULT',
         [DevCardType.Horizontal]: 'WIDE',
@@ -164,9 +156,9 @@ const Step2 = (): ReactElement => {
       };
 
       return request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
+        ...params,
         theme: theme?.toLocaleUpperCase() ?? 'DEFAULT',
         type: devCardTypeMap[type] ?? 'DEFAULT',
-        ...rest,
       });
     },
     {
@@ -201,8 +193,8 @@ const Step2 = (): ReactElement => {
     });
 
   return (
-    <div className="mobileL:mx-2 mt-14 flex flex-col self-stretch max-w-full">
-      <main className="max-w-full flex flex-wrap justify-center gap-10 laptopL:gap-20">
+    <div className="mt-14 flex max-w-full flex-col self-stretch mobileL:mx-2">
+      <main className="flex max-w-full flex-wrap justify-center gap-10 laptopL:gap-20">
         <section className="align-center flex flex-col laptopL:w-[37.5rem]">
           <h1 className="mx-3 mb-8 text-center font-bold typo-title1">
             Share your #DevCard!
@@ -246,7 +238,7 @@ const Step2 = (): ReactElement => {
           </Button>
         </section>
 
-        <WidgetContainer className="flex mobileL:min-w-96 max-w-[26.25rem] flex-col flex-1">
+        <WidgetContainer className="flex max-w-[26.25rem] flex-1 flex-col mobileL:min-w-96">
           <div
             className={classNames(
               'sticky top-12 flex justify-around rounded-24 bg-theme-bg-primary tablet:top-14 tablet:justify-start',
@@ -352,7 +344,7 @@ const Step2 = (): ReactElement => {
                 </div>
 
                 <div>
-                  <h3 className="flex typo-title4 font-bold">
+                  <h3 className="typo-title4 flex font-bold">
                     <ShareIcon size={IconSize.Small} className="mr-1.5" />
                     Share
                   </h3>
@@ -488,7 +480,7 @@ const DevCardPage = (): ReactElement => {
   return (
     <div
       className={classNames(
-        'page mx-auto flex min-h-page max-w-full flex-col items-center justify-center mobileL:px-6 py-10 tablet:-mt-12',
+        'page mx-auto flex min-h-page max-w-full flex-col items-center justify-center py-10 mobileL:px-6 tablet:-mt-12',
         isDevCardGenerated && 'laptop:flex-row laptop:gap-20',
       )}
     >
