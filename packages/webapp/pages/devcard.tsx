@@ -467,7 +467,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
 
                   <div className="flex flex-row flex-wrap">
                     {Object.keys(themeToLinearGradient).map((value) => {
-                      const isLocked = false;
+                      const isLocked = user?.reputation < requiredPoints[value];
                       return (
                         <SimpleTooltip
                           key={value}
