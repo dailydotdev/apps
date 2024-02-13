@@ -18,6 +18,7 @@ import {
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import {
   Button,
+  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
@@ -306,7 +307,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
           >
             {user && (
               <Tilt
-                className="rounded-32 relative w-fit self-stretch overflow-hidden"
+                className="relative w-fit self-stretch overflow-hidden rounded-32"
                 glareEnable
                 perspective={1000}
                 glareMaxOpacity={0.25}
@@ -314,7 +315,11 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                 trackOnWindow
                 style={{ transformStyle: 'preserve-3d' }}
               >
-                <DevCard userId={user.id} type={type} isProfileCover={isProfileCover}/>
+                <DevCard
+                  userId={user.id}
+                  type={type}
+                  isProfileCover={isProfileCover}
+                />
               </Tilt>
             )}
           </div>
@@ -550,6 +555,19 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     Show border
                   </Switch>
                 </div>
+
+                <Button
+                  className="mt-4 grow-0 self-start"
+                  variant={ButtonVariant.Primary}
+                  color={ButtonColor.Cabbage}
+                  size={ButtonSize.Medium}
+                  onClick={() =>
+                    onGenerate({ theme, showBorder, isProfileCover, type })
+                  }
+                  loading={isLoading}
+                >
+                  Save
+                </Button>
               </>
             )}
           </div>
