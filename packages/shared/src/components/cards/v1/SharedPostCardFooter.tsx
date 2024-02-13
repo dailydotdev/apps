@@ -22,9 +22,6 @@ export const SharedPostCardFooter = ({
     >
       <div className={classNames('flex flex-col mobileL:flex-1')}>
         <span className="line-clamp-1">{sharedPost.title}</span>
-        <span className="line-clamp-2 text-theme-label-quaternary">
-          {sharedPost.summary}
-        </span>
       </div>
 
       <div className={classNames('flex h-20 overflow-auto')}>

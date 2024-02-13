@@ -55,13 +55,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     [post.contentHtml],
   );
 
-  const { title, summary } = useTruncatedSummary(post, content);
-
-  const decodedText = useMemo(() => {
-    const paragraph = document.createElement('p');
-    paragraph.innerHTML = summary || '';
-    return paragraph.innerText || summary;
-  }, [summary]);
+  const { title } = useTruncatedSummary(post, content);
 
   return (
     <FeedItemContainer
@@ -113,12 +107,6 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
             >
               {title}
             </CardTitle>
-
-            {content && (
-              <p className="my-4 line-clamp-6 break-words typo-callout">
-                {decodedText}
-              </p>
-            )}
           </div>
 
           {image && (
