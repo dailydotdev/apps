@@ -91,8 +91,8 @@ export default function Sidebar({
           sidebarExpanded ? 'laptop:w-60' : 'laptop:w-11',
           openMobileSidebar ? '-translate-x-0' : '-translate-x-70',
           promotionalBannerActive
-            ? 'laptop:top-22 laptop:h-[calc(100vh-theme(space.22))]'
-            : 'laptop:top-14 laptop:h-[calc(100vh-theme(space.14))]',
+            ? 'laptop:top-24 laptop:h-[calc(100vh-theme(space.24))]'
+            : 'laptop:top-16 laptop:h-[calc(100vh-theme(space.16))]',
         )}
       >
         {sidebarRendered && (

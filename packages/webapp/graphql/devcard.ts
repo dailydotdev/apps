@@ -14,15 +14,15 @@ export interface GenerateDevCardParams
 export const GENERATE_DEVCARD_MUTATION = gql`
   mutation GenerateDevCard(
     $theme: DevCardTheme
+    $type: DevCardType
     $isProfileCover: Boolean
     $showBorder: Boolean
-    $type: DevCardType
   ) {
     devCard: generateDevCardV2(
       theme: $theme
+      type: $type
       isProfileCover: $isProfileCover
       showBorder: $showBorder
-      type: $type
     ) {
       imageUrl
     }

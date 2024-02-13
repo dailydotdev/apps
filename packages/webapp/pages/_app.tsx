@@ -35,6 +35,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
+import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -181,6 +182,7 @@ export default function App(props: AppProps): ReactElement {
   const version = useWebappVersion();
   const deviceId = useDeviceId();
   useError();
+  useManualScrollRestoration();
 
   return (
     <ProgressiveEnhancementContextProvider>
