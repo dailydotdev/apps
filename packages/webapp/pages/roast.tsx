@@ -90,13 +90,10 @@ const Step1 = ({ onGenerateImage, error }: StepProps): ReactElement => {
 
 const Step2 = ({ roast, error }: StepProps): ReactElement => {
   const { user } = useContext(AuthContext);
-  const [downloading, setDownloading] = useState(false);
-  const { mutateAsync: onDownloadUrl } = useDownloadUrl();
+  const { mutateAsync: onDownloadUrl, isLoading } = useDownloadUrl();
 
   const downloadImage = async (): Promise<void> => {
-    setDownloading(true);
     await onDownloadUrl({ url: roast.image, filename: `${user.username}.png` });
-    setDownloading(false);
   };
 
   return (
@@ -128,7 +125,7 @@ const Step2 = ({ roast, error }: StepProps): ReactElement => {
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
           onClick={downloadImage}
-          loading={downloading}
+          loading={isLoading}
         >
           Download image
         </Button>
