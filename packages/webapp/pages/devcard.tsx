@@ -173,8 +173,8 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
 
       return request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
         ...params,
-        theme: theme?.toLocaleUpperCase() ?? 'DEFAULT',
-        type: devCardTypeMap[type] ?? 'DEFAULT',
+        theme: params?.theme?.toLocaleUpperCase() ?? 'DEFAULT',
+        type: devCardTypeMap[params?.type] ?? 'DEFAULT',
       });
     },
     {
