@@ -20,7 +20,7 @@ import { AnalyticsEvent } from '../../lib/analytics';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
-import { useFeedLayout, useViewSize, ViewSize } from '../../hooks';
+import { useFeedLayout } from '../../hooks';
 
 interface MyFeedHeadingProps {
   isAlertDisabled: boolean;
@@ -40,7 +40,6 @@ function MyFeedHeading({
   const searchVersion = useFeature(feature.search);
   const shouldShowHighlightPulse = router.query?.hset === 'true';
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
-  const isMobile = useViewSize(ViewSize.MobileL);
   const isV1Search = searchVersion === SearchExperiment.V1;
 
   const onClick = () => {
@@ -56,15 +55,12 @@ function MyFeedHeading({
     }
   };
 
-  const isControlSearch = searchVersion === SearchExperiment.Control;
   const getPlacement = () => {
     if (shouldUseFeedLayoutV1) {
-      return isMobile || isControlSearch
-        ? AlertPlacement.Bottom
-        : AlertPlacement.Top;
+      return AlertPlacement.Bottom;
     }
 
-    if (sidebarRendered && isControlSearch) {
+    if (sidebarRendered) {
       return AlertPlacement.Right;
     }
 
@@ -92,9 +88,7 @@ function MyFeedHeading({
       message: classNames(
         'bg-theme-bg-primary',
         !sidebarRendered ? 'ml-4' : null,
-        !shouldUseFeedLayoutV1 &&
-          searchVersion === SearchExperiment.V1 &&
-          '-left-20',
+        shouldUseFeedLayoutV1 && '-left-20',
       ),
       wrapper: 'mr-auto',
       container: 'z-tooltip',
