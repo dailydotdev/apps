@@ -139,7 +139,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
   const randomNum = Math.round(Math.random() * 999);
   const [devCardSrc, setDevCardSrc] = useState<string>(
     initialDevCardSrc ??
-      `${process.env.NEXT_PUBLIC_API_URL}/devcards/${user.id}.png?type=default&r=${randomNum}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/devcards/v2/${user.id}.png?type=default&r=${randomNum}`,
   );
 
   const client = useQueryClient();
