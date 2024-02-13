@@ -192,7 +192,10 @@ export function DevCard({
           </div>
           {type !== DevCardType.Horizontal && (
             <Divider
-              className={isIron ? '!bg-salt-90 opacity-32' : '!bg-pepper-90'}
+              className={classNames(
+                'opacity-32',
+                isIron ? '!bg-salt-90' : '!bg-pepper-90',
+              )}
             />
           )}
           {type !== DevCardType.Horizontal && footer}
