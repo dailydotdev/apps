@@ -205,7 +205,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
         ...updated,
       }));
 
-      if (props.type !== prev.type) {
+      if (props.type && props.type !== prev.type) {
         const url = new URL(devCardSrc);
         url.searchParams.set('type', props.type.toLocaleLowerCase());
 
