@@ -129,6 +129,10 @@ export const cloudinary = {
   },
   search: {
     og: 'https://daily-now-res.cloudinary.com/image/upload/s--Lq4XRH5V--/f_auto/v1693378429/public/dailv.dev_-_OG_Search',
+    gradient: {
+      common:
+        'https://daily-now-res.cloudinary.com/image/upload/s--zkEyMCOC--/f_auto/v1705675789/public/Search_Gradient',
+    },
   },
   auth: {
     login: {
