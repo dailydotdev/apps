@@ -91,7 +91,7 @@ const Step1 = ({ onGenerateImage, error }: StepProps): ReactElement => {
 const Step2 = ({ roast, error }: StepProps): ReactElement => {
   const { user } = useContext(AuthContext);
   const [downloading, setDownloading] = useState(false);
-  const { onDownloadUrl } = useDownloadUrl();
+  const { mutateAsync: onDownloadUrl } = useDownloadUrl();
 
   const downloadImage = async (): Promise<void> => {
     setDownloading(true);

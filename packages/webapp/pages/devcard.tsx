@@ -107,7 +107,7 @@ const Step2 = (): ReactElement => {
       showBorder: true,
       isProfileCover: false,
     });
-  const { onDownloadUrl } = useDownloadUrl();
+  const { mutateAsync: onDownloadUrl } = useDownloadUrl();
 
   const downloadImage = async (url?: string): Promise<void> => {
     const finalUrl = url ?? devCardSrc;
