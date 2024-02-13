@@ -5,10 +5,10 @@ export const RoundedContainer = classed('div', 'rounded-32');
 export const devCardBoxShadow = '1px 1px 1px rgb(0 0 0 /30%)';
 
 export enum DevCardType {
-  Vertical = 'vertical',
-  Horizontal = 'horizontal',
-  Compact = 'compact',
-  Twitter = 'twitter',
+  Vertical = 'DEFAULT',
+  Horizontal = 'WIDE',
+  Compact = 'COMPACT',
+  Twitter = 'X',
 }
 
 export enum DevCardTheme {
