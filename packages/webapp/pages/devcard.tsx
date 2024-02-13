@@ -235,18 +235,11 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     [key, client, devCardSrc],
   );
 
-  const generateDevCard = async (
+  const generateThenDownload = async (
     props: Partial<GenerateDevCardParams> = {},
   ) => {
     const params = { type, theme, showBorder, isProfileCover, ...props };
     const res = await onGenerate(params);
-    return res;
-  };
-
-  const generateThenDownload = async (
-    props: Partial<GenerateDevCardParams> = {},
-  ) => {
-    const res = await generateDevCard(props);
     const url = res?.devCard?.imageUrl;
 
     if (url) {
@@ -552,7 +545,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                   color={ButtonColor.Cabbage}
                   size={ButtonSize.Medium}
                   onClick={() =>
-                    generateDevCard({ theme, showBorder, isProfileCover, type })
+                    onGenerate({ theme, showBorder, isProfileCover, type })
                   }
                   loading={isLoading}
                 >
