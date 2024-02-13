@@ -21,7 +21,7 @@ export interface DevCardData {
   sources: Source[];
 }
 
-interface UseDevCard {
+export interface UseDevCard {
   devcard: DevCardData;
   isLoading: boolean;
   coverImage: string;

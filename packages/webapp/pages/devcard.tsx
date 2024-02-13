@@ -21,6 +21,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
+import { useDownloadUrl } from '@dailydotdev/shared/src/hooks/utils';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
@@ -134,29 +135,23 @@ const Step2 = (): ReactElement => {
       event_name: AnalyticsEvent.CopyDevcardLink, // TODO: check with product + Dave
     }),
   });
+  const { mutateAsync: onDownloadUrl } = useDownloadUrl();
 
-  const downloadImage = async (): Promise<void> => {
+  const downloadImage = async (url?: string): Promise<void> => {
+    const finalUrl = url ?? devCardSrc;
     setDownloading(true);
-    const image = await fetch(devCardSrc);
-    const imageBlog = await image.blob();
-    const imageURL = URL.createObjectURL(imageBlog);
-
-    const link = document.createElement('a');
-    link.href = imageURL;
-    link.download = `${user.username}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    await onDownloadUrl({ url: finalUrl, filename: `${user.username}.png` });
     setDownloading(false);
   };
 
   const { mutateAsync: onGenerate, isLoading } = useMutation(
-    () =>
+    (params: Partial<GenerateDevCardParams> = {}) =>
       request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
         type,
         theme,
         showBorder,
         isProfileCover,
+        ...params,
       }),
     {
       onSuccess: (data) => {
@@ -226,7 +221,7 @@ const Step2 = (): ReactElement => {
             className="mx-auto mt-4 grow-0 self-start"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
-            onClick={() => onGenerate()}
+            onClick={() => onGenerate({})}
             loading={downloading || isLoading}
           >
             Download DevCard
@@ -305,18 +300,34 @@ const Step2 = (): ReactElement => {
                   </p>
 
                   <textarea
-                    className="mt-4 h-[7.75rem] w-full resize-none self-stretch rounded-10 bg-theme-float px-4 py-2 text-theme-label-tertiary"
+                    className="mt-4 h-[7.75rem] w-full resize-none self-stretch rounded-10 bg-theme-float px-4 py-2 text-theme-label-tertiary laptopL:w-[25rem]"
                     readOnly
                     wrap="hard"
                     value={embedCode}
                   />
                   <Button
-                    className="mt-2"
+                    className="mt-4"
                     variant={ButtonVariant.Secondary}
                     size={ButtonSize.Small}
                     onClick={() => copyEmbed()}
                   >
                     {!copyingEmbed ? 'Copy code' : 'Copied!'}
+                  </Button>
+
+                  <h3 className="typo-title4 mb-2 mt-5 font-bold">
+                    Use as X header
+                  </h3>
+                  <p className="text-theme-label-tertiary typo-callout">
+                    Level up your Twitter game with a DevCard header image!
+                  </p>
+                  <Button
+                    className="mt-5"
+                    variant={ButtonVariant.Secondary}
+                    size={ButtonSize.Small}
+                    onClick={() => onGenerate({ type: DevCardType.Twitter })}
+                    loading={downloading || isLoading}
+                  >
+                    Download X cover image
                   </Button>
                 </div>
 
@@ -341,9 +352,6 @@ const Step2 = (): ReactElement => {
                   >
                     Download X cover image
                   </Button>
-                </div>
-
-                <div>
                   <span>
                     <ShareIcon size={IconSize.Small} className="inline-block" />
                     <h3 className="typo-title4 ml-2 inline-block font-bold">
