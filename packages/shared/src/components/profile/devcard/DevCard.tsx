@@ -40,6 +40,7 @@ export function DevCard({
   const isHorizontal = type === DevCardType.Horizontal;
   const isVertical = type === DevCardType.Vertical;
   const isIron = theme === DevCardTheme.Iron;
+  const isDefault = theme === DevCardTheme.Default;
 
   const footer = (
     <DevCardFooter tags={tags} sources={sources} type={type} theme={theme} />
@@ -134,18 +135,27 @@ export function DevCard({
             <div
               className={classNames(
                 'line-clamp-1 flex items-center',
-                isIron ? 'text-white' : 'text-pepper-90',
+                isIron && 'text-white',
+                isDefault && 'text-pepper-10',
+                !isIron && !isDefault && 'text-pepper-90',
                 isHorizontal ? 'typo-callout' : 'typo-footnote',
               )}
             >
-              <span className="shrink overflow-hidden text-ellipsis">
+              <span
+                className={classNames(
+                  'overflow-hidden text-ellipsis',
+                  isVertical ? 'shrink' : 'max-w-36',
+                )}
+              >
                 @{user.username}
               </span>
               <Separator />
               <time
                 className={classNames(
                   'typo-caption1',
-                  isIron ? 'text-white' : 'text-pepper-90',
+                  isIron && 'text-white',
+                  isDefault && 'text-pepper-10/[.64]',
+                  !isIron && !isDefault && 'text-pepper-90',
                 )}
               >
                 {postDateFormat(user.createdAt)}
@@ -154,9 +164,10 @@ export function DevCard({
             {isHorizontal && <Divider className="my-2 opacity-32" />}
             <p
               className={classNames(
-                'line-clamp-2',
                 isIron ? 'text-white' : 'text-pepper-90',
-                isHorizontal ? 'typo-callout' : 'typo-caption1',
+                isHorizontal
+                  ? 'typo-callout line-clamp-6'
+                  : 'typo-caption1 line-clamp-2',
               )}
             >
               {user.bio}
