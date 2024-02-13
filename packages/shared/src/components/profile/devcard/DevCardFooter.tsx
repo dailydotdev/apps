@@ -28,6 +28,7 @@ export function DevCardFooter({
         buttonProps={{ variant: ButtonVariant.Secondary }}
         className={{
           container: classNames(
+            'max-h-[3.5rem] overflow-hidden',
             type === DevCardType.Horizontal && 'pb-3',
             !shouldShowLogo && 'justify-center px-2',
           ),
@@ -36,8 +37,7 @@ export function DevCardFooter({
             theme === DevCardTheme.Iron
               ? 'border-white text-white'
               : 'border-pepper-90 text-pepper-90',
-            type === DevCardType.Vertical &&
-              '!block max-w-[5rem] overflow-hidden text-ellipsis !leading-[1.375rem]',
+            type === DevCardType.Vertical && '!leading-[1.375rem]',
           ),
         }}
         tags={tags}
