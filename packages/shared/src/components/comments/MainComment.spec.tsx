@@ -28,6 +28,7 @@ const renderLayout = (
     onShare: jest.fn(),
     onShowUpvotes: jest.fn(),
     origin: Origin.PostCommentButton,
+    position: 0,
   };
 
   const client = new QueryClient();

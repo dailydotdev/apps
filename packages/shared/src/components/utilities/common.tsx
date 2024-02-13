@@ -238,3 +238,5 @@ export const formatReadTime = (minutes: number): string => {
     ? `${hours.toString()}h ${remainingMinutes.toString()}m`
     : `${remainingMinutes.toString()}m`;
 };
+
+export const lazyCommentThreshold = 3;

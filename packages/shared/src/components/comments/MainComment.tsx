@@ -16,6 +16,7 @@ import { Comment } from '../../graphql/comments';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useCommentEdit } from '../../hooks/post/useCommentEdit';
+import { lazyCommentThreshold } from '../utilities/common';
 
 type ClassName = {
   container?: string;
@@ -28,6 +29,7 @@ export interface MainCommentProps
   joinNotificationCommentId?: string;
   onCommented: CommentMarkdownInputProps['onCommented'];
   className?: ClassName;
+  position: number;
 }
 
 const shouldShowBannerOnComment = (
@@ -44,6 +46,7 @@ export default function MainComment({
   permissionNotificationCommentId,
   joinNotificationCommentId,
   onCommented,
+  position,
   ...props
 }: MainCommentProps): ReactElement {
   const { user } = useContext(AuthContext);
@@ -73,6 +76,10 @@ export default function MainComment({
         className?.container,
       )}
       data-testid="comment"
+      style={{
+        contentVisibility:
+          position >= lazyCommentThreshold ? 'auto' : 'visible',
+      }}
     >
       {!editProps && (
         <CommentBox
@@ -118,7 +125,7 @@ export default function MainComment({
           className={className?.commentBox}
         />
       )}
-      {comment.children?.edges.map(({ node }) => (
+      {comment.children?.edges.map(({ node }, index) => (
         <SubComment
           {...props}
           key={node.id}
@@ -127,6 +134,7 @@ export default function MainComment({
           appendTooltipTo={appendTooltipTo}
           className={className?.commentBox}
           onCommented={onCommented}
+          position={index}
         />
       ))}
       {showJoinSquadBanner && (

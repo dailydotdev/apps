@@ -87,7 +87,7 @@ const ProfileCommentsPage = ({ user }: ProfileLayoutProps): ReactElement => {
         fetchNextPage={queryResult.fetchNextPage}
       >
         {queryResult.data.pages.flatMap((page) =>
-          page.page.edges.map(({ node }) => (
+          page.page.edges.map(({ node }, index) => (
             <MainComment
               key={node.id}
               className={commentClassName}
@@ -104,6 +104,7 @@ const ProfileCommentsPage = ({ user }: ProfileLayoutProps): ReactElement => {
               postScoutId={null}
               appendTooltipTo={() => document.body}
               linkToComment
+              position={index}
             />
           )),
         )}

@@ -94,7 +94,7 @@ export function PostComments({
 
   return (
     <div className="mb-12 flex flex-col gap-4" ref={container}>
-      {comments.postComments.edges.map((e) => (
+      {comments.postComments.edges.map((e, index) => (
         <MainComment
           className={{ commentBox: className }}
           post={post}
@@ -114,6 +114,7 @@ export function PostComments({
           permissionNotificationCommentId={permissionNotificationCommentId}
           joinNotificationCommentId={joinNotificationCommentId}
           onCommented={onCommented}
+          position={index}
         />
       ))}
     </div>
