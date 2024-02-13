@@ -16,16 +16,21 @@ import { DevCardContainer } from './DevCardContainer';
 import { useDevCard } from '../../../hooks/profile/useDevCard';
 import { DevCardTwitterCover } from './DevCardTwitterCover';
 
+export enum DevCardUsage {
+  DevCardImage = 'DevCardImage',
+}
 interface DevCardProps {
   type?: DevCardType;
   userId: string;
   isProfileCover?: boolean;
+  usedAs?: DevCardUsage;
 }
 
 export function DevCard({
   type = DevCardType.Vertical,
   userId,
   isProfileCover = false,
+  usedAs,
 }: DevCardProps): ReactElement {
   const data = useDevCard(userId, isProfileCover);
   const { devcard, isLoading, coverImage } = data ?? {};
@@ -45,7 +50,13 @@ export function DevCard({
   const isDefault = theme === DevCardTheme.Default;
 
   const footer = (
-    <DevCardFooter tags={tags} sources={sources} type={type} theme={theme} />
+    <DevCardFooter
+      tags={tags}
+      sources={sources}
+      type={type}
+      theme={theme}
+      tagsClickable={usedAs === DevCardUsage.DevCardImage}
+    />
   );
 
   return (

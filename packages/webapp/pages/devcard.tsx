@@ -36,6 +36,7 @@ import {
   DevCardTheme,
   DevCardType,
   devcardTypeToEventFormat,
+  DevCardUsage,
   requiredPoints,
   themeToLinearGradient,
 } from '@dailydotdev/shared/src/components/profile/devcard';
@@ -319,6 +320,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                   userId={user.id}
                   type={type}
                   isProfileCover={isProfileCover}
+                  usedAs={DevCardUsage.DevCardImage}
                 />
               </Tilt>
             )}

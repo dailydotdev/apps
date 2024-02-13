@@ -13,6 +13,7 @@ export interface DevCardFooterProps {
   type: DevCardType;
   theme: DevCardTheme;
   shouldShowLogo?: boolean;
+  tagsClickable?: boolean;
 }
 
 export function DevCardFooter({
@@ -21,6 +22,7 @@ export function DevCardFooter({
   sources,
   theme,
   shouldShowLogo = true,
+  tagsClickable = true,
 }: DevCardFooterProps): ReactElement {
   return (
     <>
@@ -31,6 +33,7 @@ export function DevCardFooter({
             'max-h-[3.5rem] overflow-hidden',
             type === DevCardType.Horizontal && 'pb-3',
             !shouldShowLogo && 'justify-center px-2',
+            !tagsClickable && 'pointer-events-none',
           ),
           tag: classNames(
             'typo-caption1',
