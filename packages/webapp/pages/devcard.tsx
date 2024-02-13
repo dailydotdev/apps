@@ -386,39 +386,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     Download X cover image
                   </Button>
                 </div>
-                <textarea
-                  className="mt-4 h-[7.75rem] w-full resize-none self-stretch rounded-10 bg-theme-float px-4 py-2 text-theme-label-tertiary laptopL:w-[25rem]"
-                  readOnly
-                  wrap="hard"
-                  value={embedCode}
-                />
-                <Button
-                  className="mt-4"
-                  variant={ButtonVariant.Secondary}
-                  size={ButtonSize.Small}
-                  onClick={() => copyEmbed()}
-                  disabled={isPageUnavailable}
-                >
-                  {!copyingEmbed ? 'Copy code' : 'Copied!'}
-                </Button>
 
-                <h3 className="typo-title4 mb-2 mt-5 font-bold">
-                  Use as X header
-                </h3>
-                <p className="text-theme-label-tertiary typo-callout">
-                  Level up your Twitter game with a DevCard header image!
-                </p>
-                <Button
-                  className="mt-5"
-                  variant={ButtonVariant.Secondary}
-                  size={ButtonSize.Small}
-                  onClick={() =>
-                    generateThenDownload({ type: DevCardType.Twitter })
-                  }
-                  loading={downloading || isLoading}
-                >
-                  Download X cover image
-                </Button>
                 <div>
                   <h3 className="typo-title4 flex font-bold">
                     <ShareIcon size={IconSize.Small} className="mr-1.5" />
