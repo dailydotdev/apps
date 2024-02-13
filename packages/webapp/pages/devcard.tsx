@@ -18,6 +18,7 @@ import {
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import {
   Button,
+  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
@@ -550,6 +551,19 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     Show border
                   </Switch>
                 </div>
+
+                <Button
+                  className="mt-4 grow-0 self-start"
+                  variant={ButtonVariant.Primary}
+                  color={ButtonColor.Cabbage}
+                  size={ButtonSize.Medium}
+                  onClick={() =>
+                    onGenerate({ theme, showBorder, isProfileCover, type })
+                  }
+                  loading={isLoading}
+                >
+                  Save
+                </Button>
               </>
             )}
           </div>
