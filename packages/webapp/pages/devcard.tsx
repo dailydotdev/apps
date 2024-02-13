@@ -258,7 +258,13 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
             </RadioItem>
           </div>
 
-          <div className="flex justify-center">
+          <div
+            className={classNames(
+              'flex justify-center',
+              type === DevCardType.Horizontal &&
+                'mobileL:scale-60 mobileXXL:scale-80 scale-50 mobileXL:scale-75 tablet:scale-100',
+            )}
+          >
             {user && <DevCard userId={user.id} type={type} />}
           </div>
 

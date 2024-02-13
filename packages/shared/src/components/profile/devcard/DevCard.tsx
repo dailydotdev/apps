@@ -48,12 +48,7 @@ export function DevCard({
   return (
     <DevCardContainer
       theme={theme}
-      className={classNames(
-        'm-4',
-        !isHorizontal && 'w-[20.25rem] flex-col',
-        isHorizontal &&
-          'mobileL:scale-60 mobileXXL:scale-80 scale-50 mobileXL:scale-75 tablet:scale-100',
-      )}
+      className={classNames('m-4', !isHorizontal && 'w-[20.25rem] flex-col')}
     >
       <ConditionalWrapper
         condition={isHorizontal}
