@@ -17,6 +17,7 @@ import {
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import {
   Button,
+  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
@@ -234,11 +235,18 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     [key, client, devCardSrc],
   );
 
-  const generateThenDownload = async (
+  const generateDevCard = async (
     props: Partial<GenerateDevCardParams> = {},
   ) => {
     const params = { type, theme, showBorder, isProfileCover, ...props };
     const res = await onGenerate(params);
+    return res;
+  };
+
+  const generateThenDownload = async (
+    props: Partial<GenerateDevCardParams> = {},
+  ) => {
+    const res = await generateDevCard(props);
     const url = res?.devCard?.imageUrl;
 
     if (url) {
@@ -537,6 +545,19 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     Show border
                   </Switch>
                 </div>
+
+                <Button
+                  className="mt-4 grow-0 self-start"
+                  variant={ButtonVariant.Primary}
+                  color={ButtonColor.Cabbage}
+                  size={ButtonSize.Medium}
+                  onClick={() =>
+                    generateDevCard({ theme, showBorder, isProfileCover, type })
+                  }
+                  loading={isLoading}
+                >
+                  Save
+                </Button>
               </>
             )}
           </div>
