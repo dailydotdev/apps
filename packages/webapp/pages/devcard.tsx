@@ -1,4 +1,12 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   GitHubIcon,
@@ -138,6 +146,8 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     () => generateQueryKey(RequestKey.DevCard, { id: user?.id }),
     [user],
   );
+  const devcard = client.getQueryData<GenerateDevCardParams>(key);
+  const devcardRef = useRef<GenerateDevCardParams>();
   const embedCode = useMemo(
     () =>
       `<a href="https://app.daily.dev/${
@@ -202,24 +212,27 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     });
   };
 
-  const onUpdatePreference = (props: Partial<GenerateDevCardParams>) =>
-    setUpdatePreference((prev) => {
-      const updated = { ...prev, ...props };
+  const onUpdatePreference = useCallback(
+    (props: Partial<GenerateDevCardParams>) =>
+      setUpdatePreference((prev) => {
+        const updated = { ...prev, ...props };
 
-      client.setQueryData(key, (oldData: DevCardData) => ({
-        ...oldData,
-        ...updated,
-      }));
+        client.setQueryData(key, (oldData: DevCardData) => ({
+          ...oldData,
+          ...updated,
+        }));
 
-      if (props.type && props.type !== prev.type) {
-        const url = new URL(devCardSrc);
-        url.searchParams.set('type', props.type.toLocaleLowerCase());
+        if (props.type && props.type !== prev.type) {
+          const url = new URL(devCardSrc);
+          url.searchParams.set('type', props.type.toLocaleLowerCase());
 
-        setDevCardSrc(url.toString());
-      }
+          setDevCardSrc(url.toString());
+        }
 
-      return updated;
-    });
+        return updated;
+      }),
+    [key, client, devCardSrc],
+  );
 
   const generateThenDownload = async (
     props: Partial<GenerateDevCardParams> = {},
@@ -238,6 +251,19 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
       });
     }
   };
+
+  useEffect(() => {
+    // to make the state reflect the correct values from DB,
+    // we need to update the local state after fetching the remote values.
+    if (!devcardRef?.current && devcard) {
+      devcardRef.current = devcard;
+      onUpdatePreference(devcard);
+    }
+  }, [devcard, onUpdatePreference]);
+
+  if (!devcard && initialDevCardSrc) {
+    return null;
+  }
 
   return (
     <div className="mt-14 flex max-w-full flex-col self-stretch mobileL:mx-2">
@@ -428,7 +454,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
 
                   <div className="flex flex-row flex-wrap">
                     {Object.keys(themeToLinearGradient).map((value) => {
-                      const isLocked = user?.reputation < requiredPoints[value];
+                      const isLocked = false;
                       return (
                         <SimpleTooltip
                           key={value}
