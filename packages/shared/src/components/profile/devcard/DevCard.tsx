@@ -120,9 +120,11 @@ export function DevCard({
           <div className="flex flex-col gap-0.5">
             <h2
               className={classNames(
-                'line-clamp-1 font-bold',
+                'font-bold',
                 isIron ? 'text-white' : 'text-pepper-90',
-                isHorizontal ? 'typo-mega2' : 'typo-title2',
+                isHorizontal
+                  ? 'line-clamp-2 typo-mega2'
+                  : 'line-clamp-1 typo-title2',
               )}
             >
               {user.name}
