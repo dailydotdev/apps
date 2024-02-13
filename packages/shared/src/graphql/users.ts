@@ -479,6 +479,7 @@ export const DEV_CARD_QUERY = gql`
       id
       user {
         ...UserShortInfo
+        cover
       }
       createdAt
       theme

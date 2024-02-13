@@ -303,7 +303,13 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                 'mobileL:scale-60 mobileXXL:scale-80 scale-50 mobileXL:scale-75 tablet:scale-100',
             )}
           >
-            {user && <DevCard userId={user.id} type={type} />}
+            {user && (
+              <DevCard
+                userId={user.id}
+                type={type}
+                isProfileCover={isProfileCover}
+              />
+            )}
           </div>
 
           <Button
@@ -510,7 +516,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                   </RadioItem>
 
                   <RadioItem
-                    disabled={isLoading}
+                    disabled={isLoading || !user.cover}
                     name="profileCover"
                     checked={isProfileCover}
                     onChange={() =>

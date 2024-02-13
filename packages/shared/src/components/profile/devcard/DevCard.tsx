@@ -19,13 +19,15 @@ import { DevCardTwitterCover } from './DevCardTwitterCover';
 interface DevCardProps {
   type?: DevCardType;
   userId: string;
+  isProfileCover?: boolean;
 }
 
 export function DevCard({
   type = DevCardType.Vertical,
   userId,
+  isProfileCover = false,
 }: DevCardProps): ReactElement {
-  const data = useDevCard(userId);
+  const data = useDevCard(userId, isProfileCover);
   const { devcard, isLoading, coverImage } = data ?? {};
 
   if (isLoading || !devcard) {
