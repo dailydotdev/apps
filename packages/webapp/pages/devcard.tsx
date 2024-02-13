@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { GitHubIcon } from '@dailydotdev/shared/src/components/icons';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
@@ -10,7 +16,6 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
-import { useDownloadUrl } from '@dailydotdev/shared/src/hooks/utils';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
@@ -35,21 +40,36 @@ import { DevCardData } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
+import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
+import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import styles from '../components/layouts/ProfileLayout/NavBar.module.css';
 import {
+  DevCardMutation,
   GENERATE_DEVCARD_MUTATION,
   GenerateDevCardParams,
 } from '../graphql/devcard';
 
 interface Step1Props {
-  onGenerateImage(): void;
+  onGenerateImage(url: string): void;
 }
 
 const Step1 = ({ onGenerateImage }: Step1Props): ReactElement => {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
+  const { mutateAsync: onGenerate, isLoading } = useMutation(
+    () => request<DevCardMutation>(graphqlUrl, GENERATE_DEVCARD_MUTATION),
+    {
+      onSuccess: (data) => {
+        const url = data?.devCard?.imageUrl;
+
+        if (data?.devCard?.imageUrl) {
+          onGenerateImage(url);
+        }
+      },
+    },
+  );
 
   return (
     <>
@@ -66,7 +86,8 @@ const Step1 = ({ onGenerateImage }: Step1Props): ReactElement => {
             <Button
               variant={ButtonVariant.Primary}
               size={ButtonSize.Large}
-              onClick={() => onGenerateImage()}
+              onClick={() => onGenerate()}
+              loading={isLoading}
             >
               Generate now
             </Button>
@@ -84,8 +105,12 @@ const Step1 = ({ onGenerateImage }: Step1Props): ReactElement => {
   );
 };
 
-const Step2 = (): ReactElement => {
-  const [devCardSrc, setDevCardSrc] = useState<string>();
+interface Step2Props {
+  initialDevCardSrc?: string;
+}
+
+const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
+  const [devCardSrc, setDevCardSrc] = useState(initialDevCardSrc);
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
   const key = useMemo(
@@ -98,7 +123,6 @@ const Step2 = (): ReactElement => {
     [user?.name, user?.username, devCardSrc],
   );
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
-  const [downloading, setDownloading] = useState(false);
   const [selectedTab, setSelectedTab] = useState(0);
   const [{ type, theme, showBorder, isProfileCover }, setUpdatePreference] =
     useState<GenerateDevCardParams>({
@@ -107,24 +131,17 @@ const Step2 = (): ReactElement => {
       showBorder: true,
       isProfileCover: false,
     });
-  const { mutateAsync: onDownloadUrl } = useDownloadUrl();
+  const { mutateAsync: onDownloadUrl, isLoading: downloading } =
+    useMutation(downloadUrl);
 
   const downloadImage = async (url?: string): Promise<void> => {
     const finalUrl = url ?? devCardSrc;
-    setDownloading(true);
     await onDownloadUrl({ url: finalUrl, filename: `${user.username}.png` });
-    setDownloading(false);
   };
 
   const { mutateAsync: onGenerate, isLoading } = useMutation(
-    (params: Partial<GenerateDevCardParams> = {}) =>
-      request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
-        type,
-        theme,
-        showBorder,
-        isProfileCover,
-        ...params,
-      }),
+    (params: Partial<GenerateDevCardParams>) =>
+      request<DevCardMutation>(graphqlUrl, GENERATE_DEVCARD_MUTATION, params),
     {
       onSuccess: (data) => {
         if (!data?.devCard?.imageUrl) {
@@ -132,7 +149,6 @@ const Step2 = (): ReactElement => {
         }
 
         setDevCardSrc(data.devCard.imageUrl);
-        downloadImage();
       },
     },
   );
@@ -148,6 +164,28 @@ const Step2 = (): ReactElement => {
 
       return updated;
     });
+
+  const generateThenDownload = async (
+    props: Partial<GenerateDevCardParams> = {},
+  ) => {
+    const params = { type, theme, showBorder, isProfileCover, ...props };
+    const res = await onGenerate(params);
+    const url = res?.devCard?.imageUrl;
+
+    if (url) {
+      downloadImage(url);
+    }
+  };
+
+  const isPageUnavailable = isNullOrUndefined(devCardSrc);
+
+  useEffect(() => {
+    if (initialDevCardSrc) {
+      return;
+    }
+
+    onGenerate({});
+  }, [initialDevCardSrc, onGenerate]);
 
   return (
     <div className="mx-2 mt-14 flex flex-col self-stretch">
@@ -186,7 +224,7 @@ const Step2 = (): ReactElement => {
             className="mx-auto mt-4 grow-0 self-start"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
-            onClick={() => onGenerate({})}
+            onClick={() => generateThenDownload({})}
             loading={downloading || isLoading}
           >
             Download DevCard
@@ -262,6 +300,7 @@ const Step2 = (): ReactElement => {
                   variant={ButtonVariant.Secondary}
                   size={ButtonSize.Small}
                   onClick={() => copyEmbed()}
+                  disabled={isPageUnavailable}
                 >
                   {!copyingEmbed ? 'Copy code' : 'Copied!'}
                 </Button>
@@ -276,7 +315,9 @@ const Step2 = (): ReactElement => {
                   className="mt-5"
                   variant={ButtonVariant.Secondary}
                   size={ButtonSize.Small}
-                  onClick={() => onGenerate({ type: DevCardType.Twitter })}
+                  onClick={() =>
+                    generateThenDownload({ type: DevCardType.Twitter })
+                  }
                   loading={downloading || isLoading}
                 >
                   Download X cover image
@@ -388,6 +429,12 @@ const seo: NextSeoProps = {
 const DevCardPage = (): ReactElement => {
   const { completeAction, checkHasCompleted } = useActions();
   const isDevCardGenerated = checkHasCompleted(ActionType.DevCardGenerate);
+  const [devCardSrc, setDevCarSrc] = useState<string>();
+
+  const onGenerateDevCard = (url: string) => {
+    setDevCarSrc(url);
+    completeAction(ActionType.DevCardGenerate);
+  };
 
   return (
     <div
@@ -398,11 +445,9 @@ const DevCardPage = (): ReactElement => {
     >
       <NextSeo {...seo} />
       {isDevCardGenerated ? (
-        <Step2 />
+        <Step2 initialDevCardSrc={devCardSrc} />
       ) : (
-        <Step1
-          onGenerateImage={() => completeAction(ActionType.DevCardGenerate)}
-        />
+        <Step1 onGenerateImage={onGenerateDevCard} />
       )}
     </div>
   );

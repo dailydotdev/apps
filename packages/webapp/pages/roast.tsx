@@ -18,7 +18,8 @@ import {
 } from '@dailydotdev/shared/src/hooks/useAutomation';
 import { HttpError } from '@dailydotdev/shared/src/lib/errors';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
-import { useDownloadUrl } from '@dailydotdev/shared/src/hooks/utils';
+import { useMutation } from '@tanstack/react-query';
+import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -90,13 +91,10 @@ const Step1 = ({ onGenerateImage, error }: StepProps): ReactElement => {
 
 const Step2 = ({ roast, error }: StepProps): ReactElement => {
   const { user } = useContext(AuthContext);
-  const [downloading, setDownloading] = useState(false);
-  const { mutateAsync: onDownloadUrl } = useDownloadUrl();
+  const { mutateAsync: onDownloadUrl, isLoading } = useMutation(downloadUrl);
 
   const downloadImage = async (): Promise<void> => {
-    setDownloading(true);
     await onDownloadUrl({ url: roast.image, filename: `${user.username}.png` });
-    setDownloading(false);
   };
 
   return (
@@ -128,7 +126,7 @@ const Step2 = ({ roast, error }: StepProps): ReactElement => {
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
           onClick={downloadImage}
-          loading={downloading}
+          loading={isLoading}
         >
           Download image
         </Button>
