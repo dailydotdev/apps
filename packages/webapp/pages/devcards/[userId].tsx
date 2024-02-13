@@ -39,7 +39,7 @@ export async function getStaticProps({
 const devCardTypeMap = {
   default: DevCardType.Vertical,
   wide: DevCardType.Horizontal,
-  x: DevCardType.Compact,
+  x: DevCardType.Twitter,
 };
 
 const DevCardPage = ({ userId }: DevCardPageProps): ReactElement => {
