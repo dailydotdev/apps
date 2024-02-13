@@ -16,7 +16,6 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
-import { useDownloadUrl } from '@dailydotdev/shared/src/hooks/utils';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
@@ -42,6 +41,7 @@ import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
+import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -132,7 +132,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
       isProfileCover: false,
     });
   const { mutateAsync: onDownloadUrl, isLoading: downloading } =
-    useDownloadUrl();
+    useMutation(downloadUrl);
 
   const downloadImage = async (url?: string): Promise<void> => {
     const finalUrl = url ?? devCardSrc;
