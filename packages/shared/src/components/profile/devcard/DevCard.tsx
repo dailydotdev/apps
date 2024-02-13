@@ -32,7 +32,7 @@ export function DevCard({
     return null;
   }
 
-  if (type === DevCardType.Twitter) {
+  if (type.toLowerCase() === DevCardType.Twitter.toLowerCase()) {
     return <DevCardTwitterCover {...data} />;
   }
 
