@@ -242,7 +242,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
   return (
     <div className="mt-14 flex max-w-full flex-col self-stretch mobileL:mx-2">
       <main className="flex max-w-full flex-wrap justify-center gap-10 laptopL:gap-20">
-        <section className="align-center flex flex-col laptopL:w-[37.5rem]">
+        <section className="align-center flex w-full flex-col laptopL:w-[37.5rem]">
           <h1 className="mx-3 mb-8 text-center font-bold typo-title1">
             Share your #DevCard!
           </h1>
