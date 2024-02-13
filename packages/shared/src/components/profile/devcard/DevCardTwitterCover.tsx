@@ -6,15 +6,10 @@ import { DevCardFooter } from './DevCardFooter';
 import Logo from '../../Logo';
 import { UseDevCard } from '../../../hooks/profile/useDevCard';
 
-interface DevCardTwitterCoverProps {
-  data: UseDevCard;
-}
-
 export function DevCardTwitterCover({
-  data,
-}: DevCardTwitterCoverProps): ReactElement {
-  const { devcard, coverImage } = data ?? {};
-
+  devcard,
+  coverImage,
+}: Pick<UseDevCard, 'devcard' | 'coverImage'>): ReactElement {
   if (!devcard) {
     return null;
   }

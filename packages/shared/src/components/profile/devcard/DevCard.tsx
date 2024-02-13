@@ -28,7 +28,7 @@ export function DevCard({
   }
 
   if (type === DevCardType.Twitter) {
-    return <DevCardTwitterCover data={data} />;
+    return <DevCardTwitterCover {...data} />;
   }
 
   const { theme, user, articlesRead, tags, sources, showBorder } = devcard;
