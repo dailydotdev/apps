@@ -13,7 +13,7 @@ export interface DevCardFooterProps {
   type: DevCardType;
   theme: DevCardTheme;
   shouldShowLogo?: boolean;
-  tagsClickable?: boolean;
+  elementsClickable?: boolean;
 }
 
 export function DevCardFooter({
@@ -22,7 +22,7 @@ export function DevCardFooter({
   sources,
   theme,
   shouldShowLogo = true,
-  tagsClickable = true,
+  elementsClickable = true,
 }: DevCardFooterProps): ReactElement {
   return (
     <>
@@ -33,7 +33,7 @@ export function DevCardFooter({
             'max-h-[3.5rem] overflow-hidden',
             type === DevCardType.Horizontal && 'pb-3',
             !shouldShowLogo && 'justify-center px-2',
-            !tagsClickable && 'pointer-events-none',
+            !elementsClickable && 'pointer-events-none',
           ),
           tag: classNames(
             'typo-caption1',
@@ -45,13 +45,23 @@ export function DevCardFooter({
         }}
         tags={tags}
       />
-      <div className="flex h-6 flex-row gap-1">
+      <div
+        className={classNames(
+          'flex h-6 flex-row gap-1',
+          !elementsClickable && 'pointer-events-none',
+        )}
+      >
         {sources?.map((source) => (
           <SourceButton key={source.name} source={source} size="small" />
         ))}
       </div>
       {shouldShowLogo && (
-        <span className="absolute bottom-0 right-0 rounded-br-24 rounded-tl-24 bg-pepper-90 px-4 py-3">
+        <span
+          className={classNames(
+            'absolute bottom-0 right-0 rounded-br-24 rounded-tl-24 bg-pepper-90 px-4 py-3',
+            !elementsClickable && 'pointer-events-none',
+          )}
+        >
           <Logo showGreeting={false} position={LogoPosition.Relative} />
         </span>
       )}
