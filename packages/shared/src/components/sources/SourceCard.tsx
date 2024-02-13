@@ -98,12 +98,12 @@ export const SourceCard = ({
           <a href={source?.permalink}>
             {source?.image ? (
               <img
-                className="z-10 -mt-14 h-24 w-24 rounded-full"
+                className="-mt-14 h-24 w-24 rounded-full"
                 src={source?.image}
                 alt={`${title} source`}
               />
             ) : (
-              <div className="z-10 -mt-14 flex h-24 w-24 items-center justify-center rounded-full bg-theme-bg-pepper40">
+              <div className="-mt-14 flex h-24 w-24 items-center justify-center rounded-full bg-theme-bg-pepper40">
                 {icon}
               </div>
             )}
