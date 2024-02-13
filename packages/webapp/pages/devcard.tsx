@@ -131,13 +131,6 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
       `${process.env.NEXT_PUBLIC_API_URL}/devcards/${user.id}.png?type=default&r=${randomNum}`,
   );
 
-  useEffect(() => {
-    const url = new URL(devCardSrc);
-    url.searchParams.set('type', type.toLocaleLowerCase());
-
-    setDevCardSrc(url.toString());
-  }, [devCardSrc, type]);
-
   const client = useQueryClient();
   const { trackEvent } = useAnalyticsContext();
   const key = useMemo(
@@ -191,7 +184,10 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
           return;
         }
 
-        setDevCardSrc(data.devCard.imageUrl);
+        const url = new URL(data.devCard.imageUrl);
+        url.searchParams.set('type', type.toLocaleLowerCase());
+
+        setDevCardSrc(url.toString());
       },
     },
   );
@@ -344,7 +340,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     </ClickableText>
                   </p>
 
-                  <p className="mt-4 rounded-10 bg-theme-float px-4 py-2 text-theme-label-tertiary white-space-pre-wrap break-words">
+                  <p className="white-space-pre-wrap mt-4 break-words rounded-10 bg-theme-float px-4 py-2 text-theme-label-tertiary">
                     {embedCode}
                   </p>
                   <Button
