@@ -179,8 +179,8 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
       });
     },
     {
-      onSuccess: (data) => {
-        if (!data?.devCard?.imageUrl) {
+      onSuccess: (data, vars) => {
+        if (!data?.devCard?.imageUrl || vars.type === DevCardType.Twitter) {
           return;
         }
 
