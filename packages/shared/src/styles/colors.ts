@@ -20,7 +20,18 @@ export enum ColorName {
   Telegram = 'telegram',
 }
 
-type ColorLevels = '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90';
+type MandatoryColorLevels =
+  | '10'
+  | '20'
+  | '30'
+  | '40'
+  | '50'
+  | '60'
+  | '70'
+  | '80'
+  | '90';
+type OptionalColorLevels = '0';
+type ColorLevels = MandatoryColorLevels & Partial<OptionalColorLevels>;
 type Color = Record<ColorLevels, string>;
 type ColorPalette = Record<ColorName, Color>;
 
@@ -147,6 +158,7 @@ const colors: ColorPalette = {
     '90': '#0D31D9',
   },
   salt: {
+    '0': '#FFFFFF',
     '10': '#F5F8FC',
     '20': '#EDF0F7',
     '30': '#E4E9F2',

@@ -60,6 +60,7 @@ export enum AnalyticsEvent {
   GlobalError = 'global error',
   ClickArticleAnonymousCTA = 'click article anonymous cta',
   ClickScrollBlock = 'click scroll block',
+  KeyboardShortcutTriggered = 'keyboard shortcut triggered',
   // notifications - start
   ClickNotificationIcon = 'click notification icon',
   OpenNotificationList = 'open notification list',
@@ -112,6 +113,7 @@ export enum AnalyticsEvent {
   AcceptInvitation = 'accept invitation',
   DownloadExtension = 'download extension',
   SearchHighlightAnimation = 'highlight search',
+  SwitchSearch = 'switch search',
   // search end
   RequestContentScripts = 'request content scripts',
   ApproveContentScripts = 'approve content scripts',
@@ -157,6 +159,7 @@ export enum TargetId {
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
   InviteProfileMenu = 'invite in profile menu',
+  SearchActivation = 'search activation',
   // Referral campaign
   GenericReferralPopup = 'generic referral popup',
   ProfilePage = 'profile page',

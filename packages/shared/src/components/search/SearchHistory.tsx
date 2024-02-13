@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { getSearchUrl } from '../../graphql/search';
+import { SearchProviderEnum, getSearchUrl } from '../../graphql/search';
 import { InfiniteScrollScreenOffset } from '../../hooks/feed/useFeedInfiniteScroll';
 import { SearchEmpty } from './SearchEmpty';
 import { SearchHistoryContainer } from './common';
@@ -51,6 +51,7 @@ export function SearchHistory({
           icon={<TimerIcon />}
           href={getSearchUrl({
             id: suggestion.sessionId,
+            provider: SearchProviderEnum.Chat,
           })}
         >
           {suggestion.prompt}
