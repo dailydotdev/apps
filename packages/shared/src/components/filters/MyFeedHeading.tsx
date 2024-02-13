@@ -55,12 +55,13 @@ function MyFeedHeading({
     }
   };
 
+  const isControlSearch = searchVersion === SearchExperiment.Control;
   const getPlacement = () => {
     if (shouldUseFeedLayoutV1) {
       return AlertPlacement.Bottom;
     }
 
-    if (sidebarRendered) {
+    if (sidebarRendered && isControlSearch) {
       return AlertPlacement.Right;
     }
 
