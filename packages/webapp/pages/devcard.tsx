@@ -62,6 +62,7 @@ import {
   GENERATE_DEVCARD_MUTATION,
   GenerateDevCardParams,
 } from '../graphql/devcard';
+import { labels } from '@dailydotdev/shared/src/lib';
 
 interface Step1Props {
   onGenerateImage(): void;
@@ -104,8 +105,19 @@ const Step1 = ({ onGenerateImage }: Step1Props): ReactElement => {
 };
 
 const Step2 = (): ReactElement => {
-  const [devCardSrc, setDevCardSrc] = useState<string>();
+  const [{ type, theme, showBorder, isProfileCover }, setUpdatePreference] =
+    useState<GenerateDevCardParams>({
+      type: DevCardType.Vertical,
+      theme: DevCardTheme.Default,
+      showBorder: true,
+      isProfileCover: false,
+    });
+
   const { user } = useContext(AuthContext);
+  const randomNum = Math.round(Math.random() * 999);
+  const [devCardSrc, setDevCardSrc] = useState<string>(
+    `${process.env.NEXT_PUBLIC_API_URL}/devcards/${user.id}.png?type=default&r=${randomNum}`,
+  );
   const client = useQueryClient();
   const { trackEvent } = useAnalyticsContext();
   const key = useMemo(
@@ -114,20 +126,17 @@ const Step2 = (): ReactElement => {
   );
   const embedCode = useMemo(
     () =>
-      `<a href="https://app.daily.dev/${user?.username}"><img src="${devCardSrc}" width="400" alt="${user?.name}'s Dev Card"/></a>`,
-    [user?.name, user?.username, devCardSrc],
+      `<a href="https://app.daily.dev/${
+        user?.username
+      }"><img src="${devCardSrc}" width="${
+        type === DevCardType.Horizontal ? 652 : 356
+      }" alt="${user?.name}'s Dev Card"/></a>`,
+    [user?.name, user?.username, devCardSrc, type],
   );
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
   const [copyingLink, copyLink] = useCopyLink(() => devCardSrc);
   const [downloading, setDownloading] = useState(false);
   const [selectedTab, setSelectedTab] = useState(0);
-  const [{ type, theme, showBorder, isProfileCover }, setUpdatePreference] =
-    useState<GenerateDevCardParams>({
-      type: DevCardType.Vertical,
-      theme: DevCardTheme.Default,
-      showBorder: true,
-      isProfileCover: false,
-    });
   const [, onShareOrCopyLink] = useShareOrCopyLink({
     text: 'Checkout my DevCard', // TODO: check with product
     link: devCardSrc,
@@ -145,14 +154,21 @@ const Step2 = (): ReactElement => {
   };
 
   const { mutateAsync: onGenerate, isLoading } = useMutation(
-    (params: Partial<GenerateDevCardParams> = {}) =>
-      request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
-        type,
-        theme,
-        showBorder,
-        isProfileCover,
-        ...params,
-      }),
+    (params: Partial<GenerateDevCardParams> = {}) => {
+      const { theme, type, ...rest } = params;
+
+      const devCardTypeMap = {
+        [DevCardType.Vertical]: 'DEFAULT',
+        [DevCardType.Horizontal]: 'WIDE',
+        [DevCardType.Compact]: 'X',
+      };
+
+      return request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
+        theme: theme?.toLocaleUpperCase() ?? 'DEFAULT',
+        type: devCardTypeMap[type] ?? 'DEFAULT',
+        ...rest,
+      });
+    },
     {
       onSuccess: (data) => {
         if (!data?.devCard?.imageUrl) {
@@ -160,7 +176,7 @@ const Step2 = (): ReactElement => {
         }
 
         setDevCardSrc(data.devCard.imageUrl);
-        downloadImage();
+        downloadImage(data.devCard.imageUrl);
       },
     },
   );
@@ -185,9 +201,9 @@ const Step2 = (): ReactElement => {
     });
 
   return (
-    <div className="mx-2 mt-14 flex flex-col self-stretch">
-      <main className="z-2 flex flex-col gap-10 laptop:flex-row laptopL:gap-20">
-        <section className="align-center flex flex-col">
+    <div className="mobileL:mx-2 mt-14 flex flex-col self-stretch max-w-full">
+      <main className="max-w-full flex flex-wrap justify-center gap-10 laptopL:gap-20">
+        <section className="align-center flex flex-col laptopL:w-[37.5rem]">
           <h1 className="mx-3 mb-8 text-center font-bold typo-title1">
             Share your #DevCard!
           </h1>
@@ -215,7 +231,9 @@ const Step2 = (): ReactElement => {
             </RadioItem>
           </div>
 
-          <div>{user && <DevCard userId={user.id} type={type} />}</div>
+          <div className="flex justify-center">
+            {user && <DevCard userId={user.id} type={type} />}
+          </div>
 
           <Button
             className="mx-auto mt-4 grow-0 self-start"
@@ -228,7 +246,7 @@ const Step2 = (): ReactElement => {
           </Button>
         </section>
 
-        <WidgetContainer className="flex w-full max-w-[26.5rem] flex-col self-stretch">
+        <WidgetContainer className="flex mobileL:min-w-96 max-w-[26.25rem] flex-col flex-1">
           <div
             className={classNames(
               'sticky top-12 flex justify-around rounded-24 bg-theme-bg-primary tablet:top-14 tablet:justify-start',
@@ -313,34 +331,13 @@ const Step2 = (): ReactElement => {
                   >
                     {!copyingEmbed ? 'Copy code' : 'Copied!'}
                   </Button>
-
-                  <h3 className="typo-title4 mb-2 mt-5 font-bold">
-                    Use as X header
-                  </h3>
-                  <p className="text-theme-label-tertiary typo-callout">
-                    Level up your Twitter game with a DevCard header image!
-                  </p>
-                  <Button
-                    className="mt-5"
-                    variant={ButtonVariant.Secondary}
-                    size={ButtonSize.Small}
-                    onClick={() => onGenerate({ type: DevCardType.Twitter })}
-                    loading={downloading || isLoading}
-                  >
-                    Download X cover image
-                  </Button>
                 </div>
 
                 <div>
-                  <span>
-                    <TwitterIcon
-                      size={IconSize.Small}
-                      className="inline-block"
-                    />
-                    <h3 className="typo-title4 ml-2 inline-block font-bold">
-                      Use as X header
-                    </h3>
-                  </span>
+                  <h3 className="typo-title4 flex font-bold">
+                    <TwitterIcon size={IconSize.Small} className="mr-1.5" />
+                    Use as X header
+                  </h3>
                   <p className="mt-2 text-theme-label-tertiary typo-callout">
                     Level up your Twitter game with a DevCard header image!
                   </p>
@@ -352,21 +349,22 @@ const Step2 = (): ReactElement => {
                   >
                     Download X cover image
                   </Button>
-                  <span>
-                    <ShareIcon size={IconSize.Small} className="inline-block" />
-                    <h3 className="typo-title4 ml-2 inline-block font-bold">
-                      Share
-                    </h3>
-                  </span>
+                </div>
+
+                <div>
+                  <h3 className="flex typo-title4 font-bold">
+                    <ShareIcon size={IconSize.Small} className="mr-1.5" />
+                    Share
+                  </h3>
                   <div className="mt-3 flex flex-row flex-wrap gap-3 gap-y-3">
                     <SocialShareList
                       link={devCardSrc}
-                      description="Checkout my DevCard" // TODO: check with product
+                      description={labels.devcard.generic.shareText} // TODO: check with product
                       isCopying={copyingLink}
                       onCopy={copyLink}
                       onNativeShare={onShareOrCopyLink}
                       onClickSocial={onTrackShare} // TODO: check with product + Dave
-                      emailTitle="Checkout my DevCard" // TODO: check with product
+                      emailTitle={labels.devcard.generic.emailTitle}
                     />
                   </div>
                 </div>
@@ -490,7 +488,7 @@ const DevCardPage = (): ReactElement => {
   return (
     <div
       className={classNames(
-        'page mx-auto flex min-h-page max-w-full flex-col items-center justify-center px-6 py-10 tablet:-mt-12',
+        'page mx-auto flex min-h-page max-w-full flex-col items-center justify-center mobileL:px-6 py-10 tablet:-mt-12',
         isDevCardGenerated && 'laptop:flex-row laptop:gap-20',
       )}
     >
