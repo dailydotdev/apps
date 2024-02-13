@@ -160,7 +160,14 @@ export function DevCard({
                 {postDateFormat(user.createdAt)}
               </time>
             </div>
-            {isHorizontal && <Divider className="my-2 opacity-32" />}
+            {isHorizontal && (
+              <Divider
+                className={classNames(
+                  'my-2 opacity-32',
+                  isIron ? '!bg-pepper-10' : '!bg-pepper-90',
+                )}
+              />
+            )}
             <p
               className={classNames(
                 isIron ? 'text-white' : 'text-pepper-90',
