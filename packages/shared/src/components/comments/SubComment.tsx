@@ -12,7 +12,6 @@ export interface SubCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
   parentComment: Comment;
   onCommented: CommentMarkdownInputProps['onCommented'];
-  position: number;
 }
 
 function SubComment({
@@ -20,7 +19,6 @@ function SubComment({
   parentComment,
   className,
   onCommented,
-  position,
   ...props
 }: SubCommentProps): ReactElement {
   const { inputProps, commentId, onReplyTo } = useComments(props.post);

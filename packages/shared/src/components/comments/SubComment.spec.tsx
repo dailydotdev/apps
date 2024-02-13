@@ -30,7 +30,6 @@ const renderLayout = (
     onShare: jest.fn(),
     onShowUpvotes: jest.fn(),
     onCommented: jest.fn(),
-    position: 0,
   };
 
   const client = new QueryClient();

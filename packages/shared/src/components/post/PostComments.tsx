@@ -22,6 +22,7 @@ import { Origin } from '../../lib/analytics';
 import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useDeleteComment } from '../../hooks/comments/useDeleteComment';
+import { lazyCommentThreshold } from '../utilities';
 
 interface PostCommentsProps {
   post: Post;
@@ -114,7 +115,7 @@ export function PostComments({
           permissionNotificationCommentId={permissionNotificationCommentId}
           joinNotificationCommentId={joinNotificationCommentId}
           onCommented={onCommented}
-          position={index}
+          lazy={!commentHash && index >= lazyCommentThreshold}
         />
       ))}
     </div>

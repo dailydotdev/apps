@@ -17,7 +17,6 @@ import { Comment } from '../../graphql/comments';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useCommentEdit } from '../../hooks/post/useCommentEdit';
-import { lazyCommentThreshold } from '../utilities/common';
 
 type ClassName = {
   container?: string;
@@ -30,7 +29,7 @@ export interface MainCommentProps
   joinNotificationCommentId?: string;
   onCommented: CommentMarkdownInputProps['onCommented'];
   className?: ClassName;
-  position: number;
+  lazy?: boolean;
 }
 
 const shouldShowBannerOnComment = (
@@ -47,7 +46,7 @@ export default function MainComment({
   permissionNotificationCommentId,
   joinNotificationCommentId,
   onCommented,
-  position,
+  lazy = false,
   ...props
 }: MainCommentProps): ReactElement {
   const { user } = useContext(AuthContext);
@@ -70,9 +69,10 @@ export default function MainComment({
   const { commentId, inputProps, onReplyTo } = useComments(props.post);
   const { inputProps: editProps, onEdit } = useCommentEdit();
 
+  const initialInView = !lazy;
   const { ref: inViewRef, inView } = useInView({
     triggerOnce: true,
-    initialInView: position < lazyCommentThreshold,
+    initialInView,
   });
 
   return (
@@ -84,8 +84,7 @@ export default function MainComment({
       )}
       data-testid="comment"
       style={{
-        contentVisibility:
-          position >= lazyCommentThreshold ? 'auto' : 'visible',
+        contentVisibility: initialInView ? 'visible' : 'auto',
       }}
     >
       {!editProps && inView && (
@@ -133,7 +132,7 @@ export default function MainComment({
         />
       )}
       {inView &&
-        comment.children?.edges.map(({ node }, index) => (
+        comment.children?.edges.map(({ node }) => (
           <SubComment
             {...props}
             key={node.id}
@@ -142,7 +141,6 @@ export default function MainComment({
             appendTooltipTo={appendTooltipTo}
             className={className?.commentBox}
             onCommented={onCommented}
-            position={index}
           />
         ))}
       {showJoinSquadBanner && (
