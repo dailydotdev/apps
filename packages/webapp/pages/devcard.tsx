@@ -307,7 +307,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
           >
             {user && (
               <Tilt
-                className="relative w-fit self-stretch overflow-hidden rounded-32"
+                className="rounded-32 relative w-fit self-stretch overflow-hidden"
                 glareEnable
                 perspective={1000}
                 glareMaxOpacity={0.25}
@@ -590,6 +590,7 @@ const seo: NextSeoProps = {
 
 const DevCardPage = (): ReactElement => {
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
+  const { user, loadingUser } = useContext(AuthContext);
   const isDevCardGenerated = checkHasCompleted(ActionType.DevCardGenerate);
   const [devCardSrc, setDevCarSrc] = useState<string>();
   const { trackEvent } = useAnalyticsContext();
@@ -602,7 +603,7 @@ const DevCardPage = (): ReactElement => {
     });
   };
 
-  if (!isActionsFetched) {
+  if ((loadingUser || user) && !isActionsFetched) {
     return null;
   }
 
