@@ -314,7 +314,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                 trackOnWindow
                 style={{ transformStyle: 'preserve-3d' }}
               >
-                <DevCard userId={user.id} type={type} />
+                <DevCard userId={user.id} type={type} isProfileCover={isProfileCover}/>
               </Tilt>
             )}
           </div>
@@ -523,7 +523,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                   </RadioItem>
 
                   <RadioItem
-                    disabled={isLoading}
+                    disabled={isLoading || !user.cover}
                     name="profileCover"
                     checked={isProfileCover}
                     onChange={() =>
