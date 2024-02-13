@@ -42,7 +42,7 @@ export function DevCardTwitterCover({
           </div>
         </DevCardContainer>
         <p className="font-white mt-5 flex flex-row gap-1 text-center typo-callout">
-          Based on my activity <Logo />
+          Based on my activity on <Logo />
         </p>
       </div>
     </div>
