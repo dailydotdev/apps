@@ -57,3 +57,9 @@ export const requiredPoints: Record<DevCardTheme, number> = {
   [DevCardTheme.Diamond]: 5000,
   [DevCardTheme.Legendary]: 10000,
 };
+
+export const devcardTypeToEventFormat = {
+  [DevCardType.Vertical]: 'vertical',
+  [DevCardType.Horizontal]: 'horizontal',
+  [DevCardType.Twitter]: 'x',
+};

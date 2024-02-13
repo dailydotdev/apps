@@ -25,6 +25,7 @@ import {
   DevCard,
   DevCardTheme,
   DevCardType,
+  devcardTypeToEventFormat,
   requiredPoints,
   themeToLinearGradient,
 } from '@dailydotdev/shared/src/components/profile/devcard';
@@ -151,8 +152,11 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
   const [, onShareOrCopyLink] = useShareOrCopyLink({
     text: 'Checkout my DevCard', // TODO: check with product
     link: devCardSrc,
-    trackObject: () => ({
-      event_name: AnalyticsEvent.CopyDevcardLink, // TODO: check with product + Dave
+    trackObject: (provider) => ({
+      event_name: AnalyticsEvent.ShareDevcard,
+      extra: JSON.stringify({
+        provider,
+      }),
     }),
   });
   const [selectedTab, setSelectedTab] = useState(0);
@@ -191,8 +195,10 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
 
   const onTrackShare = (provider: ShareProvider) => {
     trackEvent({
-      event_name: AnalyticsEvent.CopyDevcardLink,
-      target_id: provider,
+      event_name: AnalyticsEvent.ShareDevcard,
+      extra: JSON.stringify({
+        provider,
+      }),
     });
   };
 
@@ -224,6 +230,12 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
 
     if (url) {
       downloadImage(url);
+      trackEvent({
+        event_name: AnalyticsEvent.DownloadDevcard,
+        extra: JSON.stringify({
+          format: devcardTypeToEventFormat[type],
+        }),
+      });
     }
   };
 
@@ -351,7 +363,12 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     className="mt-4"
                     variant={ButtonVariant.Secondary}
                     size={ButtonSize.Small}
-                    onClick={() => copyEmbed()}
+                    onClick={() => {
+                      copyEmbed();
+                      trackEvent({
+                        event_name: AnalyticsEvent.CopyDevcardCode,
+                      });
+                    }}
                   >
                     {!copyingEmbed ? 'Copy code' : 'Copied!'}
                   </Button>
@@ -390,7 +407,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                       isCopying={copyingLink}
                       onCopy={copyLink}
                       onNativeShare={onShareOrCopyLink}
-                      onClickSocial={onTrackShare} // TODO: check with product + Dave
+                      onClickSocial={onTrackShare}
                       emailTitle={labels.devcard.generic.emailTitle}
                     />
                   </div>
@@ -512,10 +529,14 @@ const DevCardPage = (): ReactElement => {
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const isDevCardGenerated = checkHasCompleted(ActionType.DevCardGenerate);
   const [devCardSrc, setDevCarSrc] = useState<string>();
+  const { trackEvent } = useAnalyticsContext();
 
   const onGenerateDevCard = (url: string) => {
     setDevCarSrc(url);
     completeAction(ActionType.DevCardGenerate);
+    trackEvent({
+      event_name: AnalyticsEvent.GenerateDevcard,
+    });
   };
 
   if (!isActionsFetched) {
