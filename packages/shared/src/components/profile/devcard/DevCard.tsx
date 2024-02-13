@@ -166,8 +166,8 @@ export function DevCard({
               className={classNames(
                 isIron ? 'text-white' : 'text-pepper-90',
                 isHorizontal
-                  ? 'typo-callout line-clamp-6'
-                  : 'typo-caption1 line-clamp-2',
+                  ? 'line-clamp-6 typo-callout'
+                  : 'line-clamp-2 typo-caption1',
               )}
             >
               {user.bio}
