@@ -190,10 +190,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
           return;
         }
 
-        const url = new URL(data.devCard.imageUrl);
-        url.searchParams.set('type', type.toLocaleLowerCase());
-
-        setDevCardSrc(url.toString());
+        setDevCardSrc(data.devCard.imageUrl);
       },
     },
   );
@@ -213,6 +210,13 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
         ...oldData,
         ...updated,
       }));
+
+      if (props.type !== prev.type) {
+        const url = new URL(devCardSrc);
+        url.searchParams.set('type', props.type.toLocaleLowerCase());
+
+        setDevCardSrc(url.toString());
+      }
 
       return updated;
     });
