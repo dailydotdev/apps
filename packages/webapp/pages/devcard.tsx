@@ -311,7 +311,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
             onClick={() => generateThenDownload({})}
-            loading={downloading || isLoading}
+            disabled={downloading || isLoading}
           >
             Download DevCard
           </Button>
@@ -421,7 +421,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     onClick={() =>
                       generateThenDownload({ type: DevCardType.Twitter })
                     }
-                    loading={downloading || isLoading}
+                    disabled={downloading || isLoading}
                   >
                     Download X cover image
                   </Button>
