@@ -130,6 +130,14 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     initialDevCardSrc ??
       `${process.env.NEXT_PUBLIC_API_URL}/devcards/${user.id}.png?type=default&r=${randomNum}`,
   );
+
+  useEffect(() => {
+    const url = new URL(devCardSrc);
+    url.searchParams.set('type', type.toLocaleLowerCase());
+
+    setDevCardSrc(url.toString());
+  }, [devCardSrc, type]);
+
   const client = useQueryClient();
   const { trackEvent } = useAnalyticsContext();
   const key = useMemo(
@@ -336,12 +344,9 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     </ClickableText>
                   </p>
 
-                  <textarea
-                    className="mt-4 h-[7.75rem] w-full resize-none self-stretch rounded-10 bg-theme-float px-4 py-2 text-theme-label-tertiary laptopL:w-[25rem]"
-                    readOnly
-                    wrap="hard"
-                    value={embedCode}
-                  />
+                  <p className="mt-4 rounded-10 bg-theme-float px-4 py-2 text-theme-label-tertiary white-space-pre-wrap break-words">
+                    {embedCode}
+                  </p>
                   <Button
                     className="mt-4"
                     variant={ButtonVariant.Secondary}
