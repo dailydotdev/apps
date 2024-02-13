@@ -40,6 +40,7 @@ export function DevCard({
   const isHorizontal = type === DevCardType.Horizontal;
   const isVertical = type === DevCardType.Vertical;
   const isIron = theme === DevCardTheme.Iron;
+  const isDefault = theme === DevCardTheme.Default;
 
   const footer = (
     <DevCardFooter tags={tags} sources={sources} type={type} theme={theme} />
@@ -119,34 +120,49 @@ export function DevCard({
           <div className="flex flex-col gap-0.5">
             <h2
               className={classNames(
+                'line-clamp-1 font-bold',
                 isIron ? 'text-white' : 'text-pepper-90',
                 isHorizontal ? 'typo-mega2' : 'typo-title2',
               )}
             >
-              <strong>{user.name}</strong>
+              {user.name}
             </h2>
-            <span
+            <div
               className={classNames(
-                isIron ? 'text-white' : 'text-pepper-10',
+                'line-clamp-1 flex items-center',
+                isIron && 'text-white',
+                isDefault && 'text-pepper-10',
+                !isIron && !isDefault && 'text-pepper-90',
                 isHorizontal ? 'typo-callout' : 'typo-footnote',
               )}
             >
-              @{user.username}
+              <span
+                className={classNames(
+                  'overflow-hidden text-ellipsis',
+                  isVertical ? 'shrink' : 'max-w-36',
+                )}
+              >
+                @{user.username}
+              </span>
               <Separator />
               <time
                 className={classNames(
-                  'text-opacity-64 typo-caption1',
-                  isIron ? 'text-white' : 'text-pepper-90',
+                  'typo-caption1',
+                  isIron && 'text-white',
+                  isDefault && 'text-pepper-10/[.64]',
+                  !isIron && !isDefault && 'text-pepper-90',
                 )}
               >
                 {postDateFormat(user.createdAt)}
               </time>
-            </span>
+            </div>
             {isHorizontal && <Divider className="my-2 opacity-32" />}
             <p
               className={classNames(
-                isIron ? 'text-white' : 'text-pepper-10',
-                isHorizontal ? 'typo-callout' : 'typo-caption1',
+                isIron ? 'text-white' : 'text-pepper-90',
+                isHorizontal
+                  ? 'line-clamp-6 typo-callout'
+                  : 'line-clamp-2 typo-caption1',
               )}
             >
               {user.bio}
