@@ -124,33 +124,38 @@ export function DevCard({
           <div className="flex flex-col gap-0.5">
             <h2
               className={classNames(
+                'line-clamp-1 font-bold',
                 isIron ? 'text-white' : 'text-pepper-90',
                 isHorizontal ? 'typo-mega2' : 'typo-title2',
               )}
             >
-              <strong>{user.name}</strong>
+              {user.name}
             </h2>
-            <span
+            <div
               className={classNames(
-                isIron ? 'text-white' : 'text-pepper-10',
+                'line-clamp-1 flex items-center',
+                isIron ? 'text-white' : 'text-pepper-90',
                 isHorizontal ? 'typo-callout' : 'typo-footnote',
               )}
             >
-              @{user.username}
+              <span className="shrink overflow-hidden text-ellipsis">
+                @{user.username}
+              </span>
               <Separator />
               <time
                 className={classNames(
-                  'text-opacity-64 typo-caption1',
+                  'typo-caption1',
                   isIron ? 'text-white' : 'text-pepper-90',
                 )}
               >
                 {postDateFormat(user.createdAt)}
               </time>
-            </span>
+            </div>
             {isHorizontal && <Divider className="my-2 opacity-32" />}
             <p
               className={classNames(
-                isIron ? 'text-white' : 'text-pepper-10',
+                'line-clamp-2',
+                isIron ? 'text-white' : 'text-pepper-90',
                 isHorizontal ? 'typo-callout' : 'typo-caption1',
               )}
             >
