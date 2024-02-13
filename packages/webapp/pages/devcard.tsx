@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import Tilt from 'react-parallax-tilt';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   GitHubIcon,
@@ -303,7 +304,19 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                 'mobileL:scale-60 mobileXXL:scale-80 scale-50 mobileXL:scale-75 tablet:scale-100',
             )}
           >
-            {user && <DevCard userId={user.id} type={type} />}
+            {user && (
+              <Tilt
+                className="rounded-32 relative w-fit self-stretch overflow-hidden"
+                glareEnable
+                perspective={1000}
+                glareMaxOpacity={0.25}
+                glarePosition="all"
+                trackOnWindow
+                style={{ transformStyle: 'preserve-3d' }}
+              >
+                <DevCard userId={user.id} type={type} />
+              </Tilt>
+            )}
           </div>
 
           <Button
