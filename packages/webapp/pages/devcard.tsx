@@ -134,7 +134,8 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
   const { user } = useContext(AuthContext);
   const randomNum = Math.round(Math.random() * 999);
   const [devCardSrc, setDevCardSrc] = useState<string>(
-    initialDevCardSrc ?? `${process.env.NEXT_PUBLIC_API_URL}/devcards/${user.id}.png?type=default&r=${randomNum}`,
+    initialDevCardSrc ??
+      `${process.env.NEXT_PUBLIC_API_URL}/devcards/${user.id}.png?type=default&r=${randomNum}`,
   );
   const client = useQueryClient();
   const { trackEvent } = useAnalyticsContext();
@@ -161,13 +162,6 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     }),
   });
   const [selectedTab, setSelectedTab] = useState(0);
-  const [{ type, theme, showBorder, isProfileCover }, setUpdatePreference] =
-    useState<GenerateDevCardParams>({
-      type: DevCardType.Vertical,
-      theme: DevCardTheme.Default,
-      showBorder: true,
-      isProfileCover: false,
-    });
   const { mutateAsync: onDownloadUrl, isLoading: downloading } =
     useMutation(downloadUrl);
 
