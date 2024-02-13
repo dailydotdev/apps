@@ -367,6 +367,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     onClick={() =>
                       generateThenDownload({ type: DevCardType.Twitter })
                     }
+                    loading={downloading || isLoading}
                   >
                     Download X cover image
                   </Button>
@@ -503,7 +504,7 @@ const seo: NextSeoProps = {
 };
 
 const DevCardPage = (): ReactElement => {
-  const { completeAction, checkHasCompleted } = useActions();
+  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const isDevCardGenerated = checkHasCompleted(ActionType.DevCardGenerate);
   const [devCardSrc, setDevCarSrc] = useState<string>();
 
@@ -511,6 +512,10 @@ const DevCardPage = (): ReactElement => {
     setDevCarSrc(url);
     completeAction(ActionType.DevCardGenerate);
   };
+
+  if (!isActionsFetched) {
+    return null;
+  }
 
   return (
     <div
