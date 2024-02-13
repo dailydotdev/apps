@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { TagLinks } from '../../TagLinks';
 import { ButtonVariant } from '../../buttons/common';
 import SourceButton from '../../cards/SourceButton';
-import Logo from '../../Logo';
+import Logo, { LogoPosition } from '../../Logo';
 import { DevCardTheme, DevCardType } from './common';
 import { Source } from '../../../graphql/sources';
 
@@ -49,7 +49,7 @@ export function DevCardFooter({
       </div>
       {shouldShowLogo && (
         <span className="absolute bottom-0 right-0 rounded-br-24 rounded-tl-24 bg-pepper-90 px-4 py-3">
-          <Logo showGreeting={false} />
+          <Logo showGreeting={false} position={LogoPosition.Relative} />
         </span>
       )}
     </>
