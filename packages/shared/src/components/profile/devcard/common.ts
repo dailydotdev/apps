@@ -28,7 +28,7 @@ export const themeToLinearGradient = {
     `linear-gradient(135.48deg, ${colors.pepper['10']} 0%, ${colors.pepper['90']} 20%, ${colors.pepper['10']} 47.5%, ${colors.pepper['50']} 67%, ${colors.pepper['90']} 83%, ${colors.pepper['10']} 100%),\n` +
     `linear-gradient(180deg, ${colors.salt['20']} 0%, ${colors.salt['10']} 85.42%)`,
   [DevCardTheme.Bronze]:
-    `linear-gradient(135.48deg, ${colors.burger['10']} 0%, ${colors.burger['40']} 20%, ${colors.burger['10']} 47.5%, ${colors.burger['10']} 67%, ${colors.burger['40']} 83%, ${colors.burger['10']} 100%),\n` +
+    `linear-gradient(135.48deg, ${colors.burger['10']} 0%, ${colors.burger['40']} 20%, ${colors.bun['10']} 47.5%, ${colors.burger['10']} 67%, ${colors.burger['40']} 83%, ${colors.burger['10']} 100%),\n` +
     `linear-gradient(180deg, ${colors.salt['20']} 0%, ${colors.salt['10']} 85.42%)`,
   [DevCardTheme.Silver]:
     `linear-gradient(135.11deg, ${colors.salt['90']} 0%, ${colors.salt['10']} 18%, ${colors.salt['50']} 31.5%, ${colors.salt['0']} 49.19%, ${colors.salt['50']} 61.5%, ${colors.salt['90']} 78.5%, ${colors.salt['50']} 95.5%),\n` +
