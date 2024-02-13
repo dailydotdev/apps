@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   GitHubIcon,
@@ -54,7 +48,6 @@ import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { labels } from '@dailydotdev/shared/src/lib';
-import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -175,7 +168,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
       const devCardTypeMap = {
         [DevCardType.Vertical]: 'DEFAULT',
         [DevCardType.Horizontal]: 'WIDE',
-        [DevCardType.Compact]: 'X',
+        [DevCardType.Twitter]: 'X',
       };
 
       return request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
@@ -225,16 +218,6 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
       downloadImage(url);
     }
   };
-
-  const isPageUnavailable = isNullOrUndefined(devCardSrc);
-
-  useEffect(() => {
-    if (initialDevCardSrc) {
-      return;
-    }
-
-    onGenerate({});
-  }, [initialDevCardSrc, onGenerate]);
 
   return (
     <div className="mt-14 flex max-w-full flex-col self-stretch mobileL:mx-2">
@@ -381,7 +364,9 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     className="mt-5"
                     variant={ButtonVariant.Secondary}
                     size={ButtonSize.Small}
-                    onClick={() => {}}
+                    onClick={() =>
+                      generateThenDownload({ type: DevCardType.Twitter })
+                    }
                   >
                     Download X cover image
                   </Button>
