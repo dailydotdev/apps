@@ -7,7 +7,6 @@ import {
 } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
 import { useCommentEdit } from '../../hooks/post/useCommentEdit';
-import { lazyCommentThreshold } from '../utilities/common';
 
 export interface SubCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
@@ -50,10 +49,6 @@ function SubComment({
               commentId: selected.id,
             })
           }
-          style={{
-            contentVisibility:
-              position >= lazyCommentThreshold ? 'auto' : 'visible',
-          }}
         >
           <div
             className="absolute bottom-0 left-9 top-0 -ml-px w-0.5 bg-theme-float"

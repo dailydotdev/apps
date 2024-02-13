@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import classNames from 'classnames';
+import { useInView } from 'react-intersection-observer';
 import EnableNotification from '../notifications/EnableNotification';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import SubComment from './SubComment';
@@ -69,8 +70,14 @@ export default function MainComment({
   const { commentId, inputProps, onReplyTo } = useComments(props.post);
   const { inputProps: editProps, onEdit } = useCommentEdit();
 
+  const { ref: inViewRef, inView } = useInView({
+    triggerOnce: true,
+    initialInView: position < lazyCommentThreshold,
+  });
+
   return (
     <section
+      ref={inViewRef}
       className={classNames(
         'flex scroll-mt-16 flex-col items-stretch rounded-24 border border-theme-divider-tertiary',
         className?.container,
@@ -81,7 +88,7 @@ export default function MainComment({
           position >= lazyCommentThreshold ? 'auto' : 'visible',
       }}
     >
-      {!editProps && (
+      {!editProps && inView && (
         <CommentBox
           {...props}
           comment={comment}
@@ -125,18 +132,19 @@ export default function MainComment({
           className={className?.commentBox}
         />
       )}
-      {comment.children?.edges.map(({ node }, index) => (
-        <SubComment
-          {...props}
-          key={node.id}
-          comment={node}
-          parentComment={comment}
-          appendTooltipTo={appendTooltipTo}
-          className={className?.commentBox}
-          onCommented={onCommented}
-          position={index}
-        />
-      ))}
+      {inView &&
+        comment.children?.edges.map(({ node }, index) => (
+          <SubComment
+            {...props}
+            key={node.id}
+            comment={node}
+            parentComment={comment}
+            appendTooltipTo={appendTooltipTo}
+            className={className?.commentBox}
+            onCommented={onCommented}
+            position={index}
+          />
+        ))}
       {showJoinSquadBanner && (
         <SquadCommentJoinBanner
           className={!comment.children?.edges?.length && 'mt-3'}

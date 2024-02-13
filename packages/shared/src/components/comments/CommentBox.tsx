@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { CSSProperties, ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { Post } from '../../graphql/posts';
@@ -38,7 +38,6 @@ export interface CommentBoxProps extends CommentActionProps {
   appendTooltipTo?: () => HTMLElement;
   children?: ReactNode;
   linkToComment?: boolean;
-  style?: CSSProperties;
 }
 
 function CommentBox({
@@ -59,7 +58,6 @@ function CommentBox({
   className = {},
   children,
   linkToComment,
-  style,
 }: CommentBoxProps): ReactElement {
   const isCommentReferenced = commentHash === getCommentHash(comment.id);
   const { role } = useMemberRoleForSource({
@@ -78,7 +76,6 @@ function CommentBox({
         className.container,
       )}
       data-testid="comment"
-      style={style}
     >
       {linkToComment && (
         <Link href={comment.permalink} prefetch={false} passHref>
