@@ -109,8 +109,8 @@ export function DevCard({
         </ConditionalWrapper>
         <div
           className={classNames(
-            'relative mt-4 flex flex-1 flex-col gap-3 p-4',
-            type !== DevCardType.Horizontal && 'rounded-b-24 pt-8',
+            'relative flex flex-1 flex-col justify-center gap-3 p-4',
+            type !== DevCardType.Horizontal && 'mt-4 rounded-b-24 pt-8',
           )}
           style={{
             boxShadow:
