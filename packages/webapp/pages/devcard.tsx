@@ -150,7 +150,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
   const [copyingLink, copyLink] = useCopyLink(() => devCardSrc);
   const [, onShareOrCopyLink] = useShareOrCopyLink({
-    text: 'Checkout my DevCard', // TODO: check with product
+    text: labels.devcard.generic.shareText,
     link: devCardSrc,
     trackObject: (provider) => ({
       event_name: AnalyticsEvent.ShareDevcard,
@@ -409,7 +409,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                   <div className="mt-3 flex flex-row flex-wrap gap-3 gap-y-3">
                     <SocialShareList
                       link={devCardSrc}
-                      description={labels.devcard.generic.shareText} // TODO: check with product
+                      description={labels.devcard.generic.shareText}
                       isCopying={copyingLink}
                       onCopy={copyLink}
                       onNativeShare={onShareOrCopyLink}

@@ -33,7 +33,7 @@ export const labels = {
   },
   devcard: {
     generic: {
-      shareText: `I'm using daily.dev to stay updated on developer news. These are my stats, check it out.`,
+      shareText: `Excited to share that I've created my personalized devcard on daily.dev, highlighting my favorite tech topics and publications. Create yours now!`,
       emailTitle: 'Checkout my devcard from daily.dev!',
     },
   },
