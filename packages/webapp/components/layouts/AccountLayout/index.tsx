@@ -42,7 +42,7 @@ export default function AccountLayout({
       <Head>
         <link rel="preload" as="image" href={profile.image} />
       </Head>
-      <NextSeo {...Seo} />
+      <NextSeo {...Seo} noindex nofollow />
       <main className="relative mx-auto flex w-full flex-1 flex-row items-stretch pt-0 laptop:max-w-[calc(100vw-17.5rem)]">
         <SidebarNav
           className="absolute z-3 ml-auto h-full w-full border-l border-theme-divider-tertiary bg-theme-bg-primary tablet:relative tablet:w-[unset]"
