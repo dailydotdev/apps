@@ -27,10 +27,7 @@ export interface UseDevCard {
   coverImage: string;
 }
 
-export const useDevCard = (
-  userId: string,
-  onSuccess?: (data: DevCardData) => void,
-): UseDevCard => {
+export const useDevCard = (userId: string): UseDevCard => {
   const { requestMethod } = useRequestProtocol();
   const { data: devcard, isLoading } = useQuery<DevCardData>(
     generateQueryKey(RequestKey.DevCard, { id: userId }),
@@ -41,7 +38,7 @@ export const useDevCard = (
 
       return res.devCard;
     },
-    { staleTime: StaleTime.Default, enabled: !!userId, onSuccess },
+    { staleTime: StaleTime.Default, enabled: !!userId },
   );
 
   const { isProfileCover, user } = devcard ?? {};

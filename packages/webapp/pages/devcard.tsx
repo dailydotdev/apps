@@ -130,23 +130,14 @@ interface Step2Props {
 }
 
 const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
-  const [{ type, theme, showBorder, isProfileCover }, setUpdatePreference] =
-    useState<GenerateDevCardParams>({
-      type: DevCardType.Vertical,
-      theme: DevCardTheme.Default,
-      showBorder: true,
-      isProfileCover: false,
-    });
+  const [type, setType] = useState(DevCardType.Vertical);
   const { user } = useContext(AuthContext);
-  const { devcard } = useDevCard(user?.id, (data) => {
-    if (
-      data.theme !== theme ||
-      data.showBorder !== showBorder ||
-      data.isProfileCover !== isProfileCover
-    ) {
-      setUpdatePreference({ ...data, type });
-    }
-  });
+  const { devcard } = useDevCard(user?.id);
+  const { theme, showBorder, isProfileCover } = devcard ?? {
+    theme: DevCardTheme.Default,
+    showBorder: true,
+    isProfileCover: false,
+  };
 
   const randomStr = Math.random().toString(36).substring(2, 5);
   const [devCardSrc, setDevCardSrc] = useState<string>(
@@ -192,16 +183,10 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
 
   const { mutateAsync: onGenerate, isLoading } = useMutation(
     (params: Partial<GenerateDevCardParams> = {}) => {
-      const devCardTypeMap = {
-        [DevCardType.Vertical]: 'DEFAULT',
-        [DevCardType.Horizontal]: 'WIDE',
-        [DevCardType.Twitter]: 'X',
-      };
-
       return request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
         ...params,
         theme: params?.theme?.toLocaleUpperCase() ?? 'DEFAULT',
-        type: devCardTypeMap[params?.type] ?? 'DEFAULT',
+        type: params?.type ?? 'DEFAULT',
       });
     },
     {
@@ -225,26 +210,24 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
   };
 
   const onUpdatePreference = useCallback(
-    (props: Partial<GenerateDevCardParams>) =>
-      setUpdatePreference((prev) => {
-        const updated = { ...prev, ...props };
-
-        client.setQueryData(key, (oldData: DevCardData) => ({
-          ...oldData,
-          ...updated,
-        }));
-
-        if (props.type && props.type !== prev.type) {
-          const url = new URL(devCardSrc);
-          url.searchParams.set('type', props.type.toLocaleLowerCase());
-
-          setDevCardSrc(url.toString());
-        }
-
-        return updated;
-      }),
-    [key, client, devCardSrc],
+    (props: Partial<Omit<GenerateDevCardParams, 'type'>>) => {
+      client.setQueryData(key, (oldData: DevCardData) => ({
+        ...oldData,
+        ...props,
+      }));
+    },
+    [key, client],
   );
+
+  const onUpdateType = (newType: DevCardType) => {
+    if (newType && newType !== type) {
+      setType(newType);
+
+      const url = new URL(devCardSrc);
+      url.searchParams.set('type', newType.toLocaleLowerCase());
+      setDevCardSrc(url.toString());
+    }
+  };
 
   const generateThenDownload = async (
     props: Partial<GenerateDevCardParams> = {},
@@ -276,9 +259,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
               disabled={isLoading}
               name="vertical"
               checked={type === DevCardType.Vertical}
-              onChange={() =>
-                onUpdatePreference({ type: DevCardType.Vertical })
-              }
+              onChange={() => onUpdateType(DevCardType.Vertical)}
             >
               Vertical
             </RadioItem>
@@ -287,9 +268,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
               disabled={isLoading}
               name="horizontal"
               checked={type === DevCardType.Horizontal}
-              onChange={() =>
-                onUpdatePreference({ type: DevCardType.Horizontal })
-              }
+              onChange={() => onUpdateType(DevCardType.Horizontal)}
             >
               Horizontal
             </RadioItem>
