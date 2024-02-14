@@ -315,7 +315,6 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                 <DevCard
                   userId={user.id}
                   type={type}
-                  isProfileCover={isProfileCover}
                   usedAs={DevCardUsage.DevCardImage}
                 />
               </Tilt>

@@ -19,20 +19,19 @@ import { DevCardTwitterCover } from './DevCardTwitterCover';
 export enum DevCardUsage {
   DevCardImage = 'DevCardImage',
 }
+
 interface DevCardProps {
   type?: DevCardType;
   userId: string;
-  isProfileCover?: boolean;
   usedAs?: DevCardUsage;
 }
 
 export function DevCard({
   type = DevCardType.Vertical,
   userId,
-  isProfileCover = false,
   usedAs,
 }: DevCardProps): ReactElement {
-  const data = useDevCard(userId, isProfileCover);
+  const data = useDevCard(userId);
   const { devcard, isLoading, coverImage } = data ?? {};
 
   if (isLoading || !devcard) {

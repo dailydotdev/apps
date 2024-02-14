@@ -27,10 +27,7 @@ export interface UseDevCard {
   coverImage: string;
 }
 
-export const useDevCard = (
-  userId: string,
-  isProfileCoverOverride = false,
-): UseDevCard => {
+export const useDevCard = (userId: string): UseDevCard => {
   const { requestMethod } = useRequestProtocol();
   const { data: devcard, isLoading } = useQuery<DevCardData>(
     generateQueryKey(RequestKey.DevCard, { id: userId }),
@@ -45,9 +42,8 @@ export const useDevCard = (
   );
 
   const { isProfileCover, user } = devcard ?? {};
-  const shouldUseProfileCover = isProfileCoverOverride || isProfileCover;
   const coverImage =
-    (shouldUseProfileCover ? user.cover : undefined) ??
+    (isProfileCover ? user.cover : undefined) ??
     cloudinary.devcard.defaultCoverImage;
 
   return { devcard, isLoading, coverImage };
