@@ -3,9 +3,10 @@ import classNames from 'classnames';
 import { TagLinks } from '../../TagLinks';
 import { ButtonVariant } from '../../buttons/common';
 import SourceButton from '../../cards/SourceButton';
-import Logo from '../../Logo';
+import Logo, { LogoPosition } from '../../Logo';
 import { DevCardTheme, DevCardType } from './common';
 import { Source } from '../../../graphql/sources';
+import { checkLowercaseEquality } from '../../../lib/strings';
 
 export interface DevCardFooterProps {
   tags: string[];
@@ -13,6 +14,7 @@ export interface DevCardFooterProps {
   type: DevCardType;
   theme: DevCardTheme;
   shouldShowLogo?: boolean;
+  elementsClickable?: boolean;
 }
 
 export function DevCardFooter({
@@ -21,6 +23,7 @@ export function DevCardFooter({
   sources,
   theme,
   shouldShowLogo = true,
+  elementsClickable = true,
 }: DevCardFooterProps): ReactElement {
   return (
     <>
@@ -28,28 +31,39 @@ export function DevCardFooter({
         buttonProps={{ variant: ButtonVariant.Secondary }}
         className={{
           container: classNames(
+            'max-h-[3.5rem] overflow-hidden',
             type === DevCardType.Horizontal && 'pb-3',
             !shouldShowLogo && 'justify-center px-2',
+            !elementsClickable && 'pointer-events-none',
           ),
           tag: classNames(
             'typo-caption1',
-            theme === DevCardTheme.Iron
+            checkLowercaseEquality(theme, DevCardTheme.Iron)
               ? 'border-white text-white'
               : 'border-pepper-90 text-pepper-90',
-            type === DevCardType.Vertical &&
-              '!block max-w-[5rem] overflow-hidden text-ellipsis !leading-[1.375rem]',
+            type === DevCardType.Vertical && '!leading-[1.375rem]',
           ),
         }}
         tags={tags}
       />
-      <div className="flex flex-row gap-1">
+      <div
+        className={classNames(
+          'flex h-6 flex-row gap-1',
+          !elementsClickable && 'pointer-events-none',
+        )}
+      >
         {sources?.map((source) => (
-          <SourceButton key={source.id} source={source} size="small" />
+          <SourceButton key={source.name} source={source} size="small" />
         ))}
       </div>
       {shouldShowLogo && (
-        <span className="absolute bottom-0 right-0 rounded-br-24 rounded-tl-24 bg-pepper-90 px-4 py-3">
-          <Logo showGreeting={false} />
+        <span
+          className={classNames(
+            'absolute bottom-0 right-0 rounded-br-24 rounded-tl-24 bg-pepper-90 px-4 py-3',
+            !elementsClickable && 'pointer-events-none',
+          )}
+        >
+          <Logo showGreeting={false} position={LogoPosition.Relative} />
         </span>
       )}
     </>

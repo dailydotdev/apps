@@ -14,29 +14,49 @@ import {
 import { DevCardFooter } from './DevCardFooter';
 import { DevCardContainer } from './DevCardContainer';
 import { useDevCard } from '../../../hooks/profile/useDevCard';
+import { DevCardTwitterCover } from './DevCardTwitterCover';
+import { checkLowercaseEquality } from '../../../lib/strings';
+
+export enum DevCardUsage {
+  DevCardImage = 'DevCardImage',
+}
 
 interface DevCardProps {
   type?: DevCardType;
   userId: string;
+  usedAs?: DevCardUsage;
 }
 
 export function DevCard({
   type = DevCardType.Vertical,
   userId,
+  usedAs,
 }: DevCardProps): ReactElement {
-  const { devcard, isLoading, coverImage } = useDevCard(userId);
+  const data = useDevCard(userId);
+  const { devcard, isLoading, coverImage } = data ?? {};
 
   if (isLoading || !devcard) {
     return null;
   }
 
+  if (type.toLowerCase() === DevCardType.Twitter.toLowerCase()) {
+    return <DevCardTwitterCover {...data} />;
+  }
+
   const { theme, user, articlesRead, tags, sources, showBorder } = devcard;
   const isHorizontal = type === DevCardType.Horizontal;
   const isVertical = type === DevCardType.Vertical;
-  const isIron = theme === DevCardTheme.Iron;
+  const isIron = checkLowercaseEquality(theme, DevCardTheme.Iron);
+  const isDefault = checkLowercaseEquality(theme, DevCardTheme.Default);
 
   const footer = (
-    <DevCardFooter tags={tags} sources={sources} type={type} theme={theme} />
+    <DevCardFooter
+      tags={tags}
+      sources={sources}
+      type={type}
+      theme={theme}
+      elementsClickable={usedAs !== DevCardUsage.DevCardImage}
+    />
   );
 
   return (
@@ -85,7 +105,7 @@ export function DevCard({
               alt={`avatar of ${user.name}`}
               className={classNames(
                 '-rotate-3 border-white object-cover',
-                showBorder && 'border-8',
+                showBorder && (isHorizontal ? 'border-4' : 'border-8'),
                 {
                   'size-40 rounded-48': isVertical,
                   'size-24 rounded-32': isHorizontal,
@@ -102,8 +122,8 @@ export function DevCard({
         </ConditionalWrapper>
         <div
           className={classNames(
-            'relative mt-4 flex flex-1 flex-col gap-3 p-4',
-            type !== DevCardType.Horizontal && 'rounded-b-24 pt-8',
+            'relative flex flex-1 flex-col justify-center gap-3 p-4',
+            type !== DevCardType.Horizontal && 'mt-4 rounded-b-24 pt-8',
           )}
           style={{
             boxShadow:
@@ -113,41 +133,71 @@ export function DevCard({
           <div className="flex flex-col gap-0.5">
             <h2
               className={classNames(
+                'font-bold',
                 isIron ? 'text-white' : 'text-pepper-90',
-                isHorizontal ? 'typo-mega2' : 'typo-title2',
+                isHorizontal
+                  ? 'line-clamp-2 typo-mega2'
+                  : 'line-clamp-1 typo-title2',
               )}
             >
-              <strong>{user.name}</strong>
+              {user.name}
             </h2>
-            <span
+            <div
               className={classNames(
-                isIron ? 'text-white' : 'text-pepper-10',
+                'line-clamp-1 flex items-center',
+                isIron && 'text-white',
+                isDefault && 'text-pepper-10',
+                !isIron && !isDefault && 'text-pepper-90',
                 isHorizontal ? 'typo-callout' : 'typo-footnote',
               )}
             >
-              @{user.username}
+              <span
+                className={classNames(
+                  'overflow-hidden text-ellipsis',
+                  isVertical ? 'shrink' : 'max-w-36',
+                )}
+              >
+                @{user.username}
+              </span>
               <Separator />
               <time
                 className={classNames(
-                  'text-opacity-64 typo-caption1',
-                  isIron ? 'text-white' : 'text-pepper-90',
+                  'typo-caption1',
+                  isIron && 'text-white',
+                  isDefault && 'text-pepper-10/[.64]',
+                  !isIron && !isDefault && 'text-pepper-90',
                 )}
               >
                 {postDateFormat(user.createdAt)}
               </time>
-            </span>
-            {isHorizontal && <Divider className="my-2 opacity-32" />}
+            </div>
+            {isHorizontal && (
+              <Divider
+                className={classNames(
+                  'my-2',
+                  (isDefault || isIron) && 'opacity-32',
+                  isIron ? '!bg-salt-90' : '!bg-pepper-90',
+                )}
+              />
+            )}
             <p
               className={classNames(
-                isIron ? 'text-white' : 'text-pepper-10',
-                isHorizontal ? 'typo-callout' : 'typo-caption1',
+                isIron ? 'text-white' : 'text-pepper-90',
+                isHorizontal
+                  ? 'line-clamp-6 typo-callout'
+                  : 'line-clamp-2 typo-caption1',
               )}
             >
               {user.bio}
             </p>
           </div>
           {type !== DevCardType.Horizontal && (
-            <Divider className={isIron && 'bg-salt-90 opacity-32'} />
+            <Divider
+              className={classNames(
+                (isDefault || isIron) && 'opacity-32',
+                isIron ? '!bg-salt-90' : '!bg-pepper-90',
+              )}
+            />
           )}
           {type !== DevCardType.Horizontal && footer}
         </div>

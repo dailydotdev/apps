@@ -21,7 +21,7 @@ export interface DevCardData {
   sources: Source[];
 }
 
-interface UseDevCard {
+export interface UseDevCard {
   devcard: DevCardData;
   isLoading: boolean;
   coverImage: string;
@@ -38,7 +38,7 @@ export const useDevCard = (userId: string): UseDevCard => {
 
       return res.devCard;
     },
-    { staleTime: StaleTime.Default },
+    { staleTime: StaleTime.Default, enabled: !!userId },
   );
 
   const { isProfileCover, user } = devcard ?? {};

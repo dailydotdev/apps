@@ -4,17 +4,12 @@ import { devCardBoxShadow, DevCardTheme, DevCardType } from './common';
 import { DevCardStats } from './DevCardStats';
 import { DevCardFooter } from './DevCardFooter';
 import Logo from '../../Logo';
-import { useDevCard } from '../../../hooks/profile/useDevCard';
-
-interface DevCardTwitterCoverProps {
-  userId: string;
-}
+import { UseDevCard } from '../../../hooks/profile/useDevCard';
 
 export function DevCardTwitterCover({
-  userId,
-}: DevCardTwitterCoverProps): ReactElement {
-  const { devcard, coverImage } = useDevCard(userId);
-
+  devcard,
+  coverImage,
+}: Pick<UseDevCard, 'devcard' | 'coverImage'>): ReactElement {
   if (!devcard) {
     return null;
   }
@@ -47,7 +42,7 @@ export function DevCardTwitterCover({
           </div>
         </DevCardContainer>
         <p className="font-white mt-5 flex flex-row gap-1 text-center typo-callout">
-          Based on my activity <Logo />
+          Based on my activity on <Logo />
         </p>
       </div>
     </div>

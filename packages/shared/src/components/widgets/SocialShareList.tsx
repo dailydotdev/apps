@@ -109,7 +109,7 @@ export function SocialShareList({
         onClick={() => onClickSocial(ShareProvider.Email)}
         label="Email"
       />
-      {'share' in navigator && (
+      {'share' in globalThis?.navigator && (
         <SocialShareButton
           icon={<MenuIcon size={IconSize.Large} className="rotate-90" />}
           variant={ButtonVariant.Primary}
