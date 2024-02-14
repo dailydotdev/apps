@@ -57,6 +57,7 @@ export default function ProfileLayout({
     process.env.NEXT_PUBLIC_API_URL,
   );
   ogImageUrl.searchParams.set('type', 'wide');
+  ogImageUrl.searchParams.set('r', Math.random().toString(36).substring(2, 5));
 
   const Seo: NextSeoProps = {
     title: getTemplatedTitle(user.name),
