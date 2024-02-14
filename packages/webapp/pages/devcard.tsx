@@ -2,9 +2,7 @@ import React, {
   ReactElement,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import Tilt from 'react-parallax-tilt';
@@ -18,7 +16,6 @@ import {
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import {
   Button,
-  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
@@ -48,7 +45,10 @@ import {
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { DevCardData } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
+import {
+  DevCardData,
+  useDevCard,
+} from '@dailydotdev/shared/src/hooks/profile/useDevCard';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
@@ -130,14 +130,15 @@ interface Step2Props {
 }
 
 const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
-  const [{ type, theme, showBorder, isProfileCover }, setUpdatePreference] =
-    useState<GenerateDevCardParams>({
-      type: DevCardType.Vertical,
-      theme: DevCardTheme.Default,
-      showBorder: true,
-      isProfileCover: false,
-    });
+  const [type, setType] = useState(DevCardType.Vertical);
   const { user } = useContext(AuthContext);
+  const { devcard } = useDevCard(user?.id);
+  const { theme, showBorder, isProfileCover } = devcard ?? {
+    theme: DevCardTheme.Default,
+    showBorder: true,
+    isProfileCover: false,
+  };
+
   const randomStr = Math.random().toString(36).substring(2, 5);
   const [devCardSrc, setDevCardSrc] = useState<string>(
     initialDevCardSrc ??
@@ -150,8 +151,6 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     () => generateQueryKey(RequestKey.DevCard, { id: user?.id }),
     [user],
   );
-  const devcard = client.getQueryData<GenerateDevCardParams>(key);
-  const devcardRef = useRef<GenerateDevCardParams>();
   const embedCode = useMemo(
     () =>
       `<a href="https://app.daily.dev/${
@@ -184,16 +183,10 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
 
   const { mutateAsync: onGenerate, isLoading } = useMutation(
     (params: Partial<GenerateDevCardParams> = {}) => {
-      const devCardTypeMap = {
-        [DevCardType.Vertical]: 'DEFAULT',
-        [DevCardType.Horizontal]: 'WIDE',
-        [DevCardType.Twitter]: 'X',
-      };
-
       return request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
         ...params,
         theme: params?.theme?.toLocaleUpperCase() ?? 'DEFAULT',
-        type: devCardTypeMap[params?.type] ?? 'DEFAULT',
+        type: params?.type ?? 'DEFAULT',
       });
     },
     {
@@ -217,26 +210,24 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
   };
 
   const onUpdatePreference = useCallback(
-    (props: Partial<GenerateDevCardParams>) =>
-      setUpdatePreference((prev) => {
-        const updated = { ...prev, ...props };
-
-        client.setQueryData(key, (oldData: DevCardData) => ({
-          ...oldData,
-          ...updated,
-        }));
-
-        if (props.type && props.type !== prev.type) {
-          const url = new URL(devCardSrc);
-          url.searchParams.set('type', props.type.toLocaleLowerCase());
-
-          setDevCardSrc(url.toString());
-        }
-
-        return updated;
-      }),
-    [key, client, devCardSrc],
+    (props: Partial<Omit<GenerateDevCardParams, 'type'>>) => {
+      client.setQueryData(key, (oldData: DevCardData) => ({
+        ...oldData,
+        ...props,
+      }));
+    },
+    [key, client],
   );
+
+  const onUpdateType = (newType: DevCardType) => {
+    if (newType && newType !== type) {
+      setType(newType);
+
+      const url = new URL(devCardSrc);
+      url.searchParams.set('type', newType.toLocaleLowerCase());
+      setDevCardSrc(url.toString());
+    }
+  };
 
   const generateThenDownload = async (
     props: Partial<GenerateDevCardParams> = {},
@@ -256,15 +247,6 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     }
   };
 
-  useEffect(() => {
-    // to make the state reflect the correct values from DB,
-    // we need to update the local state after fetching the remote values.
-    if (!devcardRef?.current && devcard) {
-      devcardRef.current = devcard;
-      onUpdatePreference(devcard);
-    }
-  }, [devcard, onUpdatePreference]);
-
   return (
     <div className="mt-14 flex max-w-full flex-col self-stretch mobileL:mx-2">
       <main className="flex max-w-full flex-wrap justify-center gap-10 laptopL:gap-20">
@@ -277,9 +259,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
               disabled={isLoading}
               name="vertical"
               checked={type === DevCardType.Vertical}
-              onChange={() =>
-                onUpdatePreference({ type: DevCardType.Vertical })
-              }
+              onChange={() => onUpdateType(DevCardType.Vertical)}
             >
               Vertical
             </RadioItem>
@@ -288,9 +268,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
               disabled={isLoading}
               name="horizontal"
               checked={type === DevCardType.Horizontal}
-              onChange={() =>
-                onUpdatePreference({ type: DevCardType.Horizontal })
-              }
+              onChange={() => onUpdateType(DevCardType.Horizontal)}
             >
               Horizontal
             </RadioItem>
@@ -553,9 +531,8 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                 </div>
 
                 <Button
-                  className="mt-4 grow-0 self-start"
-                  variant={ButtonVariant.Primary}
-                  color={ButtonColor.Cabbage}
+                  className="grow-0 self-start"
+                  variant={ButtonVariant.Secondary}
                   size={ButtonSize.Medium}
                   onClick={() =>
                     onGenerate({ theme, showBorder, isProfileCover, type })
