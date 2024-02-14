@@ -172,11 +172,11 @@ export const SearchPanelInput = ({
       >
         <BaseField
           className={classNames(
-            'relative h-12 items-center rounded-12 border-0 !bg-theme-bg-secondary !px-3 laptop:py-1 laptop:backdrop-blur-[3.75rem]',
+            'relative h-12 items-center rounded-12 !bg-theme-bg-secondary !px-3 laptop:border laptop:py-1 laptop:backdrop-blur-[3.75rem]',
             className?.field,
             { focused },
             searchPanel.isActive &&
-              '!border-theme-divider-tertiary laptop:border laptop:shadow-2',
+              '!border-theme-divider-tertiary laptop:shadow-2',
             searchPanel.isActive && showDropdown
               ? 'laptop:rounded-b-none laptop:rounded-t-16'
               : 'laptop:rounded-16',
