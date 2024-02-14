@@ -43,7 +43,6 @@ export function SocialShareList({
   onNativeShare,
   onClickSocial,
 }: SocialShareListProps): ReactElement {
-  const window = typeof global.window !== 'undefined' ? global.window : null;
   return (
     <>
       {onCopy && (
@@ -110,7 +109,7 @@ export function SocialShareList({
         onClick={() => onClickSocial(ShareProvider.Email)}
         label="Email"
       />
-      {window && 'share' in navigator && (
+      {'share' in globalThis?.navigator && (
         <SocialShareButton
           icon={<MenuIcon size={IconSize.Large} className="rotate-90" />}
           variant={ButtonVariant.Primary}
