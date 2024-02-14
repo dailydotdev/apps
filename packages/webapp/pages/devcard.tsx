@@ -61,6 +61,7 @@ import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
+import { checkStringEquality } from '@dailydotdev/shared/src/lib/strings';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -321,15 +322,17 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
             )}
           </div>
 
-          <Button
-            className="mx-auto mt-4 grow-0 self-start"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Medium}
-            onClick={() => generateThenDownload({})}
-            disabled={downloading || isLoading}
-          >
-            Download DevCard
-          </Button>
+          {devcard && (
+            <Button
+              className="mx-auto mt-4 grow-0 self-start"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Medium}
+              onClick={() => generateThenDownload({})}
+              disabled={downloading || isLoading}
+            >
+              Download DevCard
+            </Button>
+          )}
         </section>
 
         <WidgetContainer className="flex max-w-[26.25rem] flex-1 flex-col mobileL:min-w-96">
@@ -487,7 +490,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                               className={classNames(
                                 'mb-3 mr-3 h-10 w-10 rounded-full',
                                 isLocked && 'opacity-32',
-                                theme === value &&
+                                checkStringEquality(theme, value) &&
                                   'border-4 border-theme-color-cabbage',
                               )}
                               style={{
