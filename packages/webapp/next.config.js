@@ -68,7 +68,7 @@ module.exports = withTM(
         rewrites: () => [
           {
             source: '/robots.txt',
-            destination: `${process.env.NEXT_PUBLIC_API_URL}/sitemap/robots.txt`,
+            destination: `${process.env.NEXT_PUBLIC_API_URL}/sitemaps/robots.txt`,
           },
           {
             source: '/api/:path*',
