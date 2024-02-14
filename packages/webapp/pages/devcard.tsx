@@ -217,8 +217,6 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     });
   };
 
-  console.log(devcard);
-
   const onUpdatePreference = useCallback(
     (props: Partial<GenerateDevCardParams>) =>
       setUpdatePreference((prev) => {
@@ -308,7 +306,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
           >
             {user && (
               <Tilt
-                className="relative mt-4 w-fit self-stretch overflow-hidden rounded-32"
+                className="rounded-32 relative mt-4 w-fit self-stretch overflow-hidden"
                 glareEnable
                 perspective={1000}
                 glareMaxOpacity={0.25}
