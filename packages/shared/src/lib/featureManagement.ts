@@ -33,6 +33,7 @@ const feature = {
     webm: cloudinary.onboarding.video.webm,
     mp4: cloudinary.onboarding.video.mp4,
   }),
+  copyLink: new Feature('copy_link', false),
 };
 
 export { feature };

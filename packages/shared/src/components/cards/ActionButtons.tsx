@@ -14,6 +14,7 @@ import {
   DiscussIcon as CommentIcon,
   BookmarkIcon,
   ShareIcon,
+  LinkIcon,
 } from '../icons';
 import {
   Button,
@@ -50,11 +51,22 @@ type LastActionButtonProps = {
   onShare?: (post: Post) => unknown;
   onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
   post: Post;
+  copyLinkFeature?: boolean;
 };
 function LastActionButton(props: LastActionButtonProps) {
-  const { onShareClick, post } = props;
+  const { onShareClick, post, copyLinkFeature } = props;
   const onClickShare = (event) => onShareClick?.(event, post);
-  return (
+  return copyLinkFeature ? (
+    <SimpleTooltip content="Copy link">
+      <Button
+        size={ButtonSize.Small}
+        icon={<LinkIcon />}
+        onClick={onClickShare}
+        variant={ButtonVariant.Tertiary}
+        color={ButtonColor.Cabbage}
+      />
+    </SimpleTooltip>
+  ) : (
     <SimpleTooltip content="Share post">
       <Button
         size={ButtonSize.Small}
@@ -80,6 +92,7 @@ export default function ActionButtons({
   className,
   insaneMode,
 }: ActionButtonsProps): ReactElement {
+  const copyLinkFeature = useFeature(feature.copyLink);
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
   const upvoteCommentProps: ButtonProps<'button'> = {
     size: ButtonSize.Small,
@@ -94,6 +107,7 @@ export default function ActionButtons({
     post,
     onShare,
     onShareClick,
+    copyLinkFeature,
   });
   const lastActions = (
     <>
