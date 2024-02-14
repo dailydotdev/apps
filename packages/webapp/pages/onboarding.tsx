@@ -60,6 +60,7 @@ import {
   PixelTracking,
 } from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -189,12 +190,14 @@ export function OnboardPage(): ReactElement {
     return (
       <AuthOptions
         simplified
-        className={classNames(
-          'w-full rounded-none',
-          maxAuthWidth,
-          isAuthenticating && 'h-full',
-          !isAuthenticating && 'max-w-full',
-        )}
+        className={{
+          container: classNames(
+            'w-full rounded-none',
+            maxAuthWidth,
+            isAuthenticating && 'h-full',
+            !isAuthenticating && 'max-w-full',
+          ),
+        }}
         trigger={AuthTriggers.Onboarding}
         formRef={formRef}
         defaultDisplay={defaultDisplay}
@@ -375,16 +378,7 @@ export function OnboardPage(): ReactElement {
               'flex flex-1 flex-col laptop:mr-8 laptop:max-w-[27.5rem]',
             )}
           >
-            <OnboardingTitleGradient className="mb-4 typo-large-title tablet:typo-mega1">
-              Where developers suffer together
-            </OnboardingTitleGradient>
-
-            <h2 className="mb-8 typo-body tablet:typo-title2">
-              We know how hard it is to be a developer. It doesn&apos;t have to
-              be. Personalized news feed, dev community and search, much better
-              than what&apos;s out there. Maybe ;)
-            </h2>
-
+            <OnboardingHeadline />
             {getAuthOptions()}
           </div>
         )}
