@@ -150,7 +150,13 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     () => generateQueryKey(RequestKey.DevCard, { id: user?.id }),
     [user],
   );
-  const devcard = client.getQueryData<GenerateDevCardParams>(key);
+  const [devcard, setDevCard] = useState(
+    client.getQueryData<GenerateDevCardParams>(key),
+  );
+  useEffect(() => {
+    setDevCard(client.getQueryData<GenerateDevCardParams>(key));
+  }, [key, client, client.getQueryState(key)?.fetchStatus]);
+
   const devcardRef = useRef<GenerateDevCardParams>();
   const embedCode = useMemo(
     () =>
