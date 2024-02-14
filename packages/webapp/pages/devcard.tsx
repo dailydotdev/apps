@@ -321,15 +321,17 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
             )}
           </div>
 
-          <Button
-            className="mx-auto mt-4 grow-0 self-start"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Medium}
-            onClick={() => generateThenDownload({})}
-            disabled={downloading || isLoading}
-          >
-            Download DevCard
-          </Button>
+          {devcard && (
+            <Button
+              className="mx-auto mt-4 grow-0 self-start"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Medium}
+              onClick={() => generateThenDownload({})}
+              disabled={downloading || isLoading}
+            >
+              Download DevCard
+            </Button>
+          )}
         </section>
 
         <WidgetContainer className="flex max-w-[26.25rem] flex-1 flex-col mobileL:min-w-96">
