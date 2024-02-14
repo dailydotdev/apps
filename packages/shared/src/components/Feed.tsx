@@ -282,7 +282,7 @@ export default function Feed<T>({
     }
   };
 
-  const lastShareMenuCloseTrackEvent = () => {};
+  let lastShareMenuCloseTrackEvent = () => {};
   const onShareMenuClickTracked = (
     e: React.MouseEvent,
     post: Post,
