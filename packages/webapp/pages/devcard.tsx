@@ -264,10 +264,6 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     }
   }, [devcard, onUpdatePreference]);
 
-  if (!devcard && initialDevCardSrc) {
-    return null;
-  }
-
   return (
     <div className="mt-14 flex max-w-full flex-col self-stretch mobileL:mx-2">
       <main className="flex max-w-full flex-wrap justify-center gap-10 laptopL:gap-20">
