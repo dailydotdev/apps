@@ -5,7 +5,6 @@ import {
   CardContainer,
   CardContent,
   CardImage,
-  CardTextContainer,
   CardTitle,
   CardVideoImage,
 } from './Card';
@@ -52,7 +51,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
-  const { title, summary } = useTruncatedSummary(post);
+  const { title } = useTruncatedSummary(post);
 
   const ImageComponent = isVideoType ? CardVideoImage : CardImage;
 
@@ -121,12 +120,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
                 >
                   {title}
                 </CardTitle>
-
-                {post.summary && (
-                  <CardTextContainer className="mt-4 text-theme-label-secondary typo-body">
-                    {summary}
-                  </CardTextContainer>
-                )}
               </div>
 
               <ImageComponent
