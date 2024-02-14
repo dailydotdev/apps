@@ -130,7 +130,6 @@ interface Step2Props {
 }
 
 const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
-  const { user } = useContext(AuthContext);
   const [{ type, theme, showBorder, isProfileCover }, setUpdatePreference] =
     useState<GenerateDevCardParams>({
       type: DevCardType.Vertical,
@@ -138,7 +137,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
       showBorder: true,
       isProfileCover: false,
     });
-
+  const { user } = useContext(AuthContext);
   const { devcard } = useDevCard(user?.id, (data) => {
     if (
       data.theme !== theme ||
@@ -216,6 +215,15 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     },
   );
 
+  const onTrackShare = (provider: ShareProvider) => {
+    trackEvent({
+      event_name: AnalyticsEvent.ShareDevcard,
+      extra: JSON.stringify({
+        provider,
+      }),
+    });
+  };
+
   const onUpdatePreference = useCallback(
     (props: Partial<GenerateDevCardParams>) =>
       setUpdatePreference((prev) => {
@@ -237,15 +245,6 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
       }),
     [key, client, devCardSrc],
   );
-
-  const onTrackShare = (provider: ShareProvider) => {
-    trackEvent({
-      event_name: AnalyticsEvent.ShareDevcard,
-      extra: JSON.stringify({
-        provider,
-      }),
-    });
-  };
 
   const generateThenDownload = async (
     props: Partial<GenerateDevCardParams> = {},
