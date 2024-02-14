@@ -32,6 +32,7 @@ import { useGrowthBookContext } from './GrowthBookProvider';
 import { useReferralReminder } from '../hooks/referral/useReferralReminder';
 import { ActiveFeedNameContextProvider } from '../contexts';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
+import { AuthenticationBanner } from './auth';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -197,6 +198,7 @@ function MainLayoutComponent({
       >
         {renderSidebar()}
         {children}
+        {isAuthReady && !user && <AuthenticationBanner />}
       </main>
       <PromptElement />
     </div>

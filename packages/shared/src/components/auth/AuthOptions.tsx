@@ -95,6 +95,7 @@ export interface AuthOptionsProps {
   onDisplayChange?: (value: string) => void;
   initialEmail?: string;
   targetId?: string;
+  ignoreMessages?: boolean;
 }
 
 function AuthOptions({
@@ -112,6 +113,7 @@ function AuthOptions({
   targetId,
   simplified = false,
   initialEmail = '',
+  ignoreMessages = false,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
@@ -247,7 +249,7 @@ function AuthOptions({
   };
 
   useEventListener(globalThis, 'message', async (e) => {
-    if (e.data?.eventKey !== AuthEvent.SocialRegistration) {
+    if (e.data?.eventKey !== AuthEvent.SocialRegistration || ignoreMessages) {
       return undefined;
     }
 
