@@ -60,6 +60,7 @@ import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { labels } from '@dailydotdev/shared/src/lib';
+import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -191,8 +192,12 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
 
       return request(graphqlUrl, GENERATE_DEVCARD_MUTATION, {
         ...params,
-        theme: params?.theme?.toLocaleUpperCase() ?? 'DEFAULT',
-        type: devCardTypeMap[params?.type] ?? 'DEFAULT',
+        theme: isNullOrUndefined(params?.type)
+          ? undefined
+          : params.theme.toLocaleUpperCase(),
+        type: isNullOrUndefined(params?.type)
+          ? undefined
+          : devCardTypeMap[params?.type] ?? 'DEFAULT',
       });
     },
     {
