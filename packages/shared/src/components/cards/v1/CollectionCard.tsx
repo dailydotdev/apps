@@ -8,7 +8,6 @@ import {
   CardSpace,
   CardContainer,
   CardContent,
-  CardTextContainer,
 } from './Card';
 import ActionButtons from './ActionButtons';
 import { usePostImage } from '../../../hooks/post/usePostImage';
@@ -34,7 +33,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
   ref: Ref<HTMLElement>,
 ) {
   const image = usePostImage(post);
-  const { title, summary } = useTruncatedSummary(post);
+  const { title } = useTruncatedSummary(post);
 
   return (
     <FeedItemContainer
@@ -78,12 +77,6 @@ export const CollectionCard = forwardRef(function CollectionCard(
             >
               {title}
             </CardTitle>
-
-            {post.summary && (
-              <CardTextContainer className="mt-4 text-theme-label-secondary typo-body">
-                {summary}
-              </CardTextContainer>
-            )}
           </div>
 
           {image && (
