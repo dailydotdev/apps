@@ -33,6 +33,7 @@ const feature = {
     webm: cloudinary.onboarding.video.webm,
     mp4: cloudinary.onboarding.video.mp4,
   }),
+  showPostAuthBanner: new Feature('show_post_auth_banner', false),
 };
 
 export { feature };

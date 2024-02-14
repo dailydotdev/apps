@@ -49,6 +49,9 @@ import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvide
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { FeedLayout } from '@dailydotdev/shared/src/lib/featureValues';
 import { PostBackButton } from '@dailydotdev/shared/src/components/post/common/PostBackButton';
+import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -84,6 +87,7 @@ interface PostParams extends ParsedUrlQuery {
 }
 
 const PostPage = ({ id, initialData }: Props): ReactElement => {
+  const { isAuthReady, user } = useAuthContext();
   const { showArticleOnboarding } = useContext(OnboardingContext);
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
@@ -91,7 +95,9 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const layout = useFeature(feature.feedLayout);
   const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = router;
-
+  const showPostAuthBanner = useFeature(feature.showPostAuthBanner);
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const showBanner = showPostAuthBanner && isLaptop && isAuthReady && !user;
   const { post, isError, isFetched, isPostLoadingOrFetching } = usePostById({
     id,
     options: { initialData, retry: false },
@@ -208,6 +214,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
           content: 'pt-8',
         }}
       />
+      {showBanner && <AuthenticationBanner />}
     </>
   );
 };
