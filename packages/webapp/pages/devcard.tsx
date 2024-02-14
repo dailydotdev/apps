@@ -304,7 +304,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
           >
             {user && (
               <Tilt
-                className="rounded-32 relative w-fit self-stretch overflow-hidden"
+                className="rounded-32 relative mt-4 w-fit self-stretch overflow-hidden"
                 glareEnable
                 perspective={1000}
                 glareMaxOpacity={0.25}
