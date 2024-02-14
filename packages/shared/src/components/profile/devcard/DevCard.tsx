@@ -174,7 +174,8 @@ export function DevCard({
             {isHorizontal && (
               <Divider
                 className={classNames(
-                  'my-2 opacity-32',
+                  'my-2',
+                  (isDefault || isIron) && 'opacity-32',
                   isIron ? '!bg-salt-90' : '!bg-pepper-90',
                 )}
               />
@@ -193,7 +194,7 @@ export function DevCard({
           {type !== DevCardType.Horizontal && (
             <Divider
               className={classNames(
-                'opacity-32',
+                (isDefault || isIron) && 'opacity-32',
                 isIron ? '!bg-salt-90' : '!bg-pepper-90',
               )}
             />
