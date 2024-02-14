@@ -36,7 +36,6 @@ import {
   DevCardTheme,
   DevCardType,
   devcardTypeToEventFormat,
-  DevCardUsage,
   requiredPoints,
   themeToLinearGradient,
 } from '@dailydotdev/shared/src/components/profile/devcard';
@@ -314,11 +313,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                 trackOnWindow
                 style={{ transformStyle: 'preserve-3d' }}
               >
-                <DevCard
-                  userId={user.id}
-                  type={type}
-                  usedAs={DevCardUsage.DevCardImage}
-                />
+                <DevCard userId={user.id} type={type} isInteractive={false} />
               </Tilt>
             )}
           </div>

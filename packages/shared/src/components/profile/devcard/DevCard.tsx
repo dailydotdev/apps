@@ -17,20 +17,16 @@ import { useDevCard } from '../../../hooks/profile/useDevCard';
 import { DevCardTwitterCover } from './DevCardTwitterCover';
 import { checkLowercaseEquality } from '../../../lib/strings';
 
-export enum DevCardUsage {
-  DevCardImage = 'DevCardImage',
-}
-
 interface DevCardProps {
   type?: DevCardType;
   userId: string;
-  usedAs?: DevCardUsage;
+  isInteractive?: boolean;
 }
 
 export function DevCard({
   type = DevCardType.Vertical,
   userId,
-  usedAs,
+  isInteractive = true,
 }: DevCardProps): ReactElement {
   const data = useDevCard(userId);
   const { devcard, isLoading, coverImage } = data ?? {};
@@ -55,7 +51,7 @@ export function DevCard({
       sources={sources}
       type={type}
       theme={theme}
-      elementsClickable={usedAs !== DevCardUsage.DevCardImage}
+      elementsClickable={isInteractive}
     />
   );
 
