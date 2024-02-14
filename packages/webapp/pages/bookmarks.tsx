@@ -16,7 +16,7 @@ const seo: NextSeoProps = {
 const BookmarksPage = (): ReactElement => {
   return (
     <>
-      <NextSeo {...seo} />
+      <NextSeo {...seo} nofollow noindex />
     </>
   );
 };

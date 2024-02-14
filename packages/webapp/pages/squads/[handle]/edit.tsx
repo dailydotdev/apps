@@ -96,7 +96,7 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
 
   return (
     <ManageSquadPageContainer>
-      <NextSeo {...seo} titleTemplate="%s | daily.dev" />
+      <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
       <ManageSquadPageMain>
         <ManageSquadPageHeader>
           <Button

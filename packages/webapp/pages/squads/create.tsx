@@ -121,7 +121,7 @@ function CreatePost(): ReactElement {
       }}
     >
       <WritePageContainer>
-        <NextSeo {...seo} titleTemplate="%s | daily.dev" />
+        <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
         <TabContainer<WriteFormTab>
           onActiveChange={(active) => setDisplay(active)}
           controlledActive={display}
