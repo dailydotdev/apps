@@ -62,7 +62,7 @@ import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsC
 import { labels } from '@dailydotdev/shared/src/lib';
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
-import { checkStringEquality } from '@dailydotdev/shared/src/lib/strings';
+import { checkLowercaseEquality } from '@dailydotdev/shared/src/lib/strings';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
@@ -491,7 +491,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                               className={classNames(
                                 'mb-3 mr-3 h-10 w-10 rounded-full',
                                 isLocked && 'opacity-32',
-                                checkStringEquality(theme, value) &&
+                                checkLowercaseEquality(theme, value) &&
                                   'border-4 border-theme-color-cabbage',
                               )}
                               style={{

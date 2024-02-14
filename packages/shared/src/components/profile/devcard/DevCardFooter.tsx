@@ -6,7 +6,7 @@ import SourceButton from '../../cards/SourceButton';
 import Logo, { LogoPosition } from '../../Logo';
 import { DevCardTheme, DevCardType } from './common';
 import { Source } from '../../../graphql/sources';
-import { checkStringEquality } from '../../../lib/strings';
+import { checkLowercaseEquality } from '../../../lib/strings';
 
 export interface DevCardFooterProps {
   tags: string[];
@@ -38,7 +38,7 @@ export function DevCardFooter({
           ),
           tag: classNames(
             'typo-caption1',
-            checkStringEquality(theme, DevCardTheme.Iron)
+            checkLowercaseEquality(theme, DevCardTheme.Iron)
               ? 'border-white text-white'
               : 'border-pepper-90 text-pepper-90',
             type === DevCardType.Vertical && '!leading-[1.375rem]',

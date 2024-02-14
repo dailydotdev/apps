@@ -9,5 +9,7 @@ export const capitalize = (value: string): string =>
 
 export const anchorDefaultRel = 'noopener noreferrer';
 
-export const checkStringEquality = (value1: string, value2: string): boolean =>
-  value1?.toLowerCase() === value2?.toLowerCase();
+export const checkLowercaseEquality = (
+  value1: string,
+  value2: string,
+): boolean => value1?.toLowerCase() === value2?.toLowerCase();
