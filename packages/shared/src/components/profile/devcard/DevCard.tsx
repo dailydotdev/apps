@@ -15,6 +15,7 @@ import { DevCardFooter } from './DevCardFooter';
 import { DevCardContainer } from './DevCardContainer';
 import { useDevCard } from '../../../hooks/profile/useDevCard';
 import { DevCardTwitterCover } from './DevCardTwitterCover';
+import { checkStringEquality } from '../../../lib/strings';
 
 export enum DevCardUsage {
   DevCardImage = 'DevCardImage',
@@ -45,8 +46,8 @@ export function DevCard({
   const { theme, user, articlesRead, tags, sources, showBorder } = devcard;
   const isHorizontal = type === DevCardType.Horizontal;
   const isVertical = type === DevCardType.Vertical;
-  const isIron = theme === DevCardTheme.Iron;
-  const isDefault = theme === DevCardTheme.Default;
+  const isIron = checkStringEquality(theme, DevCardTheme.Iron);
+  const isDefault = checkStringEquality(theme, DevCardTheme.Default);
 
   const footer = (
     <DevCardFooter
