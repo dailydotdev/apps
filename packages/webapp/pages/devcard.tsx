@@ -60,6 +60,7 @@ import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { labels } from '@dailydotdev/shared/src/lib';
+import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
 import { checkStringEquality } from '@dailydotdev/shared/src/lib/strings';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
@@ -216,6 +217,8 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     });
   };
 
+  console.log(devcard);
+
   const onUpdatePreference = useCallback(
     (props: Partial<GenerateDevCardParams>) =>
       setUpdatePreference((prev) => {
@@ -322,7 +325,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
             )}
           </div>
 
-          {devcard && (
+          {!isNullOrUndefined(devcard) && (
             <Button
               className="mx-auto mt-4 grow-0 self-start"
               variant={ButtonVariant.Primary}
