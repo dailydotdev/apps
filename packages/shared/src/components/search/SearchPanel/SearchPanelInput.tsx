@@ -211,8 +211,13 @@ export const SearchPanelInput = ({
             onInput={onInput}
             type="primary"
             autoComplete="off"
+            style={{
+              // needed to overwrite fill from base.css input style
+              // to make the placeholder color work
+              WebkitTextFillColor: 'unset',
+            }}
             className={classNames(
-              'h-full flex-1 caret-theme-status-cabbage',
+              'h-full flex-1 !placeholder-theme-label-tertiary',
               getFieldFontColor({ readOnly, disabled, hasInput, focused }),
             )}
           />
