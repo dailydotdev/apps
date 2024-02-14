@@ -137,10 +137,10 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
       isProfileCover: false,
     });
   const { user } = useContext(AuthContext);
-  const randomNum = Math.round(Math.random() * 999);
+  const randomStr = Math.random().toString(36).substring(2, 5);
   const [devCardSrc, setDevCardSrc] = useState<string>(
     initialDevCardSrc ??
-      `${process.env.NEXT_PUBLIC_API_URL}/devcards/v2/${user.id}.png?type=default&r=${randomNum}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/devcards/v2/${user.id}.png?type=default&r=${randomStr}`,
   );
 
   const client = useQueryClient();
