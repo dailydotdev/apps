@@ -1,17 +1,14 @@
 import React, { ReactElement, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Author } from '../../graphql/comments';
-import { useProfileTooltip } from '../../hooks/useProfileTooltip';
 import { TooltipProps } from '../tooltips/BaseTooltip';
 import {
   LinkWithTooltip,
   LinkWithTooltipProps,
 } from '../tooltips/LinkWithTooltip';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import {
-  ProfileTooltipContent,
-  ProfileTooltipContentProps,
-} from './ProfileTooltipContent';
+import { ProfileTooltipContentProps } from './ProfileTooltipContent';
+import { DevCard, DevCardType } from './devcard';
 
 export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   children: ReactElement;
@@ -34,14 +31,9 @@ export function ProfileTooltip({
   link,
   scrollingContainer,
   tooltip = {},
-  ...rest
 }: Omit<ProfileTooltipProps, 'user'> & {
   user?: Partial<Author>;
 }): ReactElement {
-  const { data, fetchInfo, isLoading } = useProfileTooltip({
-    userId: user.id,
-    requestUserInfo: true,
-  });
   const query = useQueryClient();
   const handler = useRef<() => void>();
 
@@ -65,30 +57,20 @@ export function ProfileTooltip({
     interactive: true,
     onShow,
     onHide,
-    container: {
-      paddingClassName: profileTooltipClasses.padding,
-      roundedClassName: profileTooltipClasses.roundness,
-      bgClassName: profileTooltipClasses.background,
-      className: profileTooltipClasses.classNames,
-    },
-    content:
-      data?.user && !isLoading ? (
-        <ProfileTooltipContent user={data.user} data={data} {...rest} />
-      ) : null,
+    container: { bgClassName: null },
+    content: user ? (
+      <DevCard userId={user?.id} type={DevCardType.Compact} />
+    ) : null,
     ...tooltip,
   };
 
   if (link) {
     return (
-      <LinkWithTooltip {...link} tooltip={{ ...props, onTrigger: fetchInfo }}>
+      <LinkWithTooltip {...link} tooltip={props}>
         {children}
       </LinkWithTooltip>
     );
   }
 
-  return (
-    <SimpleTooltip {...props} onTrigger={fetchInfo}>
-      {children}
-    </SimpleTooltip>
-  );
+  return <SimpleTooltip {...props}>{children}</SimpleTooltip>;
 }

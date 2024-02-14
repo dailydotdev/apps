@@ -23,6 +23,8 @@ export const USER_SHORT_INFO_FRAGMENT = gql`
     permalink
     username
     bio
+    createdAt
+    reputation
   }
 `;
 

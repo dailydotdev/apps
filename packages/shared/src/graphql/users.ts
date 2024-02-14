@@ -141,14 +141,10 @@ export const USER_TOOLTIP_CONTENT_QUERY = gql`
       value
     }
     user(id: $id) @include(if: $requestUserInfo) {
-      id
-      name
-      username
-      image
-      bio
-      permalink
+      ...UserShortInfo
     }
   }
+  ${USER_SHORT_INFO_FRAGMENT}
 `;
 
 export type Tag = {
@@ -405,7 +401,6 @@ export const REFERRED_USERS_QUERY = gql`
       edges {
         node {
           ...UserShortInfo
-          createdAt
         }
       }
     }
@@ -477,3 +472,27 @@ export const getReadingStreak = async (): Promise<UserStreak> => {
 
   return res.userStreak;
 };
+
+export const DEV_CARD_QUERY = gql`
+  query DevCardById($id: ID!) {
+    devCard(id: $id) {
+      id
+      user {
+        ...UserShortInfo
+        cover
+      }
+      createdAt
+      theme
+      isProfileCover
+      showBorder
+      articlesRead
+      tags
+      sources {
+        name
+        permalink
+        image
+      }
+    }
+  }
+  ${USER_SHORT_INFO_FRAGMENT}
+`;

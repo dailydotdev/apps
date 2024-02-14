@@ -46,7 +46,7 @@ const roundClasses: Record<ProfileImageSize | 'full', string> = {
   large: 'rounded-12',
   xlarge: 'rounded-14',
   xxlarge: 'rounded-16',
-  xxxlarge: 'rounded-[18px]',
+  xxxlarge: 'rounded-18',
   xxxxlarge: 'rounded-26',
   full: 'rounded-full',
 };
