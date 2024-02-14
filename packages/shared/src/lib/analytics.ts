@@ -127,6 +127,11 @@ export enum AnalyticsEvent {
   RevokeShortcutAccess = 'revoke shortcut access',
   SaveShortcutAccess = 'save shortcut access',
   OpenShortcutConfig = 'open shortcut config',
+  // Devcard
+  ShareDevcard = 'share devcard',
+  GenerateDevcard = 'generate devcard',
+  DownloadDevcard = 'download devcard',
+  CopyDevcardCode = 'copy devcard code',
 }
 
 export enum FeedItemTitle {

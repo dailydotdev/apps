@@ -31,4 +31,10 @@ export const labels = {
       inviteText: `I'm using daily.dev to stay updated on developer news. I think you will find it helpful:`,
     },
   },
+  devcard: {
+    generic: {
+      shareText: `Excited to share that I've created my personalized devcard on daily.dev, highlighting my favorite tech topics and publications. Create yours now!`,
+      emailTitle: 'Checkout my devcard from daily.dev!',
+    },
+  },
 };
