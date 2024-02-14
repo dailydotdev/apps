@@ -2,9 +2,7 @@ import React, {
   ReactElement,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import Tilt from 'react-parallax-tilt';
@@ -18,7 +16,6 @@ import {
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import {
   Button,
-  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
@@ -48,7 +45,10 @@ import {
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useActions } from '@dailydotdev/shared/src/hooks';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { DevCardData } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
+import {
+  DevCardData,
+  useDevCard,
+} from '@dailydotdev/shared/src/hooks/profile/useDevCard';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
@@ -130,6 +130,7 @@ interface Step2Props {
 }
 
 const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
+  const { user } = useContext(AuthContext);
   const [{ type, theme, showBorder, isProfileCover }, setUpdatePreference] =
     useState<GenerateDevCardParams>({
       type: DevCardType.Vertical,
@@ -137,7 +138,17 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
       showBorder: true,
       isProfileCover: false,
     });
-  const { user } = useContext(AuthContext);
+
+  const { devcard } = useDevCard(user?.id, (data) => {
+    if (
+      data.theme !== theme ||
+      data.showBorder !== showBorder ||
+      data.isProfileCover !== isProfileCover
+    ) {
+      setUpdatePreference({ ...data, type });
+    }
+  });
+
   const randomStr = Math.random().toString(36).substring(2, 5);
   const [devCardSrc, setDevCardSrc] = useState<string>(
     initialDevCardSrc ??
@@ -150,14 +161,6 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     () => generateQueryKey(RequestKey.DevCard, { id: user?.id }),
     [user],
   );
-  const [devcard, setDevCard] = useState(
-    client.getQueryData<GenerateDevCardParams>(key),
-  );
-  useEffect(() => {
-    setDevCard(client.getQueryData<GenerateDevCardParams>(key));
-  }, [key, client, client.getQueryState(key)?.fetchStatus]);
-
-  const devcardRef = useRef<GenerateDevCardParams>();
   const embedCode = useMemo(
     () =>
       `<a href="https://app.daily.dev/${
@@ -213,15 +216,6 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     },
   );
 
-  const onTrackShare = (provider: ShareProvider) => {
-    trackEvent({
-      event_name: AnalyticsEvent.ShareDevcard,
-      extra: JSON.stringify({
-        provider,
-      }),
-    });
-  };
-
   const onUpdatePreference = useCallback(
     (props: Partial<GenerateDevCardParams>) =>
       setUpdatePreference((prev) => {
@@ -244,6 +238,15 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     [key, client, devCardSrc],
   );
 
+  const onTrackShare = (provider: ShareProvider) => {
+    trackEvent({
+      event_name: AnalyticsEvent.ShareDevcard,
+      extra: JSON.stringify({
+        provider,
+      }),
+    });
+  };
+
   const generateThenDownload = async (
     props: Partial<GenerateDevCardParams> = {},
   ) => {
@@ -261,15 +264,6 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
       });
     }
   };
-
-  useEffect(() => {
-    // to make the state reflect the correct values from DB,
-    // we need to update the local state after fetching the remote values.
-    if (!devcardRef?.current && devcard) {
-      devcardRef.current = devcard;
-      onUpdatePreference(devcard);
-    }
-  }, [devcard, onUpdatePreference]);
 
   return (
     <div className="mt-14 flex max-w-full flex-col self-stretch mobileL:mx-2">
@@ -559,9 +553,8 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                 </div>
 
                 <Button
-                  className="mt-4 grow-0 self-start"
-                  variant={ButtonVariant.Primary}
-                  color={ButtonColor.Cabbage}
+                  className="grow-0 self-start"
+                  variant={ButtonVariant.Secondary}
                   size={ButtonSize.Medium}
                   onClick={() =>
                     onGenerate({ theme, showBorder, isProfileCover, type })
