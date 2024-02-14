@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react';
 import FilterMenu from '@dailydotdev/shared/src/components/filters/FilterMenu';
+import { NextSeo } from 'next-seo';
 import {
   getLayout,
   mainFooterLayoutProps,
@@ -7,6 +8,7 @@ import {
 
 const FiltersPage = (): ReactElement => (
   <main className="withNavBar w-full">
+    <NextSeo title="Filters" nofollow noindex />
     <FilterMenu />
   </main>
 );
