@@ -9,9 +9,12 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useViewSize, ViewSize } from '../../hooks';
 import LoginButton from '../LoginButton';
 
-const Section = classed('div', 'flex flex-col w-[23.25rem]');
 const baseClasses =
   'fixed bottom-0 left-0 z-modal flex w-full flex-row justify-center';
+
+export const AuthBannerContainer = classed('div', baseClasses);
+
+const Section = classed('div', 'flex flex-col w-[23.25rem]');
 const style: CSSProperties = {
   background: `linear-gradient(270deg, rgba(206, 61, 243, 0.16) 0%, rgba(113, 71, 237, 0.16) 100%), #0E1217`,
 };
@@ -33,7 +36,10 @@ export function AuthenticationBanner(): ReactElement {
   }
 
   return (
-    <div className={classNames(baseClasses, 'gap-6 py-10')} style={style}>
+    <AuthBannerContainer
+      className={classNames(baseClasses, 'gap-6 py-10')}
+      style={style}
+    >
       <Section>
         <OnboardingHeadline
           className={{ title: '!typo-mega3', description: '!typo-title3' }}
@@ -65,6 +71,6 @@ export function AuthenticationBanner(): ReactElement {
           }}
         />
       </Section>
-    </div>
+    </AuthBannerContainer>
   );
 }
