@@ -377,7 +377,12 @@ export function OnboardPage(): ReactElement {
               'flex flex-1 flex-col laptop:mr-8 laptop:max-w-[27.5rem]',
             )}
           >
-            <OnboardingHeadline />
+            <OnboardingHeadline
+              className={{
+                title: 'typo-large-title tablet:typo-mega1',
+                description: 'typo-body tablet:typo-title2',
+              }}
+            />
             {getAuthOptions()}
           </div>
         )}

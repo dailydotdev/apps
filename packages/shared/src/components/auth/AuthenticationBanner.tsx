@@ -16,7 +16,7 @@ export const AuthBannerContainer = classed('div', baseClasses);
 
 const Section = classed('div', 'flex flex-col w-[23.25rem]');
 const style: CSSProperties = {
-  background: `linear-gradient(270deg, rgba(206, 61, 243, 0.16) 0%, rgba(113, 71, 237, 0.16) 100%), #0E1217`,
+  background: `linear-gradient(270deg, rgba(206, 61, 243, 0.16) 0%, rgba(113, 71, 237, 0.16) 100%), var(--theme-background-primary)`,
 };
 
 export function AuthenticationBanner(): ReactElement {
@@ -42,7 +42,7 @@ export function AuthenticationBanner(): ReactElement {
     >
       <Section>
         <OnboardingHeadline
-          className={{ title: '!typo-mega3', description: '!typo-title3' }}
+          className={{ title: 'typo-mega3', description: 'typo-title3' }}
         />
       </Section>
       <Section className="pt-2">
