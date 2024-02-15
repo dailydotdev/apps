@@ -4,8 +4,6 @@ import { SearchProviderEnum } from '../../../graphql/search';
 import { IconProps } from '../../Icon';
 import { MagicIcon, SearchIcon } from '../../icons';
 
-export const searchPanelGradientQueryKey = ['search-panel-active-gradient'];
-
 export const defaultSearchProvider = SearchProviderEnum.Posts;
 
 export const providerToLabelTextMap: Record<SearchProviderEnum, string> = {
