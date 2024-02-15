@@ -47,7 +47,6 @@ export interface MainLayoutProps
   enableSearch?: () => void;
   onNavTabClick?: (tab: string) => void;
   onShowDndClick?: () => unknown;
-  isValidOnboardingPage?: boolean;
 }
 
 const feeds = Object.values(SharedFeedPage);
