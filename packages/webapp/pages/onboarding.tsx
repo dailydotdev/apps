@@ -29,7 +29,6 @@ import {
 } from '@dailydotdev/shared/src/lib/analytics';
 import {
   OnboardingStep,
-  OnboardingTitleGradient,
   REQUIRED_TAGS_THRESHOLD,
   wrapperMaxWidth,
 } from '@dailydotdev/shared/src/components/onboarding/common';
