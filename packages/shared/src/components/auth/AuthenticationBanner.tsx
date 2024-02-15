@@ -12,7 +12,7 @@ import { bottomBannerBaseClasses, BottomBannerContainer } from '../banners';
 
 const Section = classed('div', 'flex flex-col w-[23.25rem]');
 const style: CSSProperties = {
-  background: `linear-gradient(270deg, rgba(206, 61, 243, 0.16) 0%, rgba(113, 71, 237, 0.16) 100%), var(--theme-background-primary)`,
+  background: `linear-gradient(270deg, var(--theme-overlay-active-cabbage) 0%, var(--theme-overlay-active-onion) 100%), var(--theme-background-primary)`,
 };
 
 export function AuthenticationBanner(): ReactElement {
