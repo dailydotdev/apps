@@ -11,7 +11,7 @@ export interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
 }
 
 const ImageComponent = (
-  { fallbackSrc, ...props }: ImageProps,
+  { fallbackSrc, src, alt, ...props }: ImageProps,
   ref?: Ref<HTMLImageElement>,
 ): ReactElement => {
   const onError = (event: SyntheticEvent<HTMLImageElement>): void => {
@@ -21,8 +21,15 @@ const ImageComponent = (
     }
   };
 
-  // eslint-disable-next-line jsx-a11y/alt-text
-  return <img {...props} ref={ref} onError={onError} />;
+  return (
+    <img
+      {...props}
+      ref={ref}
+      alt={alt}
+      src={src ?? fallbackSrc}
+      onError={onError}
+    />
+  );
 };
 
 export const Image = forwardRef(ImageComponent);
