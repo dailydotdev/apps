@@ -202,6 +202,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
         shouldOnboardAuthor={!!router.query?.author}
         enableShowShareNewComment={!!router?.query.new}
         origin={Origin.ArticlePage}
+        isBannerVisible={shouldShowAuthBanner && !isLaptop}
         className={{
           container: containerClass,
           fixedNavigation: { container: 'flex laptop:hidden' },

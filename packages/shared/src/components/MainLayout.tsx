@@ -181,21 +181,21 @@ function MainLayoutComponent({
   return (
     <div className="antialiased">
       {customBanner}
+      {isBannerAvailable && <PromotionalBanner />}
+      <InAppNotificationElement />
+      <PromptElement />
+      <Toast autoDismissNotifications={autoDismissNotifications} />
       {shouldShowBanner && (
         <LoginButton
           className={{
             container: classNames(
               authGradientBg,
-              'justify-center gap-2 border-b border-theme-color-cabbage px-4 py-2',
+              'sticky left-0 top-0 z-max w-full justify-center gap-2 border-b border-theme-color-cabbage px-4 py-2',
             ),
             button: 'flex-1 tablet:max-w-[9rem]',
           }}
         />
       )}
-      {isBannerAvailable && <PromotionalBanner />}
-      <InAppNotificationElement />
-      <PromptElement />
-      <Toast autoDismissNotifications={autoDismissNotifications} />
       <MainLayoutHeader
         greeting={greeting}
         hasBanner={isBannerAvailable}

@@ -42,6 +42,7 @@ export const CollectionPostContent = ({
   customNavigation,
   onRemovePost,
   backToSquad,
+  isBannerVisible,
 }: PostContentProps): ReactElement => {
   const { user } = useAuthContext();
   const { subject } = useToastNotification();
@@ -89,6 +90,7 @@ export const CollectionPostContent = ({
       {position === 'fixed' && (
         <FixedPostNavigation
           {...navigationProps}
+          isBannerVisible={isBannerVisible}
           className={className?.fixedNavigation}
         />
       )}
