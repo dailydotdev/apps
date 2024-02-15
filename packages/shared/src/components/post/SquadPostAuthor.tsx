@@ -19,7 +19,7 @@ interface SquadPostAuthorProps {
   date?: string;
 }
 
-const lineClamp = 'block text-ellipsis whitespace-nowrap';
+const lineClamp = 'block text-ellipsis whitespace-nowrap overflow-hidden';
 
 function SquadPostAuthor({
   className,
@@ -38,18 +38,18 @@ function SquadPostAuthor({
       <ProfileTooltip user={author} link={{ href: author.permalink }}>
         <ProfilePicture user={author} size={size} nativeLazyLoading />
       </ProfileTooltip>
-      <div className="ml-4 flex flex-1 flex-col overflow-hidden">
-        <ProfileTooltip user={author} link={{ href: author.permalink }}>
-          <a href={author.permalink} className={lineClamp}>
+      <ProfileTooltip user={author} link={{ href: author.permalink }}>
+        <a
+          href={author.permalink}
+          className={classNames('ml-4 flex flex-1 flex-col overflow-hidden')}
+        >
+          <div className={lineClamp}>
             <span className={classNames('font-bold', className?.name)}>
               {author.name}
             </span>
             {!!role && <SquadMemberBadge key="squadMemberRole" role={role} />}
-          </a>
-        </ProfileTooltip>
-        <ProfileTooltip user={author} link={{ href: author.permalink }}>
-          <a
-            href={author.permalink}
+          </div>
+          <div
             className={classNames(
               'text-theme-label-tertiary',
               className?.handle,
@@ -59,9 +59,9 @@ function SquadPostAuthor({
             @{author.username}
             {!!date && <Separator />}
             {!!date && <time dateTime={date}>{date}</time>}
-          </a>
-        </ProfileTooltip>
-      </div>
+          </div>
+        </a>
+      </ProfileTooltip>
     </span>
   );
 }
