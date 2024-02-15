@@ -33,7 +33,7 @@ export function BasePostContent({
   const { onCloseShare, sharePost, onSharePost } = engagementProps;
   const { onStartArticleOnboarding, showArticleOnboarding } =
     useContext(OnboardingContext);
-  const { shouldShowBottomBanner } = useOnboarding();
+  const { shouldShowAuthBanner } = useOnboarding();
 
   if (!id && !isFallback) {
     return <Custom404 />;
@@ -41,7 +41,7 @@ export function BasePostContent({
 
   return (
     <>
-      {showArticleOnboarding && !shouldShowBottomBanner && (
+      {showArticleOnboarding && !shouldShowAuthBanner && (
         <PostFeedFiltersOnboarding
           className={className?.onboarding}
           onInitializeOnboarding={onStartArticleOnboarding}

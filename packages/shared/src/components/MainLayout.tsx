@@ -32,6 +32,9 @@ import { useGrowthBookContext } from './GrowthBookProvider';
 import { useReferralReminder } from '../hooks/referral/useReferralReminder';
 import { ActiveFeedNameContextProvider } from '../contexts';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
+import { useOnboarding } from '../hooks/auth';
+import LoginButton from './LoginButton';
+import { authGradientBg } from './auth';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -47,6 +50,7 @@ export interface MainLayoutProps
   enableSearch?: () => void;
   onNavTabClick?: (tab: string) => void;
   onShowDndClick?: () => unknown;
+  isValidOnboardingPage?: boolean;
 }
 
 const feeds = Object.values(SharedFeedPage);
@@ -67,6 +71,7 @@ function MainLayoutComponent({
   onNavTabClick,
   enableSearch,
   onShowDndClick,
+  isValidOnboardingPage,
 }: MainLayoutProps): ReactElement {
   const router = useRouter();
   const { trackEvent } = useContext(AnalyticsContext);
@@ -74,6 +79,8 @@ function MainLayoutComponent({
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
+  const { shouldShowAuthBanner } = useOnboarding();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
   const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
     useContext(SettingsContext);
@@ -168,10 +175,23 @@ function MainLayoutComponent({
   }
   const isScreenCentered =
     isLaptopXL && shouldUseFeedLayoutV1 ? true : screenCentered;
+  const shouldShowBanner =
+    !isLaptop && shouldShowAuthBanner && isValidOnboardingPage;
 
   return (
     <div className="antialiased">
       {customBanner}
+      {shouldShowBanner && (
+        <LoginButton
+          className={{
+            container: classNames(
+              authGradientBg,
+              'justify-center gap-2 border-b border-theme-color-cabbage px-4 py-2',
+            ),
+            button: 'flex-1 tablet:max-w-[9rem]',
+          }}
+        />
+      )}
       {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />
       <PromptElement />

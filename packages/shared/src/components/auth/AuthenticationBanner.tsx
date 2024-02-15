@@ -6,36 +6,21 @@ import AuthOptions, { AuthDisplay } from './AuthOptions';
 import { AuthTriggers } from '../../lib/auth';
 import { MemberAlready } from '../onboarding/MemberAlready';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useViewSize, ViewSize } from '../../hooks';
-import LoginButton from '../LoginButton';
-import { bottomBannerBaseClasses, BottomBannerContainer } from '../banners';
+import { BottomBannerContainer } from '../banners';
 
 const Section = classed('div', 'flex flex-col w-[23.25rem]');
-const gradientBg =
+export const authGradientBg =
   'bg-theme-bg-primary bg-gradient-to-l from-theme-overlay-active-cabbage from-0% to-theme-overlay-active-onion to-100%';
 
 export function AuthenticationBanner(): ReactElement {
   const { showLogin } = useAuthContext();
-  const isLaptop = useViewSize(ViewSize.Laptop);
-
-  if (!isLaptop) {
-    return (
-      <LoginButton
-        className={{
-          container: classNames(
-            bottomBannerBaseClasses,
-            gradientBg,
-            'gap-2 px-4 py-2',
-          ),
-          button: 'flex-1 tablet:max-w-[9rem]',
-        }}
-      />
-    );
-  }
 
   return (
     <BottomBannerContainer
-      className={classNames('gap-6 py-10 shadow-3', gradientBg)}
+      className={classNames(
+        'gap-6 border-t border-theme-color-cabbage py-10 shadow-3',
+        authGradientBg,
+      )}
     >
       <Section>
         <OnboardingHeadline
