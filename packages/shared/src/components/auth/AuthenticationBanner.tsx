@@ -15,7 +15,7 @@ export function AuthenticationBanner(): ReactElement {
     <div
       className="fixed bottom-0 left-0 z-modal flex w-full flex-row justify-center gap-6 py-10"
       style={{
-        background: `linear-gradient(270deg, rgba(206, 61, 243, 0.16) 0%, rgba(113, 71, 237, 0.16) 100%), var(--theme-background-primary)`,
+        background: `linear-gradient(270deg, var(--theme-overlay-active-cabbage) 0%, var(--theme-overlay-active-onion) 100%), var(--theme-background-primary)`,
       }}
     >
       <Container>
