@@ -217,7 +217,10 @@ export const SearchPanelInput = ({
               WebkitTextFillColor: 'unset',
             }}
             className={classNames(
-              'h-full flex-1 !placeholder-theme-label-tertiary',
+              'h-full flex-1',
+              searchPanel.isActive
+                ? '!placeholder-theme-label-quaternary'
+                : '!placeholder-theme-label-tertiary',
               getFieldFontColor({ readOnly, disabled, hasInput, focused }),
             )}
           />
