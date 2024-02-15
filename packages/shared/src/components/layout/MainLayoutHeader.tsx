@@ -73,7 +73,11 @@ function MainLayoutHeader({
       return <ProfileButton className="hidden laptop:flex" />;
     }
 
-    return <LoginButton className={{ button: 'hidden laptop:block' }} />;
+    return (
+      <LoginButton
+        className={{ container: 'gap-4', button: 'hidden laptop:block' }}
+      />
+    );
   })();
 
   const hasNotification = !!unreadCount;

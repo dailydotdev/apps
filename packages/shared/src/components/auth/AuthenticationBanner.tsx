@@ -28,7 +28,7 @@ export function AuthenticationBanner(): ReactElement {
       <LoginButton
         style={style}
         className={{
-          container: classNames(baseClasses, '!gap-2 px-4 py-2'),
+          container: classNames(baseClasses, 'gap-2 px-4 py-2'),
           button: 'flex-1 tablet:max-w-[9rem]',
         }}
       />

@@ -48,7 +48,7 @@ export default function LoginButton({
   return (
     <span
       {...props}
-      className={classNames('flex flex-row gap-4', className?.container)}
+      className={classNames('flex flex-row', className?.container)}
     >
       <Button
         onClick={() => onClick(ButtonCopy.Login)}

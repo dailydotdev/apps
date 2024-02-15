@@ -190,7 +190,7 @@ export default function NewRankModal({
             </Button>
           </div>
         ) : (
-          <LoginButton className={{ button: 'mx-auto' }} />
+          <LoginButton className={{ container: 'gap-4', button: 'mx-auto' }} />
         )}
         <Checkbox ref={inputRef} name="neverShow" className="mt-4 self-center">
           Never show this popup again
