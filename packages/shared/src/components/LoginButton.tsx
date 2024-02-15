@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from './buttons/ButtonV2';
 import AuthContext from '../contexts/AuthContext';
@@ -12,8 +12,7 @@ interface ClassName {
   button?: string;
 }
 
-interface LoginButtonProps
-  extends Omit<HTMLAttributes<HTMLSpanElement>, 'className'> {
+interface LoginButtonProps {
   className?: ClassName;
 }
 
@@ -32,7 +31,6 @@ const getAnalyticsEvent = (copy: ButtonCopy): AnalyticsEvent => ({
 
 export default function LoginButton({
   className = {},
-  ...props
 }: LoginButtonProps): ReactElement {
   const { showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -46,10 +44,7 @@ export default function LoginButton({
   };
 
   return (
-    <span
-      {...props}
-      className={classNames('flex flex-row', className?.container)}
-    >
+    <span className={classNames('flex flex-row', className?.container)}>
       <Button
         onClick={() => onClick(ButtonCopy.Login)}
         variant={ButtonVariant.Secondary}

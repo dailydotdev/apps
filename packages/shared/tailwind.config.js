@@ -68,6 +68,10 @@ module.exports = {
             avocado: 'var(--theme-overlay-float-avocado)',
             ketchup: 'var(--theme-overlay-float-ketchup)',
           },
+          active: {
+            cabbage: 'var(--theme-overlay-active-cabbage)',
+            onion: 'var(--theme-overlay-active-onion)',
+          },
         },
         gradient: {
           cabbage: 'var(--theme-gradient-cabbage)',
