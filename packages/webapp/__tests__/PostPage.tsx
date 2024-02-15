@@ -804,7 +804,7 @@ describe('downvote flow', () => {
 
   it('should display the option to never see the selection again if blocked no tags', async () => {
     await prepareDownvote();
-    const items = await screen.findAllByRole('listitem');
+    const items = await screen.findAllByTestId('blockTagButton');
     const allUnselected = items.every((el) =>
       el.classList.contains('btn-tertiaryFloat'),
     );
@@ -831,7 +831,7 @@ describe('downvote flow', () => {
 
   it('should display the correct blocked tags count and update filters', async () => {
     await prepareDownvote();
-    const [, tag] = await screen.findAllByRole('listitem');
+    const [, tag] = await screen.findAllByTestId('blockTagButton');
     fireEvent.click(tag);
     let mutationCalled = false;
     const label = tag.textContent.substring(1);
