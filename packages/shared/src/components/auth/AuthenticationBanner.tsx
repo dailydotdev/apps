@@ -1,29 +1,45 @@
-import React, { ReactElement } from 'react';
+import React, { CSSProperties, ReactElement } from 'react';
+import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { OnboardingHeadline } from './OnboardingHeadline';
 import AuthOptions, { AuthDisplay } from './AuthOptions';
 import { AuthTriggers } from '../../lib/auth';
 import { MemberAlready } from '../onboarding/MemberAlready';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useViewSize, ViewSize } from '../../hooks';
+import LoginButton from '../LoginButton';
 
-const Container = classed('div', 'flex flex-col w-[23.25rem]');
+const Section = classed('div', 'flex flex-col w-[23.25rem]');
+const baseClasses =
+  'fixed bottom-0 left-0 z-modal flex w-full flex-row justify-center';
+const style: CSSProperties = {
+  background: `linear-gradient(270deg, rgba(206, 61, 243, 0.16) 0%, rgba(113, 71, 237, 0.16) 100%), #0E1217`,
+};
 
 export function AuthenticationBanner(): ReactElement {
   const { showLogin } = useAuthContext();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+
+  if (!isLaptop) {
+    return (
+      <LoginButton
+        style={style}
+        className={{
+          container: classNames(baseClasses, '!gap-2 px-4 py-2'),
+          button: 'flex-1 tablet:max-w-[9rem]',
+        }}
+      />
+    );
+  }
 
   return (
-    <div
-      className="fixed bottom-0 left-0 z-modal flex w-full flex-row justify-center gap-6 py-10"
-      style={{
-        background: `linear-gradient(270deg, rgba(206, 61, 243, 0.16) 0%, rgba(113, 71, 237, 0.16) 100%), var(--Colors-Background-default, #0E1217)`,
-      }}
-    >
-      <Container>
+    <div className={classNames(baseClasses, 'gap-6 py-10')} style={style}>
+      <Section>
         <OnboardingHeadline
           className={{ title: '!typo-mega3', description: '!typo-title3' }}
         />
-      </Container>
-      <Container className="pt-2">
+      </Section>
+      <Section className="pt-2">
         <AuthOptions
           ignoreMessages
           formRef={null}
@@ -48,7 +64,7 @@ export function AuthenticationBanner(): ReactElement {
             login: 'font-bold',
           }}
         />
-      </Container>
+      </Section>
     </div>
   );
 }
