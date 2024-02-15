@@ -73,7 +73,7 @@ function MainLayoutHeader({
       return <ProfileButton className="hidden laptop:flex" />;
     }
 
-    return <LoginButton className="hidden laptop:block" />;
+    return <LoginButton className={{ button: 'hidden laptop:block' }} />;
   })();
 
   const hasNotification = !!unreadCount;
