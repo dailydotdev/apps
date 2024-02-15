@@ -14,7 +14,7 @@ function AuthorOnboarding({ onSignUp }: AuthorOnboardingProps): ReactElement {
   return (
     <section
       className={classNames(
-        'mb-6 rounded-2xl bg-theme-bg-secondary p-6',
+        'mb-6 rounded-16 bg-theme-bg-secondary p-6',
         styles.authorOnboarding,
       )}
     >

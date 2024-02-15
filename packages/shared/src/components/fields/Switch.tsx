@@ -63,7 +63,7 @@ export function Switch({
         <span
           className={classNames(
             'absolute left-0 top-0 bg-theme-label-tertiary',
-            compact ? 'h-4 w-4 rounded-3' : 'h-5 w-5 rounded-md',
+            compact ? 'h-4 w-4 rounded-3' : 'h-5 w-5 rounded-6',
             styles.knob,
           )}
         />

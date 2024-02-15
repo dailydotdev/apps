@@ -75,7 +75,7 @@ function SharePostContent({
           <SharedPostLink
             post={post}
             onGoToLinkProps={combinedClicks(openArticle)}
-            className="ml-2 block h-fit w-70 cursor-pointer overflow-hidden rounded-2xl"
+            className="ml-2 block h-fit w-70 cursor-pointer overflow-hidden rounded-16"
           >
             <LazyImage
               imgSrc={post.sharedPost.image}

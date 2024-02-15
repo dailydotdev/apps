@@ -7,8 +7,8 @@ export default function PlaceholderComment(): ReactElement {
       <div className="mb-2 flex items-center">
         <ElementPlaceholder className="h-10 w-10 rounded-10" />
         <div className="ml-2 flex h-8 flex-1 flex-col justify-between">
-          <ElementPlaceholder className="h-3 w-2/5 rounded-xl" />
-          <ElementPlaceholder className="h-3 w-1/5 rounded-xl" />
+          <ElementPlaceholder className="h-3 w-2/5 rounded-12" />
+          <ElementPlaceholder className="h-3 w-1/5 rounded-12" />
         </div>
       </div>
       <ElementPlaceholder className="my-2 h-8 w-full rounded-full" />

@@ -155,7 +155,7 @@ export const CollectionPostContent = ({
               </div>
             )}
             {image && (
-              <div className="block h-auto w-full cursor-pointer overflow-hidden rounded-xl">
+              <div className="block h-auto w-full cursor-pointer overflow-hidden rounded-12">
                 <LazyImage
                   imgSrc={image}
                   imgAlt="Post cover image"
