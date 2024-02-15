@@ -45,8 +45,8 @@ export const SquadPostListItem = ({
           <SquadPostAuthor
             className={{
               container: 'mt-0',
-              name: 'text-theme-label-primary typo-callout',
-              handle: 'text-theme-label-quaternary typo-callout',
+              name: 'line-clamp-1 text-theme-label-primary typo-callout',
+              handle: 'line-clamp-1 text-theme-label-quaternary typo-callout',
             }}
             author={post.author}
             size="large"
