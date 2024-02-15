@@ -29,7 +29,7 @@ function Signup(): ReactElement {
       <main className="mx-0 flex h-full flex-1 flex-col items-center justify-center tablet:mx-8 tablet:flex-row tablet:justify-start laptop:items-center laptopL:mx-32">
         <div className=" flex max-w-full flex-col-reverse laptop:flex-row">
           <AuthOptions
-            className="h-full max-h-[40rem] min-h-[40rem]"
+            className={{ container: 'h-full max-h-[40rem] min-h-[40rem]' }}
             formRef={formRef}
             trigger={AuthTriggers.LoginPage}
             onClose={onClose}

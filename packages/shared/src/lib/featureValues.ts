@@ -20,3 +20,8 @@ export enum ReadingStreaksExperiment {
   Control = 'control',
   V1 = 'v1',
 }
+
+export enum PostPageOnboarding {
+  Control = 'control',
+  V1 = 'v1',
+}

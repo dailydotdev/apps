@@ -49,6 +49,8 @@ import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvide
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { FeedLayout } from '@dailydotdev/shared/src/lib/featureValues';
 import { PostBackButton } from '@dailydotdev/shared/src/components/post/common/PostBackButton';
+import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
+import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth/useOnboarding';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -91,7 +93,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const layout = useFeature(feature.feedLayout);
   const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = router;
-
+  const { shouldShowBottomBanner } = useOnboarding();
   const { post, isError, isFetched, isPostLoadingOrFetching } = usePostById({
     id,
     options: { initialData, retry: false },
@@ -208,6 +210,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
           content: 'pt-8',
         }}
       />
+      {shouldShowBottomBanner && <AuthenticationBanner />}
     </>
   );
 };

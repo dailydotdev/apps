@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import classNames from 'classnames';
 import { AuthFormProps, providerMap } from './common';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
@@ -16,6 +17,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   signUpTitle?: string;
   trigger: AuthTriggersType;
   isReady: boolean;
+  className?: string;
 }
 
 const OnboardingRegistrationForm = ({
@@ -23,6 +25,7 @@ const OnboardingRegistrationForm = ({
   targetId,
   isReady,
   trigger,
+  className,
 }: OnboardingRegistrationFormProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [shouldLogin] = useState(false);
@@ -44,22 +47,20 @@ const OnboardingRegistrationForm = ({
   };
 
   return (
-    <>
-      <div className="flex flex-col gap-8 pb-8">
-        {signupProviders.map((provider) => (
-          <Button
-            key={provider.value}
-            icon={provider.icon}
-            loading={!isReady}
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Large}
-            onClick={() => onSocialClick(provider.value)}
-          >
-            {provider.label}
-          </Button>
-        ))}
-      </div>
-    </>
+    <div className={classNames('flex flex-col gap-8 pb-8', className)}>
+      {signupProviders.map((provider) => (
+        <Button
+          key={provider.value}
+          icon={provider.icon}
+          loading={!isReady}
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Large}
+          onClick={() => onSocialClick(provider.value)}
+        >
+          {provider.label}
+        </Button>
+      ))}
+    </div>
   );
 };
 
