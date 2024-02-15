@@ -20,7 +20,7 @@ export function AuthenticationBanner(): ReactElement {
     >
       <Container>
         <OnboardingHeadline
-          className={{ title: '!typo-mega3', description: '!typo-title3' }}
+          className={{ title: 'typo-mega3', description: 'typo-title3' }}
         />
       </Container>
       <Container className="pt-2">
