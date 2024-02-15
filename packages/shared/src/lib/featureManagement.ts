@@ -38,6 +38,7 @@ const feature = {
     'post_page_onboarding',
     PostPageOnboarding.Control,
   ),
+  copyLink: new Feature('copy_link', false),
 };
 
 export { feature };
