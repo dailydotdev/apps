@@ -31,7 +31,7 @@ export const SquadPostListItem = ({
   return (
     <article
       className={classNames(
-        'group relative flex items-start py-2 pl-4 pr-2 hover:bg-theme-hover',
+        'group relative flex items-start px-4 py-2 hover:bg-theme-hover',
         styles.card,
       )}
     >
@@ -40,11 +40,10 @@ export const SquadPostListItem = ({
         title={post.title}
         {...combinedClicks(() => onLinkClick(post))}
       />
-      <div className="flex flex-1 flex-col">
+      <div className="flex w-full flex-col">
         {post?.author && (
           <SquadPostAuthor
             className={{
-              container: '!mt-0',
               name: 'text-theme-label-primary typo-callout',
               handle: 'text-theme-label-quaternary typo-callout',
               details: 'flex-1 pr-8',

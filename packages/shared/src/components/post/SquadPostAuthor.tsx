@@ -12,7 +12,7 @@ interface SquadPostAuthorProps {
     container: string;
     name: string;
     handle: string;
-    details?: string;
+    details: string;
   }>;
   author: Author;
   role?: SourceMemberRole;
@@ -31,10 +31,7 @@ function SquadPostAuthor({
 }: SquadPostAuthorProps): ReactElement {
   return (
     <span
-      className={classNames(
-        'mt-3 flex flex-row items-center',
-        className?.container,
-      )}
+      className={classNames('flex flex-row items-center', className?.container)}
     >
       <ProfileTooltip user={author} link={{ href: author.permalink }}>
         <ProfilePicture user={author} size={size} nativeLazyLoading />
