@@ -163,6 +163,10 @@ export const cloudinary = {
       'https://daily-now-res.cloudinary.com/image/upload/v1705386465/Splash_v1lxjk.svg',
     fire: 'https://daily-now-res.cloudinary.com/image/upload/v1705386465/Hot_nrqvv5.svg',
   },
+  devcard: {
+    defaultCoverImage:
+      'https://daily-now-res.cloudinary.com/image/upload/s--b9BjE_Vi--/f_auto/v1707404283/card-cover_emugw3',
+  },
 };
 
 export const smallPostImage = (url: string): string => {

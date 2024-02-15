@@ -58,7 +58,10 @@ export function ProfileTooltipContent({
           Loves reading about
         </span>
       ) : null}
-      <TagLinks className="mb-0" tags={tags?.map(({ value }) => value) || []} />
+      <TagLinks
+        className={{ container: 'mb-0' }}
+        tags={tags?.map(({ value }) => value) || []}
+      />
     </div>
   );
 }

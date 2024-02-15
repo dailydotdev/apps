@@ -52,11 +52,18 @@ export default function ProfileLayout({
 
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
+  const ogImageUrl = new URL(
+    `/devcards/v2/${user.id}.png`,
+    process.env.NEXT_PUBLIC_API_URL,
+  );
+  ogImageUrl.searchParams.set('type', 'wide');
+  ogImageUrl.searchParams.set('r', Math.random().toString(36).substring(2, 5));
+
   const Seo: NextSeoProps = {
     title: getTemplatedTitle(user.name),
     description: user.bio ? user.bio : `Check out ${user.name}'s profile`,
     openGraph: {
-      images: [{ url: user.image }],
+      images: [{ url: ogImageUrl.toString() }],
     },
     twitter: {
       handle: user.twitter,

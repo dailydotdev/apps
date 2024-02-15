@@ -12,7 +12,6 @@ const devCardText = ({ user }: DevCardTextProps): string => {
 };
 
 export default function DevCardFooter({
-  rank,
   user,
   isLocked,
 }: DevCardFooterProps): ReactElement {
@@ -20,12 +19,7 @@ export default function DevCardFooter({
     <div className="pt-2">
       <Modal.Subtitle>Generate your DevCard</Modal.Subtitle>
       <div className="mt-2 flex">
-        <DevCardPlaceholder
-          profileImage={user?.image}
-          height={80}
-          rank={rank}
-          isLocked={isLocked}
-        />
+        <DevCardPlaceholder profileImage={user?.image} height={80} width={60} />
         <div className="ml-6 flex flex-1 flex-col items-start">
           <Modal.Text>{devCardText({ user })}</Modal.Text>
           <GoToDevCardButton className="mt-3" isLocked={isLocked}>
