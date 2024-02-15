@@ -12,6 +12,7 @@ interface SquadPostAuthorProps {
     container: string;
     name: string;
     handle: string;
+    details?: string;
   }>;
   author: Author;
   role?: SourceMemberRole;
@@ -41,7 +42,10 @@ function SquadPostAuthor({
       <ProfileTooltip user={author} link={{ href: author.permalink }}>
         <a
           href={author.permalink}
-          className={classNames('ml-4 flex flex-1 flex-col overflow-hidden')}
+          className={classNames(
+            'ml-4 flex flex-col overflow-hidden',
+            className?.details,
+          )}
         >
           <div className={lineClamp}>
             <span className={classNames('font-bold', className?.name)}>

@@ -44,9 +44,10 @@ export const SquadPostListItem = ({
         {post?.author && (
           <SquadPostAuthor
             className={{
-              container: 'mt-0',
+              container: '!mt-0',
               name: 'text-theme-label-primary typo-callout',
               handle: 'text-theme-label-quaternary typo-callout',
+              details: 'flex-1 pr-8',
             }}
             author={post.author}
             size="large"
@@ -59,7 +60,7 @@ export const SquadPostListItem = ({
       </div>
       <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
         <Button
-          className="mt-1 group-hover:visible mouse:invisible"
+          className="absolute right-3 group-hover:visible mouse:invisible"
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Bun}
           pressed={post.bookmarked}
