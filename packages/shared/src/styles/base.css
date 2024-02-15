@@ -14,6 +14,8 @@ body {
   min-height: 100vh;
   /* mobile viewport bug fix */
   min-height: stretch;
+  /* disable scroll bounce */
+  overscroll-behaviour: none;
 
   &.ReactModal__Body--open .ReactModal__Content,
   &.ReactModal__Body--open .ReactModal__Content > * {
