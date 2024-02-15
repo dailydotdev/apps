@@ -22,7 +22,6 @@ import {
   UserPostVote,
   VIEW_POST_MUTATION,
 } from '@dailydotdev/shared/src/graphql/posts';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   POST_COMMENTS_QUERY,
   PostCommentsData,
@@ -35,7 +34,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/actions';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
 import { OperationOptions } from 'subscriptions-transport-ws';
@@ -45,10 +44,7 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
-import { OnboardingMode } from '@dailydotdev/shared/src/graphql/feed';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
-import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { createTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
@@ -56,7 +52,9 @@ import {
   FEED_SETTINGS_QUERY,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
+import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import PostPage, { getSeoDescription, Props } from '../pages/posts/[id]';
+import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -175,33 +173,21 @@ const renderPost = (
 
   mocks.forEach(mockGraphQL);
   return render(
-    <QueryClientProvider client={client}>
-      <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: false,
-          showLogin,
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-          getRedirectUri: jest.fn(),
-        }}
-      >
-        <SettingsContext.Provider value={createTestSettings()}>
-          <OnboardingContext.Provider
-            value={{
-              myFeedMode: OnboardingMode.Manual,
-              isOnboardingOpen: false,
-              onCloseOnboardingModal: jest.fn(),
-              onInitializeOnboarding: jest.fn(),
-              onShouldUpdateFilters: jest.fn(),
-            }}
-          >
-            <PostPage {...defaultProps} {...props} />
-          </OnboardingContext.Provider>
-        </SettingsContext.Provider>
-      </AuthContext.Provider>
-    </QueryClientProvider>,
+    <TestBootProvider
+      client={client}
+      auth={{
+        user,
+        shouldShowLogin: false,
+        showLogin,
+        logout: jest.fn(),
+        updateUser: jest.fn(),
+        tokenRefreshed: true,
+        getRedirectUri: jest.fn(),
+      }}
+      settings={createTestSettings()}
+    >
+      {getMainLayout(<PostPage {...defaultProps} {...props} />)}
+    </TestBootProvider>,
   );
 };
 
