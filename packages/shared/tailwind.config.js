@@ -7,36 +7,17 @@ const caret = require('./tailwind/caret');
 const typography = require('./tailwind/typography');
 const buttons = require('./tailwind/buttons');
 
-const getBorderRadius = () => {
-  const { full, none, ...rest } = defaultTheme.borderRadius;
-  const removed = Object.keys(rest).reduce(
-    (acc, key) => ({ ...acc, [key]: undefined }),
-    {},
-  );
+// by setting a key to undefined, it gets removed in tailwind
+const removeDefaults = (obj, excluded, overwrites) => {
+  const removed = Object.keys(obj).reduce((acc, key) => {
+    if (excluded.includes(key)) {
+      return acc;
+    }
 
-  return {
-    ...removed,
-    full,
-    none,
-    half: '50%',
-    2: '0.125rem',
-    3: '0.1875rem',
-    4: '0.25rem',
-    6: '0.375rem',
-    8: '0.5rem',
-    10: '0.625rem',
-    12: '0.75rem',
-    14: '0.875rem',
-    16: '1rem',
-    18: '1.125rem',
-    22: '1.375rem',
-    24: '1.5rem',
-    26: '1.625rem',
-    32: '2rem',
-    40: '2.5rem',
-    48: '3rem',
-    50: '3.125rem',
-  };
+    return { ...acc, [key]: undefined };
+  }, {});
+
+  return { ...removed, ...overwrites };
 };
 
 module.exports = {
@@ -219,7 +200,30 @@ module.exports = {
       gap: {
         unset: 'unset',
       },
-      borderRadius: getBorderRadius(),
+      borderRadius: removeDefaults(
+        defaultTheme.borderRadius,
+        ['full', 'none'],
+        {
+          half: '50%',
+          2: '0.125rem',
+          3: '0.1875rem',
+          4: '0.25rem',
+          6: '0.375rem',
+          8: '0.5rem',
+          10: '0.625rem',
+          12: '0.75rem',
+          14: '0.875rem',
+          16: '1rem',
+          18: '1.125rem',
+          22: '1.375rem',
+          24: '1.5rem',
+          26: '1.625rem',
+          32: '2rem',
+          40: '2.5rem',
+          48: '3rem',
+          50: '3.125rem',
+        },
+      ),
       opacity: {
         24: '0.24',
         32: '0.32',
