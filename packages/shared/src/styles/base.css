@@ -97,6 +97,9 @@ body {
   --theme-overlay-float-avocado: theme('colors.overlay.float.avocado');
   --theme-overlay-float-ketchup: theme('colors.overlay.float.ketchup');
 
+  --theme-overlay-active-cabbage: theme('colors.overlay.active.cabbage');
+  --theme-overlay-active-onion: theme('colors.overlay.active.onion');
+
   --theme-gradient-cabbage: theme('colors.cabbage.10')66;
   --theme-gradient-onion: theme('colors.onion.10')66;
 
@@ -221,6 +224,9 @@ body {
   --theme-overlay-float-cabbage: theme('colors.overlay.float.cabbage');
   --theme-overlay-float-avocado: theme('colors.overlay.float.avocado');
   --theme-overlay-float-ketchup: theme('colors.overlay.float.ketchup');
+
+  --theme-overlay-active-cabbage: theme('colors.overlay.active.cabbage');
+  --theme-overlay-active-onion: theme('colors.overlay.active.onion');
 
   --theme-gradient-cabbage: theme('colors.cabbage.10')66;
   --theme-gradient-onion: theme('colors.onion.10')66;
@@ -490,6 +496,6 @@ details.right-icon {
 
 input {
   @apply bg-clip-text;
-  
+
   -webkit-text-fill-color: var(--theme-label-primary);
 }
