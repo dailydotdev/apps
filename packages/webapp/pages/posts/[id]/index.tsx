@@ -51,6 +51,7 @@ import { FeedLayout } from '@dailydotdev/shared/src/lib/featureValues';
 import { PostBackButton } from '@dailydotdev/shared/src/components/post/common/PostBackButton';
 import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth/useOnboarding';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -93,7 +94,8 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const layout = useFeature(feature.feedLayout);
   const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = router;
-  const { shouldShowBottomBanner } = useOnboarding();
+  const { shouldShowAuthBanner } = useOnboarding();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const { post, isError, isFetched, isPostLoadingOrFetching } = usePostById({
     id,
     options: { initialData, retry: false },
@@ -200,6 +202,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
         shouldOnboardAuthor={!!router.query?.author}
         enableShowShareNewComment={!!router?.query.new}
         origin={Origin.ArticlePage}
+        isBannerVisible={shouldShowAuthBanner && !isLaptop}
         className={{
           container: containerClass,
           fixedNavigation: { container: 'flex laptop:hidden' },
@@ -210,13 +213,13 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
           content: 'pt-8',
         }}
       />
-      {shouldShowBottomBanner && <AuthenticationBanner />}
+      {shouldShowAuthBanner && isLaptop && <AuthenticationBanner />}
     </>
   );
 };
 
 PostPage.getLayout = getMainLayout;
-PostPage.layoutProps = { screenCentered: false };
+PostPage.layoutProps = { screenCentered: false, isValidOnboardingPage: true };
 
 export default PostPage;
 

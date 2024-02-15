@@ -9,6 +9,7 @@ function FixedPostNavigation({
   postPosition,
   post,
   className = {},
+  isBannerVisible,
   ...props
 }: PostNavigationProps): ReactElement {
   const published = `Published on ${post?.source.name}`;
@@ -25,8 +26,9 @@ function FixedPostNavigation({
       post={post}
       className={{
         container: classNames(
-          'fixed top-0 z-postNavigation ml-0 w-full border border-theme-divider-tertiary bg-theme-bg-secondary px-6 py-4',
+          'fixed z-postNavigation ml-0 w-full border border-theme-divider-tertiary bg-theme-bg-secondary px-6 py-4',
           'max-w-full laptop:left-[unset]',
+          isBannerVisible ? 'top-14' : 'top-0',
           className?.container,
         ),
         actions: className?.actions,

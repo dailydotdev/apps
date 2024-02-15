@@ -4,14 +4,14 @@ import { PostPageOnboarding } from '../../lib/featureValues';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 interface UseOnboarding {
-  shouldShowBottomBanner: boolean;
+  shouldShowAuthBanner: boolean;
 }
 
 export const useOnboarding = (): UseOnboarding => {
   const { isAuthReady, user } = useAuthContext();
   const postPageOnboarding = useFeature(feature.postPageOnboarding);
-  const shouldShowBottomBanner =
+  const shouldShowAuthBanner =
     postPageOnboarding === PostPageOnboarding.V1 && isAuthReady && !user;
 
-  return { shouldShowBottomBanner };
+  return { shouldShowAuthBanner };
 };
