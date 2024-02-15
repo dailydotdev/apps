@@ -56,7 +56,7 @@ export function Switch({
         <span
           className={classNames(
             'absolute bottom-0 left-0 top-0 my-auto w-full bg-theme-overlay-quaternary',
-            compact ? 'h-2.5 rounded-3' : 'h-3 rounded',
+            compact ? 'h-2.5 rounded-3' : 'h-3 rounded-4',
             styles.track,
           )}
         />

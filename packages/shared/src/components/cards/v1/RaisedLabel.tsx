@@ -39,7 +39,7 @@ export function RaisedLabel({
       <SimpleTooltip content={description}>
         <div
           className={classNames(
-            'relative -top-2 h-4 rounded px-2 font-bold uppercase text-white typo-caption2',
+            'relative -top-2 h-4 rounded-4 px-2 font-bold uppercase text-white typo-caption2',
             typeToClassName[type],
           )}
         >
