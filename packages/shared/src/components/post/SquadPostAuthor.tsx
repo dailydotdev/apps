@@ -19,6 +19,8 @@ interface SquadPostAuthorProps {
   date?: string;
 }
 
+const lineClamp = 'block text-ellipsis whitespace-nowrap';
+
 function SquadPostAuthor({
   className,
   author,
@@ -36,9 +38,9 @@ function SquadPostAuthor({
       <ProfileTooltip user={author} link={{ href: author.permalink }}>
         <ProfilePicture user={author} size={size} nativeLazyLoading />
       </ProfileTooltip>
-      <div className="ml-4 flex flex-1 flex-col">
+      <div className="ml-4 flex flex-1 flex-col overflow-hidden">
         <ProfileTooltip user={author} link={{ href: author.permalink }}>
-          <a href={author.permalink} className="line-clamp-1 flex flex-row">
+          <a href={author.permalink} className={lineClamp}>
             <span className={classNames('font-bold', className?.name)}>
               {author.name}
             </span>
@@ -49,8 +51,9 @@ function SquadPostAuthor({
           <a
             href={author.permalink}
             className={classNames(
-              'line-clamp-1 flex flex-row text-theme-label-tertiary',
+              'text-theme-label-tertiary',
               className?.handle,
+              lineClamp,
             )}
           >
             @{author.username}
