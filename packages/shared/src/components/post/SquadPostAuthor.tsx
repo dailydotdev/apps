@@ -36,30 +36,29 @@ function SquadPostAuthor({
       <ProfileTooltip user={author} link={{ href: author.permalink }}>
         <ProfilePicture user={author} size={size} nativeLazyLoading />
       </ProfileTooltip>
-      <ProfileTooltip user={author} link={{ href: author.permalink }}>
-        <a href={author.permalink} className="ml-4 flex flex-col">
-          <div className="flex items-center">
+      <div className="ml-4 flex flex-1 flex-col">
+        <ProfileTooltip user={author} link={{ href: author.permalink }}>
+          <a href={author.permalink} className="line-clamp-1 flex flex-row">
             <span className={classNames('font-bold', className?.name)}>
               {author.name}
             </span>
             {!!role && <SquadMemberBadge key="squadMemberRole" role={role} />}
-          </div>
-          <span
+          </a>
+        </ProfileTooltip>
+        <ProfileTooltip user={author} link={{ href: author.permalink }}>
+          <a
+            href={author.permalink}
             className={classNames(
-              'text-theme-label-tertiary',
+              'line-clamp-1 flex flex-row text-theme-label-tertiary',
               className?.handle,
             )}
           >
             @{author.username}
-            {!!date && (
-              <>
-                <Separator />
-                <time dateTime={date}>{date}</time>
-              </>
-            )}
-          </span>
-        </a>
-      </ProfileTooltip>
+            {!!date && <Separator />}
+            {!!date && <time dateTime={date}>{date}</time>}
+          </a>
+        </ProfileTooltip>
+      </div>
     </span>
   );
 }
