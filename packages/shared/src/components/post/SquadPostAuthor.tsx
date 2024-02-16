@@ -12,12 +12,15 @@ interface SquadPostAuthorProps {
     container: string;
     name: string;
     handle: string;
+    details: string;
   }>;
   author: Author;
   role?: SourceMemberRole;
   size?: ProfileImageSize;
   date?: string;
 }
+
+const lineClamp = 'block text-ellipsis whitespace-nowrap overflow-hidden';
 
 function SquadPostAuthor({
   className,
@@ -28,36 +31,36 @@ function SquadPostAuthor({
 }: SquadPostAuthorProps): ReactElement {
   return (
     <span
-      className={classNames(
-        'mt-3 flex flex-row items-center',
-        className?.container,
-      )}
+      className={classNames('flex flex-row items-center', className?.container)}
     >
       <ProfileTooltip user={author} link={{ href: author.permalink }}>
         <ProfilePicture user={author} size={size} nativeLazyLoading />
       </ProfileTooltip>
       <ProfileTooltip user={author} link={{ href: author.permalink }}>
-        <a href={author.permalink} className="ml-4 flex flex-col">
-          <div className="flex items-center">
+        <a
+          href={author.permalink}
+          className={classNames(
+            'ml-4 flex flex-col overflow-hidden',
+            className?.details,
+          )}
+        >
+          <div className={lineClamp}>
             <span className={classNames('font-bold', className?.name)}>
               {author.name}
             </span>
             {!!role && <SquadMemberBadge key="squadMemberRole" role={role} />}
           </div>
-          <span
+          <div
             className={classNames(
               'text-theme-label-tertiary',
               className?.handle,
+              lineClamp,
             )}
           >
             @{author.username}
-            {!!date && (
-              <>
-                <Separator />
-                <time dateTime={date}>{date}</time>
-              </>
-            )}
-          </span>
+            {!!date && <Separator />}
+            {!!date && <time dateTime={date}>{date}</time>}
+          </div>
         </a>
       </ProfileTooltip>
     </span>
