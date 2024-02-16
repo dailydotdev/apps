@@ -36,7 +36,7 @@ export const OnboardingHeader = ({
     return (
       <header className="sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm">
         <img
-          className="pointer-events-none absolute left-0 right-0 top-0 max-h-[12.5rem] w-full"
+          className="pointer-events-none absolute left-0 right-0 top-0 z-0 max-h-[12.5rem] w-full"
           src={getImage()}
           alt="Gradient background"
         />

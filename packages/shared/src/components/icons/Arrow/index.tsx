@@ -3,8 +3,9 @@ import Icon, { IconProps } from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-const ArrowIcon = (props: IconProps): ReactElement => (
+export const ArrowIcon = (props: IconProps): ReactElement => (
   <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );
 
-export default ArrowIcon;
+export * from './Straight';
+export * from './Triangle';

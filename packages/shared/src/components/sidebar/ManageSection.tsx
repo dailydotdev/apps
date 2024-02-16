@@ -1,9 +1,11 @@
 import React, { ReactElement } from 'react';
-import BookmarkIcon from '../icons/Bookmark';
-import EyeIcon from '../icons/Eye';
-import PauseIcon from '../icons/Pause';
-import PlayIcon from '../icons/Play';
-import SettingsIcon from '../icons/Settings';
+import {
+  BookmarkIcon,
+  EyeIcon,
+  PauseIcon,
+  PlayIcon,
+  SettingsIcon,
+} from '../icons';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
 import { useFeature } from '../GrowthBookProvider';

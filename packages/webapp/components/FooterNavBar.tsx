@@ -1,10 +1,13 @@
 import React, { ReactElement, useContext } from 'react';
 import { Flipped, Flipper } from 'react-flip-toolkit';
-import HomeIcon from '@dailydotdev/shared/src/components/icons/Home';
-import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
-import SearchIcon from '@dailydotdev/shared/src/components/icons/Search';
-import FilterIcon from '@dailydotdev/shared/src/components/icons/Filter';
-import BellIcon from '@dailydotdev/shared/src/components/icons/Bell';
+import classNames from 'classnames';
+import {
+  HomeIcon,
+  BookmarkIcon,
+  SearchIcon,
+  FilterIcon,
+  BellIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
@@ -16,7 +19,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
-import classNames from 'classnames';
+import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
@@ -87,7 +90,13 @@ export const tabs: Tab[] = [
   },
 ];
 
-export default function FooterNavBar(): ReactElement {
+interface FooterNavBarProps {
+  showNav?: boolean;
+}
+
+export default function FooterNavBar({
+  showNav = false,
+}: FooterNavBarProps): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
   const { unreadCount } = useNotificationContext();
   const { trackEvent } = useAnalyticsContext();
@@ -113,53 +122,59 @@ export default function FooterNavBar(): ReactElement {
   };
 
   return (
-    <Flipper
-      flipKey={selectedTab}
-      spring="veryGentle"
-      element="nav"
-      className={classNames(
-        'fixed bottom-0 left-0 z-2 grid w-full grid-flow-col items-center border-t border-theme-divider-tertiary bg-theme-bg-primary',
-        styles.footerNavBar,
-      )}
-    >
-      {tabs.map((tab, index) =>
-        tab.requiresLogin && !user ? null : (
-          <div key={tab.path} className="relative">
-            {!tab.shouldShowLogin || user ? (
-              <LinkWithTooltip
-                href={tab.path}
-                prefetch={false}
-                passHref
-                tooltip={{ content: tab.title }}
-              >
-                <Button
-                  {...buttonProps}
-                  tag="a"
-                  icon={tab.icon(index === selectedTab, unreadCount)}
-                  pressed={index === selectedTab}
-                  onClick={onItemClick[tab.path]}
-                />
-              </LinkWithTooltip>
-            ) : (
-              <SimpleTooltip content={tab.title}>
-                <Button
-                  {...buttonProps}
-                  icon={tab.icon(index === selectedTab, unreadCount)}
-                  onClick={() => showLogin({ trigger: AuthTriggers.Bookmark })}
-                />
-              </SimpleTooltip>
-            )}
-            <Flipped flipId="activeTabIndicator">
-              {selectedTab === index && (
-                <ActiveTabIndicator
-                  className="w-12"
-                  style={{ top: '-0.125rem' }}
-                />
+    <div className="fixed bottom-0 left-0 z-2 w-full">
+      <ScrollToTopButton />
+      <Flipper
+        flipKey={selectedTab}
+        spring="veryGentle"
+        element="nav"
+        className={classNames(
+          'grid w-full grid-flow-col items-center border-t border-theme-divider-tertiary bg-theme-bg-primary',
+          !showNav && 'hidden',
+          styles.footerNavBar,
+        )}
+      >
+        {tabs.map((tab, index) =>
+          tab.requiresLogin && !user ? null : (
+            <div key={tab.path} className="relative">
+              {!tab.shouldShowLogin || user ? (
+                <LinkWithTooltip
+                  href={tab.path}
+                  prefetch={false}
+                  passHref
+                  tooltip={{ content: tab.title }}
+                >
+                  <Button
+                    {...buttonProps}
+                    tag="a"
+                    icon={tab.icon(index === selectedTab, unreadCount)}
+                    pressed={index === selectedTab}
+                    onClick={onItemClick[tab.path]}
+                  />
+                </LinkWithTooltip>
+              ) : (
+                <SimpleTooltip content={tab.title}>
+                  <Button
+                    {...buttonProps}
+                    icon={tab.icon(index === selectedTab, unreadCount)}
+                    onClick={() =>
+                      showLogin({ trigger: AuthTriggers.Bookmark })
+                    }
+                  />
+                </SimpleTooltip>
               )}
-            </Flipped>
-          </div>
-        ),
-      )}
-    </Flipper>
+              <Flipped flipId="activeTabIndicator">
+                {selectedTab === index && (
+                  <ActiveTabIndicator
+                    className="w-12"
+                    style={{ top: '-0.125rem' }}
+                  />
+                )}
+              </Flipped>
+            </div>
+          ),
+        )}
+      </Flipper>
+    </div>
   );
 }

@@ -1,9 +1,8 @@
 import React, { FormEventHandler, ReactElement } from 'react';
 import { TextField } from '../../fields/TextField';
-import LinkIcon from '../../icons/Link';
+import { LinkIcon, OpenLinkIcon } from '../../icons';
 import { SourceAvatar } from '../../profile/source';
 import { Image } from '../../image/Image';
-import OpenLinkIcon from '../../icons/OpenLink';
 import {
   previewImageClass,
   WritePreviewContainer,

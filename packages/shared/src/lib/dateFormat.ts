@@ -112,3 +112,15 @@ export const getReadHistoryDateFormat = (currentDate: Date): string => {
 
   return `${dayOfTheWeek}, ${dayOfTheMonth} ${month}${year}`;
 };
+
+export enum Day {
+  Sunday,
+  Monday,
+  Tuesday,
+  Wednesday,
+  Thursday,
+  Friday,
+  Saturday,
+}
+
+export const Weekends = [Day.Saturday, Day.Sunday];

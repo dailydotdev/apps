@@ -2,18 +2,24 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Ad } from '../../graphql/posts';
 
-export type AdAttributionProps = {
+interface AdClassName {
+  main?: string;
+  typo?: string;
+}
+
+export interface AdAttributionProps {
   ad: Ad;
-  className?: string;
-};
+  className?: AdClassName;
+}
 
 export default function AdAttribution({
   ad,
   className,
 }: AdAttributionProps): ReactElement {
   const elementClass = classNames(
-    'text-theme-label-quaternary no-underline typo-footnote',
-    className,
+    'text-theme-label-quaternary no-underline',
+    className.typo ?? 'typo-footnote',
+    className.main,
   );
   if (ad.referralLink) {
     return (

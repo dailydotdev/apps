@@ -55,6 +55,7 @@ export const generateStorageKey = (
   (generateQueryKey(key, null, ...params) as Array<string>).join(':');
 
 export enum RequestKey {
+  DevCard = 'devcard',
   Providers = 'providers',
   Bookmarks = 'bookmarks',
   PostComments = 'post_comments',
@@ -72,6 +73,8 @@ export enum RequestKey {
   Auth = 'auth',
   Profile = 'profile',
   CurrentSession = 'current_session',
+  ReadingStreak30Days = 'reading_streak_30_days',
+  UserStreak = 'user_streak',
   PersonalizedDigest = 'personalizedDigest',
   Changelog = 'changelog',
   Tags = 'tags',
@@ -86,6 +89,7 @@ export enum RequestKey {
   ReadingStats = 'reading_stats',
   UserComments = 'user_comments',
   Readme = 'readme',
+  Source = 'source',
 }
 
 export type HasConnection<

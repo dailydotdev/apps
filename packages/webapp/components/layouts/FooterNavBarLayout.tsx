@@ -17,7 +17,7 @@ export default function FooterNavBarLayout({
 
   return (
     <>
-      {sidebarRendered === false && windowLoaded && <FooterNavBar />}
+      <FooterNavBar showNav={sidebarRendered === false && windowLoaded} />
       {children}
     </>
   );

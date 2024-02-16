@@ -39,7 +39,7 @@ export const ProfilePictureGroup = ({
     );
   }
   return (
-    <div className={classNames(className, 'flex')}>
+    <div className={classNames(className, 'flex items-center')}>
       {childrenMap.map(
         (child: React.ReactElement<ProfilePictureGroupChildProps>, index) => {
           return (
@@ -48,7 +48,7 @@ export const ProfilePictureGroup = ({
               style={{
                 zIndex: childrenMap.length - index,
               }}
-              className={classNames(index > 0 && '-ml-[5%]')}
+              className={classNames(index > 0 && '-ml-1.5')}
             >
               {child}
             </div>

@@ -5,9 +5,12 @@ import {
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import React, { ReactElement, useContext, useMemo } from 'react';
-import HashtagIcon from '@dailydotdev/shared/src/components/icons/Hashtag';
-import PlusIcon from '@dailydotdev/shared/src/components/icons/Plus';
-import BlockIcon from '@dailydotdev/shared/src/components/icons/Block';
+import {
+  HashtagIcon,
+  PlusIcon,
+  BlockIcon,
+  MiniCloseIcon as XIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
@@ -29,7 +32,6 @@ import {
 import classNames from 'classnames';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import XIcon from '@dailydotdev/shared/src/components/icons/MiniClose';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import GenericFeedItemComponent from '@dailydotdev/shared/src/components/feed/feedItemComponent/GenericFeedItemComponent';

@@ -5,7 +5,7 @@ import SourceProfilePicture from '../profile/SourceProfilePicture';
 import { SocialShareButton } from '../widgets/SocialShareButton';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Origin } from '../../lib/analytics';
-import PlusIcon from '../icons/Plus';
+import { PlusIcon } from '../icons';
 import { useSquadNavigation } from '../../hooks';
 import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { ProfileImageSize } from '../ProfilePicture';

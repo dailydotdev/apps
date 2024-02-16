@@ -10,6 +10,10 @@ const overlayColor = (color) => {
   if (color === 'pepper') {
     return colors[color]['90'];
   }
+  if (color === 'salt') {
+    return colors[color]['90'];
+  }
+
   return colors[color]['50'];
 };
 
@@ -24,6 +28,7 @@ const overlay = {
   secondary: '66',
   tertiary: '52',
   quaternary: '3D',
+  active: '29',
   float: '14',
 };
 

@@ -8,10 +8,10 @@ import React, {
 } from 'react';
 import { blobToBase64 } from '../../lib/blob';
 import { fallbackImages } from '../../lib/config';
-import EditIcon from '../icons/Edit';
+import { EditIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { useToastNotification } from '../../hooks/useToastNotification';
-import { ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { ButtonSize, ButtonVariant } from '../buttons/common';
 import CloseButton from '../CloseButton';
 
 type Size = 'medium' | 'large' | 'cover';
@@ -43,7 +43,7 @@ export const MEGABYTE = 1024 * 1024;
 
 const componentSize: Record<Size, string> = {
   medium: 'w-24 h-24 rounded-26',
-  large: 'w-40 h-40 rounded-[2.5rem]',
+  large: 'w-40 h-40 rounded-40',
   cover: 'w-full h-24 rounded-26',
 };
 const sizeToIconSize: Record<Size, IconSize> = {

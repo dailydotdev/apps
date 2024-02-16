@@ -1,16 +1,19 @@
 import React, { ReactElement } from 'react';
 import { QueryKey, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
-import UpvoteIcon from '../icons/Upvote';
-import CommentIcon from '../icons/Discuss';
+import {
+  UpvoteIcon,
+  DiscussIcon as CommentIcon,
+  ShareIcon,
+  BookmarkIcon,
+  DownvoteIcon,
+  LinkIcon,
+} from '../icons';
 import { Post, UserPostVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
-import ShareIcon from '../icons/Share';
 import { useVotePost } from '../../hooks';
 import { Origin } from '../../lib/analytics';
-import BookmarkIcon from '../icons/Bookmark';
-import DownvoteIcon from '../icons/Downvote';
 import { Card } from '../cards/Card';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PostTagsPanel } from './block/PostTagsPanel';
@@ -22,6 +25,8 @@ import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
 } from '../../hooks/useBookmarkPost';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
 
 export interface ShareBookmarkProps {
   onShare: (post: Post) => void;
@@ -42,6 +47,7 @@ export function PostActions({
   onComment,
   origin = Origin.ArticlePage,
 }: PostActionsProps): ReactElement {
+  const copyLinkFeature = useFeature(feature.copyLink);
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
   const { queryKey: feedQueryKey, items } = useActiveFeedContext();
@@ -163,15 +169,27 @@ export function PostActions({
           >
             Bookmark
           </QuaternaryButton>
-          <QuaternaryButton
-            id="share-post-btn"
-            onClick={() => onShare(post)}
-            icon={<ShareIcon />}
-            responsiveLabelClass={actionsClassName}
-            className="btn-tertiary-cabbage"
-          >
-            Share
-          </QuaternaryButton>
+          {copyLinkFeature ? (
+            <QuaternaryButton
+              id="share-post-btn"
+              onClick={() => onShare(post)}
+              icon={<LinkIcon />}
+              responsiveLabelClass={actionsClassName}
+              className="btn-tertiary-cabbage"
+            >
+              Copy
+            </QuaternaryButton>
+          ) : (
+            <QuaternaryButton
+              id="share-post-btn"
+              onClick={() => onShare(post)}
+              icon={<ShareIcon />}
+              responsiveLabelClass={actionsClassName}
+              className="btn-tertiary-cabbage"
+            >
+              Share
+            </QuaternaryButton>
+          )}
         </div>
       </div>
     </ConditionalWrapper>

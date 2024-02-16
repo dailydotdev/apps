@@ -5,7 +5,7 @@ import {
   ButtonProps,
   ButtonSize,
 } from '../buttons/ButtonV2';
-import OpenLinkIcon from '../icons/OpenLink';
+import { OpenLinkIcon } from '../icons';
 
 type ReadArticleButtonProps = ButtonProps<'a'> & {
   content: string;
@@ -20,12 +20,12 @@ export const ReadArticleButton = ({
   ...props
 }: ReadArticleButtonProps): ReactElement => (
   <Button
-    {...props}
     tag="a"
     size={size}
-    icon={<OpenLinkIcon className="ml-2" secondary />}
+    icon={<OpenLinkIcon secondary />}
     iconPosition={ButtonIconPosition.Right}
     target={openNewTab ? '_blank' : '_self'}
+    {...props}
   >
     {content}
   </Button>

@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import {
   Post,
   UserPostVote,
@@ -10,8 +9,13 @@ import {
 } from '../../graphql/posts';
 import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
-import UpvoteIcon from '../icons/Upvote';
-import CommentIcon from '../icons/Discuss';
+import {
+  UpvoteIcon,
+  DiscussIcon as CommentIcon,
+  BookmarkIcon,
+  ShareIcon,
+  LinkIcon,
+} from '../icons';
 import {
   Button,
   ButtonColor,
@@ -27,12 +31,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { useFeedPreviewMode } from '../../hooks';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import BookmarkIcon from '../icons/Bookmark';
 import { getReadArticleLink } from '../utilities';
-
-const ShareIcon = dynamic(
-  () => import(/* webpackChunkName: "share" */ '../icons/Share'),
-);
 
 export interface ActionButtonsProps {
   post: Post;
@@ -52,11 +51,22 @@ type LastActionButtonProps = {
   onShare?: (post: Post) => unknown;
   onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
   post: Post;
+  copyLinkFeature?: boolean;
 };
 function LastActionButton(props: LastActionButtonProps) {
-  const { onShareClick, post } = props;
+  const { onShareClick, post, copyLinkFeature } = props;
   const onClickShare = (event) => onShareClick?.(event, post);
-  return (
+  return copyLinkFeature ? (
+    <SimpleTooltip content="Copy link">
+      <Button
+        size={ButtonSize.Small}
+        icon={<LinkIcon />}
+        onClick={onClickShare}
+        variant={ButtonVariant.Tertiary}
+        color={ButtonColor.Cabbage}
+      />
+    </SimpleTooltip>
+  ) : (
     <SimpleTooltip content="Share post">
       <Button
         size={ButtonSize.Small}
@@ -82,6 +92,7 @@ export default function ActionButtons({
   className,
   insaneMode,
 }: ActionButtonsProps): ReactElement {
+  const copyLinkFeature = useFeature(feature.copyLink);
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
   const upvoteCommentProps: ButtonProps<'button'> = {
     size: ButtonSize.Small,
@@ -96,6 +107,7 @@ export default function ActionButtons({
     post,
     onShare,
     onShareClick,
+    copyLinkFeature,
   });
   const lastActions = (
     <>

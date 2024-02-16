@@ -1,19 +1,21 @@
 import React, { ReactElement, useState } from 'react';
-import HashtagIcon from '../icons/Hashtag';
-import FilterIcon from '../icons/Filter';
-import BlockIcon from '../icons/Block';
+import {
+  HashtagIcon,
+  FilterIcon,
+  BlockIcon,
+  ArrowIcon,
+  AppIcon,
+} from '../icons';
 import TagsFilter from './TagsFilter';
 import { TagCategoryLayout } from './TagCategoryDropdown';
 import AdvancedSettingsFilter from './AdvancedSettings';
 import BlockedFilter from './BlockedFilter';
-import ArrowIcon from '../icons/Arrow';
 import { Button, ButtonSize } from '../buttons/ButtonV2';
 import { UnblockItem, unBlockPromptOptions } from './FilterMenu';
 import { Modal, ModalProps } from '../modals/common/Modal';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
 import { ContentTypesFilter } from './ContentTypesFilter';
-import AppIcon from '../icons/App';
 
 enum FilterMenuTitle {
   Tags = 'Manage tags',

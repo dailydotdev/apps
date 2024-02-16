@@ -5,10 +5,11 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
-import React, { ReactElement, Ref, forwardRef } from 'react';
-import PlayIcon from '@dailydotdev/shared/src/components/icons/Play';
+import React, { forwardRef, ReactElement, Ref } from 'react';
+import { PlayIcon } from '@dailydotdev/shared/src/components/icons';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { useExtensionPermission } from '@dailydotdev/shared/src/hooks';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
 const CompanionSection = classed('div', 'flex flex-col max-w-full');
 
@@ -59,7 +60,7 @@ const CompanionPermissionComponent = (
             alt="Companion video preview"
             className="h-[6.875] w-[11.25rem] rounded-10"
           />
-          <PlayIcon secondary className="absolute h-10 w-10" />
+          <PlayIcon secondary className="absolute" size={IconSize.XLarge} />
         </a>
         <ClickableText
           tag="a"

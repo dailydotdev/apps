@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import classNames from 'classnames';
+import { useInView } from 'react-intersection-observer';
 import EnableNotification from '../notifications/EnableNotification';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import SubComment from './SubComment';
@@ -28,6 +29,7 @@ export interface MainCommentProps
   joinNotificationCommentId?: string;
   onCommented: CommentMarkdownInputProps['onCommented'];
   className?: ClassName;
+  lazy?: boolean;
 }
 
 const shouldShowBannerOnComment = (
@@ -44,6 +46,7 @@ export default function MainComment({
   permissionNotificationCommentId,
   joinNotificationCommentId,
   onCommented,
+  lazy = false,
   ...props
 }: MainCommentProps): ReactElement {
   const { user } = useContext(AuthContext);
@@ -66,15 +69,25 @@ export default function MainComment({
   const { commentId, inputProps, onReplyTo } = useComments(props.post);
   const { inputProps: editProps, onEdit } = useCommentEdit();
 
+  const initialInView = !lazy;
+  const { ref: inViewRef, inView } = useInView({
+    triggerOnce: true,
+    initialInView,
+  });
+
   return (
     <section
+      ref={inViewRef}
       className={classNames(
         'flex scroll-mt-16 flex-col items-stretch rounded-24 border border-theme-divider-tertiary',
         className?.container,
       )}
       data-testid="comment"
+      style={{
+        contentVisibility: initialInView ? 'visible' : 'auto',
+      }}
     >
-      {!editProps && (
+      {!editProps && inView && (
         <CommentBox
           {...props}
           comment={comment}
@@ -118,17 +131,18 @@ export default function MainComment({
           className={className?.commentBox}
         />
       )}
-      {comment.children?.edges.map(({ node }) => (
-        <SubComment
-          {...props}
-          key={node.id}
-          comment={node}
-          parentComment={comment}
-          appendTooltipTo={appendTooltipTo}
-          className={className?.commentBox}
-          onCommented={onCommented}
-        />
-      ))}
+      {inView &&
+        comment.children?.edges.map(({ node }) => (
+          <SubComment
+            {...props}
+            key={node.id}
+            comment={node}
+            parentComment={comment}
+            appendTooltipTo={appendTooltipTo}
+            className={className?.commentBox}
+            onCommented={onCommented}
+          />
+        ))}
       {showJoinSquadBanner && (
         <SquadCommentJoinBanner
           className={!comment.children?.edges?.length && 'mt-3'}

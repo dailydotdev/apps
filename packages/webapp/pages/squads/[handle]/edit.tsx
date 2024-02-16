@@ -26,7 +26,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
-import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   generateQueryKey,
   RequestKey,
@@ -96,7 +96,7 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
 
   return (
     <ManageSquadPageContainer>
-      <NextSeo {...seo} titleTemplate="%s | daily.dev" />
+      <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
       <ManageSquadPageMain>
         <ManageSquadPageHeader>
           <Button

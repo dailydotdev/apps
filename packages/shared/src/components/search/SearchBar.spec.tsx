@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import nock from 'nock';
 import { AuthContextProvider } from '../../contexts/AuthContext';
@@ -43,54 +37,6 @@ const renderComponent = (
 };
 
 describe('SearchBar', () => {
-  it('should render with the beta flag', async () => {
-    Object.defineProperty(global, 'matchMedia', {
-      writable: true,
-      value: jest.fn().mockImplementation(() => ({
-        matches: true,
-        addListener: jest.fn(),
-        removeListener: jest.fn(),
-      })),
-    });
-
-    renderComponent();
-
-    expect(screen.getByTestId('searchBar')).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('Ask a question...'),
-    ).toBeInTheDocument();
-    expect(screen.getByText('Beta')).toBeInTheDocument();
-  });
-
-  it('should render with no clear button when the value is empty', async () => {
-    renderComponent();
-    const clear = screen.queryByTitle('Clear query');
-
-    await waitFor(() => expect(clear).not.toBeInTheDocument());
-  });
-
-  it('should render with clear button when there is a value and clear on click', async () => {
-    Object.defineProperty(global, 'matchMedia', {
-      writable: true,
-      value: jest.fn().mockImplementation(() => ({
-        matches: true,
-        addListener: jest.fn(),
-        removeListener: jest.fn(),
-      })),
-    });
-
-    renderComponent(true);
-    const input = screen.queryByRole('textbox') as HTMLInputElement;
-    fireEvent.input(input, { target: { value: 'search' } });
-    input.value = 'search';
-    const clear = screen.queryByTitle('Clear query');
-
-    await waitFor(() => expect(clear).toBeInTheDocument());
-    expect(input).toHaveValue('search');
-    fireEvent.click(clear);
-    expect(input).toHaveValue('');
-  });
-
   it('should render with progress bar', async () => {
     Object.defineProperty(global, 'matchMedia', {
       writable: true,
@@ -101,7 +47,9 @@ describe('SearchBar', () => {
       })),
     });
 
-    renderComponent(true);
+    renderComponent(true, {
+      showProgress: true,
+    });
     const progress = screen.queryByTestId('SearchProgressBar');
 
     await waitFor(() => expect(progress).toBeInTheDocument());

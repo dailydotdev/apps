@@ -3,8 +3,9 @@ import Icon, { IconProps } from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-const KeyIcon = (props: IconProps): ReactElement => (
+export const KeyIcon = (props: IconProps): ReactElement => (
   <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );
 
-export default KeyIcon;
+export * from './KeyReferral';
+export * from './KeyReferralOutline';

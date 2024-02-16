@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { webappUrl } from '../lib/constants';
 import usePersistentContext from './usePersistentContext';
-import useWindowEvents, { MessageEventData } from './useWindowEvents';
 import { NotificationPromptSource } from '../lib/analytics';
+import { useEventListener, MessageEventData } from './useEventListener';
 
 export interface PermissionEvent extends MessageEventData {
   permission: NotificationPermission;
@@ -43,23 +43,23 @@ export const useNotificationPermissionPopup = ({
     );
   };
 
-  useWindowEvents<PermissionEvent>(
-    'message',
-    ENABLE_NOTIFICATION_WINDOW_KEY,
-    (e) => {
-      const { permission } = e?.data ?? {};
+  useEventListener(globalThis, 'message', (e) => {
+    if (e.data?.eventKey !== ENABLE_NOTIFICATION_WINDOW_KEY) {
+      return;
+    }
 
-      if (!permission) {
-        return;
-      }
+    const { permission }: PermissionEvent = e?.data ?? {};
 
-      setAcceptedPermissionJustNow(permission === 'granted');
-      setPermissionCache(permission);
-      if (onSuccess) {
-        onSuccess(permission);
-      }
-    },
-  );
+    if (!permission) {
+      return;
+    }
+
+    setAcceptedPermissionJustNow(permission === 'granted');
+    setPermissionCache(permission);
+    if (onSuccess) {
+      onSuccess(permission);
+    }
+  });
 
   return useMemo(
     () => ({

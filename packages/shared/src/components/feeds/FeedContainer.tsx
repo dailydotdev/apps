@@ -1,11 +1,8 @@
 import React, {
   CSSProperties,
-  FormEvent,
   ReactElement,
   ReactNode,
   useContext,
-  useEffect,
-  useRef,
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
@@ -14,26 +11,14 @@ import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
 import ScrollToTopButton from '../ScrollToTopButton';
 import styles from '../Feed.module.css';
-import { SearchBarInput, SearchBarSuggestionList } from '../search';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
-import { webappUrl } from '../../lib/constants';
-import { useSearchSuggestions } from '../../hooks/search';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import { ActionType } from '../../graphql/actions';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { FeedReadyMessage } from '../onboarding';
-import {
-  useFeedLayout,
-  useActions,
-  ToastSubject,
-  useToastNotification,
-} from '../../hooks';
+import { useFeedLayout, ToastSubject, useToastNotification } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
-import { FeedGradientBg } from './FeedGradientBg';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -74,9 +59,27 @@ export interface FeedContainerProps {
 //   'gap-12': 48,
 //   'gap-14': 56,
 // };
+export const getFeedGapPx = {
+  'gap-2': 8,
+  'gap-3': 12,
+  'gap-5': 20,
+  'gap-8': 32,
+  'gap-12': 48,
+  'gap-14': 56,
+};
 
 // const gapClass = (isList: boolean, space: Spaciness) =>
 //   isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
+// export const gapClass = (
+//   isList: boolean,
+//   isFeedLayoutV1: boolean,
+//   space: Spaciness,
+// ): string => {
+//   if (isFeedLayoutV1) {
+//     return '';
+//   }
+//   return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
+// };
 
 // const cardClass = (isList: boolean, numberOfCards: number): string =>
 //   isList ? 'grid-cols-1' : cardListClass[numberOfCards];
@@ -115,8 +118,6 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
-  const { trackEvent } = useAnalyticsContext();
-  const { completeAction, checkHasCompleted } = useActions();
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
@@ -124,49 +125,22 @@ export const FeedContainer = ({
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
   const isList = (insaneMode && numCards > 1) || shouldUseFeedLayoutV1;
-  // const feedGapPx = getFeedGapPx[gapClass(isList, spaciness)];
+  // const feedGapPx =
+    getFeedGapPx[gapClass(isList, shouldUseFeedLayoutV1, spaciness)];
   // const style = {
   //   '--num-cards': numCards,
   //   '--feed-gap': `${feedGapPx / 16}rem`,
   // } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
-  const isFinder = router.pathname === '/posts/finder';
+  const isFinder = router.pathname === '/search/posts';
   const isV1Search =
     searchValue === SearchExperiment.V1 && showSearch && !isFinder;
-
-  const suggestionsProps = useSearchSuggestions({
-    origin: Origin.HomePage,
-    disabled: !isV1Search,
-  });
-  const isTracked = useRef(false);
-  const shouldShowPulse =
-    checkHasCompleted(ActionType.AcceptedSearch) &&
-    !checkHasCompleted(ActionType.UsedSearch);
-
-  useEffect(() => {
-    if (!shouldShowPulse || isTracked.current) {
-      return;
-    }
-
-    isTracked.current = true;
-    trackEvent({ event_name: AnalyticsEvent.SearchHighlightAnimation });
-  }, [trackEvent, shouldShowPulse]);
 
   if (!loadedSettings) {
     return <></>;
   }
 
-  const onSearch = (event: FormEvent, input: string) => {
-    event.preventDefault();
-    router.push(`${webappUrl}search?q=${encodeURIComponent(input)}`);
-  };
-  const handleSearchFocus = () => {
-    if (!shouldShowPulse) {
-      return;
-    }
-
-    completeAction(ActionType.UsedSearch);
-  };
+  const showFeedReadyMessage = router.query?.welcome === 'true';
 
   const gap = (space: Spaciness) => {
     switch (space) {
@@ -185,12 +159,12 @@ export const FeedContainer = ({
     <div
       className={classNames(
         'relative flex w-full flex-col laptopL:mx-auto',
+        styles.container,
         className,
       )}
     >
-      {isV1Search && shouldUseFeedLayoutV1 && <FeedGradientBg />}
       <ScrollToTopButton />
-      <div className="flex w-full flex-col laptopL:mx-auto">
+      <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
         {!inlineHeader && header}
         <div
           className={classNames(
@@ -202,56 +176,28 @@ export const FeedContainer = ({
           aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
           data-testid="posts-feed"
         >
-          {router.query?.welcome === 'true' && (
-            <FeedReadyMessage className="mb-10" />
+          {showFeedReadyMessage && (
+            <FeedReadyMessage
+              className={{
+                main: shouldUseFeedLayoutV1
+                  ? 'mb-8 mt-8 w-full laptop:gap-4 [@media(width<=680px)]:px-6'
+                  : 'mb-10 max-w-xl laptop:gap-6',
+                textContainer: shouldUseFeedLayoutV1
+                  ? 'laptop:flex-1'
+                  : 'flex flex-col',
+                header: shouldUseFeedLayoutV1 ? 'mb-0.5' : 'mb-2 laptop:mb-1',
+              }}
+            />
           )}
           {inlineHeader && header}
-          {isV1Search && (
-            <ConditionalWrapper
-              condition={!shouldUseFeedLayoutV1}
-              wrapper={(child) => (
-                <span className="mt-6 flex flex-row gap-3">
-                  {child}
-                  {shortcuts}
-                </span>
-              )}
-            >
-              <SearchBarInput
-                className={{
-                  container: classNames(
-                    'flex w-full max-w-2xl flex-1',
-                    shouldUseFeedLayoutV1 &&
-                      'mt-6 px-6 pt-2 laptop:px-0 laptop:pt-0',
-                    shouldShowPulse && 'highlight-pulse',
-                  ),
-                  field: classNames(
-                    'w-full',
-                    shouldUseFeedLayoutV1 && '!bg-transparent',
-                  ),
-                  form: 'w-full',
-                }}
-                showProgress={false}
-                onSubmit={onSearch}
-                shouldShowPopup
-                inputProps={{ onFocus: handleSearchFocus }}
-                suggestionsProps={suggestionsProps}
-              />
-            </ConditionalWrapper>
-          )}
-          {isV1Search && (
-            <span className="mt-4 flex flex-1 flex-row">
-              <SearchBarSuggestionList
-                {...suggestionsProps}
-                className={classNames(
-                  'hidden tablet:flex',
-                  shouldUseFeedLayoutV1 ? 'mx-6 laptop:mx-0' : 'mr-3',
-                )}
-              />
-              {actionButtons && !shouldUseFeedLayoutV1 && (
-                <span className="ml-auto flex flex-row gap-3 border-l border-theme-divider-tertiary pl-3">
+          {isV1Search && !shouldUseFeedLayoutV1 && (
+            <span className="flex flex-1 flex-row items-center">
+              {!!actionButtons && (
+                <span className="mr-auto flex flex-row gap-3 border-theme-divider-tertiary pr-3">
                   {actionButtons}
                 </span>
               )}
+              {shortcuts}
             </span>
           )}
           {shouldUseFeedLayoutV1 && shortcuts}
@@ -260,7 +206,7 @@ export const FeedContainer = ({
             wrapper={(child) => (
               <div
                 className={classNames(
-                  'flex flex-col rounded-16 border border-theme-divider-tertiary laptop:mx-0 laptop:mt-6',
+                  'flex flex-col rounded-16 border border-theme-divider-tertiary tablet:mt-6',
                   isV1Search && 'mt-6',
                 )}
               >

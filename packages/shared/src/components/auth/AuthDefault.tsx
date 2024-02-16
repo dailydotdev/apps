@@ -11,7 +11,6 @@ import AuthModalFooter from './AuthModalFooter';
 import { AuthFormProps, Provider, getFormEmail } from './common';
 import EmailSignupForm from './EmailSignupForm';
 import LoginForm, { LoginFormParams } from './LoginForm';
-import OrDivider from './OrDivider';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
@@ -136,14 +135,6 @@ const AuthDefault = ({
     return <EmailSignupForm onSubmit={onEmailSignup} isReady={isReady} />;
   };
 
-  const getOrDivider = () => {
-    if (!providers.length || disablePassword) {
-      return null;
-    }
-
-    return <OrDivider />;
-  };
-
   return (
     <>
       <AuthHeader simplified={simplified} title={title} />
@@ -167,7 +158,6 @@ const AuthDefault = ({
             </Button>
           ))}
         </div>
-        {getOrDivider()}
         {getForm()}
       </AuthContainer>
       <div className="flex flex-1" />

@@ -12,7 +12,7 @@ export enum IconSize {
   XXXLarge = 'xxxlarge',
 }
 
-const iconSizeToClassName: Record<IconSize, string> = {
+export const iconSizeToClassName: Record<IconSize, string> = {
   [IconSize.XXSmall]: 'w-3 h-3',
   [IconSize.XSmall]: 'w-5 h-5',
   [IconSize.Small]: 'w-6 h-6',

@@ -23,6 +23,8 @@ import { FeedContainer, FeedContainerProps } from './feeds';
 import { ActiveFeedContextProvider } from '../contexts';
 import { AllFeedPages, RequestKey } from '../lib/query';
 import { useFeedLayout } from '../hooks';
+import { useFeature } from './GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'>,
@@ -94,22 +96,30 @@ export default function Feed<T>({
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
-  const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
-    useFeed(
-      feedQueryKey,
-      currentSettings.pageSize,
-      isSquadFeed || shouldUseFeedLayoutV1 ? 2 : currentSettings.adSpot,
-      numCards,
-      {
-        query,
-        variables,
-        options,
-        settings: {
-          disableAds,
-          adPostLength: isSquadFeed ? 2 : undefined,
-        },
+  const {
+    items,
+    updatePost,
+    removePost,
+    fetchPage,
+    canFetchMore,
+    emptyFeed,
+    isFetching,
+    isInitialLoading,
+  } = useFeed(
+    feedQueryKey,
+    currentSettings.pageSize,
+    isSquadFeed || shouldUseFeedLayoutV1 ? 2 : currentSettings.adSpot,
+    numCards,
+    {
+      query,
+      variables,
+      options,
+      settings: {
+        disableAds,
+        adPostLength: isSquadFeed ? 2 : undefined,
       },
-    );
+    },
+  );
 
   const {
     onOpenModal,

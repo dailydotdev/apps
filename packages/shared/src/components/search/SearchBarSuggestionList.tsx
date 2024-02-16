@@ -3,8 +3,12 @@ import classNames from 'classnames';
 import { SearchBarSuggestion, SuggestionOrigin } from './SearchBarSuggestion';
 import { PlaceholderSearchSuggestion } from './PlaceholderSearchSuggestion';
 import AuthContext from '../../contexts/AuthContext';
-import FeedbackIcon from '../icons/Feedback';
-import { getSearchUrl, SearchQuestion } from '../../graphql/search';
+import { FeedbackIcon } from '../icons';
+import {
+  getSearchUrl,
+  SearchProviderEnum,
+  SearchQuestion,
+} from '../../graphql/search';
 import { Pill } from '../utilities/loaders';
 import { AuthTriggers } from '../../lib/auth';
 
@@ -24,7 +28,7 @@ export function SearchBarSuggestionList({
   const { user, showLogin } = useContext(AuthContext);
 
   if (isLoading) {
-    return <Pill className={className} />;
+    return <Pill className={classNames('!h-10 w-1/2', className)} />;
   }
 
   if (!user) {
@@ -42,7 +46,7 @@ export function SearchBarSuggestionList({
     return (
       <span
         className={classNames(
-          'flex flex-row items-center text-theme-label-quaternary',
+          'flex h-10 flex-row items-center text-theme-label-quaternary',
           className,
         )}
       >
@@ -69,7 +73,8 @@ export function SearchBarSuggestionList({
           prompt={suggestion.question}
           key={suggestion.id}
           href={getSearchUrl({
-            question: suggestion.question,
+            query: suggestion.question,
+            provider: SearchProviderEnum.Chat,
           })}
         >
           {suggestion.question}

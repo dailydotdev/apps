@@ -1,6 +1,6 @@
 import React, { AnchorHTMLAttributes, ReactElement } from 'react';
 import { Item, Menu, MenuProps } from '@dailydotdev/react-contexify';
-import Portal from '../tooltips/Portal';
+import { RootPortal } from '../tooltips/Portal';
 import ConditionalWrapper from '../ConditionalWrapper';
 import useContextMenu from '../../hooks/useContextMenu';
 
@@ -18,9 +18,9 @@ export default function PortalMenu({
   };
 
   return (
-    <Portal>
+    <RootPortal>
       <Menu {...props} id={id} onHidden={onHidden} />
-    </Portal>
+    </RootPortal>
   );
 }
 

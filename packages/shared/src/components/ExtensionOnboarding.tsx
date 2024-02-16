@@ -25,7 +25,7 @@ const ExtensionOnboarding = (): ReactElement => {
       <Link href={onboardingUrl} passHref>
         <Button
           tag="a"
-          className="w-full max-w-[18.75rem]"
+          className="z-1 w-full max-w-[18.75rem]"
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
         >

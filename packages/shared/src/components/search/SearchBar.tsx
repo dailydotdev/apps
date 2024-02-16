@@ -1,44 +1,45 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { SearchBarInput, SearchBarInputProps } from './SearchBarInput';
+import { SearchBarInputProps } from './SearchBarInput';
 import { SearchBarSuggestionList } from './SearchBarSuggestionList';
 import Alert, { AlertType } from '../widgets/Alert';
-import { useSearchSuggestions } from '../../hooks/search';
+import { useSearchQuestionRecommendations } from '../../hooks/search';
 import { Origin } from '../../lib/analytics';
 import { labels } from '../../lib';
 import { isNullOrUndefined } from '../../lib/func';
+import { SearchProgressBar } from './SearchProgressBar';
 
 export type SearchBarProps = Pick<
   SearchBarInputProps,
-  'className' | 'valueChanged' | 'onSubmit' | 'showProgress' | 'chunk'
+  'className' | 'showProgress' | 'chunk'
 > & {
   isLoading?: boolean;
 };
 
 export function SearchBar({
   className,
+  showProgress,
   chunk,
-  isLoading,
-  ...props
 }: SearchBarProps): ReactElement {
-  const suggestionsProps = useSearchSuggestions({ origin: Origin.SearchPage });
+  const suggestionsProps = useSearchQuestionRecommendations({
+    origin: Origin.SearchPage,
+  });
 
   return (
     <div className={classNames('w-full', className?.container)}>
-      <SearchBarInput
-        {...props}
-        chunk={chunk}
-        shouldShowPopup
-        inputProps={{ id: 'search' }}
-        className={{
-          container: 'w-full max-w-[48rem]',
-          field: className?.field,
-        }}
-        suggestionsProps={suggestionsProps}
-      />
+      {showProgress && (
+        <div className="mb-4">
+          <SearchProgressBar max={chunk?.steps} progress={chunk?.progress} />
+          {!!chunk?.status && (
+            <div className="mt-2 text-theme-label-tertiary typo-callout">
+              {chunk?.status}
+            </div>
+          )}
+        </div>
+      )}
       {!isNullOrUndefined(chunk?.error?.code) && (
         <Alert
-          className="my-4"
+          className="mb-4"
           type={AlertType.Error}
           title={chunk?.error?.message || labels.error.generic}
         />
@@ -46,10 +47,7 @@ export function SearchBar({
       {(!chunk || chunk?.error?.message) && (
         <SearchBarSuggestionList
           {...suggestionsProps}
-          className={classNames(
-            !chunk?.error?.message && 'mt-4',
-            'hidden tablet:flex',
-          )}
+          className={classNames('hidden tablet:flex')}
         />
       )}
     </div>

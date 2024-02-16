@@ -15,7 +15,7 @@ export const AdList = forwardRef(function AdList(
         <ListCardTitle className="line-clamp-4 font-bold typo-title3">
           {ad.description}
         </ListCardTitle>
-        <AdAttribution ad={ad} className="mt-2" />
+        <AdAttribution ad={ad} className={{ main: 'mt-2' }} />
       </ListCardMain>
     </ListCard>
   );

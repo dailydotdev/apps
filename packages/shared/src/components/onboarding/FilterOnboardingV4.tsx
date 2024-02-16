@@ -174,9 +174,12 @@ export function FilterOnboardingV4({
             return (
               <Button
                 key={tag.name}
-                className={classNames({
-                  'btn-tag': !isSelected,
-                })}
+                className={classNames(
+                  {
+                    'btn-tag': !isSelected,
+                  },
+                  'relative',
+                )}
                 variant={
                   isSelected ? ButtonVariant.Primary : ButtonVariant.Float
                 }

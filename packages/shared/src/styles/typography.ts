@@ -82,3 +82,8 @@ export const typoCaption2 = `
   font-size: 0.6875rem;
   line-height: 1rem;
 `;
+
+export const typoTera = `
+  font-size: 5rem;
+  line-height: 5.375rem;
+`;

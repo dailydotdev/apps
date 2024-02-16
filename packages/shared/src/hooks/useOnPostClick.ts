@@ -1,5 +1,10 @@
 import { useContext, useMemo } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import {
+  InfiniteData,
+  QueryClient,
+  QueryKey,
+  useQueryClient,
+} from '@tanstack/react-query';
 import useIncrementReadingRank from './useIncrementReadingRank';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import {
@@ -12,6 +17,9 @@ import { Origin } from '../lib/analytics';
 import { useActiveFeedContext } from '../contexts';
 import { updateCachedPagePost } from '../lib/query';
 import { usePostFeedback } from './usePostFeedback';
+import { FeedLayoutV1FeedPages } from './useFeedLayout';
+import { FeedData } from '../graphql/feed';
+import { useFeatureFeedLayoutV1 } from './useFeatureFeedLayoutV1';
 
 interface PostClickOptionalProps {
   skipPostUpdate?: boolean;
@@ -30,6 +38,48 @@ export type FeedPostClick = ({
   optional?: PostClickOptionalProps;
 }) => Promise<void>;
 
+const getFeedQueryKeys = (client: QueryClient): QueryKey[] => {
+  return client
+    .getQueryCache()
+    .findAll()
+    .reduce((queryKeys, query) => {
+      const key = query.queryKey;
+      // filter only query keys for supported feed layout v1 feeds
+      if (
+        Array.isArray(key) &&
+        key.length > 0 &&
+        FeedLayoutV1FeedPages.has(key[0])
+      ) {
+        queryKeys.push(key);
+      }
+      return queryKeys;
+    }, []);
+};
+
+interface PostItem {
+  post: Post;
+  page: number;
+  index: number;
+}
+
+const findPost = (data: InfiniteData<FeedData>, id: string): PostItem => {
+  let index = -1;
+  const pageIndex = data.pages.findIndex(({ page }) => {
+    index = page.edges.findIndex(({ node }) => node.id === id);
+    return index > -1;
+  });
+
+  const post =
+    pageIndex > -1 && index > -1
+      ? data.pages[pageIndex].page.edges[index].node
+      : undefined;
+
+  return {
+    post,
+    page: pageIndex,
+    index,
+  };
+};
 interface UseOnPostClickProps {
   eventName?: string;
   columns?: number;
@@ -37,6 +87,7 @@ interface UseOnPostClickProps {
   ranking?: string;
   origin?: Origin;
 }
+
 export default function useOnPostClick({
   eventName = 'go to link',
   columns,
@@ -48,6 +99,9 @@ export default function useOnPostClick({
   const { trackEvent } = useContext(AnalyticsContext);
   const { incrementReadingRank } = useIncrementReadingRank();
   const { items } = useActiveFeedContext();
+  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
+  const isFeedLayoutV1 = useFeatureFeedLayoutV1();
+
   const { isLowImpsEnabled } = usePostFeedback();
   const feedQueryKey = ['as'];
 
@@ -82,31 +136,68 @@ export default function useOnPostClick({
           await incrementReadingRank();
         }
 
-        if (eventName === 'go to link' && feedQueryKey) {
+        if (eventName === 'go to link') {
           const mutationHandler = () => {
             return {
               read: true,
             };
           };
-          const updateFeedPost = updateCachedPagePost(feedQueryKey, client);
-          const updateFeedPostCache = optimisticPostUpdateInFeed(
-            items,
-            updateFeedPost,
-            mutationHandler,
-          );
-          const postIndex = items.findIndex(
-            (item) => item.type === 'post' && item.post.id === post.id,
-          );
 
-          if (postIndex === -1) {
-            return;
+          if (feedQueryKey) {
+            const updateFeedPost = updateCachedPagePost(feedQueryKey, client);
+            const updateFeedPostCache = optimisticPostUpdateInFeed(
+              items,
+              updateFeedPost,
+              mutationHandler,
+            );
+            const postIndex = items.findIndex(
+              (item) => item.type === 'post' && item.post.id === post.id,
+            );
+
+            if (postIndex === -1) {
+              return;
+            }
+
+            updateFeedPostCache({ index: postIndex });
+          } else if (!feedName && isFeedLayoutV1) {
+            const trySetPostRead = (queryKey: QueryKey, id: string) => {
+              const updateFeedPost = updateCachedPagePost(
+                queryKey as unknown[],
+                client,
+              );
+
+              const data = client.getQueryData(
+                queryKey,
+              ) as InfiniteData<FeedData>;
+
+              const { post: foundPost, page, index } = findPost(data, id);
+              if (foundPost) {
+                updateFeedPost(page, index, {
+                  ...foundPost,
+                  ...mutationHandler(),
+                });
+              }
+            };
+
+            getFeedQueryKeys(client).forEach((key) => {
+              trySetPostRead(key, post.id);
+            });
           }
-
-          updateFeedPostCache({ index: postIndex });
         }
       },
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [columns, feedName, ranking, origin],
+    [
+      client,
+      columns,
+      eventName,
+      feedName,
+      feedQueryKey,
+      incrementReadingRank,
+      isFeedLayoutV1,
+      isLowImpsEnabled,
+      items,
+      ranking,
+      origin,
+      trackEvent,
+    ],
   );
 }

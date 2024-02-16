@@ -5,7 +5,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import CompanionIcon from '@dailydotdev/shared/src/components/icons/App';
+import { AppIcon as CompanionIcon } from '@dailydotdev/shared/src/components/icons';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { useContentScriptStatus } from '@dailydotdev/shared/src/hooks';
@@ -70,7 +70,7 @@ export const CompanionPopupButton = (): ReactElement => {
             : ButtonVariant.Secondary
         }
         color={ButtonColor.Cabbage}
-        className="mr-4 hidden border-theme-status-cabbage laptop:flex"
+        className="hidden border-theme-status-cabbage laptop:flex"
         icon={
           <CompanionIcon
             secondary={showCompanionPermission}

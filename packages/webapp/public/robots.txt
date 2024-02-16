@@ -1,2 +1,4 @@
 User-agent: *
 Disallow: /join
+Disallow: /error
+Disallow: /callback

@@ -1,6 +1,7 @@
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
+import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
@@ -12,8 +13,14 @@ import {
   FeedLayout as FeedLayoutEnum,
   SearchExperiment,
 } from '@dailydotdev/shared/src/lib/featureValues';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
+import {
+  SearchProviderEnum,
+  getSearchUrl,
+} from '@dailydotdev/shared/src/graphql/search';
+import classNames from 'classnames';
+import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
 import DndContext from './DndContext';
@@ -40,6 +47,7 @@ export default function MainFeedPage({
 }: MainFeedPageProps): ReactElement {
   const searchVersion = useFeature(feature.search);
   const { alerts } = useContext(AlertContext);
+  const { trackEvent } = useAnalyticsContext();
   const [isSearchOn, setIsSearchOn] = useState(false);
   const { user, loadingUser } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>('default');
@@ -50,7 +58,9 @@ export default function MainFeedPage({
   const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
     if (searchVersion !== SearchExperiment.Control) {
-      window.location.assign(`${webappUrl}posts/finder`);
+      window.location.assign(
+        getSearchUrl({ provider: SearchProviderEnum.Posts }),
+      );
       return;
     }
 
@@ -96,43 +106,63 @@ export default function MainFeedPage({
   };
 
   return (
-    <MainLayout
-      greeting
-      mainPage
-      isNavItemsButton
-      activePage={activePage}
-      onLogoClick={onLogoClick}
-      showDnd={showDnd}
-      dndActive={isDndActive}
-      onShowDndClick={() => setShowDnd(true)}
-      enableSearch={enableSearch}
-      onNavTabClick={onNavTabClick}
-      screenCentered={false}
-      customBanner={isDndActive && <DndBanner />}
-      additionalButtons={!loadingUser && <CompanionPopupButton />}
-    >
-      <FeedLayout>
-        <MainFeedLayout
-          feedName={feedName}
-          isSearchOn={isSearchOn}
-          searchQuery={searchQuery}
-          onFeedPageChanged={onNavTabClick}
-          searchChildren={
-            <PostsSearch
-              onSubmitQuery={async (query) => setSearchQuery(query)}
-            />
-          }
-          navChildren={!isSearchOn && <ShortcutLinks />}
-          shortcuts={
-            <ShortcutLinks
-              className={
-                layout === FeedLayoutEnum.Control ? 'ml-auto' : 'mt-4 w-fit'
-              }
-            />
-          }
-        />
-      </FeedLayout>
-      <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />
-    </MainLayout>
+    <>
+      <div className="fixed bottom-0 left-0 z-2 w-full">
+        <ScrollToTopButton />
+      </div>
+      <MainLayout
+        greeting
+        mainPage
+        isNavItemsButton
+        activePage={activePage}
+        onLogoClick={onLogoClick}
+        showDnd={showDnd}
+        dndActive={isDndActive}
+        onShowDndClick={() => setShowDnd(true)}
+        enableSearch={enableSearch}
+        onNavTabClick={onNavTabClick}
+        screenCentered={false}
+        customBanner={isDndActive && <DndBanner />}
+        additionalButtons={!loadingUser && <CompanionPopupButton />}
+      >
+        <FeedLayout>
+          <MainFeedLayout
+            feedName={feedName}
+            isSearchOn={isSearchOn}
+            searchQuery={searchQuery}
+            onFeedPageChanged={onNavTabClick}
+            searchChildren={
+              <PostsSearch
+                onSubmitQuery={async (query) => {
+                  trackEvent({
+                    event_name: AnalyticsEvent.SubmitSearch,
+                    extra: JSON.stringify({
+                      query,
+                      provider: SearchProviderEnum.Posts,
+                    }),
+                  });
+
+                  setSearchQuery(query);
+                }}
+                onFocus={() => {
+                  trackEvent({ event_name: AnalyticsEvent.FocusSearch });
+                }}
+              />
+            }
+            navChildren={!isSearchOn && <ShortcutLinks />}
+            shortcuts={
+              <ShortcutLinks
+                className={classNames(
+                  layout === FeedLayoutEnum.Control
+                    ? 'ml-auto'
+                    : 'mt-4 w-fit [@media(width<=680px)]:mx-6',
+                )}
+              />
+            }
+          />
+        </FeedLayout>
+        <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />
+      </MainLayout>
+    </>
   );
 }

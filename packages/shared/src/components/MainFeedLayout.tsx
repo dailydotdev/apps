@@ -33,7 +33,7 @@ import {
   SearchControlHeaderProps,
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
-import { useFeedLayout } from '../hooks';
+import { useFeedLayout, useScrollRestoration } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
 import { FeedContainerProps } from './feeds';
@@ -82,7 +82,7 @@ export interface MainFeedLayoutProps
   isSearchOn: boolean;
   searchQuery?: string;
   children?: ReactNode;
-  searchChildren: ReactNode;
+  searchChildren?: ReactNode;
   navChildren?: ReactNode;
   onFeedPageChanged: (page: SharedFeedPage) => void;
   isFinder?: boolean;
@@ -118,6 +118,7 @@ export default function MainFeedLayout({
   isFinder,
   feedItemComponent,
 }: MainFeedLayoutProps): ReactElement {
+  useScrollRestoration();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
@@ -167,11 +168,17 @@ export default function MainFeedLayout({
   const search = (
     <LayoutHeader>
       {navChildren}
-      {isSearchOn ? searchChildren : undefined}
+      {isSearchOn && searchChildren ? searchChildren : undefined}
     </LayoutHeader>
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
+    // in v1 search by default we do not show any results but empty state
+    // so returning false so feed does not do any requests
+    if (isV1Search && isSearchOn && !searchQuery) {
+      return null;
+    }
+
     if (isSearchOn && searchQuery) {
       return {
         feedItemComponent,
@@ -252,16 +259,17 @@ export default function MainFeedLayout({
 
   const FeedPageComponent = shouldUseFeedLayoutV1 ? FeedPageLayoutV1 : FeedPage;
 
+  const disableTopPadding = (isFinder && isV1Search) || shouldUseFeedLayoutV1;
+
   return (
     <FeedPageComponent
-      className={classNames('relative', shouldUseFeedLayoutV1 && '!pt-0')}
+      className={classNames('relative', disableTopPadding && '!pt-0')}
     >
-      {isV1Search && !shouldUseFeedLayoutV1 && !isFinder && <FeedGradientBg />}
       {isSearchOn && search}
       {feedProps && (
         <Feed
           {...feedProps}
-          className={shouldUseFeedLayoutV1 && !isFinder && 'laptop:px-12'}
+          className={shouldUseFeedLayoutV1 && !isFinder && 'laptop:px-6'}
         />
       )}
       {children}

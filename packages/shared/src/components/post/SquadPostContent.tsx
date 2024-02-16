@@ -40,6 +40,7 @@ function SquadPostContent({
   onNextPost,
   onClose,
   onRemovePost,
+  isBannerVisible,
 }: PostContentProps): ReactElement {
   const { user } = useAuthContext();
   const { mutateAsync: onSendViewPost } = useMutation(sendViewPost);
@@ -79,6 +80,7 @@ function SquadPostContent({
       {position === 'fixed' && (
         <FixedPostNavigation
           {...navigationProps}
+          isBannerVisible={isBannerVisible}
           onReadArticle={onReadArticle}
           className={className?.fixedNavigation}
         />
@@ -119,12 +121,16 @@ function SquadPostContent({
             origin={origin}
             post={post}
           >
-            <PostSourceInfo source={post.source} className="!typo-body" />
+            <PostSourceInfo
+              source={post.source}
+              className={classNames('!typo-body', customNavigation && 'mt-6')}
+            />
             {post.author && (
               <SquadPostAuthor
                 author={post.author}
                 role={role}
                 date={postDateFormat(post.createdAt)}
+                className={{ container: 'mt-3' }}
               />
             )}
             <Content post={post} onReadArticle={onReadArticle} />

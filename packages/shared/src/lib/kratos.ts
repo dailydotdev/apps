@@ -1,4 +1,4 @@
-import { MessageEventData } from '../hooks/useWindowEvents';
+import { MessageEventData } from '../hooks/useEventListener';
 import { authUrl, heimdallUrl } from './constants';
 
 export type EmptyObjectLiteral = Record<string, never | string>;
@@ -340,8 +340,11 @@ export const getKratosSession = async (): Promise<AuthSession> => {
   return res.json();
 };
 
-export const KRATOS_ERROR = {
+// https://github.com/ory/docs/blob/9b86ed78da2fad0eb8bfaebfcc1a81f70d55e675/docs/kratos/concepts/messages.json
+export const KRATOS_ERROR = Object.freeze<Record<string, number>>({
   INVALID_TOKEN: 4060004,
   EXISTING_USER: 4000007,
   SINGLE_OIDC: 4000001,
-};
+  NO_STRATEGY_TO_LOGIN: 4010002,
+  NO_STRATEGY_TO_SIGNUP: 4010003,
+});

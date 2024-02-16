@@ -7,7 +7,7 @@ import React, {
 import classNames from 'classnames';
 import classed, { ClassedHTML } from '../../lib/classed';
 import styles from './utilities.module.css';
-import ArrowIcon from '../icons/Arrow';
+import { ArrowIcon } from '../icons';
 import { Post, PostType, isSharedPostSquadPost } from '../../graphql/posts';
 
 export enum Theme {
@@ -234,3 +234,5 @@ export const formatReadTime = (minutes: number): string => {
     ? `${hours.toString()}h ${remainingMinutes.toString()}m`
     : `${remainingMinutes.toString()}m`;
 };
+
+export const lazyCommentThreshold = 5;

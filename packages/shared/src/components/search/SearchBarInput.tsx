@@ -17,14 +17,13 @@ import {
   RaisedLabelType,
 } from '../cards/RaisedLabel';
 import { BaseField, FieldInput } from '../fields/common';
-import { AiIcon } from '../icons';
+import { AiIcon, MiniCloseIcon as CloseIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { getFieldFontColor } from '../fields/BaseFieldContainer';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
-import CloseIcon from '../icons/MiniClose';
 import { useInputField } from '../../hooks/useInputField';
 import { SearchProgressBar } from './SearchProgressBar';
-import { SearchChunk } from '../../graphql/search';
+import { SearchChunk, SearchProviderEnum } from '../../graphql/search';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { SearchSubmitButton } from './SearchSubmitButton';
@@ -119,7 +118,10 @@ function SearchBarInputComponent(
       handleSubmit(event, finalValue);
       trackEvent({
         event_name: AnalyticsEvent.SubmitSearch,
-        extra: JSON.stringify({ query: finalValue }),
+        extra: JSON.stringify({
+          query: finalValue,
+          provider: SearchProviderEnum.Chat,
+        }),
       });
     }
 

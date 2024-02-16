@@ -54,6 +54,8 @@ export type FeedReturnType = {
   canFetchMore: boolean;
   emptyFeed: boolean;
   isLoading: boolean;
+  isFetching: boolean;
+  isInitialLoading: boolean;
 };
 
 const findIndexOfPostInData = (
@@ -229,5 +231,7 @@ export default function useFeed<T>(
     emptyFeed:
       !feedQuery?.data?.pages[0]?.page.edges.length && !feedQuery.isFetching,
     isLoading: feedQuery.isLoading,
+    isFetching: feedQuery.isFetching,
+    isInitialLoading: feedQuery.isInitialLoading,
   };
 }

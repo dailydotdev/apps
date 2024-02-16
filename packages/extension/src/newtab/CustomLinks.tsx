@@ -4,11 +4,12 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import MenuIcon from '@dailydotdev/shared/src/components/icons/Menu';
+import { MenuIcon } from '@dailydotdev/shared/src/components/icons';
 import classNames from 'classnames';
 import React, { MouseEventHandler, ReactElement } from 'react';
 import { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
 import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 
 interface CustomLinksProps extends WithClassNameProps {
   links: string[];
@@ -24,10 +25,17 @@ export function CustomLinks({
   className,
   onLinkClick = noop,
 }: CustomLinksProps): ReactElement {
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
+  const iconSize = Math.round(32 * pixelRatio);
+
   return (
     <div
       className={classNames(
-        'hidden h-fit flex-row gap-2 rounded-14 border border-theme-divider-secondary p-2 laptop:flex',
+        'hidden h-fit flex-row gap-2 rounded-14 border p-2',
+        shouldUseFeedLayoutV1
+          ? 'border-theme-divider-tertiary tablet:flex'
+          : 'border-theme-divider-secondary laptop:flex',
         className,
       )}
     >
@@ -45,7 +53,7 @@ export function CustomLinks({
           <img
             src={`https://api.daily.dev/icon?url=${encodeURIComponent(
               url,
-            )}&size=32`}
+            )}&size=${iconSize}`}
             alt={url}
             className="h-full w-full"
           />
@@ -54,7 +62,7 @@ export function CustomLinks({
       <SimpleTooltip placement="left" content="Edit shortcuts">
         <Button
           variant={ButtonVariant.Tertiary}
-          icon={<MenuIcon />}
+          icon={<MenuIcon className={shouldUseFeedLayoutV1 && 'rotate-90'} />}
           onClick={onOptions}
           size={ButtonSize.Small}
         />

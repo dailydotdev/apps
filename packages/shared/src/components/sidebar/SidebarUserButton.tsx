@@ -4,7 +4,6 @@ import { ProfilePicture } from '../ProfilePicture';
 import AuthContext from '../../contexts/AuthContext';
 import { SidebarUserButtonProps } from './common';
 import LoginButton from '../LoginButton';
-import { SearchReferralButton } from '../referral/SearchReferralButton';
 import ProfileButton from '../profile/ProfileButton';
 
 export function SidebarUserButton({
@@ -26,7 +25,6 @@ export function SidebarUserButton({
                   <ProfilePicture user={user} size="large" />
                   <span className="ml-2 mr-3">{user.reputation ?? 0}</span>
                 </ProfileLink>
-                <SearchReferralButton className="ml-3" />
                 <div className="flex-1" />
                 <ProfileButton settingsIconOnly />
               </div>
@@ -36,7 +34,7 @@ export function SidebarUserButton({
               </p>
             </>
           ) : (
-            <LoginButton />
+            <LoginButton className={{ container: 'gap-4' }} />
           )}
         </li>
       )}

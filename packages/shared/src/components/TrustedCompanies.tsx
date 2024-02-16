@@ -1,14 +1,16 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import AmazonIcon from './icons/Amazon';
-import AppleIcon from './icons/Apple';
-import MicrosoftIcon from './icons/Microsoft';
-import GitLabIcon from './icons/GitLab';
-import GoogleIcon from './icons/Google';
-import JetBrainsIcon from './icons/JetBrains';
-import DigitalOceanIcon from './icons/DigitalOcean';
-import RedisIcon from './icons/Redis';
-import SpotifyIcon from './icons/Spotify';
+import {
+  AmazonIcon,
+  AppleIcon,
+  MicrosoftIcon,
+  GitLabIcon,
+  GoogleIcon,
+  JetBrainsIcon,
+  DigitalOceanIcon,
+  RedisIcon,
+  SpotifyIcon,
+} from './icons';
 import { IconSize } from './Icon';
 
 export const TRUSTES_COMPANIES_MAP = {
@@ -70,7 +72,7 @@ const TrustedCompanies = ({
       )}
     >
       <p className="relative z-3 max-w-[15rem] text-center text-theme-label-quaternary typo-callout tablet:max-w-full tablet:flex-1">
-        Trusted by 300K+ developers from the world&apos;s leading companies
+        Trusted by 350K+ developers from the world&apos;s leading companies
       </p>
 
       <div className="talet:flex-1 relative z-3 flex flex-wrap items-start justify-center gap-2 laptop:gap-6">

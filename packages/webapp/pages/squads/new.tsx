@@ -9,7 +9,7 @@ import { SquadForm, createSquad } from '@dailydotdev/shared/src/graphql/squads';
 import { useBoot } from '@dailydotdev/shared/src/hooks/useBoot';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
-import SourceIcon from '@dailydotdev/shared/src/components/icons/Source';
+import { SourceIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   SquadTitle,
   SquadSubTitle,
@@ -77,7 +77,7 @@ const NewSquad = (): ReactElement => {
 
   return (
     <ManageSquadPageContainer>
-      <NextSeo {...seo} titleTemplate="%s | daily.dev" />
+      <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
       <ManageSquadPageMain>
         <div
           style={{

@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { SocialShareButton } from './SocialShareButton';
-import CopyIcon from '../icons/Copy';
 import {
   getEmailShareLink,
   getFacebookShareLink,
@@ -11,14 +10,17 @@ import {
   getWhatsappShareLink,
   ShareProvider,
 } from '../../lib/share';
-import TwitterIcon from '../icons/Twitter';
-import WhatsappIcon from '../icons/Whatsapp';
-import FacebookIcon from '../icons/Facebook';
-import RedditIcon from '../icons/Reddit';
-import LinkedInIcon from '../icons/LinkedIn';
-import TelegramIcon from '../icons/Telegram';
-import MailIcon from '../icons/Mail';
-import MenuIcon from '../icons/Menu';
+import {
+  MenuIcon,
+  MailIcon,
+  TelegramIcon,
+  LinkedInIcon,
+  RedditIcon,
+  FacebookIcon,
+  WhatsappIcon,
+  CopyIcon,
+  TwitterIcon,
+} from '../icons';
 import { IconSize } from '../Icon';
 import { ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 
@@ -107,7 +109,7 @@ export function SocialShareList({
         onClick={() => onClickSocial(ShareProvider.Email)}
         label="Email"
       />
-      {'share' in navigator && (
+      {'share' in globalThis?.navigator && (
         <SocialShareButton
           icon={<MenuIcon size={IconSize.Large} className="rotate-90" />}
           variant={ButtonVariant.Primary}

@@ -9,7 +9,6 @@ import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertCont
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
-import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import {
@@ -21,6 +20,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
@@ -61,23 +61,27 @@ export default function App({
     settings?.optOutCompanion,
   );
 
-  if (isOptOutCompanion) {
-    return <></>;
-  }
-  const refetchData = async () =>
-    browser.runtime.sendMessage({ type: ExtensionMessageType.ContentLoaded });
+  const refetchData = async () => {
+    if (isOptOutCompanion) {
+      return undefined;
+    }
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+    return browser.runtime.sendMessage({
+      type: ExtensionMessageType.ContentLoaded,
+    });
+  };
+
   useRefreshToken(token, refetchData);
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useWindowEvents('message', AuthEvent.Login, async (e) => {
+  useEventListener(globalThis, 'message', async (e) => {
     if (e.data?.eventKey === AuthEvent.Login) {
       await refetchData();
     }
   });
+
+  if (isOptOutCompanion) {
+    return <></>;
+  }
 
   return (
     <div>

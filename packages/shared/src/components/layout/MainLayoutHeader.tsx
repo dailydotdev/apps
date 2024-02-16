@@ -1,13 +1,14 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useContext } from 'react';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../../lib/analytics';
 import { webappUrl } from '../../lib/constants';
 import { Button, ButtonVariant } from '../buttons/ButtonV2';
-import BellIcon from '../icons/Bell';
-import HamburgerIcon from '../icons/Hamburger';
+import { BellIcon, HamburgerIcon } from '../icons';
 import LoginButton from '../LoginButton';
 import MobileHeaderRankProgress from '../MobileHeaderRankProgress';
 import {
@@ -19,13 +20,12 @@ import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { Bubble } from '../tooltips/utils';
 import HeaderLogo from './HeaderLogo';
 import { CreatePostButton } from '../post/write';
-import {
-  ReferralCampaignKey,
-  useReferralCampaign,
-  useViewSize,
-  ViewSize,
-} from '../../hooks';
-import { SearchReferralButton } from '../referral/SearchReferralButton';
+import { useViewSize, ViewSize } from '../../hooks';
+import { ReadingStreakButton } from '../streak/ReadingStreakButton';
+import { useReadingStreak } from '../../hooks/streaks';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { SearchExperiment } from '../../lib/featureValues';
 
 export interface MainLayoutHeaderProps {
   greeting?: boolean;
@@ -37,6 +37,13 @@ export interface MainLayoutHeaderProps {
   onMobileSidebarToggle: (state: boolean) => unknown;
 }
 
+const SearchPanel = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "searchPanel" */ '../search/SearchPanel/SearchPanel'
+    ),
+);
+
 function MainLayoutHeader({
   greeting,
   hasBanner,
@@ -46,11 +53,16 @@ function MainLayoutHeader({
   onLogoClick,
   onMobileSidebarToggle,
 }: MainLayoutHeaderProps): ReactElement {
+  const searchVersion = useFeature(feature.search);
+  const isSearchV1 = searchVersion === SearchExperiment.V1;
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
-  const hideButton = loadingUser;
+  const { streak, isEnabled, isLoading } = useReadingStreak();
+  const hideButton = loadingUser || (isEnabled && isLoading);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const router = useRouter();
+  const isSearchPage = !!router.pathname?.startsWith('/search');
 
   const headerButton = (() => {
     if (hideButton) {
@@ -61,7 +73,11 @@ function MainLayoutHeader({
       return <ProfileButton className="hidden laptop:flex" />;
     }
 
-    return <LoginButton className="hidden laptop:block" />;
+    return (
+      <LoginButton
+        className={{ container: 'gap-4', button: 'hidden laptop:block' }}
+      />
+    );
   })();
 
   const hasNotification = !!unreadCount;
@@ -73,27 +89,19 @@ function MainLayoutHeader({
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
   };
-  const { isReady } = useReferralCampaign({
-    campaignKey: ReferralCampaignKey.Search,
-  });
 
-  const renderButtons = () => {
+  const RenderButtons = () => {
     return (
-      <>
-        <CreatePostButton
-          className={classNames(
-            'mr-0 laptop:mr-3',
-            optOutWeeklyGoal ? 'tablet:mr-0' : 'tablet:mr-3',
-          )}
-        />
+      <div className="flex gap-3">
+        <CreatePostButton />
+        {streak && <ReadingStreakButton streak={streak} />}
         {!hideButton && user && (
           <>
-            {sidebarRendered && <SearchReferralButton className="mr-3" />}
             <LinkWithTooltip
               tooltip={{ placement: 'bottom', content: 'Notifications' }}
               href={`${webappUrl}notifications`}
             >
-              <div className="relative mr-3 hidden laptop:flex">
+              <div className="relative hidden laptop:flex">
                 <Button
                   variant={ButtonVariant.Float}
                   onClick={onNavigateNotifications}
@@ -121,15 +129,16 @@ function MainLayoutHeader({
         {!sidebarRendered && !optOutWeeklyGoal && !isMobile && (
           <MobileHeaderRankProgress />
         )}
-      </>
+      </div>
     );
   };
 
   return (
     <header
       className={classNames(
-        'relative z-header flex h-14 flex-row items-center justify-between border-b border-theme-divider-tertiary bg-theme-bg-primary px-4 py-3 tablet:px-8 laptop:sticky laptop:left-0 laptop:w-full laptop:flex-row laptop:px-4',
-        hasBanner ? 'laptop:top-8' : 'laptop:top-0',
+        'sticky z-header flex h-14 flex-row items-center justify-between gap-3 border-b border-theme-divider-tertiary bg-theme-bg-primary px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:flex-row laptop:px-4',
+        hasBanner ? 'top-8' : 'top-0',
+        isSearchPage && 'mb-16 laptop:mb-0',
       )}
     >
       {sidebarRendered !== undefined && (
@@ -140,14 +149,28 @@ function MainLayoutHeader({
             onClick={() => onMobileSidebarToggle(true)}
             icon={<HamburgerIcon secondary />}
           />
-          <div className="flex flex-1 flex-row justify-center laptop:justify-start">
+          <div className="flex flex-1 justify-center laptop:flex-none laptop:justify-start">
             <HeaderLogo
               user={user}
               onLogoClick={onLogoClick}
-              greeting={greeting}
+              // currently isSearchV1 we do not show greeting
+              greeting={isSearchV1 ? false : greeting}
             />
           </div>
-          {isReady ? renderButtons() : null}
+          {isSearchV1 && !!user && (
+            <SearchPanel
+              className={{
+                container: classNames(
+                  'mx-auto bg-theme-bg-primary py-3 laptop:bg-transparent',
+                  isSearchPage
+                    ? 'absolute left-0 right-0 top-14 laptop:relative laptop:top-0'
+                    : 'hidden laptop:flex',
+                ),
+                field: 'mx-2 laptop:mx-auto',
+              }}
+            />
+          )}
+          <RenderButtons />
         </>
       )}
     </header>

@@ -99,7 +99,7 @@ function EditPost(): ReactElement {
         enableUpload: true,
       }}
     >
-      <NextSeo {...seo} />
+      <NextSeo {...seo} noindex nofollow />
       <WritePage
         isLoading={!isReady || !isFetched || !isDraftReady}
         isForbidden={!isVerified || !squad || !canEdit}

@@ -7,19 +7,26 @@ import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import { Post, UserPostVote, isVideoPost } from '../graphql/posts';
-import TrashIcon from './icons/Trash';
-import HammerIcon from './icons/Hammer';
-import EyeIcon from './icons/Eye';
-import BlockIcon from './icons/Block';
-import FlagIcon from './icons/Flag';
+import {
+  TrashIcon,
+  HammerIcon,
+  EyeIcon,
+  BlockIcon,
+  FlagIcon,
+  BookmarkIcon,
+  PlusIcon,
+  EditIcon,
+  UpvoteIcon,
+  DownvoteIcon,
+  SendBackwardIcon,
+  BringForwardIcon,
+  PinIcon,
+} from './icons';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
-import {
-  ToastSubject,
-  useToastNotification,
-} from '../hooks/useToastNotification';
+import { ToastSubject, useFeedLayout, useToastNotification } from '../hooks';
 import {
   AllFeedPages,
   generateQueryKey,
@@ -27,25 +34,20 @@ import {
 } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { ShareBookmarkProps } from './post/PostActions';
-import BookmarkIcon from './icons/Bookmark';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
-import { PinIcon } from './icons';
 import { getPostByIdKey } from '../hooks/usePostById';
-import EditIcon from './icons/Edit';
-import UpvoteIcon from './icons/Upvote';
-import DownvoteIcon from './icons/Downvote';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { MenuItemProps } from './fields/PortalMenu';
-import SendBackwardIcon from './icons/SendBackward';
-import BringForwardIcon from './icons/BringForward';
 import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
 } from '../hooks/useBookmarkPost';
 import { useActiveFeedContext } from '../contexts';
 import { useAdvancedSettings } from '../hooks/feed';
+import { useFeature } from './GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -90,10 +92,9 @@ export default function PostOptionsMenu({
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
-  const { feedSettings, advancedSettings } = useFeedSettings({
-    enabled: isOpen,
-  });
-  const { onToggleSettings } = useAdvancedSettings({ enabled: false });
+  const { feedSettings, advancedSettings, checkSettingsEnabledState } =
+    useFeedSettings({ enabled: isOpen });
+  const { onUpdateSettings } = useAdvancedSettings({ enabled: false });
   const { trackEvent } = useContext(AnalyticsContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openModal } = useLazyModal();
@@ -232,9 +233,14 @@ export default function PostOptionsMenu({
   };
   const video = advancedSettings?.find(({ title }) => title === 'Videos');
   const onToggleVideo = async () => {
-    await onToggleSettings(video.id, true);
-    await showMessageAndRemovePost(`⛔️ Video content blocked`, postIndex, () =>
-      onToggleSettings(video.id, false),
+    const isEnabled = checkSettingsEnabledState(video?.id);
+    const icon = isEnabled ? '⛔️' : '✅';
+    const label = isEnabled ? 'blocked' : 'unblocked';
+    await onUpdateSettings(video.id, !isEnabled);
+    await showMessageAndRemovePost(
+      `${icon} Video content ${label}`,
+      postIndex,
+      () => onUpdateSettings(video.id, isEnabled),
     );
   };
 
@@ -270,7 +276,13 @@ export default function PostOptionsMenu({
       label: 'Hide',
       action: onHidePost,
     },
-    {
+  ];
+
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
+
+  if (!bookmarkOnCard && !shouldUseFeedLayoutV1) {
+    postOptions.push({
       icon: (
         <MenuIcon
           secondary={post?.bookmarked}
@@ -280,8 +292,11 @@ export default function PostOptionsMenu({
       ),
       label: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
       action: onToggleBookmark,
-    },
-    {
+    });
+  }
+
+  if (!shouldUseFeedLayoutV1) {
+    postOptions.push({
       icon: (
         <MenuIcon
           className={classNames(
@@ -294,29 +309,33 @@ export default function PostOptionsMenu({
       ),
       label: 'Downvote',
       action: onToggleDownvotePost,
-    },
-    {
-      icon: <MenuIcon Icon={BlockIcon} />,
-      label: isSourceBlocked
-        ? `Show posts from ${post?.source?.name}`
-        : `Don't show posts from ${post?.source?.name}`,
-      action: isSourceBlocked ? onUnblockSource : onBlockSource,
-    },
-  ];
+    });
+  }
+
+  postOptions.push({
+    icon: <MenuIcon Icon={BlockIcon} />,
+    label: isSourceBlocked
+      ? `Show posts from ${post?.source?.name}`
+      : `Don't show posts from ${post?.source?.name}`,
+    action: isSourceBlocked ? onUnblockSource : onBlockSource,
+  });
 
   if (video && isVideoPost(post)) {
+    const isEnabled = checkSettingsEnabledState(video.id);
+    const label = isEnabled ? `Don't show` : 'Show';
     postOptions.push({
-      icon: <MenuIcon Icon={BlockIcon} />,
-      label: `Don't show video content`,
+      icon: <MenuIcon Icon={isEnabled ? BlockIcon : PlusIcon} />,
+      label: `${label} video content`,
       action: onToggleVideo,
     });
   }
 
   post?.tags?.forEach((tag) => {
     if (tag.length) {
+      const isBlocked = feedSettings?.blockedTags?.includes(tag);
       postOptions.push({
-        icon: <MenuIcon Icon={BlockIcon} />,
-        label: `Not interested in #${tag}`,
+        icon: <MenuIcon Icon={isBlocked ? PlusIcon : BlockIcon} />,
+        label: isBlocked ? `Follow #${tag}` : `Not interested in #${tag}`,
         action: () => onBlockTag(tag),
       });
     }

@@ -21,6 +21,7 @@ import {
   VariantColorToClassName,
   VariantToClassName,
 } from './common';
+import { isNullOrUndefined } from '../../lib/func';
 
 export type IconType = React.ReactElement<IconProps>;
 
@@ -76,7 +77,7 @@ function ButtonComponent<TagName extends AllowedTags>(
   }: ButtonProps<TagName>,
   ref?: Ref<ButtonElementType<TagName>>,
 ): ReactElement {
-  const iconOnly = icon && !children;
+  const iconOnly = icon && isNullOrUndefined(children);
   const getIconWithSize = useGetIconWithSize(size, iconOnly, iconPosition);
   const isAnchor = Tag === 'a';
 
@@ -107,7 +108,10 @@ function ButtonComponent<TagName extends AllowedTags>(
         iconPosition === ButtonIconPosition.Right &&
         getIconWithSize(icon)}
       {loading && (
-        <Loader data-testid="buttonLoader" className="absolute m-auto" />
+        <Loader
+          data-testid="buttonLoader"
+          className="btn-loader absolute m-auto"
+        />
       )}
     </Tag>
   );

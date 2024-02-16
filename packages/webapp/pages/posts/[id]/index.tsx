@@ -2,7 +2,6 @@ import React, {
   CSSProperties,
   ReactElement,
   ReactNode,
-  useCallback,
   useContext,
   useState,
 } from 'react';
@@ -34,7 +33,6 @@ import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOf
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
 import SquadPostPageNavigation from '@dailydotdev/shared/src/components/post/SquadPostPageNavigation';
-import useWindowEvents from '@dailydotdev/shared/src/hooks/useWindowEvents';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { ONBOARDING_OFFSET } from '@dailydotdev/shared/src/components/post/BasePostContent';
@@ -43,7 +41,7 @@ import { ModalSize } from '@dailydotdev/shared/src/components/modals/common/type
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
-import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Link from 'next/link';
 import { CollectionPostContent } from '@dailydotdev/shared/src/components/post/collection';
@@ -51,6 +49,13 @@ import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvide
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { FeedLayout } from '@dailydotdev/shared/src/lib/featureValues';
 import { PostBackButton } from '@dailydotdev/shared/src/components/post/common/PostBackButton';
+import {
+  AuthenticationBanner,
+  authGradientBg,
+} from '@dailydotdev/shared/src/components/auth';
+import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth/useOnboarding';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import LoginButton from '@dailydotdev/shared/src/components/LoginButton';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -85,8 +90,6 @@ interface PostParams extends ParsedUrlQuery {
   id: string;
 }
 
-const CHECK_POPSTATE = 'popstate_key';
-
 const PostPage = ({ id, initialData }: Props): ReactElement => {
   const { showArticleOnboarding } = useContext(OnboardingContext);
   const [position, setPosition] =
@@ -95,21 +98,14 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const layout = useFeature(feature.feedLayout);
   const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = router;
-  useWindowEvents(
-    'popstate',
-    CHECK_POPSTATE,
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    useCallback(() => router.reload(), []),
-    { validateKey: false },
-  );
-
+  const { shouldShowAuthBanner } = useOnboarding();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const { post, isError, isFetched, isPostLoadingOrFetching } = usePostById({
     id,
     options: { initialData, retry: false },
   });
   const containerClass = classNames(
-    'max-w-screen-laptop border-r pb-20 laptop:min-h-page laptop:pb-6 laptopL:pb-0',
+    'max-w-screen-laptop pb-20 laptop:min-h-page laptop:pb-6 laptopL:pb-0',
     [PostType.Share, PostType.Welcome, PostType.Freeform].includes(
       post?.type,
     ) &&
@@ -195,7 +191,8 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   if (!Content || isError) {
     return <Custom404 />;
   }
-  return (
+
+  return getMainLayout(
     <>
       <Head>
         <link rel="preload" as="image" href={post?.image} />
@@ -210,6 +207,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
         shouldOnboardAuthor={!!router.query?.author}
         enableShowShareNewComment={!!router?.query.new}
         origin={Origin.ArticlePage}
+        isBannerVisible={shouldShowAuthBanner && !isLaptop}
         className={{
           container: containerClass,
           fixedNavigation: { container: 'flex laptop:hidden' },
@@ -220,12 +218,25 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
           content: 'pt-8',
         }}
       />
-    </>
-  );
+      {shouldShowAuthBanner && isLaptop && <AuthenticationBanner />}
+    </>,
+    {},
+    {
+      screenCentered: false,
+      customBanner: shouldShowAuthBanner && !isLaptop && (
+        <LoginButton
+          className={{
+            container: classNames(
+              authGradientBg,
+              'sticky left-0 top-0 z-max w-full justify-center gap-2 border-b border-theme-color-cabbage px-4 py-2',
+            ),
+            button: 'flex-1 tablet:max-w-[9rem]',
+          }}
+        />
+      ),
+    },
+  ) as ReactElement;
 };
-
-PostPage.getLayout = getMainLayout;
-PostPage.layoutProps = { screenCentered: false };
 
 export default PostPage;
 

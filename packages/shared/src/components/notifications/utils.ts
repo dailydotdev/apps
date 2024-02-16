@@ -1,14 +1,18 @@
 import { ComponentType } from 'react';
 import classed from '../../lib/classed';
 import { IconProps } from '../Icon';
-import BellIcon from '../icons/Bell';
-import CommunityPicksIcon from '../icons/CommunityPicksIcon';
-import DailyIcon from '../icons/DailyIcon';
-import DiscussIcon from '../icons/Discuss';
-import EyeIcon from '../icons/Eye';
-import UpvoteIcon from '../icons/Upvote';
-import BlockIcon from '../icons/Block';
-import { UserIcon, StarIcon } from '../icons';
+import {
+  BellIcon,
+  CommunityPicksIcon,
+  DailyIcon,
+  DiscussIcon,
+  EyeIcon,
+  UpvoteIcon,
+  BlockIcon,
+  UserIcon,
+  StarIcon,
+  DevCardIcon,
+} from '../icons';
 
 export const NotifContainer = classed(
   'div',
@@ -53,6 +57,7 @@ export enum NotificationIconType {
   Block = 'Block',
   User = 'User',
   Star = 'Star',
+  DevCard = 'DevCard',
 }
 
 export const notificationIcon: Record<
@@ -68,6 +73,7 @@ export const notificationIcon: Record<
   [NotificationIconType.Block]: BlockIcon,
   [NotificationIconType.User]: UserIcon,
   [NotificationIconType.Star]: StarIcon,
+  [NotificationIconType.DevCard]: DevCardIcon,
 };
 
 export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
@@ -80,6 +86,7 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.Star]: '',
   [NotificationIconType.Block]: '',
   [NotificationIconType.User]: '',
+  [NotificationIconType.DevCard]: '',
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =

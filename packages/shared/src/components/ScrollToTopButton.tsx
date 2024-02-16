@@ -5,7 +5,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from './buttons/ButtonV2';
-import ArrowIcon from './icons/Arrow';
+import { ArrowIcon } from './icons';
 
 const baseStyle: CSSProperties = {
   transition: 'transform 0.1s ease-out, opacity 0.1s ease-out',
@@ -39,7 +39,7 @@ export default function ScrollToTopButton(): ReactElement {
       <Button
         aria-label="scroll to top"
         {...props}
-        className="fixed bottom-18 right-4 z-2 laptop:hidden"
+        className="absolute -top-18 right-4 z-2 laptop:hidden"
         size={ButtonSize.Large}
         variant={ButtonVariant.Primary}
         style={style}
@@ -47,7 +47,7 @@ export default function ScrollToTopButton(): ReactElement {
       <Button
         aria-label="scroll to top"
         {...props}
-        className="fixed bottom-8 right-8 z-2 hidden laptop:flex"
+        className="absolute -top-24 right-8 z-2 hidden laptop:flex"
         variant={ButtonVariant.Primary}
         size={ButtonSize.XLarge}
         style={style}

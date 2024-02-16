@@ -3,8 +3,9 @@ import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
-import { getLayout } from './MainLayout';
+import { getLayout as getMainLayout } from './MainLayout';
 import { getMainFeedLayout, mainFeedLayoutProps } from './MainFeedPage';
+import { getLayout as getFooterNavBarLayout } from './FooterNavBarLayout';
 
 const props: Record<SearchExperiment, Record<string, unknown>> = {
   control: { ...mainFeedLayoutProps },
@@ -20,7 +21,7 @@ export const GetSearchLayout = (
   const finalProps = { ...props[searchVersion], ...layoutProps };
 
   if (searchVersion === SearchExperiment.V1) {
-    return getLayout(page, pageProps, finalProps);
+    return getFooterNavBarLayout(getMainLayout(page, pageProps, finalProps));
   }
 
   return getMainFeedLayout(page, pageProps, finalProps);

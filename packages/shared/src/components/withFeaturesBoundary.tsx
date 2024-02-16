@@ -1,10 +1,27 @@
-import React, { ComponentType, ReactElement, useContext } from 'react';
+import React, {
+  ComponentType,
+  ReactElement,
+  ReactNode,
+  useContext,
+} from 'react';
 import { FeaturesReadyContext } from './GrowthBookProvider';
 
-const withFeaturesBoundary = <Props,>(
-  WrappedComponent: ComponentType<Props>,
+export type WrappedComponentType<
+  Props,
+  LayoutProps = unknown,
+> = ComponentType<Props> & {
+  getLayout?: (
+    page: ReactElement,
+    pageProps?: Props,
+    layoutProps?: LayoutProps,
+  ) => ReactNode;
+  layoutProps?: LayoutProps;
+};
+
+const withFeaturesBoundary = <Props, LayoutProps = unknown>(
+  WrappedComponent: WrappedComponentType<Props, LayoutProps>,
   options?: { fallback?: ReactElement },
-): ComponentType<Props> => {
+): WrappedComponentType<Props, LayoutProps> => {
   const WithFeaturesBoundary = (props: Props): ReactElement => {
     const { ready: areFeaturesReady } = useContext(FeaturesReadyContext);
 
@@ -16,6 +33,14 @@ const withFeaturesBoundary = <Props,>(
   };
 
   WithFeaturesBoundary.displayName = 'WithFeaturesBoundary';
+
+  if (WrappedComponent.getLayout) {
+    WithFeaturesBoundary.getLayout = WrappedComponent.getLayout;
+  }
+
+  if (WrappedComponent.layoutProps) {
+    WithFeaturesBoundary.layoutProps = WrappedComponent.layoutProps;
+  }
 
   return WithFeaturesBoundary;
 };

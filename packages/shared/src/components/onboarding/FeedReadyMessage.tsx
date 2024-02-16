@@ -4,7 +4,11 @@ import { ProfilePicture } from '../ProfilePicture';
 import AuthContext from '../../contexts/AuthContext';
 
 export type FeedReadyMessageProps = {
-  className?: string;
+  className?: {
+    main?: string;
+    textContainer?: string;
+    header?: string;
+  };
 };
 
 export const FeedReadyMessage = ({
@@ -15,17 +19,15 @@ export const FeedReadyMessage = ({
   return (
     <div
       className={classNames(
-        'mx-auto flex w-full max-w-xl flex-col items-center text-center laptop:mx-0 laptop:flex-row laptop:text-left',
-        className,
+        'mx-auto flex w-full flex-col items-center gap-5 text-center laptop:mx-0 laptop:flex-row laptop:text-left',
+        className.main,
       )}
     >
-      <ProfilePicture
-        className="mb-5 laptop:mb-0 laptop:mr-6"
-        user={user}
-        size="xxxlarge"
-      />
-      <div className="flex w-full flex-col">
-        <p className="mb-2 font-bold typo-large-title laptop:mb-1">
+      <ProfilePicture user={user} size="xxxlarge" />
+      <div className={classNames('w-full', className.textContainer)}>
+        <p
+          className={classNames('font-bold typo-large-title', className.header)}
+        >
           Your feed is ready
         </p>
         <p className="flex text-theme-label-tertiary typo-callout">

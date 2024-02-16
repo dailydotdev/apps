@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { ownershipGuide } from '../../lib/constants';
-import FeatherIcon from '../icons/Feather';
+import { FeatherIcon } from '../icons';
 import styles from './AuthorOnboarding.module.css';
 import { IconSize } from '../Icon';
 import { Button, ButtonVariant } from '../buttons/ButtonV2';

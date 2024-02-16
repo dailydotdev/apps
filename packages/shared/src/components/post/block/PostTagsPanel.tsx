@@ -112,6 +112,7 @@ export function PostTagsPanel({
             variant={tags[tag] ? ButtonVariant.Primary : ButtonVariant.Float}
             action={() => setTags({ ...tags, [tag]: !tags[tag] })}
             tagItem={tag}
+            data-testid="blockTagButton"
           />
         ))}
       </span>

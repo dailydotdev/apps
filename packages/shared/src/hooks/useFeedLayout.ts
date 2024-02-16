@@ -1,10 +1,8 @@
 import { useMemo } from 'react';
-import { useFeature } from '../components/GrowthBookProvider';
-import { feature } from '../lib/featureManagement';
-import { FeedLayout } from '../lib/featureValues';
 import { SharedFeedPage } from '../components/utilities';
 import { useActiveFeedContext } from '../contexts';
 import { AllFeedPages } from '../lib/query';
+import { useFeatureFeedLayoutV1 } from './useFeatureFeedLayoutV1';
 
 interface UseFeedLayoutProps {
   feedName?: AllFeedPages;
@@ -14,18 +12,21 @@ interface UseFeedLayout {
   shouldUseFeedLayoutV1: boolean;
 }
 
+export const FeedLayoutV1FeedPages = new Set(
+  Object.values(SharedFeedPage).filter(
+    (feedPage) => feedPage !== SharedFeedPage.Search,
+  ),
+);
+
 const checkShouldUseFeedLayoutV1 = (feedName: SharedFeedPage): boolean =>
-  Object.values(SharedFeedPage)
-    .filter((feedPage) => feedPage !== SharedFeedPage.Search)
-    .includes(feedName) && feedName !== SharedFeedPage.Search;
+  FeedLayoutV1FeedPages.has(feedName) && feedName !== SharedFeedPage.Search;
 
 export const useFeedLayout = ({
   feedName: feedNameProp,
 }: UseFeedLayoutProps = {}): UseFeedLayout => {
   const { feedName } = useActiveFeedContext();
   const name = (feedNameProp ?? feedName) as SharedFeedPage;
-  const feedLayoutVersion = useFeature(feature.feedLayout);
-  const isV1 = feedLayoutVersion === FeedLayout.V1;
+  const isV1 = useFeatureFeedLayoutV1();
   const isIncludedFeed = useMemo(
     () => checkShouldUseFeedLayoutV1(name),
     [name],

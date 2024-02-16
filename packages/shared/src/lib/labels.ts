@@ -4,6 +4,7 @@ export const labels = {
   },
   error: {
     generic: '🚫 Something went wrong, please try again.',
+    rateLimit: '⌛️ Rate limit exceeded, please try again later.',
   },
   squads: {
     forbidden: '🚫 You no longer have access to this Squad.',
@@ -28,6 +29,12 @@ export const labels = {
   referral: {
     generic: {
       inviteText: `I'm using daily.dev to stay updated on developer news. I think you will find it helpful:`,
+    },
+  },
+  devcard: {
+    generic: {
+      shareText: `Check out my #DevCard by @dailydotdev! Flex yours (if it's flex worthy)`,
+      emailTitle: 'Checkout my devcard from daily.dev!',
     },
   },
 };

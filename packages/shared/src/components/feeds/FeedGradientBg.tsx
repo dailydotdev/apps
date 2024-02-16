@@ -1,30 +1,25 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { useFeedLayout } from '../../hooks';
-import { cloudinary } from '../../lib/image';
 
-export function FeedGradientBg(): ReactElement {
-  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+const centered = 'left-1/2 -translate-x-1/2';
 
+export type FeedGradientBgProps = {
+  className?: string;
+};
+
+export function FeedGradientBg({
+  className,
+}: FeedGradientBgProps): ReactElement {
   return (
-    <picture>
-      <source media="(min-width: 1020px)" srcSet={cloudinary.feed.bg.laptop} />
-      <source
-        media="(min-width: 656px)"
-        srcSet={
-          shouldUseFeedLayoutV1
-            ? cloudinary.feed.bg.laptop
-            : cloudinary.feed.bg.tablet
-        }
-      />
-      <img
-        className={classNames(
-          'absolute left-0 top-0 w-full laptop:max-w-[58.75rem]',
-          shouldUseFeedLayoutV1 && 'laptop:left-1/2 laptop:-translate-x-1/2',
-        )}
-        src={cloudinary.feed.bg.mobile}
-        alt="Gradient background"
-      />
-    </picture>
+    <div
+      className={classNames(
+        className,
+        'absolute -top-40 flex max-w-full flex-row-reverse justify-center',
+        centered,
+      )}
+    >
+      <span className="h-40 w-60 -translate-x-6 rounded-[50%] bg-theme-color-onion blur-[5rem] laptop:w-70" />
+      <span className="size-40 translate-x-6 rounded-full bg-theme-color-cabbage blur-[5rem]" />
+    </div>
   );
 }

@@ -1,17 +1,19 @@
 import React, { ReactElement, useContext } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import { Post } from '../graphql/posts';
-import ShareIcon from './icons/Share';
+import { ShareIcon, BookmarkIcon, LinkIcon } from './icons';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import { ShareBookmarkProps } from './post/PostActions';
-import BookmarkIcon from './icons/Bookmark';
 import { Origin } from '../lib/analytics';
 import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
-import LinkIcon from './icons/Link';
+import { useFeature } from './GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
+import { useFeedLayout } from '../hooks';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -53,13 +55,20 @@ export default function ShareOptionsMenu({
     copyLink();
     onClick(ShareProvider.CopyLink);
   };
+
+  const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
+  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+
   const shareOptions: ShareOption[] = [
     {
       icon: <MenuIcon Icon={ShareIcon} />,
       text: 'Share post via...',
       action: () => onShare(post),
     },
-    {
+  ];
+
+  if (!bookmarkOnCard && !shouldUseFeedLayoutV1) {
+    shareOptions.push({
       icon: (
         <MenuIcon
           secondary={post?.bookmarked}
@@ -69,19 +78,20 @@ export default function ShareOptionsMenu({
       ),
       text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
       action: onBookmark,
-    },
-    {
-      icon: <MenuIcon Icon={LinkIcon} />,
-      text: 'Copy link to post',
-      action: trackAndCopyLink,
-    },
-  ];
+    });
+  }
+
+  shareOptions.push({
+    icon: <MenuIcon Icon={LinkIcon} />,
+    text: 'Copy link to post',
+    action: trackAndCopyLink,
+  });
 
   return (
     <PortalMenu
       disableBoundariesCheck
       id={contextId}
-      className="menu-primary"
+      className={classNames('menu-primary', shouldUseFeedLayoutV1 && 'left-0')}
       animation="fade"
       onHidden={onHidden}
     >

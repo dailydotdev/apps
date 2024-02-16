@@ -68,6 +68,10 @@ module.exports = {
             avocado: 'var(--theme-overlay-float-avocado)',
             ketchup: 'var(--theme-overlay-float-ketchup)',
           },
+          active: {
+            cabbage: 'var(--theme-overlay-active-cabbage)',
+            onion: 'var(--theme-overlay-active-onion)',
+          },
         },
         gradient: {
           cabbage: 'var(--theme-gradient-cabbage)',
@@ -127,13 +131,14 @@ module.exports = {
       1: '1',
       2: '2',
       3: '3',
-      rank: '3',
-      header: '4',
-      sidebar: '7',
-      tooltip: '8',
-      popup: '9',
-      modal: '10',
-      max: '100',
+      rank: '30',
+      header: '75',
+      postNavigation: '76',
+      sidebar: '70',
+      tooltip: '80',
+      popup: '90',
+      modal: '100',
+      max: '1000',
       '-1': '-1',
     },
     fontFamily: {
@@ -154,6 +159,8 @@ module.exports = {
     },
     screens: {
       mobileL: '420px',
+      mobileXL: '500px',
+      mobileXXL: '550px',
       tablet: '656px',
       laptop: '1020px',
       laptopL: '1360px',
@@ -168,12 +175,12 @@ module.exports = {
         'img-desktop': '400px',
         'img-mobile': '280px',
         'rank-modal': 'calc(100vh - 5rem)',
-        page: 'calc(100vh - 3.5rem)',
+        page: 'calc(100vh - 4rem)',
         commentBox: '18.25rem',
         card: '24rem',
       },
       minHeight: {
-        page: 'calc(100vh - 3.5rem)',
+        page: 'calc(100vh - 4rem)',
         card: '24rem',
       },
       gap: {
@@ -188,9 +195,14 @@ module.exports = {
         12: '0.75rem',
         14: '0.875rem',
         16: '1rem',
+        18: '1.125rem',
         22: '1.375rem',
         24: '1.5rem',
         26: '1.625rem',
+        32: '2rem',
+        40: '2.5rem',
+        48: '3rem',
+        50: '3.125rem',
       },
       opacity: {
         24: '0.24',
@@ -206,6 +218,7 @@ module.exports = {
       spacing: {
         18: '4.5rem',
         22: '5.5rem',
+        26: '6.5rem',
         70: '17.5rem',
       },
       maxWidth: {
@@ -217,6 +230,10 @@ module.exports = {
       height: {
         logo: '1.125rem',
         'logo-big': '2.0625rem',
+        50: '12.5rem',
+      },
+      blur: {
+        20: '1.25rem',
       },
     },
     lineClamp: {

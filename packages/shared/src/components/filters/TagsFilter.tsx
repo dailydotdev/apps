@@ -16,7 +16,7 @@ import useTagAndSource, {
   TagActionArguments,
 } from '../../hooks/useTagAndSource';
 import { FilterMenuProps } from './common';
-import MenuIcon from '../icons/Menu';
+import { MenuIcon } from '../icons';
 import AuthContext from '../../contexts/AuthContext';
 import classed from '../../lib/classed';
 import { HTMLElementComponent } from '../utilities';

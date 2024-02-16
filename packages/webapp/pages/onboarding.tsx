@@ -29,7 +29,6 @@ import {
 } from '@dailydotdev/shared/src/lib/analytics';
 import {
   OnboardingStep,
-  OnboardingTitleGradient,
   REQUIRED_TAGS_THRESHOLD,
   wrapperMaxWidth,
 } from '@dailydotdev/shared/src/components/onboarding/common';
@@ -41,7 +40,10 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import {
+  useFeature,
+  useGrowthBookContext,
+} from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanies';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
@@ -51,7 +53,13 @@ import Feed from '@dailydotdev/shared/src/components/Feed';
 import { OtherFeedPage, RequestKey } from '@dailydotdev/shared/src/lib/query';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  GtagTracking,
+  PixelTracking,
+} from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import GenericFeedItemComponent from '@dailydotdev/shared/src/components/feed/feedItemComponent/GenericFeedItemComponent';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
@@ -89,6 +97,16 @@ export function OnboardPage(): ReactElement {
   const { isAuthenticating, isLoginFlow, email, defaultDisplay } = auth;
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
+  type OnboardingVisual = {
+    showCompanies?: boolean;
+    image?: string;
+    poster?: string;
+    webm?: string;
+    mp4?: string;
+  };
+  const onboardingVisual: OnboardingVisual = useFeature(
+    feature.onboardingVisual,
+  );
   const targetId = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
 
@@ -172,12 +190,14 @@ export function OnboardPage(): ReactElement {
     return (
       <AuthOptions
         simplified
-        className={classNames(
-          'w-full rounded-none',
-          maxAuthWidth,
-          isAuthenticating && 'h-full',
-          !isAuthenticating && 'max-w-full',
-        )}
+        className={{
+          container: classNames(
+            'w-full rounded-none',
+            maxAuthWidth,
+            isAuthenticating && 'h-full',
+            !isAuthenticating && 'max-w-full',
+          ),
+        }}
         trigger={AuthTriggers.Onboarding}
         formRef={formRef}
         defaultDisplay={defaultDisplay}
@@ -276,7 +296,7 @@ export function OnboardPage(): ReactElement {
         {!isFiltering && (
           <div className="hidden flex-1 tablet:block">
             <div className={classNames('relative', styles.videoWrapper)}>
-              {
+              {onboardingVisual?.poster ? (
                 // eslint-disable-next-line jsx-a11y/media-has-caption
                 <video
                   loop
@@ -286,21 +306,23 @@ export function OnboardPage(): ReactElement {
                     'absolute -top-[20%] left-0 -z-1 tablet:top-0',
                     styles.video,
                   )}
-                  poster={cloudinary.onboarding.video.poster}
+                  poster={onboardingVisual.poster}
                 >
-                  <source
-                    src={cloudinary.onboarding.video.webm}
-                    type="video/webm"
-                  />
-                  <source
-                    src={cloudinary.onboarding.video.mp4}
-                    type="video/mp4"
-                  />
+                  <source src={onboardingVisual.webm} type="video/webm" />
+                  <source src={onboardingVisual.mp4} type="video/mp4" />
                 </video>
-              }
+              ) : (
+                <img
+                  src={onboardingVisual.image}
+                  alt="Onboarding cover"
+                  className={classNames(
+                    'absolute -top-[20%] left-0 -z-1 tablet:top-0',
+                    styles.video,
+                  )}
+                />
+              )}
             </div>
-
-            <TrustedCompanies />
+            {onboardingVisual.showCompanies && <TrustedCompanies />}
           </div>
         )}
       </div>
@@ -335,6 +357,8 @@ export function OnboardPage(): ReactElement {
     // eslint-disable-next-line @dailydotdev/daily-dev-eslint-rules/no-custom-color
     <Container className="bg-[#0e1019]">
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
+      <PixelTracking />
+      <GtagTracking />
       {getProgressBar()}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
@@ -346,7 +370,7 @@ export function OnboardPage(): ReactElement {
         className={classNames(
           'flex w-full flex-grow flex-wrap justify-center px-6 tablet:gap-10',
           !isFiltering && wrapperMaxWidth,
-          !isAuthenticating && 'mt-8 flex-1 content-center',
+          !isAuthenticating && 'mt-7.5 flex-1 content-center',
         )}
       >
         {showOnboardingPage && (
@@ -355,16 +379,12 @@ export function OnboardPage(): ReactElement {
               'flex flex-1 flex-col laptop:mr-8 laptop:max-w-[27.5rem]',
             )}
           >
-            <OnboardingTitleGradient className="mb-4 typo-large-title tablet:typo-mega1">
-              Where developers suffer together
-            </OnboardingTitleGradient>
-
-            <h2 className="mb-8 typo-body tablet:typo-title2">
-              We know how hard it is to be a developer. It doesn&apos;t have to
-              be. Personalized news feed, dev community and search, much better
-              than what&apos;s out there. Maybe ;)
-            </h2>
-
+            <OnboardingHeadline
+              className={{
+                title: 'typo-large-title tablet:typo-mega1',
+                description: 'typo-body tablet:typo-title2',
+              }}
+            />
             {getAuthOptions()}
           </div>
         )}

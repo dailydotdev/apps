@@ -3,9 +3,7 @@ import { QueryKey, useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { WidgetContainer } from '../widgets/common';
 import LogoIcon from '../../svg/LogoIcon';
-import UpvoteIcon from '../icons/Upvote';
-import DownvoteIcon from '../icons/Downvote';
-import CopyIcon from '../icons/Copy';
+import { UpvoteIcon, DownvoteIcon, CopyIcon } from '../icons';
 import { SearchMessage, SearchMessageProps } from './SearchMessage';
 import {
   Search,
@@ -14,7 +12,7 @@ import {
   updateSearchData,
 } from '../../graphql/search';
 import { useCopyText } from '../../hooks/useCopy';
-import { useToastNotification } from '../../hooks/useToastNotification';
+import { useToastNotification } from '../../hooks';
 import { labels } from '../../lib';
 import { Pill } from '../utilities/loaders';
 import { WithClassNameProps } from '../utilities';
@@ -102,6 +100,11 @@ export function SearchResult({
       <Container className={classNames('flex-col gap-2 p-6', className)}>
         <ContentPill />
         <ContentPill />
+        <ContentPill />
+        <ContentPill />
+        <ContentPill />
+        <ContentPill />
+        <ContentPill className="!w-5/6" />
         <ContentPill className="!w-5/6" />
         <ContentPill className="!w-1/2" />
       </Container>
