@@ -21,6 +21,11 @@ export enum ReadingStreaksExperiment {
   V1 = 'v1',
 }
 
+export enum PostPageOnboarding {
+  Control = 'control',
+  V1 = 'v1',
+}
+
 export enum OnboardingV4dot5 {
   Control = 'control',
   V4dot5 = 'v4dot5',

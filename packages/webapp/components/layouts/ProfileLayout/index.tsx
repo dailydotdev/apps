@@ -29,6 +29,7 @@ const Custom404 = dynamic(
 );
 
 export interface ProfileLayoutProps extends Partial<ProfileV2> {
+  noindex: boolean;
   children?: ReactNode;
 }
 
@@ -36,6 +37,7 @@ export default function ProfileLayout({
   user: initialUser,
   userStats,
   sources,
+  noindex,
   children,
 }: ProfileLayoutProps): ReactElement {
   const router = useRouter();
@@ -68,6 +70,8 @@ export default function ProfileLayout({
     twitter: {
       handle: user.twitter,
     },
+    noindex,
+    nofollow: noindex,
   };
 
   return (
@@ -127,7 +131,7 @@ export async function getStaticProps({
     const user = await getProfileSSR(userId);
     if (!user) {
       return {
-        props: {},
+        props: { noindex: true },
         revalidate: 60,
       };
     }
@@ -137,6 +141,7 @@ export async function getStaticProps({
       props: {
         user,
         ...data,
+        noindex: user.reputation <= 10,
       },
       revalidate: 60,
     };
@@ -144,7 +149,7 @@ export async function getStaticProps({
     const clientError = err as ClientError;
     if (clientError?.response?.errors?.[0]?.extensions?.code === 'FORBIDDEN') {
       return {
-        props: {},
+        props: { noindex: true },
         revalidate: 60,
       };
     }

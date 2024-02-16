@@ -28,6 +28,7 @@ const overlay = {
   secondary: '66',
   tertiary: '52',
   quaternary: '3D',
+  active: '29',
   float: '14',
 };
 

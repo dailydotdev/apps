@@ -45,11 +45,16 @@ export interface PostNavigationProps extends PostActions {
   onNextPost?: () => unknown;
   className?: PostNavigationClassName;
   children?: ReactNode;
+  isBannerVisible?: boolean;
 }
 
 export type PassedPostNavigationProps = Pick<
   PostNavigationProps,
-  'onNextPost' | 'onPreviousPost' | 'postPosition' | 'onRemovePost'
+  | 'onNextPost'
+  | 'onPreviousPost'
+  | 'postPosition'
+  | 'onRemovePost'
+  | 'isBannerVisible'
 >;
 
 export interface PostHeaderActionsProps extends ShareBookmarkProps {
