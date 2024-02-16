@@ -7,17 +7,20 @@ import React, {
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { Spaciness } from '../../graphql/settings';
-import SettingsContext from '../../contexts/SettingsContext';
+import SettingsContext, {
+  useSettingsContext,
+} from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
 import styles from '../Feed.module.css';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import { SearchExperiment } from '../../lib/featureValues';
+import { OnboardingV4dot5, SearchExperiment } from '../../lib/featureValues';
 import { FeedReadyMessage } from '../onboarding';
 import { useFeedLayout, ToastSubject, useToastNotification } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
+import { FeedGradientBg } from './FeedGradientBg';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -107,10 +110,13 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const { sidebarExpanded } = useSettingsContext();
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
   const searchValue = useFeature(feature.search);
+  const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
+  const isOnboardingV4dot5 = onboardingV4dot5 === OnboardingV4dot5.V4dot5;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
   const isList = (insaneMode && numCards > 1) || shouldUseFeedLayoutV1;
@@ -130,7 +136,6 @@ export const FeedContainer = ({
   }
 
   const showFeedReadyMessage = router.query?.welcome === 'true';
-
   return (
     <div
       className={classNames(
@@ -140,7 +145,7 @@ export const FeedContainer = ({
       )}
     >
       <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
-        {!inlineHeader && header}
+        {!inlineHeader && !isOnboardingV4dot5 && header}
         <div
           className={classNames(
             'relative mx-auto w-full',
@@ -164,7 +169,15 @@ export const FeedContainer = ({
               }}
             />
           )}
-          {inlineHeader && header}
+          {(inlineHeader || isOnboardingV4dot5) && header}
+          {isOnboardingV4dot5 && (
+            <FeedGradientBg
+              className={classNames(
+                'left-1/2 -z-1 ',
+                sidebarExpanded ? 'laptop:!left-60' : 'laptop:!left-11',
+              )}
+            />
+          )}
           {isV1Search && !shouldUseFeedLayoutV1 && (
             <span className="flex flex-1 flex-row items-center">
               {!!actionButtons && (
