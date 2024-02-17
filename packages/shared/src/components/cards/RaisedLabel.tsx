@@ -50,8 +50,8 @@ export function RaisedLabel({
             styles.flag,
             typeToClassName[type],
             listMode
-              ? 'h-5 w-full justify-center rounded-l mouse:translate-x-9'
-              : 'h-full flex-col rounded-t mouse:translate-y-4',
+              ? 'h-5 w-full justify-center rounded-l-4 mouse:translate-x-9'
+              : 'h-full flex-col rounded-t-4 mouse:translate-y-4',
           )}
         >
           <span className="font-bold uppercase text-white typo-caption2">

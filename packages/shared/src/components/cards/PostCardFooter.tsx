@@ -56,7 +56,7 @@ export const PostCardFooter = ({
       {showImage && post.author && (
         <div
           className={classNames(
-            'absolute z-1 mt-2 flex w-full items-center rounded-t-xl bg-theme-bg-primary px-3 py-2 font-bold text-theme-label-secondary typo-callout',
+            'absolute z-1 mt-2 flex w-full items-center rounded-t-12 bg-theme-bg-primary px-3 py-2 font-bold text-theme-label-secondary typo-callout',
             visibleOnGroupHover,
           )}
         >

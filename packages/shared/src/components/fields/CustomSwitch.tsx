@@ -112,7 +112,7 @@ export function CustomSwitch({
       <span className="absolute inset-0 my-auto h-7 rounded-10 bg-cabbage-50 opacity-24 group-hover:opacity-32" />
       <span
         className={classNames(
-          'absolute  top-0 z-1 h-full rounded-xl',
+          'absolute  top-0 z-1 h-full rounded-12',
           styles.knob,
         )}
         style={{

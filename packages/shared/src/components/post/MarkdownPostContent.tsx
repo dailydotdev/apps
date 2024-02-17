@@ -22,7 +22,7 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
             <Image
               src={post.image}
               alt="Post cover image"
-              className="mb-10 h-auto max-h-[62.5rem] w-full rounded-xl object-cover"
+              className="mb-10 h-auto max-h-[62.5rem] w-full rounded-12 object-cover"
               fallbackSrc={cloudinary.post.imageCoverPlaceholder}
             />
           </a>
@@ -33,7 +33,7 @@ function MarkdownPostContent({ post }: MarkdownPostContentProps): ReactElement {
         className={post.type !== PostType.Welcome && 'mb-5'}
       />
       {post.type === PostType.Welcome && post.image && (
-        <div className="mb-5 mt-8 block h-fit max-w-sm cursor-pointer overflow-hidden rounded-2xl">
+        <div className="mb-5 mt-8 block h-fit max-w-sm cursor-pointer overflow-hidden rounded-16">
           <LazyImage
             imgSrc={post.image}
             imgAlt="Post cover image"
