@@ -36,7 +36,7 @@ export const SearchPanelInputCursor = ({
         {searchPanel.query}
       </span>
       {!!purifySanitize && (
-        <div className="ml-0.5 flex items-center rounded bg-overlay-quaternary-cabbage px-1">
+        <div className="ml-0.5 flex items-center rounded-4 bg-overlay-quaternary-cabbage px-1">
           <span
             className="text-theme-label-tertiary typo-footnote"
             dangerouslySetInnerHTML={{

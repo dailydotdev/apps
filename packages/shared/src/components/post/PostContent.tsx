@@ -172,7 +172,7 @@ export function PostContent({
               target="_blank"
               rel="noopener"
               {...combinedClicks(onReadArticle)}
-              className="mb-10 block cursor-pointer overflow-hidden rounded-2xl"
+              className="mb-10 block cursor-pointer overflow-hidden rounded-16"
               style={{ maxWidth: '25.625rem' }}
             >
               <LazyImage
