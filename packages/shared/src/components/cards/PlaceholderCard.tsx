@@ -4,7 +4,7 @@ import { CardSpace, CardTextContainer } from './Card';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
 
-const Text = classed(ElementPlaceholder, 'h-3 rounded-xl my-2');
+const Text = classed(ElementPlaceholder, 'h-3 rounded-12 my-2');
 
 export type PlaceholderCardProps = {
   showImage?: boolean;
@@ -19,7 +19,7 @@ export const PlaceholderCard = forwardRef(function PlaceholderCard(
       aria-busy
       className={classNames(
         className,
-        'flex flex-col rounded-2xl bg-theme-post-disabled p-2',
+        'flex flex-col rounded-16 bg-theme-post-disabled p-2',
         'min-h-card',
       )}
       {...props}
@@ -32,7 +32,7 @@ export const PlaceholderCard = forwardRef(function PlaceholderCard(
         <Text style={{ width: '80%' }} />
       </CardTextContainer>
       <CardSpace className={showImage ? 'my-2' : 'my-6'} />
-      {showImage && <ElementPlaceholder className="my-2 h-40 rounded-xl" />}
+      {showImage && <ElementPlaceholder className="my-2 h-40 rounded-12" />}
       <CardTextContainer>
         <Text style={{ width: '32%' }} />
       </CardTextContainer>

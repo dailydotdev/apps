@@ -153,7 +153,7 @@ export const TLDRText = classed(
 );
 
 export const HotLabel = (): ReactElement => (
-  <div className="rounded bg-theme-status-error px-2 py-px font-bold uppercase text-white typo-caption2">
+  <div className="rounded-4 bg-theme-status-error px-2 py-px font-bold uppercase text-white typo-caption2">
     Hot
   </div>
 );

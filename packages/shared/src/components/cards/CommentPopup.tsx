@@ -57,7 +57,7 @@ export default function CommentPopup({
   return (
     <div
       className={classNames(
-        'absolute left-0 top-0 z-2 flex h-full w-full flex-col justify-end overflow-hidden rounded-2xl bg-theme-post-disabled',
+        'absolute left-0 top-0 z-2 flex h-full w-full flex-col justify-end overflow-hidden rounded-16 bg-theme-post-disabled',
         !show && 'opacity-0',
       )}
       ref={containerRef}
@@ -69,7 +69,7 @@ export default function CommentPopup({
     >
       <div
         className={classNames(
-          'invert relative flex flex-col rounded-2xl bg-theme-bg-primary p-4',
+          'invert relative flex flex-col rounded-16 bg-theme-bg-primary p-4',
           layoutModeClass,
         )}
       >

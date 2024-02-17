@@ -130,6 +130,7 @@ function SquadPostContent({
                 author={post.author}
                 role={role}
                 date={postDateFormat(post.createdAt)}
+                className={{ container: 'mt-3' }}
               />
             )}
             <Content post={post} onReadArticle={onReadArticle} />

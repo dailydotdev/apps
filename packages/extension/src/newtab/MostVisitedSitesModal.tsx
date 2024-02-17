@@ -35,7 +35,7 @@ export default function MostVisitedSitesModal({
               : '/mvs_google.jpg'
           }
           imgAlt="Image of the browser's default home screen"
-          className="mx-auto my-8 w-full max-w-[22rem] rounded-2xl"
+          className="mx-auto my-8 w-full max-w-[22rem] rounded-16"
           ratio="45.8%"
           eager
         />
