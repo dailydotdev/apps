@@ -5,19 +5,35 @@ import React, {
   Ref,
   SyntheticEvent,
 } from 'react';
+import { cloudinary } from '../../lib/image';
+import { fallbackImages } from '../../lib/config';
+
+export enum ImageType {
+  Post = 'post',
+  Avatar = 'avatar',
+}
 
 export interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   fallbackSrc?: string;
+  type?: ImageType;
 }
+
+const fallbackSrcByType: Record<ImageType, string> = {
+  post: cloudinary.post.imageCoverPlaceholder,
+  avatar: fallbackImages.avatar,
+};
 
 const ImageComponent = (
   { fallbackSrc, src, alt, ...props }: ImageProps,
   ref?: Ref<HTMLImageElement>,
 ): ReactElement => {
+  const finalFallbackSrc =
+    fallbackSrc ?? fallbackSrcByType[props.type ?? ImageType.Post];
+
   const onError = (event: SyntheticEvent<HTMLImageElement>): void => {
     if (fallbackSrc && fallbackSrc !== event.currentTarget.src) {
       // eslint-disable-next-line no-param-reassign
-      event.currentTarget.src = fallbackSrc;
+      event.currentTarget.src = finalFallbackSrc;
     }
   };
 
@@ -26,7 +42,7 @@ const ImageComponent = (
       {...props}
       ref={ref}
       alt={alt}
-      src={src ?? fallbackSrc}
+      src={src ?? finalFallbackSrc}
       onError={onError}
     />
   );
