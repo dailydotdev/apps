@@ -82,13 +82,6 @@ const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shadeModal" */ './ShareModal'),
 );
 
-const SearchReferralModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "searchReferralModal" */ './referral/SearchReferralModal'
-    ),
-);
-
 const VideoModal = dynamic(
   () => import(/* webpackChunkName: "videoModal" */ './VideoModal'),
 );

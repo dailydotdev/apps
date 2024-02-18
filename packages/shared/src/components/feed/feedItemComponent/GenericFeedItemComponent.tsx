@@ -25,7 +25,7 @@ export default function GenericFeedItemComponent({
   switch (item.type) {
     case FeedItemType.Post: {
       const PostTag = ItemTypeToTag[item.post.type ?? PostType.Article];
-      return <PostTag post={item.post} />;
+      return <PostTag post={item.post} index={item.index} />;
     }
     case FeedItemType.Ad:
       return <AdCard ad={item.ad} />;

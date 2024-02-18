@@ -3,9 +3,9 @@ import { Post } from '../../../../graphql/posts';
 import { QuaternaryButton } from '../../../buttons/QuaternaryButton';
 import InteractionCounter from '../../../InteractionCounter';
 import { SimpleTooltip } from '../../../tooltips';
-import CommentIcon from '../../../icons/Discuss';
 import { ButtonSize } from '../../../buttons/Button';
 import { useActiveFeedContext } from '../../../../contexts';
+import { DiscussIcon as CommentIcon } from '../../../icons';
 
 interface CommentButtonProps {
   post: Post;

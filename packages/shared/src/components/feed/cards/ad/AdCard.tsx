@@ -46,7 +46,7 @@ export const AdCard = ({ ad }: { ad: Ad }): ReactElement => {
           )}
         </section>
         <footer className="mx-4 flex flex-row justify-between">
-          <AdAttribution ad={ad} className="mb-2 mt-4" />
+          <AdAttribution ad={ad} className={{ main: 'mb-2 mt-4' }} />
         </footer>
         {ad.pixel?.map((pixel) => (
           <img

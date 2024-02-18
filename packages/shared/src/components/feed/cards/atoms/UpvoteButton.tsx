@@ -1,11 +1,11 @@
 import React, { ReactElement } from 'react';
 import { Post, UserPostVote } from '../../../../graphql/posts';
 import { QuaternaryButton } from '../../../buttons/QuaternaryButton';
-import UpvoteIcon from '../../../icons/Upvote';
 import InteractionCounter from '../../../InteractionCounter';
 import { SimpleTooltip } from '../../../tooltips';
 import { ButtonSize } from '../../../buttons/Button';
 import useLeanPostActions from '../../../../hooks/post/useLeanPostActions';
+import { UpvoteIcon } from '../../../icons';
 
 interface UpvoteButtonProps {
   post: Post;

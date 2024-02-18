@@ -21,9 +21,9 @@ import OptionButton from '../atoms/OptionButton';
 import { ReadArticleButton } from '../atoms/ReadArticleButton';
 import { CardType } from '../common';
 
-export const ArticleCard = ({ post }: CardType): ReactElement => {
+export const ArticleCard = ({ post, index }: CardType): ReactElement => {
   return (
-    <CardContainer>
+    <CardContainer data-item-index={index}>
       <Card>
         <CardButton post={post} />
         <header className="mx-2.5 my-1 flex h-8 items-center">

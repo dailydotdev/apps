@@ -14,21 +14,23 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import useLeanPostActions from '../../../../hooks/post/useLeanPostActions';
 import PortalMenu, { MenuItemProps } from '../../../fields/PortalMenu';
-import EyeIcon from '../../../icons/Eye';
-import BookmarkIcon from '../../../icons/Bookmark';
-import DownvoteIcon from '../../../icons/Downvote';
-import BlockIcon from '../../../icons/Block';
 import { ReportedCallback } from '../../../modals';
-import FlagIcon from '../../../icons/Flag';
 import { LazyModal } from '../../../modals/common/types';
-import EditIcon from '../../../icons/Edit';
 import { Origin } from '../../../../lib/analytics';
-import TrashIcon from '../../../icons/Trash';
-import { PinIcon } from '../../../icons';
-import HammerIcon from '../../../icons/Hammer';
-import UpvoteIcon from '../../../icons/Upvote';
+import {
+  BlockIcon,
+  BookmarkIcon,
+  DownvoteIcon,
+  EditIcon,
+  EyeIcon,
+  FlagIcon,
+  HammerIcon,
+  MenuIcon,
+  PinIcon,
+  TrashIcon,
+  UpvoteIcon,
+} from '../../../icons';
 import { SimpleTooltip } from '../../../tooltips';
-import MenuIcon from '../../../icons/Menu';
 import { MenuIcon as Menu } from '../../../MenuIcon';
 import { labels } from '../../../../lib';
 

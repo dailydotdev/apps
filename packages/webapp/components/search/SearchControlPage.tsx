@@ -23,6 +23,7 @@ import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import dynamic from 'next/dynamic';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import GenericFeedItemComponent from '@dailydotdev/shared/src/components/feed/feedItemComponent/GenericFeedItemComponent';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
@@ -142,6 +143,7 @@ Search.getLayout = getMainFeedLayout;
 Search.layoutProps = {
   ...mainFeedLayoutProps,
   isFinder: true,
+  feedItemComponent: GenericFeedItemComponent,
   searchChildren: <AiSearchProviderButton />,
 };
 

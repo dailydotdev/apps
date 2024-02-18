@@ -9,14 +9,12 @@ import { ShareProvider } from '../../../../lib/share';
 import { Origin } from '../../../../lib/analytics';
 import PortalMenu, { MenuItemProps } from '../../../fields/PortalMenu';
 import { MenuIcon } from '../../../MenuIcon';
-import ShareIcon from '../../../icons/Share';
 import { LazyModal } from '../../../modals/common/types';
-import BookmarkIcon from '../../../icons/Bookmark';
-import LinkIcon from '../../../icons/Link';
 import { SimpleTooltip } from '../../../tooltips';
 import { Button, ButtonSize } from '../../../buttons/Button';
 import { getContextBottomPosition } from '../../../utilities';
 import useLeanPostActions from '../../../../hooks/post/useLeanPostActions';
+import { BookmarkIcon, LinkIcon, ShareIcon } from '../../../icons';
 
 export interface ShareButtonProps {
   post: Post;

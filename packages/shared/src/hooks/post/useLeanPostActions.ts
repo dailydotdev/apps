@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useRef } from 'react';
 import {
   QueryClient,
   useMutation,
@@ -146,7 +146,7 @@ export default function useLeanPostActions({
   ) => Promise<void>;
   show: (e: React.MouseEvent) => void;
 } {
-  const { queryKey, feedName } = useActiveFeedContext();
+  const { queryKey, feedName, feedRef } = useActiveFeedContext();
   const { requestMethod } = useRequestProtocol();
   const { user, showLogin } = useContext(AuthContext);
   const queryClient = useQueryClient();
@@ -157,6 +157,14 @@ export default function useLeanPostActions({
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { feedSettings } = useFeedSettings();
   const { show } = useContextMenu();
+  const computedRef = useRef<CSSStyleDeclaration>();
+  if (!computedRef.current) {
+    computedRef.current = globalThis?.window?.getComputedStyle(
+      feedRef?.current,
+    );
+  }
+  // To get the active amount of rendered columns:
+  // console.log(computedRef?.current?.gridTemplateColumns?.split(' ')?.length);
 
   const isModerator = user?.roles?.includes(Roles.Moderator);
   const canDeletePost = useCallback(
@@ -431,7 +439,17 @@ export default function useLeanPostActions({
         return;
       }
 
-      trackEvent(postAnalyticsEvent(AnalyticsEvent.UpvotePost, post));
+      trackEvent(
+        postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, {
+          columns: 1,
+          column: 1,
+          row: 1,
+          extra: {
+            origin: 'origin' ?? Origin.Feed,
+            feed: feedName,
+          },
+        }),
+      );
       await upvotePost({ post });
     },
     [cancelPostVote, feedName, showLogin, trackEvent, upvotePost, user],

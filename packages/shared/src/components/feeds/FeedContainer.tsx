@@ -18,7 +18,7 @@ import { FeedReadyMessage } from '../onboarding';
 import { useFeedLayout, ToastSubject, useToastNotification } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
-import { useActiveFeedNameContext } from '../../contexts';
+import { useActiveFeedContext, useActiveFeedNameContext } from '../../contexts';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -31,15 +31,15 @@ export interface FeedContainerProps {
   actionButtons?: ReactNode;
 }
 
-// const listGaps = {
-//   cozy: 'gap-5',
-//   roomy: 'gap-3',
-// };
+const listGaps = {
+  cozy: 'gap-5',
+  roomy: 'gap-3',
+};
 
-// const gridGaps = {
-//   cozy: 'gap-14',
-//   roomy: 'gap-12',
-// };
+const gridGaps = {
+  cozy: 'gap-14',
+  roomy: 'gap-12',
+};
 
 // const cardListClass = {
 //   1: 'grid-cols-1',
@@ -70,16 +70,16 @@ export const getFeedGapPx = {
 
 // const gapClass = (isList: boolean, space: Spaciness) =>
 //   isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
-// export const gapClass = (
-//   isList: boolean,
-//   isFeedLayoutV1: boolean,
-//   space: Spaciness,
-// ): string => {
-//   if (isFeedLayoutV1) {
-//     return '';
-//   }
-//   return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
-// };
+export const gapClass = (
+  isList: boolean,
+  isFeedLayoutV1: boolean,
+  space: Spaciness,
+): string => {
+  if (isFeedLayoutV1) {
+    return '';
+  }
+  return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
+};
 
 // const cardClass = (isList: boolean, numberOfCards: number): string =>
 //   isList ? 'grid-cols-1' : cardListClass[numberOfCards];
@@ -118,6 +118,7 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const { feedRef } = useActiveFeedContext();
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
@@ -126,7 +127,7 @@ export const FeedContainer = ({
   const insaneMode = !forceCardMode && listMode;
   const isList = (insaneMode && numCards > 1) || shouldUseFeedLayoutV1;
   // const feedGapPx =
-    getFeedGapPx[gapClass(isList, shouldUseFeedLayoutV1, spaciness)];
+  //   getFeedGapPx[gapClass(isList, shouldUseFeedLayoutV1, spaciness)];
   // const style = {
   //   '--num-cards': numCards,
   //   '--feed-gap': `${feedGapPx / 16}rem`,
@@ -153,7 +154,27 @@ export const FeedContainer = ({
     }
   };
 
-  // TODO: Add padding/margin to the sub based on settings
+  const containerHorizontalPadding = (space: Spaciness) => {
+    switch (space) {
+      case 'cozy':
+        return 'px-16';
+      case 'roomy':
+        return 'px-18';
+      default:
+        return 'px-20';
+    }
+  };
+
+  const containerVerticalPadding = (space: Spaciness) => {
+    switch (space) {
+      case 'cozy':
+        return 'py-6';
+      case 'roomy':
+        return 'py-8';
+      default:
+        return 'py-10';
+    }
+  };
 
   return (
     <div
@@ -164,13 +185,16 @@ export const FeedContainer = ({
       )}
     >
       <ScrollToTopButton />
-      <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
-        {!inlineHeader && header}
+      <div className="flex w-full flex-col laptopL:mx-auto">
+        <div>Injection area for outside feed wrapper</div>
+        {/* {!inlineHeader && header} */}
         <div
           className={classNames(
             'relative mx-auto w-full',
             styles.feed,
             !isList && styles.cards,
+            containerVerticalPadding(spaciness),
+            containerHorizontalPadding(spaciness),
           )}
           style={cardContainerStyle}
           aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
@@ -226,7 +250,11 @@ export const FeedContainer = ({
                 gap(spaciness),
                 isV1Search && !shouldUseFeedLayoutV1 && 'mt-8',
               )}
+              ref={feedRef}
             >
+              <div className="col-span-full">
+                Injection area for inside feed wrapper
+              </div>
               {children}
             </div>
           </ConditionalWrapper>

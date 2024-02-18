@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 import { Button, ButtonSize } from '../../../buttons/Button';
-import OpenLinkIcon from '../../../icons/OpenLink';
 import useLeanPostActions from '../../../../hooks/post/useLeanPostActions';
 import { getReadPostButtonText, Post } from '../../../../graphql/posts';
+import { OpenLinkIcon } from '../../../icons';
 
 interface ReadArticleButtonProps {
   className?: string;
