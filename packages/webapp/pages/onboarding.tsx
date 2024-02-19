@@ -308,7 +308,6 @@ export function OnboardPage(): ReactElement {
                   className={classNames(
                     'tablet:absolute tablet:left-0 tablet:top-0 tablet:-z-1',
                     styles.video,
-                    styles.socialProofVideo,
                   )}
                   poster={onboardingVisual.poster}
                 >
@@ -321,7 +320,7 @@ export function OnboardPage(): ReactElement {
                   alt="Onboarding cover"
                   className={classNames(
                     'relative tablet:absolute tablet:left-0 tablet:top-0 tablet:-z-1',
-                    styles.video,
+                    styles.image,
                   )}
                 />
               )}
@@ -413,7 +412,7 @@ export function OnboardPage(): ReactElement {
             <TrustedCompanies
               iconSize={IconSize.Small}
               reverse
-              className="block tablet:hidden"
+              className="mt-5 block tablet:hidden"
             />
 
             <img
