@@ -56,6 +56,7 @@ import EmailCodeVerification from './EmailCodeVerification';
 import { trackAnalyticsSignUp } from './OnboardingAnalytics';
 import { ButtonSize } from '../buttons/Button';
 import { nextTick } from '../../lib/func';
+import { OnboardingRegistrationForm4d5 } from './OnboardingRegistrationForm4d5';
 
 export enum AuthDisplay {
   Default = 'default',
@@ -69,6 +70,7 @@ export enum AuthDisplay {
   VerifiedEmail = 'VerifiedEmail',
   OnboardingSignup = 'onboarding_signup',
   EmailVerification = 'email_verification',
+  OnboardingSignupV4d5 = 'onboarding_signup_v4.5',
 }
 
 export interface AuthProps {
@@ -533,6 +535,34 @@ function AuthOptions({
               />
             )}
           </EmailVerified>
+        </Tab>
+        <Tab label={AuthDisplay.OnboardingSignupV4d5}>
+          <OnboardingRegistrationForm4d5
+            onSignup={(signupEmail) => {
+              onAuthStateUpdate({
+                isAuthenticating: true,
+                email: signupEmail,
+                defaultDisplay: AuthDisplay.Registration,
+              });
+            }}
+            onExistingEmail={(existingEmail) => {
+              onAuthStateUpdate({
+                isAuthenticating: true,
+                isLoginFlow: true,
+                email: existingEmail,
+              });
+            }}
+            onProviderClick={(provider, login) => {
+              onProviderClick(provider, login);
+              onAuthStateUpdate({ isAuthenticating: true });
+            }}
+            trigger={trigger}
+            isReady={isReady}
+            simplified={simplified}
+            targetId={targetId}
+            className={className?.onboardingSignup}
+            onClose={onClose}
+          />
         </Tab>
       </TabContainer>
     </div>
