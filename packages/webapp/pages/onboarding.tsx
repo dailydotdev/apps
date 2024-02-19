@@ -293,8 +293,12 @@ export function OnboardPage(): ReactElement {
           </>
         )}
         {!isFiltering && (
-          <div className="flex-1 block">
-            <div className={classNames('relative tablet:pt-[80%] tablet:min-h-[800px]:pt-[100%] overflow-y-clip tablet:overflow-y-visible')}>
+          <div className="block flex-1">
+            <div
+              className={classNames(
+                'tablet:min-h-[800px]:pt-[100%] relative overflow-y-clip tablet:overflow-y-visible tablet:pt-[80%]',
+              )}
+            >
               {onboardingVisual?.poster ? (
                 // eslint-disable-next-line jsx-a11y/media-has-caption
                 <video
@@ -302,9 +306,9 @@ export function OnboardPage(): ReactElement {
                   autoPlay
                   muted
                   className={classNames(
-                    'tablet:absolute tablet:left-0 tablet:-z-1 tablet:top-0',
+                    'tablet:absolute tablet:left-0 tablet:top-0 tablet:-z-1',
                     styles.video,
-                    styles.socialProofVideo
+                    styles.socialProofVideo,
                   )}
                   poster={onboardingVisual.poster}
                 >
@@ -316,13 +320,15 @@ export function OnboardPage(): ReactElement {
                   src={onboardingVisual.image}
                   alt="Onboarding cover"
                   className={classNames(
-                    'relative tablet:absolute tablet:left-0 tablet:-z-1 tablet:top-0',
+                    'relative tablet:absolute tablet:left-0 tablet:top-0 tablet:-z-1',
                     styles.video,
                   )}
                 />
               )}
             </div>
-            {onboardingVisual.showCompanies && <TrustedCompanies className="tablet:block hidden"/>}
+            {onboardingVisual.showCompanies && (
+              <TrustedCompanies className="hidden tablet:block" />
+            )}
           </div>
         )}
       </div>
@@ -369,7 +375,7 @@ export function OnboardPage(): ReactElement {
       />
       <div
         className={classNames(
-          'flex w-full flex-grow flex-wrap justify-center px-6 tablet:gap-10 tablet:flex-row flex-col',
+          'flex w-full flex-grow flex-col flex-wrap justify-center px-6 tablet:flex-row tablet:gap-10',
           !isFiltering && wrapperMaxWidth,
           !isAuthenticating && 'mt-7.5 flex-1 content-center',
         )}
@@ -377,7 +383,7 @@ export function OnboardPage(): ReactElement {
         {showOnboardingPage && (
           <div
             className={classNames(
-              'flex flex-1 flex-col laptop:mr-8 laptop:max-w-[27.5rem] mt-5 tablet:mt-0',
+              'mt-5 flex flex-1 flex-col tablet:mt-0 laptop:mr-8 laptop:max-w-[27.5rem]',
             )}
           >
             <OnboardingHeadline
@@ -389,7 +395,9 @@ export function OnboardPage(): ReactElement {
             {getAuthOptions()}
           </div>
         )}
-        {showOnboardingPage && <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />}
+        {showOnboardingPage && (
+          <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />
+        )}
         {getContent()}
       </div>
       {showOnboardingPage && (
@@ -400,7 +408,7 @@ export function OnboardPage(): ReactElement {
           )}
         >
           <div className="relative flex flex-1 flex-col gap-6 pb-6 tablet:mt-auto laptop:mr-8 laptop:max-w-[27.5rem]">
-            <SignupDisclaimer className="mb-0 tablet:mb-10 hidden tablet:block" />
+            <SignupDisclaimer className="mb-0 hidden tablet:mb-10 tablet:block" />
 
             <TrustedCompanies
               iconSize={IconSize.Small}
@@ -414,7 +422,7 @@ export function OnboardPage(): ReactElement {
               alt="Gradient background"
             />
           </div>
-          <div className="flex-1 tablet:block hidden" />
+          <div className="hidden flex-1 tablet:block" />
         </footer>
       )}
     </Container>

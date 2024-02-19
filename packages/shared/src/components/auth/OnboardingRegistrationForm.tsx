@@ -49,7 +49,12 @@ const OnboardingRegistrationForm = ({
   };
 
   return (
-    <div className={classNames('flex flex-col gap-5 pb-5 tablet:gap-8 tablet:pb-8', className)}>
+    <div
+      className={classNames(
+        'flex flex-col gap-5 pb-5 tablet:gap-8 tablet:pb-8',
+        className,
+      )}
+    >
       {signupProviders.map((provider) => (
         <Button
           key={provider.value}
