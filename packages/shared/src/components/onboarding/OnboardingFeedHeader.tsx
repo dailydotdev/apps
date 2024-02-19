@@ -6,12 +6,19 @@ import { REQUIRED_TAGS_THRESHOLD } from './common';
 import { ArrowIcon } from '../icons';
 import { LayoutHeader } from '../layout/common';
 
+type OnboardingFeedHeaderProps = {
+  isPreviewFeedVisible: boolean;
+  setPreviewFeedVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  isFeedPreviewEnabled: boolean;
+  tagsCount: number;
+};
+
 export const OnboardingFeedHeader = ({
   isPreviewFeedVisible,
   setPreviewFeedVisible,
   isFeedPreviewEnabled,
   tagsCount,
-}): JSX.Element => {
+}: OnboardingFeedHeaderProps): JSX.Element => {
   return (
     <LayoutHeader className="flex-col overflow-x-visible">
       <div className="flex max-w-full flex-col">
