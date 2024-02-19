@@ -140,19 +140,13 @@ export const SearchControlHeader = ({
 
   return (
     <LayoutHeader className="flex-col overflow-x-visible">
-      {alerts?.filter && (
+      {alerts?.filter && !isOnboardingV4dot5 && (
         <CreateMyFeedButton
-          action={() => {
-            if (isOnboardingV4dot5) {
-              router.replace({
-                pathname: '/my-feed',
-              });
-            } else {
-              onInitializeOnboarding(() =>
-                onFeedPageChanged(SharedFeedPage.MyFeed),
-              );
-            }
-          }}
+          action={() =>
+            onInitializeOnboarding(() =>
+              onFeedPageChanged(SharedFeedPage.MyFeed),
+            )
+          }
         />
       )}
       <div
