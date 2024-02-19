@@ -6,6 +6,7 @@ import React, {
   useContext,
 } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import classed from '../../lib/classed';
 import { FeedHeading, SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
@@ -26,7 +27,6 @@ import { feature } from '../../lib/featureManagement';
 import { OnboardingV4dot5, SearchExperiment } from '../../lib/featureValues';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useFeedLayout } from '../../hooks';
-import { NewFilter } from '../onboarding/NewFilter';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -75,6 +75,7 @@ export const SearchControlHeader = ({
   const { sortingEnabled } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const router = useRouter();
   const openFeedFilters = () =>
     openModal({ type: LazyModal.FeedFilters, persistOnRouteChange: true });
 
@@ -139,18 +140,21 @@ export const SearchControlHeader = ({
 
   return (
     <LayoutHeader className="flex-col overflow-x-visible">
-      {alerts?.filter &&
-        (isOnboardingV4dot5 ? (
-          <NewFilter />
-        ) : (
-          <CreateMyFeedButton
-            action={() =>
+      {alerts?.filter && (
+        <CreateMyFeedButton
+          action={() => {
+            if (isOnboardingV4dot5) {
+              router.replace({
+                pathname: '/my-feed',
+              });
+            } else {
               onInitializeOnboarding(() =>
                 onFeedPageChanged(SharedFeedPage.MyFeed),
-              )
+              );
             }
-          />
-        ))}
+          }}
+        />
+      )}
       <div
         className={classNames(
           'mr-px flex w-full flex-row flex-wrap items-center gap-4',
