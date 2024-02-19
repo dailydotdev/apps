@@ -17,6 +17,7 @@ import {
   FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
+  PREVIEW_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
 import { generateQueryKey } from '../lib/query';
@@ -55,6 +56,9 @@ type FeedQueryProps = {
 };
 
 const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
+  onboarding: {
+    query: PREVIEW_FEED_QUERY,
+  },
   'my-feed': {
     query: ANONYMOUS_FEED_QUERY,
     queryIfLogged: FEED_QUERY,

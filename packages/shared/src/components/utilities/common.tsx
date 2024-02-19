@@ -179,6 +179,7 @@ export enum SharedFeedPage {
   Search = 'search',
   Upvoted = 'upvoted',
   Discussed = 'discussed',
+  Onboarding = 'onboarding',
 }
 
 export const FeedHeading = classed(
