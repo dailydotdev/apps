@@ -4,8 +4,8 @@ import {
   AllowedTags,
   Button,
   ButtonProps,
-  ButtonSize,
-} from '../buttons/Button';
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import { AiIcon } from '../icons';
 
 export const PlaceholderSearchSuggestion = ({
@@ -14,12 +14,10 @@ export const PlaceholderSearchSuggestion = ({
 }: ButtonProps<AllowedTags>): ReactElement => {
   return (
     <Button
-      spanClassName="w-fit my-2 flex-shrink tablet:line-clamp-1"
-      textPosition="justify-start"
       icon={<AiIcon />}
-      buttonSize={ButtonSize.Medium}
+      variant={ButtonVariant.Subtle}
       className={classNames(
-        'btn-secondary !h-auto min-h-[2.5rem] w-fit border-theme-divider-tertiary text-theme-label-tertiary typo-subhead',
+        'my-2 !h-auto min-h-[2.5rem] w-fit flex-shrink justify-start typo-subhead tablet:line-clamp-1',
         className,
       )}
       {...props}
