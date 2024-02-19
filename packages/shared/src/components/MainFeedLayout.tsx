@@ -39,6 +39,9 @@ import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
 import { FeedContainerProps } from './feeds';
 import { getFeedName } from '../lib/feed';
+import useFeedSettings from '../hooks/useFeedSettings';
+import { OnboardingFeedHeader } from './onboarding/OnboardingFeedHeader';
+import { REQUIRED_TAGS_THRESHOLD } from './onboarding/common';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -126,6 +129,7 @@ export default function MainFeedLayout({
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
+  // console.log(feedName);
   const feedVersion = useFeature(feature.feedVersion);
   const searchVersion = useFeature(feature.search);
   const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
@@ -133,6 +137,7 @@ export default function MainFeedLayout({
   const isOnboardingV4dot5 = onboardingV4dot5 === OnboardingV4dot5.V4dot5;
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { feedSettings } = useFeedSettings();
 
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
@@ -180,25 +185,6 @@ export default function MainFeedLayout({
     // so returning false so feed does not do any requests
     if (isV1Search && isSearchOn && !searchQuery) {
       return null;
-    }
-
-    if (feedName === SharedFeedPage.Onboarding && isOnboardingV4dot5) {
-      return {
-        feedName: OtherFeedPage.Preview,
-        feedQueryKey: [RequestKey.FeedPreview, user?.id],
-        query: PREVIEW_FEED_QUERY,
-        forceCardMode: true,
-        showSearch: false,
-        options: { refetchOnMount: true },
-        allowPin: true,
-        header: searchVersion === SearchExperiment.Control &&
-          !isSearchOn &&
-          !shouldUseFeedLayoutV1 && (
-            <SearchControlHeader {...searchProps} navChildren={navChildren} />
-          ),
-        actionButtons: (isV1Search || shouldUseFeedLayoutV1) &&
-          feedWithActions && <SearchControlHeader {...searchProps} />,
-      };
     }
 
     if (isSearchOn && searchQuery) {
@@ -279,6 +265,42 @@ export default function MainFeedLayout({
   const FeedPageComponent = shouldUseFeedLayoutV1 ? FeedPageLayoutV1 : FeedPage;
 
   const disableTopPadding = (isFinder && isV1Search) || shouldUseFeedLayoutV1;
+
+  const tagsCount = feedSettings?.includeTags?.length || 0;
+  const isFeedPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
+  const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);
+
+  if (
+    isOnboardingV4dot5 &&
+    alerts?.filter &&
+    (feedName === SharedFeedPage.Onboarding ||
+      feedName === SharedFeedPage.MyFeed)
+  ) {
+    return (
+      <FeedPageComponent
+        className={classNames('relative', disableTopPadding && '!pt-0')}
+      >
+        <OnboardingFeedHeader
+          isPreviewFeedVisible={isPreviewFeedVisible}
+          setPreviewFeedVisible={setPreviewFeedVisible}
+          isFeedPreviewEnabled={isFeedPreviewEnabled}
+          tagsCount={tagsCount}
+        />
+        {isFeedPreviewEnabled && isPreviewFeedVisible && (
+          <Feed
+            className="px-6 pt-14 laptop:pt-10"
+            feedName={OtherFeedPage.Preview}
+            feedQueryKey={[RequestKey.FeedPreview, user?.id]}
+            query={PREVIEW_FEED_QUERY}
+            forceCardMode
+            showSearch={false}
+            options={{ refetchOnMount: true }}
+            allowPin
+          />
+        )}
+      </FeedPageComponent>
+    );
+  }
 
   return (
     <FeedPageComponent
