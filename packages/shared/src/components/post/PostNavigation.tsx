@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/ButtonV2';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { ArrowIcon } from '../icons';
 import { PostHeaderActions } from './PostHeaderActions';
@@ -26,8 +26,9 @@ function PostNavigation({
       {onPreviousPost && (
         <SimpleTooltip content="Previous">
           <Button
-            className="btn-tertiary -rotate-90"
+            className="-rotate-90"
             icon={<ArrowIcon />}
+            variant={ButtonVariant.Tertiary}
             onClick={onPreviousPost}
             disabled={[PostPosition.First, PostPosition.Only].includes(
               postPosition,
@@ -38,8 +39,9 @@ function PostNavigation({
       {onNextPost && (
         <SimpleTooltip content="Next">
           <Button
-            className="btn-tertiary rotate-90"
+            className="rotate-90"
             icon={<ArrowIcon />}
+            variant={ButtonVariant.Tertiary}
             onClick={onNextPost}
             disabled={[PostPosition.Last, PostPosition.Only].includes(
               postPosition,

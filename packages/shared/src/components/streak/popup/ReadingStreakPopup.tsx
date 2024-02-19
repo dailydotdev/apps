@@ -1,10 +1,9 @@
 import React, { ReactElement, useMemo } from 'react';
 import { addDays, isSameDay, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
-import { Button, ButtonVariant } from '../../buttons/ButtonV2';
+import { Button, ButtonVariant, ButtonSize } from '../../buttons/ButtonV2';
 import { StreakSection } from './StreakSection';
 import { DayStreak, Streak } from './DayStreak';
-import { ButtonSize } from '../../buttons/Button';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { getReadingStreak30Days, UserStreak } from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';

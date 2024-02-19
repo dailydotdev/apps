@@ -14,7 +14,7 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '../ProfilePicture';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { Image } from '../image/Image';
 import { fallbackImages } from '../../lib/config';
 import {
@@ -130,10 +130,10 @@ function NewCommentComponent(
         Share your thoughts
       </span>
       <Button
-        buttonSize={buttonSize[size]}
-        className="btn-secondary ml-auto"
-        readOnly
-        tag="span"
+        size={size as ButtonSize}
+        className="ml-auto text-theme-label-primary"
+        variant={ButtonVariant.Secondary}
+        disabled
       >
         Post
       </Button>

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { GitHubIcon, TwitterIcon, LinkIcon } from '../icons';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 
 export interface SocialChipsProps {
   links: { github?: string; twitter?: string; portfolio?: string };
@@ -42,11 +42,9 @@ export function SocialChips({ links }: SocialChipsProps): ReactElement {
     .filter((key) => !!links[key])
     .map((key) => (
       <Button
-        spanClassName="my-2 font-normal text-ellipsis whitespace-nowrap overflow-hidden flex-1"
-        textPosition="justify-start"
         icon={handlers[key].icon}
-        buttonSize={ButtonSize.Small}
-        className="btn-secondary w-fit max-w-full border-theme-divider-tertiary text-theme-label-tertiary typo-subhead first:ml-4 tablet:first:ml-0"
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Subtle}
         tag="a"
         target="_blank"
         rel="noopener"
@@ -63,7 +61,7 @@ export function SocialChips({ links }: SocialChipsProps): ReactElement {
   }
 
   return (
-    <div className="no-scrollbar flex items-center gap-2 overflow-x-auto tablet:flex-wrap tablet:px-4">
+    <div className="no-scrollbar flex items-center gap-2 overflow-x-auto px-4 tablet:flex-wrap">
       {elements}
     </div>
   );
