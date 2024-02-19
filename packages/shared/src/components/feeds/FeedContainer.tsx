@@ -21,7 +21,6 @@ import { useFeedLayout, ToastSubject, useToastNotification } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
-import { FeedGradientBg } from './FeedGradientBg';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -172,14 +171,6 @@ export const FeedContainer = ({
             />
           )}
           {(inlineHeader || isOnboardingV4dot5) && header}
-          {isOnboardingV4dot5 && (
-            <FeedGradientBg
-              className={classNames(
-                'left-1/2 -z-1 ',
-                sidebarExpanded ? 'laptop:!left-60' : 'laptop:!left-11',
-              )}
-            />
-          )}
           {isV1Search && !shouldUseFeedLayoutV1 && (
             <span className="flex flex-1 flex-row items-center">
               {!!actionButtons && (
