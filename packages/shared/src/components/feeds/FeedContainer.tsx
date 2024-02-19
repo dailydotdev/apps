@@ -7,9 +7,7 @@ import React, {
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { Spaciness } from '../../graphql/settings';
-import SettingsContext, {
-  useSettingsContext,
-} from '../../contexts/SettingsContext';
+import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
 import ScrollToTopButton from '../ScrollToTopButton';
 import styles from '../Feed.module.css';
@@ -110,7 +108,6 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
-  const { sidebarExpanded } = useSettingsContext();
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
