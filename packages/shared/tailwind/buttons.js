@@ -161,7 +161,8 @@ const variations = {
   },
   subtle: (color) => {
     const states = variations.tertiary(color);
-    states.darkStates.default['border-color'] = 'var(--theme-overlay-active-salt)';
+    states.darkStates.default['border-color'] =
+      'var(--theme-overlay-active-salt)';
     return states;
   },
   tag: (color) => {

@@ -130,7 +130,7 @@ function NewCommentComponent(
         Share your thoughts
       </span>
       <Button
-        size={size as ButtonSize}
+        size={buttonSize[size]}
         className="ml-auto text-theme-label-primary"
         variant={ButtonVariant.Secondary}
         disabled
