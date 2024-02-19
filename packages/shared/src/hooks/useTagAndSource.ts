@@ -27,6 +27,7 @@ interface UseTagAndSourceProps {
   origin?: Origin;
   postId?: string;
   shouldInvalidateQueries?: boolean;
+  shouldUpdateAlerts?: boolean;
 }
 
 interface UseTagAndSource {
@@ -42,6 +43,7 @@ export default function useTagAndSource({
   origin,
   postId,
   shouldInvalidateQueries = true,
+  shouldUpdateAlerts = true,
 }: UseTagAndSourceProps): UseTagAndSource {
   const queryClient = useQueryClient();
   const { alerts, updateAlerts } = useContext(AlertContext);
@@ -83,7 +85,7 @@ export default function useTagAndSource({
         target_id: category || tags[0],
         extra: JSON.stringify({ origin }),
       });
-      if (alerts?.filter && user) {
+      if (alerts?.filter && user && shouldUpdateAlerts) {
         updateAlerts({ filter: false, myFeed: 'created' });
       }
       await followTags({ tags });
@@ -102,6 +104,7 @@ export default function useTagAndSource({
       followTags,
       alerts?.filter,
       invalidateQueries,
+      shouldUpdateAlerts,
     ],
   );
 
