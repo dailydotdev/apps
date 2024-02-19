@@ -7,7 +7,7 @@ export const WidgetContainer = classed('div', widgetClasses);
 
 export const TextPlaceholder = classed(
   ElementPlaceholder,
-  'h-3 rounded-xl my-0.5',
+  'h-3 rounded-12 my-0.5',
 );
 
 export const PlaceholderSeparator = classed(

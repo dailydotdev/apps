@@ -98,7 +98,7 @@ function ChangelogTooltip(): ReactElement {
         </header>
         <section className="flex h-full max-h-full flex-1 shrink flex-col p-5">
           <Image
-            className="h-[108px] w-[207px] rounded-lg object-cover"
+            className="h-[108px] w-[207px] rounded-8 object-cover"
             alt="Post cover image"
             src={post.image}
             fallbackSrc={cloudinary.post.imageCoverPlaceholder}
