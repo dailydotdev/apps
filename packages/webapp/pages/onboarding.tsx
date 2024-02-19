@@ -228,7 +228,7 @@ export function OnboardPage(): ReactElement {
       <div
         className={classNames(
           'flex tablet:flex-1',
-          !isFiltering && 'ml-auto laptop:max-w-[37.5rem]',
+          !isFiltering && 'tablet:ml-auto laptop:max-w-[37.5rem]',
           isFiltering &&
             'mb-10 ml-0 flex w-full flex-col items-center justify-start',
         )}
@@ -293,8 +293,8 @@ export function OnboardPage(): ReactElement {
           </>
         )}
         {!isFiltering && (
-          <div className="hidden flex-1 tablet:block">
-            <div className={classNames('relative', styles.videoWrapper)}>
+          <div className="flex-1 block">
+            <div className={classNames('relative tablet:pt-[80%] tablet:min-h-[800px]:pt-[100%] overflow-y-clip tablet:overflow-y-visible')}>
               {onboardingVisual?.poster ? (
                 // eslint-disable-next-line jsx-a11y/media-has-caption
                 <video
@@ -302,8 +302,9 @@ export function OnboardPage(): ReactElement {
                   autoPlay
                   muted
                   className={classNames(
-                    'absolute -top-[20%] left-0 -z-1 tablet:top-0',
+                    'tablet:absolute tablet:left-0 tablet:-z-1 tablet:top-0',
                     styles.video,
+                    styles.socialProofVideo
                   )}
                   poster={onboardingVisual.poster}
                 >
@@ -315,13 +316,13 @@ export function OnboardPage(): ReactElement {
                   src={onboardingVisual.image}
                   alt="Onboarding cover"
                   className={classNames(
-                    'absolute -top-[20%] left-0 -z-1 tablet:top-0',
+                    'relative tablet:absolute tablet:left-0 tablet:-z-1 tablet:top-0',
                     styles.video,
                   )}
                 />
               )}
             </div>
-            {onboardingVisual.showCompanies && <TrustedCompanies />}
+            {onboardingVisual.showCompanies && <TrustedCompanies className="tablet:block hidden"/>}
           </div>
         )}
       </div>
@@ -368,7 +369,7 @@ export function OnboardPage(): ReactElement {
       />
       <div
         className={classNames(
-          'flex w-full flex-grow flex-wrap justify-center px-6 tablet:gap-10',
+          'flex w-full flex-grow flex-wrap justify-center px-6 tablet:gap-10 tablet:flex-row flex-col',
           !isFiltering && wrapperMaxWidth,
           !isAuthenticating && 'mt-7.5 flex-1 content-center',
         )}
@@ -376,18 +377,19 @@ export function OnboardPage(): ReactElement {
         {showOnboardingPage && (
           <div
             className={classNames(
-              'flex flex-1 flex-col laptop:mr-8 laptop:max-w-[27.5rem]',
+              'flex flex-1 flex-col laptop:mr-8 laptop:max-w-[27.5rem] mt-5 tablet:mt-0',
             )}
           >
             <OnboardingHeadline
               className={{
-                title: 'typo-large-title tablet:typo-mega1',
-                description: 'typo-body tablet:typo-title2',
+                title: 'typo-mega2 tablet:typo-mega1',
+                description: 'typo-title3 tablet:typo-title2',
               }}
             />
             {getAuthOptions()}
           </div>
         )}
+        {showOnboardingPage && <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />}
         {getContent()}
       </div>
       {showOnboardingPage && (
@@ -398,7 +400,7 @@ export function OnboardPage(): ReactElement {
           )}
         >
           <div className="relative flex flex-1 flex-col gap-6 pb-6 tablet:mt-auto laptop:mr-8 laptop:max-w-[27.5rem]">
-            <SignupDisclaimer className="mb-0 tablet:mb-10" />
+            <SignupDisclaimer className="mb-0 tablet:mb-10 hidden tablet:block" />
 
             <TrustedCompanies
               iconSize={IconSize.Small}
@@ -412,7 +414,7 @@ export function OnboardPage(): ReactElement {
               alt="Gradient background"
             />
           </div>
-          <div className="hidden flex-1 tablet:block" />
+          <div className="flex-1 tablet:block hidden" />
         </footer>
       )}
     </Container>

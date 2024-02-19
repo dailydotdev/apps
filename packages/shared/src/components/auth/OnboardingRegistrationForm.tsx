@@ -4,6 +4,7 @@ import { AuthFormProps, providerMap } from './common';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { useViewSize, ViewSize } from '../../hooks';
 
 const signupProviders = [providerMap.google, providerMap.github];
 
@@ -29,6 +30,7 @@ const OnboardingRegistrationForm = ({
 }: OnboardingRegistrationFormProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [shouldLogin] = useState(false);
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   useEffect(() => {
     trackEvent({
@@ -47,14 +49,14 @@ const OnboardingRegistrationForm = ({
   };
 
   return (
-    <div className={classNames('flex flex-col gap-8 pb-8', className)}>
+    <div className={classNames('flex flex-col gap-5 pb-5 tablet:gap-8 tablet:pb-8', className)}>
       {signupProviders.map((provider) => (
         <Button
           key={provider.value}
           icon={provider.icon}
           loading={!isReady}
           variant={ButtonVariant.Primary}
-          size={ButtonSize.Large}
+          size={isMobile ? ButtonSize.Medium : ButtonSize.Large}
           onClick={() => onSocialClick(provider.value)}
         >
           {provider.label}
