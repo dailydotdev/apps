@@ -36,7 +36,7 @@ export default function useIncrementReadingRank(): ReturnType {
     incrementReadingRank: async () => {
       const queryKey = getRankQueryKey(user);
       queryKeyRef.current = queryKey;
-      let currentRank = queryClient.getQueryData<MyRankData>(queryKey);
+      const oldRank = queryClient.getQueryData<MyRankData>(queryKey);
 
       const data = queryClient.setQueryData<MyRankData>(
         queryKey,
@@ -64,7 +64,7 @@ export default function useIncrementReadingRank(): ReturnType {
           };
         },
       );
-      clearQueries(currentRank?.rank?.readToday ?? false);
+      clearQueries(oldRank?.rank?.readToday ?? false);
       return data;
     },
   };
