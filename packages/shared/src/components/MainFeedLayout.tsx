@@ -20,12 +20,12 @@ import {
   PREVIEW_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
-import { generateQueryKey } from '../lib/query';
+import { OtherFeedPage, RequestKey, generateQueryKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
 import { useFeature } from './GrowthBookProvider';
-import { SearchExperiment } from '../lib/featureValues';
+import { OnboardingV4dot5, SearchExperiment } from '../lib/featureValues';
 import {
   algorithms,
   LayoutHeader,
@@ -128,7 +128,9 @@ export default function MainFeedLayout({
   });
   const feedVersion = useFeature(feature.feedVersion);
   const searchVersion = useFeature(feature.search);
+  const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
   const isV1Search = searchVersion === SearchExperiment.V1;
+  const isOnboardingV4dot5 = onboardingV4dot5 === OnboardingV4dot5.V4dot5;
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
 
@@ -173,10 +175,30 @@ export default function MainFeedLayout({
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
+    const feedWithActions = isUpvoted || isSortableFeed;
     // in v1 search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
     if (isV1Search && isSearchOn && !searchQuery) {
       return null;
+    }
+
+    if (feedName === SharedFeedPage.Onboarding && isOnboardingV4dot5) {
+      return {
+        feedName: OtherFeedPage.Preview,
+        feedQueryKey: [RequestKey.FeedPreview, user?.id],
+        query: PREVIEW_FEED_QUERY,
+        forceCardMode: true,
+        showSearch: false,
+        options: { refetchOnMount: true },
+        allowPin: true,
+        header: searchVersion === SearchExperiment.Control &&
+          !isSearchOn &&
+          !shouldUseFeedLayoutV1 && (
+            <SearchControlHeader {...searchProps} navChildren={navChildren} />
+          ),
+        actionButtons: (isV1Search || shouldUseFeedLayoutV1) &&
+          feedWithActions && <SearchControlHeader {...searchProps} />,
+      };
     }
 
     if (isSearchOn && searchQuery) {
@@ -212,7 +234,6 @@ export default function MainFeedLayout({
     };
 
     const variables = getVariables();
-    const feedWithActions = isUpvoted || isSortableFeed;
 
     return {
       feedName,
