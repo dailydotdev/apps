@@ -5,6 +5,7 @@ import { getRankQueryKey } from './useReadingRank';
 import { MyRankData } from '../graphql/users';
 import { getRank, RANKS } from '../lib/rank';
 import useDebounce from './useDebounce';
+import { RequestKey, generateQueryKey } from '../lib/query';
 
 type ReturnType = {
   incrementReadingRank: () => Promise<MyRankData>;
@@ -16,14 +17,27 @@ export default function useIncrementReadingRank(): ReturnType {
   const { user } = useContext(AuthContext);
   const queryKeyRef = useRef<string[]>();
   const queryClient = useQueryClient();
-  const [clearQueries] = useDebounce(() => {
-    queryClient.invalidateQueries(queryKeyRef.current);
-  }, 100);
+  const [clearQueries] = useDebounce(
+    async (readToday = false): Promise<void> => {
+      const promises = [queryClient.invalidateQueries(queryKeyRef.current)];
+      if (!readToday) {
+        promises.push(
+          queryClient.invalidateQueries(
+            generateQueryKey(RequestKey.UserStreak, user),
+          ),
+        );
+      }
+      await Promise.all(promises);
+    },
+    100,
+  );
 
   return {
     incrementReadingRank: async () => {
       const queryKey = getRankQueryKey(user);
       queryKeyRef.current = queryKey;
+      let currentRank = queryClient.getQueryData<MyRankData>(queryKey);
+
       const data = queryClient.setQueryData<MyRankData>(
         queryKey,
         (currentRank) => {
@@ -50,7 +64,7 @@ export default function useIncrementReadingRank(): ReturnType {
           };
         },
       );
-      clearQueries();
+      clearQueries(currentRank?.rank?.readToday ?? false);
       return data;
     },
   };
