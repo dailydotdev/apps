@@ -25,6 +25,7 @@ export interface UseReferralCampaign extends ReferralCampaign {
 
 export enum ReferralCampaignKey {
   Generic = 'generic',
+  Search = 'search',
 }
 
 export type UseReferralCampaignProps = {
