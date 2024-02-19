@@ -189,41 +189,46 @@ export const NotificationsContextProvider = ({
     }
 
     setIsInitializing(true);
-    import('react-onesignal').then(async (mod) => {
-      const OneSignalReact = mod.default;
+    try {
+      import('react-onesignal').then(async (mod) => {
+        const OneSignalReact = mod.default;
 
-      OneSignalReact.on('subscriptionChange', (value) =>
-        subscriptionCallbackRef.current?.(value),
-      );
+        OneSignalReact.on('subscriptionChange', (value) =>
+          subscriptionCallbackRef.current?.(value),
+        );
 
-      await OneSignalReact.init({
-        appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
-        allowLocalhostAsSecureOrigin: isDevelopment,
-        serviceWorkerParam: { scope: '/push/onesignal/' },
-        serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
+        await OneSignalReact.init({
+          appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+          allowLocalhostAsSecureOrigin: isDevelopment,
+          serviceWorkerParam: { scope: '/push/onesignal/' },
+          serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
+        });
+        const isGranted = globalThis.Notification?.permission === 'granted';
+        const [id, subscribed, externalId] = await Promise.all([
+          globalThis.OneSignal?.getRegistrationId(),
+          OneSignalReact.getSubscription(),
+          OneSignalReact.getExternalUserId(),
+        ]);
+        const isValidSubscription = subscribed && isGranted;
+        setOneSignal(OneSignalReact);
+        setIsInitialized(true);
+        setIsSubscribed(isValidSubscription);
+        if (id) {
+          setRegistrationId(id);
+        } else if (isValidSubscription) {
+          await globalThis.OneSignal?.registerForPushNotifications?.();
+          const regId = await globalThis.OneSignal?.getRegistrationId();
+          setRegistrationId(regId);
+        }
+
+        if (isValidSubscription && !externalId) {
+          OneSignalReact.setExternalUserId(user.id);
+        }
       });
-      const isGranted = globalThis.Notification?.permission === 'granted';
-      const [id, subscribed, externalId] = await Promise.all([
-        globalThis.OneSignal?.getRegistrationId(),
-        OneSignalReact.getSubscription(),
-        OneSignalReact.getExternalUserId(),
-      ]);
-      const isValidSubscription = subscribed && isGranted;
-      setOneSignal(OneSignalReact);
+    } catch (err) {
+      // we should maybe log the error somewhere if in case there was an issue with the initialization
       setIsInitialized(true);
-      setIsSubscribed(isValidSubscription);
-      if (id) {
-        setRegistrationId(id);
-      } else if (isValidSubscription) {
-        await globalThis.OneSignal?.registerForPushNotifications?.();
-        const regId = await globalThis.OneSignal?.getRegistrationId();
-        setRegistrationId(regId);
-      }
-
-      if (isValidSubscription && !externalId) {
-        OneSignalReact.setExternalUserId(user.id);
-      }
-    });
+    }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInitialized, isInitializing, user]);
@@ -244,7 +249,7 @@ export const NotificationsContextProvider = ({
       incrementUnreadCount: (value = 1) =>
         setCurrentUnreadCount((current) => current + value),
       get isNotificationSupported() {
-        return !!globalThis.window?.Notification;
+        return !!globalThis.window?.Notification && !!OneSignal;
       },
       trackPermissionGranted: (source) =>
         subscriptionCallbackRef.current?.(true, source, true),
