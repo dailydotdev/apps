@@ -7,9 +7,7 @@ import React, {
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { Spaciness } from '../../graphql/settings';
-import SettingsContext, {
-  useSettingsContext,
-} from '../../contexts/SettingsContext';
+import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
 import styles from '../Feed.module.css';
 import { useFeature } from '../GrowthBookProvider';
@@ -20,7 +18,6 @@ import { useFeedLayout, ToastSubject, useToastNotification } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
-import { FeedGradientBg } from './FeedGradientBg';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -110,7 +107,6 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
-  const { sidebarExpanded } = useSettingsContext();
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
@@ -170,14 +166,6 @@ export const FeedContainer = ({
             />
           )}
           {(inlineHeader || isOnboardingV4dot5) && header}
-          {isOnboardingV4dot5 && (
-            <FeedGradientBg
-              className={classNames(
-                'left-1/2 -z-1 ',
-                sidebarExpanded ? 'laptop:!left-60' : 'laptop:!left-11',
-              )}
-            />
-          )}
           {isV1Search && !shouldUseFeedLayoutV1 && (
             <span className="flex flex-1 flex-row items-center">
               {!!actionButtons && (
