@@ -47,7 +47,7 @@ export const Sizes: Story = {
             </Button>
           </span>
           <span key={size + '_iconOnly'}>
-            <Button {...props} size={size} icon={<ShareIcon />} Tag="span" />
+            <Button {...props} size={size} icon={<ShareIcon />} />
           </span>
         </>
       ))}
@@ -62,11 +62,12 @@ export const Sizes: Story = {
 
 export const Variants: Story = {
   render: ({ children, variant, ...props }) => (
-    <div className="grid grid-cols-4 gap-4">
+    <div className="grid grid-cols-5 gap-4">
       <h2>Primary</h2>
       <h2>Secondary</h2>
       <h2>Tertiary</h2>
       <h2>Float</h2>
+      <h2>Subtle</h2>
       {Object.values(ButtonVariant).map((variant) => (
         <span key={variant}>
           <Button {...props} variant={variant}>
