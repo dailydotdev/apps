@@ -35,6 +35,7 @@ export const SearchBarSuggestion = ({
   id: suggestionId,
   isHistory,
   prompt,
+  children,
   ...props
 }: SearchBarSuggestionProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
@@ -75,12 +76,11 @@ export const SearchBarSuggestion = ({
     <Button
       icon={<AiIcon />}
       variant={ButtonVariant.Subtle}
-      className={classNames(
-        'my-2 !h-auto min-h-[2.5rem] w-fit flex-shrink justify-start typo-subhead tablet:line-clamp-1',
-        className,
-      )}
+      className={classNames('w-fit !justify-start typo-subhead', className)}
       onClick={handleSuggestionsClick}
       {...props}
-    />
+    >
+      <span className="w-fit tablet:!line-clamp-1">{children}</span>
+    </Button>
   );
 };
