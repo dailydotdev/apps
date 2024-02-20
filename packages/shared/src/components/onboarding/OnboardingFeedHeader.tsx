@@ -44,7 +44,14 @@ export const OnboardingFeedHeader = ({
     trackEvent({
       event_name: AnalyticsEvent.CreateFeed,
     });
-  }, [registerLocalFilters, trackEvent, updateAlerts]);
+
+    return router.replace({
+      pathname: router.route,
+      query: {
+        welcome: 'true',
+      },
+    });
+  }, [registerLocalFilters, router, trackEvent, updateAlerts]);
 
   const preventNavigation = useCallback(
     (newRoute?: string) => {
@@ -79,7 +86,7 @@ export const OnboardingFeedHeader = ({
 
   const routeHandler = useCallback(
     (newRoute: string) => {
-      if (!stopNav) {
+      if (!stopNav || newRoute === '/my-feed') {
         return;
       }
       router.events.emit('routeChangeError');
