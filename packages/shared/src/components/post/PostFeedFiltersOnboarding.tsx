@@ -3,13 +3,17 @@ import classNames from 'classnames';
 import { cloudinary } from '../../lib/image';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetType } from '../../lib/analytics';
-import { ExperimentWinner } from '../../lib/featureValues';
+import { ExperimentWinner, isOnboardingV4dot5 } from '../../lib/featureValues';
 import {
   Button,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
+import AuthContext from '../../contexts/AuthContext';
+import { AuthTriggers } from '../../lib/auth';
+import { feature } from '../../lib/featureManagement';
+import { useFeature } from '../GrowthBookProvider';
 
 const imageClassNames = 'absolute right-0';
 
@@ -23,6 +27,8 @@ export function PostFeedFiltersOnboarding({
   className,
 }: PostFeedFiltersOnboardingProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
+  const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
+  const { showLogin } = useContext(AuthContext);
   useEffect(() => {
     trackEvent({
       event_name: AnalyticsEvent.Impression,
@@ -33,13 +39,23 @@ export function PostFeedFiltersOnboarding({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const initOnboarding = () => {
+    if (isOnboardingV4dot5(onboardingV4dot5)) {
+      showLogin({
+        trigger: AuthTriggers.MainButton,
+      });
+    } else {
+      onInitializeOnboarding();
+    }
+  };
+
   return (
     <div
       className={classNames(
         'relative flex items-center rounded-16 border border-theme-color-cabbage',
         className,
       )}
-      onClick={onInitializeOnboarding}
+      onClick={initOnboarding}
       role="button"
       tabIndex={0}
       aria-label="Customize your feed"
@@ -48,7 +64,7 @@ export function PostFeedFiltersOnboarding({
           return;
         }
 
-        onInitializeOnboarding();
+        initOnboarding();
       }}
     >
       <div className="w-3/5 px-4 py-3">
