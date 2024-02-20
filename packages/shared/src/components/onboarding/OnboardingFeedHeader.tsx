@@ -6,6 +6,7 @@ import {
   Button,
   ButtonColor,
   ButtonIconPosition,
+  ButtonSize,
   ButtonVariant,
 } from '../buttons/ButtonV2';
 import { REQUIRED_TAGS_THRESHOLD } from './common';
@@ -105,9 +106,9 @@ export const OnboardingFeedHeader = ({
 
   return (
     <LayoutHeader className="flex-col overflow-x-visible">
-      <div className="fixed z-1 flex w-full justify-center bg-gradient-to-b from-overlay-primary-pepper from-90% to-transparent py-10">
-        <div className="flex w-[40rem] rounded-16 border-l-2 border-l-cabbage-10 bg-theme-bg-notification p-6">
-          <div className="mr-auto">
+      <div className="fixed z-1 flex w-full justify-center bg-gradient-to-b from-theme-surface-invert via-theme-surface-invert-opacity-80 via-90% tablet:px-4 tablet:py-10">
+        <div className="flex h-44 w-full max-w-[40rem] flex-col items-center border-l-2 border-theme-color-cabbage bg-theme-bg-popover  p-6 tablet:h-auto tablet:flex-row tablet:rounded-16">
+          <div className="text-center tablet:text-left">
             <p className="font-bold typo-title3">
               Pick tags that are relevant to you
             </p>
@@ -115,11 +116,11 @@ export const OnboardingFeedHeader = ({
               You can always modify your tags later
             </p>
           </div>
-
+          <div className="flex flex-1" />
           <Button
+            size={ButtonSize.Large}
             variant={ButtonVariant.Primary}
             disabled={!isFeedPreviewEnabled}
-            className="self-center"
             onClick={completeOnboarding}
           >
             Create my feed
@@ -128,7 +129,7 @@ export const OnboardingFeedHeader = ({
       </div>
 
       <div className="flex max-w-full flex-col">
-        <FilterOnboardingV4 className="mt-[11rem]" />
+        <FilterOnboardingV4 className="mt-44 pt-6 tablet:pt-0" />
         <div className="mt-10 flex items-center justify-center gap-10 text-theme-label-quaternary typo-callout">
           <div className="h-px flex-1 bg-theme-divider-tertiary" />
           <Button
