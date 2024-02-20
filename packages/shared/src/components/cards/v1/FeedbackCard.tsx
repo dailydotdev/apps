@@ -4,7 +4,7 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../../buttons/ButtonV2';
+} from '../../buttons/Button';
 import { DownvoteIcon, UpvoteIcon } from '../../icons';
 import { Post, UserPostVote } from '../../../graphql/posts';
 import { usePostFeedback } from '../../../hooks';

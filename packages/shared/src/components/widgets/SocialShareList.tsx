@@ -22,7 +22,7 @@ import {
   TwitterIcon,
 } from '../icons';
 import { IconSize } from '../Icon';
-import { ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
+import { ButtonColor, ButtonVariant } from '../buttons/Button';
 
 interface SocialShareListProps {
   link: string;

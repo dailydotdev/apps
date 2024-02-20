@@ -14,7 +14,7 @@ import { SharePostTitle } from './share';
 import { combinedClicks } from '../../lib/click';
 import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
-import { ButtonVariant } from '../buttons/ButtonV2';
+import { ButtonVariant } from '../buttons/Button';
 
 interface SharePostContentProps {
   post: Post;

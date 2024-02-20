@@ -14,7 +14,7 @@ import styles from './InAppNotification.module.css';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { NotificationType } from './utils';
-import { ButtonSize } from '../buttons/ButtonV2';
+import { ButtonSize } from '../buttons/Button';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { ModalClose } from '../modals/common/ModalClose';
 

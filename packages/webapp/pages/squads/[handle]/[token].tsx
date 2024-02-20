@@ -22,7 +22,7 @@ import SourceButton from '@dailydotdev/shared/src/components/cards/SourceButton'
 import {
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { ParsedUrlQuery } from 'querystring';
 import {

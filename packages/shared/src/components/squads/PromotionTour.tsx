@@ -1,6 +1,6 @@
 import React, { ReactElement, useMemo } from 'react';
 import { cloudinary } from '../../lib/image';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import { FlexCentered, Justify } from '../utilities';
 import Carousel from '../containers/Carousel';
 import { ModalFooter } from '../modals/common/ModalFooter';

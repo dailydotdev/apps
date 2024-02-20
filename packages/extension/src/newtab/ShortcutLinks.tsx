@@ -12,7 +12,7 @@ import {
   Button,
   ButtonIconPosition,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import {
