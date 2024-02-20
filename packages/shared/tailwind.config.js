@@ -135,6 +135,7 @@ module.exports = {
       header: '75',
       postNavigation: '76',
       sidebar: '70',
+      sidebarOverlay: '77',
       tooltip: '80',
       popup: '90',
       modal: '100',
