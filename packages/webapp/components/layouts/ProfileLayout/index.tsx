@@ -29,6 +29,7 @@ const Custom404 = dynamic(
 );
 
 export interface ProfileLayoutProps extends Partial<ProfileV2> {
+  noindex: boolean;
   children?: ReactNode;
 }
 
@@ -36,6 +37,7 @@ export default function ProfileLayout({
   user: initialUser,
   userStats,
   sources,
+  noindex,
   children,
 }: ProfileLayoutProps): ReactElement {
   const router = useRouter();
@@ -52,15 +54,24 @@ export default function ProfileLayout({
 
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
+  const ogImageUrl = new URL(
+    `/devcards/v2/${user.id}.png`,
+    process.env.NEXT_PUBLIC_API_URL,
+  );
+  ogImageUrl.searchParams.set('type', 'wide');
+  ogImageUrl.searchParams.set('r', Math.random().toString(36).substring(2, 5));
+
   const Seo: NextSeoProps = {
     title: getTemplatedTitle(user.name),
     description: user.bio ? user.bio : `Check out ${user.name}'s profile`,
     openGraph: {
-      images: [{ url: user.image }],
+      images: [{ url: ogImageUrl.toString() }],
     },
     twitter: {
       handle: user.twitter,
     },
+    noindex,
+    nofollow: noindex,
   };
 
   return (
@@ -120,7 +131,7 @@ export async function getStaticProps({
     const user = await getProfileSSR(userId);
     if (!user) {
       return {
-        props: {},
+        props: { noindex: true },
         revalidate: 60,
       };
     }
@@ -130,6 +141,7 @@ export async function getStaticProps({
       props: {
         user,
         ...data,
+        noindex: user.reputation <= 10,
       },
       revalidate: 60,
     };
@@ -137,7 +149,7 @@ export async function getStaticProps({
     const clientError = err as ClientError;
     if (clientError?.response?.errors?.[0]?.extensions?.code === 'FORBIDDEN') {
       return {
-        props: {},
+        props: { noindex: true },
         revalidate: 60,
       };
     }

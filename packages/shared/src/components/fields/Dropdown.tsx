@@ -47,7 +47,7 @@ const getButtonSizeClass = (buttonSize: string): string => {
     return 'h-9 rounded-10 text-theme-label-primary typo-body';
   }
   if (buttonSize === 'medium') {
-    return 'h-10 rounded-xl min-w-[2.5rem]';
+    return 'h-10 rounded-12 min-w-[2.5rem]';
   }
   if (buttonSize === 'small') {
     return 'h-8 rounded-10';

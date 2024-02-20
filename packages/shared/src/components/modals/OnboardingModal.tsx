@@ -140,7 +140,7 @@ function OnboardingModal({
     if (isAuthenticating) {
       return (
         <AuthOptions
-          className="h-full"
+          className={{ container: 'h-full' }}
           onClose={onClose}
           formRef={formRef}
           onSuccessfulLogin={onRegistrationSuccess}

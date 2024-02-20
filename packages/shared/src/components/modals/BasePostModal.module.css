@@ -8,6 +8,6 @@
     min-height: 100vh;
     padding: 0;
     overflow-y: scroll;
-    z-index: 10;
+    z-index: 100;
   }
 }

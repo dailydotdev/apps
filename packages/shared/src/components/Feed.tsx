@@ -43,6 +43,8 @@ import {
   useBookmarkPost,
 } from '../hooks/useBookmarkPost';
 import { isNullOrUndefined } from '../lib/func';
+import { useFeature } from './GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'>,
@@ -130,6 +132,7 @@ export default function Feed<T>({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const copyLinkFeature = useFeature(feature.copyLink);
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
@@ -240,8 +243,13 @@ export default function Feed<T>({
     setPostMenuIndex,
   } = useFeedContextMenu();
 
-  const { sharePost, sharePostFeedLocation, openSharePost, closeSharePost } =
-    useSharePost(origin);
+  const {
+    sharePost,
+    sharePostFeedLocation,
+    openSharePost,
+    copyLink,
+    closeSharePost,
+  } = useSharePost(origin);
 
   useEffect(() => {
     return () => {
@@ -282,23 +290,27 @@ export default function Feed<T>({
     row: number,
     column: number,
   ) => {
-    onShareMenuClick(e, post, index, row, column);
-    const trackEventOptions = {
-      columns: virtualizedNumCards,
-      column,
-      row,
-      ...feedAnalyticsExtra(
-        feedName,
-        ranking,
-        undefined,
-        undefined,
-        ExperimentWinner.PostCardShareVersion,
-      ),
-    };
-    trackEvent(postAnalyticsEvent('open share', post, trackEventOptions));
-    lastShareMenuCloseTrackEvent = () => {
-      trackEvent(postAnalyticsEvent('close share', post, trackEventOptions));
-    };
+    if (copyLinkFeature) {
+      copyLink(post, index, row, column);
+    } else {
+      onShareMenuClick(e, post, index, row, column);
+      const trackEventOptions = {
+        columns: virtualizedNumCards,
+        column,
+        row,
+        ...feedAnalyticsExtra(
+          feedName,
+          ranking,
+          undefined,
+          undefined,
+          ExperimentWinner.PostCardShareVersion,
+        ),
+      };
+      trackEvent(postAnalyticsEvent('open share', post, trackEventOptions));
+      lastShareMenuCloseTrackEvent = () => {
+        trackEvent(postAnalyticsEvent('close share', post, trackEventOptions));
+      };
+    }
   };
 
   const onShareOptionsHidden = () => {

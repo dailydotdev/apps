@@ -42,7 +42,7 @@ export function TypeLabel({
   return (
     <legend
       className={classNames(
-        'rounded bg-theme-bg-primary font-bold capitalize typo-caption1',
+        'rounded-4 bg-theme-bg-primary font-bold capitalize typo-caption1',
         typeToClassName[type as PostType] ?? 'text-theme-label-tertiary',
         !focus && '-top-[9px]', // taking the border width into account
         focus && '-top-2.5',
@@ -51,7 +51,7 @@ export function TypeLabel({
     >
       <div
         className={classNames(
-          'rounded px-2 group-hover:bg-theme-float group-focus:bg-theme-float',
+          'rounded-4 px-2 group-hover:bg-theme-float group-focus:bg-theme-float',
           focus && 'bg-theme-float',
         )}
       >

@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
+import classNames from 'classnames';
 import { Button, ButtonVariant } from './buttons/ButtonV2';
 import AuthContext from '../contexts/AuthContext';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -6,8 +7,13 @@ import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
 import { AuthTriggers } from '../lib/auth';
 import { TargetType } from '../lib/analytics';
 
+interface ClassName {
+  container?: string;
+  button?: string;
+}
+
 interface LoginButtonProps {
-  className?: string;
+  className?: ClassName;
 }
 
 enum ButtonCopy {
@@ -24,7 +30,7 @@ const getAnalyticsEvent = (copy: ButtonCopy): AnalyticsEvent => ({
 });
 
 export default function LoginButton({
-  className,
+  className = {},
 }: LoginButtonProps): ReactElement {
   const { showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -38,18 +44,18 @@ export default function LoginButton({
   };
 
   return (
-    <span className="flex flex-row gap-4">
+    <span className={classNames('flex flex-row', className?.container)}>
       <Button
         onClick={() => onClick(ButtonCopy.Login)}
         variant={ButtonVariant.Secondary}
-        className={className}
+        className={className?.button}
       >
         {ButtonCopy.Login}
       </Button>
       <Button
         onClick={() => onClick(ButtonCopy.Signup)}
         variant={ButtonVariant.Primary}
-        className={className}
+        className={className?.button}
       >
         {ButtonCopy.Signup}
       </Button>

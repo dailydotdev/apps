@@ -55,6 +55,7 @@ export const generateStorageKey = (
   (generateQueryKey(key, null, ...params) as Array<string>).join(':');
 
 export enum RequestKey {
+  DevCard = 'devcard',
   Providers = 'providers',
   Bookmarks = 'bookmarks',
   PostComments = 'post_comments',
@@ -89,6 +90,7 @@ export enum RequestKey {
   UserComments = 'user_comments',
   Readme = 'readme',
   Host = 'host',
+  Source = 'source',
 }
 
 export type HasConnection<

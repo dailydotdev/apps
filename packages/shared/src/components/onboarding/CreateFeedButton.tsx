@@ -26,7 +26,7 @@ export const CreateFeedButton = ({
       }
       forceLoad={!isTesting}
     >
-      <div>
+      <div className="relative">
         <Button
           className={className}
           variant={ButtonVariant.Primary}

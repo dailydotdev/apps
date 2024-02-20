@@ -54,7 +54,7 @@ export default function AuthModal({
       className={classNames(className, 'auth')}
     >
       <AuthOptions
-        className="h-full"
+        className={{ container: 'h-full' }}
         onClose={onClose}
         formRef={formRef}
         onSuccessfulLogin={onSuccessfulLogin}
