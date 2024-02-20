@@ -13,7 +13,7 @@ import {
   Button,
   ButtonColor,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import React, { ReactElement, useContext, useRef, useState } from 'react';
 import useProfileForm, {
   UpdateProfileParameters,

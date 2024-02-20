@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import { ChecklistStepProps } from '../../lib/checklist';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { ChecklistStep } from './ChecklistStep';
 import { FlexRow } from '../utilities';
 import { useLazyModal } from '../../hooks/useLazyModal';

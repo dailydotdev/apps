@@ -99,6 +99,7 @@ body {
 
   --theme-overlay-active-cabbage: theme('colors.overlay.active.cabbage');
   --theme-overlay-active-onion: theme('colors.overlay.active.onion');
+  --theme-overlay-active-salt: theme('colors.overlay.active.salt');
 
   --theme-gradient-cabbage: theme('colors.cabbage.10')66;
   --theme-gradient-onion: theme('colors.onion.10')66;
@@ -227,6 +228,7 @@ body {
 
   --theme-overlay-active-cabbage: theme('colors.overlay.active.cabbage');
   --theme-overlay-active-onion: theme('colors.overlay.active.onion');
+  --theme-overlay-active-salt: theme('colors.overlay.active.salt');
 
   --theme-gradient-cabbage: theme('colors.cabbage.10')66;
   --theme-gradient-onion: theme('colors.onion.10')66;

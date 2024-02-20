@@ -2,7 +2,7 @@ import React, { CSSProperties, ReactElement } from 'react';
 import classNames from 'classnames';
 import { PublicProfile } from '../../lib/user';
 import { ShareIcon, SettingsIcon } from '../icons';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { ProfilePicture } from '../ProfilePicture';
 import { largeNumberFormat } from '../../lib/numberFormat';

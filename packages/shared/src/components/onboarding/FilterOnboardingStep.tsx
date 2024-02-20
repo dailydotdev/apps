@@ -2,7 +2,7 @@ import React, { ReactElement, useContext } from 'react';
 import Container from './OnboardingStep';
 import { Modal } from '../modals/common/Modal';
 import { Justify } from '../utilities';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import { OnboardingStep } from './common';
 import { ModalPropsContext } from '../modals/common/types';
 import { FilterOnboarding } from './FilterOnboarding';

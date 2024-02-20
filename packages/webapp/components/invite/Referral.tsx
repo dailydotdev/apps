@@ -3,7 +3,7 @@ import {
   Button,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';

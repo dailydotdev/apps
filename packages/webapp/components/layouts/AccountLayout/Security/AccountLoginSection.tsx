@@ -2,7 +2,7 @@ import { Provider } from '@dailydotdev/shared/src/components/auth/common';
 import {
   Button,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import AccountContentSection from '../AccountContentSection';

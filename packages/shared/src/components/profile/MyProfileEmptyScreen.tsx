@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonProps, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonProps, ButtonVariant } from '../buttons/Button';
 
 export interface MyProfileEmptyScreenProps {
   text: string;

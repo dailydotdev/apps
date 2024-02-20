@@ -2,7 +2,7 @@ import React, { ReactElement, useEffect } from 'react';
 import {
   Button,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import { KeyIcon } from '@dailydotdev/shared/src/components/icons';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';

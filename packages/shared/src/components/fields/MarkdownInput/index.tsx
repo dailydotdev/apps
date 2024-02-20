@@ -18,7 +18,7 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../../buttons/ButtonV2';
+} from '../../buttons/Button';
 import { RecommendedMentionTooltip } from '../../tooltips/RecommendedMentionTooltip';
 import {
   UseMarkdownInput,

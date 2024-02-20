@@ -4,7 +4,7 @@ import {
   PermissionEvent,
 } from '../../hooks/useNotificationPermissionPopup';
 import { cloudinary } from '../../lib/image';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { Justify } from '../utilities';
 import { Modal, ModalProps } from './common/Modal';
 import { useNotificationContext } from '../../contexts/NotificationsContext';

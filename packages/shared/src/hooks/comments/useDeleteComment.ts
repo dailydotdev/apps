@@ -2,7 +2,7 @@ import { useCallback, useContext } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { PromptOptions, usePrompt } from '../usePrompt';
 import { ButtonVariant } from '../../components/buttons/common';
-import { ButtonColor } from '../../components/buttons/ButtonV2';
+import { ButtonColor } from '../../components/buttons/Button';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { AnalyticsEvent } from '../../lib/analytics';
 import { deleteComment } from '../../graphql/comments';

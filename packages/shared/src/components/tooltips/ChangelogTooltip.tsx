@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonColor, ButtonSize } from '../buttons/Button';
 import { cloudinary } from '../../lib/image';
 import { postDateFormat } from '../../lib/dateFormat';
 import { Image } from '../image/Image';
@@ -165,11 +165,11 @@ function ChangelogTooltip(): ReactElement {
         </section>
         <footer className="flex h-16 w-full items-center justify-between border-t border-theme-divider-tertiary p-3">
           <Button
-            className="btn-tertiary"
             onClick={dismissChangelog}
             tag="a"
             href={post.commentsPermalink}
             data-testid="changelogReleaseNotesBtn"
+            variant={ButtonVariant.Tertiary}
           >
             Release notes
           </Button>
@@ -177,10 +177,11 @@ function ChangelogTooltip(): ReactElement {
             <Button
               tag={isFirefoxExtension ? 'a' : undefined}
               href={isFirefoxExtension ? updateFirefoxExtensionLink : undefined}
-              className="btn-primary-cabbage"
               data-testid="changelogExtensionBtn"
               loading={isExtensionUpdating}
               onClick={onExtensionUpdateClick}
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Cabbage}
             >
               Update extension
             </Button>
