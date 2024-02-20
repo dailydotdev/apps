@@ -6,7 +6,6 @@ import React, {
   useContext,
 } from 'react';
 import classNames from 'classnames';
-import { useRouter } from 'next/router';
 import classed from '../../lib/classed';
 import { FeedHeading, SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
