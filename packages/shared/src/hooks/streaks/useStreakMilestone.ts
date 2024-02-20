@@ -4,14 +4,13 @@ import { LazyModal } from '../../components/modals/common/types';
 import AlertContext from '../../contexts/AlertContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useReadingStreak } from './useReadingStreak';
-import { StreakModalProps } from '../../components/modals/streaks/common';
 
 export const useStreakMilestone = (): void => {
   const { loadedSettings, optOutWeeklyGoal } = useSettingsContext();
   const { streak, isEnabled } = useReadingStreak();
 
   const { alerts, updateAlerts } = useContext(AlertContext);
-  const { openModal, closeModal } = useLazyModal();
+  const { openModal } = useLazyModal();
 
   const modalType: LazyModal.FirstStreak | LazyModal.NewStreak =
     streak?.total === 1 ? LazyModal.FirstStreak : LazyModal.NewStreak;
@@ -37,11 +36,10 @@ export const useStreakMilestone = (): void => {
       type: modalType,
       props: {
         currentStreak: streak?.current,
-        onRequestClose: () => {
+        onAfterClose: () => {
           updateAlerts({ showStreakMilestone: false });
-          closeModal();
         },
-      } as StreakModalProps,
+      },
     });
-  }, [closeModal, modalType, openModal, shouldHideModal, streak, updateAlerts]);
+  }, [modalType, openModal, shouldHideModal, streak, updateAlerts]);
 };
