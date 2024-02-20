@@ -60,6 +60,8 @@ import {
 } from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -103,8 +105,12 @@ export function OnboardPage(): ReactElement {
     webm?: string;
     mp4?: string;
   };
+  const isMobile = useViewSize(ViewSize.MobileL);
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
+  );
+  const socialProofOnboardingMobile: boolean = useFeature(
+    feature.socialProofOnboarding,
   );
   const targetId = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
@@ -196,6 +202,10 @@ export function OnboardPage(): ReactElement {
             isAuthenticating && 'h-full',
             !isAuthenticating && 'max-w-full',
           ),
+          onboardingSignup: classNames(
+            socialProofOnboardingMobile &&
+              '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
+          ),
         }}
         trigger={AuthTriggers.Onboarding}
         formRef={formRef}
@@ -208,6 +218,11 @@ export function OnboardPage(): ReactElement {
         onSuccessfulRegistration={onSuccessfulRegistration}
         onAuthStateUpdate={(props: AuthProps) =>
           setAuth({ isAuthenticating: true, ...props })
+        }
+        onboardingSignupButtonSize={
+          isMobile && socialProofOnboardingMobile
+            ? ButtonSize.Medium
+            : ButtonSize.Large
         }
       />
     );
@@ -227,7 +242,7 @@ export function OnboardPage(): ReactElement {
       <div
         className={classNames(
           'flex tablet:flex-1',
-          !isFiltering && 'ml-auto laptop:max-w-[37.5rem]',
+          !isFiltering && 'tablet:ml-auto laptop:max-w-[37.5rem]',
           isFiltering &&
             'mb-10 ml-0 flex w-full flex-col items-center justify-start',
         )}
@@ -292,8 +307,17 @@ export function OnboardPage(): ReactElement {
           </>
         )}
         {!isFiltering && (
-          <div className="hidden flex-1 tablet:block">
-            <div className={classNames('relative', styles.videoWrapper)}>
+          <div
+            className={classNames(
+              'flex-1',
+              socialProofOnboardingMobile ? 'block' : 'hidden tablet:block',
+            )}
+          >
+            <div
+              className={classNames(
+                'tablet:min-h-[800px]:pt-[100%] relative overflow-y-clip tablet:overflow-y-visible tablet:pt-[80%]',
+              )}
+            >
               {onboardingVisual?.poster ? (
                 // eslint-disable-next-line jsx-a11y/media-has-caption
                 <video
@@ -301,7 +325,7 @@ export function OnboardPage(): ReactElement {
                   autoPlay
                   muted
                   className={classNames(
-                    'absolute -top-[20%] left-0 -z-1 tablet:top-0',
+                    'tablet:absolute tablet:left-0 tablet:top-0 tablet:-z-1',
                     styles.video,
                   )}
                   poster={onboardingVisual.poster}
@@ -314,13 +338,15 @@ export function OnboardPage(): ReactElement {
                   src={onboardingVisual.image}
                   alt="Onboarding cover"
                   className={classNames(
-                    'absolute -top-[20%] left-0 -z-1 tablet:top-0',
-                    styles.video,
+                    'relative tablet:absolute tablet:left-0 tablet:top-0 tablet:-z-1',
+                    styles.image,
                   )}
                 />
               )}
             </div>
-            {onboardingVisual.showCompanies && <TrustedCompanies />}
+            {onboardingVisual.showCompanies && socialProofOnboardingMobile && (
+              <TrustedCompanies className="hidden tablet:block" />
+            )}
           </div>
         )}
       </div>
@@ -366,7 +392,7 @@ export function OnboardPage(): ReactElement {
       />
       <div
         className={classNames(
-          'flex w-full flex-grow flex-wrap justify-center px-6 tablet:gap-10',
+          'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
           !isFiltering && wrapperMaxWidth,
           !isAuthenticating && 'mt-7.5 flex-1 content-center',
         )}
@@ -375,6 +401,9 @@ export function OnboardPage(): ReactElement {
           <div
             className={classNames(
               'flex flex-1 flex-col laptop:mr-8 laptop:max-w-[27.5rem]',
+              socialProofOnboardingMobile
+                ? 'mt-5 tablet:mt-0'
+                : 'justify-center',
             )}
           >
             <OnboardingHeadline
@@ -386,22 +415,33 @@ export function OnboardPage(): ReactElement {
             {getAuthOptions()}
           </div>
         )}
+        {showOnboardingPage && socialProofOnboardingMobile && (
+          <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />
+        )}
         {getContent()}
       </div>
       {showOnboardingPage && (
         <footer
           className={classNames(
-            'flex h-full max-h-[10rem] w-full px-6',
+            'flex h-full max-h-[10rem] w-full px-4 tablet:px-6',
             wrapperMaxWidth,
           )}
         >
           <div className="relative flex flex-1 flex-col gap-6 pb-6 tablet:mt-auto laptop:mr-8 laptop:max-w-[27.5rem]">
-            <SignupDisclaimer className="mb-0 tablet:mb-10" />
+            <SignupDisclaimer
+              className={classNames(
+                'mb-0 tablet:mb-10',
+                socialProofOnboardingMobile && 'hidden tablet:block',
+              )}
+            />
 
             <TrustedCompanies
               iconSize={IconSize.Small}
               reverse
-              className="block tablet:hidden"
+              className={classNames(
+                ' block tablet:hidden',
+                socialProofOnboardingMobile && 'mt-5',
+              )}
             />
 
             <img
