@@ -22,13 +22,23 @@ export const OnboardingFeedHeader = ({
   return (
     <LayoutHeader className="flex-col overflow-x-visible">
       <div className="flex max-w-full flex-col">
-        <div className="fixed">
-          <span>Pick tags that are relevant to you</span>
-          <span>You can always modify your tags later</span>
+        <div className="fixed z-1 flex w-full justify-center bg-overlay-primary-pepper py-10">
+          <div className="flex w-[40rem] rounded-xl border-l-2 border-l-cabbage-10 bg-theme-bg-notification p-6">
+            <div className="mr-auto">
+              <p className="text-xl font-bold">
+                Pick tags that are relevant to you
+              </p>
+              <p className="text-sm text-theme-label-tertiary">
+                You can always modify your tags later
+              </p>
+            </div>
 
-          <Button>Create my feed</Button>
+            <Button variant={ButtonVariant.Primary} className="self-center">
+              Create my feed
+            </Button>
+          </div>
         </div>
-        <FilterOnboardingV4 />
+        <FilterOnboardingV4 className="mt-[11rem]" />
         <div className="mt-10 flex items-center justify-center gap-10 text-theme-label-quaternary typo-callout">
           <div className="h-px flex-1 bg-theme-divider-tertiary" />
           <Button
