@@ -42,6 +42,7 @@ module.exports = {
         },
         surface: {
           invert: 'var(--theme-surface-invert)',
+          'invert-opacity-80': 'var(--theme-surface-invert-opacity-80)',
         },
         label: {
           primary: 'var(--theme-label-primary)',

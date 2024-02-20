@@ -58,6 +58,8 @@ body {
   --theme-background-popover: theme('colors.pepper.70');
 
   --theme-surface-invert: theme('colors.pepper.90');
+  /* stylelint-disable-next-line unit-no-unknown */
+  --theme-surface-invert-opacity-80: theme('colors.pepper.90')CC;
 
   --theme-label-primary: #ffffff;
   --theme-label-secondary: theme('colors.salt.50');
@@ -189,6 +191,8 @@ body {
   --theme-background-popover: theme('colors.salt.0');
 
   --theme-surface-invert: theme('colors.salt.0');
+  /* stylelint-disable-next-line unit-no-unknown */
+  --theme-surface-invert-opacity-80: theme('colors.salt.0')CC;
 
   --theme-label-primary: theme('colors.pepper.90');
   --theme-label-secondary: theme('colors.pepper.50');
