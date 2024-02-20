@@ -2,11 +2,20 @@ import React, { useCallback, useEffect } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { FilterOnboardingV4 } from './FilterOnboardingV4';
-import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/ButtonV2';
+import {
+  Button,
+  ButtonColor,
+  ButtonIconPosition,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import { REQUIRED_TAGS_THRESHOLD } from './common';
 import { ArrowIcon } from '../icons';
 import { LayoutHeader } from '../layout/common';
 import { usePrompt } from '../../hooks/usePrompt';
+import { useMyFeed } from '../../hooks/useMyFeed';
+import { useAlertsContext } from '../../contexts/AlertContext';
+import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { AnalyticsEvent } from '../../lib/analytics';
 
 type OnboardingFeedHeaderProps = {
   isPreviewFeedVisible: boolean;
@@ -22,8 +31,20 @@ export const OnboardingFeedHeader = ({
   tagsCount,
 }: OnboardingFeedHeaderProps): JSX.Element => {
   let stopNav = true;
+  const { updateAlerts } = useAlertsContext();
+  const { trackEvent } = useAnalyticsContext();
   const { showPrompt } = usePrompt();
   const router = useRouter();
+  const { registerLocalFilters } = useMyFeed();
+
+  const completeOnboarding = useCallback(() => {
+    registerLocalFilters();
+    updateAlerts({ filter: false, myFeed: 'created' });
+
+    trackEvent({
+      event_name: AnalyticsEvent.CreateFeed,
+    });
+  }, [registerLocalFilters, trackEvent, updateAlerts]);
 
   const preventNavigation = useCallback(
     (newRoute?: string) => {
@@ -42,6 +63,9 @@ export const OnboardingFeedHeader = ({
       }).then((stay) => {
         if (!stay) {
           stopNav = false;
+          trackEvent({
+            event_name: AnalyticsEvent.OnboardingSkip,
+          });
           router.replace(newRoute);
         }
       });
@@ -82,7 +106,12 @@ export const OnboardingFeedHeader = ({
               </p>
             </div>
 
-            <Button variant={ButtonVariant.Primary} className="self-center">
+            <Button
+              variant={ButtonVariant.Primary}
+              disabled={!isFeedPreviewEnabled}
+              className="self-center"
+              onClick={completeOnboarding}
+            >
               Create my feed
             </Button>
           </div>
