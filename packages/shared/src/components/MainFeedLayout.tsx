@@ -277,28 +277,28 @@ export default function MainFeedLayout({
       feedName === SharedFeedPage.MyFeed)
   ) {
     return (
-      <FeedPageComponent
-        className={classNames('relative', disableTopPadding && '!pt-0')}
-      >
+      <FeedPage className="relative !p-0">
         <OnboardingFeedHeader
           isPreviewFeedVisible={isPreviewFeedVisible}
           setPreviewFeedVisible={setPreviewFeedVisible}
           isFeedPreviewEnabled={isFeedPreviewEnabled}
           tagsCount={tagsCount}
         />
-        {isFeedPreviewEnabled && isPreviewFeedVisible && (
-          <Feed
-            className="px-6 pt-14 laptop:pt-10"
-            feedName={OtherFeedPage.Preview}
-            feedQueryKey={[RequestKey.FeedPreview, user?.id]}
-            query={PREVIEW_FEED_QUERY}
-            forceCardMode
-            showSearch={false}
-            options={{ refetchOnMount: true }}
-            allowPin
-          />
-        )}
-      </FeedPageComponent>
+        <div className="px-6 laptop:px-16">
+          {isFeedPreviewEnabled && isPreviewFeedVisible && (
+            <Feed
+              className="px-6 pt-14 laptop:pt-10"
+              feedName={OtherFeedPage.Preview}
+              feedQueryKey={[RequestKey.FeedPreview, user?.id]}
+              query={PREVIEW_FEED_QUERY}
+              forceCardMode
+              showSearch={false}
+              options={{ refetchOnMount: true }}
+              allowPin
+            />
+          )}
+        </div>
+      </FeedPage>
     );
   }
 
