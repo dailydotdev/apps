@@ -155,14 +155,9 @@ export interface GetDefaultFeedProps {
 
 export const getDefaultFeed = ({
   hasUser,
-  hasFiltered,
 }: GetDefaultFeedProps): SharedFeedPage => {
   if (!hasUser) {
     return SharedFeedPage.Popular;
-  }
-
-  if (!hasFiltered) {
-    return SharedFeedPage.Onboarding;
   }
 
   return SharedFeedPage.MyFeed;

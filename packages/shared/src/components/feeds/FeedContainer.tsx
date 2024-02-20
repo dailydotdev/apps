@@ -86,7 +86,6 @@ const getStyle = (isList: boolean, space: Spaciness): CSSProperties => {
 const feedNameToHeading: Record<SharedFeedPage, string> = {
   search: 'Search',
   'my-feed': 'For you',
-  onboarding: 'For you',
   popular: 'Popular',
   upvoted: 'Most upvoted',
   discussed: 'Best discussions',

@@ -59,9 +59,6 @@ type FeedQueryProps = {
 };
 
 const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
-  onboarding: {
-    query: PREVIEW_FEED_QUERY,
-  },
   'my-feed': {
     query: ANONYMOUS_FEED_QUERY,
     queryIfLogged: FEED_QUERY,
@@ -273,8 +270,7 @@ export default function MainFeedLayout({
   if (
     isOnboardingV4dot5 &&
     alerts?.filter &&
-    (feedName === SharedFeedPage.Onboarding ||
-      feedName === SharedFeedPage.MyFeed)
+    feedName === SharedFeedPage.MyFeed
   ) {
     return (
       <FeedPage className="relative !p-0">
