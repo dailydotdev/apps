@@ -8,7 +8,7 @@ import React, {
 import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
 import request from 'graphql-request';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { SearchField } from '../fields/SearchField';
 import { Radio } from '../fields/Radio';
 import { formToJson } from '../../lib/form';

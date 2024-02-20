@@ -28,7 +28,7 @@ export const NotifMessage = classed(
 );
 export const NotifProgress = classed(
   'span',
-  'absolute -bottom-2 h-1 ease-in-out bg-theme-status-cabbage rounded-full',
+  'absolute -bottom-2 h-1 ease-in-out bg-theme-status-cabbage rounded-8',
 );
 
 export enum NotificationType {

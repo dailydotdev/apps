@@ -4,7 +4,7 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { cloudinary } from '../../lib/image';
 import Logo, { LogoPosition } from '../Logo';
 import { AuthProps, AuthDisplay } from '../auth/AuthOptions';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { CreateFeedButton } from './CreateFeedButton';
 import { wrapperMaxWidth } from './common';
 

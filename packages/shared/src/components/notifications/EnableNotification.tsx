@@ -5,7 +5,7 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 import CloseButton from '../CloseButton';
 import { cloudinary } from '../../lib/image';
 import { VIcon, BellNotifyIcon } from '../icons';

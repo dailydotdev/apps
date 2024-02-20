@@ -5,7 +5,7 @@ import { ChecklistStep } from './ChecklistStep';
 import { ChecklistCardProps } from '../../lib/checklist';
 import { useChecklist } from '../../hooks/useChecklist';
 import { RankConfetti } from '../../svg/RankConfetti';
-import { ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
 
 const ChecklistCard = ({

@@ -23,6 +23,7 @@ import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useDeleteComment } from '../../hooks/comments/useDeleteComment';
 import { lazyCommentThreshold } from '../utilities';
+import { isNullOrUndefined } from '../../lib/func';
 
 interface PostCommentsProps {
   post: Post;
@@ -89,7 +90,7 @@ export function PostComments({
     );
   }
 
-  if (isLoadingComments || comments === null) {
+  if (isLoadingComments || isNullOrUndefined(comments)) {
     return <PlaceholderCommentList placeholderAmount={post.numComments} />;
   }
 

@@ -3,10 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@testing-library/jest-dom';
 import { render, RenderResult, screen } from '@testing-library/react';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
-import {
-  contentScriptKey,
-  EXTENSION_PERMISSION_KEY,
-} from '@dailydotdev/shared/src/hooks';
+import { ExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
+import { contentScriptKey } from '@dailydotdev/shared/src/hooks';
 import { CompanionPermission } from './CompanionPermission';
 import {
   registerBrowserContentScripts,
@@ -18,51 +16,53 @@ let client: QueryClient;
 
 jest.mock('content-scripts-register-polyfill', () => ({}));
 
-jest.mock('webextension-polyfill-ts', () => {
+jest.mock('webextension-polyfill', () => {
   return {
-    browser: {
-      contentScripts: {
-        register: jest.fn(),
+    contentScripts: {
+      register: jest.fn(),
+    },
+    scripting: {
+      getRegisteredContentScripts: jest.fn().mockImplementation(() => []),
+      registerContentScripts: jest.fn(),
+    },
+    runtime: {
+      id: 123,
+      onMessage: {
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
       },
-      runtime: {
-        id: 123,
-        onMessage: {
-          addListener: jest.fn(),
-          removeListener: jest.fn(),
-        },
-        sendMessage: () =>
-          new Promise((resolve) => {
-            resolve(true);
-          }),
-      },
-      permissions: {
-        remove: jest.fn(),
-        request: () =>
-          new Promise((resolve) => {
-            resolve(true);
-          }),
-        contains: () =>
-          new Promise((resolve) => {
-            resolve(false);
-          }),
-      },
+      sendMessage: () =>
+        new Promise((resolve) => {
+          resolve(true);
+        }),
+    },
+    permissions: {
+      remove: jest.fn(),
+      request: () =>
+        new Promise((resolve) => {
+          resolve(true);
+        }),
+      contains: () =>
+        new Promise((resolve) => {
+          resolve(false);
+        }),
     },
   };
 });
 
-beforeEach(() => {
-  client = new QueryClient();
-  client.setQueryData(EXTENSION_PERMISSION_KEY, () => ({
-    requestContentScripts,
-    registerBrowserContentScripts,
-    getContentScriptPermission,
-  }));
-});
-
 const renderComponent = (): RenderResult => {
+  client = new QueryClient();
   return render(
     <QueryClientProvider client={client}>
-      <CompanionPermission />
+      <ExtensionContext.Provider
+        value={{
+          requestContentScripts: requestContentScripts?.(client, jest.fn()),
+          registerBrowserContentScripts,
+          getContentScriptPermission,
+        }}
+      >
+        <CompanionPermission />
+      </ExtensionContext.Provider>
     </QueryClientProvider>,
   );
 };

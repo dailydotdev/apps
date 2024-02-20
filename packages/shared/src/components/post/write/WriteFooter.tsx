@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { Switch } from '../../fields/Switch';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import useSidebarRendered from '../../../hooks/useSidebarRendered';
-import { Button, ButtonColor, ButtonVariant } from '../../buttons/ButtonV2';
+import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 
 interface WriteFooterProps {
   isLoading?: boolean;

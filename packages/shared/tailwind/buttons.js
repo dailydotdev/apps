@@ -159,6 +159,12 @@ const variations = {
     states.darkStates.default.background = 'var(--theme-float)';
     return states;
   },
+  subtle: (color) => {
+    const states = variations.tertiary(color);
+    states.darkStates.default['border-color'] =
+      'var(--theme-overlay-active-salt)';
+    return states;
+  },
   tag: (color) => {
     const states = variations.tertiaryFloat(color);
     states.darkStates.default.color = 'var(--theme-label-primary)';

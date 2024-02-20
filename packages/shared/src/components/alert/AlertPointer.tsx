@@ -1,6 +1,6 @@
 import React, { CSSProperties, ReactElement, ReactNode, useRef } from 'react';
 import classNames from 'classnames';
-import { ButtonSize } from '../buttons/ButtonV2';
+import { ButtonSize } from '../buttons/Button';
 import {
   AlertPointerMessage,
   AlertPointerCopy,

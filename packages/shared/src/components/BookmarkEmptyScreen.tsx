@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import { BookmarkIcon } from './icons';
-import { Button, ButtonSize, ButtonVariant } from './buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { EmptyScreenIcon } from './EmptyScreen';
 
 export default function BookmarkEmptyScreen(): ReactElement {

@@ -10,7 +10,7 @@ import React, {
 import { RadioOption } from '../../fields/Radio';
 import { Post, ReadHistoryPost, ReportReason } from '../../../graphql/posts';
 import { Checkbox } from '../../fields/Checkbox';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PostBootData } from '../../../lib/boot';
 import { ModalProps } from '../common/Modal';
 import { FlexRow } from '../../utilities';

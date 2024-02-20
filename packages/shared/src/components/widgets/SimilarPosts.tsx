@@ -19,7 +19,7 @@ import {
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;

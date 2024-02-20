@@ -8,7 +8,7 @@ import {
   ButtonProps,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
 
 interface GenericTagButtonProps

@@ -6,7 +6,7 @@ import useSidebarRendered from '../../hooks/useSidebarRendered';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { MiniCloseIcon as CloseIcon } from '../icons';
 import { isNullOrUndefined } from '../../lib/func';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useEventListener } from '../../hooks';
 
 export enum InteractivePopupPosition {

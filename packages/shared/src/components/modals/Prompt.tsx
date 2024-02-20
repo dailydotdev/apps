@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { usePrompt } from '../../hooks/usePrompt';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import classed from '../../lib/classed';
 import { Modal, ModalProps } from './common/Modal';
 

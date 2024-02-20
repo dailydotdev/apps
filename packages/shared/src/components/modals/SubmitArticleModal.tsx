@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import request from 'graphql-request';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { formToJson } from '../../lib/form';
 import { graphqlUrl } from '../../lib/config';
 import {
