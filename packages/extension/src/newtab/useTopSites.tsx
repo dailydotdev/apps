@@ -1,4 +1,4 @@
-import { browser, TopSites } from 'webextension-polyfill-ts';
+import browser, { TopSites } from 'webextension-polyfill';
 import { useEffect, useMemo, useState } from 'react';
 
 type TopSite = TopSites.MostVisitedURL;
