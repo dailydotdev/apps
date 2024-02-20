@@ -16,17 +16,22 @@ const MAX_PROGRESS = RANKS[RANKS.length - 1].steps;
 export default function useIncrementReadingRank(): ReturnType {
   const { user } = useContext(AuthContext);
   const queryKeyRef = useRef<string[]>();
+  const userStreakQueryKeyRef = useRef<unknown[]>();
   const queryClient = useQueryClient();
   const [clearQueries] = useDebounce(
     async (readToday = false): Promise<void> => {
-      const promises = [queryClient.invalidateQueries(queryKeyRef.current)];
-      if (!readToday) {
+      const promises = [];
+
+      if (queryKeyRef.current?.length > 0) {
+        promises.push(queryClient.invalidateQueries(queryKeyRef.current));
+      }
+
+      if (!readToday && userStreakQueryKeyRef.current?.length > 0) {
         promises.push(
-          queryClient.invalidateQueries(
-            generateQueryKey(RequestKey.UserStreak, user),
-          ),
+          queryClient.invalidateQueries(userStreakQueryKeyRef.current),
         );
       }
+
       await Promise.all(promises);
     },
     100,
@@ -37,6 +42,9 @@ export default function useIncrementReadingRank(): ReturnType {
       const queryKey = getRankQueryKey(user);
       queryKeyRef.current = queryKey;
       const oldRank = queryClient.getQueryData<MyRankData>(queryKey);
+
+      const userStreakQueryKey = generateQueryKey(RequestKey.UserStreak, user);
+      userStreakQueryKeyRef.current = userStreakQueryKey;
 
       const data = queryClient.setQueryData<MyRankData>(
         queryKey,
@@ -64,7 +72,7 @@ export default function useIncrementReadingRank(): ReturnType {
           };
         },
       );
-      clearQueries(oldRank?.rank?.readToday ?? false);
+      clearQueries(oldRank?.rank?.readToday ?? true);
       return data;
     },
   };

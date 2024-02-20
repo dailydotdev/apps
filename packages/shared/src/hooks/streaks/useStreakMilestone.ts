@@ -20,13 +20,13 @@ export const useStreakMilestone = (): void => {
   let shouldHideModal = !loadedSettings;
 
   // hide modal if feature is not enabled or user opted out
-  shouldHideModal ||= !isEnabled || optOutWeeklyGoal;
+  shouldHideModal = shouldHideModal || !isEnabled || optOutWeeklyGoal;
 
   // hide modal if user already closed it
-  shouldHideModal ||= alerts?.showStreakMilestone !== true;
+  shouldHideModal = shouldHideModal || alerts?.showStreakMilestone !== true;
 
   // hide modal if there's no streak
-  shouldHideModal ||= !streak?.current;
+  shouldHideModal = shouldHideModal || !streak?.current;
 
   useEffect(() => {
     if (shouldHideModal) {
