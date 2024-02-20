@@ -4,7 +4,7 @@ import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import {
   Button,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import {

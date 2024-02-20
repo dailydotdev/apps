@@ -13,7 +13,7 @@ import {
   SocialRegistrationParameters,
 } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
 import { TextField } from '../fields/TextField';
 import { MailIcon, UserIcon, LockIcon, AtIcon, TwitterIcon } from '../icons';

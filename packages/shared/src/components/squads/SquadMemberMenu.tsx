@@ -15,7 +15,7 @@ import { ModalSize } from '../modals/common/types';
 import { ContextMenu, MenuItemProps } from '../fields/PortalMenu';
 import { UseSquadActions, useToastNotification } from '../../hooks';
 import { verifyPermission } from '../../graphql/squads';
-import { ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
+import { ButtonColor, ButtonVariant } from '../buttons/Button';
 
 interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
   squad: Squad;

@@ -19,7 +19,7 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from './buttons/ButtonV2';
+} from './buttons/Button';
 import classed from '../lib/classed';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
 import { useCopyLink } from '../hooks/useCopy';

@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import { Modal } from '../modals/common/Modal';
 import { StepComponentProps } from '../modals/common/ModalStepsWrapper';
 import { Justify } from '../utilities';

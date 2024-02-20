@@ -1,15 +1,5 @@
-import React, {
-  MutableRefObject,
-  ReactElement,
-  useContext,
-  useEffect,
-  useRef,
-} from 'react';
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from '@tanstack/react-query';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
 import 'focus-visible';
@@ -19,7 +9,7 @@ import AuthContext, {
   useAuthContext,
 } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
 import { BootDataProviderProps } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
@@ -39,22 +29,18 @@ import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
+import { useHostStatus } from '@dailydotdev/shared/src/hooks/useHostPermissionStatus';
+import ExtensionPermissionsPrompt from '@dailydotdev/shared/src/components/ExtensionPermissionsPrompt';
+import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
+import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
 import { DndContextProvider } from './DndContext';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
-import {
-  getContentScriptPermissionAndRegister,
-  requestContentScripts,
-  registerBrowserContentScripts,
-  getContentScriptPermission,
-} from '../lib/extensionScripts';
-import {
-  EXTENSION_PERMISSION_KEY,
-  useContentScriptStatus,
-} from '../../../shared/src/hooks';
+import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
+import { useContentScriptStatus } from '../../../shared/src/hooks';
 
 const DEFAULT_TAB_TITLE = 'New Tab';
 const router = new CustomRouter();
@@ -70,19 +56,18 @@ Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
 
 const getRedirectUri = () => browser.runtime.getURL('index.html');
-function InternalApp({
-  pageRef,
-}: {
-  pageRef: MutableRefObject<string>;
-}): ReactElement {
+function InternalApp(): ReactElement {
   useError();
   useInAppNotification();
   useLazyModal();
   usePrompt();
   useWebVitals();
+  const { setCurrentPage } = useExtensionContext();
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useContentScriptStatus();
+  const { hostGranted, isFetching: isCheckingHostPermissions } =
+    useHostStatus();
   const routeChangedCallbackRef = useTrackPageView();
   useConsoleLogo();
 
@@ -91,12 +76,6 @@ function InternalApp({
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   const shouldRedirectOnboarding = !user && isPageReady && !isTesting;
-
-  useQuery(EXTENSION_PERMISSION_KEY, () => ({
-    requestContentScripts,
-    registerBrowserContentScripts,
-    getContentScriptPermission,
-  }));
 
   useEffect(() => {
     if (routeChangedCallbackRef.current && isPageReady) {
@@ -107,8 +86,7 @@ function InternalApp({
   const { dismissToast } = useToastNotification();
 
   const onPageChanged = (page: string): void => {
-    // eslint-disable-next-line no-param-reassign
-    pageRef.current = page;
+    setCurrentPage(page);
     routeChangedCallbackRef.current();
     dismissToast();
   };
@@ -125,15 +103,11 @@ function InternalApp({
       : DEFAULT_TAB_TITLE;
   }, [unreadCount]);
 
-  useEffect(() => {
-    if (shouldRedirectOnboarding) {
-      routeChangedCallbackRef.current();
-    }
-  }, [routeChangedCallbackRef, shouldRedirectOnboarding]);
+  if (!hostGranted) {
+    return isCheckingHostPermissions ? null : <ExtensionPermissionsPrompt />;
+  }
 
   if (shouldRedirectOnboarding) {
-    // eslint-disable-next-line no-param-reassign
-    pageRef.current = '/hijacking';
     return <ExtensionOnboarding />;
   }
 
@@ -152,32 +126,39 @@ function InternalApp({
     </DndContextProvider>
   );
 }
-const InternalAppWithFeaturesBoundary = withFeaturesBoundary(InternalApp);
+const InternalAppWithFeaturesBoundary = withFeaturesBoundary(InternalApp, {
+  fallback: null,
+});
 
 export default function App({
   localBootData,
 }: Pick<BootDataProviderProps, 'localBootData'>): ReactElement {
-  const pageRef = useRef('/');
+  const [currentPage, setCurrentPage] = useState<string>('/');
   const deviceId = useDeviceId();
 
   return (
     <RouterContext.Provider value={router}>
       <ProgressiveEnhancementContextProvider>
         <QueryClientProvider client={queryClient}>
-          <BootDataProvider
-            app={BootApp.Extension}
-            getRedirectUri={getRedirectUri}
-            localBootData={localBootData}
-            version={version}
-            getPage={() => pageRef.current}
-            deviceId={deviceId}
+          <ExtensionContextProvider
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
           >
-            <SubscriptionContextProvider>
-              <OnboardingContextProvider>
-                <InternalAppWithFeaturesBoundary pageRef={pageRef} />
-              </OnboardingContextProvider>
-            </SubscriptionContextProvider>
-          </BootDataProvider>
+            <BootDataProvider
+              app={BootApp.Extension}
+              getRedirectUri={getRedirectUri}
+              localBootData={localBootData}
+              version={version}
+              getPage={() => currentPage}
+              deviceId={deviceId}
+            >
+              <SubscriptionContextProvider>
+                <OnboardingContextProvider>
+                  <InternalAppWithFeaturesBoundary />
+                </OnboardingContextProvider>
+              </SubscriptionContextProvider>
+            </BootDataProvider>
+          </ExtensionContextProvider>
           <ReactQueryDevtools />
         </QueryClientProvider>
       </ProgressiveEnhancementContextProvider>

@@ -7,7 +7,7 @@ import {
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 import AlertPointer, {
   AlertPlacement,
   AlertPointerProps,

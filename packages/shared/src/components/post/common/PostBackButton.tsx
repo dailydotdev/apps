@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import { ButtonVariant } from '../../buttons/common';
 import { ArrowIcon } from '../../icons';
-import { Button } from '../../buttons/ButtonV2';
+import { Button } from '../../buttons/Button';
 import { FeedLayout } from '../../../lib/featureValues';
 import { useFeature } from '../../GrowthBookProvider';
 import { feature } from '../../../lib/featureManagement';

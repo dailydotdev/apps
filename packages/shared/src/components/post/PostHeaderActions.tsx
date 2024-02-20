@@ -8,7 +8,7 @@ import {
 } from '../../graphql/posts';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import SettingsContext from '../../contexts/SettingsContext';
 import { PostHeaderActionsProps } from './common';
 import { PostMenuOptions } from './PostMenuOptions';

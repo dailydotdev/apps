@@ -5,7 +5,7 @@ import { FeedbackIcon, DocsIcon } from '../icons';
 import { ListCardDivider } from '../cards/Card';
 import { searchDocs, searchFeedback } from '../../lib/constants';
 import { WithClassNameProps } from '../utilities';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
 export const SearchFeedback = ({
   className,
