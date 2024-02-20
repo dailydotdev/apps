@@ -60,6 +60,9 @@ export const OnboardingFeedHeader = ({
           title: 'Leave',
           variant: ButtonVariant.Secondary,
         },
+        className: {
+          buttons: 'flex-row-reverse',
+        },
       }).then((leave) => {
         if (leave) {
           // eslint-disable-next-line react-hooks/exhaustive-deps
