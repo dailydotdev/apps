@@ -93,6 +93,7 @@ export default function Sidebar({
           promotionalBannerActive
             ? 'laptop:top-24 laptop:h-[calc(100vh-theme(space.24))]'
             : 'laptop:top-16 laptop:h-[calc(100vh-theme(space.16))]',
+          'top-7 laptop:top-0',
         )}
       >
         {sidebarRendered && (
