@@ -8,24 +8,28 @@ import { StreakModalProps } from '../../components/modals/streaks/common';
 
 export const useStreakMilestone = (): void => {
   const { loadedSettings, optOutWeeklyGoal } = useSettingsContext();
-  const { streak, isLoading, isEnabled } = useReadingStreak();
+  const { streak, isEnabled } = useReadingStreak();
 
-  const { loadedAlerts, alerts, updateAlerts } = useContext(AlertContext);
+  const { alerts, updateAlerts } = useContext(AlertContext);
   const { openModal, closeModal } = useLazyModal();
 
-  const modalType =
+  const modalType: LazyModal.FirstStreak | LazyModal.NewStreak =
     streak?.total === 1 ? LazyModal.FirstStreak : LazyModal.NewStreak;
 
+  // hide modal if settings are not loaded
+  let shouldHideModal = !loadedSettings;
+
+  // hide modal if feature is not enabled or user opted out
+  shouldHideModal ||= !isEnabled || optOutWeeklyGoal;
+
+  // hide modal if user already closed it
+  shouldHideModal ||= alerts?.showStreakMilestone !== true;
+
+  // hide modal if there's no streak
+  shouldHideModal ||= !streak?.current;
+
   useEffect(() => {
-    if (
-      !loadedAlerts ||
-      alerts?.showStreakMilestone !== true ||
-      isLoading ||
-      !isEnabled ||
-      !loadedSettings ||
-      optOutWeeklyGoal ||
-      !streak?.current
-    ) {
+    if (shouldHideModal) {
       return;
     }
 
@@ -39,17 +43,5 @@ export const useStreakMilestone = (): void => {
         },
       } as StreakModalProps,
     });
-  }, [
-    loadedAlerts,
-    alerts?.showStreakMilestone,
-    isLoading,
-    isEnabled,
-    loadedSettings,
-    optOutWeeklyGoal,
-    openModal,
-    closeModal,
-    modalType,
-    streak,
-    updateAlerts,
-  ]);
+  }, [closeModal, modalType, openModal, shouldHideModal, streak, updateAlerts]);
 };

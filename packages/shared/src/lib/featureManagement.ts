@@ -24,7 +24,10 @@ const feature = {
   lowImps: new Feature('feed_low_imps'),
   bookmarkOnCard: new Feature('bookmark_on_card', false),
   feedLayout: new Feature('feed_layout', FeedLayout.Control),
-  readingStreaks: new Feature('reading_streaks', ReadingStreaksExperiment.V1),
+  readingStreaks: new Feature(
+    'reading_streaks',
+    ReadingStreaksExperiment.Control,
+  ),
   onboardingVisual: new Feature('onboarding_visual', {
     showCompanies: true,
     poster: cloudinary.onboarding.video.poster,
