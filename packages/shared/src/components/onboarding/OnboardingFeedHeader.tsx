@@ -96,12 +96,12 @@ export const OnboardingFeedHeader = ({
   return (
     <LayoutHeader className="flex-col overflow-x-visible">
       <div className="fixed z-1 flex w-full justify-center bg-overlay-primary-pepper py-10">
-        <div className="flex w-[40rem] rounded-xl border-l-2 border-l-cabbage-10 bg-theme-bg-notification p-6">
+        <div className="flex w-[40rem] rounded-16 border-l-2 border-l-cabbage-10 bg-theme-bg-notification p-6">
           <div className="mr-auto">
-            <p className="text-xl font-bold">
+            <p className="font-bold typo-title3">
               Pick tags that are relevant to you
             </p>
-            <p className="text-sm text-theme-label-tertiary">
+            <p className="text-theme-label-tertiary typo-callout">
               You can always modify your tags later
             </p>
           </div>
