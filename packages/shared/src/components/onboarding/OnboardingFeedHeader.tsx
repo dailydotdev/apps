@@ -51,17 +51,17 @@ export const OnboardingFeedHeader = ({
       showPrompt({
         title: 'Discard tag selection?',
         description: 'Your personalized feed is only a few tags away',
-        okButton: {
+        cancelButton: {
           title: 'Stay',
           variant: ButtonVariant.Primary,
           color: ButtonColor.Cabbage,
         },
-        cancelButton: {
+        okButton: {
           title: 'Leave',
           variant: ButtonVariant.Secondary,
         },
-      }).then((stay) => {
-        if (!stay) {
+      }).then((leave) => {
+        if (leave) {
           // eslint-disable-next-line react-hooks/exhaustive-deps
           stopNav = false;
           trackEvent({
