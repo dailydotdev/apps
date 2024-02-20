@@ -62,6 +62,7 @@ export const OnboardingFeedHeader = ({
         },
       }).then((stay) => {
         if (!stay) {
+          // eslint-disable-next-line react-hooks/exhaustive-deps
           stopNav = false;
           trackEvent({
             event_name: AnalyticsEvent.OnboardingSkip,
