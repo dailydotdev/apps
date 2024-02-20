@@ -15,7 +15,6 @@ import {
 import {
   Button,
   ButtonIconPosition,
-  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
@@ -62,6 +61,7 @@ import {
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -220,7 +220,9 @@ export function OnboardPage(): ReactElement {
           setAuth({ isAuthenticating: true, ...props })
         }
         onboardingSignupButtonSize={
-          isMobile && socialProofOnboardingMobile && ButtonSize.Medium
+          isMobile && socialProofOnboardingMobile
+            ? ButtonSize.Medium
+            : ButtonSize.Large
         }
       />
     );
