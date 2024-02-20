@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { GitHubIcon, TwitterIcon, LinkIcon } from '../icons';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
 export interface SocialChipsProps {
   links: { github?: string; twitter?: string; portfolio?: string };

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { cloudinary } from '../../lib/image';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import SourceBetaIcon from '../../../icons/source_beta.svg';
 import { Origin } from '../../lib/analytics';
 import { useSquadNavigation } from '../../hooks';

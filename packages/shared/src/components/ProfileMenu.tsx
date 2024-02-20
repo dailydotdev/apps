@@ -10,7 +10,7 @@ import {
 import InteractivePopup, {
   InteractivePopupPosition,
 } from './tooltips/InteractivePopup';
-import { AllowedTags, Button, ButtonProps } from './buttons/ButtonV2';
+import { AllowedTags, Button, ButtonProps } from './buttons/Button';
 import { LabeledImage } from './image';
 import { webappUrl } from '../lib/constants';
 

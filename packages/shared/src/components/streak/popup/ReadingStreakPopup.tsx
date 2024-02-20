@@ -1,7 +1,7 @@
 import React, { ReactElement, useMemo } from 'react';
 import { addDays, isSameDay, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
-import { Button, ButtonVariant, ButtonSize } from '../../buttons/ButtonV2';
+import { Button, ButtonVariant, ButtonSize } from '../../buttons/Button';
 import { StreakSection } from './StreakSection';
 import { DayStreak, Streak } from './DayStreak';
 import { generateQueryKey, RequestKey } from '../../../lib/query';

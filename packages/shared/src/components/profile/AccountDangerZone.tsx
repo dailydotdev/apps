@@ -5,7 +5,7 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 
 interface AccountDangerZoneProps {
   onDelete: () => void;

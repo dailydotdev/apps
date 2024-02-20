@@ -1,7 +1,7 @@
 import React, { FormEvent, ReactElement, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import AuthHeader from './AuthHeader';
 import { AuthFormProps, AuthModalText } from './common';
 import {

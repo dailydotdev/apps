@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { ArrowIcon } from '../icons';
 import { UsePagination } from '../../hooks/utils';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
 export type ExtendedPaginationProps = Pick<
   UsePagination,

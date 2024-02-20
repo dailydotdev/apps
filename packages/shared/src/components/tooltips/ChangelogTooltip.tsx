@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, ButtonColor, ButtonSize } from '../buttons/ButtonV2';
+import { Button, ButtonColor, ButtonSize } from '../buttons/Button';
 import { cloudinary } from '../../lib/image';
 import { postDateFormat } from '../../lib/dateFormat';
 import { Image } from '../image/Image';

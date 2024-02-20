@@ -10,7 +10,7 @@ import {
 } from '../../graphql/search';
 import { Pill } from '../utilities/loaders';
 import { AuthTriggers } from '../../lib/auth';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 
 export interface SearchBarSuggestionListProps {
   className?: string;

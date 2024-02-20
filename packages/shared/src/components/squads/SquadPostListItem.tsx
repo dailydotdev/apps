@@ -5,7 +5,7 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 import { BookmarkIcon } from '../icons';
 import styles from '../cards/Card.module.css';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';

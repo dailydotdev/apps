@@ -16,7 +16,7 @@ import {
   Button,
   ButtonIconPosition,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';

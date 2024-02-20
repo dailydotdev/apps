@@ -16,7 +16,7 @@ import {
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 
 export type BestDiscussionsProps = {
   posts: Post[] | null;

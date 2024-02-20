@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { AuthFormProps, providerMap } from './common';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
 const signupProviders = [providerMap.google, providerMap.github];
 

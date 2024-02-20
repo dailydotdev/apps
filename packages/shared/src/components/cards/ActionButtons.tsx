@@ -22,7 +22,7 @@ import {
   ButtonProps,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import OptionsButton from '../buttons/OptionsButton';
 import { ReadArticleButton } from './ReadArticleButton';

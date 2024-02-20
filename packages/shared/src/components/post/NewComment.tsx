@@ -14,7 +14,7 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '../ProfilePicture';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Image } from '../image/Image';
 import { fallbackImages } from '../../lib/config';
 import {

@@ -4,7 +4,7 @@ import {
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { ShareIcon } from '@dailydotdev/shared/src/components/icons';
 
 const meta: Meta<typeof Button> = {

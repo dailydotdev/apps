@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { ArrowIcon } from '../icons';
 import { PostHeaderActions } from './PostHeaderActions';

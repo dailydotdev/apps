@@ -5,7 +5,7 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 import { BlockIcon, MenuIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useAuthContext } from '../../contexts/AuthContext';

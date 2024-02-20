@@ -6,7 +6,7 @@ import RanksTags from './RanksTags';
 import DevCardFooter from './DevCardFooter';
 import { RanksModalProps } from './common';
 import AuthContext from '../../../contexts/AuthContext';
-import { Button, ButtonVariant } from '../../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../../buttons/Button';
 import { RANKS } from '../../../lib/rank';
 import { AuthTriggers } from '../../../lib/auth';
 import { Modal } from '../common/Modal';

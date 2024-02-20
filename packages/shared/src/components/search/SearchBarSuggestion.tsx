@@ -11,7 +11,7 @@ import {
   Button,
   ButtonProps,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 import { AiIcon } from '../icons';
 import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
 import { SearchQuestion } from '../../graphql/search';

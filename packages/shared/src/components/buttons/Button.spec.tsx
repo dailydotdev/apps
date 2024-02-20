@@ -7,7 +7,7 @@ import {
   ButtonVariant,
   ButtonIconPosition,
   AllowedTags,
-} from './ButtonV2';
+} from './Button';
 import { UpvoteIcon } from '../icons';
 
 const renderComponent = <Tag extends AllowedTags>(

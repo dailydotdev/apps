@@ -5,7 +5,7 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from './buttons/ButtonV2';
+} from './buttons/Button';
 import { isTesting } from '../lib/constants';
 import { BannerCustomTheme, BannerTheme } from '../graphql/banner';
 import { Theme } from './utilities';
