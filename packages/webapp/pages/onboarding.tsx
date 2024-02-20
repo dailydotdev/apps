@@ -16,6 +16,7 @@ import {
   Button,
   ButtonIconPosition,
   ButtonVariant,
+  ButtonSize,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
@@ -61,7 +62,6 @@ import {
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
