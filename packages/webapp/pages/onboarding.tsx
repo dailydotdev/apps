@@ -15,6 +15,7 @@ import {
 import {
   Button,
   ButtonIconPosition,
+  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
@@ -61,6 +62,7 @@ import {
 } from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -104,6 +106,7 @@ export function OnboardPage(): ReactElement {
     webm?: string;
     mp4?: string;
   };
+  const isMobile = useViewSize(ViewSize.MobileL);
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
   );
@@ -200,6 +203,10 @@ export function OnboardPage(): ReactElement {
             isAuthenticating && 'h-full',
             !isAuthenticating && 'max-w-full',
           ),
+          onboardingSignup: classNames(
+            socialProofOnboardingMobile &&
+              '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
+          ),
         }}
         trigger={AuthTriggers.Onboarding}
         formRef={formRef}
@@ -212,6 +219,9 @@ export function OnboardPage(): ReactElement {
         onSuccessfulRegistration={onSuccessfulRegistration}
         onAuthStateUpdate={(props: AuthProps) =>
           setAuth({ isAuthenticating: true, ...props })
+        }
+        onboardingSignupButtonSize={
+          isMobile && socialProofOnboardingMobile && ButtonSize.Medium
         }
       />
     );
