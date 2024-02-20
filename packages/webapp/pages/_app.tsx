@@ -200,6 +200,7 @@ export default function App(props: AppProps): ReactElement {
             </OnboardingContextProvider>
           </SubscriptionContextProvider>
         </BootDataProvider>
+
         <ReactQueryDevtools />
       </QueryClientProvider>
     </ProgressiveEnhancementContextProvider>

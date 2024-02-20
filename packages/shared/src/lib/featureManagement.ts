@@ -38,6 +38,7 @@ const feature = {
     'post_page_onboarding',
     PostPageOnboarding.Control,
   ),
+  socialProofOnboarding: new Feature('social_proof_onboarding', false),
   copyLink: new Feature('copy_link', false),
 };
 
