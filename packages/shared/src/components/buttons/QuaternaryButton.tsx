@@ -7,12 +7,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import {
-  AllowedTags,
-  Button,
-  ButtonElementType,
-  ButtonProps,
-} from './ButtonV2';
+import { AllowedTags, Button, ButtonElementType, ButtonProps } from './Button';
 
 type QuandaryButtonProps = {
   id: string;

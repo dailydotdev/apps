@@ -4,7 +4,7 @@ import { ownershipGuide } from '../../lib/constants';
 import { FeatherIcon } from '../icons';
 import styles from './AuthorOnboarding.module.css';
 import { IconSize } from '../Icon';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 
 interface AuthorOnboardingProps {
   onSignUp?: () => unknown;

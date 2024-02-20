@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ToastNotification, TOAST_NOTIF_KEY } from '../../hooks';
 import classed from '../../lib/classed';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import styles from './Toast.module.css';
 import { MiniCloseIcon as XIcon } from '../icons';
 import { isTouchDevice } from '../../lib/tooltip';

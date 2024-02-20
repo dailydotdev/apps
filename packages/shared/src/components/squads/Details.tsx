@@ -2,7 +2,7 @@ import React, { FormEvent, ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
 import { ClientError } from 'graphql-request';
 import { useMutation } from '@tanstack/react-query';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { AtIcon, CameraIcon, SquadIcon } from '../icons';
 import Textarea from '../fields/Textarea';

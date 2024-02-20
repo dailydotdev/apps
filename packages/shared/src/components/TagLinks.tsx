@@ -6,7 +6,7 @@ import {
   ButtonProps,
   ButtonSize,
   ButtonVariant,
-} from './buttons/ButtonV2';
+} from './buttons/Button';
 import { getTagPageLink } from '../lib/links';
 
 interface TagLinkProps {

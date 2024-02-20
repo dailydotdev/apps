@@ -5,7 +5,7 @@ import {
   Button,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ModalClose } from '@dailydotdev/shared/src/components/modals/common/ModalClose';
 

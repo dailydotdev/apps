@@ -4,7 +4,7 @@ import {
   ButtonProps,
   ButtonSize,
   ButtonVariant,
-} from './buttons/ButtonV2';
+} from './buttons/Button';
 import { ArrowIcon } from './icons';
 
 const baseStyle: CSSProperties = {

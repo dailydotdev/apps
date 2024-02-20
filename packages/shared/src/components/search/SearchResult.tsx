@@ -19,7 +19,7 @@ import { WithClassNameProps } from '../utilities';
 import classed from '../../lib/classed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 
 export interface SearchResultProps {
   chunk: SearchChunk;

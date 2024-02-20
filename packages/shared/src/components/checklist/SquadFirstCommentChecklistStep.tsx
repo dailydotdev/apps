@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import { ChecklistStepProps } from '../../lib/checklist';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { ChecklistStep } from './ChecklistStep';
 import { Squad } from '../../graphql/sources';
 import { useFindSquadWelcomePost } from '../../hooks/useFindSquadWelcomePost';

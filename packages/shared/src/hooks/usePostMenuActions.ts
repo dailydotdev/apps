@@ -14,7 +14,7 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { useVotePost } from './vote/useVotePost';
 import { Origin } from '../lib/analytics';
 import { useBlockPostPanel } from './post/useBlockPostPanel';
-import { ButtonColor, ButtonVariant } from '../components/buttons/ButtonV2';
+import { ButtonColor, ButtonVariant } from '../components/buttons/Button';
 
 interface UsePostMenuActions {
   onConfirmDeletePost: () => Promise<void>;

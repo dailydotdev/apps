@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { LazyModalCommonProps, Modal } from '../common/Modal';
 import { DayStreak, Streak } from '../../streak/popup';
 import { IconSize } from '../../Icon';
-import { Button, ButtonVariant } from '../../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../../buttons/Button';
 import { ModalClose } from '../common/ModalClose';
 
 export default function FirstStreakModal({

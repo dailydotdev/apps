@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import {
   getFacebookShareLink,
   getTwitterShareLink,
