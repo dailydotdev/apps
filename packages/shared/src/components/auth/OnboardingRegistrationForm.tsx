@@ -18,6 +18,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   trigger: AuthTriggersType;
   isReady: boolean;
   className?: string;
+  onboardingSignupButtonSize?: ButtonSize;
 }
 
 const OnboardingRegistrationForm = ({
@@ -26,6 +27,7 @@ const OnboardingRegistrationForm = ({
   isReady,
   trigger,
   className,
+  onboardingSignupButtonSize = ButtonSize.Large,
 }: OnboardingRegistrationFormProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [shouldLogin] = useState(false);
@@ -54,7 +56,7 @@ const OnboardingRegistrationForm = ({
           icon={provider.icon}
           loading={!isReady}
           variant={ButtonVariant.Primary}
-          size={ButtonSize.Large}
+          size={onboardingSignupButtonSize}
           onClick={() => onSocialClick(provider.value)}
         >
           {provider.label}
