@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { FilterOnboardingV4 } from './FilterOnboardingV4';
 import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/ButtonV2';
 import { REQUIRED_TAGS_THRESHOLD } from './common';
 import { ArrowIcon } from '../icons';
 import { LayoutHeader } from '../layout/common';
+import { usePrompt } from '../../hooks/usePrompt';
 
 type OnboardingFeedHeaderProps = {
   isPreviewFeedVisible: boolean;
@@ -19,6 +21,53 @@ export const OnboardingFeedHeader = ({
   isFeedPreviewEnabled,
   tagsCount,
 }: OnboardingFeedHeaderProps): JSX.Element => {
+  let stopNav = true;
+  const { showPrompt } = usePrompt();
+  const router = useRouter();
+
+  const preventNavigation = useCallback(
+    (newRoute?: string) => {
+      showPrompt({
+        title: 'Discard tag selection?',
+        description: 'Your personalized feed is only a few tags away',
+        okButton: {
+          title: 'Stay',
+          variant: ButtonVariant.Primary,
+          color: ButtonColor.Cabbage,
+        },
+        cancelButton: {
+          title: 'Leave',
+          variant: ButtonVariant.Secondary,
+        },
+      }).then((stay) => {
+        if (!stay) {
+          stopNav = false;
+          router.replace(newRoute);
+        }
+      });
+    },
+    [router, showPrompt],
+  );
+
+  const routeHandler = useCallback(
+    (newRoute: string) => {
+      if (!stopNav) {
+        return;
+      }
+      router.events.emit('routeChangeError');
+      preventNavigation(newRoute);
+      throw new Error('Cancelling navigation');
+    },
+    [preventNavigation, router.events, stopNav],
+  );
+
+  useEffect(() => {
+    router.events.on('routeChangeStart', routeHandler);
+    return () => {
+      router.events.off('routeChangeStart', routeHandler);
+    };
+  }, [preventNavigation, routeHandler, router.events, stopNav]);
+
   return (
     <LayoutHeader className="flex-col overflow-x-visible">
       <div className="flex max-w-full flex-col">
