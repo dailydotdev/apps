@@ -22,6 +22,9 @@ const meta: Meta<typeof DrawerComponent> = {
       control: { type: "radio" },
       options: DrawerPosition,
     },
+    title: {
+      control: { type: "text" },
+    },
   },
 };
 
@@ -34,7 +37,7 @@ const Container = classed('div', 'px-3 py-4 border-b border-theme-divider-tertia
 export const Drawer: Story = {
   render: ({ children, ...props }) => {
     return (
-      <StorybookDrawerTrigger {...props} className={{ drawer: 'gap-3' }}>
+      <StorybookDrawerTrigger {...props} className={{ drawer: 'gap-3 pb-4' }}>
         <Container>Test</Container>
         <Container>Test</Container>
         <Container>Test</Container>

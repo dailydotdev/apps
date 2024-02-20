@@ -2,6 +2,7 @@ import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { RootPortal } from '../tooltips/Portal';
 import useDebounce from '../../hooks/useDebounce';
+import ConditionalWrapper from '../ConditionalWrapper';
 
 export enum DrawerPosition {
   Bottom = 'bottom',
@@ -18,6 +19,7 @@ export interface DrawerProps {
   className?: ClassName;
   position?: DrawerPosition;
   closeOnOutsideClick?: boolean;
+  title?: string;
   onClose(): void;
 }
 
@@ -36,10 +38,12 @@ export function Drawer({
   className = {},
   position = DrawerPosition.Bottom,
   closeOnOutsideClick = true,
+  title,
   onClose,
 }: DrawerProps): ReactElement {
   const [hasAnimated, setHasAnimated] = useState(false);
   const [animate] = useDebounce(() => setHasAnimated(true), 1);
+  const classes = className?.drawer ?? 'px-4 py-3';
 
   useEffect(() => {
     if (!hasAnimated) {
@@ -59,14 +63,28 @@ export function Drawer({
       >
         <div
           className={classNames(
-            'absolute flex flex-col overflow-y-auto bg-theme-bg-primary px-4 py-3 transition-transform duration-200 ease-in-out',
+            'absolute flex flex-col overflow-y-auto bg-theme-bg-primary transition-transform duration-200 ease-in-out',
             !hasAnimated && animatePositionClassName[position],
             drawerPositionToClassName[position],
-            className?.drawer,
+            !title && classes,
             'max-h-[calc(100vh-5rem)] w-full',
           )}
         >
-          {children}
+          {title && (
+            <h3 className="border-b border-theme-divider-tertiary p-4 font-bold typo-title3">
+              {title}
+            </h3>
+          )}
+          <ConditionalWrapper
+            condition={!!title}
+            wrapper={(component) => (
+              <div className={classNames(classes, 'flex w-full flex-col')}>
+                {component}
+              </div>
+            )}
+          >
+            {children}
+          </ConditionalWrapper>
         </div>
       </div>
     </RootPortal>
