@@ -45,7 +45,6 @@ import {
 import { isNullOrUndefined } from '../lib/func';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
-import { useStreakMilestone } from '../hooks/streaks';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'>,
@@ -263,8 +262,6 @@ export default function Feed<T>({
       document.body.classList.remove('hidden-scrollbar');
     }
   }, [selectedPost]);
-
-  useStreakMilestone();
 
   if (!loadedSettings) {
     return <></>;
