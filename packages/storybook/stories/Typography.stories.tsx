@@ -50,14 +50,14 @@ export const All: Story = {
   render: ({ children , Tag}) => {
     return (
       <table>
-        <tr className="border-pepper-90">
-          <th className="align-left min-w-30">Classname</th>
-          <th className="align-left">Example</th>
+        <tr className="border">
+          <th className="border text-left w-1/6">Classname</th>
+          <th className="text-left">Example</th>
         </tr>
 
         {possibleClassnames.map((className) => (
-          <tr className="border-solid">
-            <td>{className}</td>
+          <tr className="border">
+            <td className="border w-1/6">{className}</td>
             <td><Tag className={className}>{children}</Tag></td>
           </tr>
           ))}
