@@ -252,7 +252,7 @@ export const NotificationsContextProvider = ({
       incrementUnreadCount: (value = 1) =>
         setCurrentUnreadCount((current) => current + value),
       get isNotificationSupported() {
-        return !!globalThis.window?.Notification && !!OneSignal;
+        return !!globalThis.window?.Notification && (!!OneSignal || isTesting);
       },
       trackPermissionGranted: (source) =>
         subscriptionCallbackRef.current?.(true, source, true),
