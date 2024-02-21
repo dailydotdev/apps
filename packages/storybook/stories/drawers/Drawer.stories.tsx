@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { StorybookDrawerTrigger } from '@dailydotdev/shared/src/components/drawers';
 import classed from '@dailydotdev/shared/src/lib/classed';
@@ -5,6 +6,10 @@ import {
   Drawer as DrawerComponent,
   DrawerPosition,
 } from '@dailydotdev/shared/src/components/drawers/Drawer';
+import {
+  Button,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 
 const meta: Meta<typeof DrawerComponent> = {
   component: DrawerComponent,
@@ -25,6 +30,9 @@ const meta: Meta<typeof DrawerComponent> = {
     title: {
       control: { type: "text" },
     },
+    closeOnOutsideClick: {
+      control: { type: "boolean" },
+    }
   },
 };
 
@@ -36,13 +44,28 @@ const Container = classed('div', 'px-3 py-4 border-b border-theme-divider-tertia
 
 export const Drawer: Story = {
   render: ({ children, ...props }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
     return (
-      <StorybookDrawerTrigger {...props} className={{ drawer: 'gap-3 pb-4' }}>
-        <Container>Test</Container>
-        <Container>Test</Container>
-        <Container>Test</Container>
-        <Container>Test</Container>
-      </StorybookDrawerTrigger>
+      <>
+        <Button variant={ButtonVariant.Primary} onClick={() => setIsOpen(true)}>
+          Trigger
+        </Button>
+        {isOpen && (
+          <DrawerComponent {...props} onClose={() => setIsOpen(false)}>
+            <Container>Test</Container>
+            <Container>Test</Container>
+            <Container>Test</Container>
+            <Container>Test</Container>
+            <Button
+              variant={ButtonVariant.Float}
+              onClick={() => setIsOpen(false)}
+            >
+              Close
+            </Button>
+          </DrawerComponent>
+        )}
+      </>
     );
   },
   name: 'Position',

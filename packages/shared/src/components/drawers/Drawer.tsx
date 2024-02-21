@@ -1,6 +1,5 @@
 import React, { ReactElement, ReactNode, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { RootPortal } from '../tooltips/Portal';
 import useDebounce from '../../hooks/useDebounce';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
@@ -49,48 +48,46 @@ export function Drawer({
   useOutsideClick(container, onClose, closeOnOutsideClick && hasAnimated);
 
   return (
-    <RootPortal>
+    <div
+      className={classNames(
+        'fixed inset-0 z-max bg-overlay-quaternary-onion',
+        className?.overlay,
+      )}
+    >
       <div
         className={classNames(
-          'fixed inset-0 z-max bg-overlay-quaternary-onion',
-          className?.overlay,
+          'absolute flex flex-col overflow-y-auto bg-theme-bg-primary transition-transform duration-300 ease-in-out',
+          !hasAnimated && animatePositionClassName[position],
+          drawerPositionToClassName[position],
+          !title && classes,
+          'max-h-[calc(100vh-5rem)] w-full',
         )}
+        ref={(node) => {
+          container.current = node;
+
+          if (!node || hasAnimated) {
+            return;
+          }
+
+          animate();
+        }}
       >
-        <div
-          className={classNames(
-            'absolute flex flex-col overflow-y-auto bg-theme-bg-primary transition-transform duration-200 ease-in-out',
-            !hasAnimated && animatePositionClassName[position],
-            drawerPositionToClassName[position],
-            !title && classes,
-            'max-h-[calc(100vh-5rem)] w-full',
+        {title && (
+          <h3 className="border-b border-theme-divider-tertiary p-4 font-bold typo-title3">
+            {title}
+          </h3>
+        )}
+        <ConditionalWrapper
+          condition={!!title}
+          wrapper={(component) => (
+            <div className={classNames(classes, 'flex w-full flex-col')}>
+              {component}
+            </div>
           )}
-          ref={(node) => {
-            container.current = node;
-
-            if (!node || hasAnimated) {
-              return;
-            }
-
-            animate();
-          }}
         >
-          {title && (
-            <h3 className="border-b border-theme-divider-tertiary p-4 font-bold typo-title3">
-              {title}
-            </h3>
-          )}
-          <ConditionalWrapper
-            condition={!!title}
-            wrapper={(component) => (
-              <div className={classNames(classes, 'flex w-full flex-col')}>
-                {component}
-              </div>
-            )}
-          >
-            {children}
-          </ConditionalWrapper>
-        </div>
+          {children}
+        </ConditionalWrapper>
       </div>
-    </RootPortal>
+    </div>
   );
 }
