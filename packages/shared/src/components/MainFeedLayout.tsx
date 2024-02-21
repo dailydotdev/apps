@@ -135,6 +135,9 @@ export default function MainFeedLayout({
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { feedSettings } = useFeedSettings();
 
+  const isOnboardingFeed =
+    isOnboardingV4dot5 && alerts?.filter && feedName === SharedFeedPage.MyFeed;
+
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
     query = {
@@ -181,6 +184,17 @@ export default function MainFeedLayout({
     // so returning false so feed does not do any requests
     if (isV1Search && isSearchOn && !searchQuery) {
       return null;
+    }
+
+    if (isOnboardingFeed) {
+      return {
+        feedName: OtherFeedPage.Preview,
+        feedQueryKey: [RequestKey.FeedPreview, user?.id],
+        query: PREVIEW_FEED_QUERY,
+        forceCardMode: true,
+        showSearch: false,
+        options: { refetchOnMount: true },
+      };
     }
 
     if (isSearchOn && searchQuery) {
@@ -266,46 +280,32 @@ export default function MainFeedLayout({
   const isFeedPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
   const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);
 
-  if (
-    isOnboardingV4dot5 &&
-    alerts?.filter &&
-    feedName === SharedFeedPage.MyFeed
-  ) {
-    return (
-      <FeedPage className="relative !p-0">
+  return (
+    <FeedPageComponent
+      className={classNames(
+        'relative',
+        disableTopPadding && '!pt-0',
+        isOnboardingFeed && '!p-0',
+      )}
+    >
+      {isOnboardingFeed && (
         <OnboardingFeedHeader
           isPreviewFeedVisible={isPreviewFeedVisible}
           setPreviewFeedVisible={setPreviewFeedVisible}
           isFeedPreviewEnabled={isFeedPreviewEnabled}
           tagsCount={tagsCount}
         />
-        <div className="px-6 laptop:px-16">
-          {isFeedPreviewEnabled && isPreviewFeedVisible && (
-            <Feed
-              className="px-6 pt-14 laptop:pt-10"
-              feedName={OtherFeedPage.Preview}
-              feedQueryKey={[RequestKey.FeedPreview, user?.id]}
-              query={PREVIEW_FEED_QUERY}
-              forceCardMode
-              showSearch={false}
-              options={{ refetchOnMount: true }}
-              allowPin
-            />
-          )}
-        </div>
-      </FeedPage>
-    );
-  }
-
-  return (
-    <FeedPageComponent
-      className={classNames('relative', disableTopPadding && '!pt-0')}
-    >
+      )}
       {isSearchOn && search}
-      {feedProps && (
+      {(isOnboardingFeed
+        ? isFeedPreviewEnabled && isPreviewFeedVisible
+        : feedProps) && (
         <Feed
           {...feedProps}
-          className={shouldUseFeedLayoutV1 && !isFinder && 'laptop:px-6'}
+          className={classNames(
+            shouldUseFeedLayoutV1 && !isFinder && 'laptop:px-6',
+            isOnboardingFeed && 'px-6 laptop:px-16',
+          )}
         />
       )}
       {children}
