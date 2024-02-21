@@ -8,7 +8,7 @@ import {
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 import { REQUIRED_TAGS_THRESHOLD } from './common';
 import { ArrowIcon } from '../icons';
 import { LayoutHeader } from '../layout/common';
