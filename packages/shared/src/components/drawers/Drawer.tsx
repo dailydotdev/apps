@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
+import React, { ReactElement, ReactNode, useState } from 'react';
 import classNames from 'classnames';
 import { RootPortal } from '../tooltips/Portal';
 import useDebounce from '../../hooks/useDebounce';
@@ -45,12 +45,6 @@ export function Drawer({
   const [animate] = useDebounce(() => setHasAnimated(true), 1);
   const classes = className?.drawer ?? 'px-4 py-3';
 
-  useEffect(() => {
-    if (!hasAnimated) {
-      animate();
-    }
-  }, [animate, hasAnimated]);
-
   return (
     <RootPortal>
       <div
@@ -69,6 +63,13 @@ export function Drawer({
             !title && classes,
             'max-h-[calc(100vh-5rem)] w-full',
           )}
+          ref={(node) => {
+            if (!node || hasAnimated) {
+              return;
+            }
+
+            animate();
+          }}
         >
           {title && (
             <h3 className="border-b border-theme-divider-tertiary p-4 font-bold typo-title3">
