@@ -44,7 +44,6 @@ export default function ScrollToTopButton(): ReactElement {
       className={classNames(
         'absolute -top-18 right-4 z-2 laptop:-top-24 laptop:right-8',
         !show && 'hidden',
-        show && isLaptop && 'laptop:flex',
       )}
       variant={ButtonVariant.Primary}
       size={isLaptop ? ButtonSize.XLarge : ButtonSize.Large}
