@@ -28,9 +28,11 @@ const meta: Meta<typeof DrawerComponent> = {
     },
     title: {
       control: { type: "text" },
+      description: 'When this property is not null, a title bar will be rendered with this value',
     },
     closeOnOutsideClick: {
       control: { type: "boolean" },
+      description: 'When true, the drawer will close when clicking anywhere on the overlay',
     }
   },
 };
@@ -63,6 +65,7 @@ export const Drawer: Story = {
             Close
           </Button>
         </DrawerComponent>
+        <p className="mt-4 typo-footnote text-theme-label-tertiary">One thing to note:<br/>When implementing a custom "Close" button,you will have to utilize injecting a `ref` object which you will use when closing the drawer to keep the exit animation. <br/>The sample code here does that.</p>
       </>
     );
   },

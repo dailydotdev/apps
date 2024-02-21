@@ -21,7 +21,7 @@ interface ClassName {
   drawer?: string;
 }
 
-export interface DrawerProps {
+interface DrawerProps {
   children: ReactNode;
   className?: ClassName;
   position?: DrawerPosition;
