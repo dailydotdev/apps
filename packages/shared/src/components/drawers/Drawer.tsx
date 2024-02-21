@@ -1,8 +1,9 @@
-import React, { ReactElement, ReactNode, useState } from 'react';
+import React, { ReactElement, ReactNode, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { RootPortal } from '../tooltips/Portal';
 import useDebounce from '../../hooks/useDebounce';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 
 export enum DrawerPosition {
   Bottom = 'bottom',
@@ -41,9 +42,11 @@ export function Drawer({
   title,
   onClose,
 }: DrawerProps): ReactElement {
+  const container = useRef<HTMLDivElement>();
   const [hasAnimated, setHasAnimated] = useState(false);
   const [animate] = useDebounce(() => setHasAnimated(true), 1);
   const classes = className?.drawer ?? 'px-4 py-3';
+  useOutsideClick(container, onClose, closeOnOutsideClick && hasAnimated);
 
   return (
     <RootPortal>
@@ -52,8 +55,6 @@ export function Drawer({
           'fixed inset-0 z-max bg-overlay-quaternary-onion',
           className?.overlay,
         )}
-        onClick={closeOnOutsideClick && onClose}
-        role="presentation"
       >
         <div
           className={classNames(
@@ -64,6 +65,8 @@ export function Drawer({
             'max-h-[calc(100vh-5rem)] w-full',
           )}
           ref={(node) => {
+            container.current = node;
+
             if (!node || hasAnimated) {
               return;
             }
