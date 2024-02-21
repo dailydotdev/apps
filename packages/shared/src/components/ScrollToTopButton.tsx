@@ -1,5 +1,4 @@
 import React, { CSSProperties, ReactElement, useEffect, useState } from 'react';
-import classNames from 'classnames';
 import {
   Button,
   ButtonProps,
@@ -26,6 +25,10 @@ export default function ScrollToTopButton(): ReactElement {
     return () => window.removeEventListener('scroll', callback);
   }, []);
 
+  if (!show) {
+    return <></>;
+  }
+
   const props: ButtonProps<'button'> = {
     icon: <ArrowIcon />,
     onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
@@ -41,10 +44,7 @@ export default function ScrollToTopButton(): ReactElement {
     <Button
       aria-label="scroll to top"
       {...props}
-      className={classNames(
-        'absolute -top-18 right-4 z-2 laptop:-top-24 laptop:right-8',
-        !show && 'hidden',
-      )}
+      className="absolute -top-18 right-4 z-2 laptop:-top-24 laptop:right-8"
       variant={ButtonVariant.Primary}
       size={isLaptop ? ButtonSize.XLarge : ButtonSize.Large}
       style={style}
