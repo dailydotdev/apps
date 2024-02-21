@@ -40,6 +40,7 @@ const feature = {
   ),
   socialProofOnboarding: new Feature('social_proof_onboarding', false),
   copyLink: new Feature('copy_link', false),
+  onboardingOptimizations: new Feature('onboarding_optimizations', false),
 };
 
 export { feature };

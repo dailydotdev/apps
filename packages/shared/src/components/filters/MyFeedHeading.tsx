@@ -13,7 +13,6 @@ import AlertPointer, {
   AlertPointerProps,
   OffsetXY,
 } from '../alert/AlertPointer';
-import { filterAlertMessage } from './FeedFilters';
 import { Alerts } from '../../graphql/alerts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
@@ -21,6 +20,8 @@ import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 import { useFeedLayout } from '../../hooks';
+
+export const filterAlertMessage = 'Edit your personal feed preferences here';
 
 interface MyFeedHeadingProps {
   isAlertDisabled: boolean;
@@ -41,6 +42,7 @@ function MyFeedHeading({
   const shouldShowHighlightPulse = router.query?.hset === 'true';
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const isV1Search = searchVersion === SearchExperiment.V1;
+  const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
 
   const onClick = () => {
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
@@ -80,6 +82,34 @@ function MyFeedHeading({
     return sidebarRendered ? [4, 0] : [-32, 4];
   };
 
+  const feedSettingsButton = (
+    <Button
+      size={shouldUseFeedLayoutV1 ? ButtonSize.Small : ButtonSize.Medium}
+      variant={
+        isV1Search || shouldUseFeedLayoutV1
+          ? ButtonVariant.Float
+          : ButtonVariant.Tertiary
+      }
+      className={classNames(
+        'mr-auto',
+        !onboardingOptimizations &&
+          shouldShowHighlightPulse &&
+          'highlight-pulse',
+      )}
+      onClick={onClick}
+      icon={<FilterIcon />}
+      iconPosition={
+        shouldUseFeedLayoutV1 ? ButtonIconPosition.Right : undefined
+      }
+    >
+      Feed settings
+    </Button>
+  );
+
+  if (onboardingOptimizations) {
+    return feedSettingsButton;
+  }
+
   const alertProps: Omit<AlertPointerProps, 'children'> = {
     offset: getOffset(),
     isAlertDisabled,
@@ -98,29 +128,7 @@ function MyFeedHeading({
     placement: getPlacement(),
   };
 
-  return (
-    <AlertPointer {...alertProps}>
-      <Button
-        size={shouldUseFeedLayoutV1 ? ButtonSize.Small : ButtonSize.Medium}
-        variant={
-          isV1Search || shouldUseFeedLayoutV1
-            ? ButtonVariant.Float
-            : ButtonVariant.Tertiary
-        }
-        className={classNames(
-          'mr-auto',
-          shouldShowHighlightPulse && 'highlight-pulse',
-        )}
-        onClick={onClick}
-        icon={<FilterIcon />}
-        iconPosition={
-          shouldUseFeedLayoutV1 ? ButtonIconPosition.Right : undefined
-        }
-      >
-        Feed settings
-      </Button>
-    </AlertPointer>
-  );
+  return <AlertPointer {...alertProps}>{feedSettingsButton}</AlertPointer>;
 }
 
 export default MyFeedHeading;
