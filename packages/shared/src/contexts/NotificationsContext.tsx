@@ -226,8 +226,11 @@ export const NotificationsContextProvider = ({
         }
       });
     } catch (err) {
-      // we should maybe log the error somewhere if in case there was an issue with the initialization
       setIsInitialized(true);
+      trackEvent({
+        event_name: AnalyticsEvent.GlobalError,
+        extra: JSON.stringify({ msg: err }),
+      });
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
