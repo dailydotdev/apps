@@ -32,6 +32,7 @@ import { useGrowthBookContext } from './GrowthBookProvider';
 import { useReferralReminder } from '../hooks/referral/useReferralReminder';
 import { ActiveFeedNameContextProvider } from '../contexts';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
+import { useStreakMilestone } from '../hooks/streaks';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -87,6 +88,7 @@ function MainLayoutComponent({
   useAuthVerificationRecovery();
   useNotificationParams();
   useReferralReminder();
+  useStreakMilestone();
 
   const onMobileSidebarToggle = (state: boolean) => {
     trackEvent({
