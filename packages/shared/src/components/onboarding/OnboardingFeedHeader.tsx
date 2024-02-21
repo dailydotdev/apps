@@ -18,6 +18,23 @@ import { useAlertsContext } from '../../contexts/AlertContext';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
 
+const promptConfig = {
+  title: 'Discard tag selection?',
+  description: 'Your personalized feed is only a few tags away',
+  cancelButton: {
+    title: 'Stay',
+    variant: ButtonVariant.Primary,
+    color: ButtonColor.Cabbage,
+  },
+  okButton: {
+    title: 'Leave',
+    variant: ButtonVariant.Secondary,
+  },
+  className: {
+    buttons: 'flex-row-reverse',
+  },
+};
+
 type OnboardingFeedHeaderProps = {
   isPreviewFeedVisible: boolean;
   setPreviewFeedVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -54,24 +71,14 @@ export const OnboardingFeedHeader = ({
     });
   }, [registerLocalFilters, router, trackEvent, updateAlerts]);
 
-  const preventNavigation = useCallback(
-    (newRoute?: string) => {
-      showPrompt({
-        title: 'Discard tag selection?',
-        description: 'Your personalized feed is only a few tags away',
-        cancelButton: {
-          title: 'Stay',
-          variant: ButtonVariant.Primary,
-          color: ButtonColor.Cabbage,
-        },
-        okButton: {
-          title: 'Leave',
-          variant: ButtonVariant.Secondary,
-        },
-        className: {
-          buttons: 'flex-row-reverse',
-        },
-      }).then((leave) => {
+  useEffect(() => {
+    const routeHandler = (newRoute: string) => {
+      if (!stopNav || newRoute === '/my-feed') {
+        return;
+      }
+      router.events.emit('routeChangeError');
+
+      showPrompt(promptConfig).then((leave) => {
         if (leave) {
           // eslint-disable-next-line react-hooks/exhaustive-deps
           stopNav = false;
@@ -81,28 +88,14 @@ export const OnboardingFeedHeader = ({
           router.replace(newRoute);
         }
       });
-    },
-    [router, showPrompt],
-  );
-
-  const routeHandler = useCallback(
-    (newRoute: string) => {
-      if (!stopNav || newRoute === '/my-feed') {
-        return;
-      }
-      router.events.emit('routeChangeError');
-      preventNavigation(newRoute);
       throw new Error('Cancelling navigation');
-    },
-    [preventNavigation, router.events, stopNav],
-  );
+    };
 
-  useEffect(() => {
     router.events.on('routeChangeStart', routeHandler);
     return () => {
       router.events.off('routeChangeStart', routeHandler);
     };
-  }, [preventNavigation, routeHandler, router.events, stopNav]);
+  }, [router.events, stopNav]);
 
   return (
     <LayoutHeader className="flex-col overflow-x-visible">
