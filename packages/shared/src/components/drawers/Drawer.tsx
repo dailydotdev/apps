@@ -1,4 +1,11 @@
-import React, { ReactElement, ReactNode, useRef, useState } from 'react';
+import React, {
+  MutableRefObject,
+  ReactElement,
+  ReactNode,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import useDebounce from '../../hooks/useDebounce';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -34,7 +41,7 @@ const animatePositionClassName: Record<DrawerPosition, string> = {
   [DrawerPosition.Top]: '-translate-y-full',
 };
 
-export function Drawer({
+function BaseDrawer({
   children,
   className = {},
   position = DrawerPosition.Bottom,
@@ -95,3 +102,39 @@ export function Drawer({
     </div>
   );
 }
+
+interface DrawerWrapperProps extends Omit<DrawerProps, 'isClosing'> {
+  isOpen: boolean;
+}
+
+const ANIMATION_MS = 300;
+
+interface DrawerRef {
+  onClose(): void;
+}
+
+function AnimatedDrawer(
+  { isOpen, onClose, ...props }: DrawerWrapperProps,
+  ref: MutableRefObject<DrawerRef>,
+): ReactElement {
+  const [isClosing, setIsClosing] = useState(false);
+  const [debounceClosing] = useDebounce(() => {
+    setIsClosing(false);
+    onClose?.();
+  }, ANIMATION_MS);
+
+  const onClosing = () => {
+    setIsClosing(true);
+    debounceClosing();
+  };
+
+  useImperativeHandle(ref, () => ({ onClose: onClosing }));
+
+  if (!isOpen) {
+    return null;
+  }
+
+  return <BaseDrawer {...props} isClosing={isClosing} onClose={onClosing} />;
+}
+
+export const Drawer = React.forwardRef(AnimatedDrawer);
