@@ -5,9 +5,8 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { MiniCloseIcon as CloseIcon } from '../icons';
-import { isNullOrUndefined } from '../../lib/func';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { useEventListener } from '../../hooks';
+import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 
 export enum InteractivePopupPosition {
   Center = 'center',
@@ -79,20 +78,11 @@ function InteractivePopup({
     ? position
     : InteractivePopupPosition.Center;
   const classes = positionClass[finalPosition];
-
-  useEventListener(globalThis, 'click', (e) => {
-    if (!closeOutsideClick && validateSidebar) {
-      return;
-    }
-
-    if (
-      !isNullOrUndefined(container.current) &&
-      !container.current.contains(e.target as Node) &&
-      onCloseRef.current
-    ) {
-      onCloseRef.current(e);
-    }
-  });
+  useOutsideClick(
+    container,
+    onCloseRef.current,
+    closeOutsideClick || !validateSidebar,
+  );
 
   return (
     <RootPortal>
