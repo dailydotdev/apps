@@ -55,7 +55,7 @@ export function Drawer({
     <RootPortal>
       <div
         className={classNames(
-          'first: fixed inset-0 z-max bg-overlay-quaternary-onion',
+          'fixed inset-0 z-max bg-overlay-quaternary-onion',
           className?.overlay,
         )}
         onClick={closeOnOutsideClick && onClose}
