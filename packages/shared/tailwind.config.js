@@ -39,10 +39,10 @@ module.exports = {
           'overlay-cabbage-opacity': 'var(--theme-overlay-cabbage-opacity)',
           'overlay-onion-opacity': 'var(--theme-overlay-onion-opacity)',
           popover: 'var(--theme-background-popover)',
+          subtle: 'var(--theme-background-subtle)',
         },
         surface: {
           invert: 'var(--theme-surface-invert)',
-          'invert-opacity-80': 'var(--theme-surface-invert-opacity-80)',
         },
         label: {
           primary: 'var(--theme-label-primary)',
