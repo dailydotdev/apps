@@ -126,7 +126,6 @@ export default function MainFeedLayout({
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
-  // console.log(feedName);
   const feedVersion = useFeature(feature.feedVersion);
   const searchVersion = useFeature(feature.search);
   const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
