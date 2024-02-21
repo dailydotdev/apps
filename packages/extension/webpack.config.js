@@ -51,6 +51,9 @@ const baseConfig = {
 
   resolve: {
     extensions: ['.svg', '.ts', '.tsx', '.js', '.json'],
+    alias: {
+      'react-onesignal': false,
+    },
   },
 
   module: {
