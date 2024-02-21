@@ -68,6 +68,6 @@ export const Drawer: Story = {
       </>
     );
   },
-  name: 'Position',
+  name: 'Drawer',
   args: { position: DrawerPosition.Bottom, },
 };

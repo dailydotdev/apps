@@ -19,6 +19,7 @@ export interface DrawerProps {
   className?: ClassName;
   position?: DrawerPosition;
   closeOnOutsideClick?: boolean;
+  isClosing?: boolean;
   title?: string;
   onClose(): void;
 }
@@ -38,6 +39,7 @@ export function Drawer({
   className = {},
   position = DrawerPosition.Bottom,
   closeOnOutsideClick = true,
+  isClosing = false,
   title,
   onClose,
 }: DrawerProps): ReactElement {
@@ -46,18 +48,20 @@ export function Drawer({
   const [animate] = useDebounce(() => setHasAnimated(true), 1);
   const classes = className?.drawer ?? 'px-4 py-3';
   useOutsideClick(container, onClose, closeOnOutsideClick && hasAnimated);
+  const isAnimating = !hasAnimated || isClosing;
 
   return (
     <div
       className={classNames(
-        'fixed inset-0 z-max bg-overlay-quaternary-onion',
+        'fixed inset-0 z-max bg-overlay-quaternary-onion transition-opacity duration-300 ease-in-out',
         className?.overlay,
+        isAnimating && 'opacity-0',
       )}
     >
       <div
         className={classNames(
           'absolute flex flex-col overflow-y-auto bg-theme-bg-primary transition-transform duration-300 ease-in-out',
-          !hasAnimated && animatePositionClassName[position],
+          isAnimating && animatePositionClassName[position],
           drawerPositionToClassName[position],
           !title && classes,
           'max-h-[calc(100vh-5rem)] w-full',
