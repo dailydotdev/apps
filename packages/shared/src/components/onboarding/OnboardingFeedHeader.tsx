@@ -48,7 +48,6 @@ export const OnboardingFeedHeader = ({
   isFeedPreviewEnabled,
   tagsCount,
 }: OnboardingFeedHeaderProps): JSX.Element => {
-  let stopNav = true;
   const { updateAlerts } = useAlertsContext();
   const { trackEvent } = useAnalyticsContext();
   const { showPrompt } = usePrompt();
@@ -72,6 +71,8 @@ export const OnboardingFeedHeader = ({
   }, [registerLocalFilters, router, trackEvent, updateAlerts]);
 
   useEffect(() => {
+    let stopNav = true;
+
     const routeHandler = (newRoute: string) => {
       if (!stopNav || newRoute === '/my-feed') {
         return;
@@ -80,7 +81,6 @@ export const OnboardingFeedHeader = ({
 
       showPrompt(promptConfig).then((leave) => {
         if (leave) {
-          // eslint-disable-next-line react-hooks/exhaustive-deps
           stopNav = false;
           trackEvent({
             event_name: AnalyticsEvent.OnboardingSkip,
@@ -95,7 +95,7 @@ export const OnboardingFeedHeader = ({
     return () => {
       router.events.off('routeChangeStart', routeHandler);
     };
-  }, [router.events, stopNav]);
+  }, [router, showPrompt, trackEvent]);
 
   return (
     <LayoutHeader className="flex-col overflow-x-visible">
