@@ -14,7 +14,7 @@ import {
   RegistrationParameters,
 } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
 import { MailIcon, UserIcon, VIcon, AtIcon, TwitterIcon } from '../icons';

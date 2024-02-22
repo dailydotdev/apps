@@ -5,7 +5,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { SettingsIcon } from '../icons';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 
 const ProfileMenu = dynamic(

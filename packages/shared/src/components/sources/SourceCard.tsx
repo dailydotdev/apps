@@ -8,7 +8,7 @@ import { Image } from '../image/Image';
 import { SquadJoinButton } from '../squads/SquadJoinButton';
 import { Origin } from '../../lib/analytics';
 import { cloudinary } from '../../lib/image';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 
 type SourceCardActionType = 'link' | 'action';
 

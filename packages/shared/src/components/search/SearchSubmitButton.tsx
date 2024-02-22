@@ -4,7 +4,7 @@ import {
   Button,
   ButtonProps,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 import { SendAirplaneIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';

@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
 import { PageContainer } from './utilities';
-import { Button, ButtonVariant } from './buttons/ButtonV2';
+import { Button, ButtonVariant } from './buttons/Button';
 import { useThemedAsset } from '../hooks/utils';
 
 interface Custom404Props {

@@ -1,5 +1,6 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
+  "__firefox__manifest_version": 2,
   "version": "0.0.0",
   "name": "daily.dev | The homepage developers deserve",
   "short_name": "daily.dev",
@@ -10,30 +11,55 @@
     "48": "icons/48.png",
     "128": "icons/128.png"
   },
-  "__prod__permissions": [
+  "__prod__permissions": ["scripting"],
+  "__prod|chrome|opera|edge__host_permissions": [
     "https://daily.dev/",
     "https://*.daily.dev/",
     "https://dailynow.co/",
     "https://*.dailynow.co/"
   ],
-  "__dev__permissions": ["storage", "http://localhost/", "http://*.local.com/"],
-  "optional_permissions": ["topSites", "*://*/*"],
-  "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'",
-  "__firefox__content_security_policy": "object-src 'self'",
-  "browser_action": {
+  "__firefox|prod__permissions": [
+    "https://daily.dev/",
+    "https://*.daily.dev/",
+    "https://dailynow.co/",
+    "https://*.dailynow.co/"
+  ],
+  "__dev__permissions": ["storage", "scripting"],
+  "__dev__host_permissions": ["http://localhost/", "http://*.local.com/"],
+  "__firefox|dev__permissions": ["storage", "http://localhost/", "http://*.local.com/"],
+  "optional_permissions": ["topSites"],
+  "__firefox__optional_permissions": ["topSites", "*://*/*"],
+  "__chrome|opera|edge__optional_host_permissions": [ "*://*/*"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  },
+  "__firefox__content_security_policy": "script-src 'self'; object-src 'self';",
+  "__chrome|opera|edge__action": {
+    "default_icon": {
+      "16": "icons/action_16.png",
+      "32": "icons/action_32.png"
+    }
+  },
+  "__firefox__browser_action": {
     "default_icon": {
       "16": "icons/action_16.png",
       "32": "icons/action_32.png"
     }
   },
   "background": {
-    "scripts": ["js/background.bundle.js"],
-    "__chrome|opera__persistent": true
+    "__chrome|opera|edge__service_worker": "js/background.bundle.js",
+    "__firefox__scripts": ["js/background.bundle.js"]
   },
   "chrome_url_overrides": {
     "newtab": "index.html"
   },
-  "web_accessible_resources": ["index.html", "companion.html", "js/companion.bundle.js", "css/companion.css"],
+  "web_accessible_resources": [
+    {
+      "resources": ["index.html", "companion.html", "js/companion.bundle.js", "css/companion.css"],
+      "matches": ["*://*/*"]
+    }
+  ],
+  "__firefox__web_accessible_resources":  ["index.html", "companion.html", "js/companion.bundle.js", "css/companion.css"],
   "__firefox__browser_specific_settings": {
     "gecko": {
       "strict_min_version": "54.0"

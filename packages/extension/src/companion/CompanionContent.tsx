@@ -12,7 +12,7 @@ import {
   Button,
   ButtonColor,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import { useUpvoteQuery } from '@dailydotdev/shared/src/hooks/useUpvoteQuery';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';

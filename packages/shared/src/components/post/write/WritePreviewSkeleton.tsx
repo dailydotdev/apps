@@ -8,7 +8,7 @@ import {
   WritePreviewContainer,
   WritePreviewContent,
 } from './common';
-import { Button, ButtonVariant } from '../../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../../buttons/Button';
 
 interface WritePreviewSkeletonProps {
   link: string;

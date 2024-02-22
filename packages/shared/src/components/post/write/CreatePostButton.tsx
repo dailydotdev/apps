@@ -5,7 +5,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useSquad, useViewSize, ViewSize } from '../../../hooks';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 
 interface CreatePostButtonProps {
   className?: string;

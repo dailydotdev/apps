@@ -9,7 +9,7 @@ import {
   WritePreviewContent,
 } from './common';
 import { ExternalLinkPreview } from '../../../graphql/posts';
-import { Button, ButtonVariant } from '../../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../../buttons/Button';
 
 interface WriteLinkPreviewProps {
   link: string;

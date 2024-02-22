@@ -10,7 +10,7 @@ import {
   ShareIcon,
   LinkIcon,
 } from '../../icons';
-import { Button, ButtonColor, ButtonVariant } from '../../buttons/ButtonV2';
+import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
 import { useFeedPreviewMode } from '../../../hooks';
 import { ActionButtonsProps } from '../ActionButtons';

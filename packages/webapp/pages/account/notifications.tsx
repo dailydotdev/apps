@@ -17,7 +17,7 @@ import {
   NotificationChannel,
   NotificationPromptSource,
 } from '@dailydotdev/shared/src/lib/analytics';
-import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import { usePersonalizedDigest } from '@dailydotdev/shared/src/hooks';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';

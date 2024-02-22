@@ -1,6 +1,6 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
-import { ButtonProps } from '../../buttons/ButtonV2';
+import { ButtonProps } from '../../buttons/Button';
 import CloseButton from '../../CloseButton';
 
 type ModalCloseProps = ButtonProps<'button'> & {

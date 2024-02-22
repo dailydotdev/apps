@@ -11,6 +11,7 @@ import { Ad } from '../../graphql/posts';
 import styles from './Card.module.css';
 import AdLink from './AdLink';
 import AdAttribution from './AdAttribution';
+import { cloudinary } from '../../lib/image';
 
 type Callback = (ad: Ad) => unknown;
 
@@ -46,12 +47,14 @@ export const AdCard = forwardRef(function AdCard(
               showBlurredImage && 'absolute inset-0 m-auto',
             )}
             style={{ objectFit: showBlurredImage ? 'contain' : 'cover' }}
+            fallbackSrc={cloudinary.post.imageCoverPlaceholder}
           />
           {showBlurredImage && (
             <CardImage
               alt="Ad image background"
               src={ad.image}
               className={classNames('-z-1 w-full', styles.blur)}
+              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
             />
           )}
         </div>

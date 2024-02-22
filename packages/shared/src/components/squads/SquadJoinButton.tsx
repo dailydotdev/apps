@@ -2,7 +2,7 @@ import React, { ReactElement, useEffect } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { SourceMemberRole, Squad } from '../../graphql/sources';
-import { Button, ButtonProps, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonProps, ButtonVariant } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useJoinSquad, useLeaveSquad } from '../../hooks';

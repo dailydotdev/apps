@@ -8,7 +8,7 @@ import { NotificationPreferenceStatus } from '../../../graphql/notifications';
 import { BellDisabledIcon, BellIcon } from '../../icons';
 import { Post } from '../../../graphql/posts';
 import { SimpleTooltip } from '../../tooltips';
-import { Button, ButtonVariant } from '../../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../../buttons/Button';
 
 export type CollectionSubscribeButtonProps = {
   post: Post;

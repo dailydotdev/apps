@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonVariant } from './buttons/ButtonV2';
+import { Button, ButtonVariant } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';

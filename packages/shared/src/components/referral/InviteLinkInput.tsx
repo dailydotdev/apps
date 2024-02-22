@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { AnalyticsEvent, TargetId } from '../../lib/analytics';
 import { useCopyLink } from '../../hooks/useCopy';

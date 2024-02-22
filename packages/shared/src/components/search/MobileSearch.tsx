@@ -12,7 +12,7 @@ import InteractivePopup, {
 } from '../tooltips/InteractivePopup';
 import { cloudinary } from '../../lib/image';
 import CloseButton from '../CloseButton';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { SearchSubmitButton } from './SearchSubmitButton';
 import {
   SearchBarSuggestionList,

@@ -12,7 +12,7 @@ import { ProfileV2 } from '../../graphql/users';
 import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
 import ReferralWidget from '../widgets/ReferralWidget';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { Button } from '../buttons/ButtonV2';
+import { Button } from '../buttons/Button';
 import { PlusIcon } from '../icons';
 
 export interface ProfileWidgetsProps extends ProfileV2 {

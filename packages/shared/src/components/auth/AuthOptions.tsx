@@ -54,6 +54,8 @@ import { labels } from '../../lib';
 import OnboardingRegistrationForm from './OnboardingRegistrationForm';
 import { useEventListener } from '../../hooks';
 import { trackAnalyticsSignUp } from './OnboardingAnalytics';
+import { ButtonSize } from '../buttons/Button';
+import { nextTick } from '../../lib/func';
 
 export enum AuthDisplay {
   Default = 'default',
@@ -96,6 +98,7 @@ export interface AuthOptionsProps {
   initialEmail?: string;
   targetId?: string;
   ignoreMessages?: boolean;
+  onboardingSignupButtonSize?: ButtonSize;
 }
 
 function AuthOptions({
@@ -114,6 +117,7 @@ function AuthOptions({
   simplified = false,
   initialEmail = '',
   ignoreMessages = false,
+  onboardingSignupButtonSize,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
@@ -418,8 +422,9 @@ function AuthOptions({
                 email: existingEmail,
               });
             }}
-            onProviderClick={(provider, login) => {
+            onProviderClick={async (provider, login) => {
               onProviderClick(provider, login);
+              await nextTick();
               onAuthStateUpdate({ isAuthenticating: true });
             }}
             trigger={trigger}
@@ -427,6 +432,7 @@ function AuthOptions({
             simplified={simplified}
             targetId={targetId}
             className={className?.onboardingSignup}
+            onboardingSignupButtonSize={onboardingSignupButtonSize}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>
