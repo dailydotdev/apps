@@ -17,7 +17,7 @@ export interface UseNotificationPermissionPopup {
 }
 
 interface UseNotificationPermissionPopupProps {
-  onSuccess?: (permission: NotificationPermission) => void;
+  onSuccess?: (subscribed: boolean) => void;
 }
 
 export const ENABLE_NOTIFICATION_WINDOW_KEY = 'enableNotificationMessage';
@@ -54,10 +54,12 @@ export const useNotificationPermissionPopup = ({
       return;
     }
 
-    setAcceptedPermissionJustNow(permission === 'granted');
+    const isGranted = permission === 'granted';
+
+    setAcceptedPermissionJustNow(isGranted);
     setPermissionCache(permission);
     if (onSuccess) {
-      onSuccess(permission);
+      onSuccess(isGranted);
     }
   });
 

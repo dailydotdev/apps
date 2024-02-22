@@ -86,7 +86,7 @@ const AccountNotificationsPage = (): ReactElement => {
     });
   };
 
-  const onTogglePush = () => {
+  const onTogglePush = async () => {
     onTrackToggle(
       !isSubscribed,
       NotificationChannel.Web,

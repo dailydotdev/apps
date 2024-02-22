@@ -38,6 +38,7 @@ export interface NotificationsContextData
     source: NotificationPromptSource,
   ) => Promise<NotificationPermission>;
   trackPermissionGranted: (source: NotificationPromptSource) => void;
+  OneSignal: typeof OSR;
 }
 
 const NotificationsContext =
@@ -93,7 +94,10 @@ export const NotificationsContextProvider = ({
 
         OneSignalReact.Notifications.addEventListener(
           'permissionChange',
-          (value) => subscriptionCallbackRef.current?.(value),
+          (value) => {
+            console.log('changes were made');
+            subscriptionCallbackRef.current?.(value);
+          },
         );
 
         await OneSignalReact.init({
@@ -119,20 +123,20 @@ export const NotificationsContextProvider = ({
   );
   const isSubscribed = OneSignal?.User.PushSubscription.optedIn;
 
-  const onUpdatePush = async (permission: NotificationPermission) => {
-    const isGranted = permission === 'granted';
+  const onUpdatePush = async (subscribed: boolean) => {
+    const { optIn, optOut } = OneSignal.User.PushSubscription;
 
-    if (isGranted) {
-      OneSignal.User.PushSubscription.optIn();
-
-      if (isAlertShown) {
-        setIsAlertShown(false);
-      }
-    } else {
-      OneSignal.User.PushSubscription.optOut();
+    if (!subscribed) {
+      console.log('is opting out');
+      return optOut();
     }
 
-    return isGranted;
+    if (isAlertShown) {
+      setIsAlertShown(false);
+    }
+
+    console.log('is opting in');
+    return optIn();
   };
 
   const {
@@ -144,12 +148,6 @@ export const NotificationsContextProvider = ({
   } = useNotificationPermissionPopup({
     onSuccess: !isExtension && onUpdatePush,
   });
-
-  const onUpdatePermission = async (permission: NotificationPermission) => {
-    const allowedPush = await onUpdatePush(permission);
-
-    onPermissionCache(allowedPush ? 'granted' : 'default');
-  };
 
   const onTogglePermission = async (
     source: NotificationPromptSource,
@@ -165,17 +163,17 @@ export const NotificationsContextProvider = ({
       return null;
     }
 
-    if (isSubscribed) {
-      await onUpdatePermission('denied');
-      return 'denied';
+    notificationSourceRef.current = source;
+
+    if (permission === 'default') {
+      await OneSignal.Notifications.requestPermission(); // temporary to make Safari work for presentation
     }
 
-    notificationSourceRef.current = source;
-    const result = await globalThis.window?.Notification?.requestPermission();
-    await OneSignal.Notifications.requestPermission();
-    await onUpdatePermission(result);
+    const updated = !isSubscribed;
+    onUpdatePush(updated);
+    onPermissionCache(updated ? 'granted' : 'denied');
 
-    return result;
+    return 'granted';
   };
 
   useEffect(() => {
@@ -235,6 +233,7 @@ export const NotificationsContextProvider = ({
     incrementUnreadCount,
     isNotificationSupported,
     trackPermissionGranted,
+    OneSignal,
   };
 
   return (
