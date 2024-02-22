@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { cloudinary } from '../../lib/image';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetType } from '../../lib/analytics';
@@ -28,7 +29,8 @@ export function PostFeedFiltersOnboarding({
 }: PostFeedFiltersOnboardingProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
-  const { showLogin } = useContext(AuthContext);
+  const { showLogin, user } = useContext(AuthContext);
+  const router = useRouter();
   useEffect(() => {
     trackEvent({
       event_name: AnalyticsEvent.Impression,
@@ -41,9 +43,13 @@ export function PostFeedFiltersOnboarding({
 
   const initOnboarding = () => {
     if (isOnboardingV4dot5(onboardingV4dot5)) {
-      showLogin({
-        trigger: AuthTriggers.MainButton,
-      });
+      if (user) {
+        router.push('/my-feed');
+      } else {
+        showLogin({
+          trigger: AuthTriggers.MainButton,
+        });
+      }
     } else {
       onInitializeOnboarding();
     }
