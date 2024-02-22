@@ -2,7 +2,7 @@
 
 declare global {
   interface Window {
-    safari?: { pushNotification?: unknown };
+    safari?: { pushNotification: any };
   }
 }
 
