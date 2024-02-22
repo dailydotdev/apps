@@ -1,7 +1,7 @@
 import React, { FormEvent, ReactElement, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { ProfilePicture } from '../ProfilePicture';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { LockIcon } from '../icons';
 import { Card } from '../cards/Card';

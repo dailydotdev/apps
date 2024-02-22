@@ -15,6 +15,7 @@ import {
 import { SearchPanelContext } from './SearchPanelContext';
 import { useDomPurify } from '../../../hooks/useDomPurify';
 import { useSearchPanelAction } from './useSearchPanelAction';
+import { webappUrl } from '../../../lib/constants';
 
 export type SearchPanelPostSuggestionsProps = {
   className?: string;
@@ -61,7 +62,7 @@ export const SearchPanelPostSuggestions = ({
 
   const onSuggestionClick = (suggestion: SearchSuggestion) => {
     if (suggestion.id) {
-      router.push(`/posts/${suggestion.id}`);
+      router.push(`${webappUrl}posts/${suggestion.id}`);
 
       return;
     }

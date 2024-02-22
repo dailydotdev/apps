@@ -9,7 +9,7 @@ import { SearchChunkSource } from '../../graphql/search';
 import { PaginationActions } from '../pagination';
 import { usePagination } from '../../hooks/utils';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
 interface SearchSourceListProps {
   sources: SearchChunkSource[];

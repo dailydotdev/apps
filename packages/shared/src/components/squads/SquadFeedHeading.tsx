@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { PinIcon } from '../icons';
 import { Squad } from '../../graphql/sources';
 import { ActiveFeedContext } from '../../contexts';

@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { Origin } from '../../lib/analytics';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import { SimpleSquadJoinButton } from './SquadJoinButton';
 import { Squad } from '../../graphql/sources';
 import usePersistentContext from '../../hooks/usePersistentContext';

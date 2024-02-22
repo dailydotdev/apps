@@ -1,7 +1,7 @@
 import {
   Button,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   PasswordField,
   PasswordFieldProps,

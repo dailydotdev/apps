@@ -5,6 +5,7 @@ import {
 } from './useToastNotification';
 
 type CopyNotifyFunctionProps = NotifyOptionalProps & {
+  link?: string;
   message?: string;
   textToCopy?: string;
 };
@@ -18,13 +19,13 @@ export type CopyNotifyFunction =
   | ((props?: CopyNotifyFunctionProps) => Promise<void>);
 
 export function useCopyLink(
-  getLink: () => string,
+  getLink?: () => string,
 ): [boolean, CopyNotifyFunction] {
   const [copying, setCopying] = useState(false);
   const { displayToast } = useToastNotification();
 
   const copy: CopyNotifyFunction = async (props = {}) => {
-    const link = getLink();
+    const link = props.link || getLink();
 
     if (link) {
       await navigator.clipboard.writeText(link);

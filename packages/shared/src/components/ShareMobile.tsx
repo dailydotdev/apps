@@ -6,7 +6,7 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from './buttons/ButtonV2';
+} from './buttons/Button';
 import { WidgetContainer } from './widgets/common';
 import { postAnalyticsEvent } from '../lib/feed';
 import { AnalyticsEvent } from '../lib/analytics';

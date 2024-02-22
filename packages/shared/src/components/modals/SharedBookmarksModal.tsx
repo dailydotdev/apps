@@ -8,7 +8,7 @@ import {
   DiscordIcon,
   GitHubIcon,
 } from '../icons';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Switch } from '../fields/Switch';
 import {
   BookmarksSharingData,

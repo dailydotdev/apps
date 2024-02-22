@@ -42,6 +42,7 @@ export const CollectionPostContent = ({
   customNavigation,
   onRemovePost,
   backToSquad,
+  isBannerVisible,
 }: PostContentProps): ReactElement => {
   const { user } = useAuthContext();
   const { subject } = useToastNotification();
@@ -89,6 +90,7 @@ export const CollectionPostContent = ({
       {position === 'fixed' && (
         <FixedPostNavigation
           {...navigationProps}
+          isBannerVisible={isBannerVisible}
           className={className?.fixedNavigation}
         />
       )}
@@ -153,7 +155,7 @@ export const CollectionPostContent = ({
               </div>
             )}
             {image && (
-              <div className="block h-auto w-full cursor-pointer overflow-hidden rounded-xl">
+              <div className="block h-auto w-full cursor-pointer overflow-hidden rounded-12">
                 <LazyImage
                   imgSrc={image}
                   imgAlt="Post cover image"

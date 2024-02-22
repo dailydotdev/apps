@@ -17,8 +17,8 @@ import AuthContainer from './AuthContainer';
 import AuthHeader from './AuthHeader';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useToastNotification } from '../../hooks/useToastNotification';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import OrDivider from './OrDivider';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
 interface AuthDefaultProps extends AuthFormProps {
   children?: ReactNode;

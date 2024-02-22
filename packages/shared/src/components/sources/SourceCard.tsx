@@ -8,7 +8,7 @@ import { Image } from '../image/Image';
 import { SquadJoinButton } from '../squads/SquadJoinButton';
 import { Origin } from '../../lib/analytics';
 import { cloudinary } from '../../lib/image';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 
 type SourceCardActionType = 'link' | 'action';
 
@@ -82,7 +82,7 @@ export const SourceCard = ({
         borderColorToClassName[source?.borderColor || borderColor],
       )}
     >
-      <div className="h-24 rounded-t-2xl bg-theme-bg-onion">
+      <div className="h-24 rounded-t-16 bg-theme-bg-onion">
         <Image
           className="h-full w-full object-cover"
           src={
@@ -93,17 +93,17 @@ export const SourceCard = ({
           alt="Banner image for source"
         />
       </div>
-      <div className="-mt-12 flex flex-1 flex-col rounded-t-2xl bg-theme-bg-secondary p-4">
+      <div className="-mt-12 flex flex-1 flex-col rounded-t-16 bg-theme-bg-secondary p-4">
         <div className="mb-3 flex items-end justify-between">
           <a href={source?.permalink}>
             {source?.image ? (
               <img
-                className="z-10 -mt-14 h-24 w-24 rounded-full"
+                className="-mt-14 h-24 w-24 rounded-full"
                 src={source?.image}
                 alt={`${title} source`}
               />
             ) : (
-              <div className="z-10 -mt-14 flex h-24 w-24 items-center justify-center rounded-full bg-theme-bg-pepper40">
+              <div className="-mt-14 flex h-24 w-24 items-center justify-center rounded-full bg-theme-bg-pepper40">
                 {icon}
               </div>
             )}

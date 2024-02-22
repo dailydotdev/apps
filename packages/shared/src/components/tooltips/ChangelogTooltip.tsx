@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonColor, ButtonSize } from '../buttons/Button';
 import { cloudinary } from '../../lib/image';
 import { postDateFormat } from '../../lib/dateFormat';
 import { Image } from '../image/Image';
@@ -48,8 +48,8 @@ function ChangelogTooltip(): ReactElement {
           );
         }
 
-        const browser = await import('webextension-polyfill-ts').then(
-          (mod) => mod.browser,
+        const browser = await import('webextension-polyfill').then(
+          (mod) => mod.default,
         );
 
         const updateResponse: { status: string } =
@@ -98,7 +98,7 @@ function ChangelogTooltip(): ReactElement {
         </header>
         <section className="flex h-full max-h-full flex-1 shrink flex-col p-5">
           <Image
-            className="h-[108px] w-[207px] rounded-lg object-cover"
+            className="h-[108px] w-[207px] rounded-8 object-cover"
             alt="Post cover image"
             src={post.image}
             fallbackSrc={cloudinary.post.imageCoverPlaceholder}
@@ -165,11 +165,11 @@ function ChangelogTooltip(): ReactElement {
         </section>
         <footer className="flex h-16 w-full items-center justify-between border-t border-theme-divider-tertiary p-3">
           <Button
-            className="btn-tertiary"
             onClick={dismissChangelog}
             tag="a"
             href={post.commentsPermalink}
             data-testid="changelogReleaseNotesBtn"
+            variant={ButtonVariant.Tertiary}
           >
             Release notes
           </Button>
@@ -177,10 +177,11 @@ function ChangelogTooltip(): ReactElement {
             <Button
               tag={isFirefoxExtension ? 'a' : undefined}
               href={isFirefoxExtension ? updateFirefoxExtensionLink : undefined}
-              className="btn-primary-cabbage"
               data-testid="changelogExtensionBtn"
               loading={isExtensionUpdating}
               onClick={onExtensionUpdateClick}
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Cabbage}
             >
               Update extension
             </Button>

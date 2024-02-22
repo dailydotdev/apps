@@ -3,7 +3,7 @@ import {
   Button,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { MiniCloseIcon as XIcon } from '@dailydotdev/shared/src/components/icons';
 import DndContext from './DndContext';
 

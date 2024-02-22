@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Browser } from 'webextension-polyfill-ts';
+import { Browser } from 'webextension-polyfill';
 import { EmptyObjectLiteral } from '../../lib/kratos';
 import { useRequestProtocol } from '../useRequestProtocol';
 
@@ -14,7 +14,7 @@ export const useRawBackgroundRequest = (
       return;
     }
 
-    import('webextension-polyfill-ts').then((mod) => setBrowser(mod.browser));
+    import('webextension-polyfill').then((mod) => setBrowser(mod.default));
   }, [isCompanion]);
 
   useEffect(() => {

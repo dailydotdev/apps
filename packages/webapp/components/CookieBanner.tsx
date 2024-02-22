@@ -5,7 +5,7 @@ import {
   Button,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ModalClose } from '@dailydotdev/shared/src/components/modals/common/ModalClose';
 
@@ -21,7 +21,7 @@ export default function CookieBanner({
   };
 
   return (
-    <div className="fixed bottom-0 left-0 z-[200] flex w-full flex-col border-t border-theme-divider-secondary bg-theme-bg-tertiary py-4 pl-4 pr-14 text-theme-label-secondary typo-footnote laptop:bottom-6 laptop:left-[unset] laptop:right-6 laptop:w-48 laptop:items-center laptop:rounded-2xl laptop:border laptop:p-6 laptop:text-center">
+    <div className="fixed bottom-0 left-0 z-max flex w-full flex-col border-t border-theme-divider-secondary bg-theme-bg-tertiary py-4 pl-4 pr-14 text-theme-label-secondary typo-footnote laptop:bottom-6 laptop:left-[unset] laptop:right-6 laptop:w-48 laptop:items-center laptop:rounded-16 laptop:border laptop:p-6 laptop:text-center">
       <ModalClose onClick={close} top="2" />
       <CookieIcon
         size={IconSize.XXLarge}

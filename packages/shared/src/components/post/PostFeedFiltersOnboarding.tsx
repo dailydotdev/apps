@@ -9,7 +9,7 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 
 const imageClassNames = 'absolute right-0';
 

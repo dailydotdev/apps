@@ -1,6 +1,7 @@
 import { JSONValue } from '@growthbook/growthbook';
 import {
   FeedLayout,
+  PostPageOnboarding,
   ReadingStreaksExperiment,
   SearchExperiment,
 } from './featureValues';
@@ -28,10 +29,17 @@ const feature = {
     ReadingStreaksExperiment.Control,
   ),
   onboardingVisual: new Feature('onboarding_visual', {
+    showCompanies: true,
     poster: cloudinary.onboarding.video.poster,
     webm: cloudinary.onboarding.video.webm,
     mp4: cloudinary.onboarding.video.mp4,
   }),
+  postPageOnboarding: new Feature(
+    'post_page_onboarding',
+    PostPageOnboarding.Control,
+  ),
+  socialProofOnboarding: new Feature('social_proof_onboarding', false),
+  copyLink: new Feature('copy_link', false),
 };
 
 export { feature };

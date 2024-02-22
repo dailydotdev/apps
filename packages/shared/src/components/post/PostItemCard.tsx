@@ -22,7 +22,7 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 
 export interface PostItemCardProps {
   className?: string;

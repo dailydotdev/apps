@@ -19,7 +19,7 @@ import {
   Button,
   ButtonColor,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import dynamic from 'next/dynamic';
@@ -135,7 +135,7 @@ export default function KeywordManagement({
               <LazyImage
                 imgSrc={smallPostImage(post.image)}
                 imgAlt="Post cover image"
-                className="h-16 w-16 rounded-2xl"
+                className="h-16 w-16 rounded-16"
               />
               <p
                 className="break-words-overflow multi-truncate ml-4 flex-1 self-center whitespace-pre-wrap p-0 text-theme-label-primary typo-callout tablet:mr-6"

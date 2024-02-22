@@ -9,7 +9,6 @@ import { useRouter } from 'next/router';
 import { Spaciness } from '../../graphql/settings';
 import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
-import ScrollToTopButton from '../ScrollToTopButton';
 import styles from '../Feed.module.css';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
@@ -140,7 +139,6 @@ export const FeedContainer = ({
         className,
       )}
     >
-      <ScrollToTopButton />
       <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
         {!inlineHeader && header}
         <div
@@ -167,23 +165,14 @@ export const FeedContainer = ({
             />
           )}
           {inlineHeader && header}
-          {isV1Search && (
-            <ConditionalWrapper
-              condition={!shouldUseFeedLayoutV1}
-              wrapper={(child) => (
-                <span className="flex flex-row gap-3">{child}</span>
-              )}
-            >
-              {!!shortcuts && shortcuts}
-            </ConditionalWrapper>
-          )}
-          {isV1Search && (
-            <span className="flex flex-1 flex-row">
-              {actionButtons && !shouldUseFeedLayoutV1 && (
+          {isV1Search && !shouldUseFeedLayoutV1 && (
+            <span className="flex flex-1 flex-row items-center">
+              {!!actionButtons && (
                 <span className="mr-auto flex flex-row gap-3 border-theme-divider-tertiary pr-3">
                   {actionButtons}
                 </span>
               )}
+              {shortcuts}
             </span>
           )}
           {shouldUseFeedLayoutV1 && shortcuts}

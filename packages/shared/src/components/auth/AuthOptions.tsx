@@ -54,6 +54,7 @@ import { labels } from '../../lib';
 import OnboardingRegistrationForm from './OnboardingRegistrationForm';
 import EmailCodeVerification from './EmailCodeVerification';
 import { trackAnalyticsSignUp } from './OnboardingAnalytics';
+import { ButtonSize } from '../buttons/Button';
 
 export enum AuthDisplay {
   Default = 'default',
@@ -76,6 +77,11 @@ export interface AuthProps {
   defaultDisplay?: AuthDisplay;
 }
 
+interface ClassName {
+  container?: string;
+  onboardingSignup?: string;
+}
+
 export interface AuthOptionsProps {
   onClose?: CloseAuthModalFunc;
   onAuthStateUpdate?: (props: Partial<AuthProps>) => void;
@@ -85,12 +91,14 @@ export interface AuthOptionsProps {
   trigger: AuthTriggersType;
   defaultDisplay?: AuthDisplay;
   forceDefaultDisplay?: boolean;
-  className?: string;
+  className?: ClassName;
   simplified?: boolean;
   isLoginFlow?: boolean;
   onDisplayChange?: (value: string) => void;
   initialEmail?: string;
   targetId?: string;
+  ignoreMessages?: boolean;
+  onboardingSignupButtonSize?: ButtonSize;
 }
 
 function AuthOptions({
@@ -98,7 +106,7 @@ function AuthOptions({
   onAuthStateUpdate,
   onSuccessfulLogin,
   onSuccessfulRegistration,
-  className,
+  className = {},
   formRef,
   trigger,
   defaultDisplay = AuthDisplay.Default,
@@ -108,6 +116,8 @@ function AuthOptions({
   targetId,
   simplified = false,
   initialEmail = '',
+  ignoreMessages = false,
+  onboardingSignupButtonSize,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
@@ -254,7 +264,7 @@ function AuthOptions({
   };
 
   useEventListener(globalThis, 'message', async (e) => {
-    if (e.data?.eventKey !== AuthEvent.SocialRegistration) {
+    if (e.data?.eventKey !== AuthEvent.SocialRegistration || ignoreMessages) {
       return undefined;
     }
 
@@ -356,12 +366,12 @@ function AuthOptions({
       className={classNames(
         'z-1 flex w-full max-w-[26.25rem] flex-col overflow-y-auto rounded-16',
         !simplified && 'bg-theme-bg-tertiary',
-        className,
+        className?.container,
       )}
     >
       <TabContainer<AuthDisplay>
         onActiveChange={(active) => onSetActiveDisplay(active)}
-        controlledActive={activeDisplay}
+        controlledActive={forceDefaultDisplay ? defaultDisplay : activeDisplay}
         showHeader={false}
       >
         <Tab label={AuthDisplay.Default}>
@@ -431,6 +441,8 @@ function AuthOptions({
             isReady={isReady}
             simplified={simplified}
             targetId={targetId}
+            className={className?.onboardingSignup}
+            onboardingSignupButtonSize={onboardingSignupButtonSize}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>

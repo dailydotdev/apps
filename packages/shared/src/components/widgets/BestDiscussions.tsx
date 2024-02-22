@@ -16,7 +16,7 @@ import {
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 
 export type BestDiscussionsProps = {
   posts: Post[] | null;
@@ -58,7 +58,7 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
   </article>
 );
 
-const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-xl my-0.5');
+const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-12 my-0.5');
 
 const ListItemPlaceholder = (): ReactElement => (
   <article aria-busy className="relative flex flex-col items-start px-4 py-3">

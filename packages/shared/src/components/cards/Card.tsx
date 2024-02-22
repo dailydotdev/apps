@@ -61,7 +61,13 @@ export const CardLink = classed('a', clickableCardClasses);
 export const Card = classed(
   'article',
   styles.card,
-  'relative max-h-card h-full flex flex-col p-2 rounded-2xl bg-theme-bg-secondary border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
+  'relative max-h-card h-full flex flex-col p-2 rounded-16 bg-theme-bg-secondary border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
+);
+
+export const ChecklistCardComponent = classed(
+  'article',
+  styles.card,
+  'max-w-[21.5rem] w-full relative max-h-fit h-full flex flex-col rounded-14 bg-theme-bg-secondary border border-theme-color-cabbage hover:border-theme-color-cabbage shadow-2',
 );
 
 export const CardHeader = classed(
@@ -73,7 +79,7 @@ export const CardHeader = classed(
 export const ListCard = classed(
   'article',
   styles.card,
-  'relative flex items-stretch pt-4 pb-3 pr-4 rounded-2xl bg-theme-bg-secondary border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
+  'relative flex items-stretch pt-4 pb-3 pr-4 rounded-16 bg-theme-bg-secondary border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
 );
 
 export const ListCardMain = classed(

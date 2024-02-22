@@ -3,9 +3,11 @@ import { useMutation } from '@tanstack/react-query';
 import { checkKratosEmail } from '../../lib/kratos';
 import { AuthFormProps, getFormEmail, providerMap } from './common';
 import OrDivider from './OrDivider';
+import classNames from 'classnames';
+import { AuthFormProps, providerMap } from './common';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import AuthForm from './AuthForm';
 import { TextField } from '../fields/TextField';
 import { MailIcon } from '../icons';
@@ -24,6 +26,8 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   signUpTitle?: string;
   trigger: AuthTriggersType;
   isReady: boolean;
+  className?: string;
+  onboardingSignupButtonSize?: ButtonSize;
 }
 
 const OnboardingRegistrationForm = ({
@@ -33,6 +37,8 @@ const OnboardingRegistrationForm = ({
   targetId,
   isReady,
   trigger,
+  className,
+  onboardingSignupButtonSize = ButtonSize.Large,
 }: OnboardingRegistrationFormProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [shouldLogin, setShouldLogin] = useState(false);
@@ -128,13 +134,14 @@ const OnboardingRegistrationForm = ({
 
       <OrDivider className="mb-8" label="Or sign up with" />
 
-      <div className="flex gap-8 pb-8">
+      <div className={classNames('flex flex-col gap-8 pb-8', className)}>
         {signupProviders.map((provider) => (
           <Button
             key={provider.value}
-            className="flex flex-1 bg-theme-active text-white"
             icon={provider.icon}
             loading={!isReady}
+            variant={ButtonVariant.Primary}
+            size={onboardingSignupButtonSize}
             onClick={() => onSocialClick(provider.value)}
           >
             {provider.label}

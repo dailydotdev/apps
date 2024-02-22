@@ -19,7 +19,7 @@ import AuthOptions, { AuthDisplay } from '../auth/AuthOptions';
 import { AuthEventNames, AuthTriggers } from '../../lib/auth';
 import { ExperimentWinner } from '../../lib/featureValues';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
+import { ButtonColor, ButtonVariant } from '../buttons/Button';
 
 interface OnboardingModalProps extends ModalProps {
   mode?: OnboardingMode;
@@ -140,7 +140,7 @@ function OnboardingModal({
     if (isAuthenticating) {
       return (
         <AuthOptions
-          className="h-full"
+          className={{ container: 'h-full' }}
           onClose={onClose}
           formRef={formRef}
           onSuccessfulLogin={onRegistrationSuccess}

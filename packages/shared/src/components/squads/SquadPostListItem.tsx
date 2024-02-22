@@ -5,7 +5,7 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 import { BookmarkIcon } from '../icons';
 import styles from '../cards/Card.module.css';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -31,7 +31,7 @@ export const SquadPostListItem = ({
   return (
     <article
       className={classNames(
-        'group relative flex items-start py-2 pl-4 pr-2 hover:bg-theme-hover',
+        'group relative flex items-start px-4 py-2 hover:bg-theme-hover',
         styles.card,
       )}
     >
@@ -40,13 +40,13 @@ export const SquadPostListItem = ({
         title={post.title}
         {...combinedClicks(() => onLinkClick(post))}
       />
-      <div className="flex flex-1 flex-col">
+      <div className="flex w-full flex-col">
         {post?.author && (
           <SquadPostAuthor
             className={{
-              container: 'mt-0',
               name: 'text-theme-label-primary typo-callout',
               handle: 'text-theme-label-quaternary typo-callout',
+              details: 'flex-1 pr-8',
             }}
             author={post.author}
             size="large"
@@ -59,7 +59,7 @@ export const SquadPostListItem = ({
       </div>
       <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
         <Button
-          className="mt-1 group-hover:visible mouse:invisible"
+          className="absolute right-3 group-hover:visible mouse:invisible"
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Bun}
           pressed={post.bookmarked}

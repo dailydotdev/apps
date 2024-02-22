@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { LazyImage, LazyImageProps } from './LazyImage';
 import { PublicProfile } from '../lib/user';
 import { fallbackImages } from '../lib/config';
-import { Image } from './image/Image';
+import { Image, ImageType } from './image/Image';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
 
 export type ProfileImageSize =
@@ -46,7 +46,7 @@ const roundClasses: Record<ProfileImageSize | 'full', string> = {
   large: 'rounded-12',
   xlarge: 'rounded-14',
   xxlarge: 'rounded-16',
-  xxxlarge: 'rounded-[18px]',
+  xxxlarge: 'rounded-18',
   xxxxlarge: 'rounded-26',
   full: 'rounded-full',
 };
@@ -105,6 +105,7 @@ function ProfilePictureComponent(
         onError={onError}
         className={classes}
         loading={eager || isCompanion ? 'eager' : 'lazy'}
+        type={ImageType.Avatar}
       />
     );
   }

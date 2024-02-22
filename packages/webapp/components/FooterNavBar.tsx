@@ -18,7 +18,7 @@ import {
   ButtonProps,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';

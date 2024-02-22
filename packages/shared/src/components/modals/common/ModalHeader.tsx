@@ -4,7 +4,7 @@ import classed from '../../../lib/classed';
 import { ModalTabs, ModalTabsProps } from './ModalTabs';
 import { ModalClose } from './ModalClose';
 import { ModalHeaderKind, ModalPropsContext } from './types';
-import { Button, ButtonProps, ButtonVariant } from '../../buttons/ButtonV2';
+import { Button, ButtonProps, ButtonVariant } from '../../buttons/Button';
 import { ArrowIcon } from '../../icons';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
 import { ProgressBar } from '../../fields/ProgressBar';

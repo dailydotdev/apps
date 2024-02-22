@@ -25,6 +25,7 @@ export interface Rank {
   border: string;
   color: string;
 }
+
 export const RANKS: Rank[] = [
   {
     name: 'Iron',

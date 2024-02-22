@@ -42,6 +42,7 @@ export function PostContent({
   customNavigation,
   onRemovePost,
   backToSquad,
+  isBannerVisible,
 }: PostContentProps): ReactElement {
   const { user } = useAuthContext();
   const { subject } = useToastNotification();
@@ -89,6 +90,7 @@ export function PostContent({
       {position === 'fixed' && (
         <FixedPostNavigation
           {...navigationProps}
+          isBannerVisible={isBannerVisible}
           className={className?.fixedNavigation}
         />
       )}
@@ -170,7 +172,7 @@ export function PostContent({
               target="_blank"
               rel="noopener"
               {...combinedClicks(onReadArticle)}
-              className="mb-10 block cursor-pointer overflow-hidden rounded-2xl"
+              className="mb-10 block cursor-pointer overflow-hidden rounded-16"
               style={{ maxWidth: '25.625rem' }}
             >
               <LazyImage

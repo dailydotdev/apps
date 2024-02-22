@@ -14,7 +14,7 @@ import {
   ButtonProps,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 import { getFieldFontColor } from './BaseFieldContainer';
 
 export interface SearchFieldProps

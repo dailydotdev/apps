@@ -5,6 +5,7 @@ import { PostFeedFiltersOnboarding } from './PostFeedFiltersOnboarding';
 import PostEngagements from './PostEngagements';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import { BasePostContentProps } from './common';
+import { useOnboarding } from '../../hooks/auth';
 
 const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ '../modals/ShareModal'),
@@ -29,20 +30,18 @@ export function BasePostContent({
   customNavigation,
 }: BasePostContentProps): ReactElement {
   const { id } = post ?? {};
+  const { onCloseShare, sharePost, onSharePost } = engagementProps;
+  const { onStartArticleOnboarding, showArticleOnboarding } =
+    useContext(OnboardingContext);
+  const { shouldShowAuthBanner } = useOnboarding();
 
   if (!id && !isFallback) {
     return <Custom404 />;
   }
 
-  const { onCloseShare, sharePost, onSharePost } = engagementProps;
-  const { onStartArticleOnboarding, showArticleOnboarding } =
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useContext(OnboardingContext);
-
   return (
     <>
-      {showArticleOnboarding && (
+      {showArticleOnboarding && !shouldShowAuthBanner && (
         <PostFeedFiltersOnboarding
           className={className?.onboarding}
           onInitializeOnboarding={onStartArticleOnboarding}

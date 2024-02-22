@@ -9,7 +9,7 @@ import {
   themeModes,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { get as getCache } from 'idb-keyval';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 import App from './App';
 import { DndSettings } from './DndContext';
 

@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import ReactModal from 'react-modal';
 import { Modal } from './common/Modal';
 import { ModalKind, ModalSize } from './common/types';
-import { ButtonSize } from '../buttons/ButtonV2';
+import { ButtonSize } from '../buttons/Button';
 import { ModalClose } from './common/ModalClose';
 
 interface VideoModalProps extends ReactModal.Props {

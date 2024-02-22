@@ -3,7 +3,7 @@ import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import classNames from 'classnames';
 import commentPopupText from '../../commentPopupText';
 import { DiscussIcon as CommentIcon } from '../icons';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
 
 const transitionDuration = 150;
@@ -57,7 +57,7 @@ export default function CommentPopup({
   return (
     <div
       className={classNames(
-        'absolute left-0 top-0 z-2 flex h-full w-full flex-col justify-end overflow-hidden rounded-2xl bg-theme-post-disabled',
+        'absolute left-0 top-0 z-2 flex h-full w-full flex-col justify-end overflow-hidden rounded-16 bg-theme-post-disabled',
         !show && 'opacity-0',
       )}
       ref={containerRef}
@@ -69,7 +69,7 @@ export default function CommentPopup({
     >
       <div
         className={classNames(
-          'invert relative flex flex-col rounded-2xl bg-theme-bg-primary p-4',
+          'invert relative flex flex-col rounded-16 bg-theme-bg-primary p-4',
           layoutModeClass,
         )}
       >

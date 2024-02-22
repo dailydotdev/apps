@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import { IconType } from '../../buttons/ButtonV2';
+import { IconType } from '../../buttons/Button';
 import {
   SearchPanelItemContainerProps,
   SearchPanelItemContainer,

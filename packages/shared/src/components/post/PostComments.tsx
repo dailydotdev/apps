@@ -22,6 +22,8 @@ import { Origin } from '../../lib/analytics';
 import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useDeleteComment } from '../../hooks/comments/useDeleteComment';
+import { lazyCommentThreshold } from '../utilities';
+import { isNullOrUndefined } from '../../lib/func';
 
 interface PostCommentsProps {
   post: Post;
@@ -88,13 +90,13 @@ export function PostComments({
     );
   }
 
-  if (isLoadingComments || comments === null) {
+  if (isLoadingComments || isNullOrUndefined(comments)) {
     return <PlaceholderCommentList placeholderAmount={post.numComments} />;
   }
 
   return (
     <div className="mb-12 flex flex-col gap-4" ref={container}>
-      {comments.postComments.edges.map((e) => (
+      {comments.postComments.edges.map((e, index) => (
         <MainComment
           className={{ commentBox: className }}
           post={post}
@@ -114,6 +116,7 @@ export function PostComments({
           permissionNotificationCommentId={permissionNotificationCommentId}
           joinNotificationCommentId={joinNotificationCommentId}
           onCommented={onCommented}
+          lazy={!commentHash && index >= lazyCommentThreshold}
         />
       ))}
     </div>
