@@ -147,6 +147,7 @@ function AuthOptions({
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
   const [chosenProvider, setChosenProvider] = useState<string>(null);
   const [isRegistration, setIsRegistration] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
   const windowPopup = useRef<Window>(null);
   const onLoginCheck = (shouldVerify?: boolean) => {
     if (shouldVerify) {
@@ -386,7 +387,7 @@ function AuthOptions({
             onPasswordLogin={onPasswordLogin}
             loginHint={loginHint}
             isLoading={isPasswordLoginLoading}
-            isLoginFlow={isForgotPasswordReturn || isLoginFlow}
+            isLoginFlow={isForgotPasswordReturn || isLoginFlow || isLogin}
             trigger={trigger}
             isReady={isReady}
             simplified={simplified}
@@ -539,22 +540,18 @@ function AuthOptions({
         <Tab label={AuthDisplay.OnboardingSignupV4d5}>
           <OnboardingRegistrationForm4d5
             onSignup={(signupEmail) => {
-              onAuthStateUpdate({
-                isAuthenticating: true,
-                email: signupEmail,
-                defaultDisplay: AuthDisplay.Registration,
-              });
+              setEmail(signupEmail);
+              setActiveDisplay(AuthDisplay.Registration);
             }}
             onExistingEmail={(existingEmail) => {
-              onAuthStateUpdate({
-                isAuthenticating: true,
-                isLoginFlow: true,
-                email: existingEmail,
-              });
+              setEmail(existingEmail);
+              setIsLogin(true);
+              setActiveDisplay(AuthDisplay.Default);
             }}
-            onProviderClick={(provider, login) => {
-              onProviderClick(provider, login);
-              onAuthStateUpdate({ isAuthenticating: true });
+            onProviderClick={onProviderClick}
+            onShowLoginOptions={() => {
+              setIsLogin(true);
+              setActiveDisplay(AuthDisplay.Default);
             }}
             trigger={trigger}
             isReady={isReady}

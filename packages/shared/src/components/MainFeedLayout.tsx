@@ -25,7 +25,7 @@ import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
 import { useFeature } from './GrowthBookProvider';
-import { OnboardingV4dot5, SearchExperiment } from '../lib/featureValues';
+import { SearchExperiment, isOnboardingV4dot5 } from '../lib/featureValues';
 import {
   algorithms,
   LayoutHeader,
@@ -130,13 +130,14 @@ export default function MainFeedLayout({
   const searchVersion = useFeature(feature.search);
   const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
   const isV1Search = searchVersion === SearchExperiment.V1;
-  const isOnboardingV4dot5 = onboardingV4dot5 === OnboardingV4dot5.V4dot5;
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { feedSettings } = useFeedSettings();
 
   const isOnboardingFeed =
-    isOnboardingV4dot5 && alerts?.filter && feedName === SharedFeedPage.MyFeed;
+    isOnboardingV4dot5(onboardingV4dot5) &&
+    alerts?.filter &&
+    feedName === SharedFeedPage.MyFeed;
 
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {

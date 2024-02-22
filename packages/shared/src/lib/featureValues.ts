@@ -30,3 +30,6 @@ export enum OnboardingV4dot5 {
   Control = 'control',
   V4dot5 = 'v4dot5',
 }
+
+export const isOnboardingV4dot5 = (flag: string): boolean =>
+  flag === OnboardingV4dot5.V4dot5;

@@ -121,8 +121,8 @@ export const OnboardingFeedHeader = ({
         </div>
       </div>
 
-      <div className="flex max-w-full flex-col">
-        <FilterOnboardingV4 className="mt-44 pt-6 tablet:pt-0" />
+      <div className="flex w-full max-w-full flex-col">
+        <FilterOnboardingV4 className="mt-44 px-4 pt-6 tablet:px-10 tablet:pt-0" />
         <div className="mt-10 flex items-center justify-center gap-10 text-theme-label-quaternary typo-callout">
           <div className="h-px flex-1 bg-theme-divider-tertiary" />
           <Button
