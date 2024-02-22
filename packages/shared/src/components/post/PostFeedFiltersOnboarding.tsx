@@ -48,6 +48,9 @@ export function PostFeedFiltersOnboarding({
       } else {
         showLogin({
           trigger: AuthTriggers.MainButton,
+          options: {
+            onRegistrationSuccess: () => router.push('/my-feed'),
+          },
         });
       }
     } else {
