@@ -32,6 +32,7 @@ interface OnboardingRegistrationForm4d5Props extends AuthFormProps {
   isReady: boolean;
   className?: string;
   onClose?: CloseAuthModalFunc;
+  onShowLoginOptions?: () => void;
 }
 
 export const OnboardingRegistrationForm4d5 = ({
@@ -43,6 +44,7 @@ export const OnboardingRegistrationForm4d5 = ({
   trigger,
   className,
   onClose,
+  onShowLoginOptions,
 }: OnboardingRegistrationForm4d5Props): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [shouldLogin, setShouldLogin] = useState(false);
@@ -53,15 +55,13 @@ export const OnboardingRegistrationForm4d5 = ({
 
   useEffect(() => {
     trackEvent({
-      event_name: shouldLogin
-        ? AuthEventNames.OpenLogin
-        : AuthEventNames.OpenSignup,
+      event_name: AuthEventNames.OpenSignup,
       extra: JSON.stringify({ trigger }),
       target_id: targetId,
     });
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldLogin]);
+  }, []);
 
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,17 +168,10 @@ export const OnboardingRegistrationForm4d5 = ({
 
       <AuthModalFooter
         text={{
-          body: shouldLogin
-            ? 'Not a member yet?'
-            : 'Already a daily.dev member?',
-          button: shouldLogin ? 'Sign up' : 'Log in',
+          body: 'Already a daily.dev member?',
+          button: 'Log in',
         }}
-        onClick={() => {
-          if (!shouldLogin) {
-            setRegisterEmail(null);
-          }
-          setShouldLogin(!shouldLogin);
-        }}
+        onClick={onShowLoginOptions}
       />
     </>
   );
