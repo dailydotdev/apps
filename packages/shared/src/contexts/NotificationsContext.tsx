@@ -17,7 +17,7 @@ import {
 import usePersistentContext from '../hooks/usePersistentContext';
 import { BootApp } from '../lib/boot';
 import { isDevelopment, isTesting } from '../lib/constants';
-import { checkIsExtension, isNullOrUndefined } from '../lib/func';
+import { checkIsExtension } from '../lib/func';
 import AuthContext from './AuthContext';
 import { AnalyticsEvent, NotificationPromptSource } from '../lib/analytics';
 import { useAnalyticsContext } from './AnalyticsContext';
@@ -63,7 +63,6 @@ export const NotificationsContextProvider = ({
   const isExtension = checkIsExtension();
   const { trackEvent } = useAnalyticsContext();
   const { user } = useContext(AuthContext);
-  const [isSubscribed, setIsSubscribed] = useState<boolean>(undefined);
   const [currentUnreadCount, setCurrentUnreadCount] = useState(unreadCount);
   const [isAlertShown, setIsAlertShown] = usePersistentContext(
     ALERT_PUSH_KEY,
@@ -92,8 +91,9 @@ export const NotificationsContextProvider = ({
       try {
         const OneSignalReact = (await import('react-onesignal')).default;
 
-        OneSignalReact.on('subscriptionChange', (value) =>
-          subscriptionCallbackRef.current?.(value),
+        OneSignalReact.Notifications.addEventListener(
+          'permissionChange',
+          (value) => subscriptionCallbackRef.current?.(value),
         );
 
         await OneSignalReact.init({
@@ -102,14 +102,7 @@ export const NotificationsContextProvider = ({
           serviceWorkerParam: { scope: '/push/onesignal/' },
           serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
         });
-
-        const isGranted = globalThis.Notification?.permission === 'granted';
-        const [subscribed, externalId] = await Promise.all([
-          OneSignalReact.getSubscription(),
-          OneSignalReact.getExternalUserId(),
-        ]);
-        const isValidSubscription = subscribed && isGranted && !!externalId;
-        setIsSubscribed(isValidSubscription);
+        await OneSignalReact.login(user.id);
 
         return OneSignalReact;
       } catch (err) {
@@ -124,22 +117,19 @@ export const NotificationsContextProvider = ({
       enabled: !!user && !isExtension && !isTesting,
     },
   );
+  const isSubscribed = OneSignal?.User.PushSubscription.optedIn;
 
   const onUpdatePush = async (permission: NotificationPermission) => {
     const isGranted = permission === 'granted';
-    await OneSignal?.setSubscription?.(isGranted);
-    setIsSubscribed(isGranted);
 
     if (isGranted) {
-      await OneSignal.setExternalUserId(user.id);
+      OneSignal.User.PushSubscription.optIn();
 
       if (isAlertShown) {
         setIsAlertShown(false);
       }
-    }
-
-    if (!isGranted) {
-      await OneSignal.removeExternalUserId();
+    } else {
+      OneSignal.User.PushSubscription.optOut();
     }
 
     return isGranted;
@@ -168,9 +158,7 @@ export const NotificationsContextProvider = ({
       return 'default';
     }
 
-    const { permission } = globalThis.Notification ?? {};
-
-    if (app === BootApp.Extension || permission === 'denied') {
+    if (app === BootApp.Extension) {
       onOpenPopup(source);
       return null;
     }
@@ -215,8 +203,8 @@ export const NotificationsContextProvider = ({
       !!globalThis.window?.Notification &&
       (!!OneSignal || isTesting) &&
       isFetched &&
-      !isNullOrUndefined(isSubscribed),
-    [OneSignal, isFetched, isSubscribed],
+      OneSignal?.Notifications.isPushSupported(),
+    [OneSignal, isFetched],
   );
 
   const clearUnreadCount = useCallback(() => setCurrentUnreadCount(0), []);
