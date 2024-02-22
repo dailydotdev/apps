@@ -118,7 +118,10 @@ export function CalendarHeatmap<T extends { date: string }>({
   >(
     () =>
       values.reduce((acc, value) => {
-        const date = new Date(value.date);
+        const localDate = new Date(value.date);
+        const date = new Date(
+          localDate.valueOf() + localDate.getTimezoneOffset() * 60 * 1000,
+        );
         const index = differenceInDays(date, startDateWithEmptyDays);
         if (index < 0) {
           return acc;
