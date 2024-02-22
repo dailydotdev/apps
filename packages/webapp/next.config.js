@@ -95,7 +95,7 @@ module.exports = withTM(
             {
               source: '/signup',
               destination: '/onboarding',
-              permanent: true
+              permanent: false
             }
           ]
         },
