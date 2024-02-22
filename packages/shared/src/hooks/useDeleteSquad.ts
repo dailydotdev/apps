@@ -5,7 +5,7 @@ import { PromptOptions, usePrompt } from './usePrompt';
 import { useBoot } from './useBoot';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
-import { ButtonColor, ButtonVariant } from '../components/buttons/ButtonV2';
+import { ButtonColor, ButtonVariant } from '../components/buttons/Button';
 
 interface UseDeleteSquadModal {
   onDeleteSquad: () => void;

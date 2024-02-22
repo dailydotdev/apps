@@ -8,7 +8,7 @@ import {
 } from '@dailydotdev/shared/src/lib/timezones';
 import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import React, { ReactElement, useContext, useState } from 'react';
-import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';

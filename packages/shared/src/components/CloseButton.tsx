@@ -4,7 +4,7 @@ import {
   ButtonProps,
   ButtonSize,
   ButtonVariant,
-} from './buttons/ButtonV2';
+} from './buttons/Button';
 import { MiniCloseIcon as CloseIcon } from './icons';
 
 function CloseButtonComponent(

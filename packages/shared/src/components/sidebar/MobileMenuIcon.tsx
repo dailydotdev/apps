@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { ArrowIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
 interface MobileMenuIconProps {
   sidebarExpanded: boolean;

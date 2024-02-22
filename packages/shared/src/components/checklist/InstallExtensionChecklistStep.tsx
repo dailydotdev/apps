@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { ChecklistStepProps } from '../../lib/checklist';
 import { ChecklistStep } from './ChecklistStep';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import BrowsersIcon from '../../../icons/browsers.svg';
 import { FlexCentered } from '../utilities';
 import { useActions } from '../../hooks/useActions';

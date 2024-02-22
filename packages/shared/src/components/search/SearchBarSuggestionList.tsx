@@ -1,9 +1,8 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import { SearchBarSuggestion, SuggestionOrigin } from './SearchBarSuggestion';
-import { PlaceholderSearchSuggestion } from './PlaceholderSearchSuggestion';
 import AuthContext from '../../contexts/AuthContext';
-import { FeedbackIcon } from '../icons';
+import { AiIcon, FeedbackIcon } from '../icons';
 import {
   getSearchUrl,
   SearchProviderEnum,
@@ -11,6 +10,7 @@ import {
 } from '../../graphql/search';
 import { Pill } from '../utilities/loaders';
 import { AuthTriggers } from '../../lib/auth';
+import { Button, ButtonVariant } from '../buttons/Button';
 
 export interface SearchBarSuggestionListProps {
   className?: string;
@@ -33,12 +33,16 @@ export function SearchBarSuggestionList({
 
   if (!user) {
     return (
-      <PlaceholderSearchSuggestion
+      <Button
+        icon={<AiIcon />}
+        variant={ButtonVariant.Subtle}
         className={className}
         onClick={() => showLogin({ trigger: AuthTriggers.SearchSuggestion })}
       >
-        Sign up and read your first post to get search recommendations
-      </PlaceholderSearchSuggestion>
+        <span className="tablet:line-clamp-1">
+          Sign up and read your first post to get search recommendations
+        </span>
+      </Button>
     );
   }
 

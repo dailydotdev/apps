@@ -6,7 +6,7 @@ import {
   Button,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import classNames from 'classnames';
 import styles from './NavBar.module.css';
 

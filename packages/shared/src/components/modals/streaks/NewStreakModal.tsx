@@ -1,25 +1,20 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { LazyModalCommonProps, Modal } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import classed from '../../../lib/classed';
 import { Checkbox } from '../../fields/Checkbox';
 import { ModalClose } from '../common/ModalClose';
 import { cloudinary } from '../../../lib/image';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
-
-interface FirstStreakModalProps extends LazyModalCommonProps {
-  currentStreak: number;
-  previousStreak: number;
-}
+import { StreakModalProps } from './common';
 
 const Paragraph = classed('p', 'text-center text-theme-label-tertiary');
 
-export default function FirstStreakModal({
+export default function NewStreakModal({
   currentStreak,
-  previousStreak,
   onRequestClose,
   ...props
-}: FirstStreakModalProps): ReactElement {
+}: StreakModalProps): ReactElement {
   const { toggleOptOutWeeklyGoal, optOutWeeklyGoal } = useSettingsContext();
   const shouldShowSplash = currentStreak > 20;
 
@@ -72,8 +67,7 @@ export default function FirstStreakModal({
         >
           {shouldShowSplash
             ? 'Epic win! You are on a league of your own'
-            : `New milestone reached! You are unstoppable. Your previous record was
-        ${previousStreak} days.`}
+            : `New milestone reached! You are unstoppable.`}
         </Paragraph>
         <Checkbox
           name="show_streaks"

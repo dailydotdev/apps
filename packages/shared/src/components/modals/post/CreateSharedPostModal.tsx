@@ -9,7 +9,7 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../../buttons/ButtonV2';
+} from '../../buttons/Button';
 import { AtIcon } from '../../icons';
 import { Divider, Justify } from '../../utilities';
 import SourceButton from '../../cards/SourceButton';

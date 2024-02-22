@@ -7,7 +7,7 @@ import { ReadArticleButton } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useFeedPreviewMode } from '../../hooks';
 import { Post, getReadPostButtonText } from '../../graphql/posts';
-import { ButtonVariant } from '../buttons/ButtonV2';
+import { ButtonVariant } from '../buttons/Button';
 
 interface CardHeaderProps {
   post: Post;

@@ -4,8 +4,9 @@ import {
   ButtonProps,
   ButtonSize,
   ButtonVariant,
-} from './buttons/ButtonV2';
+} from './buttons/Button';
 import { ArrowIcon } from './icons';
+import { useViewSize, ViewSize } from '../hooks';
 
 const baseStyle: CSSProperties = {
   transition: 'transform 0.1s ease-out, opacity 0.1s ease-out',
@@ -14,6 +15,7 @@ const baseStyle: CSSProperties = {
 
 export default function ScrollToTopButton(): ReactElement {
   const [show, setShow] = useState(false);
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   useEffect(() => {
     const callback = () => {
@@ -22,6 +24,10 @@ export default function ScrollToTopButton(): ReactElement {
     window.addEventListener('scroll', callback, { passive: true });
     return () => window.removeEventListener('scroll', callback);
   }, []);
+
+  if (!show) {
+    return <></>;
+  }
 
   const props: ButtonProps<'button'> = {
     icon: <ArrowIcon />,
@@ -35,23 +41,13 @@ export default function ScrollToTopButton(): ReactElement {
   };
 
   return (
-    <>
-      <Button
-        aria-label="scroll to top"
-        {...props}
-        className="absolute -top-18 right-4 z-2 laptop:hidden"
-        size={ButtonSize.Large}
-        variant={ButtonVariant.Primary}
-        style={style}
-      />
-      <Button
-        aria-label="scroll to top"
-        {...props}
-        className="absolute -top-24 right-8 z-2 hidden laptop:flex"
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.XLarge}
-        style={style}
-      />
-    </>
+    <Button
+      aria-label="scroll to top"
+      {...props}
+      className="absolute -top-18 right-4 z-2 laptop:-top-24 laptop:right-8"
+      variant={ButtonVariant.Primary}
+      size={isLaptop ? ButtonSize.XLarge : ButtonSize.Large}
+      style={style}
+    />
   );
 }

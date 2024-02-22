@@ -1,6 +1,6 @@
 import React, { FormEvent, ReactElement, useContext, useState } from 'react';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { MailIcon } from '../icons';
 import { CloseModalFunc } from '../modals/common';
