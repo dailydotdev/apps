@@ -2,8 +2,6 @@ import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { ProfilePicture } from '../ProfilePicture';
 import AuthContext from '../../contexts/AuthContext';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
 
 export type FeedReadyMessageProps = {
   className?: {
@@ -17,11 +15,6 @@ export const FeedReadyMessage = ({
   className,
 }: FeedReadyMessageProps): ReactElement => {
   const { user } = useContext(AuthContext);
-  const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
-
-  if (onboardingOptimizations) {
-    return <></>;
-  }
 
   return (
     <div

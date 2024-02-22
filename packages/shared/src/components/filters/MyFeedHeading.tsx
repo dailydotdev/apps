@@ -82,37 +82,9 @@ function MyFeedHeading({
     return sidebarRendered ? [4, 0] : [-32, 4];
   };
 
-  const feedSettingsButton = (
-    <Button
-      size={shouldUseFeedLayoutV1 ? ButtonSize.Small : ButtonSize.Medium}
-      variant={
-        isV1Search || shouldUseFeedLayoutV1
-          ? ButtonVariant.Float
-          : ButtonVariant.Tertiary
-      }
-      className={classNames(
-        'mr-auto',
-        !onboardingOptimizations &&
-          shouldShowHighlightPulse &&
-          'highlight-pulse',
-      )}
-      onClick={onClick}
-      icon={<FilterIcon />}
-      iconPosition={
-        shouldUseFeedLayoutV1 ? ButtonIconPosition.Right : undefined
-      }
-    >
-      Feed settings
-    </Button>
-  );
-
-  if (onboardingOptimizations) {
-    return feedSettingsButton;
-  }
-
   const alertProps: Omit<AlertPointerProps, 'children'> = {
     offset: getOffset(),
-    isAlertDisabled,
+    isAlertDisabled: onboardingOptimizations ? true : isAlertDisabled,
     onClose: () => onUpdateAlerts({ myFeed: null }),
     className: {
       label: 'w-44',
@@ -128,7 +100,29 @@ function MyFeedHeading({
     placement: getPlacement(),
   };
 
-  return <AlertPointer {...alertProps}>{feedSettingsButton}</AlertPointer>;
+  return (
+    <AlertPointer {...alertProps}>
+      <Button
+        size={shouldUseFeedLayoutV1 ? ButtonSize.Small : ButtonSize.Medium}
+        variant={
+          isV1Search || shouldUseFeedLayoutV1
+            ? ButtonVariant.Float
+            : ButtonVariant.Tertiary
+        }
+        className={classNames(
+          'mr-auto',
+          shouldShowHighlightPulse && 'highlight-pulse',
+        )}
+        onClick={onClick}
+        icon={<FilterIcon />}
+        iconPosition={
+          shouldUseFeedLayoutV1 ? ButtonIconPosition.Right : undefined
+        }
+      >
+        Feed settings
+      </Button>
+    </AlertPointer>
+  );
 }
 
 export default MyFeedHeading;
