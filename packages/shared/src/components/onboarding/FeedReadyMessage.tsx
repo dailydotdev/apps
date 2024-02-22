@@ -2,6 +2,7 @@ import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { ProfilePicture } from '../ProfilePicture';
 import AuthContext from '../../contexts/AuthContext';
+import { useAlertsContext } from '../../contexts/AlertContext';
 
 export type FeedReadyMessageProps = {
   className?: {
@@ -15,6 +16,11 @@ export const FeedReadyMessage = ({
   className,
 }: FeedReadyMessageProps): ReactElement => {
   const { user } = useContext(AuthContext);
+  const { alerts } = useAlertsContext();
+
+  if (alerts?.filter) {
+    return null;
+  }
 
   return (
     <div
