@@ -55,6 +55,7 @@ import OnboardingRegistrationForm from './OnboardingRegistrationForm';
 import { useEventListener } from '../../hooks';
 import { trackAnalyticsSignUp } from './OnboardingAnalytics';
 import { ButtonSize } from '../buttons/Button';
+import { nextTick } from '../../lib/func';
 
 export enum AuthDisplay {
   Default = 'default',
@@ -421,8 +422,9 @@ function AuthOptions({
                 email: existingEmail,
               });
             }}
-            onProviderClick={(provider, login) => {
+            onProviderClick={async (provider, login) => {
               onProviderClick(provider, login);
+              await nextTick();
               onAuthStateUpdate({ isAuthenticating: true });
             }}
             trigger={trigger}
