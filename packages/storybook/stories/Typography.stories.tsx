@@ -49,15 +49,30 @@ export const Interactive: Story = {
 export const All: Story = {
   render: ({ children , Tag}) => {
     return (
-      <div>
-        {possibleClassnames.map((className) => (<Tag className={className}>{children}</Tag>))}
-      </div>
+      <table>
+        <tr className="border">
+          <th className="border text-left w-1/6">Classname</th>
+          <th className="text-left">Example</th>
+        </tr>
+
+        {possibleClassnames.map((className) => (
+          <tr className="border">
+            <td className="border w-1/6">{className}</td>
+            <td><Tag className={className}>{children}</Tag></td>
+          </tr>
+          ))}
+      </table>
     )
   },
   args: {
     Tag: 'p',
     children: 'The quick brown fox jumps over the lazy dog.',
     className: null
+  },
+  parameters: {
+    controls: {
+      exclude: ['Tag', 'className', 'children' ]
+    },
   },
   name: 'All',
 }
