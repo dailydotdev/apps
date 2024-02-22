@@ -91,6 +91,11 @@ module.exports = withTM(
               source: '/posts/finder',
               destination: '/search?provider=posts',
               permanent: false
+            },
+            {
+              source: '/signup',
+              destination: '/onboarding',
+              permanent: true
             }
           ]
         },
