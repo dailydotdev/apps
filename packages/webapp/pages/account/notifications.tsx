@@ -92,7 +92,7 @@ const AccountNotificationsPage = (): ReactElement => {
       NotificationChannel.Web,
       NotificationCategory.Product,
     );
-    onTogglePermission(NotificationPromptSource.NotificationsPage);
+    return onTogglePermission(NotificationPromptSource.NotificationsPage);
   };
 
   const onToggleEmailNotification = () => {

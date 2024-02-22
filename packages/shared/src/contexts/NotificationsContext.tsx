@@ -158,7 +158,9 @@ export const NotificationsContextProvider = ({
       return 'default';
     }
 
-    if (app === BootApp.Extension) {
+    const { permission } = globalThis.Notification ?? {};
+
+    if (app === BootApp.Extension || permission === 'denied') {
       onOpenPopup(source);
       return null;
     }
@@ -170,6 +172,7 @@ export const NotificationsContextProvider = ({
 
     notificationSourceRef.current = source;
     const result = await globalThis.window?.Notification?.requestPermission();
+    await OneSignal.Notifications.requestPermission();
     await onUpdatePermission(result);
 
     return result;
