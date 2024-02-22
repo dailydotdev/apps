@@ -20,13 +20,15 @@ export type WrappedComponentType<
 
 const withFeaturesBoundary = <Props, LayoutProps = unknown>(
   WrappedComponent: WrappedComponentType<Props, LayoutProps>,
-  options?: { fallback?: ReactElement },
+  options?: { fallback?: ComponentType<Props> },
 ): WrappedComponentType<Props, LayoutProps> => {
   const WithFeaturesBoundary = (props: Props): ReactElement => {
     const { ready: areFeaturesReady } = useContext(FeaturesReadyContext);
 
     if (!areFeaturesReady) {
-      return options?.fallback ?? null;
+      const FallbackComponent = options?.fallback;
+
+      return FallbackComponent ? <FallbackComponent {...props} /> : null;
     }
 
     return <WrappedComponent {...props} />;

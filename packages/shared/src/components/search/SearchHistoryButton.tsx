@@ -14,7 +14,7 @@ import useContextMenu from '../../hooks/useContextMenu';
 import { SearchProviderEnum, getSearchUrl } from '../../graphql/search';
 import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
 const contextMenuId = 'search-history-input';
 

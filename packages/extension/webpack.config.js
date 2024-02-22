@@ -6,7 +6,6 @@ const TerserPlugin = require('terser-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const ExtensionReloader = require('webpack-ext-reloader');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WextManifestWebpackPlugin = require('wext-manifest-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
@@ -20,22 +19,6 @@ const destPath = path.join(__dirname, 'dist');
 const nodeEnv = process.env.NODE_ENV || 'development';
 const targetBrowser = process.env.TARGET_BROWSER;
 
-const extensionReloaderPlugin =
-  nodeEnv === 'development'
-    ? new ExtensionReloader({
-        port: 9000,
-        reloadPage: true,
-        entries: {
-          // TODO: reload manifest on update
-          background: 'background',
-          extensionPage: ['newtab'],
-        },
-      })
-    : () => {
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        this.apply = () => {};
-      };
-
 const getExtensionFileType = (browser) => {
   if (browser === 'opera') {
     return 'crx';
@@ -48,7 +31,7 @@ const getExtensionFileType = (browser) => {
   return 'zip';
 };
 
-module.exports = {
+const baseConfig = {
   devtool: false, // https://github.com/webpack/webpack/issues/1194#issuecomment-560382342
 
   stats: {
@@ -60,14 +43,6 @@ module.exports = {
 
   mode: nodeEnv,
 
-  entry: {
-    manifest: path.join(sourcePath, 'manifest.json'),
-    content: path.join(sourcePath, 'content'),
-    companion: path.join(sourcePath, 'companion', 'index.tsx'),
-    background: path.join(sourcePath, 'background', 'index.ts'),
-    newtab: path.join(sourcePath, 'newtab', 'index.tsx'),
-  },
-
   output: {
     publicPath: '',
     path: path.join(destPath, targetBrowser),
@@ -77,9 +52,7 @@ module.exports = {
   resolve: {
     extensions: ['.svg', '.ts', '.tsx', '.js', '.json'],
     alias: {
-      'webextension-polyfill-ts': path.resolve(
-        path.join(__dirname, 'node_modules', 'webextension-polyfill-ts'),
-      ),
+      'react-onesignal': false,
     },
   },
 
@@ -191,8 +164,6 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [{ from: 'public', to: '.' }],
     }),
-    // plugin to enable browser reloading in development mode
-    extensionReloaderPlugin,
   ],
 
   optimization:
@@ -253,3 +224,23 @@ module.exports = {
         }
       : {},
 };
+
+const backgroundConfig = {
+  ...baseConfig,
+  target: 'webworker',
+  entry: {
+    background: path.join(sourcePath, 'background', 'index.ts'),
+  },
+};
+
+const mainConfig = {
+  ...baseConfig,
+  entry: {
+    manifest: path.join(sourcePath, 'manifest.json'),
+    content: path.join(sourcePath, 'content'),
+    companion: path.join(sourcePath, 'companion', 'index.tsx'),
+    newtab: path.join(sourcePath, 'newtab', 'index.tsx'),
+  },
+};
+
+module.exports = [backgroundConfig, mainConfig];

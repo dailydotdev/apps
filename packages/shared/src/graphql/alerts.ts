@@ -11,6 +11,7 @@ export type Alerts = {
   changelog?: boolean;
   lastBanner?: string;
   banner?: boolean;
+  showStreakMilestone?: boolean;
 };
 
 export type AlertsUpdate = Omit<Alerts, 'changelog' | 'banner'>;
@@ -25,6 +26,7 @@ export const UPDATE_ALERTS = gql`
       squadTour
       lastChangelog
       lastBanner
+      showStreakMilestone
     }
   }
 `;
