@@ -129,6 +129,10 @@ const AccountNotificationsPage = (): ReactElement => {
     }
   };
 
+  if (!isInitialized) {
+    return <AccountPageContainer title="Notifications" />;
+  }
+
   return (
     <AccountPageContainer title="Notifications">
       {isNotificationSupported && (
