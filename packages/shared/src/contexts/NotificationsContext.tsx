@@ -89,28 +89,36 @@ export const NotificationsContextProvider = ({
         return osr;
       }
 
-      const OneSignalReact = (await import('react-onesignal')).default;
+      try {
+        const OneSignalReact = (await import('react-onesignal')).default;
 
-      OneSignalReact.on('subscriptionChange', (value) =>
-        subscriptionCallbackRef.current?.(value),
-      );
+        OneSignalReact.on('subscriptionChange', (value) =>
+          subscriptionCallbackRef.current?.(value),
+        );
 
-      await OneSignalReact.init({
-        appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
-        allowLocalhostAsSecureOrigin: isDevelopment,
-        serviceWorkerParam: { scope: '/push/onesignal/' },
-        serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
-      });
+        await OneSignalReact.init({
+          appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+          allowLocalhostAsSecureOrigin: isDevelopment,
+          serviceWorkerParam: { scope: '/push/onesignal/' },
+          serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
+        });
 
-      const isGranted = globalThis.Notification?.permission === 'granted';
-      const [subscribed, externalId] = await Promise.all([
-        OneSignalReact.getSubscription(),
-        OneSignalReact.getExternalUserId(),
-      ]);
-      const isValidSubscription = subscribed && isGranted && !!externalId;
-      setIsSubscribed(isValidSubscription);
+        const isGranted = globalThis.Notification?.permission === 'granted';
+        const [subscribed, externalId] = await Promise.all([
+          OneSignalReact.getSubscription(),
+          OneSignalReact.getExternalUserId(),
+        ]);
+        const isValidSubscription = subscribed && isGranted && !!externalId;
+        setIsSubscribed(isValidSubscription);
 
-      return OneSignalReact;
+        return OneSignalReact;
+      } catch (err) {
+        trackEvent({
+          event_name: AnalyticsEvent.GlobalError,
+          extra: JSON.stringify({ msg: err }),
+        });
+        return null;
+      }
     },
     {
       enabled: !!user && !isExtension && !isTesting,
