@@ -4,7 +4,7 @@ import AuthForm from './AuthForm';
 import { TextField } from '../fields/TextField';
 import { MailIcon, ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
 interface EmailSignupFormProps {
   onSubmit: (e: React.FormEvent) => unknown;

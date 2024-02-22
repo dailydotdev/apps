@@ -1,13 +1,12 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import classNames from 'classnames';
 import { checkKratosEmail } from '../../lib/kratos';
 import { AuthFormProps, getFormEmail, providerMap } from './common';
 import OrDivider from './OrDivider';
-import classNames from 'classnames';
-import { AuthFormProps, providerMap } from './common';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import AuthForm from './AuthForm';
 import { TextField } from '../fields/TextField';
 import { MailIcon } from '../icons';

@@ -117,6 +117,7 @@ function useAccountEmailFlow({
           return onError?.(message);
         }
 
+        setActiveFlow(emailFlow.id);
         setAutoResend(false);
         setTimer(60);
         runTimer();
