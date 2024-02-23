@@ -41,12 +41,12 @@ function SharePostContent({
         summary={post.sharedPost?.summary}
         className="mb-5 mt-8"
       >
-        <div className="flex max-w-full flex-col p-4 pt-5 tablet:flex-col-reverse laptop:flex-row">
-          <div className="mb-5 flex flex-1 flex-col tablet:mb-0">
+        <div className="flex max-w-full flex-col p-4 pt-5 laptop:flex-row">
+          <div className="mb-5 flex flex-1 flex-col laptop:mb-0">
             <SharedPostLink
               post={post}
               onGoToLinkProps={combinedClicks(openArticle)}
-              className="mb-4 mt-0 flex flex-wrap font-bold typo-body tablet:mt-4 laptop:mt-0"
+              className="mb-4 mt-0 flex flex-wrap font-bold typo-body"
             >
               {post.sharedPost.title}
             </SharedPostLink>
