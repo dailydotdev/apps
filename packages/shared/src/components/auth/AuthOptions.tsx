@@ -40,7 +40,7 @@ import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
 import EmailVerified from './EmailVerified';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import SettingsContext from '../../contexts/SettingsContext';
-import { useToastNotification } from '../../hooks/useToastNotification';
+import { useToastNotification, useEventListener } from '../../hooks';
 import CodeVerificationForm from './CodeVerificationForm';
 import ChangePasswordForm from './ChangePasswordForm';
 import { isTesting } from '../../lib/constants';
@@ -52,7 +52,7 @@ import {
 import { LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
 import OnboardingRegistrationForm from './OnboardingRegistrationForm';
-import { useEventListener } from '../../hooks';
+import EmailCodeVerification from './EmailCodeVerification';
 import { trackAnalyticsSignUp } from './OnboardingAnalytics';
 import { ButtonSize } from '../buttons/Button';
 import { nextTick } from '../../lib/func';
@@ -68,6 +68,7 @@ export enum AuthDisplay {
   EmailSent = 'email_sent',
   VerifiedEmail = 'VerifiedEmail',
   OnboardingSignup = 'onboarding_signup',
+  EmailVerification = 'email_verification',
 }
 
 export interface AuthProps {
@@ -145,7 +146,11 @@ function AuthOptions({
   const [chosenProvider, setChosenProvider] = useState<string>(null);
   const [isRegistration, setIsRegistration] = useState(false);
   const windowPopup = useRef<Window>(null);
-  const onLoginCheck = () => {
+  const onLoginCheck = (shouldVerify?: boolean) => {
+    if (shouldVerify) {
+      onSetActiveDisplay(AuthDisplay.EmailVerification);
+      return;
+    }
     if (isRegistration) {
       return;
     }
@@ -180,10 +185,14 @@ function AuthOptions({
   const {
     isReady: isRegistrationReady,
     registration,
+    verificationFlowId,
     validateRegistration,
     onSocialRegistration,
   } = useRegistration({
     key: ['registration_form'],
+    onInitializeVerification: () => {
+      onSetActiveDisplay(AuthDisplay.EmailVerification);
+    },
     onValidRegistration: async () => {
       setIsRegistration(true);
       const { data } = await refetchBoot();
@@ -217,6 +226,9 @@ function AuthOptions({
     ...(!isTesting && { queryEnabled: !user && isRegistrationReady }),
     trigger,
     provider: chosenProvider,
+    onLoginError: () => {
+      return displayToast(labels.auth.error.generic);
+    },
   });
   const onProfileSuccess = async () => {
     await refetchBoot();
@@ -496,6 +508,14 @@ function AuthOptions({
             title="Verify your email address"
           />
           <EmailVerificationSent email={email} />
+        </Tab>
+        <Tab label={AuthDisplay.EmailVerification}>
+          <AuthHeader simplified={simplified} title="Verify your email" />
+          <EmailCodeVerification
+            email={email}
+            flowId={verificationFlowId}
+            onSubmit={onProfileSuccess}
+          />
         </Tab>
         <Tab label={AuthDisplay.VerifiedEmail}>
           <EmailVerified hasUser={!!user} simplified={simplified}>
