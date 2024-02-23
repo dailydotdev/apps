@@ -18,7 +18,10 @@ import {
   ButtonVariant,
   ButtonSize,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
+import {
+  ExperimentWinner,
+  OnboardingV4dot5,
+} from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useRouter } from 'next/router';
@@ -117,6 +120,7 @@ export function OnboardPage(): ReactElement {
     feature.socialProofOnboarding,
   );
   const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
+  const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
   const targetId = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
 
@@ -166,7 +170,13 @@ export function OnboardPage(): ReactElement {
   };
 
   const onSuccessfulRegistration = () => {
-    setIsFiltering(true);
+    if (onboardingV4dot5 === OnboardingV4dot5.Control) {
+      setIsFiltering(true);
+    } else {
+      router.replace({
+        pathname: '/my-feed',
+      });
+    }
   };
 
   useEffect(() => {
