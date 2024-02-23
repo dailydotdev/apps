@@ -23,6 +23,10 @@ import { AuthFlow } from '@dailydotdev/shared/src/lib/kratos';
 import useTimer from '@dailydotdev/shared/src/hooks/useTimer';
 import { AuthEventNames } from '@dailydotdev/shared/src/lib/auth';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import {
+  AnalyticsEvent,
+  TargetType,
+} from '@dailydotdev/shared/src/lib/analytics';
 import { CommonTextField } from './common';
 
 export interface EmailFormProps {
@@ -55,6 +59,9 @@ function EmailForm({
     flowId: verificationId,
     onError: setHint,
     onVerifyCodeSuccess: () => {
+      trackEvent({
+        event_name: AuthEventNames.VerifiedSuccessfully,
+      });
       onVerifySuccess();
     },
   });
@@ -62,13 +69,18 @@ function EmailForm({
   const onCodeVerification = async (e) => {
     e.preventDefault();
     trackEvent({
-      event_name: AuthEventNames.VerifyEmail,
+      event_name: AnalyticsEvent.Click,
+      target_type: TargetType.VerifyEmail,
     });
     setHint('');
     await verifyCode({ code, altFlowId: verificationId });
   };
 
   const onSubmitEmail = () => {
+    trackEvent({
+      event_name: AnalyticsEvent.Click,
+      target_type: TargetType.ResendVerificationCode,
+    });
     onSubmit(email);
     setTimer(60);
     runTimer();
