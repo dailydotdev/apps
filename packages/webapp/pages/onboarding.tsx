@@ -116,6 +116,7 @@ export function OnboardPage(): ReactElement {
   const socialProofOnboardingMobile: boolean = useFeature(
     feature.socialProofOnboarding,
   );
+  const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
   const targetId = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
 
@@ -150,10 +151,12 @@ export function OnboardPage(): ReactElement {
 
     return router.replace({
       pathname: '/',
-      query: {
-        welcome: 'true',
-        hset: 'true',
-      },
+      ...(!onboardingOptimizations && {
+        query: {
+          welcome: 'true',
+          hset: 'true',
+        },
+      }),
     });
   };
 
