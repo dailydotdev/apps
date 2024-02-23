@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { cloudinary } from '../../lib/image';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetType } from '../../lib/analytics';
-import { ExperimentWinner, isOnboardingV4dot5 } from '../../lib/featureValues';
+import { ExperimentWinner, OnboardingV4dot5 } from '../../lib/featureValues';
 import {
   Button,
   ButtonColor,
@@ -29,6 +29,7 @@ export function PostFeedFiltersOnboarding({
 }: PostFeedFiltersOnboardingProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
+  const isOnboardingV4dot5 = onboardingV4dot5 === OnboardingV4dot5.V4dot5;
   const { showLogin, user } = useContext(AuthContext);
   const router = useRouter();
   useEffect(() => {
@@ -42,7 +43,7 @@ export function PostFeedFiltersOnboarding({
   }, []);
 
   const initOnboarding = () => {
-    if (isOnboardingV4dot5(onboardingV4dot5)) {
+    if (isOnboardingV4dot5) {
       if (user) {
         router.push('/my-feed');
       } else {

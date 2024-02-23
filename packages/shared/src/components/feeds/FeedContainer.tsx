@@ -12,7 +12,7 @@ import FeedContext from '../../contexts/FeedContext';
 import styles from '../Feed.module.css';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import { SearchExperiment, isOnboardingV4dot5 } from '../../lib/featureValues';
+import { OnboardingV4dot5, SearchExperiment } from '../../lib/featureValues';
 import { FeedReadyMessage } from '../onboarding';
 import { useFeedLayout, ToastSubject, useToastNotification } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -112,6 +112,7 @@ export const FeedContainer = ({
   const router = useRouter();
   const searchValue = useFeature(feature.search);
   const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
+  const isOnboardingV4dot5 = onboardingV4dot5 === OnboardingV4dot5.V4dot5;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
   const isList = (insaneMode && numCards > 1) || shouldUseFeedLayoutV1;
@@ -140,7 +141,7 @@ export const FeedContainer = ({
       )}
     >
       <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
-        {!inlineHeader && !isOnboardingV4dot5(onboardingV4dot5) && header}
+        {!inlineHeader && !isOnboardingV4dot5 && header}
         <div
           className={classNames(
             'relative mx-auto w-full',
@@ -164,7 +165,7 @@ export const FeedContainer = ({
               }}
             />
           )}
-          {(inlineHeader || isOnboardingV4dot5(onboardingV4dot5)) && header}
+          {(inlineHeader || isOnboardingV4dot5) && header}
           {isV1Search && !shouldUseFeedLayoutV1 && (
             <span className="flex flex-1 flex-row items-center">
               {!!actionButtons && (
