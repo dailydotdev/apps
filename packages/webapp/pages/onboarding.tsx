@@ -151,7 +151,7 @@ export function OnboardPage(): ReactElement {
 
     return router.replace({
       pathname: '/',
-      ...(onboardingOptimizations && {
+      ...(!onboardingOptimizations && {
         query: {
           welcome: 'true',
           hset: 'true',
