@@ -10,6 +10,7 @@ import { KeyIcon, MailIcon, VIcon } from '../icons';
 import { AuthEventNames } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
+import { AnalyticsEvent, TargetType } from '../../lib/analytics';
 
 interface EmailCodeVerificationProps extends AuthFormProps {
   code?: string;
@@ -36,6 +37,9 @@ function EmailCodeVerification({
       flowId,
       onError: setHint,
       onVerifyCodeSuccess: () => {
+        trackEvent({
+          event_name: AuthEventNames.VerifiedSuccessfully,
+        });
         onSubmit();
       },
     });
@@ -49,7 +53,8 @@ function EmailCodeVerification({
   const onCodeVerification = async (e) => {
     e.preventDefault();
     trackEvent({
-      event_name: AuthEventNames.VerifyEmail,
+      event_name: AnalyticsEvent.Click,
+      target_type: TargetType.VerifyEmail,
     });
     setHint('');
     setAlert({ firstAlert: false, alert: false });
@@ -57,6 +62,10 @@ function EmailCodeVerification({
   };
 
   const onSendCode = () => {
+    trackEvent({
+      event_name: AnalyticsEvent.Click,
+      target_type: TargetType.ResendVerificationCode,
+    });
     setAlert({ firstAlert: false, alert: false });
     sendEmail(email);
   };

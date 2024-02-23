@@ -11,6 +11,7 @@ import { AuthEventNames } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthForm from './AuthForm';
 import { KeyIcon } from '../icons';
+import { AnalyticsEvent, TargetType } from '../../lib/analytics';
 
 interface CodeVerificationFormProps extends AuthFormProps {
   initialEmail: string;
@@ -39,6 +40,9 @@ function CodeVerificationForm({
         setEmailSent(true);
       },
       onVerifyCodeSuccess: () => {
+        trackEvent({
+          event_name: AuthEventNames.VerifiedSuccessfully,
+        });
         onSubmit();
       },
     },
@@ -47,7 +51,8 @@ function CodeVerificationForm({
   const onCodeVerification = async (e) => {
     e.preventDefault();
     trackEvent({
-      event_name: AuthEventNames.VerifyEmail,
+      event_name: AnalyticsEvent.Click,
+      target_type: TargetType.VerifyEmail,
     });
     setHint('');
     const { code } = formToJson<{ code: string }>(e.currentTarget);
@@ -56,7 +61,8 @@ function CodeVerificationForm({
 
   const onSendEmail = async () => {
     trackEvent({
-      event_name: AuthEventNames.SubmitForgotPassword,
+      event_name: AnalyticsEvent.Click,
+      target_type: TargetType.ResendVerificationCode,
     });
     await sendEmail(initialEmail);
   };
