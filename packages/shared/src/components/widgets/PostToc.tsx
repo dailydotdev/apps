@@ -58,7 +58,7 @@ export default function PostToc({
     return (
       <details
         className={classNames(
-          'select-none flex-col overflow-hidden rounded-2xl',
+          'select-none flex-col overflow-hidden rounded-16',
           styles.details,
           className,
         )}
@@ -78,7 +78,7 @@ export default function PostToc({
   return (
     <WidgetContainer
       className={classNames(
-        'flex-col overflow-hidden rounded-2xl border border-theme-divider-quaternary pb-3',
+        'flex-col overflow-hidden rounded-16 border border-theme-divider-quaternary pb-3',
         className,
       )}
     >

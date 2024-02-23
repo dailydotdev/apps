@@ -14,7 +14,7 @@ import { LoggedUser } from '../../lib/user';
 import { Checkbox } from '../fields/Checkbox';
 import RadialProgress from '../RadialProgress';
 import Rank from '../Rank';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import styles from './NewRankModal.module.css';
 import GoToDevCardButton from '../GoToDevCardButton';
 import useDebounce from '../../hooks/useDebounce';
@@ -190,7 +190,7 @@ export default function NewRankModal({
             </Button>
           </div>
         ) : (
-          <LoginButton className="mx-auto" />
+          <LoginButton className={{ container: 'gap-4', button: 'mx-auto' }} />
         )}
         <Checkbox ref={inputRef} name="neverShow" className="mt-4 self-center">
           Never show this popup again

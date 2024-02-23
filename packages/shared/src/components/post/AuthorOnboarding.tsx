@@ -4,7 +4,7 @@ import { ownershipGuide } from '../../lib/constants';
 import { FeatherIcon } from '../icons';
 import styles from './AuthorOnboarding.module.css';
 import { IconSize } from '../Icon';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 
 interface AuthorOnboardingProps {
   onSignUp?: () => unknown;
@@ -14,7 +14,7 @@ function AuthorOnboarding({ onSignUp }: AuthorOnboardingProps): ReactElement {
   return (
     <section
       className={classNames(
-        'mb-6 rounded-2xl bg-theme-bg-secondary p-6',
+        'mb-6 rounded-16 bg-theme-bg-secondary p-6',
         styles.authorOnboarding,
       )}
     >

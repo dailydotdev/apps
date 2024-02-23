@@ -2,7 +2,7 @@ import {
   Button,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { MenuIcon } from '@dailydotdev/shared/src/components/icons';
 import classNames from 'classnames';
@@ -44,7 +44,7 @@ export function CustomLinks({
           href={url}
           rel="noopener noreferrer"
           className={classNames(
-            'focus-outline h-8 w-8 overflow-hidden rounded-lg bg-white',
+            'focus-outline h-8 w-8 overflow-hidden rounded-8 bg-white',
             i >= 4 && 'hidden laptopL:block',
           )}
           key={url}

@@ -5,7 +5,7 @@ import {
   Button,
   ButtonIconPosition,
   ButtonVariant,
-} from '../../buttons/ButtonV2';
+} from '../../buttons/Button';
 import { providerToIconMap } from './common';
 import { useSearchProvider } from '../../../hooks/search';
 

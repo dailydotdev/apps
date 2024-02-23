@@ -154,14 +154,18 @@ export const cloudinary = {
   generic: {
     notFound: {
       light:
-        'https://daily-now-res.cloudinary.com/image/upload/s--DEBKQRIw--/v1704439964/webapp/NotFound.svg',
-      dark: 'https://daily-now-res.cloudinary.com/image/upload/s--QKyyqLHH--/v1704440574/webapp/NotFound-Dark.svg',
+        'https://daily-now-res.cloudinary.com/image/upload/s--t81_4qLS--/f_auto/v1708330060/404-lightmode_eweviu',
+      dark: 'https://daily-now-res.cloudinary.com/image/upload/s--Rxdm7vdJ--/f_auto/v1708328512/404_z4xiwg',
     },
   },
   streak: {
     splash:
       'https://daily-now-res.cloudinary.com/image/upload/v1705386465/Splash_v1lxjk.svg',
     fire: 'https://daily-now-res.cloudinary.com/image/upload/v1705386465/Hot_nrqvv5.svg',
+  },
+  devcard: {
+    defaultCoverImage:
+      'https://daily-now-res.cloudinary.com/image/upload/s--b9BjE_Vi--/f_auto/v1707404283/card-cover_emugw3',
   },
 };
 

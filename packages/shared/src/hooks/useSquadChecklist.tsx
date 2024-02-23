@@ -18,6 +18,7 @@ import { InviteMemberChecklistStep } from '../components/checklist/InviteMemberC
 import { verifyPermission } from '../graphql/squads';
 import OnboardingContext from '../contexts/OnboardingContext';
 import { SquadEditWelcomePostChecklistStep } from '../components/checklist/SquadEditWelcomePostChecklistStep';
+import { useNotificationContext } from '../contexts/NotificationsContext';
 
 type UseSquadChecklistProps = {
   squad: Squad;
@@ -34,15 +35,16 @@ const useSquadChecklist = ({
 }: UseSquadChecklistProps): UseSquadChecklist => {
   const { actions, isActionsFetched: isChecklistReady } = useActions();
   const { showArticleOnboarding } = useContext(OnboardingContext);
+  const { isInitialized, isNotificationSupported } = useNotificationContext();
 
   const stepsMap = useMemo<
     Partial<Record<ActionType, ChecklistStepType>>
   >(() => {
-    if (!isChecklistReady) {
+    if (!isChecklistReady || !isInitialized) {
       return {};
     }
 
-    return {
+    const step = {
       [ActionType.CreateSquad]: createChecklistStep({
         type: ActionType.CreateSquad,
         step: {
@@ -120,7 +122,10 @@ const useSquadChecklist = ({
         },
         actions,
       }),
-      [ActionType.EnableNotification]: createChecklistStep({
+    };
+
+    if (isNotificationSupported) {
+      step[ActionType.EnableNotification] = createChecklistStep({
         type: ActionType.EnableNotification,
         step: {
           title: 'Subscribe for updates',
@@ -128,9 +133,18 @@ const useSquadChecklist = ({
           component: NotificationChecklistStep,
         },
         actions,
-      }),
-    };
-  }, [squad, actions, showArticleOnboarding, isChecklistReady]);
+      });
+    }
+
+    return step;
+  }, [
+    squad,
+    actions,
+    showArticleOnboarding,
+    isChecklistReady,
+    isInitialized,
+    isNotificationSupported,
+  ]);
 
   const steps = useMemo(() => {
     const actionsForRole =

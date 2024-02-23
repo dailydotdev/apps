@@ -1,14 +1,15 @@
 import React, { ReactElement } from 'react';
-import { LazyModalCommonProps, Modal } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import { DayStreak, Streak } from '../../streak/popup';
 import { IconSize } from '../../Icon';
-import { Button, ButtonVariant } from '../../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../../buttons/Button';
 import { ModalClose } from '../common/ModalClose';
+import { StreakModalProps } from './common';
 
 export default function FirstStreakModal({
   onRequestClose,
   ...props
-}: LazyModalCommonProps): ReactElement {
+}: StreakModalProps): ReactElement {
   return (
     <Modal
       {...props}
@@ -41,10 +42,13 @@ export default function FirstStreakModal({
         </span>
         <strong className="mt-4 typo-title1">Reading streak is here</strong>
         <p className="mt-5 text-center text-theme-label-tertiary typo-body">
-          Level up your coding game with a daily dose of tech wisdom. Start your
-          reading streak and share your progress!
+          Level up your coding game with a daily dose of tech wisdom.
         </p>
-        <Button className="mt-10 w-full" variant={ButtonVariant.Primary}>
+        <Button
+          className="mt-10 w-full"
+          variant={ButtonVariant.Primary}
+          onClick={onRequestClose}
+        >
           Let&apos;s gooooo
         </Button>
       </Modal.Body>

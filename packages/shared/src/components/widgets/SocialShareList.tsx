@@ -22,7 +22,7 @@ import {
   TwitterIcon,
 } from '../icons';
 import { IconSize } from '../Icon';
-import { ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
+import { ButtonColor, ButtonVariant } from '../buttons/Button';
 
 interface SocialShareListProps {
   link: string;
@@ -109,7 +109,7 @@ export function SocialShareList({
         onClick={() => onClickSocial(ShareProvider.Email)}
         label="Email"
       />
-      {'share' in navigator && (
+      {'share' in globalThis?.navigator && (
         <SocialShareButton
           icon={<MenuIcon size={IconSize.Large} className="rotate-90" />}
           variant={ButtonVariant.Primary}

@@ -1291,6 +1291,19 @@ export const verifiedLoginData = {
   },
 };
 
+export const mockVerificationValidation = (
+  params: Partial<EmptyObjectLiteral>,
+  result: unknown = successfulSettingsFlowData,
+  code = 200,
+): void => {
+  nock(authUrl)
+    .post(
+      `/self-service/verification?flow=1d225d8c-829b-4016-ae04-69b96126efdd`,
+      params,
+    )
+    .reply(code, result);
+};
+
 export const mockSettingsValidation = (
   params: Partial<EmptyObjectLiteral>,
   result: unknown = successfulSettingsFlowData,
@@ -1366,6 +1379,10 @@ export const mockEmailCheck = (email: string, result = false): void => {
     ok: true,
     result,
   });
+};
+
+export const mockApiVerificationFlow = (): void => {
+  nock(heimdallUrl).get(`/api/get_verification_flow`).reply(200, {});
 };
 
 export const mockListProviders = (

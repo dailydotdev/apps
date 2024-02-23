@@ -1,11 +1,11 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Card } from '../cards/Card';
+import { ChecklistCardComponent } from '../cards/Card';
 import { ChecklistStep } from './ChecklistStep';
 import { ChecklistCardProps } from '../../lib/checklist';
 import { useChecklist } from '../../hooks/useChecklist';
 import { RankConfetti } from '../../svg/RankConfetti';
-import { ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
 
 const ChecklistCard = ({
@@ -21,7 +21,7 @@ const ChecklistCard = ({
 
   return (
     <div className={className}>
-      <Card className="w-[340px] rounded-14 !border-theme-color-cabbage !p-0 hover:!border-theme-color-cabbage">
+      <ChecklistCardComponent>
         <div className="relative overflow-hidden rounded-t-12 bg-gradient-to-t from-cabbage-90 to-cabbage-50 p-4">
           {isDone && (
             <RankConfetti className="absolute bottom-0 left-0 right-0 top-0 opacity-40" />
@@ -74,7 +74,7 @@ const ChecklistCard = ({
             );
           })}
         </div>
-      </Card>
+      </ChecklistCardComponent>
     </div>
   );
 };

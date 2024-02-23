@@ -40,7 +40,7 @@ import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
 import EmailVerified from './EmailVerified';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import SettingsContext from '../../contexts/SettingsContext';
-import { useToastNotification } from '../../hooks/useToastNotification';
+import { useToastNotification, useEventListener } from '../../hooks';
 import CodeVerificationForm from './CodeVerificationForm';
 import ChangePasswordForm from './ChangePasswordForm';
 import { isTesting } from '../../lib/constants';
@@ -52,8 +52,10 @@ import {
 import { LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
 import OnboardingRegistrationForm from './OnboardingRegistrationForm';
-import { useEventListener } from '../../hooks';
+import EmailCodeVerification from './EmailCodeVerification';
 import { trackAnalyticsSignUp } from './OnboardingAnalytics';
+import { ButtonSize } from '../buttons/Button';
+import { nextTick } from '../../lib/func';
 
 export enum AuthDisplay {
   Default = 'default',
@@ -66,6 +68,7 @@ export enum AuthDisplay {
   EmailSent = 'email_sent',
   VerifiedEmail = 'VerifiedEmail',
   OnboardingSignup = 'onboarding_signup',
+  EmailVerification = 'email_verification',
 }
 
 export interface AuthProps {
@@ -73,6 +76,11 @@ export interface AuthProps {
   isLoginFlow: boolean;
   email?: string;
   defaultDisplay?: AuthDisplay;
+}
+
+interface ClassName {
+  container?: string;
+  onboardingSignup?: string;
 }
 
 export interface AuthOptionsProps {
@@ -84,12 +92,14 @@ export interface AuthOptionsProps {
   trigger: AuthTriggersType;
   defaultDisplay?: AuthDisplay;
   forceDefaultDisplay?: boolean;
-  className?: string;
+  className?: ClassName;
   simplified?: boolean;
   isLoginFlow?: boolean;
   onDisplayChange?: (value: string) => void;
   initialEmail?: string;
   targetId?: string;
+  ignoreMessages?: boolean;
+  onboardingSignupButtonSize?: ButtonSize;
 }
 
 function AuthOptions({
@@ -97,7 +107,7 @@ function AuthOptions({
   onAuthStateUpdate,
   onSuccessfulLogin,
   onSuccessfulRegistration,
-  className,
+  className = {},
   formRef,
   trigger,
   defaultDisplay = AuthDisplay.Default,
@@ -107,6 +117,8 @@ function AuthOptions({
   targetId,
   simplified = false,
   initialEmail = '',
+  ignoreMessages = false,
+  onboardingSignupButtonSize,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
@@ -134,7 +146,11 @@ function AuthOptions({
   const [chosenProvider, setChosenProvider] = useState<string>(null);
   const [isRegistration, setIsRegistration] = useState(false);
   const windowPopup = useRef<Window>(null);
-  const onLoginCheck = () => {
+  const onLoginCheck = (shouldVerify?: boolean) => {
+    if (shouldVerify) {
+      onSetActiveDisplay(AuthDisplay.EmailVerification);
+      return;
+    }
     if (isRegistration) {
       return;
     }
@@ -169,10 +185,14 @@ function AuthOptions({
   const {
     isReady: isRegistrationReady,
     registration,
+    verificationFlowId,
     validateRegistration,
     onSocialRegistration,
   } = useRegistration({
     key: ['registration_form'],
+    onInitializeVerification: () => {
+      onSetActiveDisplay(AuthDisplay.EmailVerification);
+    },
     onValidRegistration: async () => {
       setIsRegistration(true);
       const { data } = await refetchBoot();
@@ -206,6 +226,9 @@ function AuthOptions({
     ...(!isTesting && { queryEnabled: !user && isRegistrationReady }),
     trigger,
     provider: chosenProvider,
+    onLoginError: () => {
+      return displayToast(labels.auth.error.generic);
+    },
   });
   const onProfileSuccess = async () => {
     await refetchBoot();
@@ -242,7 +265,7 @@ function AuthOptions({
   };
 
   useEventListener(globalThis, 'message', async (e) => {
-    if (e.data?.eventKey !== AuthEvent.SocialRegistration) {
+    if (e.data?.eventKey !== AuthEvent.SocialRegistration || ignoreMessages) {
       return undefined;
     }
 
@@ -344,12 +367,12 @@ function AuthOptions({
       className={classNames(
         'z-1 flex w-full max-w-[26.25rem] flex-col overflow-y-auto rounded-16',
         !simplified && 'bg-theme-bg-tertiary',
-        className,
+        className?.container,
       )}
     >
       <TabContainer<AuthDisplay>
         onActiveChange={(active) => onSetActiveDisplay(active)}
-        controlledActive={activeDisplay}
+        controlledActive={forceDefaultDisplay ? defaultDisplay : activeDisplay}
         showHeader={false}
       >
         <Tab label={AuthDisplay.Default}>
@@ -411,14 +434,17 @@ function AuthOptions({
                 email: existingEmail,
               });
             }}
-            onProviderClick={(provider, login) => {
+            onProviderClick={async (provider, login) => {
               onProviderClick(provider, login);
+              await nextTick();
               onAuthStateUpdate({ isAuthenticating: true });
             }}
             trigger={trigger}
             isReady={isReady}
             simplified={simplified}
             targetId={targetId}
+            className={className?.onboardingSignup}
+            onboardingSignupButtonSize={onboardingSignupButtonSize}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>
@@ -482,6 +508,14 @@ function AuthOptions({
             title="Verify your email address"
           />
           <EmailVerificationSent email={email} />
+        </Tab>
+        <Tab label={AuthDisplay.EmailVerification}>
+          <AuthHeader simplified={simplified} title="Verify your email" />
+          <EmailCodeVerification
+            email={email}
+            flowId={verificationFlowId}
+            onSubmit={onProfileSuccess}
+          />
         </Tab>
         <Tab label={AuthDisplay.VerifiedEmail}>
           <EmailVerified hasUser={!!user} simplified={simplified}>

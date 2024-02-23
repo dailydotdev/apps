@@ -32,7 +32,6 @@ type MandatoryColorLevels =
   | '90';
 type OptionalColorLevels = '0';
 type ColorLevels = MandatoryColorLevels & Partial<OptionalColorLevels>;
-
 type Color = Record<ColorLevels, string>;
 type ColorPalette = Record<ColorName, Color>;
 

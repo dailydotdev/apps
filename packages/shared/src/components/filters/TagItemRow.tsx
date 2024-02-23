@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import { FilterItem } from './common';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import TagButton from './TagButton';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';

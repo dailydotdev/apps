@@ -11,6 +11,7 @@ import {
   BlockIcon,
   UserIcon,
   StarIcon,
+  DevCardIcon,
 } from '../icons';
 
 export const NotifContainer = classed(
@@ -27,7 +28,7 @@ export const NotifMessage = classed(
 );
 export const NotifProgress = classed(
   'span',
-  'absolute -bottom-2 h-1 ease-in-out bg-theme-status-cabbage rounded-full',
+  'absolute -bottom-2 h-1 ease-in-out bg-theme-status-cabbage rounded-8',
 );
 
 export enum NotificationType {
@@ -56,6 +57,7 @@ export enum NotificationIconType {
   Block = 'Block',
   User = 'User',
   Star = 'Star',
+  DevCard = 'DevCard',
 }
 
 export const notificationIcon: Record<
@@ -71,6 +73,7 @@ export const notificationIcon: Record<
   [NotificationIconType.Block]: BlockIcon,
   [NotificationIconType.User]: UserIcon,
   [NotificationIconType.Star]: StarIcon,
+  [NotificationIconType.DevCard]: DevCardIcon,
 };
 
 export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
@@ -83,6 +86,7 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.Star]: '',
   [NotificationIconType.Block]: '',
   [NotificationIconType.User]: '',
+  [NotificationIconType.DevCard]: '',
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =

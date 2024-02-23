@@ -127,6 +127,11 @@ export enum AnalyticsEvent {
   RevokeShortcutAccess = 'revoke shortcut access',
   SaveShortcutAccess = 'save shortcut access',
   OpenShortcutConfig = 'open shortcut config',
+  // Devcard
+  ShareDevcard = 'share devcard',
+  GenerateDevcard = 'generate devcard',
+  DownloadDevcard = 'download devcard',
+  CopyDevcardCode = 'copy devcard code',
 }
 
 export enum FeedItemTitle {
@@ -151,6 +156,8 @@ export enum TargetType {
   ProfilePage = 'profile page',
   GenericReferralPopup = 'generic referral popup',
   Shortcuts = 'shortcuts',
+  VerifyEmail = 'verify email',
+  ResendVerificationCode = 'resend verification code',
 }
 
 export enum TargetId {

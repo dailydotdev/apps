@@ -60,11 +60,11 @@ const modalKindAndSizeToClassName: Partial<
   Record<ModalKind, Partial<Record<ModalSize, string>>>
 > = {
   [ModalKind.FlexibleTop]: {
-    [ModalSize.XSmall]: 'laptop:mt-14 laptop:mb-10',
+    [ModalSize.XSmall]: 'laptop:mt-16 laptop:mb-10',
     [ModalSize.Medium]:
       'h-full mobileL:h-auto min-h-[25rem] max-h-[calc(100vh-10rem)]',
-    [ModalSize.Large]: 'laptop:mt-14 laptop:mb-10',
-    [ModalSize.XLarge]: 'laptop:mt-14 laptop:mb-10',
+    [ModalSize.Large]: 'laptop:mt-16 laptop:mb-10',
+    [ModalSize.XLarge]: 'laptop:mt-16 laptop:mb-10',
   },
 };
 export const modalSizeToClassName: Record<ModalSize, string> = {

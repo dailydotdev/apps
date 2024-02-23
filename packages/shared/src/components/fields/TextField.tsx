@@ -15,7 +15,7 @@ import BaseFieldContainer, {
   getFieldLabelColor,
   getFieldPlaceholder,
 } from './BaseFieldContainer';
-import { ButtonProps } from '../buttons/ButtonV2';
+import { ButtonProps } from '../buttons/Button';
 import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
 
 export interface TextFieldProps extends BaseFieldProps<HTMLInputElement> {

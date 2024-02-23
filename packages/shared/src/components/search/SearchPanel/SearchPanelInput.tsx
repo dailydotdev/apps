@@ -30,7 +30,7 @@ import { minSearchQueryLength } from '../../../graphql/search';
 import { SearchPanelInputCursor } from './SearchPanelInputCursor';
 import { useSearchProvider } from '../../../hooks/search';
 import { defaultSearchProvider, providerToLabelTextMap } from './common';
-import { Button, ButtonSize } from '../../buttons/ButtonV2';
+import { Button, ButtonSize } from '../../buttons/Button';
 import { useSearchPanelAction } from './useSearchPanelAction';
 
 export type SearchPanelInputClassName = {
@@ -172,11 +172,11 @@ export const SearchPanelInput = ({
       >
         <BaseField
           className={classNames(
-            'relative h-12 translate-y-0 items-center rounded-12 border-0 !bg-theme-bg-secondary !px-3 duration-200 ease-in-out laptop:py-1 laptop:backdrop-blur-[3.75rem]',
+            'relative h-12 items-center rounded-12 !bg-theme-bg-secondary !px-3 laptop:border laptop:py-1 laptop:backdrop-blur-[3.75rem]',
             className?.field,
             { focused },
             searchPanel.isActive &&
-              '!border-theme-divider-tertiary laptop:h-14 laptop:translate-y-1 laptop:border laptop:shadow-2',
+              '!border-theme-divider-tertiary laptop:shadow-2',
             searchPanel.isActive && showDropdown
               ? 'laptop:rounded-b-none laptop:rounded-t-16'
               : 'laptop:rounded-16',
@@ -211,8 +211,16 @@ export const SearchPanelInput = ({
             onInput={onInput}
             type="primary"
             autoComplete="off"
+            style={{
+              // needed to overwrite fill from base.css input style
+              // to make the placeholder color work
+              WebkitTextFillColor: 'unset',
+            }}
             className={classNames(
-              'h-full flex-1 caret-theme-status-cabbage',
+              'h-full flex-1',
+              searchPanel.isActive
+                ? '!placeholder-theme-label-quaternary'
+                : '!placeholder-theme-label-tertiary',
               getFieldFontColor({ readOnly, disabled, hasInput, focused }),
             )}
           />

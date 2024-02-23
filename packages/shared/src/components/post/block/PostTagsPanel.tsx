@@ -10,7 +10,7 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../../buttons/ButtonV2';
+} from '../../buttons/Button';
 import { SourceAvatar } from '../../profile/source';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import { BlockTagSelection, getBlockedMessage } from './common';
@@ -112,6 +112,7 @@ export function PostTagsPanel({
             variant={tags[tag] ? ButtonVariant.Primary : ButtonVariant.Float}
             action={() => setTags({ ...tags, [tag]: !tags[tag] })}
             tagItem={tag}
+            data-testid="blockTagButton"
           />
         ))}
       </span>

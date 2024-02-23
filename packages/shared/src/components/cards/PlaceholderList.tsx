@@ -5,7 +5,7 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
 import { PlaceholderCardProps } from './PlaceholderCard';
 
-const Text = classed(ElementPlaceholder, 'h-3 rounded-xl');
+const Text = classed(ElementPlaceholder, 'h-3 rounded-12');
 
 export const PlaceholderList = forwardRef(function PlaceholderList(
   { className, showImage, ...props }: PlaceholderCardProps,
@@ -16,7 +16,7 @@ export const PlaceholderList = forwardRef(function PlaceholderList(
       aria-busy
       className={classNames(
         className,
-        'flex items-start rounded-2xl bg-theme-post-disabled py-4 pl-4 pr-10',
+        'flex items-start rounded-16 bg-theme-post-disabled py-4 pl-4 pr-10',
       )}
       {...props}
       ref={ref}

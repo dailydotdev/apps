@@ -7,7 +7,6 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { SearchPanelInput } from './SearchPanelInput';
 import {
@@ -21,15 +20,8 @@ import {
 import { SearchPanelAction } from './SearchPanelAction';
 import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
 import SettingsContext from '../../../contexts/SettingsContext';
-import { useActions, useEventListener } from '../../../hooks';
-import { ActionType } from '../../../graphql/actions';
-import { AnalyticsEvent } from '../../../lib/analytics';
-import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
-import {
-  defaultSearchProvider,
-  providerToLabelTextMap,
-  searchPanelGradientQueryKey,
-} from './common';
+import { useEventListener } from '../../../hooks';
+import { defaultSearchProvider, providerToLabelTextMap } from './common';
 import { ArrowKeyEnum } from '../../../lib/func';
 import { ArrowIcon } from '../../icons';
 import { useSearchProvider } from '../../../hooks/search';
@@ -45,16 +37,9 @@ export type SearchPanelClassName = {
 };
 
 export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
-  const queryClient = useQueryClient();
   useContext(SettingsContext);
-  const { trackEvent } = useAnalyticsContext();
-  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const { search } = useSearchProvider();
   const { query } = useRouter();
-
-  const isTracked = useRef(false);
-  const shouldShowPulse =
-    isActionsFetched && !checkHasCompleted(ActionType.UsedSearchPanel);
 
   const [state, setState] = useState(() => {
     return {
@@ -66,10 +51,6 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   });
 
   const searchPanelRef = useRef<HTMLDivElement>();
-
-  useEffect(() => {
-    queryClient.setQueryData(searchPanelGradientQueryKey, state.isActive);
-  }, [queryClient, state.isActive]);
 
   useEffect(() => {
     const searchQuery = query?.q?.toString();
@@ -160,10 +141,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
       >
         <SearchPanelInput
           className={{
-            container: classNames(
-              'w-full laptop:w-[35rem]',
-              shouldShowPulse && 'highlight-pulse',
-            ),
+            container: classNames('w-full laptop:w-[35rem]'),
             field: className?.field,
           }}
           valueChanged={(newValue) => {
@@ -183,23 +161,13 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
               searchPanel.setActive({
                 isActive: true,
               });
-
-              if (!isTracked.current && shouldShowPulse) {
-                isTracked.current = true;
-
-                trackEvent({
-                  event_name: AnalyticsEvent.SearchHighlightAnimation,
-                });
-              }
-
-              completeAction(ActionType.UsedSearchPanel);
             },
           }}
         >
           {showDropdown && (
             <div
               className={classNames(
-                'absolute top-[3.7rem] w-full items-center rounded-b-16 border-0 border-theme-divider-tertiary bg-theme-bg-primary px-3 py-2 laptop:h-auto laptop:border laptop:bg-theme-bg-secondary laptop:shadow-2',
+                'absolute w-full items-center rounded-b-16 border-0 border-theme-divider-tertiary bg-theme-bg-primary px-3 py-2 laptop:h-auto laptop:border-x laptop:border-b laptop:bg-theme-bg-secondary laptop:shadow-2',
               )}
             >
               <div className="flex flex-1 flex-col">

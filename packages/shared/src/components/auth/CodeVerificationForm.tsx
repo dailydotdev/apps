@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { CloseModalFunc } from '../modals/common';
 import AuthHeader from './AuthHeader';
@@ -11,6 +11,7 @@ import { AuthEventNames } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthForm from './AuthForm';
 import { KeyIcon } from '../icons';
+import { AnalyticsEvent, TargetType } from '../../lib/analytics';
 
 interface CodeVerificationFormProps extends AuthFormProps {
   initialEmail: string;
@@ -31,7 +32,7 @@ function CodeVerificationForm({
   const [emailSent, setEmailSent] = useState(false);
   const { sendEmail, verifyCode, resendTimer, isLoading } = useAccountEmailFlow(
     {
-      flow: AuthFlow.Recovery,
+      flow: AuthFlow.Verification,
       flowId: initialFlow,
       onTimerFinished: () => setEmailSent(false),
       onError: setHint,
@@ -39,6 +40,9 @@ function CodeVerificationForm({
         setEmailSent(true);
       },
       onVerifyCodeSuccess: () => {
+        trackEvent({
+          event_name: AuthEventNames.VerifiedSuccessfully,
+        });
         onSubmit();
       },
     },
@@ -47,16 +51,18 @@ function CodeVerificationForm({
   const onCodeVerification = async (e) => {
     e.preventDefault();
     trackEvent({
-      event_name: AuthEventNames.SubmitForgotPassword,
+      event_name: AnalyticsEvent.Click,
+      target_type: TargetType.VerifyEmail,
     });
     setHint('');
     const { code } = formToJson<{ code: string }>(e.currentTarget);
-    await verifyCode(code);
+    await verifyCode({ code });
   };
 
   const onSendEmail = async () => {
     trackEvent({
-      event_name: AuthEventNames.SubmitForgotPassword,
+      event_name: AnalyticsEvent.Click,
+      target_type: TargetType.ResendVerificationCode,
     });
     await sendEmail(initialEmail);
   };

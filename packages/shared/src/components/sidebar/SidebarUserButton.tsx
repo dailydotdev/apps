@@ -34,7 +34,7 @@ export function SidebarUserButton({
               </p>
             </>
           ) : (
-            <LoginButton />
+            <LoginButton className={{ container: 'gap-4' }} />
           )}
         </li>
       )}

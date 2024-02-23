@@ -14,7 +14,7 @@ import { SharePostTitle } from './share';
 import { combinedClicks } from '../../lib/click';
 import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
-import { ButtonVariant } from '../buttons/ButtonV2';
+import { ButtonVariant } from '../buttons/Button';
 
 interface SharePostContentProps {
   post: Post;
@@ -37,13 +37,16 @@ function SharePostContent({
   return (
     <>
       <SharePostTitle post={post} />
-      <SharedLinkContainer className="mb-5 mt-8">
-        <div className="flex max-w-full flex-col-reverse p-4 laptop:flex-row">
-          <div className="flex flex-1 flex-col">
+      <SharedLinkContainer
+        summary={post.sharedPost?.summary}
+        className="mb-5 mt-8"
+      >
+        <div className="flex max-w-full flex-col p-4 pt-5 laptop:flex-row">
+          <div className="mb-5 flex flex-1 flex-col laptop:mb-0">
             <SharedPostLink
               post={post}
               onGoToLinkProps={combinedClicks(openArticle)}
-              className="mb-4 mt-4 flex flex-wrap font-bold typo-body laptop:mt-0"
+              className="mb-4 mt-0 flex flex-wrap font-bold typo-body"
             >
               {post.sharedPost.title}
             </SharedPostLink>
@@ -75,7 +78,7 @@ function SharePostContent({
           <SharedPostLink
             post={post}
             onGoToLinkProps={combinedClicks(openArticle)}
-            className="ml-2 block h-fit w-70 cursor-pointer overflow-hidden rounded-2xl"
+            className="ml-2 block h-fit w-70 cursor-pointer overflow-hidden rounded-16"
           >
             <LazyImage
               imgSrc={post.sharedPost.image}

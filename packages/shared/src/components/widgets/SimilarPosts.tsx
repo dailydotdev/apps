@@ -19,7 +19,7 @@ import {
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -109,7 +109,7 @@ const DefaultListItem = ({
   </article>
 );
 
-const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-xl my-0.5');
+const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-12 my-0.5');
 
 const DefaultListItemPlaceholder = (): ReactElement => (
   <article aria-busy className="relative flex items-start py-2 pl-4 pr-2">
@@ -148,7 +148,7 @@ export default function SimilarPosts({
   return (
     <section
       className={classNames(
-        'flex flex-col rounded-2xl border border-theme-divider-tertiary',
+        'flex flex-col rounded-16 border border-theme-divider-tertiary',
         className,
       )}
     >

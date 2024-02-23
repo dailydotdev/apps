@@ -1,15 +1,25 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { Button, ButtonSize, ButtonVariant } from './buttons/ButtonV2';
+import {
+  Button,
+  ButtonProps,
+  ButtonSize,
+  ButtonVariant,
+} from './buttons/Button';
 import { getTagPageLink } from '../lib/links';
 
 interface TagLinkProps {
   tag: string;
   className?: string;
+  buttonProps?: ButtonProps<'a'>;
 }
 
-export function TagLink({ tag, className }: TagLinkProps): ReactElement {
+export function TagLink({
+  tag,
+  className,
+  buttonProps = {},
+}: TagLinkProps): ReactElement {
   return (
     <Link href={getTagPageLink(tag)} passHref key={tag} prefetch={false}>
       <Button
@@ -17,6 +27,7 @@ export function TagLink({ tag, className }: TagLinkProps): ReactElement {
         size={ButtonSize.XSmall}
         variant={ButtonVariant.Float}
         className={className}
+        {...buttonProps}
       >
         #{tag}
       </Button>
@@ -24,25 +35,34 @@ export function TagLink({ tag, className }: TagLinkProps): ReactElement {
   );
 }
 
-interface TagLinksProps {
+interface ClassName {
+  container?: string;
+  tag?: string;
+}
+
+interface TagLinksProps extends Pick<TagLinkProps, 'buttonProps'> {
   tags: string[];
-  className?: string;
-  tagClassName?: string;
+  className?: ClassName;
 }
 
 export function TagLinks({
   tags,
-  className,
-  tagClassName,
+  className = {},
+  buttonProps,
 }: TagLinksProps): ReactElement {
   if (tags.length === 0) {
     return null;
   }
 
   return (
-    <div className={classNames('flex flex-wrap gap-2', className)}>
+    <div className={classNames('flex flex-wrap gap-2', className?.container)}>
       {tags.map((tag) => (
-        <TagLink key={tag} tag={tag} className={tagClassName} />
+        <TagLink
+          key={tag}
+          tag={tag}
+          className={className?.tag}
+          buttonProps={buttonProps}
+        />
       ))}
     </div>
   );
