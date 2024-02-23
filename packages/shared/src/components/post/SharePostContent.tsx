@@ -37,7 +37,10 @@ function SharePostContent({
   return (
     <>
       <SharePostTitle post={post} />
-      <SharedLinkContainer className="mb-5 mt-8">
+      <SharedLinkContainer
+        summary={post.sharedPost?.summary}
+        className="mb-5 mt-8"
+      >
         <div className="flex max-w-full flex-col-reverse p-4 laptop:flex-row">
           <div className="flex flex-1 flex-col">
             <SharedPostLink
