@@ -8,6 +8,7 @@ import { AdCard } from '../cards/ad/AdCard';
 
 export type LeanFeedItemComponentProps = {
   item: FeedItem;
+  index: number;
 };
 
 const ItemTypeToTag: Record<PostType, React.ComponentType<CardType>> = {
@@ -21,11 +22,12 @@ const ItemTypeToTag: Record<PostType, React.ComponentType<CardType>> = {
 
 export default function GenericFeedItemComponent({
   item,
+  index,
 }: LeanFeedItemComponentProps): ReactElement {
   switch (item.type) {
     case FeedItemType.Post: {
       const PostTag = ItemTypeToTag[item.post.type ?? PostType.Article];
-      return <PostTag post={item.post} index={item.index} />;
+      return <PostTag post={{ ...item.post, index }} />;
     }
     case FeedItemType.Ad:
       return <AdCard ad={item.ad} />;

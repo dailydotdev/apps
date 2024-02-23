@@ -22,7 +22,7 @@ import { ProfilePicture } from '../../../ProfilePicture';
 import ImageOrText from '../atoms/ImageOrText';
 
 export type CardType = {
-  post: Post;
+  post: Post & { index?: number };
   children?: ReactNode;
 };
 export const FreeformCard = ({ post }: CardType): ReactElement => {

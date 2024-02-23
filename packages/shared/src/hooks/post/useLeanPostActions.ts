@@ -163,8 +163,13 @@ export default function useLeanPostActions({
       feedRef?.current,
     );
   }
-  // To get the active amount of rendered columns:
-  // console.log(computedRef?.current?.gridTemplateColumns?.split(' ')?.length);
+  const renderedColumnLength =
+    computedRef?.current?.gridTemplateColumns?.split(' ')?.length;
+
+  const calculateRow = (index: number): number =>
+    Math.floor(index / renderedColumnLength);
+  const calculateColumn = (index: number): number =>
+    index % renderedColumnLength;
 
   const isModerator = user?.roles?.includes(Roles.Moderator);
   const canDeletePost = useCallback(
@@ -426,9 +431,9 @@ export default function useLeanPostActions({
       if (post?.userState?.vote === UserPostVote.Up) {
         trackEvent(
           postAnalyticsEvent(AnalyticsEvent.DownvotePost, post, {
-            columns: 1,
-            column: 1,
-            row: 1,
+            columns: renderedColumnLength ?? 1,
+            column: calculateColumn(post.index),
+            row: calculateRow(post.index),
             extra: {
               origin: 'origin' ?? Origin.Feed,
               feed: feedName,
@@ -441,9 +446,9 @@ export default function useLeanPostActions({
 
       trackEvent(
         postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, {
-          columns: 1,
-          column: 1,
-          row: 1,
+          columns: renderedColumnLength ?? 1,
+          column: calculateColumn(post.index),
+          row: calculateRow(post.index),
           extra: {
             origin: 'origin' ?? Origin.Feed,
             feed: feedName,

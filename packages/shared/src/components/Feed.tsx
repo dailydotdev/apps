@@ -23,13 +23,11 @@ import { FeedContainer, FeedContainerProps } from './feeds';
 import { ActiveFeedContextProvider } from '../contexts';
 import { AllFeedPages, RequestKey } from '../lib/query';
 import { useFeedLayout } from '../hooks';
-import { useFeature } from './GrowthBookProvider';
-import { feature } from '../lib/featureManagement';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'>,
     Pick<FeedContainerProps, 'shortcuts'> {
-  feedItemComponent: React.ComponentType<{ item: FeedItem }>;
+  feedItemComponent: React.ComponentType<{ item: FeedItem; index?: number }>;
   feedName: AllFeedPages;
   feedQueryKey: unknown[];
   query?: string;
@@ -195,7 +193,7 @@ export default function Feed<T>({
       >
         {items.map((item, index) => (
           // eslint-disable-next-line react/no-array-index-key
-          <FeedTag item={item} key={index} />
+          <FeedTag item={item} key={index} index={index} />
         ))}
         <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
 

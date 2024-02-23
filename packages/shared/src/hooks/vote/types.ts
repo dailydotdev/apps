@@ -5,7 +5,7 @@ import { UseMutationMatcher } from '../mutationSubscription/types';
 
 export type ToggleVoteProps = {
   origin: Origin;
-  post: Post | ReadHistoryPost;
+  post: (Post | ReadHistoryPost) & { index?: number };
   opts?: PostAnalyticsEventFnOptions;
 };
 
