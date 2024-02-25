@@ -22,9 +22,7 @@ const Description = classed('p', 'typo-callout text-theme-label-tertiary');
 function Enable(): React.ReactElement {
   const router = useRouter();
   const {
-    isSubscribed,
-    isInitialized,
-    onTogglePermission,
+    push: { isSubscribed, isInitialized, onEnablePush },
     trackPermissionGranted,
   } = useNotificationContext();
   const { sendBeacon } = useAnalyticsContext();
@@ -50,12 +48,11 @@ function Enable(): React.ReactElement {
         return;
       }
 
-      const permission = await onTogglePermission(
-        source as NotificationPromptSource,
-      );
+      const isGranted = await onEnablePush(source as NotificationPromptSource);
+      const permission = isGranted ? 'granted' : 'denied';
       postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, { permission });
 
-      if (permission === 'granted') {
+      if (isGranted) {
         setTimeout(closeWindow, 1000);
       }
     };

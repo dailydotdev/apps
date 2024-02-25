@@ -19,19 +19,21 @@ import {
 } from '@dailydotdev/shared/src/lib/analytics';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import { usePersonalizedDigest } from '@dailydotdev/shared/src/hooks';
+import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 
+const ALERT_PUSH_KEY = 'alert_push_key';
+
 const AccountNotificationsPage = (): ReactElement => {
   const {
-    shouldShowSettingsAlert,
-    onShouldShowSettingsAlert,
-    onTogglePermission,
-    isSubscribed,
-    isInitialized,
-    isNotificationSupported,
+    push: { onTogglePermission, isSubscribed, isInitialized, isPushSupported },
   } = useContext(NotificationsContext);
+  const [isAlertShown, setIsAlertShown] = usePersistentContext(
+    ALERT_PUSH_KEY,
+    true,
+  );
   const { updateUserProfile } = useProfileForm();
   const { trackEvent } = useAnalyticsContext();
   const { user } = useContext(AuthContext);
@@ -135,7 +137,7 @@ const AccountNotificationsPage = (): ReactElement => {
 
   return (
     <AccountPageContainer title="Notifications">
-      {isNotificationSupported && (
+      {isPushSupported && (
         <div className="flex flex-row">
           <AccountContentSection
             className={{
@@ -160,7 +162,7 @@ const AccountNotificationsPage = (): ReactElement => {
           </Switch>
         </div>
       )}
-      {isNotificationSupported && shouldShowSettingsAlert && isInitialized && (
+      {isPushSupported && isAlertShown && isInitialized && (
         <div className="relative mt-6 w-full rounded-16 border border-theme-color-cabbage">
           <Pointer
             className="absolute -top-5 right-8"
@@ -179,17 +181,12 @@ const AccountNotificationsPage = (): ReactElement => {
             <CloseButton
               size={ButtonSize.XSmall}
               className="ml-auto laptopL:ml-32"
-              onClick={() => onShouldShowSettingsAlert(false)}
+              onClick={() => setIsAlertShown(false)}
             />
           </div>
         </div>
       )}
-      <div
-        className={classNames(
-          'flex flex-row',
-          isNotificationSupported && 'mt-6',
-        )}
-      >
+      <div className={classNames('flex flex-row', isPushSupported && 'mt-6')}>
         <AccountContentSection
           className={{
             heading: 'mt-0',

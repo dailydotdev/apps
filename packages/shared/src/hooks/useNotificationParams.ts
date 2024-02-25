@@ -6,17 +6,17 @@ import { stripLinkParameters } from '../lib/links';
 
 export const useNotificationParams = (): void => {
   const router = useRouter();
-  const { isSubscribed, onTogglePermission } = useNotificationContext();
+  const {
+    push: { isSubscribed, onEnablePush },
+  } = useNotificationContext();
 
   useEffect(() => {
     if (isSubscribed || !router?.query.notify) {
       return;
     }
 
-    onTogglePermission(NotificationPromptSource.NotificationItem).then(
-      (permission) => {
-        const isGranted = permission === 'granted';
-
+    onEnablePush(NotificationPromptSource.NotificationItem).then(
+      (isGranted) => {
         if (!isGranted) {
           return;
         }
@@ -25,5 +25,5 @@ export const useNotificationParams = (): void => {
         router.replace(link);
       },
     );
-  }, [onTogglePermission, isSubscribed, router]);
+  }, [onEnablePush, isSubscribed, router]);
 };

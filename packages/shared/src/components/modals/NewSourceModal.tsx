@@ -78,8 +78,9 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   const [scrapeError, setScrapeError] = useState<string>();
   const [showContact, setShowContact] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
-  const { hasPermissionCache, isNotificationSupported } =
-    useContext(NotificationsContext);
+  const {
+    push: { hasPermissionCache, isPushSupported },
+  } = useContext(NotificationsContext);
   const [feeds, setFeeds] = useState<{ label: ReactNode; value: string }[]>();
   const [selectedFeed, setSelectedFeed] = useState<string>();
   const [existingSource, setExistingSource] = useState<Source>();
@@ -156,7 +157,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         }),
       {
         onSuccess: () => {
-          if (hasPermissionCache || !isNotificationSupported || isDismissed) {
+          if (hasPermissionCache || !isPushSupported || isDismissed) {
             onRequestClose?.(null);
             return;
           }

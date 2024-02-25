@@ -2,6 +2,7 @@
 
 declare global {
   interface Window {
+    /* eslint-disable  @typescript-eslint/no-explicit-any */
     safari?: { pushNotification: any };
   }
 }

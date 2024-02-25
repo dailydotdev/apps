@@ -55,7 +55,10 @@ const seo = (
 
 const Notifications = (): ReactElement => {
   const { trackEvent } = useAnalyticsContext();
-  const { clearUnreadCount, isSubscribed } = useNotificationContext();
+  const {
+    clearUnreadCount,
+    push: { isSubscribed },
+  } = useNotificationContext();
   const { mutateAsync: readNotifications } = useMutation(
     () => request(graphqlUrl, READ_NOTIFICATIONS_MUTATION),
     { onSuccess: clearUnreadCount },

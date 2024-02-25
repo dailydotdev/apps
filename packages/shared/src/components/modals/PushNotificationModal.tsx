@@ -13,14 +13,16 @@ import { useEventListener } from '../../hooks';
 
 function PushNotificationModal(modalProps: ModalProps): ReactElement {
   const { onRequestClose } = modalProps;
-  const { onTogglePermission } = useNotificationContext();
+  const {
+    push: { onEnablePush },
+  } = useNotificationContext();
 
   const enableNotifications = async () => {
-    const permission = await onTogglePermission(
+    const isGranted = await onEnablePush(
       NotificationPromptSource.NewSourceModal,
     );
 
-    if (permission === 'granted') {
+    if (isGranted) {
       onRequestClose?.(null);
     }
   };

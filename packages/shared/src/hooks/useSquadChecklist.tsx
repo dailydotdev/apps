@@ -35,7 +35,9 @@ const useSquadChecklist = ({
 }: UseSquadChecklistProps): UseSquadChecklist => {
   const { actions, isActionsFetched: isChecklistReady } = useActions();
   const { showArticleOnboarding } = useContext(OnboardingContext);
-  const { isInitialized, isNotificationSupported } = useNotificationContext();
+  const {
+    push: { isInitialized, isPushSupported },
+  } = useNotificationContext();
 
   const stepsMap = useMemo<
     Partial<Record<ActionType, ChecklistStepType>>
@@ -124,7 +126,7 @@ const useSquadChecklist = ({
       }),
     };
 
-    if (isNotificationSupported) {
+    if (isPushSupported) {
       step[ActionType.EnableNotification] = createChecklistStep({
         type: ActionType.EnableNotification,
         step: {
@@ -143,7 +145,7 @@ const useSquadChecklist = ({
     showArticleOnboarding,
     isChecklistReady,
     isInitialized,
-    isNotificationSupported,
+    isPushSupported,
   ]);
 
   const steps = useMemo(() => {
