@@ -17,14 +17,15 @@ import {
   FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
+  PREVIEW_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
-import { generateQueryKey } from '../lib/query';
+import { OtherFeedPage, RequestKey, generateQueryKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
 import { useFeature } from './GrowthBookProvider';
-import { SearchExperiment } from '../lib/featureValues';
+import { OnboardingV4dot5, SearchExperiment } from '../lib/featureValues';
 import {
   algorithms,
   LayoutHeader,
@@ -38,6 +39,9 @@ import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
 import { FeedContainerProps } from './feeds';
 import { getFeedName } from '../lib/feed';
+import useFeedSettings from '../hooks/useFeedSettings';
+import { OnboardingFeedHeader } from './onboarding/OnboardingFeedHeader';
+import { REQUIRED_TAGS_THRESHOLD } from './onboarding/common';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -124,9 +128,15 @@ export default function MainFeedLayout({
   });
   const feedVersion = useFeature(feature.feedVersion);
   const searchVersion = useFeature(feature.search);
+  const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
+  const isOnboardingV4dot5 = onboardingV4dot5 === OnboardingV4dot5.V4dot5;
   const isV1Search = searchVersion === SearchExperiment.V1;
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { feedSettings } = useFeedSettings();
+
+  const isOnboardingFeed =
+    isOnboardingV4dot5 && alerts?.filter && feedName === SharedFeedPage.MyFeed;
 
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
@@ -169,10 +179,22 @@ export default function MainFeedLayout({
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
+    const feedWithActions = isUpvoted || isSortableFeed;
     // in v1 search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
     if (isV1Search && isSearchOn && !searchQuery) {
       return null;
+    }
+
+    if (isOnboardingFeed) {
+      return {
+        feedName: OtherFeedPage.Preview,
+        feedQueryKey: [RequestKey.FeedPreview, user?.id],
+        query: PREVIEW_FEED_QUERY,
+        forceCardMode: true,
+        showSearch: false,
+        options: { refetchOnMount: true },
+      };
     }
 
     if (isSearchOn && searchQuery) {
@@ -208,7 +230,6 @@ export default function MainFeedLayout({
     };
 
     const variables = getVariables();
-    const feedWithActions = isUpvoted || isSortableFeed;
 
     return {
       feedName,
@@ -255,15 +276,36 @@ export default function MainFeedLayout({
 
   const disableTopPadding = (isFinder && isV1Search) || shouldUseFeedLayoutV1;
 
+  const tagsCount = feedSettings?.includeTags?.length || 0;
+  const isFeedPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
+  const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);
+
   return (
     <FeedPageComponent
-      className={classNames('relative', disableTopPadding && '!pt-0')}
+      className={classNames(
+        'relative',
+        disableTopPadding && '!pt-0',
+        isOnboardingFeed && '!p-0',
+      )}
     >
+      {isOnboardingFeed && (
+        <OnboardingFeedHeader
+          isPreviewFeedVisible={isPreviewFeedVisible}
+          setPreviewFeedVisible={setPreviewFeedVisible}
+          isFeedPreviewEnabled={isFeedPreviewEnabled}
+          tagsCount={tagsCount}
+        />
+      )}
       {isSearchOn && search}
-      {feedProps && (
+      {(isOnboardingFeed
+        ? isFeedPreviewEnabled && isPreviewFeedVisible
+        : feedProps) && (
         <Feed
           {...feedProps}
-          className={shouldUseFeedLayoutV1 && !isFinder && 'laptop:px-6'}
+          className={classNames(
+            shouldUseFeedLayoutV1 && !isFinder && 'laptop:px-6',
+            isOnboardingFeed && 'px-6 laptop:px-16',
+          )}
         />
       )}
       {children}

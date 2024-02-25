@@ -1,16 +1,17 @@
-import { useContext, useEffect, useMemo } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { QueryKey, useMutation, useQuery } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
 import {
+  AuthEventNames,
   errorsToJson,
+  getNodeValue,
   RegistrationError,
   RegistrationParameters,
-  getNodeValue,
   ValidateRegistrationParams,
-  AuthEventNames,
 } from '../lib/auth';
 import {
   AuthFlow,
+  ContinueWithAction,
   InitializationData,
   initializeKratosFlow,
   KRATOS_ERROR,
@@ -30,6 +31,7 @@ interface UseRegistrationProps {
   onRedirectFail?: () => void;
   onValidRegistration?: (params: ValidateRegistrationParams) => void;
   onInvalidRegistration?: (errors: RegistrationError) => void;
+  onInitializeVerification?: () => void;
 }
 
 interface UseRegistration {
@@ -39,6 +41,7 @@ interface UseRegistration {
   isReady: boolean;
   validateRegistration: (values: FormParams) => Promise<void>;
   onSocialRegistration?: (provider: string) => void;
+  verificationFlowId?: string;
 }
 
 type FormParams = Omit<RegistrationParameters, 'csrf_token'>;
@@ -51,9 +54,11 @@ const useRegistration = ({
   onRedirectFail,
   onValidRegistration,
   onInvalidRegistration,
+  onInitializeVerification,
 }: UseRegistrationProps): UseRegistration => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
+  const [verificationId, setVerificationId] = useState<string>();
   const { trackingId, referral, referralOrigin } = useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
   const {
@@ -98,6 +103,18 @@ const useRegistration = ({
     {
       onSuccess: ({ data, error, redirect }, params) => {
         const successfulData = data as SuccessfulRegistrationData;
+
+        if (successfulData?.continue_with?.length) {
+          const continueWith = successfulData.continue_with.find(
+            ({ action }) => action === ContinueWithAction.ShowVerification,
+          );
+
+          if (continueWith) {
+            setVerificationId(continueWith.flow.id);
+            return onInitializeVerification?.();
+          }
+        }
+
         if (successfulData) {
           return onValidRegistration?.(params);
         }
@@ -193,10 +210,11 @@ const useRegistration = ({
       onSocialRegistration,
       validateRegistration: onValidateRegistration,
       isValidationIdle: status === 'idle',
+      verificationFlowId: verificationId,
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [registration, status, isQueryLoading, isMutationLoading],
+    [registration, status, isQueryLoading, isMutationLoading, verificationId],
   );
 };
 

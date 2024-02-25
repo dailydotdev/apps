@@ -43,6 +43,7 @@ export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProduction = process.env.NODE_ENV === 'production';
 export const isTesting =
   process.env.NODE_ENV === 'test' || (!isDevelopment && !isProduction);
+export const isGBDevMode = process.env.NEXT_PUBLIC_GB_DEV_MODE === 'true';
 
 export const isBrave = (): boolean => {
   if (!window.Promise) {

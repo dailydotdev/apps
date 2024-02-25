@@ -156,6 +156,8 @@ export enum TargetType {
   ProfilePage = 'profile page',
   GenericReferralPopup = 'generic referral popup',
   Shortcuts = 'shortcuts',
+  VerifyEmail = 'verify email',
+  ResendVerificationCode = 'resend verification code',
 }
 
 export enum TargetId {

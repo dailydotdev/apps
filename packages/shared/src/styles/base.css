@@ -57,6 +57,10 @@ body {
   --theme-background-pepper-40: theme('colors.pepper.40');
   /* stylelint-disable-next-line unit-no-unknown */
   --theme-background-cabbage-opacity-24: theme('colors.cabbage.40')3D;
+  --theme-background-subtle: theme('colors.pepper.70');
+  --theme-background-popover: theme('colors.pepper.70');
+
+  --theme-surface-invert: theme('colors.pepper.90');
 
   --theme-label-primary: #ffffff;
   --theme-label-secondary: theme('colors.salt.50');
@@ -186,6 +190,10 @@ body {
   --theme-background-pepper-40: theme('colors.salt.40');
   /* stylelint-disable-next-line unit-no-unknown */
   --theme-background-cabbage-opacity-24: theme('colors.cabbage.40')3D;
+  --theme-background-subtle: theme('colors.salt.10');
+  --theme-background-popover: theme('colors.salt.0');
+
+  --theme-surface-invert: theme('colors.salt.0');
 
   --theme-label-primary: theme('colors.pepper.90');
   --theme-label-secondary: theme('colors.pepper.50');

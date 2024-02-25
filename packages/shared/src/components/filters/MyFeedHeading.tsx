@@ -13,7 +13,6 @@ import AlertPointer, {
   AlertPointerProps,
   OffsetXY,
 } from '../alert/AlertPointer';
-import { filterAlertMessage } from './FeedFilters';
 import { Alerts } from '../../graphql/alerts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
@@ -21,6 +20,8 @@ import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SearchExperiment } from '../../lib/featureValues';
 import { useFeedLayout } from '../../hooks';
+
+export const filterAlertMessage = 'Edit your personal feed preferences here';
 
 interface MyFeedHeadingProps {
   isAlertDisabled: boolean;
@@ -38,7 +39,7 @@ function MyFeedHeading({
   const router = useRouter();
   const { trackEvent } = useContext(AnalyticsContext);
   const searchVersion = useFeature(feature.search);
-  const shouldShowHighlightPulse = router.query?.hset === 'true';
+  const shouldHighlightFeedSettings = router.query?.hset === 'true';
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const isV1Search = searchVersion === SearchExperiment.V1;
 
@@ -46,7 +47,7 @@ function MyFeedHeading({
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
     onOpenFeedFilters();
 
-    if (shouldShowHighlightPulse) {
+    if (shouldHighlightFeedSettings) {
       const { hset, ...query } = router.query;
 
       router.replace({ pathname: router.pathname, query }, undefined, {
@@ -82,7 +83,7 @@ function MyFeedHeading({
 
   const alertProps: Omit<AlertPointerProps, 'children'> = {
     offset: getOffset(),
-    isAlertDisabled,
+    isAlertDisabled: shouldHighlightFeedSettings ? isAlertDisabled : true,
     onClose: () => onUpdateAlerts({ myFeed: null }),
     className: {
       label: 'w-44',
@@ -109,7 +110,7 @@ function MyFeedHeading({
         }
         className={classNames(
           'mr-auto',
-          shouldShowHighlightPulse && 'highlight-pulse',
+          shouldHighlightFeedSettings && 'highlight-pulse',
         )}
         onClick={onClick}
         icon={<FilterIcon />}
