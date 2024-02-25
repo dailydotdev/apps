@@ -9,7 +9,6 @@ import { checkIsExtension } from '../../lib/func';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { BootApp } from '../../lib/boot';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { isTesting } from '../../lib/constants';
 import { useAcceptedPushNow } from './useAcceptedPushNow';
 import { SubscriptionCallback, useOneSignal } from './useOneSignal';
 
@@ -20,6 +19,7 @@ export interface UsePushNotification {
   hasPermissionCache: boolean;
   isInitialized: boolean;
   isSubscribed: boolean;
+  isLoading: boolean;
   onEnablePush: (source: NotificationPromptSource) => Promise<boolean>;
   onTogglePermission: (source: NotificationPromptSource) => Promise<unknown>;
 }
@@ -40,9 +40,10 @@ export const usePushNotification = ({
   app,
 }: UsePushNotificationProps): UsePushNotification => {
   const isExtension = checkIsExtension();
-  const { OneSignal, isFetched, isSubscribed, isPushSupported } = useOneSignal({
-    onSubscriptionChange,
-  });
+  const { OneSignal, isFetched, isLoading, isSubscribed, isPushSupported } =
+    useOneSignal({
+      onSubscriptionChange,
+    });
   const { user } = useAuthContext();
   const { onAcceptedJustNow } = useAcceptedPushNow();
   const { completeAction, checkHasCompleted } = useActions();
@@ -132,5 +133,6 @@ export const usePushNotification = ({
     isSubscribed,
     onTogglePermission,
     onEnablePush,
+    isLoading,
   };
 };

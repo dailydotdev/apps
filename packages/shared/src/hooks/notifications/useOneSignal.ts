@@ -13,6 +13,7 @@ interface UseOneSignal {
   isPushSupported: boolean;
   isSubscribed: boolean;
   isFetched: boolean;
+  isLoading: boolean;
 }
 
 export type SubscriptionCallback = (
@@ -35,7 +36,11 @@ export const useOneSignal = ({
   const client = useQueryClient();
   const key = generateQueryKey(RequestKey.OneSignal, user);
   const isEnabled = !!user && !isExtension && !isTesting;
-  const { data: OneSignal, isFetched } = useQuery<typeof OSR>(
+  const {
+    data: OneSignal,
+    isFetched,
+    isLoading,
+  } = useQuery<typeof OSR>(
     key,
     async () => {
       const osr = client.getQueryData<typeof OSR>(key);
@@ -54,7 +59,6 @@ export const useOneSignal = ({
 
         await OneSignalReact.init({
           appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
-          allowLocalhostAsSecureOrigin: isDevelopment,
           serviceWorkerParam: { scope: '/push/onesignal/' },
           serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
         });
@@ -84,6 +88,7 @@ export const useOneSignal = ({
     OneSignal?.Notifications.isPushSupported();
 
   return {
+    isLoading,
     isSubscribed,
     isPushSupported: isPushSupported || isTesting,
     isFetched: !isEnabled || isFetched,
