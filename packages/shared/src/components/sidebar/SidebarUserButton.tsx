@@ -5,6 +5,8 @@ import AuthContext from '../../contexts/AuthContext';
 import { SidebarUserButtonProps } from './common';
 import LoginButton from '../LoginButton';
 import ProfileButton from '../profile/ProfileButton';
+import { IconSize } from '../Icon';
+import { ReputationUserBadge } from '../ReputationUserBadge';
 
 export function SidebarUserButton({
   sidebarRendered,
@@ -23,7 +25,15 @@ export function SidebarUserButton({
                   className="focus-outline flex h-10 cursor-pointer items-center rounded-12 border-none bg-theme-bg-secondary p-0 font-bold text-theme-label-primary no-underline typo-callout"
                 >
                   <ProfilePicture user={user} size="large" />
-                  <span className="ml-2 mr-3">{user.reputation ?? 0}</span>
+                  <ReputationUserBadge
+                    className="ml-2 mr-3 !typo-callout"
+                    user={{
+                      reputation: user.reputation ?? 0,
+                    }}
+                    iconProps={{
+                      size: IconSize.Medium,
+                    }}
+                  />
                 </ProfileLink>
                 <div className="flex-1" />
                 <ProfileButton settingsIconOnly />
