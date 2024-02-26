@@ -17,10 +17,6 @@ import SettingsContext, {
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import styles from '@dailydotdev/shared/src/components/Feed.module.css';
 import FeedContext from '@dailydotdev/shared/src/contexts/FeedContext';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
-import dynamic from 'next/dynamic';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import {
@@ -34,19 +30,11 @@ const baseSeo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const PostsSearch = dynamic(
-  () =>
-    import(/* webpackChunkName: "routerPostsSearch" */ '../RouterPostsSearch'),
-  { ssr: false },
-);
-
 const Search = (): ReactElement => {
   const router = useRouter();
   const { query } = router;
   const searchQuery = query?.q?.toString();
   const { sidebarExpanded } = useSettingsContext();
-  const searchVersion = useFeature(feature.search);
-  const isV1Search = searchVersion === SearchExperiment.V1;
 
   const seo = useMemo(() => {
     if ('q' in query) {
@@ -62,7 +50,7 @@ const Search = (): ReactElement => {
   return (
     <>
       <NextSeo {...seo} {...baseSeo} />
-      {isV1Search && !searchQuery && (
+      {!searchQuery && (
         <div
           className={classNames(
             'flex w-full max-w-[32rem] flex-col items-center gap-4  self-center px-6',
@@ -87,7 +75,6 @@ const Search = (): ReactElement => {
 };
 
 const AiSearchProviderButton = () => {
-  const searchVersion = useFeature(feature.search);
   const router = useRouter();
   const { trackEvent } = useAnalyticsContext();
   const searchQuery = router.query?.q?.toString();
@@ -100,10 +87,6 @@ const AiSearchProviderButton = () => {
     '--num-cards': !isList ? numCards : undefined,
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
-
-  if (searchVersion === SearchExperiment.Control) {
-    return <PostsSearch />;
-  }
 
   if (!searchQuery) {
     return null;

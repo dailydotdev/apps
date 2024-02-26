@@ -19,8 +19,6 @@ import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import { Alerts } from '../../graphql/alerts';
-import { SearchExperiment } from '../../lib/featureValues';
-import { feature } from '../../lib/featureManagement';
 
 let client: QueryClient;
 const updateAlerts = jest.fn();
@@ -157,8 +155,6 @@ const sidebarItems = [
 ];
 
 describe('sidebar items', () => {
-  feature.search.defaultValue = SearchExperiment.Control;
-
   it.each(sidebarItems.map((item) => [item[0], item[1]]))(
     'it should expect %s to exist',
     async (name, href) => {
