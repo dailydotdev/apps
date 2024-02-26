@@ -81,7 +81,7 @@ export const useOneSignal = ({
   return {
     isLoading,
     isSubscribed,
-    isPushSupported: isPushSupported || isTesting,
+    isPushSupported,
     isFetched: !isEnabled || isFetched,
     OneSignal,
   };
