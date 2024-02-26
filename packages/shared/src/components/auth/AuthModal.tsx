@@ -72,6 +72,7 @@ export default function AuthModal({
         trigger={trigger}
         isLoginFlow={isLogoutFlow || loginState?.isLogin}
         defaultDisplay={defaultDisplay}
+        targetId={isOnboardingV4dot5 ? OnboardingV4dot5.V4dot5 : undefined}
         onDisplayChange={(display: Display) => setScreenValue(display)}
       />
     </Modal>
