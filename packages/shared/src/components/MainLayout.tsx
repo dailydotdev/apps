@@ -54,7 +54,6 @@ const feeds = Object.values(SharedFeedPage);
 
 function MainLayoutComponent({
   children,
-  greeting,
   activePage,
   isNavItemsButton,
   showDnd,
@@ -179,7 +178,6 @@ function MainLayoutComponent({
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <MainLayoutHeader
-        greeting={greeting}
         hasBanner={isBannerAvailable}
         sidebarRendered={sidebarRendered}
         optOutWeeklyGoal={optOutWeeklyGoal}

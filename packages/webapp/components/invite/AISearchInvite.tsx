@@ -10,9 +10,6 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { useMutation } from '@tanstack/react-query';
 import { acceptFeatureInvitation } from '@dailydotdev/shared/src/graphql/features';
 import { useRouter } from 'next/router';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
@@ -32,7 +29,6 @@ export function AISearchInvite({
   token,
 }: JoinPageProps): ReactElement {
   const router = useRouter();
-  const search = useFeature(feature.search);
   const { completeAction } = useActions();
   const { trackEvent } = useAnalyticsContext();
   const { displayToast } = useToastNotification();
@@ -81,14 +77,10 @@ export function AISearchInvite({
   };
 
   useEffect(() => {
-    if (search === SearchExperiment.Control) {
-      return;
-    }
-
     router.push(redirectTo);
     // router is an unstable dependency
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [redirectTo, search]);
+  }, [redirectTo]);
 
   return (
     <div className="relative flex h-full min-h-page flex-1 flex-col items-center justify-center overflow-hidden p-6 laptop:items-start">

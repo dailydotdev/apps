@@ -71,7 +71,6 @@ export default function MainFeedPage({
     <MainFeedLayout
       feedName={feedName}
       isSearchOn={isSearchOn}
-      onFeedPageChanged={(page) => router.replace(`/${page}`)}
       searchQuery={router.query?.q?.toString()}
       isFinder={isFinder}
       searchChildren={searchChildren}
@@ -94,7 +93,6 @@ export function getMainFeedLayout(
 }
 
 export const mainFeedLayoutProps: MainLayoutProps = {
-  greeting: true,
   mainPage: true,
   screenCentered: false,
 };

@@ -16,9 +16,6 @@ import AlertPointer, {
 import { Alerts } from '../../graphql/alerts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { SearchExperiment } from '../../lib/featureValues';
 import { useFeedLayout } from '../../hooks';
 
 export const filterAlertMessage = 'Edit your personal feed preferences here';
@@ -38,10 +35,8 @@ function MyFeedHeading({
 }: MyFeedHeadingProps): ReactElement {
   const router = useRouter();
   const { trackEvent } = useContext(AnalyticsContext);
-  const searchVersion = useFeature(feature.search);
   const shouldHighlightFeedSettings = router.query?.hset === 'true';
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
-  const isV1Search = searchVersion === SearchExperiment.V1;
 
   const onClick = () => {
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
@@ -56,16 +51,7 @@ function MyFeedHeading({
     }
   };
 
-  const isControlSearch = searchVersion === SearchExperiment.Control;
   const getPlacement = () => {
-    if (shouldUseFeedLayoutV1) {
-      return AlertPlacement.Bottom;
-    }
-
-    if (sidebarRendered && isControlSearch) {
-      return AlertPlacement.Right;
-    }
-
     return AlertPlacement.Bottom;
   };
 
@@ -74,11 +60,7 @@ function MyFeedHeading({
       return [0, 8];
     }
 
-    if (isV1Search) {
-      return [0, 0];
-    }
-
-    return sidebarRendered ? [4, 0] : [-32, 4];
+    return [0, 0];
   };
 
   const alertProps: Omit<AlertPointerProps, 'children'> = {
@@ -103,11 +85,7 @@ function MyFeedHeading({
     <AlertPointer {...alertProps}>
       <Button
         size={shouldUseFeedLayoutV1 ? ButtonSize.Small : ButtonSize.Medium}
-        variant={
-          isV1Search || shouldUseFeedLayoutV1
-            ? ButtonVariant.Float
-            : ButtonVariant.Tertiary
-        }
+        variant={ButtonVariant.Float}
         className={classNames(
           'mr-auto',
           shouldHighlightFeedSettings && 'highlight-pulse',

@@ -6,11 +6,6 @@ export enum ExperimentWinner {
   OnboardingV4 = 'v4',
 }
 
-export enum SearchExperiment {
-  Control = 'control',
-  V1 = 'v1',
-}
-
 export enum FeedLayout {
   Control = 'control',
   V1 = 'v1',
@@ -24,4 +19,9 @@ export enum ReadingStreaksExperiment {
 export enum OnboardingV4dot5 {
   Control = 'control',
   V4dot5 = 'v4dot5',
+}
+
+export enum PostPageOnboarding {
+  Control = 'control',
+  V2 = 'v2',
 }
