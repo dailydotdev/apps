@@ -2,11 +2,10 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type OSR from 'react-onesignal';
 import { useState } from 'react';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import { isDevelopment, isTesting } from '../../lib/constants';
-import { AnalyticsEvent, NotificationPromptSource } from '../../lib/analytics';
+import { isTesting } from '../../lib/constants';
+import { NotificationPromptSource } from '../../lib/analytics';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import { checkIsExtension } from '../../lib/func';
+import { checkIsExtension, disabledRefetch } from '../../lib/func';
 
 interface UseOneSignal {
   OneSignal: typeof OSR | null;
@@ -31,7 +30,6 @@ export const useOneSignal = ({
 }: UseOneSignalProps): UseOneSignal => {
   const isExtension = checkIsExtension();
   const { user } = useAuthContext();
-  const { trackEvent } = useAnalyticsContext();
   const [isSubscribed, setIsSubscribed] = useState(false);
   const client = useQueryClient();
   const key = generateQueryKey(RequestKey.OneSignal, user);
@@ -49,38 +47,31 @@ export const useOneSignal = ({
         return osr;
       }
 
-      try {
-        const OneSignalReact = (await import('react-onesignal')).default;
+      const OneSignalReact = (await import('react-onesignal')).default;
 
-        OneSignalReact.Notifications.addEventListener(
-          'permissionChange',
-          (value) => onSubscriptionChange?.(value),
-        );
+      OneSignalReact.Notifications.addEventListener(
+        'permissionChange',
+        (value) => onSubscriptionChange?.(value),
+      );
 
-        await OneSignalReact.init({
-          appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
-          serviceWorkerParam: { scope: '/push/onesignal/' },
-          serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
-        });
-        await OneSignalReact.login(user.id);
+      await OneSignalReact.init({
+        appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+        serviceWorkerParam: { scope: '/push/onesignal/' },
+        serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
+      });
 
-        setIsSubscribed(OneSignalReact.User.PushSubscription.optedIn);
+      await OneSignalReact.login(user.id);
 
-        OneSignalReact.User.PushSubscription.addEventListener(
-          'change',
-          ({ current }) => setIsSubscribed(() => current.optedIn),
-        );
+      setIsSubscribed(OneSignalReact.User.PushSubscription.optedIn);
 
-        return OneSignalReact;
-      } catch (err) {
-        trackEvent({
-          event_name: AnalyticsEvent.GlobalError,
-          extra: JSON.stringify({ msg: err }),
-        });
-        return null;
-      }
+      OneSignalReact.User.PushSubscription.addEventListener(
+        'change',
+        ({ current }) => setIsSubscribed(() => current.optedIn),
+      );
+
+      return OneSignalReact;
     },
-    { enabled: isEnabled },
+    { enabled: isEnabled, ...disabledRefetch },
   );
 
   const isPushSupported =

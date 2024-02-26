@@ -138,33 +138,33 @@ const AccountNotificationsPage = (): ReactElement => {
     }
   };
 
-  const label = isSubscribed ? 'On' : 'Off';
-
   return (
     <AccountPageContainer title="Notifications">
-      <div className="flex flex-row">
-        <AccountContentSection
-          className={{
-            heading: 'mt-0',
-            container: 'flex w-full flex-1 flex-col',
-          }}
-          title="Push notifications"
-          description="The daily.dev notification system notifies you of important events such as replies, mentions, updates, etc."
-        />
-        <div className="mx-4 h-full w-px bg-theme-divider-tertiary" />
-        <Switch
-          data-testid="push_notification-switch"
-          inputId="push_notification-switch"
-          name="push_notification"
-          className="w-20"
-          compact={false}
-          checked={isSubscribed}
-          onToggle={onTogglePush}
-          disabled={!isInitialized}
-        >
-          {isLoading ? <Loader /> : label}
-        </Switch>
-      </div>
+      {isPushSupported && (
+        <div className="flex flex-row">
+          <AccountContentSection
+            className={{
+              heading: 'mt-0',
+              container: 'flex w-full flex-1 flex-col',
+            }}
+            title="Push notifications"
+            description="The daily.dev notification system notifies you of important events such as replies, mentions, updates, etc."
+          />
+          <div className="mx-4 h-full w-px bg-theme-divider-tertiary" />
+          <Switch
+            data-testid="push_notification-switch"
+            inputId="push_notification-switch"
+            name="push_notification"
+            className="w-20"
+            compact={false}
+            checked={isSubscribed}
+            onToggle={onTogglePush}
+            disabled={!isInitialized}
+          >
+            {isSubscribed ? 'On' : 'Off'}
+          </Switch>
+        </div>
+      )}
       {isPushSupported && isAlertShown && isInitialized && (
         <div className="relative mt-6 w-full rounded-16 border border-theme-color-cabbage">
           <Pointer
@@ -189,7 +189,7 @@ const AccountNotificationsPage = (): ReactElement => {
           </div>
         </div>
       )}
-      <div className="mt-6 flex flex-row">
+      <div className={classNames('flex flex-row', isPushSupported && 'mt-6')}>
         <AccountContentSection
           className={{
             heading: 'mt-0',
