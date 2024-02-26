@@ -23,7 +23,7 @@ import { RankingAlgorithm } from '../../graphql/feed';
 import SettingsContext from '../../contexts/SettingsContext';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import { SearchExperiment } from '../../lib/featureValues';
+import { OnboardingV4dot5, SearchExperiment } from '../../lib/featureValues';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useFeedLayout } from '../../hooks';
 
@@ -64,6 +64,8 @@ export const SearchControlHeader = ({
   periodState: [selectedPeriod, setSelectedPeriod],
 }: SearchControlHeaderProps): ReactElement => {
   const searchVersion = useFeature(feature.search);
+  const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
+  const isOnboardingV4dot5 = onboardingV4dot5 === OnboardingV4dot5.V4dot5;
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { sidebarRendered } = useSidebarRendered();
   const hasMyFeedAlert = alerts.myFeed;
@@ -136,7 +138,7 @@ export const SearchControlHeader = ({
 
   return (
     <LayoutHeader className="flex-col overflow-x-visible">
-      {alerts?.filter && (
+      {alerts?.filter && !isOnboardingV4dot5 && (
         <CreateMyFeedButton
           action={() =>
             onInitializeOnboarding(() =>

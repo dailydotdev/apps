@@ -26,8 +26,6 @@ enum FilterMenuTitle {
 
 type FeedFiltersProps = ModalProps;
 
-export const filterAlertMessage = 'Edit your personal feed preferences here';
-
 export default function FeedFilters(props: FeedFiltersProps): ReactElement {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const { showPrompt } = usePrompt();

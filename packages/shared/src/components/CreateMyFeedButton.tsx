@@ -53,7 +53,6 @@ export default function CreateMyFeedButton({
           size={ButtonSize.Small}
           icon={<PlusIcon />}
           onClick={onClick}
-          data-testid="create_myfeed"
         >
           {buttonCopy}
         </Button>

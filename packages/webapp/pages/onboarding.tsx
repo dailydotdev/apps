@@ -18,7 +18,10 @@ import {
   ButtonVariant,
   ButtonSize,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
+import {
+  ExperimentWinner,
+  OnboardingV4dot5,
+} from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useRouter } from 'next/router';
@@ -83,7 +86,8 @@ const seo: NextSeoProps = {
 export function OnboardPage(): ReactElement {
   const router = useRouter();
   const isTracked = useRef(false);
-  const { user, isAuthReady } = useAuthContext();
+  const { user, isAuthReady, anonymous } = useAuthContext();
+  const shouldVerify = anonymous?.shouldVerify;
   const [isFiltering, setIsFiltering] = useState(false);
   const [finishedOnboarding, setFinishedOnboarding] = useState(false);
   const { onShouldUpdateFilters } = useOnboardingContext();
@@ -91,9 +95,12 @@ export function OnboardPage(): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const [hasSelectTopics, setHasSelectTopics] = useState(false);
   const [auth, setAuth] = useState<AuthProps>({
-    isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY),
+    isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY) || shouldVerify,
     isLoginFlow: false,
-    defaultDisplay: AuthDisplay.OnboardingSignup,
+    defaultDisplay: shouldVerify
+      ? AuthDisplay.EmailVerification
+      : AuthDisplay.OnboardingSignup,
+    ...(anonymous?.email && { email: anonymous.email }),
   });
   const { isAuthenticating, isLoginFlow, email, defaultDisplay } = auth;
   const isPageReady = growthbook?.ready && isAuthReady;
@@ -112,6 +119,8 @@ export function OnboardPage(): ReactElement {
   const socialProofOnboardingMobile: boolean = useFeature(
     feature.socialProofOnboarding,
   );
+  const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
+  const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
   const targetId = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
 
@@ -146,10 +155,12 @@ export function OnboardPage(): ReactElement {
 
     return router.replace({
       pathname: '/',
-      query: {
-        welcome: 'true',
-        hset: 'true',
-      },
+      ...(!onboardingOptimizations && {
+        query: {
+          welcome: 'true',
+          hset: 'true',
+        },
+      }),
     });
   };
 
@@ -159,7 +170,13 @@ export function OnboardPage(): ReactElement {
   };
 
   const onSuccessfulRegistration = () => {
-    setIsFiltering(true);
+    if (onboardingV4dot5 === OnboardingV4dot5.Control) {
+      setIsFiltering(true);
+    } else {
+      router.replace({
+        pathname: '/my-feed',
+      });
+    }
   };
 
   useEffect(() => {
@@ -362,7 +379,7 @@ export function OnboardPage(): ReactElement {
     return <ProgressBar percentage={isAuthenticating ? percentage : 0} />;
   };
 
-  const showOnboardingPage = !isAuthenticating && !isFiltering;
+  const showOnboardingPage = !isAuthenticating && !isFiltering && !shouldVerify;
 
   if (!isPageReady) {
     return null;
