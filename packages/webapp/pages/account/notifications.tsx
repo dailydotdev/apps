@@ -20,7 +20,6 @@ import {
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import { usePersonalizedDigest } from '@dailydotdev/shared/src/hooks';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
-import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -29,15 +28,9 @@ const ALERT_PUSH_KEY = 'alert_push_key';
 
 const AccountNotificationsPage = (): ReactElement => {
   const {
-    push: {
-      onTogglePermission,
-      isLoading,
-      isSubscribed,
-      isInitialized,
-      isPushSupported,
-    },
+    push: { onTogglePermission, isSubscribed, isInitialized, isPushSupported },
   } = useContext(NotificationsContext);
-  const [isAlertShown, setIsAlertShown] = usePersistentContext(
+  const [isAlertShown, setIsAlertShown] = usePersistentContext<boolean>(
     ALERT_PUSH_KEY,
     true,
   );
@@ -138,6 +131,9 @@ const AccountNotificationsPage = (): ReactElement => {
     }
   };
 
+  const showAlert =
+    isPushSupported && isAlertShown && isInitialized && !isSubscribed;
+
   return (
     <AccountPageContainer title="Notifications">
       {isPushSupported && (
@@ -165,7 +161,7 @@ const AccountNotificationsPage = (): ReactElement => {
           </Switch>
         </div>
       )}
-      {isPushSupported && isAlertShown && isInitialized && (
+      {showAlert && (
         <div className="relative mt-6 w-full rounded-16 border border-theme-color-cabbage">
           <Pointer
             className="absolute -top-5 right-8"
