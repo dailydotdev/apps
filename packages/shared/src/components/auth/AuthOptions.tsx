@@ -102,6 +102,7 @@ export interface AuthOptionsProps {
   targetId?: string;
   ignoreMessages?: boolean;
   onboardingSignupButtonSize?: ButtonSize;
+  hideEmailLogin?: boolean;
 }
 
 function AuthOptions({
@@ -121,6 +122,7 @@ function AuthOptions({
   initialEmail = '',
   ignoreMessages = false,
   onboardingSignupButtonSize,
+  hideEmailLogin = false,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
@@ -448,6 +450,7 @@ function AuthOptions({
             targetId={targetId}
             className={className?.onboardingSignup}
             onboardingSignupButtonSize={onboardingSignupButtonSize}
+            hideEmailLogin={hideEmailLogin}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>

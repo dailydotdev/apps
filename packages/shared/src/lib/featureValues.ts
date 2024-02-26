@@ -25,3 +25,8 @@ export enum OnboardingV4dot5 {
   Control = 'control',
   V4dot5 = 'v4dot5',
 }
+
+export enum PostPageOnboarding {
+  Control = 'control',
+  V2 = 'v2',
+}
