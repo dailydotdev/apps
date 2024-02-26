@@ -5,7 +5,7 @@ import {
   getSearchUrl,
 } from '@dailydotdev/shared/src/graphql/search';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
-import SearchControlPage from '../../../components/search/SearchControlPage';
+import SearchControlPage from '../../../components/search/SearchPostFinderPage';
 
 const SearchPostsPage = (): ReactElement => {
   const router = useRouter();
