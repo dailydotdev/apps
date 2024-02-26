@@ -95,7 +95,12 @@ export const SearchField = forwardRef(function SearchField(
   return (
     <BaseField
       {...props}
-      className={classNames('items-center', sizeClass, className, { focused })}
+      className={classNames(
+        'items-center !border !border-theme-divider-tertiary !bg-theme-bg-primary',
+        sizeClass,
+        className,
+        { focused },
+      )}
       onClick={focusInput}
       data-testid="searchField"
       ref={ref}

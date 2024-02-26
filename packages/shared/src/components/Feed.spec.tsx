@@ -57,8 +57,6 @@ import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
 import Toast from './notifications/Toast';
 import OnboardingContext from '../contexts/OnboardingContext';
 import { LazyModalElement } from './modals/LazyModalElement';
-import { feature } from '../lib/featureManagement';
-import { SearchExperiment } from '../lib/featureValues';
 import { AuthTriggers } from '../lib/auth';
 import { SourceType } from '../graphql/sources';
 
@@ -96,7 +94,6 @@ const originalScrollTo = window.scrollTo;
 
 beforeAll(() => {
   window.scrollTo = jest.fn();
-  feature.search.defaultValue = SearchExperiment.Control;
 });
 
 afterAll(() => {

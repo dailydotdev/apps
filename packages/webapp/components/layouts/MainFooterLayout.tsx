@@ -21,6 +21,5 @@ export const getLayout = (
 };
 
 export const mainFooterLayoutProps: MainLayoutProps = {
-  greeting: true,
   mainPage: true,
 };

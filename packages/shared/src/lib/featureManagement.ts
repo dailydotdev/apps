@@ -2,7 +2,6 @@ import { JSONValue } from '@growthbook/growthbook';
 import {
   FeedLayout,
   ReadingStreaksExperiment,
-  SearchExperiment,
   OnboardingV4dot5,
   PostPageOnboarding,
 } from './featureValues';
@@ -22,7 +21,6 @@ export class Feature<T extends JSONValue> {
 const feature = {
   feedVersion: new Feature('feed_version', 15),
   onboardingV4dot5: new Feature('onboarding_v4dot5', OnboardingV4dot5.Control),
-  search: new Feature('search', SearchExperiment.Control),
   lowImps: new Feature('feed_low_imps'),
   bookmarkOnCard: new Feature('bookmark_on_card', false),
   feedLayout: new Feature('feed_layout', FeedLayout.Control),

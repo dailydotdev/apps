@@ -9,10 +9,7 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import {
-  FeedLayout as FeedLayoutEnum,
-  SearchExperiment,
-} from '@dailydotdev/shared/src/lib/featureValues';
+import { FeedLayout as FeedLayoutEnum } from '@dailydotdev/shared/src/lib/featureValues';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import {
   SearchProviderEnum,
@@ -45,7 +42,6 @@ export type MainFeedPageProps = {
 export default function MainFeedPage({
   onPageChanged,
 }: MainFeedPageProps): ReactElement {
-  const searchVersion = useFeature(feature.search);
   const { alerts } = useContext(AlertContext);
   const { trackEvent } = useAnalyticsContext();
   const [isSearchOn, setIsSearchOn] = useState(false);
@@ -57,16 +53,9 @@ export default function MainFeedPage({
   useCompanionSettings();
   const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
-    if (searchVersion !== SearchExperiment.Control) {
-      window.location.assign(
-        getSearchUrl({ provider: SearchProviderEnum.Posts }),
-      );
-      return;
-    }
-
-    setIsSearchOn(true);
-    setSearchQuery(null);
-    onPageChanged('/search');
+    window.location.assign(
+      getSearchUrl({ provider: SearchProviderEnum.Posts }),
+    );
   };
 
   const onNavTabClick = (tab: string): void => {
@@ -111,7 +100,6 @@ export default function MainFeedPage({
         <ScrollToTopButton />
       </div>
       <MainLayout
-        greeting
         mainPage
         isNavItemsButton
         activePage={activePage}
@@ -130,7 +118,6 @@ export default function MainFeedPage({
             feedName={feedName}
             isSearchOn={isSearchOn}
             searchQuery={searchQuery}
-            onFeedPageChanged={onNavTabClick}
             searchChildren={
               <PostsSearch
                 onSubmitQuery={async (query) => {

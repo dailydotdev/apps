@@ -25,7 +25,7 @@ import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
 import { useFeature } from './GrowthBookProvider';
-import { OnboardingV4dot5, SearchExperiment } from '../lib/featureValues';
+import { OnboardingV4dot5 } from '../lib/featureValues';
 import {
   algorithms,
   LayoutHeader,
@@ -86,7 +86,6 @@ export interface MainFeedLayoutProps
   children?: ReactNode;
   searchChildren?: ReactNode;
   navChildren?: ReactNode;
-  onFeedPageChanged: (page: SharedFeedPage) => void;
   isFinder?: boolean;
 }
 
@@ -114,7 +113,6 @@ export default function MainFeedLayout({
   children,
   searchChildren,
   shortcuts,
-  onFeedPageChanged,
   navChildren,
   isFinder,
 }: MainFeedLayoutProps): ReactElement {
@@ -127,11 +125,9 @@ export default function MainFeedLayout({
     hasUser: !!user,
   });
   const feedVersion = useFeature(feature.feedVersion);
-  const searchVersion = useFeature(feature.search);
   const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
   const isOnboardingV4dot5 = onboardingV4dot5 === OnboardingV4dot5.V4dot5;
-  const isV1Search = searchVersion === SearchExperiment.V1;
-  const { isUpvoted, isSortableFeed } = useFeedName({ feedName, isSearchOn });
+  const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { feedSettings } = useFeedSettings();
 
@@ -168,8 +164,6 @@ export default function MainFeedLayout({
     algoState: [selectedAlgo, setSelectedAlgo],
     periodState,
     feedName,
-    onFeedPageChanged,
-    isSearchOn,
   };
   const search = (
     <LayoutHeader>
@@ -182,7 +176,7 @@ export default function MainFeedLayout({
     const feedWithActions = isUpvoted || isSortableFeed;
     // in v1 search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
-    if (isV1Search && isSearchOn && !searchQuery) {
+    if (isSearchOn && !searchQuery) {
       return null;
     }
 
@@ -241,21 +235,16 @@ export default function MainFeedLayout({
       query: query.query,
       variables,
       emptyScreen: <FeedEmptyScreen />,
-      header: searchVersion === SearchExperiment.Control &&
-        !isSearchOn &&
-        !shouldUseFeedLayoutV1 && (
-          <SearchControlHeader {...searchProps} navChildren={navChildren} />
-        ),
-      actionButtons: (isV1Search || shouldUseFeedLayoutV1) &&
-        feedWithActions && <SearchControlHeader {...searchProps} />,
+      header: null,
+      actionButtons: feedWithActions && (
+        <SearchControlHeader {...searchProps} />
+      ),
       shortcuts,
     };
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    searchVersion,
     shouldUseFeedLayoutV1,
-    isV1Search,
     isSearchOn,
     searchQuery,
     query.query,
@@ -274,7 +263,7 @@ export default function MainFeedLayout({
 
   const FeedPageComponent = shouldUseFeedLayoutV1 ? FeedPageLayoutV1 : FeedPage;
 
-  const disableTopPadding = (isFinder && isV1Search) || shouldUseFeedLayoutV1;
+  const disableTopPadding = isFinder || shouldUseFeedLayoutV1;
 
   const tagsCount = feedSettings?.includeTags?.length || 0;
   const isFeedPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
