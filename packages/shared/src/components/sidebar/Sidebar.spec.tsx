@@ -151,7 +151,7 @@ const sidebarItems = [
   ['Best discussions', '/discussed'],
   ['Search', '/search'],
   ['Bookmarks', '/bookmarks'],
-  ['Reading history', '/history'],
+  ['History', '/history'],
 ];
 
 describe('sidebar items', () => {
