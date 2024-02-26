@@ -7,7 +7,7 @@ import { LoggedUser } from '../lib/user';
 
 export type ReputationUserBadgeProps = Omit<
   UserBadgeProps,
-  'content' | 'Icon'
+  'content' | 'Icon' | 'removeMargins'
 > & {
   user: Pick<LoggedUser, 'reputation'>;
 };
@@ -18,6 +18,10 @@ export const ReputationUserBadge = ({
   user,
   ...rest
 }: ReputationUserBadgeProps): ReactElement => {
+  if (!user?.reputation) {
+    return null;
+  }
+
   return (
     <UserBadge
       {...rest}
@@ -28,6 +32,7 @@ export const ReputationUserBadge = ({
         ...iconProps,
         className: classNames(iconProps?.className, 'text-theme-color-onion'),
       }}
+      removeMargins
     />
   );
 };
