@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { NotificationPromptSource } from '../../lib/analytics';
-import { useEnableNotification } from '../useEnableNotification';
+import { useEnableNotification } from './useEnableNotification';
 
 interface UseNotificationToggle {
   shouldShowCta: boolean;

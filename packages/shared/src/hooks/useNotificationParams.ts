@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { NotificationPromptSource } from '../lib/analytics';
-import { useNotificationContext } from '../contexts/NotificationsContext';
 import { stripLinkParameters } from '../lib/links';
+import { usePushNotificationContext } from '../contexts/PushNotificationContext';
+import { usePushNotificationMutation } from './notifications';
 
 export const useNotificationParams = (): void => {
   const router = useRouter();
-  const {
-    push: { isSubscribed, onEnablePush },
-  } = useNotificationContext();
+  const { isSubscribed } = usePushNotificationContext();
+  const { onEnablePush } = usePushNotificationMutation();
 
   useEffect(() => {
     if (isSubscribed || !router?.query.notify) {

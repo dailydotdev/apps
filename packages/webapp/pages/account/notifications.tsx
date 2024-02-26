@@ -7,7 +7,6 @@ import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import Pointer, {
   PointerColor,
 } from '@dailydotdev/shared/src/components/alert/Pointer';
-import NotificationsContext from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -20,6 +19,8 @@ import {
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import { usePersonalizedDigest } from '@dailydotdev/shared/src/hooks';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
+import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -27,9 +28,9 @@ import AccountContentSection from '../../components/layouts/AccountLayout/Accoun
 const ALERT_PUSH_KEY = 'alert_push_key';
 
 const AccountNotificationsPage = (): ReactElement => {
-  const {
-    push: { onTogglePermission, isSubscribed, isInitialized, isPushSupported },
-  } = useContext(NotificationsContext);
+  const { isSubscribed, isInitialized, isPushSupported } =
+    usePushNotificationContext();
+  const { onTogglePermission } = usePushNotificationMutation();
   const [isAlertShown, setIsAlertShown] = usePersistentContext<boolean>(
     ALERT_PUSH_KEY,
     true,

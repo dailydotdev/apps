@@ -15,8 +15,8 @@ import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { NotificationType } from './utils';
 import { ButtonSize } from '../buttons/Button';
-import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { ModalClose } from '../modals/common/ModalClose';
+import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 
 const Container = classed(
   'div',
@@ -34,9 +34,7 @@ export function InAppNotificationElement(): ReactElement {
   const client = useQueryClient();
   const { trackEvent } = useAnalyticsContext();
   const { clearNotifications, dismissNotification } = useInAppNotification();
-  const {
-    push: { isSubscribed },
-  } = useNotificationContext();
+  const { isSubscribed } = usePushNotificationContext();
   const [isExit, setIsExit] = useState(false);
   const closeNotification = () => {
     setIsExit(true);

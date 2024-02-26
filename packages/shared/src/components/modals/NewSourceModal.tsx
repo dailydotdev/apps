@@ -23,13 +23,16 @@ import { Source } from '../../graphql/sources';
 import AuthContext from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
 import { Modal, ModalProps } from './common/Modal';
-import NotificationsContext from '../../contexts/NotificationsContext';
 import PushNotificationModal from './PushNotificationModal';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import Alert, { AlertType } from '../widgets/Alert';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
 import { OpenLinkIcon } from '../icons';
-import { DISMISS_PERMISSION_BANNER } from '../../hooks/useEnableNotification';
+import {
+  DISMISS_PERMISSION_BANNER,
+  usePushNotificationMutation,
+} from '../../hooks/notifications';
+import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 
 interface RSS {
   url: string;
@@ -78,9 +81,8 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   const [scrapeError, setScrapeError] = useState<string>();
   const [showContact, setShowContact] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
-  const {
-    push: { hasPermissionCache, isPushSupported },
-  } = useContext(NotificationsContext);
+  const { isPushSupported } = usePushNotificationContext();
+  const { hasPermissionCache } = usePushNotificationMutation();
   const [feeds, setFeeds] = useState<{ label: ReactNode; value: string }[]>();
   const [selectedFeed, setSelectedFeed] = useState<string>();
   const [existingSource, setExistingSource] = useState<Source>();

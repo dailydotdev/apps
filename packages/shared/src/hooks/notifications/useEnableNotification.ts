@@ -1,13 +1,14 @@
-import { useCallback, useContext, useEffect } from 'react';
-import { useAnalyticsContext } from '../contexts/AnalyticsContext';
-import NotificationsContext from '../contexts/NotificationsContext';
-import usePersistentContext from './usePersistentContext';
+import { useCallback, useEffect } from 'react';
+import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import usePersistentContext from '../usePersistentContext';
 import {
   AnalyticsEvent,
   NotificationPromptSource,
   TargetType,
-} from '../lib/analytics';
-import { useAcceptedPushNow } from './notifications/useAcceptedPushNow';
+} from '../../lib/analytics';
+import { useAcceptedPushNow } from './useAcceptedPushNow';
+import { usePushNotificationMutation } from './usePushNotificationMutation';
+import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 
 export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 
@@ -25,15 +26,9 @@ export const useEnableNotification = ({
   source = NotificationPromptSource.NotificationsPage,
 }: UseEnableNotificationProps): UseEnableNotification => {
   const { trackEvent } = useAnalyticsContext();
-  const {
-    push: {
-      isInitialized,
-      isSubscribed,
-      isPushSupported,
-      hasPermissionCache,
-      onEnablePush,
-    },
-  } = useContext(NotificationsContext);
+  const { isInitialized, isPushSupported, isSubscribed } =
+    usePushNotificationContext();
+  const { hasPermissionCache, onEnablePush } = usePushNotificationMutation();
   const { acceptedJustNow } = useAcceptedPushNow();
   const [isDismissed, setIsDismissed, isLoaded] = usePersistentContext(
     DISMISS_PERMISSION_BANNER,

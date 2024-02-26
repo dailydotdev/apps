@@ -11,7 +11,7 @@ import { cloudinary } from '../../lib/image';
 import { VIcon, BellNotifyIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
 import { NotificationPromptSource } from '../../lib/analytics';
-import { useEnableNotification } from '../../hooks/useEnableNotification';
+import { useEnableNotification } from '../../hooks/notifications';
 import { useAcceptedPushNow } from '../../hooks/notifications/useAcceptedPushNow';
 
 type EnableNotificationProps = {

@@ -7,43 +7,26 @@ import { useActions } from '../useActions';
 import { useNotificationPermissionPopup } from '../useNotificationPermissionPopup';
 import { checkIsExtension } from '../../lib/func';
 import { NotificationPromptSource } from '../../lib/analytics';
-import { BootApp } from '../../lib/boot';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useAcceptedPushNow } from './useAcceptedPushNow';
-import { SubscriptionCallback, useOneSignal } from './useOneSignal';
+import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 
 export const PERMISSION_NOTIFICATION_KEY = 'permission:notification';
 
-export interface UsePushNotification {
-  isPushSupported: boolean;
+export interface UsePushNotificationMutation {
   hasPermissionCache: boolean;
-  isInitialized: boolean;
-  isSubscribed: boolean;
-  isLoading: boolean;
   onEnablePush: (source: NotificationPromptSource) => Promise<boolean>;
   onTogglePermission: (source: NotificationPromptSource) => Promise<unknown>;
-}
-
-interface UsePushNotificationProps {
-  onSubscriptionChange: SubscriptionCallback;
-  onSourceChange: (source: string) => void;
-  app: BootApp;
 }
 
 export const usePermissionCache =
   (): UserPersistentContextType<NotificationPermission> =>
     usePersistentContext(PERMISSION_NOTIFICATION_KEY, 'default');
 
-export const usePushNotification = ({
-  onSubscriptionChange,
-  onSourceChange,
-  app,
-}: UsePushNotificationProps): UsePushNotification => {
+export const usePushNotificationMutation = (): UsePushNotificationMutation => {
   const isExtension = checkIsExtension();
-  const { OneSignal, isFetched, isLoading, isSubscribed, isPushSupported } =
-    useOneSignal({
-      onSubscriptionChange,
-    });
+  const { onSourceChange, OneSignal, isSubscribed, shouldOpenPopup } =
+    usePushNotificationContext();
   const { user } = useAuthContext();
   const { onAcceptedJustNow } = useAcceptedPushNow();
   const { completeAction, checkHasCompleted } = useActions();
@@ -90,7 +73,7 @@ export const usePushNotification = ({
 
       const { permission } = globalThis.Notification ?? {};
 
-      if (app === BootApp.Extension || permission === 'denied') {
+      if (shouldOpenPopup || permission === 'denied') {
         onOpenPopup(source);
         return false;
       }
@@ -111,7 +94,7 @@ export const usePushNotification = ({
 
       return isGranted;
     },
-    [user, app, onSourceChange, OneSignal, onOpenPopup, onGranted],
+    [user, shouldOpenPopup, onSourceChange, OneSignal, onOpenPopup, onGranted],
   );
 
   const onTogglePermission = useCallback(
@@ -128,11 +111,7 @@ export const usePushNotification = ({
 
   return {
     hasPermissionCache: permissionCache === 'granted',
-    isPushSupported,
-    isInitialized: isFetched,
-    isSubscribed,
     onTogglePermission,
     onEnablePush,
-    isLoading,
   };
 };
