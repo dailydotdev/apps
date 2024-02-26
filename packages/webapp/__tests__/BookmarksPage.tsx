@@ -126,7 +126,9 @@ it('should show the search bar', async () => {
 it('should update query param on enter', async (done) => {
   renderComponent();
   await waitForNock();
-  const input = (await screen.findByRole('textbox')) as HTMLInputElement;
+  const input = (await screen.findByPlaceholderText(
+    'Search bookmarks',
+  )) as HTMLInputElement;
   input.value = 'daily';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   setTimeout(async () => {

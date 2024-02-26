@@ -23,12 +23,8 @@ import { CreatePostButton } from '../post/write';
 import { useViewSize, ViewSize } from '../../hooks';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { SearchExperiment } from '../../lib/featureValues';
 
 export interface MainLayoutHeaderProps {
-  greeting?: boolean;
   hasBanner?: boolean;
   sidebarRendered?: boolean;
   optOutWeeklyGoal?: boolean;
@@ -45,7 +41,6 @@ const SearchPanel = dynamic(
 );
 
 function MainLayoutHeader({
-  greeting,
   hasBanner,
   sidebarRendered,
   optOutWeeklyGoal,
@@ -53,8 +48,6 @@ function MainLayoutHeader({
   onLogoClick,
   onMobileSidebarToggle,
 }: MainLayoutHeaderProps): ReactElement {
-  const searchVersion = useFeature(feature.search);
-  const isSearchV1 = searchVersion === SearchExperiment.V1;
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
@@ -153,11 +146,10 @@ function MainLayoutHeader({
             <HeaderLogo
               user={user}
               onLogoClick={onLogoClick}
-              // currently isSearchV1 we do not show greeting
-              greeting={isSearchV1 ? false : greeting}
+              greeting={false}
             />
           </div>
-          {isSearchV1 && !!user && (
+          {!!user && (
             <SearchPanel
               className={{
                 container: classNames(
