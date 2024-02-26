@@ -126,11 +126,7 @@ export const OnboardingFeedHeader = ({
         <div className="mt-10 flex items-center justify-center gap-10 text-theme-label-quaternary typo-callout">
           <div className="h-px flex-1 bg-theme-divider-tertiary" />
           <Button
-            variant={
-              isPreviewFeedVisible
-                ? ButtonVariant.Primary
-                : ButtonVariant.Secondary
-            }
+            variant={ButtonVariant.Float}
             disabled={!isFeedPreviewEnabled}
             icon={
               <ArrowIcon
