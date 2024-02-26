@@ -123,7 +123,7 @@ export const FeedContainer = ({
   } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
   const isFinder = router.pathname === '/search/posts';
-  const isV1Search = showSearch && !isFinder;
+  const isSearch = showSearch && !isFinder;
 
   if (!loadedSettings) {
     return <></>;
@@ -164,7 +164,7 @@ export const FeedContainer = ({
             />
           )}
           {(inlineHeader || isOnboardingV4dot5) && header}
-          {isV1Search && !shouldUseFeedLayoutV1 && (
+          {isSearch && !shouldUseFeedLayoutV1 && (
             <span className="flex flex-1 flex-row items-center">
               {!!actionButtons && (
                 <span className="mr-auto flex flex-row gap-3 border-theme-divider-tertiary pr-3">
@@ -181,7 +181,7 @@ export const FeedContainer = ({
               <div
                 className={classNames(
                   'flex flex-col rounded-16 border border-theme-divider-tertiary tablet:mt-6',
-                  isV1Search && 'mt-6',
+                  isSearch && 'mt-6',
                 )}
               >
                 <span className="flex w-full flex-row items-center justify-between px-6 py-4">
@@ -197,7 +197,7 @@ export const FeedContainer = ({
             <div
               className={classNames(
                 'grid',
-                isV1Search && !shouldUseFeedLayoutV1 && 'mt-8',
+                isSearch && !shouldUseFeedLayoutV1 && 'mt-8',
                 gapClass(isList, shouldUseFeedLayoutV1, spaciness),
                 cardClass(isList, numCards),
               )}

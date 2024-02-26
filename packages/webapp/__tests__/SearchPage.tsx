@@ -35,7 +35,7 @@ const renderComponent = (layout = getLayout): RenderResult => {
   );
 };
 
-it('should render the search page v1', async () => {
+it('should render the search page', async () => {
   renderComponent(undefined);
   const text = screen.queryByTestId('search-panel');
   expect(text).toBeInTheDocument();
