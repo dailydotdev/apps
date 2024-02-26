@@ -121,7 +121,10 @@ export function OnboardPage(): ReactElement {
   );
   const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
   const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
-  const targetId = ExperimentWinner.OnboardingV4;
+  let targetId: string = ExperimentWinner.OnboardingV4;
+  if (onboardingV4dot5 === OnboardingV4dot5.Control) {
+    targetId = OnboardingV4dot5.V4dot5;
+  }
   const formRef = useRef<HTMLFormElement>();
 
   const onClickNext = () => {
