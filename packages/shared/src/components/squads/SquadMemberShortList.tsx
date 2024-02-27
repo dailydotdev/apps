@@ -6,15 +6,12 @@ import { LazyModal } from '../modals/common/types';
 import { ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
+import { kFormatter } from '../../lib';
 
 export interface SquadMemberShortListProps {
   squad: Squad;
   members: SourceMember[];
   className?: string;
-}
-
-function kFormatter(num: number): string | number {
-  return Math.abs(num) > 999 ? `${(num / 1000).toFixed(1)}K` : num;
 }
 
 function SquadMemberShortList({

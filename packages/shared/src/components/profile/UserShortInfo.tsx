@@ -5,6 +5,7 @@ import { TooltipProps } from '../tooltips/BaseTooltip';
 import { getTextEllipsis } from '../utilities';
 import { ProfileTooltip } from './ProfileTooltip';
 import { UserShortProfile } from '../../lib/user';
+import { ReputationUserBadge } from '../ReputationUserBadge';
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
@@ -89,7 +90,10 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
             className.textWrapper ?? defaultClassName.textWrapper,
           )}
         >
-          <TextEllipsis className="font-bold">{name}</TextEllipsis>
+          <div className="flex">
+            <TextEllipsis className="min-w-0 font-bold">{name}</TextEllipsis>
+            <ReputationUserBadge user={user} />
+          </div>
           <TextEllipsis className="text-theme-label-secondary">
             {transformUsername ? transformUsername(user) : `@${username}`}
           </TextEllipsis>

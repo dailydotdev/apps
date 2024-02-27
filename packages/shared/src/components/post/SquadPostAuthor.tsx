@@ -6,6 +6,7 @@ import SquadMemberBadge from '../squads/SquadMemberBadge';
 import { Author } from '../../graphql/comments';
 import { SourceMemberRole } from '../../graphql/sources';
 import { Separator } from '../cards/common';
+import { ReputationUserBadge } from '../ReputationUserBadge';
 
 interface SquadPostAuthorProps {
   className?: Partial<{
@@ -48,7 +49,16 @@ function SquadPostAuthor({
             <span className={classNames('font-bold', className?.name)}>
               {author.name}
             </span>
-            {!!role && <SquadMemberBadge key="squadMemberRole" role={role} />}
+            <div className="flex gap-1">
+              <ReputationUserBadge user={author} />
+              {!!role && (
+                <SquadMemberBadge
+                  key="squadMemberRole"
+                  role={SourceMemberRole.Admin}
+                  removeMargins
+                />
+              )}
+            </div>
           </div>
           <div
             className={classNames(

@@ -20,6 +20,7 @@ import { CommentPublishDate } from './CommentPublishDate';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { CardLink } from '../cards/Card';
+import { ReputationUserBadge } from '../ReputationUserBadge';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -96,6 +97,11 @@ function CommentBox({
               author={comment.author}
               appendTooltipTo={appendTooltipTo}
               badges={[
+                <ReputationUserBadge
+                  key="reputation"
+                  className="ml-1"
+                  user={comment.author}
+                />,
                 <SquadMemberBadge key="squadMemberRole" role={role} />,
                 comment.author.id === postAuthorId && (
                   <UserBadge

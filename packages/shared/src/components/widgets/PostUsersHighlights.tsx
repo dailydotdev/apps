@@ -10,6 +10,7 @@ import { ProfileLink } from '../profile/ProfileLink';
 import { Author } from '../../graphql/comments';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { ReputationUserBadge } from '../ReputationUserBadge';
 
 interface PostAuthorProps {
   post: Post;
@@ -27,6 +28,7 @@ interface SourceAuthorProps {
   username?: string;
   userType?: UserType;
   permalink: string;
+  reputation?: number;
 }
 
 const getUserIcon = (userType: UserType) => {
@@ -76,7 +78,15 @@ const Image = (props: SourceAuthorProps) => {
 };
 
 const UserHighlight = (props: SourceAuthorProps) => {
-  const { id, handle, name, username, permalink, userType = 'source' } = props;
+  const {
+    id,
+    handle,
+    name,
+    username,
+    permalink,
+    userType = 'source',
+    reputation,
+  } = props;
   const Icon = getUserIcon(userType);
   const userTypeNotSource = userType !== 'source';
 
@@ -114,9 +124,12 @@ const UserHighlight = (props: SourceAuthorProps) => {
         )}
       >
         <div className="ml-4 flex flex-col">
-          <ProfileLink className="font-bold typo-callout" href={permalink}>
-            {name}
-          </ProfileLink>
+          <div className="flex">
+            <ProfileLink className="font-bold typo-callout" href={permalink}>
+              {name}
+            </ProfileLink>
+            <ReputationUserBadge user={{ reputation }} />
+          </div>
           {(handle || username || id) && (
             <ProfileLink
               className="mt-0.5 text-theme-label-tertiary typo-footnote"
