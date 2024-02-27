@@ -54,10 +54,23 @@ export function PushNotificationContextProvider({
   const onSourceChange = useCallback((source) => {
     notificationSourceRef.current = source;
   }, []);
-  const subscriptionCallbackRef = useRef<SubscriptionCallback>();
   const [isSubscribed, setIsSubscribed] = useState(false);
   const { user } = useAuthContext();
   const { trackEvent } = useAnalyticsContext();
+  const subscriptionCallbackRef = useRef<SubscriptionCallback>(
+    (isSubscribedNew, source, existing_permission) => {
+      if (isSubscribedNew) {
+        trackEvent({
+          event_name: AnalyticsEvent.ClickEnableNotification,
+          extra: JSON.stringify({
+            origin: source || notificationSourceRef.current,
+            permission: 'granted',
+            ...(existing_permission && { existing_permission }),
+          }),
+        });
+      }
+    },
+  );
   const isEnabled = !!user && !isTesting;
   const key = generateQueryKey(RequestKey.OneSignal, user);
   const client = useQueryClient();
@@ -105,25 +118,6 @@ export function PushNotificationContextProvider({
     (source) => subscriptionCallbackRef.current?.(true, source, true),
     [],
   );
-
-  useEffect(() => {
-    subscriptionCallbackRef.current = (
-      isSubscribedNew,
-      source,
-      existing_permission,
-    ) => {
-      if (isSubscribedNew) {
-        trackEvent({
-          event_name: AnalyticsEvent.ClickEnableNotification,
-          extra: JSON.stringify({
-            origin: source || notificationSourceRef.current,
-            permission: 'granted',
-            ...(existing_permission && { existing_permission }),
-          }),
-        });
-      }
-    };
-  }, [trackEvent]);
 
   const shouldOpenPopup = app !== BootApp.Webapp;
 
