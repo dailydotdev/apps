@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import BrowserPermissionIcon from '@dailydotdev/shared/src/components/icons/BrowserPermission/primary.svg';
 import NotificationToggleIcon from '@dailydotdev/shared/src/components/icons/NotificationToggle/primary.svg';
-import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
 import React, { useEffect } from 'react';
