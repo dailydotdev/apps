@@ -4,11 +4,16 @@ import usePersistentContext, {
 } from '../usePersistentContext';
 import { ActionType } from '../../graphql/actions';
 import { useActions } from '../useActions';
-import { useNotificationPermissionPopup } from '../useNotificationPermissionPopup';
+import {
+  ENABLE_NOTIFICATION_WINDOW_KEY,
+  PermissionEvent,
+  useNotificationPermissionPopup,
+} from '../useNotificationPermissionPopup';
 import { checkIsExtension } from '../../lib/func';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
+import { useEventListener } from '../useEventListener';
 
 export const PERMISSION_NOTIFICATION_KEY = 'permission:notification';
 
@@ -19,11 +24,17 @@ export interface UsePushNotificationMutation {
   onTogglePermission: (source: NotificationPromptSource) => Promise<unknown>;
 }
 
+interface UsePushNotificationMutationProps {
+  onPopupGranted?(): void;
+}
+
 export const usePermissionCache =
   (): UserPersistentContextType<NotificationPermission> =>
     usePersistentContext(PERMISSION_NOTIFICATION_KEY, 'default');
 
-export const usePushNotificationMutation = (): UsePushNotificationMutation => {
+export const usePushNotificationMutation = ({
+  onPopupGranted,
+}: UsePushNotificationMutationProps = {}): UsePushNotificationMutation => {
   const isExtension = checkIsExtension();
   const { onSourceChange, OneSignal, isSubscribed, shouldOpenPopup } =
     usePushNotificationContext();
@@ -40,7 +51,9 @@ export const usePushNotificationMutation = (): UsePushNotificationMutation => {
       completeAction(ActionType.EnableNotification);
     }
 
-    await OneSignal.User.PushSubscription.optIn();
+    if (OneSignal) {
+      await OneSignal.User.PushSubscription.optIn();
+    }
 
     return true;
   }, [
@@ -108,6 +121,23 @@ export const usePushNotificationMutation = (): UsePushNotificationMutation => {
     },
     [OneSignal, isSubscribed, onEnablePush, onSourceChange],
   );
+
+  useEventListener(globalThis, 'message', async (e) => {
+    const { permission }: PermissionEvent = e?.data ?? {};
+    const earlyReturnChecks = [
+      e.data?.eventKey !== ENABLE_NOTIFICATION_WINDOW_KEY,
+      !shouldOpenPopup,
+      !onPopupGranted,
+      !permission || permission !== 'granted',
+    ];
+
+    if (earlyReturnChecks.some(Boolean)) {
+      return;
+    }
+
+    onGranted();
+    onPopupGranted();
+  });
 
   return {
     hasPermissionCache: permissionCache === 'granted',
