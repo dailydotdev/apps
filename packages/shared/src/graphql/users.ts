@@ -496,3 +496,14 @@ export const DEV_CARD_QUERY = gql`
   }
   ${USER_SHORT_INFO_FRAGMENT}
 `;
+
+export const USER_ACQUISITION_MUTATION = gql`
+  mutation AddUserAcquisitionChannel($source: AcquisitionChannel!) {
+    addUserAcquisitionChannel(source: $source) {
+      _
+    }
+  }
+`;
+
+export const updateUserAcquisition = (source: string): Promise<void> =>
+  request(graphqlUrl, USER_ACQUISITION_MUTATION, { source });

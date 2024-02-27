@@ -18,6 +18,7 @@ import { useFeedLayout, ToastSubject, useToastNotification } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
+import { AcquisitionFormCard } from '../cards/AcquisitionFormCard';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -130,6 +131,8 @@ export const FeedContainer = ({
   }
 
   const showFeedReadyMessage = router.query?.welcome === 'true';
+  const showAcquisitionForm = router.query?.user_acquisiton_channel === 'true';
+
   return (
     <div
       className={classNames(
@@ -202,6 +205,7 @@ export const FeedContainer = ({
                 cardClass(isList, numCards),
               )}
             >
+              {showAcquisitionForm && <AcquisitionFormCard />}
               {children}
             </div>
           </ConditionalWrapper>

@@ -33,7 +33,7 @@ export function Radio({
   return (
     <div
       className={classNames(
-        '-my-0.5 flex flex-col items-start',
+        'flex flex-col items-start gap-1',
         className.container,
       )}
     >
@@ -46,7 +46,7 @@ export function Radio({
           disabled={option.disabled}
           checked={value === option.value}
           onChange={() => onChange(option.value)}
-          className={classNames('my-0.5 truncate', className.content)}
+          className={classNames('truncate', className.content)}
           afterElement={option.afterElement}
         >
           {option.label}
