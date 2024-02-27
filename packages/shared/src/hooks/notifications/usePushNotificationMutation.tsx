@@ -127,8 +127,7 @@ export const usePushNotificationMutation = ({
     const earlyReturnChecks = [
       e.data?.eventKey !== ENABLE_NOTIFICATION_WINDOW_KEY,
       !shouldOpenPopup,
-      !onPopupGranted,
-      !permission || permission !== 'granted',
+      permission !== 'granted',
     ];
 
     if (earlyReturnChecks.some(Boolean)) {
@@ -136,7 +135,10 @@ export const usePushNotificationMutation = ({
     }
 
     onGranted();
-    onPopupGranted();
+
+    if (onPopupGranted) {
+      onPopupGranted();
+    }
   });
 
   return {

@@ -36,13 +36,13 @@ export const useEnableNotification = ({
     DISMISS_PERMISSION_BANNER,
     false,
   );
-  const onDismiss = () => {
+  const onDismiss = useCallback(() => {
     trackEvent({
       event_name: AnalyticsEvent.ClickNotificationDismiss,
       extra: JSON.stringify({ origin: source }),
     });
     setIsDismissed(true);
-  };
+  }, [source, trackEvent, setIsDismissed]);
 
   const onEnable = useCallback(
     () => onEnablePush(source),
