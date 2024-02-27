@@ -97,14 +97,6 @@ export function PushNotificationContextProvider({
 
       setIsSubscribed(OneSignal.User.PushSubscription.optedIn);
 
-      OneSignal.User.PushSubscription.addEventListener(
-        'change',
-        ({ current }) => {
-          setIsSubscribed(() => current.optedIn);
-          subscriptionCallbackRef.current?.(current.optedIn);
-        },
-      );
-
       return OneSignal;
     },
     { enabled: isEnabled, ...disabledRefetch },
@@ -120,6 +112,24 @@ export function PushNotificationContextProvider({
   );
 
   const shouldOpenPopup = app !== BootApp.Webapp;
+
+  useEffect(() => {
+    if (!OneSignalCache) {
+      return undefined;
+    }
+
+    const onChange: Parameters<
+      typeof OneSignal.User.PushSubscription.addEventListener
+    >[1] = ({ current }) => {
+      setIsSubscribed(() => current.optedIn);
+      subscriptionCallbackRef.current?.(current.optedIn);
+    };
+
+    OneSignal.User.PushSubscription.addEventListener('change', onChange);
+    return () => {
+      OneSignal.User.PushSubscription.removeEventListener('change', onChange);
+    };
+  }, [OneSignalCache]);
 
   return (
     <PushNotificationsContext.Provider
