@@ -1,12 +1,5 @@
 /* eslint-disable no-underscore-dangle, max-classes-per-file */
 
-declare global {
-  interface Window {
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
-    safari?: { pushNotification: any };
-  }
-}
-
 const ACTIVE = 'active';
 const PASSIVE = 'passive';
 const HIDDEN = 'hidden';
