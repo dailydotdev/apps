@@ -11,3 +11,11 @@ export function largeNumberFormat(value: number): string {
   }
   return newValue.toString();
 }
+
+export const kFormatter = (num: number): string | number => {
+  const kRemainder = num % 1000;
+
+  return Math.abs(num) > 999
+    ? `${(num / 1000).toFixed(kRemainder < 100 || kRemainder > 900 ? 0 : 1)}K`
+    : num;
+};
