@@ -32,7 +32,7 @@ function CodeVerificationForm({
   const [emailSent, setEmailSent] = useState(false);
   const { sendEmail, verifyCode, resendTimer, isLoading } = useAccountEmailFlow(
     {
-      flow: AuthFlow.Verification,
+      flow: AuthFlow.Recovery,
       flowId: initialFlow,
       onTimerFinished: () => setEmailSent(false),
       onError: setHint,
@@ -40,9 +40,6 @@ function CodeVerificationForm({
         setEmailSent(true);
       },
       onVerifyCodeSuccess: () => {
-        trackEvent({
-          event_name: AuthEventNames.VerifiedSuccessfully,
-        });
         onSubmit();
       },
     },
@@ -51,8 +48,7 @@ function CodeVerificationForm({
   const onCodeVerification = async (e) => {
     e.preventDefault();
     trackEvent({
-      event_name: AnalyticsEvent.Click,
-      target_type: TargetType.VerifyEmail,
+      event_name: AuthEventNames.SubmitForgotPassword,
     });
     setHint('');
     const { code } = formToJson<{ code: string }>(e.currentTarget);
@@ -61,8 +57,7 @@ function CodeVerificationForm({
 
   const onSendEmail = async () => {
     trackEvent({
-      event_name: AnalyticsEvent.Click,
-      target_type: TargetType.ResendVerificationCode,
+      event_name: AuthEventNames.SubmitForgotPassword,
     });
     await sendEmail(initialEmail);
   };
