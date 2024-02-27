@@ -11,7 +11,6 @@ import { AuthEventNames } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthForm from './AuthForm';
 import { KeyIcon } from '../icons';
-import { AnalyticsEvent, TargetType } from '../../lib/analytics';
 
 interface CodeVerificationFormProps extends AuthFormProps {
   initialEmail: string;
