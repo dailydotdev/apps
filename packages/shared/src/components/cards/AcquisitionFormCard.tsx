@@ -38,8 +38,8 @@ export function AcquisitionFormCard(): ReactElement {
   const [value, setValue] = useState<AcquisitionChannel>();
   const router = useRouter();
   const onRemoveQueryParams = () => {
-    const removed = removeQueryParam(window.location.href, acquisitionKey);
-    router.replace(removed);
+    const updatedUrl = removeQueryParam(window.location.href, acquisitionKey);
+    router.replace(updatedUrl);
   };
   const onDismiss = () => {
     setIsDismissed(true);
