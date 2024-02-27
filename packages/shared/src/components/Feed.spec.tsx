@@ -38,7 +38,11 @@ import defaultFeedPage from '../../__tests__/fixture/feed';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import ad from '../../__tests__/fixture/ad';
 import { LoggedUser } from '../lib/user';
-import { MyRankData } from '../graphql/users';
+import {
+  AcquisitionChannel,
+  MyRankData,
+  USER_ACQUISITION_MUTATION,
+} from '../graphql/users';
 import { getRankQueryKey } from '../hooks/useReadingRank';
 import { SubscriptionCallbacks } from '../hooks/useSubscription';
 import SettingsContext, {
@@ -59,6 +63,8 @@ import OnboardingContext from '../contexts/OnboardingContext';
 import { LazyModalElement } from './modals/LazyModalElement';
 import { AuthTriggers } from '../lib/auth';
 import { SourceType } from '../graphql/sources';
+import { acquisitionKey } from './cards/AcquisitionFormCard';
+import { removeQueryParam } from '../lib/links';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -1057,4 +1063,96 @@ it('should report irrelevant tags', async () => {
       screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
     ).not.toBeInTheDocument(),
   );
+});
+
+describe('acquisition form card', () => {
+  const replaceRouter = jest.fn();
+  const url = new URL(`http://localhost:5002?${acquisitionKey}=true`);
+
+  beforeEach(() => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires,global-require
+    const useRouter = jest.spyOn(require('next/router'), 'useRouter');
+
+    useRouter.mockImplementation(() => ({
+      route: '/',
+      pathname: '',
+      query: { ua: 'true' },
+      asPath: '',
+      push: jest.fn(),
+      events: {
+        on: jest.fn(),
+        off: jest.fn(),
+      },
+      replace: replaceRouter,
+      beforePopState: jest.fn(() => null),
+      prefetch: jest.fn(() => null),
+    }));
+
+    Object.defineProperty(window, 'location', {
+      value: url,
+      configurable: true,
+    });
+  });
+
+  it('should show the form card when the right url query param is present', async () => {
+    renderComponent([createFeedMock()], defaultUser);
+    await screen.findByTestId('acquisitionFormCard');
+  });
+
+  it('should hide the card once form is submitted', async () => {
+    let mutationCalled = false;
+    renderComponent([createFeedMock()], defaultUser);
+
+    const radio = await screen.findByLabelText('Other');
+    fireEvent.click(radio);
+
+    mockGraphQL({
+      request: {
+        query: USER_ACQUISITION_MUTATION,
+        variables: { acquisitionChannel: 'other' },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: null } };
+      },
+    });
+
+    const submit = await screen.findByText('Submit');
+    fireEvent.click(submit);
+
+    await waitFor(() => {
+      expect(mutationCalled).toBeTruthy();
+    });
+
+    await waitFor(() => {
+      expect(replaceRouter).toHaveBeenCalledWith(
+        removeQueryParam(url.toString(), acquisitionKey),
+      );
+    });
+  });
+
+  it('should not show the card if the user dismissed it', async () => {
+    renderComponent([createFeedMock()], defaultUser);
+    const close = await screen.findByLabelText('Close acquisition form');
+    fireEvent.click(close);
+
+    const card = screen.queryByTestId('acquisitionFormCard');
+    expect(card).not.toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(replaceRouter).toHaveBeenCalledWith(
+        removeQueryParam(url.toString(), acquisitionKey),
+      );
+    });
+  });
+
+  it('should not show the card if the user has submitted already', async () => {
+    renderComponent([createFeedMock()], {
+      ...defaultUser,
+      acquisitionChannel: AcquisitionChannel.Blog,
+    });
+
+    const card = screen.queryByTestId('acquisitionFormCard');
+    expect(card).not.toBeInTheDocument();
+  });
 });

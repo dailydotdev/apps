@@ -18,7 +18,11 @@ import { useFeedLayout, ToastSubject, useToastNotification } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
-import { AcquisitionFormCard } from '../cards/AcquisitionFormCard';
+import {
+  AcquisitionFormCard,
+  acquisitionKey,
+} from '../cards/AcquisitionFormCard';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -108,6 +112,7 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const { user } = useAuthContext();
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
@@ -131,7 +136,8 @@ export const FeedContainer = ({
   }
 
   const showFeedReadyMessage = router.query?.welcome === 'true';
-  const showAcquisitionForm = router.query?.user_acquisiton_channel === 'true';
+  const showAcquisitionForm =
+    router.query?.[acquisitionKey] === 'true' && !user?.acquisitionChannel;
 
   return (
     <div

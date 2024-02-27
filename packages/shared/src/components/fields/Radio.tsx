@@ -15,21 +15,21 @@ interface ClassName {
   content?: string;
 }
 
-export type RadioProps = {
+export interface RadioProps<T extends string = string> {
   name: string;
-  options: RadioOption[];
-  value?: string;
-  onChange: (value: string) => unknown;
+  options: RadioOption<T>[];
+  value?: T;
+  onChange: (value: T) => unknown;
   className?: ClassName;
-};
+}
 
-export function Radio({
+export function Radio<T extends string = string>({
   name,
   options,
   value,
   onChange,
   className = {},
-}: RadioProps): ReactElement {
+}: RadioProps<T>): ReactElement {
   return (
     <div
       className={classNames(
