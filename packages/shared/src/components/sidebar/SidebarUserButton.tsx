@@ -31,6 +31,7 @@ export function SidebarUserButton({
                     iconProps={{
                       size: IconSize.Medium,
                     }}
+                    disableTooltip
                   />
                 </ProfileLink>
                 <div className="flex-1" />

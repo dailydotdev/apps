@@ -50,6 +50,7 @@ export default function ProfileButton({
               iconProps={{
                 size: IconSize.Medium,
               }}
+              disableTooltip
             />
             <ProfilePicture user={user} size="large" />
           </button>
