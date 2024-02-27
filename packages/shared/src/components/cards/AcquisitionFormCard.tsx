@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { Card } from './Card';
@@ -8,6 +8,8 @@ import { AcquisitionChannel, updateUserAcquisition } from '../../graphql/users';
 import { MiniCloseIcon } from '../icons';
 import { OnboardingTitleGradient } from '../onboarding/common';
 import { removeQueryParam } from '../../lib/links';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { AnalyticsEvent, UserAcquisitionEvent } from '../../lib/analytics';
 
 const options = [
   {
@@ -31,6 +33,7 @@ const options = [
 export const acquisitionKey = 'ua';
 
 export function AcquisitionFormCard(): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const [isDismissed, setIsDismissed] = useState(false);
   const [value, setValue] = useState<AcquisitionChannel>();
   const router = useRouter();
@@ -40,12 +43,28 @@ export function AcquisitionFormCard(): ReactElement {
   };
   const onDismiss = () => {
     setIsDismissed(true);
+    trackEvent({ event_name: UserAcquisitionEvent.Dismiss });
     onRemoveQueryParams();
   };
 
   const { mutateAsync, isLoading } = useMutation(updateUserAcquisition, {
-    onSuccess: onRemoveQueryParams,
+    onSuccess: () => {
+      trackEvent({
+        event_name: UserAcquisitionEvent.Submit,
+        target_id: value,
+      });
+      onRemoveQueryParams();
+    },
   });
+
+  useEffect(() => {
+    if (!isDismissed) {
+      trackEvent({
+        event_name: AnalyticsEvent.Impression,
+        target_type: acquisitionKey,
+      });
+    }
+  }, [isDismissed]);
 
   if (isDismissed) {
     return null;

@@ -135,7 +135,7 @@ export const FeedContainer = ({
       ];
     }
     return childrenArray;
-  }, [children]);
+  }, [children, showAcquisitionForm]);
 
   const isOnboardingV4dot5 = onboardingV4dot5 === OnboardingV4dot5.V4dot5;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
