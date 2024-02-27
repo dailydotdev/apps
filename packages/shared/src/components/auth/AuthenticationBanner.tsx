@@ -7,6 +7,9 @@ import { AuthTriggers } from '../../lib/auth';
 import { MemberAlready } from '../onboarding/MemberAlready';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { BottomBannerContainer } from '../banners';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { PostPageOnboarding } from '../../lib/featureValues';
 
 const Section = classed('div', 'flex flex-col w-[23.25rem]');
 export const authGradientBg =
@@ -14,6 +17,7 @@ export const authGradientBg =
 
 export function AuthenticationBanner(): ReactElement {
   const { showLogin } = useAuthContext();
+  const postPageOnboarding = useFeature(feature.postPageOnboarding);
 
   return (
     <BottomBannerContainer
@@ -39,6 +43,7 @@ export function AuthenticationBanner(): ReactElement {
           onAuthStateUpdate={() =>
             showLogin({ trigger: AuthTriggers.Onboarding })
           }
+          hideEmailLogin={postPageOnboarding === PostPageOnboarding.V2}
         />
         <MemberAlready
           onLogin={() =>
