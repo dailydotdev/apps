@@ -121,7 +121,7 @@ export const FeedContainer = ({
   const userAcquisitionVersion = useFeature(feature.userAcquisition);
   const showAcquisitionForm =
     isLoggedIn &&
-    feedName == SharedFeedPage.MyFeed &&
+    feedName === SharedFeedPage.MyFeed &&
     userAcquisitionVersion === UserAcquisition.V1 &&
     (router.query?.[acquisitionKey] as string)?.toLocaleLowerCase() ===
       'true' &&

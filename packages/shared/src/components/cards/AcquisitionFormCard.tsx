@@ -64,7 +64,7 @@ export function AcquisitionFormCard(): ReactElement {
         target_type: acquisitionKey,
       });
     }
-  }, [isDismissed]);
+  }, [isDismissed, trackEvent]);
 
   if (isDismissed) {
     return null;
