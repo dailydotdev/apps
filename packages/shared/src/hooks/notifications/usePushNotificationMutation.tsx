@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import usePersistentContext, {
   UserPersistentContextType,
 } from '../usePersistentContext';
@@ -8,12 +8,12 @@ import { useNotificationPermissionPopup } from '../useNotificationPermissionPopu
 import { checkIsExtension } from '../../lib/func';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useAcceptedPushNow } from './useAcceptedPushNow';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 
 export const PERMISSION_NOTIFICATION_KEY = 'permission:notification';
 
 export interface UsePushNotificationMutation {
+  acceptedJustNow: boolean;
   hasPermissionCache: boolean;
   onEnablePush: (source: NotificationPromptSource) => Promise<boolean>;
   onTogglePermission: (source: NotificationPromptSource) => Promise<unknown>;
@@ -28,7 +28,7 @@ export const usePushNotificationMutation = (): UsePushNotificationMutation => {
   const { onSourceChange, OneSignal, isSubscribed, shouldOpenPopup } =
     usePushNotificationContext();
   const { user } = useAuthContext();
-  const { onAcceptedJustNow } = useAcceptedPushNow();
+  const [acceptedJustNow, onAcceptedJustNow] = useState(false);
   const { completeAction, checkHasCompleted } = useActions();
   const [permissionCache, setPermissionCache] = usePermissionCache();
 
@@ -112,6 +112,7 @@ export const usePushNotificationMutation = (): UsePushNotificationMutation => {
   return {
     hasPermissionCache: permissionCache === 'granted',
     onTogglePermission,
+    acceptedJustNow,
     onEnablePush,
   };
 };

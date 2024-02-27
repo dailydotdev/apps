@@ -12,7 +12,6 @@ import { VIcon, BellNotifyIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { useEnableNotification } from '../../hooks/notifications';
-import { useAcceptedPushNow } from '../../hooks/notifications/useAcceptedPushNow';
 
 type EnableNotificationProps = {
   source?: NotificationPromptSource;
@@ -53,10 +52,8 @@ function EnableNotification({
   className,
   label,
 }: EnableNotificationProps): ReactElement {
-  const { acceptedJustNow } = useAcceptedPushNow();
-  const { shouldShowCta, onEnable, onDismiss } = useEnableNotification({
-    source,
-  });
+  const { shouldShowCta, acceptedJustNow, onEnable, onDismiss } =
+    useEnableNotification({ source });
 
   if (!shouldShowCta) {
     return null;

@@ -6,7 +6,6 @@ import {
   NotificationPromptSource,
   TargetType,
 } from '../../lib/analytics';
-import { useAcceptedPushNow } from './useAcceptedPushNow';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { checkIsExtension } from '../../lib/func';
@@ -18,6 +17,7 @@ interface UseEnableNotificationProps {
 }
 
 interface UseEnableNotification {
+  acceptedJustNow: boolean;
   shouldShowCta: boolean;
   onDismiss: () => void;
   onEnable: () => Promise<boolean>;
@@ -28,10 +28,10 @@ export const useEnableNotification = ({
 }: UseEnableNotificationProps): UseEnableNotification => {
   const isExtension = checkIsExtension();
   const { trackEvent } = useAnalyticsContext();
-  const { isInitialized, isPushSupported, isSubscribed } =
+  const { isInitialized, isPushSupported, isSubscribed, shouldOpenPopup } =
     usePushNotificationContext();
-  const { hasPermissionCache, onEnablePush } = usePushNotificationMutation();
-  const { acceptedJustNow } = useAcceptedPushNow();
+  const { hasPermissionCache, acceptedJustNow, onEnablePush } =
+    usePushNotificationMutation();
   const [isDismissed, setIsDismissed, isLoaded] = usePersistentContext(
     DISMISS_PERMISSION_BANNER,
     false,
@@ -49,16 +49,19 @@ export const useEnableNotification = ({
     [source, onEnablePush],
   );
 
-  const hasEnabled = (isSubscribed || hasPermissionCache) && acceptedJustNow;
+  const subscribed = isSubscribed || (shouldOpenPopup && hasPermissionCache);
+  const enabledJustNow = subscribed && acceptedJustNow;
 
   const conditions = [
     isLoaded,
+    !subscribed,
     !isDismissed,
     isInitialized,
     isPushSupported || isExtension,
-    !hasEnabled || source !== NotificationPromptSource.SquadPostModal,
   ];
-  const shouldShowCta = conditions.every(Boolean);
+  const shouldShowCta =
+    conditions.every(Boolean) ||
+    (enabledJustNow && source !== NotificationPromptSource.SquadPostModal);
 
   useEffect(() => {
     if (!shouldShowCta) {
@@ -75,6 +78,7 @@ export const useEnableNotification = ({
   }, [shouldShowCta]);
 
   return {
+    acceptedJustNow,
     shouldShowCta,
     onDismiss,
     onEnable,
