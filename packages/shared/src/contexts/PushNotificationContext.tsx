@@ -16,7 +16,6 @@ import { generateQueryKey, RequestKey } from '../lib/query';
 import { isTesting } from '../lib/constants';
 import { useAnalyticsContext } from './AnalyticsContext';
 import { SubscriptionCallback } from '../components/notifications/utils';
-import { BootApp } from '../lib/boot';
 
 export interface PushNotificationsContextData {
   OneSignal: typeof OneSignal;
@@ -45,6 +44,9 @@ interface PushNotificationContextProviderProps {
   children: ReactElement;
 }
 
+/**
+ * This context provider should only be used in the webapp
+ */
 export function PushNotificationContextProvider({
   children,
 }: PushNotificationContextProviderProps): ReactElement {
@@ -56,20 +58,25 @@ export function PushNotificationContextProvider({
   const [isSubscribed, setIsSubscribed] = useState(false);
   const { user } = useAuthContext();
   const { trackEvent } = useAnalyticsContext();
-  const subscriptionCallbackRef = useRef<SubscriptionCallback>(
-    (isSubscribedNew, source, existing_permission) => {
-      if (isSubscribedNew) {
-        trackEvent({
-          event_name: AnalyticsEvent.ClickEnableNotification,
-          extra: JSON.stringify({
-            origin: source || notificationSourceRef.current,
-            permission: 'granted',
-            ...(existing_permission && { existing_permission }),
-          }),
-        });
-      }
-    },
-  );
+  const subscriptionCallback: SubscriptionCallback = (
+    isSubscribedNew,
+    source,
+    existing_permission,
+  ) => {
+    if (isSubscribedNew) {
+      trackEvent({
+        event_name: AnalyticsEvent.ClickEnableNotification,
+        extra: JSON.stringify({
+          origin: source || notificationSourceRef.current,
+          permission: 'granted',
+          ...(existing_permission && { existing_permission }),
+        }),
+      });
+    }
+  };
+  const subscriptionCallbackRef =
+    useRef<SubscriptionCallback>(subscriptionCallback);
+  subscriptionCallbackRef.current = subscriptionCallback;
   const isEnabled = !!user && !isTesting;
   const key = generateQueryKey(RequestKey.OneSignal, user);
   const client = useQueryClient();
