@@ -48,7 +48,7 @@ export * from './Hashtag';
 export * from './Home';
 export * from './Hot';
 export * from './Image';
-export * from './Integration';
+export * from './ReputationLightning';
 export * from './Invite';
 export * from './Magic';
 export * from './Clear';

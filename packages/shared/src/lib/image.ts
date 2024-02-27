@@ -13,7 +13,7 @@ export const cloudinary = {
   },
   post: {
     imageCoverPlaceholder:
-      'https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1',
+      'https://res.cloudinary.com/daily-now/image/upload/s--EY5owj5E--/f_auto/v1708962997/public/Fallback%20ads%2001',
   },
   feedFilters: {
     recommended:
