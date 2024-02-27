@@ -44,6 +44,11 @@ interface UseAccountEmailProps {
 
 type EmailFlow = AuthFlow.Recovery | AuthFlow.Verification;
 
+const FlowActionURLs: Record<EmailFlow, string> = {
+  [AuthFlow.Recovery]: `${authUrl}/self-service/recovery?flow=`,
+  [AuthFlow.Verification]: `${authUrl}/self-service/verification?flow=`,
+};
+
 function useAccountEmailFlow({
   flow,
   flowId,
@@ -129,12 +134,13 @@ function useAccountEmailFlow({
   const { mutateAsync: verifyCode } = useMutation(
     ({ code, altFlowId }: { code: string; altFlowId?: string }) =>
       submitKratosFlow({
-        action: `${authUrl}/self-service/verification?flow=${
-          altFlowId ?? activeFlow
-        }`,
+        action: FlowActionURLs[flow] + (altFlowId ?? activeFlow),
         params: {
           code,
           method: 'code',
+          ...(flow === AuthFlow.Recovery && {
+            csrf_token: getNodeValue('csrf_token', emailFlow.ui.nodes),
+          }),
         },
       } as VerifyEmail),
     {
