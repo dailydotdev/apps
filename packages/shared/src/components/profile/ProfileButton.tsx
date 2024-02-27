@@ -46,9 +46,7 @@ export default function ProfileButton({
           >
             <ReputationUserBadge
               className="ml-3 !typo-callout"
-              user={{
-                reputation: user.reputation ?? 0,
-              }}
+              user={user}
               iconProps={{
                 size: IconSize.Medium,
               }}

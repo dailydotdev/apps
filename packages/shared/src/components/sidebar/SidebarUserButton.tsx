@@ -27,9 +27,7 @@ export function SidebarUserButton({
                   <ProfilePicture user={user} size="large" />
                   <ReputationUserBadge
                     className="ml-2 mr-3 !typo-callout"
-                    user={{
-                      reputation: user.reputation ?? 0,
-                    }}
+                    user={user}
                     iconProps={{
                       size: IconSize.Medium,
                     }}

@@ -18,7 +18,7 @@ export const ReputationUserBadge = ({
   user,
   ...rest
 }: ReputationUserBadgeProps): ReactElement => {
-  if (!user?.reputation) {
+  if (typeof user?.reputation !== 'number') {
     return null;
   }
 
