@@ -3,6 +3,7 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
+  useMemo,
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
@@ -12,7 +13,7 @@ import FeedContext from '../../contexts/FeedContext';
 import styles from '../Feed.module.css';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import { OnboardingV4dot5 } from '../../lib/featureValues';
+import { OnboardingV4dot5, UserAcquisition } from '../../lib/featureValues';
 import { FeedReadyMessage } from '../onboarding';
 import { useFeedLayout, ToastSubject, useToastNotification } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -112,11 +113,30 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
-  const { user } = useAuthContext();
+  const { user, isLoggedIn } = useAuthContext();
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
   const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
+  const userAcquisitionVersion = useFeature(feature.userAcquisition);
+  const showAcquisitionForm =
+    isLoggedIn &&
+    feedName == SharedFeedPage.MyFeed &&
+    userAcquisitionVersion === UserAcquisition.V1 &&
+    (router.query?.[acquisitionKey] as string)?.toLocaleLowerCase() ===
+      'true' &&
+    !user?.acquisitionChannel;
+  const childItems = useMemo(() => {
+    const childrenArray = React.Children.toArray(children);
+    if (showAcquisitionForm) {
+      return [
+        <AcquisitionFormCard key="user-acquisition-card" />,
+        ...childrenArray.slice(1),
+      ];
+    }
+    return childrenArray;
+  }, [children]);
+
   const isOnboardingV4dot5 = onboardingV4dot5 === OnboardingV4dot5.V4dot5;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
@@ -136,9 +156,6 @@ export const FeedContainer = ({
   }
 
   const showFeedReadyMessage = router.query?.welcome === 'true';
-  const showAcquisitionForm =
-    router.query?.[acquisitionKey] === 'true' && !user?.acquisitionChannel;
-
   return (
     <div
       className={classNames(
@@ -211,8 +228,7 @@ export const FeedContainer = ({
                 cardClass(isList, numCards),
               )}
             >
-              {showAcquisitionForm && <AcquisitionFormCard />}
-              {children}
+              {childItems}
             </div>
           </ConditionalWrapper>
         </div>

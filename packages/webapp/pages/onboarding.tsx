@@ -158,12 +158,13 @@ export function OnboardPage(): ReactElement {
 
     return router.replace({
       pathname: '/',
-      ...(!onboardingOptimizations && {
-        query: {
+      query: {
+        ua: 'true',
+        ...(!onboardingOptimizations && {
           welcome: 'true',
           hset: 'true',
-        },
-      }),
+        }),
+      },
     });
   };
 
