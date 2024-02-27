@@ -10,7 +10,7 @@ import React, {
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import OneSignal from 'react-onesignal';
 import { AnalyticsEvent, NotificationPromptSource } from '../lib/analytics';
-import { disabledRefetch } from '../lib/func';
+import { checkIsExtension, disabledRefetch } from '../lib/func';
 import { useAuthContext } from './AuthContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { isTesting } from '../lib/constants';
@@ -43,13 +43,12 @@ export const PushNotificationsContext =
 
 interface PushNotificationContextProviderProps {
   children: ReactElement;
-  app: BootApp;
 }
 
 export function PushNotificationContextProvider({
   children,
-  app,
 }: PushNotificationContextProviderProps): ReactElement {
+  const isExtension = checkIsExtension();
   const notificationSourceRef = useRef<string>();
   const onSourceChange = useCallback((source) => {
     notificationSourceRef.current = source;
@@ -111,8 +110,6 @@ export function PushNotificationContextProvider({
     [],
   );
 
-  const shouldOpenPopup = app !== BootApp.Webapp;
-
   useEffect(() => {
     if (!OneSignalCache) {
       return undefined;
@@ -131,6 +128,12 @@ export function PushNotificationContextProvider({
     };
   }, [OneSignalCache]);
 
+  if (isExtension) {
+    throw new Error(
+      'PushNotificationContextProvider should only be used in the webapp',
+    );
+  }
+
   return (
     <PushNotificationsContext.Provider
       value={{
@@ -140,9 +143,8 @@ export function PushNotificationContextProvider({
         isPushSupported,
         onSourceChange,
         trackPermissionGranted,
-        shouldOpenPopup,
-        OneSignal:
-          isEnabled && isFetched && !shouldOpenPopup ? OneSignalCache : null,
+        shouldOpenPopup: false,
+        OneSignal: isEnabled && isFetched ? OneSignalCache : null,
       }}
     >
       {children}

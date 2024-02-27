@@ -195,7 +195,7 @@ export default function App(props: AppProps): ReactElement {
           version={version}
           deviceId={deviceId}
         >
-          <PushNotificationContextProvider app={BootApp.Webapp}>
+          <PushNotificationContextProvider>
             <SubscriptionContextProvider>
               <OnboardingContextProvider>
                 <InternalApp {...props} />
