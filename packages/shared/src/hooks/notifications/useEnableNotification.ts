@@ -9,6 +9,7 @@ import {
 import { useAcceptedPushNow } from './useAcceptedPushNow';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
+import { checkIsExtension } from '../../lib/func';
 
 export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 
@@ -25,6 +26,7 @@ interface UseEnableNotification {
 export const useEnableNotification = ({
   source = NotificationPromptSource.NotificationsPage,
 }: UseEnableNotificationProps): UseEnableNotification => {
+  const isExtension = checkIsExtension();
   const { trackEvent } = useAnalyticsContext();
   const { isInitialized, isPushSupported, isSubscribed } =
     usePushNotificationContext();
@@ -50,14 +52,13 @@ export const useEnableNotification = ({
   const hasEnabled = (isSubscribed || hasPermissionCache) && acceptedJustNow;
 
   const conditions = [
-    !isLoaded,
-    isDismissed,
-    !isInitialized,
-    !isPushSupported,
-    (isSubscribed || hasPermissionCache) && !acceptedJustNow,
-    hasEnabled && source === NotificationPromptSource.SquadPostModal,
+    isLoaded,
+    !isDismissed,
+    isInitialized,
+    isPushSupported || isExtension,
+    !hasEnabled || source !== NotificationPromptSource.SquadPostModal,
   ];
-  const shouldShowCta = !conditions.some((passed) => passed);
+  const shouldShowCta = conditions.every(Boolean);
 
   useEffect(() => {
     if (!shouldShowCta) {
