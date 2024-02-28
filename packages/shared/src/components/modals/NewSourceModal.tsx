@@ -9,7 +9,6 @@ import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
 import request from 'graphql-request';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { SearchField } from '../fields/SearchField';
 import { Radio } from '../fields/Radio';
 import { formToJson } from '../../lib/form';
 import { apiUrl, graphqlUrl } from '../../lib/config';
@@ -27,12 +26,14 @@ import PushNotificationModal from './PushNotificationModal';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import Alert, { AlertType } from '../widgets/Alert';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
-import { OpenLinkIcon } from '../icons';
+import { LinkIcon, LockIcon, OpenLinkIcon } from '../icons';
 import {
   DISMISS_PERMISSION_BANNER,
   usePushNotificationMutation,
 } from '../../hooks/notifications';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
+import { TextField } from '../fields/TextField';
+import { ReputationAlert } from './ReputationAlert';
 
 interface RSS {
   url: string;
@@ -214,6 +215,9 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     ...props,
   };
 
+  // TODO AS-136-submit-content-modal update with value from API
+  const isEnabled = false;
+
   if (showNotification) {
     return <PushNotificationModal {...modalProps} />;
   }
@@ -242,23 +246,35 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
           data-testid={`login state: ${loginState?.trigger}`}
           id="submit-source"
         >
-          <SearchField
-            disabled={!!feeds?.length}
-            className="my-4"
+          <TextField
+            disabled={!isEnabled}
+            className={{
+              container: 'mt-4',
+            }}
             inputId="new-source-field"
             name="url"
+            label="Paste blog / RSS URL"
             placeholder="Paste blog / RSS URL"
-            showIcon={false}
             autoComplete="off"
             type="url"
             autoFocus
             aria-describedby={scrapeError && 'new-source-field-desc'}
             valueChanged={onUrlChanged}
             fieldType="primary"
-            rightButtonProps={false}
+            leftIcon={<LinkIcon />}
+            rightIcon={
+              isEnabled ? (
+                <LockIcon className="text-theme-label-disabled" />
+              ) : undefined
+            }
+            style={{
+              // needed to overwrite fill from base.css input style
+              // to make the placeholder color work
+              WebkitTextFillColor: 'unset',
+            }}
           />
         </form>
-        {existingSource && (
+        {isEnabled && existingSource && (
           <Alert
             className="mt-4"
             type={AlertType.Error}
@@ -274,6 +290,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
             }
           />
         )}
+        {!isEnabled && <ReputationAlert />}
         {!!feeds?.length && !existingSource && (
           <>
             <div className="mb-6 self-start text-theme-label-tertiary typo-callout">

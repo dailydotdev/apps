@@ -40,7 +40,6 @@ function TextFieldComponent(
     validityChanged,
     valueChanged,
     placeholder,
-    style,
     fieldType = 'primary',
     isLocked,
     readOnly = isLocked,

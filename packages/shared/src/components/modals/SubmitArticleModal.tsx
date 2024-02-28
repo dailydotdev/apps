@@ -25,7 +25,7 @@ import {
 import PostItemCard from '../post/PostItemCard';
 import { PostItem } from '../../graphql/posts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { LinkIcon } from '../icons';
+import { LinkIcon, LockIcon } from '../icons';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Modal, ModalProps } from './common/Modal';
 import EnableNotification from '../notifications/EnableNotification';
@@ -35,6 +35,7 @@ import {
   NotificationPromptSource,
 } from '../../lib/analytics';
 import { Justify } from '../utilities';
+import { ReputationAlert } from './ReputationAlert';
 
 const defaultErrorMessage = 'Something went wrong, try again';
 
@@ -143,13 +144,7 @@ export default function SubmitArticleModal({
     }
 
     if (!isEnabled) {
-      return (
-        <Alert
-          className="mt-4"
-          type={AlertType.Error}
-          title="You do not have enough reputation to use this feature yet."
-        />
-      );
+      return <ReputationAlert />;
     }
 
     return (
@@ -237,6 +232,11 @@ export default function SubmitArticleModal({
               type="url"
               autoComplete="off"
               leftIcon={<LinkIcon />}
+              rightIcon={
+                !isEnabled ? (
+                  <LockIcon className="text-theme-label-disabled" />
+                ) : undefined
+              }
               fieldType="tertiary"
               name="articleUrl"
               inputId="article_url"
@@ -245,6 +245,11 @@ export default function SubmitArticleModal({
               hint={urlHint}
               valid={!urlHint}
               valueChanged={onUrlChanged}
+              style={{
+                // needed to overwrite fill from base.css input style
+                // to make the placeholder color work
+                WebkitTextFillColor: 'unset',
+              }}
             />
             {isSubmitted ? (
               <Alert
