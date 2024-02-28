@@ -17,7 +17,7 @@ export const ReputationAlert = ({
           You do not have enough reputation to use this feature yet. However,
           you can{' '}
           <Link href="/squads/new">
-            <a className="underline">create a Squad</a>
+            <a className="font-bold underline">create a Squad</a>
           </Link>{' '}
           instead where you can share your favorite content , invite your
           friends and colleagues and a lot more!
