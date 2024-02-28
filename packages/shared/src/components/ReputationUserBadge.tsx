@@ -2,9 +2,9 @@ import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import UserBadge, { UserBadgeProps } from './UserBadge';
 import { ReputationIcon } from './icons';
-import { kFormatter } from '../lib';
 import { LoggedUser } from '../lib/user';
 import { SimpleTooltip } from './tooltips';
+import { largeNumberFormat } from '../lib';
 
 export type ReputationUserBadgeProps = Omit<
   UserBadgeProps,
@@ -35,7 +35,7 @@ export const ReputationUserBadge = ({
         <UserBadge
           {...rest}
           className={classNames(className, 'text-theme-label-primary')}
-          content={kFormatter(user.reputation)}
+          content={largeNumberFormat(user.reputation)}
           Icon={ReputationIcon}
           iconProps={{
             ...iconProps,
