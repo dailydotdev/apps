@@ -71,7 +71,7 @@ function InteractivePopup({
   position = InteractivePopupPosition.Center,
   closeOutsideClick,
   onClose,
-  closeButton,
+  closeButton = {},
   ...props
 }: InteractivePopupProps): ReactElement {
   const {
