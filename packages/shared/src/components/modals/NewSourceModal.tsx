@@ -249,7 +249,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
           id="submit-source"
         >
           <TextField
-            disabled={!isEnabled}
+            disabled={!isEnabled || !!feeds?.length}
             className={{
               container: 'mt-4',
             }}
