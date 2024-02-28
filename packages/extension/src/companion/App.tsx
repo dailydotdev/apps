@@ -115,7 +115,6 @@ export default function App({
                     getPage={() => url}
                   >
                     <NotificationsContextProvider
-                      app={app}
                       isNotificationsReady={false}
                       unreadCount={0}
                     >

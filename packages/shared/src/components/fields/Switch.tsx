@@ -32,7 +32,7 @@ export function Switch({
       className={classNames(
         className,
         'group relative flex items-center',
-        disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+        disabled ? 'pointer-events-none cursor-not-allowed' : 'cursor-pointer',
         styles.switch,
       )}
       htmlFor={inputId}

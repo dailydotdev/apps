@@ -13,6 +13,7 @@ import {
   StarIcon,
   DevCardIcon,
 } from '../icons';
+import { NotificationPromptSource } from '../../lib/analytics';
 
 export const NotifContainer = classed(
   'div',
@@ -137,3 +138,9 @@ export const notificationMutingCopy: Partial<
     unmute: 'Unmute this thread',
   },
 };
+
+export type SubscriptionCallback = (
+  isSubscribed: boolean,
+  source?: NotificationPromptSource,
+  existing_permission?: boolean,
+) => unknown;

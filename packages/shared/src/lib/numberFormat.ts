@@ -7,15 +7,11 @@ export function largeNumberFormat(value: number): string {
     suffixNum += 1;
   }
   if (suffixNum > 0) {
-    return newValue.toFixed(1) + suffixes[suffixNum];
+    const remainder = newValue % 1;
+    return (
+      newValue.toFixed(remainder >= 0 && remainder < 0.1 ? 0 : 1) +
+      suffixes[suffixNum]
+    );
   }
   return newValue.toString();
 }
-
-export const kFormatter = (num: number): string | number => {
-  const kRemainder = num % 1000;
-
-  return Math.abs(num) > 999
-    ? `${(num / 1000).toFixed(kRemainder < 100 || kRemainder > 900 ? 0 : 1)}K`
-    : num;
-};
