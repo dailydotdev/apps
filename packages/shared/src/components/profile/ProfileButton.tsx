@@ -52,7 +52,7 @@ export default function ProfileButton({
               }}
               disableTooltip
             />
-            <ProfilePicture user={user} size="large" />
+            <ProfilePicture user={user} size="large" nativeLazyLoading />
           </button>
         </SimpleTooltip>
       )}

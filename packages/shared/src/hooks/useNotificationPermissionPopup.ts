@@ -1,6 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useCallback } from 'react';
 import { webappUrl } from '../lib/constants';
-import usePersistentContext from './usePersistentContext';
 import { NotificationPromptSource } from '../lib/analytics';
 import { useEventListener, MessageEventData } from './useEventListener';
 
@@ -10,38 +9,25 @@ export interface PermissionEvent extends MessageEventData {
 
 export interface UseNotificationPermissionPopup {
   onOpenPopup?: (source: NotificationPromptSource) => void;
-  onPermissionCache?: (permission: NotificationPermission) => void;
-  onAcceptedPermissionJustNow: (state: boolean) => void;
-  acceptedPermissionJustNow: boolean;
-  hasPermissionCache: boolean;
 }
 
 interface UseNotificationPermissionPopupProps {
-  onSuccess?: (permission: NotificationPermission) => void;
+  onPermissionChange?: (permission: NotificationPermission) => void;
 }
 
 export const ENABLE_NOTIFICATION_WINDOW_KEY = 'enableNotificationMessage';
-const PERMISSION_NOTIFICATION_KEY = 'permission:notification';
 
 export const useNotificationPermissionPopup = ({
-  onSuccess,
+  onPermissionChange,
 }: UseNotificationPermissionPopupProps = {}): UseNotificationPermissionPopup => {
-  const [acceptedPermissionJustNow, setAcceptedPermissionJustNow] =
-    useState(false);
-  const [permissionCache, setPermissionCache] =
-    usePersistentContext<NotificationPermission>(
-      PERMISSION_NOTIFICATION_KEY,
-      'default',
-    );
-
-  const onOpenPopup = (source: NotificationPromptSource) => {
+  const onOpenPopup = useCallback((source: NotificationPromptSource) => {
     const params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=728,height=756,left=100,top=100`;
     window.open(
       `${webappUrl}popup/notifications/enable?source=${source}`,
       'Enable notifications popup',
       params,
     );
-  };
+  }, []);
 
   useEventListener(globalThis, 'message', (e) => {
     if (e.data?.eventKey !== ENABLE_NOTIFICATION_WINDOW_KEY) {
@@ -54,23 +40,8 @@ export const useNotificationPermissionPopup = ({
       return;
     }
 
-    setAcceptedPermissionJustNow(permission === 'granted');
-    setPermissionCache(permission);
-    if (onSuccess) {
-      onSuccess(permission);
-    }
+    onPermissionChange(permission);
   });
 
-  return useMemo(
-    () => ({
-      onOpenPopup,
-      hasPermissionCache: permissionCache === 'granted',
-      acceptedPermissionJustNow,
-      onAcceptedPermissionJustNow: setAcceptedPermissionJustNow,
-      onPermissionCache: setPermissionCache,
-    }),
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [permissionCache, acceptedPermissionJustNow],
-  );
+  return { onOpenPopup };
 };

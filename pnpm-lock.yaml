@@ -22,7 +22,7 @@ importers:
         version: 3.9.4(eslint@7.32.0)
       eslint-plugin-testing-library:
         specifier: ^3.10.2
-        version: 3.10.2(eslint@7.32.0)(typescript@4.6.4)
+        version: 3.10.2(typescript@4.6.4)
     devDependencies:
       '@dailydotdev/eslint-plugin-daily-dev-eslint-rules':
         specifier: '*'
@@ -50,7 +50,7 @@ importers:
         version: 6.5.1(eslint@7.32.0)
       eslint-plugin-prettier:
         specifier: ^3.3.1
-        version: 3.4.1(eslint-config-prettier@8.5.0)(eslint@7.32.0)(prettier@2.8.8)
+        version: 3.4.1(eslint-config-prettier@8.5.0)(prettier@2.8.8)
       eslint-plugin-react:
         specifier: ^7.24.0
         version: 7.29.4(eslint@7.32.0)
@@ -424,8 +424,8 @@ importers:
         specifier: ^8.0.7
         version: 8.0.7(@types/react@17.0.47)(react@17.0.2)
       react-onesignal:
-        specifier: ^2.0.4
-        version: 2.0.4(react@17.0.2)
+        specifier: ^3.0.1
+        version: 3.0.1(react@17.0.2)
       react-syntax-highlighter:
         specifier: ^15.5.0
         version: 15.5.0(react@17.0.2)
@@ -700,7 +700,7 @@ importers:
         version: 7.6.1
       '@storybook/addon-designs':
         specifier: ^7.0.9
-        version: 7.0.9(@storybook/addon-docs@7.6.10)(@storybook/addons@7.6.14)(@storybook/components@7.6.1)(@storybook/manager-api@7.6.1)(@storybook/preview-api@7.6.1)(@storybook/theming@7.6.10)(react-dom@17.0.2)(react@17.0.2)
+        version: 7.0.9(@storybook/addon-docs@7.6.10)(@storybook/addons@7.6.14)(@storybook/components@7.6.10)(@storybook/manager-api@7.6.14)(@storybook/preview-api@7.6.14)(@storybook/theming@7.6.10)(react-dom@17.0.2)(react@17.0.2)
       '@storybook/addon-docs':
         specifier: ^7.6.10
         version: 7.6.10(react-dom@17.0.2)(react@17.0.2)
@@ -5844,7 +5844,7 @@ packages:
       - supports-color
     dev: true
 
-  /@storybook/addon-designs@7.0.9(@storybook/addon-docs@7.6.10)(@storybook/addons@7.6.14)(@storybook/components@7.6.1)(@storybook/manager-api@7.6.1)(@storybook/preview-api@7.6.1)(@storybook/theming@7.6.10)(react-dom@17.0.2)(react@17.0.2):
+  /@storybook/addon-designs@7.0.9(@storybook/addon-docs@7.6.10)(@storybook/addons@7.6.14)(@storybook/components@7.6.10)(@storybook/manager-api@7.6.14)(@storybook/preview-api@7.6.14)(@storybook/theming@7.6.10)(react-dom@17.0.2)(react@17.0.2):
     resolution: {integrity: sha512-xJdw1/FgkC8ovTdRIL5FyEJaXtF1XPxsb6rsl2jByG+8tXyM0PJ/yFEkBrqn35Dei2i4N7x8EHXFd8DnzriBRg==}
     peerDependencies:
       '@storybook/addon-docs': ^7.0.0
@@ -5864,9 +5864,9 @@ packages:
       '@figspec/react': 1.0.3(react@17.0.2)
       '@storybook/addon-docs': 7.6.10(react-dom@17.0.2)(react@17.0.2)
       '@storybook/addons': 7.6.14(react-dom@17.0.2)(react@17.0.2)
-      '@storybook/components': 7.6.1(react-dom@17.0.2)(react@17.0.2)
-      '@storybook/manager-api': 7.6.1(react-dom@17.0.2)(react@17.0.2)
-      '@storybook/preview-api': 7.6.1
+      '@storybook/components': 7.6.10(react-dom@17.0.2)(react@17.0.2)
+      '@storybook/manager-api': 7.6.14(react-dom@17.0.2)(react@17.0.2)
+      '@storybook/preview-api': 7.6.14
       '@storybook/theming': 7.6.10(react-dom@17.0.2)(react@17.0.2)
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
@@ -7928,7 +7928,7 @@ packages:
       - supports-color
     dev: true
 
-  /@typescript-eslint/experimental-utils@3.10.1(eslint@7.32.0)(typescript@4.6.4):
+  /@typescript-eslint/experimental-utils@3.10.1(typescript@4.6.4):
     resolution: {integrity: sha512-DewqIgscDzmAfd5nOGe4zm6Bl7PKtMG2Ad0KG8CUZAHlXfAKTF9Ol5PXhiMh39yRL2ChRH1cuuUGOcVyyrhQIw==}
     engines: {node: ^10.12.0 || >=12.0.0}
     peerDependencies:
@@ -7937,7 +7937,6 @@ packages:
       '@types/json-schema': 7.0.12
       '@typescript-eslint/types': 3.10.1
       '@typescript-eslint/typescript-estree': 3.10.1(typescript@4.6.4)
-      eslint: 7.32.0
       eslint-scope: 5.1.1
       eslint-utils: 2.1.0
     transitivePeerDependencies:
@@ -11482,7 +11481,7 @@ packages:
       prettier-linter-helpers: 1.0.0
     dev: true
 
-  /eslint-plugin-prettier@3.4.1(eslint-config-prettier@8.5.0)(eslint@7.32.0)(prettier@2.8.8):
+  /eslint-plugin-prettier@3.4.1(eslint-config-prettier@8.5.0)(prettier@2.8.8):
     resolution: {integrity: sha512-htg25EUYUeIhKHXjOinK4BgCcDwtLHjqaxCDsMy5nbnUMkKFvIhMVCp+5GFUXQ4Nr8lBsPqtGAqBenbpFqAA2g==}
     engines: {node: '>=6.0.0'}
     peerDependencies:
@@ -11493,7 +11492,6 @@ packages:
       eslint-config-prettier:
         optional: true
     dependencies:
-      eslint: 7.32.0
       eslint-config-prettier: 8.5.0(eslint@7.32.0)
       prettier: 2.8.8
       prettier-linter-helpers: 1.0.0
@@ -11569,14 +11567,13 @@ packages:
       tailwindcss: 3.4.1
     dev: true
 
-  /eslint-plugin-testing-library@3.10.2(eslint@7.32.0)(typescript@4.6.4):
+  /eslint-plugin-testing-library@3.10.2(typescript@4.6.4):
     resolution: {integrity: sha512-WAmOCt7EbF1XM8XfbCKAEzAPnShkNSwcIsAD2jHdsMUT9mZJPjLCG7pMzbcC8kK366NOuGip8HKLDC+Xk4yIdA==}
     engines: {node: ^10.12.0 || >=12.0.0, npm: '>=6'}
     peerDependencies:
       eslint: ^5 || ^6 || ^7
     dependencies:
-      '@typescript-eslint/experimental-utils': 3.10.1(eslint@7.32.0)(typescript@4.6.4)
-      eslint: 7.32.0
+      '@typescript-eslint/experimental-utils': 3.10.1(typescript@4.6.4)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -17324,8 +17321,8 @@ packages:
       react-lifecycles-compat: 3.0.4
       warning: 4.0.3
 
-  /react-onesignal@2.0.4(react@17.0.2):
-    resolution: {integrity: sha512-llZ4PV1+EsWWZDt0BRils6gAxaxMoYP0Z3rlNivQy4xqUaiO1/PcRaIJ6CuzCci/koDsw5IzLOXEHlV4Yn+d9Q==}
+  /react-onesignal@3.0.1(react@17.0.2):
+    resolution: {integrity: sha512-AfAtGdXRcuMhVf+9OXehGcQeiJIYl1ihAByvfVNa3RCA1Vnn19tBha4XQB+o3ukUh2IQn0yiflRO4vXgI9nOng==}
     engines: {node: '>=8', npm: '>=5'}
     peerDependencies:
       react: '>= 16.8'
