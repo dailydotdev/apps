@@ -5,6 +5,7 @@ import { ReputationIcon } from './icons';
 import { LoggedUser } from '../lib/user';
 import { SimpleTooltip } from './tooltips';
 import { largeNumberFormat } from '../lib';
+import { IconSize } from './Icon';
 
 export type ReputationUserBadgeProps = Omit<
   UserBadgeProps,
@@ -43,6 +44,7 @@ export const ReputationUserBadge = ({
               iconProps?.className,
               'text-theme-color-onion',
             ),
+            size: iconProps?.size || IconSize.XSmall,
           }}
           removeMargins
         />
