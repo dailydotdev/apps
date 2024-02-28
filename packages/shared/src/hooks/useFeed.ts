@@ -70,6 +70,7 @@ const findIndexOfPostInData = (
 type UseFeedSettingParams = {
   adPostLength?: number;
   disableAds?: boolean;
+  showAcquisitionForm?: boolean;
 };
 
 export interface UseFeedOptionalParams<T> {
@@ -157,7 +158,9 @@ export default function useFeed<T>(
             index,
           }));
 
-          if (isAdsQueryEnabled) {
+          if (!!settings.showAcquisitionForm) {
+            posts.splice(adSpot, 0, { type: 'userAcquisition' });
+          } else if (isAdsQueryEnabled) {
             if (adsQuery.data?.pages[pageIndex]) {
               posts.splice(adSpot, 0, {
                 type: 'ad',
@@ -187,6 +190,7 @@ export default function useFeed<T>(
     feedQuery.isFetching,
     adsQuery.data,
     adsQuery.isFetching,
+    settings.showAcquisitionForm,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);

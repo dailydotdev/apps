@@ -145,8 +145,14 @@ export default function Feed<T>({
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const showAcquisitionForm =
+    isLoggedIn &&
+    feedName === SharedFeedPage.MyFeed &&
+    (router.query?.[acquisitionKey] as string)?.toLocaleLowerCase() ===
+      'true' &&
+    !user?.acquisitionChannel;
   const {
-    items: feedItems,
+    items,
     updatePost,
     removePost,
     fetchPage,
@@ -166,29 +172,10 @@ export default function Feed<T>({
       settings: {
         disableAds,
         adPostLength: isSquadFeed ? 2 : undefined,
+        showAcquisitionForm,
       },
     },
   );
-  const showAcquisitionForm =
-    isLoggedIn &&
-    feedName === SharedFeedPage.MyFeed &&
-    (router.query?.[acquisitionKey] as string)?.toLocaleLowerCase() ===
-      'true' &&
-    !user?.acquisitionChannel;
-  const items = useMemo(() => {
-    if (showAcquisitionForm) {
-      const foundIndex = feedItems.findIndex((item) => !!(item as AdItem).ad);
-      // If there are no ads, we'll just replace the first item
-      const index = foundIndex > -1 ? foundIndex : 0;
-
-      return [
-        ...feedItems.slice(0, index),
-        { type: 'userAcquisition' } as UserAcquisitionItem,
-        ...feedItems.slice(index + 1),
-      ];
-    }
-    return feedItems;
-  }, [feedItems, showAcquisitionForm]);
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
