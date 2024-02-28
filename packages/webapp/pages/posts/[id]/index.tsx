@@ -54,7 +54,11 @@ import {
   authGradientBg,
 } from '@dailydotdev/shared/src/components/auth';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth/useOnboarding';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  useJoinReferral,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import LoginButton from '@dailydotdev/shared/src/components/LoginButton';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
@@ -91,6 +95,7 @@ interface PostParams extends ParsedUrlQuery {
 }
 
 const PostPage = ({ id, initialData }: Props): ReactElement => {
+  useJoinReferral();
   const { showArticleOnboarding } = useContext(OnboardingContext);
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
