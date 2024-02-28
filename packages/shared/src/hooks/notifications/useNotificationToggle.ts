@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { NotificationPromptSource } from '../../lib/analytics';
-import { useEnableNotification } from '../useEnableNotification';
+import { useEnableNotification } from './useEnableNotification';
 
 interface UseNotificationToggle {
   shouldShowCta: boolean;
@@ -24,9 +24,11 @@ export const useNotificationToggle = (): UseNotificationToggle => {
     await command();
   };
 
+  const onToggle = useCallback(() => setIsEnabled((state) => !state), []);
+
   return {
     isEnabled,
-    onToggle: () => setIsEnabled((state) => !state),
+    onToggle,
     shouldShowCta,
     onSubmitted,
   };

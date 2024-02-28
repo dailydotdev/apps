@@ -17,12 +17,19 @@ function getAsyncCache<T>(key, valueWhenCacheEmpty, validValues): Promise<T> {
     });
 }
 
+export type UserPersistentContextType<T> = [
+  T,
+  (value: T) => Promise<void>,
+  boolean,
+  boolean,
+];
+
 export default function usePersistentContext<T>(
   key: string,
   valueWhenCacheEmpty?: T,
   validValues?: T[],
   fallbackValue?: T,
-): [T, (value: T) => Promise<void>, boolean, boolean] {
+): UserPersistentContextType<T> {
   const queryKey = [key, valueWhenCacheEmpty];
   const queryClient = useQueryClient();
 
