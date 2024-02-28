@@ -37,6 +37,7 @@ import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import { ReputationPrivilegesModalTrigger } from '@dailydotdev/shared/src/components/modals';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -161,6 +162,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         canonical={canonicalFromRouter(router)}
         titleTemplate={unreadCount ? `(${unreadText}) %s` : '%s'}
       />
+      <ReputationPrivilegesModalTrigger />
       <LazyModalElement />
       {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
       {shouldShowLogin && (
