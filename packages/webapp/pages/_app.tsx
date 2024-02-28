@@ -162,8 +162,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         canonical={canonicalFromRouter(router)}
         titleTemplate={unreadCount ? `(${unreadText}) %s` : '%s'}
       />
-      <ReputationPrivilegesModalTrigger />
       <LazyModalElement />
+      <ReputationPrivilegesModalTrigger />
       {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
       {shouldShowLogin && (
         <AuthModal

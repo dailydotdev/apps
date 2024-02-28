@@ -33,6 +33,7 @@ import { useHostStatus } from '@dailydotdev/shared/src/hooks/useHostPermissionSt
 import ExtensionPermissionsPrompt from '@dailydotdev/shared/src/components/ExtensionPermissionsPrompt';
 import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
+import { ReputationPrivilegesModalTrigger } from '@dailydotdev/shared/src/components/modals';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -114,6 +115,7 @@ function InternalApp(): ReactElement {
   return (
     <DndContextProvider>
       <LazyModalElement />
+      <ReputationPrivilegesModalTrigger />
       <MainFeedPage onPageChanged={onPageChanged} />
       {shouldShowLogin && (
         <AuthModal
