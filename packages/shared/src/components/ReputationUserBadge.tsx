@@ -5,7 +5,6 @@ import { ReputationIcon } from './icons';
 import { kFormatter } from '../lib';
 import { LoggedUser } from '../lib/user';
 import { SimpleTooltip } from './tooltips';
-import { getShouldLoadTooltip } from './tooltips/BaseTooltip';
 
 export type ReputationUserBadgeProps = Omit<
   UserBadgeProps,
@@ -28,7 +27,7 @@ export const ReputationUserBadge = ({
 
   return (
     <SimpleTooltip
-      forceLoad={getShouldLoadTooltip() && !disableTooltip}
+      visible={disableTooltip ? false : undefined}
       content="Reputation"
       placement="bottom"
     >
