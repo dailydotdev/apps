@@ -36,6 +36,7 @@ import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
+import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -194,11 +195,13 @@ export default function App(props: AppProps): ReactElement {
           version={version}
           deviceId={deviceId}
         >
-          <SubscriptionContextProvider>
-            <OnboardingContextProvider>
-              <InternalApp {...props} />
-            </OnboardingContextProvider>
-          </SubscriptionContextProvider>
+          <PushNotificationContextProvider>
+            <SubscriptionContextProvider>
+              <OnboardingContextProvider>
+                <InternalApp {...props} />
+              </OnboardingContextProvider>
+            </SubscriptionContextProvider>
+          </PushNotificationContextProvider>
         </BootDataProvider>
 
         <ReactQueryDevtools />

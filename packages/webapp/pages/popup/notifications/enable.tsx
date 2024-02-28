@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import BrowserPermissionIcon from '@dailydotdev/shared/src/components/icons/BrowserPermission/primary.svg';
 import NotificationToggleIcon from '@dailydotdev/shared/src/components/icons/NotificationToggle/primary.svg';
-import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
 import React, { useEffect } from 'react';
@@ -9,6 +8,8 @@ import { ENABLE_NOTIFICATION_WINDOW_KEY } from '@dailydotdev/shared/src/hooks/us
 import { useRouter } from 'next/router';
 import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/analytics';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications';
 
 const InstructionContainer = classed(
   'div',
@@ -21,12 +22,9 @@ const Description = classed('p', 'typo-callout text-theme-label-tertiary');
 
 function Enable(): React.ReactElement {
   const router = useRouter();
-  const {
-    isSubscribed,
-    isInitialized,
-    onTogglePermission,
-    trackPermissionGranted,
-  } = useNotificationContext();
+  const { isSubscribed, isInitialized, trackPermissionGranted } =
+    usePushNotificationContext();
+  const { onEnablePush } = usePushNotificationMutation();
   const { sendBeacon } = useAnalyticsContext();
   const { source } = router.query;
 
@@ -50,12 +48,11 @@ function Enable(): React.ReactElement {
         return;
       }
 
-      const permission = await onTogglePermission(
-        source as NotificationPromptSource,
-      );
+      const isGranted = await onEnablePush(source as NotificationPromptSource);
+      const permission = isGranted ? 'granted' : 'denied';
       postWindowMessage(ENABLE_NOTIFICATION_WINDOW_KEY, { permission });
 
-      if (permission === 'granted') {
+      if (isGranted) {
         setTimeout(closeWindow, 1000);
       }
     };
