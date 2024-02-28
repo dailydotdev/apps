@@ -6,7 +6,6 @@ import { GrowthBook, GrowthBookProvider } from '@growthbook/growthbook-react';
 import AuthContext, { AuthContextData } from '../../src/contexts/AuthContext';
 import OnboardingContext from '../../src/contexts/OnboardingContext';
 import { OnboardingMode } from '../../src/graphql/feed';
-import { BootApp } from '../../src/lib/boot';
 import {
   NotificationsContextProvider,
   NotificationsContextProviderProps,
@@ -83,10 +82,7 @@ export const TestBootProvider = ({
                     onShouldUpdateFilters: jest.fn(),
                   }}
                 >
-                  <NotificationsContextProvider
-                    app={BootApp.Test}
-                    {...notification}
-                  >
+                  <NotificationsContextProvider {...notification}>
                     {children}
                     <LazyModalElement />
                   </NotificationsContextProvider>

@@ -43,7 +43,7 @@ describe('MainLayout', () => {
       infoConfirmed: true,
     });
     const [el] = await screen.findAllByAltText(`idoshamun's profile`);
-    expect(el).toHaveAttribute('data-src', 'https://daily.dev/ido.png');
+    expect(el).toHaveAttribute('src', 'https://daily.dev/ido.png');
     expect(await screen.findAllByText('5')).toHaveLength(2);
   });
 });

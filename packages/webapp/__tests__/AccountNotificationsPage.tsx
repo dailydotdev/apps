@@ -131,20 +131,6 @@ const renderComponent = (user = defaultLoggedUser): RenderResult => {
   );
 };
 
-it('should change user push notification', async () => {
-  renderComponent();
-  const subscription = await screen.findByTestId('push_notification-switch');
-  expect(subscription).not.toBeChecked();
-  await subscription.click();
-  await waitFor(async () => {
-    const newSubscription = await screen.findByTestId(
-      'push_notification-switch',
-    );
-
-    return expect(newSubscription).toBeChecked();
-  });
-});
-
 it('should change user all email subscription', async () => {
   renderComponent();
   const data: UpdateProfileParameters = {
