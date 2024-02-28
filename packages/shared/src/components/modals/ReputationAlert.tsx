@@ -7,13 +7,15 @@ export type ReputationAlertProps = Omit<AlertProps, 'type' | 'title'>;
 
 export const ReputationAlert = ({
   className,
+  ...rest
 }: ReputationAlertProps): ReactElement => {
   return (
     <Alert
+      {...rest}
       className={classNames(className, 'flex-1')}
       type={AlertType.Error}
       title={
-        <div className="block flex-1">
+        <div className="block flex-1" data-testid="reputationAlert">
           You do not have enough reputation to use this feature yet. However,
           you can{' '}
           <Link href="/squads/new">
