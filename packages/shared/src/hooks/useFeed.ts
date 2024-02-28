@@ -30,7 +30,12 @@ export type PostItem = {
 };
 export type AdItem = { type: 'ad'; ad: Ad };
 export type PlaceholderItem = { type: 'placeholder' };
-export type FeedItem = PostItem | AdItem | PlaceholderItem;
+export type UserAcquisitionItem = { type: 'userAcquisition' };
+export type FeedItem =
+  | PostItem
+  | AdItem
+  | PlaceholderItem
+  | UserAcquisitionItem;
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 

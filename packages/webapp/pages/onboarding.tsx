@@ -21,6 +21,7 @@ import {
 import {
   ExperimentWinner,
   OnboardingV4dot5,
+  UserAcquisition,
 } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
@@ -156,10 +157,16 @@ export function OnboardPage(): ReactElement {
       });
     }
 
+    const { id, defaultValue } = feature.userAcquisition;
+    const userAcquisitionVersion =
+      growthbook?.getFeatureValue(id, defaultValue) ?? UserAcquisition.Control;
+
     return router.replace({
       pathname: '/',
       query: {
-        ua: 'true',
+        ...(userAcquisitionVersion === UserAcquisition.V1 && {
+          ua: 'true',
+        }),
         ...(!onboardingOptimizations && {
           welcome: 'true',
           hset: 'true',

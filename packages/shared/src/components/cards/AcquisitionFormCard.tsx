@@ -47,24 +47,30 @@ export function AcquisitionFormCard(): ReactElement {
     onRemoveQueryParams();
   };
 
-  const { mutateAsync, isLoading } = useMutation(updateUserAcquisition, {
-    onSuccess: () => {
-      trackEvent({
-        event_name: UserAcquisitionEvent.Submit,
-        target_id: value,
-      });
-      onRemoveQueryParams();
+  const { mutateAsync, isLoading, isSuccess } = useMutation(
+    updateUserAcquisition,
+    {
+      onSuccess: () => {
+        trackEvent({
+          event_name: UserAcquisitionEvent.Submit,
+          target_id: value,
+        });
+      },
     },
-  });
+  );
 
   useEffect(() => {
-    if (!isDismissed) {
-      trackEvent({
-        event_name: AnalyticsEvent.Impression,
-        target_type: acquisitionKey,
-      });
-    }
-  }, [isDismissed, trackEvent]);
+    trackEvent({
+      event_name: AnalyticsEvent.Impression,
+      target_type: acquisitionKey,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (isSuccess) {
+    onRemoveQueryParams();
+    return null;
+  }
 
   if (isDismissed) {
     return null;

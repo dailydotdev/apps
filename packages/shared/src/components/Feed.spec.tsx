@@ -13,6 +13,9 @@ import {
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { OperationOptions } from 'subscriptions-transport-ws';
+import { mocked } from 'ts-jest/utils';
+import { useRouter } from 'next/router';
+
 import {
   ADD_BOOKMARKS_MUTATION,
   FeedData,
@@ -65,9 +68,6 @@ import { AuthTriggers } from '../lib/auth';
 import { SourceType } from '../graphql/sources';
 import { acquisitionKey } from './cards/AcquisitionFormCard';
 import { removeQueryParam } from '../lib/links';
-import { feature } from '../lib/featureManagement';
-import { UserAcquisition } from '../lib/featureValues';
-import { ActiveFeedNameContext } from '../contexts';
 import { SharedFeedPage } from './utilities';
 import { AllFeedPages } from '../lib/query';
 
@@ -193,26 +193,25 @@ const renderComponent = (
         }}
       >
         <LazyModalElement />
-        <ActiveFeedNameContext.Provider value={{ feedName }}>
-          <SettingsContext.Provider value={settingsContext}>
-            <OnboardingContext.Provider
-              value={{
-                myFeedMode: OnboardingMode.Manual,
-                isOnboardingOpen: false,
-                onCloseOnboardingModal: jest.fn(),
-                onInitializeOnboarding: jest.fn(),
-                onShouldUpdateFilters: jest.fn(),
-              }}
-            >
-              <Toast autoDismissNotifications={false} />
-              <Feed
-                feedQueryKey={['feed']}
-                query={ANONYMOUS_FEED_QUERY}
-                variables={variables}
-              />
-            </OnboardingContext.Provider>
-          </SettingsContext.Provider>
-        </ActiveFeedNameContext.Provider>
+        <SettingsContext.Provider value={settingsContext}>
+          <OnboardingContext.Provider
+            value={{
+              myFeedMode: OnboardingMode.Manual,
+              isOnboardingOpen: false,
+              onCloseOnboardingModal: jest.fn(),
+              onInitializeOnboarding: jest.fn(),
+              onShouldUpdateFilters: jest.fn(),
+            }}
+          >
+            <Toast autoDismissNotifications={false} />
+            <Feed
+              feedQueryKey={['feed']}
+              feedName={feedName}
+              query={ANONYMOUS_FEED_QUERY}
+              variables={variables}
+            />
+          </OnboardingContext.Provider>
+        </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -1077,30 +1076,15 @@ it('should report irrelevant tags', async () => {
 describe('acquisition form card', () => {
   const replaceRouter = jest.fn();
   const url = new URL(`http://localhost:5002?${acquisitionKey}=true`);
-
-  let mockUserAcquisitionVersion = UserAcquisition.V1;
+  const mockedQuery = { [acquisitionKey]: 'true' };
 
   beforeEach(() => {
     /* eslint-disable @typescript-eslint/no-var-requires,global-require */
-    const useRouter = jest.spyOn(require('next/router'), 'useRouter');
-
-    const useFeatureOrig = jest.requireActual(
-      './GrowthBookProvider',
-    ).useFeature;
-    jest
-      .spyOn(require('./GrowthBookProvider'), 'useFeature')
-      .mockImplementation((feat) => {
-        if (feat === feature.userAcquisition) {
-          return mockUserAcquisitionVersion;
-        }
-        return useFeatureOrig(feat);
-      });
-    /* eslint-enable @typescript-eslint/no-var-requires,global-require */
-
-    useRouter.mockImplementation(() => ({
+    mockedQuery[acquisitionKey] = 'true';
+    mocked(useRouter).mockImplementation(() => ({
       route: '/',
       pathname: '',
-      query: { ua: 'true' },
+      query: mockedQuery,
       asPath: '',
       push: jest.fn(),
       events: {
@@ -1125,7 +1109,10 @@ describe('acquisition form card', () => {
 
   it('should hide the card once form is submitted', async () => {
     let mutationCalled = false;
-    renderComponent([createFeedMock()], defaultUser);
+    const { unmount } = renderComponent([createFeedMock()], defaultUser);
+
+    const card = screen.queryByTestId('acquisitionFormCard');
+    expect(card).toBeInTheDocument();
 
     const radio = await screen.findByLabelText('Other');
     fireEvent.click(radio);
@@ -1137,7 +1124,7 @@ describe('acquisition form card', () => {
       },
       result: () => {
         mutationCalled = true;
-        return { data: { _: null } };
+        return { data: { addUserAcquisitionChannel: { _: null } } };
       },
     });
 
@@ -1148,11 +1135,14 @@ describe('acquisition form card', () => {
       expect(mutationCalled).toBeTruthy();
     });
 
-    await waitFor(() => {
-      expect(replaceRouter).toHaveBeenCalledWith(
-        removeQueryParam(url.toString(), acquisitionKey),
-      );
-    });
+    // set mocked query to false
+    mockedQuery[acquisitionKey] = 'false';
+
+    // rerender
+    unmount();
+    renderComponent([createFeedMock()], defaultUser);
+
+    expect(screen.queryByTestId('acquisitionFormCard')).not.toBeInTheDocument();
   });
 
   it('should not show the card if the user dismissed it', async () => {
@@ -1160,14 +1150,14 @@ describe('acquisition form card', () => {
     const close = await screen.findByLabelText('Close acquisition form');
     fireEvent.click(close);
 
-    const card = screen.queryByTestId('acquisitionFormCard');
-    expect(card).not.toBeInTheDocument();
-
     await waitFor(() => {
       expect(replaceRouter).toHaveBeenCalledWith(
         removeQueryParam(url.toString(), acquisitionKey),
       );
     });
+
+    const card = screen.queryByTestId('acquisitionFormCard');
+    expect(card).not.toBeInTheDocument();
   });
 
   it('should not show the card if the user has submitted already', async () => {
@@ -1182,15 +1172,6 @@ describe('acquisition form card', () => {
 
   it('should not show the card if the feed is different than My Feed', async () => {
     renderComponent(undefined, undefined, SharedFeedPage.Popular);
-
-    const card = screen.queryByTestId('acquisitionFormCard');
-    expect(card).not.toBeInTheDocument();
-  });
-
-  it('should not show the card if the userAcquisition feature is in Control version', async () => {
-    mockUserAcquisitionVersion = UserAcquisition.Control;
-
-    renderComponent();
 
     const card = screen.queryByTestId('acquisitionFormCard');
     expect(card).not.toBeInTheDocument();

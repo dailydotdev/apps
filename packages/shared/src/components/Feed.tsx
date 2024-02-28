@@ -7,7 +7,13 @@ import React, {
 } from 'react';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
-import useFeed, { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
+import { useRouter } from 'next/router';
+import useFeed, {
+  AdItem,
+  PostItem,
+  UseFeedOptionalParams,
+  UserAcquisitionItem,
+} from '../hooks/useFeed';
 import { Ad, Post, PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
@@ -45,6 +51,7 @@ import {
 import { isNullOrUndefined } from '../lib/func';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
+import { acquisitionKey } from './cards/AcquisitionFormCard';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'>,
@@ -124,7 +131,8 @@ export default function Feed<T>({
   const origin = Origin.Feed;
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
-  const { user } = useContext(AuthContext);
+  const { user, isLoggedIn } = useContext(AuthContext);
+  const router = useRouter();
   const queryClient = useQueryClient();
   const {
     openNewTab,
@@ -138,7 +146,7 @@ export default function Feed<T>({
   const isSquadFeed = feedName === 'squad';
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const {
-    items,
+    items: feedItems,
     updatePost,
     removePost,
     fetchPage,
@@ -161,6 +169,26 @@ export default function Feed<T>({
       },
     },
   );
+  const showAcquisitionForm =
+    isLoggedIn &&
+    feedName === SharedFeedPage.MyFeed &&
+    (router.query?.[acquisitionKey] as string)?.toLocaleLowerCase() ===
+      'true' &&
+    !user?.acquisitionChannel;
+  const items = useMemo(() => {
+    if (showAcquisitionForm) {
+      const foundIndex = feedItems.findIndex((item) => !!(item as AdItem).ad);
+      // If there are no ads, we'll just replace the first item
+      const index = foundIndex > -1 ? foundIndex : 0;
+
+      return [
+        ...feedItems.slice(0, index),
+        { type: 'userAcquisition' } as UserAcquisitionItem,
+        ...feedItems.slice(index + 1),
+      ];
+    }
+    return feedItems;
+  }, [feedItems, showAcquisitionForm]);
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
