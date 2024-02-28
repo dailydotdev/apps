@@ -165,10 +165,10 @@ export default function FeedItemComponent({
     ranking,
   );
 
-  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { shouldUseListFeedLayout } = useFeedLayout();
   const { PostTag, AdTag, PlaceholderTag } = getTags(
     isList,
-    shouldUseFeedLayoutV1,
+    shouldUseListFeedLayout,
     (item as PostItem).post?.type,
   );
 

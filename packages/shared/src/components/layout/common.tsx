@@ -55,7 +55,7 @@ export const SearchControlHeader = ({
   const { openModal } = useLazyModal();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
-  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { shouldUseListFeedLayout } = useFeedLayout();
   const openFeedFilters = () =>
     openModal({ type: LazyModal.FeedFilters, persistOnRouteChange: true });
 
@@ -63,7 +63,7 @@ export const SearchControlHeader = ({
     className: { label: 'hidden', chevron: 'hidden', button: '!px-1' },
     dynamicMenuWidth: true,
     shouldIndicateSelected: true,
-    buttonSize: shouldUseFeedLayoutV1 ? ButtonSize.Small : ButtonSize.Medium,
+    buttonSize: shouldUseListFeedLayout ? ButtonSize.Small : ButtonSize.Medium,
     iconOnly: true,
   };
   const actionButtons = [

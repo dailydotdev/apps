@@ -6,9 +6,10 @@ import { useViewSize, ViewSize } from './useViewSize';
 
 interface UseFeedLayoutProps {
   feedName?: AllFeedPages;
+  feedRelated?: boolean;
 }
 
-interface UseListFeedLayout {
+interface UseFeedLayout {
   shouldUseListFeedLayout: boolean;
 }
 
@@ -23,7 +24,8 @@ const checkShouldUseListFeedLayout = (feedName: SharedFeedPage): boolean =>
 
 export const useFeedLayout = ({
   feedName: feedNameProp,
-}: UseFeedLayoutProps = {}): UseListFeedLayout => {
+  feedRelated = true,
+}: UseFeedLayoutProps = {}): UseFeedLayout => {
   const { feedName } = useActiveFeedNameContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const name = (feedNameProp ?? feedName) as SharedFeedPage;
@@ -31,7 +33,9 @@ export const useFeedLayout = ({
     () => checkShouldUseListFeedLayout(name),
     [name],
   );
-  const shouldUseListFeedLayout = isMobile && isIncludedFeed;
+  const shouldUseListFeedLayout = !feedRelated
+    ? isMobile
+    : isMobile && isIncludedFeed;
 
   return {
     shouldUseListFeedLayout,

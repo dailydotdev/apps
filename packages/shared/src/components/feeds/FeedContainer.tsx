@@ -107,16 +107,16 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
-  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { shouldUseListFeedLayout } = useFeedLayout();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
   const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
   const isOnboardingV4dot5 = onboardingV4dot5 === OnboardingV4dot5.V4dot5;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
-  const isList = (insaneMode && numCards > 1) || shouldUseFeedLayoutV1;
+  const isList = (insaneMode && numCards > 1) || shouldUseListFeedLayout;
   const feedGapPx =
-    getFeedGapPx[gapClass(isList, shouldUseFeedLayoutV1, spaciness)];
+    getFeedGapPx[gapClass(isList, shouldUseListFeedLayout, spaciness)];
   const style = {
     '--num-cards': numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
@@ -153,18 +153,18 @@ export const FeedContainer = ({
           {showFeedReadyMessage && (
             <FeedReadyMessage
               className={{
-                main: shouldUseFeedLayoutV1
+                main: shouldUseListFeedLayout
                   ? 'mb-8 mt-8 w-full laptop:gap-4 [@media(width<=680px)]:px-6'
                   : 'mb-10 max-w-xl laptop:gap-6',
-                textContainer: shouldUseFeedLayoutV1
+                textContainer: shouldUseListFeedLayout
                   ? 'laptop:flex-1'
                   : 'flex flex-col',
-                header: shouldUseFeedLayoutV1 ? 'mb-0.5' : 'mb-2 laptop:mb-1',
+                header: shouldUseListFeedLayout ? 'mb-0.5' : 'mb-2 laptop:mb-1',
               }}
             />
           )}
           {(inlineHeader || isOnboardingV4dot5) && header}
-          {isSearch && !shouldUseFeedLayoutV1 && (
+          {isSearch && !shouldUseListFeedLayout && (
             <span className="flex flex-1 flex-row items-center">
               {!!actionButtons && (
                 <span className="mr-auto flex flex-row gap-3 border-theme-divider-tertiary pr-3">
@@ -174,9 +174,9 @@ export const FeedContainer = ({
               {shortcuts}
             </span>
           )}
-          {shouldUseFeedLayoutV1 && shortcuts}
+          {shouldUseListFeedLayout && shortcuts}
           <ConditionalWrapper
-            condition={shouldUseFeedLayoutV1}
+            condition={shouldUseListFeedLayout}
             wrapper={(child) => (
               <div
                 className={classNames(
@@ -197,8 +197,8 @@ export const FeedContainer = ({
             <div
               className={classNames(
                 'grid',
-                isSearch && !shouldUseFeedLayoutV1 && 'mt-8',
-                gapClass(isList, shouldUseFeedLayoutV1, spaciness),
+                isSearch && !shouldUseListFeedLayout && 'mt-8',
+                gapClass(isList, shouldUseListFeedLayout, spaciness),
                 cardClass(isList, numCards),
               )}
             >

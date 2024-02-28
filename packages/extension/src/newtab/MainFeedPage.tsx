@@ -7,9 +7,6 @@ import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { FeedLayout as FeedLayoutEnum } from '@dailydotdev/shared/src/lib/featureValues';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import {
   SearchProviderEnum,
@@ -18,6 +15,7 @@ import {
 import classNames from 'classnames';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
 import DndContext from './DndContext';
@@ -49,7 +47,7 @@ export default function MainFeedPage({
   const [feedName, setFeedName] = useState<string>('default');
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
-  const layout = useFeature(feature.feedLayout);
+  const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
   useCompanionSettings();
   const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
@@ -140,7 +138,7 @@ export default function MainFeedPage({
             shortcuts={
               <ShortcutLinks
                 className={classNames(
-                  layout === FeedLayoutEnum.Control
+                  !shouldUseListFeedLayout
                     ? 'ml-auto'
                     : 'mt-4 w-fit [@media(width<=680px)]:mx-6',
                 )}
