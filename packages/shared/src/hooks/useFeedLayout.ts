@@ -2,38 +2,38 @@ import { useMemo } from 'react';
 import { SharedFeedPage } from '../components/utilities';
 import { AllFeedPages } from '../lib/query';
 import { useActiveFeedNameContext } from '../contexts';
-import { useFeatureFeedLayoutV1 } from './useFeatureFeedLayoutV1';
+import { useViewSize, ViewSize } from './useViewSize';
 
 interface UseFeedLayoutProps {
   feedName?: AllFeedPages;
 }
 
-interface UseFeedLayout {
-  shouldUseFeedLayoutV1: boolean;
+interface UseListFeedLayout {
+  shouldUseListFeedLayout: boolean;
 }
 
-export const FeedLayoutV1FeedPages = new Set(
+export const FeedLayoutListFeedPages = new Set(
   Object.values(SharedFeedPage).filter(
     (feedPage) => feedPage !== SharedFeedPage.Search,
   ),
 );
 
-const checkShouldUseFeedLayoutV1 = (feedName: SharedFeedPage): boolean =>
-  FeedLayoutV1FeedPages.has(feedName) && feedName !== SharedFeedPage.Search;
+const checkShouldUseListFeedLayout = (feedName: SharedFeedPage): boolean =>
+  FeedLayoutListFeedPages.has(feedName) && feedName !== SharedFeedPage.Search;
 
 export const useFeedLayout = ({
   feedName: feedNameProp,
-}: UseFeedLayoutProps = {}): UseFeedLayout => {
+}: UseFeedLayoutProps = {}): UseListFeedLayout => {
   const { feedName } = useActiveFeedNameContext();
+  const isMobile = useViewSize(ViewSize.MobileL);
   const name = (feedNameProp ?? feedName) as SharedFeedPage;
-  const isV1 = useFeatureFeedLayoutV1();
   const isIncludedFeed = useMemo(
-    () => checkShouldUseFeedLayoutV1(name),
+    () => checkShouldUseListFeedLayout(name),
     [name],
   );
-  const shouldUseFeedLayoutV1 = isV1 && isIncludedFeed;
+  const shouldUseListFeedLayout = isMobile && isIncludedFeed;
 
   return {
-    shouldUseFeedLayoutV1,
+    shouldUseListFeedLayout,
   };
 };
