@@ -144,7 +144,7 @@ export default function SubmitArticleModal({
     }
 
     if (!isEnabled) {
-      return <ReputationAlert />;
+      return <ReputationAlert className="mt-4" />;
     }
 
     return (

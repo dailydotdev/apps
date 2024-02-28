@@ -87,7 +87,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   const [feeds, setFeeds] = useState<{ label: ReactNode; value: string }[]>();
   const [selectedFeed, setSelectedFeed] = useState<string>();
   const [existingSource, setExistingSource] = useState<Source>();
-  const { user, loginState, showLogin } = useContext(AuthContext);
+  const { user, isLoggedIn, loginState, showLogin } = useContext(AuthContext);
   const loginTrigger = AuthTriggers.SubmitNewSource;
   const { onRequestClose } = props;
   const [isDismissed, setIsDismissed] = usePersistentContext(
@@ -215,8 +215,9 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     ...props,
   };
 
-  // TODO AS-136-submit-content-modal update with value from API
-  const isEnabled = false;
+  // TODO AS-136-submit-content-modal update with value from API after extension adoption
+  const REPUTATION_THRESHOLD = 250;
+  const isEnabled = isLoggedIn && user?.reputation >= REPUTATION_THRESHOLD;
 
   if (showNotification) {
     return <PushNotificationModal {...modalProps} />;
@@ -263,7 +264,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
             fieldType="primary"
             leftIcon={<LinkIcon />}
             rightIcon={
-              isEnabled ? (
+              !isEnabled ? (
                 <LockIcon className="text-theme-label-disabled" />
               ) : undefined
             }
@@ -290,92 +291,98 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
             }
           />
         )}
-        {!isEnabled && <ReputationAlert />}
-        {!!feeds?.length && !existingSource && (
+        {!isEnabled && <ReputationAlert className="mt-4" />}
+        {isEnabled && (
           <>
-            <div className="mb-6 self-start text-theme-label-tertiary typo-callout">
-              {feeds.length} RSS feed{feeds.length > 1 ? 's' : ''} found
-            </div>
-            <form
-              className="flex w-full flex-col items-center"
-              id="select-feed"
-              onSubmit={onSubmitFeed}
-            >
-              <Radio
-                name="rss"
-                options={feeds}
-                onChange={setSelectedFeed}
-                value={selectedFeed}
-                className={{
-                  container: 'w-full self-start',
-                  content: 'w-full pr-0',
-                }}
-              />
-            </form>
-          </>
-        )}
-        {!existingSource && scrapeError && !feeds?.length && (
-          <>
-            <div
-              id="new-source-field-desc"
-              className={classNames(
-                'self-start text-theme-status-error typo-callout',
-                !showContact && 'mb-6',
-              )}
-            >
-              {scrapeError}
-            </div>
-            {showContact && (
-              <Button
-                tag="a"
-                className="mb-6 mt-3 self-start"
-                variant={ButtonVariant.Secondary}
-                size={ButtonSize.Small}
-                href="mailto:hi@daily.dev?subject=Failed to add new source"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Contact
-              </Button>
+            {!!feeds?.length && !existingSource && (
+              <>
+                <div className="mb-6 self-start text-theme-label-tertiary typo-callout">
+                  {feeds.length} RSS feed{feeds.length > 1 ? 's' : ''} found
+                </div>
+                <form
+                  className="flex w-full flex-col items-center"
+                  id="select-feed"
+                  onSubmit={onSubmitFeed}
+                >
+                  <Radio
+                    name="rss"
+                    options={feeds}
+                    onChange={setSelectedFeed}
+                    value={selectedFeed}
+                    className={{
+                      container: 'w-full self-start',
+                      content: 'w-full pr-0',
+                    }}
+                  />
+                </form>
+              </>
+            )}
+            {!existingSource && scrapeError && !feeds?.length && (
+              <>
+                <div
+                  id="new-source-field-desc"
+                  className={classNames(
+                    'self-start text-theme-status-error typo-callout',
+                    !showContact && 'mb-6',
+                  )}
+                >
+                  {scrapeError}
+                </div>
+                {showContact && (
+                  <Button
+                    tag="a"
+                    className="mb-6 mt-3 self-start"
+                    variant={ButtonVariant.Secondary}
+                    size={ButtonSize.Small}
+                    href="mailto:hi@daily.dev?subject=Failed to add new source"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Contact
+                  </Button>
+                )}
+              </>
             )}
           </>
         )}
       </Modal.Body>
-      <Modal.Footer>
-        {!feeds?.length && (
-          <Button
-            form="submit-source"
-            variant={ButtonVariant.Primary}
-            type="submit"
-            disabled={isScraping || !enableSubmission}
-            loading={isScraping}
-          >
-            Check link
-          </Button>
-        )}
-        {!!feeds?.length && (
-          <>
+      {isEnabled && (
+        <Modal.Footer>
+          {!feeds?.length && (
             <Button
-              className="mr-auto"
-              disabled={checkingIfExists || requestingSource}
-              onClick={() => {
-                setFeeds([]);
-              }}
-            >
-              Back
-            </Button>
-            <Button
-              form="select-feed"
+              form="submit-source"
               variant={ButtonVariant.Primary}
               type="submit"
-              disabled={!selectedFeed || !!existingSource}
-              loading={checkingIfExists || requestingSource}
+              disabled={isScraping || !enableSubmission}
+              loading={isScraping}
             >
-              Submit for review
+              Check link
             </Button>
-          </>
-        )}
-      </Modal.Footer>
+          )}
+          {!!feeds?.length && (
+            <>
+              <Button
+                className="mr-auto"
+                disabled={checkingIfExists || requestingSource}
+                onClick={() => {
+                  setFeeds([]);
+                }}
+              >
+                Back
+              </Button>
+              <Button
+                form="select-feed"
+                variant={ButtonVariant.Primary}
+                type="submit"
+                disabled={!selectedFeed || !!existingSource}
+                loading={checkingIfExists || requestingSource}
+              >
+                Submit for review
+              </Button>
+            </>
+          )}
+        </Modal.Footer>
+      )}
     </Modal>
   );
 }

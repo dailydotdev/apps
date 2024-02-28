@@ -27,8 +27,13 @@ const defaultAnonymousUser: AnonymousUser = {
   referrer: 'string',
 };
 
+const userWithReputation = {
+  ...user,
+  reputation: 250,
+};
+
 const renderComponent = (
-  userUpdate: LoggedUser | AnonymousUser = user,
+  userUpdate: LoggedUser | AnonymousUser = userWithReputation,
 ): RenderResult => {
   const client = new QueryClient();
   return render(

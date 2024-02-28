@@ -10,7 +10,7 @@ export const ReputationAlert = ({
 }: ReputationAlertProps): ReactElement => {
   return (
     <Alert
-      className={classNames(className, 'mt-4 flex-1')}
+      className={classNames(className, 'flex-1')}
       type={AlertType.Error}
       title={
         <div className="block flex-1">
