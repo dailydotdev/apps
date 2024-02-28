@@ -216,6 +216,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   };
 
   // TODO AS-136-submit-content-modal update with value from API after extension adoption
+  // will use sourceRequestAvailability query when adoption is reached on extension
   const REPUTATION_THRESHOLD = 250;
   const isEnabled = isLoggedIn && user?.reputation >= REPUTATION_THRESHOLD;
 
