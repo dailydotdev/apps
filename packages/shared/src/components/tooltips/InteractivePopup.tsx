@@ -22,13 +22,19 @@ export enum InteractivePopupPosition {
   Screen = 'screen',
 }
 
+type CloseButtonProps = {
+  size?: ButtonSize;
+  variant?: ButtonVariant;
+  position?: string;
+};
+
 interface InteractivePopupProps {
   children: ReactNode;
   className?: string;
   position?: InteractivePopupPosition;
   closeOutsideClick?: boolean;
   onClose?: (e: MouseEvent | KeyboardEvent | MessageEvent) => void;
-  closeButtonVariant?: ButtonVariant.Secondary | ButtonVariant.Tertiary;
+  closeButton?: CloseButtonProps;
 }
 
 const centerClassX = 'left-1/2 -translate-x-1/2';
@@ -65,9 +71,14 @@ function InteractivePopup({
   position = InteractivePopupPosition.Center,
   closeOutsideClick,
   onClose,
-  closeButtonVariant = ButtonVariant.Secondary,
+  closeButton,
   ...props
 }: InteractivePopupProps): ReactElement {
+  const {
+    size: buttonSize = ButtonSize.Small,
+    variant: buttonVariant = ButtonVariant.Secondary,
+    position: buttonPosition = 'right-2 top-2',
+  } = closeButton;
   const container = useRef<HTMLDivElement>();
   const onCloseRef = useRef(onClose);
   const { sidebarRendered } = useSidebarRendered();
@@ -110,9 +121,9 @@ function InteractivePopup({
           {finalPosition !== InteractivePopupPosition.ProfileMenu &&
             onClose && (
               <Button
-                size={ButtonSize.Small}
-                variant={closeButtonVariant}
-                className="absolute right-2 top-2 z-1"
+                size={buttonSize}
+                variant={buttonVariant}
+                className={classNames('absolute z-1', buttonPosition)}
                 icon={<CloseIcon />}
                 onClick={(e: React.MouseEvent) => onClose(e.nativeEvent)}
                 data-testid="close-interactive-popup"

@@ -60,6 +60,9 @@ export function ProfileWidgets({
         username={user.username}
         id={user.id}
         ref={stickyRef}
+        className={{
+          container: 'mx-4',
+        }}
       />
       <div className="relative flex flex-col gap-6 px-4">
         <UserMetadata
