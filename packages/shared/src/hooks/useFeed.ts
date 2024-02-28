@@ -158,7 +158,7 @@ export default function useFeed<T>(
             index,
           }));
 
-          if (!!settings.showAcquisitionForm) {
+          if (settings.showAcquisitionForm) {
             posts.splice(adSpot, 0, { type: 'userAcquisition' });
           } else if (isAdsQueryEnabled) {
             if (adsQuery.data?.pages[pageIndex]) {
