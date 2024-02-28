@@ -1111,7 +1111,7 @@ describe('acquisition form card', () => {
     let mutationCalled = false;
     const { unmount } = renderComponent([createFeedMock()], defaultUser);
 
-    const card = screen.queryByTestId('acquisitionFormCard');
+    const card = await screen.findByTestId('acquisitionFormCard');
     expect(card).toBeInTheDocument();
 
     const radio = await screen.findByLabelText('Other');
