@@ -122,7 +122,7 @@ export default function FooterNavBar({
   };
 
   return (
-    <div className="fixed bottom-0 left-0 z-2 w-full">
+    <div className="fixed !bottom-0 left-0 z-2 w-full">
       <ScrollToTopButton />
       <Flipper
         flipKey={selectedTab}
