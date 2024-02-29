@@ -122,6 +122,7 @@ export function OnboardPage(): ReactElement {
   );
   const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
   const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
+  const userAcquisitionVersion = useFeature(feature.userAcquisition);
   const targetId: string =
     onboardingV4dot5 === OnboardingV4dot5.Control
       ? OnboardingV4dot5.V4dot5
@@ -156,10 +157,6 @@ export function OnboardPage(): ReactElement {
         event_name: AnalyticsEvent.CreateFeed,
       });
     }
-
-    const { id, defaultValue } = feature.userAcquisition;
-    const userAcquisitionVersion =
-      growthbook?.getFeatureValue(id, defaultValue) ?? UserAcquisition.Control;
 
     return router.replace({
       pathname: '/',

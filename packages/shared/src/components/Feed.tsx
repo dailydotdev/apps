@@ -126,7 +126,7 @@ export default function Feed<T>({
   const origin = Origin.Feed;
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
-  const { user, isLoggedIn } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const router = useRouter();
   const queryClient = useQueryClient();
   const {
@@ -141,7 +141,6 @@ export default function Feed<T>({
   const isSquadFeed = feedName === 'squad';
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const showAcquisitionForm =
-    isLoggedIn &&
     feedName === SharedFeedPage.MyFeed &&
     (router.query?.[acquisitionKey] as string)?.toLocaleLowerCase() ===
       'true' &&
