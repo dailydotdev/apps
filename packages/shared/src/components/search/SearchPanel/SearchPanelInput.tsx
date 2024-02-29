@@ -211,11 +211,6 @@ export const SearchPanelInput = ({
             onInput={onInput}
             type="primary"
             autoComplete="off"
-            style={{
-              // needed to overwrite fill from base.css input style
-              // to make the placeholder color work
-              WebkitTextFillColor: 'unset',
-            }}
             className={classNames(
               'h-full flex-1',
               searchPanel.isActive
