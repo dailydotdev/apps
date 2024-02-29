@@ -18,7 +18,11 @@ import {
   ButtonVariant,
   ButtonSize,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
+import {
+  ExperimentWinner,
+  OnboardingV4dot5,
+  UserAcquisition,
+} from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useRouter } from 'next/router';
@@ -117,7 +121,12 @@ export function OnboardPage(): ReactElement {
     feature.socialProofOnboarding,
   );
   const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
-  const targetId = ExperimentWinner.OnboardingV4;
+  const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
+  const userAcquisitionVersion = useFeature(feature.userAcquisition);
+  const targetId: string =
+    onboardingV4dot5 === OnboardingV4dot5.Control
+      ? ExperimentWinner.OnboardingV4
+      : OnboardingV4dot5.V4dot5;
   const formRef = useRef<HTMLFormElement>();
 
   const onClickNext = () => {
@@ -151,12 +160,15 @@ export function OnboardPage(): ReactElement {
 
     return router.replace({
       pathname: '/',
-      ...(!onboardingOptimizations && {
-        query: {
+      query: {
+        ...(userAcquisitionVersion === UserAcquisition.V1 && {
+          ua: 'true',
+        }),
+        ...(!onboardingOptimizations && {
           welcome: 'true',
           hset: 'true',
-        },
-      }),
+        }),
+      },
     });
   };
 
@@ -166,7 +178,13 @@ export function OnboardPage(): ReactElement {
   };
 
   const onSuccessfulRegistration = () => {
-    setIsFiltering(true);
+    if (onboardingV4dot5 === OnboardingV4dot5.Control) {
+      setIsFiltering(true);
+    } else {
+      router.replace({
+        pathname: '/my-feed',
+      });
+    }
   };
 
   useEffect(() => {

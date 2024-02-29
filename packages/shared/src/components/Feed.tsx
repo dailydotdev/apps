@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import useFeed, { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import { Ad, Post, PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -45,6 +46,7 @@ import {
 import { isNullOrUndefined } from '../lib/func';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
+import { acquisitionKey } from './cards/AcquisitionFormCard';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'>,
@@ -125,6 +127,7 @@ export default function Feed<T>({
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
+  const router = useRouter();
   const queryClient = useQueryClient();
   const {
     openNewTab,
@@ -137,6 +140,11 @@ export default function Feed<T>({
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const showAcquisitionForm =
+    feedName === SharedFeedPage.MyFeed &&
+    (router.query?.[acquisitionKey] as string)?.toLocaleLowerCase() ===
+      'true' &&
+    !user?.acquisitionChannel;
   const {
     items,
     updatePost,
@@ -158,6 +166,7 @@ export default function Feed<T>({
       settings: {
         disableAds,
         adPostLength: isSquadFeed ? 2 : undefined,
+        showAcquisitionForm,
       },
     },
   );

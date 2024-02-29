@@ -127,6 +127,7 @@ const colors = {
     90: '#0D31D9',
   },
   salt: {
+    0: '#FFFFFF',
     10: '#F5F8FC',
     20: '#EDF0F7',
     30: '#E4E9F2',

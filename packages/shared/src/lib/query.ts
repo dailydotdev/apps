@@ -91,6 +91,8 @@ export enum RequestKey {
   Readme = 'readme',
   Host = 'host',
   Source = 'source',
+  OneSignal = 'onesignal',
+  PushNotification = 'push_notification',
 }
 
 export type HasConnection<

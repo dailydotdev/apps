@@ -13,7 +13,7 @@ export const cloudinary = {
   },
   post: {
     imageCoverPlaceholder:
-      'https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1',
+      'https://res.cloudinary.com/daily-now/image/upload/s--EY5owj5E--/f_auto/v1708962997/public/Fallback%20ads%2001',
   },
   feedFilters: {
     recommended:
@@ -166,6 +166,10 @@ export const cloudinary = {
   devcard: {
     defaultCoverImage:
       'https://daily-now-res.cloudinary.com/image/upload/s--b9BjE_Vi--/f_auto/v1707404283/card-cover_emugw3',
+  },
+  reputation: {
+    privilegesUnlocked:
+      'https://daily-now-res.cloudinary.com/image/upload/s--6sO7fJKh--/v1709136797/image_epr7dz.svg',
   },
 };
 

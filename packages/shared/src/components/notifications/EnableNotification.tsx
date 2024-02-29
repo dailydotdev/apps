@@ -11,7 +11,7 @@ import { cloudinary } from '../../lib/image';
 import { VIcon, BellNotifyIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
 import { NotificationPromptSource } from '../../lib/analytics';
-import { useEnableNotification } from '../../hooks/useEnableNotification';
+import { useEnableNotification } from '../../hooks/notifications';
 
 type EnableNotificationProps = {
   source?: NotificationPromptSource;
@@ -52,10 +52,8 @@ function EnableNotification({
   className,
   label,
 }: EnableNotificationProps): ReactElement {
-  const { shouldShowCta, onEnable, onDismiss, isEnabled, hasEnabled } =
-    useEnableNotification({
-      source,
-    });
+  const { shouldShowCta, acceptedJustNow, onEnable, onDismiss } =
+    useEnableNotification({ source });
 
   if (!shouldShowCta) {
     return null;
@@ -113,12 +111,14 @@ function EnableNotification({
     >
       {source === NotificationPromptSource.NotificationsPage && (
         <span className="flex flex-row font-bold">
-          {isEnabled && <VIcon className="mr-2" />}
-          {`Push notifications${isEnabled ? ' successfully enabled' : ''}`}
+          {acceptedJustNow && <VIcon className="mr-2" />}
+          {`Push notifications${
+            acceptedJustNow ? ' successfully enabled' : ''
+          }`}
         </span>
       )}
       <p className="mt-2 w-full text-theme-label-tertiary tablet:w-3/5">
-        {isEnabled ? (
+        {acceptedJustNow ? (
           <>
             Changing your{' '}
             <a
@@ -134,7 +134,7 @@ function EnableNotification({
         )}
       </p>
       <div className="align-center mt-4 flex">
-        {!hasEnabled && (
+        {!acceptedJustNow && (
           <Button
             size={ButtonSize.Small}
             variant={ButtonVariant.Primary}
@@ -158,10 +158,10 @@ function EnableNotification({
       <img
         className={classNames(
           'absolute -bottom-2 hidden w-[7.5rem] tablet:flex',
-          isEnabled ? 'right-14' : 'right-4',
+          acceptedJustNow ? 'right-14' : 'right-4',
         )}
         src={
-          isEnabled
+          acceptedJustNow
             ? cloudinary.notifications.browser_enabled
             : cloudinary.notifications.browser
         }

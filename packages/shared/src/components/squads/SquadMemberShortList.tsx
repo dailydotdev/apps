@@ -6,15 +6,12 @@ import { LazyModal } from '../modals/common/types';
 import { ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
+import { largeNumberFormat } from '../../lib';
 
 export interface SquadMemberShortListProps {
   squad: Squad;
   members: SourceMember[];
   className?: string;
-}
-
-function kFormatter(num: number): string | number {
-  return Math.abs(num) > 999 ? `${(num / 1000).toFixed(1)}K` : num;
 }
 
 function SquadMemberShortList({
@@ -47,7 +44,7 @@ function SquadMemberShortList({
           className="ml-2 mr-1 min-w-[1rem]"
           aria-label="squad-members-count"
         >
-          {kFormatter(squad.membersCount)}
+          {largeNumberFormat(squad.membersCount)}
         </span>
         {members?.slice(0, sidebarRendered ? 5 : 3).map(({ user }) => (
           <ProfilePicture

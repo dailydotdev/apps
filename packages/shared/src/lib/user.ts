@@ -58,7 +58,10 @@ export interface UserProfile {
 }
 
 export interface UserShortProfile
-  extends Pick<PublicProfile, 'id' | 'name' | 'image' | 'bio' | 'createdAt'> {
+  extends Pick<
+    PublicProfile,
+    'id' | 'name' | 'image' | 'bio' | 'createdAt' | 'reputation'
+  > {
   username: string;
   permalink: string;
 }
@@ -77,6 +80,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   referralLink?: string;
   canSubmitArticle?: boolean;
   password?: string;
+  acquisitionChannel?: string;
 }
 
 interface BaseError {

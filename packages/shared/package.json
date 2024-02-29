@@ -121,7 +121,7 @@
     "lodash.clonedeep": "^4.5.0",
     "node-fetch": "^2.6.6",
     "react-markdown": "^8.0.7",
-    "react-onesignal": "^2.0.4",
+    "react-onesignal": "^3.0.1",
     "react-syntax-highlighter": "^15.5.0",
     "remark-gfm": "^3.0.1",
     "tippy.js": "^6.3.1",

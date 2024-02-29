@@ -229,7 +229,6 @@ export const BootDataProvider = ({
               deviceId={deviceId}
             >
               <NotificationsContextProvider
-                app={app}
                 isNotificationsReady={initialLoad}
                 unreadCount={notifications?.unreadNotificationsCount}
               >

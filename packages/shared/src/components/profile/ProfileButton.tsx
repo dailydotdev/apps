@@ -7,6 +7,8 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { SettingsIcon } from '../icons';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
+import { ReputationUserBadge } from '../ReputationUserBadge';
+import { IconSize } from '../Icon';
 
 const ProfileMenu = dynamic(
   () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
@@ -42,8 +44,15 @@ export default function ProfileButton({
             )}
             onClick={wrapHandler(() => onUpdate(!isOpen))}
           >
-            <span className="ml-3 block">{user.reputation ?? 0}</span>
-            <ProfilePicture user={user} size="large" />
+            <ReputationUserBadge
+              className="ml-3 !typo-callout"
+              user={user}
+              iconProps={{
+                size: IconSize.Medium,
+              }}
+              disableTooltip
+            />
+            <ProfilePicture user={user} size="large" nativeLazyLoading />
           </button>
         </SimpleTooltip>
       )}

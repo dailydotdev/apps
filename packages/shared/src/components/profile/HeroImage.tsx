@@ -1,34 +1,54 @@
 import React, { forwardRef, ReactElement, ReactNode, Ref } from 'react';
+import classNames from 'classnames';
 import { Image } from '../image/Image';
 import { ProfilePicture, ProfilePictureProps } from '../ProfilePicture';
 
 export type HeroImageProps = ProfilePictureProps['user'] & {
   cover: string;
   children?: ReactNode;
+  className?: {
+    container?: string;
+    cover?: string;
+    profile?: string;
+  };
 };
 
 function HeroImageComponent(
-  { children, cover, ...profile }: HeroImageProps,
+  { children, cover, className, ...profile }: HeroImageProps,
   ref: Ref<HTMLDivElement>,
 ): ReactElement {
   return (
-    <div className="relative mx-4 flex h-24" ref={ref}>
+    <div
+      className={classNames('relative flex h-24', className?.container)}
+      ref={ref}
+    >
       {cover ? (
         <Image
           src={cover}
           alt="cover"
           loading="eager"
-          className="absolute left-0 top-0 -z-1 size-full rounded-26 object-cover"
+          className={classNames(
+            'absolute left-0 top-0 -z-1 size-full rounded-26 object-cover',
+            className?.cover,
+          )}
         />
       ) : (
-        <div className="absolute left-0 top-0 -z-1 size-full rounded-26 bg-theme-bg-secondary" />
+        <div
+          className={classNames(
+            'absolute left-0 top-0 -z-1 size-full rounded-26 bg-theme-bg-secondary',
+            className?.cover,
+          )}
+        />
       )}
       <ProfilePicture
         user={profile}
         nativeLazyLoading
         eager
         size="xxxxlarge"
-        className="border-4 border-theme-bg-primary"
+        className={classNames(
+          'border-4 border-theme-bg-primary',
+          className?.profile,
+        )}
       />
       {children}
     </div>

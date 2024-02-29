@@ -27,6 +27,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   isReady: boolean;
   className?: string;
   onboardingSignupButtonSize?: ButtonSize;
+  hideEmailLogin?: boolean;
 }
 
 const OnboardingRegistrationForm = ({
@@ -38,6 +39,7 @@ const OnboardingRegistrationForm = ({
   trigger,
   className,
   onboardingSignupButtonSize = ButtonSize.Large,
+  hideEmailLogin,
 }: OnboardingRegistrationFormProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [shouldLogin, setShouldLogin] = useState(false);
@@ -92,46 +94,49 @@ const OnboardingRegistrationForm = ({
 
   return (
     <>
-      <AuthForm className="mb-8 gap-8" onSubmit={onEmailSignup}>
-        <TextField
-          leftIcon={<MailIcon size={IconSize.Small} />}
-          required
-          inputId="email"
-          label="Email"
-          type="email"
-          name="email"
-        />
+      {!hideEmailLogin && (
+        <>
+          <AuthForm className="mb-8 gap-8" onSubmit={onEmailSignup}>
+            <TextField
+              leftIcon={<MailIcon size={IconSize.Small} />}
+              required
+              inputId="email"
+              label="Email"
+              type="email"
+              name="email"
+            />
 
-        {shouldLogin && (
-          <>
-            <Alert type={AlertType.Error} flexDirection="flex-row">
-              <AlertParagraph className="!mt-0 flex-1">
-                Email is taken. Existing user?{' '}
-                <button
-                  type="button"
-                  onClick={() => {
-                    onExistingEmail(registerEmail);
-                  }}
-                  className="font-bold underline"
-                >
-                  Log in.
-                </button>
-              </AlertParagraph>
-            </Alert>
-          </>
-        )}
+            {shouldLogin && (
+              <>
+                <Alert type={AlertType.Error} flexDirection="flex-row">
+                  <AlertParagraph className="!mt-0 flex-1">
+                    Email is taken. Existing user?{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onExistingEmail(registerEmail);
+                      }}
+                      className="font-bold underline"
+                    >
+                      Log in.
+                    </button>
+                  </AlertParagraph>
+                </Alert>
+              </>
+            )}
 
-        <Button
-          className="w-full"
-          variant={ButtonVariant.Primary}
-          type="submit"
-          loading={!isReady || isLoading}
-        >
-          Sign up - it&rsquo;s free ➔
-        </Button>
-      </AuthForm>
-
-      <OrDivider className="mb-8" label="Or sign up with" />
+            <Button
+              className="w-full"
+              variant={ButtonVariant.Primary}
+              type="submit"
+              loading={!isReady || isLoading}
+            >
+              Sign up - Free forever ➔
+            </Button>
+          </AuthForm>
+          <OrDivider className="mb-8" label="Or sign up with" />
+        </>
+      )}
 
       <div className={classNames('flex flex-col gap-8 pb-8', className)}>
         {signupProviders.map((provider) => (

@@ -150,10 +150,10 @@ it('should show user stats in a proper format', () => {
   expect(el).toHaveTextContent('20reputation');
 
   el = screen.getByTestId('upvotes');
-  expect(el).toHaveTextContent('5.0Kupvotes');
+  expect(el).toHaveTextContent('5Kupvotes');
 
   el = screen.getByTestId('views');
-  expect(el).toHaveTextContent('83.0Kviews');
+  expect(el).toHaveTextContent('83Kviews');
 });
 
 it('should show bio', () => {

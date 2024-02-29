@@ -13,6 +13,9 @@ import {
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { OperationOptions } from 'subscriptions-transport-ws';
+import { mocked } from 'ts-jest/utils';
+import { useRouter } from 'next/router';
+
 import {
   ADD_BOOKMARKS_MUTATION,
   FeedData,
@@ -38,7 +41,11 @@ import defaultFeedPage from '../../__tests__/fixture/feed';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import ad from '../../__tests__/fixture/ad';
 import { LoggedUser } from '../lib/user';
-import { MyRankData } from '../graphql/users';
+import {
+  AcquisitionChannel,
+  MyRankData,
+  USER_ACQUISITION_MUTATION,
+} from '../graphql/users';
 import { getRankQueryKey } from '../hooks/useReadingRank';
 import { SubscriptionCallbacks } from '../hooks/useSubscription';
 import SettingsContext, {
@@ -57,10 +64,12 @@ import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
 import Toast from './notifications/Toast';
 import OnboardingContext from '../contexts/OnboardingContext';
 import { LazyModalElement } from './modals/LazyModalElement';
-import { feature } from '../lib/featureManagement';
-import { SearchExperiment } from '../lib/featureValues';
 import { AuthTriggers } from '../lib/auth';
 import { SourceType } from '../graphql/sources';
+import { acquisitionKey } from './cards/AcquisitionFormCard';
+import { removeQueryParam } from '../lib/links';
+import { SharedFeedPage } from './utilities';
+import { AllFeedPages } from '../lib/query';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -96,7 +105,6 @@ const originalScrollTo = window.scrollTo;
 
 beforeAll(() => {
   window.scrollTo = jest.fn();
-  feature.search.defaultValue = SearchExperiment.Control;
 });
 
 afterAll(() => {
@@ -139,6 +147,7 @@ let queryClient: QueryClient;
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user: LoggedUser = defaultUser,
+  feedName: AllFeedPages = SharedFeedPage.MyFeed,
 ): RenderResult => {
   queryClient = new QueryClient();
 
@@ -171,6 +180,7 @@ const renderComponent = (
       <AuthContext.Provider
         value={{
           user,
+          isLoggedIn: !!user,
           shouldShowLogin: false,
           showLogin,
           logout: jest.fn(),
@@ -196,6 +206,7 @@ const renderComponent = (
             <Toast autoDismissNotifications={false} />
             <Feed
               feedQueryKey={['feed']}
+              feedName={feedName}
               query={ANONYMOUS_FEED_QUERY}
               variables={variables}
             />
@@ -1060,4 +1071,109 @@ it('should report irrelevant tags', async () => {
       screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
     ).not.toBeInTheDocument(),
   );
+});
+
+describe('acquisition form card', () => {
+  const replaceRouter = jest.fn();
+  const url = new URL(`http://localhost:5002?${acquisitionKey}=true`);
+  const mockedQuery = { [acquisitionKey]: 'true' };
+
+  beforeEach(() => {
+    /* eslint-disable @typescript-eslint/no-var-requires,global-require */
+    mockedQuery[acquisitionKey] = 'true';
+    mocked(useRouter).mockImplementation(() => ({
+      route: '/',
+      pathname: '',
+      query: mockedQuery,
+      asPath: '',
+      push: jest.fn(),
+      events: {
+        on: jest.fn(),
+        off: jest.fn(),
+      },
+      replace: replaceRouter,
+      beforePopState: jest.fn(() => null),
+      prefetch: jest.fn(() => null),
+    }));
+
+    Object.defineProperty(window, 'location', {
+      value: url,
+      configurable: true,
+    });
+  });
+
+  it('should show the form card when the right url query param is present', async () => {
+    renderComponent([createFeedMock()], defaultUser);
+    await screen.findByTestId('acquisitionFormCard');
+  });
+
+  it('should hide the card once form is submitted', async () => {
+    let mutationCalled = false;
+    const { unmount } = renderComponent([createFeedMock()], defaultUser);
+
+    const card = await screen.findByTestId('acquisitionFormCard');
+    expect(card).toBeInTheDocument();
+
+    const radio = await screen.findByLabelText('Other');
+    fireEvent.click(radio);
+
+    mockGraphQL({
+      request: {
+        query: USER_ACQUISITION_MUTATION,
+        variables: { acquisitionChannel: 'other' },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { addUserAcquisitionChannel: { _: null } } };
+      },
+    });
+
+    const submit = await screen.findByText('Submit');
+    fireEvent.click(submit);
+
+    await waitFor(() => {
+      expect(mutationCalled).toBeTruthy();
+    });
+
+    // set mocked query to false
+    mockedQuery[acquisitionKey] = 'false';
+
+    // rerender
+    unmount();
+    renderComponent([createFeedMock()], defaultUser);
+
+    expect(screen.queryByTestId('acquisitionFormCard')).not.toBeInTheDocument();
+  });
+
+  it('should not show the card if the user dismissed it', async () => {
+    renderComponent([createFeedMock()], defaultUser);
+    const close = await screen.findByLabelText('Close acquisition form');
+    fireEvent.click(close);
+
+    await waitFor(() => {
+      expect(replaceRouter).toHaveBeenCalledWith(
+        removeQueryParam(url.toString(), acquisitionKey),
+      );
+    });
+
+    const card = screen.queryByTestId('acquisitionFormCard');
+    expect(card).not.toBeInTheDocument();
+  });
+
+  it('should not show the card if the user has submitted already', async () => {
+    renderComponent([createFeedMock()], {
+      ...defaultUser,
+      acquisitionChannel: AcquisitionChannel.Blog,
+    });
+
+    const card = screen.queryByTestId('acquisitionFormCard');
+    expect(card).not.toBeInTheDocument();
+  });
+
+  it('should not show the card if the feed is different than My Feed', async () => {
+    renderComponent(undefined, undefined, SharedFeedPage.Popular);
+
+    const card = screen.queryByTestId('acquisitionFormCard');
+    expect(card).not.toBeInTheDocument();
+  });
 });

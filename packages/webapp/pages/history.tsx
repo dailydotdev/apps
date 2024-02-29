@@ -14,9 +14,6 @@ import {
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
 import { SearchHistory } from '@dailydotdev/shared/src/components';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { SearchExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { getLayout } from '../components/layouts/MainLayout';
@@ -25,17 +22,8 @@ import { HistoryType, ReadingHistory } from '../components/history';
 
 const History = (): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
-  const searchValue = useFeature(feature.search);
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const seo = (
-    <NextSeo
-      title={
-        searchValue === SearchExperiment.Control ? 'Reading history' : 'History'
-      }
-      nofollow
-      noindex
-    />
-  );
+  const seo = <NextSeo title="History" nofollow noindex />;
   const router = useRouter();
   const tabQuery = router.query?.t?.toString() as HistoryType;
   const [page, setPage] = useState(HistoryType.Reading);
@@ -68,22 +56,18 @@ const History = (): ReactElement => {
     <ProtectedPage seo={seo}>
       <div className="absolute left-0 top-[6.75rem] flex h-px w-full bg-theme-divider-tertiary laptop:hidden" />
       <ResponsivePageContainer className="relative !p-0" role="main">
-        {searchValue === SearchExperiment.Control ? (
-          <ReadingHistory />
-        ) : (
-          <TabContainer<HistoryType>
-            controlledActive={page}
-            onActiveChange={handleSetPage}
-            showBorder={isLaptop}
-          >
-            <Tab label={HistoryType.Reading}>
-              <ReadingHistory />
-            </Tab>
-            <Tab label={HistoryType.Search}>
-              <SearchHistory origin={Origin.HistoryPage} />
-            </Tab>
-          </TabContainer>
-        )}
+        <TabContainer<HistoryType>
+          controlledActive={page}
+          onActiveChange={handleSetPage}
+          showBorder={isLaptop}
+        >
+          <Tab label={HistoryType.Reading}>
+            <ReadingHistory />
+          </Tab>
+          <Tab label={HistoryType.Search}>
+            <SearchHistory origin={Origin.HistoryPage} />
+          </Tab>
+        </TabContainer>
       </ResponsivePageContainer>
     </ProtectedPage>
   );

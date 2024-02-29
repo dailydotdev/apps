@@ -50,6 +50,11 @@ export default {
           'cabbage-opacity-24': 'var(--theme-background-cabbage-opacity-24)',
           'overlay-cabbage-opacity': 'var(--theme-overlay-cabbage-opacity)',
           'overlay-onion-opacity': 'var(--theme-overlay-onion-opacity)',
+          popover: 'var(--theme-background-popover)',
+          subtle: 'var(--theme-background-subtle)',
+        },
+        surface: {
+          invert: 'var(--theme-surface-invert)',
         },
         label: {
           primary: 'var(--theme-label-primary)',

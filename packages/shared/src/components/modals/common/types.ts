@@ -41,6 +41,7 @@ export enum LazyModal {
   Video = 'video',
   NewStreak = 'newStreak',
   FirstStreak = 'firstStreak',
+  ReputationPrivileges = 'reputationPrivileges',
 }
 
 export type ModalTabItem = {

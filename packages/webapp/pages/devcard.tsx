@@ -408,18 +408,20 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                         <SimpleTooltip
                           key={value}
                           content={
-                            isLocked
-                              ? `Earn ${requiredPoints[value]} reputation points to unlock this theme`
-                              : null
+                            isLocked ? (
+                              `Earn ${requiredPoints[value]} reputation points to unlock ${value} theme`
+                            ) : (
+                              <span className="capitalize">{value}</span>
+                            )
                           }
                         >
-                          <span>
+                          <span className="mb-3 mr-3">
                             <button
                               disabled={isLocked || isLoading}
                               type="button"
                               aria-label={`Select ${value} theme`}
                               className={classNames(
-                                'mb-3 mr-3 h-10 w-10 rounded-full',
+                                'h-10 w-10 rounded-full',
                                 isLocked && 'opacity-32',
                                 checkLowercaseEquality(theme, value) &&
                                   'border-4 border-theme-color-cabbage',

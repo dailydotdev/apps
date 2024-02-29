@@ -12,11 +12,12 @@ const Paragraph = classed('p', 'text-center text-theme-label-tertiary');
 
 export default function NewStreakModal({
   currentStreak,
+  maxStreak,
   onRequestClose,
   ...props
 }: StreakModalProps): ReactElement {
   const { toggleOptOutWeeklyGoal, optOutWeeklyGoal } = useSettingsContext();
-  const shouldShowSplash = currentStreak > 20;
+  const shouldShowSplash = currentStreak >= maxStreak;
 
   return (
     <Modal

@@ -34,6 +34,7 @@ import {
 import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import { NotificationPreferenceMenu } from '@dailydotdev/shared/src/components/tooltips/notifications';
+import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -55,7 +56,8 @@ const seo = (
 
 const Notifications = (): ReactElement => {
   const { trackEvent } = useAnalyticsContext();
-  const { clearUnreadCount, isSubscribed } = useNotificationContext();
+  const { clearUnreadCount } = useNotificationContext();
+  const { isSubscribed } = usePushNotificationContext();
   const { mutateAsync: readNotifications } = useMutation(
     () => request(graphqlUrl, READ_NOTIFICATIONS_MUTATION),
     { onSuccess: clearUnreadCount },
