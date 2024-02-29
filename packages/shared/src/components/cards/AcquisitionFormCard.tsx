@@ -64,6 +64,7 @@ export function AcquisitionFormCard(): ReactElement {
       event_name: AnalyticsEvent.Impression,
       target_type: acquisitionKey,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (isSuccess) {
