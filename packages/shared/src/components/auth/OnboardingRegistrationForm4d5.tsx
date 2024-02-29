@@ -168,7 +168,7 @@ export const OnboardingRegistrationForm4d5 = ({
 
       <AuthModalFooter
         text={{
-          body: 'Already a daily.dev member?',
+          body: 'Already using daily.dev?',
           button: 'Log in',
         }}
         onClick={onShowLoginOptions}
