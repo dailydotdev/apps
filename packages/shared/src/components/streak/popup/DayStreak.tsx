@@ -4,7 +4,7 @@ import { ReadingStreakIcon, TriangleArrowIcon } from '../../icons';
 import classed from '../../../lib/classed';
 import { IconSize, iconSizeToClassName } from '../../Icon';
 import { isNullOrUndefined } from '../../../lib/func';
-import { WithSimpleTooltip } from '../../tooltips';
+import { SimpleTooltip } from '../../tooltips';
 
 export enum Streak {
   Completed = 'completed',
@@ -59,7 +59,7 @@ export function DayStreak({
   const finalDay = day < 7 ? day : day % 7;
 
   return (
-    <WithSimpleTooltip
+    <SimpleTooltip
       show={streak === Streak.Freeze}
       content="We auto-freeze streaks during the weekend, but you can still keep going if you want to"
       placement="bottom"
@@ -78,6 +78,6 @@ export function DayStreak({
         {renderIcon()}
         {!isNullOrUndefined(day) ? dayInitial[finalDay] : null}
       </div>
-    </WithSimpleTooltip>
+    </SimpleTooltip>
   );
 }

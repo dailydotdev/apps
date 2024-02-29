@@ -13,13 +13,14 @@ const TippyTooltip = dynamicParent<TooltipProps>(
 );
 
 export function SimpleTooltip({
+  show = true,
   children,
   content,
   onTrigger,
   onShow,
   forceLoad,
   ...props
-}: TooltipProps): ReactElement {
+}: TooltipProps & { show?: boolean }): ReactElement {
   /**
    * We introduced the `shouldShow` variable to manage a re-focus issue
    * The old implementation would re-focus the tooltip whenever a modal would close
@@ -64,6 +65,10 @@ export function SimpleTooltip({
     return false;
   };
 
+  if (!show) {
+    return component;
+  }
+
   return (
     <TippyTooltip
       {...props}
@@ -77,14 +82,5 @@ export function SimpleTooltip({
     </TippyTooltip>
   );
 }
-
-export const WithSimpleTooltip = ({
-  show,
-  children,
-  ...props
-}: TooltipProps & {
-  show: boolean;
-}): JSX.Element =>
-  show ? <SimpleTooltip {...props}>{children}</SimpleTooltip> : children;
 
 export default SimpleTooltip;
