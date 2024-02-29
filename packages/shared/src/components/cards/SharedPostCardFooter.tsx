@@ -2,9 +2,11 @@ import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { Post } from '../../graphql/posts';
 import { IconSize } from '../Icon';
-import { CardCover } from './common/CardCover';
+import { CardCover, CommonCardCoverProps } from './common/CardCover';
 
-interface SharedPostCardFooterProps extends Pick<Post, 'sharedPost'> {
+interface SharedPostCardFooterProps
+  extends Pick<Post, 'sharedPost'>,
+    CommonCardCoverProps {
   isShort: boolean;
   isVideoType?: boolean;
   justUpvoted?: boolean;
@@ -15,6 +17,8 @@ export const SharedPostCardFooter = ({
   isShort,
   isVideoType,
   justUpvoted,
+  onShare,
+  post,
 }: SharedPostCardFooterProps): ReactElement => {
   return (
     <div
@@ -37,6 +41,8 @@ export const SharedPostCardFooter = ({
           data-testid="sharedPostImage"
           justUpvoted={justUpvoted}
           isVideoType={isVideoType}
+          onShare={onShare}
+          post={post}
           imageProps={{
             loading: 'lazy',
             alt: 'Shared Post Cover image',

@@ -7,6 +7,7 @@ import React, {
 import { Post } from '../../graphql/posts';
 import classed, { ClassedHTML } from '../../lib/classed';
 import { Origin } from '../../lib/analytics';
+import { CommonCardCoverProps } from './common/CardCover';
 
 export const Separator = (): ReactElement => (
   <span className="mx-1">&#x2022;</span>
@@ -26,7 +27,7 @@ export type Callback = (post: Post) => unknown;
 
 export const Container = classed('div', 'relative flex flex-1 flex-col');
 
-export interface PostCardProps {
+export interface PostCardProps extends CommonCardCoverProps {
   post: Post;
   onPostClick?: Callback;
   onBookmarkClick?: Callback;
@@ -45,7 +46,6 @@ export interface PostCardProps {
   enableSourceHeader?: boolean;
   children?: ReactNode;
   domProps?: HTMLAttributes<HTMLDivElement>;
-  justUpvoted?: boolean;
 }
 
 interface GenerateTitleClampProps {

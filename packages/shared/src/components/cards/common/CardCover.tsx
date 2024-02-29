@@ -4,11 +4,17 @@ import { VideoImageProps } from '../../image/VideoImage';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { CardImage, CardVideoImage } from '../Card';
 import { CardCoverShare } from './CardCoverShare';
+import { Post } from '../../../graphql/posts';
 
-interface CardCoverProps {
+export interface CommonCardCoverProps {
+  post?: Post;
+  justUpvoted?: boolean;
+  onShare?: (post: Post) => unknown;
+}
+
+interface CardCoverProps extends CommonCardCoverProps {
   imageProps: ImageProps;
   videoProps?: Omit<VideoImageProps, 'imageProps'>;
-  justUpvoted?: boolean;
   isVideoType?: boolean;
 }
 
@@ -17,13 +23,19 @@ export function CardCover({
   videoProps,
   justUpvoted,
   isVideoType,
+  onShare,
+  post,
 }: CardCoverProps): ReactElement {
+  const coverShare = (
+    <CardCoverShare post={post} onShare={() => onShare(post)} />
+  );
+
   if (isVideoType) {
     return (
       <CardVideoImage
         {...videoProps}
         imageProps={imageProps}
-        overlay={justUpvoted ? <CardCoverShare /> : undefined}
+        overlay={justUpvoted ? coverShare : undefined}
       />
     );
   }
@@ -33,7 +45,7 @@ export function CardCover({
       condition={justUpvoted}
       wrapper={(component) => (
         <div className="relative">
-          <CardCoverShare />
+          {coverShare}
           {component}
         </div>
       )}

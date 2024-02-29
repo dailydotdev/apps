@@ -5,19 +5,18 @@ import PostAuthor from './PostAuthor';
 import { ProfilePicture } from '../ProfilePicture';
 import { Post, isVideoPost } from '../../graphql/posts';
 import { visibleOnGroupHover } from './common';
-import { CardCover } from './common/CardCover';
+import { CardCover, CommonCardCoverProps } from './common/CardCover';
 
 interface PostCardFooterClassName {
   image?: string;
 }
 
-interface PostCardFooterProps {
+interface PostCardFooterProps extends CommonCardCoverProps {
   insaneMode: boolean;
   openNewTab: boolean;
   showImage: boolean;
   post: Post;
   className: PostCardFooterClassName;
-  justUpvoted?: boolean;
 }
 
 export const PostCardFooter = ({
@@ -25,6 +24,7 @@ export const PostCardFooter = ({
   showImage,
   className,
   justUpvoted,
+  onShare,
 }: PostCardFooterProps): ReactElement => {
   const isVideoType = isVideoPost(post);
   return (
@@ -43,6 +43,8 @@ export const PostCardFooter = ({
           data-testid="postImage"
           justUpvoted={justUpvoted}
           isVideoType={isVideoType}
+          onShare={onShare}
+          post={post}
           imageProps={{
             loading: 'lazy',
             alt: 'Post Cover image',

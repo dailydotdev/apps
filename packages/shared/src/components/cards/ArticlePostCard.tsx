@@ -153,6 +153,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
             post={post}
             showImage={showImage}
             justUpvoted={justUpvoted}
+            onShare={onShare}
             className={{
               image: classNames(showFeedback && 'mb-0'),
             }}
