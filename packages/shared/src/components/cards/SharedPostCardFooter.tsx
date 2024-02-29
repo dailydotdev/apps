@@ -4,15 +4,17 @@ import { Post } from '../../graphql/posts';
 import { IconSize } from '../Icon';
 import { CardCover } from './common/CardCover';
 
-type SharedPostCardFooterProps = {
+interface SharedPostCardFooterProps extends Pick<Post, 'sharedPost'> {
   isShort: boolean;
   isVideoType?: boolean;
-} & Pick<Post, 'sharedPost'>;
+  justUpvoted?: boolean;
+}
 
 export const SharedPostCardFooter = ({
   sharedPost,
   isShort,
   isVideoType,
+  justUpvoted,
 }: SharedPostCardFooterProps): ReactElement => {
   return (
     <div
@@ -33,6 +35,7 @@ export const SharedPostCardFooter = ({
       <div className={classNames('flex h-auto flex-auto overflow-auto')}>
         <CardCover
           data-testid="sharedPostImage"
+          justUpvoted={justUpvoted}
           isVideoType={isVideoType}
           imageProps={{
             loading: 'lazy',

@@ -18,6 +18,7 @@ interface FeedbackCardProps {
   onDownvoteClick: MouseEventHandler;
   showImage?: boolean;
   isVideoType?: boolean;
+  justUpvoted?: boolean;
 }
 
 export const FeedbackCard = ({
@@ -25,6 +26,7 @@ export const FeedbackCard = ({
   onUpvoteClick,
   onDownvoteClick,
   isVideoType,
+  justUpvoted,
 }: FeedbackCardProps): ReactElement => {
   const { dismissFeedback } = usePostFeedback({ post });
 
@@ -75,6 +77,7 @@ export const FeedbackCard = ({
 
         <CardCover
           data-testid="postImage"
+          justUpvoted={justUpvoted}
           isVideoType={isVideoType}
           imageProps={{
             loading: 'lazy',

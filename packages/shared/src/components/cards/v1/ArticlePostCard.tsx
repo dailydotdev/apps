@@ -33,6 +33,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
     showImage = true,
     onReadArticleClick,
     domProps = {},
+    justUpvoted,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -116,6 +117,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
 
               <CardCover
                 data-testid="postImage"
+                justUpvoted={justUpvoted}
                 isVideoType={isVideoType}
                 imageProps={{
                   loading: 'lazy',

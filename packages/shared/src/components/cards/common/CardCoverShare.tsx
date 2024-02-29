@@ -1,22 +1,10 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { ShareIcon } from '../../icons';
 
-interface CardCoverShareProps {
-  className?: string;
-}
-
-export function CardCoverShare({
-  className,
-}: CardCoverShareProps): ReactElement {
+export function CardCoverShare(): ReactElement {
   return (
-    <span
-      className={classNames(
-        'flex flex-col items-center justify-center',
-        className,
-      )}
-    >
+    <span className="absolute inset-0 flex flex-col items-center justify-center bg-theme-highlight-blur">
       <p className="font-bold typo-callout">
         Should anyone else see this post?
       </p>

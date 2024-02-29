@@ -11,18 +11,20 @@ interface PostCardFooterClassName {
   image?: string;
 }
 
-type PostCardFooterProps = {
+interface PostCardFooterProps {
   insaneMode: boolean;
   openNewTab: boolean;
   showImage: boolean;
   post: Post;
   className: PostCardFooterClassName;
-};
+  justUpvoted?: boolean;
+}
 
 export const PostCardFooter = ({
   post,
   showImage,
   className,
+  justUpvoted,
 }: PostCardFooterProps): ReactElement => {
   const isVideoType = isVideoPost(post);
   return (
@@ -39,6 +41,7 @@ export const PostCardFooter = ({
       {showImage && (
         <CardCover
           data-testid="postImage"
+          justUpvoted={justUpvoted}
           isVideoType={isVideoType}
           imageProps={{
             loading: 'lazy',

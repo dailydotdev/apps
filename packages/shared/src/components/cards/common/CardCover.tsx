@@ -23,7 +23,7 @@ export function CardCover({
       <CardVideoImage
         {...videoProps}
         imageProps={imageProps}
-        overlay={justUpvoted ? CardCoverShare : undefined}
+        overlay={justUpvoted ? <CardCoverShare /> : undefined}
       />
     );
   }
@@ -33,7 +33,7 @@ export function CardCover({
       condition={justUpvoted}
       wrapper={(component) => (
         <div className="relative">
-          <CardCoverShare className="absolute inset-0 bg-theme-highlight-blur" />
+          <CardCoverShare />
           {component}
         </div>
       )}

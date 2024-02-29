@@ -30,12 +30,14 @@ const VideoImage = ({
       )}
     >
       {overlay || defaultOverlay}
-      <PlayIcon
-        secondary
-        size={size}
-        data-testid="playIconVideoPost"
-        className="absolute"
-      />
+      {!overlay && (
+        <PlayIcon
+          secondary
+          size={size}
+          data-testid="playIconVideoPost"
+          className="absolute"
+        />
+      )}
       <CardImage {...imageProps} type={ImageType.Post} />
     </div>
   );
