@@ -4,8 +4,8 @@ import { FeatherIcon } from '../icons';
 import PostAuthor from './PostAuthor';
 import { ProfilePicture } from '../ProfilePicture';
 import { Post, isVideoPost } from '../../graphql/posts';
-import { visibleOnGroupHover } from './common';
-import { CardCover, CommonCardCoverProps } from './common/CardCover';
+import { CommonCardCoverProps, visibleOnGroupHover } from './common';
+import { CardCover } from './common/CardCover';
 
 interface PostCardFooterClassName {
   image?: string;

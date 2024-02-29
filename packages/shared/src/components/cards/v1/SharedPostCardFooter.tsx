@@ -2,7 +2,8 @@ import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { Post } from '../../../graphql/posts';
 import { IconSize } from '../../Icon';
-import { CardCover, CommonCardCoverProps } from '../common/CardCover';
+import { CardCover } from '../common/CardCover';
+import { CommonCardCoverProps } from '../common';
 
 interface SharedPostCardFooterProps
   extends Pick<Post, 'sharedPost'>,

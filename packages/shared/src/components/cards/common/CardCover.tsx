@@ -1,16 +1,10 @@
 import React, { ReactElement, useState } from 'react';
 import { ImageProps, ImageType } from '../../image/Image';
-import { VideoImageProps } from '../../image/VideoImage';
+import VideoImage, { VideoImageProps } from '../../image/VideoImage';
 import ConditionalWrapper from '../../ConditionalWrapper';
-import { CardImage, CardVideoImage } from '../Card';
+import { CardImage } from '../Card';
 import { CardCoverShare } from './CardCoverShare';
-import { Post } from '../../../graphql/posts';
-
-export interface CommonCardCoverProps {
-  post?: Post;
-  justUpvoted?: boolean;
-  onShare?: (post: Post) => unknown;
-}
+import { CommonCardCoverProps } from '../common';
 
 interface CardCoverProps extends CommonCardCoverProps {
   imageProps: ImageProps;
@@ -41,7 +35,7 @@ export function CardCover({
 
   if (isVideoType) {
     return (
-      <CardVideoImage
+      <VideoImage
         {...videoProps}
         imageProps={imageProps}
         overlay={shouldShowOverlay ? coverShare : undefined}
