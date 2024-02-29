@@ -496,3 +496,26 @@ export const DEV_CARD_QUERY = gql`
   }
   ${USER_SHORT_INFO_FRAGMENT}
 `;
+
+export enum AcquisitionChannel {
+  Friend = 'friend',
+  SocialMedia = 'social_media',
+  SearchEngine = 'search_engine',
+  Blog = 'blog',
+  ExtensionStore = 'extension_store',
+  Advertisement = 'ad',
+  Other = 'other',
+}
+
+export const USER_ACQUISITION_MUTATION = gql`
+  mutation AddUserAcquisitionChannel($acquisitionChannel: AcquisitionChannel!) {
+    addUserAcquisitionChannel(acquisitionChannel: $acquisitionChannel) {
+      _
+    }
+  }
+`;
+
+export const updateUserAcquisition = (
+  acquisitionChannel: AcquisitionChannel,
+): Promise<void> =>
+  request(graphqlUrl, USER_ACQUISITION_MUTATION, { acquisitionChannel });

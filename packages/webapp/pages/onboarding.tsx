@@ -21,6 +21,7 @@ import {
 import {
   ExperimentWinner,
   OnboardingV4dot5,
+  UserAcquisition,
 } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
@@ -121,6 +122,7 @@ export function OnboardPage(): ReactElement {
   );
   const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
   const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
+  const userAcquisitionVersion = useFeature(feature.userAcquisition);
   const targetId: string =
     onboardingV4dot5 === OnboardingV4dot5.Control
       ? ExperimentWinner.OnboardingV4
@@ -158,12 +160,15 @@ export function OnboardPage(): ReactElement {
 
     return router.replace({
       pathname: '/',
-      ...(!onboardingOptimizations && {
-        query: {
+      query: {
+        ...(userAcquisitionVersion === UserAcquisition.V1 && {
+          ua: 'true',
+        }),
+        ...(!onboardingOptimizations && {
           welcome: 'true',
           hset: 'true',
-        },
-      }),
+        }),
+      },
     });
   };
 
