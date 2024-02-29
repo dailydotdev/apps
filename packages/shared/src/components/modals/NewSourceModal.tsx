@@ -269,11 +269,6 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
                 <LockIcon className="text-theme-label-disabled" />
               ) : undefined
             }
-            style={{
-              // needed to overwrite fill from base.css input style
-              // to make the placeholder color work
-              WebkitTextFillColor: 'unset',
-            }}
           />
         </form>
         {isEnabled && existingSource && (

@@ -505,9 +505,3 @@ details.right-icon {
     border-radius: 14px;
   }
 }
-
-input {
-  @apply bg-clip-text;
-
-  -webkit-text-fill-color: var(--theme-label-primary);
-}

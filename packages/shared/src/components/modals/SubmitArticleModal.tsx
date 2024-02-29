@@ -245,11 +245,6 @@ export default function SubmitArticleModal({
               hint={urlHint}
               valid={!urlHint}
               valueChanged={onUrlChanged}
-              style={{
-                // needed to overwrite fill from base.css input style
-                // to make the placeholder color work
-                WebkitTextFillColor: 'unset',
-              }}
             />
             {isSubmitted ? (
               <Alert
