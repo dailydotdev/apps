@@ -45,6 +45,7 @@ export interface PostCardProps {
   enableSourceHeader?: boolean;
   children?: ReactNode;
   domProps?: HTMLAttributes<HTMLDivElement>;
+  justUpvoted?: boolean;
 }
 
 interface GenerateTitleClampProps {

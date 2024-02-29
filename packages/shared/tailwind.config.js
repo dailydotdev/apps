@@ -108,6 +108,7 @@ module.exports = {
         },
         'post-disabled': 'var(--theme-post-disabled)',
         highlight: {
+          blur: 'var(--theme-blur-highlight)',
           comment: 'var(--theme-highlight-comment)',
           red: 'var(--theme-highlight-red)',
           orange: 'var(--theme-highlight-orange)',

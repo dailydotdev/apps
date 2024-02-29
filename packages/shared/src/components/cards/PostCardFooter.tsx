@@ -1,12 +1,11 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { CardImage, CardVideoImage } from './Card';
 import { FeatherIcon } from '../icons';
 import PostAuthor from './PostAuthor';
 import { ProfilePicture } from '../ProfilePicture';
 import { Post, isVideoPost } from '../../graphql/posts';
-import { cloudinary } from '../../lib/image';
 import { visibleOnGroupHover } from './common';
+import { CardCover } from './common/CardCover';
 
 interface PostCardFooterClassName {
   image?: string;
@@ -26,7 +25,6 @@ export const PostCardFooter = ({
   className,
 }: PostCardFooterProps): ReactElement => {
   const isVideoType = isVideoPost(post);
-  const ImageComponent = isVideoType ? CardVideoImage : CardImage;
   return (
     <>
       {!showImage && post.author && (
@@ -39,18 +37,20 @@ export const PostCardFooter = ({
         />
       )}
       {showImage && (
-        <ImageComponent
-          alt="Post Cover image"
-          src={post.image}
-          fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-          className={classNames(
-            'w-full object-cover',
-            className.image,
-            !isVideoType && 'my-2',
-          )}
-          loading="lazy"
+        <CardCover
           data-testid="postImage"
-          {...(isVideoType && { wrapperClassName: 'my-2' })}
+          isVideoType={isVideoType}
+          imageProps={{
+            loading: 'lazy',
+            alt: 'Post Cover image',
+            src: post.image,
+            className: classNames(
+              'w-full object-cover',
+              className.image,
+              !isVideoType && 'my-2',
+            ),
+          }}
+          videoProps={{ className: 'my-2' }}
         />
       )}
       {showImage && post.author && (

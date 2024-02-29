@@ -1,4 +1,4 @@
-import React, { FunctionComponent, ReactElement } from 'react';
+import React, { FunctionComponent, ReactElement, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { FeedItem } from '../hooks/useFeed';
 import { PostList } from './cards/PostList';
@@ -154,6 +154,7 @@ export default function FeedItemComponent({
   onAdClick,
   onReadArticleClick,
 }: FeedItemComponentProps): ReactElement {
+  const [justUpvoted, setJustUpvoted] = useState(false);
   const item = items[index];
   const inViewRef = useTrackImpression(
     item,
@@ -191,7 +192,9 @@ export default function FeedItemComponent({
             ...item.post,
           }}
           data-testid="postItem"
+          justUpvoted={justUpvoted}
           onUpvoteClick={(post, origin = Origin.Feed) => {
+            setJustUpvoted(!post.upvoted);
             toggleUpvote({
               post,
               origin,

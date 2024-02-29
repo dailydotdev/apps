@@ -1,9 +1,8 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { Post } from '../../graphql/posts';
-import { cloudinary } from '../../lib/image';
 import { IconSize } from '../Icon';
-import { CardImage, CardVideoImage } from './Card';
+import { CardCover } from './common/CardCover';
 
 type SharedPostCardFooterProps = {
   isShort: boolean;
@@ -15,7 +14,6 @@ export const SharedPostCardFooter = ({
   isShort,
   isVideoType,
 }: SharedPostCardFooterProps): ReactElement => {
-  const ImageComponent = isVideoType ? CardVideoImage : CardImage;
   return (
     <div
       className={classNames(
@@ -33,18 +31,22 @@ export const SharedPostCardFooter = ({
       </div>
 
       <div className={classNames('flex h-auto flex-auto overflow-auto')}>
-        <ImageComponent
-          size={isShort ? IconSize.XLarge : IconSize.XXXLarge}
-          alt="Shared Post Cover image"
-          src={sharedPost.image}
-          fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-          className={classNames(
-            'h-auto min-h-0 object-cover',
-            isShort ? 'aspect-square' : 'w-full',
-          )}
-          {...(isVideoType && { wrapperClassName: 'overflow-hidden' })}
-          loading="lazy"
+        <CardCover
           data-testid="sharedPostImage"
+          isVideoType={isVideoType}
+          imageProps={{
+            loading: 'lazy',
+            alt: 'Shared Post Cover image',
+            src: sharedPost.image,
+            className: classNames(
+              'h-auto min-h-0 object-cover',
+              isShort ? 'aspect-square' : 'w-full',
+            ),
+          }}
+          videoProps={{
+            size: isShort ? IconSize.XLarge : IconSize.XXXLarge,
+            className: 'overflow-hidden',
+          }}
         />
       </div>
     </div>
