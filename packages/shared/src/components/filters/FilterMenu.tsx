@@ -10,6 +10,8 @@ import { Source } from '../../graphql/sources';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
 import { ContentTypesFilter } from './ContentTypesFilter';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { AuthTriggers } from '../../lib/auth';
 
 const NewSourceModal = dynamic(
   () =>
@@ -36,6 +38,7 @@ export const unBlockPromptOptions: PromptOptions = {
 export default function FilterMenu({
   directlyOpenedTab,
 }: FilterMenuProps): ReactElement {
+  const { isLoggedIn, showLogin } = useAuthContext();
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
   const { showPrompt } = usePrompt();
   const unBlockPrompt = async ({ action, source, tag }: UnblockItem) => {
@@ -73,7 +76,15 @@ export default function FilterMenu({
     {
       icon: <PlusIcon className="mr-3 text-xl" />,
       title: 'Suggest new source',
-      action: () => setShowNewSourceModal(true),
+      action: () => {
+        if (!isLoggedIn) {
+          showLogin({ trigger: AuthTriggers.SubmitNewSource });
+
+          return;
+        }
+
+        setShowNewSourceModal(true);
+      },
     },
   ];
 

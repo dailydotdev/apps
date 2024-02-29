@@ -5,10 +5,13 @@ import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { AuthTriggers } from '../../lib/auth';
 
 export function ContributeSection(props: SectionCommonProps): ReactElement {
   const router = useRouter();
   const { modal, openModal } = useLazyModal();
+  const { isLoggedIn, showLogin } = useAuthContext();
 
   const openSubmitArticle = () => openModal({ type: LazyModal.SubmitArticle });
 
@@ -26,7 +29,15 @@ export function ContributeSection(props: SectionCommonProps): ReactElement {
         <ListIcon Icon={() => <EmbedIcon secondary={active} />} />
       ),
       title: 'Suggest new source',
-      action: () => openModal({ type: LazyModal.NewSource }),
+      action: () => {
+        if (!isLoggedIn) {
+          showLogin({ trigger: AuthTriggers.SubmitNewSource });
+
+          return;
+        }
+
+        openModal({ type: LazyModal.NewSource });
+      },
       active: modal?.type === LazyModal.NewSource,
     },
   ];

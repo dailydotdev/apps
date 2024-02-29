@@ -80,6 +80,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   referralLink?: string;
   canSubmitArticle?: boolean;
   password?: string;
+  acquisitionChannel?: string;
 }
 
 interface BaseError {
