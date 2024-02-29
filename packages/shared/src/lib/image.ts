@@ -167,6 +167,10 @@ export const cloudinary = {
     defaultCoverImage:
       'https://daily-now-res.cloudinary.com/image/upload/s--b9BjE_Vi--/f_auto/v1707404283/card-cover_emugw3',
   },
+  reputation: {
+    privilegesUnlocked:
+      'https://daily-now-res.cloudinary.com/image/upload/s--6sO7fJKh--/v1709136797/image_epr7dz.svg',
+  },
 };
 
 export const smallPostImage = (url: string): string => {
