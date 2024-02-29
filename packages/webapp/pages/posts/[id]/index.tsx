@@ -132,6 +132,21 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   };
 
   const seoComponent = <NextSeo {...seo} />;
+  const schemaComponent = (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: post?.title,
+          datePublished: post?.createdAt,
+          dateModified: post?.updatedAt,
+          description: getSeoDescription(post),
+        }),
+      }}
+    />
+  );
 
   useScrollTopOffset(() => globalThis.window, {
     onOverOffset: () => position !== 'fixed' && setPosition('fixed'),
@@ -196,6 +211,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     <>
       <Head>
         <link rel="preload" as="image" href={post?.image} />
+        {schemaComponent}
       </Head>
       {seoComponent}
       <Content
