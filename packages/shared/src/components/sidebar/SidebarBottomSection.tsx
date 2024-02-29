@@ -7,7 +7,7 @@ import { Section, SectionCommonProps } from './Section';
 import { docs, feedback } from '../../lib/constants';
 import { useChangelog } from '../../hooks/useChangelog';
 import { AlertColor, AlertDot } from '../AlertDot';
-import { useReadingStreak, useStreakExperiment } from '../../hooks/streaks';
+import { useStreakExperiment } from '../../hooks/streaks';
 
 const ChangelogTooltip = dynamic(
   () =>
