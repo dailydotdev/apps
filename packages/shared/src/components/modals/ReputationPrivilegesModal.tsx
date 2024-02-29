@@ -7,6 +7,7 @@ import { ActionType } from '../../graphql/actions';
 import { Image } from '../image/Image';
 import { cloudinary } from '../../lib/image';
 import { reputation } from '../../lib/constants';
+import { anchorDefaultRel } from '../../lib/strings';
 
 export const ReputationPrivilegesModal = ({
   onRequestClose,
@@ -47,6 +48,7 @@ export const ReputationPrivilegesModal = ({
         <Button
           target="_blank"
           tag="a"
+          rel={anchorDefaultRel}
           href={reputation}
           className="w-full"
           variant={ButtonVariant.Primary}

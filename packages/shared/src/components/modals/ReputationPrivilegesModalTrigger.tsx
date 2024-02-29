@@ -5,7 +5,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from './common/types';
 import { useAuthContext } from '../../contexts/AuthContext';
 
-const threshold = 10;
+const threshold = 250;
 
 export const ReputationPrivilegesModalTrigger = (): ReactElement => {
   const { checkHasCompleted, isActionsFetched } = useActions();
