@@ -36,6 +36,7 @@ export const useStreakMilestone = (): void => {
       type: modalType,
       props: {
         currentStreak: streak?.current,
+        maxStreak: streak?.max,
         onAfterClose: () => {
           updateAlerts({ showStreakMilestone: false });
         },
