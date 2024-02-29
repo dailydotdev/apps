@@ -1,4 +1,4 @@
-const colors = require('./colors');
+import colors from './colors';
 
 const overlayColor = (color) => {
   if (color === 'white') {
@@ -37,4 +37,5 @@ const overlayColors = Object.keys(overlay).reduce(
   {},
 );
 
-module.exports = overlayColors;
+export default overlayColors;
+

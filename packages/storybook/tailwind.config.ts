@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const config = require('@dailydotdev/shared/tailwind.config');
+import type { Config } from 'tailwindcss'
+import config from '@dailydotdev/shared/tailwind.config';
 
-module.exports = {
+export default {
   ...config,
   content: [
     './src/**/*.{ts,tsx}',
@@ -12,4 +12,4 @@ module.exports = {
       pattern: /^(.*?)/,
     },
   ]
-};
+} satisfies Config;

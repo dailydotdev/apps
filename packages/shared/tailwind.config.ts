@@ -1,16 +1,20 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const colors = require('./tailwind/colors');
-const overlay = require('./tailwind/overlay');
-const boxShadow = require('./tailwind/boxShadow');
-const caret = require('./tailwind/caret');
-const typography = require('./tailwind/typography');
-const buttons = require('./tailwind/buttons');
+import type { Config } from 'tailwindcss'
+import colors from './tailwind/colors';
+import overlay from './tailwind/overlay';
+import accent from './tailwind/accent';
+import boxShadow from './tailwind/boxShadow';
+import caret from './tailwind/caret';
+import typography from './tailwind/typography';
+import buttons from './tailwind/buttons';
 
-module.exports = {
+
+export default {
+  content: [],
   theme: {
     colors: {
       ...colors,
       overlay,
+      accent,
       background: {
         default: 'var(--theme-background-default)',
         subtle: 'var(--theme-background-subtle)',
@@ -18,15 +22,6 @@ module.exports = {
         post: {
           post: 'var(--theme-background-post-post)',
           disabled: 'var(--theme-background-post-disabled)',
-        },
-      },
-      accent: {
-        burger: {
-          subtlest: 'var(--theme-accent-burger-subtlest)',
-          subtler: 'var(--theme-accent-burger-subtler)',
-          subtle: 'var(--theme-accent-burger-subtle)',
-          default: 'var(--theme-accent-burger)',
-          bolder: 'var(--theme-accent-burger-bolder)',
         },
       },
       theme: {
@@ -276,4 +271,4 @@ module.exports = {
   corePlugins: {
     invert: false,
   },
-};
+} satisfies Config;

@@ -1,4 +1,4 @@
-const colors = require('./colors');
+import colors from './colors';
 
 const shadowColor = (color) => {
   if (color === 'black') {
@@ -30,8 +30,8 @@ const boxShadows = Object.keys(baseShadows).reduce(
   {},
 );
 
-module.exports = {
+export default {
   ...boxShadows,
   2: 'var(--theme-shadow2)',
   3: 'var(--theme-shadow3)',
-};
+}

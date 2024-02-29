@@ -44,11 +44,19 @@ body {
   --theme-background-post-disabled: var(--theme-background-default);
 
   /* Accent colors */
+  /* Burger */
   --theme-accent-burger-subtlest: theme('colors.burger.10');
   --theme-accent-burger-subtler: theme('colors.burger.20');
   --theme-accent-burger-subtle: theme('colors.burger.30');
-  --theme-accent-burger: theme('colors.burger.40');
+  --theme-accent-burger-default: theme('colors.burger.40');
   --theme-accent-burger-bolder: theme('colors.burger.50');
+  /* Blue Cheese */
+  --theme-accent-blueCheese-subtlest: theme('colors.blueCheese.10');
+  --theme-accent-blueCheese-subtler: theme('colors.blueCheese.20');
+  --theme-accent-blueCheese-subtle: theme('colors.blueCheese.30');
+  --theme-accent-blueCheese-default: theme('colors.blueCheese.40');
+  --theme-accent-blueCheese-bolder: theme('colors.blueCheese.50');
+
 
   --theme-active: theme('colors.salt.90')33;
   --theme-focus: theme('colors.blueCheese.40');
@@ -98,21 +106,21 @@ body {
   --theme-mention-hover: rgba(206, 61, 243, 0.32);
   --theme-post-disabled: theme('colors.pepper.70')66;
 
-  --theme-overlay-quaternary: theme('colors.overlay.quaternary.white');
-  --theme-overlay-water: theme('colors.overlay.quaternary.water');
-  --theme-overlay-cabbage: theme('colors.overlay.quaternary.cabbage');
-  --theme-overlay-from: theme('colors.onion.40')30;
-  --theme-overlay-to: theme('colors.cabbage.40')30;
+  /*--theme-overlay-quaternary: theme('colors.overlay.quaternary.white');*/
+  /*--theme-overlay-water: theme('colors.overlay.quaternary.water');*/
+  /*--theme-overlay-cabbage: theme('colors.overlay.quaternary.cabbage');*/
+  /*--theme-overlay-from: theme('colors.onion.40')30;*/
+  /*--theme-overlay-to: theme('colors.cabbage.40')30;*/
 
-  --theme-overlay-float-bun: theme('colors.overlay.float.bun');
-  --theme-overlay-float-blueCheese: theme('colors.overlay.float.blueCheese');
-  --theme-overlay-float-cabbage: theme('colors.overlay.float.cabbage');
-  --theme-overlay-float-avocado: theme('colors.overlay.float.avocado');
-  --theme-overlay-float-ketchup: theme('colors.overlay.float.ketchup');
+  /*--theme-overlay-float-bun: theme('colors.overlay.float.bun');*/
+  /*--theme-overlay-float-blueCheese: theme('colors.overlay.float.blueCheese');*/
+  /*--theme-overlay-float-cabbage: theme('colors.overlay.float.cabbage');*/
+  /*--theme-overlay-float-avocado: theme('colors.overlay.float.avocado');*/
+  /*--theme-overlay-float-ketchup: theme('colors.overlay.float.ketchup');*/
 
-  --theme-overlay-active-cabbage: theme('colors.overlay.active.cabbage');
-  --theme-overlay-active-onion: theme('colors.overlay.active.onion');
-  --theme-overlay-active-salt: theme('colors.overlay.active.salt');
+  /*--theme-overlay-active-cabbage: theme('colors.overlay.active.cabbage');*/
+  /*--theme-overlay-active-onion: theme('colors.overlay.active.onion');*/
+  /*--theme-overlay-active-salt: theme('colors.overlay.active.salt');*/
 
   --theme-gradient-cabbage: theme('colors.cabbage.10')66;
   --theme-gradient-onion: theme('colors.onion.10')66;
@@ -220,28 +228,28 @@ body {
   --theme-status-cabbage-invert: theme('colors.cabbage.40');
   --theme-status-fill: theme('colors.water.60');
 
-  --theme-shadow2: theme('boxShadow.2-salt');
-  --theme-shadow3: theme('boxShadow.3-salt');
+  /*--theme-shadow2: theme('boxShadow.2-salt');*/
+  /*--theme-shadow3: theme('boxShadow.3-salt');*/
 
   --theme-mention: rgba(172, 29, 228, 0.24);
   --theme-mention-hover: rgba(172, 29, 228, 0.32);
   --theme-post-disabled: #ffffff66;
 
-  --theme-overlay-quaternary: theme('colors.overlay.quaternary.pepper');
-  --theme-overlay-water: theme('colors.overlay.quaternary.water');
-  --theme-overlay-cabbage: theme('colors.overlay.quaternary.cabbage');
+  /*--theme-overlay-quaternary: theme('colors.overlay.quaternary.pepper');*/
+  /*--theme-overlay-water: theme('colors.overlay.quaternary.water');*/
+  /*--theme-overlay-cabbage: theme('colors.overlay.quaternary.cabbage');*/
   --theme-overlay-from: theme('colors.onion.40')30;
   --theme-overlay-to: theme('colors.cabbage.40')30;
 
-  --theme-overlay-float-bun: theme('colors.overlay.float.bun');
-  --theme-overlay-float-blueCheese: theme('colors.overlay.float.blueCheese');
-  --theme-overlay-float-cabbage: theme('colors.overlay.float.cabbage');
-  --theme-overlay-float-avocado: theme('colors.overlay.float.avocado');
-  --theme-overlay-float-ketchup: theme('colors.overlay.float.ketchup');
+  /*--theme-overlay-float-bun: theme('colors.overlay.float.bun');*/
+  /*--theme-overlay-float-blueCheese: theme('colors.overlay.float.blueCheese');*/
+  /*--theme-overlay-float-cabbage: theme('colors.overlay.float.cabbage');*/
+  /*--theme-overlay-float-avocado: theme('colors.overlay.float.avocado');*/
+  /*--theme-overlay-float-ketchup: theme('colors.overlay.float.ketchup');*/
 
-  --theme-overlay-active-cabbage: theme('colors.overlay.active.cabbage');
-  --theme-overlay-active-onion: theme('colors.overlay.active.onion');
-  --theme-overlay-active-salt: theme('colors.overlay.active.salt');
+  /*--theme-overlay-active-cabbage: theme('colors.overlay.active.cabbage');*/
+  /*--theme-overlay-active-onion: theme('colors.overlay.active.onion');*/
+  /*--theme-overlay-active-salt: theme('colors.overlay.active.salt');*/
 
   --theme-gradient-cabbage: theme('colors.cabbage.10')66;
   --theme-gradient-onion: theme('colors.onion.10')66;

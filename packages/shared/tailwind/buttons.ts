@@ -1,7 +1,8 @@
-const plugin = require('tailwindcss/plugin');
-const colors = require('./colors');
-const boxShadow = require('./boxShadow');
-const overlay = require('./overlay');
+import colors from './colors';
+import boxShadow from './boxShadow';
+import overlay from './overlay';
+
+import plugin from 'tailwindcss/plugin'
 
 const variations = {
   primary: (color) => ({
@@ -223,7 +224,7 @@ const variationToStyles = (variation) => ({
   ),
 });
 
-module.exports = plugin(({ addComponents }) => {
+export default plugin(({ addComponents }) => {
   const buttons = Object.keys(variations).reduce(
     (acc, variation) => ({
       ...acc,

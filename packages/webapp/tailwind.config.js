@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const config = require('@dailydotdev/shared/tailwind.config');
+const config = require('packages/shared/tailwind.config');
 const fs = require('fs');
 const path = require('path');
 
