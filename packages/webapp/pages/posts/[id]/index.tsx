@@ -15,7 +15,6 @@ import {
 import { ParsedUrlQuery } from 'querystring';
 import { NextSeo } from 'next-seo';
 import {
-  Post,
   POST_BY_ID_STATIC_FIELDS_QUERY,
   PostData,
   PostType,
