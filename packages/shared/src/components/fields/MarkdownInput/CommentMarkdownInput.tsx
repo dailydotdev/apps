@@ -193,9 +193,7 @@ export function CommentMarkdownInput({
   const onSubmitForm: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const { content } = formToJson(e.currentTarget);
+    const { content } = formToJson<{ content: string }>(e.currentTarget);
 
     return onSubmit(content);
   };

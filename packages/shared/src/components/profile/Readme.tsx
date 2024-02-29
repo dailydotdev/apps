@@ -56,7 +56,7 @@ function EditableReadme({
 }): ReactElement {
   const onSubmitForm: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
-    const { content } = formToJson(e.currentTarget);
+    const { content } = formToJson<{ content: string }>(e.currentTarget);
     return updateReadme(content);
   };
 

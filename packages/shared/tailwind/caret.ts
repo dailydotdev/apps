@@ -1,3 +1,4 @@
+// @ts-nocheck
 import plugin from 'tailwindcss/plugin';
 
 const generateColors = (e, colors, prefix) =>
