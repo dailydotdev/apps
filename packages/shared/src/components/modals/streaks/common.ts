@@ -1,5 +1,7 @@
+import { UserStreak } from '../../../graphql/users';
 import { LazyModalCommonProps } from '../common/Modal';
 
 export interface StreakModalProps extends LazyModalCommonProps {
-  currentStreak: number;
+  currentStreak: UserStreak['current'];
+  maxStreak: UserStreak['max'];
 }
