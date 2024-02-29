@@ -69,7 +69,7 @@ export default function NewStreakModal({
           )}
         >
           {shouldShowSplash
-            ? 'Epic win! You are on a league of your own'
+            ? 'Epic win! You are in a league of your own'
             : `New milestone reached! You are unstoppable.`}
         </Paragraph>
         <Checkbox
