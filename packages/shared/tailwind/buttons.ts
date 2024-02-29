@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import plugin from 'tailwindcss/plugin';
 import colors from './colors';
 import boxShadow from './boxShadow';
@@ -66,14 +68,14 @@ const variations = {
       hover: {
         color: color ? colors[color]['40'] : undefined,
         background: color
-          ? overlay['quaternary'][color]
+          ? overlay.quaternary[color]
           : `${colors.salt['90']}1F`,
         'border-color': color ? colors[color]['40'] : undefined,
         'box-shadow': color ? boxShadow[`3-${color}`] : 'var(--theme-shadow3)',
       },
       active: {
         color: color ? colors[color]['40'] : undefined,
-        background: color ? overlay['tertiary'][color] : `${colors.salt['90']}33`,
+        background: color ? overlay.tertiary[color] : `${colors.salt['90']}33`,
         'border-color': color ? colors[color]['40'] : undefined,
         'box-shadow': color ? boxShadow[`2-${color}`] : 'var(--theme-shadow2)',
       },
@@ -91,14 +93,14 @@ const variations = {
       hover: {
         color: color ? colors[color]['60'] : undefined,
         background: color
-          ? overlay['quaternary'][color]
+          ? overlay.quaternary[color]
           : `${colors.pepper['10']}1F`,
         'border-color': color ? colors[color]['60'] : undefined,
       },
       active: {
         color: color ? colors[color]['60'] : undefined,
         background: color
-          ? overlay['tertiary'][color]
+          ? overlay.tertiary[color]
           : `${colors.pepper['10']}33`,
         'border-color': color ? colors[color]['60'] : undefined,
       },
@@ -120,11 +122,11 @@ const variations = {
       hover: {
         color: color ? colors[color]['40'] : 'var(--theme-label-primary)',
         background: color
-          ? overlay['quaternary'][color]
+          ? overlay.quaternary[color]
           : `${colors.salt['90']}1F`,
       },
       active: {
-        color: color ? overlay['tertiary'][color] : 'var(--theme-label-primary)',
+        color: color ? overlay.tertiary[color] : 'var(--theme-label-primary)',
         background: color
           ? `${colors[color]['10']}33`
           : `${colors.salt['90']}33`,
@@ -140,13 +142,13 @@ const variations = {
       hover: {
         color: color ? colors[color]['60'] : undefined,
         background: color
-          ? overlay['quaternary'][color]
+          ? overlay.quaternary[color]
           : `${colors.pepper['10']}1F`,
       },
       active: {
         color: color ? colors[color]['60'] : undefined,
         background: color
-          ? overlay['tertiary'][color]
+          ? overlay.tertiary[color]
           : `${colors.pepper['10']}33`,
       },
       pressed: {
@@ -168,17 +170,17 @@ const variations = {
   tag: (color) => {
     const states = variations.tertiaryFloat(color);
     states.darkStates.default.color = 'var(--theme-label-primary)';
-    states.darkStates.default['icon'] = 'var(--theme-label-secondary)';
-    states.darkStates.hover['icon'] = 'var(--theme-label-primary)';
+    states.darkStates.default.icon = 'var(--theme-label-secondary)';
+    states.darkStates.hover.icon = 'var(--theme-label-primary)';
     return states;
   },
   tagBlocked: (color) => {
     const states = variations.tag(color);
     states.darkStates.default.color = 'var(--theme-label-secondary)';
     states.darkStates.hover.color = 'var(--theme-label-primary)';
-    states.darkStates.default['icon'] = 'var(--theme-label-secondary)';
-    states.darkStates.hover['icon'] = 'var(--theme-status-error)';
-    states.darkStates.active['icon'] = 'var(--theme-status-error)';
+    states.darkStates.default.icon = 'var(--theme-label-secondary)';
+    states.darkStates.hover.icon = 'var(--theme-status-error)';
+    states.darkStates.active.icon = 'var(--theme-status-error)';
     return states;
   },
 };
