@@ -78,8 +78,6 @@ body {
   --theme-background-pepper-40: theme('colors.pepper.40');
   /* stylelint-disable-next-line unit-no-unknown */
   --theme-background-cabbage-opacity-24: theme('colors.cabbage.40')3D;
-  --theme-background-subtle: theme('colors.pepper.70');
-  --theme-background-popover: theme('colors.pepper.70');
 
   --theme-surface-invert: theme('colors.pepper.90');
 
