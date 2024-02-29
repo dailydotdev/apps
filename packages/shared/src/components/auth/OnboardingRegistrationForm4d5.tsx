@@ -145,7 +145,7 @@ export const OnboardingRegistrationForm4d5 = ({
             type="submit"
             loading={!isReady || isLoading}
           >
-            Sign up - it&rsquo;s free ➔
+            Sign up - Free forever ➔
           </Button>
         </AuthForm>
 
