@@ -1,5 +1,15 @@
 import { Post, PostType } from '@dailydotdev/shared/src/graphql/posts';
 
+export const getSeoDescription = (post: Post): string => {
+  if (post?.summary) {
+    return post?.summary;
+  }
+  if (post?.description) {
+    return post?.description;
+  }
+  return `Join us to the discussion about "${post?.title}" on daily.dev ✌️`;
+};
+
 export const getSEOJsonLd = (post: Post): string => {
   return JSON.stringify({
     '@context': 'https://schema.org',
@@ -52,14 +62,4 @@ export const getSEOJsonLd = (post: Post): string => {
       },
     }),
   });
-};
-
-export const getSeoDescription = (post: Post): string => {
-  if (post?.summary) {
-    return post?.summary;
-  }
-  if (post?.description) {
-    return post?.description;
-  }
-  return `Join us to the discussion about "${post?.title}" on daily.dev ✌️`;
 };
