@@ -7,14 +7,20 @@ import { ShareProvider } from '../../../lib/share';
 
 interface CardCoverShareProps {
   onShare: () => void;
+  onCopy: () => void;
   post: Post;
 }
 
 export function CardCoverShare({
   post,
+  onCopy,
   onShare,
 }: CardCoverShareProps): ReactElement {
   const onCopyLink = useTrackedCopyPostLink(post);
+  const onClick = () => {
+    onCopyLink(ShareProvider.CopyLink);
+    onCopy();
+  };
 
   return (
     <span className="absolute inset-0 flex flex-col items-center justify-center bg-theme-highlight-blur">
@@ -22,10 +28,7 @@ export function CardCoverShare({
         Should anyone else see this post?
       </p>
       <span className="mt-2 flex flex-row gap-3 p-2">
-        <Button
-          variant={ButtonVariant.Secondary}
-          onClick={() => onCopyLink(ShareProvider.CopyLink)}
-        >
+        <Button variant={ButtonVariant.Secondary} onClick={onClick}>
           Copy link
         </Button>
         <Button

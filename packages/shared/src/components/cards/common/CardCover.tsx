@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { ImageProps, ImageType } from '../../image/Image';
 import { VideoImageProps } from '../../image/VideoImage';
 import ConditionalWrapper from '../../ConditionalWrapper';
@@ -26,8 +26,17 @@ export function CardCover({
   onShare,
   post,
 }: CardCoverProps): ReactElement {
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const shouldShowOverlay = justUpvoted && !hasInteracted;
   const coverShare = (
-    <CardCoverShare post={post} onShare={() => onShare(post)} />
+    <CardCoverShare
+      post={post}
+      onShare={() => {
+        setHasInteracted(true);
+        onShare(post);
+      }}
+      onCopy={() => setHasInteracted(true)}
+    />
   );
 
   if (isVideoType) {
@@ -35,14 +44,14 @@ export function CardCover({
       <CardVideoImage
         {...videoProps}
         imageProps={imageProps}
-        overlay={justUpvoted ? coverShare : undefined}
+        overlay={shouldShowOverlay ? coverShare : undefined}
       />
     );
   }
 
   return (
     <ConditionalWrapper
-      condition={justUpvoted}
+      condition={shouldShowOverlay}
       wrapper={(component) => (
         <div className="relative">
           {coverShare}
