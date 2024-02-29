@@ -123,8 +123,8 @@ export function OnboardPage(): ReactElement {
   const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
   const targetId: string =
     onboardingV4dot5 === OnboardingV4dot5.Control
-      ? OnboardingV4dot5.V4dot5
-      : ExperimentWinner.OnboardingV4;
+      ? ExperimentWinner.OnboardingV4
+      : OnboardingV4dot5.V4dot5;
   const formRef = useRef<HTMLFormElement>();
 
   const onClickNext = () => {

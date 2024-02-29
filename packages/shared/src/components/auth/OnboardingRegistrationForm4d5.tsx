@@ -145,7 +145,7 @@ export const OnboardingRegistrationForm4d5 = ({
             type="submit"
             loading={!isReady || isLoading}
           >
-            Sign up - it&rsquo;s free ➔
+            Sign up - Free forever ➔
           </Button>
         </AuthForm>
 
@@ -168,7 +168,7 @@ export const OnboardingRegistrationForm4d5 = ({
 
       <AuthModalFooter
         text={{
-          body: 'Already a daily.dev member?',
+          body: 'Already using daily.dev?',
           button: 'Log in',
         }}
         onClick={onShowLoginOptions}

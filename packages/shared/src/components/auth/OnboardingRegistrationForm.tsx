@@ -131,7 +131,7 @@ const OnboardingRegistrationForm = ({
               type="submit"
               loading={!isReady || isLoading}
             >
-              Sign up - it&rsquo;s free ➔
+              Sign up - Free forever ➔
             </Button>
           </AuthForm>
           <OrDivider className="mb-8" label="Or sign up with" />

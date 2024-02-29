@@ -84,6 +84,7 @@ export function PushNotificationContextProvider({
     data: OneSignalCache,
     isFetched,
     isLoading,
+    isSuccess,
   } = useQuery<typeof OneSignal>(
     key,
     async () => {
@@ -144,10 +145,10 @@ export function PushNotificationContextProvider({
   return (
     <PushNotificationsContext.Provider
       value={{
-        isInitialized: !isEnabled || isFetched,
+        isInitialized: !isEnabled || isFetched || !isSuccess,
         isLoading,
         isSubscribed,
-        isPushSupported,
+        isPushSupported: isPushSupported && isSuccess && isEnabled,
         onSourceChange,
         trackPermissionGranted,
         shouldOpenPopup: false,
