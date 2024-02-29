@@ -19,7 +19,7 @@ export default function NewStreakModal({
   const { toggleOptOutWeeklyGoal, optOutWeeklyGoal } = useSettingsContext();
   const shouldShowSplash = currentStreak >= maxStreak;
 
-  const daysPlural = currentStreak === 1 ? 'days' : 'day';
+  const daysPlural = currentStreak === 1 ? 'day' : 'days';
 
   return (
     <Modal
