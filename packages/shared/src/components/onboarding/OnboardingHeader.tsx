@@ -76,7 +76,7 @@ export const OnboardingHeader = ({
       <span
         className={classNames('flex items-center', 'text-theme-label-tertiary')}
       >
-        <span className="hidden tablet:block">Already a daily.dev member?</span>
+        <span className="hidden tablet:block">Already using daily.dev?</span>
         <Button
           className="ml-3"
           variant={ButtonVariant.Secondary}
