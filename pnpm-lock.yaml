@@ -424,8 +424,8 @@ importers:
         specifier: ^8.0.7
         version: 8.0.7(@types/react@17.0.47)(react@17.0.2)
       react-onesignal:
-        specifier: ^2.0.4
-        version: 2.0.4(react@17.0.2)
+        specifier: ^3.0.1
+        version: 3.0.1(react@17.0.2)
       react-syntax-highlighter:
         specifier: ^15.5.0
         version: 15.5.0(react@17.0.2)
@@ -17301,8 +17301,8 @@ packages:
       react-lifecycles-compat: 3.0.4
       warning: 4.0.3
 
-  /react-onesignal@2.0.4(react@17.0.2):
-    resolution: {integrity: sha512-llZ4PV1+EsWWZDt0BRils6gAxaxMoYP0Z3rlNivQy4xqUaiO1/PcRaIJ6CuzCci/koDsw5IzLOXEHlV4Yn+d9Q==}
+  /react-onesignal@3.0.1(react@17.0.2):
+    resolution: {integrity: sha512-AfAtGdXRcuMhVf+9OXehGcQeiJIYl1ihAByvfVNa3RCA1Vnn19tBha4XQB+o3ukUh2IQn0yiflRO4vXgI9nOng==}
     engines: {node: '>=8', npm: '>=5'}
     peerDependencies:
       react: '>= 16.8'
