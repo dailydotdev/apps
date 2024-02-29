@@ -34,4 +34,4 @@ export default {
   ...boxShadows,
   2: 'var(--theme-shadow2)',
   3: 'var(--theme-shadow3)',
-}
+};

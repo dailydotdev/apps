@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const config = require('packages/shared/tailwind.config');
-const fs = require('fs');
-const path = require('path');
+import type { Config } from 'tailwindcss';
+import config from '@dailydotdev/shared/tailwind.config';
+import path from 'path';
+import * as fs from 'fs';
 
-module.exports = {
+export default {
   ...config,
   content: [
     './pages/**/*.{js,ts,jsx,tsx}',
@@ -13,4 +13,5 @@ module.exports = {
       '**/*.{js,ts,jsx,tsx}',
     ),
   ],
-};
+  // eslint-disable-next-line
+} satisfies Config;

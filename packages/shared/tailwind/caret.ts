@@ -1,4 +1,4 @@
-import plugin from 'tailwindcss/plugin'
+import plugin from 'tailwindcss/plugin';
 
 const generateColors = (e, colors, prefix) =>
   Object.keys(colors).reduce((acc, key) => {

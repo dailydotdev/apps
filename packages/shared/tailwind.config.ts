@@ -1,4 +1,4 @@
-import type { Config } from 'tailwindcss'
+import type { Config } from 'tailwindcss';
 import colors from './tailwind/colors';
 import overlay from './tailwind/overlay';
 import accent from './tailwind/accent';
@@ -6,7 +6,6 @@ import boxShadow from './tailwind/boxShadow';
 import caret from './tailwind/caret';
 import typography from './tailwind/typography';
 import buttons from './tailwind/buttons';
-
 
 export default {
   content: [],
@@ -271,4 +270,5 @@ export default {
   corePlugins: {
     invert: false,
   },
+  // eslint-disable-next-line
 } satisfies Config;

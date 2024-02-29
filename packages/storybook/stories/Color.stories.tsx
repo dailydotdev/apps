@@ -5,13 +5,25 @@ import { StoryObj } from '@storybook/react';
 import config from '../tailwind.config';
 const {theme: {colors}} = config;
 
+const flattenColorArr = (data:any, prefix:string): string[]  => {
+  return Object.keys(data).reduce((acc: string[], el) => {
+    const item = data[el];
+    if (typeof item === 'string') {
+      acc.push(prefix+el);
+      return acc;
+    }
+    return acc.concat(flattenColorArr(item, prefix+el+'-'));
+  }, []);
+}
+const flatColorArr = flattenColorArr(colors, 'bg-')
+
 const meta: Meta = {
   title: 'Color',
   args: {
     className: 'bg-white'
   },
   argTypes: {
-    className: { control: "select", options: colors, description: 'Color classnames' },
+    className: { control: "select", options: flatColorArr, description: 'Color classnames' },
   },
 };
 
@@ -32,12 +44,12 @@ export const Interactive: Story = {
   }
 }
 
-const RenderColor = ({ color, prefix, value }) => {
+const RenderColor = ({ color, prefix, value }:{color:any;prefix:string;value:string}) => {
   if (typeof color === 'string') return <div
-    className={`w-24 h-24 ${prefix}${value}`}>{prefix + value}</div>
+    className={`flex items-center justify-center w-full h-24 ${prefix}${value}`}>{prefix + value}</div>
   return (
     <>
-    <h1 className='col-span-3'>{prefix + value}</h1>
+    <h1 className='col-span-3 typo-title3 font-bold'>{prefix + value}</h1>
   {Object.keys(color).map((s) => {
     return <RenderColor key={s} color={color[s]} value={s} prefix={prefix+value+'-'} />
   })}

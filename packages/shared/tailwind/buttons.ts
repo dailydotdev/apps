@@ -1,8 +1,7 @@
+import plugin from 'tailwindcss/plugin';
 import colors from './colors';
 import boxShadow from './boxShadow';
 import overlay from './overlay';
-
-import plugin from 'tailwindcss/plugin'
 
 const variations = {
   primary: (color) => ({

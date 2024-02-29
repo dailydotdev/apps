@@ -38,4 +38,3 @@ const overlayColors = Object.keys(overlay).reduce(
 );
 
 export default overlayColors;
-
