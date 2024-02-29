@@ -18,7 +18,6 @@ export enum ActionType {
   UsedSearch = 'used_search',
   CollectionsIntro = 'collections_intro',
   DevCardGenerate = 'dev_card_generate',
-  AckRep250 = 'ack_rep_250',
 }
 
 export interface Action {
