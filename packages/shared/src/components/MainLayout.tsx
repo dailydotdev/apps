@@ -33,7 +33,6 @@ import { useReferralReminder } from '../hooks/referral/useReferralReminder';
 import { ActiveFeedNameContextProvider } from '../contexts';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { useStreakMilestone } from '../hooks/streaks';
-import { ReputationPrivilegesModalTrigger } from './modals';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -178,7 +177,6 @@ function MainLayoutComponent({
       <InAppNotificationElement />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
-      <ReputationPrivilegesModalTrigger />
       <MainLayoutHeader
         hasBanner={isBannerAvailable}
         sidebarRendered={sidebarRendered}
