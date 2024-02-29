@@ -78,4 +78,13 @@ export function SimpleTooltip({
   );
 }
 
+export const WithSimpleTooltip = ({
+  show,
+  children,
+  ...props
+}: TooltipProps & {
+  show: boolean;
+}): JSX.Element =>
+  show ? <SimpleTooltip {...props}>{children}</SimpleTooltip> : children;
+
 export default SimpleTooltip;
