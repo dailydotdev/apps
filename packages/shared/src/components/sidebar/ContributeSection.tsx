@@ -30,11 +30,13 @@ export function ContributeSection(props: SectionCommonProps): ReactElement {
       ),
       title: 'Suggest new source',
       action: () => {
-        if (isLoggedIn) {
-          openModal({ type: LazyModal.NewSource });
-        } else {
+        if (!isLoggedIn) {
           showLogin({ trigger: AuthTriggers.SubmitNewSource });
+
+          return;
         }
+
+        openModal({ type: LazyModal.NewSource });
       },
       active: modal?.type === LazyModal.NewSource,
     },

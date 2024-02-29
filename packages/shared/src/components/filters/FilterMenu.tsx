@@ -77,11 +77,13 @@ export default function FilterMenu({
       icon: <PlusIcon className="mr-3 text-xl" />,
       title: 'Suggest new source',
       action: () => {
-        if (isLoggedIn) {
-          setShowNewSourceModal(true);
-        } else {
+        if (!isLoggedIn) {
           showLogin({ trigger: AuthTriggers.SubmitNewSource });
+
+          return;
         }
+
+        setShowNewSourceModal(true);
       },
     },
   ];
