@@ -98,7 +98,7 @@ export default function useOnPostClick({
   const { trackEvent } = useContext(AnalyticsContext);
   const { incrementReadingRank } = useIncrementReadingRank();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
-  const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
+  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
 
   const { isLowImpsEnabled } = usePostFeedback();
 
@@ -156,7 +156,7 @@ export default function useOnPostClick({
             }
 
             updateFeedPostCache({ index: postIndex });
-          } else if (!feedName && shouldUseListFeedLayout) {
+          } else if (!feedName && shouldUseMobileFeedLayout) {
             const trySetPostRead = (queryKey: QueryKey, id: string) => {
               const updateFeedPost = updateCachedPagePost(
                 queryKey as unknown[],
@@ -189,7 +189,7 @@ export default function useOnPostClick({
       feedName,
       feedQueryKey,
       incrementReadingRank,
-      shouldUseListFeedLayout,
+      shouldUseMobileFeedLayout,
       isLowImpsEnabled,
       items,
       ranking,

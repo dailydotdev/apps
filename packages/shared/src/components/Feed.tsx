@@ -136,7 +136,7 @@ export default function Feed<T>({
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
-  const { shouldUseListFeedLayout } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const {
     items,
     updatePost,
@@ -149,7 +149,7 @@ export default function Feed<T>({
   } = useFeed(
     feedQueryKey,
     currentSettings.pageSize,
-    isSquadFeed || shouldUseListFeedLayout ? 2 : currentSettings.adSpot,
+    isSquadFeed || shouldUseMobileFeedLayout ? 2 : currentSettings.adSpot,
     numCards,
     {
       query,
@@ -277,7 +277,7 @@ export default function Feed<T>({
     await onPostClick(post, index, row, column, {
       skipPostUpdate: true,
     });
-    if (!shouldUseListFeedLayout) {
+    if (!shouldUseMobileFeedLayout) {
       onPostModalOpen(index);
     }
   };
@@ -337,7 +337,7 @@ export default function Feed<T>({
         ...feedAnalyticsExtra(feedName, ranking),
       }),
     );
-    if (!shouldUseListFeedLayout) {
+    if (!shouldUseMobileFeedLayout) {
       onPostModalOpen(index);
     }
   };
@@ -454,7 +454,7 @@ export default function Feed<T>({
           {...commonMenuItems}
           onHidden={onShareOptionsHidden}
         />
-        {!shouldUseListFeedLayout && selectedPost && PostModal && (
+        {!shouldUseMobileFeedLayout && selectedPost && PostModal && (
           <PostModal
             isOpen={!!selectedPost}
             id={selectedPost.id}

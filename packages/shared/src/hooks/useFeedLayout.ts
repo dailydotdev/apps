@@ -10,7 +10,7 @@ interface UseFeedLayoutProps {
 }
 
 interface UseFeedLayout {
-  shouldUseListFeedLayout: boolean;
+  shouldUseMobileFeedLayout: boolean;
 }
 
 export const FeedLayoutListFeedPages = new Set(
@@ -19,7 +19,7 @@ export const FeedLayoutListFeedPages = new Set(
   ),
 );
 
-const checkShouldUseListFeedLayout = (feedName: SharedFeedPage): boolean =>
+const checkShouldUseMobileFeedLayout = (feedName: SharedFeedPage): boolean =>
   FeedLayoutListFeedPages.has(feedName) && feedName !== SharedFeedPage.Search;
 
 export const useFeedLayout = ({
@@ -30,14 +30,14 @@ export const useFeedLayout = ({
   const isMobile = useViewSize(ViewSize.MobileL);
   const name = (feedNameProp ?? feedName) as SharedFeedPage;
   const isIncludedFeed = useMemo(
-    () => checkShouldUseListFeedLayout(name),
+    () => checkShouldUseMobileFeedLayout(name),
     [name],
   );
-  const shouldUseListFeedLayout = !feedRelated
+  const shouldUseMobileFeedLayout = !feedRelated
     ? isMobile
     : isMobile && isIncludedFeed;
 
   return {
-    shouldUseListFeedLayout,
+    shouldUseMobileFeedLayout,
   };
 };

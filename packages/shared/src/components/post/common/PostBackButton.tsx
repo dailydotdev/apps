@@ -11,11 +11,11 @@ interface PostBackButtonProps {
 
 export function PostBackButton({ link }: PostBackButtonProps): ReactElement {
   const router = useRouter();
-  const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
+  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
   const canGoBack = !!globalThis?.window?.history?.length;
   const onClick = () => router.push(link);
 
-  if (!shouldUseListFeedLayout || (!canGoBack && !link)) {
+  if (!shouldUseMobileFeedLayout || (!canGoBack && !link)) {
     return null;
   }
 

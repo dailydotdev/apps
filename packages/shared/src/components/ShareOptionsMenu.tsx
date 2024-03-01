@@ -57,7 +57,7 @@ export default function ShareOptionsMenu({
   };
 
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
-  const { shouldUseListFeedLayout } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
 
   const shareOptions: ShareOption[] = [
     {
@@ -67,7 +67,7 @@ export default function ShareOptionsMenu({
     },
   ];
 
-  if (!bookmarkOnCard && !shouldUseListFeedLayout) {
+  if (!bookmarkOnCard && !shouldUseMobileFeedLayout) {
     shareOptions.push({
       icon: (
         <MenuIcon
@@ -93,7 +93,7 @@ export default function ShareOptionsMenu({
       id={contextId}
       className={classNames(
         'menu-primary',
-        shouldUseListFeedLayout && 'left-0',
+        shouldUseMobileFeedLayout && 'left-0',
       )}
       animation="fade"
       onHidden={onHidden}

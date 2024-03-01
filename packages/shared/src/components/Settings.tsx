@@ -61,7 +61,7 @@ export default function Settings({
   ...props
 }: HTMLAttributes<HTMLDivElement>): ReactElement {
   const isExtension = checkIsExtension();
-  const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
+  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
   const { user, showLogin } = useContext(AuthContext);
   const {
     spaciness,
@@ -108,7 +108,7 @@ export default function Settings({
 
   return (
     <div className={classNames('flex', 'flex-col', className)} {...props}>
-      {!shouldUseListFeedLayout && (
+      {!shouldUseMobileFeedLayout && (
         <Section className="!mt-0">
           <SectionTitle>Layout</SectionTitle>
           <CustomSwitch
@@ -122,7 +122,7 @@ export default function Settings({
           />
         </Section>
       )}
-      <Section className={shouldUseListFeedLayout && '!mt-0'}>
+      <Section className={shouldUseMobileFeedLayout && '!mt-0'}>
         <SectionTitle>Theme</SectionTitle>
         <Radio
           name="theme"
@@ -131,7 +131,7 @@ export default function Settings({
           onChange={setTheme}
         />
       </Section>
-      {!shouldUseListFeedLayout && (
+      {!shouldUseMobileFeedLayout && (
         <Section>
           <SectionTitle>Density</SectionTitle>
           <Radio

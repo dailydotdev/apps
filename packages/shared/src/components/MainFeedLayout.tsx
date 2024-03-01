@@ -128,7 +128,7 @@ export default function MainFeedLayout({
   const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
   const isOnboardingV4dot5 = onboardingV4dot5 === OnboardingV4dot5.V4dot5;
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
-  const { shouldUseListFeedLayout } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { feedSettings } = useFeedSettings();
 
   const isOnboardingFeed =
@@ -244,7 +244,7 @@ export default function MainFeedLayout({
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    shouldUseListFeedLayout,
+    shouldUseMobileFeedLayout,
     isSearchOn,
     searchQuery,
     query.query,
@@ -261,11 +261,11 @@ export default function MainFeedLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
-  const FeedPageComponent = shouldUseListFeedLayout
+  const FeedPageComponent = shouldUseMobileFeedLayout
     ? FeedPageLayoutV1
     : FeedPage;
 
-  const disableTopPadding = isFinder || shouldUseListFeedLayout;
+  const disableTopPadding = isFinder || shouldUseMobileFeedLayout;
 
   const tagsCount = feedSettings?.includeTags?.length || 0;
   const isFeedPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
@@ -294,7 +294,7 @@ export default function MainFeedLayout({
         <Feed
           {...feedProps}
           className={classNames(
-            shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
+            shouldUseMobileFeedLayout && !isFinder && 'laptop:px-6',
             isOnboardingFeed && 'px-6 laptop:px-16',
           )}
         />

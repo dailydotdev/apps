@@ -96,7 +96,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
-  const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
+  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
   const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = router;
   const { shouldShowAuthBanner } = useOnboarding();
@@ -161,7 +161,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     const routedFromSquad = router?.query?.squad;
     const squadLink = `/squads/${router.query.squad}`;
 
-    if (shouldUseListFeedLayout) {
+    if (shouldUseMobileFeedLayout) {
       return <PostBackButton link={routedFromSquad ? squadLink : undefined} />;
     }
 

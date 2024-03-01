@@ -292,10 +292,10 @@ export default function PostOptionsMenu({
     },
   ];
 
-  const { shouldUseListFeedLayout } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
 
-  if (!bookmarkOnCard && !shouldUseListFeedLayout) {
+  if (!bookmarkOnCard && !shouldUseMobileFeedLayout) {
     postOptions.push({
       icon: (
         <MenuIcon
@@ -309,7 +309,7 @@ export default function PostOptionsMenu({
     });
   }
 
-  if (!shouldUseListFeedLayout) {
+  if (!shouldUseMobileFeedLayout) {
     postOptions.push({
       icon: (
         <MenuIcon

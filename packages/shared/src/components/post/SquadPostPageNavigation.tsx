@@ -31,9 +31,9 @@ function SquadPostPageNavigation({
 }: SquadPostPageNavigationProps): ReactElement {
   const isFromNavigation = checkIsFromNavigation();
   const link = isFromNavigation ? NOTIFICATIONS_LINK : squadLink;
-  const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
+  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
 
-  if (shouldUseListFeedLayout) {
+  if (shouldUseMobileFeedLayout) {
     return <PostBackButton link={squadLink} />;
   }
 
