@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
-import { FeedPage, FeedPageLayoutV1, SharedFeedPage } from './utilities';
+import { FeedPage, FeedPageLayoutMobile, SharedFeedPage } from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
@@ -262,7 +262,7 @@ export default function MainFeedLayout({
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   const FeedPageComponent = shouldUseMobileFeedLayout
-    ? FeedPageLayoutV1
+    ? FeedPageLayoutMobile
     : FeedPage;
 
   const disableTopPadding = isFinder || shouldUseMobileFeedLayout;
