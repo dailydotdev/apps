@@ -1,28 +1,47 @@
 import type { Config } from 'tailwindcss';
 import colors from './tailwind/colors';
-import overlay from './tailwind/overlay';
-import accent from './tailwind/accent';
 import boxShadow from './tailwind/boxShadow';
 import caret from './tailwind/caret';
 import typography from './tailwind/typography';
 import buttons from './tailwind/buttons';
+import background from './tailwind/colors/background';
+import accent from './tailwind/colors/accent';
+import brand from './tailwind/colors/brand';
+import surface from './tailwind/colors/surface';
+import action from './tailwind/colors/action';
+import overlayColors from './tailwind/colors/overlay';
+import border from './tailwind/colors/border';
+import statusColors from './tailwind/colors/status';
+import text from './tailwind/colors/text';
+import shadow from './tailwind/colors/shadow';
+import overlay from './tailwind/overlay';
 
 export default {
   content: [],
   theme: {
     colors: {
-      ...colors,
-      overlay,
-      accent,
-      background: {
-        default: 'var(--theme-background-default)',
-        subtle: 'var(--theme-background-subtle)',
-        popover: 'var(--theme-background-popover)',
-        post: {
-          post: 'var(--theme-background-post-post)',
-          disabled: 'var(--theme-background-post-disabled)',
-        },
+      raw: {
+        /* Raw colors should not be used directly for styling */
+        ...colors,
       },
+      accent,
+      background,
+      brand,
+      surface,
+      action,
+      overlay: {
+        // Temporary fix to allow the old overlay colors to work
+        ...overlay,
+        ...overlayColors,
+      },
+      border,
+      status: statusColors,
+      text,
+      shadow,
+      black: '#000000',
+      white: '#ffffff',
+      transparent: 'transparent',
+      // Old stuff
       theme: {
         active: 'var(--theme-active)',
         focus: 'var(--theme-focus)',
@@ -131,9 +150,6 @@ export default {
           label: 'var(--theme-highlight-label)',
         },
       },
-      black: '#000000',
-      white: '#ffffff',
-      transparent: 'transparent',
     },
     boxShadow,
     opacity: {
