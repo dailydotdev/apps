@@ -10,7 +10,7 @@ const borderColors = {
     secondary: 'var(--theme-border-bolder-secondary)',
     tertiary: 'var(--theme-border-bolder-tertiary)',
     quaternary: 'var(--theme-border-bolder-quaternary)',
-  }
+  },
 };
 
 export default borderColors;

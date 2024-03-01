@@ -28,7 +28,7 @@ const actionColors = {
     float: 'var(--theme-actions-share-float)',
     hover: 'var(--theme-actions-share-hover)',
     active: 'var(--theme-actions-share-active)',
-  }
+  },
 };
 
 export default actionColors;

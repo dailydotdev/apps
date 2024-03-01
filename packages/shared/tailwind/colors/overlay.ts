@@ -10,7 +10,7 @@ const overlayColors = {
     dark1: 'var(--theme-overlay-dark-dark1)',
     dark2: 'var(--theme-overlay-dark-dark2)',
     dark3: 'var(--theme-overlay-dark-dark3)',
-  }
+  },
 };
 
 export default overlayColors;

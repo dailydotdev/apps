@@ -33,7 +33,7 @@ function SquadTourCard({
         className={classNames(
           'relative',
           !bannerAsBg &&
-            'h-80 items-center justify-center bg-gradient-to-l from-cabbage-90 to-cabbage-50',
+            'from-cabbage-90 to-cabbage-50 h-80 items-center justify-center bg-gradient-to-l',
         )}
       >
         {bannerAsBg ? (

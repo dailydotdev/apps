@@ -20,7 +20,7 @@ const overlayColors = {
     linkedin: '#0077B5A3',
     telegram: '#24A2E0A3',
     white: '#FFFFFFA3',
-    black: '#000000A3'
+    black: '#000000A3',
   },
   secondary: {
     burger: '#A0583C66',
@@ -43,7 +43,7 @@ const overlayColors = {
     linkedin: '#0077B566',
     telegram: '#24A2E066',
     white: '#FFFFFF66',
-    black: '#00000066'
+    black: '#00000066',
   },
   tertiary: {
     burger: '#A0583C52',
@@ -66,7 +66,7 @@ const overlayColors = {
     linkedin: '#0077B552',
     telegram: '#24A2E052',
     white: '#FFFFFF52',
-    black: '#00000052'
+    black: '#00000052',
   },
   quaternary: {
     burger: '#A0583C3D',
@@ -89,7 +89,7 @@ const overlayColors = {
     linkedin: '#0077B53D',
     telegram: '#24A2E03D',
     white: '#FFFFFF3D',
-    black: '#0000003D'
+    black: '#0000003D',
   },
   active: {
     burger: '#A0583C29',
@@ -112,7 +112,7 @@ const overlayColors = {
     linkedin: '#0077B529',
     telegram: '#24A2E029',
     white: '#FFFFFF29',
-    black: '#00000029'
+    black: '#00000029',
   },
   float: {
     burger: '#A0583C14',
@@ -135,8 +135,8 @@ const overlayColors = {
     linkedin: '#0077B514',
     telegram: '#24A2E014',
     white: '#FFFFFF14',
-    black: '#00000014'
-  }
-}
+    black: '#00000014',
+  },
+};
 
 export default overlayColors;

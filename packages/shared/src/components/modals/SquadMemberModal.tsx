@@ -52,9 +52,9 @@ const InitialItem = ({ squad }: { squad: Squad }) => {
       }}
     >
       <FlexCentered className="mr-4 h-12 w-12 rounded-10 bg-theme-float">
-        <LinkIcon size={IconSize.Large} className="text-salt-90" />
+        <LinkIcon size={IconSize.Large} className="text-raw-salt-90" />
       </FlexCentered>
-      <p className="text-salt-90 typo-callout">Copy invitation link</p>
+      <p className="text-raw-salt-90 typo-callout">Copy invitation link</p>
     </button>
   );
 };
