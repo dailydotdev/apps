@@ -62,8 +62,6 @@ import {
   PostSEOSchema,
 } from '../../../components/PostSEOSchema';
 
-export { getSeoDescription };
-
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
 );
