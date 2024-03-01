@@ -17,7 +17,7 @@ import { Origin } from '../lib/analytics';
 import { ActiveFeedContext } from '../contexts';
 import { updateCachedPagePost } from '../lib/query';
 import { usePostFeedback } from './usePostFeedback';
-import { FeedLayoutListFeedPages, useFeedLayout } from './useFeedLayout';
+import { FeedLayoutMobileFeedPages, useFeedLayout } from './useFeedLayout';
 import { FeedData } from '../graphql/feed';
 
 interface PostClickOptionalProps {
@@ -47,7 +47,7 @@ const getFeedQueryKeys = (client: QueryClient): QueryKey[] => {
       if (
         Array.isArray(key) &&
         key.length > 0 &&
-        FeedLayoutListFeedPages.has(key[0])
+        FeedLayoutMobileFeedPages.has(key[0])
       ) {
         queryKeys.push(key);
       }

@@ -13,14 +13,14 @@ interface UseFeedLayout {
   shouldUseMobileFeedLayout: boolean;
 }
 
-export const FeedLayoutListFeedPages = new Set(
+export const FeedLayoutMobileFeedPages = new Set(
   Object.values(SharedFeedPage).filter(
     (feedPage) => feedPage !== SharedFeedPage.Search,
   ),
 );
 
 const checkShouldUseMobileFeedLayout = (feedName: SharedFeedPage): boolean =>
-  FeedLayoutListFeedPages.has(feedName) && feedName !== SharedFeedPage.Search;
+  FeedLayoutMobileFeedPages.has(feedName) && feedName !== SharedFeedPage.Search;
 
 export const useFeedLayout = ({
   feedName: feedNameProp,
