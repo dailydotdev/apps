@@ -200,7 +200,6 @@ function MainLayoutComponent({
         {renderSidebar()}
         {children}
       </main>
-      <PromptElement />
     </div>
   );
 }

@@ -17,7 +17,6 @@
 }
 
 .item.checked:hover .checkmark, .checked input:focus-visible ~ .checkmark {
-  /* stylelint-disable-next-line unit-no-unknown */
   background: theme('colors.cabbage.50')3D;
 
   & .innerRing {
@@ -46,7 +45,7 @@
         @apply border-cabbage-60 bg-cabbage-20;
       }
     }
-  
+
     & .item.checked:hover .checkmark, & .checked input:focus-visible ~ .checkmark {
       & .innerRing {
         @apply border-cabbage-80;
