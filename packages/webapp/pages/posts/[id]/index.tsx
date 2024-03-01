@@ -57,7 +57,10 @@ import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import LoginButton from '@dailydotdev/shared/src/components/LoginButton';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
-import { getSEOJsonLd, getSeoDescription } from './seo';
+import {
+  getSeoDescription,
+  PostSEOSchema,
+} from '../../../components/PostSEOSchema';
 
 export { getSeoDescription };
 
@@ -125,14 +128,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   };
 
   const seoComponent = <NextSeo {...seo} />;
-  const schemaComponent = (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{
-        __html: getSEOJsonLd(post),
-      }}
-    />
-  );
 
   useScrollTopOffset(() => globalThis.window, {
     onOverOffset: () => position !== 'fixed' && setPosition('fixed'),
@@ -197,7 +192,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     <>
       <Head>
         <link rel="preload" as="image" href={post?.image} />
-        {schemaComponent}
+        <PostSEOSchema post={post} />
       </Head>
       {seoComponent}
       <Content
