@@ -13,6 +13,8 @@ export function ReadingStreakButton({
   streak,
 }: ReadingStreakButtonProps): ReactElement {
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
+  const hasReadToday =
+    new Date(streak.lastViewAt).getDate() === new Date().getDate();
 
   return (
     <SimpleTooltip
@@ -30,7 +32,7 @@ export function ReadingStreakButton({
     >
       <Button
         type="button"
-        icon={<ReadingStreakIcon />}
+        icon={<ReadingStreakIcon secondary={hasReadToday} />}
         variant={ButtonVariant.Float}
         onClick={() => setShouldShowStreaks((state) => !state)}
         className="gap-1 text-theme-color-bacon"
