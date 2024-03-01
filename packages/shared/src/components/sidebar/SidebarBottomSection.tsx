@@ -7,6 +7,7 @@ import { Section, SectionCommonProps } from './Section';
 import { docs, feedback } from '../../lib/constants';
 import { useChangelog } from '../../hooks/useChangelog';
 import { AlertColor, AlertDot } from '../AlertDot';
+import { useStreakExperiment } from '../../hooks/streaks';
 
 const ChangelogTooltip = dynamic(
   () =>
@@ -26,6 +27,7 @@ export function SidebarBottomSection({
   ...props
 }: SidebarBottomSectionProps): ReactElement {
   const changelog = useChangelog();
+  const { shouldShowStreak } = useStreakExperiment();
 
   const bottomMenuItems: SidebarMenuItem[] = [
     {
@@ -54,7 +56,7 @@ export function SidebarBottomSection({
   return (
     <Nav>
       <Section {...props} items={bottomMenuItems} isItemsButton={false} />
-      {props.sidebarExpanded && !optOutWeeklyGoal && (
+      {!shouldShowStreak && props.sidebarExpanded && !optOutWeeklyGoal && (
         <SidebarRankProgress {...props} disableNewRankPopup={showSettings} />
       )}
       {changelog.isAvailable && <ChangelogTooltip />}

@@ -175,7 +175,7 @@ const AuthDefault = ({
             text={{
               body: shouldLogin
                 ? 'Not a member yet?'
-                : 'Already a daily.dev member?',
+                : 'Already using daily.dev?',
               button: shouldLogin ? 'Sign up' : 'Log in',
             }}
             onClick={() => {

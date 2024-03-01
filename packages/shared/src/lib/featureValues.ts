@@ -20,3 +20,8 @@ export enum PostPageOnboarding {
   Control = 'control',
   V2 = 'v2',
 }
+
+export enum UserAcquisition {
+  Control = 'control',
+  V1 = 'v1',
+}

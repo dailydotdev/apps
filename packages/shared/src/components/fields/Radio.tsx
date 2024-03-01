@@ -15,25 +15,25 @@ interface ClassName {
   content?: string;
 }
 
-export type RadioProps = {
+export interface RadioProps<T extends string = string> {
   name: string;
-  options: RadioOption[];
-  value?: string;
-  onChange: (value: string) => unknown;
+  options: RadioOption<T>[];
+  value?: T;
+  onChange: (value: T) => unknown;
   className?: ClassName;
-};
+}
 
-export function Radio({
+export function Radio<T extends string = string>({
   name,
   options,
   value,
   onChange,
   className = {},
-}: RadioProps): ReactElement {
+}: RadioProps<T>): ReactElement {
   return (
     <div
       className={classNames(
-        '-my-0.5 flex flex-col items-start',
+        'flex flex-col items-start gap-1',
         className.container,
       )}
     >
@@ -46,7 +46,7 @@ export function Radio({
           disabled={option.disabled}
           checked={value === option.value}
           onChange={() => onChange(option.value)}
-          className={classNames('my-0.5 truncate', className.content)}
+          className={classNames('truncate', className.content)}
           afterElement={option.afterElement}
         >
           {option.label}

@@ -204,3 +204,8 @@ export enum ShortcutsSourceType {
   Custom = 'custom',
   Browser = 'browser',
 }
+
+export enum UserAcquisitionEvent {
+  Dismiss = 'dismiss ua',
+  Submit = 'choose ua',
+}
