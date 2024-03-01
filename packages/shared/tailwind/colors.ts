@@ -224,4 +224,3 @@ const colors = {
 };
 
 export default colors;
-// module.exports = colors;
