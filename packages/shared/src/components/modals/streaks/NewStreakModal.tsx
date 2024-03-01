@@ -19,6 +19,8 @@ export default function NewStreakModal({
   const { toggleOptOutWeeklyGoal, optOutWeeklyGoal } = useSettingsContext();
   const shouldShowSplash = currentStreak >= maxStreak;
 
+  const daysPlural = currentStreak === 1 ? 'day' : 'days';
+
   return (
     <Modal
       {...props}
@@ -58,7 +60,7 @@ export default function NewStreakModal({
         >
           {shouldShowSplash
             ? 'New streak record!'
-            : `${currentStreak} days streak`}
+            : `${currentStreak} ${daysPlural} streak`}
         </strong>
         <Paragraph
           className={classNames(
@@ -67,7 +69,7 @@ export default function NewStreakModal({
           )}
         >
           {shouldShowSplash
-            ? 'Epic win! You are on a league of your own'
+            ? 'Epic win! You are in a league of your own'
             : `New milestone reached! You are unstoppable.`}
         </Paragraph>
         <Checkbox
