@@ -18,9 +18,7 @@ import { CustomSwitch } from './fields/CustomSwitch';
 import AuthContext from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import { checkIsExtension } from '../lib/func';
-import { useFeature } from './GrowthBookProvider';
-import { feature } from '../lib/featureManagement';
-import { FeedLayout } from '../lib/featureValues';
+import { useFeedLayout } from '../hooks';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -63,7 +61,7 @@ export default function Settings({
   ...props
 }: HTMLAttributes<HTMLDivElement>): ReactElement {
   const isExtension = checkIsExtension();
-  const isFeedV1 = useFeature(feature.feedLayout) === FeedLayout.V1;
+  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
   const { user, showLogin } = useContext(AuthContext);
   const {
     spaciness,
@@ -110,7 +108,7 @@ export default function Settings({
 
   return (
     <div className={classNames('flex', 'flex-col', className)} {...props}>
-      {!isFeedV1 && (
+      {!shouldUseMobileFeedLayout && (
         <Section className="!mt-0">
           <SectionTitle>Layout</SectionTitle>
           <CustomSwitch
@@ -124,7 +122,7 @@ export default function Settings({
           />
         </Section>
       )}
-      <Section className={isFeedV1 && '!mt-0'}>
+      <Section className={shouldUseMobileFeedLayout && '!mt-0'}>
         <SectionTitle>Theme</SectionTitle>
         <Radio
           name="theme"
@@ -133,7 +131,7 @@ export default function Settings({
           onChange={setTheme}
         />
       </Section>
-      {!isFeedV1 && (
+      {!shouldUseMobileFeedLayout && (
         <Section>
           <SectionTitle>Density</SectionTitle>
           <Radio

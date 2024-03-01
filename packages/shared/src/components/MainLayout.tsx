@@ -81,7 +81,7 @@ function MainLayoutComponent({
   const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
 
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
-  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
 
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useAuthErrors();
@@ -169,7 +169,7 @@ function MainLayoutComponent({
     return null;
   }
   const isScreenCentered =
-    isLaptopXL && shouldUseFeedLayoutV1 ? true : screenCentered;
+    isLaptopXL && shouldUseMobileFeedLayout ? true : screenCentered;
 
   return (
     <div className="antialiased">

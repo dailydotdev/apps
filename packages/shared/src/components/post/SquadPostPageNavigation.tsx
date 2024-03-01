@@ -2,10 +2,8 @@ import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { feature } from '../../lib/featureManagement';
-import { FeedLayout } from '../../lib/featureValues';
-import { useFeature } from '../GrowthBookProvider';
 import { PostBackButton } from './common/PostBackButton';
+import { useFeedLayout } from '../../hooks';
 
 interface SquadPostPageNavigationProps {
   squadLink: string;
@@ -33,9 +31,9 @@ function SquadPostPageNavigation({
 }: SquadPostPageNavigationProps): ReactElement {
   const isFromNavigation = checkIsFromNavigation();
   const link = isFromNavigation ? NOTIFICATIONS_LINK : squadLink;
-  const layout = useFeature(feature.feedLayout);
+  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
 
-  if (layout === FeedLayout.V1) {
+  if (shouldUseMobileFeedLayout) {
     return <PostBackButton link={squadLink} />;
   }
 

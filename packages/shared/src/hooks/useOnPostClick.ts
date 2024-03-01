@@ -17,9 +17,8 @@ import { Origin } from '../lib/analytics';
 import { ActiveFeedContext } from '../contexts';
 import { updateCachedPagePost } from '../lib/query';
 import { usePostFeedback } from './usePostFeedback';
-import { FeedLayoutV1FeedPages } from './useFeedLayout';
+import { FeedLayoutMobileFeedPages, useFeedLayout } from './useFeedLayout';
 import { FeedData } from '../graphql/feed';
-import { useFeatureFeedLayoutV1 } from './useFeatureFeedLayoutV1';
 
 interface PostClickOptionalProps {
   skipPostUpdate?: boolean;
@@ -48,7 +47,7 @@ const getFeedQueryKeys = (client: QueryClient): QueryKey[] => {
       if (
         Array.isArray(key) &&
         key.length > 0 &&
-        FeedLayoutV1FeedPages.has(key[0])
+        FeedLayoutMobileFeedPages.has(key[0])
       ) {
         queryKeys.push(key);
       }
@@ -99,7 +98,7 @@ export default function useOnPostClick({
   const { trackEvent } = useContext(AnalyticsContext);
   const { incrementReadingRank } = useIncrementReadingRank();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
-  const isFeedLayoutV1 = useFeatureFeedLayoutV1();
+  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
 
   const { isLowImpsEnabled } = usePostFeedback();
 
@@ -157,7 +156,7 @@ export default function useOnPostClick({
             }
 
             updateFeedPostCache({ index: postIndex });
-          } else if (!feedName && isFeedLayoutV1) {
+          } else if (!feedName && shouldUseMobileFeedLayout) {
             const trySetPostRead = (queryKey: QueryKey, id: string) => {
               const updateFeedPost = updateCachedPagePost(
                 queryKey as unknown[],
@@ -190,7 +189,7 @@ export default function useOnPostClick({
       feedName,
       feedQueryKey,
       incrementReadingRank,
-      isFeedLayoutV1,
+      shouldUseMobileFeedLayout,
       isLowImpsEnabled,
       items,
       ranking,
