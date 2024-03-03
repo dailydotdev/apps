@@ -16,69 +16,75 @@ export const getSEOJsonLd = (post: Post): string => {
   return JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: post?.title,
-    dateCreated: post?.createdAt,
-    datePublished: post?.createdAt,
-    dateModified: post?.updatedAt,
+    headline: post.title,
+    dateCreated: post.createdAt,
+    datePublished: post.createdAt,
+    dateModified: post.updatedAt,
     description: getSeoDescription(post),
     author: {
-      ...(post?.author
+      ...(post.author
         ? {
-            '@type': 'Person',
-            name: post?.author?.name ?? post?.author?.username,
-            description: post?.author?.bio,
-            image: post?.author?.image,
-            url: post?.author?.permalink,
-            interactionStatistic: {
-              '@type': 'InteractionCounter',
-              interactionType: 'https://schema.org/EndorseAction',
-              userInteractionCount: post?.author?.reputation,
-            },
+            '@type': post.author?.name ? 'Organization' : 'Person',
+            name: post.author?.name ?? post.author?.username,
+            description: post.author?.bio,
+            image: post.author?.image,
+            url: post.author?.permalink,
+            ...(post.author?.reputation && {
+              interactionStatistic: {
+                '@type': 'InteractionCounter',
+                interactionType: 'https://schema.org/EndorseAction',
+                userInteractionCount: post.author?.reputation,
+              },
+            }),
           }
         : {
             '@type': 'Organization',
-            name: post?.source?.name,
-            logo: post?.source?.image,
-            url: post?.source?.permalink,
+            name: post.source?.name,
+            logo: post.source?.image,
+            url: post.source?.permalink,
           }),
     },
-    commentCount: post?.numComments,
-    discussionUrl: post?.commentsPermalink,
+    commentCount: post.numComments,
+    discussionUrl: post.commentsPermalink,
     interactionStatistic: {
       '@type': 'InteractionCounter',
       interactionType: 'https://schema.org/LikeAction',
-      userInteractionCount: post?.numUpvotes,
+      userInteractionCount: post.numUpvotes,
     },
-    keywords: post?.tags?.join(','),
-    timeRequired: `PT${post?.readTime}M`,
-    thumbnailUrl: post?.image,
-    ...(post?.type === PostType.VideoYouTube && {
+    keywords: post.tags?.join(','),
+    timeRequired: `PT${post.readTime}M`,
+    thumbnailUrl: post.image,
+    ...(post.type === PostType.VideoYouTube && {
       video: {
         '@type': 'VideoObject',
-        name: post?.title,
+        name: post.title,
         description: getSeoDescription(post),
-        thumbnailUrl: post?.image,
-        uploadDate: post?.createdAt,
-        duration: `PT${post?.readTime}M`,
-        url: post?.permalink,
+        thumbnailUrl: post.image,
+        uploadDate: post.createdAt,
+        duration: `PT${post.readTime}M`,
+        url: post.permalink,
       },
     }),
   });
 };
 
 export const PostSEOSchema = ({ post }: { post: Post }): ReactElement => {
+  if (!post) {
+    return null;
+  }
+
   return (
     <ArticleJsonLd
-      url={post?.permalink}
-      title={post?.title}
+      url={post.permalink}
+      title={post.title}
       description={getSeoDescription(post)}
       authorName={
-        post?.author
-          ? post?.author?.name ?? post?.author?.username
-          : post?.source?.name
+        post.author
+          ? post.author?.name ?? post.author?.username
+          : post.source?.name
       }
-      images={[post?.image]}
-      datePublished={post?.createdAt}
+      images={[post.image]}
+      datePublished={post.createdAt}
       useAppDir={false}
       {...getSEOJsonLd(post)}
     />

@@ -190,8 +190,8 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     <>
       <Head>
         <link rel="preload" as="image" href={post?.image} />
-        <PostSEOSchema post={post} />
       </Head>
+      <PostSEOSchema post={post} />
       {seoComponent}
       <Content
         position={position}
