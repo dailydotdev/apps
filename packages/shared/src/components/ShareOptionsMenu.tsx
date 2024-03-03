@@ -57,7 +57,7 @@ export default function ShareOptionsMenu({
   };
 
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
-  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
 
   const shareOptions: ShareOption[] = [
     {
@@ -67,7 +67,7 @@ export default function ShareOptionsMenu({
     },
   ];
 
-  if (!bookmarkOnCard && !shouldUseFeedLayoutV1) {
+  if (!bookmarkOnCard && !shouldUseMobileFeedLayout) {
     shareOptions.push({
       icon: (
         <MenuIcon
@@ -91,7 +91,10 @@ export default function ShareOptionsMenu({
     <PortalMenu
       disableBoundariesCheck
       id={contextId}
-      className={classNames('menu-primary', shouldUseFeedLayoutV1 && 'left-0')}
+      className={classNames(
+        'menu-primary',
+        shouldUseMobileFeedLayout && 'left-0',
+      )}
       animation="fade"
       onHidden={onHidden}
     >

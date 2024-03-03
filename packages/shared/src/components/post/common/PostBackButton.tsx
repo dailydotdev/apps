@@ -3,9 +3,7 @@ import { useRouter } from 'next/router';
 import { ButtonVariant } from '../../buttons/common';
 import { ArrowIcon } from '../../icons';
 import { Button } from '../../buttons/Button';
-import { FeedLayout } from '../../../lib/featureValues';
-import { useFeature } from '../../GrowthBookProvider';
-import { feature } from '../../../lib/featureManagement';
+import { useFeedLayout } from '../../../hooks';
 
 interface PostBackButtonProps {
   link?: string;
@@ -13,11 +11,11 @@ interface PostBackButtonProps {
 
 export function PostBackButton({ link }: PostBackButtonProps): ReactElement {
   const router = useRouter();
-  const layout = useFeature(feature.feedLayout);
+  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
   const canGoBack = !!globalThis?.window?.history?.length;
   const onClick = () => router.push(link);
 
-  if (layout === FeedLayout.Control || (!canGoBack && !link)) {
+  if (!shouldUseMobileFeedLayout || (!canGoBack && !link)) {
     return null;
   }
 

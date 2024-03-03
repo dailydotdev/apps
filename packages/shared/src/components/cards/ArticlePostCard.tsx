@@ -55,7 +55,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
   const isVideoType = isVideoPost(post);
-  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -72,7 +72,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
       return null;
     }
 
-    if (!shouldUseFeedLayoutV1) {
+    if (!shouldUseMobileFeedLayout) {
       return <CardButton title={post.title} onClick={onPostCardClick} />;
     }
 
