@@ -23,6 +23,7 @@ import { CreatePostButton } from '../post/write';
 import { useViewSize, ViewSize } from '../../hooks';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
+import { LogoPosition } from '../Logo';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -51,9 +52,10 @@ function MainLayoutHeader({
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
-  const { streak, isEnabled, isLoading } = useReadingStreak();
-  const hideButton = loadingUser || (isEnabled && isLoading);
+  const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
+  const hideButton = loadingUser || (isStreaksEnabled && isLoading);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
 
@@ -86,8 +88,8 @@ function MainLayoutHeader({
   const RenderButtons = () => {
     return (
       <div className="flex gap-3">
-        <CreatePostButton />
         {streak && <ReadingStreakButton streak={streak} />}
+        <CreatePostButton compact={isStreaksEnabled} />
         {!hideButton && user && (
           <>
             <LinkWithTooltip
@@ -119,9 +121,10 @@ function MainLayoutHeader({
         )}
         {additionalButtons}
         {headerButton}
-        {!sidebarRendered && !optOutWeeklyGoal && !isMobile && (
-          <MobileHeaderRankProgress />
-        )}
+        {!isStreaksEnabled &&
+          !sidebarRendered &&
+          !optOutWeeklyGoal &&
+          !isMobile && <MobileHeaderRankProgress />}
       </div>
     );
   };
@@ -129,7 +132,8 @@ function MainLayoutHeader({
   return (
     <header
       className={classNames(
-        'sticky top-0 z-header flex h-14 flex-row items-center justify-between gap-3 border-b border-theme-divider-tertiary bg-theme-bg-primary px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:flex-row laptop:px-4',
+        'sticky top-0 z-header flex h-14 flex-row items-center gap-3 border-b border-theme-divider-tertiary bg-theme-bg-primary px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:flex-row laptop:px-4',
+        isStreakLarge ? 'justify-start' : 'justify-between',
         hasBanner && 'laptop:top-8',
         isSearchPage && 'mb-16 laptop:mb-0',
       )}
@@ -142,8 +146,18 @@ function MainLayoutHeader({
             onClick={() => onMobileSidebarToggle(true)}
             icon={<HamburgerIcon secondary />}
           />
-          <div className="flex flex-1 justify-center laptop:flex-none laptop:justify-start">
+          <div
+            className={classNames(
+              'flex flex-1  laptop:flex-none laptop:justify-start',
+              isStreakLarge ? 'justify-start' : 'justify-center',
+            )}
+          >
             <HeaderLogo
+              position={
+                isStreaksEnabled && isStreakLarge
+                  ? LogoPosition.Relative
+                  : LogoPosition.Absolute
+              }
               user={user}
               onLogoClick={onLogoClick}
               greeting={false}
