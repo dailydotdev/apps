@@ -138,6 +138,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   if (isPostLoadingOrFetching || isFallback || !isFetched) {
     return (
       <>
+        <PostSEOSchema post={post} />
         {post?.title?.length && seoComponent}
         <PostLoadingSkeleton className={containerClass} type={post?.type} />
       </>
@@ -192,8 +193,8 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
       <Head>
         <link rel="preload" as="image" href={post?.image} />
       </Head>
-      <PostSEOSchema post={post} />
       {seoComponent}
+      <PostSEOSchema post={post} />
       <Content
         position={position}
         post={post}

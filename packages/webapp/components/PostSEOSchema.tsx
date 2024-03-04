@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { Post, PostType } from '@dailydotdev/shared/src/graphql/posts';
-import { ArticleJsonLd } from 'next-seo';
 
 export const getSeoDescription = (post: Post): string => {
   if (post?.summary) {
@@ -21,6 +20,7 @@ export const getSEOJsonLd = (post: Post): string => {
     datePublished: post.createdAt,
     dateModified: post.updatedAt,
     description: getSeoDescription(post),
+    image: post.image,
     author: {
       ...(post.author
         ? {
@@ -74,19 +74,11 @@ export const PostSEOSchema = ({ post }: { post: Post }): ReactElement => {
   }
 
   return (
-    <ArticleJsonLd
-      url={post.permalink}
-      title={post.title}
-      description={getSeoDescription(post)}
-      authorName={
-        post.author
-          ? post.author?.name ?? post.author?.username
-          : post.source?.name
-      }
-      images={[post.image]}
-      datePublished={post.createdAt}
-      useAppDir={false}
-      {...getSEOJsonLd(post)}
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: getSEOJsonLd(post),
+      }}
     />
   );
 };
