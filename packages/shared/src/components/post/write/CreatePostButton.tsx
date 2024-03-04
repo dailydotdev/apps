@@ -8,6 +8,7 @@ import { SourcePermissions } from '../../../graphql/sources';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PlusIcon } from '../../icons';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
+import ConditionalWrapper from '../../ConditionalWrapper';
 
 interface CreatePostButtonProps {
   className?: string;
@@ -47,31 +48,32 @@ export function CreatePostButton({
   const href =
     link.post.create + (squad && allowedToPost ? `?sid=${squad.handle}` : '');
 
-  const renderBtn = () => (
-    <Button
-      variant={ButtonVariant.Secondary}
-      className={className}
-      disabled={getIsDisabled()}
-      icon={compact && <PlusIcon />}
-      tag="a"
-      size={isLaptop ? ButtonSize.Medium : ButtonSize.Small}
-      {...(!compact && {
-        tag: 'a',
-        href,
-      })}
+  return (
+    <ConditionalWrapper
+      condition={compact}
+      wrapper={(component: ReactElement) => (
+        <LinkWithTooltip
+          href={href}
+          tooltip={{ placement: 'bottom', content: 'New Post' }}
+        >
+          {component}
+        </LinkWithTooltip>
+      )}
     >
-      {!compact ? 'New post' : null}
-    </Button>
-  );
-
-  return compact ? (
-    <LinkWithTooltip
-      tooltip={{ placement: 'bottom', content: 'New Post' }}
-      href={href}
-    >
-      {renderBtn()}
-    </LinkWithTooltip>
-  ) : (
-    renderBtn()
+      <Button
+        variant={ButtonVariant.Secondary}
+        className={className}
+        disabled={getIsDisabled()}
+        icon={compact && <PlusIcon />}
+        tag="a"
+        size={isLaptop ? ButtonSize.Medium : ButtonSize.Small}
+        {...(!compact && {
+          tag: 'a',
+          href,
+        })}
+      >
+        {!compact ? 'New post' : null}
+      </Button>
+    </ConditionalWrapper>
   );
 }
