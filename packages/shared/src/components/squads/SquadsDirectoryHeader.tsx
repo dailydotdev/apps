@@ -25,7 +25,7 @@ export const SquadsDirectoryHeader = (): ReactElement => {
           <div className="mb-3 flex items-center justify-center font-bold text-white typo-large-title">
             Public Squads
           </div>
-          <div className="mb-4 max-w-[40rem] font-normal text-salt-50 typo-title3">
+          <div className="mb-4 max-w-[40rem] font-normal text-raw-salt-50 typo-title3">
             Unleashing the magic of developer communities with Squads. An
             opportunity to dive deep and go niche together with like-minded
             devs.

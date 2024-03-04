@@ -21,15 +21,15 @@ const classNamesByTheme: Record<BannerTheme, string[]> = {
     'bg-theme-bg-reverse',
     'text-theme-label-invert',
   ],
-  [Theme.Avocado]: ['bg-theme-color-avocado', 'text-pepper-90'],
+  [Theme.Avocado]: ['bg-theme-color-avocado', 'text-raw-pepper-90'],
   [Theme.Bacon]: ['bg-theme-color-bacon', 'text-white'],
-  [Theme.BlueCheese]: ['bg-theme-color-blueCheese', 'text-pepper-90'],
+  [Theme.BlueCheese]: ['bg-theme-color-blueCheese', 'text-raw-pepper-90'],
   [Theme.Bun]: ['bg-theme-color-bun', 'text-white'],
   [Theme.Burger]: ['bg-theme-color-burger', 'text-white'],
   [Theme.Cabbage]: ['bg-theme-color-cabbage', 'text-white'],
-  [Theme.Cheese]: ['bg-theme-color-cheese', 'text-pepper-90'],
+  [Theme.Cheese]: ['bg-theme-color-cheese', 'text-raw-pepper-90'],
   [Theme.Ketchup]: ['bg-theme-color-ketchup', 'text-white'],
-  [Theme.Lettuce]: ['bg-theme-color-lettuce', 'text-pepper-90'],
+  [Theme.Lettuce]: ['bg-theme-color-lettuce', 'text-raw-pepper-90'],
 };
 
 export default function PromotionalBanner(): ReactElement {

@@ -1,7 +1,9 @@
-const plugin = require('tailwindcss/plugin');
-const colors = require('./colors');
-const boxShadow = require('./boxShadow');
-const overlay = require('./overlay');
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+import plugin from 'tailwindcss/plugin';
+import colors from './colors';
+import boxShadow from './boxShadow';
+import overlay from './overlay';
 
 const variations = {
   primary: (color) => ({
@@ -223,7 +225,7 @@ const variationToStyles = (variation) => ({
   ),
 });
 
-module.exports = plugin(({ addComponents }) => {
+export default plugin(({ addComponents }) => {
   const buttons = Object.keys(variations).reduce(
     (acc, variation) => ({
       ...acc,

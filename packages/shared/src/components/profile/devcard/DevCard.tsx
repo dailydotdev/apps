@@ -86,7 +86,7 @@ export function DevCard({
             className={classNames(
               'relative flex flex-col bg-cover p-2 pb-10',
               isHorizontal
-                ? 'rounded-32 border-8 border-salt-90'
+                ? 'border-salt-90 rounded-32 border-8'
                 : 'rounded-12',
             )}
             style={{
@@ -94,7 +94,7 @@ export function DevCard({
             }}
           >
             {type !== DevCardType.Horizontal && (
-              <RoundedContainer className="absolute -inset-2 border-8 border-salt-90" />
+              <RoundedContainer className="border-salt-90 absolute -inset-2 border-8" />
             )}
             <img
               src={user.image}
@@ -130,7 +130,7 @@ export function DevCard({
             <h2
               className={classNames(
                 'font-bold',
-                isIron ? 'text-white' : 'text-pepper-90',
+                isIron ? 'text-white' : 'text-raw-pepper-90',
                 isHorizontal
                   ? 'line-clamp-2 typo-mega2'
                   : 'line-clamp-1 typo-title2',
@@ -142,8 +142,8 @@ export function DevCard({
               className={classNames(
                 'line-clamp-1 flex items-center',
                 isIron && 'text-white',
-                isDefault && 'text-pepper-10',
-                !isIron && !isDefault && 'text-pepper-90',
+                isDefault && 'text-raw-pepper-10',
+                !isIron && !isDefault && 'text-raw-pepper-90',
                 isHorizontal ? 'typo-callout' : 'typo-footnote',
               )}
             >
@@ -160,8 +160,8 @@ export function DevCard({
                 className={classNames(
                   'typo-caption1',
                   isIron && 'text-white',
-                  isDefault && 'text-pepper-10/[.64]',
-                  !isIron && !isDefault && 'text-pepper-90',
+                  isDefault && 'text-raw-pepper-10/[.64]',
+                  !isIron && !isDefault && 'text-raw-pepper-90',
                 )}
               >
                 {postDateFormat(user.createdAt)}
@@ -172,13 +172,13 @@ export function DevCard({
                 className={classNames(
                   'my-2',
                   (isDefault || isIron) && 'opacity-32',
-                  isIron ? '!bg-salt-90' : '!bg-pepper-90',
+                  isIron ? '!bg-raw-salt-90' : '!bg-raw-pepper-90',
                 )}
               />
             )}
             <p
               className={classNames(
-                isIron ? 'text-white' : 'text-pepper-90',
+                isIron ? 'text-white' : 'text-raw-pepper-90',
                 isHorizontal
                   ? 'line-clamp-6 typo-callout'
                   : 'line-clamp-2 typo-caption1',
@@ -191,7 +191,7 @@ export function DevCard({
             <Divider
               className={classNames(
                 (isDefault || isIron) && 'opacity-32',
-                isIron ? '!bg-salt-90' : '!bg-pepper-90',
+                isIron ? '!bg-raw-salt-90' : '!bg-raw-pepper-90',
               )}
             />
           )}
