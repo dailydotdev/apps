@@ -4,7 +4,9 @@ import { StoryObj } from '@storybook/react';
 
 import config from '../tailwind.config';
 
-const { theme: { colors } } = config;
+const {
+  theme: { colors },
+} = config;
 // Raw colors are not meant to be used for styling
 delete colors.raw;
 // Current theme colors, here for legacy reasons
@@ -56,38 +58,71 @@ export const Interactive: Story = {
   },
 };
 
-const RenderColor = ({ color, prefix, value }: {
+const RenderColor = ({
+  color,
+  prefix,
+  value,
+}: {
   color: any;
   prefix: string;
-  value: string
+  value: string;
 }) => {
-  if (typeof color === 'string') return <div
-    className={`flex items-center justify-center w-full h-24 ${prefix}${value}`}>{prefix + value}</div>;
+  if (typeof color === 'string')
+    return (
+      <div
+        className={`flex items-center justify-center w-full h-24 ${prefix}${value}`}
+      >
+        {prefix + value}
+      </div>
+    );
 
   if (Object.values(color).every((ss) => typeof ss === 'string')) {
-    return <div><h1
-      className='typo-title3 font-bold'>{prefix + value}</h1>{Object.keys(color).map((s) => {
-      return <RenderColor key={s} color={color[s]} value={s}
-                          prefix={prefix + value + '-'} />;
-    })}</div>;
+    return (
+      <div>
+        <h1 className="typo-title3 font-bold">{prefix + value}</h1>
+        {Object.keys(color).map((s) => {
+          return (
+            <RenderColor
+              key={s}
+              color={color[s]}
+              value={s}
+              prefix={prefix + value + '-'}
+            />
+          );
+        })}
+      </div>
+    );
   }
 
-  return <><h1
-    className='col-span-3 typo-title3 font-bold'>{prefix + value}</h1>{Object.keys(color).map((s) => {
-    return <RenderColor key={s} color={color[s]} value={s}
-                        prefix={prefix + value + '-'} />;
-  })}
-    <div className='col-span-3' />
-  </>;
+  return (
+    <>
+      <h1 className="col-span-3 typo-title3 font-bold">{prefix + value}</h1>
+      {Object.keys(color).map((s) => {
+        return (
+          <RenderColor
+            key={s}
+            color={color[s]}
+            value={s}
+            prefix={prefix + value + '-'}
+          />
+        );
+      })}
+      <div className="col-span-3" />
+    </>
+  );
 };
 
 export const All: Story = {
   render: () => {
     return (
-      <div className='grid grid-cols-3 grid-auto-flow-column gap-2'>
+      <div className="grid grid-cols-3 grid-auto-flow-column gap-2">
         {Object.keys(colors).map((color) => (
-          <RenderColor key={color} color={colors[color]} value={color}
-                       prefix='bg-' />
+          <RenderColor
+            key={color}
+            color={colors[color]}
+            value={color}
+            prefix="bg-"
+          />
         ))}
       </div>
     );

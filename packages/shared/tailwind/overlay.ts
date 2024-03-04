@@ -1,3 +1,4 @@
+/** TODO: Remove these once we migrated all colors to new naming convention */
 const overlayColors = {
   primary: {
     burger: '#A0583CA3',
