@@ -54,7 +54,8 @@ import {
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
-import PostPage, { getSeoDescription, Props } from '../pages/posts/[id]';
+import PostPage, { Props } from '../pages/posts/[id]';
+import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 
 const showLogin = jest.fn();

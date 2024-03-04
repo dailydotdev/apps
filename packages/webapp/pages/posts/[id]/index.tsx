@@ -15,7 +15,6 @@ import {
 import { ParsedUrlQuery } from 'querystring';
 import { NextSeo } from 'next-seo';
 import {
-  Post,
   POST_BY_ID_STATIC_FIELDS_QUERY,
   PostData,
   PostType,
@@ -59,20 +58,15 @@ import {
 import LoginButton from '@dailydotdev/shared/src/components/LoginButton';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
+import {
+  getSeoDescription,
+  PostSEOSchema,
+} from '../../../components/PostSEOSchema';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
 );
 
-export const getSeoDescription = (post: Post): string => {
-  if (post?.summary) {
-    return post?.summary;
-  }
-  if (post?.description) {
-    return post?.description;
-  }
-  return `Join us to the discussion about "${post?.title}" on daily.dev ✌️`;
-};
 export interface Props {
   id: string;
   initialData?: PostData;
@@ -144,6 +138,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   if (isPostLoadingOrFetching || isFallback || !isFetched) {
     return (
       <>
+        <PostSEOSchema post={post} />
         {post?.title?.length && seoComponent}
         <PostLoadingSkeleton className={containerClass} type={post?.type} />
       </>
@@ -199,6 +194,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
         <link rel="preload" as="image" href={post?.image} />
       </Head>
       {seoComponent}
+      <PostSEOSchema post={post} />
       <Content
         position={position}
         post={post}
