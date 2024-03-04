@@ -7,6 +7,7 @@ import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PlusIcon } from '../../icons';
+import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 
 interface CreatePostButtonProps {
   className?: string;
@@ -43,20 +44,34 @@ export function CreatePostButton({
     return !allowedToPost;
   };
 
-  return (
+  const href =
+    link.post.create + (squad && allowedToPost ? `?sid=${squad.handle}` : '');
+
+  const renderBtn = () => (
     <Button
       variant={ButtonVariant.Secondary}
       className={className}
       disabled={getIsDisabled()}
-      icon={compact && !isLaptop && <PlusIcon />}
+      icon={compact && <PlusIcon />}
       tag="a"
-      href={
-        link.post.create +
-        (squad && allowedToPost ? `?sid=${squad.handle}` : '')
-      }
       size={isLaptop ? ButtonSize.Medium : ButtonSize.Small}
+      {...(!compact && {
+        tag: 'a',
+        href,
+      })}
     >
-      {!compact || isLaptop ? 'New post' : null}
+      {!compact ? 'New post' : null}
     </Button>
+  );
+
+  return compact ? (
+    <LinkWithTooltip
+      tooltip={{ placement: 'bottom', content: 'New Post' }}
+      href={href}
+    >
+      {renderBtn()}
+    </LinkWithTooltip>
+  ) : (
+    renderBtn()
   );
 }
