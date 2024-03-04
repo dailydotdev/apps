@@ -56,7 +56,7 @@ export function CreateSharedPostModal({
   const onFormSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
-    const { commentary } = formToJson(e.currentTarget);
+    const { commentary } = formToJson<{ commentary: string }>(e.currentTarget);
 
     return onSubmitPost(e, squad.id, commentary);
   };

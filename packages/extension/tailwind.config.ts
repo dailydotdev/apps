@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const config = require('@dailydotdev/shared/tailwind.config');
+import type { Config } from 'tailwindcss';
+import config from '@dailydotdev/shared/tailwind.config';
 
 module.exports = {
   ...config,
@@ -7,4 +7,5 @@ module.exports = {
     './src/**/*.{js,ts,jsx,tsx}',
     './node_modules/@dailydotdev/shared/src/**/*.{js,ts,jsx,tsx}',
   ],
-};
+  // eslint-disable-next-line
+} satisfies Config;

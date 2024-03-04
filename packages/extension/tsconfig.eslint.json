@@ -5,6 +5,7 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "*.js",
+    "*.ts",
     "**/.eslintrc.js",
     "__tests__/**/*.ts",
     "__tests__/**/*.tsx",
