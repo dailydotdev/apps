@@ -403,7 +403,6 @@ export function OnboardPage(): ReactElement {
   }
 
   return (
-    // eslint-disable-next-line @dailydotdev/daily-dev-eslint-rules/no-custom-color
     <Container className="bg-[#0e1019]">
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <PixelTracking />

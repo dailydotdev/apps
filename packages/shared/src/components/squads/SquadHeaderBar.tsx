@@ -59,21 +59,23 @@ export function SquadHeaderBar({
       )}
     >
       <div className="relative">
-        {verifyPermission(squad, SourcePermissions.Invite) && !showJoinButton && (
-          <Button
-            variant={ButtonVariant.Secondary}
-            className={classNames(
-              tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
-            )}
-            onClick={() => {
-              trackAndCopyLink();
-            }}
-            icon={<AddUserIcon />}
-            disabled={copying}
-          >
-            Invitation link
-          </Button>
-        )}
+        {verifyPermission(squad, SourcePermissions.Invite) &&
+          !showJoinButton && (
+            <Button
+              variant={ButtonVariant.Secondary}
+              className={classNames(
+                tourIndex === TourScreenIndex.CopyInvitation &&
+                  'highlight-pulse',
+              )}
+              onClick={() => {
+                trackAndCopyLink();
+              }}
+              icon={<AddUserIcon />}
+              disabled={copying}
+            >
+              Invitation link
+            </Button>
+          )}
       </div>
       {showJoinButton && (
         <SquadJoinButton

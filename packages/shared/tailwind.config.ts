@@ -1,16 +1,47 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const colors = require('./tailwind/colors');
-const overlay = require('./tailwind/overlay');
-const boxShadow = require('./tailwind/boxShadow');
-const caret = require('./tailwind/caret');
-const typography = require('./tailwind/typography');
-const buttons = require('./tailwind/buttons');
+import type { Config } from 'tailwindcss';
+import colors from './tailwind/colors';
+import boxShadow from './tailwind/boxShadow';
+import caret from './tailwind/caret';
+import typography from './tailwind/typography';
+import buttons from './tailwind/buttons';
+import background from './tailwind/colors/background';
+import accent from './tailwind/colors/accent';
+import brand from './tailwind/colors/brand';
+import surface from './tailwind/colors/surface';
+import action from './tailwind/colors/action';
+import overlayColors from './tailwind/colors/overlay';
+import border from './tailwind/colors/border';
+import statusColors from './tailwind/colors/status';
+import text from './tailwind/colors/text';
+import shadow from './tailwind/colors/shadow';
+import overlay from './tailwind/overlay';
 
-module.exports = {
+export default {
+  content: [],
   theme: {
     colors: {
-      ...colors,
-      overlay,
+      raw: {
+        /* Raw colors should not be used directly for styling */
+        ...colors,
+      },
+      accent,
+      background,
+      brand,
+      surface,
+      action,
+      overlay: {
+        // Temporary fix to allow the old overlay colors to work
+        ...overlay,
+        ...overlayColors,
+      },
+      border,
+      status: statusColors,
+      text,
+      shadow,
+      black: '#000000',
+      white: '#ffffff',
+      transparent: 'transparent',
+      // Old stuff
       theme: {
         active: 'var(--theme-active)',
         focus: 'var(--theme-focus)',
@@ -119,9 +150,6 @@ module.exports = {
           label: 'var(--theme-highlight-label)',
         },
       },
-      black: '#000000',
-      white: '#ffffff',
-      transparent: 'transparent',
     },
     boxShadow,
     opacity: {
@@ -263,4 +291,5 @@ module.exports = {
   corePlugins: {
     invert: false,
   },
-};
+  // eslint-disable-next-line
+} satisfies Config;

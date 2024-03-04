@@ -10,7 +10,7 @@ module.exports = {
     'plugin:prettier/recommended',
     'plugin:react-hooks/recommended',
   ],
-  plugins: ['prettier', 'tailwindcss', '@dailydotdev/daily-dev-eslint-rules', 'react-hooks'],
+  plugins: ['prettier', 'tailwindcss', 'react-hooks'],
   parserOptions: {
     project: './tsconfig.eslint.json',
     ecmaVersion: 2020,
@@ -44,7 +44,6 @@ module.exports = {
     '@typescript-eslint/return-await': 0,
     'tailwindcss/classnames-order': 'warn',
     'tailwindcss/no-contradicting-classname': 'error',
-    '@dailydotdev/daily-dev-eslint-rules/no-custom-color': 'error',
     'no-restricted-globals': [
       'error',
       {
