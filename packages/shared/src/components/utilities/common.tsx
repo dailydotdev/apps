@@ -1,11 +1,6 @@
-import React, {
-  HTMLAttributes,
-  ReactElement,
-  ReactHTML,
-  ReactNode,
-} from 'react';
+import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import classed, { ClassedHTML } from '../../lib/classed';
+import classed from '../../lib/classed';
 import styles from './utilities.module.css';
 import { ArrowIcon } from '../icons';
 import { Post, PostType, isSharedPostSquadPost } from '../../graphql/posts';
