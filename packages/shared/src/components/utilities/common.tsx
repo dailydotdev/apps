@@ -63,7 +63,8 @@ export const PageContainer = classed(
   pageContainerClassNames,
 );
 
-export const TruncateText = classed('span', 'max-w-full shrink truncate');
+export const truncateTextClassNames = 'max-w-full shrink truncate';
+export const TruncateText = classed('span', truncateTextClassNames);
 
 const RawPageWidgets = classed(
   'aside',
