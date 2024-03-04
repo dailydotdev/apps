@@ -61,7 +61,7 @@ importers:
         specifier: ^3.13.0
         version: 3.13.0(tailwindcss@3.4.1)
       typescript:
-        specifier: ^4.9
+        specifier: 4.9.5
         version: 4.9.5
 
   packages/eslint-rules:
@@ -359,7 +359,7 @@ importers:
         specifier: ^26.5.4
         version: 26.5.6(jest@26.6.3)(typescript@4.9.5)
       typescript:
-        specifier: ^4.9
+        specifier: 4.9.5
         version: 4.9.5
       webpack:
         specifier: ^5.72.0
@@ -659,7 +659,7 @@ importers:
         specifier: ^26.5.4
         version: 26.5.6(jest@26.6.3)(typescript@4.9.5)
       typescript:
-        specifier: ^4.9
+        specifier: 4.9.5
         version: 4.9.5
 
   packages/storybook:
@@ -753,7 +753,7 @@ importers:
         specifier: ^7.6.1
         version: 7.6.1
       typescript:
-        specifier: ^4.9
+        specifier: 4.9.5
         version: 4.9.5
       vite:
         specifier: ^4.4.9
@@ -1003,7 +1003,7 @@ importers:
         specifier: ^26.5.4
         version: 26.5.6(jest@26.6.3)(typescript@4.9.5)
       typescript:
-        specifier: ^4.9
+        specifier: 4.9.5
         version: 4.9.5
       vercel:
         specifier: ^21.3.3
