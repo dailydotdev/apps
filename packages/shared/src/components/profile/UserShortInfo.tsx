@@ -89,10 +89,15 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
           )}
         >
           <div className="flex">
-            <TruncateText className="font-bold">{name}</TruncateText>
+            <TruncateText className="font-bold" title={name}>
+              {name}
+            </TruncateText>
             <ReputationUserBadge user={user} />
           </div>
-          <TruncateText className="text-theme-label-secondary">
+          <TruncateText
+            className="text-theme-label-secondary"
+            title={`@${username}`}
+          >
             {transformUsername ? transformUsername(user) : `@${username}`}
           </TruncateText>
           {bio && showDescription && (

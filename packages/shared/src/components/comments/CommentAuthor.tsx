@@ -24,6 +24,7 @@ export default function CommentAuthor({
           'commentAuthor w-fit font-bold text-theme-label-primary typo-callout',
           className,
         )}
+        title={author.name}
       >
         <TruncateText>{author.name}</TruncateText>
       </ProfileLink>

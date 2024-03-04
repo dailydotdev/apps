@@ -128,7 +128,9 @@ function CommentBox({
           </FlexRow>
           <FlexRow className="items-center text-theme-label-quaternary">
             <ProfileLink href={comment.author.permalink}>
-              <TruncateText>@{comment.author.username}</TruncateText>
+              <TruncateText title={`@${comment.author.username}`}>
+                @{comment.author.username}
+              </TruncateText>
             </ProfileLink>
             <div className="mx-2 h-0.5 w-0.5 bg-theme-label-quaternary" />
             <CommentPublishDate comment={comment} />

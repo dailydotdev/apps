@@ -45,7 +45,10 @@ function SquadPostAuthor({
           )}
         >
           <div className="flex w-full">
-            <TruncateText className={classNames('font-bold', className?.name)}>
+            <TruncateText
+              className={classNames('font-bold', className?.name)}
+              title={author.name}
+            >
               {author.name}
             </TruncateText>
             <div className="flex gap-1">
@@ -65,7 +68,9 @@ function SquadPostAuthor({
               className?.handle,
             )}
           >
-            <TruncateText>@{author.username}</TruncateText>
+            <TruncateText title={`@${author.username}`}>
+              @{author.username}
+            </TruncateText>
             {!!date && <Separator />}
             {!!date && <time dateTime={date}>{date}</time>}
           </div>
