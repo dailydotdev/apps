@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React, { forwardRef, ReactElement, ReactNode, Ref } from 'react';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { TooltipProps } from '../tooltips/BaseTooltip';
-import { getTextEllipsis } from '../utilities';
+import { TruncateText } from '../utilities';
 import { ProfileTooltip } from './ProfileTooltip';
 import { UserShortProfile } from '../../lib/user';
 import { ReputationUserBadge } from '../ReputationUserBadge';
@@ -32,8 +32,6 @@ export interface UserShortInfoProps<
   showDescription?: boolean;
   transformUsername?(user: UserShortProfile): ReactNode;
 }
-
-const TextEllipsis = getTextEllipsis();
 
 const defaultClassName = {
   container: 'py-3 px-6 hover:bg-theme-hover',
@@ -91,12 +89,12 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
           )}
         >
           <div className="flex">
-            <TextEllipsis className="min-w-0 font-bold">{name}</TextEllipsis>
+            <TruncateText className="font-bold">{name}</TruncateText>
             <ReputationUserBadge user={user} />
           </div>
-          <TextEllipsis className="text-theme-label-secondary">
+          <TruncateText className="text-theme-label-secondary">
             {transformUsername ? transformUsername(user) : `@${username}`}
-          </TextEllipsis>
+          </TruncateText>
           {bio && showDescription && (
             <span className="mt-1 text-theme-label-tertiary">{bio}</span>
           )}
