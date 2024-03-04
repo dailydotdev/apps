@@ -36,7 +36,7 @@ function MyFeedHeading({
   const router = useRouter();
   const { trackEvent } = useContext(AnalyticsContext);
   const shouldHighlightFeedSettings = router.query?.hset === 'true';
-  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
 
   const onClick = () => {
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
@@ -56,7 +56,7 @@ function MyFeedHeading({
   };
 
   const getOffset = (): OffsetXY => {
-    if (shouldUseFeedLayoutV1) {
+    if (shouldUseMobileFeedLayout) {
       return [0, 8];
     }
 
@@ -72,7 +72,7 @@ function MyFeedHeading({
       message: classNames(
         'bg-theme-bg-primary',
         !sidebarRendered ? 'ml-4' : null,
-        shouldUseFeedLayoutV1 && '-left-20',
+        shouldUseMobileFeedLayout && '-left-20',
       ),
       wrapper: 'mr-auto',
       container: 'z-tooltip',
@@ -84,7 +84,7 @@ function MyFeedHeading({
   return (
     <AlertPointer {...alertProps}>
       <Button
-        size={shouldUseFeedLayoutV1 ? ButtonSize.Small : ButtonSize.Medium}
+        size={shouldUseMobileFeedLayout ? ButtonSize.Small : ButtonSize.Medium}
         variant={ButtonVariant.Float}
         className={classNames(
           'mr-auto',
@@ -93,7 +93,7 @@ function MyFeedHeading({
         onClick={onClick}
         icon={<FilterIcon />}
         iconPosition={
-          shouldUseFeedLayoutV1 ? ButtonIconPosition.Right : undefined
+          shouldUseMobileFeedLayout ? ButtonIconPosition.Right : undefined
         }
       >
         Feed settings
