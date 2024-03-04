@@ -12,7 +12,7 @@ import { feature } from '../../lib/featureManagement';
 import { PostPageOnboarding } from '../../lib/featureValues';
 import { cloudinary } from '../../lib/image';
 
-const Section = classed('div', 'flex flex-col w-[23.25rem]');
+const Section = classed('div', 'flex flex-col');
 export const authGradientBg =
   'bg-theme-bg-primary bg-gradient-to-l from-theme-overlay-active-cabbage from-0% to-theme-overlay-active-onion to-100%';
 
@@ -23,11 +23,11 @@ export function AuthenticationBanner(): ReactElement {
   return (
     <BottomBannerContainer
       className={classNames(
-        'gap-6 border-t border-theme-color-cabbage py-10 shadow-3',
+        'gap-24 border-t border-theme-color-cabbage py-10 shadow-3 laptopL:gap-32',
         authGradientBg,
       )}
     >
-      <Section>
+      <Section className="w-[32.5rem]">
         <OnboardingHeadline
           className={{ title: 'typo-mega3', description: 'typo-title3' }}
         />
@@ -39,7 +39,7 @@ export function AuthenticationBanner(): ReactElement {
           />
         )}
       </Section>
-      <Section className="pt-2">
+      <Section className="w-[23.25rem] pt-2">
         <AuthOptions
           ignoreMessages
           formRef={null}
