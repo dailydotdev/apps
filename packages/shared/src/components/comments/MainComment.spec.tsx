@@ -124,8 +124,8 @@ it('should call onDelete callback', async () => {
   expect(onDelete).toBeCalledWith(comment, 'c1');
 });
 
-it('should show author badge', async () => {
+it('should show creator badge', async () => {
   renderLayout({ postAuthorId: 'u1' }, loggedUser);
-  const el = await screen.findByText('Author');
+  const el = await screen.findByText('Creator');
   expect(el).toBeInTheDocument();
 });

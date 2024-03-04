@@ -107,7 +107,7 @@ function CommentBox({
                   <UserBadge
                     key="author"
                     className="text-theme-status-help"
-                    content="Author"
+                    content="Creator"
                     Icon={FeatherIcon}
                     iconProps={{
                       secondary: true,
