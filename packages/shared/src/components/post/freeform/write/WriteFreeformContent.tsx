@@ -71,13 +71,21 @@ export function WriteFreeformContent({
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     completeAction(ActionType.WritePost);
-    const { title, content, image: files } = formToJson(e.currentTarget);
+    const {
+      title,
+      content,
+      image: files,
+    } = formToJson<{ title: string; content: string; image: string | File }>(
+      e.currentTarget,
+    );
     const image = files?.[0] ?? (await getDraftImage());
     await onSubmitForm(e, { title, content, image });
   };
 
   const onUpdate = async () => {
-    const { title, content } = formToJson(formRef.current);
+    const { title, content } = formToJson<{ title: string; content: string }>(
+      formRef.current,
+    );
     await updateDraft({ title, content, image: draft?.image });
   };
 

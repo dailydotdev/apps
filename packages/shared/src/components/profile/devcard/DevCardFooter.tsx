@@ -40,7 +40,7 @@ export function DevCardFooter({
             'typo-caption1',
             checkLowercaseEquality(theme, DevCardTheme.Iron)
               ? 'border-white text-white'
-              : 'border-pepper-90 text-pepper-90',
+              : 'border-pepper-90 text-raw-pepper-90',
             type === DevCardType.Vertical && '!leading-[1.375rem]',
           ),
         }}
@@ -59,7 +59,7 @@ export function DevCardFooter({
       {shouldShowLogo && (
         <span
           className={classNames(
-            'absolute bottom-0 right-0 rounded-br-24 rounded-tl-24 bg-pepper-90 px-4 py-3',
+            'absolute bottom-0 right-0 rounded-br-24 rounded-tl-24 bg-raw-pepper-90 px-4 py-3',
             !elementsClickable && 'pointer-events-none',
           )}
         >
