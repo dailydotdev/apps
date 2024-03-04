@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { Author } from '../../graphql/comments';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
+import { TruncateText } from '../utilities';
 
 export interface CommentAuthorProps {
   author: Author;
@@ -24,7 +25,7 @@ export default function CommentAuthor({
           className,
         )}
       >
-        <span className="max-w-full truncate">{author.name}</span>
+        <TruncateText>{author.name}</TruncateText>
       </ProfileLink>
     </ProfileTooltip>
   );

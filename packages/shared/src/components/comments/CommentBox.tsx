@@ -11,7 +11,7 @@ import { ProfileLink } from '../profile/ProfileLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import SquadMemberBadge from '../squads/SquadMemberBadge';
 import UserBadge from '../UserBadge';
-import { FlexRow } from '../utilities';
+import { FlexRow, TruncateText } from '../utilities';
 import CommentActionButtons, {
   CommentActionProps,
 } from './CommentActionButtons';
@@ -128,9 +128,7 @@ function CommentBox({
           </FlexRow>
           <FlexRow className="items-center text-theme-label-quaternary">
             <ProfileLink href={comment.author.permalink}>
-              <span className="max-w-full truncate">
-                @{comment.author.username}
-              </span>
+              <TruncateText>@{comment.author.username}</TruncateText>
             </ProfileLink>
             <div className="mx-2 h-0.5 w-0.5 bg-theme-label-quaternary" />
             <CommentPublishDate comment={comment} />

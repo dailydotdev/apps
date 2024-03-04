@@ -7,6 +7,7 @@ import { Author } from '../../graphql/comments';
 import { SourceMemberRole } from '../../graphql/sources';
 import { Separator } from '../cards/common';
 import { ReputationUserBadge } from '../ReputationUserBadge';
+import { TruncateText } from '../utilities';
 
 interface SquadPostAuthorProps {
   className?: Partial<{
@@ -44,14 +45,9 @@ function SquadPostAuthor({
           )}
         >
           <div className="flex w-full">
-            <span
-              className={classNames(
-                'max-w-full shrink truncate font-bold',
-                className?.name,
-              )}
-            >
+            <TruncateText className={classNames('font-bold', className?.name)}>
               {author.name}
-            </span>
+            </TruncateText>
             <div className="flex gap-1">
               <ReputationUserBadge user={author} />
               {!!role && (
@@ -69,9 +65,7 @@ function SquadPostAuthor({
               className?.handle,
             )}
           >
-            <span className="max-w-full shrink truncate">
-              @{author.username}
-            </span>
+            <TruncateText>@{author.username}</TruncateText>
             {!!date && <Separator />}
             {!!date && <time dateTime={date}>{date}</time>}
           </div>
