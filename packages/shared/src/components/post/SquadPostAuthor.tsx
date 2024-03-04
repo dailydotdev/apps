@@ -21,8 +21,6 @@ interface SquadPostAuthorProps {
   date?: string;
 }
 
-const lineClamp = 'block text-ellipsis whitespace-nowrap overflow-hidden';
-
 function SquadPostAuthor({
   className,
   author,
@@ -41,12 +39,17 @@ function SquadPostAuthor({
         <a
           href={author.permalink}
           className={classNames(
-            'ml-4 flex flex-col overflow-hidden',
+            'ml-4 flex flex-1 flex-col overflow-hidden',
             className?.details,
           )}
         >
-          <div className={lineClamp}>
-            <span className={classNames('font-bold', className?.name)}>
+          <div className="flex w-full">
+            <span
+              className={classNames(
+                'max-w-full shrink truncate font-bold',
+                className?.name,
+              )}
+            >
               {author.name}
             </span>
             <div className="flex gap-1">
@@ -62,12 +65,13 @@ function SquadPostAuthor({
           </div>
           <div
             className={classNames(
-              'text-theme-label-tertiary',
+              'flex text-theme-label-tertiary',
               className?.handle,
-              lineClamp,
             )}
           >
-            @{author.username}
+            <span className="max-w-full shrink truncate">
+              @{author.username}
+            </span>
             {!!date && <Separator />}
             {!!date && <time dateTime={date}>{date}</time>}
           </div>
