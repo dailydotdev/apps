@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useActiveFeedNameContext } from '../../contexts';
-import { useFeatureIsOn } from '../../components/GrowthBookProvider';
+import { useFeature } from '../../components/GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { useMutationSubscription } from '../mutationSubscription';
 import { upvoteMutationKey, UseVotePostMutationProps } from '../vote';
