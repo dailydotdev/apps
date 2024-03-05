@@ -23,7 +23,7 @@ export function CardCoverShare({
   };
 
   return (
-    <span className="absolute inset-0 flex flex-col items-center justify-center bg-theme-highlight-blur">
+    <span className="absolute inset-0 flex flex-col items-center justify-center">
       <p className="font-bold typo-callout">
         Should anyone else see this post?
       </p>

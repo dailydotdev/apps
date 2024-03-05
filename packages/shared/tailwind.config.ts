@@ -139,7 +139,6 @@ export default {
         },
         'post-disabled': 'var(--theme-post-disabled)',
         highlight: {
-          blur: 'var(--theme-blur-highlight)',
           comment: 'var(--theme-highlight-comment)',
           red: 'var(--theme-highlight-red)',
           orange: 'var(--theme-highlight-orange)',
@@ -155,6 +154,7 @@ export default {
     boxShadow,
     opacity: {
       0: '0',
+      16: '0.16',
       40: '0.4',
       50: '0.5',
       64: '0.64',

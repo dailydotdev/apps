@@ -1,4 +1,5 @@
 import React, { ReactElement, useState } from 'react';
+import classNames from 'classnames';
 import { ImageProps, ImageType } from '../../image/Image';
 import VideoImage, { VideoImageProps } from '../../image/VideoImage';
 import ConditionalWrapper from '../../ConditionalWrapper';
@@ -32,13 +33,20 @@ export function CardCover({
       onCopy={() => setHasInteracted(true)}
     />
   );
+  const imageClasses = classNames(
+    imageProps?.className,
+    shouldShowOverlay && 'opacity-16',
+  );
 
   if (isVideoType) {
     return (
       <VideoImage
         {...videoProps}
-        imageProps={imageProps}
         overlay={shouldShowOverlay ? coverShare : undefined}
+        imageProps={{
+          ...imageProps,
+          className: imageClasses,
+        }}
       />
     );
   }
@@ -53,7 +61,11 @@ export function CardCover({
         </div>
       )}
     >
-      <CardImage {...imageProps} type={ImageType.Post} />
+      <CardImage
+        {...imageProps}
+        type={ImageType.Post}
+        className={imageClasses}
+      />
     </ConditionalWrapper>
   );
 }
