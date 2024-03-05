@@ -12,6 +12,8 @@ import {
   UseVotePostMutationProps,
 } from '../../../hooks';
 import { useActiveFeedNameContext } from '../../../contexts';
+import { useFeatureIsOn } from '../../GrowthBookProvider';
+import { feature } from '../../../lib/featureManagement';
 
 interface CardCoverProps extends CommonCardCoverProps {
   imageProps: ImageProps;
@@ -29,6 +31,32 @@ export function CardCover({
   const { feedName } = useActiveFeedNameContext();
   const [justUpvoted, setJustUpvoted] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const shareLoopsEnabled = useFeatureIsOn(feature.shareLoops);
+
+  useMutationSubscription({
+    matcher: ({ status, mutation }) => {
+      const key = [...upvoteMutationKey, { feedName }];
+
+      return (
+        status === 'success' &&
+        mutation?.options?.mutationKey?.toString() === key.toString()
+      );
+    },
+    callback: ({ variables }) => {
+      const vars = variables as UseVotePostMutationProps;
+
+      if (vars.id !== post.id || !shareLoopsEnabled) {
+        return;
+      }
+
+      setJustUpvoted(!!vars.vote);
+    },
+  });
+
+  if (!shareLoopsEnabled) {
+    return;
+  }
+
   const shouldShowOverlay = justUpvoted && !hasInteracted;
   const coverShare = (
     <CardCoverShare
@@ -44,26 +72,6 @@ export function CardCover({
     imageProps?.className,
     shouldShowOverlay && 'opacity-16',
   );
-
-  useMutationSubscription({
-    matcher: ({ status, mutation }) => {
-      const key = [...upvoteMutationKey, { feedName }];
-
-      return (
-        status === 'success' &&
-        mutation?.options?.mutationKey?.toString() === key.toString()
-      );
-    },
-    callback: ({ variables }) => {
-      const vars = variables as UseVotePostMutationProps;
-
-      if (vars.id !== post.id) {
-        return;
-      }
-
-      setJustUpvoted(!!vars.vote);
-    },
-  });
 
   if (isVideoType) {
     return (
