@@ -21,6 +21,7 @@ import {
   removeCachedPagePost,
   updateCachedPagePost,
 } from '../lib/query';
+import { getShouldRefreshFeed } from '../lib/refreshFeed';
 
 export type PostItem = {
   type: 'post';
@@ -97,6 +98,7 @@ export default function useFeed<T>(
     ({ pageParam }) =>
       request(graphqlUrl, query, {
         ...variables,
+        ...(getShouldRefreshFeed() && { refresh: true }),
         first: pageSize,
         after: pageParam,
         loggedIn: !!user,

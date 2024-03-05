@@ -42,6 +42,7 @@ const feature = {
   copyLink: new Feature('copy_link', false),
   onboardingOptimizations: new Feature('onboarding_optimizations', false),
   userAcquisition: new Feature('user_acquisition', UserAcquisition.Control),
+  forceRefresh: new Feature('force_refresh', false),
   feedAdSpot: new Feature('feed_ad_spot', FeedAdSpot.Control),
 };
 
