@@ -5,6 +5,7 @@ import { ReadingStreakIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
 import { UserStreak } from '../../graphql/users';
 import { useViewSize, ViewSize } from '../../hooks';
+import { isTesting } from '../../lib/constants';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -28,6 +29,7 @@ function CustomStreaksTooltip({
       interactive
       showArrow={false}
       visible={shouldShowStreaks}
+      forceLoad={!isTesting}
       container={{
         paddingClassName: 'p-4',
         bgClassName: 'bg-theme-bg-tertiary',
