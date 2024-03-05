@@ -54,7 +54,7 @@ export function CardCover({
   });
 
   if (!shareLoopsEnabled) {
-    return;
+    return null;
   }
 
   const shouldShowOverlay = justUpvoted && !hasInteracted;
