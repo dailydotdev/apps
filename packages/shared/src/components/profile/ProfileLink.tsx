@@ -21,7 +21,10 @@ function ProfileLinkComponent(
       <a
         {...props}
         ref={ref}
-        className={classNames(className, 'flex items-center no-underline')}
+        className={classNames(
+          className,
+          'flex min-w-0 shrink items-center no-underline',
+        )}
       >
         {children}
       </a>

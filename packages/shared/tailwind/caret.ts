@@ -1,4 +1,6 @@
-const plugin = require('tailwindcss/plugin');
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+import plugin from 'tailwindcss/plugin';
 
 const generateColors = (e, colors, prefix) =>
   Object.keys(colors).reduce((acc, key) => {
@@ -19,7 +21,7 @@ const generateColors = (e, colors, prefix) =>
     };
   }, {});
 
-module.exports = plugin.withOptions(({ className = 'caret' } = {}) => {
+export default plugin.withOptions(({ className = 'caret' } = {}) => {
   return ({ e, addUtilities, theme, variants }) => {
     const colors = theme('colors');
     const caretColors = generateColors(e, colors, `.${className}`);

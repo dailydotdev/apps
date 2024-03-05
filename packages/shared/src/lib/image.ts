@@ -151,6 +151,10 @@ export const cloudinary = {
       webm: 'https://daily-now-res.cloudinary.com/video/upload/v1695808184/daily.dev_onboarding_wall_video_qzmrzm_iroigf.webm',
     },
   },
+  postPageOnboarding: {
+    image:
+      'https://daily-now-res.cloudinary.com/image/upload/s--orOMA924--/f_auto/v1708950923/social_proof_af0h6j',
+  },
   generic: {
     notFound: {
       light:
@@ -166,6 +170,10 @@ export const cloudinary = {
   devcard: {
     defaultCoverImage:
       'https://daily-now-res.cloudinary.com/image/upload/s--b9BjE_Vi--/f_auto/v1707404283/card-cover_emugw3',
+  },
+  reputation: {
+    privilegesUnlocked:
+      'https://daily-now-res.cloudinary.com/image/upload/s--6sO7fJKh--/v1709136797/image_epr7dz.svg',
   },
 };
 

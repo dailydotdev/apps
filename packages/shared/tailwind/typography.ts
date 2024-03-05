@@ -1,6 +1,6 @@
-const plugin = require('tailwindcss/plugin');
+import plugin from 'tailwindcss/plugin';
 
-module.exports = plugin(({ addUtilities }) => {
+export default plugin(({ addUtilities }) => {
   const utils = {
     '.typo-giga1': {
       'font-size': '4.5rem',

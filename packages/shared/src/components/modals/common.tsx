@@ -101,6 +101,13 @@ const FirstStreakModal = dynamic(
     ),
 );
 
+const ReputationPrivilegesModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "reputationPrivilegesModal" */ './ReputationPrivilegesModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -119,6 +126,7 @@ export const modals = {
   [LazyModal.Video]: VideoModal,
   [LazyModal.NewStreak]: NewStreakModal,
   [LazyModal.FirstStreak]: FirstStreakModal,
+  [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
 };
 
 type GetComponentProps<T> = T extends

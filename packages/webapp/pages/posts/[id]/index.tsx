@@ -15,7 +15,6 @@ import {
 import { ParsedUrlQuery } from 'querystring';
 import { NextSeo } from 'next-seo';
 import {
-  Post,
   POST_BY_ID_STATIC_FIELDS_QUERY,
   PostData,
   PostType,
@@ -45,9 +44,6 @@ import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Link from 'next/link';
 import { CollectionPostContent } from '@dailydotdev/shared/src/components/post/collection';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { FeedLayout } from '@dailydotdev/shared/src/lib/featureValues';
 import { PostBackButton } from '@dailydotdev/shared/src/components/post/common/PostBackButton';
 import {
   AuthenticationBanner,
@@ -56,26 +52,22 @@ import {
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth/useOnboarding';
 import {
   useJoinReferral,
+  useFeedLayout,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import LoginButton from '@dailydotdev/shared/src/components/LoginButton';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
+import {
+  getSeoDescription,
+  PostSEOSchema,
+} from '../../../components/PostSEOSchema';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
 );
 
-export const getSeoDescription = (post: Post): string => {
-  if (post?.summary) {
-    return post?.summary;
-  }
-  if (post?.description) {
-    return post?.description;
-  }
-  return `Join us to the discussion about "${post?.title}" on daily.dev ✌️`;
-};
 export interface Props {
   id: string;
   initialData?: PostData;
@@ -100,7 +92,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
-  const layout = useFeature(feature.feedLayout);
+  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
   const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = router;
   const { shouldShowAuthBanner } = useOnboarding();
@@ -148,6 +140,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   if (isPostLoadingOrFetching || isFallback || !isFetched) {
     return (
       <>
+        <PostSEOSchema post={post} />
         {post?.title?.length && seoComponent}
         <PostLoadingSkeleton className={containerClass} type={post?.type} />
       </>
@@ -165,7 +158,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     const routedFromSquad = router?.query?.squad;
     const squadLink = `/squads/${router.query.squad}`;
 
-    if (layout === FeedLayout.V1) {
+    if (shouldUseMobileFeedLayout) {
       return <PostBackButton link={routedFromSquad ? squadLink : undefined} />;
     }
 
@@ -203,6 +196,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
         <link rel="preload" as="image" href={post?.image} />
       </Head>
       {seoComponent}
+      <PostSEOSchema post={post} />
       <Content
         position={position}
         post={post}

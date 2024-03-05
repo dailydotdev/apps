@@ -53,7 +53,9 @@ import {
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
-import PostPage, { getSeoDescription, Props } from '../pages/posts/[id]';
+import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
+import PostPage, { Props } from '../pages/posts/[id]';
+import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 
 const showLogin = jest.fn();
@@ -529,7 +531,10 @@ it('should not update post on subscription message when id is not the same', asy
   expect(el).not.toBeInTheDocument();
 });
 
-it('should send bookmark mutation', async () => {
+it('should send bookmark mutation from options on desktop', async () => {
+  // is desktop
+  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
+
   let mutationCalled = false;
   renderPost({}, [
     createPostMock(),
@@ -557,7 +562,10 @@ it('should send bookmark mutation', async () => {
   await waitFor(() => mutationCalled);
 });
 
-it('should send remove bookmark mutation', async () => {
+it('should send remove bookmark mutation from options on desktop', async () => {
+  // is desktop
+  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
+
   let mutationCalled = false;
   renderPost({}, [
     createPostMock({ bookmarked: true }),

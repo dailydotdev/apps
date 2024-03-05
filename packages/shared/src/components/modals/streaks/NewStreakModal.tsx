@@ -12,11 +12,14 @@ const Paragraph = classed('p', 'text-center text-theme-label-tertiary');
 
 export default function NewStreakModal({
   currentStreak,
+  maxStreak,
   onRequestClose,
   ...props
 }: StreakModalProps): ReactElement {
   const { toggleOptOutWeeklyGoal, optOutWeeklyGoal } = useSettingsContext();
-  const shouldShowSplash = currentStreak > 20;
+  const shouldShowSplash = currentStreak >= maxStreak;
+
+  const daysPlural = currentStreak === 1 ? 'day' : 'days';
 
   return (
     <Modal
@@ -57,7 +60,7 @@ export default function NewStreakModal({
         >
           {shouldShowSplash
             ? 'New streak record!'
-            : `${currentStreak} days streak`}
+            : `${currentStreak} ${daysPlural} streak`}
         </strong>
         <Paragraph
           className={classNames(
@@ -66,7 +69,7 @@ export default function NewStreakModal({
           )}
         >
           {shouldShowSplash
-            ? 'Epic win! You are on a league of your own'
+            ? 'Epic win! You are in a league of your own'
             : `New milestone reached! You are unstoppable.`}
         </Paragraph>
         <Checkbox

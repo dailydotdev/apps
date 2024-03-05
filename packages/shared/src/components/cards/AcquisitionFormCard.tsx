@@ -1,0 +1,122 @@
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
+import classNames from 'classnames';
+import { Card } from './Card';
+import { Radio } from '../fields/Radio';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { AcquisitionChannel, updateUserAcquisition } from '../../graphql/users';
+import { MiniCloseIcon } from '../icons';
+import { OnboardingTitleGradient } from '../onboarding/common';
+import { removeQueryParam } from '../../lib/links';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { AnalyticsEvent, UserAcquisitionEvent } from '../../lib/analytics';
+import { useFeedLayout } from '../../hooks';
+
+const options = [
+  {
+    label: 'Referred by a friend or colleague',
+    value: AcquisitionChannel.Friend,
+  },
+  { label: 'Social media', value: AcquisitionChannel.SocialMedia },
+  { label: 'Search engine', value: AcquisitionChannel.SearchEngine },
+  { label: 'Blog, forum, or discussion', value: AcquisitionChannel.Blog },
+  {
+    label: 'Browser extension store',
+    value: AcquisitionChannel.ExtensionStore,
+  },
+  {
+    label: 'Advertisement or sponsorship',
+    value: AcquisitionChannel.Advertisement,
+  },
+  { label: 'Other', value: AcquisitionChannel.Other },
+];
+
+export const acquisitionKey = 'ua';
+
+export function AcquisitionFormCard(): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
+  const [isDismissed, setIsDismissed] = useState(false);
+  const [value, setValue] = useState<AcquisitionChannel>();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const router = useRouter();
+  const onRemoveQueryParams = () => {
+    const updatedUrl = removeQueryParam(window.location.href, acquisitionKey);
+    router.replace(updatedUrl);
+  };
+  const onDismiss = () => {
+    setIsDismissed(true);
+    trackEvent({ event_name: UserAcquisitionEvent.Dismiss });
+    onRemoveQueryParams();
+  };
+
+  const { mutateAsync, isLoading, isSuccess } = useMutation(
+    updateUserAcquisition,
+    {
+      onSuccess: () => {
+        trackEvent({
+          event_name: UserAcquisitionEvent.Submit,
+          target_id: value,
+        });
+      },
+    },
+  );
+
+  useEffect(() => {
+    trackEvent({
+      event_name: AnalyticsEvent.Impression,
+      target_type: acquisitionKey,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (isSuccess) {
+    onRemoveQueryParams();
+    return null;
+  }
+
+  if (isDismissed) {
+    return null;
+  }
+
+  return (
+    <Card
+      data-testid="acquisitionFormCard"
+      className={classNames(
+        'p-4',
+        shouldUseMobileFeedLayout && '!bg-theme-bg-primary',
+      )}
+    >
+      <OnboardingTitleGradient className="flex w-full flex-row items-center whitespace-nowrap pb-1 typo-body">
+        How did you hear about us?
+        <Button
+          className="ml-auto"
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+          icon={<MiniCloseIcon />}
+          onClick={onDismiss}
+          aria-label="Close acquisition form"
+        />
+      </OnboardingTitleGradient>
+      <Radio<AcquisitionChannel>
+        name="acquisition"
+        onChange={setValue}
+        options={options}
+        value={value}
+      />
+      <Button
+        className={classNames(
+          'w-full',
+          shouldUseMobileFeedLayout ? 'mt-4' : 'mt-auto',
+        )}
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Small}
+        loading={isLoading}
+        disabled={!value}
+        onClick={() => mutateAsync(value)}
+      >
+        Submit
+      </Button>
+    </Card>
+  );
+}

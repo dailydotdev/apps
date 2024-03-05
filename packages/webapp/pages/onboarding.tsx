@@ -21,6 +21,7 @@ import {
 import {
   ExperimentWinner,
   OnboardingV4dot5,
+  UserAcquisition,
 } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
@@ -121,10 +122,11 @@ export function OnboardPage(): ReactElement {
   );
   const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
   const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
+  const userAcquisitionVersion = useFeature(feature.userAcquisition);
   const targetId: string =
     onboardingV4dot5 === OnboardingV4dot5.Control
-      ? OnboardingV4dot5.V4dot5
-      : ExperimentWinner.OnboardingV4;
+      ? ExperimentWinner.OnboardingV4
+      : OnboardingV4dot5.V4dot5;
   const formRef = useRef<HTMLFormElement>();
 
   const onClickNext = () => {
@@ -158,12 +160,15 @@ export function OnboardPage(): ReactElement {
 
     return router.replace({
       pathname: '/',
-      ...(!onboardingOptimizations && {
-        query: {
+      query: {
+        ...(userAcquisitionVersion === UserAcquisition.V1 && {
+          ua: 'true',
+        }),
+        ...(!onboardingOptimizations && {
           welcome: 'true',
           hset: 'true',
-        },
-      }),
+        }),
+      },
     });
   };
 
@@ -398,7 +403,6 @@ export function OnboardPage(): ReactElement {
   }
 
   return (
-    // eslint-disable-next-line @dailydotdev/daily-dev-eslint-rules/no-custom-color
     <Container className="bg-[#0e1019]">
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <PixelTracking />

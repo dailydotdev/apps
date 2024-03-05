@@ -1,9 +1,10 @@
 import { JSONValue } from '@growthbook/growthbook';
 import {
-  FeedLayout,
   ReadingStreaksExperiment,
   OnboardingV4dot5,
   PostPageOnboarding,
+  UserAcquisition,
+  FeedAdSpot,
 } from './featureValues';
 import { cloudinary } from './image';
 
@@ -23,7 +24,6 @@ const feature = {
   onboardingV4dot5: new Feature('onboarding_v4dot5', OnboardingV4dot5.Control),
   lowImps: new Feature('feed_low_imps'),
   bookmarkOnCard: new Feature('bookmark_on_card', false),
-  feedLayout: new Feature('feed_layout', FeedLayout.Control),
   readingStreaks: new Feature(
     'reading_streaks',
     ReadingStreaksExperiment.Control,
@@ -41,6 +41,9 @@ const feature = {
   socialProofOnboarding: new Feature('social_proof_onboarding', false),
   copyLink: new Feature('copy_link', false),
   onboardingOptimizations: new Feature('onboarding_optimizations', false),
+  userAcquisition: new Feature('user_acquisition', UserAcquisition.Control),
+  forceRefresh: new Feature('force_refresh', false),
+  feedAdSpot: new Feature('feed_ad_spot', FeedAdSpot.Control),
 };
 
 export { feature };

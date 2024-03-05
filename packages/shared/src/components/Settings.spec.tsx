@@ -23,6 +23,7 @@ import { BootDataProvider } from '../contexts/BootProvider';
 import { apiUrl } from '../lib/config';
 import { BootApp, BootCacheData } from '../lib/boot';
 import { BOOT_LOCAL_KEY } from '../contexts/common';
+import * as hooks from '../hooks/useViewSize';
 
 beforeEach(() => {
   jest.restoreAllMocks();
@@ -83,7 +84,10 @@ const renderComponent = (
   );
 };
 
-it('should fetch remote settings', async () => {
+it('should fetch remote settings on desktop', async () => {
+  // is desktop
+  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
+
   renderComponent();
 
   const radio = await screen.findAllByRole('radio');
@@ -99,6 +103,33 @@ it('should fetch remote settings', async () => {
       radio.find((el) => queryByText(el.parentElement, 'Light')),
     ).toBeChecked(),
   );
+
+  const checkbox = await screen.findAllByRole('checkbox');
+
+  await waitFor(() =>
+    expect(
+      checkbox.find((el) =>
+        // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+        queryByText(el.parentElement, 'Open links in new tab'),
+      ),
+    ).not.toBeChecked(),
+  );
+
+  await waitFor(() =>
+    expect(
+      checkbox.find((el) =>
+        // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+        queryByText(el.parentElement, 'Show feed sorting menu'),
+      ),
+    ).not.toBeChecked(),
+  );
+});
+
+it('should fetch remote settings on mobile', async () => {
+  // is Mobile
+  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
+
+  renderComponent();
 
   const checkbox = await screen.findAllByRole('checkbox');
 
@@ -146,7 +177,10 @@ const renderBootProvider = (
   );
 };
 
-it('should utilize front-end default settings for first time users', async () => {
+it('should utilize front-end default settings for first time users on desktop', async () => {
+  // is desktop
+  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
+
   renderBootProvider();
 
   const radio = await screen.findAllByRole('radio');
@@ -158,7 +192,10 @@ it('should utilize front-end default settings for first time users', async () =>
   );
 });
 
-it('should utilize local cache settings for anonymous users', async () => {
+it('should utilize local cache settings for anonymous users on desktop', async () => {
+  // is desktop
+  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
+
   const localBootData = {
     ...defaultBootData,
     settings: { ...defaultBootData.settings, theme: 'cozy' },
@@ -208,13 +245,16 @@ const testSettingsMutation = async (
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 };
 
-it('should mutate density setting', () =>
-  testSettingsMutation({ spaciness: 'cozy' }, async () => {
+it('should mutate density setting', () => {
+  // is desktop
+  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
+  return testSettingsMutation({ spaciness: 'cozy' }, async () => {
     const radio = await screen.findAllByRole('radio');
     // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
     const cozy = radio.find((el) => queryByText(el.parentElement, 'Cozy'));
     fireEvent.click(cozy);
-  }));
+  });
+});
 
 it('should set theme to dark mode setting', () =>
   testSettingsMutation({ theme: 'darcula' }, async () => {

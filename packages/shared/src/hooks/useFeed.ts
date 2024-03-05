@@ -21,6 +21,7 @@ import {
   removeCachedPagePost,
   updateCachedPagePost,
 } from '../lib/query';
+import { getShouldRefreshFeed } from '../lib/refreshFeed';
 
 export type PostItem = {
   type: 'post';
@@ -30,7 +31,12 @@ export type PostItem = {
 };
 export type AdItem = { type: 'ad'; ad: Ad };
 export type PlaceholderItem = { type: 'placeholder' };
-export type FeedItem = PostItem | AdItem | PlaceholderItem;
+export type UserAcquisitionItem = { type: 'userAcquisition' };
+export type FeedItem =
+  | PostItem
+  | AdItem
+  | PlaceholderItem
+  | UserAcquisitionItem;
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 
@@ -65,6 +71,7 @@ const findIndexOfPostInData = (
 type UseFeedSettingParams = {
   adPostLength?: number;
   disableAds?: boolean;
+  showAcquisitionForm?: boolean;
 };
 
 export interface UseFeedOptionalParams<T> {
@@ -91,6 +98,7 @@ export default function useFeed<T>(
     ({ pageParam }) =>
       request(graphqlUrl, query, {
         ...variables,
+        ...(getShouldRefreshFeed() && { refresh: true }),
         first: pageSize,
         after: pageParam,
         loggedIn: !!user,
@@ -152,7 +160,9 @@ export default function useFeed<T>(
             index,
           }));
 
-          if (isAdsQueryEnabled) {
+          if (settings.showAcquisitionForm) {
+            posts.splice(adSpot, 0, { type: 'userAcquisition' });
+          } else if (isAdsQueryEnabled) {
             if (adsQuery.data?.pages[pageIndex]) {
               posts.splice(adSpot, 0, {
                 type: 'ad',
@@ -182,6 +192,7 @@ export default function useFeed<T>(
     feedQuery.isFetching,
     adsQuery.data,
     adsQuery.isFetching,
+    settings.showAcquisitionForm,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);

@@ -6,13 +6,18 @@ import { useSquad, useViewSize, ViewSize } from '../../../hooks';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { PlusIcon } from '../../icons';
+import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
+import ConditionalWrapper from '../../ConditionalWrapper';
 
 interface CreatePostButtonProps {
   className?: string;
+  compact?: boolean;
 }
 
 export function CreatePostButton({
   className,
+  compact,
 }: CreatePostButtonProps): ReactElement {
   const { user, isAuthReady, squads } = useAuthContext();
   const { route, query } = useRouter();
@@ -40,19 +45,35 @@ export function CreatePostButton({
     return !allowedToPost;
   };
 
+  const href =
+    link.post.create + (squad && allowedToPost ? `?sid=${squad.handle}` : '');
+
   return (
-    <Button
-      variant={ButtonVariant.Secondary}
-      className={className}
-      disabled={getIsDisabled()}
-      tag="a"
-      href={
-        link.post.create +
-        (squad && allowedToPost ? `?sid=${squad.handle}` : '')
-      }
-      size={isLaptop ? ButtonSize.Medium : ButtonSize.Small}
+    <ConditionalWrapper
+      condition={compact}
+      wrapper={(component: ReactElement) => (
+        <LinkWithTooltip
+          href={href}
+          tooltip={{ placement: 'bottom', content: 'New Post' }}
+        >
+          {component}
+        </LinkWithTooltip>
+      )}
     >
-      New post
-    </Button>
+      <Button
+        variant={ButtonVariant.Secondary}
+        className={className}
+        disabled={getIsDisabled()}
+        icon={compact && <PlusIcon />}
+        tag="a"
+        size={isLaptop ? ButtonSize.Medium : ButtonSize.Small}
+        {...(!compact && {
+          tag: 'a',
+          href,
+        })}
+      >
+        {!compact ? 'New post' : null}
+      </Button>
+    </ConditionalWrapper>
   );
 }

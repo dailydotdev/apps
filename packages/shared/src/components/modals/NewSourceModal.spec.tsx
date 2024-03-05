@@ -27,8 +27,13 @@ const defaultAnonymousUser: AnonymousUser = {
   referrer: 'string',
 };
 
+const userWithReputation = {
+  ...user,
+  reputation: 250,
+};
+
 const renderComponent = (
-  userUpdate: LoggedUser | AnonymousUser = user,
+  userUpdate: LoggedUser | AnonymousUser = userWithReputation,
 ): RenderResult => {
   const client = new QueryClient();
   return render(
@@ -77,15 +82,10 @@ it('should show a contact button on an unexpected error', async () => {
   expect(await screen.findByText('Contact')).toBeInTheDocument();
 });
 
-it('should show login modal for anonymous users', async () => {
+it('should show error alert for anonymous users', async () => {
   renderComponent(defaultAnonymousUser);
-  const input = await screen.findByRole('textbox');
-  userEvent.type(input, 'https://daily.dev');
-  const btn = await screen.findByText('Check link');
-  btn.click();
-  expect(
-    await screen.findByTestId('login state: submit new source'),
-  ).toBeInTheDocument();
+  const alertEl = await screen.findByTestId('reputationAlert');
+  expect(alertEl).toBeInTheDocument();
 });
 
 it('should show if the source already exists in the system', async () => {
@@ -176,4 +176,13 @@ it('should send source request', async () => {
 
   userEvent.click(await screen.findByText('Submit for review'));
   await waitFor(() => expect(onRequestClose).toBeCalledTimes(1));
+});
+
+it('should show error alert when user does not have enough reputation', async () => {
+  renderComponent({
+    ...user,
+    reputation: 10,
+  });
+  const alertEl = await screen.findByTestId('reputationAlert');
+  expect(alertEl).toBeInTheDocument();
 });
