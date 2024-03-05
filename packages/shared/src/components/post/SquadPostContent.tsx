@@ -95,7 +95,7 @@ function SquadPostContent({
       >
         <div
           className={classNames(
-            'relative max-w-[42.5rem] px-4 tablet:px-8',
+            'relative min-w-0 px-4 tablet:px-8',
             className?.content,
             isPublicSquad && 'flex flex-1 flex-col',
           )}
