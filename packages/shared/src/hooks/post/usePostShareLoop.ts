@@ -15,7 +15,7 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
   const { feedName } = useActiveFeedNameContext();
   const [justUpvoted, setJustUpvoted] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const shareLoopsEnabled = useFeatureIsOn(feature.shareLoops);
+  const shareLoopsEnabled = useFeature(feature.shareLoops);
   const shouldShowOverlay = justUpvoted && !hasInteracted && shareLoopsEnabled;
 
   useMutationSubscription({
