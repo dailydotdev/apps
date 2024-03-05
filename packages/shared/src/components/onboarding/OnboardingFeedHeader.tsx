@@ -65,12 +65,16 @@ export const OnboardingFeedHeader = ({
       event_name: AnalyticsEvent.CreateFeed,
     });
 
-    return router.replace({
-      pathname: isExtension ? window.location.href : router.route,
-      query: {
-        welcome: 'true',
-      },
-    });
+    router.replace(
+      isExtension
+        ? 'https://app.daily.dev/?welcome=true'
+        : {
+            pathname: router.route,
+            query: {
+              welcome: 'true',
+            },
+          },
+    );
   }, [registerLocalFilters, router, trackEvent, updateAlerts]);
 
   useEffect(() => {
