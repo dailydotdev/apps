@@ -18,6 +18,7 @@ import { useFeedLayout, ToastSubject, useToastNotification } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
+import { checkIsExtension } from '../../lib/func';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -29,6 +30,8 @@ export interface FeedContainerProps {
   shortcuts?: ReactNode;
   actionButtons?: ReactNode;
 }
+
+const isExtension = checkIsExtension();
 
 const listGaps = {
   cozy: 'gap-5',
@@ -129,7 +132,9 @@ export const FeedContainer = ({
     return <></>;
   }
 
-  const showFeedReadyMessage = router.query?.welcome === 'true';
+  const showFeedReadyMessage = isExtension
+    ? new URLSearchParams(window.location.search).get('welcome') === 'true'
+    : router.query?.welcome === 'true';
   return (
     <div
       className={classNames(
