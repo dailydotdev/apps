@@ -10,7 +10,6 @@ import { Origin } from '../../lib/analytics';
 
 export interface CommonCardCoverProps {
   post?: Post;
-  justUpvoted?: boolean;
   onShare?: (post: Post) => unknown;
 }
 

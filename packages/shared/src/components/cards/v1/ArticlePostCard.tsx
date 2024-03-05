@@ -33,7 +33,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
     showImage = true,
     onReadArticleClick,
     domProps = {},
-    justUpvoted,
     onShare,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
@@ -118,7 +117,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
 
               <CardCover
                 data-testid="postImage"
-                justUpvoted={justUpvoted}
                 isVideoType={isVideoType}
                 onShare={onShare}
                 post={post}

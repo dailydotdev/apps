@@ -14,7 +14,6 @@ interface SharedPostCardFooterProps
 export const SharedPostCardFooter = ({
   sharedPost,
   isVideoType,
-  justUpvoted,
   onShare,
   post,
 }: SharedPostCardFooterProps): ReactElement => {
@@ -31,7 +30,6 @@ export const SharedPostCardFooter = ({
       <div className={classNames('flex h-20 overflow-auto')}>
         <CardCover
           data-testid="sharedPostImage"
-          justUpvoted={justUpvoted}
           isVideoType={isVideoType}
           onShare={onShare}
           post={post}

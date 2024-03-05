@@ -23,7 +23,6 @@ export const PostCardFooter = ({
   post,
   showImage,
   className,
-  justUpvoted,
   onShare,
 }: PostCardFooterProps): ReactElement => {
   const isVideoType = isVideoPost(post);
@@ -40,7 +39,6 @@ export const PostCardFooter = ({
       )}
       {showImage && (
         <CardCover
-          justUpvoted={justUpvoted}
           isVideoType={isVideoType}
           onShare={onShare}
           post={post}

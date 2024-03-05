@@ -44,7 +44,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
     insaneMode,
     onReadArticleClick,
     domProps = {},
-    justUpvoted,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -152,7 +151,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
             openNewTab={openNewTab}
             post={post}
             showImage={showImage}
-            justUpvoted={justUpvoted}
             onShare={onShare}
             className={{
               image: classNames(showFeedback && 'mb-0'),
