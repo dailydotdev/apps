@@ -107,6 +107,7 @@ export const ANONYMOUS_FEED_QUERY = gql`
 export const FEED_QUERY = gql`
   query Feed(
     $loggedIn: Boolean! = false
+    $refresh: Boolean = false
     $first: Int
     $after: String
     $ranking: Ranking
@@ -119,6 +120,7 @@ export const FEED_QUERY = gql`
       ranking: $ranking
       version: $version
       supportedTypes: $supportedTypes
+      refresh: $refresh
     ) {
       ...FeedPostConnection
     }

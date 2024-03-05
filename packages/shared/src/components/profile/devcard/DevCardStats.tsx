@@ -25,7 +25,7 @@ export function DevCardStats({
       <DevCardStatsSection
         amount={user.reputation}
         label="Reputation"
-        iconClassName="text-onion-40"
+        iconClassName="text-raw-onion-40"
         Icon={ReputationIcon}
       />
       <DevCardStatsSection
