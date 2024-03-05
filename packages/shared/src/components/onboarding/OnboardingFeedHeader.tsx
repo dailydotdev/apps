@@ -18,6 +18,8 @@ import { useAlertsContext } from '../../contexts/AlertContext';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
 import { checkIsExtension } from '../../lib/func';
+import { feature } from '../../lib/featureManagement';
+import { useFeature } from '../GrowthBookProvider';
 
 const promptConfig = {
   title: 'Discard tag selection?',
@@ -56,6 +58,7 @@ export const OnboardingFeedHeader = ({
   const { showPrompt } = usePrompt();
   const router = useRouter();
   const { registerLocalFilters } = useMyFeed();
+  const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
 
   const completeOnboarding = useCallback(() => {
     registerLocalFilters();
@@ -65,17 +68,25 @@ export const OnboardingFeedHeader = ({
       event_name: AnalyticsEvent.CreateFeed,
     });
 
-    router.replace(
-      isExtension
-        ? 'https://app.daily.dev/?welcome=true'
-        : {
-            pathname: router.route,
-            query: {
-              welcome: 'true',
+    if (!onboardingOptimizations) {
+      router.replace(
+        isExtension
+          ? 'https://app.daily.dev/?welcome=true'
+          : {
+              pathname: router.route,
+              query: {
+                welcome: 'true',
+              },
             },
-          },
-    );
-  }, [registerLocalFilters, router, trackEvent, updateAlerts]);
+      );
+    }
+  }, [
+    onboardingOptimizations,
+    registerLocalFilters,
+    router,
+    trackEvent,
+    updateAlerts,
+  ]);
 
   useEffect(() => {
     let stopNav = true;
