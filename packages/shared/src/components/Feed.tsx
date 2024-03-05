@@ -145,6 +145,8 @@ export default function Feed<T>({
     (router.query?.[acquisitionKey] as string)?.toLocaleLowerCase() ===
       'true' &&
     !user?.acquisitionChannel;
+  const adSpot = useFeature(feature.feedAdSpot);
+
   const {
     items,
     updatePost,
@@ -157,7 +159,7 @@ export default function Feed<T>({
   } = useFeed(
     feedQueryKey,
     currentSettings.pageSize,
-    isSquadFeed || shouldUseMobileFeedLayout ? 2 : currentSettings.adSpot,
+    isSquadFeed || shouldUseMobileFeedLayout ? 2 : adSpot,
     numCards,
     {
       query,

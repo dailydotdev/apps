@@ -1,11 +1,6 @@
-import React, {
-  HTMLAttributes,
-  ReactElement,
-  ReactHTML,
-  ReactNode,
-} from 'react';
+import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import classed, { ClassedHTML } from '../../lib/classed';
+import classed from '../../lib/classed';
 import styles from './utilities.module.css';
 import { ArrowIcon } from '../icons';
 import { Post, PostType, isSharedPostSquadPost } from '../../graphql/posts';
@@ -62,6 +57,9 @@ export const PageContainer = classed(
   pagePaddings,
   pageContainerClassNames,
 );
+
+export const truncateTextClassNames = 'max-w-full shrink truncate';
+export const TruncateText = classed('span', truncateTextClassNames);
 
 const RawPageWidgets = classed(
   'aside',
@@ -157,14 +155,6 @@ export const HotLabel = (): ReactElement => (
     Hot
   </div>
 );
-
-export const getTextEllipsis = <
-  P extends HTMLAttributes<T>,
-  T extends HTMLElement,
->(
-  type: keyof ReactHTML = 'span',
-): ClassedHTML<P, T> =>
-  classed<P, T>(type, 'overflow-hidden whitespace-nowrap text-ellipsis');
 
 export const SecondaryCenteredBodyText = classed(
   'p',
