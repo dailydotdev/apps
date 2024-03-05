@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { ImageProps, ImageType } from '../../image/Image';
 import VideoImage, { VideoImageProps } from '../../image/VideoImage';
@@ -6,14 +6,7 @@ import ConditionalWrapper from '../../ConditionalWrapper';
 import { CardImage } from '../Card';
 import { CardCoverShare } from './CardCoverShare';
 import { CommonCardCoverProps } from '../common';
-import {
-  upvoteMutationKey,
-  useMutationSubscription,
-  UseVotePostMutationProps,
-} from '../../../hooks';
-import { useActiveFeedNameContext } from '../../../contexts';
-import { useFeatureIsOn } from '../../GrowthBookProvider';
-import { feature } from '../../../lib/featureManagement';
+import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
 
 interface CardCoverProps extends CommonCardCoverProps {
   imageProps: ImageProps;
@@ -28,45 +21,21 @@ export function CardCover({
   onShare,
   post,
 }: CardCoverProps): ReactElement {
-  const { feedName } = useActiveFeedNameContext();
-  const [justUpvoted, setJustUpvoted] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const shareLoopsEnabled = useFeatureIsOn(feature.shareLoops);
-  const shouldShowOverlay = justUpvoted && !hasInteracted && shareLoopsEnabled;
+  const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
   const coverShare = (
     <CardCoverShare
       post={post}
       onShare={() => {
-        setHasInteracted(true);
+        onInteract();
         onShare(post);
       }}
-      onCopy={() => setHasInteracted(true)}
+      onCopy={onInteract}
     />
   );
   const imageClasses = classNames(
     imageProps?.className,
     shouldShowOverlay && 'opacity-16',
   );
-
-  useMutationSubscription({
-    matcher: ({ status, mutation }) => {
-      const key = [...upvoteMutationKey, { feedName }];
-
-      return (
-        status === 'success' &&
-        mutation?.options?.mutationKey?.toString() === key.toString()
-      );
-    },
-    callback: ({ variables }) => {
-      const vars = variables as UseVotePostMutationProps;
-
-      if (vars.id !== post.id || !shareLoopsEnabled) {
-        return;
-      }
-
-      setJustUpvoted(!!vars.vote);
-    },
-  });
 
   if (isVideoType) {
     return (
