@@ -17,6 +17,10 @@ import { useMyFeed } from '../../hooks/useMyFeed';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
+import { checkIsExtension } from '../../lib/func';
+import { feature } from '../../lib/featureManagement';
+import { useFeature } from '../GrowthBookProvider';
+import { webappUrl } from '../../lib/constants';
 
 const promptConfig = {
   title: 'Discard tag selection?',
@@ -34,6 +38,8 @@ const promptConfig = {
     buttons: 'flex-row-reverse',
   },
 };
+
+const isExtension = checkIsExtension();
 
 type OnboardingFeedHeaderProps = {
   isPreviewFeedVisible: boolean;
@@ -53,6 +59,7 @@ export const OnboardingFeedHeader = ({
   const { showPrompt } = usePrompt();
   const router = useRouter();
   const { registerLocalFilters } = useMyFeed();
+  const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
 
   const completeOnboarding = useCallback(() => {
     registerLocalFilters();
@@ -62,13 +69,25 @@ export const OnboardingFeedHeader = ({
       event_name: AnalyticsEvent.CreateFeed,
     });
 
-    return router.replace({
-      pathname: router.route,
-      query: {
-        welcome: 'true',
-      },
-    });
-  }, [registerLocalFilters, router, trackEvent, updateAlerts]);
+    if (!onboardingOptimizations) {
+      router.replace(
+        isExtension
+          ? `${webappUrl}/?welcome=true`
+          : {
+              pathname: router.route,
+              query: {
+                welcome: 'true',
+              },
+            },
+      );
+    }
+  }, [
+    onboardingOptimizations,
+    registerLocalFilters,
+    router,
+    trackEvent,
+    updateAlerts,
+  ]);
 
   useEffect(() => {
     let stopNav = true;
