@@ -84,7 +84,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
       >
         <div
           className={classNames(
-            'ml-4 flex max-w-full flex-col typo-callout',
+            'ml-4 flex max-w-full flex-col overflow-auto typo-callout',
             className.textWrapper ?? defaultClassName.textWrapper,
           )}
         >
