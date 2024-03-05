@@ -168,7 +168,7 @@ it('should show read post button on hover when in laptop size', async () => {
 
 it('should show cover image when available', async () => {
   renderComponent();
-  const image = await screen.findByTestId('postImage');
+  const image = await screen.findByAltText('Post Cover image');
   expect(image).toBeInTheDocument();
 });
 

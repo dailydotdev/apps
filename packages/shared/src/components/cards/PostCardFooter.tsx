@@ -40,7 +40,6 @@ export const PostCardFooter = ({
       )}
       {showImage && (
         <CardCover
-          data-testid="postImage"
           justUpvoted={justUpvoted}
           isVideoType={isVideoType}
           onShare={onShare}
