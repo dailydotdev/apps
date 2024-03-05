@@ -17,6 +17,7 @@ import { useMyFeed } from '../../hooks/useMyFeed';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
+import { checkIsExtension } from '../../lib/func';
 
 const promptConfig = {
   title: 'Discard tag selection?',
@@ -34,6 +35,8 @@ const promptConfig = {
     buttons: 'flex-row-reverse',
   },
 };
+
+const isExtension = checkIsExtension();
 
 type OnboardingFeedHeaderProps = {
   isPreviewFeedVisible: boolean;
@@ -63,7 +66,7 @@ export const OnboardingFeedHeader = ({
     });
 
     return router.replace({
-      pathname: router.route,
+      pathname: isExtension ? window.location.href : router.route,
       query: {
         welcome: 'true',
       },
