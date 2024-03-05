@@ -40,7 +40,7 @@ export function DevCardFooter({
             'typo-caption1',
             checkLowercaseEquality(theme, DevCardTheme.Iron)
               ? 'border-white text-white'
-              : 'border-pepper-90 text-raw-pepper-90',
+              : 'border-raw-pepper-90 text-raw-pepper-90',
             type === DevCardType.Vertical && '!leading-[1.375rem]',
           ),
         }}

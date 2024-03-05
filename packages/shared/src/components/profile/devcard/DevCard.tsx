@@ -86,7 +86,7 @@ export function DevCard({
             className={classNames(
               'relative flex flex-col bg-cover p-2 pb-10',
               isHorizontal
-                ? 'border-salt-90 rounded-32 border-8'
+                ? 'rounded-32 border-8 border-raw-salt-90'
                 : 'rounded-12',
             )}
             style={{
@@ -94,7 +94,7 @@ export function DevCard({
             }}
           >
             {type !== DevCardType.Horizontal && (
-              <RoundedContainer className="border-salt-90 absolute -inset-2 border-8" />
+              <RoundedContainer className="absolute -inset-2 border-8 border-raw-salt-90" />
             )}
             <img
               src={user.image}
