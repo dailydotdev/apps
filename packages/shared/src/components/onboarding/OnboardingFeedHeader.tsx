@@ -17,6 +17,7 @@ import { useMyFeed } from '../../hooks/useMyFeed';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
+import { checkIsExtension } from '../../lib/func';
 
 const promptConfig = {
   title: 'Discard tag selection?',
@@ -42,6 +43,8 @@ type OnboardingFeedHeaderProps = {
   tagsCount: number;
 };
 
+const isExtension = checkIsExtension();
+
 export const OnboardingFeedHeader = ({
   isPreviewFeedVisible,
   setPreviewFeedVisible,
@@ -62,12 +65,16 @@ export const OnboardingFeedHeader = ({
       event_name: AnalyticsEvent.CreateFeed,
     });
 
-    return router.replace({
-      pathname: router.route,
-      query: {
-        welcome: 'true',
-      },
-    });
+    return router.replace(
+      isExtension
+        ? `${window.location.href}?welcome=true`
+        : {
+            pathname: router.route,
+            query: {
+              welcome: 'true',
+            },
+          },
+    );
   }, [registerLocalFilters, router, trackEvent, updateAlerts]);
 
   useEffect(() => {
