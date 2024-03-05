@@ -3,6 +3,7 @@ import { NextRouter } from 'next/router';
 import { UrlObject } from 'url';
 import { MittEmitter } from 'next/dist/shared/lib/mitt';
 import { RouterEvent } from 'next/dist/client/router';
+import { formatUrl } from 'next/dist/shared/lib/router/utils/format-url';
 
 declare type Url = UrlObject | string;
 
@@ -43,7 +44,7 @@ export default class CustomRouter implements NextRouter {
   }
 
   async push(url: Url): Promise<boolean> {
-    window.location.href = url as string;
+    window.location.href = typeof url === 'object' ? formatUrl(url) : url;
     return true;
   }
 
@@ -54,7 +55,7 @@ export default class CustomRouter implements NextRouter {
   }
 
   async replace(url: Url): Promise<boolean> {
-    window.location.href = url as string;
+    window.location.href = typeof url === 'object' ? formatUrl(url) : url;
     return true;
   }
 
