@@ -12,7 +12,7 @@ import {
   UseVotePostMutationProps,
 } from '../../../hooks';
 import { useActiveFeedNameContext } from '../../../contexts';
-import { useFeatureIsOn } from '../../GrowthBookProvider';
+import { useFeature } from '../../GrowthBookProvider';
 import { feature } from '../../../lib/featureManagement';
 
 interface CardCoverProps extends CommonCardCoverProps {
@@ -31,7 +31,7 @@ export function CardCover({
   const { feedName } = useActiveFeedNameContext();
   const [justUpvoted, setJustUpvoted] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const shareLoopsEnabled = useFeatureIsOn(feature.shareLoops);
+  const shareLoopsEnabled = useFeature(feature.shareLoops);
   const shouldShowOverlay = justUpvoted && !hasInteracted && shareLoopsEnabled;
   const coverShare = (
     <CardCoverShare
