@@ -20,6 +20,7 @@ import { AnalyticsEvent } from '../../lib/analytics';
 import { checkIsExtension } from '../../lib/func';
 import { feature } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
+import { webappUrl } from '../../lib/constants';
 
 const promptConfig = {
   title: 'Discard tag selection?',
@@ -71,7 +72,7 @@ export const OnboardingFeedHeader = ({
     if (!onboardingOptimizations) {
       router.replace(
         isExtension
-          ? 'https://app.daily.dev/?welcome=true'
+          ? `${webappUrl}/?welcome=true`
           : {
               pathname: router.route,
               query: {
