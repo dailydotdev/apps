@@ -8,16 +8,17 @@ import { useViewSize, ViewSize } from '../../hooks';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
+  children?: ReactElement;
+  shouldShowStreaks?: boolean;
+  setShouldShowStreaks?: any;
 }
 
-export function ReadingStreakButton({
+function CustomStreaksTooltip({
   streak,
+  children,
+  shouldShowStreaks,
+  setShouldShowStreaks,
 }: ReadingStreakButtonProps): ReactElement {
-  const isLaptop = useViewSize(ViewSize.Laptop);
-  const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
-  const hasReadToday =
-    new Date(streak.lastViewAt).getDate() === new Date().getDate();
-
   return (
     <SimpleTooltip
       interactive
@@ -32,6 +33,28 @@ export function ReadingStreakButton({
       content={<ReadingStreakPopup streak={streak} />}
       onClickOutside={() => setShouldShowStreaks(false)}
     >
+      {children}
+    </SimpleTooltip>
+  );
+}
+
+export function ReadingStreakButton({
+  streak,
+}: ReadingStreakButtonProps): ReactElement {
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
+  const hasReadToday =
+    new Date(streak.lastViewAt).getDate() === new Date().getDate();
+
+  const Tooltip = shouldShowStreaks ? CustomStreaksTooltip : SimpleTooltip;
+
+  return (
+    <Tooltip
+      content="Current streak"
+      streak={streak}
+      shouldShowStreaks={shouldShowStreaks}
+      setShouldShowStreaks={setShouldShowStreaks}
+    >
       <Button
         type="button"
         icon={<ReadingStreakIcon secondary={hasReadToday} />}
@@ -42,6 +65,6 @@ export function ReadingStreakButton({
       >
         {streak?.current}
       </Button>
-    </SimpleTooltip>
+    </Tooltip>
   );
 }
