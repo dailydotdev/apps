@@ -21,6 +21,7 @@ import { useFeedLayout, useViewSize, ViewSize } from '../../hooks';
 import { feature } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
 import { setShouldRefreshFeed } from '../../lib/refreshFeed';
+import { SharedFeedPage } from '../utilities';
 
 export const filterAlertMessage = 'Edit your personal feed preferences here';
 
@@ -90,7 +91,7 @@ function MyFeedHeading({
 
   const onRefresh = async () => {
     setShouldRefreshFeed(true);
-    await queryClient.refetchQueries({ queryKey: ['my-feed'] });
+    await queryClient.refetchQueries({ queryKey: [SharedFeedPage.MyFeed] });
     setShouldRefreshFeed(false);
   };
 
