@@ -32,6 +32,21 @@ export function CardCover({
   const [justUpvoted, setJustUpvoted] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const shareLoopsEnabled = useFeatureIsOn(feature.shareLoops);
+  const shouldShowOverlay = justUpvoted && !hasInteracted && shareLoopsEnabled;
+  const coverShare = (
+    <CardCoverShare
+      post={post}
+      onShare={() => {
+        setHasInteracted(true);
+        onShare(post);
+      }}
+      onCopy={() => setHasInteracted(true)}
+    />
+  );
+  const imageClasses = classNames(
+    imageProps?.className,
+    shouldShowOverlay && 'opacity-16',
+  );
 
   useMutationSubscription({
     matcher: ({ status, mutation }) => {
@@ -52,26 +67,6 @@ export function CardCover({
       setJustUpvoted(!!vars.vote);
     },
   });
-
-  if (!shareLoopsEnabled) {
-    return null;
-  }
-
-  const shouldShowOverlay = justUpvoted && !hasInteracted;
-  const coverShare = (
-    <CardCoverShare
-      post={post}
-      onShare={() => {
-        setHasInteracted(true);
-        onShare(post);
-      }}
-      onCopy={() => setHasInteracted(true)}
-    />
-  );
-  const imageClasses = classNames(
-    imageProps?.className,
-    shouldShowOverlay && 'opacity-16',
-  );
 
   if (isVideoType) {
     return (
