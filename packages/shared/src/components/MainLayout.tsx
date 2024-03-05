@@ -33,6 +33,7 @@ import { useReferralReminder } from '../hooks/referral/useReferralReminder';
 import { ActiveFeedNameContextProvider } from '../contexts';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { useStreakMilestone } from '../hooks/streaks';
+import { ReputationPrivilegesModalTrigger } from './modals';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -80,7 +81,7 @@ function MainLayoutComponent({
   const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
 
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
-  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
 
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useAuthErrors();
@@ -168,7 +169,7 @@ function MainLayoutComponent({
     return null;
   }
   const isScreenCentered =
-    isLaptopXL && shouldUseFeedLayoutV1 ? true : screenCentered;
+    isLaptopXL && shouldUseMobileFeedLayout ? true : screenCentered;
 
   return (
     <div className="antialiased">
@@ -177,6 +178,7 @@ function MainLayoutComponent({
       <InAppNotificationElement />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
+      <ReputationPrivilegesModalTrigger />
       <MainLayoutHeader
         hasBanner={isBannerAvailable}
         sidebarRendered={sidebarRendered}
@@ -198,7 +200,6 @@ function MainLayoutComponent({
         {renderSidebar()}
         {children}
       </main>
-      <PromptElement />
     </div>
   );
 }

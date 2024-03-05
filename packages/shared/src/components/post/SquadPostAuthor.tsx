@@ -7,6 +7,7 @@ import { Author } from '../../graphql/comments';
 import { SourceMemberRole } from '../../graphql/sources';
 import { Separator } from '../cards/common';
 import { ReputationUserBadge } from '../ReputationUserBadge';
+import { TruncateText } from '../utilities';
 
 interface SquadPostAuthorProps {
   className?: Partial<{
@@ -20,8 +21,6 @@ interface SquadPostAuthorProps {
   size?: ProfileImageSize;
   date?: string;
 }
-
-const lineClamp = 'block text-ellipsis whitespace-nowrap overflow-hidden';
 
 function SquadPostAuthor({
   className,
@@ -41,14 +40,17 @@ function SquadPostAuthor({
         <a
           href={author.permalink}
           className={classNames(
-            'ml-4 flex flex-col overflow-hidden',
+            'ml-4 flex flex-1 flex-col overflow-hidden',
             className?.details,
           )}
         >
-          <div className={lineClamp}>
-            <span className={classNames('font-bold', className?.name)}>
+          <div className="flex w-full">
+            <TruncateText
+              className={classNames('font-bold', className?.name)}
+              title={author.name}
+            >
               {author.name}
-            </span>
+            </TruncateText>
             <div className="flex gap-1">
               <ReputationUserBadge user={author} />
               {!!role && (
@@ -62,12 +64,13 @@ function SquadPostAuthor({
           </div>
           <div
             className={classNames(
-              'text-theme-label-tertiary',
+              'flex text-theme-label-tertiary',
               className?.handle,
-              lineClamp,
             )}
           >
-            @{author.username}
+            <TruncateText title={`@${author.username}`}>
+              @{author.username}
+            </TruncateText>
             {!!date && <Separator />}
             {!!date && <time dateTime={date}>{date}</time>}
           </div>

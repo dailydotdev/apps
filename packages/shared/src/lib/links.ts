@@ -19,6 +19,12 @@ export const stripLinkParameters = (link: string): string => {
   return origin + pathname;
 };
 
+export const removeQueryParam = (url: string, param: string): string => {
+  const link = new URL(url);
+  link.searchParams.delete(param);
+  return link.toString();
+};
+
 export const link = {
   post: {
     create: `${webappUrl}squads/create`,

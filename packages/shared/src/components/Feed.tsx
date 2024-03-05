@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import useFeed, { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import { Ad, Post, PostType } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -45,6 +46,7 @@ import {
 import { isNullOrUndefined } from '../lib/func';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
+import { acquisitionKey } from './cards/AcquisitionFormCard';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'>,
@@ -125,6 +127,7 @@ export default function Feed<T>({
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
+  const router = useRouter();
   const queryClient = useQueryClient();
   const {
     openNewTab,
@@ -136,7 +139,12 @@ export default function Feed<T>({
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
-  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const showAcquisitionForm =
+    feedName === SharedFeedPage.MyFeed &&
+    (router.query?.[acquisitionKey] as string)?.toLocaleLowerCase() ===
+      'true' &&
+    !user?.acquisitionChannel;
   const {
     items,
     updatePost,
@@ -149,7 +157,7 @@ export default function Feed<T>({
   } = useFeed(
     feedQueryKey,
     currentSettings.pageSize,
-    isSquadFeed || shouldUseFeedLayoutV1 ? 2 : currentSettings.adSpot,
+    isSquadFeed || shouldUseMobileFeedLayout ? 2 : currentSettings.adSpot,
     numCards,
     {
       query,
@@ -158,6 +166,7 @@ export default function Feed<T>({
       settings: {
         disableAds,
         adPostLength: isSquadFeed ? 2 : undefined,
+        showAcquisitionForm,
       },
     },
   );
@@ -277,7 +286,7 @@ export default function Feed<T>({
     await onPostClick(post, index, row, column, {
       skipPostUpdate: true,
     });
-    if (!shouldUseFeedLayoutV1) {
+    if (!shouldUseMobileFeedLayout) {
       onPostModalOpen(index);
     }
   };
@@ -337,7 +346,7 @@ export default function Feed<T>({
         ...feedAnalyticsExtra(feedName, ranking),
       }),
     );
-    if (!shouldUseFeedLayoutV1) {
+    if (!shouldUseMobileFeedLayout) {
       onPostModalOpen(index);
     }
   };
@@ -454,7 +463,7 @@ export default function Feed<T>({
           {...commonMenuItems}
           onHidden={onShareOptionsHidden}
         />
-        {!shouldUseFeedLayoutV1 && selectedPost && PostModal && (
+        {!shouldUseMobileFeedLayout && selectedPost && PostModal && (
           <PostModal
             isOpen={!!selectedPost}
             id={selectedPost.id}

@@ -1,9 +1,10 @@
 import React, { ReactElement, useState } from 'react';
 import { ReadingStreakPopup } from './popup';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ReadingStreakIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
 import { UserStreak } from '../../graphql/users';
+import { useViewSize, ViewSize } from '../../hooks';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -12,7 +13,10 @@ interface ReadingStreakButtonProps {
 export function ReadingStreakButton({
   streak,
 }: ReadingStreakButtonProps): ReactElement {
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
+  const hasReadToday =
+    new Date(streak.lastViewAt).getDate() === new Date().getDate();
 
   return (
     <SimpleTooltip
@@ -30,10 +34,11 @@ export function ReadingStreakButton({
     >
       <Button
         type="button"
-        icon={<ReadingStreakIcon />}
+        icon={<ReadingStreakIcon secondary={hasReadToday} />}
         variant={ButtonVariant.Float}
         onClick={() => setShouldShowStreaks((state) => !state)}
         className="gap-1 text-theme-color-bacon"
+        size={isLaptop ? ButtonSize.Medium : ButtonSize.Small}
       >
         {streak?.current}
       </Button>

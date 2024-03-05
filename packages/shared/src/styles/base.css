@@ -39,50 +39,238 @@ body {
 }
 
 @define-mixin dark-mode {
-  --theme-active: theme('colors.salt.90')33;
-  --theme-focus: theme('colors.blueCheese.40');
-  --theme-float: theme('colors.salt.90')14;
-  /* stylelint-disable-next-line unit-no-unknown */
-  --theme-hover: theme('colors.salt.90')1F;
+  /* Background colors */
+  --theme-background-default: theme('colors.raw.pepper.90');
+  --theme-background-subtle: theme('colors.raw.pepper.70');
+  --theme-background-popover: theme('colors.raw.pepper.70');
+  --theme-background-post-post: theme('colors.raw.pepper.70');
+  --theme-background-post-disabled: var(--theme-background-default);
 
-  --theme-background-cabbage-blur: theme('colors.cabbage.90')99;
-  --theme-background-primary: theme('colors.pepper.90');
+  /* Accent colors */
+  /* Burger */
+  --theme-accent-burger-subtlest: theme('colors.raw.burger.10');
+  --theme-accent-burger-subtler: theme('colors.raw.burger.20');
+  --theme-accent-burger-subtle: theme('colors.raw.burger.30');
+  --theme-accent-burger-default: theme('colors.raw.burger.40');
+  --theme-accent-burger-bolder: theme('colors.raw.burger.50');
+  /* Blue Cheese */
+  --theme-accent-blueCheese-subtlest: theme('colors.raw.blueCheese.10');
+  --theme-accent-blueCheese-subtler: theme('colors.raw.blueCheese.20');
+  --theme-accent-blueCheese-subtle: theme('colors.raw.blueCheese.30');
+  --theme-accent-blueCheese-default: theme('colors.raw.blueCheese.40');
+  --theme-accent-blueCheese-bolder: theme('colors.raw.blueCheese.50');
+  /* Avocado */
+  --theme-accent-avocado-subtlest: theme('colors.raw.avocado.10');
+  --theme-accent-avocado-subtler: theme('colors.raw.avocado.20');
+  --theme-accent-avocado-subtle: theme('colors.raw.avocado.30');
+  --theme-accent-avocado-default: theme('colors.raw.avocado.40');
+  --theme-accent-avocado-bolder: theme('colors.raw.avocado.50');
+  /* Cheese */
+  --theme-accent-cheese-subtlest: theme('colors.raw.cheese.10');
+  --theme-accent-cheese-subtler: theme('colors.raw.cheese.20');
+  --theme-accent-cheese-subtle: theme('colors.raw.cheese.30');
+  --theme-accent-cheese-default: theme('colors.raw.cheese.40');
+  --theme-accent-cheese-bolder: theme('colors.raw.cheese.50');
+  /* Salt */
+  --theme-accent-salt-baseline: theme('colors.raw.salt.0');
+  --theme-accent-salt-subtlest: theme('colors.raw.salt.20');
+  --theme-accent-salt-subtler: theme('colors.raw.salt.50');
+  --theme-accent-salt-subtle: theme('colors.raw.salt.70');
+  --theme-accent-salt-default: theme('colors.raw.salt.90');
+  --theme-accent-salt-bolder: theme('colors.raw.pepper.10');
+  /* Onion */
+  --theme-accent-onion-subtlest: theme('colors.raw.onion.10');
+  --theme-accent-onion-subtler: theme('colors.raw.onion.20');
+  --theme-accent-onion-subtle: theme('colors.raw.onion.30');
+  --theme-accent-onion-default: theme('colors.raw.onion.40');
+  --theme-accent-onion-bolder: theme('colors.raw.onion.50');
+  /* Water */
+  --theme-accent-water-subtlest: theme('colors.raw.water.10');
+  --theme-accent-water-subtler: theme('colors.raw.water.20');
+  --theme-accent-water-subtle: theme('colors.raw.water.30');
+  --theme-accent-water-default: theme('colors.raw.water.40');
+  --theme-accent-water-bolder: theme('colors.raw.water.50');
+  /* Pepper */
+  --theme-accent-pepper-baseline: theme('colors.raw.pepper.90');
+  --theme-accent-pepper-subtlest: theme('colors.raw.pepper.80');
+  --theme-accent-pepper-subtler: theme('colors.raw.pepper.50');
+  --theme-accent-pepper-subtle: theme('colors.raw.pepper.30');
+  --theme-accent-pepper-default: theme('colors.raw.pepper.10');
+  --theme-accent-pepper-bolder: theme('colors.raw.salt.90');
+  /* Lettuce */
+  --theme-accent-lettuce-subtlest: theme('colors.raw.lettuce.10');
+  --theme-accent-lettuce-subtler: theme('colors.raw.lettuce.20');
+  --theme-accent-lettuce-subtle: theme('colors.raw.lettuce.30');
+  --theme-accent-lettuce-default: theme('colors.raw.lettuce.40');
+  --theme-accent-lettuce-bolder: theme('colors.raw.lettuce.50');
+  /* Bun */
+  --theme-accent-bun-subtlest: theme('colors.raw.bun.10');
+  --theme-accent-bun-subtler: theme('colors.raw.bun.20');
+  --theme-accent-bun-subtle: theme('colors.raw.bun.30');
+  --theme-accent-bun-default: theme('colors.raw.bun.40');
+  --theme-accent-bun-bolder: theme('colors.raw.bun.50');
+  /* Ketchup */
+  --theme-accent-ketchup-subtlest: theme('colors.raw.ketchup.10');
+  --theme-accent-ketchup-subtler: theme('colors.raw.ketchup.20');
+  --theme-accent-ketchup-subtle: theme('colors.raw.ketchup.30');
+  --theme-accent-ketchup-default: theme('colors.raw.ketchup.40');
+  --theme-accent-ketchup-bolder: theme('colors.raw.ketchup.50');
+  /* Cabbage */
+  --theme-accent-cabbage-subtlest: theme('colors.raw.cabbage.10');
+  --theme-accent-cabbage-subtler: theme('colors.raw.cabbage.20');
+  --theme-accent-cabbage-subtle: theme('colors.raw.cabbage.30');
+  --theme-accent-cabbage-default: theme('colors.raw.cabbage.40');
+  --theme-accent-cabbage-bolder: theme('colors.raw.cabbage.50');
+  /* Bacon */
+  --theme-accent-bacon-subtlest: theme('colors.raw.bacon.10');
+  --theme-accent-bacon-subtler: theme('colors.raw.bacon.20');
+  --theme-accent-bacon-subtle: theme('colors.raw.bacon.30');
+  --theme-accent-bacon-default: theme('colors.raw.bacon.40');
+  --theme-accent-bacon-bolder: theme('colors.raw.bacon.50');
+
+  /* Brand */
+  --theme-brand-subtler: var(--theme-accent-cabbage-subtler);
+  --theme-brand-default: var(--theme-accent-cabbage-default);
+  --theme-brand-bolder: var(--theme-accent-cabbage-bolder);
+  --theme-brand-float: color-mix(in srgb, var(--theme-brand-bolder), transparent 8%);
+  --theme-brand-hover: color-mix(in srgb, var(--theme-brand-bolder), transparent 12%);
+  --theme-brand-active: color-mix(in srgb, var(--theme-brand-bolder), transparent 16%);
+
+  /* Surface */
+  --theme-surface-primary: theme('colors.raw.salt.0');
+  --theme-surface-secondary: theme('colors.raw.salt.90');
+  --theme-surface-invert: theme('colors.raw.pepper.90');
+  --theme-surface-float: color-mix(in srgb, var(--theme-surface-secondary), transparent 8%);
+  --theme-surface-hover: color-mix(in srgb, var(--theme-surface-secondary), transparent 12%);
+  --theme-surface-active: color-mix(in srgb, var(--theme-surface-secondary), transparent 16%);
+  --theme-surface-disabled: color-mix(in srgb, var(--theme-surface-secondary), transparent 20%);
+  --theme-surface-focus: theme('colors.raw.blueCheese.40');
+
+  /* Actions */
+  /* Upvote */
+  --theme-actions-upvote-default: var(--theme-accent-avocado-default);
+  --theme-actions-upvote-float: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 8%);
+  --theme-actions-upvote-hover: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 12%);
+  --theme-actions-upvote-active: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 16%);
+  /* Downvote */
+  --theme-actions-downvote-default: var(--theme-accent-ketchup-default);
+  --theme-actions-downvote-float: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 8%);
+  --theme-actions-downvote-hover: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 12%);
+  --theme-actions-downvote-active: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 16%);
+  /* Comment */
+  --theme-actions-comment-default: var(--theme-accent-blueCheese-default);
+  --theme-actions-comment-float: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 8%);
+  --theme-actions-comment-hover: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 12%);
+  --theme-actions-comment-active: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 16%);
+  /* Bookmark */
+  --theme-actions-bookmark-default: var(--theme-accent-bun-default);
+  --theme-actions-bookmark-float: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 8%);
+  --theme-actions-bookmark-hover: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 12%);
+  --theme-actions-bookmark-active: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 16%);
+  /* Share */
+  --theme-actions-share-default: var(--theme-accent-cabbage-default);
+  --theme-actions-share-float: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 8%);
+  --theme-actions-share-hover: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 12%);
+  --theme-actions-share-active: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 16%);
+
+  /* Overlay */
+  --theme-overlay-base-primary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 64%);
+  --theme-overlay-base-secondary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 40%);
+  --theme-overlay-base-tertiary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 32%);
+  --theme-overlay-base-quaternary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 24%);
+  /* Dark */
+  --theme-overlay-dark-dark1: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 32%);
+  --theme-overlay-dark-dark2: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 40%);
+  --theme-overlay-dark-dark3: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 64%);
+
+  /* Border */
+  /* Subtlest */
+  --theme-border-subtlest-primary: var(--theme-accent-salt-default);
+  --theme-border-subtlest-secondary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 40%);
+  --theme-border-subtlest-tertiary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 20%);
+  --theme-border-subtlest-quaternary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 8%);
+  /* Bolder */
+  --theme-border-bolder-primary: var(--theme-accent-salt-bolder);
+  --theme-border-bolder-secondary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 40%);
+  --theme-border-bolder-tertiary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 20%);
+  --theme-border-bolder-quaternary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 8%);
+
+  /* Status */
+  --theme-status-error: var(--theme-accent-ketchup-default);
+  --theme-status-warning: var(--theme-accent-bun-default);
+  --theme-status-help: var(--theme-accent-cheese-default);
+  --theme-status-success: var(--theme-accent-avocado-default);
+  --theme-status-info: var(--theme-accent-water-default);
+
+  /* Text */
+  --theme-text-primary: var(--theme-accent-salt-baseline);
+  --theme-text-secondary: var(--theme-accent-salt-subtler);
+  --theme-text-tertiary: var(--theme-accent-salt-default);
+  --theme-text-quaternary: color-mix(in srgb, var(--theme-accent-salt-default), transparent 64%);
+  --theme-text-disabled: color-mix(in srgb, var(--theme-accent-salt-default), transparent 32%);
+  --theme-text-link: var(--theme-accent-water-subtler);
+
+  /* Shadow */
+  --theme-shadow-shadow1: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 32%);
+  --theme-shadow-shadow2: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 40%);
+  --theme-shadow-shadow3: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 64%);
+
+
+
+
+
+
+
+
+
+
+/**
+  * Current old colors, these should all be changed to one of the above matching ones.
+ */
+  --theme-active: theme('colors.raw.salt.90')33;
+  --theme-focus: theme('colors.raw.blueCheese.40');
+  --theme-float: theme('colors.raw.salt.90')14;
+  /* stylelint-disable-next-line unit-no-unknown */
+  --theme-hover: theme('colors.raw.salt.90')1F;
+
+  --theme-background-cabbage-blur: theme('colors.raw.cabbage.90')99;
+  --theme-background-primary: theme('colors.raw.pepper.90');
   --theme-background-reverse: #ffffff;
-  --theme-background-secondary: theme('colors.pepper.70');
-  --theme-background-tertiary: theme('colors.pepper.80');
-  --theme-background-notification: theme('colors.pepper.50');
-  --theme-background-bun: theme('colors.bun.80');
-  --theme-background-onion: theme('colors.onion.80');
-  --theme-background-pepper: theme('colors.pepper.20');
-  --theme-background-pepper-40: theme('colors.pepper.40');
+  --theme-background-secondary: theme('colors.raw.pepper.70');
+  --theme-background-tertiary: theme('colors.raw.pepper.80');
+  --theme-background-notification: theme('colors.raw.pepper.50');
+  --theme-background-bun: theme('colors.raw.bun.80');
+  --theme-background-onion: theme('colors.raw.onion.80');
+  --theme-background-pepper: theme('colors.raw.pepper.20');
+  --theme-background-pepper-40: theme('colors.raw.pepper.40');
   /* stylelint-disable-next-line unit-no-unknown */
-  --theme-background-cabbage-opacity-24: theme('colors.cabbage.40')3D;
-  --theme-background-subtle: theme('colors.pepper.70');
-  --theme-background-popover: theme('colors.pepper.70');
+  --theme-background-cabbage-opacity-24: theme('colors.raw.cabbage.40')3D;
 
-  --theme-surface-invert: theme('colors.pepper.90');
+  /* Turned off because duplication */
+  /*--theme-surface-invert: theme('colors.raw.pepper.90');*/
 
   --theme-label-primary: #ffffff;
-  --theme-label-secondary: theme('colors.salt.50');
-  --theme-label-tertiary: theme('colors.salt.90');
-  --theme-label-quaternary: theme('colors.salt.90')A3;
-  --theme-label-disabled: theme('colors.salt.90')52;
-  --theme-label-link: theme('colors.water.20');
-  --theme-label-invert: theme('colors.pepper.90');
-  --theme-label-bun: theme('colors.bun.20');
+  --theme-label-secondary: theme('colors.raw.salt.50');
+  --theme-label-tertiary: theme('colors.raw.salt.90');
+  --theme-label-quaternary: theme('colors.raw.salt.90')A3;
+  --theme-label-disabled: theme('colors.raw.salt.90')52;
+  --theme-label-link: theme('colors.raw.water.20');
+  --theme-label-invert: theme('colors.raw.pepper.90');
+  --theme-label-bun: theme('colors.raw.bun.20');
 
-  --theme-divider-primary: theme('colors.salt.90');
-  --theme-divider-secondary: theme('colors.salt.90')66;
-  --theme-divider-tertiary: theme('colors.salt.90')33;
-  --theme-divider-quaternary: theme('colors.salt.90')14;
+  --theme-divider-primary: theme('colors.raw.salt.90');
+  --theme-divider-secondary: theme('colors.raw.salt.90')66;
+  --theme-divider-tertiary: theme('colors.raw.salt.90')33;
+  --theme-divider-quaternary: theme('colors.raw.salt.90')14;
 
-  --theme-status-error: theme('colors.ketchup.40');
-  --theme-status-help: theme('colors.cheese.40');
-  --theme-status-success: theme('colors.avocado.40');
-  --theme-status-warning: theme('colors.bun.40');
-  --theme-status-cabbage-invert: theme('colors.cabbage.60');
-  --theme-status-cabbage: theme('colors.cabbage.40');
-  --theme-status-fill: theme('colors.water.40');
+  /* Turned off because duplication */
+  /*--theme-status-error: theme('colors.raw.ketchup.40');*/
+  /*--theme-status-help: theme('colors.raw.cheese.40');*/
+  /*--theme-status-success: theme('colors.raw.avocado.40');*/
+  /*--theme-status-warning: theme('colors.raw.bun.40');*/
+  --theme-status-cabbage-invert: theme('colors.raw.cabbage.60');
+  --theme-status-cabbage: theme('colors.raw.cabbage.40');
+  --theme-status-fill: theme('colors.raw.water.40');
 
   --theme-shadow2: theme('boxShadow.2-black');
   --theme-shadow3: theme('boxShadow.3-black');
@@ -90,13 +278,12 @@ body {
   --theme-blur-highlight: rgba(27, 31, 38, 0.88);
   --theme-mention: rgba(206, 61, 243, 0.24);
   --theme-mention-hover: rgba(206, 61, 243, 0.32);
-  --theme-post-disabled: theme('colors.pepper.70')66;
-
+  --theme-post-disabled: theme('colors.raw.pepper.70')66;
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.white');
   --theme-overlay-water: theme('colors.overlay.quaternary.water');
   --theme-overlay-cabbage: theme('colors.overlay.quaternary.cabbage');
-  --theme-overlay-from: theme('colors.onion.40')30;
-  --theme-overlay-to: theme('colors.cabbage.40')30;
+  --theme-overlay-from: theme('colors.raw.onion.40')30;
+  --theme-overlay-to: theme('colors.raw.cabbage.40')30;
 
   --theme-overlay-float-bun: theme('colors.overlay.float.bun');
   --theme-overlay-float-blueCheese: theme('colors.overlay.float.blueCheese');
@@ -108,118 +295,305 @@ body {
   --theme-overlay-active-onion: theme('colors.overlay.active.onion');
   --theme-overlay-active-salt: theme('colors.overlay.active.salt');
 
-  --theme-gradient-cabbage: theme('colors.cabbage.10')66;
-  --theme-gradient-onion: theme('colors.onion.10')66;
+  --theme-gradient-cabbage: theme('colors.raw.cabbage.10')66;
+  --theme-gradient-onion: theme('colors.raw.onion.10')66;
 
-  --theme-overlay-cabbage-opacity: theme('colors.cabbage.90')A3;
-  --theme-overlay-onion-opacity: theme('colors.onion.90')A3;
+  --theme-overlay-cabbage-opacity: theme('colors.raw.cabbage.90')A3;
+  --theme-overlay-onion-opacity: theme('colors.raw.onion.90')A3;
 
-  --theme-rank-highlight: theme('colors.salt.10');
+  --theme-rank-highlight: theme('colors.raw.salt.10');
 
-  --theme-rank-1-color: theme('colors.salt.90');
-  --theme-rank-1-color-top: theme('colors.salt.90');
-  --theme-rank-1-color-bottom: theme('colors.pepper.10');
+  --theme-rank-1-color: theme('colors.raw.salt.90');
+  --theme-rank-1-color-top: theme('colors.raw.salt.90');
+  --theme-rank-1-color-bottom: theme('colors.raw.pepper.10');
 
-  --theme-rank-2-color: theme('colors.burger.40');
-  --theme-rank-2-color-top: theme('colors.burger.40');
-  --theme-rank-2-color-bottom: theme('colors.bun.40');
+  --theme-rank-2-color: theme('colors.raw.burger.40');
+  --theme-rank-2-color-top: theme('colors.raw.burger.40');
+  --theme-rank-2-color-bottom: theme('colors.raw.bun.40');
 
-  --theme-rank-3-color: theme('colors.salt.10');
-  --theme-rank-3-color-top: theme('colors.salt.10');
-  --theme-rank-3-color-bottom: theme('colors.salt.90');
+  --theme-rank-3-color: theme('colors.raw.salt.10');
+  --theme-rank-3-color-top: theme('colors.raw.salt.10');
+  --theme-rank-3-color-bottom: theme('colors.raw.salt.90');
 
-  --theme-rank-4-color: theme('colors.cheese.40');
-  --theme-rank-4-color-top: theme('colors.cheese.40');
-  --theme-rank-4-color-bottom: theme('colors.bun.40');
+  --theme-rank-4-color: theme('colors.raw.cheese.40');
+  --theme-rank-4-color-top: theme('colors.raw.cheese.40');
+  --theme-rank-4-color-bottom: theme('colors.raw.bun.40');
 
-  --theme-rank-5-color: theme('colors.blueCheese.40');
-  --theme-rank-5-color-top: theme('colors.water.40');
-  --theme-rank-5-color-bottom: theme('colors.blueCheese.40');
+  --theme-rank-5-color: theme('colors.raw.blueCheese.40');
+  --theme-rank-5-color-top: theme('colors.raw.water.40');
+  --theme-rank-5-color-bottom: theme('colors.raw.blueCheese.40');
 
-  --theme-rank-6-color: theme('colors.cabbage.40');
-  --theme-rank-6-color-top: theme('colors.cabbage.40');
-  --theme-rank-6-color-bottom: theme('colors.onion.40');
+  --theme-rank-6-color: theme('colors.raw.cabbage.40');
+  --theme-rank-6-color-top: theme('colors.raw.cabbage.40');
+  --theme-rank-6-color-bottom: theme('colors.raw.onion.40');
 
-  --theme-rank-7-color: theme('colors.bacon.40');
-  --theme-rank-7-color-top: theme('colors.bacon.40');
-  --theme-rank-7-color-bottom: theme('colors.ketchup.40');
+  --theme-rank-7-color: theme('colors.raw.bacon.40');
+  --theme-rank-7-color-top: theme('colors.raw.bacon.40');
+  --theme-rank-7-color-bottom: theme('colors.raw.ketchup.40');
 
-  --theme-highlight-comment: theme('colors.salt.10');
-  --theme-highlight-red: theme('colors.ketchup.20');
-  --theme-highlight-orange: theme('colors.bun.20');
-  --theme-highlight-yellow: theme('colors.cheese.20');
-  --theme-highlight-green: theme('colors.avocado.20');
-  --theme-highlight-aqua: theme('colors.blueCheese.20');
-  --theme-highlight-blue: theme('colors.water.20');
-  --theme-highlight-purple: theme('colors.onion.20');
-  --theme-highlight-label: theme('colors.salt.50');
+  --theme-highlight-comment: theme('colors.raw.salt.10');
+  --theme-highlight-red: theme('colors.raw.ketchup.20');
+  --theme-highlight-orange: theme('colors.raw.bun.20');
+  --theme-highlight-yellow: theme('colors.raw.cheese.20');
+  --theme-highlight-green: theme('colors.raw.avocado.20');
+  --theme-highlight-aqua: theme('colors.raw.blueCheese.20');
+  --theme-highlight-blue: theme('colors.raw.water.20');
+  --theme-highlight-purple: theme('colors.raw.onion.20');
+  --theme-highlight-label: theme('colors.raw.salt.50');
 
-  --theme-color-burger: theme('colors.burger.40');
-  --theme-color-blueCheese: theme('colors.blueCheese.40');
-  --theme-color-avocado: theme('colors.avocado.40');
-  --theme-color-lettuce: theme('colors.lettuce.40');
-  --theme-color-cheese: theme('colors.cheese.40');
-  --theme-color-bun: theme('colors.bun.40');
-  --theme-color-ketchup: theme('colors.ketchup.40');
-  --theme-color-bacon: theme('colors.bacon.40');
-  --theme-color-cabbage: theme('colors.cabbage.40');
-  --theme-color-onion: theme('colors.onion.40');
-  --theme-color-water: theme('colors.water.40');
-  --theme-color-salt: theme('colors.salt.40');
-  --theme-color-pepper: theme('colors.pepper.40');
-  --theme-color-email: theme('colors.pepper.10');
+  --theme-color-burger: theme('colors.raw.burger.40');
+  --theme-color-blueCheese: theme('colors.raw.blueCheese.40');
+  --theme-color-avocado: theme('colors.raw.avocado.40');
+  --theme-color-lettuce: theme('colors.raw.lettuce.40');
+  --theme-color-cheese: theme('colors.raw.cheese.40');
+  --theme-color-bun: theme('colors.raw.bun.40');
+  --theme-color-ketchup: theme('colors.raw.ketchup.40');
+  --theme-color-bacon: theme('colors.raw.bacon.40');
+  --theme-color-cabbage: theme('colors.raw.cabbage.40');
+  --theme-color-onion: theme('colors.raw.onion.40');
+  --theme-color-water: theme('colors.raw.water.40');
+  --theme-color-salt: theme('colors.raw.salt.40');
+  --theme-color-pepper: theme('colors.raw.pepper.40');
+  --theme-color-email: theme('colors.raw.pepper.10');
 }
 
 @define-mixin light-mode {
+  /* Background colors */
+  --theme-background-default: theme('colors.raw.salt.0');
+  --theme-background-subtle: theme('colors.raw.salt.10');
+  --theme-background-popover: theme('colors.raw.salt.0');
+  --theme-background-post-post: theme('colors.raw.salt.10');
+  --theme-background-post-disabled: var(--theme-background-default);
 
-  --theme-active: theme('colors.pepper.10')33;
-  --theme-focus: theme('colors.blueCheese.60');
-  --theme-float: theme('colors.pepper.10')14;
+  /* Accent colors */
+  /* Burger */
+  --theme-accent-burger-subtlest: theme('colors.raw.burger.90');
+  --theme-accent-burger-subtler: theme('colors.raw.burger.80');
+  --theme-accent-burger-subtle: theme('colors.raw.burger.70');
+  --theme-accent-burger-default: theme('colors.raw.burger.60');
+  --theme-accent-burger-bolder: theme('colors.raw.burger.50');
+  /* Blue Cheese */
+  --theme-accent-blueCheese-subtlest: theme('colors.raw.blueCheese.90');
+  --theme-accent-blueCheese-subtler: theme('colors.raw.blueCheese.80');
+  --theme-accent-blueCheese-subtle: theme('colors.raw.blueCheese.70');
+  --theme-accent-blueCheese-default: theme('colors.raw.blueCheese.60');
+  --theme-accent-blueCheese-bolder: theme('colors.raw.blueCheese.50');
+  /* Avocado */
+  --theme-accent-avocado-subtlest: theme('colors.raw.avocado.90');
+  --theme-accent-avocado-subtler: theme('colors.raw.avocado.80');
+  --theme-accent-avocado-subtle: theme('colors.raw.avocado.70');
+  --theme-accent-avocado-default: theme('colors.raw.avocado.60');
+  --theme-accent-avocado-bolder: theme('colors.raw.avocado.50');
+  /* Cheese */
+  --theme-accent-cheese-subtlest: theme('colors.raw.cheese.90');
+  --theme-accent-cheese-subtler: theme('colors.raw.cheese.80');
+  --theme-accent-cheese-subtle: theme('colors.raw.cheese.70');
+  --theme-accent-cheese-default: theme('colors.raw.cheese.60');
+  --theme-accent-cheese-bolder: theme('colors.raw.cheese.50');
+  /* Salt */
+  --theme-accent-salt-baseline: theme('colors.raw.pepper.90');
+  --theme-accent-salt-subtlest: theme('colors.raw.pepper.80');
+  --theme-accent-salt-subtler: theme('colors.raw.pepper.50');
+  --theme-accent-salt-subtle: theme('colors.raw.pepper.30');
+  --theme-accent-salt-default: theme('colors.raw.pepper.10');
+  --theme-accent-salt-bolder: theme('colors.raw.salt.90');
+  /* Onion */
+  --theme-accent-onion-subtlest: theme('colors.raw.onion.90');
+  --theme-accent-onion-subtler: theme('colors.raw.onion.80');
+  --theme-accent-onion-subtle: theme('colors.raw.onion.70');
+  --theme-accent-onion-default: theme('colors.raw.onion.60');
+  --theme-accent-onion-bolder: theme('colors.raw.onion.50');
+  /* Water */
+  --theme-accent-water-subtlest: theme('colors.raw.water.90');
+  --theme-accent-water-subtler: theme('colors.raw.water.80');
+  --theme-accent-water-subtle: theme('colors.raw.water.70');
+  --theme-accent-water-default: theme('colors.raw.water.60');
+  --theme-accent-water-bolder: theme('colors.raw.water.50');
+  /* Pepper */
+  --theme-accent-pepper-baseline: theme('colors.raw.salt.0');
+  --theme-accent-pepper-subtlest: theme('colors.raw.salt.20');
+  --theme-accent-pepper-subtler: theme('colors.raw.salt.50');
+  --theme-accent-pepper-subtle: theme('colors.raw.salt.70');
+  --theme-accent-pepper-default: theme('colors.raw.salt.90');
+  --theme-accent-pepper-bolder: theme('colors.raw.pepper.10');
+  /* Lettuce */
+  --theme-accent-lettuce-subtlest: theme('colors.raw.lettuce.90');
+  --theme-accent-lettuce-subtler: theme('colors.raw.lettuce.80');
+  --theme-accent-lettuce-subtle: theme('colors.raw.lettuce.70');
+  --theme-accent-lettuce-default: theme('colors.raw.lettuce.60');
+  --theme-accent-lettuce-bolder: theme('colors.raw.lettuce.50');
+  /* Bun */
+  --theme-accent-bun-subtlest: theme('colors.raw.bun.90');
+  --theme-accent-bun-subtler: theme('colors.raw.bun.80');
+  --theme-accent-bun-subtle: theme('colors.raw.bun.70');
+  --theme-accent-bun-default: theme('colors.raw.bun.60');
+  --theme-accent-bun-bolder: theme('colors.raw.bun.50');
+  /* Ketchup */
+  --theme-accent-ketchup-subtlest: theme('colors.raw.ketchup.90');
+  --theme-accent-ketchup-subtler: theme('colors.raw.ketchup.80');
+  --theme-accent-ketchup-subtle: theme('colors.raw.ketchup.70');
+  --theme-accent-ketchup-default: theme('colors.raw.ketchup.60');
+  --theme-accent-ketchup-bolder: theme('colors.raw.ketchup.50');
+  /* Cabbage */
+  --theme-accent-cabbage-subtlest: theme('colors.raw.cabbage.90');
+  --theme-accent-cabbage-subtler: theme('colors.raw.cabbage.80');
+  --theme-accent-cabbage-subtle: theme('colors.raw.cabbage.70');
+  --theme-accent-cabbage-default: theme('colors.raw.cabbage.60');
+  --theme-accent-cabbage-bolder: theme('colors.raw.cabbage.50');
+  /* Bacon */
+  --theme-accent-bacon-subtlest: theme('colors.raw.bacon.90');
+  --theme-accent-bacon-subtler: theme('colors.raw.bacon.80');
+  --theme-accent-bacon-subtle: theme('colors.raw.bacon.70');
+  --theme-accent-bacon-default: theme('colors.raw.bacon.60');
+  --theme-accent-bacon-bolder: theme('colors.raw.bacon.50');
+
+  /* Brand */
+  --theme-brand-subtler: var(--theme-accent-cabbage-subtler);
+  --theme-brand-default: var(--theme-accent-cabbage-default);
+  --theme-brand-bolder: var(--theme-accent-cabbage-bolder);
+  --theme-brand-float: color-mix(in srgb, var(--theme-brand-bolder), transparent 8%);
+  --theme-brand-hover: color-mix(in srgb, var(--theme-brand-bolder), transparent 12%);
+  --theme-brand-active: color-mix(in srgb, var(--theme-brand-bolder), transparent 16%);
+
+  /* Surface */
+  --theme-surface-primary: theme('colors.raw.pepper.90');
+  --theme-surface-secondary: theme('colors.raw.pepper.10');
+  --theme-surface-invert: theme('colors.raw.salt.0');
+  --theme-surface-float: color-mix(in srgb, var(--theme-surface-secondary), transparent 8%);
+  --theme-surface-hover: color-mix(in srgb, var(--theme-surface-secondary), transparent 12%);
+  --theme-surface-active: color-mix(in srgb, var(--theme-surface-secondary), transparent 16%);
+  --theme-surface-disabled: color-mix(in srgb, var(--theme-surface-secondary), transparent 20%);
+  --theme-surface-focus: theme('colors.raw.blueCheese.60');
+
+  /* Actions */
+  /* Upvote */
+  --theme-actions-upvote-default: var(--theme-accent-avocado-default);
+  --theme-actions-upvote-float: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 8%);
+  --theme-actions-upvote-hover: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 12%);
+  --theme-actions-upvote-active: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 16%);
+  /* Downvote */
+  --theme-actions-downvote-default: var(--theme-accent-ketchup-default);
+  --theme-actions-downvote-float: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 8%);
+  --theme-actions-downvote-hover: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 12%);
+  --theme-actions-downvote-active: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 16%);
+  /* Comment */
+  --theme-actions-comment-default: var(--theme-accent-blueCheese-default);
+  --theme-actions-comment-float: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 8%);
+  --theme-actions-comment-hover: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 12%);
+  --theme-actions-comment-active: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 16%);
+  /* Bookmark */
+  --theme-actions-bookmark-default: var(--theme-accent-bun-default);
+  --theme-actions-bookmark-float: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 8%);
+  --theme-actions-bookmark-hover: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 12%);
+  --theme-actions-bookmark-active: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 16%);
+  /* Share */
+  --theme-actions-share-default: var(--theme-accent-cabbage-default);
+  --theme-actions-share-float: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 8%);
+  --theme-actions-share-hover: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 12%);
+  --theme-actions-share-active: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 16%);
+
+  /* Overlay */
+  --theme-overlay-base-primary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 64%);
+  --theme-overlay-base-secondary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 40%);
+  --theme-overlay-base-tertiary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 32%);
+  --theme-overlay-base-quaternary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 24%);
+  /* Dark */
+  --theme-overlay-dark-dark1: color-mix(in srgb, theme('colors.raw.pepper.10'), transparent 32%);
+  --theme-overlay-dark-dark2: color-mix(in srgb, theme('colors.raw.pepper.10'), transparent 40%);
+  --theme-overlay-dark-dark3: color-mix(in srgb, theme('colors.raw.pepper.10'), transparent 64%);
+
+  /* Border */
+  /* Subtlest */
+  --theme-border-subtlest-primary: var(--theme-accent-salt-default);
+  --theme-border-subtlest-secondary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 40%);
+  --theme-border-subtlest-tertiary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 20%);
+  --theme-border-subtlest-quaternary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 8%);
+  /* Bolder */
+  --theme-border-bolder-primary: var(--theme-accent-salt-bolder);
+  --theme-border-bolder-secondary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 40%);
+  --theme-border-bolder-tertiary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 20%);
+  --theme-border-bolder-quaternary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 8%);
+
+  /* Status */
+  --theme-status-error: var(--theme-accent-ketchup-default);
+  --theme-status-warning: var(--theme-accent-bun-default);
+  --theme-status-help: var(--theme-accent-cheese-default);
+  --theme-status-success: var(--theme-accent-avocado-default);
+  --theme-status-info: var(--theme-accent-water-default);
+
+  /* Text */
+  --theme-text-primary: var(--theme-accent-salt-baseline);
+  --theme-text-secondary: var(--theme-accent-salt-subtler);
+  --theme-text-tertiary: var(--theme-accent-salt-default);
+  --theme-text-quaternary: color-mix(in srgb, var(--theme-accent-salt-default), transparent 64%);
+  --theme-text-disabled: color-mix(in srgb, var(--theme-accent-salt-default), transparent 32%);
+  --theme-text-link: var(--theme-accent-water-subtler);
+
+  /* Shadow */
+  --theme-shadow-shadow1: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 32%);
+  --theme-shadow-shadow2: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 40%);
+  --theme-shadow-shadow3: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 64%);
+
+
+
+
+
+
+
+
+
+
+  /**
+    * Current old colors, these should all be changed to one of the above matching ones.
+   */
+  --theme-active: theme('colors.raw.pepper.10')33;
+  --theme-focus: theme('colors.raw.blueCheese.60');
+  --theme-float: theme('colors.raw.pepper.10')14;
   /* stylelint-disable-next-line unit-no-unknown */
-  --theme-hover: theme('colors.pepper.10')1F;
+  --theme-hover: theme('colors.raw.pepper.10')1F;
 
-  --theme-background-cabbage-blur: theme('colors.cabbage.10')99;
+  --theme-background-cabbage-blur: theme('colors.raw.cabbage.10')99;
   --theme-background-primary: #ffffff;
-  --theme-background-reverse: theme('colors.pepper.90');
-  --theme-background-secondary: theme('colors.salt.10');
-  --theme-background-tertiary: theme('colors.salt.20');
-  --theme-background-notification: theme('colors.salt.50');
-  --theme-background-bacon: theme('colors.bacon.20');
-  --theme-background-bun: theme('colors.bun.20');
-  --theme-background-onion: theme('colors.onion.20');
-  --theme-background-pepper: theme('colors.pepper.20');
-  --theme-background-pepper-40: theme('colors.salt.40');
+  --theme-background-reverse: theme('colors.raw.pepper.90');
+  --theme-background-secondary: theme('colors.raw.salt.10');
+  --theme-background-tertiary: theme('colors.raw.salt.20');
+  --theme-background-notification: theme('colors.raw.salt.50');
+  --theme-background-bacon: theme('colors.raw.bacon.20');
+  --theme-background-bun: theme('colors.raw.bun.20');
+  --theme-background-onion: theme('colors.raw.onion.20');
+  --theme-background-pepper: theme('colors.raw.pepper.20');
+  --theme-background-pepper-40: theme('colors.raw.salt.40');
   /* stylelint-disable-next-line unit-no-unknown */
-  --theme-background-cabbage-opacity-24: theme('colors.cabbage.40')3D;
-  --theme-background-subtle: theme('colors.salt.10');
-  --theme-background-popover: theme('colors.salt.0');
+  --theme-background-cabbage-opacity-24: theme('colors.raw.cabbage.40')3D;
+  /*--theme-background-subtle: theme('colors.raw.salt.10');*/
+  /*--theme-background-popover: theme('colors.raw.salt.0');*/
 
-  --theme-surface-invert: theme('colors.salt.0');
+  /*--theme-surface-invert: theme('colors.raw.salt.0');*/
 
-  --theme-label-primary: theme('colors.pepper.90');
-  --theme-label-secondary: theme('colors.pepper.50');
-  --theme-label-tertiary: theme('colors.pepper.10');
-  --theme-label-quaternary: theme('colors.pepper.10')A3;
-  --theme-label-disabled: theme('colors.pepper.10')52;
-  --theme-label-link: theme('colors.water.80');
+  --theme-label-primary: theme('colors.raw.pepper.90');
+  --theme-label-secondary: theme('colors.raw.pepper.50');
+  --theme-label-tertiary: theme('colors.raw.pepper.10');
+  --theme-label-quaternary: theme('colors.raw.pepper.10')A3;
+  --theme-label-disabled: theme('colors.raw.pepper.10')52;
+  --theme-label-link: theme('colors.raw.water.80');
   --theme-label-invert: #ffffff;
-  --theme-label-bun: theme('colors.bun.80');
+  --theme-label-bun: theme('colors.raw.bun.80');
 
-  --theme-divider-primary: theme('colors.pepper.10');
-  --theme-divider-secondary: theme('colors.pepper.10')66;
-  --theme-divider-tertiary: theme('colors.pepper.10')33;
-  --theme-divider-quaternary: theme('colors.pepper.10')14;
+  --theme-divider-primary: theme('colors.raw.pepper.10');
+  --theme-divider-secondary: theme('colors.raw.pepper.10')66;
+  --theme-divider-tertiary: theme('colors.raw.pepper.10')33;
+  --theme-divider-quaternary: theme('colors.raw.pepper.10')14;
 
-  --theme-status-error: theme('colors.ketchup.60');
-  --theme-status-help: theme('colors.cheese.60');
-  --theme-status-success: theme('colors.avocado.60');
-  --theme-status-warning: theme('colors.bun.60');
-  --theme-status-cabbage: theme('colors.cabbage.60');
-  --theme-status-cabbage-invert: theme('colors.cabbage.40');
-  --theme-status-fill: theme('colors.water.60');
+  /*--theme-status-error: theme('colors.raw.ketchup.60');*/
+  /*--theme-status-help: theme('colors.raw.cheese.60');*/
+  /*--theme-status-success: theme('colors.raw.avocado.60');*/
+  /*--theme-status-warning: theme('colors.raw.bun.60');*/
+  --theme-status-cabbage: theme('colors.raw.cabbage.60');
+  --theme-status-cabbage-invert: theme('colors.raw.cabbage.40');
+  --theme-status-fill: theme('colors.raw.water.60');
 
-  --theme-shadow2: theme('boxShadow.2-salt');
-  --theme-shadow3: theme('boxShadow.3-salt');
+  /*--theme-shadow2: theme('boxShadow.2-salt');*/
+  /*--theme-shadow3: theme('boxShadow.3-salt');*/
 
   --theme-mention: rgba(172, 29, 228, 0.24);
   --theme-mention-hover: rgba(172, 29, 228, 0.32);
@@ -229,8 +603,8 @@ body {
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.pepper');
   --theme-overlay-water: theme('colors.overlay.quaternary.water');
   --theme-overlay-cabbage: theme('colors.overlay.quaternary.cabbage');
-  --theme-overlay-from: theme('colors.onion.40')30;
-  --theme-overlay-to: theme('colors.cabbage.40')30;
+  --theme-overlay-from: theme('colors.raw.onion.40')30;
+  --theme-overlay-to: theme('colors.raw.cabbage.40')30;
 
   --theme-overlay-float-bun: theme('colors.overlay.float.bun');
   --theme-overlay-float-blueCheese: theme('colors.overlay.float.blueCheese');
@@ -242,66 +616,66 @@ body {
   --theme-overlay-active-onion: theme('colors.overlay.active.onion');
   --theme-overlay-active-salt: theme('colors.overlay.active.salt');
 
-  --theme-gradient-cabbage: theme('colors.cabbage.10')66;
-  --theme-gradient-onion: theme('colors.onion.10')66;
+  --theme-gradient-cabbage: theme('colors.raw.cabbage.10')66;
+  --theme-gradient-onion: theme('colors.raw.onion.10')66;
 
-  --theme-overlay-cabbage-opacity: theme('colors.cabbage.90')A3;
-  --theme-overlay-onion-opacity: theme('colors.onion.90')A3;
+  --theme-overlay-cabbage-opacity: theme('colors.raw.cabbage.90')A3;
+  --theme-overlay-onion-opacity: theme('colors.raw.onion.90')A3;
 
-  --theme-rank-highlight: theme('colors.salt.10');
+  --theme-rank-highlight: theme('colors.raw.salt.10');
 
-  --theme-rank-1-color: theme('colors.pepper.10');
-  --theme-rank-1-color-top: theme('colors.pepper.10');
-  --theme-rank-1-color-bottom: theme('colors.pepper.90');
+  --theme-rank-1-color: theme('colors.raw.pepper.10');
+  --theme-rank-1-color-top: theme('colors.raw.pepper.10');
+  --theme-rank-1-color-bottom: theme('colors.raw.pepper.90');
 
-  --theme-rank-2-color: theme('colors.burger.60');
-  --theme-rank-2-color-top: theme('colors.burger.60');
-  --theme-rank-2-color-bottom: theme('colors.bun.60');
+  --theme-rank-2-color: theme('colors.raw.burger.60');
+  --theme-rank-2-color-top: theme('colors.raw.burger.60');
+  --theme-rank-2-color-bottom: theme('colors.raw.bun.60');
 
-  --theme-rank-3-color: theme('colors.salt.90');
-  --theme-rank-3-color-top: theme('colors.salt.90');
-  --theme-rank-3-color-bottom: theme('colors.pepper.10');
+  --theme-rank-3-color: theme('colors.raw.salt.90');
+  --theme-rank-3-color-top: theme('colors.raw.salt.90');
+  --theme-rank-3-color-bottom: theme('colors.raw.pepper.10');
 
-  --theme-rank-4-color: theme('colors.cheese.60');
-  --theme-rank-4-color-top: theme('colors.cheese.60');
-  --theme-rank-4-color-bottom: theme('colors.bun.60');
+  --theme-rank-4-color: theme('colors.raw.cheese.60');
+  --theme-rank-4-color-top: theme('colors.raw.cheese.60');
+  --theme-rank-4-color-bottom: theme('colors.raw.bun.60');
 
-  --theme-rank-5-color: theme('colors.blueCheese.60');
-  --theme-rank-5-color-top: theme('colors.water.60');
-  --theme-rank-5-color-bottom: theme('colors.blueCheese.60');
+  --theme-rank-5-color: theme('colors.raw.blueCheese.60');
+  --theme-rank-5-color-top: theme('colors.raw.water.60');
+  --theme-rank-5-color-bottom: theme('colors.raw.blueCheese.60');
 
-  --theme-rank-6-color: theme('colors.cabbage.60');
-  --theme-rank-6-color-top: theme('colors.cabbage.60');
-  --theme-rank-6-color-bottom: theme('colors.onion.60');
+  --theme-rank-6-color: theme('colors.raw.cabbage.60');
+  --theme-rank-6-color-top: theme('colors.raw.cabbage.60');
+  --theme-rank-6-color-bottom: theme('colors.raw.onion.60');
 
-  --theme-rank-7-color: theme('colors.bacon.60');
-  --theme-rank-7-color-top: theme('colors.bacon.60');
-  --theme-rank-7-color-bottom: theme('colors.ketchup.60');
+  --theme-rank-7-color: theme('colors.raw.bacon.60');
+  --theme-rank-7-color-top: theme('colors.raw.bacon.60');
+  --theme-rank-7-color-bottom: theme('colors.raw.ketchup.60');
 
-  --theme-highlight-comment: theme('colors.pepper.10');
-  --theme-highlight-red: theme('colors.ketchup.80');
-  --theme-highlight-orange: theme('colors.bun.80');
-  --theme-highlight-yellow: theme('colors.cheese.80');
-  --theme-highlight-green: theme('colors.avocado.80');
-  --theme-highlight-aqua: theme('colors.blueCheese.80');
-  --theme-highlight-blue: theme('colors.water.80');
-  --theme-highlight-purple: theme('colors.onion.80');
-  --theme-highlight-label: theme('colors.pepper.50');
+  --theme-highlight-comment: theme('colors.raw.pepper.10');
+  --theme-highlight-red: theme('colors.raw.ketchup.80');
+  --theme-highlight-orange: theme('colors.raw.bun.80');
+  --theme-highlight-yellow: theme('colors.raw.cheese.80');
+  --theme-highlight-green: theme('colors.raw.avocado.80');
+  --theme-highlight-aqua: theme('colors.raw.blueCheese.80');
+  --theme-highlight-blue: theme('colors.raw.water.80');
+  --theme-highlight-purple: theme('colors.raw.onion.80');
+  --theme-highlight-label: theme('colors.raw.pepper.50');
 
-  --theme-color-burger: theme('colors.burger.60');
-  --theme-color-blueCheese: theme('colors.blueCheese.60');
-  --theme-color-avocado: theme('colors.avocado.60');
-  --theme-color-lettuce: theme('colors.lettuce.60');
-  --theme-color-cheese: theme('colors.cheese.60');
-  --theme-color-bun: theme('colors.bun.60');
-  --theme-color-ketchup: theme('colors.ketchup.60');
-  --theme-color-bacon: theme('colors.bacon.60');
-  --theme-color-cabbage: theme('colors.cabbage.60');
-  --theme-color-onion: theme('colors.onion.60');
-  --theme-color-water: theme('colors.water.60');
-  --theme-color-salt: theme('colors.pepper.40');
-  --theme-color-pepper: theme('colors.pepper.60');
-  --theme-color-email: theme('colors.pepper.10');
+  --theme-color-burger: theme('colors.raw.burger.60');
+  --theme-color-blueCheese: theme('colors.raw.blueCheese.60');
+  --theme-color-avocado: theme('colors.raw.avocado.60');
+  --theme-color-lettuce: theme('colors.raw.lettuce.60');
+  --theme-color-cheese: theme('colors.raw.cheese.60');
+  --theme-color-bun: theme('colors.raw.bun.60');
+  --theme-color-ketchup: theme('colors.raw.ketchup.60');
+  --theme-color-bacon: theme('colors.raw.bacon.60');
+  --theme-color-cabbage: theme('colors.raw.cabbage.60');
+  --theme-color-onion: theme('colors.raw.onion.60');
+  --theme-color-water: theme('colors.raw.water.60');
+  --theme-color-salt: theme('colors.raw.pepper.40');
+  --theme-color-pepper: theme('colors.raw.pepper.60');
+  --theme-color-email: theme('colors.raw.pepper.10');
 }
 
 @media (prefers-color-scheme: light) {
@@ -506,10 +880,4 @@ details.right-icon {
     animation: pulse 1.25s infinite;
     border-radius: 14px;
   }
-}
-
-input {
-  @apply bg-clip-text;
-
-  -webkit-text-fill-color: var(--theme-label-primary);
 }

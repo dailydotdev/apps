@@ -18,7 +18,7 @@ export function DevCardStats({
   return (
     <span
       className={classNames(
-        'flex w-full flex-row gap-3 rounded-16 bg-pepper-90 p-4 shadow-2',
+        'flex w-full flex-row gap-3 rounded-16 bg-raw-pepper-90 p-4 shadow-2',
         className,
       )}
     >
@@ -31,7 +31,7 @@ export function DevCardStats({
       <DevCardStatsSection
         amount={articlesRead}
         label="Posts read"
-        iconClassName="text-cabbage-40"
+        iconClassName="text-raw-cabbage-40"
         Icon={EyeIcon}
       />
     </span>

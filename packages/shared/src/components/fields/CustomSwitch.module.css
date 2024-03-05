@@ -1,28 +1,28 @@
 .knob {
-  @apply bg-cabbage-40;
+  @apply bg-raw-cabbage-40;
   transition-property: transform, width;
   transition-duration: 150ms;
   left: 0;
 }
 
 :global(.group):hover .knob {
-  @apply bg-cabbage-20;
+  @apply bg-raw-cabbage-20;
 }
 
 :global(.light) .knob {
-  @apply bg-cabbage-60;
+  @apply bg-raw-cabbage-60;
 }
 
 :global(.light) :global(.group):hover .knob {
-  @apply bg-cabbage-80;
+  @apply bg-raw-cabbage-80;
 }
 
 @media (prefers-color-scheme: light) {
   :global(.auto) .knob {
-    @apply bg-cabbage-60;
+    @apply bg-raw-cabbage-60;
   }
-  
+
   :global(.auto) :global(.group):hover .knob {
-    @apply bg-cabbage-80;
+    @apply bg-raw-cabbage-80;
   }
 }

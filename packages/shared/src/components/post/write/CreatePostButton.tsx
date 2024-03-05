@@ -6,13 +6,16 @@ import { useSquad, useViewSize, ViewSize } from '../../../hooks';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { PlusIcon } from '../../icons';
 
 interface CreatePostButtonProps {
   className?: string;
+  compact?: boolean;
 }
 
 export function CreatePostButton({
   className,
+  compact,
 }: CreatePostButtonProps): ReactElement {
   const { user, isAuthReady, squads } = useAuthContext();
   const { route, query } = useRouter();
@@ -45,6 +48,7 @@ export function CreatePostButton({
       variant={ButtonVariant.Secondary}
       className={className}
       disabled={getIsDisabled()}
+      icon={compact && !isLaptop && <PlusIcon />}
       tag="a"
       href={
         link.post.create +
@@ -52,7 +56,7 @@ export function CreatePostButton({
       }
       size={isLaptop ? ButtonSize.Medium : ButtonSize.Small}
     >
-      New post
+      {!compact || isLaptop ? 'New post' : null}
     </Button>
   );
 }

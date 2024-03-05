@@ -5,6 +5,7 @@ import JoinedDate from './JoinedDate';
 import { Separator } from '../cards/common';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { IconSize } from '../Icon';
+import { TruncateText, truncateTextClassNames } from '../utilities';
 
 export type UserMetadataProps = Pick<
   PublicProfile,
@@ -29,7 +30,12 @@ export function UserMetadata({
       )}
     >
       <div className="flex items-center">
-        <h2 className="overflow-hidden text-ellipsis whitespace-nowrap font-bold text-theme-label-primary typo-title3">
+        <h2
+          className={classNames(
+            truncateTextClassNames,
+            'font-bold text-theme-label-primary typo-title3',
+          )}
+        >
           {name}
         </h2>
         {reputation && (
@@ -42,9 +48,9 @@ export function UserMetadata({
         )}
       </div>
       <div className="flex items-center">
-        <span className="overflow-hidden text-ellipsis whitespace-nowrap text-theme-label-secondary typo-footnote">
+        <TruncateText className="text-theme-label-secondary typo-footnote">
           @{username}
-        </span>
+        </TruncateText>
         <Separator />
         <JoinedDate
           className="text-theme-label-quaternary typo-caption2"

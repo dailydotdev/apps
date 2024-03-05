@@ -30,7 +30,7 @@ const iconType: AlertPropObject<typeof FeedbackIcon> = {
   success: CheckIcon,
 };
 
-interface AlertProps {
+export interface AlertProps {
   className?: string;
   title?: ReactNode;
   type?: AlertType;

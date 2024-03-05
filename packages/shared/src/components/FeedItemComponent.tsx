@@ -23,6 +23,7 @@ import { Origin } from '../lib/analytics';
 import { UseVotePost, useFeedLayout } from '../hooks';
 import { CollectionCard } from './cards/CollectionCard';
 import { CollectionCard as CollectionCardV1 } from './cards/v1/CollectionCard';
+import { AcquisitionFormCard } from './cards/AcquisitionFormCard';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -166,10 +167,10 @@ export default function FeedItemComponent({
     ranking,
   );
 
-  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { PostTag, AdTag, PlaceholderTag } = getTags(
     isList,
-    shouldUseFeedLayoutV1,
+    shouldUseMobileFeedLayout,
     (item as PostItem).post?.type,
   );
 
@@ -256,6 +257,9 @@ export default function FeedItemComponent({
           showImage={!insaneMode}
         />
       );
+    case 'userAcquisition': {
+      return <AcquisitionFormCard key="user-acquisition-card" />;
+    }
     default:
       return <PlaceholderTag showImage={!insaneMode} />;
   }
