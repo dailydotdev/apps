@@ -5,7 +5,7 @@ import { Separator } from './common';
 import { Post } from '../../graphql/posts';
 import { PlayIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { formatReadTime } from '../utilities';
+import { TruncateText, formatReadTime } from '../utilities';
 
 interface PostMetadataProps
   extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {
@@ -48,7 +48,9 @@ export default function PostMetadata({
           className="my-auto mr-1 text-theme-label-primary"
         />
       )}
-      {!!description && <span>{description}</span>}
+      {!!description && (
+        <TruncateText title={description}>{description}</TruncateText>
+      )}
       {!!createdAt && !!description && <Separator />}
       {!!createdAt && <time dateTime={createdAt}>{date}</time>}
       {!!createdAt && showReadTime && <Separator />}
