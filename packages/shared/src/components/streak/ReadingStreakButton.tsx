@@ -8,9 +8,13 @@ import { useViewSize, ViewSize } from '../../hooks';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
+}
+
+interface CustomStreaksTooltipProps {
+  streak: UserStreak;
   children?: ReactElement;
   shouldShowStreaks?: boolean;
-  setShouldShowStreaks?: any;
+  setShouldShowStreaks?: (value: boolean) => void;
 }
 
 function CustomStreaksTooltip({
@@ -18,7 +22,7 @@ function CustomStreaksTooltip({
   children,
   shouldShowStreaks,
   setShouldShowStreaks,
-}: ReadingStreakButtonProps): ReactElement {
+}: CustomStreaksTooltipProps): ReactElement {
   return (
     <SimpleTooltip
       interactive
