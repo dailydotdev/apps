@@ -1,7 +1,8 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { FilterIcon } from '../icons';
+import { useQueryClient } from '@tanstack/react-query';
+import { FilterIcon, RefreshIcon } from '../icons';
 import {
   Button,
   ButtonIconPosition,
@@ -16,7 +17,11 @@ import AlertPointer, {
 import { Alerts } from '../../graphql/alerts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
-import { useFeedLayout } from '../../hooks';
+import { useFeedLayout, useViewSize, ViewSize } from '../../hooks';
+import { feature } from '../../lib/featureManagement';
+import { useFeature } from '../GrowthBookProvider';
+import { setShouldRefreshFeed } from '../../lib/refreshFeed';
+import { SharedFeedPage } from '../utilities';
 
 export const filterAlertMessage = 'Edit your personal feed preferences here';
 
@@ -33,10 +38,13 @@ function MyFeedHeading({
   onUpdateAlerts,
   onOpenFeedFilters,
 }: MyFeedHeadingProps): ReactElement {
+  const isMobile = useViewSize(ViewSize.MobileL);
   const router = useRouter();
   const { trackEvent } = useContext(AnalyticsContext);
   const shouldHighlightFeedSettings = router.query?.hset === 'true';
   const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const queryClient = useQueryClient();
+  const forceRefresh = useFeature(feature.forceRefresh);
 
   const onClick = () => {
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
@@ -81,24 +89,50 @@ function MyFeedHeading({
     placement: getPlacement(),
   };
 
+  const onRefresh = async () => {
+    setShouldRefreshFeed(true);
+    await queryClient.refetchQueries({ queryKey: [SharedFeedPage.MyFeed] });
+    setShouldRefreshFeed(false);
+  };
+
   return (
-    <AlertPointer {...alertProps}>
-      <Button
-        size={shouldUseMobileFeedLayout ? ButtonSize.Small : ButtonSize.Medium}
-        variant={ButtonVariant.Float}
-        className={classNames(
-          'mr-auto',
-          shouldHighlightFeedSettings && 'highlight-pulse',
-        )}
-        onClick={onClick}
-        icon={<FilterIcon />}
-        iconPosition={
-          shouldUseMobileFeedLayout ? ButtonIconPosition.Right : undefined
-        }
-      >
-        Feed settings
-      </Button>
-    </AlertPointer>
+    <>
+      {forceRefresh && (
+        <Button
+          size={
+            shouldUseMobileFeedLayout ? ButtonSize.Small : ButtonSize.Medium
+          }
+          variant={ButtonVariant.Float}
+          className="mr-auto"
+          onClick={onRefresh}
+          icon={<RefreshIcon />}
+          iconPosition={
+            shouldUseMobileFeedLayout ? ButtonIconPosition.Right : undefined
+          }
+        >
+          {!isMobile ? 'Refresh feed' : null}
+        </Button>
+      )}
+      <AlertPointer {...alertProps}>
+        <Button
+          size={
+            shouldUseMobileFeedLayout ? ButtonSize.Small : ButtonSize.Medium
+          }
+          variant={ButtonVariant.Float}
+          className={classNames(
+            'mr-auto',
+            shouldHighlightFeedSettings && 'highlight-pulse',
+          )}
+          onClick={onClick}
+          icon={<FilterIcon />}
+          iconPosition={
+            shouldUseMobileFeedLayout ? ButtonIconPosition.Right : undefined
+          }
+        >
+          {!isMobile ? 'Feed settings' : null}
+        </Button>
+      </AlertPointer>
+    </>
   );
 }
 
