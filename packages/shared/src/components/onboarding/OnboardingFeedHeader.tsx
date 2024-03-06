@@ -21,6 +21,9 @@ import { checkIsExtension } from '../../lib/func';
 import { feature } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
 import { webappUrl } from '../../lib/constants';
+import { useOnboardingAnimation } from '../../hooks/auth/useOnboardingAnimation';
+import { PreparingYourFeed } from '../auth';
+import useDebounce from '../../hooks/useDebounce';
 
 const promptConfig = {
   title: 'Discard tag selection?',
@@ -59,6 +62,12 @@ export const OnboardingFeedHeader = ({
   const { showPrompt } = usePrompt();
   const router = useRouter();
   const { registerLocalFilters } = useMyFeed();
+  const { isAnimating, onFinishedOnboarding, finishedOnboarding } =
+    useOnboardingAnimation();
+  const [toggleVisibility] = useDebounce(
+    () => setPreviewFeedVisible((current) => !current),
+    2000,
+  );
   const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
 
   const completeOnboarding = useCallback(() => {
@@ -80,8 +89,11 @@ export const OnboardingFeedHeader = ({
               },
             },
       );
+    } else {
+      onFinishedOnboarding();
     }
   }, [
+    onFinishedOnboarding,
     onboardingOptimizations,
     registerLocalFilters,
     router,
@@ -115,6 +127,10 @@ export const OnboardingFeedHeader = ({
       router.events.off('routeChangeStart', routeHandler);
     };
   }, [router, showPrompt, trackEvent]);
+
+  if (finishedOnboarding) {
+    return <PreparingYourFeed isAnimating={isAnimating} />;
+  }
 
   return (
     <LayoutHeader className="flex-col overflow-x-visible">
@@ -153,9 +169,7 @@ export const OnboardingFeedHeader = ({
               />
             }
             iconPosition={ButtonIconPosition.Right}
-            onClick={() => {
-              setPreviewFeedVisible((current) => !current);
-            }}
+            onClick={toggleVisibility}
           >
             {isFeedPreviewEnabled
               ? `${isPreviewFeedVisible ? 'Hide' : 'Show'} feed preview`
