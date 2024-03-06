@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { FilterOnboardingV4 } from './FilterOnboardingV4';
@@ -21,9 +21,6 @@ import { checkIsExtension } from '../../lib/func';
 import { feature } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
 import { webappUrl } from '../../lib/constants';
-import { useOnboardingAnimation } from '../../hooks/auth/useOnboardingAnimation';
-import { PreparingYourFeed } from '../auth';
-import useDebounce from '../../hooks/useDebounce';
 
 const promptConfig = {
   title: 'Discard tag selection?',
@@ -62,19 +59,11 @@ export const OnboardingFeedHeader = ({
   const { showPrompt } = usePrompt();
   const router = useRouter();
   const { registerLocalFilters } = useMyFeed();
-  const isCreatingFeed = useRef(false);
-  const { isAnimating, onFinishedOnboarding, finishedOnboarding } =
-    useOnboardingAnimation();
-  const [delayedAlerts] = useDebounce(() => {
-    updateAlerts({ filter: false, myFeed: 'created' });
-  }, 2000);
   const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
 
   const completeOnboarding = useCallback(() => {
-    isCreatingFeed.current = true;
     registerLocalFilters();
-    onFinishedOnboarding();
-    delayedAlerts();
+    updateAlerts({ filter: false, myFeed: 'created' });
 
     trackEvent({
       event_name: AnalyticsEvent.CreateFeed,
@@ -93,19 +82,18 @@ export const OnboardingFeedHeader = ({
       );
     }
   }, [
-    delayedAlerts,
-    onFinishedOnboarding,
     onboardingOptimizations,
     registerLocalFilters,
     router,
     trackEvent,
+    updateAlerts,
   ]);
 
   useEffect(() => {
     let stopNav = true;
 
     const routeHandler = (newRoute: string) => {
-      if (!stopNav || newRoute === '/my-feed' || isCreatingFeed.current) {
+      if (!stopNav || newRoute === '/my-feed') {
         return;
       }
       router.events.emit('routeChangeError');
@@ -127,10 +115,6 @@ export const OnboardingFeedHeader = ({
       router.events.off('routeChangeStart', routeHandler);
     };
   }, [router, showPrompt, trackEvent]);
-
-  if (finishedOnboarding) {
-    return <PreparingYourFeed isAnimating={isAnimating} />;
-  }
 
   return (
     <LayoutHeader className="flex-col overflow-x-visible">
@@ -169,7 +153,9 @@ export const OnboardingFeedHeader = ({
               />
             }
             iconPosition={ButtonIconPosition.Right}
-            onClick={() => setPreviewFeedVisible((current) => !current)}
+            onClick={() => {
+              setPreviewFeedVisible((current) => !current);
+            }}
           >
             {isFeedPreviewEnabled
               ? `${isPreviewFeedVisible ? 'Hide' : 'Show'} feed preview`
