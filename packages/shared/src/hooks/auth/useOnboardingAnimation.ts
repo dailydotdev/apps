@@ -8,7 +8,7 @@ import { OnboardingAnimation } from '../../lib/featureValues';
 
 interface UseOnboardingAnimation {
   isAnimating: boolean;
-  afterAnimationRedirect: (param: Parameters<typeof Router.replace>[0]) => void;
+  postOnboardingRedirect: (param: Parameters<typeof Router.replace>[0]) => void;
   finishedOnboarding: boolean;
   onFinishedOnboarding: () => void;
 }
@@ -40,7 +40,7 @@ export const useOnboardingAnimation = ({
   }, [animate, isAnimationControl]);
 
   return {
-    afterAnimationRedirect: isAnimationControl
+    postOnboardingRedirect: isAnimationControl
       ? router.replace
       : delayedRedirect,
     isAnimating,

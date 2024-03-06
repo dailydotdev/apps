@@ -93,7 +93,7 @@ export function OnboardPage(): ReactElement {
     isAnimating,
     finishedOnboarding,
     onFinishedOnboarding,
-    afterAnimationRedirect,
+    postOnboardingRedirect,
   } = useOnboardingAnimation();
   const { onShouldUpdateFilters } = useOnboardingContext();
   const { growthbook } = useGrowthBookContext();
@@ -162,7 +162,7 @@ export function OnboardPage(): ReactElement {
       });
     }
 
-    return afterAnimationRedirect({
+    return postOnboardingRedirect({
       pathname: '/',
       query: {
         ...(userAcquisitionVersion === UserAcquisition.V1 && {
