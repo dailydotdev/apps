@@ -26,14 +26,14 @@ export const SharedPostCardFooter = ({
         isShort ? 'flex-row items-center' : 'flex-col',
       )}
     >
-      <div
+      <p
         className={classNames(
-          'flex text-theme-label-secondary typo-footnote',
+          'text-theme-label-secondary typo-footnote',
           isShort ? 'line-clamp-4 w-8/12 pr-3' : 'line-clamp-2',
         )}
       >
         {sharedPost.title}
-      </div>
+      </p>
 
       <div className={classNames('flex h-auto flex-auto overflow-auto')}>
         <CardCover

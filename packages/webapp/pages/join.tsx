@@ -20,6 +20,7 @@ type ReferralRecord<T> = Record<ReferralCampaignKey, T>;
 const componentsMap: ReferralRecord<FunctionComponent<JoinPageProps>> = {
   search: AISearchInvite,
   generic: Referral,
+  share: null,
 };
 
 const Page = ({
