@@ -132,68 +132,68 @@ body {
   --theme-brand-subtler: var(--theme-accent-cabbage-subtler);
   --theme-brand-default: var(--theme-accent-cabbage-default);
   --theme-brand-bolder: var(--theme-accent-cabbage-bolder);
-  --theme-brand-float: color-mix(in srgb, var(--theme-brand-bolder), transparent 8%);
-  --theme-brand-hover: color-mix(in srgb, var(--theme-brand-bolder), transparent 12%);
-  --theme-brand-active: color-mix(in srgb, var(--theme-brand-bolder), transparent 16%);
+  --theme-brand-float: color-mix(in srgb, var(--theme-brand-bolder), transparent 92%);
+  --theme-brand-hover: color-mix(in srgb, var(--theme-brand-bolder), transparent 88%);
+  --theme-brand-active: color-mix(in srgb, var(--theme-brand-bolder), transparent 84%);
 
   /* Surface */
   --theme-surface-primary: theme('colors.raw.salt.0');
   --theme-surface-secondary: theme('colors.raw.salt.90');
   --theme-surface-invert: theme('colors.raw.pepper.90');
-  --theme-surface-float: color-mix(in srgb, var(--theme-surface-secondary), transparent 8%);
-  --theme-surface-hover: color-mix(in srgb, var(--theme-surface-secondary), transparent 12%);
-  --theme-surface-active: color-mix(in srgb, var(--theme-surface-secondary), transparent 16%);
-  --theme-surface-disabled: color-mix(in srgb, var(--theme-surface-secondary), transparent 20%);
+  --theme-surface-float: color-mix(in srgb, var(--theme-surface-secondary), transparent 92%);
+  --theme-surface-hover: color-mix(in srgb, var(--theme-surface-secondary), transparent 88%);
+  --theme-surface-active: color-mix(in srgb, var(--theme-surface-secondary), transparent 84%);
+  --theme-surface-disabled: color-mix(in srgb, var(--theme-surface-secondary), transparent 80%);
   --theme-surface-focus: theme('colors.raw.blueCheese.40');
 
   /* Actions */
   /* Upvote */
   --theme-actions-upvote-default: var(--theme-accent-avocado-default);
-  --theme-actions-upvote-float: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 8%);
-  --theme-actions-upvote-hover: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 12%);
-  --theme-actions-upvote-active: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 16%);
+  --theme-actions-upvote-float: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 92%);
+  --theme-actions-upvote-hover: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 88%);
+  --theme-actions-upvote-active: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 84%);
   /* Downvote */
   --theme-actions-downvote-default: var(--theme-accent-ketchup-default);
-  --theme-actions-downvote-float: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 8%);
-  --theme-actions-downvote-hover: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 12%);
-  --theme-actions-downvote-active: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 16%);
+  --theme-actions-downvote-float: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 92%);
+  --theme-actions-downvote-hover: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 88%);
+  --theme-actions-downvote-active: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 84%);
   /* Comment */
   --theme-actions-comment-default: var(--theme-accent-blueCheese-default);
-  --theme-actions-comment-float: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 8%);
-  --theme-actions-comment-hover: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 12%);
-  --theme-actions-comment-active: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 16%);
+  --theme-actions-comment-float: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 92%);
+  --theme-actions-comment-hover: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 88%);
+  --theme-actions-comment-active: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 84%);
   /* Bookmark */
   --theme-actions-bookmark-default: var(--theme-accent-bun-default);
-  --theme-actions-bookmark-float: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 8%);
-  --theme-actions-bookmark-hover: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 12%);
-  --theme-actions-bookmark-active: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 16%);
+  --theme-actions-bookmark-float: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 92%);
+  --theme-actions-bookmark-hover: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 88%);
+  --theme-actions-bookmark-active: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 84%);
   /* Share */
   --theme-actions-share-default: var(--theme-accent-cabbage-default);
-  --theme-actions-share-float: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 8%);
-  --theme-actions-share-hover: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 12%);
-  --theme-actions-share-active: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 16%);
+  --theme-actions-share-float: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 92%);
+  --theme-actions-share-hover: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 88%);
+  --theme-actions-share-active: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 84%);
 
   /* Overlay */
-  --theme-overlay-base-primary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 64%);
-  --theme-overlay-base-secondary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 40%);
-  --theme-overlay-base-tertiary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 32%);
-  --theme-overlay-base-quaternary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 24%);
+  --theme-overlay-base-primary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 36%);
+  --theme-overlay-base-secondary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 60%);
+  --theme-overlay-base-tertiary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 68%);
+  --theme-overlay-base-quaternary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 76%);
   /* Dark */
-  --theme-overlay-dark-dark1: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 32%);
-  --theme-overlay-dark-dark2: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 40%);
-  --theme-overlay-dark-dark3: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 64%);
+  --theme-overlay-dark-dark1: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 68%);
+  --theme-overlay-dark-dark2: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 60%);
+  --theme-overlay-dark-dark3: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 36%);
 
   /* Border */
   /* Subtlest */
   --theme-border-subtlest-primary: var(--theme-accent-salt-default);
-  --theme-border-subtlest-secondary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 40%);
-  --theme-border-subtlest-tertiary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 20%);
-  --theme-border-subtlest-quaternary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 8%);
+  --theme-border-subtlest-secondary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 60%);
+  --theme-border-subtlest-tertiary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 80%);
+  --theme-border-subtlest-quaternary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 92%);
   /* Bolder */
   --theme-border-bolder-primary: var(--theme-accent-salt-bolder);
-  --theme-border-bolder-secondary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 40%);
-  --theme-border-bolder-tertiary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 20%);
-  --theme-border-bolder-quaternary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 8%);
+  --theme-border-bolder-secondary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 60%);
+  --theme-border-bolder-tertiary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 80%);
+  --theme-border-bolder-quaternary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 92%);
 
   /* Status */
   --theme-status-error: var(--theme-accent-ketchup-default);
@@ -206,14 +206,14 @@ body {
   --theme-text-primary: var(--theme-accent-salt-baseline);
   --theme-text-secondary: var(--theme-accent-salt-subtler);
   --theme-text-tertiary: var(--theme-accent-salt-default);
-  --theme-text-quaternary: color-mix(in srgb, var(--theme-accent-salt-default), transparent 64%);
-  --theme-text-disabled: color-mix(in srgb, var(--theme-accent-salt-default), transparent 32%);
+  --theme-text-quaternary: color-mix(in srgb, var(--theme-accent-salt-default), transparent 36%);
+  --theme-text-disabled: color-mix(in srgb, var(--theme-accent-salt-default), transparent 68%);
   --theme-text-link: var(--theme-accent-water-subtler);
 
   /* Shadow */
-  --theme-shadow-shadow1: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 32%);
-  --theme-shadow-shadow2: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 40%);
-  --theme-shadow-shadow3: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 64%);
+  --theme-shadow-shadow1: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 68%);
+  --theme-shadow-shadow2: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 60%);
+  --theme-shadow-shadow3: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 36%);
 
 
 
@@ -450,68 +450,68 @@ body {
   --theme-brand-subtler: var(--theme-accent-cabbage-subtler);
   --theme-brand-default: var(--theme-accent-cabbage-default);
   --theme-brand-bolder: var(--theme-accent-cabbage-bolder);
-  --theme-brand-float: color-mix(in srgb, var(--theme-brand-bolder), transparent 8%);
-  --theme-brand-hover: color-mix(in srgb, var(--theme-brand-bolder), transparent 12%);
-  --theme-brand-active: color-mix(in srgb, var(--theme-brand-bolder), transparent 16%);
+  --theme-brand-float: color-mix(in srgb, var(--theme-brand-bolder), transparent 92%);
+  --theme-brand-hover: color-mix(in srgb, var(--theme-brand-bolder), transparent 88%);
+  --theme-brand-active: color-mix(in srgb, var(--theme-brand-bolder), transparent 84%);
 
   /* Surface */
   --theme-surface-primary: theme('colors.raw.pepper.90');
   --theme-surface-secondary: theme('colors.raw.pepper.10');
   --theme-surface-invert: theme('colors.raw.salt.0');
-  --theme-surface-float: color-mix(in srgb, var(--theme-surface-secondary), transparent 8%);
-  --theme-surface-hover: color-mix(in srgb, var(--theme-surface-secondary), transparent 12%);
-  --theme-surface-active: color-mix(in srgb, var(--theme-surface-secondary), transparent 16%);
-  --theme-surface-disabled: color-mix(in srgb, var(--theme-surface-secondary), transparent 20%);
+  --theme-surface-float: color-mix(in srgb, var(--theme-surface-secondary), transparent 92%);
+  --theme-surface-hover: color-mix(in srgb, var(--theme-surface-secondary), transparent 88%);
+  --theme-surface-active: color-mix(in srgb, var(--theme-surface-secondary), transparent 84%);
+  --theme-surface-disabled: color-mix(in srgb, var(--theme-surface-secondary), transparent 80%);
   --theme-surface-focus: theme('colors.raw.blueCheese.60');
 
   /* Actions */
   /* Upvote */
   --theme-actions-upvote-default: var(--theme-accent-avocado-default);
-  --theme-actions-upvote-float: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 8%);
-  --theme-actions-upvote-hover: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 12%);
-  --theme-actions-upvote-active: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 16%);
+  --theme-actions-upvote-float: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 92%);
+  --theme-actions-upvote-hover: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 88%);
+  --theme-actions-upvote-active: color-mix(in srgb, var(--theme-accent-avocado-bolder), transparent 84%);
   /* Downvote */
   --theme-actions-downvote-default: var(--theme-accent-ketchup-default);
-  --theme-actions-downvote-float: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 8%);
-  --theme-actions-downvote-hover: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 12%);
-  --theme-actions-downvote-active: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 16%);
+  --theme-actions-downvote-float: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 92%);
+  --theme-actions-downvote-hover: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 88%);
+  --theme-actions-downvote-active: color-mix(in srgb, var(--theme-accent-ketchup-bolder), transparent 84%);
   /* Comment */
   --theme-actions-comment-default: var(--theme-accent-blueCheese-default);
-  --theme-actions-comment-float: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 8%);
-  --theme-actions-comment-hover: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 12%);
-  --theme-actions-comment-active: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 16%);
+  --theme-actions-comment-float: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 92%);
+  --theme-actions-comment-hover: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 88%);
+  --theme-actions-comment-active: color-mix(in srgb, var(--theme-accent-blueCheese-bolder), transparent 84%);
   /* Bookmark */
   --theme-actions-bookmark-default: var(--theme-accent-bun-default);
-  --theme-actions-bookmark-float: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 8%);
-  --theme-actions-bookmark-hover: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 12%);
-  --theme-actions-bookmark-active: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 16%);
+  --theme-actions-bookmark-float: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 92%);
+  --theme-actions-bookmark-hover: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 88%);
+  --theme-actions-bookmark-active: color-mix(in srgb, var(--theme-accent-bun-bolder), transparent 84%);
   /* Share */
   --theme-actions-share-default: var(--theme-accent-cabbage-default);
-  --theme-actions-share-float: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 8%);
-  --theme-actions-share-hover: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 12%);
-  --theme-actions-share-active: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 16%);
+  --theme-actions-share-float: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 92%);
+  --theme-actions-share-hover: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 88%);
+  --theme-actions-share-active: color-mix(in srgb, var(--theme-accent-cabbage-bolder), transparent 84%);
 
   /* Overlay */
-  --theme-overlay-base-primary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 64%);
-  --theme-overlay-base-secondary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 40%);
-  --theme-overlay-base-tertiary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 32%);
-  --theme-overlay-base-quaternary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 24%);
+  --theme-overlay-base-primary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 36%);
+  --theme-overlay-base-secondary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 60%);
+  --theme-overlay-base-tertiary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 68%);
+  --theme-overlay-base-quaternary: color-mix(in srgb, var(--theme-accent-onion-subtlest), transparent 76%);
   /* Dark */
-  --theme-overlay-dark-dark1: color-mix(in srgb, theme('colors.raw.pepper.10'), transparent 32%);
-  --theme-overlay-dark-dark2: color-mix(in srgb, theme('colors.raw.pepper.10'), transparent 40%);
-  --theme-overlay-dark-dark3: color-mix(in srgb, theme('colors.raw.pepper.10'), transparent 64%);
+  --theme-overlay-dark-dark1: color-mix(in srgb, theme('colors.raw.pepper.10'), transparent 68%);
+  --theme-overlay-dark-dark2: color-mix(in srgb, theme('colors.raw.pepper.10'), transparent 60%);
+  --theme-overlay-dark-dark3: color-mix(in srgb, theme('colors.raw.pepper.10'), transparent 36%);
 
   /* Border */
   /* Subtlest */
   --theme-border-subtlest-primary: var(--theme-accent-salt-default);
-  --theme-border-subtlest-secondary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 40%);
-  --theme-border-subtlest-tertiary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 20%);
-  --theme-border-subtlest-quaternary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 8%);
+  --theme-border-subtlest-secondary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 60%);
+  --theme-border-subtlest-tertiary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 80%);
+  --theme-border-subtlest-quaternary: color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 92%);
   /* Bolder */
   --theme-border-bolder-primary: var(--theme-accent-salt-bolder);
-  --theme-border-bolder-secondary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 40%);
-  --theme-border-bolder-tertiary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 20%);
-  --theme-border-bolder-quaternary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 8%);
+  --theme-border-bolder-secondary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 60%);
+  --theme-border-bolder-tertiary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 80%);
+  --theme-border-bolder-quaternary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 92%);
 
   /* Status */
   --theme-status-error: var(--theme-accent-ketchup-default);
@@ -524,14 +524,14 @@ body {
   --theme-text-primary: var(--theme-accent-salt-baseline);
   --theme-text-secondary: var(--theme-accent-salt-subtler);
   --theme-text-tertiary: var(--theme-accent-salt-default);
-  --theme-text-quaternary: color-mix(in srgb, var(--theme-accent-salt-default), transparent 64%);
-  --theme-text-disabled: color-mix(in srgb, var(--theme-accent-salt-default), transparent 32%);
+  --theme-text-quaternary: color-mix(in srgb, var(--theme-accent-salt-default), transparent 36%);
+  --theme-text-disabled: color-mix(in srgb, var(--theme-accent-salt-default), transparent 68%);
   --theme-text-link: var(--theme-accent-water-subtler);
 
   /* Shadow */
-  --theme-shadow-shadow1: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 32%);
-  --theme-shadow-shadow2: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 40%);
-  --theme-shadow-shadow3: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 64%);
+  --theme-shadow-shadow1: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 68%);
+  --theme-shadow-shadow2: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 60%);
+  --theme-shadow-shadow3: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 36%);
 
 
 

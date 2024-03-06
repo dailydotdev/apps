@@ -57,7 +57,10 @@ function GenericReferralModal({
           className="absolute left-0 top-0 z-0 aspect-square w-full object-cover"
         />
         <InviteLinkInput
-          targetId={TargetId.GenericReferralPopup}
+          trackingProps={{
+            event_name: AnalyticsEvent.CopyReferralLink,
+            target_id: TargetId.GenericReferralPopup,
+          }}
           link={inviteLink}
           onCopy={() => setShareState(true)}
           text={{ initial: 'Copy link 😀', copied: 'Copied 😉' }}

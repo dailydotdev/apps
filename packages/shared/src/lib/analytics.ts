@@ -37,6 +37,7 @@ export enum Origin {
   HistoryPage = 'history page',
   HistoryTooltip = 'history tooltip',
   // search - end
+  PostContent = 'post content',
   History = 'history',
   FeedbackCard = 'feedback card',
   InitializeRegistrationFlow = 'initialize registration flow',
@@ -132,6 +133,8 @@ export enum AnalyticsEvent {
   GenerateDevcard = 'generate devcard',
   DownloadDevcard = 'download devcard',
   CopyDevcardCode = 'copy devcard code',
+  // 404 page
+  View404Page = '404 page',
 }
 
 export enum FeedItemTitle {

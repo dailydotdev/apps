@@ -21,6 +21,7 @@ export class Feature<T extends JSONValue> {
 
 const feature = {
   feedVersion: new Feature('feed_version', 15),
+  onboardingAnimation: new Feature('onboarding_fake_loading', false),
   onboardingV4dot5: new Feature('onboarding_v4dot5', OnboardingV4dot5.Control),
   lowImps: new Feature('feed_low_imps'),
   bookmarkOnCard: new Feature('bookmark_on_card', false),
