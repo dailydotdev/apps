@@ -154,6 +154,7 @@ export default {
     boxShadow,
     opacity: {
       0: '0',
+      16: '0.16',
       40: '0.4',
       50: '0.5',
       64: '0.64',

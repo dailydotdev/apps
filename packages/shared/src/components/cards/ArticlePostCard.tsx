@@ -151,6 +151,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
             openNewTab={openNewTab}
             post={post}
             showImage={showImage}
+            onShare={onShare}
             className={{
               image: classNames(showFeedback && 'mb-0'),
             }}
