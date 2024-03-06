@@ -63,6 +63,7 @@ export const getSEOJsonLd = (post: Post): string => {
         uploadDate: post.createdAt,
         duration: `PT${post.readTime}M`,
         url: post.permalink,
+        embedUrl: `https://www.youtube.com/embed/${post.videoId}`,
       },
     }),
   });
