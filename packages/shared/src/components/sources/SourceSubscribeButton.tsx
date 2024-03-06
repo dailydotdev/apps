@@ -12,6 +12,9 @@ import { SimpleTooltip } from '../tooltips';
 import { Source } from '../../graphql/sources';
 import { isTesting } from '../../lib/constants';
 import { useToastNotification } from '../../hooks';
+import { withExperiment } from '../withExperiment';
+import { feature } from '../../lib/featureManagement';
+import { SourceSubscribeExperiment } from '../../lib/featureValues';
 
 export type SourceSubscribeButtonProps = {
   className?: string;
@@ -65,7 +68,7 @@ const SourceSubscribeButtonSubscribed = ({
   );
 };
 
-export const SourceSubscribeButton = ({
+const SourceSubscribeButton = ({
   className,
   source,
   variant = ButtonVariant.Primary,
@@ -128,3 +131,10 @@ export const SourceSubscribeButton = ({
     />
   );
 };
+
+const SourceSubscribeButtonExperiment = withExperiment(SourceSubscribeButton, {
+  feature: feature.sourceSubscribe,
+  value: SourceSubscribeExperiment.V1,
+});
+
+export { SourceSubscribeButtonExperiment as SourceSubscribeButton };

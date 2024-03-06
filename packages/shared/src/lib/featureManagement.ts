@@ -5,6 +5,7 @@ import {
   PostPageOnboarding,
   UserAcquisition,
   FeedAdSpot,
+  SourceSubscribeExperiment,
 } from './featureValues';
 import { cloudinary } from './image';
 
@@ -46,6 +47,10 @@ const feature = {
   forceRefresh: new Feature('force_refresh', false),
   feedAdSpot: new Feature('feed_ad_spot', FeedAdSpot.Control),
   shareLoops: new Feature('share_loops', false),
+  sourceSubscribe: new Feature(
+    'source_subscribe',
+    SourceSubscribeExperiment.Control,
+  ),
 };
 
 export { feature };
