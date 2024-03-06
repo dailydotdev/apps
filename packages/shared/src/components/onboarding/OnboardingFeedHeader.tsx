@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { FilterOnboardingV4 } from './FilterOnboardingV4';
@@ -62,17 +62,19 @@ export const OnboardingFeedHeader = ({
   const { showPrompt } = usePrompt();
   const router = useRouter();
   const { registerLocalFilters } = useMyFeed();
+  const isCreatingFeed = useRef(false);
   const { isAnimating, onFinishedOnboarding, finishedOnboarding } =
     useOnboardingAnimation();
-  const [toggleVisibility] = useDebounce(
-    () => setPreviewFeedVisible((current) => !current),
-    2000,
-  );
+  const [delayedAlerts] = useDebounce(() => {
+    updateAlerts({ filter: false, myFeed: 'created' });
+  }, 2000);
   const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
 
   const completeOnboarding = useCallback(() => {
+    isCreatingFeed.current = true;
     registerLocalFilters();
-    updateAlerts({ filter: false, myFeed: 'created' });
+    onFinishedOnboarding();
+    delayedAlerts();
 
     trackEvent({
       event_name: AnalyticsEvent.CreateFeed,
@@ -89,23 +91,21 @@ export const OnboardingFeedHeader = ({
               },
             },
       );
-    } else {
-      onFinishedOnboarding();
     }
   }, [
+    delayedAlerts,
     onFinishedOnboarding,
     onboardingOptimizations,
     registerLocalFilters,
     router,
     trackEvent,
-    updateAlerts,
   ]);
 
   useEffect(() => {
     let stopNav = true;
 
     const routeHandler = (newRoute: string) => {
-      if (!stopNav || newRoute === '/my-feed') {
+      if (!stopNav || newRoute === '/my-feed' || isCreatingFeed.current) {
         return;
       }
       router.events.emit('routeChangeError');
@@ -169,7 +169,7 @@ export const OnboardingFeedHeader = ({
               />
             }
             iconPosition={ButtonIconPosition.Right}
-            onClick={toggleVisibility}
+            onClick={() => setPreviewFeedVisible((current) => !current)}
           >
             {isFeedPreviewEnabled
               ? `${isPreviewFeedVisible ? 'Hide' : 'Show'} feed preview`
