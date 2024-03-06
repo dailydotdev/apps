@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useCallback, useState } from 'react';
 import { ReadingStreakPopup } from './popup';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ReadingStreakIcon } from '../icons';
@@ -55,8 +55,10 @@ export function ReadingStreakButton({
   const hasReadToday =
     new Date(streak.lastViewAt).getDate() === new Date().getDate();
 
-  useEffect(() => {
-    if (shouldShowStreaks) {
+  const handleToggle = useCallback(() => {
+    setShouldShowStreaks((state) => !state);
+
+    if (!shouldShowStreaks) {
       trackEvent({
         event_name: AnalyticsEvent.OpenStreaks,
       });
@@ -76,7 +78,7 @@ export function ReadingStreakButton({
         type="button"
         icon={<ReadingStreakIcon secondary={hasReadToday} />}
         variant={ButtonVariant.Float}
-        onClick={() => setShouldShowStreaks((state) => !state)}
+        onClick={handleToggle}
         className="gap-1 text-theme-color-bacon"
         size={isLaptop ? ButtonSize.Medium : ButtonSize.Small}
       >

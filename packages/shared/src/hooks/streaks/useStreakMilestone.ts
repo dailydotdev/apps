@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { useLazyModal } from '../useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
 import AlertContext from '../../contexts/AlertContext';
@@ -14,6 +14,7 @@ export const useStreakMilestone = (): void => {
 
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { openModal } = useLazyModal();
+  const trackedImpression = useRef(false);
 
   const modalType: LazyModal.FirstStreak | LazyModal.NewStreak =
     streak?.total === 1 ? LazyModal.FirstStreak : LazyModal.NewStreak;
@@ -46,10 +47,16 @@ export const useStreakMilestone = (): void => {
       },
     });
 
+    if (trackedImpression.current) {
+      return;
+    }
+
     trackEvent({
       event_name: AnalyticsEvent.Impression,
       target_type: TargetType.StreaksMilestone,
       target_id: streak.current,
     });
+
+    trackedImpression.current = true;
   }, [modalType, openModal, shouldHideModal, streak, updateAlerts, trackEvent]);
 };

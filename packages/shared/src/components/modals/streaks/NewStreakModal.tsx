@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Modal } from '../common/Modal';
 import classed from '../../../lib/classed';
@@ -24,13 +24,15 @@ export default function NewStreakModal({
 
   const daysPlural = currentStreak === 1 ? 'day' : 'days';
 
-  const handleOptOut = useCallback(() => {
-    trackEvent({
-      event_name: AnalyticsEvent.DismissStreaksMilestone,
-    });
+  const handleOptOut = () => {
+    if (!optOutWeeklyGoal) {
+      trackEvent({
+        event_name: AnalyticsEvent.DismissStreaksMilestone,
+      });
+    }
 
     toggleOptOutWeeklyGoal();
-  }, [trackEvent, toggleOptOutWeeklyGoal]);
+  };
 
   return (
     <Modal
