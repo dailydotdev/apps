@@ -51,6 +51,7 @@ import {
 } from '@dailydotdev/shared/src/components/auth';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth/useOnboarding';
 import {
+  useJoinReferral,
   useFeedLayout,
   useViewSize,
   ViewSize,
@@ -86,6 +87,7 @@ interface PostParams extends ParsedUrlQuery {
 }
 
 const PostPage = ({ id, initialData }: Props): ReactElement => {
+  useJoinReferral();
   const { showArticleOnboarding } = useContext(OnboardingContext);
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
