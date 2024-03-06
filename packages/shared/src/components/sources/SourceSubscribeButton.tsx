@@ -11,6 +11,7 @@ import { NotificationType } from '../notifications/utils';
 import { SimpleTooltip } from '../tooltips';
 import { Source } from '../../graphql/sources';
 import { isTesting } from '../../lib/constants';
+import { useToastNotification } from '../../hooks';
 
 export type SourceSubscribeButtonProps = {
   className?: string;
@@ -69,6 +70,7 @@ export const SourceSubscribeButton = ({
   source,
   variant = ButtonVariant.Primary,
 }: SourceSubscribeButtonProps): ReactElement => {
+  const { displayToast } = useToastNotification();
   const {
     preferences,
     subscribeNotification,
@@ -104,6 +106,12 @@ export const SourceSubscribeButton = ({
     } else {
       subscribeNotification(notificationPreferenceParams);
     }
+
+    displayToast(
+      isSubscribed
+        ? '⛔️ You are now unsubscribed'
+        : '✅ You are now subscribed',
+    );
   };
   const ButtonComponent = isSubscribed
     ? SourceSubscribeButtonSubscribed
