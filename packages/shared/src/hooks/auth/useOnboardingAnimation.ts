@@ -16,7 +16,7 @@ interface UseOnboardingAnimationProps {
   animationMs?: number;
 }
 
-const DEFAULT_ANIMATION_MS = 2000;
+const DEFAULT_ANIMATION_MS = 2750;
 
 export const useOnboardingAnimation = ({
   animationMs = DEFAULT_ANIMATION_MS,
