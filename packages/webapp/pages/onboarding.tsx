@@ -42,7 +42,6 @@ import {
   PREVIEW_FEED_QUERY,
 } from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import {
@@ -64,8 +63,13 @@ import {
   PixelTracking,
 } from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
+import {
+  OnboardingHeadline,
+  PreparingYourFeed,
+  OnboardingContainer as Container,
+} from '@dailydotdev/shared/src/components/auth';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -73,16 +77,13 @@ const Title = classed('h2', 'font-bold');
 
 const maxAuthWidth = 'tablet:max-w-[30rem]';
 
-const Container = classed(
-  'div',
-  'flex flex-col overflow-x-hidden items-center min-h-[100vh] w-full h-full max-h-[100vh] flex-1 z-max',
-);
-
 const seo: NextSeoProps = {
   title: 'Get started',
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
 };
+
+const ANIMATION_MS = 2000;
 
 export function OnboardPage(): ReactElement {
   const router = useRouter();
@@ -91,6 +92,9 @@ export function OnboardPage(): ReactElement {
   const shouldVerify = anonymous?.shouldVerify;
   const [isFiltering, setIsFiltering] = useState(false);
   const [finishedOnboarding, setFinishedOnboarding] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [animate] = useDebounce(() => setIsAnimating(true), 1);
+  const [delayedRedirect] = useDebounce(router.replace, ANIMATION_MS);
   const { onShouldUpdateFilters } = useOnboardingContext();
   const { growthbook } = useGrowthBookContext();
   const { trackEvent } = useAnalyticsContext();
@@ -129,6 +133,11 @@ export function OnboardPage(): ReactElement {
       : OnboardingV4dot5.V4dot5;
   const formRef = useRef<HTMLFormElement>();
 
+  const onFinishedOnboarding = () => {
+    setFinishedOnboarding(true);
+    animate();
+  };
+
   const onClickNext = () => {
     let screen = OnboardingStep.Intro;
 
@@ -145,7 +154,7 @@ export function OnboardPage(): ReactElement {
       return setIsFiltering(true);
     }
 
-    setFinishedOnboarding(true);
+    onFinishedOnboarding();
     if (!hasSelectTopics) {
       trackEvent({
         event_name: AnalyticsEvent.OnboardingSkip,
@@ -158,7 +167,7 @@ export function OnboardPage(): ReactElement {
       });
     }
 
-    return router.replace({
+    return delayedRedirect({
       pathname: '/',
       query: {
         ...(userAcquisitionVersion === UserAcquisition.V1 && {
@@ -394,12 +403,7 @@ export function OnboardPage(): ReactElement {
   }
 
   if (finishedOnboarding) {
-    return (
-      <Container className="justify-center typo-title2">
-        <Loader innerClassName="before:border-t-theme-color-cabbage after:border-theme-color-cabbage typo-title2" />
-        <span className="ml-3">Building your feed...</span>
-      </Container>
-    );
+    return <PreparingYourFeed isAnimating={isAnimating} />;
   }
 
   return (
