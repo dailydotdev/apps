@@ -88,8 +88,11 @@ const AccountInvitePage = (): ReactElement => {
   return (
     <AccountPageContainer title="Invite friends">
       <InviteLinkInput
-        targetId={TargetId.InviteFriendsPage}
         link={inviteLink}
+        trackingProps={{
+          event_name: AnalyticsEvent.CopyReferralLink,
+          target_id: TargetId.InviteFriendsPage,
+        }}
       />
       <span className="my-4 p-0.5 font-bold text-theme-label-tertiary typo-callout">
         or invite via
