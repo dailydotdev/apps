@@ -4,7 +4,6 @@ import { useRouter } from 'next/router';
 import useDebounce from '../useDebounce';
 import { useFeature } from '../../components/GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import { OnboardingAnimation } from '../../lib/featureValues';
 
 interface UseOnboardingAnimation {
   isAnimating: boolean;
@@ -24,8 +23,6 @@ export const useOnboardingAnimation = ({
 }: UseOnboardingAnimationProps = {}): UseOnboardingAnimation => {
   const router = useRouter();
   const onboardingAnimation = useFeature(feature.onboardingAnimation);
-  const isAnimationControl =
-    onboardingAnimation === OnboardingAnimation.Control;
   const [finishedOnboarding, setFinishedOnboarding] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animate] = useDebounce(() => setIsAnimating(true), 1);
@@ -34,15 +31,15 @@ export const useOnboardingAnimation = ({
   const onFinishedOnboarding = useCallback(() => {
     setFinishedOnboarding(true);
 
-    if (!isAnimationControl) {
+    if (onboardingAnimation) {
       animate();
     }
-  }, [animate, isAnimationControl]);
+  }, [animate, onboardingAnimation]);
 
   return {
-    postOnboardingRedirect: isAnimationControl
-      ? router.replace
-      : delayedRedirect,
+    postOnboardingRedirect: onboardingAnimation
+      ? delayedRedirect
+      : router.replace,
     isAnimating,
     finishedOnboarding,
     onFinishedOnboarding,

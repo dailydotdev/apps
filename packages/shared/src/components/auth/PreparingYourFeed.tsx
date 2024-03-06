@@ -5,7 +5,6 @@ import LogoText from '../../svg/LogoText';
 import classed from '../../lib/classed';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import { OnboardingAnimation } from '../../lib/featureValues';
 import { Loader } from '../Loader';
 
 interface PreparingYourFeedProps {
@@ -21,10 +20,8 @@ export function PreparingYourFeed({
   isAnimating,
 }: PreparingYourFeedProps): ReactElement {
   const onboardingAnimation = useFeature(feature.onboardingAnimation);
-  const isAnimationControl =
-    onboardingAnimation === OnboardingAnimation.Control;
 
-  if (isAnimationControl) {
+  if (!onboardingAnimation) {
     return (
       <OnboardingContainer className="justify-center typo-title2">
         <Loader innerClassName="before:border-t-theme-color-cabbage after:border-theme-color-cabbage typo-title2" />
