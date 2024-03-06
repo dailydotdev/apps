@@ -132,6 +132,8 @@ export enum AnalyticsEvent {
   GenerateDevcard = 'generate devcard',
   DownloadDevcard = 'download devcard',
   CopyDevcardCode = 'copy devcard code',
+  // 404 page
+  View404Page = '404 page',
 }
 
 export enum FeedItemTitle {
