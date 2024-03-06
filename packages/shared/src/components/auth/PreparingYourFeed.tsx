@@ -10,7 +10,7 @@ interface PreparingYourFeedProps {
 
 export const OnboardingContainer = classed(
   'div',
-  'flex flex-col overflow-x-hidden items-center min-h-[100vh] w-full h-full max-h-[100vh] flex-1 z-max',
+  'flex flex-col overflow-x-hidden items-center min-h-screen w-full h-full max-h-screen flex-1 z-max',
 );
 
 export function PreparingYourFeed({
@@ -22,7 +22,7 @@ export function PreparingYourFeed({
         <LogoIcon className="w-16" />
         <LogoText className="w-32" />
       </span>
-      <span className="flex h-1.5 w-full max-w-[19.125rem] flex-row items-center rounded-12 bg-theme-divider-tertiary px-0.5">
+      <span className="flex h-1.5 w-full max-w-[19.125rem] flex-row items-center rounded-12 bg-border-subtlest-tertiary px-0.5">
         <span
           className={classNames(
             'relative flex h-0.5 w-0 flex-row items-center bg-theme-color-cabbage transition-[width] duration-[2000ms] ease-in-out',
