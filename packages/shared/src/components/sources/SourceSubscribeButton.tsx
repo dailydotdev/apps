@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { useNotificationPreferenceToggle } from '../../hooks/notifications';
 import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { BellIcon, BellSubscribedIcon } from '../icons';
+import { BellSubscribedIcon } from '../icons';
 import { NotificationType } from '../notifications/utils';
 import { SimpleTooltip } from '../tooltips';
 import { Source } from '../../graphql/sources';
@@ -35,7 +35,6 @@ const SourceSubscribeButtonRegular = ({
     <Button
       className={className}
       variant={variant}
-      icon={<BellIcon />}
       disabled={isFetching}
       onClick={onClick}
       size={ButtonSize.Small}
