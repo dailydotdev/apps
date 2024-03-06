@@ -46,6 +46,7 @@ export enum NotificationType {
   DemotedToMember = 'demoted_to_member',
   SquadSubscribeNotification = 'squad_subscribe_to_notification',
   CollectionUpdated = 'collection_updated',
+  SourcePostAdded = 'source_post_added',
 }
 
 export enum NotificationIconType {
@@ -101,6 +102,7 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.SquadBlocked]: 'text-theme-color-cabbage',
     [NotificationType.SquadSubscribeNotification]: 'text-theme-color-cabbage',
     [NotificationType.CollectionUpdated]: 'text-theme-color-cabbage',
+    [NotificationType.SourcePostAdded]: 'text-theme-color-cabbage',
   };
 
 const notificationsUrl = `/notifications`;
