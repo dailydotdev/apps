@@ -17,6 +17,7 @@ import {
   isSourcePublicSquad,
 } from '../../graphql/squads';
 import usePersistentContext from '../../hooks/usePersistentContext';
+import { PostContentShare } from './common/PostContentShare';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -107,6 +108,7 @@ function PostEngagements({
         actionsClassName="hidden laptop:flex"
         origin={analyticsOrigin}
       />
+      <PostContentShare post={post} />
       <NewComment
         className={{ container: 'my-6' }}
         post={post}
