@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import classNames from 'classnames';
 import { Modal } from '../common/Modal';
 import classed from '../../../lib/classed';
@@ -7,6 +7,8 @@ import { ModalClose } from '../common/ModalClose';
 import { cloudinary } from '../../../lib/image';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { StreakModalProps } from './common';
+import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
+import { AnalyticsEvent } from '../../../lib/analytics';
 
 const Paragraph = classed('p', 'text-center text-theme-label-tertiary');
 
@@ -16,10 +18,19 @@ export default function NewStreakModal({
   onRequestClose,
   ...props
 }: StreakModalProps): ReactElement {
+  const { trackEvent } = useAnalyticsContext();
   const { toggleOptOutWeeklyGoal, optOutWeeklyGoal } = useSettingsContext();
   const shouldShowSplash = currentStreak >= maxStreak;
 
   const daysPlural = currentStreak === 1 ? 'day' : 'days';
+
+  const handleOptOut = useCallback(() => {
+    trackEvent({
+      event_name: AnalyticsEvent.DismissStreaksMilestone,
+    });
+
+    toggleOptOutWeeklyGoal();
+  }, [trackEvent, toggleOptOutWeeklyGoal]);
 
   return (
     <Modal
@@ -76,7 +87,7 @@ export default function NewStreakModal({
           name="show_streaks"
           className="mt-10"
           checked={optOutWeeklyGoal}
-          onToggle={toggleOptOutWeeklyGoal}
+          onToggle={handleOptOut}
         >
           Never show this again
         </Checkbox>
