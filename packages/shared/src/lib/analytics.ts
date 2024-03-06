@@ -37,6 +37,7 @@ export enum Origin {
   HistoryPage = 'history page',
   HistoryTooltip = 'history tooltip',
   // search - end
+  PostContent = 'post content',
   History = 'history',
   FeedbackCard = 'feedback card',
   InitializeRegistrationFlow = 'initialize registration flow',

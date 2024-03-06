@@ -5,7 +5,6 @@ import { Post } from '../../../graphql/posts';
 import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
 import { postAnalyticsEvent } from '../../../lib/feed';
 import { ShareProvider } from '../../../lib/share';
-import { useActiveFeedNameContext } from '../../../contexts';
 
 interface PostContentShareProps {
   post: Post;
@@ -14,7 +13,6 @@ interface PostContentShareProps {
 export function PostContentShare({
   post,
 }: PostContentShareProps): ReactElement {
-  const { feedName } = useActiveFeedNameContext();
   const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
 
   if (!shouldShowOverlay) {
@@ -33,7 +31,7 @@ export function PostContentShare({
         trackingProps={postAnalyticsEvent('share post', post, {
           extra: {
             provider: ShareProvider.CopyLink,
-            origin: feedName ? Origin.ArticleModal : Origin.ArticlePage,
+            origin: Origin.PostContent,
           },
         })}
       />
