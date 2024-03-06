@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { ReactElement, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import Link from 'next/link';
 import { LazyImage } from '../../LazyImage';
 import {
   ToastSubject,
@@ -25,6 +26,7 @@ import { Pill } from '../../Pill';
 import { CollectionsIntro } from '../widgets';
 import { sendViewPost } from '../../../graphql/posts';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { webappUrl } from '../../../lib/constants';
 
 export const CollectionPostContent = ({
   post,
@@ -137,11 +139,13 @@ export const CollectionPostContent = ({
             )}
           >
             <CollectionsIntro className="tablet:hidden" />
-            <Pill
-              label="Collection"
-              className="bg-theme-overlay-float-cabbage text-theme-color-cabbage"
-            />
-
+            <Link href={`${webappUrl}/sources/collections`} passHref>
+              <Pill
+                tag="a"
+                label="Collection"
+                className="bg-theme-overlay-float-cabbage text-theme-color-cabbage"
+              />
+            </Link>
             <h1
               className="break-words font-bold typo-large-title"
               data-testid="post-modal-title"
