@@ -1,9 +1,5 @@
 import React, { ReactElement } from 'react';
-import { NotificationPreferenceStatus } from '../../graphql/notifications';
-import {
-  useNotificationPreference,
-  checkHasStatusPreference,
-} from '../../hooks/notifications';
+import { useNotificationPreferenceToggle } from '../../hooks/notifications';
 import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { BellIcon, BellSubscribedIcon } from '../icons';
@@ -74,47 +70,22 @@ const SourceSubscribeButton = ({
   variant = ButtonVariant.Primary,
 }: SourceSubscribeButtonProps): ReactElement => {
   const { displayToast } = useToastNotification();
-  const {
-    preferences,
-    subscribeNotification,
-    clearNotificationPreference,
-    isFetching,
-    isPreferencesReady,
-  } = useNotificationPreference({
+  const { isSubscribed, isReady, onToggle } = useNotificationPreferenceToggle({
     params: source?.id
-      ? [
-          {
-            notificationType: NotificationType.SourcePostAdded,
-            referenceId: source.id,
-          },
-        ]
+      ? {
+          notificationType: NotificationType.SourcePostAdded,
+          referenceId: source.id,
+        }
       : undefined,
   });
-  const isSubscribed = !!preferences?.some((item) =>
-    checkHasStatusPreference(
-      item,
-      NotificationType.SourcePostAdded,
-      source.id,
-      [NotificationPreferenceStatus.Subscribed],
-    ),
-  );
 
-  const onClick = () => {
-    const notificationPreferenceParams = {
-      type: NotificationType.SourcePostAdded,
-      referenceId: source.id,
-    };
-
-    if (isSubscribed) {
-      clearNotificationPreference(notificationPreferenceParams);
-    } else {
-      subscribeNotification(notificationPreferenceParams);
-    }
+  const onClick = async () => {
+    const result = await onToggle();
 
     displayToast(
-      isSubscribed
-        ? '⛔️ You are now unsubscribed'
-        : '✅ You are now subscribed',
+      result.isSubscribed
+        ? '✅ You are now subscribed'
+        : '⛔️ You are now unsubscribed',
     );
   };
 
@@ -125,7 +96,7 @@ const SourceSubscribeButton = ({
   return (
     <ButtonComponent
       className={className}
-      isFetching={isFetching || !isPreferencesReady}
+      isFetching={!isReady}
       onClick={onClick}
       variant={variant}
     />

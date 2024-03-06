@@ -28,7 +28,7 @@ interface UseNotificationPreference {
   subscribeNotification: typeof subscribeNotification;
 }
 
-interface UseNotificationPreferenceProps {
+export interface UseNotificationPreferenceProps {
   params: Parameters<typeof getNotificationPreferences>[0];
   squad?: Squad;
 }
