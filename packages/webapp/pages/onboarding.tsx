@@ -69,7 +69,7 @@ import {
   OnboardingContainer as Container,
 } from '@dailydotdev/shared/src/components/auth';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
+import { useOnboardingAnimation } from '@dailydotdev/shared/src/hooks/auth/useOnboardingAnimation';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -83,18 +83,18 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const ANIMATION_MS = 2000;
-
 export function OnboardPage(): ReactElement {
   const router = useRouter();
   const isTracked = useRef(false);
   const { user, isAuthReady, anonymous } = useAuthContext();
   const shouldVerify = anonymous?.shouldVerify;
   const [isFiltering, setIsFiltering] = useState(false);
-  const [finishedOnboarding, setFinishedOnboarding] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [animate] = useDebounce(() => setIsAnimating(true), 1);
-  const [delayedRedirect] = useDebounce(router.replace, ANIMATION_MS);
+  const {
+    isAnimating,
+    finishedOnboarding,
+    onFinishedOnboarding,
+    delayedRedirect,
+  } = useOnboardingAnimation();
   const { onShouldUpdateFilters } = useOnboardingContext();
   const { growthbook } = useGrowthBookContext();
   const { trackEvent } = useAnalyticsContext();
@@ -132,11 +132,6 @@ export function OnboardPage(): ReactElement {
       ? ExperimentWinner.OnboardingV4
       : OnboardingV4dot5.V4dot5;
   const formRef = useRef<HTMLFormElement>();
-
-  const onFinishedOnboarding = () => {
-    setFinishedOnboarding(true);
-    animate();
-  };
 
   const onClickNext = () => {
     let screen = OnboardingStep.Intro;
@@ -182,7 +177,6 @@ export function OnboardPage(): ReactElement {
   };
 
   const onSuccessfulLogin = () => {
-    setFinishedOnboarding(true);
     router.replace('/');
   };
 
