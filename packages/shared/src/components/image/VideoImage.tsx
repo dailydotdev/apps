@@ -1,34 +1,44 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import { PlayIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { ImageProps, Image } from './Image';
+import { ImageProps, ImageType } from './Image';
+import { CardImage } from '../cards/Card';
 
-export interface VideoImageProps extends ImageProps {
+export interface VideoImageProps {
   size?: IconSize;
-  wrapperClassName?: string;
+  className?: string;
+  overlay?: ReactNode;
+  imageProps: ImageProps;
 }
+
+const defaultOverlay = (
+  <span className="absolute h-full w-full bg-overlay-tertiary-black" />
+);
 
 const VideoImage = ({
   size = IconSize.XXLarge,
-  wrapperClassName,
-  ...props
+  imageProps,
+  className,
+  overlay,
 }: VideoImageProps): ReactElement => {
   return (
     <div
       className={classNames(
-        wrapperClassName,
-        'pointer-events-none relative flex h-auto max-h-fit w-full items-center justify-center rounded-12',
+        className,
+        'pointer-events-none relative flex h-auto max-h-fit w-full items-center justify-center overflow-hidden rounded-12',
       )}
     >
-      <span className="absolute h-full w-full rounded-12 bg-overlay-tertiary-black" />
-      <PlayIcon
-        secondary
-        size={size}
-        data-testid="playIconVideoPost"
-        className="absolute"
-      />
-      <Image {...props} />
+      {overlay || defaultOverlay}
+      {!overlay && (
+        <PlayIcon
+          secondary
+          size={size}
+          data-testid="playIconVideoPost"
+          className="absolute"
+        />
+      )}
+      <CardImage {...imageProps} type={ImageType.Post} />
     </div>
   );
 };

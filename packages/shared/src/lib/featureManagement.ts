@@ -44,6 +44,7 @@ const feature = {
   userAcquisition: new Feature('user_acquisition', UserAcquisition.Control),
   forceRefresh: new Feature('force_refresh', false),
   feedAdSpot: new Feature('feed_ad_spot', FeedAdSpot.Control),
+  shareLoops: new Feature('share_loops', false),
 };
 
 export { feature };

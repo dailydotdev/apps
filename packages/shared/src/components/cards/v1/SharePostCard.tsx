@@ -19,6 +19,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
     onCommentClick,
     onMenuClick,
     onShareClick,
+    onShare,
     onBookmarkClick,
     openNewTab,
     children,
@@ -83,6 +84,8 @@ export const SharePostCard = forwardRef(function SharePostCard(
         <SharedPostCardFooter
           sharedPost={post.sharedPost}
           isVideoType={isVideoType}
+          onShare={onShare}
+          post={post}
         />
         <ActionButtons
           openNewTab={openNewTab}
