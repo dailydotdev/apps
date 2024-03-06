@@ -11,17 +11,21 @@ const pillSizeToClassName: Record<PillSize, string> = {
 
 interface Props {
   label: string;
+  tag?: keyof Pick<JSX.IntrinsicElements, 'a' | 'div'>;
   size?: PillSize;
   className?: string;
 }
 
 export const Pill = ({
   label,
+  tag: Tag = 'div',
   size = PillSize.Medium,
   className,
+  ...props
 }: Props): ReactElement => {
   return (
-    <div
+    <Tag
+      {...props}
       className={classNames(
         pillSizeToClassName[size],
         'inline-flex items-center self-start rounded-10 p-2',
@@ -29,6 +33,6 @@ export const Pill = ({
       )}
     >
       {label}
-    </div>
+    </Tag>
   );
 };
