@@ -76,6 +76,7 @@ export const SourceSubscribeButton = ({
     subscribeNotification,
     clearNotificationPreference,
     isFetching,
+    isPreferencesReady,
   } = useNotificationPreference({
     params: source?.id
       ? [
@@ -113,6 +114,7 @@ export const SourceSubscribeButton = ({
         : '✅ You are now subscribed',
     );
   };
+
   const ButtonComponent = isSubscribed
     ? SourceSubscribeButtonSubscribed
     : SourceSubscribeButtonRegular;
@@ -120,7 +122,7 @@ export const SourceSubscribeButton = ({
   return (
     <ButtonComponent
       className={className}
-      isFetching={isFetching}
+      isFetching={isFetching || !isPreferencesReady}
       onClick={onClick}
       variant={variant}
     />
