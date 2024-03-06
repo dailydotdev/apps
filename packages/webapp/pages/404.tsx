@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useRef } from 'react';
 import Custom404 from '@dailydotdev/shared/src/components/Custom404';
 import { NextSeo } from 'next-seo';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
@@ -6,17 +6,17 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 
 export default function Custom404Seo(): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const [trackedImpression, setTrackedImpression] = useState(false);
+  const trackedImpression = useRef(false);
 
   useEffect(() => {
-    if (trackedImpression) {
+    if (trackedImpression.current) {
       return;
     }
 
     trackEvent({
       event_name: AnalyticsEvent.View404Page,
     });
-    setTrackedImpression(true);
+    trackedImpression.current = true;
   }, [trackEvent, trackedImpression]);
 
   return (
