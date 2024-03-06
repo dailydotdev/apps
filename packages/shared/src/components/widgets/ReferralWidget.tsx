@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { link } from '../../lib/links';
-import { TargetId, TargetType } from '../../lib/analytics';
+import { AnalyticsEvent, TargetId, TargetType } from '../../lib/analytics';
 import ReferralSocialShareButtons from './ReferralSocialShareButtons';
 import { InviteLinkInput } from '../referral/InviteLinkInput';
 
@@ -24,7 +24,10 @@ const ReferralWidget = ({
         daily.dev
       </p>
       <InviteLinkInput
-        targetId={TargetId.ProfilePage}
+        trackingProps={{
+          event_name: AnalyticsEvent.CopyReferralLink,
+          target_id: TargetId.ProfilePage,
+        }}
         link={inviteLink}
         className={{
           input: 'typo-footnote',
