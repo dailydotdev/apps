@@ -83,7 +83,7 @@ export function ReadingStreakPopup({
         <StreakSection streak={streak.max} label="Longest streak 🏆" />
       </div>
       <div className="mt-6 flex flex-row gap-2">{streaks}</div>
-      <div className="mt-4 rounded-10 font-bold leading-8 text-theme-label-tertiary">
+      <div className="mt-4 rounded-10 text-center font-bold leading-8 text-theme-label-tertiary">
         Total reading days: {streak.total}
       </div>
     </div>
