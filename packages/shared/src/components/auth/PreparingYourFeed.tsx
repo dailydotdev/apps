@@ -3,6 +3,10 @@ import classNames from 'classnames';
 import LogoIcon from '../../svg/LogoIcon';
 import LogoText from '../../svg/LogoText';
 import classed from '../../lib/classed';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { OnboardingAnimation } from '../../lib/featureValues';
+import { Loader } from '../Loader';
 
 interface PreparingYourFeedProps {
   isAnimating: boolean;
@@ -16,6 +20,19 @@ export const OnboardingContainer = classed(
 export function PreparingYourFeed({
   isAnimating,
 }: PreparingYourFeedProps): ReactElement {
+  const onboardingAnimation = useFeature(feature.onboardingAnimation);
+  const isAnimationControl =
+    onboardingAnimation === OnboardingAnimation.Control;
+
+  if (isAnimationControl) {
+    return (
+      <OnboardingContainer className="justify-center typo-title2">
+        <Loader innerClassName="before:border-t-theme-color-cabbage after:border-theme-color-cabbage typo-title2" />
+        <span className="ml-3">Building your feed...</span>
+      </OnboardingContainer>
+    );
+  }
+
   return (
     <OnboardingContainer className="justify-center">
       <span className="mb-10 flex flex-row gap-3">
