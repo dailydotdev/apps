@@ -42,8 +42,6 @@ import { getFeedName } from '../lib/feed';
 import useFeedSettings from '../hooks/useFeedSettings';
 import { OnboardingFeedHeader } from './onboarding/OnboardingFeedHeader';
 import { REQUIRED_TAGS_THRESHOLD } from './onboarding/common';
-import { useOnboardingAnimation } from '../hooks/auth/useOnboardingAnimation';
-import { PreparingYourFeed } from './auth';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -272,40 +270,6 @@ export default function MainFeedLayout({
   const tagsCount = feedSettings?.includeTags?.length || 0;
   const isFeedPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
   const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);
-  const { isAnimating, onFinishedOnboarding, finishedOnboarding } =
-    useOnboardingAnimation();
-
-  const onPreviewFeedVisible = () => {
-    setPreviewFeedVisible(false);
-  };
-
-  if (finishedOnboarding) {
-    return <PreparingYourFeed isAnimating={isAnimating} />;
-  }
-
-  const getFeed = () => {
-    if ((isAnimating || finishedOnboarding) && isPreviewFeedVisible) {
-      return null;
-    }
-
-    if (
-      isOnboardingFeed
-        ? isFeedPreviewEnabled && isPreviewFeedVisible
-        : feedProps
-    ) {
-      return (
-        <Feed
-          {...feedProps}
-          className={classNames(
-            shouldUseMobileFeedLayout && !isFinder && 'laptop:px-6',
-            isOnboardingFeed && 'px-6 laptop:px-16',
-          )}
-        />
-      );
-    }
-
-    return null;
-  };
 
   return (
     <FeedPageComponent
@@ -315,7 +279,7 @@ export default function MainFeedLayout({
         isOnboardingFeed && '!p-0',
       )}
     >
-      {isOnboardingFeed && !finishedOnboarding && (
+      {isOnboardingFeed && (
         <OnboardingFeedHeader
           isPreviewFeedVisible={isPreviewFeedVisible}
           setPreviewFeedVisible={setPreviewFeedVisible}
@@ -324,7 +288,17 @@ export default function MainFeedLayout({
         />
       )}
       {isSearchOn && search}
-      {getFeed()}
+      {(isOnboardingFeed
+        ? isFeedPreviewEnabled && isPreviewFeedVisible
+        : feedProps) && (
+        <Feed
+          {...feedProps}
+          className={classNames(
+            shouldUseMobileFeedLayout && !isFinder && 'laptop:px-6',
+            isOnboardingFeed && 'px-6 laptop:px-16',
+          )}
+        />
+      )}
       {children}
     </FeedPageComponent>
   );
