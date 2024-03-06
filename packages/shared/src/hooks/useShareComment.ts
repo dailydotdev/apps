@@ -6,6 +6,7 @@ import { ShareProvider } from '../lib/share';
 import { Origin } from '../lib/analytics';
 import { Comment, getCommentHash } from '../graphql/comments';
 import useDebounce from './useDebounce';
+import { useGetShortUrl } from './utils/useGetShortUrl';
 
 interface UseShareComment {
   shareComment: Comment;
@@ -23,6 +24,7 @@ export function useShareComment(
   const [shareModal, setShareModal] = useState<Comment>(null);
   const [showShareNewComment, setShowShareNewComment] = useState(null);
   const [showNewComment] = useDebounce((id) => setShowShareNewComment(id), 700);
+  const { getShortUrl } = useGetShortUrl();
 
   useEffect(() => {
     if (enableShowShareNewComment) {
@@ -38,10 +40,12 @@ export function useShareComment(
       openShareComment: async (comment, post) => {
         if ('share' in navigator) {
           try {
+            const shortUrl = await getShortUrl(
+              `${post.commentsPermalink}${getCommentHash(comment.id)}`,
+              'share_comment',
+            );
             await navigator.share({
-              text: `${post.title}\n${post.commentsPermalink}${getCommentHash(
-                comment.id,
-              )}`,
+              text: `${post.title}\n${shortUrl}$}`,
             });
             trackEvent(
               postAnalyticsEvent('share post', post, {

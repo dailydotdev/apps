@@ -13,7 +13,7 @@ import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
-import { useFeedLayout } from '../hooks';
+import { useFeedLayout, useGetShortUrl } from '../hooks';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -41,9 +41,10 @@ export default function ShareOptionsMenu({
   onHidden,
   contextId = 'share-context',
 }: ShareOptionsMenuProps): ReactElement {
-  const link = post && post?.commentsPermalink;
+  const link = post?.commentsPermalink;
   const [, copyLink] = useCopyPostLink(link);
   const { trackEvent } = useContext(AnalyticsContext);
+  const { getShortUrl } = useGetShortUrl();
   const onClick = (provider: ShareProvider) =>
     trackEvent(
       postAnalyticsEvent('share post', post, {
@@ -51,8 +52,9 @@ export default function ShareOptionsMenu({
       }),
     );
 
-  const trackAndCopyLink = () => {
-    copyLink();
+  const trackAndCopyLink = async () => {
+    const shortLink = await getShortUrl(link, 'share_post');
+    copyLink({ link: shortLink });
     onClick(ShareProvider.CopyLink);
   };
 

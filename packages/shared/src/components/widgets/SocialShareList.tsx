@@ -1,15 +1,6 @@
 import React, { ReactElement } from 'react';
 import { SocialShareButton } from './SocialShareButton';
-import {
-  getEmailShareLink,
-  getFacebookShareLink,
-  getLinkedInShareLink,
-  getRedditShareLink,
-  getTelegramShareLink,
-  getTwitterShareLink,
-  getWhatsappShareLink,
-  ShareProvider,
-} from '../../lib/share';
+import { getShareLink, ShareProvider } from '../../lib/share';
 import {
   MenuIcon,
   MailIcon,
@@ -23,6 +14,7 @@ import {
 } from '../icons';
 import { IconSize } from '../Icon';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
+import { useGetShortUrl } from '../../hooks';
 
 interface SocialShareListProps {
   link: string;
@@ -32,6 +24,7 @@ interface SocialShareListProps {
   onCopy?(): void;
   onNativeShare(): void;
   onClickSocial(provider: ShareProvider): void;
+  shortenUrl?: boolean;
 }
 
 export function SocialShareList({
@@ -42,7 +35,24 @@ export function SocialShareList({
   onCopy,
   onNativeShare,
   onClickSocial,
+  shortenUrl = true,
 }: SocialShareListProps): ReactElement {
+  const { getShortUrl } = useGetShortUrl();
+
+  const onClick = async (provider: ShareProvider) => {
+    onClickSocial(provider);
+
+    const shortLink = shortenUrl ? await getShortUrl(link) : link;
+    const shareLink = getShareLink(
+      provider,
+      shortLink,
+      provider === ShareProvider.Email
+        ? emailTitle ?? description
+        : description,
+    );
+    window.open(shareLink, '_blank');
+  };
+
   return (
     <>
       {onCopy && (
@@ -54,59 +64,52 @@ export function SocialShareList({
         />
       )}
       <SocialShareButton
-        href={getTwitterShareLink(link, description)}
         icon={<TwitterIcon />}
         variant={ButtonVariant.Primary}
         color={ButtonColor.Twitter}
-        onClick={() => onClickSocial(ShareProvider.Twitter)}
+        onClick={() => onClick(ShareProvider.Twitter)}
         label="X"
       />
       <SocialShareButton
-        href={getWhatsappShareLink(link)}
         icon={<WhatsappIcon />}
-        onClick={() => onClickSocial(ShareProvider.WhatsApp)}
+        onClick={() => onClick(ShareProvider.WhatsApp)}
         variant={ButtonVariant.Primary}
         color={ButtonColor.WhatsApp}
         label="WhatsApp"
       />
       <SocialShareButton
-        href={getFacebookShareLink(link)}
         icon={<FacebookIcon />}
         variant={ButtonVariant.Primary}
         color={ButtonColor.Facebook}
-        onClick={() => onClickSocial(ShareProvider.Facebook)}
+        onClick={() => onClick(ShareProvider.Facebook)}
         label="Facebook"
       />
       <SocialShareButton
-        href={getRedditShareLink(link, description)}
         icon={<RedditIcon />}
         variant={ButtonVariant.Primary}
         color={ButtonColor.Reddit}
-        onClick={() => onClickSocial(ShareProvider.Reddit)}
+        onClick={() => onClick(ShareProvider.Reddit)}
         label="Reddit"
       />
       <SocialShareButton
-        href={getLinkedInShareLink(link)}
         icon={<LinkedInIcon />}
         variant={ButtonVariant.Primary}
         color={ButtonColor.LinkedIn}
-        onClick={() => onClickSocial(ShareProvider.LinkedIn)}
+        onClick={() => onClick(ShareProvider.LinkedIn)}
         label="LinkedIn"
       />
       <SocialShareButton
-        href={getTelegramShareLink(link, description)}
         icon={<TelegramIcon />}
         variant={ButtonVariant.Primary}
         color={ButtonColor.Telegram}
-        onClick={() => onClickSocial(ShareProvider.Telegram)}
+        onClick={() => onClick(ShareProvider.Telegram)}
         label="Telegram"
       />
       <SocialShareButton
-        href={getEmailShareLink(link, emailTitle ?? description)}
         icon={<MailIcon />}
         variant={ButtonVariant.Primary}
         className="bg-theme-bg-email text-theme-label-primary"
-        onClick={() => onClickSocial(ShareProvider.Email)}
+        onClick={() => onClick(ShareProvider.Email)}
         label="Email"
       />
       {'share' in globalThis?.navigator && (

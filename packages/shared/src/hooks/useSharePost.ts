@@ -5,6 +5,7 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import { ShareProvider } from '../lib/share';
 import { Origin } from '../lib/analytics';
 import { useCopyPostLink } from './useCopyPostLink';
+import { useGetShortUrl } from './utils/useGetShortUrl';
 
 export function useSharePost(origin: Origin): {
   sharePost: Post;
@@ -19,6 +20,7 @@ export function useSharePost(origin: Origin): {
   const [, copyLink] = useCopyPostLink();
   const [sharePostFeedLocation, setSharePostFeedLocation] =
     useState<FeedItemPosition>({});
+  const { getShortUrl } = useGetShortUrl();
 
   return useMemo(
     () => ({
@@ -51,7 +53,11 @@ export function useSharePost(origin: Origin): {
             extra: { provider: ShareProvider.CopyLink, origin },
           }),
         );
-        copyLink({ link: post.commentsPermalink });
+        const shortLink = await getShortUrl(
+          post.commentsPermalink,
+          'share_post',
+        );
+        copyLink({ link: shortLink });
       },
       openNativeSharePost: async (
         post: Post,
@@ -65,9 +71,13 @@ export function useSharePost(origin: Origin): {
           row,
         });
         try {
+          const shortLink = await getShortUrl(
+            post.commentsPermalink,
+            'share_post',
+          );
           await navigator.share({
             title: post.title,
-            url: post.commentsPermalink,
+            url: shortLink,
           });
           trackEvent(
             postAnalyticsEvent('share post', post, {

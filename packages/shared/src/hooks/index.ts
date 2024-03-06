@@ -21,3 +21,4 @@ export * from './usePrevious';
 export * from './useEventListener';
 export * from './useTruncatedSummary';
 export * from './useScrollRestoration';
+export * from './utils/useGetShortUrl';

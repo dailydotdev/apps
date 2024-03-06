@@ -3,9 +3,8 @@ import { CopyIcon, WhatsappIcon, TwitterIcon, FacebookIcon } from './icons';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import {
-  getFacebookShareLink,
-  getTwitterShareLink,
-  getWhatsappShareLink,
+  addLinkShareTrackingParams,
+  getShareLink,
   ShareProvider,
 } from '../lib/share';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -18,6 +17,8 @@ import { Squad } from '../graphql/sources';
 import { SocialShareButton } from './widgets/SocialShareButton';
 import { SquadsToShare } from './squads/SquadsToShare';
 import { ButtonSize, ButtonVariant } from './buttons/common';
+import { useAuthContext } from '../contexts/AuthContext';
+import { useGetShortUrl } from '../hooks';
 
 interface ShareBarProps {
   post: Post;
@@ -25,20 +26,34 @@ interface ShareBarProps {
 
 export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const href = post.commentsPermalink;
-  const [copying, copyLink] = useCopyPostLink(href);
+  const { user, isAuthReady } = useAuthContext();
+  const cid = 'share_post';
+  const link =
+    isAuthReady && user ? addLinkShareTrackingParams(href, user.id, cid) : href;
+  const { getShortUrl } = useGetShortUrl();
+  const [copying, copyLink] = useCopyPostLink(link);
   const { trackEvent } = useContext(AnalyticsContext);
   const { openModal } = useLazyModal();
 
-  const onClick = (provider: ShareProvider) =>
+  const trackClick = (provider: ShareProvider) =>
     trackEvent(
       postAnalyticsEvent('share post', post, {
         extra: { provider, origin: Origin.ShareBar },
       }),
     );
 
-  const trackAndCopyLink = () => {
-    copyLink();
-    onClick(ShareProvider.CopyLink);
+  const onClick = async (provider: ShareProvider) => {
+    trackClick(provider);
+
+    const shortLink = await getShortUrl(link);
+    const shareLink = getShareLink(provider, shortLink, post?.title);
+    window.open(shareLink, '_blank');
+  };
+
+  const trackAndCopyLink = async () => {
+    const shortLink = await getShortUrl(link);
+    copyLink({ link: shortLink });
+    trackClick(ShareProvider.CopyLink);
   };
 
   const onShareToSquad = (squad: Squad) => {
@@ -76,7 +91,6 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
         <SocialShareButton
           size={ButtonSize.Medium}
           variant={ButtonVariant.Tertiary}
-          href={getWhatsappShareLink(href)}
           icon={<WhatsappIcon secondary />}
           className="text-white"
           onClick={() => onClick(ShareProvider.WhatsApp)}
@@ -85,7 +99,6 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
         <SocialShareButton
           size={ButtonSize.Medium}
           variant={ButtonVariant.Tertiary}
-          href={getFacebookShareLink(href)}
           icon={<FacebookIcon secondary />}
           onClick={() => onClick(ShareProvider.Facebook)}
           label="Facebook"
@@ -93,7 +106,6 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
         <SocialShareButton
           size={ButtonSize.Medium}
           variant={ButtonVariant.Tertiary}
-          href={getTwitterShareLink(href, post?.title)}
           icon={<TwitterIcon />}
           onClick={() => onClick(ShareProvider.Twitter)}
           label="X"

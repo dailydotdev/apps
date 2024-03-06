@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import { ShareProvider } from '../../lib/share';
+import { ShareProvider, addLinkShareTrackingParams } from '../../lib/share';
 import { Post } from '../../graphql/posts';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
@@ -13,6 +13,8 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/sources';
 import { SocialShareList } from './SocialShareList';
+import { useGetShortUrl } from '../../hooks';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 interface SocialShareProps {
   origin: Origin;
@@ -32,13 +34,15 @@ export const SocialShare = ({
   onSquadShare,
 }: SocialShareProps & FeedItemPosition): ReactElement => {
   const isComment = !!comment;
+  const { user, isAuthReady } = useAuthContext();
   const href = isComment
     ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
     : post?.commentsPermalink;
-  const [copying, copyLink] = useCopyLink(() => href);
-  const link = isComment
-    ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
-    : post?.commentsPermalink;
+  const cid = isComment ? 'share_comment' : 'share_post';
+  const link =
+    isAuthReady && user ? addLinkShareTrackingParams(href, user.id, cid) : href;
+  const { getShortUrl } = useGetShortUrl();
+  const [copying, copyLink] = useCopyLink();
   const { openModal } = useLazyModal();
   const { trackEvent } = useContext(AnalyticsContext);
   const { openNativeSharePost } = useSharePost(Origin.Share);
@@ -52,8 +56,9 @@ export const SocialShare = ({
       }),
     );
 
-  const trackAndCopyLink = () => {
-    copyLink();
+  const trackAndCopyLink = async () => {
+    const shortLink = await getShortUrl(link);
+    copyLink({ link: shortLink });
     trackClick(ShareProvider.CopyLink);
   };
 

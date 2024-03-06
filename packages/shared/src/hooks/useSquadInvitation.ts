@@ -4,6 +4,8 @@ import { AnalyticsEvent } from '../lib/analytics';
 import { Squad } from '../graphql/sources';
 import { useActions } from './useActions';
 import { ActionType } from '../graphql/actions';
+import { addLinkShareTrackingParams } from '../lib/share';
+import { useAuthContext } from '../contexts/AuthContext';
 
 export interface UseSquadInvitationProps {
   squad: Squad;
@@ -22,8 +24,13 @@ export const useSquadInvitation = ({
 }: UseSquadInvitationProps): UseSquadInvitation => {
   const { trackEvent } = useAnalyticsContext();
   const { completeAction } = useActions();
+  const { user } = useAuthContext();
 
-  const invitation = squad.referralUrl;
+  const invitation = addLinkShareTrackingParams(
+    squad.referralUrl,
+    user?.id,
+    'squad_invite',
+  );
   const [copying, copyLink] = useCopyLink(() => invitation);
 
   const trackAndCopyLink = () => {
