@@ -18,6 +18,11 @@ export enum OnboardingV4dot5 {
   V4dot5 = 'v4dot5',
 }
 
+export enum OnboardingAnimation {
+  Control = 'control',
+  V1 = 'v1',
+}
+
 export enum PostPageOnboarding {
   Control = 'control',
   V3 = 'v3',

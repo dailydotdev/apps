@@ -69,7 +69,7 @@ import {
   OnboardingContainer as Container,
 } from '@dailydotdev/shared/src/components/auth';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { useOnboardingAnimation } from '@dailydotdev/shared/src/hooks/auth/useOnboardingAnimation';
+import { useOnboardingAnimation } from '@dailydotdev/shared/src/hooks/auth';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -93,7 +93,7 @@ export function OnboardPage(): ReactElement {
     isAnimating,
     finishedOnboarding,
     onFinishedOnboarding,
-    delayedRedirect,
+    afterAnimationRedirect,
   } = useOnboardingAnimation();
   const { onShouldUpdateFilters } = useOnboardingContext();
   const { growthbook } = useGrowthBookContext();
@@ -162,7 +162,7 @@ export function OnboardPage(): ReactElement {
       });
     }
 
-    return delayedRedirect({
+    return afterAnimationRedirect({
       pathname: '/',
       query: {
         ...(userAcquisitionVersion === UserAcquisition.V1 && {
