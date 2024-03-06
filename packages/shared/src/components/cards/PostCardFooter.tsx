@@ -1,32 +1,31 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { CardImage, CardVideoImage } from './Card';
 import { FeatherIcon } from '../icons';
 import PostAuthor from './PostAuthor';
 import { ProfilePicture } from '../ProfilePicture';
 import { Post, isVideoPost } from '../../graphql/posts';
-import { cloudinary } from '../../lib/image';
-import { visibleOnGroupHover } from './common';
+import { CommonCardCoverProps, visibleOnGroupHover } from './common';
+import { CardCover } from './common/CardCover';
 
 interface PostCardFooterClassName {
   image?: string;
 }
 
-type PostCardFooterProps = {
+interface PostCardFooterProps extends CommonCardCoverProps {
   insaneMode: boolean;
   openNewTab: boolean;
   showImage: boolean;
   post: Post;
   className: PostCardFooterClassName;
-};
+}
 
 export const PostCardFooter = ({
   post,
   showImage,
   className,
+  onShare,
 }: PostCardFooterProps): ReactElement => {
   const isVideoType = isVideoPost(post);
-  const ImageComponent = isVideoType ? CardVideoImage : CardImage;
   return (
     <>
       {!showImage && post.author && (
@@ -39,18 +38,21 @@ export const PostCardFooter = ({
         />
       )}
       {showImage && (
-        <ImageComponent
-          alt="Post Cover image"
-          src={post.image}
-          fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-          className={classNames(
-            'w-full object-cover',
-            className.image,
-            !isVideoType && 'my-2',
-          )}
-          loading="lazy"
-          data-testid="postImage"
-          {...(isVideoType && { wrapperClassName: 'my-2' })}
+        <CardCover
+          isVideoType={isVideoType}
+          onShare={onShare}
+          post={post}
+          imageProps={{
+            loading: 'lazy',
+            alt: 'Post Cover image',
+            src: post.image,
+            className: classNames(
+              'w-full object-cover',
+              className.image,
+              !isVideoType && 'my-2',
+            ),
+          }}
+          videoProps={{ className: 'my-2' }}
         />
       )}
       {showImage && post.author && (
