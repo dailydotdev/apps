@@ -24,6 +24,7 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { LogoPosition } from '../Logo';
+import { UserStreak } from '../../graphql/users';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -40,6 +41,24 @@ const SearchPanel = dynamic(
       /* webpackChunkName: "searchPanel" */ '../search/SearchPanel/SearchPanel'
     ),
 );
+
+interface StreakButtonProps {
+  isEnabled: boolean;
+  isLoading: boolean;
+  streak: UserStreak;
+}
+
+const StreakButton = ({ streak, isEnabled, isLoading }: StreakButtonProps) => {
+  if (isLoading) {
+    return <div className="h-10 w-20 rounded-12 bg-surface-float" />;
+  }
+
+  if (!isEnabled || !streak) {
+    return null;
+  }
+
+  return <ReadingStreakButton streak={streak} />;
+};
 
 function MainLayoutHeader({
   hasBanner,
@@ -88,7 +107,11 @@ function MainLayoutHeader({
   const RenderButtons = () => {
     return (
       <div className="flex gap-3">
-        {streak && <ReadingStreakButton streak={streak} />}
+        <StreakButton
+          streak={streak}
+          isLoading={isLoading}
+          isEnabled={isStreaksEnabled}
+        />
         <CreatePostButton compact={isStreaksEnabled} />
         {!hideButton && user && (
           <>
