@@ -50,9 +50,9 @@ export const useNotificationPreferenceToggle = ({
       };
 
       if (isSubscribed) {
-        clearNotificationPreference(notificationPreferenceParams);
+        await clearNotificationPreference(notificationPreferenceParams);
       } else {
-        subscribeNotification(notificationPreferenceParams);
+        await subscribeNotification(notificationPreferenceParams);
       }
 
       return {
