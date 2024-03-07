@@ -1,7 +1,8 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Comment } from '../../graphql/comments';
-import { commentDateFormat } from '../../lib/dateFormat';
+import { TimeFormatType } from '../../lib/dateFormat';
+import { DateFormat } from '../utilities';
 
 interface CommentPublishDateProps {
   comment: Comment;
@@ -15,8 +16,11 @@ export function CommentPublishDate({
   const edited = !!comment.lastUpdatedAt;
   const date = edited ? comment.lastUpdatedAt : comment.createdAt;
   return (
-    <time dateTime={date} className={classNames('typo-callout', className)}>
-      {`${edited ? 'Modified ' : ''}${commentDateFormat(date)}`}
-    </time>
+    <DateFormat
+      date={date}
+      type={TimeFormatType.Comment}
+      className={classNames('typo-callout', className)}
+      prefix={edited ? 'Modified ' : ''}
+    />
   );
 }

@@ -26,6 +26,14 @@ const config: StorybookConfig = {
           strict: false,
         },
       },
+      resolve: {
+        alias: {
+          '@growthbook/growthbook': 'mock/gb.ts',
+        }
+      },
+      define: {
+        "process.env": {},
+      },
       plugins: [
         svgrPlugin({
           include: '**/*.svg',

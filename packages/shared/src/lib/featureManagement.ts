@@ -5,6 +5,7 @@ import {
   PostPageOnboarding,
   UserAcquisition,
   FeedAdSpot,
+  PublishTimeFormat,
   SourceSubscribeExperiment,
 } from './featureValues';
 import { cloudinary } from './image';
@@ -47,6 +48,10 @@ const feature = {
   forceRefresh: new Feature('force_refresh', false),
   feedAdSpot: new Feature('feed_ad_spot', FeedAdSpot.Control),
   shareLoops: new Feature('share_loops', false),
+  publishTimeFormat: new Feature(
+    'publish_time_format',
+    PublishTimeFormat.Control,
+  ),
   onboardingOnlineUsers: new Feature('onboarding_online_users', false),
   sourceSubscribe: new Feature(
     'source_subscribe',
