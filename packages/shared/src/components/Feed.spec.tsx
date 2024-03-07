@@ -1,7 +1,6 @@
 import nock from 'nock';
 import React from 'react';
 import {
-  act,
   findByRole,
   findByText,
   fireEvent,

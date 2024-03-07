@@ -15,7 +15,6 @@ import {
   Post,
   POST_BY_ID_QUERY,
   PostData,
-  PostsEngaged,
   REMOVE_BOOKMARK_MUTATION,
   PostType,
   VOTE_POST_MUTATION,
@@ -37,8 +36,6 @@ import nock from 'nock';
 import { QueryClient } from '@tanstack/react-query';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
-import { OperationOptions } from 'subscriptions-transport-ws';
-import { SubscriptionCallbacks } from '@dailydotdev/shared/src/hooks/useSubscription';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import {
   MockedGraphQLResponse,
@@ -59,21 +56,21 @@ import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 
 const showLogin = jest.fn();
-let nextCallback: (value: PostsEngaged) => unknown = null;
-
-jest.mock('@dailydotdev/shared/src/hooks/useSubscription', () => ({
-  __esModule: true,
-  default: jest
-    .fn()
-    .mockImplementation(
-      (
-        request: () => OperationOptions,
-        { next }: SubscriptionCallbacks<PostsEngaged>,
-      ): void => {
-        nextCallback = next;
-      },
-    ),
-}));
+// let nextCallback: (value: PostsEngaged) => unknown = null;
+//
+// jest.mock('@dailydotdev/shared/src/hooks/useSubscription', () => ({
+//   __esModule: true,
+//   default: jest
+//     .fn()
+//     .mockImplementation(
+//       (
+//         request: () => OperationOptions,
+//         { next }: SubscriptionCallbacks<PostsEngaged>,
+//       ): void => {
+//         nextCallback = next;
+//       },
+//     ),
+// }));
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
