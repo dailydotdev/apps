@@ -2,13 +2,13 @@ import React, { ReactElement } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button, ButtonColor, ButtonSize } from '../buttons/Button';
 import { cloudinary } from '../../lib/image';
-import { postDateFormat } from '../../lib/dateFormat';
+import { TimeFormatType } from '../../lib/dateFormat';
 import { Image } from '../image/Image';
 import { useChangelog } from '../../hooks/useChangelog';
 import { ExtensionMessageType } from '../../lib/extension';
 import { useToastNotification } from '../../hooks';
 import { updateFirefoxExtensionLink } from '../../lib/constants';
-import { UpvoteIcon, DiscussIcon as CommentIcon } from '../icons';
+import { DiscussIcon as CommentIcon, UpvoteIcon } from '../icons';
 import InteractionCounter from '../InteractionCounter';
 import { checkIsExtension } from '../../lib/func';
 import { UserPostVote } from '../../graphql/posts';
@@ -16,6 +16,7 @@ import InteractivePopup, { InteractivePopupPosition } from './InteractivePopup';
 import { Origin } from '../../lib/analytics';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import { ButtonVariant } from '../buttons/common';
+import DateFormat from '../utilities/DateFormat';
 
 const toastMessageMap = {
   error: 'Something went wrong, try again later',
@@ -113,13 +114,12 @@ function ChangelogTooltip(): ReactElement {
           >
             {post.title}
           </h3>
-          <time
-            className="text-theme-label-quaternary typo-callout"
-            dateTime={post.createdAt}
+          <DateFormat
             data-testid="changelogDate"
-          >
-            {postDateFormat(post.createdAt)}
-          </time>
+            date={post.createdAt}
+            type={TimeFormatType.Post}
+            className="text-theme-label-quaternary typo-callout"
+          />
           {!!post.summary && (
             <div
               className="w mt-2 text-theme-label-tertiary typo-callout"

@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Separator } from '../../cards/common';
-import { postDateFormat } from '../../../lib/dateFormat';
+import { TimeFormatType } from '../../../lib/dateFormat';
 import { Divider } from '../../utilities';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { DevCardStats } from './DevCardStats';
@@ -16,6 +16,7 @@ import { DevCardContainer } from './DevCardContainer';
 import { useDevCard } from '../../../hooks/profile/useDevCard';
 import { DevCardTwitterCover } from './DevCardTwitterCover';
 import { checkLowercaseEquality } from '../../../lib/strings';
+import DateFormat from '../../utilities/DateFormat';
 
 interface DevCardProps {
   type?: DevCardType;
@@ -156,16 +157,16 @@ export function DevCard({
                 @{user.username}
               </span>
               <Separator />
-              <time
+              <DateFormat
+                date={user.createdAt}
+                type={TimeFormatType.Post}
                 className={classNames(
                   'typo-caption1',
                   isIron && 'text-white',
                   isDefault && 'text-raw-pepper-10/[.64]',
                   !isIron && !isDefault && 'text-raw-pepper-90',
                 )}
-              >
-                {postDateFormat(user.createdAt)}
-              </time>
+              />
             </div>
             {isHorizontal && (
               <Divider

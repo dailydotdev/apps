@@ -1,7 +1,6 @@
 import React, { ReactElement, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
-import { postDateFormat } from '../../lib/dateFormat';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import FixedPostNavigation from './FixedPostNavigation';
@@ -129,7 +128,7 @@ function SquadPostContent({
               <SquadPostAuthor
                 author={post.author}
                 role={role}
-                date={postDateFormat(post.createdAt)}
+                date={post.createdAt}
                 className={{ container: 'mt-3' }}
               />
             )}
