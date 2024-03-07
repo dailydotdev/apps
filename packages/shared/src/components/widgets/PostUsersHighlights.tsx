@@ -159,7 +159,7 @@ const UserHighlight = (props: SourceAuthorProps) => {
           )}
         </div>
       </ConditionalWrapper>
-      {isSourceSubscribeV1 && !isSourceBlocked && isUserTypeSource && (
+      {!isSourceBlocked && isUserTypeSource && (
         <SourceSubscribeButton
           className="ml-auto"
           variant={ButtonVariant.Secondary}
