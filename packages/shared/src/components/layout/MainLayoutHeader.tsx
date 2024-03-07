@@ -43,17 +43,16 @@ const SearchPanel = dynamic(
 );
 
 interface StreakButtonProps {
-  isEnabled: boolean;
   isLoading: boolean;
   streak: UserStreak;
 }
 
-const StreakButton = ({ streak, isEnabled, isLoading }: StreakButtonProps) => {
+const StreakButton = ({ streak, isLoading }: StreakButtonProps) => {
   if (isLoading) {
     return <div className="h-10 w-20 rounded-12 bg-surface-float" />;
   }
 
-  if (!isEnabled || !streak) {
+  if (!streak) {
     return null;
   }
 
@@ -107,11 +106,9 @@ function MainLayoutHeader({
   const RenderButtons = () => {
     return (
       <div className="flex gap-3">
-        <StreakButton
-          streak={streak}
-          isLoading={isLoading}
-          isEnabled={isStreaksEnabled}
-        />
+        {isStreaksEnabled && (
+          <StreakButton streak={streak} isLoading={isLoading} />
+        )}
         <CreatePostButton compact={isStreaksEnabled} />
         {!hideButton && user && (
           <>
