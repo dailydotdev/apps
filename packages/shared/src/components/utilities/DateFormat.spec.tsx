@@ -123,7 +123,7 @@ describe('date format read history type', () => {
     expect(element).toHaveTextContent('Today');
   });
 
-  it('should render comment time format as hours', async () => {
+  it('should render comment time format as yesterday', async () => {
     const date = new Date();
     renderComponent({
       date: date.setDate(date.getDate() - 1),
