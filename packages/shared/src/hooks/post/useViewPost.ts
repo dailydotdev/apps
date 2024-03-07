@@ -42,7 +42,7 @@ export const useViewPost = (): UseMutateAsyncFunction<
 
       if (reading) {
         const timezoned = getTodayTz(user?.timezone || 'UTC');
-        const date = new Date(timezoned).toISOString().split('T')[0];
+        const date = timezoned.toISOString().split('T')[0];
         const index = reading.findIndex((read) => read.date === date);
 
         if (index === -1) {
