@@ -43,17 +43,18 @@ const SearchPanel = dynamic(
 );
 
 interface StreakButtonProps {
-  isEnabled: boolean;
   isLoading: boolean;
   streak: UserStreak;
 }
 
-const StreakButton = ({ streak, isEnabled, isLoading }: StreakButtonProps) => {
+const StreakButton = ({ streak, isLoading }: StreakButtonProps) => {
   if (isLoading) {
-    return <div className="h-10 w-20 rounded-12 bg-surface-float" />;
+    return (
+      <div className="h-8 w-14 rounded-12 bg-surface-float laptop:h-10 laptop:w-20" />
+    );
   }
 
-  if (!isEnabled || !streak) {
+  if (!streak) {
     return null;
   }
 
@@ -72,7 +73,7 @@ function MainLayoutHeader({
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
   const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
-  const hideButton = loadingUser || (isStreaksEnabled && isLoading);
+  const hideButton = loadingUser;
   const isMobile = useViewSize(ViewSize.MobileL);
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();
@@ -107,11 +108,9 @@ function MainLayoutHeader({
   const RenderButtons = () => {
     return (
       <div className="flex gap-3">
-        <StreakButton
-          streak={streak}
-          isLoading={isLoading}
-          isEnabled={isStreaksEnabled}
-        />
+        {isStreaksEnabled && (
+          <StreakButton streak={streak} isLoading={isLoading} />
+        )}
         <CreatePostButton compact={isStreaksEnabled} />
         {!hideButton && user && (
           <>
