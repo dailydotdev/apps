@@ -43,13 +43,14 @@ export function SocialShareList({
     onClickSocial(provider);
 
     const shortLink = shortenUrl ? await getShortUrl(link) : link;
-    const shareLink = getShareLink(
+    const shareLink = getShareLink({
       provider,
-      shortLink,
-      provider === ShareProvider.Email
-        ? emailTitle ?? description
-        : description,
-    );
+      link: shortLink,
+      text:
+        provider === ShareProvider.Email
+          ? emailTitle ?? description
+          : description,
+    });
     window.open(shareLink, '_blank');
   };
 

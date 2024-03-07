@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import { ShareProvider, addLinkShareTrackingParams } from '../../lib/share';
+import { ShareProvider, addLinkShareTrackingQuery } from '../../lib/share';
 import { Post } from '../../graphql/posts';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
@@ -40,7 +40,9 @@ export const SocialShare = ({
     : post?.commentsPermalink;
   const cid = isComment ? 'share_comment' : 'share_post';
   const link =
-    isAuthReady && user ? addLinkShareTrackingParams(href, user.id, cid) : href;
+    isAuthReady && user
+      ? addLinkShareTrackingQuery({ link: href, userId: user.id, cid })
+      : href;
   const { getShortUrl } = useGetShortUrl();
   const [copying, copyLink] = useCopyLink();
   const { openModal } = useLazyModal();

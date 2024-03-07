@@ -6,7 +6,7 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { ProfilePicture } from '../ProfilePicture';
 import { largeNumberFormat } from '../../lib/numberFormat';
-import { addLinkShareTrackingParams } from '../../lib/share';
+import { addLinkShareTrackingQuery } from '../../lib/share';
 
 export type HeaderProps = {
   user: PublicProfile;
@@ -25,7 +25,11 @@ export function Header({
 }: HeaderProps): ReactElement {
   const [, onShareOrCopyLink] = useShareOrCopyLink({
     text: `Check out ${user.name}'s profile on daily.dev`,
-    link: addLinkShareTrackingParams(user.permalink, user.id, 'share_profile'),
+    link: addLinkShareTrackingQuery({
+      link: user.permalink,
+      userId: user.id,
+      cid: 'share_profile',
+    }),
     trackObject: () => ({ event_name: 'share profile', target_id: user.id }),
   });
 

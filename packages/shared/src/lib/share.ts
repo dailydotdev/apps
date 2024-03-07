@@ -31,11 +31,17 @@ export const getTelegramShareLink = (link: string, text: string): string =>
 export const getEmailShareLink = (link: string, subject: string): string =>
   `mailto:?subject=${subject}&body=${encodeURIComponent(link)}`;
 
-export const getShareLink = (
-  provider: ShareProvider,
-  link: string,
-  text?: string,
-): string => {
+interface GetShareLinkParams {
+  provider: ShareProvider;
+  link: string;
+  text?: string;
+}
+
+export const getShareLink = ({
+  provider,
+  link,
+  text,
+}: GetShareLinkParams): string => {
   switch (provider) {
     case ShareProvider.WhatsApp:
       return getWhatsappShareLink(link);
@@ -56,21 +62,30 @@ export const getShareLink = (
   }
 };
 
-export const addLinkShareTrackingParams = (
-  link: string | undefined,
-  userId: string | undefined,
-  cid: string,
-): string => {
+interface AddLinkShareTrackingQueryParams {
+  link: string | undefined;
+  userId: string | undefined;
+  cid: string;
+}
+
+export const addLinkShareTrackingQuery = ({
+  link,
+  userId,
+  cid,
+}: AddLinkShareTrackingQueryParams): string => {
+  // return link as is if not provided
   if (!link) {
-    return null;
+    return link;
   }
 
-  if (!userId) {
+  // return link as is if params are not provided
+  if (!userId || !cid) {
     return link;
   }
 
   const url = new URL(link);
   url.searchParams.set('userId', userId);
   url.searchParams.set('cid', cid);
+
   return url.toString();
 };

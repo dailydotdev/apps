@@ -3,7 +3,7 @@ import { CopyIcon, WhatsappIcon, TwitterIcon, FacebookIcon } from './icons';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import {
-  addLinkShareTrackingParams,
+  addLinkShareTrackingQuery,
   getShareLink,
   ShareProvider,
 } from '../lib/share';
@@ -29,7 +29,9 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const { user, isAuthReady } = useAuthContext();
   const cid = 'share_post';
   const link =
-    isAuthReady && user ? addLinkShareTrackingParams(href, user.id, cid) : href;
+    isAuthReady && user
+      ? addLinkShareTrackingQuery({ link: href, userId: user.id, cid })
+      : href;
   const { getShortUrl } = useGetShortUrl();
   const [copying, copyLink] = useCopyPostLink(link);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -46,7 +48,11 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
     trackClick(provider);
 
     const shortLink = await getShortUrl(link);
-    const shareLink = getShareLink(provider, shortLink, post?.title);
+    const shareLink = getShareLink({
+      provider,
+      link: shortLink,
+      text: post?.title,
+    });
     window.open(shareLink, '_blank');
   };
 
