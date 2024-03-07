@@ -49,7 +49,9 @@ interface StreakButtonProps {
 
 const StreakButton = ({ streak, isLoading }: StreakButtonProps) => {
   if (isLoading) {
-    return <div className="h-10 w-20 rounded-12 bg-surface-float" />;
+    return (
+      <div className="h-8 w-14 rounded-12 bg-surface-float laptop:h-10 laptop:w-20" />
+    );
   }
 
   if (!streak) {
@@ -71,7 +73,7 @@ function MainLayoutHeader({
   const { unreadCount } = useNotificationContext();
   const { user, loadingUser } = useContext(AuthContext);
   const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
-  const hideButton = loadingUser || (isStreaksEnabled && isLoading);
+  const hideButton = loadingUser;
   const isMobile = useViewSize(ViewSize.MobileL);
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();
