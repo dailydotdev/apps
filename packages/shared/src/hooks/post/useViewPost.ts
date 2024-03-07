@@ -7,6 +7,7 @@ import { sendViewPost } from '../../graphql/posts';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ReadingDay, UserStreak } from '../../graphql/users';
+import { getTodayTz } from '../../lib/dateFormat';
 
 export const useViewPost = (): UseMutateAsyncFunction<
   unknown,
@@ -40,7 +41,8 @@ export const useViewPost = (): UseMutateAsyncFunction<
       const reading = client.getQueryData<ReadingDay[]>(readKey);
 
       if (reading) {
-        const date = new Date().toISOString().split('T')[0];
+        const timezoned = getTodayTz(user?.timezone || 'UTC');
+        const date = new Date(timezoned).toISOString().split('T')[0];
         const index = reading.findIndex((read) => read.date === date);
 
         if (index === -1) {

@@ -124,3 +124,9 @@ export enum Day {
 }
 
 export const Weekends = [Day.Saturday, Day.Sunday];
+
+export const getTodayTz = (timeZone: string): Date => {
+  const now = new Date();
+  const timeZonedToday = now.toLocaleDateString('en', { timeZone });
+  return new Date(timeZonedToday);
+};
