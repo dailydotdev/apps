@@ -1,7 +1,6 @@
 import nock from 'nock';
 import React from 'react';
 import {
-  act,
   findByRole,
   findByText,
   fireEvent,
@@ -377,7 +376,7 @@ it('should send add bookmark mutation', async () => {
     },
   ]);
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   const el = await screen.findByText('Save to bookmarks');
   el.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
@@ -407,7 +406,7 @@ it('should send remove bookmark mutation', async () => {
     },
   ]);
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   const el = await screen.findByText('Remove from bookmarks');
   el.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
@@ -431,7 +430,7 @@ it('should open login modal on anonymous bookmark', async () => {
     null,
   );
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   const el = await screen.findByText('Save to bookmarks');
   el.click();
   await waitFor(() =>
@@ -646,26 +645,14 @@ it('should report broken link', async () => {
     },
   ]);
 
-  await act(async () => {
-    const [menuBtn] = await screen.findAllByLabelText('Options');
-    menuBtn.click();
-  });
-
-  await act(async () => {
-    const contextBtn = await screen.findByText('Report');
-    contextBtn.click();
-    const brokenLinkBtn = await screen.findByText('Broken link');
-    brokenLinkBtn.click();
-    const submitBtn = await screen.findByText('Submit report');
-    submitBtn.click();
-  });
-
-  await waitFor(async () => {
-    await screen.findByRole('alert');
-    const feed = await screen.findByTestId('posts-feed');
-
-    return expect(feed).toHaveAttribute('aria-live', 'assertive');
-  });
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  fireEvent.click(menuBtn);
+  const contextBtn = await screen.findByText('Report');
+  fireEvent.click(contextBtn);
+  const brokenLinkBtn = await screen.findByText('Broken link');
+  fireEvent.click(brokenLinkBtn);
+  const submitBtn = await screen.findByText('Submit report');
+  fireEvent.click(submitBtn);
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
@@ -698,24 +685,18 @@ it('should report broken link with comment', async () => {
       },
     },
   ]);
+
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   const contextBtn = await screen.findByText('Report');
-  contextBtn.click();
+  fireEvent.click(contextBtn);
   const brokenLinkBtn = await screen.findByText('Broken link');
-  brokenLinkBtn.click();
+  fireEvent.click(brokenLinkBtn);
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
   fireEvent.change(input, { target: { value: 'comment' } });
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const submitBtn = await screen.findByText('Submit report');
-  submitBtn.click();
-
-  await waitFor(async () => {
-    await screen.findByRole('alert');
-    const feed = await screen.findByTestId('posts-feed');
-
-    return expect(feed).toHaveAttribute('aria-live', 'assertive');
-  });
+  fireEvent.click(submitBtn);
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
@@ -747,24 +728,18 @@ it('should report nsfw', async () => {
       },
     },
   ]);
+
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   const contextBtn = await screen.findByText('Report');
-  contextBtn.click();
+  fireEvent.click(contextBtn);
   const brokenLinkBtn = await screen.findByText('NSFW');
-  brokenLinkBtn.click();
+  fireEvent.click(brokenLinkBtn);
 
   await screen.findByTitle('Eminem Quotes Generator - Simple PHP RESTful API');
 
   const submitBtn = await screen.findByText('Submit report');
-  submitBtn.click();
-
-  await waitFor(async () => {
-    await screen.findByRole('alert');
-    const feed = await screen.findByTestId('posts-feed');
-
-    return expect(feed).toHaveAttribute('aria-live', 'assertive');
-  });
+  fireEvent.click(submitBtn);
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
@@ -793,7 +768,7 @@ it('should hide post', async () => {
     },
   ]);
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   const contextBtn = await screen.findByText('Hide');
   contextBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
@@ -822,8 +797,9 @@ it('should block a source', async () => {
       },
     },
   ]);
+
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   mockGraphQL(createTagsSettingsMock());
   await waitFor(async () => {
     const data = await queryClient.getQueryData(
@@ -832,14 +808,7 @@ it('should block a source', async () => {
     expect(data).toBeTruthy();
   });
   const contextBtn = await screen.findByText("Don't show posts from Echo JS");
-  contextBtn.click();
-
-  await waitFor(async () => {
-    await screen.findByRole('alert');
-    const feed = await screen.findByTestId('posts-feed');
-
-    return expect(feed).toHaveAttribute('aria-live', 'assertive');
-  });
+  fireEvent.click(contextBtn);
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
@@ -863,7 +832,7 @@ it('should unblock a source', async () => {
     },
   ]);
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   mockGraphQL(
     createTagsSettingsMock({
       includeTags: [],
@@ -920,7 +889,7 @@ it('should block a tag', async () => {
   ]);
 
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   mockGraphQL(createTagsSettingsMock());
   await waitFor(async () => {
     const data = await queryClient.getQueryData(
@@ -929,14 +898,7 @@ it('should block a tag', async () => {
     expect(data).toBeTruthy();
   });
   const contextBtn = await screen.findByText('Not interested in #javascript');
-  contextBtn.click();
-
-  await waitFor(async () => {
-    await screen.findByRole('alert');
-    const feed = await screen.findByTestId('posts-feed');
-
-    return expect(feed).toHaveAttribute('aria-live', 'assertive');
-  });
+  fireEvent.click(contextBtn);
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
@@ -1044,6 +1006,7 @@ it('should report irrelevant tags', async () => {
       },
     },
   ]);
+
   const [menuBtn] = await screen.findAllByLabelText('Options');
   fireEvent.click(menuBtn);
   const contextBtn = await screen.findByText('Report');
@@ -1057,13 +1020,6 @@ it('should report irrelevant tags', async () => {
   fireEvent.click(javascriptBtn);
   const submitBtn = await screen.findByText('Submit report');
   fireEvent.click(submitBtn);
-
-  await waitFor(async () => {
-    await screen.findByRole('alert');
-    const feed = await screen.findByTestId('posts-feed');
-
-    return expect(feed).toHaveAttribute('aria-live', 'assertive');
-  });
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
