@@ -93,7 +93,10 @@ describe('addLinkShareTrackingQuery tests', () => {
   const userId = '42';
   const cid = 'share_post';
 
-  const runTest = (params: AddLinkShareTrackingQueryParams, expected: any) => {
+  const runTest = (
+    params: AddLinkShareTrackingQueryParams,
+    expected: string | undefined,
+  ) => {
     const result = addLinkShareTrackingQuery(params);
     expect(result).toEqual(expected);
   };
