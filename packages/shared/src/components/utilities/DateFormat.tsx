@@ -10,12 +10,12 @@ interface DateFormatProps {
   className?: string;
   prefix?: string;
 }
-export default function DateFormat({
+export const DateFormat = ({
   date,
   type,
   className,
   prefix,
-}: DateFormatProps): ReactElement {
+}: DateFormatProps): ReactElement => {
   const convertedDate = new Date(date);
   const publishTimeFormat = useFeature(feature.publishTimeFormat);
   const timeFormat =
@@ -39,4 +39,4 @@ export default function DateFormat({
       {renderDate}
     </time>
   );
-}
+};
