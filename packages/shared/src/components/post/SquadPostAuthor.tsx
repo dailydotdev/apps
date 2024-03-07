@@ -7,8 +7,7 @@ import { Author } from '../../graphql/comments';
 import { SourceMemberRole } from '../../graphql/sources';
 import { Separator } from '../cards/common';
 import { ReputationUserBadge } from '../ReputationUserBadge';
-import { TruncateText } from '../utilities';
-import DateFormat from '../utilities/DateFormat';
+import { TruncateText, DateFormat } from '../utilities';
 import { TimeFormatType } from '../../lib/dateFormat';
 
 interface SquadPostAuthorProps {

@@ -9,7 +9,7 @@ import PostOptionsReadingHistoryMenu from '../PostOptionsReadingHistoryMenu';
 import useReadingHistoryContextMenu from '../../hooks/useReadingHistoryContextMenu';
 import { useSharePost } from '../../hooks/useSharePost';
 import { Origin } from '../../lib/analytics';
-import DateFormat from '../utilities/DateFormat';
+import { DateFormat } from '../utilities';
 
 const getDateGroup = (date: Date) => {
   return (

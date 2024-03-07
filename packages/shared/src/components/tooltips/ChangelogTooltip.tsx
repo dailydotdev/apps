@@ -16,7 +16,7 @@ import InteractivePopup, { InteractivePopupPosition } from './InteractivePopup';
 import { Origin } from '../../lib/analytics';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import { ButtonVariant } from '../buttons/common';
-import DateFormat from '../utilities/DateFormat';
+import { DateFormat } from '../utilities';
 
 const toastMessageMap = {
   error: 'Something went wrong, try again later',

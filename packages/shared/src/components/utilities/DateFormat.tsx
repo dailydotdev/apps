@@ -1,8 +1,5 @@
 import React, { ReactElement, useMemo } from 'react';
 import { formatDate, TimeFormatType } from '../../lib/dateFormat';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { PublishTimeFormat } from '../../lib/featureValues';
 
 interface DateFormatProps {
   date: string | number | Date;
@@ -10,19 +7,40 @@ interface DateFormatProps {
   className?: string;
   prefix?: string;
 }
-export default function DateFormat({
+export const DateFormat = ({
   date,
   type,
   className,
   prefix,
-}: DateFormatProps): ReactElement {
+}: DateFormatProps): ReactElement => {
   const convertedDate = new Date(date);
-  const publishTimeFormat = useFeature(feature.publishTimeFormat);
+
+  const renderDate = useMemo(
+    () => date && formatDate({ value: date, type }),
+    [date, type],
+  );
+
+  return (
+    <time
+      title={convertedDate.toISOString()}
+      className={className}
+      dateTime={convertedDate.toISOString()}
+    >
+      {prefix}
+      {renderDate}
+    </time>
+  );
+};
+
+export const DateFormatExperiment = ({
+  date,
+  type,
+  className,
+  prefix,
+}: DateFormatProps): ReactElement => {
+  const convertedDate = new Date(date);
   const timeFormat =
-    publishTimeFormat === PublishTimeFormat.V1 &&
-    type !== TimeFormatType.ReadHistory
-      ? TimeFormatType.Generic
-      : type;
+    type !== TimeFormatType.ReadHistory ? TimeFormatType.Generic : type;
 
   const renderDate = useMemo(
     () => date && formatDate({ value: date, type: timeFormat }),
@@ -39,4 +57,4 @@ export default function DateFormat({
       {renderDate}
     </time>
   );
-}
+};

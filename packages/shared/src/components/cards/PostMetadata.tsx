@@ -5,8 +5,7 @@ import { Separator } from './common';
 import { Post } from '../../graphql/posts';
 import { PlayIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { formatReadTime, TruncateText } from '../utilities';
-import DateFormat from '../utilities/DateFormat';
+import { formatReadTime, TruncateText, DateFormat } from '../utilities';
 
 interface PostMetadataProps
   extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {
