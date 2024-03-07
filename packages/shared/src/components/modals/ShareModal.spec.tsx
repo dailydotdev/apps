@@ -68,6 +68,18 @@ const renderComponent = (
 };
 
 describe('ShareModal Test Suite:', () => {
+  const mockWindowOpen = jest.fn();
+  let origWindowOpen = null;
+
+  beforeEach(() => {
+    origWindowOpen = window.open;
+    window.open = mockWindowOpen;
+  });
+
+  afterEach(() => {
+    mockWindowOpen.mockClear();
+    window.open = origWindowOpen;
+  });
   it('should render the component without logged in user', async () => {
     renderComponent(false, false);
     expect(screen.getByText('Share post')).toBeInTheDocument();
@@ -98,26 +110,36 @@ describe('ShareModal Test Suite:', () => {
     expect(modal.type).toEqual(LazyModal.CreateSharedPost);
   });
 
-  it('should render the Facebook button and have the correct link', async () => {
+  it('should render the Facebook button and navigate to the correct link', async () => {
     renderComponent();
-    const link = await screen.findByTestId(`social-share-Facebook`);
+    const btn = await screen.findByTestId(`social-share-Facebook`);
 
-    expect(link).toHaveAttribute(
-      'href',
-      getFacebookShareLink(defaultPost.commentsPermalink),
-    );
+    btn.click();
+
+    await waitFor(() => {
+      expect(mockWindowOpen).toHaveBeenCalledWith(
+        getFacebookShareLink(defaultPost.commentsPermalink),
+        '_blank',
+      );
+    });
   });
 
-  it('should render the Facebook button and have the correct comments link', async () => {
+  it('should render the Facebook button and navigate to the correct comments link', async () => {
     renderComponent(false, false, defaultComment);
-    const link = await screen.findByTestId(`social-share-Facebook`);
+    const btn = await screen.findByTestId(`social-share-Facebook`);
 
-    expect(link).toHaveAttribute(
-      'href',
-      getFacebookShareLink(
-        `${defaultPost.commentsPermalink}${getCommentHash(defaultComment.id)}`,
-      ),
-    );
+    btn.click();
+
+    await waitFor(() => {
+      expect(mockWindowOpen).toHaveBeenCalledWith(
+        getFacebookShareLink(
+          `${defaultPost.commentsPermalink}${getCommentHash(
+            defaultComment.id,
+          )}`,
+        ),
+        '_blank',
+      );
+    });
   });
 
   it('should render the copy link button and copy link to clipboard', async () => {
