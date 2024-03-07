@@ -49,7 +49,9 @@ interface StreakButtonProps {
 
 const StreakButton = ({ streak, isLoading }: StreakButtonProps) => {
   if (isLoading) {
-    return <div className="h-10 w-20 rounded-12 bg-surface-float" />;
+    return (
+      <div className="h-8 w-14 rounded-12 bg-surface-float laptop:h-10 laptop:w-20" />
+    );
   }
 
   if (!streak) {
