@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
 import classed from '../../lib/classed';
@@ -11,6 +11,12 @@ import { Author } from '../../graphql/comments';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ReputationUserBadge } from '../ReputationUserBadge';
+import { SourceSubscribeButton } from '../sources';
+import { ButtonVariant } from '../buttons/common';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { SourceSubscribeExperiment } from '../../lib/featureValues';
+import useFeedSettings from '../../hooks/useFeedSettings';
 
 interface PostAuthorProps {
   post: Post;
@@ -88,12 +94,25 @@ const UserHighlight = (props: SourceAuthorProps) => {
     reputation,
   } = props;
   const Icon = getUserIcon(userType);
-  const userTypeNotSource = userType !== 'source';
+  const isUserTypeSource = userType === 'source';
+  const isSourceSubscribeV1 =
+    useFeature(feature.sourceSubscribe) === SourceSubscribeExperiment.V1;
+  const { feedSettings } = useFeedSettings({ enabled: isSourceSubscribeV1 });
+
+  const isSourceBlocked = useMemo(() => {
+    if (!isUserTypeSource) {
+      return false;
+    }
+
+    return !!feedSettings?.excludeSources?.some(
+      (excludedSource) => excludedSource.id === id,
+    );
+  }, [isUserTypeSource, feedSettings?.excludeSources, id]);
 
   return (
-    <div className="relative flex flex-row p-3">
+    <div className="relative flex flex-row items-center p-3">
       <ConditionalWrapper
-        condition={userTypeNotSource}
+        condition={!isUserTypeSource}
         wrapper={(children) => (
           <ProfileTooltip user={{ id }}>
             {children as ReactElement}
@@ -116,7 +135,7 @@ const UserHighlight = (props: SourceAuthorProps) => {
         />
       )}
       <ConditionalWrapper
-        condition={userTypeNotSource}
+        condition={!isUserTypeSource}
         wrapper={(children) => (
           <ProfileTooltip user={{ id }}>
             {children as ReactElement}
@@ -140,6 +159,13 @@ const UserHighlight = (props: SourceAuthorProps) => {
           )}
         </div>
       </ConditionalWrapper>
+      {isSourceSubscribeV1 && !isSourceBlocked && isUserTypeSource && (
+        <SourceSubscribeButton
+          className="ml-auto"
+          variant={ButtonVariant.Secondary}
+          source={{ id }}
+        />
+      )}
     </div>
   );
 };
