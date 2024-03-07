@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
-import { DateFormat } from '@dailydotdev/shared/src/components/utilities/DateFormat';
+import { DateFormat } from '@dailydotdev/shared/src/components/utilities';
 
 const meta: Meta<typeof DateFormat> = {
   component: DateFormat,

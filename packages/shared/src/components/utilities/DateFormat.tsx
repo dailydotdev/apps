@@ -49,7 +49,7 @@ export const DateFormatExperiment = ({
 
   return (
     <time
-      title={convertedDate.toISOString()}
+      title={convertedDate.toString()}
       className={className}
       dateTime={convertedDate.toISOString()}
     >
