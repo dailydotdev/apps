@@ -42,7 +42,7 @@ export const useGetShortUrl = (): UseGetShortUrlResult => {
         );
         return data.getShortUrl;
       } catch (err) {
-        return url;
+        return trackingUrl;
       }
     },
   };
