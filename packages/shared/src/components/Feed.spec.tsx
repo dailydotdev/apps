@@ -377,7 +377,7 @@ it('should send add bookmark mutation', async () => {
     },
   ]);
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   const el = await screen.findByText('Save to bookmarks');
   el.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
@@ -407,7 +407,7 @@ it('should send remove bookmark mutation', async () => {
     },
   ]);
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   const el = await screen.findByText('Remove from bookmarks');
   el.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
@@ -431,7 +431,7 @@ it('should open login modal on anonymous bookmark', async () => {
     null,
   );
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   const el = await screen.findByText('Save to bookmarks');
   el.click();
   await waitFor(() =>
@@ -646,19 +646,14 @@ it('should report broken link', async () => {
     },
   ]);
 
-  await act(async () => {
-    const [menuBtn] = await screen.findAllByLabelText('Options');
-    menuBtn.click();
-  });
-
-  await act(async () => {
-    const contextBtn = await screen.findByText('Report');
-    contextBtn.click();
-    const brokenLinkBtn = await screen.findByText('Broken link');
-    brokenLinkBtn.click();
-    const submitBtn = await screen.findByText('Submit report');
-    submitBtn.click();
-  });
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  fireEvent.click(menuBtn);
+  const contextBtn = await screen.findByText('Report');
+  fireEvent.click(contextBtn);
+  const brokenLinkBtn = await screen.findByText('Broken link');
+  fireEvent.click(brokenLinkBtn);
+  const submitBtn = await screen.findByText('Submit report');
+  fireEvent.click(submitBtn);
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
@@ -692,19 +687,17 @@ it('should report broken link with comment', async () => {
     },
   ]);
 
-  await act(async () => {
-    const [menuBtn] = await screen.findAllByLabelText('Options');
-    menuBtn.click();
-    const contextBtn = await screen.findByText('Report');
-    contextBtn.click();
-    const brokenLinkBtn = await screen.findByText('Broken link');
-    brokenLinkBtn.click();
-    const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-    fireEvent.change(input, { target: { value: 'comment' } });
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-    const submitBtn = await screen.findByText('Submit report');
-    submitBtn.click();
-  });
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  fireEvent.click(menuBtn);
+  const contextBtn = await screen.findByText('Report');
+  fireEvent.click(contextBtn);
+  const brokenLinkBtn = await screen.findByText('Broken link');
+  fireEvent.click(brokenLinkBtn);
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  fireEvent.change(input, { target: { value: 'comment' } });
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  const submitBtn = await screen.findByText('Submit report');
+  fireEvent.click(submitBtn);
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
@@ -737,21 +730,17 @@ it('should report nsfw', async () => {
     },
   ]);
 
-  await act(async () => {
-    const [menuBtn] = await screen.findAllByLabelText('Options');
-    menuBtn.click();
-    const contextBtn = await screen.findByText('Report');
-    contextBtn.click();
-    const brokenLinkBtn = await screen.findByText('NSFW');
-    brokenLinkBtn.click();
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  fireEvent.click(menuBtn);
+  const contextBtn = await screen.findByText('Report');
+  fireEvent.click(contextBtn);
+  const brokenLinkBtn = await screen.findByText('NSFW');
+  fireEvent.click(brokenLinkBtn);
 
-    await screen.findByTitle(
-      'Eminem Quotes Generator - Simple PHP RESTful API',
-    );
+  await screen.findByTitle('Eminem Quotes Generator - Simple PHP RESTful API');
 
-    const submitBtn = await screen.findByText('Submit report');
-    submitBtn.click();
-  });
+  const submitBtn = await screen.findByText('Submit report');
+  fireEvent.click(submitBtn);
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
@@ -780,7 +769,7 @@ it('should hide post', async () => {
     },
   ]);
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   const contextBtn = await screen.findByText('Hide');
   contextBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
@@ -810,19 +799,17 @@ it('should block a source', async () => {
     },
   ]);
 
-  await act(async () => {
-    const [menuBtn] = await screen.findAllByLabelText('Options');
-    menuBtn.click();
-    mockGraphQL(createTagsSettingsMock());
-    await waitFor(async () => {
-      const data = await queryClient.getQueryData(
-        getFeedSettingsQueryKey(defaultUser),
-      );
-      expect(data).toBeTruthy();
-    });
-    const contextBtn = await screen.findByText("Don't show posts from Echo JS");
-    contextBtn.click();
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  fireEvent.click(menuBtn);
+  mockGraphQL(createTagsSettingsMock());
+  await waitFor(async () => {
+    const data = await queryClient.getQueryData(
+      getFeedSettingsQueryKey(defaultUser),
+    );
+    expect(data).toBeTruthy();
   });
+  const contextBtn = await screen.findByText("Don't show posts from Echo JS");
+  fireEvent.click(contextBtn);
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
@@ -846,7 +833,7 @@ it('should unblock a source', async () => {
     },
   ]);
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   mockGraphQL(
     createTagsSettingsMock({
       includeTags: [],
@@ -902,19 +889,17 @@ it('should block a tag', async () => {
     },
   ]);
 
-  await act(async () => {
-    const [menuBtn] = await screen.findAllByLabelText('Options');
-    menuBtn.click();
-    mockGraphQL(createTagsSettingsMock());
-    await waitFor(async () => {
-      const data = await queryClient.getQueryData(
-        getFeedSettingsQueryKey(defaultUser),
-      );
-      expect(data).toBeTruthy();
-    });
-    const contextBtn = await screen.findByText('Not interested in #javascript');
-    contextBtn.click();
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  fireEvent.click(menuBtn);
+  mockGraphQL(createTagsSettingsMock());
+  await waitFor(async () => {
+    const data = await queryClient.getQueryData(
+      getFeedSettingsQueryKey(defaultUser),
+    );
+    expect(data).toBeTruthy();
   });
+  const contextBtn = await screen.findByText('Not interested in #javascript');
+  fireEvent.click(contextBtn);
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
@@ -1023,25 +1008,19 @@ it('should report irrelevant tags', async () => {
     },
   ]);
 
-  await act(async () => {
-    const [menuBtn] = await screen.findAllByLabelText('Options');
-    fireEvent.click(menuBtn);
-    const contextBtn = await screen.findByText('Report');
-    fireEvent.click(contextBtn);
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  fireEvent.click(menuBtn);
+  const contextBtn = await screen.findByText('Report');
+  fireEvent.click(contextBtn);
 
-    await screen.findByTitle(
-      'Eminem Quotes Generator - Simple PHP RESTful API',
-    );
+  await screen.findByTitle('Eminem Quotes Generator - Simple PHP RESTful API');
 
-    const irrelevantTagsBtn = await screen.findByText(
-      'The post is not about...',
-    );
-    fireEvent.click(irrelevantTagsBtn);
-    const javascriptBtn = await screen.findByText('#javascript');
-    fireEvent.click(javascriptBtn);
-    const submitBtn = await screen.findByText('Submit report');
-    fireEvent.click(submitBtn);
-  });
+  const irrelevantTagsBtn = await screen.findByText('The post is not about...');
+  fireEvent.click(irrelevantTagsBtn);
+  const javascriptBtn = await screen.findByText('#javascript');
+  fireEvent.click(javascriptBtn);
+  const submitBtn = await screen.findByText('Submit report');
+  fireEvent.click(submitBtn);
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
