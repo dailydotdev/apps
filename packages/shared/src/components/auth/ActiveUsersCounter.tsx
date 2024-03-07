@@ -1,14 +1,21 @@
 import React, { ReactElement } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { UserIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { getRandomUsersCount } from '../../lib/activity';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 
 export function ActiveUsersCounter(): ReactElement {
+  const { data } = useQuery(
+    generateQueryKey(RequestKey.ActiveUsers, null),
+    getRandomUsersCount,
+  );
+
   return (
     <div className="relative mb-2 flex w-fit flex-row items-center rounded-8 bg-surface-float p-1 pr-3">
       <UserIcon secondary size={IconSize.Small} />
       <span className="ml-3 typo-footnote">
-        <strong>{getRandomUsersCount()} </strong>
+        <strong>{data} </strong>
         devs online
       </span>
       <span
