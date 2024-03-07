@@ -3,7 +3,7 @@ import { addDays, isSameDay, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import { StreakSection } from './StreakSection';
 import { DayStreak, Streak } from './DayStreak';
-import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { getReadingStreak30Days, UserStreak } from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Weekends } from '../../../lib/dateFormat';
@@ -33,6 +33,7 @@ export function ReadingStreakPopup({
   const { data: history } = useQuery(
     generateQueryKey(RequestKey.ReadingStreak30Days, user),
     () => getReadingStreak30Days(user.id),
+    { staleTime: StaleTime.Default },
   );
 
   const streaks = useMemo(() => {
@@ -83,7 +84,7 @@ export function ReadingStreakPopup({
         <StreakSection streak={streak.max} label="Longest streak 🏆" />
       </div>
       <div className="mt-6 flex flex-row gap-2">{streaks}</div>
-      <div className="mt-4 rounded-10 bg-theme-float text-center font-bold leading-8 text-theme-label-tertiary">
+      <div className="mt-4 text-center font-bold leading-8 text-theme-label-tertiary">
         Total reading days: {streak.total}
       </div>
     </div>

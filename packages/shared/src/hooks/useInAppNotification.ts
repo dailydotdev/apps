@@ -57,7 +57,7 @@ export const useInAppNotification = (): UseInAppNotification => {
   };
 
   const addToQueue = (newNotification: NewNotification) => {
-    if (registeredNotification[newNotification.id]) {
+    if (!newNotification || registeredNotification[newNotification.id]) {
       return;
     }
 

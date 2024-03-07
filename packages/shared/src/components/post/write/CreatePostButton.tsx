@@ -7,8 +7,8 @@ import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PlusIcon } from '../../icons';
-import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import ConditionalWrapper from '../../ConditionalWrapper';
+import { SimpleTooltip } from '../../tooltips';
 
 interface CreatePostButtonProps {
   className?: string;
@@ -52,12 +52,9 @@ export function CreatePostButton({
     <ConditionalWrapper
       condition={compact}
       wrapper={(component: ReactElement) => (
-        <LinkWithTooltip
-          href={href}
-          tooltip={{ placement: 'bottom', content: 'New Post' }}
-        >
+        <SimpleTooltip placement="bottom" content="New Post">
           {component}
-        </LinkWithTooltip>
+        </SimpleTooltip>
       )}
     >
       <Button
@@ -67,10 +64,7 @@ export function CreatePostButton({
         icon={compact && <PlusIcon />}
         tag="a"
         size={isLaptop ? ButtonSize.Medium : ButtonSize.Small}
-        {...(!compact && {
-          tag: 'a',
-          href,
-        })}
+        href={href}
       >
         {!compact ? 'New post' : null}
       </Button>
