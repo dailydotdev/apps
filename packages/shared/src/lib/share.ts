@@ -62,7 +62,7 @@ export const getShareLink = ({
   }
 };
 
-interface AddLinkShareTrackingQueryParams {
+export interface AddLinkShareTrackingQueryParams {
   link: string | undefined;
   userId: string | undefined;
   cid: string;
