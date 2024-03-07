@@ -85,10 +85,22 @@ function MainLayoutHeader({
     });
   };
 
+  const getStreakButton = () => {
+    if (isLoading) {
+      return <div className="h-10 w-20 rounded-12 bg-surface-float" />;
+    }
+
+    if (!isStreaksEnabled || !streak) {
+      return null;
+    }
+
+    return <ReadingStreakButton streak={streak} />;
+  };
+
   const RenderButtons = () => {
     return (
       <div className="flex gap-3">
-        {streak && <ReadingStreakButton streak={streak} />}
+        {getStreakButton()}
         <CreatePostButton compact={isStreaksEnabled} />
         {!hideButton && user && (
           <>
