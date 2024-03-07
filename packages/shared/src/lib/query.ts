@@ -92,6 +92,7 @@ export enum RequestKey {
   Host = 'host',
   Source = 'source',
   OneSignal = 'onesignal',
+  ActiveUsers = 'active_users',
   PushNotification = 'push_notification',
 }
 

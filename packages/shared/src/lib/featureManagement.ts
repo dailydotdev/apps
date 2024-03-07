@@ -51,6 +51,7 @@ const feature = {
     'publish_time_format',
     PublishTimeFormat.Control,
   ),
+  onboardingOnlineUsers: new Feature('onboarding_online_users', false),
 };
 
 export { feature };
