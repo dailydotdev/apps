@@ -500,13 +500,16 @@ it('should update post on subscription message', async () => {
     ]);
     expect(data).toBeTruthy();
   });
-  nextCallback({
-    postsEngaged: {
-      id: '0e4005b2d3cf191f8c44c2718a457a1e',
-      numUpvotes: 15,
-      numComments: 0,
-    },
+  await act(async () => {
+    nextCallback({
+      postsEngaged: {
+        id: '0e4005b2d3cf191f8c44c2718a457a1e',
+        numUpvotes: 15,
+        numComments: 0,
+      },
+    });
   });
+
   const el = await screen.findByTestId('statsBar');
   expect(el).toHaveTextContent('15 Upvotes');
 });
