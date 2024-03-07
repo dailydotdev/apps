@@ -430,7 +430,7 @@ export const UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION = gql`
   }
 `;
 
-interface ReadingDay {
+export interface ReadingDay {
   date: string;
   reads: number;
 }
