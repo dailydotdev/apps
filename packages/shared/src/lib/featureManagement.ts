@@ -47,6 +47,7 @@ const feature = {
   forceRefresh: new Feature('force_refresh', false),
   feedAdSpot: new Feature('feed_ad_spot', FeedAdSpot.Control),
   shareLoops: new Feature('share_loops', false),
+  onboardingOnlineUsers: new Feature('onboarding_online_users', false),
   sourceSubscribe: new Feature(
     'source_subscribe',
     SourceSubscribeExperiment.Control,
