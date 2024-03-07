@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Separator } from '../../cards/common';
 import { TimeFormatType } from '../../../lib/dateFormat';
-import { Divider } from '../../utilities';
+import { Divider, DateFormat } from '../../utilities';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { DevCardStats } from './DevCardStats';
 import {
@@ -16,7 +16,6 @@ import { DevCardContainer } from './DevCardContainer';
 import { useDevCard } from '../../../hooks/profile/useDevCard';
 import { DevCardTwitterCover } from './DevCardTwitterCover';
 import { checkLowercaseEquality } from '../../../lib/strings';
-import DateFormat from '../../utilities/DateFormat';
 
 interface DevCardProps {
   type?: DevCardType;

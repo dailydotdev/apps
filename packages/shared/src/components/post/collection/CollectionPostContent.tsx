@@ -27,7 +27,7 @@ import { CollectionsIntro } from '../widgets';
 import { sendViewPost } from '../../../graphql/posts';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { webappUrl } from '../../../lib/constants';
-import DateFormat from '../../utilities/DateFormat';
+import { DateFormat } from '../../utilities';
 
 export const CollectionPostContent = ({
   post,
