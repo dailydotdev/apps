@@ -16,6 +16,7 @@ export default function DateFormat({
   className,
   prefix,
 }: DateFormatProps): ReactElement {
+  const convertedDate = new Date(date);
   const publishTimeFormat = useFeature(feature.publishTimeFormat);
   const timeFormat =
     publishTimeFormat === PublishTimeFormat.V1 &&
@@ -29,7 +30,11 @@ export default function DateFormat({
   );
 
   return (
-    <time className={className} dateTime={date.toString()}>
+    <time
+      title={convertedDate.toISOString()}
+      className={className}
+      dateTime={convertedDate.toISOString()}
+    >
       {prefix}
       {renderDate}
     </time>
