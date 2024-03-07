@@ -15,8 +15,8 @@ import {
 import {
   Button,
   ButtonIconPosition,
-  ButtonVariant,
   ButtonSize,
+  ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   ExperimentWinner,
@@ -70,6 +70,7 @@ import {
 } from '@dailydotdev/shared/src/components/auth';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useOnboardingAnimation } from '@dailydotdev/shared/src/hooks/auth';
+import { ActiveUsersCounter } from '@dailydotdev/shared/src/components/auth/ActiveUsersCounter';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -381,6 +382,8 @@ export function OnboardPage(): ReactElement {
     );
   };
 
+  const shouldShowOnline = useFeature(feature.onboardingOnlineUsers);
+
   const getProgressBar = () => {
     if (isFiltering) {
       return null;
@@ -428,6 +431,7 @@ export function OnboardPage(): ReactElement {
                 : 'justify-center',
             )}
           >
+            {shouldShowOnline && <ActiveUsersCounter />}
             <OnboardingHeadline
               className={{
                 title: 'typo-large-title tablet:typo-mega1',
