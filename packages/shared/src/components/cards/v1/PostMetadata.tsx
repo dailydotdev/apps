@@ -1,7 +1,8 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Separator } from '../common';
-import PostDate from './PostDate';
+import { DateFormat } from '../../utilities';
+import { TimeFormatType } from '../../../lib/dateFormat';
 
 export interface PostMetadataProps {
   className?: string;
@@ -24,7 +25,9 @@ export default function PostMetadata({
       <div className="line-clamp-1 flex items-center text-theme-label-tertiary typo-footnote">
         {bottomLabel}
         {!!bottomLabel && !!createdAt && <Separator />}
-        {!!createdAt && <PostDate createdAt={createdAt} />}
+        {!!createdAt && (
+          <DateFormat date={createdAt} type={TimeFormatType.Post} />
+        )}
       </div>
     </div>
   );
