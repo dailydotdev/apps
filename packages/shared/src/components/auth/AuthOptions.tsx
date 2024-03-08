@@ -54,7 +54,7 @@ import { labels } from '../../lib';
 import OnboardingRegistrationForm from './OnboardingRegistrationForm';
 import EmailCodeVerification from './EmailCodeVerification';
 import { trackAnalyticsSignUp } from './OnboardingAnalytics';
-import { ButtonSize } from '../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../buttons/Button';
 import { nextTick } from '../../lib/func';
 import { OnboardingRegistrationForm4d5 } from './OnboardingRegistrationForm4d5';
 
@@ -102,6 +102,7 @@ export interface AuthOptionsProps {
   targetId?: string;
   ignoreMessages?: boolean;
   onboardingSignupButtonSize?: ButtonSize;
+  onboardingSignupButtonVariant?: ButtonVariant;
 }
 
 function AuthOptions({
@@ -121,6 +122,7 @@ function AuthOptions({
   initialEmail = '',
   ignoreMessages = false,
   onboardingSignupButtonSize,
+  onboardingSignupButtonVariant,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
@@ -448,6 +450,7 @@ function AuthOptions({
             targetId={targetId}
             className={className?.onboardingSignup}
             onboardingSignupButtonSize={onboardingSignupButtonSize}
+            onboardingSignupButtonVariant={onboardingSignupButtonVariant}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>
