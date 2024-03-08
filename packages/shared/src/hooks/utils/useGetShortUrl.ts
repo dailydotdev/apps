@@ -27,7 +27,7 @@ export const useGetShortUrl = (): UseGetShortUrlResult => {
         : url;
       const shortUrlKey = generateQueryKey(
         RequestKey.ShortUrl,
-        null,
+        user,
         trackingUrl,
       );
 
