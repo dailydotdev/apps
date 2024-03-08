@@ -13,7 +13,8 @@ import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
-import { useFeedLayout, useGetShortUrl, ReferralCampaignKey } from '../hooks';
+import { useFeedLayout, useGetShortUrl } from '../hooks';
+import { ReferralCampaignKey } from '../lib/referral';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),

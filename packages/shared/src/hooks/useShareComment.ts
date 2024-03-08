@@ -7,7 +7,7 @@ import { Origin } from '../lib/analytics';
 import { Comment, getCommentHash } from '../graphql/comments';
 import useDebounce from './useDebounce';
 import { useGetShortUrl } from './utils/useGetShortUrl';
-import { ReferralCampaignKey } from './referral';
+import { ReferralCampaignKey } from '../lib/referral';
 
 interface UseShareComment {
   shareComment: Comment;

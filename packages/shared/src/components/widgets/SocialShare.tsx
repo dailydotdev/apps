@@ -13,7 +13,8 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/sources';
 import { SocialShareList } from './SocialShareList';
-import { useGetShortUrl, ReferralCampaignKey } from '../../hooks';
+import { useGetShortUrl } from '../../hooks';
+import { ReferralCampaignKey } from '../../lib/referral';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 interface SocialShareProps {

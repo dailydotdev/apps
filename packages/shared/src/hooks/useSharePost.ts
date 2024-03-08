@@ -6,7 +6,7 @@ import { ShareProvider } from '../lib/share';
 import { Origin } from '../lib/analytics';
 import { useCopyPostLink } from './useCopyPostLink';
 import { useGetShortUrl } from './utils/useGetShortUrl';
-import { ReferralCampaignKey } from './referral';
+import { ReferralCampaignKey } from '../lib/referral';
 
 export function useSharePost(origin: Origin): {
   sharePost: Post;

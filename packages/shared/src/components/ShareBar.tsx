@@ -13,7 +13,8 @@ import { Squad } from '../graphql/sources';
 import { SocialShareButton } from './widgets/SocialShareButton';
 import { SquadsToShare } from './squads/SquadsToShare';
 import { ButtonSize, ButtonVariant } from './buttons/common';
-import { ReferralCampaignKey, useGetShortUrl } from '../hooks';
+import { useGetShortUrl } from '../hooks';
+import { ReferralCampaignKey } from '../lib/referral';
 
 interface ShareBarProps {
   post: Post;

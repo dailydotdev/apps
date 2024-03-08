@@ -6,7 +6,7 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { ProfilePicture } from '../ProfilePicture';
 import { largeNumberFormat } from '../../lib/numberFormat';
-import { ReferralCampaignKey } from '../../hooks';
+import { ReferralCampaignKey } from '../../lib/referral';
 
 export type HeaderProps = {
   user: PublicProfile;

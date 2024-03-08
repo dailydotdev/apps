@@ -1,4 +1,4 @@
-import { ReferralCampaignKey } from '../hooks';
+import { ReferralCampaignKey } from './referral';
 import {
   AddLinkShareTrackingQueryParams,
   ShareProvider,
