@@ -1,7 +1,7 @@
 import {
   AddLinkShareTrackingQueryParams,
   ShareProvider,
-  addLinkShareTrackingQuery,
+  addTrackingQueryParams,
   getShareLink,
 } from './share';
 
@@ -88,7 +88,7 @@ describe('getShareLink tests', () => {
   });
 });
 
-describe('addLinkShareTrackingQuery tests', () => {
+describe('addTrackingQueryParams tests', () => {
   const link = 'https://foo.bar';
   const userId = '42';
   const cid = 'share_post';
@@ -97,7 +97,7 @@ describe('addLinkShareTrackingQuery tests', () => {
     params: AddLinkShareTrackingQueryParams,
     expected: string | undefined,
   ) => {
-    const result = addLinkShareTrackingQuery(params);
+    const result = addTrackingQueryParams(params);
     expect(result).toEqual(expected);
   };
   it('should return link as is if not provided', () => {

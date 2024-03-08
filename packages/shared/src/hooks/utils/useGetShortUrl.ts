@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import { graphqlUrl } from '../../lib/config';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { GET_SHORT_URL_QUERY } from '../../graphql/urlShortener';
-import { addLinkShareTrackingQuery } from '../../lib/share';
+import { addTrackingQueryParams } from '../../lib/share';
 
 interface UseGetShortUrlResult {
   getShortUrl: (url: string, cid?: string) => Promise<string>;
@@ -21,7 +21,7 @@ export const useGetShortUrl = (): UseGetShortUrlResult => {
       }
 
       const trackingUrl = cid
-        ? addLinkShareTrackingQuery({ link: url, userId: user?.id, cid })
+        ? addTrackingQueryParams({ link: url, userId: user?.id, cid })
         : url;
       const shortUrlKey = ['short_url', trackingUrl];
 

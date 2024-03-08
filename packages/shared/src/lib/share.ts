@@ -68,18 +68,13 @@ export interface AddLinkShareTrackingQueryParams {
   cid: string;
 }
 
-export const addLinkShareTrackingQuery = ({
+export const addTrackingQueryParams = ({
   link,
   userId,
   cid,
 }: AddLinkShareTrackingQueryParams): string => {
   // return link as is if not provided
-  if (!link) {
-    return link;
-  }
-
-  // return link as is if params are not provided
-  if (!userId || !cid) {
+  if (!link || !userId || !cid) {
     return link;
   }
 

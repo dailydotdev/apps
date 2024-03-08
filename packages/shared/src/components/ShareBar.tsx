@@ -3,7 +3,7 @@ import { CopyIcon, WhatsappIcon, TwitterIcon, FacebookIcon } from './icons';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import {
-  addLinkShareTrackingQuery,
+  addTrackingQueryParams,
   getShareLink,
   ShareProvider,
 } from '../lib/share';
@@ -30,14 +30,14 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const cid = 'share_post';
   const link =
     isAuthReady && user
-      ? addLinkShareTrackingQuery({ link: href, userId: user.id, cid })
+      ? addTrackingQueryParams({ link: href, userId: user.id, cid })
       : href;
   const { getShortUrl } = useGetShortUrl();
   const [copying, copyLink] = useCopyPostLink(link);
   const { trackEvent } = useContext(AnalyticsContext);
   const { openModal } = useLazyModal();
 
-  const trackClick = (provider: ShareProvider) =>
+  const trackShareEvent = (provider: ShareProvider) =>
     trackEvent(
       postAnalyticsEvent('share post', post, {
         extra: { provider, origin: Origin.ShareBar },
@@ -45,7 +45,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
     );
 
   const onClick = async (provider: ShareProvider) => {
-    trackClick(provider);
+    trackShareEvent(provider);
 
     const shortLink = await getShortUrl(link);
     const shareLink = getShareLink({
@@ -59,7 +59,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const trackAndCopyLink = async () => {
     const shortLink = await getShortUrl(link);
     copyLink({ link: shortLink });
-    trackClick(ShareProvider.CopyLink);
+    trackShareEvent(ShareProvider.CopyLink);
   };
 
   const onShareToSquad = (squad: Squad) => {
