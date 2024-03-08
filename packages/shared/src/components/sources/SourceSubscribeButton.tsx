@@ -1,18 +1,15 @@
 import React, { ReactElement } from 'react';
-import { useNotificationPreferenceToggle } from '../../hooks/notifications';
 import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { BellSubscribedIcon } from '../icons';
-import { NotificationType } from '../notifications/utils';
 import { SimpleTooltip } from '../tooltips';
 import { Source } from '../../graphql/sources';
 import { isTesting } from '../../lib/constants';
-import { useToastNotification } from '../../hooks';
+import { useSourceSubscription } from '../../hooks';
 import { withExperiment } from '../withExperiment';
 import { feature } from '../../lib/featureManagement';
 import { SourceSubscribeExperiment } from '../../lib/featureValues';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { AuthTriggers } from '../../lib/auth';
 
 export type SourceSubscribeButtonProps = {
   className?: string;
@@ -70,32 +67,10 @@ const SourceSubscribeButton = ({
   source,
   variant = ButtonVariant.Primary,
 }: SourceSubscribeButtonProps): ReactElement => {
-  const { isLoggedIn, showLogin } = useAuthContext();
-  const { displayToast } = useToastNotification();
-  const { isSubscribed, isReady, onToggle } = useNotificationPreferenceToggle({
-    params: source?.id
-      ? {
-          notificationType: NotificationType.SourcePostAdded,
-          referenceId: source.id,
-        }
-      : undefined,
+  const { isLoggedIn } = useAuthContext();
+  const { isSubscribed, onSubscribe, isReady } = useSourceSubscription({
+    source,
   });
-
-  const onClick = async () => {
-    if (!isLoggedIn) {
-      showLogin({ trigger: AuthTriggers.SourceSubscribe });
-
-      return;
-    }
-
-    const result = await onToggle();
-
-    displayToast(
-      result.isSubscribed
-        ? '✅ You are now subscribed'
-        : '⛔️ You are now unsubscribed',
-    );
-  };
 
   const ButtonComponent = isSubscribed
     ? SourceSubscribeButtonSubscribed
@@ -105,7 +80,7 @@ const SourceSubscribeButton = ({
     <ButtonComponent
       className={className}
       isFetching={isLoggedIn && !isReady}
-      onClick={onClick}
+      onClick={onSubscribe}
       variant={variant}
     />
   );

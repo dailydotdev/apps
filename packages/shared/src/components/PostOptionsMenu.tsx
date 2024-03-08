@@ -33,6 +33,7 @@ import { MenuIcon } from './MenuIcon';
 import {
   ToastSubject,
   useFeedLayout,
+  useSourceSubscription,
   useToastNotification,
   useViewSize,
   ViewSize,
@@ -62,8 +63,6 @@ import { feature } from '../lib/featureManagement';
 import { ContextMenuDrawer } from './drawers/ContextMenuDrawer';
 import { RootPortal } from './tooltips/Portal';
 import { SourceSubscribeExperiment } from '../lib/featureValues';
-import { useNotificationPreferenceToggle } from '../hooks/notifications';
-import { NotificationType } from './notifications/utils';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -129,25 +128,9 @@ export default function PostOptionsMenu({
   const isSourceSubscribeV1 =
     useFeature(feature.sourceSubscribe) === SourceSubscribeExperiment.V1;
 
-  const sourceSubscribe = useNotificationPreferenceToggle({
-    params:
-      isSourceSubscribeV1 && post?.source?.id
-        ? {
-            notificationType: NotificationType.SourcePostAdded,
-            referenceId: post?.source?.id,
-          }
-        : undefined,
+  const sourceSubscribe = useSourceSubscription({
+    source: post?.source,
   });
-
-  const onSourceSubscribe = async () => {
-    const result = await sourceSubscribe.onToggle();
-
-    displayToast(
-      result.isSubscribed
-        ? '✅ You are now subscribed'
-        : '⛔️ You are now unsubscribed',
-    );
-  };
 
   const { toggleBookmark } = useBookmarkPost({
     mutationKey: feedQueryKey,
@@ -371,7 +354,7 @@ export default function PostOptionsMenu({
       label: `${
         sourceSubscribe.isSubscribed ? 'Unsubscribe from' : 'Subscribe to'
       } ${post?.source?.name}`,
-      action: sourceSubscribe.isReady ? onSourceSubscribe : undefined,
+      action: sourceSubscribe.isReady ? sourceSubscribe.onSubscribe : undefined,
     });
   }
 
