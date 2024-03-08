@@ -180,7 +180,7 @@ export const getTodayTz = (timeZone: string): Date => {
   const now = new Date();
   const timeZonedToday = now.toLocaleDateString('en', { timeZone });
   return new Date(timeZonedToday);
-}
+};
 
 interface FormatDateProps {
   value: Date | number | string;
