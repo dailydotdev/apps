@@ -30,7 +30,13 @@ import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
-import { ToastSubject, useFeedLayout, useToastNotification } from '../hooks';
+import {
+  ToastSubject,
+  useFeedLayout,
+  useToastNotification,
+  useViewSize,
+  ViewSize,
+} from '../hooks';
 import {
   AllFeedPages,
   generateQueryKey,
@@ -53,6 +59,8 @@ import { ActiveFeedContext } from '../contexts';
 import { useAdvancedSettings } from '../hooks/feed';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
+import { ContextMenuDrawer } from './drawers/ContextMenuDrawer';
+import { RootPortal } from './tooltips/Portal';
 import { SourceSubscribeExperiment } from '../lib/featureValues';
 import { useNotificationPreferenceToggle } from '../hooks/notifications';
 import { NotificationType } from './notifications/utils';
@@ -467,23 +475,34 @@ export default function PostOptionsMenu({
     });
   }
 
+  const isMobile = useViewSize(ViewSize.MobileL);
+
+  if (isMobile) {
+    return (
+      <RootPortal>
+        <ContextMenuDrawer
+          drawerProps={{ isOpen, onClose: onHidden, displayCloseButton: true }}
+          options={postOptions}
+        />
+      </RootPortal>
+    );
+  }
+
   return (
-    <>
-      <PortalMenu
-        disableBoundariesCheck
-        id={contextId}
-        className="menu-primary"
-        animation="fade"
-        onHidden={onHidden}
-      >
-        {postOptions.map(({ icon, label, action }) => (
-          <Item key={label} className="typo-callout" onClick={action}>
-            <span className="flex w-full items-center typo-callout">
-              {icon} {label}
-            </span>
-          </Item>
-        ))}
-      </PortalMenu>
-    </>
+    <PortalMenu
+      disableBoundariesCheck
+      id={contextId}
+      className="menu-primary"
+      animation="fade"
+      onHidden={onHidden}
+    >
+      {postOptions.map(({ icon, label, action }) => (
+        <Item key={label} className="typo-callout" onClick={action}>
+          <span className="flex w-full items-center typo-callout">
+            {icon} {label}
+          </span>
+        </Item>
+      ))}
+    </PortalMenu>
   );
 }
