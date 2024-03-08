@@ -142,16 +142,26 @@ const UserHighlight = (props: SourceAuthorProps) => {
           </ProfileTooltip>
         )}
       >
-        <div className="ml-4 flex flex-col">
-          <div className="flex">
-            <ProfileLink className="font-bold typo-callout" href={permalink}>
+        <div className="ml-4 flex min-w-0 flex-1 flex-col">
+          {isUserTypeSource && (
+            <ProfileLink
+              className={classNames('!block truncate font-bold typo-callout')}
+              href={permalink}
+            >
               {name}
             </ProfileLink>
-            <ReputationUserBadge user={{ reputation }} />
-          </div>
+          )}
+          {!isUserTypeSource && (
+            <div className="flex">
+              <ProfileLink className="font-bold typo-callout" href={permalink}>
+                {name}
+              </ProfileLink>
+              <ReputationUserBadge user={{ reputation }} />
+            </div>
+          )}
           {(handle || username || id) && (
             <ProfileLink
-              className="mt-0.5 text-theme-label-tertiary typo-footnote"
+              className="mt-0.5 !block truncate text-theme-label-tertiary typo-footnote"
               href={permalink}
             >
               @{handle || username || id}
@@ -161,7 +171,7 @@ const UserHighlight = (props: SourceAuthorProps) => {
       </ConditionalWrapper>
       {!isSourceBlocked && isUserTypeSource && (
         <SourceSubscribeButton
-          className="ml-auto"
+          className="ml-4"
           variant={ButtonVariant.Secondary}
           source={{ id }}
         />
