@@ -9,7 +9,9 @@ import { Feature } from '../../lib/featureManagement';
 import { useFeatureIsOn } from '../../components/GrowthBookProvider';
 import { isTesting } from '../../lib/constants';
 
-export { ReferralCampaignKey } from '../../lib/referral';
+import { ReferralCampaignKey } from '../../lib/referral';
+
+export { ReferralCampaignKey };
 
 export interface ReferralCampaign {
   referredUsersCount: number;
