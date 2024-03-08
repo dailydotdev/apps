@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import {
   checkHasStatusPreference,
   useNotificationPreference,
@@ -10,7 +10,7 @@ import { Post } from '../../../graphql/posts';
 import { SimpleTooltip } from '../../tooltips';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { AuthTriggers } from '../../../lib/auth';
-import AuthContext, { useAuthContext } from '../../../contexts/AuthContext';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 export type CollectionSubscribeButtonProps = {
   post: Post;
