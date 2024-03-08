@@ -368,9 +368,9 @@ export default function PostOptionsMenu({
           Icon={sourceSubscribe.isSubscribed ? BellSubscribedIcon : BellIcon}
         />
       ),
-      label: sourceSubscribe.isSubscribed
-        ? `Unsubscribe from ${post?.source?.name}`
-        : `Subscribe to ${post?.source?.name}`,
+      label: `${
+        sourceSubscribe.isSubscribed ? 'Unsubscribe from' : 'Subscribe to'
+      } ${post?.source?.name}`,
       action: sourceSubscribe.isReady ? onSourceSubscribe : undefined,
     });
   }

@@ -7,7 +7,7 @@ import { WidgetContainer } from './common';
 import { ScoutIcon, FeatherIcon } from '../icons';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { ProfileLink } from '../profile/ProfileLink';
-import { Author } from '../../graphql/comments';
+import { Author as CommentAuthor } from '../../graphql/comments';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ReputationUserBadge } from '../ReputationUserBadge';
@@ -22,7 +22,12 @@ interface PostAuthorProps {
   post: Post;
 }
 
-type UserType = 'source' | 'author' | 'featured' | 'scout';
+enum UserType {
+  Source = 'source',
+  Author = 'author',
+  Featured = 'featured',
+  Scout = 'scout',
+}
 
 const StyledImage = classed(LazyImage, 'w-10 h-10');
 
@@ -38,17 +43,17 @@ interface SourceAuthorProps {
 }
 
 const getUserIcon = (userType: UserType) => {
-  if (userType === 'source') {
+  if (userType === UserType.Source) {
     return null;
   }
 
-  return userType === 'author' ? FeatherIcon : ScoutIcon;
+  return userType === UserType.Author ? FeatherIcon : ScoutIcon;
 };
 
 const Image = (props: SourceAuthorProps) => {
   const { userType, name, permalink, image } = props;
 
-  if (userType === 'source') {
+  if (userType === UserType.Source) {
     return (
       <LinkWithTooltip
         href={permalink}
@@ -69,7 +74,7 @@ const Image = (props: SourceAuthorProps) => {
     );
   }
 
-  const user = props as Author;
+  const user = props as CommentAuthor;
 
   return (
     <ProfileLink href={user.permalink} data-testid="authorLink">
@@ -90,11 +95,11 @@ const UserHighlight = (props: SourceAuthorProps) => {
     name,
     username,
     permalink,
-    userType = 'source',
+    userType = UserType.Source,
     reputation,
   } = props;
   const Icon = getUserIcon(userType);
-  const isUserTypeSource = userType === 'source';
+  const isUserTypeSource = userType === UserType.Source;
   const isSourceSubscribeV1 =
     useFeature(feature.sourceSubscribe) === SourceSubscribeExperiment.V1;
   const { feedSettings } = useFeedSettings({ enabled: isSourceSubscribeV1 });
@@ -128,7 +133,7 @@ const UserHighlight = (props: SourceAuthorProps) => {
           secondary
           className={classNames(
             'absolute left-10 top-10 h-5 w-5',
-            userType === 'author'
+            userType === UserType.Author
               ? 'text-theme-color-cheese'
               : 'text-theme-color-bun',
           )}
@@ -185,9 +190,9 @@ export function PostUsersHighlights({ post }: PostAuthorProps): ReactElement {
 
   return (
     <WidgetContainer className="flex flex-col">
-      <UserHighlight {...source} userType="source" />
-      {author && <UserHighlight {...author} userType="author" />}
-      {scout && <UserHighlight {...scout} userType="scout" />}
+      <UserHighlight {...source} userType={UserType.Source} />
+      {author && <UserHighlight {...author} userType={UserType.Author} />}
+      {scout && <UserHighlight {...scout} userType={UserType.Scout} />}
     </WidgetContainer>
   );
 }
