@@ -10,6 +10,8 @@ import classNames from 'classnames';
 import useDebounce from '../../hooks/useDebounce';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
+import { ButtonVariant } from '../buttons/common';
+import { Button } from '../buttons/Button';
 
 export enum DrawerPosition {
   Bottom = 'bottom',
@@ -29,6 +31,7 @@ interface DrawerProps {
   isClosing?: boolean;
   title?: string;
   onClose(): void;
+  displayCloseButton?: boolean;
 }
 
 const drawerPositionToClassName: Record<DrawerPosition, string> = {
@@ -49,6 +52,7 @@ function BaseDrawer({
   isClosing = false,
   title,
   onClose,
+  displayCloseButton,
 }: DrawerProps): ReactElement {
   const container = useRef<HTMLDivElement>();
   const [hasAnimated, setHasAnimated] = useState(false);
@@ -98,18 +102,27 @@ function BaseDrawer({
         >
           {children}
         </ConditionalWrapper>
+        {displayCloseButton && (
+          <Button
+            variant={ButtonVariant.Float}
+            className="mt-4 w-full"
+            onClick={onClose}
+          >
+            Close
+          </Button>
+        )}
       </div>
     </div>
   );
 }
 
-interface DrawerWrapperProps extends Omit<DrawerProps, 'isClosing'> {
+export interface DrawerWrapperProps extends Omit<DrawerProps, 'isClosing'> {
   isOpen: boolean;
 }
 
 const ANIMATION_MS = 300;
 
-interface DrawerRef {
+export interface DrawerRef {
   onClose(): void;
 }
 
