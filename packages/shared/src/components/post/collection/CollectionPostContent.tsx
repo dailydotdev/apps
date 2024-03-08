@@ -1,12 +1,8 @@
 import classNames from 'classnames';
 import React, { ReactElement, useEffect } from 'react';
-import { useMutation } from '@tanstack/react-query';
 import Link from 'next/link';
 import { LazyImage } from '../../LazyImage';
-import {
-  ToastSubject,
-  useToastNotification,
-} from '../../../hooks/useToastNotification';
+import { ToastSubject, useToastNotification } from '../../../hooks';
 import PostContentContainer from '../PostContentContainer';
 import usePostContent from '../../../hooks/usePostContent';
 import FixedPostNavigation from '../FixedPostNavigation';
@@ -24,9 +20,9 @@ import {
 } from '../common';
 import { Pill } from '../../Pill';
 import { CollectionsIntro } from '../widgets';
-import { sendViewPost } from '../../../graphql/posts';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { webappUrl } from '../../../lib/constants';
+import { useViewPost } from '../../../hooks/post/useViewPost';
 import { DateFormat } from '../../utilities';
 
 export const CollectionPostContent = ({
@@ -74,7 +70,7 @@ export const CollectionPostContent = ({
     onRemovePost,
   };
 
-  const { mutateAsync: onSendViewPost } = useMutation(sendViewPost);
+  const onSendViewPost = useViewPost();
 
   useEffect(() => {
     if (!post?.id || !user?.id) {
