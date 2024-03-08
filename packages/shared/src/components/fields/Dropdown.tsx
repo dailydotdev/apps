@@ -15,7 +15,8 @@ import {
 import { ArrowIcon, VIcon } from '../icons';
 import styles from './Dropdown.module.css';
 import { useViewSize, ViewSize } from '../../hooks';
-import { ListDrawer, SelectProps } from '../drawers/ListDrawer';
+import { ListDrawer } from '../drawers/ListDrawer';
+import { SelectParams } from '../drawers/common';
 
 interface ClassName {
   container?: string;
@@ -112,7 +113,7 @@ export function Dropdown({
     }
   };
 
-  const handleChange = ({ value, index }: SelectProps): void => {
+  const handleChange = ({ value, index }: SelectParams): void => {
     onChange(value, index);
   };
 

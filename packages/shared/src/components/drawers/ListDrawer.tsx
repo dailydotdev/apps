@@ -3,18 +3,13 @@ import classNames from 'classnames';
 import { Drawer, DrawerRef, DrawerWrapperProps } from './Drawer';
 import { VIcon } from '../icons';
 import { IconSize } from '../Icon';
-
-export interface SelectProps {
-  value: string;
-  index: number;
-  event: React.MouseEvent<HTMLButtonElement>;
-}
+import { SelectParams } from './common';
 
 interface ListDrawerProps {
   drawerProps: Omit<DrawerWrapperProps, 'children'>;
   options: string[];
   selected: number; // index
-  onSelectedChange(props: SelectProps): void;
+  onSelectedChange(props: SelectParams): void;
 }
 
 export function ListDrawer({

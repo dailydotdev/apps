@@ -103,13 +103,15 @@ function BaseDrawer({
           {children}
         </ConditionalWrapper>
         {displayCloseButton && (
-          <Button
-            variant={ButtonVariant.Float}
-            className="mt-4 w-full"
-            onClick={onClose}
-          >
-            Close
-          </Button>
+          <div className="sticky bottom-0 bg-theme-bg-primary">
+            <Button
+              variant={ButtonVariant.Float}
+              className="mt-1 w-full"
+              onClick={onClose}
+            >
+              Close
+            </Button>
+          </div>
         )}
       </div>
     </div>
