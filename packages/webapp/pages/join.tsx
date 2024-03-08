@@ -18,9 +18,11 @@ import { Referral } from '../components/invite/Referral';
 type ReferralRecord<T> = Record<ReferralCampaignKey, T>;
 
 const componentsMap: ReferralRecord<FunctionComponent<JoinPageProps>> = {
-  search: AISearchInvite,
-  generic: Referral,
-  share: null,
+  [ReferralCampaignKey.Search]: AISearchInvite,
+  [ReferralCampaignKey.Generic]: Referral,
+  [ReferralCampaignKey.SharePost]: Referral,
+  [ReferralCampaignKey.ShareComment]: Referral,
+  [ReferralCampaignKey.ShareProfile]: Referral,
 };
 
 const Page = ({

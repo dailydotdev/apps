@@ -13,6 +13,7 @@ function PostNavigation({
   onNextPost,
   className = {},
   children,
+  contextMenuId = 'post-navigation-context',
   ...props
 }: PostNavigationProps): ReactElement {
   return (
@@ -54,7 +55,7 @@ function PostNavigation({
         {...props}
         className={classNames('flex', className?.actions)}
         notificationClassName="ml-4"
-        contextMenuId="post-navigation-context"
+        contextMenuId={contextMenuId}
       />
     </div>
   );
