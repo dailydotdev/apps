@@ -80,7 +80,7 @@ export const addTrackingQueryParams = ({
   }
 
   const url = new URL(link);
-  url.searchParams.set('userId', userId);
+  url.searchParams.set('userid', userId);
   url.searchParams.set('cid', cid);
 
   return url.toString();

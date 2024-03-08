@@ -112,14 +112,14 @@ describe('addTrackingQueryParams tests', () => {
   it('should add userId and cid query params', () => {
     runTest(
       { link, userId, cid },
-      `https://foo.bar/?userId=${userId}&cid=${cid}`,
+      `https://foo.bar/?userid=${userId}&cid=${cid}`,
     );
   });
 
   it('should replace userId and cid query params', () => {
     runTest(
-      { link: 'https://foo.bar/?userId=123&cid=share_comment', userId, cid },
-      `https://foo.bar/?userId=${userId}&cid=${cid}`,
+      { link: 'https://foo.bar/?userid=123&cid=share_comment', userId, cid },
+      `https://foo.bar/?userid=${userId}&cid=${cid}`,
     );
   });
 });
