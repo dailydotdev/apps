@@ -145,6 +145,7 @@ export default function Feed<T>({
     (router.query?.[acquisitionKey] as string)?.toLocaleLowerCase() ===
       'true' &&
     !user?.acquisitionChannel;
+
   const adSpot = useFeature(feature.feedAdSpot);
 
   const {

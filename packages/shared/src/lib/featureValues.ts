@@ -28,11 +28,6 @@ export enum UserAcquisition {
   V1 = 'v1',
 }
 
-export enum FeedAdSpot {
-  Control = defaultFeedContextData.adSpot,
-  V1 = 0,
-}
-
 export enum PublishTimeFormat {
   Control = 'control',
   V1 = 'v1',
