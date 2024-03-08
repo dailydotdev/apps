@@ -103,6 +103,7 @@ const AccountInvitePage = (): ReactElement => {
           description={labels.referral.generic.inviteText}
           onNativeShare={onShareOrCopyLink}
           onClickSocial={onTrackShare}
+          shortenUrl={false}
         />
       </div>
       <AccountContentSection
