@@ -1,4 +1,10 @@
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
@@ -114,7 +120,7 @@ describe('ShareModal Test Suite:', () => {
     renderComponent();
     const btn = await screen.findByTestId(`social-share-Facebook`);
 
-    btn.click();
+    fireEvent.click(btn);
 
     await waitFor(() => {
       expect(mockWindowOpen).toHaveBeenCalledWith(
@@ -128,7 +134,7 @@ describe('ShareModal Test Suite:', () => {
     renderComponent(false, false, defaultComment);
     const btn = await screen.findByTestId(`social-share-Facebook`);
 
-    btn.click();
+    fireEvent.click(btn);
 
     await waitFor(() => {
       expect(mockWindowOpen).toHaveBeenCalledWith(

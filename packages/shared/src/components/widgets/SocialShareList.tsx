@@ -39,7 +39,7 @@ export function SocialShareList({
 }: SocialShareListProps): ReactElement {
   const { getShortUrl } = useGetShortUrl();
 
-  const onClick = async (provider: ShareProvider) => {
+  const openShareLink = async (provider: ShareProvider) => {
     onClickSocial(provider);
 
     const shortLink = shortenUrl ? await getShortUrl(link) : link;
@@ -68,12 +68,12 @@ export function SocialShareList({
         icon={<TwitterIcon />}
         variant={ButtonVariant.Primary}
         color={ButtonColor.Twitter}
-        onClick={() => onClick(ShareProvider.Twitter)}
+        onClick={() => openShareLink(ShareProvider.Twitter)}
         label="X"
       />
       <SocialShareButton
         icon={<WhatsappIcon />}
-        onClick={() => onClick(ShareProvider.WhatsApp)}
+        onClick={() => openShareLink(ShareProvider.WhatsApp)}
         variant={ButtonVariant.Primary}
         color={ButtonColor.WhatsApp}
         label="WhatsApp"
@@ -82,35 +82,35 @@ export function SocialShareList({
         icon={<FacebookIcon />}
         variant={ButtonVariant.Primary}
         color={ButtonColor.Facebook}
-        onClick={() => onClick(ShareProvider.Facebook)}
+        onClick={() => openShareLink(ShareProvider.Facebook)}
         label="Facebook"
       />
       <SocialShareButton
         icon={<RedditIcon />}
         variant={ButtonVariant.Primary}
         color={ButtonColor.Reddit}
-        onClick={() => onClick(ShareProvider.Reddit)}
+        onClick={() => openShareLink(ShareProvider.Reddit)}
         label="Reddit"
       />
       <SocialShareButton
         icon={<LinkedInIcon />}
         variant={ButtonVariant.Primary}
         color={ButtonColor.LinkedIn}
-        onClick={() => onClick(ShareProvider.LinkedIn)}
+        onClick={() => openShareLink(ShareProvider.LinkedIn)}
         label="LinkedIn"
       />
       <SocialShareButton
         icon={<TelegramIcon />}
         variant={ButtonVariant.Primary}
         color={ButtonColor.Telegram}
-        onClick={() => onClick(ShareProvider.Telegram)}
+        onClick={() => openShareLink(ShareProvider.Telegram)}
         label="Telegram"
       />
       <SocialShareButton
         icon={<MailIcon />}
         variant={ButtonVariant.Primary}
         className="bg-theme-bg-email text-theme-label-primary"
-        onClick={() => onClick(ShareProvider.Email)}
+        onClick={() => openShareLink(ShareProvider.Email)}
         label="Email"
       />
       {'share' in globalThis?.navigator && (

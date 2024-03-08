@@ -49,7 +49,6 @@ const AccountInvitePage = (): ReactElement => {
   const [, onShareOrCopyLink] = useShareOrCopyLink({
     text: labels.referral.generic.inviteText,
     link: inviteLink,
-    shortenUrl: false,
     trackObject: () => ({
       event_name: AnalyticsEvent.CopyReferralLink,
       target_id: TargetId.InviteFriendsPage,

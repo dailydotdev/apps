@@ -1,4 +1,10 @@
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
@@ -116,7 +122,7 @@ describe('ShareBar Test Suite:', () => {
     renderComponent();
     const btn = await screen.findByTestId(`social-share-Facebook`);
 
-    btn.click();
+    fireEvent.click(btn);
 
     await waitFor(() => {
       expect(mockWindowOpen).toHaveBeenCalledWith(

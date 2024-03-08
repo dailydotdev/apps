@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { CopyNotifyFunction, useCopyLink } from './useCopy';
-import { ShareProvider } from '../lib/share';
+import { ShareCID, ShareProvider } from '../lib/share';
 import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
 import { useGetShortUrl } from './utils/useGetShortUrl';
 
@@ -10,19 +10,20 @@ interface UseShareOrCopyLinkProps {
   text: string;
   trackObject?: (provider: ShareProvider) => AnalyticsEvent;
   shortenUrl?: boolean;
+  cid?: ShareCID;
 }
 export function useShareOrCopyLink({
   link,
   text,
   trackObject,
-  shortenUrl = true,
+  cid,
 }: UseShareOrCopyLinkProps): ReturnType<typeof useCopyLink> {
   const { trackEvent } = useContext(AnalyticsContext);
-  const [copying, copyLink] = useCopyLink(() => link);
+  const [copying, copyLink] = useCopyLink();
   const { getShortUrl } = useGetShortUrl();
 
   const onShareOrCopy: CopyNotifyFunction = async () => {
-    const shortLink = shortenUrl ? await getShortUrl(link) : link;
+    const shortLink = cid ? await getShortUrl(link, cid) : link;
 
     if ('share' in navigator) {
       try {

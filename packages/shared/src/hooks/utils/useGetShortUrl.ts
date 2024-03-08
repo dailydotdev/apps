@@ -4,10 +4,11 @@ import { useCallback } from 'react';
 import { graphqlUrl } from '../../lib/config';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { GET_SHORT_URL_QUERY } from '../../graphql/urlShortener';
-import { addTrackingQueryParams } from '../../lib/share';
+import { ShareCID, addTrackingQueryParams } from '../../lib/share';
+import { RequestKey, generateQueryKey } from '../../lib/query';
 
 interface UseGetShortUrlResult {
-  getShortUrl: (url: string, cid?: string) => Promise<string>;
+  getShortUrl: (url: string, cid?: ShareCID) => Promise<string>;
 }
 
 export const useGetShortUrl = (): UseGetShortUrlResult => {
@@ -15,7 +16,7 @@ export const useGetShortUrl = (): UseGetShortUrlResult => {
   const queryClient = useQueryClient();
 
   const getShortUrl = useCallback(
-    async (url: string, cid?: string) => {
+    async (url: string, cid?: ShareCID) => {
       if (!url || !isAuthReady || !user) {
         return url;
       }
@@ -23,7 +24,11 @@ export const useGetShortUrl = (): UseGetShortUrlResult => {
       const trackingUrl = cid
         ? addTrackingQueryParams({ link: url, userId: user?.id, cid })
         : url;
-      const shortUrlKey = ['short_url', trackingUrl];
+      const shortUrlKey = generateQueryKey(
+        RequestKey.ShortUrl,
+        null,
+        trackingUrl,
+      );
 
       try {
         const data = await queryClient.fetchQuery(

@@ -1,5 +1,9 @@
 import React, { ReactElement, useContext } from 'react';
-import { ShareProvider, addTrackingQueryParams } from '../../lib/share';
+import {
+  ShareCID,
+  ShareProvider,
+  addTrackingQueryParams,
+} from '../../lib/share';
 import { Post } from '../../graphql/posts';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
@@ -38,7 +42,9 @@ export const SocialShare = ({
   const href = isComment
     ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
     : post?.commentsPermalink;
-  const cid = isComment ? 'share_comment' : 'share_post';
+  const cid = isComment ? ShareCID.Comment : ShareCID.Post;
+  // precompute the share link here, because it's used for copy link
+  // as well as passed into the SocialShareList component
   const link =
     isAuthReady && user
       ? addTrackingQueryParams({ link: href, userId: user.id, cid })

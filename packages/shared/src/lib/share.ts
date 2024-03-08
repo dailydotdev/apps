@@ -62,10 +62,15 @@ export const getShareLink = ({
   }
 };
 
+export enum ShareCID {
+  Post = 'share_post',
+  Comment = 'share_comment',
+  Profile = 'share_profile',
+}
 export interface AddLinkShareTrackingQueryParams {
   link: string | undefined;
   userId: string | undefined;
-  cid: string;
+  cid: ShareCID;
 }
 
 export const addTrackingQueryParams = ({

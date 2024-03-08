@@ -2,11 +2,7 @@ import React, { ReactElement, useContext } from 'react';
 import { CopyIcon, WhatsappIcon, TwitterIcon, FacebookIcon } from './icons';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
-import {
-  addTrackingQueryParams,
-  getShareLink,
-  ShareProvider,
-} from '../lib/share';
+import { getShareLink, ShareCID, ShareProvider } from '../lib/share';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { WidgetContainer } from './widgets/common';
@@ -17,7 +13,6 @@ import { Squad } from '../graphql/sources';
 import { SocialShareButton } from './widgets/SocialShareButton';
 import { SquadsToShare } from './squads/SquadsToShare';
 import { ButtonSize, ButtonVariant } from './buttons/common';
-import { useAuthContext } from '../contexts/AuthContext';
 import { useGetShortUrl } from '../hooks';
 
 interface ShareBarProps {
@@ -26,14 +21,9 @@ interface ShareBarProps {
 
 export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const href = post.commentsPermalink;
-  const { user, isAuthReady } = useAuthContext();
-  const cid = 'share_post';
-  const link =
-    isAuthReady && user
-      ? addTrackingQueryParams({ link: href, userId: user.id, cid })
-      : href;
+  const cid = ShareCID.Post;
   const { getShortUrl } = useGetShortUrl();
-  const [copying, copyLink] = useCopyPostLink(link);
+  const [copying, copyLink] = useCopyPostLink();
   const { trackEvent } = useContext(AnalyticsContext);
   const { openModal } = useLazyModal();
 
@@ -47,7 +37,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const onClick = async (provider: ShareProvider) => {
     trackShareEvent(provider);
 
-    const shortLink = await getShortUrl(link);
+    const shortLink = await getShortUrl(href, cid);
     const shareLink = getShareLink({
       provider,
       link: shortLink,
@@ -57,7 +47,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   };
 
   const trackAndCopyLink = async () => {
-    const shortLink = await getShortUrl(link);
+    const shortLink = await getShortUrl(href, cid);
     copyLink({ link: shortLink });
     trackShareEvent(ShareProvider.CopyLink);
   };
