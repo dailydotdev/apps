@@ -136,6 +136,7 @@ export default function SquadHeaderMenu({
     onLeaveSquad,
     openModal,
     squad,
+    isLoggedIn,
   ]);
 
   return (
