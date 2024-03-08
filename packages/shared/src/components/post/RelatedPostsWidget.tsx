@@ -84,10 +84,8 @@ export const RelatedPostsWidget = ({
               >
                 <CardLink
                   className="cursor-pointer"
-                  href={relatedPost.permalink}
+                  href={relatedPost.commentsPermalink}
                   title={relatedPost.title}
-                  rel="noopener"
-                  target="_blank"
                 />
                 <div className="flex overflow-hidden">
                   <SourceAvatar source={relatedPost.source} size="small" />

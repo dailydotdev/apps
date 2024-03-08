@@ -103,7 +103,7 @@ export function PostContent({
             post={post}
             onClose={onClose}
             className="mb-4 flex tablet:hidden"
-            contextMenuId="post-widgets-context"
+            contextMenuId="post-header-actions-context"
           />
         )}
 

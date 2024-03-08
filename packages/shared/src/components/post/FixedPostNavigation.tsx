@@ -24,6 +24,7 @@ function FixedPostNavigation({
       {...props}
       inlineActions
       post={post}
+      contextMenuId="fixed-post-navigation-context"
       className={{
         container: classNames(
           'fixed z-postNavigation ml-0 w-full border border-theme-divider-tertiary bg-theme-bg-secondary px-6 py-4',

@@ -1,3 +1,5 @@
+import { ReferralCampaignKey } from './referral';
+
 export enum ShareProvider {
   Native = 'native',
   CopyLink = 'copy link',
@@ -30,3 +32,56 @@ export const getTelegramShareLink = (link: string, text: string): string =>
   `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`;
 export const getEmailShareLink = (link: string, subject: string): string =>
   `mailto:?subject=${subject}&body=${encodeURIComponent(link)}`;
+
+interface GetShareLinkParams {
+  provider: ShareProvider;
+  link: string;
+  text?: string;
+}
+
+export const getShareLink = ({
+  provider,
+  link,
+  text,
+}: GetShareLinkParams): string => {
+  switch (provider) {
+    case ShareProvider.WhatsApp:
+      return getWhatsappShareLink(link);
+    case ShareProvider.Twitter:
+      return getTwitterShareLink(link, text ?? '');
+    case ShareProvider.Facebook:
+      return getFacebookShareLink(link);
+    case ShareProvider.Reddit:
+      return getRedditShareLink(link, text ?? '');
+    case ShareProvider.LinkedIn:
+      return getLinkedInShareLink(link);
+    case ShareProvider.Telegram:
+      return getTelegramShareLink(link, text ?? '');
+    case ShareProvider.Email:
+      return getEmailShareLink(link, text ?? '');
+    default:
+      return link;
+  }
+};
+export interface AddLinkShareTrackingQueryParams {
+  link: string | undefined;
+  userId: string | undefined;
+  cid: ReferralCampaignKey;
+}
+
+export const addTrackingQueryParams = ({
+  link,
+  userId,
+  cid,
+}: AddLinkShareTrackingQueryParams): string => {
+  // return link as is if not provided
+  if (!link || !userId || !cid) {
+    return link;
+  }
+
+  const url = new URL(link);
+  url.searchParams.set('userid', userId);
+  url.searchParams.set('cid', cid);
+
+  return url.toString();
+};
