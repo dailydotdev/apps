@@ -1,9 +1,7 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
 import { Drawer, DrawerRef, DrawerWrapperProps } from './Drawer';
-import { VIcon } from '../icons';
-import { IconSize } from '../Icon';
-import { SelectParams } from './common';
+import type { SelectParams } from './common';
+import { ListDrawerItem } from './ListDrawerItem';
 
 interface ListDrawerProps {
   drawerProps: Omit<DrawerWrapperProps, 'children'>;
@@ -22,30 +20,17 @@ export function ListDrawer({
 
   return (
     <Drawer {...drawerProps} ref={ref} role="menu">
-      {options.map((value, index) => {
-        const isSelected = index === selected;
-
-        return (
-          <button
-            key={value}
-            role="menuitem"
-            type="button"
-            className={classNames(
-              'flex h-10 flex-row items-center overflow-hidden text-ellipsis whitespace-nowrap px-2 typo-callout',
-              index === selected ? 'font-bold' : 'text-theme-label-tertiary',
-            )}
-            onClick={(event) => {
-              onSelectedChange({ value, index, event });
-              ref.current.onClose();
-            }}
-          >
-            {value}
-            {isSelected && (
-              <VIcon secondary size={IconSize.Small} className="ml-auto" />
-            )}
-          </button>
-        );
-      })}
+      {options.map((value, index) => (
+        <ListDrawerItem
+          key={value}
+          value={value}
+          isSelected={index === selected}
+          onClick={(params) => {
+            onSelectedChange({ ...params, index });
+            ref.current?.onClose();
+          }}
+        />
+      ))}
     </Drawer>
   );
 }
