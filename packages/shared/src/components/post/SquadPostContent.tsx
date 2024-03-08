@@ -1,12 +1,11 @@
 import React, { ReactElement, useEffect } from 'react';
-import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import FixedPostNavigation from './FixedPostNavigation';
 import PostSourceInfo from './PostSourceInfo';
 import { BasePostContent } from './BasePostContent';
-import { PostType, isVideoPost, sendViewPost } from '../../graphql/posts';
+import { PostType, isVideoPost } from '../../graphql/posts';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import SquadPostAuthor from './SquadPostAuthor';
 import SharePostContent from './SharePostContent';
@@ -16,6 +15,7 @@ import { isSourcePublicSquad } from '../../graphql/squads';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { PostContentProps, PostNavigationProps } from './common';
 import ShareYouTubeContent from './ShareYouTubeContent';
+import { useViewPost } from '../../hooks/post';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -42,7 +42,7 @@ function SquadPostContent({
   isBannerVisible,
 }: PostContentProps): ReactElement {
   const { user } = useAuthContext();
-  const { mutateAsync: onSendViewPost } = useMutation(sendViewPost);
+  const onSendViewPost = useViewPost();
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const engagementActions = usePostContent({ origin, post });
   const { onReadArticle, onSharePost } = engagementActions;

@@ -90,6 +90,7 @@ function MyFeedHeading({
   };
 
   const onRefresh = async () => {
+    trackEvent({ event_name: AnalyticsEvent.RefreshFeed });
     setShouldRefreshFeed(true);
     await queryClient.refetchQueries({ queryKey: [SharedFeedPage.MyFeed] });
     setShouldRefreshFeed(false);

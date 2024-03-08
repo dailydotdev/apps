@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement, useEffect } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { isVideoPost, sendViewPost } from '../../graphql/posts';
+import { isVideoPost } from '../../graphql/posts';
 import PostMetadata from '../cards/PostMetadata';
 import PostSummary from '../cards/PostSummary';
 import { LazyImage } from '../LazyImage';
@@ -9,10 +8,7 @@ import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
 import { PostHeaderActions } from './PostHeaderActions';
-import {
-  ToastSubject,
-  useToastNotification,
-} from '../../hooks/useToastNotification';
+import { ToastSubject, useToastNotification } from '../../hooks';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import FixedPostNavigation from './FixedPostNavigation';
@@ -22,6 +18,7 @@ import { combinedClicks } from '../../lib/click';
 import { PostContainer, PostContentProps, PostNavigationProps } from './common';
 import YoutubeVideo from '../video/YoutubeVideo';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useViewPost } from '../../hooks/post';
 
 export const SCROLL_OFFSET = 80;
 export const ONBOARDING_OFFSET = 120;
@@ -51,7 +48,7 @@ export function PostContent({
     post,
   });
   const { onSharePost: onShare, onReadArticle } = engagementActions;
-  const { mutateAsync: onSendViewPost } = useMutation(sendViewPost);
+  const onSendViewPost = useViewPost();
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
