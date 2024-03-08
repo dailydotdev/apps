@@ -106,7 +106,7 @@ export default function PostOptionsMenu({
 }: PostOptionsMenuProps): ReactElement {
   const client = useQueryClient();
   const router = useRouter();
-  const { user } = useContext(AuthContext);
+  const { user, isLoggedIn } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({ enabled: isOpen });
@@ -361,7 +361,7 @@ export default function PostOptionsMenu({
     });
   }
 
-  if (isSourceSubscribeV1 && !isSourceBlocked) {
+  if (isLoggedIn && isSourceSubscribeV1 && !isSourceBlocked) {
     postOptions.push({
       icon: (
         <MenuIcon

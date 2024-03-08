@@ -11,6 +11,8 @@ import { useToastNotification } from '../../hooks';
 import { withExperiment } from '../withExperiment';
 import { feature } from '../../lib/featureManagement';
 import { SourceSubscribeExperiment } from '../../lib/featureValues';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { AuthTriggers } from '../../lib/auth';
 
 export type SourceSubscribeButtonProps = {
   className?: string;
@@ -68,6 +70,7 @@ const SourceSubscribeButton = ({
   source,
   variant = ButtonVariant.Primary,
 }: SourceSubscribeButtonProps): ReactElement => {
+  const { isLoggedIn, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { isSubscribed, isReady, onToggle } = useNotificationPreferenceToggle({
     params: source?.id
@@ -79,6 +82,12 @@ const SourceSubscribeButton = ({
   });
 
   const onClick = async () => {
+    if (!isLoggedIn) {
+      showLogin({ trigger: AuthTriggers.SourceSubscribe });
+
+      return;
+    }
+
     const result = await onToggle();
 
     displayToast(
@@ -95,7 +104,7 @@ const SourceSubscribeButton = ({
   return (
     <ButtonComponent
       className={className}
-      isFetching={!isReady}
+      isFetching={isLoggedIn && !isReady}
       onClick={onClick}
       variant={variant}
     />
