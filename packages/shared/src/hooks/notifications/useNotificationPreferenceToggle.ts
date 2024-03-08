@@ -33,8 +33,8 @@ export const useNotificationPreferenceToggle = ({
     return !!preferences?.some((item) =>
       checkHasStatusPreference(
         item,
-        params.notificationType,
-        params.referenceId,
+        params?.notificationType,
+        params?.referenceId,
         [NotificationPreferenceStatus.Subscribed],
       ),
     );
