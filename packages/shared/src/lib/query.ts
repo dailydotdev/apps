@@ -94,6 +94,7 @@ export enum RequestKey {
   OneSignal = 'onesignal',
   ActiveUsers = 'active_users',
   PushNotification = 'push_notification',
+  ShortUrl = 'short_url',
 }
 
 export type HasConnection<
