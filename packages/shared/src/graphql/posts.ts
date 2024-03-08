@@ -125,7 +125,7 @@ export interface Post {
 
 export type RelatedPost = Pick<
   Post,
-  'id' | 'permalink' | 'title' | 'summary' | 'createdAt'
+  'id' | 'commentsPermalink' | 'title' | 'summary' | 'createdAt'
 > & {
   source: Pick<Source, 'id' | 'handle' | 'name' | 'image'>;
 };
