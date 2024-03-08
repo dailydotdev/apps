@@ -58,6 +58,7 @@ export enum AuthTriggers {
   LoginPage = 'login page',
   GenericReferral = 'generic referral',
   Roast = 'roast',
+  CollectionSubscribe = 'collection subscribe',
 }
 
 export type AuthTriggersType =
