@@ -133,6 +133,9 @@ export enum AnalyticsEvent {
   GenerateDevcard = 'generate devcard',
   DownloadDevcard = 'download devcard',
   CopyDevcardCode = 'copy devcard code',
+  // Reading Streaks
+  OpenStreaks = 'open streaks',
+  DismissStreaksMilestone = 'dismiss streaks milestone',
   // 404 page
   View404Page = '404 page',
 }
@@ -161,6 +164,7 @@ export enum TargetType {
   Shortcuts = 'shortcuts',
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
+  StreaksMilestone = 'streaks milestone',
 }
 
 export enum TargetId {

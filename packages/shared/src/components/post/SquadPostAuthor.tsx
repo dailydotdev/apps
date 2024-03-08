@@ -7,7 +7,8 @@ import { Author } from '../../graphql/comments';
 import { SourceMemberRole } from '../../graphql/sources';
 import { Separator } from '../cards/common';
 import { ReputationUserBadge } from '../ReputationUserBadge';
-import { TruncateText } from '../utilities';
+import { TruncateText, DateFormat } from '../utilities';
+import { TimeFormatType } from '../../lib/dateFormat';
 
 interface SquadPostAuthorProps {
   className?: Partial<{
@@ -72,7 +73,7 @@ function SquadPostAuthor({
               @{author.username}
             </TruncateText>
             {!!date && <Separator />}
-            {!!date && <time dateTime={date}>{date}</time>}
+            {!!date && <DateFormat date={date} type={TimeFormatType.Post} />}
           </div>
         </a>
       </ProfileTooltip>

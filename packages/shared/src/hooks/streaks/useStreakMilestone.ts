@@ -1,16 +1,20 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { useLazyModal } from '../useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
 import AlertContext from '../../contexts/AlertContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useReadingStreak } from './useReadingStreak';
+import { AnalyticsEvent, TargetType } from '../../lib/analytics';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 export const useStreakMilestone = (): void => {
   const { loadedSettings, optOutWeeklyGoal } = useSettingsContext();
   const { streak, isEnabled } = useReadingStreak();
+  const { trackEvent } = useContext(AnalyticsContext);
 
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { openModal } = useLazyModal();
+  const trackedImpression = useRef(false);
 
   const modalType: LazyModal.FirstStreak | LazyModal.NewStreak =
     streak?.total === 1 ? LazyModal.FirstStreak : LazyModal.NewStreak;
@@ -42,5 +46,17 @@ export const useStreakMilestone = (): void => {
         },
       },
     });
-  }, [modalType, openModal, shouldHideModal, streak, updateAlerts]);
+
+    if (trackedImpression.current) {
+      return;
+    }
+
+    trackEvent({
+      event_name: AnalyticsEvent.Impression,
+      target_type: TargetType.StreaksMilestone,
+      target_id: streak.current,
+    });
+
+    trackedImpression.current = true;
+  }, [modalType, openModal, shouldHideModal, streak, updateAlerts, trackEvent]);
 };

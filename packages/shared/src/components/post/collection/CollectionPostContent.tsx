@@ -9,7 +9,7 @@ import FixedPostNavigation from '../FixedPostNavigation';
 import { BasePostContent } from '../BasePostContent';
 import { cloudinary } from '../../../lib/image';
 import { Separator } from '../../cards/common';
-import { postDateFormat } from '../../../lib/dateFormat';
+import { TimeFormatType } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
 import { CollectionPostWidgets } from './CollectionPostWidgets';
 import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
@@ -23,6 +23,7 @@ import { CollectionsIntro } from '../widgets';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { webappUrl } from '../../../lib/constants';
 import { useViewPost } from '../../../hooks/post/useViewPost';
+import { DateFormat } from '../../utilities';
 
 export const CollectionPostContent = ({
   post,
@@ -151,7 +152,7 @@ export const CollectionPostContent = ({
             {!!updatedAt && (
               <div className="flex items-center text-theme-label-tertiary typo-footnote">
                 <span>Last updated</span> <Separator />
-                <time dateTime={updatedAt}>{postDateFormat(updatedAt)}</time>
+                <DateFormat date={updatedAt} type={TimeFormatType.Post} />
               </div>
             )}
             {image && (

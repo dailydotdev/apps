@@ -122,7 +122,7 @@ describe('ChangelogTooltip component', () => {
     expect(changelogTitle).toBeInTheDocument();
     expect(changelogTitle).toHaveTextContent(defaultPost.title);
 
-    const changelogDate = await screen.findByTestId('changelogDate');
+    const changelogDate = await screen.findByRole('time');
     expect(changelogDate).toBeInTheDocument();
     expect(changelogDate).toHaveTextContent(
       postDateFormat(defaultPost.createdAt),

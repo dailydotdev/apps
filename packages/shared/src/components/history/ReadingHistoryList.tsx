@@ -1,12 +1,7 @@
 import React, { ReactElement, useCallback } from 'react';
-import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { HideReadHistory } from '../../hooks/useReadingHistory';
-import classed from '../../lib/classed';
-import {
-  isDateOnlyEqual,
-  getReadHistoryDateFormat,
-} from '../../lib/dateFormat';
+import { isDateOnlyEqual, TimeFormatType } from '../../lib/dateFormat';
 import PostItemCard from '../post/PostItemCard';
 import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 import { InfiniteScrollScreenOffset } from '../../hooks/feed/useFeedInfiniteScroll';
@@ -14,16 +9,15 @@ import PostOptionsReadingHistoryMenu from '../PostOptionsReadingHistoryMenu';
 import useReadingHistoryContextMenu from '../../hooks/useReadingHistoryContextMenu';
 import { useSharePost } from '../../hooks/useSharePost';
 import { Origin } from '../../lib/analytics';
-
-const DateTitle = classed('h2', 'typo-body text-theme-label-tertiary');
+import { DateFormat } from '../utilities';
 
 const getDateGroup = (date: Date) => {
-  const label = getReadHistoryDateFormat(date);
-
   return (
-    <DateTitle key={label} className={classNames('my-3 px-6 first:mt-0')}>
-      {label}
-    </DateTitle>
+    <DateFormat
+      date={date}
+      type={TimeFormatType.ReadHistory}
+      className="my-3 px-6 text-theme-label-tertiary typo-body first:mt-0"
+    />
   );
 };
 

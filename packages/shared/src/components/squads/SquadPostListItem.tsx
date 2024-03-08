@@ -14,7 +14,6 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import { TextPlaceholder } from '../widgets/common';
 import SquadPostAuthor from '../post/SquadPostAuthor';
 import { CardLink } from '../cards/Card';
-import { postDateFormat } from '../../lib/dateFormat';
 import { combinedClicks } from '../../lib/click';
 
 type PostProps = {
@@ -50,7 +49,7 @@ export const SquadPostListItem = ({
             }}
             author={post.author}
             size="large"
-            date={postDateFormat(post.createdAt)}
+            date={post.createdAt}
           />
         )}
         <p className="mt-2 line-clamp-3 text-theme-label-primary typo-callout">
