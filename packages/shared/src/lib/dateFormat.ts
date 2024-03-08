@@ -176,10 +176,17 @@ export enum Day {
 
 export const Weekends = [Day.Saturday, Day.Sunday];
 
+export const getTodayTz = (timeZone: string): Date => {
+  const now = new Date();
+  const timeZonedToday = now.toLocaleDateString('en', { timeZone });
+  return new Date(timeZonedToday);
+};
+
 interface FormatDateProps {
   value: Date | number | string;
   type: TimeFormatType;
 }
+
 export const formatDate = ({ value, type }: FormatDateProps): string => {
   const date = new Date(value);
 

@@ -4,7 +4,6 @@ import {
   OnboardingV4dot5,
   PostPageOnboarding,
   UserAcquisition,
-  FeedAdSpot,
   PublishTimeFormat,
 } from './featureValues';
 import { cloudinary } from './image';
@@ -45,7 +44,7 @@ const feature = {
   onboardingOptimizations: new Feature('onboarding_optimizations', false),
   userAcquisition: new Feature('user_acquisition', UserAcquisition.Control),
   forceRefresh: new Feature('force_refresh', false),
-  feedAdSpot: new Feature('feed_ad_spot', FeedAdSpot.Control),
+  feedAdSpot: new Feature('feed_ad_spot', 0),
   shareLoops: new Feature('share_loops', false),
   publishTimeFormat: new Feature(
     'publish_time_format',
