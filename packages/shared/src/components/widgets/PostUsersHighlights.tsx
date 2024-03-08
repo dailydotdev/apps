@@ -171,7 +171,7 @@ const UserHighlight = (props: SourceAuthorProps) => {
       </ConditionalWrapper>
       {!isSourceBlocked && isUserTypeSource && (
         <SourceSubscribeButton
-          className="ml-4"
+          className="ml-2"
           variant={ButtonVariant.Secondary}
           source={{ id }}
         />
