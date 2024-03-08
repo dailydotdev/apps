@@ -1,5 +1,3 @@
-import { defaultFeedContextData } from '../contexts/FeedContext';
-
 export enum ExperimentWinner {
   ArticleOnboarding = 'v3',
   PostCardShareVersion = 'v2',
