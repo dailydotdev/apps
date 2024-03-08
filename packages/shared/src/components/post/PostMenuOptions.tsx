@@ -36,8 +36,7 @@ export function PostMenuOptions({
 }: PostMenuOptionssProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
-  const { onMenuClick, isOpen } = useContextMenu({ id: contextMenuId });
-
+  const { onMenuClick, isOpen, onHide } = useContextMenu({ id: contextMenuId });
   const isModerator = user?.roles?.includes(Roles.Moderator);
 
   const banPostPrompt = async () => {
@@ -103,6 +102,7 @@ export function PostMenuOptions({
         contextId={contextMenuId}
         origin={origin}
         isOpen={isOpen}
+        onHidden={onHide}
       />
     </>
   );
