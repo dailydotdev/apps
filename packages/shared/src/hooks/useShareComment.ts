@@ -2,7 +2,7 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import { Post } from '../graphql/posts';
 import { postAnalyticsEvent } from '../lib/feed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { ShareProvider } from '../lib/share';
+import { ShareCID, ShareProvider } from '../lib/share';
 import { Origin } from '../lib/analytics';
 import { Comment, getCommentHash } from '../graphql/comments';
 import useDebounce from './useDebounce';
@@ -42,7 +42,7 @@ export function useShareComment(
           try {
             const shortUrl = await getShortUrl(
               `${post.commentsPermalink}${getCommentHash(comment.id)}`,
-              'share_comment',
+              ShareCID.Comment,
             );
             await navigator.share({
               text: `${post.title}\n${shortUrl}$}`,

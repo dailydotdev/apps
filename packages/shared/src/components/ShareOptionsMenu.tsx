@@ -9,7 +9,7 @@ import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import { ShareBookmarkProps } from './post/PostActions';
 import { Origin } from '../lib/analytics';
-import { ShareProvider } from '../lib/share';
+import { ShareCID, ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
@@ -53,7 +53,7 @@ export default function ShareOptionsMenu({
     );
 
   const trackAndCopyLink = async () => {
-    const shortLink = await getShortUrl(link, 'share_post');
+    const shortLink = await getShortUrl(link, ShareCID.Post);
     copyLink({ link: shortLink });
     onClick(ShareProvider.CopyLink);
   };
