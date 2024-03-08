@@ -1,7 +1,5 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import classed from '@dailydotdev/shared/src/lib/classed';
-import { DrawerPosition } from '@dailydotdev/shared/src/components/drawers/Drawer';
 import {
   Button,
   ButtonVariant,
@@ -21,22 +19,14 @@ const meta: Meta<typeof ListDrawer> = {
       url: "https://www.figma.com/file/nmfWPS7x3kzLUvYMkBx2kW/daily.dev---Dev-Mode?node-id=2384%3A21195&mode=dev",
     },
   },
-  argTypes: {
-    options: {
-      description: 'Comma separated list of options (only in storybook)',
-      control: { type: 'text', separator: ',' },
-      defaultValue: {
-        summary: 'Option 1, Option 2, Option 3',
-      },
-    },
-  },
+  args: {
+    options: ['Option 1', 'Option 2', 'Option 3'],
+  }
 };
 
 export default meta;
 
 type Story = StoryObj<typeof ListDrawer>;
-
-const Container = classed('div', 'px-3 py-4 border-b border-theme-divider-tertiary');
 
 export const Drawer: Story = {
   render: (props) => {
@@ -55,7 +45,7 @@ export const Drawer: Story = {
             displayCloseButton: true,
             onClose: () => setIsOpen(false)
           }}
-          options={props.options?.toString().split(',') ?? []} // only in storybook - for some reason, they are not accepting array properly
+          options={props.options}
           selected={selected}
           onSelectedChange={({ index }) => setSelected(index)}
         />
