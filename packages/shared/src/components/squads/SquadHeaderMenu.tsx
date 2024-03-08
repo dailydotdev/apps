@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, useContext, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useMutation } from '@tanstack/react-query';
@@ -25,6 +25,7 @@ import { squadFeedback } from '../../lib/constants';
 import { MenuItemProps } from '../fields/PortalMenu';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { Origin } from '../../lib/analytics';
+import AuthContext from '../../contexts/AuthContext';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -40,6 +41,7 @@ interface SquadHeaderMenuProps {
 export default function SquadHeaderMenu({
   squad,
 }: SquadHeaderMenuProps): ReactElement {
+  const { isLoggedIn } = useContext(AuthContext);
   const { trackAndCopyLink } = useSquadInvitation({
     squad,
     origin: Origin.SquadPage,
@@ -77,7 +79,7 @@ export default function SquadHeaderMenu({
       });
     }
 
-    if (!squad.currentMember && squad.public) {
+    if (!squad.currentMember && squad.public && isLoggedIn) {
       list.push({
         icon: <ContextMenuIcon Icon={LinkIcon} />,
         action: () => trackAndCopyLink(),
