@@ -1,4 +1,5 @@
 import React, {
+  HTMLAttributes,
   MutableRefObject,
   ReactElement,
   ReactNode,
@@ -23,7 +24,8 @@ interface ClassName {
   drawer?: string;
 }
 
-interface DrawerProps {
+interface DrawerProps
+  extends Omit<HTMLAttributes<HTMLDivElement>, 'className'> {
   children: ReactNode;
   className?: ClassName;
   position?: DrawerPosition;
@@ -53,6 +55,7 @@ function BaseDrawer({
   title,
   onClose,
   displayCloseButton,
+  ...props
 }: DrawerProps): ReactElement {
   const container = useRef<HTMLDivElement>();
   const [hasAnimated, setHasAnimated] = useState(false);
@@ -70,6 +73,7 @@ function BaseDrawer({
       )}
     >
       <div
+        {...props}
         className={classNames(
           'absolute flex flex-col overflow-y-auto bg-theme-bg-primary transition-transform duration-300 ease-in-out',
           isAnimating && animatePositionClassName[position],

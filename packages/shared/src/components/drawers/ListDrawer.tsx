@@ -21,13 +21,14 @@ export function ListDrawer({
   const ref = React.useRef<DrawerRef>();
 
   return (
-    <Drawer {...drawerProps} ref={ref}>
+    <Drawer {...drawerProps} ref={ref} role="menu">
       {options.map((value, index) => {
         const isSelected = index === selected;
 
         return (
           <button
             key={value}
+            role="menuitem"
             type="button"
             className={classNames(
               'flex h-10 flex-row items-center overflow-hidden text-ellipsis whitespace-nowrap px-2 typo-callout',
