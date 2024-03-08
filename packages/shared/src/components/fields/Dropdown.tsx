@@ -17,6 +17,7 @@ import styles from './Dropdown.module.css';
 import { useViewSize, ViewSize } from '../../hooks';
 import { ListDrawer } from '../drawers/ListDrawer';
 import { SelectParams } from '../drawers/common';
+import { RootPortal } from '../tooltips/Portal';
 
 interface ClassName {
   container?: string;
@@ -154,16 +155,18 @@ export function Dropdown({
         />
       </button>
       {isMobile ? (
-        <ListDrawer
-          drawerProps={{
-            isOpen: isVisible,
-            displayCloseButton: true,
-            onClose: () => setVisibility(false),
-          }}
-          options={options}
-          selected={selectedIndex}
-          onSelectedChange={handleChange}
-        />
+        <RootPortal>
+          <ListDrawer
+            drawerProps={{
+              isOpen: isVisible,
+              displayCloseButton: true,
+              onClose: () => setVisibility(false),
+            }}
+            options={options}
+            selected={selectedIndex}
+            onSelectedChange={handleChange}
+          />
+        </RootPortal>
       ) : (
         <Menu
           disableBoundariesCheck

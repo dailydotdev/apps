@@ -110,7 +110,7 @@ function BaseDrawer({
           <div className="sticky -bottom-3 bg-theme-bg-primary">
             <Button
               variant={ButtonVariant.Float}
-              className="mt-1 w-full"
+              className="mt-3 w-full"
               onClick={onClose}
             >
               Close
