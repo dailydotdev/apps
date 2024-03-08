@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { Card } from './Card';
+import { Card as CardV1 } from './v1/Card';
 import { Radio } from '../fields/Radio';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { AcquisitionChannel, updateUserAcquisition } from '../../graphql/users';
@@ -79,14 +80,10 @@ export function AcquisitionFormCard(): ReactElement {
     return null;
   }
 
+  const CardComponent = shouldUseMobileFeedLayout ? CardV1 : Card;
+
   return (
-    <Card
-      data-testid="acquisitionFormCard"
-      className={classNames(
-        'p-4',
-        shouldUseMobileFeedLayout && '!bg-theme-bg-primary',
-      )}
-    >
+    <CardComponent data-testid="acquisitionFormCard" className="p-4">
       <OnboardingTitleGradient className="flex w-full flex-row items-center whitespace-nowrap pb-1 typo-body">
         How did you hear about us?
         <Button
@@ -117,6 +114,6 @@ export function AcquisitionFormCard(): ReactElement {
       >
         Submit
       </Button>
-    </Card>
+    </CardComponent>
   );
 }
