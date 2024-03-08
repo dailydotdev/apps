@@ -1,4 +1,5 @@
 import React, {
+  HTMLAttributes,
   MutableRefObject,
   ReactElement,
   ReactNode,
@@ -10,6 +11,8 @@ import classNames from 'classnames';
 import useDebounce from '../../hooks/useDebounce';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
+import { ButtonVariant } from '../buttons/common';
+import { Button } from '../buttons/Button';
 
 export enum DrawerPosition {
   Bottom = 'bottom',
@@ -21,7 +24,8 @@ interface ClassName {
   drawer?: string;
 }
 
-interface DrawerProps {
+interface DrawerProps
+  extends Omit<HTMLAttributes<HTMLDivElement>, 'className'> {
   children: ReactNode;
   className?: ClassName;
   position?: DrawerPosition;
@@ -29,6 +33,7 @@ interface DrawerProps {
   isClosing?: boolean;
   title?: string;
   onClose(): void;
+  displayCloseButton?: boolean;
 }
 
 const drawerPositionToClassName: Record<DrawerPosition, string> = {
@@ -49,6 +54,8 @@ function BaseDrawer({
   isClosing = false,
   title,
   onClose,
+  displayCloseButton,
+  ...props
 }: DrawerProps): ReactElement {
   const container = useRef<HTMLDivElement>();
   const [hasAnimated, setHasAnimated] = useState(false);
@@ -66,12 +73,13 @@ function BaseDrawer({
       )}
     >
       <div
+        {...props}
         className={classNames(
           'absolute flex flex-col overflow-y-auto bg-theme-bg-primary transition-transform duration-300 ease-in-out',
           isAnimating && animatePositionClassName[position],
           drawerPositionToClassName[position],
           !title && classes,
-          'max-h-[calc(100vh-5rem)] w-full',
+          'max-h-[calc(100%-5rem)] w-full',
         )}
         ref={(node) => {
           container.current = node;
@@ -98,18 +106,29 @@ function BaseDrawer({
         >
           {children}
         </ConditionalWrapper>
+        {displayCloseButton && (
+          <div className="sticky -bottom-3 bg-theme-bg-primary">
+            <Button
+              variant={ButtonVariant.Float}
+              className="mt-3 w-full"
+              onClick={onClose}
+            >
+              Close
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-interface DrawerWrapperProps extends Omit<DrawerProps, 'isClosing'> {
+export interface DrawerWrapperProps extends Omit<DrawerProps, 'isClosing'> {
   isOpen: boolean;
 }
 
 const ANIMATION_MS = 300;
 
-interface DrawerRef {
+export interface DrawerRef {
   onClose(): void;
 }
 
