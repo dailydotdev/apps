@@ -79,7 +79,7 @@ function BaseDrawer({
           isAnimating && animatePositionClassName[position],
           drawerPositionToClassName[position],
           !title && classes,
-          'max-h-[calc(100vh-5rem)] w-full',
+          'max-h-[calc(100%-5rem)] w-full',
         )}
         ref={(node) => {
           container.current = node;
