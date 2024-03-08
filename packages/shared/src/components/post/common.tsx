@@ -46,6 +46,7 @@ export interface PostNavigationProps extends PostActions {
   className?: PostNavigationClassName;
   children?: ReactNode;
   isBannerVisible?: boolean;
+  contextMenuId?: string;
 }
 
 export type PassedPostNavigationProps = Pick<
