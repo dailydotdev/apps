@@ -1,6 +1,6 @@
+import { ReferralCampaignKey } from '../hooks';
 import {
   AddLinkShareTrackingQueryParams,
-  ShareCID,
   ShareProvider,
   addTrackingQueryParams,
   getShareLink,
@@ -92,7 +92,7 @@ describe('getShareLink tests', () => {
 describe('addTrackingQueryParams tests', () => {
   const link = 'https://foo.bar';
   const userId = '42';
-  const cid = ShareCID.Post;
+  const cid = ReferralCampaignKey.SharePost;
 
   const runTest = (
     params: AddLinkShareTrackingQueryParams,

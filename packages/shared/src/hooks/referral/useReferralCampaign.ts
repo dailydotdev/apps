@@ -26,7 +26,9 @@ export interface UseReferralCampaign extends ReferralCampaign {
 export enum ReferralCampaignKey {
   Generic = 'generic',
   Search = 'search',
-  Share = 'share',
+  SharePost = 'share_post',
+  ShareComment = 'share_comment',
+  ShareProfile = 'share_profile',
 }
 
 export type UseReferralCampaignProps = {

@@ -2,7 +2,7 @@ import React, { ReactElement, useContext } from 'react';
 import { CopyIcon, WhatsappIcon, TwitterIcon, FacebookIcon } from './icons';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
-import { getShareLink, ShareCID, ShareProvider } from '../lib/share';
+import { getShareLink, ShareProvider } from '../lib/share';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { WidgetContainer } from './widgets/common';
@@ -13,7 +13,7 @@ import { Squad } from '../graphql/sources';
 import { SocialShareButton } from './widgets/SocialShareButton';
 import { SquadsToShare } from './squads/SquadsToShare';
 import { ButtonSize, ButtonVariant } from './buttons/common';
-import { useGetShortUrl } from '../hooks';
+import { ReferralCampaignKey, useGetShortUrl } from '../hooks';
 
 interface ShareBarProps {
   post: Post;
@@ -21,7 +21,7 @@ interface ShareBarProps {
 
 export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const href = post.commentsPermalink;
-  const cid = ShareCID.Post;
+  const cid = ReferralCampaignKey.SharePost;
   const { getShortUrl } = useGetShortUrl();
   const [copying, copyLink] = useCopyPostLink();
   const { trackEvent } = useContext(AnalyticsContext);

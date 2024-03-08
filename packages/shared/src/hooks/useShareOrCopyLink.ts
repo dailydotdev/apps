@@ -1,16 +1,17 @@
 import { useContext } from 'react';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { CopyNotifyFunction, useCopyLink } from './useCopy';
-import { ShareCID, ShareProvider } from '../lib/share';
+import { ShareProvider } from '../lib/share';
 import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
 import { useGetShortUrl } from './utils/useGetShortUrl';
+import { ReferralCampaignKey } from './referral';
 
 interface UseShareOrCopyLinkProps {
   link: string;
   text: string;
   trackObject?: (provider: ShareProvider) => AnalyticsEvent;
   shortenUrl?: boolean;
-  cid?: ShareCID;
+  cid?: ReferralCampaignKey;
 }
 export function useShareOrCopyLink({
   link,

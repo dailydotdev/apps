@@ -2,10 +2,11 @@ import { useContext, useMemo, useState } from 'react';
 import { Post } from '../graphql/posts';
 import { FeedItemPosition, postAnalyticsEvent } from '../lib/feed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { ShareCID, ShareProvider } from '../lib/share';
+import { ShareProvider } from '../lib/share';
 import { Origin } from '../lib/analytics';
 import { useCopyPostLink } from './useCopyPostLink';
 import { useGetShortUrl } from './utils/useGetShortUrl';
+import { ReferralCampaignKey } from './referral';
 
 export function useSharePost(origin: Origin): {
   sharePost: Post;
@@ -55,7 +56,7 @@ export function useSharePost(origin: Origin): {
         );
         const shortLink = await getShortUrl(
           post.commentsPermalink,
-          ShareCID.Post,
+          ReferralCampaignKey.SharePost,
         );
         copyLink({ link: shortLink });
       },
@@ -73,7 +74,7 @@ export function useSharePost(origin: Origin): {
         try {
           const shortLink = await getShortUrl(
             post.commentsPermalink,
-            ShareCID.Post,
+            ReferralCampaignKey.SharePost,
           );
           await navigator.share({
             title: post.title,

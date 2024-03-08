@@ -4,11 +4,12 @@ import { useCallback } from 'react';
 import { graphqlUrl } from '../../lib/config';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { GET_SHORT_URL_QUERY } from '../../graphql/urlShortener';
-import { ShareCID, addTrackingQueryParams } from '../../lib/share';
+import { addTrackingQueryParams } from '../../lib/share';
 import { RequestKey, generateQueryKey } from '../../lib/query';
+import { ReferralCampaignKey } from '../referral';
 
 interface UseGetShortUrlResult {
-  getShortUrl: (url: string, cid?: ShareCID) => Promise<string>;
+  getShortUrl: (url: string, cid?: ReferralCampaignKey) => Promise<string>;
 }
 
 export const useGetShortUrl = (): UseGetShortUrlResult => {
@@ -16,7 +17,7 @@ export const useGetShortUrl = (): UseGetShortUrlResult => {
   const queryClient = useQueryClient();
 
   const getShortUrl = useCallback(
-    async (url: string, cid?: ShareCID) => {
+    async (url: string, cid?: ReferralCampaignKey) => {
       if (!url || !isAuthReady || !user) {
         return url;
       }

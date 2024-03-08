@@ -2,11 +2,12 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import { Post } from '../graphql/posts';
 import { postAnalyticsEvent } from '../lib/feed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { ShareCID, ShareProvider } from '../lib/share';
+import { ShareProvider } from '../lib/share';
 import { Origin } from '../lib/analytics';
 import { Comment, getCommentHash } from '../graphql/comments';
 import useDebounce from './useDebounce';
 import { useGetShortUrl } from './utils/useGetShortUrl';
+import { ReferralCampaignKey } from './referral';
 
 interface UseShareComment {
   shareComment: Comment;
@@ -42,7 +43,7 @@ export function useShareComment(
           try {
             const shortUrl = await getShortUrl(
               `${post.commentsPermalink}${getCommentHash(comment.id)}`,
-              ShareCID.Comment,
+              ReferralCampaignKey.ShareComment,
             );
             await navigator.share({
               text: `${post.title}\n${shortUrl}$}`,

@@ -6,7 +6,7 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { ProfilePicture } from '../ProfilePicture';
 import { largeNumberFormat } from '../../lib/numberFormat';
-import { ShareCID } from '../../lib/share';
+import { ReferralCampaignKey } from '../../hooks';
 
 export type HeaderProps = {
   user: PublicProfile;
@@ -26,7 +26,7 @@ export function Header({
   const [, onShareOrCopyLink] = useShareOrCopyLink({
     text: `Check out ${user.name}'s profile on daily.dev`,
     link: user.permalink,
-    cid: ShareCID.Profile,
+    cid: ReferralCampaignKey.ShareProfile,
     trackObject: () => ({ event_name: 'share profile', target_id: user.id }),
   });
 

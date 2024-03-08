@@ -1,9 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import {
-  ShareCID,
-  ShareProvider,
-  addTrackingQueryParams,
-} from '../../lib/share';
+import { ShareProvider, addTrackingQueryParams } from '../../lib/share';
 import { Post } from '../../graphql/posts';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
@@ -17,7 +13,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Squad } from '../../graphql/sources';
 import { SocialShareList } from './SocialShareList';
-import { useGetShortUrl } from '../../hooks';
+import { useGetShortUrl, ReferralCampaignKey } from '../../hooks';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 interface SocialShareProps {
@@ -42,7 +38,9 @@ export const SocialShare = ({
   const href = isComment
     ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
     : post?.commentsPermalink;
-  const cid = isComment ? ShareCID.Comment : ShareCID.Post;
+  const cid = isComment
+    ? ReferralCampaignKey.ShareComment
+    : ReferralCampaignKey.SharePost;
   // precompute the share link here, because it's used for copy link
   // as well as passed into the SocialShareList component
   const link =

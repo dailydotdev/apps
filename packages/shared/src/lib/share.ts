@@ -1,3 +1,5 @@
+import { ReferralCampaignKey } from '../hooks';
+
 export enum ShareProvider {
   Native = 'native',
   CopyLink = 'copy link',
@@ -61,16 +63,10 @@ export const getShareLink = ({
       return link;
   }
 };
-
-export enum ShareCID {
-  Post = 'share_post',
-  Comment = 'share_comment',
-  Profile = 'share_profile',
-}
 export interface AddLinkShareTrackingQueryParams {
   link: string | undefined;
   userId: string | undefined;
-  cid: ShareCID;
+  cid: ReferralCampaignKey;
 }
 
 export const addTrackingQueryParams = ({

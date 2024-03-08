@@ -9,11 +9,11 @@ import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import { ShareBookmarkProps } from './post/PostActions';
 import { Origin } from '../lib/analytics';
-import { ShareCID, ShareProvider } from '../lib/share';
+import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
-import { useFeedLayout, useGetShortUrl } from '../hooks';
+import { useFeedLayout, useGetShortUrl, ReferralCampaignKey } from '../hooks';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -53,7 +53,7 @@ export default function ShareOptionsMenu({
     );
 
   const trackAndCopyLink = async () => {
-    const shortLink = await getShortUrl(link, ShareCID.Post);
+    const shortLink = await getShortUrl(link, ReferralCampaignKey.SharePost);
     copyLink({ link: shortLink });
     onClick(ShareProvider.CopyLink);
   };
