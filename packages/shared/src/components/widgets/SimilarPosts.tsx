@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, ReactNode, useContext } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { ArrowIcon, BookmarkIcon } from '../icons';
@@ -43,6 +43,24 @@ export type SimilarPostsProps = {
 };
 
 const Separator = <div className="h-px bg-theme-divider-tertiary" />;
+
+interface PostCountsProps {
+  upvotes: number;
+  comments: number;
+  separator?: ReactNode;
+}
+
+const PostCounts = ({ upvotes, comments, separator }: PostCountsProps) => (
+  <>
+    {upvotes > 0 && <div>{upvotes} Upvotes</div>}
+    {comments > 0 && separator}
+    {comments > 0 && (
+      <div className={upvotes > 0 && !separator && 'ml-2'}>
+        {comments} Comments
+      </div>
+    )}
+  </>
+);
 
 type PostProps = {
   post: Post;
@@ -90,14 +108,7 @@ const DefaultListItem = ({
             <div className="ml-2">{post.trending} devs read it last hour</div>
           </>
         ) : (
-          <>
-            {post.numUpvotes > 0 && <div>{post.numUpvotes} Upvotes</div>}
-            {post.numComments > 0 && (
-              <div className={post.numUpvotes > 0 && 'ml-2'}>
-                {post.numComments} Comments
-              </div>
-            )}
-          </>
+          <PostCounts upvotes={post.numUpvotes} comments={post.numComments} />
         )}
       </div>
     </div>
@@ -155,8 +166,16 @@ const SidePost = ({ post, onLinkClick }: SidePostProps) => {
             }}
             videoProps={{ size: IconSize.Large }}
           />
-          <h3 className="line-clamp-3 font-bold typo-subhead">{post.title}</h3>
-          <span className="typo-footnote">A{Separator}B</span>
+          <h3 className="line-clamp-3 font-bold text-text-primary typo-subhead">
+            {post.title}
+          </h3>
+          <span className="typo-footnote">
+            <PostCounts
+              upvotes={post.numUpvotes}
+              comments={post.numComments}
+              separator={Separator}
+            />
+          </span>
           <PostReadTime readTime={post.readTime} isVideoType={isVideoType} />
         </a>
       </Link>
