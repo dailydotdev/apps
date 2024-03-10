@@ -20,6 +20,10 @@ import { Origin } from '../../lib/analytics';
 import { FeedData, SOURCE_FEED_QUERY } from '../../graphql/feed';
 import { isSourcePublicSquad } from '../../graphql/squads';
 import { SquadPostListItem } from '../squads/SquadPostListItem';
+import { disabledRefetch } from '../../lib/func';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { PostPageOnboarding } from '../../lib/featureValues';
 
 export type FurtherReadingProps = {
   currentPost: Post;
@@ -61,6 +65,8 @@ export default function FurtherReading({
   currentPost,
   className,
 }: FurtherReadingProps): ReactElement {
+  const postPageOnboarding = useFeature(feature.postPageOnboarding);
+  const isV4 = true;
   const isPublicSquad = isSourcePublicSquad(currentPost.source);
   const postId = currentPost.id;
   const { tags } = currentPost;
@@ -77,7 +83,7 @@ export default function FurtherReading({
           graphqlUrl,
           SOURCE_FEED_QUERY,
           {
-            first: 3,
+            first: isV4 ? 12 : 3,
             loggedIn: isLoggedIn,
             source: squad.id,
             ranking: 'TIME',
@@ -104,18 +110,12 @@ export default function FurtherReading({
         loggedIn: !!user,
         post: postId,
         trendingFirst: 1,
-        similarFirst: 3,
-        discussedFirst: 4,
+        similarFirst: isV4 ? 5 : 3,
+        discussedFirst: isV4 ? 6 : 4,
         tags,
       });
     },
-    {
-      refetchOnWindowFocus: false,
-      refetchIntervalInBackground: false,
-      refetchOnReconnect: false,
-      refetchInterval: false,
-      refetchOnMount: false,
-    },
+    { ...disabledRefetch },
   );
 
   const { toggleBookmark } = useBookmarkPost({
