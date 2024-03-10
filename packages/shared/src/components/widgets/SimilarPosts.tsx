@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { ArrowIcon, BookmarkIcon } from '../icons';
@@ -11,7 +11,7 @@ import classed from '../../lib/classed';
 import { postAnalyticsEvent } from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { HotLabel } from '../utilities';
+import { HotLabel, singleLineClamp } from '../utilities';
 import { combinedClicks } from '../../lib/click';
 import {
   Button,
@@ -26,7 +26,6 @@ import PostReadTime from '../cards/v1/PostReadTime';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { PostPageOnboarding } from '../../lib/featureValues';
-import { Separator } from '../cards/common';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -48,19 +47,21 @@ const HorizontalSeparator = <div className="h-px bg-theme-divider-tertiary" />;
 interface PostCountsProps {
   upvotes: number;
   comments: number;
-  separator?: ReactNode;
+  className?: string;
 }
 
-const PostCounts = ({ upvotes, comments, separator }: PostCountsProps) => (
-  <>
-    {upvotes > 0 && <div>{upvotes} Upvotes</div>}
-    {comments > 0 && separator}
-    {comments > 0 && (
-      <div className={upvotes > 0 && !separator && 'ml-2'}>
-        {comments} Comments
-      </div>
+const PostCounts = ({ upvotes, comments, className }: PostCountsProps) => (
+  <p
+    className={classNames(
+      'text-text-quaternary typo-footnote',
+      singleLineClamp,
+      className,
     )}
-  </>
+  >
+    {upvotes ? `${upvotes} Upvotes` : ''}
+    {upvotes && comments ? <> &#x2022; </> : ''}
+    {comments ? `${comments} Comments` : ''}
+  </p>
 );
 
 type PostProps = {
@@ -169,13 +170,11 @@ const SidePost = ({ post, onLinkClick }: SidePostProps) => {
         <h3 className="line-clamp-3 font-bold text-text-primary typo-subhead">
           {post.title}
         </h3>
-        <span className="mt-auto flex flex-row typo-footnote ">
-          <PostCounts
-            upvotes={post.numUpvotes}
-            comments={post.numComments}
-            separator={<Separator />}
-          />
-        </span>
+        <PostCounts
+          className="mt-auto"
+          upvotes={post.numUpvotes}
+          comments={post.numComments}
+        />
         <PostReadTime readTime={post.readTime} isVideoType={isVideoType} />
       </a>
     </Link>
