@@ -145,7 +145,7 @@ export default function SimilarPosts({
     );
   };
 
-  if (true) {
+  if (isV4 && posts?.length) {
     return (
       <section className="grid grid-cols-2 gap-4">
         {posts.map((post) => (

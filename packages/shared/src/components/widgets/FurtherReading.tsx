@@ -66,7 +66,7 @@ export default function FurtherReading({
   className,
 }: FurtherReadingProps): ReactElement {
   const postPageOnboarding = useFeature(feature.postPageOnboarding);
-  const isV4 = true;
+  const isV4 = postPageOnboarding === PostPageOnboarding.V4;
   const isPublicSquad = isSourcePublicSquad(currentPost.source);
   const postId = currentPost.id;
   const { tags } = currentPost;
@@ -173,7 +173,7 @@ export default function FurtherReading({
           ListItem={isPublicSquad ? SquadPostListItem : undefined}
         />
       )}
-      {(isLoading || posts?.discussedPosts?.length > 0) && (
+      {(isLoading || posts?.discussedPosts?.length > 0) && !isV4 && (
         <BestDiscussions posts={posts?.discussedPosts} isLoading={isLoading} />
       )}
     </div>
