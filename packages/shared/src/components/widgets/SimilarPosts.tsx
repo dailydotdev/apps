@@ -149,37 +149,35 @@ const SidePost = ({ post, onLinkClick }: SidePostProps) => {
   const isVideoType = post.type === PostType.VideoYouTube;
 
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <Link href={post.commentsPermalink} passHref>
-        <a
-          className="flex flex-col gap-3 text-text-quaternary typo-footnote"
-          href={post.commentsPermalink}
-          onClick={onLinkClick}
-        >
-          <CardCover
-            isVideoType={isVideoType}
-            imageProps={{
-              loading: 'lazy',
-              alt: `Cover preview of: ${post.title}`,
-              src: post.image,
-              className: 'w-full !h-24 !rounded-8',
-            }}
-            videoProps={{ size: IconSize.Large }}
+    <Link href={post.commentsPermalink} passHref>
+      <a
+        className="flex flex-col gap-3 text-text-quaternary typo-footnote"
+        href={post.commentsPermalink}
+        onClick={onLinkClick}
+      >
+        <CardCover
+          isVideoType={isVideoType}
+          imageProps={{
+            loading: 'lazy',
+            alt: `Cover preview of: ${post.title}`,
+            src: post.image,
+            className: 'w-full !h-24 !rounded-8',
+          }}
+          videoProps={{ size: IconSize.Large }}
+        />
+        <h3 className="line-clamp-3 font-bold text-text-primary typo-subhead">
+          {post.title}
+        </h3>
+        <span className="typo-footnote">
+          <PostCounts
+            upvotes={post.numUpvotes}
+            comments={post.numComments}
+            separator={Separator}
           />
-          <h3 className="line-clamp-3 font-bold text-text-primary typo-subhead">
-            {post.title}
-          </h3>
-          <span className="typo-footnote">
-            <PostCounts
-              upvotes={post.numUpvotes}
-              comments={post.numComments}
-              separator={Separator}
-            />
-          </span>
-          <PostReadTime readTime={post.readTime} isVideoType={isVideoType} />
-        </a>
-      </Link>
-    </div>
+        </span>
+        <PostReadTime readTime={post.readTime} isVideoType={isVideoType} />
+      </a>
+    </Link>
   );
 };
 
@@ -193,6 +191,7 @@ export default function SimilarPosts({
   ListItem = DefaultListItem,
 }: SimilarPostsProps): ReactElement {
   const postPageOnboarding = useFeature(feature.postPageOnboarding);
+  const isV4 = postPageOnboarding === PostPageOnboarding.V4;
   const { trackEvent } = useContext(AnalyticsContext);
   const moreButtonHref =
     moreButtonProps?.href || process.env.NEXT_PUBLIC_WEBAPP_URL;
@@ -224,7 +223,7 @@ export default function SimilarPosts({
           <ListItem.Placeholder />
         </>
       ) : (
-        <>
+        <div className={isV4 ? 'grid grid-cols-2 gap-4' : 'flex flex-col'}>
           {posts.map((post) => (
             <SidePost
               key={post.id}
@@ -232,7 +231,7 @@ export default function SimilarPosts({
               onLinkClick={() => onLinkClick(post)}
             />
           ))}
-        </>
+        </div>
       )}
 
       {Separator}
