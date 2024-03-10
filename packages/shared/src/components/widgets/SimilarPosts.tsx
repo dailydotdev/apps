@@ -206,18 +206,13 @@ export default function SimilarPosts({
         </>
       ) : (
         <>
-          {posts.map((post) =>
-            postPageOnboarding === PostPageOnboarding.V4 ? (
-              <SidePost post={post} onLinkClick={() => onLinkClick(post)} />
-            ) : (
-              <ListItem
-                key={post.id}
-                post={post}
-                onLinkClick={onLinkClick}
-                onBookmark={onBookmark}
-              />
-            ),
-          )}
+          {posts.map((post) => (
+            <SidePost
+              key={post.id}
+              post={post}
+              onLinkClick={() => onLinkClick(post)}
+            />
+          ))}
         </>
       )}
 
