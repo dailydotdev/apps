@@ -205,6 +205,20 @@ export default function SimilarPosts({
     );
   };
 
+  if (true) {
+    return (
+      <section className="grid grid-cols-2 gap-4">
+        {posts.map((post) => (
+          <SidePost
+            key={post.id}
+            post={post}
+            onLinkClick={() => onLinkClick(post)}
+          />
+        ))}
+      </section>
+    );
+  }
+
   return (
     <section
       className={classNames(
@@ -223,15 +237,16 @@ export default function SimilarPosts({
           <ListItem.Placeholder />
         </>
       ) : (
-        <div className={isV4 ? 'grid grid-cols-2 gap-4' : 'flex flex-col'}>
+        <>
           {posts.map((post) => (
-            <SidePost
+            <ListItem
               key={post.id}
               post={post}
+              onBookmark={onBookmark}
               onLinkClick={() => onLinkClick(post)}
             />
           ))}
-        </div>
+        </>
       )}
 
       {Separator}
