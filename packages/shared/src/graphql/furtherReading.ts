@@ -41,6 +41,7 @@ export const FURTHER_READING_QUERY = gql`
     $trendingFirst: Int
     $similarFirst: Int
     $discussedFirst: Int
+    $withDiscussedPosts: Boolean! = false
     $tags: [String]!
   ) {
     trendingPosts: randomTrendingPosts(post: $post, first: $trendingFirst) {
@@ -60,7 +61,8 @@ export const FURTHER_READING_QUERY = gql`
       numUpvotes
       tags
     }
-    discussedPosts: randomDiscussedPosts(post: $post, first: $discussedFirst) {
+    discussedPosts: randomDiscussedPosts(post: $post, first: $discussedFirst)
+      @include(if: $withDiscussedPosts) {
       ...FurtherReading
     }
   }

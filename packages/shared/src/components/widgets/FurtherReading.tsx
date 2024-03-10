@@ -112,7 +112,8 @@ export default function FurtherReading({
         post: postId,
         trendingFirst: 1,
         similarFirst: isV4 ? 11 : 3,
-        discussedFirst: isV4 ? 0 : 4,
+        discussedFirst: 4,
+        withDiscussedPosts: !isV4,
         tags,
       });
     },
