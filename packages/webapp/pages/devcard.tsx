@@ -287,7 +287,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
         <WidgetContainer className="flex max-w-[26.25rem] flex-1 flex-col mobileL:min-w-96">
           <div
             className={classNames(
-              'sticky top-12 flex justify-around rounded-24 bg-theme-bg-primary tablet:top-14 tablet:justify-start',
+              'sticky top-12 flex justify-around rounded-24 bg-background-default tablet:top-14 tablet:justify-start',
               styles.nav,
             )}
           >

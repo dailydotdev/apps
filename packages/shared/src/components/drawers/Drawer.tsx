@@ -75,7 +75,7 @@ function BaseDrawer({
       <div
         {...props}
         className={classNames(
-          'absolute flex flex-col overflow-y-auto bg-theme-bg-primary transition-transform duration-300 ease-in-out',
+          'absolute flex flex-col overflow-y-auto bg-background-default transition-transform duration-300 ease-in-out',
           isAnimating && animatePositionClassName[position],
           drawerPositionToClassName[position],
           !title && classes,
@@ -107,7 +107,7 @@ function BaseDrawer({
           {children}
         </ConditionalWrapper>
         {displayCloseButton && (
-          <div className="sticky -bottom-3 bg-theme-bg-primary">
+          <div className="sticky -bottom-3 bg-background-default">
             <Button
               variant={ButtonVariant.Float}
               className="mt-3 w-full"

@@ -96,7 +96,7 @@ export function WriteFreeformContent({
       <ImageInput
         className={{
           container:
-            '!w-[11.5rem] border-none bg-theme-bg-tertiary text-theme-label-tertiary',
+            '!w-[11.5rem] border-none bg-accent-pepper-subtlest text-theme-label-tertiary',
         }}
         enableHover={false}
         fallbackImage={null}
@@ -118,7 +118,7 @@ export function WriteFreeformContent({
         </span>
       </ImageInput>
       <AlertPointer
-        className={{ container: 'bg-theme-bg-primary' }}
+        className={{ container: 'bg-background-default' }}
         offset={[0, -12]}
         message={
           <div className="flex w-64 flex-col">

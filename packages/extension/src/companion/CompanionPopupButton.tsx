@@ -54,7 +54,7 @@ export const CompanionPopupButton = (): ReactElement => {
       showArrow={false}
       container={{
         paddingClassName: 'px-6 py-4',
-        bgClassName: 'bg-theme-bg-primary',
+        bgClassName: 'bg-background-default',
         textClassName: 'text-theme-label-primary typo-callout',
         className:
           'border border-theme-status-cabbage w-[30.75rem] whitespace-pre-wrap shadow-2',

@@ -369,7 +369,7 @@ function AuthOptions({
     <div
       className={classNames(
         'z-1 flex w-full max-w-[26.25rem] flex-col overflow-y-auto rounded-16',
-        !simplified && 'bg-theme-bg-tertiary',
+        !simplified && 'bg-accent-pepper-subtlest',
         className?.container,
       )}
     >

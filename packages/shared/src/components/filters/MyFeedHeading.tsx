@@ -78,7 +78,7 @@ function MyFeedHeading({
     className: {
       label: 'w-44',
       message: classNames(
-        'bg-theme-bg-primary',
+        'bg-background-default',
         !sidebarRendered ? 'ml-4' : null,
         shouldUseMobileFeedLayout && '-left-20',
       ),

@@ -35,7 +35,7 @@ function HeroImageComponent(
       ) : (
         <div
           className={classNames(
-            'absolute left-0 top-0 -z-1 size-full rounded-26 bg-theme-bg-secondary',
+            'absolute left-0 top-0 -z-1 size-full rounded-26 bg-background-subtle',
             className?.cover,
           )}
         />
@@ -46,7 +46,7 @@ function HeroImageComponent(
         eager
         size="xxxxlarge"
         className={classNames(
-          'border-4 border-theme-bg-primary',
+          'border-4 border-background-default',
           className?.profile,
         )}
       />

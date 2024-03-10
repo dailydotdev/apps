@@ -14,7 +14,7 @@ import { cloudinary } from '../../lib/image';
 
 const Section = classed('div', 'flex flex-col');
 export const authGradientBg =
-  'bg-theme-bg-primary bg-gradient-to-l from-theme-overlay-active-cabbage from-0% to-theme-overlay-active-onion to-100%';
+  'bg-background-default bg-gradient-to-l from-theme-overlay-active-cabbage from-0% to-theme-overlay-active-onion to-100%';
 
 export function AuthenticationBanner(): ReactElement {
   const { showLogin } = useAuthContext();

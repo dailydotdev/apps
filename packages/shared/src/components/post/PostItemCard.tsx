@@ -37,7 +37,7 @@ export interface PostItemCardProps {
 
 const SourceShadow = classed(
   'div',
-  'absolute left-5 -my-1 w-8 h-8 rounded-full bg-theme-bg-primary',
+  'absolute left-5 -my-1 w-8 h-8 rounded-full bg-background-default',
 );
 
 export default function PostItemCard({

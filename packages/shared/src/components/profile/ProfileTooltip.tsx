@@ -22,7 +22,7 @@ export const profileTooltipClasses = {
   padding: 'p-6',
   roundness: 'rounded-16',
   classNames: 'w-72 shadow-2 border border-theme-divider-secondary',
-  background: 'bg-theme-bg-primary',
+  background: 'bg-background-default',
 };
 
 export function ProfileTooltip({
