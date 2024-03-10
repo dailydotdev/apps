@@ -136,12 +136,13 @@ export default function FurtherReading({
     return <></>;
   }
 
+  const max = isV4 ? 12 : 3;
   const similarPosts = posts?.similarPosts
     ? [
         ...posts.trendingPosts,
         ...posts.similarPosts.slice(
           0,
-          Math.min(posts.similarPosts.length, 3 - posts.trendingPosts.length),
+          Math.min(posts.similarPosts.length, max - posts.trendingPosts.length),
         ),
       ]
     : [];
