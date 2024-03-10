@@ -73,6 +73,7 @@ export default function FurtherReading({
   const queryKey = ['furtherReading', postId];
   const { user, isLoggedIn } = useContext(AuthContext);
   const queryClient = useQueryClient();
+  const max = isV4 ? 12 : 3;
   const { data: posts, isLoading } = useQuery<FurtherReadingData>(
     queryKey,
     async () => {
@@ -83,7 +84,7 @@ export default function FurtherReading({
           graphqlUrl,
           SOURCE_FEED_QUERY,
           {
-            first: isV4 ? 12 : 3,
+            first: max,
             loggedIn: isLoggedIn,
             source: squad.id,
             ranking: 'TIME',
@@ -110,8 +111,8 @@ export default function FurtherReading({
         loggedIn: !!user,
         post: postId,
         trendingFirst: 1,
-        similarFirst: isV4 ? 5 : 3,
-        discussedFirst: isV4 ? 6 : 4,
+        similarFirst: isV4 ? 11 : 3,
+        discussedFirst: isV4 ? 0 : 4,
         tags,
       });
     },
@@ -136,7 +137,6 @@ export default function FurtherReading({
     return <></>;
   }
 
-  const max = isV4 ? 12 : 3;
   const similarPosts = posts?.similarPosts
     ? [
         ...posts.trendingPosts,
