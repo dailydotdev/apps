@@ -1,8 +1,8 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { BookmarkIcon, ArrowIcon } from '../icons';
-import { Post } from '../../graphql/posts';
+import { ArrowIcon, BookmarkIcon } from '../icons';
+import { Post, PostType } from '../../graphql/posts';
 import styles from '../cards/Card.module.css';
 import { LazyImage } from '../LazyImage';
 import { CardLink } from '../cards/Card';
@@ -20,6 +20,12 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
+import { CardCover } from '../cards/common/CardCover';
+import { IconSize } from '../Icon';
+import PostReadTime from '../cards/v1/PostReadTime';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { PostPageOnboarding } from '../../lib/featureValues';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -123,6 +129,41 @@ const DefaultListItemPlaceholder = (): ReactElement => (
 );
 DefaultListItem.Placeholder = DefaultListItemPlaceholder;
 
+interface SidePostProps {
+  post: Post;
+  onLinkClick: () => void;
+}
+
+const SidePost = ({ post, onLinkClick }: SidePostProps) => {
+  const isVideoType = post.type === PostType.VideoYouTube;
+
+  return (
+    <div className="grid grid-cols-2 gap-4">
+      <Link href={post.commentsPermalink} passHref>
+        <a
+          className="flex flex-col gap-3 text-text-quaternary typo-footnote"
+          href={post.commentsPermalink}
+          onClick={onLinkClick}
+        >
+          <CardCover
+            isVideoType={isVideoType}
+            imageProps={{
+              loading: 'lazy',
+              alt: `Cover preview of: ${post.title}`,
+              src: post.image,
+              className: 'w-full !h-24 !rounded-8',
+            }}
+            videoProps={{ size: IconSize.Large }}
+          />
+          <h3 className="line-clamp-3 font-bold typo-subhead">{post.title}</h3>
+          <span className="typo-footnote">A{Separator}B</span>
+          <PostReadTime readTime={post.readTime} isVideoType={isVideoType} />
+        </a>
+      </Link>
+    </div>
+  );
+};
+
 export default function SimilarPosts({
   posts,
   isLoading,
@@ -132,6 +173,7 @@ export default function SimilarPosts({
   moreButtonProps,
   ListItem = DefaultListItem,
 }: SimilarPostsProps): ReactElement {
+  const postPageOnboarding = useFeature(feature.postPageOnboarding);
   const { trackEvent } = useContext(AnalyticsContext);
   const moreButtonHref =
     moreButtonProps?.href || process.env.NEXT_PUBLIC_WEBAPP_URL;
@@ -164,14 +206,18 @@ export default function SimilarPosts({
         </>
       ) : (
         <>
-          {posts.map((post) => (
-            <ListItem
-              key={post.id}
-              post={post}
-              onLinkClick={onLinkClick}
-              onBookmark={onBookmark}
-            />
-          ))}
+          {posts.map((post) =>
+            postPageOnboarding === PostPageOnboarding.V4 ? (
+              <SidePost post={post} onLinkClick={() => onLinkClick(post)} />
+            ) : (
+              <ListItem
+                key={post.id}
+                post={post}
+                onLinkClick={onLinkClick}
+                onBookmark={onBookmark}
+              />
+            ),
+          )}
         </>
       )}
 

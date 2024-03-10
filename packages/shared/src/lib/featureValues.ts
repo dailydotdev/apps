@@ -19,6 +19,7 @@ export enum OnboardingV4dot5 {
 export enum PostPageOnboarding {
   Control = 'control',
   V3 = 'v3',
+  V4 = 'v4',
 }
 
 export enum UserAcquisition {
