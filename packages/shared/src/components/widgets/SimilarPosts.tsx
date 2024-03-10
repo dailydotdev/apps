@@ -151,7 +151,7 @@ const SidePost = ({ post, onLinkClick }: SidePostProps) => {
   return (
     <Link href={post.commentsPermalink} passHref>
       <a
-        className="flex flex-col gap-3 text-text-quaternary typo-footnote"
+        className="flex flex-col gap-2 text-text-quaternary typo-footnote"
         href={post.commentsPermalink}
         onClick={onLinkClick}
       >
@@ -168,7 +168,7 @@ const SidePost = ({ post, onLinkClick }: SidePostProps) => {
         <h3 className="line-clamp-3 font-bold text-text-primary typo-subhead">
           {post.title}
         </h3>
-        <span className="typo-footnote">
+        <span className="mt-auto typo-footnote">
           <PostCounts
             upvotes={post.numUpvotes}
             comments={post.numComments}
