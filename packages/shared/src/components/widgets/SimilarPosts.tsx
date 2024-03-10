@@ -2,7 +2,7 @@ import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { ArrowIcon, BookmarkIcon } from '../icons';
-import { Post, PostType } from '../../graphql/posts';
+import { Post } from '../../graphql/posts';
 import styles from '../cards/Card.module.css';
 import { LazyImage } from '../LazyImage';
 import { CardLink } from '../cards/Card';
