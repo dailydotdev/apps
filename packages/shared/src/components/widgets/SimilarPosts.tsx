@@ -11,7 +11,7 @@ import classed from '../../lib/classed';
 import { postAnalyticsEvent } from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { HotLabel, singleLineClamp } from '../utilities';
+import { HotLabel } from '../utilities';
 import { combinedClicks } from '../../lib/click';
 import {
   Button,
@@ -20,12 +20,10 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import { CardCover } from '../cards/common/CardCover';
-import { IconSize } from '../Icon';
-import PostReadTime from '../cards/v1/PostReadTime';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { PostPageOnboarding } from '../../lib/featureValues';
+import { PostEngagementCounts, SidePost } from '../cards/SimilarPosts';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -43,26 +41,6 @@ export type SimilarPostsProps = {
 };
 
 const HorizontalSeparator = <div className="h-px bg-theme-divider-tertiary" />;
-
-interface PostCountsProps {
-  upvotes: number;
-  comments: number;
-  className?: string;
-}
-
-const PostCounts = ({ upvotes, comments, className }: PostCountsProps) => (
-  <p
-    className={classNames(
-      'text-text-quaternary typo-footnote',
-      singleLineClamp,
-      className,
-    )}
-  >
-    {upvotes ? `${upvotes} Upvotes` : ''}
-    {upvotes && comments ? <> &#x2022; </> : ''}
-    {comments ? `${comments} Comments` : ''}
-  </p>
-);
 
 type PostProps = {
   post: Post;
@@ -103,16 +81,17 @@ const DefaultListItem = ({
       >
         {post.title}
       </h5>
-      <div className="flex items-center text-theme-label-tertiary typo-footnote">
-        {post.trending ? (
-          <>
-            <HotLabel />
-            <div className="ml-2">{post.trending} devs read it last hour</div>
-          </>
-        ) : (
-          <PostCounts upvotes={post.numUpvotes} comments={post.numComments} />
-        )}
-      </div>
+      {post.trending ? (
+        <div className="flex items-center text-theme-label-tertiary typo-footnote">
+          <HotLabel />
+          <div className="ml-2">{post.trending} devs read it last hour</div>
+        </div>
+      ) : (
+        <PostEngagementCounts
+          upvotes={post.numUpvotes}
+          comments={post.numComments}
+        />
+      )}
     </div>
     <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
       <Button
@@ -141,45 +120,6 @@ const DefaultListItemPlaceholder = (): ReactElement => (
   </article>
 );
 DefaultListItem.Placeholder = DefaultListItemPlaceholder;
-
-interface SidePostProps {
-  post: Post;
-  onLinkClick: () => void;
-}
-
-const SidePost = ({ post, onLinkClick }: SidePostProps) => {
-  const isVideoType = post.type === PostType.VideoYouTube;
-
-  return (
-    <Link href={post.commentsPermalink} passHref>
-      <a
-        className="flex flex-col gap-2 text-text-quaternary typo-footnote"
-        href={post.commentsPermalink}
-        onClick={onLinkClick}
-      >
-        <CardCover
-          isVideoType={isVideoType}
-          imageProps={{
-            loading: 'lazy',
-            alt: `Cover preview of: ${post.title}`,
-            src: post.image,
-            className: 'w-full !h-24 !rounded-8',
-          }}
-          videoProps={{ size: IconSize.Large }}
-        />
-        <h3 className="line-clamp-3 font-bold text-text-primary typo-subhead">
-          {post.title}
-        </h3>
-        <PostCounts
-          className="mt-auto"
-          upvotes={post.numUpvotes}
-          comments={post.numComments}
-        />
-        <PostReadTime readTime={post.readTime} isVideoType={isVideoType} />
-      </a>
-    </Link>
-  );
-};
 
 export default function SimilarPosts({
   posts,
