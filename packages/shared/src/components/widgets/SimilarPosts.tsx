@@ -26,6 +26,7 @@ import PostReadTime from '../cards/v1/PostReadTime';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { PostPageOnboarding } from '../../lib/featureValues';
+import { Separator } from '../cards/common';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -42,7 +43,7 @@ export type SimilarPostsProps = {
   };
 };
 
-const Separator = <div className="h-px bg-theme-divider-tertiary" />;
+const HorizontalSeparator = <div className="h-px bg-theme-divider-tertiary" />;
 
 interface PostCountsProps {
   upvotes: number;
@@ -168,11 +169,11 @@ const SidePost = ({ post, onLinkClick }: SidePostProps) => {
         <h3 className="line-clamp-3 font-bold text-text-primary typo-subhead">
           {post.title}
         </h3>
-        <span className="mt-auto typo-footnote">
+        <span className="mt-auto flex flex-row typo-footnote ">
           <PostCounts
             upvotes={post.numUpvotes}
             comments={post.numComments}
-            separator={Separator}
+            separator={<Separator />}
           />
         </span>
         <PostReadTime readTime={post.readTime} isVideoType={isVideoType} />
@@ -229,7 +230,7 @@ export default function SimilarPosts({
       <h4 className="py-3 pl-6 pr-4 text-theme-label-tertiary typo-body">
         {title}
       </h4>
-      {Separator}
+      {HorizontalSeparator}
       {isLoading ? (
         <>
           <ListItem.Placeholder />
@@ -249,7 +250,7 @@ export default function SimilarPosts({
         </>
       )}
 
-      {Separator}
+      {HorizontalSeparator}
       <Link href={moreButtonHref} passHref>
         <Button
           variant={ButtonVariant.Tertiary}
