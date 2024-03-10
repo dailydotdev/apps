@@ -21,7 +21,7 @@ function NotificationItemAttachment({
             loading: 'lazy',
             alt: `Cover preview of: ${title}`,
             src: image,
-            className: '!h-16 w-24 !rounded-16 object-cover',
+            className: '!h-16 w-24 !rounded-16',
           }}
           videoProps={{ size: IconSize.XLarge }}
         />
