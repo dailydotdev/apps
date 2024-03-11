@@ -84,7 +84,7 @@ function ChangelogTooltip(): ReactElement {
     !!post && (
       <InteractivePopup
         position={InteractivePopupPosition.LeftEnd}
-        className="ml-6 w-[24rem] max-w-[360px] border border-theme-color-cabbage bg-theme-bg-tertiary shadow-2 focus:outline-none"
+        className="ml-6 w-[24rem] max-w-[360px] border border-theme-color-cabbage bg-accent-pepper-subtlest shadow-2 focus:outline-none"
         data-testid="changelog"
         onClose={dismissChangelog}
         closeButton={{

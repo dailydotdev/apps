@@ -45,7 +45,7 @@ export default function ShareNewCommentPopup({
 
   return (
     <div
-      className="fixed bottom-6 right-6 z-3 hidden flex-col rounded-16 border border-theme-divider-secondary bg-theme-bg-tertiary px-6 pb-6 pt-10 shadow-2 laptop:flex"
+      className="fixed bottom-6 right-6 z-3 hidden flex-col rounded-16 border border-theme-divider-secondary bg-accent-pepper-subtlest px-6 pb-6 pt-10 shadow-2 laptop:flex"
       style={{ width: '20.625rem' }}
     >
       <ModalClose onClick={onRequestClose} top="2" />

@@ -83,7 +83,7 @@ export function SquadPageHeader({
       />
       <div
         className={classNames(
-          'relative bottom-0 flex w-full flex-col bg-theme-bg-primary pt-8 tablet:absolute tablet:translate-y-1/2 tablet:flex-row tablet:p-0 laptopL:px-0',
+          'relative bottom-0 flex w-full flex-col bg-background-default pt-8 tablet:absolute tablet:translate-y-1/2 tablet:flex-row tablet:p-0 laptopL:px-0',
           shouldShowHighlightPulse && 'highlight-pulse',
           allowedToPost
             ? 'items-center justify-center laptop:max-w-[41.5rem]'
@@ -98,7 +98,7 @@ export function SquadPageHeader({
               {children}
               <FlexCentered className="relative mx-2 my-2 w-full text-theme-label-tertiary typo-callout tablet:w-auto">
                 <span className="absolute -left-6 flex h-px w-[calc(100%+3rem)] bg-theme-divider-tertiary tablet:hidden" />
-                <span className="z-0 bg-theme-bg-primary px-4">or</span>
+                <span className="z-0 bg-background-default px-4">or</span>
               </FlexCentered>
               <Button
                 tag="a"

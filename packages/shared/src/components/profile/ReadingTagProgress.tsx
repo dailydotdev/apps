@@ -15,7 +15,7 @@ export function ReadingTagProgress({
     <SimpleTooltip content={`${count}/${total} reading days`} placement="top">
       <div
         key={tag}
-        className="relative flex flex-row overflow-hidden rounded-10 border border-theme-bg-secondary p-1 px-3 pb-2 font-bold text-theme-label-tertiary typo-callout"
+        className="relative flex flex-row overflow-hidden rounded-10 border border-background-subtle p-1 px-3 pb-2 font-bold text-theme-label-tertiary typo-callout"
       >
         #{tag}
         <span className="ml-auto text-theme-label-primary">{value}</span>

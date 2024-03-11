@@ -60,7 +60,7 @@ export default function CompanionContent({
   return (
     <div
       ref={onContainerChange}
-      className="relative flex h-auto w-[22.5rem] flex-col rounded-tl-16 border border-r-0 border-theme-divider-quaternary bg-theme-bg-primary p-6"
+      className="relative flex h-auto w-[22.5rem] flex-col rounded-tl-16 border border-r-0 border-theme-divider-quaternary bg-background-default p-6"
     >
       <div className="flex flex-row items-center gap-3">
         <a href={process.env.NEXT_PUBLIC_WEBAPP_URL} target="_parent">

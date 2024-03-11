@@ -34,7 +34,7 @@ function CustomStreaksTooltip({
       forceLoad={!isTesting}
       container={{
         paddingClassName: 'p-4',
-        bgClassName: 'bg-theme-bg-tertiary',
+        bgClassName: 'bg-accent-pepper-subtlest',
         textClassName: 'text-theme-label-primary typo-callout',
         className: 'border border-theme-divider-tertiary',
       }}
