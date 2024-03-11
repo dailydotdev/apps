@@ -879,9 +879,3 @@ details.right-icon {
     border-radius: 14px;
   }
 }
-
-.single-line-clamp {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
