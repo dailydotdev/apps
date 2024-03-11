@@ -4,10 +4,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
 import NewSourceModal from './NewSourceModal';
-import { mockGraphQL } from '../../../__tests__/helpers/graphql';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '../../../__tests__/helpers/graphql';
 import {
   REQUEST_SOURCE_MUTATION,
   SOURCE_BY_FEED_QUERY,
+  SOURCE_REQUEST_AVAILABILITY_QUERY,
 } from '../../graphql/newSource';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { AnonymousUser, LoggedUser } from '../../lib/user';
@@ -32,10 +36,30 @@ const userWithReputation = {
   reputation: 250,
 };
 
+const createSourceRequestAvailabilityMock = (userUpdate: {
+  reputation?: number;
+}) => ({
+  request: { query: SOURCE_REQUEST_AVAILABILITY_QUERY },
+  result: () => {
+    return {
+      data: {
+        sourceRequestAvailability: {
+          hasAccess: userUpdate?.reputation >= 250,
+        },
+      },
+    };
+  },
+});
+
 const renderComponent = (
   userUpdate: LoggedUser | AnonymousUser = userWithReputation,
+  mocks: MockedGraphQLResponse[] = [
+    createSourceRequestAvailabilityMock(userUpdate as unknown),
+  ],
 ): RenderResult => {
   const client = new QueryClient();
+  mocks.forEach(mockGraphQL);
+
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
