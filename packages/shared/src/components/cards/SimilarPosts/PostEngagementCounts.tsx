@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { singleLineClamp } from '../../utilities';
+import { separatorCharacter } from '../common';
 
 interface PostEngagementCountsProps {
   upvotes: number;
@@ -19,7 +20,7 @@ export function PostEngagementCounts({
       data-testid="post-engagements-count"
     >
       {upvotes ? `${upvotes} Upvotes` : ''}
-      {upvotes && comments ? <> &#x2022; </> : ''}
+      {upvotes && comments ? <> {separatorCharacter} </> : ''}
       {comments ? `${comments} Comments` : ''}
     </p>
   );
