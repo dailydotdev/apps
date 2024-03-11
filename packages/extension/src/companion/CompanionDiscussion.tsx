@@ -43,7 +43,7 @@ export function CompanionDiscussion({
       style={style}
       className={classNames(
         className,
-        'absolute -left-px right-0 top-full flex min-h-[14rem] flex-col rounded-bl-16 bg-theme-bg-primary pb-6',
+        'absolute -left-px right-0 top-full flex min-h-[14rem] flex-col rounded-bl-16 bg-background-default pb-6',
       )}
     >
       <span className="px-6" />

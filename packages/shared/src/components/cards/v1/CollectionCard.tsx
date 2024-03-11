@@ -57,7 +57,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
           <CollectionPillSources
             className={{
               main: classNames(!!post.collectionSources?.length && '-my-0.5'),
-              avatar: 'group-hover:border-theme-bg-secondary',
+              avatar: 'group-hover:border-background-subtle',
             }}
             sources={post.collectionSources}
             totalSources={post.numCollectionSources}

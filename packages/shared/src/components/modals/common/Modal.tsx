@@ -108,7 +108,7 @@ export function Modal({
     overlayClassName,
   );
   const modalClassName = classNames(
-    'modal relative flex max-w-full flex-col items-center rounded-16 border border-theme-divider-secondary bg-theme-bg-tertiary antialiased shadow-2 focus:outline-none',
+    'modal relative flex max-w-full flex-col items-center rounded-16 border border-theme-divider-secondary bg-accent-pepper-subtlest antialiased shadow-2 focus:outline-none',
     modalKindToClassName[kind],
     modalSizeToClassName[size],
     modalKindAndSizeToClassName[kind]?.[size],

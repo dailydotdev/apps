@@ -55,7 +55,7 @@ export default function SidebarRankProgress({
       <RankProgressWrapper
         sidebarExpanded={sidebarExpanded}
         disableNewRankPopup={disableNewRankPopup}
-        className="border border-theme-rank bg-theme-bg-secondary"
+        className="border border-theme-rank bg-background-subtle"
       />
     </Wrapper>
   );

@@ -153,7 +153,7 @@ export default function KeywordManagement({
       />
       <div
         className={classNames(
-          'fixed bottom-0 left-0 right-0 mx-auto flex w-full items-center justify-between bg-theme-bg-primary px-4 py-6',
+          'fixed bottom-0 left-0 right-0 mx-auto flex w-full items-center justify-between bg-background-default px-4 py-6',
           styles.buttons,
         )}
       >

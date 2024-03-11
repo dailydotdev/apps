@@ -5,6 +5,7 @@ import {
   PostPageOnboarding,
   UserAcquisition,
   PublishTimeFormat,
+  OnboardingCopy,
 } from './featureValues';
 import { cloudinary } from './image';
 
@@ -51,6 +52,7 @@ const feature = {
     PublishTimeFormat.Control,
   ),
   onboardingOnlineUsers: new Feature('onboarding_online_users', false),
+  onboardingCopy: new Feature('onboarding_copy', OnboardingCopy.Control),
 };
 
 export { feature };

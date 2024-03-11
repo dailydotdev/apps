@@ -52,7 +52,7 @@ export function RecommendedMentionTooltip({
         className: 'shadow',
         paddingClassName: 'p-0',
         roundedClassName: 'rounded-16',
-        bgClassName: 'bg-theme-bg-tertiary',
+        bgClassName: 'bg-accent-pepper-subtlest',
       }}
       reference={elementRef}
       showArrow={false}

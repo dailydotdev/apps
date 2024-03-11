@@ -93,7 +93,7 @@ export const SourceCard = ({
           alt="Banner image for source"
         />
       </div>
-      <div className="-mt-12 flex flex-1 flex-col rounded-t-16 bg-theme-bg-secondary p-4">
+      <div className="-mt-12 flex flex-1 flex-col rounded-t-16 bg-background-subtle p-4">
         <div className="mb-3 flex items-end justify-between">
           <a href={source?.permalink}>
             {source?.image ? (

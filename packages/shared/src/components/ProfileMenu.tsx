@@ -114,7 +114,7 @@ export default function ProfileMenu({
         username={user.username}
         id={user.id}
         className={{
-          cover: '!rounded-24 border-4 border-theme-bg-primary',
+          cover: '!rounded-24 border-4 border-background-default',
           profile: '!rounded-24',
         }}
       />

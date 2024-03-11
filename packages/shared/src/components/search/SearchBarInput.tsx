@@ -168,7 +168,7 @@ function SearchBarInputComponent(
         <BaseField
           {...props}
           className={classNames(
-            'relative h-16 items-center rounded-14 border !border-theme-divider-tertiary !bg-theme-bg-primary px-3',
+            'relative h-16 items-center rounded-14 border !border-theme-divider-tertiary !bg-background-default px-3',
             className?.field,
             { focused },
           )}

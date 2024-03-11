@@ -144,7 +144,7 @@ export default function NewRankModal({
                 alt="Your profile"
               />
               <Rank
-                className={`${styles.newRankBadge} absolute inset-x-0 bottom-4 mx-auto rounded-full bg-theme-bg-tertiary`}
+                className={`${styles.newRankBadge} absolute inset-x-0 bottom-4 mx-auto rounded-full bg-accent-pepper-subtlest`}
                 rank={rank}
                 colorByRank
               />
