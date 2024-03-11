@@ -29,7 +29,7 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
     callback: ({ variables }) => {
       const vars = variables as UseVotePostMutationProps;
 
-      if (vars.id !== post?.id || !shareLoopsEnabled) {
+      if (vars.id !== post.id || !shareLoopsEnabled) {
         return;
       }
 
