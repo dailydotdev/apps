@@ -136,7 +136,7 @@ export const CollectionPostContent = ({
             )}
           >
             <CollectionsIntro className="tablet:hidden" />
-            <Link href={`${webappUrl}/sources/collections`} passHref>
+            <Link href={`${webappUrl}sources/collections`} passHref>
               <Pill
                 tag="a"
                 label="Collection"
