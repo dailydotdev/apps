@@ -48,19 +48,18 @@ export function InAppNotificationElement(): ReactElement {
     stopTimer();
     timeoutId = setTimeout(closeNotification, timer);
   };
-  // const { data: payload } = useQuery<InAppNotification>(
-  //   IN_APP_NOTIFICATION_KEY,
-  //   () => client.getQueryData(IN_APP_NOTIFICATION_KEY),
-  //   {
-  //     onSuccess: (data) => {
-  //       if (!data) {
-  //         return;
-  //       }
-  //       startTimer(data.timer);
-  //     },
-  //   },
-  // );
-  const payload = {};
+  const { data: payload } = useQuery<InAppNotification>(
+    IN_APP_NOTIFICATION_KEY,
+    () => client.getQueryData(IN_APP_NOTIFICATION_KEY),
+    {
+      onSuccess: (data) => {
+        if (!data) {
+          return;
+        }
+        startTimer(data.timer);
+      },
+    },
+  );
 
   useEffect(() => {
     const handler = () => {
@@ -90,11 +89,11 @@ export function InAppNotificationElement(): ReactElement {
     });
   };
 
-  // const isNotifTypeSubscribe =
-  //   payload?.notification?.type === NotificationType.SquadSubscribeNotification;
-  // if (!payload?.notification || (isSubscribed && isNotifTypeSubscribe)) {
-  //   return null;
-  // }
+  const isNotifTypeSubscribe =
+    payload?.notification?.type === NotificationType.SquadSubscribeNotification;
+  if (!payload?.notification || (isSubscribed && isNotifTypeSubscribe)) {
+    return null;
+  }
 
   return (
     <Container
