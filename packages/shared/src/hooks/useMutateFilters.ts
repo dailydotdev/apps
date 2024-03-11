@@ -19,6 +19,7 @@ import {
 } from '../graphql/feedSettings';
 import { Source } from '../graphql/sources';
 import { getFeedSettingsQueryKey } from './useFeedSettings';
+import { RequestKey, generateQueryKey } from '../lib/query';
 
 export const getSearchTagsQueryKey = (query: string): string[] => [
   'searchTags',
@@ -138,6 +139,18 @@ const onMutateSourcesSettings = async (
   return async () => {
     await updateQueryData(queryClient, feedSettings.feedSettings, keys);
   };
+};
+
+const clearNotificationPreference = async ({
+  queryClient,
+  user,
+}: {
+  queryClient: QueryClient;
+  user: LoggedUser;
+}) => {
+  return queryClient.invalidateQueries({
+    queryKey: generateQueryKey(RequestKey.NotificationPreference, user),
+  });
 };
 
 export default function useMutateFilters(user?: LoggedUser): ReturnType {
@@ -412,6 +425,11 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     {
       onMutate: onUnfollowSource,
       onError: (err, _, rollback) => rollback(),
+      onSuccess: () => {
+        // when unfollowing source notification preference is cleared
+        // on the api side so we invalidate the cache
+        clearNotificationPreference({ queryClient, user });
+      },
     },
   );
 

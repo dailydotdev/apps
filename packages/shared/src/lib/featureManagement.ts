@@ -6,6 +6,7 @@ import {
   UserAcquisition,
   PublishTimeFormat,
   OnboardingCopy,
+  SourceSubscribeExperiment,
 } from './featureValues';
 import { cloudinary } from './image';
 
@@ -53,6 +54,10 @@ const feature = {
   ),
   onboardingOnlineUsers: new Feature('onboarding_online_users', false),
   onboardingCopy: new Feature('onboarding_copy', OnboardingCopy.Control),
+  sourceSubscribe: new Feature(
+    'source_subscribe',
+    SourceSubscribeExperiment.Control,
+  ),
 };
 
 export { feature };

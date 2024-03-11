@@ -140,6 +140,9 @@ export enum AnalyticsEvent {
   View404Page = '404 page',
   // Refresh feed
   RefreshFeed = 'refresh feed',
+  // source
+  SubscribeSource = 'subscribe source',
+  UnsubscribeSource = 'unsubscribe source',
 }
 
 export enum FeedItemTitle {
