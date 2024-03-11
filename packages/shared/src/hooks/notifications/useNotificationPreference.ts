@@ -28,7 +28,7 @@ interface UseNotificationPreference {
   subscribeNotification: typeof subscribeNotification;
 }
 
-interface UseNotificationPreferenceProps {
+export interface UseNotificationPreferenceProps {
   params: Parameters<typeof getNotificationPreferences>[0];
   squad?: Squad;
 }
@@ -47,13 +47,13 @@ export const useNotificationPreference = ({
   params,
   squad,
 }: UseNotificationPreferenceProps): UseNotificationPreference => {
-  const { user } = useAuthContext();
+  const { user, isLoggedIn } = useAuthContext();
   const client = useQueryClient();
   const key = generateQueryKey(RequestKey.NotificationPreference, user, params);
   const { data, isFetched, isLoading } = useQuery(
     key,
     () => getNotificationPreferences(params),
-    { enabled: params?.length > 0, initialData: () => [] },
+    { enabled: isLoggedIn && params?.length > 0, initialData: () => [] },
   );
   const { mutateAsync: muteNotificationAsync } = useMutation(muteNotification, {
     onSuccess: (_, { referenceId, type }) => {

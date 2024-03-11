@@ -229,6 +229,7 @@ export const notificationPreferenceMap: Partial<
   [NotificationType.SquadReply]: NotificationPreferenceType.Comment,
   [NotificationType.SquadPostAdded]: NotificationPreferenceType.Source,
   [NotificationType.SquadMemberJoined]: NotificationPreferenceType.Source,
+  [NotificationType.SourcePostAdded]: NotificationPreferenceType.Source,
 };
 
 export const muteNotification = async (
