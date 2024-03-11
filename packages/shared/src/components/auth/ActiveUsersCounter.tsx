@@ -19,7 +19,7 @@ export function ActiveUsersCounter(): ReactElement {
     <div className="relative mb-2 flex w-fit flex-row items-center rounded-8 bg-surface-float p-1 pr-3">
       <UserIcon secondary size={IconSize.Small} />
       <span className="ml-3 typo-footnote">
-        <strong>{data.toLocaleString()} </strong>
+        <strong>{data.toLocaleString('en-US')} </strong>
         devs online
       </span>
       <span
