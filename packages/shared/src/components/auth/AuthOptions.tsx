@@ -54,7 +54,7 @@ import { labels } from '../../lib';
 import OnboardingRegistrationForm from './OnboardingRegistrationForm';
 import EmailCodeVerification from './EmailCodeVerification';
 import { trackAnalyticsSignUp } from './OnboardingAnalytics';
-import { ButtonProps, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonProps } from '../buttons/Button';
 import { nextTick } from '../../lib/func';
 import { OnboardingRegistrationForm4d5 } from './OnboardingRegistrationForm4d5';
 
