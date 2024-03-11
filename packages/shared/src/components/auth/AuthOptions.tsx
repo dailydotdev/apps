@@ -54,7 +54,7 @@ import { labels } from '../../lib';
 import OnboardingRegistrationForm from './OnboardingRegistrationForm';
 import EmailCodeVerification from './EmailCodeVerification';
 import { trackAnalyticsSignUp } from './OnboardingAnalytics';
-import { ButtonSize } from '../buttons/Button';
+import { ButtonProps } from '../buttons/Button';
 import { nextTick } from '../../lib/func';
 import { OnboardingRegistrationForm4d5 } from './OnboardingRegistrationForm4d5';
 
@@ -101,7 +101,7 @@ export interface AuthOptionsProps {
   initialEmail?: string;
   targetId?: string;
   ignoreMessages?: boolean;
-  onboardingSignupButtonSize?: ButtonSize;
+  onboardingSignupButton?: ButtonProps<'button'>;
 }
 
 function AuthOptions({
@@ -120,7 +120,7 @@ function AuthOptions({
   simplified = false,
   initialEmail = '',
   ignoreMessages = false,
-  onboardingSignupButtonSize,
+  onboardingSignupButton,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
@@ -369,7 +369,7 @@ function AuthOptions({
     <div
       className={classNames(
         'z-1 flex w-full max-w-[26.25rem] flex-col overflow-y-auto rounded-16',
-        !simplified && 'bg-theme-bg-tertiary',
+        !simplified && 'bg-accent-pepper-subtlest',
         className?.container,
       )}
     >
@@ -447,7 +447,7 @@ function AuthOptions({
             simplified={simplified}
             targetId={targetId}
             className={className?.onboardingSignup}
-            onboardingSignupButtonSize={onboardingSignupButtonSize}
+            onboardingSignupButton={onboardingSignupButton}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>

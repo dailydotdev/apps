@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { FlexRow } from '../utilities';
 
-const PlaceholderElement = classed('div', 'bg-theme-bg-tertiary');
+const PlaceholderElement = classed('div', 'bg-accent-pepper-subtlest');
 const RectangleElement = classed(PlaceholderElement, 'rounded-12');
 const Container = classed('div', 'flex flex-row');
 const ColumnContainer = classed(

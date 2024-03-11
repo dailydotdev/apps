@@ -11,7 +11,7 @@ export const SquadsDirectoryHeader = (): ReactElement => {
   return (
     <div className="mb-4">
       <div
-        className="relative mb-16 flex flex-col items-center rounded-24 bg-theme-bg-primary bg-cover bg-center p-6 pb-1 text-center"
+        className="relative mb-16 flex flex-col items-center rounded-24 bg-background-default bg-cover bg-center p-6 pb-1 text-center"
         style={{
           backgroundImage: `url(${cloudinary.squads.directory.banner})`,
         }}
@@ -45,7 +45,7 @@ export const SquadsDirectoryHeader = (): ReactElement => {
             coming soon.
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 z-0 h-full bg-gradient-to-t from-theme-bg-primary to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 z-0 h-full bg-gradient-to-t from-background-default to-transparent" />
       </div>
     </div>
   );

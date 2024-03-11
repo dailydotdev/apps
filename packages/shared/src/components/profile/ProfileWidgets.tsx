@@ -50,7 +50,7 @@ export function ProfileWidgets({
           user={user}
           isSameUser={isSameUser}
           sticky
-          className="fixed left-0 top-0 z-3 w-full bg-theme-bg-primary transition-transform duration-75"
+          className="fixed left-0 top-0 z-3 w-full bg-background-default transition-transform duration-75"
           style={{ transform: `translateY(${(stickyProgress - 1) * 100}%)` }}
         />
       )}

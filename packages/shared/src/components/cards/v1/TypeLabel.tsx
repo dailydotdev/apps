@@ -42,7 +42,7 @@ export function TypeLabel({
   return (
     <legend
       className={classNames(
-        'rounded-4 bg-theme-bg-primary font-bold capitalize typo-caption1',
+        'rounded-4 bg-background-default font-bold capitalize typo-caption1',
         typeToClassName[type as PostType] ?? 'text-theme-label-tertiary',
         !focus && '-top-[9px]', // taking the border width into account
         focus && '-top-2.5',

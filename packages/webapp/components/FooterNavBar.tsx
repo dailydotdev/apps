@@ -129,7 +129,7 @@ export default function FooterNavBar({
         spring="veryGentle"
         element="nav"
         className={classNames(
-          'grid w-full grid-flow-col items-center border-t border-theme-divider-tertiary bg-theme-bg-primary',
+          'grid w-full grid-flow-col items-center border-t border-theme-divider-tertiary bg-background-default',
           !showNav && 'hidden',
           styles.footerNavBar,
         )}

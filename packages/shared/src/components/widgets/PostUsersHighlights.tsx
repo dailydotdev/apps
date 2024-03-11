@@ -57,7 +57,7 @@ const Image = (props: SourceAuthorProps) => {
           className="cursor-pointer rounded-full"
           imgSrc={image}
           imgAlt={name}
-          background="var(--theme-background-secondary)"
+          background="var(--theme-background-subtle)"
         />
       </LinkWithTooltip>
     );
@@ -71,7 +71,7 @@ const Image = (props: SourceAuthorProps) => {
         className="rounded-12"
         imgSrc={image}
         imgAlt={name}
-        background="var(--theme-background-secondary)"
+        background="var(--theme-background-subtle)"
       />
     </ProfileLink>
   );

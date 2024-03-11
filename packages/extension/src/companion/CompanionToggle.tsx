@@ -32,7 +32,7 @@ function CompanionToggle({
   return (
     <AlertPointer
       offset={[-4]}
-      className={{ message: 'bg-theme-bg-primary' }}
+      className={{ message: 'bg-background-default' }}
       isAlertDisabled={isAlertDisabled}
       placement={AlertPlacement.Left}
       message={companionAlertMessage}

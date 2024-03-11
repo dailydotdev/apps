@@ -22,7 +22,7 @@ export function SidebarUserButton({
               <div className="mb-4 flex items-center">
                 <ProfileLink
                   href={user.permalink}
-                  className="focus-outline flex h-10 cursor-pointer items-center rounded-12 border-none bg-theme-bg-secondary p-0 font-bold text-theme-label-primary no-underline typo-callout"
+                  className="focus-outline flex h-10 cursor-pointer items-center rounded-12 border-none bg-background-subtle p-0 font-bold text-theme-label-primary no-underline typo-callout"
                 >
                   <ProfilePicture user={user} size="large" />
                   <ReputationUserBadge

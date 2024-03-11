@@ -20,6 +20,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   ExperimentWinner,
+  OnboardingCopy,
   OnboardingV4dot5,
   UserAcquisition,
 } from '@dailydotdev/shared/src/lib/featureValues';
@@ -126,6 +127,8 @@ export function OnboardPage(): ReactElement {
     feature.socialProofOnboarding,
   );
   const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
+  const isOnboardingCopyV1 =
+    useFeature(feature.onboardingCopy) === OnboardingCopy.V1;
   const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
   const userAcquisitionVersion = useFeature(feature.userAcquisition);
   const targetId: string =
@@ -234,6 +237,7 @@ export function OnboardPage(): ReactElement {
           onboardingSignup: classNames(
             socialProofOnboardingMobile &&
               '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
+            isOnboardingCopyV1 && 'flex !flex-row *:grow',
           ),
         }}
         trigger={AuthTriggers.Onboarding}
@@ -248,11 +252,15 @@ export function OnboardPage(): ReactElement {
         onAuthStateUpdate={(props: AuthProps) =>
           setAuth({ isAuthenticating: true, ...props })
         }
-        onboardingSignupButtonSize={
-          isMobile && socialProofOnboardingMobile
-            ? ButtonSize.Medium
-            : ButtonSize.Large
-        }
+        onboardingSignupButton={{
+          size:
+            isMobile && socialProofOnboardingMobile
+              ? ButtonSize.Medium
+              : ButtonSize.Large,
+          variant: isOnboardingCopyV1
+            ? ButtonVariant.Float
+            : ButtonVariant.Primary,
+        }}
       />
     );
   };
@@ -426,17 +434,23 @@ export function OnboardPage(): ReactElement {
           <div
             className={classNames(
               'flex flex-1 flex-col laptop:mr-8 laptop:max-w-[27.5rem]',
-              socialProofOnboardingMobile
-                ? 'mt-5 tablet:mt-0'
-                : 'justify-center',
+              socialProofOnboardingMobile &&
+                `${isOnboardingCopyV1 ? 'mt-6' : 'mt-5'} tablet:mt-0`,
+              !socialProofOnboardingMobile && 'justify-center',
             )}
           >
             {shouldShowOnline && <ActiveUsersCounter />}
             <OnboardingHeadline
               className={{
-                title: 'typo-large-title tablet:typo-mega1',
+                title: classNames(
+                  'typo-large-title',
+                  isOnboardingCopyV1
+                    ? 'tablet:typo-mega2'
+                    : 'tablet:typo-mega-1',
+                ),
                 description: 'typo-body tablet:typo-title2',
               }}
+              isOnboardingCopyV1={isOnboardingCopyV1}
             />
             {getAuthOptions()}
           </div>

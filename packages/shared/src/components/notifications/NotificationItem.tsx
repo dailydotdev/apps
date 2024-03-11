@@ -90,7 +90,7 @@ function NotificationItem({
   return (
     <div
       className={classNames(
-        'group relative flex flex-row border-y border-theme-bg-primary py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active',
+        'group relative flex flex-row border-y border-background-default py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active',
         isUnread && 'bg-theme-float',
       )}
     >

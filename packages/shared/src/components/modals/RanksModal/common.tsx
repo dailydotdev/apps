@@ -53,14 +53,14 @@ export const RankBadgeLine = classed(
 );
 export const RankBadgeContainer = classed(
   'div',
-  'flex justify-center items-center relative bg-theme-bg-tertiary',
+  'flex justify-center items-center relative bg-accent-pepper-subtlest',
 );
 export const RankBadgeName = classed('strong', 'mt-2');
 
 /** Rank tag */
 export const RanksTagsSection = classed(
   'div',
-  'p-4 mb-4 rounded-16 border bg-theme-bg-secondary border-theme-divider-tertiary',
+  'p-4 mb-4 rounded-16 border bg-background-subtle border-theme-divider-tertiary',
 );
 export const RanksTagsList = classed(
   'ul',
