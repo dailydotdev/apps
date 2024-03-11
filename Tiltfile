@@ -20,7 +20,7 @@ cmd_button(
 )
 
 
-# Add a button to API to seed the database
+# Add a button to API to run db migrations
 cmd_button(
   name="migrate",
   resource="api",
