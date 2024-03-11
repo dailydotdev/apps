@@ -40,7 +40,9 @@ export type SimilarPostsProps = {
   };
 };
 
-const HorizontalSeparator = <div className="h-px bg-theme-divider-tertiary" />;
+const HorizontalSeparator = (
+  <div className="h-px bg-border-subtlest-tertiary" />
+);
 
 type PostProps = {
   post: Post;
