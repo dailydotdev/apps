@@ -252,14 +252,15 @@ export function OnboardPage(): ReactElement {
         onAuthStateUpdate={(props: AuthProps) =>
           setAuth({ isAuthenticating: true, ...props })
         }
-        onboardingSignupButtonSize={
-          isMobile && socialProofOnboardingMobile
-            ? ButtonSize.Medium
-            : ButtonSize.Large
-        }
-        onboardingSignupButtonVariant={
-          isOnboardingCopyV1 ? ButtonVariant.Float : ButtonVariant.Primary
-        }
+        onboardingSignupButton={{
+          size:
+            isMobile && socialProofOnboardingMobile
+              ? ButtonSize.Medium
+              : ButtonSize.Large,
+          variant: isOnboardingCopyV1
+            ? ButtonVariant.Float
+            : ButtonVariant.Primary,
+        }}
       />
     );
   };

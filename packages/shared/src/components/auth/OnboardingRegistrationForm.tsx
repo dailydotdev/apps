@@ -6,7 +6,12 @@ import { AuthFormProps, getFormEmail, providerMap } from './common';
 import OrDivider from './OrDivider';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  Button,
+  ButtonProps,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import AuthForm from './AuthForm';
 import { TextField } from '../fields/TextField';
 import { MailIcon } from '../icons';
@@ -26,8 +31,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   trigger: AuthTriggersType;
   isReady: boolean;
   className?: string;
-  onboardingSignupButtonSize?: ButtonSize;
-  onboardingSignupButtonVariant?: ButtonVariant;
+  onboardingSignupButton?: ButtonProps<'button'>;
 }
 
 const OnboardingRegistrationForm = ({
@@ -38,8 +42,7 @@ const OnboardingRegistrationForm = ({
   isReady,
   trigger,
   className,
-  onboardingSignupButtonSize = ButtonSize.Large,
-  onboardingSignupButtonVariant = ButtonVariant.Primary,
+  onboardingSignupButton,
 }: OnboardingRegistrationFormProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [shouldLogin, setShouldLogin] = useState(false);
@@ -47,6 +50,11 @@ const OnboardingRegistrationForm = ({
   const { mutateAsync: checkEmail, isLoading } = useMutation(
     (emailParam: string) => checkKratosEmail(emailParam),
   );
+  const onboardingSignupButtonProps = {
+    size: ButtonSize.Large,
+    variant: ButtonVariant.Primary,
+    ...onboardingSignupButton,
+  };
 
   useEffect(() => {
     trackEvent({
@@ -140,9 +148,8 @@ const OnboardingRegistrationForm = ({
             key={provider.value}
             icon={provider.icon}
             loading={!isReady}
-            variant={onboardingSignupButtonVariant}
-            size={onboardingSignupButtonSize}
             onClick={() => onSocialClick(provider.value)}
+            {...onboardingSignupButtonProps}
           >
             {provider.label}
           </Button>
