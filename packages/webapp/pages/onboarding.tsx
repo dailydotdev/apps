@@ -450,6 +450,7 @@ export function OnboardPage(): ReactElement {
                 ),
                 description: 'typo-body tablet:typo-title2',
               }}
+              isOnboardingCopyV1={isOnboardingCopyV1}
             />
             {getAuthOptions()}
           </div>

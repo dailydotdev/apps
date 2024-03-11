@@ -4,9 +4,6 @@ import {
   OnboardingGradientClasses,
   OnboardingTitleGradient,
 } from '../onboarding/common';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { OnboardingCopy } from '../../lib/featureValues';
 
 interface ClassName {
   title?: string;
@@ -15,14 +12,13 @@ interface ClassName {
 
 interface OnboardingHeadlineProps {
   className?: ClassName;
+  isOnboardingCopyV1?: boolean;
 }
 
 export function OnboardingHeadline({
   className = {},
+  isOnboardingCopyV1 = false,
 }: OnboardingHeadlineProps): ReactElement {
-  const onboardingCopyVersion = useFeature(feature.onboardingCopy);
-  const isOnboardingCopyV1 = onboardingCopyVersion === OnboardingCopy.V1;
-
   const title = isOnboardingCopyV1 ? (
     <h1 className={classNames('mb-8 font-bold', className?.title)}>
       Personalized feed for{' '}
