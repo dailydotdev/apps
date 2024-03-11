@@ -23,7 +23,7 @@ const Container = classed(
   classNames(
     styles.inAppNotificationContainer,
     'animate-bounce',
-    'in-app-notification slide-in fixed right-1/2 z-max h-22 w-[22.5rem] translate-x-1/2 rounded-16 border border-theme-active bg-theme-bg-notification laptop:right-10 laptop:translate-x-0',
+    'in-app-notification slide-in fixed right-1/2 z-max h-22 w-[22.5rem] translate-x-1/2 rounded-16 border border-theme-active bg-accent-pepper-subtler laptop:right-10 laptop:translate-x-0',
   ),
 );
 
@@ -48,18 +48,19 @@ export function InAppNotificationElement(): ReactElement {
     stopTimer();
     timeoutId = setTimeout(closeNotification, timer);
   };
-  const { data: payload } = useQuery<InAppNotification>(
-    IN_APP_NOTIFICATION_KEY,
-    () => client.getQueryData(IN_APP_NOTIFICATION_KEY),
-    {
-      onSuccess: (data) => {
-        if (!data) {
-          return;
-        }
-        startTimer(data.timer);
-      },
-    },
-  );
+  // const { data: payload } = useQuery<InAppNotification>(
+  //   IN_APP_NOTIFICATION_KEY,
+  //   () => client.getQueryData(IN_APP_NOTIFICATION_KEY),
+  //   {
+  //     onSuccess: (data) => {
+  //       if (!data) {
+  //         return;
+  //       }
+  //       startTimer(data.timer);
+  //     },
+  //   },
+  // );
+  const payload = {};
 
   useEffect(() => {
     const handler = () => {
@@ -89,11 +90,11 @@ export function InAppNotificationElement(): ReactElement {
     });
   };
 
-  const isNotifTypeSubscribe =
-    payload?.notification?.type === NotificationType.SquadSubscribeNotification;
-  if (!payload?.notification || (isSubscribed && isNotifTypeSubscribe)) {
-    return null;
-  }
+  // const isNotifTypeSubscribe =
+  //   payload?.notification?.type === NotificationType.SquadSubscribeNotification;
+  // if (!payload?.notification || (isSubscribed && isNotifTypeSubscribe)) {
+  //   return null;
+  // }
 
   return (
     <Container
