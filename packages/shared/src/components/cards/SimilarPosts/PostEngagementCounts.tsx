@@ -14,7 +14,10 @@ export function PostEngagementCounts({
   className,
 }: PostEngagementCountsProps): ReactElement {
   return (
-    <p className={classNames('typo-footnote', singleLineClamp, className)}>
+    <p
+      className={classNames('typo-footnote', singleLineClamp, className)}
+      data-testid="post-engagements-count"
+    >
       {upvotes ? `${upvotes} Upvotes` : ''}
       {upvotes && comments ? <> &#x2022; </> : ''}
       {comments ? `${comments} Comments` : ''}

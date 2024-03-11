@@ -51,6 +51,7 @@ const createFeedMock = (
     similarFirst: 3,
     discussedFirst: 4,
     tags: post.tags,
+    withDiscussedPosts: true,
   },
 ): MockedGraphQLResponse<FurtherReadingData> => ({
   request: {
@@ -126,9 +127,12 @@ it('should show trending info for trending posts', async () => {
 
 it('should show number of upvotes and comments', async () => {
   renderComponent();
-  expect(await screen.findByText('15 Comments')).toBeInTheDocument();
-  expect(await screen.findByText('15 Comments')).toBeInTheDocument();
-  expect(await screen.findAllByText('1 Upvotes')).toHaveLength(2);
+  const [element1, element2] = await screen.findAllByTestId(
+    'post-engagements-count',
+  );
+  expect(element1).toHaveTextContent('15 Comments');
+  expect(element1).toHaveTextContent('1 Upvotes');
+  expect(element2).toHaveTextContent('1 Upvotes');
 });
 
 it('should send add bookmark mutation', async () => {
@@ -198,6 +202,7 @@ it('should open login modal on anonymous bookmark', async () => {
           similarFirst: 3,
           discussedFirst: 4,
           tags: post.tags,
+          withDiscussedPosts: true,
         },
       ),
     ],
