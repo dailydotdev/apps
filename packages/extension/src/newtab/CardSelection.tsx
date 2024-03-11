@@ -29,7 +29,7 @@ export function CardSelection({
       type="button"
     >
       {isActive && (
-        <VIcon className="absolute -right-3 -top-3 h-6 w-6 rounded-8 bg-theme-label-primary text-theme-bg-primary" />
+        <VIcon className="absolute -right-3 -top-3 h-6 w-6 rounded-8 bg-theme-label-primary text-background-default" />
       )}
       {icon}
       <span className="font-bold typo-callout">{title}</span>

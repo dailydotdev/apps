@@ -33,7 +33,7 @@ export function LabeledImage({
         src={src}
         alt={alt}
       />
-      <div className="absolute bottom-0 -mb-px flex h-full w-full bg-gradient-to-t from-theme-bg-primary from-15% to-transparent" />
+      <div className="absolute bottom-0 -mb-px flex h-full w-full bg-gradient-to-t from-background-default from-15% to-transparent" />
       <Container className={classNames('absolute', className?.content)}>
         {children}
       </Container>

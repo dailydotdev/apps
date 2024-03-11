@@ -1,5 +1,5 @@
 html, #daily-companion-wrapper {
-  background: var(--theme-background-primary);
+  background: var(--theme-background-default);
   color: var(--theme-label-primary);
   height: stretch;
 }
@@ -234,10 +234,6 @@ body {
   --theme-hover: theme('colors.raw.salt.90')1F;
 
   --theme-background-cabbage-blur: theme('colors.raw.cabbage.90')99;
-  --theme-background-primary: theme('colors.raw.pepper.90');
-  --theme-background-reverse: #ffffff;
-  --theme-background-secondary: theme('colors.raw.pepper.70');
-  --theme-background-tertiary: theme('colors.raw.pepper.80');
   --theme-background-notification: theme('colors.raw.pepper.50');
   --theme-background-bun: theme('colors.raw.bun.80');
   --theme-background-onion: theme('colors.raw.onion.80');
@@ -552,10 +548,6 @@ body {
   --theme-hover: theme('colors.raw.pepper.10')1F;
 
   --theme-background-cabbage-blur: theme('colors.raw.cabbage.10')99;
-  --theme-background-primary: #ffffff;
-  --theme-background-reverse: theme('colors.raw.pepper.90');
-  --theme-background-secondary: theme('colors.raw.salt.10');
-  --theme-background-tertiary: theme('colors.raw.salt.20');
   --theme-background-notification: theme('colors.raw.salt.50');
   --theme-background-bacon: theme('colors.raw.bacon.20');
   --theme-background-bun: theme('colors.raw.bun.20');

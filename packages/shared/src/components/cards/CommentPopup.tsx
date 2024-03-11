@@ -69,7 +69,7 @@ export default function CommentPopup({
     >
       <div
         className={classNames(
-          'invert relative flex flex-col rounded-16 bg-theme-bg-primary p-4',
+          'invert relative flex flex-col rounded-16 bg-background-default p-4',
           layoutModeClass,
         )}
       >

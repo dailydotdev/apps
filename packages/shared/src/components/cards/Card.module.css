@@ -56,7 +56,7 @@
 
   &.read {
     border-color: var(--theme-divider-quaternary);
-    background: var(--theme-background-primary);
+    background: var(--theme-background-default);
     box-shadow: none;
 
     & .title {

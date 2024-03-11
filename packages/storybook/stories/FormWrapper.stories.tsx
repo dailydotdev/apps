@@ -30,11 +30,11 @@ export const Wrapper: Story = {
         <h2>Without Wrapper:</h2>
         <h2>Wrapper:</h2>
         <div style={{ width: '20rem' }}>
-          <div className="bg-theme-bg-secondary p-4">Content</div>
+          <div className="bg-background-subtle p-4">Content</div>
         </div>
         <div style={{ width: '20rem' }}>
           <FormWrapper {...props} form='sample'>
-            <div className="bg-theme-bg-secondary p-4">Content</div>
+            <div className="bg-background-subtle p-4">Content</div>
           </FormWrapper>
         </div>
       </div>

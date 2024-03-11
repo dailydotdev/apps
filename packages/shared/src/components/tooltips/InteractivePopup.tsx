@@ -108,7 +108,7 @@ function InteractivePopup({
         <div
           ref={container}
           className={classNames(
-            'fixed z-popup overflow-hidden rounded-16 bg-theme-bg-primary shadow-2',
+            'fixed z-popup overflow-hidden rounded-16 bg-background-default shadow-2',
             className,
             classes,
             !validateSidebar && 'shadow-2',
