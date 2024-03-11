@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { singleLineClamp } from '../../utilities';
 import { separatorCharacter } from '../common';
 
 interface PostEngagementCountsProps {
@@ -16,7 +15,7 @@ export function PostEngagementCounts({
 }: PostEngagementCountsProps): ReactElement {
   return (
     <p
-      className={classNames('typo-footnote', singleLineClamp, className)}
+      className={classNames('single-line-clamp typo-footnote', className)}
       data-testid="post-engagements-count"
     >
       {upvotes ? `${upvotes} Upvotes` : ''}

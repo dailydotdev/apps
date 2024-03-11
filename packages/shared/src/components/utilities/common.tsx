@@ -230,6 +230,3 @@ export const formatReadTime = (minutes: number): string => {
 };
 
 export const lazyCommentThreshold = 5;
-
-export const singleLineClamp =
-  'overflow-hidden overflow-ellipsis whitespace-nowrap';
