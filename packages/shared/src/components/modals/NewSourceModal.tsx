@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import request from 'graphql-request';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -17,6 +17,8 @@ import { contentGuidelines } from '../../lib/constants';
 import {
   REQUEST_SOURCE_MUTATION,
   SOURCE_BY_FEED_QUERY,
+  SOURCE_REQUEST_AVAILABILITY_QUERY,
+  SourceRequestAvailability,
 } from '../../graphql/newSource';
 import { Source } from '../../graphql/sources';
 import AuthContext from '../../contexts/AuthContext';
@@ -34,6 +36,7 @@ import {
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { TextField } from '../fields/TextField';
 import { ReputationAlert } from './ReputationAlert';
+import { RequestKey } from '../../lib/query';
 
 interface RSS {
   url: string;
@@ -94,6 +97,14 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     DISMISS_PERMISSION_BANNER,
     false,
   );
+  const { data: sourceRequestAvailability, isLoading: isLoadingAccess } =
+    useQuery([RequestKey.SourceRequestAvailability, user?.id], async () => {
+      const result = await request<{
+        sourceRequestAvailability: SourceRequestAvailability;
+      }>(graphqlUrl, SOURCE_REQUEST_AVAILABILITY_QUERY);
+
+      return result.sourceRequestAvailability;
+    });
 
   const failedToScrape = () => {
     setShowContact(true);
@@ -215,10 +226,11 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     ...props,
   };
 
-  // TODO AS-136-submit-content-modal update with value from API after extension adoption
-  // will use sourceRequestAvailability query when adoption is reached on extension
-  const REPUTATION_THRESHOLD = 250;
-  const isEnabled = isLoggedIn && user?.reputation >= REPUTATION_THRESHOLD;
+  if (isLoadingAccess) {
+    return null;
+  }
+
+  const isEnabled = isLoggedIn && sourceRequestAvailability.hasAccess;
 
   if (showNotification) {
     return <PushNotificationModal {...modalProps} />;
