@@ -90,6 +90,7 @@ const DefaultListItem = ({
         <PostEngagementCounts
           upvotes={post.numUpvotes}
           comments={post.numComments}
+          className="text-text-tertiary"
         />
       )}
     </div>
