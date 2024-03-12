@@ -34,7 +34,7 @@ export const Header = ({ tagText, tagColor }: HeaderProps): ReactElement => (
       size={ButtonSize.Small}
       variant={ButtonVariant.Tertiary}
       icon={<MiniCloseIcon />}
-      aria-label="Close acquisition form"
+      aria-label="Close post"
     />
   </div>
 );
