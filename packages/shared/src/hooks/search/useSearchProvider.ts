@@ -8,6 +8,8 @@ import {
 } from '../../graphql/search';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { graphqlUrl } from '../../lib/config';
+import { useFeature } from '../../components/GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
 
 export type UseSearchProviderProps = {
   provider: SearchProviderEnum;
@@ -30,6 +32,7 @@ const searchProviderSuggestionsQueryMap: Partial<
 export const useSearchProvider = (): UseSearchProvider => {
   const router = useRouter();
   const { requestMethod } = useRequestProtocol();
+  const searchVersion = useFeature(feature.searchVersion);
 
   return {
     search: useCallback(
@@ -52,6 +55,7 @@ export const useSearchProvider = (): UseSearchProvider => {
           searchPostSuggestions: SearchSuggestionResult;
         }>(graphqlUrl, searchProviderSuggestionsQueryMap[provider], {
           query,
+          version: searchVersion,
         });
 
         return result.searchPostSuggestions;
