@@ -3,7 +3,7 @@ import { Post } from '../../graphql/posts';
 
 export const usePostImage = (post: Post): string =>
   useMemo(() => {
-    const baseImage = post?.image ?? post?.sharedPost?.image;
+    const baseImage = post?.sharedPost?.image ?? post?.image;
 
     if (baseImage) {
       return baseImage;
