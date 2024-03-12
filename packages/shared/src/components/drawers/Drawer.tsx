@@ -17,6 +17,8 @@ import { Button } from '../buttons/Button';
 export enum DrawerPosition {
   Bottom = 'bottom',
   Top = 'top',
+  Left = 'left',
+  Right = 'right',
 }
 
 interface ClassName {
@@ -39,11 +41,15 @@ interface DrawerProps
 const drawerPositionToClassName: Record<DrawerPosition, string> = {
   [DrawerPosition.Bottom]: 'bottom-0 rounded-t-16',
   [DrawerPosition.Top]: 'top-0 rounded-b-16',
+  [DrawerPosition.Left]: 'left-0 rounded-r-16',
+  [DrawerPosition.Right]: 'right-0 rounded-l-16',
 };
 
 const animatePositionClassName: Record<DrawerPosition, string> = {
   [DrawerPosition.Bottom]: 'translate-y-full',
   [DrawerPosition.Top]: '-translate-y-full',
+  [DrawerPosition.Left]: '-translate-x-full',
+  [DrawerPosition.Right]: 'translate-x-full',
 };
 
 function BaseDrawer({
@@ -75,11 +81,10 @@ function BaseDrawer({
       <div
         {...props}
         className={classNames(
-          'absolute flex flex-col overflow-y-auto bg-background-default transition-transform duration-300 ease-in-out',
+          'absolute flex max-h-[calc(100%-5rem)] w-full flex-col overflow-y-auto bg-background-default transition-transform duration-300 ease-in-out',
           isAnimating && animatePositionClassName[position],
           drawerPositionToClassName[position],
           !title && classes,
-          'max-h-[calc(100%-5rem)] w-full',
         )}
         ref={(node) => {
           container.current = node;
