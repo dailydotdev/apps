@@ -60,7 +60,7 @@ export const useSearchProvider = (): UseSearchProvider => {
 
         return result.searchPostSuggestions;
       },
-      [requestMethod],
+      [requestMethod, searchVersion],
     ),
   };
 };
