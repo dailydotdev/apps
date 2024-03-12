@@ -13,7 +13,7 @@ export const cloudinary = {
   },
   post: {
     imageCoverPlaceholder:
-      'https://res.cloudinary.com/daily-now/image/upload/s--EY5owj5E--/f_auto/v1708962997/public/Fallback%20ads%2001',
+      'https://res.cloudinary.com/daily-now/image/upload/s--P4t4XyoV--/f_auto/v1710058033/public/Placeholder%2001',
   },
   feedFilters: {
     recommended:
@@ -169,7 +169,7 @@ export const cloudinary = {
   },
   devcard: {
     defaultCoverImage:
-      'https://daily-now-res.cloudinary.com/image/upload/s--b9BjE_Vi--/f_auto/v1707404283/card-cover_emugw3',
+      'https://res.cloudinary.com/daily-now/image/upload/s--VMbOMIjj--/f_auto/v1710057765/public/DevCard-cover',
   },
   reputation: {
     privilegesUnlocked:
