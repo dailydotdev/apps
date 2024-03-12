@@ -25,7 +25,7 @@ export const Header = ({ tagText, tagColor }: HeaderProps): ReactElement => (
   <div className="flex w-full flex-row items-center">
     <Pill
       label={tagText}
-      className={tagColorMap[tagColor]}
+      className={tagColorMap[tagColor || 'avocado']}
       size={PillSize.Small}
       alignment={null}
     />
