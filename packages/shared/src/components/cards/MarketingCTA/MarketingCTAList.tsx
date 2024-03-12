@@ -7,23 +7,18 @@ export function MarketingCTAList({
 }: {
   marketingCTA: MarketingCTA;
 }): ReactElement {
+  const { tagColor, tagText, title, description, ctaUrl, ctaText } =
+    marketingCTA;
   return (
     <Card className="p-4">
-      {marketingCTA.tagColor && marketingCTA.tagText && (
-        <Header
-          tagColor={marketingCTA.tagColor}
-          tagText={marketingCTA.tagText}
-        />
-      )}
-      <Title>{marketingCTA.title}</Title>
-      {marketingCTA.description && (
-        <Description>{marketingCTA.description}</Description>
-      )}
-      {marketingCTA.ctaUrl && marketingCTA.ctaText && (
+      {tagColor && tagText && <Header tagColor={tagColor} tagText={tagText} />}
+      <Title>{title}</Title>
+      {description && <Description>{description}</Description>}
+      {ctaUrl && ctaText && (
         <CTAButton
           className="mt-4 max-w-64"
-          ctaUrl={marketingCTA.ctaUrl}
-          ctaText={marketingCTA.ctaText}
+          ctaUrl={ctaUrl}
+          ctaText={ctaText}
         />
       )}
     </Card>
