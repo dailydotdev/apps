@@ -36,6 +36,7 @@ import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
+import { SourceSubscribeButton } from '@dailydotdev/shared/src/components';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -104,6 +105,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         showLogin({ trigger: AuthTriggers.Filter });
       }
     },
+    variant: ButtonVariant.Float,
   };
 
   return (
@@ -118,15 +120,13 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         <span className="mr-auto">{source.name}</span>
         <Button
           className="laptop:hidden"
-          variant={ButtonVariant.Secondary}
           {...buttonProps}
           aria-label={unfollowingSource ? 'Follow' : 'Block'}
         />
-        <Button
-          className="hidden laptop:flex"
-          variant={ButtonVariant.Secondary}
-          {...buttonProps}
-        >
+        {!unfollowingSource && (
+          <SourceSubscribeButton className="ml-3 laptop:mr-3" source={source} />
+        )}
+        <Button className="hidden laptop:flex" {...buttonProps}>
           {unfollowingSource ? 'Follow' : 'Block'}
         </Button>
       </CustomFeedHeader>

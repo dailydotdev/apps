@@ -13,10 +13,22 @@ cmd_button(
   name="seed",
   resource="api",
   text="Seed Database",
-  icon_name="dns",
+  icon_name="repartition",
   requires_confirmation=True,
   dir=get_daily_dir("daily-api"),
   argv=["npm", "run", "db:seed:import"],
+)
+
+
+# Add a button to API to run db migrations
+cmd_button(
+  name="migrate",
+  resource="api",
+  text="Run database migrations",
+  icon_name="dns",
+  requires_confirmation=True,
+  dir=get_daily_dir("daily-api"),
+  argv=["npm", "run", "db:migrate:latest"],
 )
 
 # Add a button to navbar to trigger pubsub fix

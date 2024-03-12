@@ -14,8 +14,29 @@ import { PostHeaderActionsProps } from './common';
 import { PostMenuOptions } from './PostMenuOptions';
 import { Origin } from '../../lib/analytics';
 import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';
+import { SourceSubscribeExperiment } from '../../lib/featureValues';
+import { feature } from '../../lib/featureManagement';
+import { useFeature } from '../GrowthBookProvider';
 
 const Container = classed('div', 'flex flex-row items-center');
+
+const getButtonVariant = ({
+  inlineActions,
+  isSourceSubscribeV1,
+}: {
+  inlineActions: boolean;
+  isSourceSubscribeV1: boolean;
+}): ButtonVariant => {
+  if (inlineActions) {
+    return ButtonVariant.Tertiary;
+  }
+
+  if (isSourceSubscribeV1) {
+    return ButtonVariant.Primary;
+  }
+
+  return ButtonVariant.Secondary;
+};
 
 export function PostHeaderActions({
   onReadArticle,
@@ -30,6 +51,8 @@ export function PostHeaderActions({
   ...props
 }: PostHeaderActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
+  const isSourceSubscribeV1 =
+    useFeature(feature.sourceSubscribe) === SourceSubscribeExperiment.V1;
 
   const readButtonText = getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
@@ -43,9 +66,7 @@ export function PostHeaderActions({
           disabled={!inlineActions}
         >
           <Button
-            variant={
-              inlineActions ? ButtonVariant.Tertiary : ButtonVariant.Secondary
-            }
+            variant={getButtonVariant({ inlineActions, isSourceSubscribeV1 })}
             tag="a"
             href={post.sharedPost?.permalink ?? post.permalink}
             target={openNewTab ? '_blank' : '_self'}

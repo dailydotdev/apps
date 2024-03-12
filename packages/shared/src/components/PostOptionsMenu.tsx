@@ -21,6 +21,8 @@ import {
   SendBackwardIcon,
   BringForwardIcon,
   PinIcon,
+  BellSubscribedIcon,
+  BellIcon,
 } from './icons';
 
 import { ReportedCallback } from './modals';
@@ -31,6 +33,7 @@ import { MenuIcon } from './MenuIcon';
 import {
   ToastSubject,
   useFeedLayout,
+  useSourceSubscription,
   useToastNotification,
   useViewSize,
   ViewSize,
@@ -59,6 +62,7 @@ import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { ContextMenuDrawer } from './drawers/ContextMenuDrawer';
 import { RootPortal } from './tooltips/Portal';
+import { SourceSubscribeExperiment } from '../lib/featureValues';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -101,7 +105,7 @@ export default function PostOptionsMenu({
 }: PostOptionsMenuProps): ReactElement {
   const client = useQueryClient();
   const router = useRouter();
-  const { user } = useContext(AuthContext);
+  const { user, isLoggedIn } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({ enabled: isOpen });
@@ -120,6 +124,12 @@ export default function PostOptionsMenu({
     origin: Origin.PostContextMenu,
     postId: post?.id,
     shouldInvalidateQueries: false,
+  });
+  const isSourceSubscribeV1 =
+    useFeature(feature.sourceSubscribe) === SourceSubscribeExperiment.V1;
+
+  const sourceSubscribe = useSourceSubscription({
+    source: post?.source,
   });
 
   const { toggleBookmark } = useBookmarkPost({
@@ -331,6 +341,20 @@ export default function PostOptionsMenu({
       ),
       label: 'Downvote',
       action: onToggleDownvotePost,
+    });
+  }
+
+  if (isLoggedIn && isSourceSubscribeV1 && !isSourceBlocked) {
+    postOptions.push({
+      icon: (
+        <MenuIcon
+          Icon={sourceSubscribe.isSubscribed ? BellSubscribedIcon : BellIcon}
+        />
+      ),
+      label: `${
+        sourceSubscribe.isSubscribed ? 'Unsubscribe from' : 'Subscribe to'
+      } ${post?.source?.name}`,
+      action: sourceSubscribe.isReady ? sourceSubscribe.onSubscribe : undefined,
     });
   }
 

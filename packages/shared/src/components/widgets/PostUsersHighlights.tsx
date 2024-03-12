@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
 import classed from '../../lib/classed';
@@ -7,16 +7,27 @@ import { WidgetContainer } from './common';
 import { ScoutIcon, FeatherIcon } from '../icons';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { ProfileLink } from '../profile/ProfileLink';
-import { Author } from '../../graphql/comments';
+import { Author as CommentAuthor } from '../../graphql/comments';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ReputationUserBadge } from '../ReputationUserBadge';
+import { SourceSubscribeButton } from '../sources';
+import { ButtonVariant } from '../buttons/common';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { SourceSubscribeExperiment } from '../../lib/featureValues';
+import useFeedSettings from '../../hooks/useFeedSettings';
 
 interface PostAuthorProps {
   post: Post;
 }
 
-type UserType = 'source' | 'author' | 'featured' | 'scout';
+enum UserType {
+  Source = 'source',
+  Author = 'author',
+  Featured = 'featured',
+  Scout = 'scout',
+}
 
 const StyledImage = classed(LazyImage, 'w-10 h-10');
 
@@ -32,17 +43,17 @@ interface SourceAuthorProps {
 }
 
 const getUserIcon = (userType: UserType) => {
-  if (userType === 'source') {
+  if (userType === UserType.Source) {
     return null;
   }
 
-  return userType === 'author' ? FeatherIcon : ScoutIcon;
+  return userType === UserType.Author ? FeatherIcon : ScoutIcon;
 };
 
 const Image = (props: SourceAuthorProps) => {
   const { userType, name, permalink, image } = props;
 
-  if (userType === 'source') {
+  if (userType === UserType.Source) {
     return (
       <LinkWithTooltip
         href={permalink}
@@ -63,7 +74,7 @@ const Image = (props: SourceAuthorProps) => {
     );
   }
 
-  const user = props as Author;
+  const user = props as CommentAuthor;
 
   return (
     <ProfileLink href={user.permalink} data-testid="authorLink">
@@ -84,16 +95,29 @@ const UserHighlight = (props: SourceAuthorProps) => {
     name,
     username,
     permalink,
-    userType = 'source',
+    userType = UserType.Source,
     reputation,
   } = props;
   const Icon = getUserIcon(userType);
-  const userTypeNotSource = userType !== 'source';
+  const isUserTypeSource = userType === UserType.Source;
+  const isSourceSubscribeV1 =
+    useFeature(feature.sourceSubscribe) === SourceSubscribeExperiment.V1;
+  const { feedSettings } = useFeedSettings({ enabled: isSourceSubscribeV1 });
+
+  const isSourceBlocked = useMemo(() => {
+    if (!isUserTypeSource) {
+      return false;
+    }
+
+    return !!feedSettings?.excludeSources?.some(
+      (excludedSource) => excludedSource.id === id,
+    );
+  }, [isUserTypeSource, feedSettings?.excludeSources, id]);
 
   return (
-    <div className="relative flex flex-row p-3">
+    <div className="relative flex flex-row items-center p-3">
       <ConditionalWrapper
-        condition={userTypeNotSource}
+        condition={!isUserTypeSource}
         wrapper={(children) => (
           <ProfileTooltip user={{ id }}>
             {children as ReactElement}
@@ -109,30 +133,40 @@ const UserHighlight = (props: SourceAuthorProps) => {
           secondary
           className={classNames(
             'absolute left-10 top-10 h-5 w-5',
-            userType === 'author'
+            userType === UserType.Author
               ? 'text-theme-color-cheese'
               : 'text-theme-color-bun',
           )}
         />
       )}
       <ConditionalWrapper
-        condition={userTypeNotSource}
+        condition={!isUserTypeSource}
         wrapper={(children) => (
           <ProfileTooltip user={{ id }}>
             {children as ReactElement}
           </ProfileTooltip>
         )}
       >
-        <div className="ml-4 flex flex-col">
-          <div className="flex">
-            <ProfileLink className="font-bold typo-callout" href={permalink}>
+        <div className="ml-4 flex min-w-0 flex-1 flex-col">
+          {isUserTypeSource && (
+            <ProfileLink
+              className={classNames('!block truncate font-bold typo-callout')}
+              href={permalink}
+            >
               {name}
             </ProfileLink>
-            <ReputationUserBadge user={{ reputation }} />
-          </div>
+          )}
+          {!isUserTypeSource && (
+            <div className="flex">
+              <ProfileLink className="font-bold typo-callout" href={permalink}>
+                {name}
+              </ProfileLink>
+              <ReputationUserBadge user={{ reputation }} />
+            </div>
+          )}
           {(handle || username || id) && (
             <ProfileLink
-              className="mt-0.5 text-theme-label-tertiary typo-footnote"
+              className="mt-0.5 !block truncate text-theme-label-tertiary typo-footnote"
               href={permalink}
             >
               @{handle || username || id}
@@ -140,6 +174,13 @@ const UserHighlight = (props: SourceAuthorProps) => {
           )}
         </div>
       </ConditionalWrapper>
+      {!isSourceBlocked && isUserTypeSource && (
+        <SourceSubscribeButton
+          className="ml-2"
+          variant={ButtonVariant.Secondary}
+          source={{ id }}
+        />
+      )}
     </div>
   );
 };
@@ -149,9 +190,9 @@ export function PostUsersHighlights({ post }: PostAuthorProps): ReactElement {
 
   return (
     <WidgetContainer className="flex flex-col">
-      <UserHighlight {...source} userType="source" />
-      {author && <UserHighlight {...author} userType="author" />}
-      {scout && <UserHighlight {...scout} userType="scout" />}
+      <UserHighlight {...source} userType={UserType.Source} />
+      {author && <UserHighlight {...author} userType={UserType.Author} />}
+      {scout && <UserHighlight {...scout} userType={UserType.Scout} />}
     </WidgetContainer>
   );
 }

@@ -41,6 +41,7 @@ export default {
       black: '#000000',
       white: '#ffffff',
       transparent: 'transparent',
+      inherit: 'inherit',
       // Old stuff
       theme: {
         active: 'var(--theme-active)',
@@ -49,10 +50,7 @@ export default {
         hover: 'var(--theme-hover)',
         rank: 'var(--rank-color)',
         bg: {
-          inherit: 'inherit',
-          transparent: 'transparent',
           email: 'var(--theme-color-email)',
-          notification: 'var(--theme-background-notification)',
           'cabbage-blur': 'var(--theme-background-cabbage-blur)',
           bun: 'var(--theme-background-bun)',
           onion: 'var(--theme-background-onion)',
