@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { MiniCloseIcon } from '../../icons';
 import { CardTitle } from '../Card';
