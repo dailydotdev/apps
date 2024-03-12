@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
 import classed from '../../../lib/classed';
 import { Image } from '../../image/Image';
-import VideoImage from '../../image/VideoImage';
 
 type TitleProps = HTMLAttributes<HTMLHeadingElement> & {
   lineClamp?: `line-clamp-${number}`;
@@ -45,11 +44,7 @@ export const CardContent = classed('div', 'flex flex-col mobileXL:flex-row');
 
 export const CardImage = classed(
   Image,
-  'rounded-12 max-h-[calc(100vw-34px)] mobileXL:aspect-auto mobileXL:max-h-40 mobileXL:w-40 mobileXXL:max-h-56 mobileXXL:w-56',
-);
-export const CardVideoImage = classed(
-  VideoImage,
-  'rounded-12 max-h-[calc(100vw-34px)] mobileXL:max-h-40 mobileXL:w-40 mobileXXL:max-h-56 mobileXXL:w-56',
+  'rounded-12 max-h-[12.5rem] w-full mobileXL:aspect-auto mobileXL:max-h-40 mobileXL:w-40 mobileXXL:max-h-56 mobileXXL:w-56',
 );
 
 export const CardSpace = classed('div', 'flex-1');
