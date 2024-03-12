@@ -25,7 +25,7 @@ export const Header = ({ tagText, tagColor }: HeaderProps): ReactElement => (
   <div className="flex w-full flex-row items-center">
     <span
       className={classNames(
-        'rounded-8  p-1 px-2 font-bold  typo-footnote',
+        'rounded-8 p-1 px-2 font-bold typo-footnote',
         tagColorMap[tagColor],
       )}
     >
