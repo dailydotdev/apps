@@ -43,10 +43,7 @@ export const ListCardTitle = classed(Title, 'mr-2');
 
 export const CardTextContainer = classed('div', 'flex flex-col mx-4');
 
-export const CardImage = classed(
-  Image,
-  'rounded-12 max-h-[12.5rem] w-full tablet:max-h-[10rem] h-full object-cover',
-);
+export const CardImage = classed(Image, 'rounded-12 h-40 object-cover');
 
 export const CardSpace = classed('div', 'flex-1');
 
