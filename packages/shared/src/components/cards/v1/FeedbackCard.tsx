@@ -80,7 +80,7 @@ export const FeedbackCard = ({
             loading: 'lazy',
             alt: 'Post Cover image',
             src: post.image,
-            className: '!h-full max-h-[5rem] object-cover',
+            className: '!h-full max-h-[5rem]',
           }}
           videoProps={{
             className: 'mobileXL:w-40 mobileXXL:w-56',

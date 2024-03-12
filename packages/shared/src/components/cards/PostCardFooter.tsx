@@ -47,7 +47,7 @@ export const PostCardFooter = ({
             alt: 'Post Cover image',
             src: post.image,
             className: classNames(
-              'w-full object-cover',
+              'w-full',
               className.image,
               !isVideoType && 'my-2',
             ),

@@ -13,8 +13,10 @@ export interface CommonCardCoverProps {
   onShare?: (post: Post) => unknown;
 }
 
+export const separatorCharacter = <>&#x2022;</>;
+
 export const Separator = (): ReactElement => (
-  <span className="mx-1">&#x2022;</span>
+  <span className="mx-1">{separatorCharacter}</span>
 );
 
 export const visibleOnGroupHover =

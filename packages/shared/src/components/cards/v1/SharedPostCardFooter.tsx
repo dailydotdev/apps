@@ -38,7 +38,7 @@ export const SharedPostCardFooter = ({
             alt: 'Shared Post Cover image',
             src: sharedPost.image,
             className:
-              'h-auto min-h-0 w-full object-cover mobileL:w-56 mobileXL:h-auto mobileXL:w-40 mobileXXL:w-56',
+              'h-auto min-h-0 w-full mobileL:w-56 mobileXL:h-auto mobileXL:w-40 mobileXXL:w-56',
           }}
           videoProps={{
             size: IconSize.XXXLarge,

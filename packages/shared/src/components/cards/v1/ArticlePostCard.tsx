@@ -125,7 +125,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
                   alt: 'Post Cover image',
                   src: post.image,
                   className: classNames(
-                    'object-cover mobileXXL:self-start',
+                    'mobileXXL:self-start',
                     !isVideoType && 'mt-4',
                   ),
                 }}
