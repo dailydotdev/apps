@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { useQueryClient } from '@tanstack/react-query';
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { FilterIcon, RefreshIcon } from '../icons';
 import {
   Button,
@@ -96,6 +96,13 @@ function MyFeedHeading({
     setShouldRefreshFeed(false);
   };
 
+  const isFetchingFeed =
+    useIsFetching({ queryKey: [SharedFeedPage.MyFeed] }) > 0;
+  const feedQueryState = queryClient.getQueryState([SharedFeedPage.MyFeed], {
+    exact: false,
+  });
+  const isRefreshing = feedQueryState?.status === 'success' && isFetchingFeed;
+
   return (
     <>
       {forceRefresh && (
@@ -110,6 +117,7 @@ function MyFeedHeading({
           iconPosition={
             shouldUseMobileFeedLayout ? ButtonIconPosition.Right : undefined
           }
+          loading={isRefreshing}
         >
           {!isMobile ? 'Refresh feed' : null}
         </Button>
