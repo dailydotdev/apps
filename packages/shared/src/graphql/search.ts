@@ -74,8 +74,8 @@ export interface SearchHistoryData {
 
 // Search control version suggestions
 export const SEARCH_POST_SUGGESTIONS = gql`
-  query SearchPostSuggestions($query: String!) {
-    searchPostSuggestions(query: $query) {
+  query SearchPostSuggestions($query: String!, $version: Int) {
+    searchPostSuggestions(query: $query, version: $version) {
       hits {
         id
         title
@@ -95,8 +95,8 @@ export const SEARCH_POST_RECOMMENDATION = gql`
 `;
 
 export const SEARCH_SESSION_QUERY = gql`
-  query SearchSession($id: String!) {
-    searchSession(id: $id) {
+  query SearchSession($id: String!, $version: Int) {
+    searchSession(id: $id, version: $version) {
       id
       createdAt
       chunks {
