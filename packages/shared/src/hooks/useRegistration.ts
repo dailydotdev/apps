@@ -15,6 +15,7 @@ import {
   InitializationData,
   initializeKratosFlow,
   KRATOS_ERROR,
+  KRATOS_ERROR_MESSAGE,
   submitKratosFlow,
   SuccessfulRegistrationData,
 } from '../lib/kratos';
@@ -59,7 +60,8 @@ const useRegistration = ({
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
   const [verificationId, setVerificationId] = useState<string>();
-  const { trackingId, referral, referralOrigin } = useContext(AuthContext);
+  const { trackingId, referral, referralOrigin, logout } =
+    useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
   const {
     data: registration,
@@ -68,6 +70,24 @@ const useRegistration = ({
   } = useQuery(key, () => initializeKratosFlow(AuthFlow.Registration), {
     refetchOnWindowFocus: false,
   });
+
+  if (registration?.error) {
+    trackEvent({
+      event_name: AuthEventNames.RegistrationInitializationError,
+      extra: JSON.stringify({
+        error: JSON.stringify(registration.error),
+        origin: Origin.InitializeRegistrationFlow,
+      }),
+    });
+    /**
+     * In case a valid session exists on kratos, but not FE we should logout the user
+     */
+    if (
+      registration.error?.id === KRATOS_ERROR_MESSAGE.SESSION_ALREADY_AVAILABLE
+    ) {
+      logout();
+    }
+  }
 
   useEffect(() => {
     if (registrationError) {

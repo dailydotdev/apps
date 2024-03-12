@@ -20,6 +20,10 @@ import { Origin } from '../../lib/analytics';
 import { FeedData, SOURCE_FEED_QUERY } from '../../graphql/feed';
 import { isSourcePublicSquad } from '../../graphql/squads';
 import { SquadPostListItem } from '../squads/SquadPostListItem';
+import { disabledRefetch } from '../../lib/func';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { PostPageOnboarding } from '../../lib/featureValues';
 
 export type FurtherReadingProps = {
   currentPost: Post;
@@ -61,12 +65,15 @@ export default function FurtherReading({
   currentPost,
   className,
 }: FurtherReadingProps): ReactElement {
+  const postPageOnboarding = useFeature(feature.postPageOnboarding);
+  const isV4 = postPageOnboarding === PostPageOnboarding.V4;
   const isPublicSquad = isSourcePublicSquad(currentPost.source);
   const postId = currentPost.id;
   const { tags } = currentPost;
   const queryKey = ['furtherReading', postId];
   const { user, isLoggedIn } = useContext(AuthContext);
   const queryClient = useQueryClient();
+  const max = isV4 ? 12 : 3;
   const { data: posts, isLoading } = useQuery<FurtherReadingData>(
     queryKey,
     async () => {
@@ -77,7 +84,7 @@ export default function FurtherReading({
           graphqlUrl,
           SOURCE_FEED_QUERY,
           {
-            first: 3,
+            first: max,
             loggedIn: isLoggedIn,
             source: squad.id,
             ranking: 'TIME',
@@ -104,18 +111,13 @@ export default function FurtherReading({
         loggedIn: !!user,
         post: postId,
         trendingFirst: 1,
-        similarFirst: 3,
+        similarFirst: isV4 ? 11 : 3,
         discussedFirst: 4,
+        withDiscussedPosts: !isV4,
         tags,
       });
     },
-    {
-      refetchOnWindowFocus: false,
-      refetchIntervalInBackground: false,
-      refetchOnReconnect: false,
-      refetchInterval: false,
-      refetchOnMount: false,
-    },
+    { ...disabledRefetch },
   );
 
   const { toggleBookmark } = useBookmarkPost({
@@ -141,7 +143,7 @@ export default function FurtherReading({
         ...posts.trendingPosts,
         ...posts.similarPosts.slice(
           0,
-          Math.min(posts.similarPosts.length, 3 - posts.trendingPosts.length),
+          Math.min(posts.similarPosts.length, max - posts.trendingPosts.length),
         ),
       ]
     : [];
@@ -171,7 +173,7 @@ export default function FurtherReading({
           ListItem={isPublicSquad ? SquadPostListItem : undefined}
         />
       )}
-      {(isLoading || posts?.discussedPosts?.length > 0) && (
+      {(isLoading || posts?.discussedPosts?.length > 0) && !isV4 && (
         <BestDiscussions posts={posts?.discussedPosts} isLoading={isLoading} />
       )}
     </div>

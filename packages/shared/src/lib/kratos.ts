@@ -94,6 +94,7 @@ export interface InitializationData {
   ui: InitializationUI;
   requested_aal?: AuthenticatorLevel;
   state?: string;
+  error?: KratosError;
 }
 
 interface KratosEmailData {
@@ -199,6 +200,7 @@ export interface KratosError {
   code: number;
   message: string;
   reason: string;
+  id?: string;
   debug?: string;
 }
 
@@ -384,4 +386,8 @@ export const KRATOS_ERROR = Object.freeze<Record<string, number>>({
   NO_STRATEGY_TO_LOGIN: 4010002,
   NO_STRATEGY_TO_SIGNUP: 4010003,
   UNVERIFIED: 4000010,
+});
+
+export const KRATOS_ERROR_MESSAGE = Object.freeze<Record<string, string>>({
+  SESSION_ALREADY_AVAILABLE: 'session_already_available',
 });
