@@ -108,6 +108,11 @@ const ReputationPrivilegesModal = dynamic(
     ),
 );
 
+const MarketingCTAModal = dynamic(
+  () =>
+    import(/* webpackChunkName: "marketingCTAModal" */ './MarketingCTAModal'),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -127,6 +132,7 @@ export const modals = {
   [LazyModal.NewStreak]: NewStreakModal,
   [LazyModal.FirstStreak]: FirstStreakModal,
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
+  [LazyModal.MarketingCTA]: MarketingCTAModal,
 };
 
 type GetComponentProps<T> = T extends
