@@ -8,7 +8,7 @@ import { CardImage as CardImageV1 } from '../v1/Card';
 import { CardCoverShare } from './CardCoverShare';
 import { CommonCardCoverProps } from '../common';
 import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { useFeedLayout } from '../../../hooks';
 
 interface CardCoverProps extends CommonCardCoverProps {
   imageProps: ImageProps;
@@ -23,8 +23,8 @@ export function CardCover({
   onShare,
   post,
 }: CardCoverProps): ReactElement {
-  const isMobile = useViewSize(ViewSize.MobileL);
-  const ImageComponent = isMobile ? CardImageV1 : CardImage;
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const ImageComponent = shouldUseMobileFeedLayout ? CardImageV1 : CardImage;
   const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
   const coverShare = (
     <CardCoverShare
