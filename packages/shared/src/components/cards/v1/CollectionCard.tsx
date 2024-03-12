@@ -84,7 +84,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
               alt="Post Cover image"
               src={image}
               fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-              className="my-2 object-cover mobileXXL:self-start"
+              className="my-2 mobileXXL:self-start"
               loading="lazy"
             />
           )}

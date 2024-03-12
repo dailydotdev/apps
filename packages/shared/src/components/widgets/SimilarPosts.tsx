@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { BookmarkIcon, ArrowIcon } from '../icons';
+import { ArrowIcon, BookmarkIcon } from '../icons';
 import { Post } from '../../graphql/posts';
 import styles from '../cards/Card.module.css';
 import { LazyImage } from '../LazyImage';
@@ -20,6 +20,10 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { PostPageOnboarding } from '../../lib/featureValues';
+import { PostEngagementCounts, SidePost } from '../cards/SimilarPosts';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -36,7 +40,7 @@ export type SimilarPostsProps = {
   };
 };
 
-const Separator = <div className="h-px bg-theme-divider-tertiary" />;
+const Separator = <div className="h-px bg-border-subtlest-tertiary" />;
 
 type PostProps = {
   post: Post;
@@ -77,23 +81,18 @@ const DefaultListItem = ({
       >
         {post.title}
       </h5>
-      <div className="flex items-center text-theme-label-tertiary typo-footnote">
-        {post.trending ? (
-          <>
-            <HotLabel />
-            <div className="ml-2">{post.trending} devs read it last hour</div>
-          </>
-        ) : (
-          <>
-            {post.numUpvotes > 0 && <div>{post.numUpvotes} Upvotes</div>}
-            {post.numComments > 0 && (
-              <div className={post.numUpvotes > 0 && 'ml-2'}>
-                {post.numComments} Comments
-              </div>
-            )}
-          </>
-        )}
-      </div>
+      {post.trending ? (
+        <div className="flex items-center text-theme-label-tertiary typo-footnote">
+          <HotLabel />
+          <div className="ml-2">{post.trending} devs read it last hour</div>
+        </div>
+      ) : (
+        <PostEngagementCounts
+          upvotes={post.numUpvotes}
+          comments={post.numComments}
+          className="text-text-tertiary"
+        />
+      )}
     </div>
     <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
       <Button
@@ -132,6 +131,8 @@ export default function SimilarPosts({
   moreButtonProps,
   ListItem = DefaultListItem,
 }: SimilarPostsProps): ReactElement {
+  const postPageOnboarding = useFeature(feature.postPageOnboarding);
+  const isV4 = postPageOnboarding === PostPageOnboarding.V4;
   const { trackEvent } = useContext(AnalyticsContext);
   const moreButtonHref =
     moreButtonProps?.href || process.env.NEXT_PUBLIC_WEBAPP_URL;
@@ -144,6 +145,20 @@ export default function SimilarPosts({
       }),
     );
   };
+
+  if (isV4 && posts?.length) {
+    return (
+      <section className="grid grid-cols-2 gap-4">
+        {posts.map((post) => (
+          <SidePost
+            key={post.id}
+            post={post}
+            onLinkClick={() => onLinkClick(post)}
+          />
+        ))}
+      </section>
+    );
+  }
 
   return (
     <section
@@ -168,8 +183,8 @@ export default function SimilarPosts({
             <ListItem
               key={post.id}
               post={post}
-              onLinkClick={onLinkClick}
               onBookmark={onBookmark}
+              onLinkClick={() => onLinkClick(post)}
             />
           ))}
         </>
