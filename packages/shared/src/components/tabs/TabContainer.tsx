@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import TabList, { TabListProps } from './TabList';
 
 export interface TabProps<T extends string> {
@@ -15,6 +16,7 @@ export interface TabProps<T extends string> {
   className?: string;
   style?: CSSProperties;
   showHeader?: boolean;
+  url?: string;
 }
 
 export const Tab = <T extends string>({
@@ -58,15 +60,30 @@ export function TabContainer<T extends string = string>({
   controlledActive,
   tabListProps = {},
 }: TabContainerProps<T>): ReactElement {
-  const [active, setActive] = useState(children[0].props.label);
+  const router = useRouter();
+  const [active, setActive] = useState(
+    children[0].props.url
+      ? children.find((c) => c.props.url === router.pathname)?.props?.label
+      : children[0].props.label,
+  );
   const currentActive = controlledActive ?? active;
   const onClick = (label: T) => {
+    const child = children.find((c) => c.props.label === label);
     setActive(label);
     onActiveChange?.(label);
+
+    if (child?.props?.url) {
+      router.push(child.props.url);
+    }
   };
 
-  const isTabActive = (child: ReactElement<TabProps<T>>) =>
-    child.props.label === currentActive;
+  const isTabActive = (child: ReactElement<TabProps<T>>) => {
+    if (child.props.url) {
+      return router.pathname === child.props.url;
+    }
+
+    return child.props.label === currentActive;
+  };
 
   const renderSingleComponent = () => {
     if (!shouldMountInactive) {
