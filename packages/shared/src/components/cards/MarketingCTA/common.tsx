@@ -7,7 +7,7 @@ import classed from '../../../lib/classed';
 import { anchorDefaultRel } from '../../../lib/strings';
 
 export interface MarketingCTA {
-  type: 'card' | 'popover';
+  variant: 'card' | 'popover';
   tagText?: string;
   tagColor?: string;
   title: string;
