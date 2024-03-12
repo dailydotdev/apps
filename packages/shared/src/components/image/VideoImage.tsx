@@ -26,7 +26,8 @@ const VideoImage = ({
     <div
       className={classNames(
         className,
-        'pointer-events-none relative flex h-auto max-h-fit w-full items-center justify-center overflow-hidden rounded-12',
+        !overlay && 'pointer-events-none',
+        'relative flex h-auto max-h-fit w-full items-center justify-center overflow-hidden rounded-12',
       )}
     >
       {overlay || defaultOverlay}

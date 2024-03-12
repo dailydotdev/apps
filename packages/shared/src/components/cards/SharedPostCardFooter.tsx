@@ -46,7 +46,7 @@ export const SharedPostCardFooter = ({
             alt: 'Shared Post Cover image',
             src: sharedPost.image,
             className: classNames(
-              'h-auto min-h-0 object-cover',
+              'h-auto min-h-0',
               isShort ? 'aspect-square' : 'w-full',
             ),
           }}

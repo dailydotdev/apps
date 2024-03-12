@@ -14,7 +14,7 @@ const alwaysValidClasses = [
   'bg-gradient-to-r',
   'bg-gradient-to-l',
   'bg-gradient-to-t',
-  'bg-theme-bg-inherit',
+  'bg-inherit',
   'bg-gradient-to-b',
   'bg-gradient-to-br',
   'bg-cover',
