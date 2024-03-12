@@ -5,6 +5,7 @@ import { CardCover } from '../common/CardCover';
 import { IconSize } from '../../Icon';
 import PostReadTime from '../v1/PostReadTime';
 import { PostEngagementCounts } from './PostEngagementCounts';
+import { usePostImage } from '../../../hooks/post/usePostImage';
 
 interface SidePostProps {
   post: Post;
@@ -13,6 +14,7 @@ interface SidePostProps {
 
 export function SidePost({ post, onLinkClick }: SidePostProps): ReactElement {
   const isVideoType = post.type === PostType.VideoYouTube;
+  const image = usePostImage(post);
 
   return (
     <Link href={post.commentsPermalink} passHref>
@@ -26,7 +28,7 @@ export function SidePost({ post, onLinkClick }: SidePostProps): ReactElement {
           imageProps={{
             loading: 'lazy',
             alt: `Cover preview of: ${post.title}`,
-            src: post.image,
+            src: image,
             className: 'w-full !h-24 !rounded-8',
           }}
           videoProps={{ size: IconSize.Large }}
