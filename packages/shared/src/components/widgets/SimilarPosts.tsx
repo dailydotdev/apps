@@ -40,9 +40,7 @@ export type SimilarPostsProps = {
   };
 };
 
-const HorizontalSeparator = (
-  <div className="h-px bg-border-subtlest-tertiary" />
-);
+const Separator = <div className="h-px bg-border-subtlest-tertiary" />;
 
 type PostProps = {
   post: Post;
@@ -171,7 +169,7 @@ export default function SimilarPosts({
       <h4 className="py-3 pl-6 pr-4 text-theme-label-tertiary typo-body">
         {title}
       </h4>
-      {HorizontalSeparator}
+      {Separator}
       {isLoading ? (
         <>
           <ListItem.Placeholder />
@@ -191,7 +189,7 @@ export default function SimilarPosts({
         </>
       )}
 
-      {HorizontalSeparator}
+      {Separator}
       <Link href={moreButtonHref} passHref>
         <Button
           variant={ButtonVariant.Tertiary}
