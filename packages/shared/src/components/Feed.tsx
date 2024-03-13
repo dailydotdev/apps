@@ -286,7 +286,6 @@ export default function Feed<T>({
     }
   };
 
-  const lastShareMenuCloseTrackEvent = () => {};
   const onShareMenuClickTracked = (
     e: React.MouseEvent,
     post: Post,
@@ -299,7 +298,6 @@ export default function Feed<T>({
 
   const onShareOptionsHidden = () => {
     setPostMenuIndex(null);
-    lastShareMenuCloseTrackEvent();
   };
 
   const onRemovePost = async (removePostIndex: number) => {
