@@ -61,11 +61,20 @@ export function TabContainer<T extends string = string>({
   tabListProps = {},
 }: TabContainerProps<T>): ReactElement {
   const router = useRouter();
-  const [active, setActive] = useState(
-    children[0].props.url
-      ? children.find((c) => c.props.url === router.pathname)?.props?.label
-      : children[0].props.label,
-  );
+
+  const [active, setActive] = useState(() => {
+    const defaultLabel = children[0].props.label;
+
+    if (children[0].props.url) {
+      const matchingChild = children.find(
+        (c) => c.props.url === router.pathname,
+      );
+      return matchingChild ? matchingChild.props.label : defaultLabel;
+    }
+
+    return defaultLabel;
+  });
+
   const currentActive = controlledActive ?? active;
   const onClick = (label: T) => {
     const child = children.find((c) => c.props.label === label);
@@ -77,12 +86,14 @@ export function TabContainer<T extends string = string>({
     }
   };
 
-  const isTabActive = (child: ReactElement<TabProps<T>>) => {
-    if (child.props.url) {
-      return router.pathname === child.props.url;
+  const isTabActive = ({
+    props: { url, label },
+  }: ReactElement<TabProps<T>>) => {
+    if (url) {
+      return router.pathname === url;
     }
 
-    return child.props.label === currentActive;
+    return label === currentActive;
   };
 
   const renderSingleComponent = () => {
