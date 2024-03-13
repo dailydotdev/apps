@@ -11,7 +11,7 @@ export function MarketingCTACard({
   marketingCTA: MarketingCTA;
 }): ReactElement {
   const { tagColor, tagText, title, description, image, ctaUrl, ctaText } =
-    marketingCTA;
+    marketingCTA.flags;
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const CardComponent = shouldUseMobileFeedLayout ? CardV1 : Card;
 

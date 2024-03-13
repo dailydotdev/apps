@@ -8,7 +8,7 @@ export function MarketingCTAList({
   marketingCTA: MarketingCTA;
 }): ReactElement {
   const { tagColor, tagText, title, description, ctaUrl, ctaText } =
-    marketingCTA;
+    marketingCTA.flags;
   return (
     <Card className="p-4">
       {tagColor && tagText && <Header tagColor={tagColor} tagText={tagText} />}
