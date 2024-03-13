@@ -87,7 +87,7 @@ export const usePostMenuActions = ({
     SourcePermissions.PostPin,
   );
 
-  const canSwap = post?.pinnedAt;
+  const canSwap = canPin && post?.pinnedAt;
 
   const { mutateAsync: onPinPost } = useMutation(
     () => updatePinnedPost({ id: post.id, pinned: !post.pinnedAt }),
