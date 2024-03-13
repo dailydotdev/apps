@@ -32,6 +32,7 @@ interface DrawerProps
   className?: ClassName;
   position?: DrawerPosition;
   closeOnOutsideClick?: boolean;
+  isFullScreen?: boolean;
   isClosing?: boolean;
   title?: string;
   onClose(): void;
@@ -57,6 +58,7 @@ function BaseDrawer({
   className = {},
   position = DrawerPosition.Bottom,
   closeOnOutsideClick = true,
+  isFullScreen = false,
   isClosing = false,
   title,
   onClose,
@@ -73,7 +75,8 @@ function BaseDrawer({
   return (
     <div
       className={classNames(
-        'fixed inset-0 z-max bg-overlay-quaternary-onion transition-opacity duration-300 ease-in-out',
+        'fixed inset-0 z-max transition-opacity duration-300 ease-in-out',
+        !isFullScreen && 'bg-overlay-quaternary-onion',
         className?.overlay,
         isAnimating && 'opacity-0',
       )}
@@ -81,9 +84,10 @@ function BaseDrawer({
       <div
         {...props}
         className={classNames(
-          'absolute flex max-h-[calc(100%-5rem)] w-full flex-col overflow-y-auto bg-background-default transition-transform duration-300 ease-in-out',
+          'absolute flex w-full flex-col overflow-y-auto bg-background-default transition-transform duration-300 ease-in-out',
+          isFullScreen ? 'inset-0' : 'max-h-[calc(100%-5rem)]',
+          !isFullScreen && drawerPositionToClassName[position],
           isAnimating && animatePositionClassName[position],
-          drawerPositionToClassName[position],
           !title && classes,
         )}
         ref={(node) => {

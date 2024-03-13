@@ -18,7 +18,7 @@ interface NavDrawerProps {
 
 const NavDrawerHeader = classed(
   'div',
-  'flex items-center gap-3 px-4 border-b border-theme-divider-tertiary h-12',
+  'flex items-center gap-3 px-4 border-b border-border-subtlest-tertiary h-12',
 );
 
 const NavDrawerContent = classed('div', 'flex flex-col px-4 py-5');
@@ -43,12 +43,12 @@ export function NavDrawer({
       {...otherDrawerProps}
       closeOnOutsideClick={false}
       displayCloseButton={displayCloseButton}
+      isFullScreen={true}
       position={position ?? DrawerPosition.Left}
       ref={ref}
       role="menu"
       className={{
-        drawer: 'bottom-0 top-0 !max-h-none !rounded-none',
-        overlay: 'bg-transparent',
+        drawer: 'py-0',
       }}
     >
       {header && (
@@ -59,7 +59,7 @@ export function NavDrawer({
             onClick={() => ref.current?.onClose()}
             icon={<ArrowIcon className="-rotate-90" />}
           />
-          <NavHeading className="font-bold typo-body">{header}</NavHeading>
+          <NavHeading>{header}</NavHeading>
         </NavDrawerHeader>
       )}
       <NavDrawerContent>
