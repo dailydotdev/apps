@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { MiniCloseIcon } from '../../icons';
 import { CardTitle } from '../Card';
 import classed from '../../../lib/classed';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { Pill, PillSize } from '../../Pill';
 
 export interface MarketingCTA {
   variant: 'card' | 'popover';
@@ -31,20 +31,18 @@ export const Header = ({
   buttonSize = ButtonSize.Small,
 }: HeaderProps): ReactElement => (
   <div className="flex w-full flex-row items-center">
-    <span
-      className={classNames(
-        'rounded-8  p-1 px-2 font-bold  typo-footnote',
-        tagColorMap[tagColor],
-      )}
-    >
-      {tagText}
-    </span>
+    <Pill
+      label={tagText}
+      className={tagColorMap[tagColor || 'avocado']}
+      size={PillSize.Small}
+      alignment={null}
+    />
     <Button
       className="ml-auto"
       size={buttonSize}
       variant={ButtonVariant.Tertiary}
       icon={<MiniCloseIcon />}
-      aria-label="Close acquisition form"
+      aria-label="Close post"
       onClick={onClose}
     />
   </div>

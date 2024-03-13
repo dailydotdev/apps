@@ -22,7 +22,7 @@ import {
   updateCachedPagePost,
 } from '../lib/query';
 import { getShouldRefreshFeed } from '../lib/refreshFeed';
-import type { MarketingCTA } from '../components';
+import { MarketingCTA } from '../components/cards/MarketingCTA/common';
 
 export type PostItem = {
   type: 'post';
