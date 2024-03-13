@@ -35,7 +35,7 @@ export type PlaceholderItem = { type: 'placeholder' };
 export type UserAcquisitionItem = { type: 'userAcquisition' };
 export type MarketingCtaItem = {
   type: 'marketingCta';
-  marketingCTA: marketingCta;
+  marketingCta: marketingCta;
 };
 export type FeedItem =
   | PostItem
