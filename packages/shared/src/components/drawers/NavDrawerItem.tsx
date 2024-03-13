@@ -1,5 +1,7 @@
 import React, { ReactElement } from 'react';
 import { Button, ButtonProps, ButtonVariant } from '../buttons/Button';
+import Link from 'next/link';
+import ConditionalWrapper from '../ConditionalWrapper';
 
 export interface NavItemProps
   extends Pick<ButtonProps<'a'>, 'href' | 'icon' | 'onClick'> {
@@ -25,17 +27,21 @@ export function NavDrawerItem({
   }
 
   return (
-    <Button
-      role="menuitem"
-      type="button"
-      icon={icon}
-      className="!justify-start !font-normal"
-      onClick={onClick}
-      href={href}
-      tag={href ? 'a' : 'button'}
-      variant={ButtonVariant.Tertiary}
+    <ConditionalWrapper
+      condition={!!href}
+      wrapper={(children) => <Link href={href}>{children}</Link>}
     >
-      {label}
-    </Button>
+      <Button
+        role="menuitem"
+        type="button"
+        icon={icon}
+        onClick={onClick}
+        href={href}
+        tag={href ? 'a' : 'button'}
+        variant={ButtonVariant.Option}
+      >
+        {label}
+      </Button>
+    </ConditionalWrapper>
   );
 }

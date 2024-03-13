@@ -33,7 +33,7 @@ const meta: Meta<typeof NavDrawer> = {
         label: 'Profile',
         isHeader: true,
       },
-      { label: 'Edit', icon: <EditIcon /> },
+      { label: 'Edit', icon: <EditIcon />, href: '/edit' },
       { label: 'Invite', icon: <AddUserIcon /> },
       { label: 'Delete', icon: <TrashIcon /> },
       {
@@ -55,7 +55,6 @@ type Story = StoryObj<typeof NavDrawer>;
 export const Drawer: Story = {
   render: (props) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [selected, setSelected] = useState(-1);
 
     return (
       <>
