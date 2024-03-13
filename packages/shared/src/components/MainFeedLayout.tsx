@@ -126,6 +126,7 @@ export default function MainFeedLayout({
   });
   const feedVersion = useFeature(feature.feedVersion);
   const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
+  const searchVersion = useFeature(feature.searchVersion);
   const isOnboardingV4dot5 = onboardingV4dot5 === OnboardingV4dot5.V4dot5;
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const { shouldUseMobileFeedLayout } = useFeedLayout();
@@ -200,7 +201,7 @@ export default function MainFeedLayout({
           searchQuery,
         ),
         query: SEARCH_POSTS_QUERY,
-        variables: { query: searchQuery },
+        variables: { query: searchQuery, version: searchVersion },
         emptyScreen: <SearchEmptyScreen />,
       };
     }
