@@ -42,6 +42,8 @@ const renderUrlComponent = (props: TabContainerProps = {}): RenderResult => {
   );
 };
 
+const routerPush = jest.fn();
+
 describe('tab container component', () => {
   it('should render all the tabs', async () => {
     renderComponent();
@@ -88,7 +90,7 @@ describe('tab container component', () => {
         () =>
           ({
             pathname: mockPathname,
-            push: jest.fn(),
+            push: routerPush,
           } as unknown as NextRouter),
       );
     });
@@ -106,12 +108,11 @@ describe('tab container component', () => {
     });
 
     it('should redirect to the given URL on tab click', async () => {
-      const router = useRouter();
       renderUrlComponent({ shouldMountInactive: true });
 
       const first = await screen.findByText('First');
       fireEvent.click(first);
-      expect(router.push).toHaveBeenCalledWith('/first');
+      expect(routerPush).toHaveBeenCalledWith('/first');
     });
   });
 });
