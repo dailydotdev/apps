@@ -7,17 +7,21 @@ import { anchorDefaultRel } from '../../../lib/strings';
 import { Pill, PillSize } from '../../Pill';
 
 export interface MarketingCTA {
+  campaignId: string;
+  createdAt: Date;
   variant: 'card' | 'popover';
-  tagText?: string;
-  tagColor?: string;
-  title: string;
-  description?: string;
-  image?: string;
-  ctaUrl: string;
-  ctaText: string;
+  flags: {
+    image?: string;
+    title: string;
+    ctaUrl: string;
+    ctaText: string;
+    tagText?: string;
+    tagColor?: string;
+    description?: string;
+  };
 }
 
-type HeaderProps = Pick<MarketingCTA, 'tagText' | 'tagColor'>;
+type HeaderProps = Pick<MarketingCTA['flags'], 'tagText' | 'tagColor'>;
 const tagColorMap: Record<string, string> = {
   avocado: 'bg-action-upvote-float text-action-upvote-default',
 };
@@ -46,7 +50,7 @@ export const Description = classed(
   'text-theme-label-secondary typo-callout',
 );
 
-type CTAButtonType = Pick<MarketingCTA, 'ctaText' | 'ctaUrl'> & {
+type CTAButtonType = Pick<MarketingCTA['flags'], 'ctaText' | 'ctaUrl'> & {
   className?: string;
 };
 export const CTAButton = ({
