@@ -85,7 +85,7 @@ const useRegistration = ({
     if (
       registration.error?.id === KRATOS_ERROR_MESSAGE.SESSION_ALREADY_AVAILABLE
     ) {
-      logout();
+      logout(registration.error?.id);
     }
   }
 

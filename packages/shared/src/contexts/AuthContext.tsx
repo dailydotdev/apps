@@ -44,7 +44,7 @@ export interface AuthContextData {
   showLogin: ({ trigger, options }: ShowLoginParams) => void;
   closeLogin: () => void;
   loginState?: LoginState;
-  logout: () => Promise<void>;
+  logout: (reason?: string) => Promise<void>;
   updateUser: (user: LoggedUser) => Promise<void>;
   loadingUser?: boolean;
   isFetched?: boolean;
@@ -78,8 +78,8 @@ export const getQueryParams = (): Record<string, string> => {
 
 export const REGISTRATION_PATH = '/register';
 
-const logout = async (): Promise<void> => {
-  await dispatchLogout();
+const logout = async (reason?: string): Promise<void> => {
+  await dispatchLogout(reason);
   const params = getQueryParams();
   if (params.redirect_uri) {
     window.location.replace(params.redirect_uri);

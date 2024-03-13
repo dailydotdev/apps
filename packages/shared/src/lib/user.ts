@@ -96,8 +96,9 @@ interface BadRequestError extends BaseError {
 
 export type APIError = BaseError | BadRequestError;
 
-export async function logout(): Promise<void> {
-  await fetch(`${apiUrl}/v1/users/logout`, {
+export async function logout(reason?: string): Promise<void> {
+  const urlParams = reason ? `?${new URLSearchParams({ reason })}` : '';
+  await fetch(`${apiUrl}/v1/users/logout${urlParams}`, {
     method: 'POST',
     credentials: 'include',
   });

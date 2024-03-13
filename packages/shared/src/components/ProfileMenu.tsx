@@ -84,7 +84,7 @@ export default function ProfileMenu({
         title: 'Logout',
         buttonProps: {
           icon: <PowerIcon />,
-          onClick: logout,
+          onClick: () => logout('manual logout'),
         },
       },
     ];
