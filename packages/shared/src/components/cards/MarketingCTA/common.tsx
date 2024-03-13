@@ -21,17 +21,19 @@ export interface MarketingCTA {
   };
 }
 
-type HeaderProps = Pick<MarketingCTA.flags, 'tagText' | 'tagColor'> & {
+type HeaderProps = Pick<MarketingCTA['flags'], 'tagText' | 'tagColor'> & {
   onClose?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
   buttonSize?: ButtonSize;
 };
 const tagColorMap: Record<string, string> = {
   avocado: 'bg-action-upvote-float text-action-upvote-default',
 };
-export const Header = ({ tagText,
-                         tagColor,
-                         onClose,
-                         buttonSize = ButtonSize.Small, }: HeaderProps): ReactElement => (
+export const Header = ({
+  tagText,
+  tagColor,
+  onClose,
+  buttonSize = ButtonSize.Small,
+}: HeaderProps): ReactElement => (
   <div className="flex w-full flex-row items-center">
     <Pill
       label={tagText}
@@ -57,7 +59,7 @@ export const Description = classed(
   'text-theme-label-secondary typo-callout',
 );
 
-type CTAButtonType = Pick<MarketingCTA.flags, 'ctaText' | 'ctaUrl'> & {
+type CTAButtonType = Pick<MarketingCTA['flags'], 'ctaText' | 'ctaUrl'> & {
   onClick?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
   className?: string;
   buttonSize?: ButtonSize;

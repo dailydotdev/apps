@@ -19,7 +19,7 @@ export const MarketingCTAModal = ({
   ...modalProps
 }: NewRankModalProps): ReactElement => {
   const { tagColor, tagText, title, description, image, ctaUrl, ctaText } =
-    marketingCTA;
+    marketingCTA.flags;
 
   const onModalClose: typeof onRequestClose = (param) => {
     onRequestClose(param);
