@@ -16,6 +16,8 @@ import {
 import classed from '../../../lib/classed';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
 import { AnalyticsEvent } from '../../../lib/analytics';
+import { useViewSize, ViewSize } from '../../../hooks';
+import { Drawer } from '../../drawers';
 
 export interface ModalProps extends ReactModal.Props {
   children?: React.ReactNode;
@@ -52,7 +54,7 @@ const modalKindAndSizeToOverlayClassName: Partial<
 const modalKindToClassName: Record<ModalKind, string> = {
   [ModalKind.FixedCenter]: 'tablet:h-[40rem] tablet:max-h-[calc(100vh-5rem)]',
   [ModalKind.FlexibleCenter]:
-    'mx-4 max-w-[calc(100vw-2rem)] tablet:max-h-[min(calc(100vh-5rem),40rem)]',
+    'tablet:mx-4 max-w-[calc(100vw-2rem)] tablet:max-h-[min(calc(100vh-5rem),40rem)]',
   [ModalKind.FlexibleTop]: '',
   [ModalKind.FixedBottom]: 'rounded-b-none max-h-[34.75rem]',
 };
@@ -92,6 +94,7 @@ export function Modal({
 }: ModalProps): ReactElement {
   const stepTitle = steps ? steps?.[0].key : undefined;
   const tabTitle = tabs ? modalTabTitle(tabs[0]) : undefined;
+  const isMobile = useViewSize(ViewSize.MobileL);
   const [activeView, setView] = useState<string | undefined>(
     defaultView ?? stepTitle ?? tabTitle,
   );
@@ -101,6 +104,15 @@ export function Modal({
     }
     setView(view);
   };
+
+  if (isMobile && isDrawerOnMobile) {
+    return (
+      <Drawer isOpen onClose={() => onRequestClose(null)}>
+        {children}
+      </Drawer>
+    );
+  }
+
   const modalOverlayClassName = classNames(
     'overlay fixed inset-0 z-modal flex flex-col items-center bg-overlay-quaternary-onion',
     modalKindAndSizeToOverlayClassName[kind]?.[size],
