@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
-import { Button, ButtonProps, ButtonVariant } from '../buttons/Button';
 import Link from 'next/link';
+import { Button, ButtonProps, ButtonVariant } from '../buttons/Button';
 import ConditionalWrapper from '../ConditionalWrapper';
 
 export interface NavItemProps
