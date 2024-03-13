@@ -24,6 +24,7 @@ import { UseVotePost, useFeedLayout } from '../hooks';
 import { CollectionCard } from './cards/CollectionCard';
 import { CollectionCard as CollectionCardV1 } from './cards/v1/CollectionCard';
 import { AcquisitionFormCard } from './cards/AcquisitionFormCard';
+import { MarketingCtaCard, MarketingCtaList } from './cards';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -118,12 +119,14 @@ const getTags = (
       PostTag: PostTypeToTagV1[postType] ?? ArticlePostCardV1,
       AdTag: AdCardV1,
       PlaceholderTag: PlaceholderCardV1,
+      MarketingCtaTag: MarketingCtaCard,
     };
   }
   return {
     PostTag: isList ? PostList : PostTypeToTag[postType] ?? ArticlePostCard,
     AdTag: isList ? AdList : AdCard,
     PlaceholderTag: isList ? PlaceholderList : PlaceholderCard,
+    MarketingCtaTag: isList ? MarketingCtaList : MarketingCtaCard,
   };
 };
 
@@ -167,7 +170,7 @@ export default function FeedItemComponent({
   );
 
   const { shouldUseMobileFeedLayout } = useFeedLayout();
-  const { PostTag, AdTag, PlaceholderTag } = getTags(
+  const { PostTag, AdTag, PlaceholderTag, MarketingCtaTag } = getTags(
     isList,
     shouldUseMobileFeedLayout,
     (item as PostItem).post?.type,
@@ -256,6 +259,14 @@ export default function FeedItemComponent({
       );
     case 'userAcquisition': {
       return <AcquisitionFormCard key="user-acquisition-card" />;
+    }
+    case 'marketingCta': {
+      return (
+        <MarketingCtaTag
+          key="marketing-cta-card"
+          marketingCta={item.marketingCta}
+        />
+      );
     }
     default:
       return <PlaceholderTag showImage={!insaneMode} />;
