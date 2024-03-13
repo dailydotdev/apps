@@ -8,12 +8,15 @@ import InteractivePopup, {
 import { useChecklist } from '../../hooks/useChecklist';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetType } from '../../lib/analytics';
+import { useViewSize, ViewSize } from '../../hooks';
+import { Drawer } from '../drawers';
 
 const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   const { steps, isChecklistVisible, setChecklistVisible, isChecklistReady } =
     useSquadChecklist({
       squad,
     });
+  const isMobile = useViewSize(ViewSize.MobileL);
   const { isDone } = useChecklist({ steps });
   const { trackEvent } = useContext(AnalyticsContext);
   const totalStepsCount = steps.length;
@@ -46,8 +49,22 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
       description={`${totalStepsCount} simple steps to Squad greatness!`}
       steps={steps}
       onRequestClose={onRequestClose}
+      className={isMobile && 'w-full !max-w-full border-0'}
     />
   );
+
+  if (isMobile) {
+    return (
+      <Drawer
+        isOpen
+        displayCloseButton
+        onClose={onRequestClose}
+        className={{ drawer: 'pb-4' }}
+      >
+        {checklistElement}
+      </Drawer>
+    );
+  }
 
   return (
     <InteractivePopup

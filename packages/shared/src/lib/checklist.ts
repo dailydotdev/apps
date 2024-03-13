@@ -4,6 +4,7 @@ import { Action, ActionType } from '../graphql/actions';
 import { StorageTopic, generateStorageKey } from './storage';
 
 export type ChecklistCardProps = {
+  className?: string;
   title: string;
   description: string;
   steps: ChecklistStepType[];
