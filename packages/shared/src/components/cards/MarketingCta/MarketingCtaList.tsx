@@ -1,11 +1,11 @@
 import React, { ReactElement } from 'react';
 import { Card } from '../Card';
-import { CTAButton, Description, Header, marketingCta, Title } from './common';
+import { CTAButton, Description, Header, MarketingCta, Title } from './common';
 
 export function MarketingCtaList({
   marketingCta,
 }: {
-  marketingCta: marketingCta;
+  marketingCta: MarketingCta;
 }): ReactElement {
   const { tagColor, tagText, title, description, ctaUrl, ctaText } =
     marketingCta.flags;

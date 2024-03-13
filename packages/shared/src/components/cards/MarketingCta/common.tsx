@@ -6,7 +6,7 @@ import classed from '../../../lib/classed';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { Pill, PillSize } from '../../Pill';
 
-export interface marketingCta {
+export interface MarketingCta {
   campaignId: string;
   createdAt: Date;
   variant: 'card' | 'popover';
@@ -21,7 +21,7 @@ export interface marketingCta {
   };
 }
 
-type HeaderProps = Pick<marketingCta['flags'], 'tagText' | 'tagColor'> & {
+type HeaderProps = Pick<MarketingCta['flags'], 'tagText' | 'tagColor'> & {
   onClose?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
   buttonSize?: ButtonSize;
 };
@@ -59,7 +59,7 @@ export const Description = classed(
   'text-theme-label-secondary typo-callout',
 );
 
-type CTAButtonType = Pick<marketingCta['flags'], 'ctaText' | 'ctaUrl'> & {
+type CTAButtonType = Pick<MarketingCta['flags'], 'ctaText' | 'ctaUrl'> & {
   onClick?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
   className?: string;
   buttonSize?: ButtonSize;
