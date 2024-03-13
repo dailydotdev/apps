@@ -22,7 +22,7 @@ import {
   updateCachedPagePost,
 } from '../lib/query';
 import { getShouldRefreshFeed } from '../lib/refreshFeed';
-import { MarketingCTA } from '../components/cards/MarketingCTA/common';
+import { marketingCta } from '../components/cards/MarketingCta/common';
 
 export type PostItem = {
   type: 'post';
@@ -33,16 +33,16 @@ export type PostItem = {
 export type AdItem = { type: 'ad'; ad: Ad };
 export type PlaceholderItem = { type: 'placeholder' };
 export type UserAcquisitionItem = { type: 'userAcquisition' };
-export type MarketingCTAItem = {
-  type: 'marketingCTA';
-  marketingCTA: MarketingCTA;
+export type MarketingCtaItem = {
+  type: 'marketingCta';
+  marketingCTA: marketingCta;
 };
 export type FeedItem =
   | PostItem
   | AdItem
   | PlaceholderItem
   | UserAcquisitionItem
-  | MarketingCTAItem;
+  | MarketingCtaItem;
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 

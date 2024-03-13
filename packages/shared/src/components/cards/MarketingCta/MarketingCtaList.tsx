@@ -1,14 +1,14 @@
 import React, { ReactElement } from 'react';
 import { Card } from '../Card';
-import { CTAButton, Description, Header, MarketingCTA, Title } from './common';
+import { CTAButton, Description, Header, marketingCta, Title } from './common';
 
-export function MarketingCTAList({
-  marketingCTA,
+export function MarketingCtaList({
+  marketingCta,
 }: {
-  marketingCTA: MarketingCTA;
+  marketingCta: marketingCta;
 }): ReactElement {
   const { tagColor, tagText, title, description, ctaUrl, ctaText } =
-    marketingCTA.flags;
+    marketingCta.flags;
   return (
     <Card className="p-4">
       {tagColor && tagText && <Header tagColor={tagColor} tagText={tagText} />}
