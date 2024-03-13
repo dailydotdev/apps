@@ -27,7 +27,7 @@ import { LazyModal } from '../modals/common/types';
 import { LazyModalType } from '../modals/common';
 
 const createMenuItems = (
-  logout: HeaderProps['logout'],
+  logout: () => Promise<void>,
   openModal: (data: LazyModalType<LazyModal>) => void,
 ) => {
   return [
