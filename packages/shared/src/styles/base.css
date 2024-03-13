@@ -348,7 +348,6 @@ body {
   --theme-color-water: theme('colors.raw.water.40');
   --theme-color-salt: theme('colors.raw.salt.40');
   --theme-color-pepper: theme('colors.raw.pepper.40');
-  --theme-color-email: theme('colors.raw.pepper.10');
 }
 
 @define-mixin light-mode {
@@ -663,7 +662,6 @@ body {
   --theme-color-water: theme('colors.raw.water.60');
   --theme-color-salt: theme('colors.raw.pepper.40');
   --theme-color-pepper: theme('colors.raw.pepper.60');
-  --theme-color-email: theme('colors.raw.pepper.10');
 }
 
 @media (prefers-color-scheme: light) {
