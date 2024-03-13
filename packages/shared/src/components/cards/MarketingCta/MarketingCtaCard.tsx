@@ -1,17 +1,17 @@
 import React, { ReactElement } from 'react';
 import { Card } from '../Card';
 import { CardCover } from '../common/CardCover';
-import { CTAButton, Description, Header, MarketingCTA, Title } from './common';
+import { CTAButton, Description, Header, MarketingCta, Title } from './common';
 import { Card as CardV1 } from '../v1/Card';
 import { useFeedLayout } from '../../../hooks';
 
-export function MarketingCTACard({
-  marketingCTA,
+export function MarketingCtaCard({
+  marketingCta,
 }: {
-  marketingCTA: MarketingCTA;
+  marketingCta: MarketingCta;
 }): ReactElement {
   const { tagColor, tagText, title, description, image, ctaUrl, ctaText } =
-    marketingCTA.flags;
+    marketingCta.flags;
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const CardComponent = shouldUseMobileFeedLayout ? CardV1 : Card;
 

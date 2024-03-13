@@ -2,24 +2,24 @@ import React, { ReactElement } from 'react';
 import { Modal, ModalProps } from './common/Modal';
 import { ButtonSize } from '../buttons/Button';
 import { CardCover } from '../cards/common/CardCover';
-import type { MarketingCTA } from '../cards/MarketingCTA/common';
+import type { MarketingCta } from '../cards/MarketingCta/common';
 import {
   CTAButton,
   Description,
   Header,
   Title,
-} from '../cards/MarketingCTA/common';
+} from '../cards/MarketingCta/common';
 
-export interface NewRankModalProps extends ModalProps {
-  marketingCTA: MarketingCTA;
+export interface MarketingCtaModalProps extends ModalProps {
+  marketingCta: MarketingCta;
 }
-export const MarketingCTAModal = ({
-  marketingCTA,
+export const MarketingCtaModal = ({
+  marketingCta,
   onRequestClose,
   ...modalProps
-}: NewRankModalProps): ReactElement => {
+}: MarketingCtaModalProps): ReactElement => {
   const { tagColor, tagText, title, description, image, ctaUrl, ctaText } =
-    marketingCTA.flags;
+    marketingCta.flags;
 
   const onModalClose: typeof onRequestClose = (param) => {
     onRequestClose(param);
@@ -68,4 +68,4 @@ export const MarketingCTAModal = ({
   );
 };
 
-export default MarketingCTAModal;
+export default MarketingCtaModal;

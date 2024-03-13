@@ -1,2 +1,2 @@
 export * from './FeedbackCard';
-export * from './MarketingCTA';
+export * from './MarketingCta';
