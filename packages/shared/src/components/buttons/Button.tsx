@@ -90,9 +90,9 @@ function ButtonComponent<TagName extends AllowedTags>(
       ref={ref}
       className={classNames(
         `btn shadow-none focus-outline inline-flex cursor-pointer select-none
-        flex-row items-center
-        justify-center border font-bold no-underline transition
+        flex-row items-center border no-underline transition
         duration-200 ease-in-out typo-callout`,
+        variant !== ButtonVariant.Option && 'justify-center font-bold',
         { iconOnly },
         iconOnly ? IconOnlySizeToClassName[size] : SizeToClassName[size],
         !color && VariantToClassName[variant],

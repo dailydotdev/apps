@@ -17,6 +17,8 @@ import { Button } from '../buttons/Button';
 export enum DrawerPosition {
   Bottom = 'bottom',
   Top = 'top',
+  Left = 'left',
+  Right = 'right',
 }
 
 interface ClassName {
@@ -30,6 +32,7 @@ interface DrawerProps
   className?: ClassName;
   position?: DrawerPosition;
   closeOnOutsideClick?: boolean;
+  isFullScreen?: boolean;
   isClosing?: boolean;
   title?: string;
   onClose(): void;
@@ -39,11 +42,15 @@ interface DrawerProps
 const drawerPositionToClassName: Record<DrawerPosition, string> = {
   [DrawerPosition.Bottom]: 'bottom-0 rounded-t-16',
   [DrawerPosition.Top]: 'top-0 rounded-b-16',
+  [DrawerPosition.Left]: 'left-0 rounded-r-16',
+  [DrawerPosition.Right]: 'right-0 rounded-l-16',
 };
 
 const animatePositionClassName: Record<DrawerPosition, string> = {
   [DrawerPosition.Bottom]: 'translate-y-full',
   [DrawerPosition.Top]: '-translate-y-full',
+  [DrawerPosition.Left]: '-translate-x-full',
+  [DrawerPosition.Right]: 'translate-x-full',
 };
 
 function BaseDrawer({
@@ -51,6 +58,7 @@ function BaseDrawer({
   className = {},
   position = DrawerPosition.Bottom,
   closeOnOutsideClick = true,
+  isFullScreen = false,
   isClosing = false,
   title,
   onClose,
@@ -67,7 +75,8 @@ function BaseDrawer({
   return (
     <div
       className={classNames(
-        'fixed inset-0 z-max bg-overlay-quaternary-onion transition-opacity duration-300 ease-in-out',
+        'fixed inset-0 z-max transition-opacity duration-300 ease-in-out',
+        !isFullScreen && 'bg-overlay-quaternary-onion',
         className?.overlay,
         isAnimating && 'opacity-0',
       )}
@@ -75,11 +84,11 @@ function BaseDrawer({
       <div
         {...props}
         className={classNames(
-          'absolute flex flex-col overflow-y-auto bg-background-default transition-transform duration-300 ease-in-out',
+          'absolute flex w-full flex-col overflow-y-auto bg-background-default transition-transform duration-300 ease-in-out',
+          isFullScreen ? 'inset-0' : 'max-h-[calc(100%-5rem)]',
+          !isFullScreen && drawerPositionToClassName[position],
           isAnimating && animatePositionClassName[position],
-          drawerPositionToClassName[position],
           !title && classes,
-          'max-h-[calc(100%-5rem)] w-full',
         )}
         ref={(node) => {
           container.current = node;
