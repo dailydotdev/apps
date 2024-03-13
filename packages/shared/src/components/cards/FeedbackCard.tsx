@@ -26,7 +26,7 @@ export const FeedbackCard = ({
   return (
     <div className="flex-1 space-y-4 p-6 pb-5">
       <div className="relative block">
-        <p className="font-bold typo-callout mr-0 tablet:mr-4">
+        <p className="mr-0 font-bold typo-callout tablet:mr-4">
           Want to see more posts like this?
         </p>
         <CloseButton
