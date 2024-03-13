@@ -1,9 +1,14 @@
 import React, { ReactElement } from 'react';
 import { Modal, ModalProps } from './common/Modal';
 import { ButtonSize } from '../buttons/Button';
-import type { MarketingCTA } from '../cards';
-import { CTAButton, Description, Header, Title } from '../cards';
 import { CardCover } from '../cards/common/CardCover';
+import type { MarketingCTA } from '../cards/MarketingCTA/common';
+import {
+  CTAButton,
+  Description,
+  Header,
+  Title,
+} from '../cards/MarketingCTA/common';
 
 export interface NewRankModalProps extends ModalProps {
   marketingCTA: MarketingCTA;
