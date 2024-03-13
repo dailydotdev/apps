@@ -58,6 +58,7 @@ const feature = {
     'source_subscribe',
     SourceSubscribeExperiment.Control,
   ),
+  searchVersion: new Feature('search_version', 1),
 };
 
 export { feature };
