@@ -167,6 +167,12 @@ const variations = {
       'var(--theme-overlay-active-salt)';
     return states;
   },
+  option: (color) => {
+    const states = variations.tertiary(color);
+    states.darkStates.hover.color = 'var(--theme-label-tertiary)';
+    states.lightStates.hover.color = 'var(--theme-label-tertiary)';
+    return states;
+  },
   tag: (color) => {
     const states = variations.tertiaryFloat(color);
     states.darkStates.default.color = 'var(--theme-label-primary)';

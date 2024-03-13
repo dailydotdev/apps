@@ -14,8 +14,8 @@ const meta: Meta<typeof Button> = {
       expanded: true,
     },
     design: {
-      type: "figma",
-      url: "https://www.figma.com/file/C7n8EiXBwV1sYIEHkQHS8R/daily.dev---Design-System?type=design&node-id=1177-4542&mode=design&t=G2RMnPc48y6jEo5a-0",
+      type: 'figma',
+      url: 'https://www.figma.com/file/C7n8EiXBwV1sYIEHkQHS8R/daily.dev---Design-System?type=design&node-id=1177-4542&mode=design&t=G2RMnPc48y6jEo5a-0',
     },
   },
   argTypes: {
@@ -62,12 +62,12 @@ export const Sizes: Story = {
 
 export const Variants: Story = {
   render: ({ children, variant, ...props }) => (
-    <div className="grid grid-cols-5 gap-4">
-      <h2>Primary</h2>
-      <h2>Secondary</h2>
-      <h2>Tertiary</h2>
-      <h2>Float</h2>
-      <h2>Subtle</h2>
+    <div
+      className={`grid grid-cols-${Object.values(ButtonVariant).length} gap-4`}
+    >
+      {Object.keys(ButtonVariant).map((variantLabel) => (
+        <h2>{variantLabel}</h2>
+      ))}
       {Object.values(ButtonVariant).map((variant) => (
         <span key={variant}>
           <Button {...props} variant={variant}>
@@ -112,8 +112,8 @@ export const Icon: Story = {
   },
   parameters: {
     design: {
-      type: "figma",
-      url: "https://www.figma.com/file/C7n8EiXBwV1sYIEHkQHS8R/daily.dev---Design-System?type=design&node-id=1115-10302&mode=design&t=G2RMnPc48y6jEo5a-0",
+      type: 'figma',
+      url: 'https://www.figma.com/file/C7n8EiXBwV1sYIEHkQHS8R/daily.dev---Design-System?type=design&node-id=1115-10302&mode=design&t=G2RMnPc48y6jEo5a-0',
     },
-  }
+  },
 };

@@ -21,10 +21,10 @@ export function SavingLabel({
 
   const getLabel = () => {
     if (isUpdating) {
-      return 'Saving changes';
+      return 'Saving';
     }
 
-    return isUptoDate ? 'All changes saved' : '';
+    return isUptoDate ? 'Saved' : '';
   };
 
   const getIcon = () => {
@@ -38,7 +38,7 @@ export function SavingLabel({
   return (
     <span
       className={classNames(
-        'flex flex-row items-center gap-1 font-bold text-theme-label-tertiary typo-callout',
+        'flex flex-row items-center gap-1 px-2 font-bold text-theme-label-tertiary typo-callout',
         className,
       )}
     >

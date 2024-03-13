@@ -6,6 +6,8 @@ import {
   screen,
 } from '@testing-library/react';
 import nock from 'nock';
+import { NextRouter, useRouter } from 'next/router';
+import { mocked } from 'ts-jest/utils';
 import { Tab, TabContainer, TabContainerProps } from './TabContainer';
 
 beforeEach(() => {
@@ -23,6 +25,24 @@ const renderComponent = (props: TabContainerProps = {}): RenderResult => {
     </TabContainer>,
   );
 };
+
+const renderUrlComponent = (props: TabContainerProps = {}): RenderResult => {
+  return render(
+    <TabContainer {...props} onActiveChange={onActiveClick}>
+      <Tab label="First" url="/first">
+        Sample
+      </Tab>
+      <Tab label="Second" url="/second">
+        Test
+      </Tab>
+      <Tab label="Third" url="/third">
+        Try
+      </Tab>
+    </TabContainer>,
+  );
+};
+
+const routerPush = jest.fn();
 
 describe('tab container component', () => {
   it('should render all the tabs', async () => {
@@ -53,5 +73,46 @@ describe('tab container component', () => {
     const third = screen.queryByText('Try');
     expect(third).toBeInTheDocument();
     expect(third).toHaveStyle({ display: 'none' });
+  });
+
+  describe('with URLs', () => {
+    jest.mock('next/router', () => ({
+      useRouter() {
+        return {
+          isFallback: false,
+        };
+      },
+    }));
+
+    beforeAll(() => {
+      const mockPathname = '/second';
+      mocked(useRouter).mockImplementation(
+        () =>
+          ({
+            pathname: mockPathname,
+            push: routerPush,
+          } as unknown as NextRouter),
+      );
+    });
+
+    it('should set the active tab based on the current path', async () => {
+      renderUrlComponent({ shouldMountInactive: true });
+
+      const active = await screen.findByText('Second');
+      const inactive1 = await screen.findByText('First');
+      const inactive2 = await screen.findByText('Third');
+
+      expect(active).toHaveClass('bg-theme-active');
+      expect(inactive1).not.toHaveClass('bg-theme-active');
+      expect(inactive2).not.toHaveClass('bg-theme-active');
+    });
+
+    it('should redirect to the given URL on tab click', async () => {
+      renderUrlComponent({ shouldMountInactive: true });
+
+      const first = await screen.findByText('First');
+      fireEvent.click(first);
+      expect(routerPush).toHaveBeenCalledWith('/first');
+    });
   });
 });

@@ -18,6 +18,7 @@ export enum ButtonVariant {
   Tertiary = 'tertiary',
   Float = 'tertiaryFloat',
   Subtle = 'subtle',
+  Option = 'option',
 }
 
 export enum ButtonIconPosition {
@@ -47,6 +48,7 @@ export const VariantToClassName: Record<ButtonVariant, string> = {
   [ButtonVariant.Tertiary]: 'btn-tertiary',
   [ButtonVariant.Float]: 'btn-tertiaryFloat',
   [ButtonVariant.Subtle]: 'btn-subtle',
+  [ButtonVariant.Option]: 'btn-option gap-1',
 };
 
 export const VariantColorToClassName: Record<
@@ -157,6 +159,27 @@ export const VariantColorToClassName: Record<
     [ButtonColor.Twitter]: 'btn-subtle-twitter',
     [ButtonColor.Water]: 'btn-subtle-water',
     [ButtonColor.WhatsApp]: 'btn-subtle-whatsapp',
+  },
+  [ButtonVariant.Option]: {
+    [ButtonColor.Avocado]: 'btn-option-avocado',
+    [ButtonColor.Bacon]: 'btn-option-bacon',
+    [ButtonColor.BlueCheese]: 'btn-option-blueCheese',
+    [ButtonColor.Bun]: 'btn-option-bun',
+    [ButtonColor.Burger]: 'btn-option-burger',
+    [ButtonColor.Cabbage]: 'btn-option-cabbage',
+    [ButtonColor.Cheese]: 'btn-option-cheese',
+    [ButtonColor.Facebook]: 'btn-option-facebook',
+    [ButtonColor.Ketchup]: 'btn-option-ketchup',
+    [ButtonColor.LinkedIn]: 'btn-option-linkedin',
+    [ButtonColor.Lettuce]: 'btn-option-lettuce',
+    [ButtonColor.Onion]: 'btn-option-onion',
+    [ButtonColor.Pepper]: 'btn-option-pepper',
+    [ButtonColor.Salt]: 'btn-option-salt',
+    [ButtonColor.Reddit]: 'btn-option-reddit',
+    [ButtonColor.Telegram]: 'btn-option-telegram',
+    [ButtonColor.Twitter]: 'btn-option-twitter',
+    [ButtonColor.Water]: 'btn-option-water',
+    [ButtonColor.WhatsApp]: 'btn-option-whatsapp',
   },
 };
 
