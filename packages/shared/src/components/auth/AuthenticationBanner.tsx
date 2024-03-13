@@ -7,10 +7,6 @@ import { AuthTriggers } from '../../lib/auth';
 import { MemberAlready } from '../onboarding/MemberAlready';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { BottomBannerContainer } from '../banners';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { PostPageOnboarding } from '../../lib/featureValues';
-import { cloudinary } from '../../lib/image';
 
 const Section = classed('div', 'flex flex-col');
 export const authGradientBg =
@@ -18,7 +14,6 @@ export const authGradientBg =
 
 export function AuthenticationBanner(): ReactElement {
   const { showLogin } = useAuthContext();
-  const postPageOnboarding = useFeature(feature.postPageOnboarding);
 
   return (
     <BottomBannerContainer
@@ -31,13 +26,6 @@ export function AuthenticationBanner(): ReactElement {
         <OnboardingHeadline
           className={{ title: 'typo-mega3', description: 'typo-title3' }}
         />
-        {postPageOnboarding === PostPageOnboarding.V3 && (
-          <img
-            src={cloudinary.postPageOnboarding.image}
-            alt="Daily dev social proof showing product of the year and 2000+ reviews on Chrome store"
-            className="hidden laptop:block"
-          />
-        )}
       </Section>
       <Section className="w-[23.25rem] pt-2">
         <AuthOptions
