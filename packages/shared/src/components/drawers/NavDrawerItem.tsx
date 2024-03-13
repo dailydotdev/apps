@@ -4,7 +4,7 @@ import { Button, ButtonProps, ButtonVariant } from '../buttons/Button';
 import ConditionalWrapper from '../ConditionalWrapper';
 
 export interface NavItemProps
-  extends Pick<ButtonProps<'a'>, 'href' | 'icon' | 'onClick'> {
+  extends Pick<ButtonProps<'a'>, 'href' | 'icon' | 'onClick' | 'target'> {
   label: string;
   isHeader?: boolean;
 }
