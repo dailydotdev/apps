@@ -7,6 +7,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { MiniCloseIcon as CloseIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
+import { PopupCloseEvent } from '../modals/common';
 
 export enum InteractivePopupPosition {
   Center = 'center',
@@ -33,7 +34,7 @@ interface InteractivePopupProps {
   className?: string;
   position?: InteractivePopupPosition;
   closeOutsideClick?: boolean;
-  onClose?: (e: MouseEvent | KeyboardEvent | MessageEvent) => void;
+  onClose?: PopupCloseEvent;
   closeButton?: CloseButtonProps;
 }
 
@@ -84,6 +85,8 @@ function InteractivePopup({
   const { sidebarRendered } = useSidebarRendered();
   const validateSidebar =
     sidebarRendered || position === InteractivePopupPosition.Screen;
+  const withOverlay =
+    position === InteractivePopupPosition.Center || !validateSidebar;
   const { sidebarExpanded } = useSettingsContext();
   const finalPosition = validateSidebar
     ? position
@@ -92,13 +95,13 @@ function InteractivePopup({
   useOutsideClick(
     container,
     onCloseRef.current,
-    closeOutsideClick || !validateSidebar,
+    closeOutsideClick || withOverlay,
   );
 
   return (
     <RootPortal>
       <ConditionalWrapper
-        condition={!validateSidebar}
+        condition={withOverlay}
         wrapper={(child) => (
           <div className="fixed inset-0 z-modal flex flex-col items-center bg-overlay-quaternary-onion">
             {child}

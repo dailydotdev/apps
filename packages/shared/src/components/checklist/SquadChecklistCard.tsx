@@ -5,9 +5,6 @@ import { Squad } from '../../graphql/sources';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
-import useSidebarRendered from '../../hooks/useSidebarRendered';
-import { Modal } from '../modals/common/Modal';
-import { ModalKind } from '../modals/common/types';
 import { useChecklist } from '../../hooks/useChecklist';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetType } from '../../lib/analytics';
@@ -17,7 +14,6 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
     useSquadChecklist({
       squad,
     });
-  const { sidebarRendered } = useSidebarRendered();
   const { isDone } = useChecklist({ steps });
   const { trackEvent } = useContext(AnalyticsContext);
   const totalStepsCount = steps.length;
@@ -53,23 +49,10 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
     />
   );
 
-  if (!sidebarRendered) {
-    return (
-      <Modal
-        className="!w-auto"
-        isOpen={isChecklistVisible}
-        kind={ModalKind.FlexibleCenter}
-        onRequestClose={onRequestClose}
-      >
-        {checklistElement}
-      </Modal>
-    );
-  }
-
   return (
     <InteractivePopup
       position={InteractivePopupPosition.RightEnd}
-      className="rounded-none !bg-transparent"
+      className="flex w-full max-w-[21.5rem] justify-center rounded-none"
     >
       {checklistElement}
     </InteractivePopup>

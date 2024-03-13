@@ -7,9 +7,10 @@ import { ModalFooter } from '../modals/common/ModalFooter';
 import SquadTourCard from './SquadTourCard';
 import classed from '../../lib/classed';
 import { useSquadTour } from '../../hooks/useSquadTour';
+import { PopupCloseEvent } from '../modals/common';
 
 interface SquadTourProps {
-  onClose: React.EventHandler<React.MouseEvent>;
+  onClose: PopupCloseEvent;
 }
 
 const FooterButton = classed(Button, 'w-22');
@@ -33,7 +34,10 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
           className={{ container: 'h-[29.25rem]', banner: '!pt-0' }}
         />
         <ModalFooter>
-          <FooterButton variant={ButtonVariant.Tertiary} onClick={onClose}>
+          <FooterButton
+            variant={ButtonVariant.Tertiary}
+            onClick={(e) => onClose(e.nativeEvent)}
+          >
             Close
           </FooterButton>
           <FooterButton

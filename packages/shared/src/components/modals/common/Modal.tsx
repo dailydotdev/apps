@@ -27,6 +27,7 @@ export interface ModalProps extends ReactModal.Props {
   onViewChange?: (view: string) => void;
   onTrackNext?: AnalyticsEvent;
   onTrackPrev?: AnalyticsEvent;
+  isDrawerOnMobile?: boolean;
 }
 
 export type LazyModalCommonProps = Pick<
@@ -35,7 +36,7 @@ export type LazyModalCommonProps = Pick<
 > & { onRequestClose: (e?: React.MouseEvent | React.KeyboardEvent) => void };
 
 const modalKindToOverlayClassName: Record<ModalKind, string> = {
-  [ModalKind.FixedCenter]: 'mobileL:justify-center pt-10 mobileL:pt-0',
+  [ModalKind.FixedCenter]: 'tablet:justify-center',
   [ModalKind.FlexibleCenter]: 'justify-center',
   [ModalKind.FlexibleTop]: '',
   [ModalKind.FixedBottom]: 'justify-end',
@@ -44,16 +45,15 @@ const modalKindAndSizeToOverlayClassName: Partial<
   Record<ModalKind, Partial<Record<ModalSize, string>>>
 > = {
   [ModalKind.FlexibleTop]: {
-    [ModalSize.Small]: 'pt-10 mobileL:pt-20',
-    [ModalSize.Medium]: 'pt-10 mobileL:pt-20',
+    [ModalSize.Small]: 'tablet:pt-20',
+    [ModalSize.Medium]: 'tablet:pt-20',
   },
 };
 const modalKindToClassName: Record<ModalKind, string> = {
-  [ModalKind.FixedCenter]:
-    'h-full max-h-[calc(100vh-2.5rem)] mobileL:h-[40rem] mobileL:max-h-[calc(100vh-5rem)]',
+  [ModalKind.FixedCenter]: 'tablet:h-[40rem] tablet:max-h-[calc(100vh-5rem)]',
   [ModalKind.FlexibleCenter]:
-    'mx-4 max-w-[calc(100vw-2rem)] max-h-[min(calc(100vh),40rem)] mobileL:max-h-[min(calc(100vh-5rem),40rem)]',
-  [ModalKind.FlexibleTop]: 'h-auto',
+    'mx-4 max-w-[calc(100vw-2rem)] tablet:max-h-[min(calc(100vh-5rem),40rem)]',
+  [ModalKind.FlexibleTop]: '',
   [ModalKind.FixedBottom]: 'rounded-b-none max-h-[34.75rem]',
 };
 const modalKindAndSizeToClassName: Partial<
@@ -61,8 +61,7 @@ const modalKindAndSizeToClassName: Partial<
 > = {
   [ModalKind.FlexibleTop]: {
     [ModalSize.XSmall]: 'laptop:mt-16 laptop:mb-10',
-    [ModalSize.Medium]:
-      'h-full mobileL:h-auto min-h-[25rem] max-h-[calc(100vh-10rem)]',
+    [ModalSize.Medium]: 'min-h-[25rem] tablet:max-h-[calc(100vh-10rem)]',
     [ModalSize.Large]: 'laptop:mt-16 laptop:mb-10',
     [ModalSize.XLarge]: 'laptop:mt-16 laptop:mb-10',
   },
@@ -88,6 +87,7 @@ export function Modal({
   onRequestClose,
   tabs,
   steps,
+  isDrawerOnMobile,
   ...props
 }: ModalProps): ReactElement {
   const stepTitle = steps ? steps?.[0].key : undefined;
@@ -108,7 +108,8 @@ export function Modal({
     overlayClassName,
   );
   const modalClassName = classNames(
-    'modal relative flex max-w-full flex-col items-center rounded-16 border border-theme-divider-secondary bg-accent-pepper-subtlest antialiased shadow-2 focus:outline-none',
+    'modal relative flex max-w-full flex-col items-center border border-theme-divider-secondary bg-accent-pepper-subtlest antialiased shadow-2 focus:outline-none',
+    'h-full tablet:h-auto tablet:rounded-16',
     modalKindToClassName[kind],
     modalSizeToClassName[size],
     modalKindAndSizeToClassName[kind]?.[size],
