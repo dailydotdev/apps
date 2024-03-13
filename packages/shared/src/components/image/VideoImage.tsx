@@ -10,6 +10,7 @@ export interface VideoImageProps {
   className?: string;
   overlay?: ReactNode;
   imageProps: ImageProps;
+  CardImageComponent?: typeof CardImage;
 }
 
 const defaultOverlay = (
@@ -21,6 +22,7 @@ const VideoImage = ({
   imageProps,
   className,
   overlay,
+  CardImageComponent = CardImage,
 }: VideoImageProps): ReactElement => {
   return (
     <div
@@ -39,7 +41,7 @@ const VideoImage = ({
           className="absolute"
         />
       )}
-      <CardImage {...imageProps} type={ImageType.Post} />
+      <CardImageComponent {...imageProps} type={ImageType.Post} />
     </div>
   );
 };

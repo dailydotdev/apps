@@ -24,6 +24,16 @@ const renderComponent = ({
   );
 };
 
+const date = new Date(2024, 6, 6, 12, 30, 30);
+
+beforeEach(() => {
+  jest.useFakeTimers('modern').setSystemTime(date);
+});
+
+afterEach(() => {
+  jest.useRealTimers();
+});
+
 describe('date format post type', () => {
   it('should render post time format', async () => {
     renderComponent({
@@ -35,14 +45,12 @@ describe('date format post type', () => {
   });
 
   it('should render post time format as now', async () => {
-    const date = new Date();
     renderComponent({ date, type: TimeFormatType.Post });
     const element = screen.getByRole('time');
     expect(element).toHaveTextContent('Now');
   });
 
   it('should render post time format as today', async () => {
-    const date = new Date();
     renderComponent({
       date: date.setHours(date.getHours() - 2),
       type: TimeFormatType.Post,
@@ -52,7 +60,6 @@ describe('date format post type', () => {
   });
 
   it('should render post time format as yesterday', async () => {
-    const date = new Date();
     renderComponent({
       date: date.setDate(date.getDate() - 1),
       type: TimeFormatType.Post,
@@ -73,7 +80,6 @@ describe('date format comment type', () => {
   });
 
   it('should render comment time format as now', async () => {
-    const date = new Date();
     renderComponent({
       date,
       type: TimeFormatType.Comment,
@@ -83,7 +89,6 @@ describe('date format comment type', () => {
   });
 
   it('should render comment time format as minutes', async () => {
-    const date = new Date();
     renderComponent({
       date: date.setMinutes(date.getMinutes() - 2),
       type: TimeFormatType.Comment,
@@ -93,7 +98,6 @@ describe('date format comment type', () => {
   });
 
   it('should render comment time format as hours', async () => {
-    const date = new Date();
     renderComponent({
       date: date.setHours(date.getHours() - 2),
       type: TimeFormatType.Comment,
@@ -114,7 +118,6 @@ describe('date format read history type', () => {
   });
 
   it('should render comment time format as today', async () => {
-    const date = new Date();
     renderComponent({
       date: date.setMinutes(date.getMinutes() - 2),
       type: TimeFormatType.ReadHistory,
@@ -124,7 +127,6 @@ describe('date format read history type', () => {
   });
 
   it('should render comment time format as yesterday', async () => {
-    const date = new Date();
     renderComponent({
       date: date.setDate(date.getDate() - 1),
       type: TimeFormatType.ReadHistory,
