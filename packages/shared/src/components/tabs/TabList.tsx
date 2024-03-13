@@ -41,7 +41,7 @@ function TabList({
             setOffset(value);
           }}
           className={classNames(
-            'relative p-4 text-center font-bold typo-callout',
+            'relative p-2 py-4 text-center font-bold typo-callout',
             tab === active ? '' : 'text-theme-label-tertiary',
           )}
           onClick={() => onClick(tab)}

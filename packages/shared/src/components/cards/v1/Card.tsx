@@ -44,7 +44,7 @@ export const CardContent = classed('div', 'flex flex-col mobileXL:flex-row');
 
 export const CardImage = classed(
   Image,
-  'rounded-12 max-h-[calc(100vw-34px)] mobileXL:aspect-auto mobileXL:max-h-40 mobileXL:w-40 mobileXXL:max-h-56 mobileXXL:w-56',
+  'rounded-12 min-h-[10rem] max-h-[12.5rem] object-cover w-full h-auto mobileXL:max-h-40 mobileXL:w-40 mobileXXL:max-h-56 mobileXXL:w-56',
 );
 
 export const CardSpace = classed('div', 'flex-1');

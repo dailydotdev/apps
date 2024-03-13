@@ -4,9 +4,11 @@ import { ImageProps, ImageType } from '../../image/Image';
 import VideoImage, { VideoImageProps } from '../../image/VideoImage';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { CardImage } from '../Card';
+import { CardImage as CardImageV1 } from '../v1/Card';
 import { CardCoverShare } from './CardCoverShare';
 import { CommonCardCoverProps } from '../common';
 import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
+import { useFeedLayout } from '../../../hooks';
 
 interface CardCoverProps extends CommonCardCoverProps {
   imageProps: ImageProps;
@@ -21,6 +23,8 @@ export function CardCover({
   onShare,
   post,
 }: CardCoverProps): ReactElement {
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const ImageComponent = shouldUseMobileFeedLayout ? CardImageV1 : CardImage;
   const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
   const coverShare = (
     <CardCoverShare
@@ -41,6 +45,7 @@ export function CardCover({
     return (
       <VideoImage
         {...videoProps}
+        CardImageComponent={ImageComponent}
         overlay={shouldShowOverlay ? coverShare : undefined}
         imageProps={{
           ...imageProps,
@@ -60,7 +65,7 @@ export function CardCover({
         </div>
       )}
     >
-      <CardImage
+      <ImageComponent
         {...imageProps}
         type={ImageType.Post}
         className={imageClasses}
