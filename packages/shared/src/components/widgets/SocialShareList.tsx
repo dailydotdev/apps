@@ -109,7 +109,6 @@ export function SocialShareList({
       <SocialShareButton
         icon={<MailIcon />}
         variant={ButtonVariant.Primary}
-        className="bg-theme-bg-email text-theme-label-primary"
         onClick={() => openShareLink(ShareProvider.Email)}
         label="Email"
       />
@@ -117,7 +116,6 @@ export function SocialShareList({
         <SocialShareButton
           icon={<MenuIcon size={IconSize.Large} className="rotate-90" />}
           variant={ButtonVariant.Primary}
-          className="bg-theme-bg-email text-theme-label-primary"
           onClick={onNativeShare}
           label="Share via..."
         />
