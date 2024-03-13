@@ -1,0 +1,115 @@
+import { Meta } from '@storybook/addon-docs';
+
+<Meta title="Experiments/Helpers" />
+
+# Experiments / Helpers
+
+To make running experiments and loading feature flags easier across different pages, layouts and components in our codebase we have few helpers that you can use.
+
+## useFeature
+
+This hook is used to load and allocate feature flags and experiments. It is important to note that calling this hook automatically allocates the user in any matched experiment using requested feature flag.
+
+```tsx
+import { useFeature } from './GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
+
+const MyComponent = () => {
+  const feedVersion = useFeature(feature.feedVersion);
+
+  if (enabled) {
+    return <div>{data}</div>;
+  }
+
+  return null;
+};
+```
+
+We manage all known feature flag names, values and other constants in the `featureManagement` file.
+
+## withFeatureBoundary HOC
+
+Our features are loaded together with boot endpoint but initialization of GrowthBook instance is still done async. This HOC (Higher Order Component) is used to wrap a component with features boundary that waits for features to be loaded.
+
+```tsx
+import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
+
+export default withFeaturesBoundary(OnboardingPage);
+```
+
+This means that component will only be rendered if features are loaded and GrowthBook instance is ready. We can also provide a fallback component to be rendered if features are not yet ready.
+
+```tsx
+import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
+
+export default withFeaturesBoundary(OnboardingPage, {
+  fallback: <Loading />,
+});
+```
+
+This HOC allows us to specifically target components that rely on feature flags instead of wrapping app in a provider which delays the rendering of the entire pages (and hurts performance).
+
+While some of our current pages/layouts are fully wrapped and blocked by features being loaded the rule of thumb is that we want to have these boundaries as low as possible in the component tree.
+
+So instead of doing this:
+
+```tsx
+const Page = () => {
+  return (
+    <ComponentA>
+      <ComponentB>
+        <ComponentC />
+      </ComponentB>
+    </ComponentA>
+  );
+};
+
+export default withFeatureBoundary(Page);
+```
+
+We want to do this:
+
+```tsx
+const ComponentNeedsFeatures = withFeatureBoundary(ComponentC);
+
+const Page = () => {
+  return (
+    <ComponentA>
+      <ComponentB>
+        <ComponentNeedsFeatures />
+      </ComponentB>
+    </ComponentA>
+  );
+};
+
+export default Page
+```
+
+## withExperiment HOC
+
+This HOC allows us to render component only when user has specific feature value eg. is in experiment without adding `useFeature` in component or parent directly. You can export or create an instance of any component with required experiment and then use it in other parts of the app.
+
+```tsx
+import { withExperiment } from '../withExperiment';
+
+const SourceSubscribeButton = () => {
+  return <button>Subscribe to source</button>;
+};
+
+const SourceSubscribeButtonExperiment = withExperiment(SourceSubscribeButton, {
+  feature: feature.sourceSubscribe,
+  value: SourceSubscribeExperiment.V1,
+});
+
+export { SourceSubscribeButtonExperiment as SourceSubscribeButton };
+```
+
+This allows easier targeting and usage of features only when the component actually gets rendered for the first time (which is recommended for most of our experiments). In that case, we also avoid allocating users too early by using `useFeature` in the parent component.
+
+When the experiment concludes we just remove the HOC from component export and that's it.
+
+```tsx
+export const SourceSubscribeButton = () => {
+  return <button>Subscribe to source</button>;
+};
+```
