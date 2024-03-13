@@ -22,7 +22,7 @@ import {
   updateCachedPagePost,
 } from '../lib/query';
 import { getShouldRefreshFeed } from '../lib/refreshFeed';
-import { marketingCta } from '../components/cards/MarketingCta/common';
+import { MarketingCta } from '../components/cards/MarketingCta/common';
 
 export type PostItem = {
   type: 'post';
@@ -35,7 +35,7 @@ export type PlaceholderItem = { type: 'placeholder' };
 export type UserAcquisitionItem = { type: 'userAcquisition' };
 export type MarketingCtaItem = {
   type: 'marketingCta';
-  marketingCta: marketingCta;
+  marketingCta: MarketingCta;
 };
 export type FeedItem =
   | PostItem
