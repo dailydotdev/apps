@@ -43,7 +43,7 @@ export function NavDrawer({
       {...otherDrawerProps}
       closeOnOutsideClick={false}
       displayCloseButton={displayCloseButton}
-      isFullScreen={true}
+      isFullScreen
       position={position ?? DrawerPosition.Left}
       ref={ref}
       role="menu"
