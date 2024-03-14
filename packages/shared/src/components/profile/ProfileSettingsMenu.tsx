@@ -25,11 +25,13 @@ import {
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { LazyModalType } from '../modals/common';
+import { anchorDefaultRel } from '../../lib/strings';
+import { NavItemProps } from '../drawers/NavDrawerItem';
 
 const createMenuItems = (
   logout: () => Promise<void>,
   openModal: (data: LazyModalType<LazyModal>) => void,
-) => {
+): NavItemProps[] => {
   return [
     {
       label: 'Profile',
@@ -77,7 +79,13 @@ const createMenuItems = (
       label: 'Support',
       isHeader: true,
     },
-    { label: 'Docs', icon: <DocsIcon />, href: docs, target: '_blank' },
+    {
+      label: 'Docs',
+      icon: <DocsIcon />,
+      href: docs,
+      target: '_blank',
+      rel: anchorDefaultRel,
+    },
     {
       label: 'Changelog',
       icon: <TerminalIcon />,
@@ -88,18 +96,21 @@ const createMenuItems = (
       icon: <FeedbackIcon />,
       href: feedback,
       target: '_blank',
+      rel: anchorDefaultRel,
     },
     {
       label: 'Privacy policy',
       icon: <DocsIcon />,
       href: privacyPolicy,
       target: '_blank',
+      rel: anchorDefaultRel,
     },
     {
       label: 'Terms of service',
       icon: <HammerIcon />,
       href: termsOfService,
       target: '_blank',
+      rel: anchorDefaultRel,
     },
   ];
 };

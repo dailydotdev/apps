@@ -4,7 +4,10 @@ import { Button, ButtonProps, ButtonVariant } from '../buttons/Button';
 import ConditionalWrapper from '../ConditionalWrapper';
 
 export interface NavItemProps
-  extends Pick<ButtonProps<'a'>, 'href' | 'icon' | 'onClick' | 'target'> {
+  extends Pick<
+    ButtonProps<'a'>,
+    'href' | 'icon' | 'onClick' | 'target' | 'rel'
+  > {
   label: string;
   isHeader?: boolean;
 }
@@ -16,11 +19,10 @@ const NavDrawerHeaderItem = ({ label }: { label: string }): ReactElement => (
 );
 
 export function NavDrawerItem({
-  icon,
   isHeader = false,
   href,
   label,
-  onClick,
+  ...rest
 }: NavItemProps): ReactElement {
   if (isHeader) {
     return <NavDrawerHeaderItem label={label} />;
@@ -34,11 +36,10 @@ export function NavDrawerItem({
       <Button
         role="menuitem"
         type="button"
-        icon={icon}
-        onClick={onClick}
         href={href}
         tag={href ? 'a' : 'button'}
         variant={ButtonVariant.Option}
+        {...rest}
       >
         {label}
       </Button>
