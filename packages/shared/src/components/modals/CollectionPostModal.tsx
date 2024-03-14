@@ -8,6 +8,7 @@ import OnboardingContext from '../../contexts/OnboardingContext';
 import { Post, PostType } from '../../graphql/posts';
 import { PassedPostNavigationProps } from '../post/common';
 import { CollectionPostContent } from '../post/collection';
+import usePostById from '../../hooks/usePostById';
 
 interface CollectionPostModalProps
   extends ModalProps,
@@ -28,8 +29,9 @@ export default function CollectionPostModal({
   ...props
 }: CollectionPostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
+  const { isLoading } = usePostById({ id });
   const position = usePostNavigationPosition({
-    isLoading: false,
+    isLoading,
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });

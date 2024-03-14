@@ -10,6 +10,7 @@ import { PassedPostNavigationProps } from '../post/common';
 import { Post, PostType } from '../../graphql/posts';
 import EnableNotification from '../notifications/EnableNotification';
 import { isSourcePublicSquad } from '../../graphql/squads';
+import usePostById from '../../hooks/usePostById';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
@@ -28,8 +29,9 @@ export default function PostModal({
   ...props
 }: PostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
+  const { isLoading } = usePostById({ id });
   const position = usePostNavigationPosition({
-    isLoading: false,
+    isLoading,
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
