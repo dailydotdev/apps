@@ -18,6 +18,10 @@ function ShareYouTubeContent({
   post,
   onReadArticle,
 }: ShareYouTubeContentProps): ReactElement {
+  if (!post.sharedPost) {
+    return <></>;
+  }
+
   const isUnknownSource = post.sharedPost.source.id === 'unknown';
 
   return (
