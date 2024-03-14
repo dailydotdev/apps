@@ -32,6 +32,7 @@ const containerClassName: Record<NotificationPromptSource, string> = {
   [NotificationPromptSource.SquadPostModal]:
     'laptop:rounded-16 laptop:rounded-bl-[0] laptop:rounded-br-[0]',
   [NotificationPromptSource.SquadChecklist]: '',
+  [NotificationPromptSource.SourceSubscribe]: 'w-full px-3 !pt-0 !pb-2',
 };
 
 const sourceRenderTextCloseButton: Record<NotificationPromptSource, boolean> = {
@@ -44,6 +45,7 @@ const sourceRenderTextCloseButton: Record<NotificationPromptSource, boolean> = {
   [NotificationPromptSource.SquadPostModal]: false,
   [NotificationPromptSource.NotificationItem]: false,
   [NotificationPromptSource.SquadChecklist]: false,
+  [NotificationPromptSource.SourceSubscribe]: true,
 };
 
 function EnableNotification({
@@ -73,6 +75,7 @@ function EnableNotification({
     [NotificationPromptSource.SquadPostCommentary]: '',
     [NotificationPromptSource.SquadPage]: `Get notified whenever something important happens on ${contentName}.`,
     [NotificationPromptSource.SquadChecklist]: '',
+    [NotificationPromptSource.SourceSubscribe]: `Get notified whenever there are new posts from ${contentName}`,
   };
   const message = sourceToMessage[source];
   const classes = containerClassName[source];
@@ -117,22 +120,40 @@ function EnableNotification({
           }`}
         </span>
       )}
-      <p className="mt-2 w-full text-theme-label-tertiary tablet:w-3/5">
-        {acceptedJustNow ? (
-          <>
-            Changing your{' '}
-            <a
-              className="underline hover:no-underline"
-              href={`${webappUrl}account/notifications`}
-            >
-              notification settings
-            </a>{' '}
-            can be done anytime through your account details
-          </>
-        ) : (
-          message
+      <div className="mt-2 flex justify-between gap-2">
+        <p
+          className={classNames(
+            'w-full text-theme-label-tertiary tablet:w-3/5',
+            source === NotificationPromptSource.SourceSubscribe && 'flex-1',
+          )}
+        >
+          {acceptedJustNow ? (
+            <>
+              Changing your{' '}
+              <a
+                className="underline hover:no-underline"
+                href={`${webappUrl}account/notifications`}
+              >
+                notification settings
+              </a>{' '}
+              can be done anytime through your account details
+            </>
+          ) : (
+            message
+          )}
+        </p>
+        {source === NotificationPromptSource.SourceSubscribe && (
+          <img
+            className={classNames('h-16 w-auto')}
+            src={
+              acceptedJustNow
+                ? cloudinary.notifications.browser_enabled
+                : cloudinary.notifications.browser
+            }
+            alt="A sample browser notification"
+          />
         )}
-      </p>
+      </div>
       <div className="align-center mt-4 flex">
         {!acceptedJustNow && (
           <Button
@@ -142,7 +163,9 @@ function EnableNotification({
             className="mr-4"
             onClick={onEnable}
           >
-            Enable notifications
+            {source === NotificationPromptSource.SourceSubscribe
+              ? 'Enable'
+              : 'Enable notifications'}
           </Button>
         )}
         {showTextCloseButton && (
@@ -155,18 +178,20 @@ function EnableNotification({
           </Button>
         )}
       </div>
-      <img
-        className={classNames(
-          'absolute -bottom-2 hidden w-[7.5rem] tablet:flex',
-          acceptedJustNow ? 'right-14' : 'right-4',
-        )}
-        src={
-          acceptedJustNow
-            ? cloudinary.notifications.browser_enabled
-            : cloudinary.notifications.browser
-        }
-        alt="A sample browser notification"
-      />
+      {source !== NotificationPromptSource.SourceSubscribe && (
+        <img
+          className={classNames(
+            'absolute -bottom-2 hidden w-[7.5rem] tablet:flex',
+            acceptedJustNow ? 'right-14' : 'right-4',
+          )}
+          src={
+            acceptedJustNow
+              ? cloudinary.notifications.browser_enabled
+              : cloudinary.notifications.browser
+          }
+          alt="A sample browser notification"
+        />
+      )}
       {!showTextCloseButton && (
         <CloseButton
           size={ButtonSize.XSmall}

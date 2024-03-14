@@ -17,6 +17,9 @@ import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SourceSubscribeExperiment } from '../../lib/featureValues';
 import useFeedSettings from '../../hooks/useFeedSettings';
+import EnableNotification from '../notifications/EnableNotification';
+import { NotificationPromptSource } from '../../lib/analytics';
+import { withExperiment } from '../withExperiment';
 
 interface PostAuthorProps {
   post: Post;
@@ -185,12 +188,21 @@ const UserHighlight = (props: SourceAuthorProps) => {
   );
 };
 
+const EnableNotificationWithExperiment = withExperiment(EnableNotification, {
+  feature: feature.sourceSubscribe,
+  value: SourceSubscribeExperiment.V1,
+});
+
 export function PostUsersHighlights({ post }: PostAuthorProps): ReactElement {
   const { author, scout, source } = post;
 
   return (
     <WidgetContainer className="flex flex-col">
       <UserHighlight {...source} userType={UserType.Source} />
+      <EnableNotificationWithExperiment
+        source={NotificationPromptSource.SourceSubscribe}
+        contentName={source.name}
+      />
       {author && <UserHighlight {...author} userType={UserType.Author} />}
       {scout && <UserHighlight {...scout} userType={UserType.Scout} />}
     </WidgetContainer>
