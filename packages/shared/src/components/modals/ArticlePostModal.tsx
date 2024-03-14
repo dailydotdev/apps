@@ -7,7 +7,6 @@ import BasePostModal from './BasePostModal';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import { Post, PostType } from '../../graphql/posts';
 import { PassedPostNavigationProps } from '../post/common';
-import usePostById from '../../hooks/usePostById';
 
 interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
@@ -26,9 +25,7 @@ export default function ArticlePostModal({
   ...props
 }: ArticlePostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
-  const { isLoading } = usePostById({ id });
-  const position = usePostNavigationPosition({
-    isLoading,
+  const { position, onLoad } = usePostNavigationPosition({
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
@@ -36,6 +33,7 @@ export default function ArticlePostModal({
   return (
     <BasePostModal
       {...props}
+      onAfterOpen={onLoad}
       onRequestClose={onRequestClose}
       postType={PostType.Article}
       source={post.source}
