@@ -2,8 +2,9 @@ import React, { ReactElement } from 'react';
 import { Modal, ModalProps } from '../common/Modal';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import PromotionTour from '../../squads/PromotionTour';
-import { useSquad } from '../../../hooks';
+import { useSquad, useViewSize, ViewSize } from '../../../hooks';
 import { ModalClose } from '../common/ModalClose';
+import { Drawer } from '../../drawers';
 
 interface SquadPromotionModalProps extends ModalProps {
   handle: string;
@@ -15,9 +16,23 @@ export function SquadPromotionModal({
   ...props
 }: SquadPromotionModalProps): ReactElement {
   const { squad, isFetched } = useSquad({ handle });
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   if (!isFetched) {
     return null;
+  }
+
+  if (isMobile) {
+    return (
+      <Drawer
+        isOpen
+        displayCloseButton
+        onClose={() => onRequestClose(null)}
+        className={{ drawer: 'pb-4' }}
+      >
+        <PromotionTour onClose={onRequestClose} source={squad} />
+      </Drawer>
+    );
   }
 
   return (

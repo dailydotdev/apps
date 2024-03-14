@@ -13,6 +13,7 @@ import { ProfilePicture } from '../ProfilePicture';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { IconSize } from '../Icon';
 import SourceButton from '../cards/SourceButton';
+import { useViewSize, ViewSize } from '../../hooks';
 
 interface PromotionTourProps {
   onClose: React.EventHandler<React.MouseEvent>;
@@ -57,6 +58,7 @@ const firstStep = {
 
 function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
   const { user } = useAuthContext();
+  const isMobile = useViewSize(ViewSize.MobileL);
   const items = useMemo(() => {
     const { role } = source.currentMember;
     const tour = [];
@@ -134,24 +136,28 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
       onClose={() => onClose?.(null)}
       onEnd={() => onClose?.(null)}
     >
-      {({ onSwipedLeft, onSwipedRight, index }, indicator) => (
-        <ModalFooter justify={Justify.Between}>
-          <FooterButton
-            variant={ButtonVariant.Tertiary}
-            onClick={(e) => onSwipedRight(e)}
-          >
-            {index === 0 ? 'Close' : 'Back'}
-          </FooterButton>
-          {indicator}
-          <FooterButton
-            variant={ButtonVariant.Primary}
-            color={ButtonColor.Cabbage}
-            onClick={(e) => onSwipedLeft(e)}
-          >
-            {index === items.length - 1 ? 'Close' : 'Next'}
-          </FooterButton>
-        </ModalFooter>
-      )}
+      {({ onSwipedLeft, onSwipedRight, index }, indicator) =>
+        isMobile ? (
+          <span className="mb-3 flex w-full justify-center">{indicator}</span>
+        ) : (
+          <ModalFooter justify={Justify.Between}>
+            <FooterButton
+              variant={ButtonVariant.Tertiary}
+              onClick={(e) => onSwipedRight(e)}
+            >
+              {index === 0 ? 'Close' : 'Back'}
+            </FooterButton>
+            {indicator}
+            <FooterButton
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Cabbage}
+              onClick={(e) => onSwipedLeft(e)}
+            >
+              {index === items.length - 1 ? 'Close' : 'Next'}
+            </FooterButton>
+          </ModalFooter>
+        )
+      }
     </Carousel>
   );
 }
