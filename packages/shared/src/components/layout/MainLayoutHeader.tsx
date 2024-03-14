@@ -146,7 +146,7 @@ function MainLayoutHeader({
         {!isStreaksEnabled &&
           !sidebarRendered &&
           !optOutWeeklyGoal &&
-          !isMobile && <MobileHeaderRankProgress />}
+          isMobile && <MobileHeaderRankProgress />}
       </div>
     );
   };
