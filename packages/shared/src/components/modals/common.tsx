@@ -165,7 +165,3 @@ export type LazyModalType<T extends keyof ModalsType> = {
         props: LazyModalComponentType<K>;
       };
 }[T];
-
-export type PopupCloseEvent = (
-  e: MouseEvent | KeyboardEvent | MessageEvent,
-) => void;

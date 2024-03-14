@@ -14,6 +14,10 @@ import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import { ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 
+export type PopupEventType = MouseEvent | KeyboardEvent | MessageEvent;
+
+export type PopupCloseEvent = (e: PopupEventType) => void;
+
 export enum DrawerPosition {
   Bottom = 'bottom',
   Top = 'top',
@@ -32,7 +36,7 @@ interface DrawerProps
   closeOnOutsideClick?: boolean;
   isClosing?: boolean;
   title?: string;
-  onClose(): void;
+  onClose(e: MouseEvent | KeyboardEvent | MessageEvent): void;
   displayCloseButton?: boolean;
 }
 
@@ -111,7 +115,7 @@ function BaseDrawer({
             <Button
               variant={ButtonVariant.Float}
               className="mt-3 w-full"
-              onClick={onClose}
+              onClick={(e) => onClose(e.nativeEvent)}
             >
               Close
             </Button>
@@ -137,9 +141,9 @@ function AnimatedDrawer(
   ref: MutableRefObject<DrawerRef>,
 ): ReactElement {
   const [isClosing, setIsClosing] = useState(false);
-  const [debounceClosing] = useDebounce(() => {
+  const [debounceClosing] = useDebounce((e: PopupEventType) => {
     setIsClosing(false);
-    onClose?.();
+    onClose?.(e);
   }, ANIMATION_MS);
 
   const onClosing = () => {

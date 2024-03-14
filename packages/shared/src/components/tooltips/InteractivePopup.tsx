@@ -7,7 +7,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { MiniCloseIcon as CloseIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
-import { PopupCloseEvent } from '../modals/common';
+import { PopupCloseEvent } from '../drawers';
 
 export enum InteractivePopupPosition {
   Center = 'center',

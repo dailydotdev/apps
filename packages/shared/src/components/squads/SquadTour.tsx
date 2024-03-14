@@ -7,7 +7,7 @@ import { ModalFooter } from '../modals/common/ModalFooter';
 import SquadTourCard from './SquadTourCard';
 import classed from '../../lib/classed';
 import { useSquadTour } from '../../hooks/useSquadTour';
-import { PopupCloseEvent } from '../modals/common';
+import { PopupCloseEvent } from '../drawers';
 import { useViewSize, ViewSize } from '../../hooks';
 
 interface SquadTourProps {

@@ -28,7 +28,6 @@ export interface ModalProps extends ReactModal.Props {
   onViewChange?: (view: string) => void;
   onTrackNext?: AnalyticsEvent;
   onTrackPrev?: AnalyticsEvent;
-  isDrawerOnMobile?: boolean;
 }
 
 export type LazyModalCommonProps = Pick<
@@ -88,7 +87,6 @@ export function Modal({
   onRequestClose,
   tabs,
   steps,
-  isDrawerOnMobile,
   ...props
 }: ModalProps): ReactElement {
   const stepTitle = steps ? steps?.[0].key : undefined;

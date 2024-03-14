@@ -4,8 +4,7 @@ import { useSquadTour } from '../../hooks/useSquadTour';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
-import { PopupCloseEvent } from './common';
-import { Drawer } from '../drawers';
+import { Drawer, PopupCloseEvent } from '../drawers';
 import { useViewSize, ViewSize } from '../../hooks';
 
 interface SquadTourPopupProps {
