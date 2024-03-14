@@ -1,5 +1,4 @@
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
-import { sanitize } from 'dompurify';
 import classNames from 'classnames';
 import styles from './markdown.module.css';
 import { ProfileTooltip } from './profile/ProfileTooltip';
