@@ -20,6 +20,7 @@ import useFeedSettings from '../../hooks/useFeedSettings';
 import EnableNotification from '../notifications/EnableNotification';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { withExperiment } from '../withExperiment';
+import { useSourceSubscription } from '../../hooks';
 
 interface PostAuthorProps {
   post: Post;
@@ -193,16 +194,32 @@ const EnableNotificationWithExperiment = withExperiment(EnableNotification, {
   value: SourceSubscribeExperiment.V1,
 });
 
+const EnableNotificationSourceSubscribe = ({
+  source,
+}: Pick<Post, 'source'>) => {
+  const { isSubscribed } = useSourceSubscription({
+    source,
+  });
+
+  if (!isSubscribed) {
+    return null;
+  }
+
+  return (
+    <EnableNotificationWithExperiment
+      source={NotificationPromptSource.SourceSubscribe}
+      contentName={source.name}
+    />
+  );
+};
+
 export function PostUsersHighlights({ post }: PostAuthorProps): ReactElement {
   const { author, scout, source } = post;
 
   return (
     <WidgetContainer className="flex flex-col">
       <UserHighlight {...source} userType={UserType.Source} />
-      <EnableNotificationWithExperiment
-        source={NotificationPromptSource.SourceSubscribe}
-        contentName={source.name}
-      />
+      <EnableNotificationSourceSubscribe source={source} />
       {author && <UserHighlight {...author} userType={UserType.Author} />}
       {scout && <UserHighlight {...scout} userType={UserType.Scout} />}
     </WidgetContainer>
