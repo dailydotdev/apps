@@ -17,7 +17,6 @@ import classed from '../../../lib/classed';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
 import { AnalyticsEvent } from '../../../lib/analytics';
 import { useViewSize, ViewSize } from '../../../hooks';
-import { Drawer } from '../../drawers';
 
 export interface ModalProps extends ReactModal.Props {
   children?: React.ReactNode;
@@ -104,14 +103,6 @@ export function Modal({
     }
     setView(view);
   };
-
-  if (isMobile && isDrawerOnMobile) {
-    return (
-      <Drawer isOpen onClose={() => onRequestClose(null)}>
-        {children}
-      </Drawer>
-    );
-  }
 
   const modalOverlayClassName = classNames(
     'overlay fixed inset-0 z-modal flex flex-col items-center bg-overlay-quaternary-onion',
