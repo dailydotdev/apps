@@ -10,7 +10,6 @@ import { PassedPostNavigationProps } from '../post/common';
 import { Post, PostType } from '../../graphql/posts';
 import EnableNotification from '../notifications/EnableNotification';
 import { isSourcePublicSquad } from '../../graphql/squads';
-import usePostById from '../../hooks/usePostById';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;

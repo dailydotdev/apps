@@ -8,7 +8,6 @@ import OnboardingContext from '../../contexts/OnboardingContext';
 import { Post, PostType } from '../../graphql/posts';
 import { PassedPostNavigationProps } from '../post/common';
 import { CollectionPostContent } from '../post/collection';
-import usePostById from '../../hooks/usePostById';
 
 interface CollectionPostModalProps
   extends ModalProps,
