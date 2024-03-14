@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useRef } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { Modal, ModalProps, modalSizeToClassName } from './common/Modal';
 import { ONBOARDING_OFFSET, PostContent } from '../post/PostContent';
 import { Origin } from '../../lib/analytics';
