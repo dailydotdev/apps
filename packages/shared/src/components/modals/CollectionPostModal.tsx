@@ -29,9 +29,9 @@ export default function CollectionPostModal({
   ...props
 }: CollectionPostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
-  const { isPostLoadingOrFetching } = usePostById({ id });
+  const { isLoading } = usePostById({ id });
   const position = usePostNavigationPosition({
-    isLoading: isPostLoadingOrFetching,
+    isLoading,
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
