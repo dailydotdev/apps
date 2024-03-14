@@ -40,7 +40,7 @@ interface DrawerProps
   isFullScreen?: boolean;
   isClosing?: boolean;
   title?: string;
-  onClose(e: MouseEvent | KeyboardEvent | MessageEvent): void;
+  onClose: PopupCloseEvent;
   displayCloseButton?: boolean;
 }
 
