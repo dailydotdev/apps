@@ -26,8 +26,6 @@ import { MenuItemProps } from '../fields/PortalMenu';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { Origin } from '../../lib/analytics';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
-import SquadTourPopup from '../modals/SquadTourPopup';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -66,7 +64,6 @@ export default function SquadHeaderMenu({
       router.replace('/');
     },
   });
-  const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
 
   const items = useMemo(() => {
     const canEditSquad = verifyPermission(squad, SourcePermissions.Edit);
@@ -92,7 +89,7 @@ export default function SquadHeaderMenu({
 
     list.push({
       icon: <ContextMenuIcon Icon={TourIcon} />,
-      action: () => onUpdate(true),
+      action: () => openModal({ type: LazyModal.SquadTour }),
       label: 'Learn how Squads work',
     });
 
@@ -140,18 +137,15 @@ export default function SquadHeaderMenu({
   ]);
 
   return (
-    <>
-      <PortalMenu
-        disableBoundariesCheck
-        id="squad-menu-context"
-        className="menu-primary"
-        animation="fade"
-      >
-        {items.map((props) => (
-          <ContextMenuItem key={props.label} {...props} />
-        ))}
-      </PortalMenu>
-      {isOpen && <SquadTourPopup onClose={() => onUpdate(false)} />}
-    </>
+    <PortalMenu
+      disableBoundariesCheck
+      id="squad-menu-context"
+      className="menu-primary"
+      animation="fade"
+    >
+      {items.map((props) => (
+        <ContextMenuItem key={props.label} {...props} />
+      ))}
+    </PortalMenu>
   );
 }

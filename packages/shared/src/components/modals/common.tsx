@@ -13,6 +13,9 @@ const UpvotedPopupModal = dynamic(
   () =>
     import(/* webpackChunkName: "upvotedPopupModal" */ './UpvotedPopupModal'),
 );
+const SquadTourModal = dynamic(
+  () => import(/* webpackChunkName: "squadTourModal" */ './SquadTourModal'),
+);
 const SquadPromotionModal = dynamic(
   () =>
     import(
@@ -108,6 +111,7 @@ const ReputationPrivilegesModal = dynamic(
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
+  [LazyModal.SquadTour]: SquadTourModal,
   [LazyModal.ReadingHistory]: ReadingHistoryModal,
   [LazyModal.SquadPromotion]: SquadPromotionModal,
   [LazyModal.CreateSharedPost]: CreateSharedPostModal,
