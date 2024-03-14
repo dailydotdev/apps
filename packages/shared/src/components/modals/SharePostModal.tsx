@@ -29,9 +29,7 @@ export default function PostModal({
   ...props
 }: PostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
-  const { isLoading } = usePostById({ id });
-  const position = usePostNavigationPosition({
-    isLoading,
+  const { position, onLoad } = usePostNavigationPosition({
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
@@ -40,6 +38,7 @@ export default function PostModal({
   return (
     <BasePostModal
       {...props}
+      onAfterOpen={onLoad}
       size={isPublicSquad ? Modal.Size.XLarge : Modal.Size.Large}
       onRequestClose={onRequestClose}
       postType={PostType.Share}

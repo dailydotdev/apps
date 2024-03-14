@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import { Modal, ModalProps, modalSizeToClassName } from './common/Modal';
 import { ONBOARDING_OFFSET, PostContent } from '../post/PostContent';
 import { Origin } from '../../lib/analytics';
@@ -26,9 +26,7 @@ export default function ArticlePostModal({
   ...props
 }: ArticlePostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
-  const { isLoading } = usePostById({ id });
-  const position = usePostNavigationPosition({
-    isLoading,
+  const { position, onLoad } = usePostNavigationPosition({
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
@@ -36,6 +34,7 @@ export default function ArticlePostModal({
   return (
     <BasePostModal
       {...props}
+      onAfterOpen={onLoad}
       onRequestClose={onRequestClose}
       postType={PostType.Article}
       source={post.source}
