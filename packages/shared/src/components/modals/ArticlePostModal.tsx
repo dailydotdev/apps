@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useRef } from 'react';
 import { Modal, ModalProps, modalSizeToClassName } from './common/Modal';
 import { ONBOARDING_OFFSET, PostContent } from '../post/PostContent';
 import { Origin } from '../../lib/analytics';
@@ -7,6 +7,7 @@ import BasePostModal from './BasePostModal';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import { Post, PostType } from '../../graphql/posts';
 import { PassedPostNavigationProps } from '../post/common';
+import usePostById from '../../hooks/usePostById';
 
 interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
@@ -25,8 +26,9 @@ export default function ArticlePostModal({
   ...props
 }: ArticlePostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
+  const { isPostLoadingOrFetching } = usePostById({ id });
   const position = usePostNavigationPosition({
-    isLoading: false,
+    isLoading: isPostLoadingOrFetching,
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
