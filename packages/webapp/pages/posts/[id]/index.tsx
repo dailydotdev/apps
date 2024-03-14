@@ -57,6 +57,7 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import LoginButton from '@dailydotdev/shared/src/components/LoginButton';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import {
@@ -95,8 +96,10 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
   const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = router;
+  const { shouldShowLogin } = useAuthContext();
   const { shouldShowAuthBanner } = useOnboarding();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isTablet = useViewSize(ViewSize.Tablet);
   const { post, isError, isFetched, isPostLoadingOrFetching } = usePostById({
     id,
     options: { initialData, retry: false },
@@ -222,17 +225,19 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     {},
     {
       screenCentered: false,
-      customBanner: shouldShowAuthBanner && !isLaptop && (
-        <LoginButton
-          className={{
-            container: classNames(
-              authGradientBg,
-              'sticky left-0 top-0 z-max w-full justify-center gap-2 border-b border-theme-color-cabbage px-4 py-2',
-            ),
-            button: 'flex-1 tablet:max-w-[9rem]',
-          }}
-        />
-      ),
+      customBanner: shouldShowAuthBanner &&
+        !isLaptop &&
+        (isTablet || !shouldShowLogin) && (
+          <LoginButton
+            className={{
+              container: classNames(
+                authGradientBg,
+                'sticky left-0 top-0 z-max w-full justify-center gap-2 border-b border-theme-color-cabbage px-4 py-2',
+              ),
+              button: 'flex-1 tablet:max-w-[9rem]',
+            }}
+          />
+        ),
     },
   ) as ReactElement;
 };
