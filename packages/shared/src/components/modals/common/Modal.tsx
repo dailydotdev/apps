@@ -123,7 +123,7 @@ export function Modal({
     'modal relative flex max-w-full flex-col items-center border border-theme-divider-secondary bg-accent-pepper-subtlest antialiased shadow-2 focus:outline-none',
     'h-full tablet:h-auto tablet:rounded-16',
     modalKindToClassName[kind],
-    modalSizeToClassName[size],
+    isMobile ? 'w-full' : modalSizeToClassName[size],
     modalKindAndSizeToClassName[kind]?.[size],
     className,
   );
