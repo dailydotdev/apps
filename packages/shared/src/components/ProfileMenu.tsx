@@ -22,6 +22,7 @@ import { reputation, webappUrl } from '../lib/constants';
 import { UserMetadata } from './profile/UserMetadata';
 import { HeroImage } from './profile/HeroImage';
 import { anchorDefaultRel } from '../lib/strings';
+import { LogoutReason } from '../lib/user';
 
 interface ListItem {
   title: string;
@@ -84,7 +85,7 @@ export default function ProfileMenu({
         title: 'Logout',
         buttonProps: {
           icon: <PowerIcon />,
-          onClick: () => logout('manual logout'),
+          onClick: () => logout(LogoutReason.ManualLogout),
         },
       },
     ];

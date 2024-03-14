@@ -197,3 +197,8 @@ export async function getProfileV2ExtraSSR(
 export enum ReferralOriginKey {
   Squad = 'squad',
 }
+
+export enum LogoutReason {
+  ManualLogout = 'manual logout',
+  KratosSessionAlreadyAvailable = `kratos session already available`,
+}
