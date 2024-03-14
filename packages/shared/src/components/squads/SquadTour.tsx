@@ -26,7 +26,22 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
   const [shouldShowCarousel, setShouldShowCarousel] = useState(false);
   const { onTourIndexChange } = useSquadTour();
 
-  if (!shouldShowCarousel && !isMobile) {
+  if (!shouldShowCarousel) {
+    const start = (
+      <FooterButton
+        className={isMobile ? 'w-full' : 'ml-auto'}
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Cabbage}
+        onClick={(e) => {
+          e.stopPropagation();
+          onTourIndexChange(0);
+          setShouldShowCarousel(true);
+        }}
+      >
+        Start
+      </FooterButton>
+    );
+
     return (
       <>
         <SquadTourCard
@@ -35,25 +50,19 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
           title="Let's see what you can do with Squads!"
           className={{ container: 'h-[29.25rem]', banner: '!pt-0' }}
         />
-        <ModalFooter>
-          <FooterButton
-            variant={ButtonVariant.Tertiary}
-            onClick={(e) => onClose(e.nativeEvent)}
-          >
-            Close
-          </FooterButton>
-          <FooterButton
-            className="ml-auto"
-            variant={ButtonVariant.Primary}
-            color={ButtonColor.Cabbage}
-            onClick={() => {
-              onTourIndexChange(0);
-              setShouldShowCarousel(true);
-            }}
-          >
-            Start
-          </FooterButton>
-        </ModalFooter>
+        {isMobile ? (
+          <span className="px-4">{start}</span>
+        ) : (
+          <ModalFooter>
+            <FooterButton
+              variant={ButtonVariant.Tertiary}
+              onClick={(e) => onClose(e.nativeEvent)}
+            >
+              Close
+            </FooterButton>
+            {start}
+          </ModalFooter>
+        )}
       </>
     );
   }

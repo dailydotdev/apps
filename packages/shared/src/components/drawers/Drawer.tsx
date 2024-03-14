@@ -26,6 +26,7 @@ export enum DrawerPosition {
 interface ClassName {
   overlay?: string;
   drawer?: string;
+  close?: string;
 }
 
 interface DrawerProps
@@ -111,7 +112,12 @@ function BaseDrawer({
           {children}
         </ConditionalWrapper>
         {displayCloseButton && (
-          <div className="sticky -bottom-3 bg-background-default">
+          <div
+            className={classNames(
+              'sticky -bottom-3 bg-background-default',
+              className?.close,
+            )}
+          >
             <Button
               variant={ButtonVariant.Float}
               className="mt-3 w-full"

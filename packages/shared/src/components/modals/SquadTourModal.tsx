@@ -24,7 +24,7 @@ function SquadTourModal({
         isOpen
         displayCloseButton
         onClose={() => onModalClose(null)}
-        className={{ drawer: 'pb-4' }}
+        className={{ drawer: 'pb-4', close: 'mx-4' }}
       >
         <SquadTour onClose={() => onModalClose(null)} />
       </Drawer>
