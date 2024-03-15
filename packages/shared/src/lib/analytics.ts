@@ -210,6 +210,7 @@ export enum NotificationPromptSource {
   SquadPostCommentary = 'squad post commentary',
   SquadPostModal = 'squad post modal',
   SquadChecklist = 'squad checklist',
+  SourceSubscribe = 'source subscribe',
 }
 
 export enum ShortcutsSourceType {
