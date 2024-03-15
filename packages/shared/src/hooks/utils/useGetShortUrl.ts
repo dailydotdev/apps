@@ -78,6 +78,7 @@ export const useGetShortUrl = ({
     () => queryShortUrl(trackedUrl),
     {
       ...disabledRefetch,
+      staleTime: Infinity,
       enabled: !!query?.url && isEnabled && !!user,
     },
   );
