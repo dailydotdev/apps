@@ -11,7 +11,6 @@ import SquadPostAuthor from './SquadPostAuthor';
 import SharePostContent from './SharePostContent';
 import MarkdownPostContent from './MarkdownPostContent';
 import { SquadPostWidgets } from './SquadPostWidgets';
-import { isSourcePublicSquad } from '../../graphql/squads';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { PostContentProps, PostNavigationProps } from './common';
 import ShareYouTubeContent from './ShareYouTubeContent';
@@ -50,7 +49,6 @@ function SquadPostContent({
     source: post?.source,
     user: post?.author,
   });
-  const isPublicSquad = isSourcePublicSquad(post?.source);
 
   const navigationProps: PostNavigationProps = {
     post,
@@ -88,7 +86,7 @@ function SquadPostContent({
         className={classNames(
           'relative tablet:pb-0',
           className?.container,
-          isPublicSquad ? 'flex-1 flex-col tablet:flex-row' : '!pb-2',
+          'flex-1 flex-col tablet:flex-row',
         )}
         hasNavigation={hasNavigation}
       >
@@ -96,7 +94,7 @@ function SquadPostContent({
           className={classNames(
             'relative min-w-0 px-4 tablet:px-8',
             className?.content,
-            isPublicSquad && 'flex flex-1 flex-col',
+            'flex flex-1 flex-col',
           )}
         >
           <BasePostContent
@@ -104,10 +102,7 @@ function SquadPostContent({
               ...className,
               onboarding: classNames('mb-6', className?.onboarding),
               navigation: {
-                actions: classNames(
-                  'ml-auto',
-                  isPublicSquad && 'tablet:hidden',
-                ),
+                actions: classNames('ml-auto', 'tablet:hidden'),
                 container: classNames('mb-6 pt-6'),
               },
             }}
@@ -135,16 +130,14 @@ function SquadPostContent({
             <Content post={post} onReadArticle={onReadArticle} />
           </BasePostContent>
         </div>
-        {isPublicSquad && (
-          <SquadPostWidgets
-            onShare={onSharePost}
-            onReadArticle={onReadArticle}
-            post={post}
-            className="mb-6 border-l border-theme-divider-tertiary tablet:mb-0"
-            onClose={onClose}
-            origin={origin}
-          />
-        )}
+        <SquadPostWidgets
+          onShare={onSharePost}
+          onReadArticle={onReadArticle}
+          post={post}
+          className="mb-6 border-l border-theme-divider-tertiary tablet:mb-0"
+          onClose={onClose}
+          origin={origin}
+        />
       </PostContentContainer>
     </>
   );
