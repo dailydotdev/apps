@@ -206,5 +206,12 @@ export default function SquadMemberMenu({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [member]);
 
-  return <ContextMenu options={options} id="squad-member-menu-context" />;
+  return (
+    <ContextMenu
+      options={options}
+      drawerOptions={options}
+      isOpen={false}
+      id="squad-member-menu-context"
+    />
+  );
 }

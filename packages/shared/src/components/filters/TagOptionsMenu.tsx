@@ -37,6 +37,8 @@ export default function TagOptionsMenu({
       animation="fade"
       onHidden={onHidden}
       style={{ width: '7rem' }}
+      drawerOptions={[]}
+      isOpen={false}
     >
       {tag && (
         <Item>

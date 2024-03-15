@@ -3,18 +3,41 @@ import { Item, Menu, MenuProps } from '@dailydotdev/react-contexify';
 import { RootPortal } from '../tooltips/Portal';
 import ConditionalWrapper from '../ConditionalWrapper';
 import useContextMenu from '../../hooks/useContextMenu';
+import { useViewSize, ViewSize } from '../../hooks';
+import {
+  ContextMenuDrawer,
+  ContextMenuDrawerItem,
+} from '../drawers/ContextMenuDrawer';
 
 export default function PortalMenu({
   id,
   onHidden: onHiddenProps,
+  isOpen,
+  drawerOptions,
   ...props
-}: MenuProps): ReactElement {
+}: MenuProps & {
+  drawerOptions: ContextMenuDrawerItem[];
+  isOpen: boolean;
+}): ReactElement {
   const { onHide } = useContextMenu({ id: id?.toString() });
 
   const onHidden = () => {
     onHide();
     onHiddenProps?.();
   };
+
+  const isMobile = useViewSize(ViewSize.MobileL);
+
+  if (isMobile) {
+    return (
+      <RootPortal>
+        <ContextMenuDrawer
+          drawerProps={{ isOpen, onClose: onHidden, displayCloseButton: true }}
+          options={drawerOptions}
+        />
+      </RootPortal>
+    );
+  }
 
   return (
     <RootPortal>
@@ -36,6 +59,8 @@ export interface MenuItemProps<
 
 interface ContextMenuProps extends Omit<MenuProps, 'children'> {
   options: MenuItemProps[];
+  drawerOptions: ContextMenuDrawerItem[];
+  isOpen: boolean;
 }
 
 export const ContextMenu = ({
@@ -46,6 +71,7 @@ export const ContextMenu = ({
     disableBoundariesCheck
     className="menu-primary"
     animation="fade"
+    drawerOptions={options}
     {...props}
   >
     {options.map(({ label, icon, action, anchorProps }) => (

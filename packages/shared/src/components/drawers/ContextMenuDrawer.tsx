@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { Drawer, DrawerRef, DrawerWrapperProps } from './Drawer';
 import { SelectParams } from './common';
 
-interface ContextMenuDrawerItem {
+export interface ContextMenuDrawerItem {
   label: string;
   icon?: ReactNode;
   anchorProps?: React.AnchorHTMLAttributes<HTMLAnchorElement>;

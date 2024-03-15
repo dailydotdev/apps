@@ -478,6 +478,8 @@ export default function PostOptionsMenu({
       className="menu-primary"
       animation="fade"
       onHidden={onHidden}
+      drawerOptions={postOptions.map((o) => ({ ...o, label: o.label }))}
+      isOpen={false}
     >
       {postOptions.map(({ icon, label, action }) => (
         <Item key={label} className="typo-callout" onClick={action}>

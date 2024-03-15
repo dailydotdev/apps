@@ -122,6 +122,8 @@ export default function PostOptionsReadingHistoryMenu({
         className="menu-primary"
         animation="fade"
         onHidden={onHiddenMenu}
+        drawerOptions={[]}
+        isOpen={false}
       >
         <Item className="typo-callout" onClick={onShare}>
           <span className="flex w-full typo-callout">

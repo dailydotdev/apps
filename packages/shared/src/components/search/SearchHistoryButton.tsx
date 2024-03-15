@@ -105,6 +105,8 @@ export function SearchHistoryButton(): ReactElement {
       <ContextMenu
         id={contextMenuId}
         options={options}
+        drawerOptions={options}
+        isOpen={isMenuOpen}
         onHidden={() => setIsMenuOpen(false)}
       />
     </>

@@ -90,6 +90,8 @@ export const NotificationPreferenceMenu = ({
       className="menu-primary"
       animation="fade"
       onHidden={onClose}
+      drawerOptions={[]}
+      isOpen={false}
     >
       <Item className="w-64 py-1 typo-callout" onClick={onItemClick}>
         <span className="flex w-full flex-row items-center gap-1">

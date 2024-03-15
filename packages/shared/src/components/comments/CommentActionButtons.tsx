@@ -254,6 +254,8 @@ export default function CommentActionButtons({
         id={id}
         className="menu-primary typo-callout"
         animation="fade"
+        drawerOptions={commentOptions.map((o) => ({ ...o, label: o.label }))}
+        isOpen={false}
       >
         {commentOptions.map(({ label, action, icon }) => (
           <Item key={label} onClick={action}>

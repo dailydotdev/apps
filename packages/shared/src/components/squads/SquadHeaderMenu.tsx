@@ -145,6 +145,8 @@ export default function SquadHeaderMenu({
       id="squad-menu-context"
       className="menu-primary"
       animation="fade"
+      drawerOptions={items.map((item) => ({ ...item, label: item.label }))}
+      isOpen={false}
     >
       {items.map((props) => (
         <ContextMenuItem key={props.label} {...props} />

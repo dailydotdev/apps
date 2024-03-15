@@ -98,16 +98,16 @@ export default function ShareOptionsMenu({
 
   const isMobile = useViewSize(ViewSize.MobileL);
 
-  if (isMobile) {
-    return (
-      <RootPortal>
-        <ContextMenuDrawer
-          drawerProps={{ isOpen, onClose: onHidden, displayCloseButton: true }}
-          options={shareOptions.map((o) => ({ ...o, label: o.text }))}
-        />
-      </RootPortal>
-    );
-  }
+  // if (isMobile) {
+  //   return (
+  //     <RootPortal>
+  //       <ContextMenuDrawer
+  //         drawerProps={{ isOpen, onClose: onHidden, displayCloseButton: true }}
+  //         options={shareOptions.map((o) => ({ ...o, label: o.text }))}
+  //       />
+  //     </RootPortal>
+  //   );
+  // }
 
   return (
     <PortalMenu
@@ -119,6 +119,8 @@ export default function ShareOptionsMenu({
       )}
       animation="fade"
       onHidden={onHidden}
+      drawerOptions={shareOptions.map((o) => ({ ...o, label: o.text }))}
+      isOpen={isOpen}
     >
       {shareOptions.map(({ href, icon, text, action }) => (
         <Item key={text} className="w-64 py-1 typo-callout" onClick={action}>
