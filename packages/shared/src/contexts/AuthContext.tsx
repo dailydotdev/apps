@@ -11,6 +11,7 @@ import {
   deleteAccount,
   LoggedUser,
   logout as dispatchLogout,
+  LogoutReason,
 } from '../lib/user';
 import { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
@@ -44,7 +45,7 @@ export interface AuthContextData {
   showLogin: ({ trigger, options }: ShowLoginParams) => void;
   closeLogin: () => void;
   loginState?: LoginState;
-  logout: (reason?: string) => Promise<void>;
+  logout: (reason: string) => Promise<void>;
   updateUser: (user: LoggedUser) => Promise<void>;
   loadingUser?: boolean;
   isFetched?: boolean;
@@ -78,7 +79,7 @@ export const getQueryParams = (): Record<string, string> => {
 
 export const REGISTRATION_PATH = '/register';
 
-const logout = async (reason?: string): Promise<void> => {
+const logout = async (reason: string): Promise<void> => {
   await dispatchLogout(reason);
   const params = getQueryParams();
   if (params.redirect_uri) {
@@ -135,7 +136,7 @@ export const AuthContextProvider = ({
   const referralOrigin = user?.referralOrigin;
 
   if (firstLoad === true && endUser && !endUser?.infoConfirmed) {
-    logout();
+    logout(LogoutReason.IncomleteOnboarding);
   }
 
   if (isLegacyLogout && !loginState) {

@@ -96,7 +96,7 @@ interface BadRequestError extends BaseError {
 
 export type APIError = BaseError | BadRequestError;
 
-export async function logout(reason?: string): Promise<void> {
+export async function logout(reason: string): Promise<void> {
   const urlParams = reason ? `?${new URLSearchParams({ reason })}` : '';
   await fetch(`${apiUrl}/v1/users/logout${urlParams}`, {
     method: 'POST',
@@ -199,6 +199,7 @@ export enum ReferralOriginKey {
 }
 
 export enum LogoutReason {
+  IncomleteOnboarding = 'incomplete onboarding',
   ManualLogout = 'manual logout',
   KratosSessionAlreadyAvailable = `kratos session already available`,
 }
