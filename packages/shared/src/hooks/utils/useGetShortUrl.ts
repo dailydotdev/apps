@@ -69,7 +69,7 @@ export const useGetShortUrl = ({
     [isAuthReady, user, getProps, queryClient],
   );
 
-  const isEnabled = query.enabled ?? true;
+  const isEnabled = query?.enabled ?? true;
   const { queryKey, trackedUrl } = query
     ? getProps(query.url, query.cid)
     : { queryKey: [], trackedUrl: '' };
