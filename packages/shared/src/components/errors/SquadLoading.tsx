@@ -2,6 +2,7 @@ import React, { HTMLAttributes, ReactElement } from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { FlexRow } from '../utilities';
+import { Squad } from '../../graphql/sources';
 
 const PlaceholderElement = classed('div', 'bg-accent-pepper-subtlest');
 const RectangleElement = classed(PlaceholderElement, 'rounded-12');
@@ -26,20 +27,43 @@ const Actions = ({ className }: HTMLAttributes<HTMLDivElement>) => (
   </FlexRow>
 );
 
-function SquadLoading(): ReactElement {
+function SquadLoading({
+  squad,
+  sidebarRendered,
+}: {
+  squad: Pick<Squad, 'image' | 'description' | 'name' | 'public'>;
+  sidebarRendered: boolean;
+}): ReactElement {
   return (
-    <ColumnContainer className="max-h-page w-full overflow-hidden px-16 pt-7">
-      <FlexRow className="w-full">
+    <ColumnContainer className="relative max-h-page w-full overflow-hidden px-16 pt-7">
+      <div
+        className={classNames(
+          'squad-background-fade absolute top-0 z-0 h-full w-full',
+          sidebarRendered && '-left-full translate-x-[60%]',
+        )}
+      />
+      <FlexRow className="z-1 w-full">
         <ColumnContainer className="w-full laptop:w-auto">
-          <PlaceholderElement className="h-14 w-14 rounded-full tablet:h-24 tablet:w-24" />
-          <TitleDescription />
-          <TitleDescription className="mt-4 flex laptop:hidden" />
+          <PlaceholderElement className="h-16 w-16 rounded-full tablet:h-24 tablet:w-24" />
+          {squad?.description && (
+            <>
+              <TitleDescription />
+              <TitleDescription className="mt-4 flex laptop:hidden" />
+            </>
+          )}
         </ColumnContainer>
         <Actions className="ml-auto hidden laptop:flex" />
       </FlexRow>
-      <RectangleElement className="mt-8 h-16 w-full max-w-[10rem] laptop:mt-14 laptop:max-w-[38.5rem]" />
+      <RectangleElement className="mt-8 h-16 w-full max-w-[30.25rem] laptop:mt-6" />
       <Actions className="mt-8 flex laptop:hidden" />
-      <RectangleElement className="mt-8 h-96 w-full tablet:w-64 laptop:mt-16" />
+      <RectangleElement className="my-6 h-10 w-52 self-end" />
+      <div className="mx-auto w-full">
+        <div className="grid grid-cols-3 gap-8">
+          <RectangleElement className="h-96 w-full" />
+          <RectangleElement className="h-96 w-full" />
+          <RectangleElement className="h-96 w-full" />
+        </div>
+      </div>
     </ColumnContainer>
   );
 }
