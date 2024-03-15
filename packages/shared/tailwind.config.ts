@@ -13,6 +13,7 @@ import overlayColors from './tailwind/colors/overlay';
 import border from './tailwind/colors/border';
 import statusColors from './tailwind/colors/status';
 import text from './tailwind/colors/text';
+import blur from './tailwind/colors/blur';
 import shadow from './tailwind/colors/shadow';
 import overlay from './tailwind/overlay';
 
@@ -26,6 +27,7 @@ export default {
       },
       accent,
       background,
+      blur,
       brand,
       surface,
       action,

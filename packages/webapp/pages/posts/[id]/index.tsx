@@ -56,11 +56,12 @@ import {
 import LoginButton from '@dailydotdev/shared/src/components/LoginButton';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { getLayout } from '../../../components/layouts/MainLayout';
+import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
 import {
   getSeoDescription,
   PostSEOSchema,
 } from '../../../components/PostSEOSchema';
-import { getLayout } from '../../../components/layouts/MainLayout';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
@@ -209,7 +210,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   }
 
   return (
-    <>
+    <FooterNavBarLayout post={post}>
       <Head>
         <link rel="preload" as="image" href={post?.image} />
       </Head>
@@ -236,7 +237,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
         }}
       />
       {shouldShowAuthBanner && isLaptop && <AuthenticationBanner />}
-    </>
+    </FooterNavBarLayout>
   );
 };
 

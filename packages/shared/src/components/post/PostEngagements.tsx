@@ -110,7 +110,7 @@ function PostEngagements({
       />
       <PostContentShare post={post} />
       <NewComment
-        className={{ container: 'my-6' }}
+        className={{ container: 'mt-6 hidden tablet:flex' }}
         post={post}
         ref={commentRef}
         onCommented={onCommented}

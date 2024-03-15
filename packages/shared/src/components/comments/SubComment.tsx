@@ -1,12 +1,10 @@
 import React, { ReactElement } from 'react';
 import { Comment } from '../../graphql/comments';
 import CommentBox, { CommentBoxProps } from './CommentBox';
-import {
-  CommentMarkdownInput,
-  CommentMarkdownInputProps,
-} from '../fields/MarkdownInput/CommentMarkdownInput';
+import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
 import { useCommentEdit } from '../../hooks/post/useCommentEdit';
+import CommentInputOrModal from './CommentInputOrModal';
 
 export interface SubCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
@@ -55,25 +53,27 @@ function SubComment({
         </CommentBox>
       )}
       {editProps && (
-        <CommentMarkdownInput
+        <CommentInputOrModal
           {...editProps}
           post={props.post}
           onCommented={(data, isNew) => {
             onEdit(null);
             onCommented(data, isNew);
           }}
-          className={className}
+          onClose={() => onEdit(null)}
+          className={{ input: className }}
         />
       )}
       {commentId === comment.id && (
-        <CommentMarkdownInput
+        <CommentInputOrModal
           {...inputProps}
-          className={className}
+          className={{ input: className }}
           post={props.post}
           onCommented={(...params) => {
             onReplyTo(null);
             onCommented(...params);
           }}
+          onClose={() => onReplyTo(null)}
         />
       )}
     </>

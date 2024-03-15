@@ -215,14 +215,11 @@ body {
   --theme-shadow-shadow2: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 60%);
   --theme-shadow-shadow3: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 36%);
 
-
-
-
-
-
-
-
-
+  /* Blur */
+  --theme-blur-blur-highlight: color-mix(in srgb, theme('colors.raw.pepper.70'), transparent 12%);
+  --theme-blur-blur-baseline: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 12%);
+  --theme-blur-blur-bg: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 36%);
+  --theme-blur-blur-glass: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 92%);
 
 /**
   * Current old colors, these should all be changed to one of the above matching ones.
@@ -526,7 +523,11 @@ body {
   --theme-shadow-shadow2: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 60%);
   --theme-shadow-shadow3: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 36%);
 
-
+  /* Blur */
+  --theme-blur-blur-highlight: color-mix(in srgb, theme('colors.raw.salt.0'), transparent 12%);
+  --theme-blur-blur-baseline: color-mix(in srgb, theme('colors.raw.salt.0'), transparent 12%);
+  --theme-blur-blur-bg: color-mix(in srgb, theme('colors.raw.salt.0'), transparent 36%);
+  --theme-blur-blur-glass: color-mix(in srgb, theme('colors.raw.salt.0'), transparent 36%);
 
 
 

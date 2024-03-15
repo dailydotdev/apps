@@ -6,10 +6,7 @@ import CommentBox, { CommentBoxProps } from './CommentBox';
 import SubComment from './SubComment';
 import AuthContext from '../../contexts/AuthContext';
 import { NotificationPromptSource } from '../../lib/analytics';
-import {
-  CommentMarkdownInput,
-  CommentMarkdownInputProps,
-} from '../fields/MarkdownInput/CommentMarkdownInput';
+import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
 import { SquadCommentJoinBanner } from '../squads/SquadCommentJoinBanner';
 import { Squad } from '../../graphql/sources';
@@ -17,6 +14,7 @@ import { Comment } from '../../graphql/comments';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useCommentEdit } from '../../hooks/post/useCommentEdit';
+import CommentInputOrModal from './CommentInputOrModal';
 
 type ClassName = {
   container?: string;
@@ -66,7 +64,11 @@ export default function MainComment({
     !props.post.source?.currentMember &&
     !isJoinSquadBannerDismissed;
 
-  const { commentId, inputProps, onReplyTo } = useComments(props.post);
+  const {
+    commentId,
+    inputProps: replyProps,
+    onReplyTo,
+  } = useComments(props.post);
   const { inputProps: editProps, onEdit } = useCommentEdit();
 
   const initialInView = !lazy;
@@ -94,7 +96,7 @@ export default function MainComment({
           comment={comment}
           parentId={comment.id}
           className={{
-            container: 'border-b',
+            container: comment.children?.edges?.length > 0 && 'border-b',
             ...className?.commentBox,
           }}
           appendTooltipTo={appendTooltipTo}
@@ -111,25 +113,27 @@ export default function MainComment({
         />
       )}
       {editProps && (
-        <CommentMarkdownInput
+        <CommentInputOrModal
           {...editProps}
           post={props.post}
-          onCommented={(data, isNew) => {
+          onCommented={(...params) => {
             onEdit(null);
-            onCommented(data, isNew);
+            onCommented(...params);
           }}
-          className={className?.commentBox}
+          onClose={() => onEdit(null)}
+          className={{ input: className?.commentBox }}
         />
       )}
       {commentId === comment.id && (
-        <CommentMarkdownInput
-          {...inputProps}
+        <CommentInputOrModal
+          {...replyProps}
           post={props.post}
           onCommented={(...params) => {
             onReplyTo(null);
             onCommented(...params);
           }}
-          className={className?.commentBox}
+          onClose={() => onReplyTo(null)}
+          className={{ input: className?.commentBox }}
         />
       )}
       {inView &&
