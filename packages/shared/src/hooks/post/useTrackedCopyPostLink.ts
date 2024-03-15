@@ -15,7 +15,7 @@ interface UseTrackedCopyPostLink {
 
 export const useTrackedCopyPostLink = (
   post: Post,
-  origin = Origin.ShareBar,
+  origin = Origin.FeedbackCard,
 ): UseTrackedCopyPostLink => {
   const { shareLink, isLoading } = useTrackedLink({
     link: post.commentsPermalink,
