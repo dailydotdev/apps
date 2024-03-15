@@ -48,6 +48,11 @@ const sourceRenderTextCloseButton: Record<NotificationPromptSource, boolean> = {
   [NotificationPromptSource.SourceSubscribe]: true,
 };
 
+const sourceToButtonText: Partial<Record<NotificationPromptSource, string>> = {
+  [NotificationPromptSource.SquadPostModal]: 'Subscribe',
+  [NotificationPromptSource.SourceSubscribe]: 'Enable',
+};
+
 function EnableNotification({
   source = NotificationPromptSource.NotificationsPage,
   contentName,
@@ -80,6 +85,7 @@ function EnableNotification({
   const message = sourceToMessage[source];
   const classes = containerClassName[source];
   const showTextCloseButton = sourceRenderTextCloseButton[source];
+  const buttonText = sourceToButtonText[source] ?? 'Enable notifications';
 
   if (source === NotificationPromptSource.SquadPostModal) {
     return (
@@ -97,7 +103,7 @@ function EnableNotification({
           size={ButtonSize.XSmall}
           onClick={onEnable}
         >
-          Subscribe
+          {buttonText}
         </Button>
         <CloseButton className="absolute right-3" onClick={onDismiss} />
       </span>
@@ -166,9 +172,7 @@ function EnableNotification({
             className="mr-4"
             onClick={onEnable}
           >
-            {source === NotificationPromptSource.SourceSubscribe
-              ? 'Enable'
-              : 'Enable notifications'}
+            {buttonText}
           </Button>
         )}
         {showTextCloseButton && (
