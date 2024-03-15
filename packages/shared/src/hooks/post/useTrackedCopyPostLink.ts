@@ -31,9 +31,9 @@ export const useTrackedCopyPostLink = (
           extra: { provider, origin },
         }),
       );
-      copyLink();
+      copyLink({ link: shareLink });
     },
-    [copyLink, origin, post, trackEvent],
+    [copyLink, origin, post, shareLink, trackEvent],
   );
 
   return { onCopyLink, isLoading };
