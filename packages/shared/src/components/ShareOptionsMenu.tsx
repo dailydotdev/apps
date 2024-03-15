@@ -13,8 +13,11 @@ import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
-import { useFeedLayout, useGetShortUrl } from '../hooks';
+import { useFeedLayout, useGetShortUrl, useViewSize, ViewSize } from '../hooks';
 import { ReferralCampaignKey } from '../lib/referral';
+import { RootPortal } from './tooltips/Portal';
+import { ContextMenuDrawer } from './drawers/ContextMenuDrawer';
+import { ContextMenu } from '../hooks/constants';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -26,6 +29,7 @@ interface ShareOptionsMenuProps extends ShareBookmarkProps {
   onHidden?: () => unknown;
   onBookmark?: () => unknown;
   contextId?: string;
+  isOpen: boolean;
 }
 
 type ShareOption = {
@@ -40,12 +44,14 @@ export default function ShareOptionsMenu({
   onBookmark,
   post,
   onHidden,
-  contextId = 'share-context',
+  contextId = ContextMenu.ShareContext,
+  isOpen,
 }: ShareOptionsMenuProps): ReactElement {
   const link = post?.commentsPermalink;
   const [, copyLink] = useCopyPostLink(link);
   const { trackEvent } = useContext(AnalyticsContext);
   const { getShortUrl } = useGetShortUrl();
+
   const onClick = (provider: ShareProvider) =>
     trackEvent(
       postAnalyticsEvent('share post', post, {
@@ -89,6 +95,19 @@ export default function ShareOptionsMenu({
     text: 'Copy link to post',
     action: trackAndCopyLink,
   });
+
+  const isMobile = useViewSize(ViewSize.MobileL);
+
+  if (isMobile) {
+    return (
+      <RootPortal>
+        <ContextMenuDrawer
+          drawerProps={{ isOpen, onClose: onHidden, displayCloseButton: true }}
+          options={shareOptions.map((o) => ({ ...o, label: o.text }))}
+        />
+      </RootPortal>
+    );
+  }
 
   return (
     <PortalMenu

@@ -250,8 +250,10 @@ export default function Feed<T>({
     onMenuClick,
     onShareMenuClick,
     postMenuIndex,
-    postMenuLocation,
+    postShareMenuIndex,
+    postShareMenuLocation,
     setPostMenuIndex,
+    setPostShareMenuIndex,
   } = useFeedContextMenu();
 
   const {
@@ -325,7 +327,7 @@ export default function Feed<T>({
   };
 
   const onShareOptionsHidden = () => {
-    setPostMenuIndex(null);
+    setPostShareMenuIndex(null);
     lastShareMenuCloseTrackEvent();
   };
 
@@ -379,21 +381,22 @@ export default function Feed<T>({
   const onShareClick = (post: Post, row?: number, column?: number) =>
     openSharePost(post, virtualizedNumCards, column, row);
 
-  const post = (items[postMenuIndex] as PostItem)?.post;
+  const menuIndex = postMenuIndex || postShareMenuIndex;
+  const post = (items[menuIndex] as PostItem)?.post;
   const commonMenuItems = {
     onShare: () =>
       openSharePost(
         post,
         virtualizedNumCards,
-        postMenuLocation.row,
-        postMenuLocation.column,
+        postShareMenuLocation.row,
+        postShareMenuLocation.column,
       ),
     onBookmark: () => {
       onBookmark({ post, origin, opts: feedAnalyticsExtra(feedName, ranking) });
     },
     post,
-    prevPost: (items[postMenuIndex - 1] as PostItem)?.post,
-    nextPost: (items[postMenuIndex + 1] as PostItem)?.post,
+    prevPost: (items[menuIndex - 1] as PostItem)?.post,
+    nextPost: (items[menuIndex + 1] as PostItem)?.post,
   };
 
   const PostModal = PostModalMap[selectedPost?.type];
@@ -428,7 +431,7 @@ export default function Feed<T>({
             useList={useList}
             openNewTab={openNewTab}
             insaneMode={insaneMode}
-            postMenuIndex={postMenuIndex}
+            postMenuIndex={menuIndex}
             showCommentPopupId={showCommentPopupId}
             setShowCommentPopupId={setShowCommentPopupId}
             isSendingComment={isSendingComment}
@@ -464,6 +467,7 @@ export default function Feed<T>({
         <ShareOptionsMenu
           {...commonMenuItems}
           onHidden={onShareOptionsHidden}
+          isOpen={!isNullOrUndefined(postShareMenuIndex)}
         />
         {!shouldUseMobileFeedLayout && selectedPost && PostModal && (
           <PostModal
