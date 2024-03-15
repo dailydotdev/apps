@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import request from 'graphql-request';
 import { useCallback } from 'react';
 import { graphqlUrl } from '../../lib/config';
@@ -7,14 +7,43 @@ import { GET_SHORT_URL_QUERY } from '../../graphql/urlShortener';
 import { addTrackingQueryParams } from '../../lib/share';
 import { RequestKey, generateQueryKey } from '../../lib/query';
 import { ReferralCampaignKey } from '../../lib/referral';
+import { disabledRefetch } from '../../lib/func';
+
+interface LinkAsQuery {
+  url: string;
+  cid: ReferralCampaignKey;
+  enabled?: boolean;
+}
 
 interface UseGetShortUrlResult {
   getShortUrl: (url: string, cid?: ReferralCampaignKey) => Promise<string>;
+  shareLink: string;
+  isLoading: boolean;
 }
 
-export const useGetShortUrl = (): UseGetShortUrlResult => {
+interface UseGetShortUrl {
+  query?: LinkAsQuery;
+}
+
+export const useGetShortUrl = ({
+  query,
+}: UseGetShortUrl = {}): UseGetShortUrlResult => {
   const { user, isAuthReady } = useAuthContext();
   const queryClient = useQueryClient();
+  const getProps = useCallback(
+    (url: string, cid?: ReferralCampaignKey) => {
+      const trackedUrl = cid
+        ? addTrackingQueryParams({ link: url, userId: user?.id, cid })
+        : url;
+      const queryKey = generateQueryKey(RequestKey.ShortUrl, user, trackedUrl);
+
+      return { trackedUrl, queryKey };
+    },
+    [user],
+  );
+
+  const queryShortUrl = (url: string) =>
+    request(graphqlUrl, GET_SHORT_URL_QUERY, { url });
 
   const getShortUrl = useCallback(
     async (url: string, cid?: ReferralCampaignKey) => {
@@ -22,30 +51,36 @@ export const useGetShortUrl = (): UseGetShortUrlResult => {
         return url;
       }
 
-      const trackingUrl = cid
-        ? addTrackingQueryParams({ link: url, userId: user?.id, cid })
-        : url;
-      const shortUrlKey = generateQueryKey(
-        RequestKey.ShortUrl,
-        user,
-        trackingUrl,
-      );
+      const { trackedUrl, queryKey } = getProps(url, cid);
 
       try {
         const data = await queryClient.fetchQuery(
-          shortUrlKey,
-          () => request(graphqlUrl, GET_SHORT_URL_QUERY, { url: trackingUrl }),
+          queryKey,
+          () => queryShortUrl(trackedUrl),
           {
             staleTime: Infinity,
           },
         );
         return data.getShortUrl;
       } catch (err) {
-        return trackingUrl;
+        return trackedUrl;
       }
     },
-    [queryClient, isAuthReady, user],
+    [isAuthReady, user, getProps, queryClient],
   );
 
-  return { getShortUrl };
+  const isEnabled = query.enabled ?? true;
+  const { queryKey, trackedUrl } = query
+    ? getProps(query.url, query.cid)
+    : { queryKey: [], trackedUrl: '' };
+  const { data: shareLink, isLoading } = useQuery(
+    queryKey,
+    () => queryShortUrl(trackedUrl),
+    {
+      ...disabledRefetch,
+      enabled: !!query?.url && isEnabled && !!user,
+    },
+  );
+
+  return { getShortUrl, shareLink, isLoading };
 };

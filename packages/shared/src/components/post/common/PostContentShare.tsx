@@ -5,8 +5,7 @@ import { Post } from '../../../graphql/posts';
 import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
 import { postAnalyticsEvent } from '../../../lib/feed';
 import { ShareProvider } from '../../../lib/share';
-import { ReferralCampaignKey } from '../../../hooks';
-import { useTrackedLink } from '../../../hooks/utils/useTrackedLink';
+import { ReferralCampaignKey, useGetShortUrl } from '../../../hooks';
 
 interface PostContentShareProps {
   post: Post;
@@ -16,10 +15,12 @@ export function PostContentShare({
   post,
 }: PostContentShareProps): ReactElement {
   const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
-  const { shareLink, isLoading } = useTrackedLink({
-    link: post.commentsPermalink,
-    cid: ReferralCampaignKey.SharePost,
-    enabled: shouldShowOverlay,
+  const { isLoading, shareLink } = useGetShortUrl({
+    query: {
+      url: post.commentsPermalink,
+      cid: ReferralCampaignKey.SharePost,
+      enabled: shouldShowOverlay,
+    },
   });
 
   if (!shouldShowOverlay || isLoading) {
