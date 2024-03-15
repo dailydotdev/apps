@@ -75,7 +75,7 @@ function EnableNotification({
     [NotificationPromptSource.SquadPostCommentary]: '',
     [NotificationPromptSource.SquadPage]: `Get notified whenever something important happens on ${contentName}.`,
     [NotificationPromptSource.SquadChecklist]: '',
-    [NotificationPromptSource.SourceSubscribe]: `Get notified whenever there are new posts from ${contentName}`,
+    [NotificationPromptSource.SourceSubscribe]: `Get notified whenever there are new posts from ${contentName}.`,
   };
   const message = sourceToMessage[source];
   const classes = containerClassName[source];
@@ -142,17 +142,20 @@ function EnableNotification({
             message
           )}
         </p>
-        {source === NotificationPromptSource.SourceSubscribe && (
-          <img
-            className={classNames('h-16 w-auto')}
-            src={
-              acceptedJustNow
-                ? cloudinary.notifications.browser_enabled
-                : cloudinary.notifications.browser
-            }
-            alt="A sample browser notification"
-          />
-        )}
+        <img
+          className={classNames(
+            source === NotificationPromptSource.SourceSubscribe
+              ? 'h-16 w-auto'
+              : 'absolute -bottom-2 hidden w-[7.5rem] tablet:flex',
+            acceptedJustNow ? 'right-14' : 'right-4',
+          )}
+          src={
+            acceptedJustNow
+              ? cloudinary.notifications.browser_enabled
+              : cloudinary.notifications.browser
+          }
+          alt="A sample browser notification"
+        />
       </div>
       <div className="align-center mt-4 flex">
         {!acceptedJustNow && (
@@ -178,20 +181,6 @@ function EnableNotification({
           </Button>
         )}
       </div>
-      {source !== NotificationPromptSource.SourceSubscribe && (
-        <img
-          className={classNames(
-            'absolute -bottom-2 hidden w-[7.5rem] tablet:flex',
-            acceptedJustNow ? 'right-14' : 'right-4',
-          )}
-          src={
-            acceptedJustNow
-              ? cloudinary.notifications.browser_enabled
-              : cloudinary.notifications.browser
-          }
-          alt="A sample browser notification"
-        />
-      )}
       {!showTextCloseButton && (
         <CloseButton
           size={ButtonSize.XSmall}
