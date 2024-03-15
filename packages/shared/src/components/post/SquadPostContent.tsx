@@ -84,17 +84,15 @@ function SquadPostContent({
       )}
       <PostContentContainer
         className={classNames(
-          'relative tablet:pb-0',
+          'relative flex-1 flex-col tablet:flex-row tablet:pb-0',
           className?.container,
-          'flex-1 flex-col tablet:flex-row',
         )}
         hasNavigation={hasNavigation}
       >
         <div
           className={classNames(
-            'relative min-w-0 px-4 tablet:px-8',
+            'relative flex min-w-0 flex-1 flex-col px-4 tablet:px-8',
             className?.content,
-            'flex flex-1 flex-col',
           )}
         >
           <BasePostContent
@@ -102,8 +100,8 @@ function SquadPostContent({
               ...className,
               onboarding: classNames('mb-6', className?.onboarding),
               navigation: {
-                actions: classNames('ml-auto', 'tablet:hidden'),
-                container: classNames('mb-6 pt-6'),
+                actions: 'ml-auto tablet:hidden',
+                container: 'mb-6 pt-6',
               },
             }}
             isFallback={isFallback}
