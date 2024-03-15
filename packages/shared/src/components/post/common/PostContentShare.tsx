@@ -5,6 +5,8 @@ import { Post } from '../../../graphql/posts';
 import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
 import { postAnalyticsEvent } from '../../../lib/feed';
 import { ShareProvider } from '../../../lib/share';
+import { ReferralCampaignKey } from '../../../hooks';
+import { useTrackedLink } from '../../../hooks/utils/useTrackedLink';
 
 interface PostContentShareProps {
   post: Post;
@@ -14,8 +16,13 @@ export function PostContentShare({
   post,
 }: PostContentShareProps): ReactElement {
   const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
+  const { shareLink, isLoading } = useTrackedLink({
+    link: post.commentsPermalink,
+    cid: ReferralCampaignKey.SharePost,
+    enabled: shouldShowOverlay,
+  });
 
-  if (!shouldShowOverlay) {
+  if (!shouldShowOverlay || isLoading) {
     return null;
   }
 
@@ -26,7 +33,7 @@ export function PostContentShare({
       </span>
       <InviteLinkInput
         className={{ container: 'w-full flex-1' }}
-        link={post.commentsPermalink}
+        link={shareLink}
         onCopy={onInteract}
         trackingProps={postAnalyticsEvent('share post', post, {
           extra: {
