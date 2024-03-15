@@ -23,11 +23,21 @@ export const useTrackedLink = ({
 }: UseTrackedLinkProps): UseTrackedLink => {
   const { user } = useAuthContext();
   const { getShortUrl } = useGetShortUrl();
+  console.log('props: ', enabled, link, !!user);
   const { data: shareLink, isLoading } = useQuery(
     generateQueryKey(RequestKey.TrackingLink, user, link),
-    () => getShortUrl(link, cid),
-    { enabled: enabled && !!user, ...disabledRefetch, initialData: link },
+    async () => {
+      console.log('executing ');
+      const res = await getShortUrl(link, cid);
+      console.log('calling: ', res);
+
+      return res;
+    },
+    {
+      ...disabledRefetch,
+      enabled: enabled && !!link && !!user,
+    },
   );
 
-  return { shareLink, isLoading };
+  return { shareLink: shareLink ?? link, isLoading };
 };

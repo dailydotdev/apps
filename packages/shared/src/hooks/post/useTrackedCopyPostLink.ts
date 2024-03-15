@@ -21,6 +21,7 @@ export const useTrackedCopyPostLink = (
     link: post.commentsPermalink,
     cid: ReferralCampaignKey.SharePost,
   });
+  console.log(shareLink);
   const [, copyLink] = useCopyPostLink(shareLink);
   const { trackEvent } = useContext(AnalyticsContext);
 
