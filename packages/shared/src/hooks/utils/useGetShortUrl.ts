@@ -42,8 +42,10 @@ export const useGetShortUrl = ({
     [user],
   );
 
-  const queryShortUrl = (url: string) =>
-    request(graphqlUrl, GET_SHORT_URL_QUERY, { url });
+  const queryShortUrl = async (url: string) => {
+    const res = await request(graphqlUrl, GET_SHORT_URL_QUERY, { url });
+    return res.getShortUrl;
+  };
 
   const getShortUrl = useCallback(
     async (url: string, cid?: ReferralCampaignKey) => {
@@ -54,14 +56,13 @@ export const useGetShortUrl = ({
       const { trackedUrl, queryKey } = getProps(url, cid);
 
       try {
-        const data = await queryClient.fetchQuery(
+        return queryClient.fetchQuery(
           queryKey,
           () => queryShortUrl(trackedUrl),
           {
             staleTime: Infinity,
           },
         );
-        return data.getShortUrl;
       } catch (err) {
         return trackedUrl;
       }
