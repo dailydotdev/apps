@@ -17,7 +17,7 @@ interface UseTrackedLink {
 }
 
 export const useTrackedLink = ({
-  enabled,
+  enabled = true,
   link,
   cid,
 }: UseTrackedLinkProps): UseTrackedLink => {
