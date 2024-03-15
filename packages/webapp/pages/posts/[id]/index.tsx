@@ -100,7 +100,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const { shouldShowAuthBanner } = useOnboarding();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
-  const { post, isError, isFetched, isPostLoadingOrFetching } = usePostById({
+  const { post, isError, isLoading } = usePostById({
     id,
     options: { initialData, retry: false },
   });
@@ -140,7 +140,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     scrollProperty: 'scrollY',
   });
 
-  if (isPostLoadingOrFetching || isFallback || !isFetched) {
+  if (isLoading || isFallback) {
     return (
       <>
         <PostSEOSchema post={post} />

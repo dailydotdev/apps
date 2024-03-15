@@ -59,7 +59,7 @@ export function CardCover({
     <ConditionalWrapper
       condition={shouldShowOverlay}
       wrapper={(component) => (
-        <div className="relative">
+        <div className="relative flex flex-1">
           {coverShare}
           {component}
         </div>

@@ -22,7 +22,7 @@ import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
 function EditPost(): ReactElement {
   const { query, isReady, push } = useRouter();
-  const { post, isFetched } = usePostById({ id: query.id as string });
+  const { post, isLoading } = usePostById({ id: query.id as string });
   const { squads, user } = useAuthContext();
   const squad = squads?.find(({ id, handle }) =>
     [id, handle].includes(post?.source?.id),
@@ -101,7 +101,7 @@ function EditPost(): ReactElement {
     >
       <NextSeo {...seo} noindex nofollow />
       <WritePage
-        isLoading={!isReady || !isFetched || !isDraftReady}
+        isLoading={!isReady || isLoading || !isDraftReady}
         isForbidden={!isVerified || !squad || !canEdit}
       >
         <WritePostHeader isEdit />
