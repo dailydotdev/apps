@@ -12,7 +12,7 @@ import { SourceMember, Squad } from '../../graphql/sources';
 import { SquadJoinButton } from '../squads/SquadJoinButton';
 import { Origin } from '../../lib/analytics';
 import { useSquad } from '../../hooks';
-import { getSquadMembers } from '../../graphql/squads';
+import { getSquadMembers, isSourcePublicSquad } from '../../graphql/squads';
 import SquadMemberShortList from '../squads/SquadMemberShortList';
 import { PostHeaderActionsProps } from './common';
 
@@ -77,6 +77,7 @@ export function SquadPostWidgets({
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const squad = post.source as Squad;
+  const isPublicSquad = isSourcePublicSquad(squad);
 
   return (
     <PageWidgets className={className}>
@@ -88,8 +89,16 @@ export function SquadPostWidgets({
         contextMenuId="post-widgets-context"
       />
       {!!squad && !squad.currentMember && <SquadCard squadSource={squad} />}
-      <ShareBar post={post} />
-      <ShareMobile post={post} share={onShare} link={post.commentsPermalink} />
+      {isPublicSquad && (
+        <>
+          <ShareBar post={post} />
+          <ShareMobile
+            post={post}
+            share={onShare}
+            link={post.commentsPermalink}
+          />
+        </>
+      )}
       {tokenRefreshed && <FurtherReading currentPost={post} />}
     </PageWidgets>
   );
