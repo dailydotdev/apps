@@ -37,8 +37,14 @@ export function ModalHeader({
   title,
   showCloseButton = true,
 }: ModalHeaderProps): ReactElement {
-  const { activeView, onRequestClose, tabs } = useContext(ModalPropsContext);
+  const { activeView, onRequestClose, tabs, isDrawer } =
+    useContext(ModalPropsContext);
   const modalTitle = title ?? (tabs ? activeView : undefined);
+
+  if (isDrawer) {
+    return null;
+  }
+
   return (
     <ModalHeaderOuter
       className={classNames(

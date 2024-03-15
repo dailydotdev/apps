@@ -22,14 +22,13 @@ export enum TourScreenIndex {
 }
 
 function SquadTour({ onClose }: SquadTourProps): ReactElement {
-  const isMobile = useViewSize(ViewSize.MobileL);
   const [shouldShowCarousel, setShouldShowCarousel] = useState(false);
   const { onTourIndexChange } = useSquadTour();
 
   if (!shouldShowCarousel) {
     const start = (
       <FooterButton
-        className={isMobile ? 'w-full' : 'ml-auto'}
+        className="w-full tablet:ml-auto tablet:w-auto"
         variant={ButtonVariant.Primary}
         color={ButtonColor.Cabbage}
         onClick={(e) => {
@@ -50,19 +49,16 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
           title="Let's see what you can do with Squads!"
           className={{ container: 'h-[29.25rem]', banner: '!pt-0' }}
         />
-        {isMobile ? (
-          <span className="px-4">{start}</span>
-        ) : (
-          <ModalFooter>
-            <FooterButton
-              variant={ButtonVariant.Tertiary}
-              onClick={(e) => onClose(e.nativeEvent)}
-            >
-              Close
-            </FooterButton>
-            {start}
-          </ModalFooter>
-        )}
+        <span className="flex px-4 tablet:hidden">{start}</span>
+        <ModalFooter>
+          <FooterButton
+            variant={ButtonVariant.Tertiary}
+            onClick={(e) => onClose(e.nativeEvent)}
+          >
+            Close
+          </FooterButton>
+          {start}
+        </ModalFooter>
       </>
     );
   }
@@ -107,10 +103,11 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
       onEnd={() => onClose?.(null)}
       onScreenIndexChange={onTourIndexChange}
     >
-      {({ onSwipedLeft, onSwipedRight, index }, indicator) =>
-        isMobile ? (
-          <span className="mb-3 flex w-full justify-center">{indicator}</span>
-        ) : (
+      {({ onSwipedLeft, onSwipedRight, index }, indicator) => (
+        <>
+          <span className="mb-3 flex w-full justify-center tablet:hidden">
+            {indicator}
+          </span>
           <ModalFooter justify={Justify.Between}>
             <FooterButton
               variant={ButtonVariant.Tertiary}
@@ -127,8 +124,8 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
               {index === items.length - 1 ? 'Close' : 'Next'}
             </FooterButton>
           </ModalFooter>
-        )
-      }
+        </>
+      )}
     </Carousel>
   );
 }

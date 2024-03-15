@@ -194,7 +194,6 @@ const SquadPage = ({
           )}
         />
         <SquadPageHeader squad={squad} members={squadMembers} />
-        <SquadChecklistCard squad={squad} />
         <Feed
           className="px-6 pt-14 laptop:pt-10"
           feedName={OtherFeedPage.Squad}

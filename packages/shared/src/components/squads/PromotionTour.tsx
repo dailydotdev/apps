@@ -13,7 +13,6 @@ import { ProfilePicture } from '../ProfilePicture';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { IconSize } from '../Icon';
 import SourceButton from '../cards/SourceButton';
-import { useViewSize, ViewSize } from '../../hooks';
 
 interface PromotionTourProps {
   onClose: React.EventHandler<React.MouseEvent>;
@@ -58,7 +57,6 @@ const firstStep = {
 
 function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
   const { user } = useAuthContext();
-  const isMobile = useViewSize(ViewSize.MobileL);
   const items = useMemo(() => {
     const { role } = source.currentMember;
     const tour = [];
@@ -136,10 +134,11 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
       onClose={() => onClose?.(null)}
       onEnd={() => onClose?.(null)}
     >
-      {({ onSwipedLeft, onSwipedRight, index }, indicator) =>
-        isMobile ? (
-          <span className="mb-3 flex w-full justify-center">{indicator}</span>
-        ) : (
+      {({ onSwipedLeft, onSwipedRight, index }, indicator) => (
+        <>
+          <span className="mb-3 flex w-full justify-center tablet:hidden">
+            {indicator}
+          </span>
           <ModalFooter justify={Justify.Between}>
             <FooterButton
               variant={ButtonVariant.Tertiary}
@@ -156,8 +155,9 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
               {index === items.length - 1 ? 'Close' : 'Next'}
             </FooterButton>
           </ModalFooter>
-        )
-      }
+          )
+        </>
+      )}
     </Carousel>
   );
 }

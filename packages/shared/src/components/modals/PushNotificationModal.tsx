@@ -6,13 +6,9 @@ import { Justify } from '../utilities';
 import { Modal, ModalProps } from './common/Modal';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { usePushNotificationMutation } from '../../hooks/notifications';
-import { useViewSize, ViewSize } from '../../hooks';
-import { Drawer } from '../drawers';
-import ConditionalWrapper from '../ConditionalWrapper';
 
 function PushNotificationModal(modalProps: ModalProps): ReactElement {
   const { onRequestClose } = modalProps;
-  const isMobile = useViewSize(ViewSize.MobileL);
   const { onEnablePush } = usePushNotificationMutation({
     onPopupGranted: () => onRequestClose(null),
   });
@@ -27,69 +23,47 @@ function PushNotificationModal(modalProps: ModalProps): ReactElement {
     }
   };
 
-  const img = (
-    <img
-      className={!isMobile && 'mx-auto my-14'}
-      src={cloudinary.notifications.big}
-      alt="A sample browser notification"
-    />
-  );
-  const enable = (
-    <Button
-      variant={ButtonVariant.Primary}
-      onClick={enableNotifications}
-      className={isMobile && 'mt-6'}
-    >
-      Enable notifications
-    </Button>
-  );
-  const content = (
-    <ConditionalWrapper
-      condition={isMobile}
-      wrapper={(component) => (
-        <div className="flex flex-col px-4">
-          {component}
-          {enable}
-        </div>
-      )}
-    >
-      <Modal.Title className={isMobile && 'mt-3 !typo-large-title'}>
-        Enable Push Notifications
-      </Modal.Title>
-      <Modal.Text
-        className={classNames(isMobile && 'typo-body', 'text-center')}
-      >
-        Get notified of the status of your source submissions
-      </Modal.Text>
-    </ConditionalWrapper>
-  );
-
-  if (isMobile) {
-    return (
-      <Drawer
-        isOpen
-        displayCloseButton
-        className={{ drawer: 'pb-4' }}
-        onClose={() => onRequestClose(null)}
-      >
-        {img}
-        {content}
-      </Drawer>
-    );
-  }
-
   return (
     <Modal
       {...modalProps}
       kind={Modal.Kind.FlexibleTop}
       size={Modal.Size.Medium}
+      isDrawerOnMobile
+      drawerProps={{ className: { drawer: 'pb-4', close: 'mx-4' } }}
     >
-      {!isMobile && <Modal.Header />}
-      <Modal.Body className="gap-3 !p-0">
-        {content}
-        {img}
+      <Modal.Header />
+      <img
+        className="flex tablet:hidden"
+        src={cloudinary.notifications.big}
+        alt="A sample browser notification"
+      />
+      <Modal.Body className="gap-2 px-4 pb-0 pt-3">
+        <Modal.Title className="!typo-large-title tablet:typo-title1">
+          Enable Push Notifications
+        </Modal.Title>
+        <Modal.Text
+          className={classNames('text-center typo-body tablet:typo-callout')}
+        >
+          Get notified of the status of your source submissions
+        </Modal.Text>
+        <img
+          className="mx-auto my-14 hidden tablet:flex"
+          src={cloudinary.notifications.big}
+          alt="A sample browser notification"
+        />
       </Modal.Body>
-      <Modal.Footer justify={Justify.Center}>{enable}</Modal.Footer>
+      <Button
+        variant={ButtonVariant.Primary}
+        onClick={enableNotifications}
+        className="m-4 mb-0 mt-5 flex tablet:hidden"
+      >
+        Enable notifications
+      </Button>
+      <Modal.Footer justify={Justify.Center}>
+        <Button variant={ButtonVariant.Primary} onClick={enableNotifications}>
+          Enable notifications
+        </Button>
+      </Modal.Footer>
     </Modal>
   );
 }

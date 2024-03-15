@@ -14,7 +14,12 @@ import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import { ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 
-export type PopupEventType = MouseEvent | KeyboardEvent | MessageEvent;
+export type PopupEventType =
+  | MouseEvent
+  | KeyboardEvent
+  | MessageEvent
+  | React.MouseEvent
+  | React.KeyboardEvent;
 
 export type PopupCloseEvent = (e: PopupEventType) => void;
 
@@ -31,7 +36,7 @@ interface ClassName {
   close?: string;
 }
 
-interface DrawerProps
+export interface DrawerProps
   extends Omit<HTMLAttributes<HTMLDivElement>, 'className'> {
   children: ReactNode;
   className?: ClassName;
@@ -42,6 +47,11 @@ interface DrawerProps
   title?: string;
   onClose: PopupCloseEvent;
   displayCloseButton?: boolean;
+}
+
+export interface DrawerOnMobileProps {
+  isDrawerOnMobile?: boolean;
+  drawerProps?: Omit<DrawerProps, 'children' | 'onClose'>;
 }
 
 const drawerPositionToClassName: Record<DrawerPosition, string> = {
