@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
+import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
@@ -89,6 +89,14 @@ export interface PostOptionsMenuProps extends ShareBookmarkProps {
   allowPin?: boolean;
   isOpen?: boolean;
 }
+
+const PostOptionSourceSubscribe = withExperiment(
+  ({ children }: { children: ReactNode }) => <>{children}</>,
+  {
+    feature: feature.sourceSubscribe,
+    value: SourceSubscribeExperiment.V1,
+  },
+);
 
 export default function PostOptionsMenu({
   postIndex,
@@ -358,10 +366,7 @@ export default function PostOptionsMenu({
         sourceSubscribe.isSubscribed ? 'Unsubscribe from' : 'Subscribe to'
       } ${post?.source?.name}`,
       action: sourceSubscribe.isReady ? sourceSubscribe.onSubscribe : undefined,
-      Wrapper: withExperiment(({ children }) => <>{children}</>, {
-        feature: feature.sourceSubscribe,
-        value: SourceSubscribeExperiment.V1,
-      }),
+      Wrapper: PostOptionSourceSubscribe,
     });
   }
 
