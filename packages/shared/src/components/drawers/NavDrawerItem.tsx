@@ -3,14 +3,10 @@ import Link from 'next/link';
 import { Button, ButtonProps, ButtonVariant } from '../buttons/Button';
 import ConditionalWrapper from '../ConditionalWrapper';
 
-export interface NavItemProps
-  extends Pick<
-    ButtonProps<'a'>,
-    'href' | 'icon' | 'onClick' | 'target' | 'rel'
-  > {
+export type NavItemProps = ButtonProps<'a'> & {
   label: string;
   isHeader?: boolean;
-}
+};
 
 const NavDrawerHeaderItem = ({ label }: { label: string }): ReactElement => (
   <h3 className="my-2 flex h-12 items-center font-bold typo-callout first:mt-0">
