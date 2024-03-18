@@ -1,12 +1,12 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import AuthContext from '../contexts/AuthContext';
 import {
-  PowerIcon,
   InviteIcon,
   UserIcon,
   DevCardIcon,
   SettingsIcon,
   ReputationLightningIcon,
+  ExitIcon,
 } from './icons';
 import InteractivePopup, {
   InteractivePopupPosition,
@@ -84,7 +84,7 @@ export default function ProfileMenu({
       {
         title: 'Logout',
         buttonProps: {
-          icon: <PowerIcon />,
+          icon: <ExitIcon />,
           onClick: () => logout(LogoutReason.ManualLogout),
         },
       },

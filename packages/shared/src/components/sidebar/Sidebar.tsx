@@ -1,6 +1,5 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import React, { ReactElement, useContext, useMemo } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import SettingsContext from '../../contexts/SettingsContext';
 import {
   Nav,
@@ -24,13 +23,8 @@ import {
   ManageSection,
 } from './index';
 import { getFeedName } from '../../lib/feed';
-
-const UserSettingsModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "userSettingsModal" */ '../modals/UserSettingsModal'
-    ),
-);
+import { LazyModal } from '../modals/common/types';
+import { useLazyModal } from '../../hooks/useLazyModal';
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -53,7 +47,8 @@ export default function Sidebar({
     loadedSettings,
     optOutWeeklyGoal,
   } = useContext(SettingsContext);
-  const [showSettings, setShowSettings] = useState(false);
+  const { modal, openModal } = useLazyModal();
+  const showSettings = modal?.type === LazyModal.UserSettings;
 
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
@@ -127,7 +122,7 @@ export default function Sidebar({
               showDnd={showDnd}
               onShowDndClick={onShowDndClick}
               showSettings={showSettings}
-              onShowSettings={setShowSettings}
+              onShowSettings={() => openModal({ type: LazyModal.UserSettings })}
             />
           </Nav>
           <div className="flex-1" />
@@ -138,12 +133,6 @@ export default function Sidebar({
           />
         </SidebarScrollWrapper>
       </SidebarAside>
-      {showSettings && (
-        <UserSettingsModal
-          isOpen={showSettings}
-          onRequestClose={() => setShowSettings(false)}
-        />
-      )}
     </>
   );
 }
