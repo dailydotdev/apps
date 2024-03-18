@@ -6,6 +6,38 @@ import { Justify } from '../utilities';
 import { Modal, ModalProps } from './common/Modal';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { usePushNotificationMutation } from '../../hooks/notifications';
+import { useModalContext } from './common/types';
+
+const DrawerImg = () => {
+  const { isDrawer } = useModalContext();
+
+  if (!isDrawer) {
+    return null;
+  }
+
+  return (
+    <img
+      src={cloudinary.notifications.big}
+      alt="A sample browser notification"
+    />
+  );
+};
+
+const ModalImg = () => {
+  const { isDrawer } = useModalContext();
+
+  if (isDrawer) {
+    return null;
+  }
+
+  return (
+    <img
+      className="mx-auto my-14"
+      src={cloudinary.notifications.big}
+      alt="A sample browser notification"
+    />
+  );
+};
 
 function PushNotificationModal(modalProps: ModalProps): ReactElement {
   const { onRequestClose } = modalProps;
@@ -32,11 +64,7 @@ function PushNotificationModal(modalProps: ModalProps): ReactElement {
       drawerProps={{ className: { drawer: 'pb-4', close: 'mx-4' } }}
     >
       <Modal.Header />
-      <img
-        className="flex tablet:hidden"
-        src={cloudinary.notifications.big}
-        alt="A sample browser notification"
-      />
+      <DrawerImg />
       <Modal.Body className="gap-2 px-4 pb-0 pt-3">
         <Modal.Title className="!typo-large-title tablet:typo-title1">
           Enable Push Notifications
@@ -46,11 +74,7 @@ function PushNotificationModal(modalProps: ModalProps): ReactElement {
         >
           Get notified of the status of your source submissions
         </Modal.Text>
-        <img
-          className="mx-auto my-14 hidden tablet:flex"
-          src={cloudinary.notifications.big}
-          alt="A sample browser notification"
-        />
+        <ModalImg />
       </Modal.Body>
       <Button
         variant={ButtonVariant.Primary}
