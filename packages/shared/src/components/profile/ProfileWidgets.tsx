@@ -27,7 +27,7 @@ export function ProfileWidgets({
   className,
   enableSticky,
 }: ProfileWidgetsProps): ReactElement {
-  const { user: loggedUser } = useContext(AuthContext);
+  const { user: loggedUser, logout } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user.id;
   const stats = { ...userStats, reputation: user?.reputation };
 
@@ -48,6 +48,7 @@ export function ProfileWidgets({
       {!hideSticky && (
         <Header
           user={user}
+          logout={logout}
           isSameUser={isSameUser}
           sticky
           className="fixed left-0 top-0 z-3 w-full bg-background-default transition-transform duration-75"

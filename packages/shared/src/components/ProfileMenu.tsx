@@ -1,12 +1,12 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import AuthContext from '../contexts/AuthContext';
 import {
-  PowerIcon,
   InviteIcon,
   UserIcon,
   DevCardIcon,
   SettingsIcon,
   ReputationLightningIcon,
+  ExitIcon,
 } from './icons';
 import InteractivePopup, {
   InteractivePopupPosition,
@@ -22,6 +22,7 @@ import { reputation, webappUrl } from '../lib/constants';
 import { UserMetadata } from './profile/UserMetadata';
 import { HeroImage } from './profile/HeroImage';
 import { anchorDefaultRel } from '../lib/strings';
+import { LogoutReason } from '../lib/user';
 
 interface ListItem {
   title: string;
@@ -83,8 +84,8 @@ export default function ProfileMenu({
       {
         title: 'Logout',
         buttonProps: {
-          icon: <PowerIcon />,
-          onClick: logout,
+          icon: <ExitIcon />,
+          onClick: () => logout(LogoutReason.ManualLogout),
         },
       },
     ];

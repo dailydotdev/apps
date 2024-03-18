@@ -1,4 +1,9 @@
-import React, { AnchorHTMLAttributes, ReactElement, ReactNode } from 'react';
+import React, {
+  AnchorHTMLAttributes,
+  ComponentType,
+  ReactElement,
+  ReactNode,
+} from 'react';
 import { Item, Menu, MenuProps } from '@dailydotdev/react-contexify';
 import { RootPortal } from '../tooltips/Portal';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -55,6 +60,7 @@ export interface MenuItemProps<
   label: string;
   action?: (...args: TArgs) => TReturn;
   anchorProps?: TAnchorProps;
+  Wrapper?: ComponentType<{ children: ReactNode }>;
 }
 
 interface ContextMenuProps extends Omit<MenuProps, 'children'> {
@@ -74,17 +80,23 @@ export const ContextMenu = ({
     drawerOptions={options}
     {...props}
   >
-    {options.map(({ label, icon, action, anchorProps }) => (
-      <Item key={label} className="typo-callout" onClick={action}>
-        <ConditionalWrapper
-          condition={!!anchorProps}
-          wrapper={(children) => <a {...anchorProps}>{children}</a>}
-        >
-          <span className="flex w-full items-center gap-2 typo-callout">
-            {icon} {label}
-          </span>
-        </ConditionalWrapper>
-      </Item>
+    {options.map(({ label, icon, action, anchorProps, Wrapper }) => (
+      <ConditionalWrapper
+        key={label}
+        condition={!!Wrapper}
+        wrapper={(children) => <Wrapper>{children}</Wrapper>}
+      >
+        <Item className="typo-callout" onClick={action}>
+          <ConditionalWrapper
+            condition={!!anchorProps}
+            wrapper={(children) => <a {...anchorProps}>{children}</a>}
+          >
+            <span className="flex w-full items-center gap-2 typo-callout">
+              {icon} {label}
+            </span>
+          </ConditionalWrapper>
+        </Item>
+      </ConditionalWrapper>
     ))}
   </PortalMenu>
 );

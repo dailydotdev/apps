@@ -19,7 +19,7 @@ export function CreatePostButton({
   className,
   compact,
 }: CreatePostButtonProps): ReactElement {
-  const { user, isAuthReady, squads } = useAuthContext();
+  const { user, squads } = useAuthContext();
   const { route, query } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const handle = route === '/squads/[handle]' ? (query.handle as string) : '';
@@ -29,7 +29,7 @@ export function CreatePostButton({
     verifyPermission(item, SourcePermissions.Post),
   );
 
-  if (!user || !isAuthReady || !squads?.length) {
+  if (!user || !squads?.length) {
     return null;
   }
 

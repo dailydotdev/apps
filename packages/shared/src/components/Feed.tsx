@@ -33,7 +33,6 @@ import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
 import { Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
-import { ExperimentWinner } from '../lib/featureValues';
 import { SharedFeedPage } from './utilities';
 import { FeedContainer, FeedContainerProps } from './feeds';
 import { ActiveFeedContext } from '../contexts';
@@ -137,7 +136,6 @@ export default function Feed<T>({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
-  const copyLinkFeature = useFeature(feature.copyLink);
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
@@ -297,7 +295,6 @@ export default function Feed<T>({
     }
   };
 
-  let lastShareMenuCloseTrackEvent = () => {};
   const onShareMenuClickTracked = (
     e: React.MouseEvent,
     post: Post,
@@ -305,32 +302,11 @@ export default function Feed<T>({
     row: number,
     column: number,
   ) => {
-    if (copyLinkFeature) {
-      copyLink(post, index, row, column);
-    } else {
-      onShareMenuClick(e, post, index, row, column);
-      const trackEventOptions = {
-        columns: virtualizedNumCards,
-        column,
-        row,
-        ...feedAnalyticsExtra(
-          feedName,
-          ranking,
-          undefined,
-          undefined,
-          ExperimentWinner.PostCardShareVersion,
-        ),
-      };
-      trackEvent(postAnalyticsEvent('open share', post, trackEventOptions));
-      lastShareMenuCloseTrackEvent = () => {
-        trackEvent(postAnalyticsEvent('close share', post, trackEventOptions));
-      };
-    }
+    copyLink(post, index, row, column);
   };
 
   const onShareOptionsHidden = () => {
     setPostShareMenuIndex(null);
-    lastShareMenuCloseTrackEvent();
   };
 
   const onRemovePost = async (removePostIndex: number) => {

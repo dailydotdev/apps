@@ -8,6 +8,7 @@ import YoutubeVideo from '../video/YoutubeVideo';
 import { formatReadTime, SelectableLink } from '../utilities';
 import { combinedClicks } from '../../lib/click';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { ElementPlaceholder } from '../ElementPlaceholder';
 
 interface ShareYouTubeContentProps {
   post: Post;
@@ -18,8 +19,13 @@ function ShareYouTubeContent({
   post,
   onReadArticle,
 }: ShareYouTubeContentProps): ReactElement {
-  if (!post.sharedPost) {
-    return <></>;
+  if (!post.sharedPost?.id) {
+    return (
+      <>
+        <ElementPlaceholder className="mt-6 h-6 w-2/4 rounded-10" />
+        <ElementPlaceholder className="my-5 w-full rounded-16 pt-[56.25%]" />
+      </>
+    );
   }
 
   const isUnknownSource = post.sharedPost.source.id === 'unknown';

@@ -23,6 +23,7 @@ import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { Origin } from '../lib/analytics';
+import { LogoutReason } from '../lib/user';
 
 type ParamKeys = keyof RegistrationParameters;
 
@@ -85,7 +86,7 @@ const useRegistration = ({
     if (
       registration.error?.id === KRATOS_ERROR_MESSAGE.SESSION_ALREADY_AVAILABLE
     ) {
-      logout();
+      logout(LogoutReason.KratosSessionAlreadyAvailable);
     }
   }
 

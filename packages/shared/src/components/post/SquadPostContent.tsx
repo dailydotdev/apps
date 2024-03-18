@@ -117,14 +117,12 @@ function SquadPostContent({
               source={post.source}
               className={classNames('!typo-body', customNavigation && 'mt-6')}
             />
-            {post.author && (
-              <SquadPostAuthor
-                author={post.author}
-                role={role}
-                date={post.createdAt}
-                className={{ container: 'mt-3' }}
-              />
-            )}
+            <SquadPostAuthor
+              author={post?.author}
+              role={role}
+              date={post.createdAt}
+              className={{ container: 'mt-3' }}
+            />
             <Content post={post} onReadArticle={onReadArticle} />
           </BasePostContent>
         </div>

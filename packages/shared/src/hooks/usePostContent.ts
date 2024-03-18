@@ -13,8 +13,6 @@ import useOnPostClick from './useOnPostClick';
 import useSubscription from './useSubscription';
 import { PostOrigin } from './analytics/useAnalyticsContextData';
 import { updatePostCache } from './usePostById';
-import { useFeature } from '../components/GrowthBookProvider';
-import { feature } from '../lib/featureManagement';
 
 export interface UsePostContent {
   sharePost: Post;
@@ -33,7 +31,6 @@ const usePostContent = ({
   post,
 }: UsePostContentProps): UsePostContent => {
   const id = post?.id;
-  const copyLinkFeature = useFeature(feature.copyLink);
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
   const { trackEvent } = useAnalyticsContext();
@@ -43,15 +40,8 @@ const usePostContent = ({
       post: post?.sharedPost || post,
       optional: { parent_id: post.sharedPost && post.id },
     });
-  const { sharePost, openSharePost, closeSharePost, copyLink } =
-    useSharePost(origin);
-  const onShare = () => {
-    if (copyLinkFeature) {
-      return copyLink(post);
-    }
-    return openSharePost(post);
-  };
-
+  const { sharePost, closeSharePost, copyLink } = useSharePost(origin);
+  const onShare = () => copyLink(post);
   useSubscription(
     () => ({
       query: POSTS_ENGAGED_SUBSCRIPTION,

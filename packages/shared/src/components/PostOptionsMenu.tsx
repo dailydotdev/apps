@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
+import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
@@ -60,6 +60,8 @@ import { feature } from '../lib/featureManagement';
 import { SourceSubscribeExperiment } from '../lib/featureValues';
 import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
+import { SourceType } from '../graphql/sources';
+import { withExperiment } from './withExperiment';
 
 const ContextMenu = dynamic(
   () =>
@@ -86,6 +88,14 @@ export interface PostOptionsMenuProps extends ShareBookmarkProps {
   origin: Origin;
   allowPin?: boolean;
 }
+
+const PostOptionSourceSubscribe = withExperiment(
+  ({ children }: { children: ReactNode }) => <>{children}</>,
+  {
+    feature: feature.sourceSubscribe,
+    value: SourceSubscribeExperiment.V1,
+  },
+);
 
 export default function PostOptionsMenu({
   postIndex,
@@ -127,8 +137,6 @@ export default function PostOptionsMenu({
     postId: post?.id,
     shouldInvalidateQueries: false,
   });
-  const isSourceSubscribeV1 =
-    useFeature(feature.sourceSubscribe) === SourceSubscribeExperiment.V1;
 
   const sourceSubscribe = useSourceSubscription({
     source: post?.source,
@@ -346,7 +354,10 @@ export default function PostOptionsMenu({
     });
   }
 
-  if (isLoggedIn && isSourceSubscribeV1 && !isSourceBlocked) {
+  const shouldShowSubscribe =
+    isLoggedIn && !isSourceBlocked && post?.source?.type === SourceType.Machine;
+
+  if (shouldShowSubscribe) {
     postOptions.push({
       icon: (
         <MenuIcon
@@ -357,6 +368,7 @@ export default function PostOptionsMenu({
         sourceSubscribe.isSubscribed ? 'Unsubscribe from' : 'Subscribe to'
       } ${post?.source?.name}`,
       action: sourceSubscribe.isReady ? sourceSubscribe.onSubscribe : undefined,
+      Wrapper: PostOptionSourceSubscribe,
     });
   }
 
