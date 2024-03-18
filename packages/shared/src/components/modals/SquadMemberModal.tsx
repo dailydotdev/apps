@@ -21,6 +21,7 @@ import { verifyPermission } from '../../graphql/squads';
 import useDebounce from '../../hooks/useDebounce';
 import { defaultSearchDebounceMs } from '../../lib/func';
 import { BlockedMembersPlaceholder } from '../squads/Members';
+import { ContextMenu } from '../../hooks/constants';
 
 enum SquadMemberTab {
   AllMembers = 'Squad members',
@@ -65,8 +66,12 @@ export function SquadMemberModal({
 }: SquadMemberModalProps): ReactElement {
   const [roleFilter, setRoleFilter] = useState<SourceMemberRole>(null);
   const [member, setMember] = useState<SourceMember>(null);
-  const { onMenuClick, onHide: hideMenu } = useContextMenu({
-    id: 'squad-member-menu-context',
+  const {
+    onMenuClick,
+    onHide: hideMenu,
+    isOpen,
+  } = useContextMenu({
+    id: ContextMenu.SquadMemberContext,
   });
   const [query, setQuery] = useState('');
   const [handleSearchDebounce] = useDebounce(
@@ -147,6 +152,7 @@ export function SquadMemberModal({
         squad={squad}
         member={member}
         onUpdateRole={onUpdateRole}
+        isOpen={isOpen}
       />
     </>
   );

@@ -47,6 +47,8 @@ import { isNullOrUndefined } from '../lib/func';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { acquisitionKey } from './cards/AcquisitionFormCard';
+import useContextMenu from '../hooks/useContextMenu';
+import { ContextMenu } from '../hooks/constants';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'>,
@@ -462,12 +464,10 @@ export default function Feed<T>({
           onRemovePost={onRemovePost}
           origin={origin}
           allowPin={allowPin}
-          isOpen={!isNullOrUndefined(postMenuIndex)}
         />
         <ShareOptionsMenu
           {...commonMenuItems}
           onHidden={onShareOptionsHidden}
-          isOpen={!isNullOrUndefined(postShareMenuIndex)}
         />
         {!shouldUseMobileFeedLayout && selectedPost && PostModal && (
           <PostModal

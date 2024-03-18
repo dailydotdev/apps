@@ -26,6 +26,8 @@ import { MenuItemProps } from '../fields/PortalMenu';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { Origin } from '../../lib/analytics';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { ContextMenu } from '../../hooks/constants';
+import useContextMenu from '../../hooks/useContextMenu';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -49,6 +51,7 @@ export default function SquadHeaderMenu({
   const router = useRouter();
   const { openModal } = useLazyModal();
   const { editSquad } = useSquadNavigation();
+  const { isOpen } = useContextMenu({ id: ContextMenu.SquadMenuContext });
 
   const { onDeleteSquad } = useDeleteSquad({
     squad,
@@ -142,11 +145,11 @@ export default function SquadHeaderMenu({
   return (
     <PortalMenu
       disableBoundariesCheck
-      id="squad-menu-context"
+      id={ContextMenu.SquadMenuContext}
       className="menu-primary"
       animation="fade"
       drawerOptions={items.map((item) => ({ ...item, label: item.label }))}
-      isOpen={false}
+      isOpen={isOpen}
     >
       {items.map((props) => (
         <ContextMenuItem key={props.label} {...props} />

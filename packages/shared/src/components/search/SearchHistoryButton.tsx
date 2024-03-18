@@ -11,6 +11,7 @@ import { SimpleTooltip } from '../tooltips';
 import { useSearchHistory } from '../../hooks/search';
 import { ContextMenu, MenuItemProps } from '../fields/PortalMenu';
 import useContextMenu from '../../hooks/useContextMenu';
+import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import { SearchProviderEnum, getSearchUrl } from '../../graphql/search';
 import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -26,7 +27,9 @@ export function SearchHistoryButton(): ReactElement {
   } = useSearchHistory({ limit: 3 });
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { onMenuClick, onHide } = useContextMenu({ id: contextMenuId });
+  const { onMenuClick, onHide } = useContextMenu({
+    id: ContextMenuIds.SearchHistoryContext,
+  });
 
   const getMessage = () => {
     if (isLoading) {

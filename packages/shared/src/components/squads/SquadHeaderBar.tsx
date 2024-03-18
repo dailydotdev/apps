@@ -21,6 +21,7 @@ import { SquadJoinButton } from './SquadJoinButton';
 import { BellIcon, ChecklistBIcon, AddUserIcon, MenuIcon } from '../icons';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import { ContextMenu } from '../../hooks/constants';
 
 export function SquadHeaderBar({
   squad,
@@ -34,7 +35,7 @@ export function SquadHeaderBar({
     origin: Origin.SquadPage,
   });
   const { openModal, modal } = useLazyModal();
-  const { onMenuClick } = useContextMenu({ id: 'squad-menu-context' });
+  const { onMenuClick } = useContextMenu({ id: ContextMenu.SquadMenuContext });
   const { sidebarRendered } = useSidebarRendered();
 
   const {

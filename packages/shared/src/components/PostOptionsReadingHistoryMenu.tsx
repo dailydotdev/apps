@@ -22,9 +22,14 @@ import {
   updateInfiniteCache,
 } from '../lib/query';
 import { Origin } from '../lib/analytics';
+import useContextMenu from '../hooks/useContextMenu';
+import { ContextMenu as ContextMenuIds } from '../hooks/constants';
 
-const PortalMenu = dynamic(
-  () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
+const ContextMenu = dynamic(
+  () =>
+    import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu').then(
+      (module) => module.ContextMenu,
+    ),
   {
     ssr: false,
   },
@@ -63,22 +68,19 @@ const updateReadingHistoryPost =
       client.setQueryData<ReadHistoryInfiniteData>(queryKey, history);
   };
 
-const getBookmarkIconAndMenuText = (bookmarked: boolean) => (
-  <>
-    <MenuIcon
-      Icon={({ secondary, ...props }) => (
-        <BookmarkIcon
-          secondary={bookmarked}
-          {...props}
-          className={classNames(
-            props.className,
-            bookmarked && 'text-theme-color-bun',
-          )}
-        />
-      )}
-    />
-    {bookmarked ? 'Remove from bookmarks' : 'Save to bookmarks'}
-  </>
+const getBookmarkIconAndMenuIcon = (bookmarked: boolean) => (
+  <MenuIcon
+    Icon={({ secondary, ...props }) => (
+      <BookmarkIcon
+        secondary={bookmarked}
+        {...props}
+        className={classNames(
+          props.className,
+          bookmarked && 'text-theme-color-bun',
+        )}
+      />
+    )}
+  />
 );
 
 export default function PostOptionsReadingHistoryMenu({
@@ -91,7 +93,9 @@ export default function PostOptionsReadingHistoryMenu({
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const historyQueryKey = generateQueryKey(RequestKey.ReadingHistory, user);
-
+  const { isOpen } = useContextMenu({
+    id: ContextMenuIds.PostReadingHistoryContext,
+  });
   const { toggleBookmark } = useBookmarkPost({
     onMutate: () => {
       const updatePost = updateReadingHistoryPost(
@@ -114,36 +118,36 @@ export default function PostOptionsReadingHistoryMenu({
     });
   };
 
+  const options = [
+    {
+      icon: <MenuIcon Icon={ShareIcon} />,
+      label: 'Share post via...',
+      action: onShare,
+    },
+    {
+      icon: getBookmarkIconAndMenuIcon(post?.bookmarked),
+      label: post?.bookmarked ? 'Remove from bookmarks' : 'Save to bookmarks',
+      action: onToggleBookmark,
+    },
+    {
+      icon: <MenuIcon Icon={XIcon} />,
+      label: 'Remove post',
+      action: () => onHideHistoryPost(post?.id),
+    },
+  ];
+
   return (
     <>
-      <PortalMenu
+      <ContextMenu
         disableBoundariesCheck
         id="reading-history-options-context"
         className="menu-primary"
         animation="fade"
         onHidden={onHiddenMenu}
-        drawerOptions={[]}
-        isOpen={false}
-      >
-        <Item className="typo-callout" onClick={onShare}>
-          <span className="flex w-full typo-callout">
-            <MenuIcon Icon={ShareIcon} /> Share post via...
-          </span>
-        </Item>
-        <Item className="typo-callout" onClick={onToggleBookmark}>
-          <span className="flex w-full typo-callout">
-            {getBookmarkIconAndMenuText(post?.bookmarked)}
-          </span>
-        </Item>
-        <Item
-          className="typo-callout"
-          onClick={() => onHideHistoryPost(post?.id)}
-        >
-          <span className="flex w-full typo-callout">
-            <MenuIcon Icon={XIcon} /> Remove post
-          </span>
-        </Item>
-      </PortalMenu>
+        drawerOptions={options}
+        options={options}
+        isOpen={isOpen}
+      />
     </>
   );
 }

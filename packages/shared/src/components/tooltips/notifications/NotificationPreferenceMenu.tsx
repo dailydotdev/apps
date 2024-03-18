@@ -1,6 +1,6 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
-import PortalMenu from '../../fields/PortalMenu';
+import { ContextMenu } from '../../fields/PortalMenu';
 import { Loader } from '../../Loader';
 import {
   Notification,
@@ -14,12 +14,14 @@ interface NotificationPreferenceMenuProps {
   contextId: string;
   notification: Notification;
   onClose(): void;
+  isOpen: boolean;
 }
 
 export const NotificationPreferenceMenu = ({
   contextId,
   notification,
   onClose,
+  isOpen,
 }: NotificationPreferenceMenuProps): ReactElement => {
   const {
     preferences,
@@ -67,38 +69,32 @@ export const NotificationPreferenceMenu = ({
     return <NotifIcon />;
   };
 
-  const Copy = (): ReactElement => {
+  const label = useMemo((): string => {
     if (!notification) {
       return null;
     }
 
     if (isFetching) {
-      return <>Fetching your preference</>;
+      return 'Fetching your preference';
     }
 
     const isMuted =
       preferences[0]?.status === NotificationPreferenceStatus.Muted;
     const copy = notificationMutingCopy[notification?.type];
 
-    return <>{isMuted ? copy.unmute : copy.mute}</>;
-  };
+    return isMuted ? copy.unmute : copy.mute;
+  }, [notification, preferences, isFetching]);
 
   return (
-    <PortalMenu
+    <ContextMenu
       disableBoundariesCheck
       id={contextId}
       className="menu-primary"
       animation="fade"
       onHidden={onClose}
-      drawerOptions={[]}
-      isOpen={false}
-    >
-      <Item className="w-64 py-1 typo-callout" onClick={onItemClick}>
-        <span className="flex w-full flex-row items-center gap-1">
-          <Icon />
-          <Copy />
-        </span>
-      </Item>
-    </PortalMenu>
+      options={[{ icon: <Icon />, label, action: onItemClick }]}
+      drawerOptions={[{ icon: <Icon />, label, action: onItemClick }]}
+      isOpen={isOpen}
+    />
   );
 };

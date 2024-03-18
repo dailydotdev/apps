@@ -16,10 +16,12 @@ import { ContextMenu, MenuItemProps } from '../fields/PortalMenu';
 import { UseSquadActions, useToastNotification } from '../../hooks';
 import { verifyPermission } from '../../graphql/squads';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
+import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 
 interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
   squad: Squad;
   member: SourceMember;
+  isOpen?: boolean;
 }
 
 enum MenuItemTitle {
@@ -110,6 +112,7 @@ export default function SquadMemberMenu({
   squad,
   member,
   onUpdateRole,
+  isOpen,
 }: SquadMemberMenuProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
@@ -210,8 +213,8 @@ export default function SquadMemberMenu({
     <ContextMenu
       options={options}
       drawerOptions={options}
-      isOpen={false}
-      id="squad-member-menu-context"
+      isOpen={isOpen}
+      id={ContextMenuIds.SquadMemberContext}
     />
   );
 }
