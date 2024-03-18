@@ -20,7 +20,7 @@ export const HOST_PERMISSIONS = [
   'https://*.daily.dev/*',
 ];
 
-const hasInjectedScripts = false;
+let hasInjectedScripts = false;
 const companionScriptId = 'daily-companion-app';
 
 export const registerBrowserContentScripts = async (): Promise<void> => {
@@ -68,6 +68,7 @@ export const getContentScriptPermissionAndRegister =
 
     if (permission && !hasInjectedScripts) {
       await registerBrowserContentScripts();
+      hasInjectedScripts = true;
     }
   };
 
