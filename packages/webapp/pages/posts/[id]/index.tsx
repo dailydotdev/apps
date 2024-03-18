@@ -14,15 +14,10 @@ import {
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { NextSeo } from 'next-seo';
-import {
-  POST_BY_ID_STATIC_FIELDS_QUERY,
-  PostData,
-  PostType,
-} from '@dailydotdev/shared/src/graphql/posts';
+import { PostData, PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
-import request, { ClientError } from 'graphql-request';
-import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
+import { ClientError } from 'graphql-request';
 import {
   PostContent,
   SCROLL_OFFSET,
@@ -252,15 +247,15 @@ export async function getStaticProps({
 }: GetStaticPropsContext<PostParams>): Promise<GetStaticPropsResult<Props>> {
   const { id } = params;
   try {
-    const initialData = await request<PostData>(
-      graphqlUrl,
-      POST_BY_ID_STATIC_FIELDS_QUERY,
-      { id },
-    );
+    // const initialData = await request<PostData>(
+    //   graphqlUrl,
+    //   POST_BY_ID_STATIC_FIELDS_QUERY,
+    //   { id },
+    // );
     return {
       props: {
         id,
-        initialData,
+        // initialData,
       },
       revalidate: 60,
     };
