@@ -27,9 +27,10 @@ import { LazyModal } from '../modals/common/types';
 import type { LazyModalType } from '../modals/common';
 import { anchorDefaultRel } from '../../lib/strings';
 import type { NavItemProps } from '../drawers/NavDrawerItem';
+import { LogoutReason } from '../../lib/user';
 
 const createMenuItems = (
-  logout: () => Promise<void>,
+  logout: (reason: string) => Promise<void>,
   openModal: (data: LazyModalType<LazyModal>) => void,
 ): NavItemProps[] => {
   return [
@@ -40,7 +41,11 @@ const createMenuItems = (
     { label: 'Edit profile', icon: <EditIcon />, href: '/account/profile' },
     { label: 'Invite friends', icon: <AddUserIcon />, href: '/account/invite' },
     { label: 'Devcard', icon: <DevCardIcon />, href: '/devcard' },
-    { label: 'Logout', icon: <ExitIcon />, onClick: logout },
+    {
+      label: 'Logout',
+      icon: <ExitIcon />,
+      onClick: () => logout(LogoutReason.ManualLogout),
+    },
     {
       label: 'Manage',
       isHeader: true,
