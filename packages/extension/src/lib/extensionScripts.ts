@@ -53,6 +53,7 @@ export const registerBrowserContentScripts = async (): Promise<void> => {
       },
     ]);
   }
+  hasInjectedScripts = true;
 
   return null;
 };
