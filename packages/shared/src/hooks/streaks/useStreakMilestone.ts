@@ -77,5 +77,6 @@ export const useStreakMilestone = (): void => {
     updateAlerts,
     trackEvent,
     queryClient,
+    user,
   ]);
 };
