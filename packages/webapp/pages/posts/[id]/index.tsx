@@ -54,6 +54,7 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import LoginButton from '@dailydotdev/shared/src/components/LoginButton';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import {
   getSeoDescription,
@@ -103,6 +104,7 @@ interface PostParams extends ParsedUrlQuery {
 }
 
 const PostPage = ({ id, initialData }: Props): ReactElement => {
+  const { isFetched } = useAuthContext();
   useJoinReferral();
   const { showArticleOnboarding } = useContext(OnboardingContext);
   const [position, setPosition] =
@@ -148,7 +150,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     scrollProperty: 'scrollY',
   });
 
-  if (isLoading || isFallback) {
+  if (isLoading || isFallback || !isFetched) {
     return (
       <>
         <PostSEOSchema post={post} />
