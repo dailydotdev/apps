@@ -124,9 +124,6 @@ export function OnboardPage(): ReactElement {
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
   );
-  const socialProofOnboardingMobile: boolean = useFeature(
-    feature.socialProofOnboarding,
-  );
   const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
   const isOnboardingCopyV1 =
     useFeature(feature.onboardingCopy) === OnboardingCopy.V1;
@@ -236,8 +233,7 @@ export function OnboardPage(): ReactElement {
             !isAuthenticating && 'max-w-full',
           ),
           onboardingSignup: classNames(
-            socialProofOnboardingMobile &&
-              '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
+            '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
             isOnboardingCopyV1 && 'flex !flex-row *:grow',
           ),
         }}
@@ -254,10 +250,7 @@ export function OnboardPage(): ReactElement {
           setAuth({ isAuthenticating: true, ...props })
         }
         onboardingSignupButton={{
-          size:
-            isMobile && socialProofOnboardingMobile
-              ? ButtonSize.Medium
-              : ButtonSize.Large,
+          size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
           variant: isOnboardingCopyV1
             ? ButtonVariant.Float
             : ButtonVariant.Primary,
@@ -345,12 +338,7 @@ export function OnboardPage(): ReactElement {
           </>
         )}
         {!isFiltering && (
-          <div
-            className={classNames(
-              'flex-1',
-              socialProofOnboardingMobile ? 'block' : 'hidden tablet:block',
-            )}
-          >
+          <div className="block flex-1">
             <div
               className={classNames(
                 'tablet:min-h-[800px]:pt-[100%] relative overflow-y-clip tablet:overflow-y-visible tablet:pt-[80%]',
@@ -382,7 +370,7 @@ export function OnboardPage(): ReactElement {
                 />
               )}
             </div>
-            {onboardingVisual.showCompanies && socialProofOnboardingMobile && (
+            {onboardingVisual.showCompanies && (
               <TrustedCompanies className="hidden tablet:block" />
             )}
           </div>
@@ -436,9 +424,7 @@ export function OnboardPage(): ReactElement {
           <div
             className={classNames(
               'flex flex-1 flex-col laptop:mr-8 laptop:max-w-[27.5rem]',
-              socialProofOnboardingMobile &&
-                `${isOnboardingCopyV1 ? 'mt-6' : 'mt-5'} tablet:mt-0`,
-              !socialProofOnboardingMobile && 'justify-center',
+              `${isOnboardingCopyV1 ? 'mt-6' : 'mt-5'} tablet:mt-0`,
             )}
           >
             {shouldShowOnline && <ActiveUsersCounter />}
@@ -457,7 +443,7 @@ export function OnboardPage(): ReactElement {
             {getAuthOptions()}
           </div>
         )}
-        {showOnboardingPage && socialProofOnboardingMobile && (
+        {showOnboardingPage && (
           <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />
         )}
         {getContent()}
@@ -470,20 +456,12 @@ export function OnboardPage(): ReactElement {
           )}
         >
           <div className="relative flex flex-1 flex-col gap-6 pb-6 tablet:mt-auto laptop:mr-8 laptop:max-w-[27.5rem]">
-            <SignupDisclaimer
-              className={classNames(
-                'mb-0 tablet:mb-10',
-                socialProofOnboardingMobile && 'hidden tablet:block',
-              )}
-            />
+            <SignupDisclaimer className="mb-0 hidden tablet:mb-10 tablet:block" />
 
             <TrustedCompanies
               iconSize={IconSize.Small}
               reverse
-              className={classNames(
-                ' block tablet:hidden',
-                socialProofOnboardingMobile && 'mt-5',
-              )}
+              className=" mt-5 block tablet:hidden"
             />
 
             <img
