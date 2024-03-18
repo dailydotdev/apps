@@ -31,6 +31,10 @@ function SharePostContent({
     onReadArticle();
   };
 
+  if (!post.sharedPost) {
+    return <></>;
+  }
+
   const shouldUseInternalLink =
     isSharedPostSquadPost(post) || isInternalReadType(post.sharedPost);
 

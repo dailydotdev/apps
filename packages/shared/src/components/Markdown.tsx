@@ -1,11 +1,11 @@
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
-import { sanitize } from 'dompurify';
 import classNames from 'classnames';
 import styles from './markdown.module.css';
 import { ProfileTooltip } from './profile/ProfileTooltip';
 import { useProfileTooltip } from '../hooks/useProfileTooltip';
 import { CaretOffset } from '../lib/element';
 import useDebounce from '../hooks/useDebounce';
+import { useDomPurify } from '../hooks/useDomPurify';
 
 interface MarkdownProps {
   className?: string;
@@ -22,6 +22,7 @@ export default function Markdown({
   appendTooltipTo,
 }: MarkdownProps): ReactElement {
   const ref = useRef<HTMLDivElement>();
+  const purify = useDomPurify();
   const [userId, setUserId] = useState('');
   const [offset, setOffset] = useState<CaretOffset>([0, 0]);
   const { fetchInfo, data } = useProfileTooltip({
@@ -97,7 +98,7 @@ export default function Markdown({
         offset,
         visible: !!userId,
         onShow: cancelUserClearing,
-        appendTo: appendTooltipTo || document?.body || 'parent',
+        appendTo: appendTooltipTo || globalThis?.document?.body || 'parent',
       }}
       onMouseEnter={cancelUserClearing}
       onMouseLeave={clearUser}
@@ -106,7 +107,7 @@ export default function Markdown({
         ref={ref}
         className={classNames(styles.markdown, className)}
         dangerouslySetInnerHTML={{
-          __html: sanitize(content, { ADD_ATTR: ['target'] }),
+          __html: purify?.sanitize?.(content, { ADD_ATTR: ['target'] }),
         }}
       />
     </ProfileTooltip>
