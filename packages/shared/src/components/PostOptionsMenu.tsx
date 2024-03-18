@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
+import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
@@ -63,6 +63,8 @@ import { feature } from '../lib/featureManagement';
 import { ContextMenuDrawer } from './drawers/ContextMenuDrawer';
 import { RootPortal } from './tooltips/Portal';
 import { SourceSubscribeExperiment } from '../lib/featureValues';
+import { SourceType } from '../graphql/sources';
+import { withExperiment } from './withExperiment';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -87,6 +89,14 @@ export interface PostOptionsMenuProps extends ShareBookmarkProps {
   allowPin?: boolean;
   isOpen?: boolean;
 }
+
+const PostOptionSourceSubscribe = withExperiment(
+  ({ children }: { children: ReactNode }) => <>{children}</>,
+  {
+    feature: feature.sourceSubscribe,
+    value: SourceSubscribeExperiment.V1,
+  },
+);
 
 export default function PostOptionsMenu({
   postIndex,
@@ -125,8 +135,6 @@ export default function PostOptionsMenu({
     postId: post?.id,
     shouldInvalidateQueries: false,
   });
-  const isSourceSubscribeV1 =
-    useFeature(feature.sourceSubscribe) === SourceSubscribeExperiment.V1;
 
   const sourceSubscribe = useSourceSubscription({
     source: post?.source,
@@ -344,7 +352,10 @@ export default function PostOptionsMenu({
     });
   }
 
-  if (isLoggedIn && isSourceSubscribeV1 && !isSourceBlocked) {
+  const shouldShowSubscribe =
+    isLoggedIn && !isSourceBlocked && post?.source?.type === SourceType.Machine;
+
+  if (shouldShowSubscribe) {
     postOptions.push({
       icon: (
         <MenuIcon
@@ -355,6 +366,7 @@ export default function PostOptionsMenu({
         sourceSubscribe.isSubscribed ? 'Unsubscribe from' : 'Subscribe to'
       } ${post?.source?.name}`,
       action: sourceSubscribe.isReady ? sourceSubscribe.onSubscribe : undefined,
+      Wrapper: PostOptionSourceSubscribe,
     });
   }
 
