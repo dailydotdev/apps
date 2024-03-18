@@ -162,7 +162,7 @@ const SquadPage = ({
     return (
       <>
         {seo}
-        <SquadLoading />
+        <SquadLoading squad={seoData} sidebarRendered={sidebarRendered} />
       </>
     );
   }

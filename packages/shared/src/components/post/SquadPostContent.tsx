@@ -11,7 +11,6 @@ import SquadPostAuthor from './SquadPostAuthor';
 import SharePostContent from './SharePostContent';
 import MarkdownPostContent from './MarkdownPostContent';
 import { SquadPostWidgets } from './SquadPostWidgets';
-import { isSourcePublicSquad } from '../../graphql/squads';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { PostContentProps, PostNavigationProps } from './common';
 import ShareYouTubeContent from './ShareYouTubeContent';
@@ -50,7 +49,6 @@ function SquadPostContent({
     source: post?.source,
     user: post?.author,
   });
-  const isPublicSquad = isSourcePublicSquad(post?.source);
 
   const navigationProps: PostNavigationProps = {
     post,
@@ -86,17 +84,15 @@ function SquadPostContent({
       )}
       <PostContentContainer
         className={classNames(
-          'relative tablet:pb-0',
+          'relative flex-1 flex-col tablet:flex-row tablet:pb-0',
           className?.container,
-          isPublicSquad ? 'flex-1 flex-col tablet:flex-row' : '!pb-2',
         )}
         hasNavigation={hasNavigation}
       >
         <div
           className={classNames(
-            'relative min-w-0 px-4 tablet:px-8',
+            'relative flex min-w-0 flex-1 flex-col px-4 tablet:px-8',
             className?.content,
-            isPublicSquad && 'flex flex-1 flex-col',
           )}
         >
           <BasePostContent
@@ -104,11 +100,8 @@ function SquadPostContent({
               ...className,
               onboarding: classNames('mb-6', className?.onboarding),
               navigation: {
-                actions: classNames(
-                  'ml-auto',
-                  isPublicSquad && 'tablet:hidden',
-                ),
-                container: classNames('mb-6 pt-6'),
+                actions: 'ml-auto tablet:hidden',
+                container: 'mb-6 pt-6',
               },
             }}
             isFallback={isFallback}
@@ -124,27 +117,23 @@ function SquadPostContent({
               source={post.source}
               className={classNames('!typo-body', customNavigation && 'mt-6')}
             />
-            {post.author && (
-              <SquadPostAuthor
-                author={post.author}
-                role={role}
-                date={post.createdAt}
-                className={{ container: 'mt-3' }}
-              />
-            )}
+            <SquadPostAuthor
+              author={post?.author}
+              role={role}
+              date={post.createdAt}
+              className={{ container: 'mt-3' }}
+            />
             <Content post={post} onReadArticle={onReadArticle} />
           </BasePostContent>
         </div>
-        {isPublicSquad && (
-          <SquadPostWidgets
-            onShare={onSharePost}
-            onReadArticle={onReadArticle}
-            post={post}
-            className="mb-6 border-l border-theme-divider-tertiary tablet:mb-0"
-            onClose={onClose}
-            origin={origin}
-          />
-        )}
+        <SquadPostWidgets
+          onShare={onSharePost}
+          onReadArticle={onReadArticle}
+          post={post}
+          className="mb-6 border-l border-theme-divider-tertiary tablet:mb-0"
+          onClose={onClose}
+          origin={origin}
+        />
       </PostContentContainer>
     </>
   );

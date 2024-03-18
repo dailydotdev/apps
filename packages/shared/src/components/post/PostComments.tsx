@@ -69,7 +69,7 @@ export function PostComments({
         refetchOnWindowFocus: false,
       },
     );
-  const { hash: commentHash } = window.location;
+  const { hash: commentHash } = globalThis?.window?.location || {};
   const commentsCount = comments?.postComments?.edges?.length || 0;
   const commentRef = useRef<HTMLElement>(null);
   const { deleteComment } = useDeleteComment();
