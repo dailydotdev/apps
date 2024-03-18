@@ -21,7 +21,7 @@ export type PopupEventType =
   | React.MouseEvent
   | React.KeyboardEvent;
 
-export type PopupCloseEvent = (e: PopupEventType) => void;
+export type PopupCloseFunc = (e: PopupEventType) => void;
 
 export enum DrawerPosition {
   Bottom = 'bottom',
@@ -45,7 +45,7 @@ export interface DrawerProps
   isFullScreen?: boolean;
   isClosing?: boolean;
   title?: string;
-  onClose: PopupCloseEvent;
+  onClose: PopupCloseFunc;
   displayCloseButton?: boolean;
 }
 

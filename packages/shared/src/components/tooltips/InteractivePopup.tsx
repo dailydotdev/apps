@@ -7,7 +7,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { MiniCloseIcon as CloseIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
-import { Drawer, DrawerOnMobileProps, PopupCloseEvent } from '../drawers';
+import { Drawer, DrawerOnMobileProps, PopupCloseFunc } from '../drawers';
 import { useViewSize, ViewSize } from '../../hooks';
 
 export enum InteractivePopupPosition {
@@ -35,7 +35,7 @@ export interface InteractivePopupProps extends DrawerOnMobileProps {
   className?: string;
   position?: InteractivePopupPosition;
   closeOutsideClick?: boolean;
-  onClose?: PopupCloseEvent;
+  onClose?: PopupCloseFunc;
   closeButton?: CloseButtonProps;
 }
 
