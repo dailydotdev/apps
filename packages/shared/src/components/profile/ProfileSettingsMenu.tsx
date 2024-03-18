@@ -24,9 +24,9 @@ import {
 } from '../../lib/constants';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { LazyModalType } from '../modals/common';
+import type { LazyModalType } from '../modals/common';
 import { anchorDefaultRel } from '../../lib/strings';
-import { NavItemProps } from '../drawers/NavDrawerItem';
+import type { NavItemProps } from '../drawers/NavDrawerItem';
 
 const createMenuItems = (
   logout: () => Promise<void>,
