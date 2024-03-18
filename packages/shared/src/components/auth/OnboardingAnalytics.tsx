@@ -4,6 +4,7 @@ import { isProduction } from '../../lib/constants';
 
 export const FB_PIXEL_ID = '519268979315924';
 export const GA_TRACKING_ID = 'AW-619408403';
+export const TWITTER_TRACKING_ID = 'o6izs';
 
 export const PixelTracking = (): ReactElement => {
   if (!isProduction) {
@@ -52,6 +53,21 @@ export const GtagTracking = (): ReactElement => {
   );
 };
 
+export const TwitterTracking = (): ReactElement => {
+  if (!isProduction) {
+    return null;
+  }
+
+  return (
+    <Script
+      id="twitter-pixel"
+      src="/scripts/twitter.js"
+      strategy="afterInteractive"
+      data-twitter-id={TWITTER_TRACKING_ID}
+    />
+  );
+};
+
 export const trackAnalyticsSignUp = (): void => {
   if (typeof globalThis.gtag === 'function') {
     globalThis.gtag('event', 'signup');
@@ -59,5 +75,9 @@ export const trackAnalyticsSignUp = (): void => {
 
   if (typeof globalThis.fbq === 'function') {
     globalThis.fbq('track', 'signup');
+  }
+
+  if (typeof globalThis.twq === 'function') {
+    globalThis.twq('event', 'tw-o6izs-okoq6', {});
   }
 };
