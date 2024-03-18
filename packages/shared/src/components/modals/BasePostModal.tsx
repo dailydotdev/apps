@@ -39,7 +39,6 @@ function BasePostModal({
         <PostLoadingSkeleton
           hasNavigation
           type={postType}
-          source={source}
           className={loadingClassName}
         />
       ) : (
