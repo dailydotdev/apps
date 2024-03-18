@@ -154,8 +154,7 @@ function MainLayoutHeader({
   return (
     <header
       className={classNames(
-        'sticky top-0 z-header flex h-14 flex-row items-center gap-3 border-b border-theme-divider-tertiary bg-background-default px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:flex-row laptop:px-4',
-        isStreakLarge ? 'justify-start' : 'justify-between',
+        'sticky top-0 z-header flex h-14 flex-row items-center justify-between gap-3 border-b border-theme-divider-tertiary bg-background-default px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:flex-row laptop:px-4',
         hasBanner && 'laptop:top-8',
         isSearchPage && 'mb-16 laptop:mb-0',
       )}
