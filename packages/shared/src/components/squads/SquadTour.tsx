@@ -8,7 +8,6 @@ import SquadTourCard from './SquadTourCard';
 import classed from '../../lib/classed';
 import { useSquadTour } from '../../hooks/useSquadTour';
 import { PopupCloseFunc } from '../drawers';
-import { useViewSize, ViewSize } from '../../hooks';
 
 interface SquadTourProps {
   onClose: PopupCloseFunc;
