@@ -122,7 +122,7 @@ const createMenuItems = (
 
 interface ProfileSettingsMenuProps {
   isOpen: boolean;
-  logout?: () => Promise<void>;
+  logout?: (reason: string) => Promise<void>;
   onClose: () => void;
 }
 

@@ -15,7 +15,7 @@ export type HeaderProps = {
   sticky?: boolean;
   className?: string;
   style?: CSSProperties;
-  logout?: () => Promise<void>;
+  logout?: (reason: string) => Promise<void>;
 };
 
 export function Header({
