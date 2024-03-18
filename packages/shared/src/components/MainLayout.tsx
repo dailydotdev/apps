@@ -162,7 +162,10 @@ function MainLayoutComponent({
     router.push(`${onboardingUrl}?${params.toString()}`);
   }, [shouldRedirectOnboarding, router]);
 
-  if (!isPageReady || shouldRedirectOnboarding) {
+  if (
+    (!isPageReady && isPageApplicableForOnboarding) ||
+    shouldRedirectOnboarding
+  ) {
     return null;
   }
   const isScreenCentered =
