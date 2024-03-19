@@ -38,7 +38,7 @@ function SidebarList({
         className,
       )}
     >
-      <span className="mb-6 flex w-full flex-row items-center border-b border-theme-divider-tertiary p-2 tablet:hidden">
+      <span className="mb-6 flex w-full flex-row items-center border-b border-theme-divider-tertiary p-2 px-4 tablet:hidden">
         <Button
           size={ButtonSize.Small}
           className="flex -rotate-90 tablet:hidden"
