@@ -25,19 +25,13 @@ type FeedContextMenu = {
     column: number,
   ) => void;
   postMenuIndex: number;
-  postShareMenuIndex: number;
   postMenuLocation: PostMenuLocation;
-  postShareMenuLocation: PostMenuLocation;
   setPostMenuIndex: (value: PostMenuLocation | undefined) => void;
-  setPostShareMenuIndex: (value: PostMenuLocation | undefined) => void;
 };
 
 export default function useFeedContextMenu(): FeedContextMenu {
   const [postMenuLocation, setPostMenuLocation] = useState<PostMenuLocation>();
-  const [postShareMenuLocation, setPostShareMenuLocation] =
-    useState<PostMenuLocation>();
   const postMenuIndex = postMenuLocation?.index;
-  const postShareMenuIndex = postShareMenuLocation?.index;
   const { showReportMenu } = useReportPostMenu(ContextMenu.PostContext);
   const { onMenuClick: showShareMenu } = useContextMenu({
     id: ContextMenu.ShareContext,
@@ -59,16 +53,16 @@ export default function useFeedContextMenu(): FeedContextMenu {
 
   const onShareMenuClick = (
     e: React.MouseEvent,
-    post: Post,
+    _post: Post,
     index: number,
     row: number,
     column: number,
   ) => {
     if (postMenuIndex === index) {
-      setPostShareMenuLocation(null);
+      setPostMenuLocation(null);
       return;
     }
-    setPostShareMenuLocation({ index, row, column });
+    setPostMenuLocation({ index, row, column });
     showShareMenu(e);
   };
 
@@ -76,10 +70,7 @@ export default function useFeedContextMenu(): FeedContextMenu {
     onMenuClick,
     onShareMenuClick,
     postMenuIndex,
-    postShareMenuIndex,
     postMenuLocation,
-    postShareMenuLocation,
     setPostMenuIndex: setPostMenuLocation,
-    setPostShareMenuIndex: setPostShareMenuLocation,
   };
 }

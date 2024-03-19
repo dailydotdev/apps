@@ -243,14 +243,8 @@ export default function Feed<T>({
     'go to link',
   );
 
-  const {
-    onMenuClick,
-    postMenuIndex,
-    postShareMenuIndex,
-    postShareMenuLocation,
-    setPostMenuIndex,
-    setPostShareMenuIndex,
-  } = useFeedContextMenu();
+  const { onMenuClick, postMenuIndex, postMenuLocation, setPostMenuIndex } =
+    useFeedContextMenu();
 
   const {
     sharePost,
@@ -302,7 +296,7 @@ export default function Feed<T>({
   };
 
   const onShareOptionsHidden = () => {
-    setPostShareMenuIndex(null);
+    setPostMenuIndex(null);
   };
 
   const onRemovePost = async (removePostIndex: number) => {
@@ -355,22 +349,21 @@ export default function Feed<T>({
   const onShareClick = (post: Post, row?: number, column?: number) =>
     openSharePost(post, virtualizedNumCards, column, row);
 
-  const menuIndex = postMenuIndex || postShareMenuIndex;
-  const post = (items[menuIndex] as PostItem)?.post;
+  const post = (items[postMenuIndex] as PostItem)?.post;
   const commonMenuItems = {
     onShare: () =>
       openSharePost(
         post,
         virtualizedNumCards,
-        postShareMenuLocation.row,
-        postShareMenuLocation.column,
+        postMenuLocation.row,
+        postMenuLocation.column,
       ),
     onBookmark: () => {
       onBookmark({ post, origin, opts: feedAnalyticsExtra(feedName, ranking) });
     },
     post,
-    prevPost: (items[menuIndex - 1] as PostItem)?.post,
-    nextPost: (items[menuIndex + 1] as PostItem)?.post,
+    prevPost: (items[postMenuIndex - 1] as PostItem)?.post,
+    nextPost: (items[postMenuIndex + 1] as PostItem)?.post,
   };
 
   const PostModal = PostModalMap[selectedPost?.type];
@@ -405,7 +398,7 @@ export default function Feed<T>({
             useList={useList}
             openNewTab={openNewTab}
             insaneMode={insaneMode}
-            postMenuIndex={menuIndex}
+            postMenuIndex={postMenuIndex}
             showCommentPopupId={showCommentPopupId}
             setShowCommentPopupId={setShowCommentPopupId}
             isSendingComment={isSendingComment}
