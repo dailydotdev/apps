@@ -40,10 +40,9 @@ export default function NewStreakModal({
       size={Modal.Size.XSmall}
       onRequestClose={onRequestClose}
       isDrawerOnMobile
-      drawerProps={{ className: { drawer: 'pb-4' } }}
     >
       <ModalClose onClick={onRequestClose} className="right-2 top-2" />
-      <Modal.Body className="items-center">
+      <Modal.Body className="items-center overflow-hidden">
         <span className="relative flex flex-col items-center justify-center">
           <img
             src={

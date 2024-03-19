@@ -57,6 +57,7 @@ function ModalCloseComponent(
       onClick={onClick}
       ref={ref}
       className={classNames(
+        'hidden tablet:flex',
         position,
         ZIndexToClassName[zIndex],
         RightToClassName[right],

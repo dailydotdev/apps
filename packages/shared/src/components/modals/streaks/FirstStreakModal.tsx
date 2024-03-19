@@ -19,7 +19,7 @@ export default function FirstStreakModal({
       isDrawerOnMobile
     >
       <ModalClose className="right-2 top-2" onClick={onRequestClose} />
-      <Modal.Body className="items-center p-0 tablet:items-start tablet:p-6">
+      <Modal.Body className="items-center tablet:items-start">
         <span className="flex flex-row items-end gap-2">
           <DayStreak
             className="opacity-32"

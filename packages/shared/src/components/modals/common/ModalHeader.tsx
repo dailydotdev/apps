@@ -4,7 +4,12 @@ import classed from '../../../lib/classed';
 import { ModalTabs, ModalTabsProps } from './ModalTabs';
 import { ModalClose } from './ModalClose';
 import { ModalHeaderKind, ModalPropsContext } from './types';
-import { Button, ButtonProps, ButtonVariant } from '../../buttons/Button';
+import {
+  Button,
+  ButtonProps,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/Button';
 import { ArrowIcon } from '../../icons';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
 import { ProgressBar } from '../../fields/ProgressBar';
@@ -26,7 +31,7 @@ const headerKindToTitleClassName: Record<ModalHeaderKind, string> = {
 const ModalHeaderTitle = classed('h3', 'font-bold');
 const ModalHeaderOuter = classed(
   'header',
-  'flex items-center py-4 px-6 w-full h-14',
+  'flex items-center py-4 px-4 tablet:px-6 w-full h-14',
 );
 const ModalHeaderSubtitle = classed('h3', 'font-bold typo-callout');
 
@@ -39,11 +44,13 @@ export function ModalHeader({
 }: ModalHeaderProps): ReactElement {
   const { activeView, onRequestClose, tabs, isDrawer } =
     useContext(ModalPropsContext);
-  const modalTitle = title ?? (tabs ? activeView : undefined);
 
   if (isDrawer) {
     return null;
   }
+
+  const modalTitle = title ?? (tabs ? activeView : undefined);
+  const shouldShowClose = showCloseButton && !!onRequestClose;
 
   return (
     <ModalHeaderOuter
@@ -53,14 +60,22 @@ export function ModalHeader({
         className,
       )}
     >
+      {shouldShowClose && (
+        <Button
+          size={ButtonSize.Small}
+          className="mr-2 flex -rotate-90 tablet:hidden"
+          icon={<ArrowIcon />}
+          onClick={onRequestClose}
+        />
+      )}
       {children}
       {!!modalTitle && (
         <ModalHeaderTitle className={headerKindToTitleClassName[kind]}>
           {modalTitle}
         </ModalHeaderTitle>
       )}
-      {showCloseButton && onRequestClose && (
-        <ModalClose onClick={onRequestClose} />
+      {shouldShowClose && (
+        <ModalClose className="hidden tablet:flex" onClick={onRequestClose} />
       )}
     </ModalHeaderOuter>
   );
