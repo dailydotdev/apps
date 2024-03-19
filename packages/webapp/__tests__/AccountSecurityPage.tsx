@@ -270,7 +270,19 @@ it('should allow linking social providers', async () => {
   await waitForNock();
 });
 
+const matchMedia = (value: string) => {
+  Object.defineProperty(global, 'matchMedia', {
+    writable: true,
+    value: jest.fn().mockImplementation((query) => ({
+      matches: query.includes(value),
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+    })),
+  });
+};
+
 it('should allow linking social providers but require to verify session', async () => {
+  matchMedia('1020');
   renderComponent();
   await waitAllRenderMocks();
   const connect = await screen.findByText('Connect with Google');
