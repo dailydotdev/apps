@@ -56,13 +56,6 @@ const SquadEmptyScreen = dynamic(
     ),
 );
 
-const SquadChecklistCard = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "squadChecklistCard" */ '@dailydotdev/shared/src/components/checklist/SquadChecklistCard'
-    ),
-);
-
 type SourcePageProps = {
   handle: string;
   initialData?: Pick<Squad, 'name' | 'public' | 'description' | 'image'>;
