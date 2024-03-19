@@ -15,11 +15,14 @@ import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { useFeedLayout, useGetShortUrl } from '../hooks';
 import { ReferralCampaignKey } from '../lib/referral';
-import { ContextMenu } from '../hooks/constants';
+import { ContextMenu as ContextMenuIds } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 
-const PortalMenu = dynamic(
-  () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
+const ContextMenu = dynamic(
+  () =>
+    import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu').then(
+      (module) => module.ContextMenu,
+    ),
   { ssr: false },
 );
 
@@ -33,7 +36,7 @@ interface ShareOptionsMenuProps extends ShareBookmarkProps {
 type ShareOption = {
   href?: string;
   icon: ReactElement;
-  text: string;
+  label: string;
   action: () => unknown;
 };
 
@@ -42,7 +45,7 @@ export default function ShareOptionsMenu({
   onBookmark,
   post,
   onHidden,
-  contextId = ContextMenu.ShareContext,
+  contextId = ContextMenuIds.ShareContext,
 }: ShareOptionsMenuProps): ReactElement {
   const link = post?.commentsPermalink;
   const [, copyLink] = useCopyPostLink(link);
@@ -71,7 +74,7 @@ export default function ShareOptionsMenu({
   const shareOptions: ShareOption[] = [
     {
       icon: <MenuIcon Icon={ShareIcon} />,
-      text: 'Share post via...',
+      label: 'Share post via...',
       action: () => onShare(post),
     },
   ];
@@ -85,19 +88,19 @@ export default function ShareOptionsMenu({
           className={post?.bookmarked && 'text-theme-color-bun'}
         />
       ),
-      text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
+      label: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
       action: onBookmark,
     });
   }
 
   shareOptions.push({
     icon: <MenuIcon Icon={LinkIcon} />,
-    text: 'Copy link to post',
+    label: 'Copy link to post',
     action: trackAndCopyLink,
   });
 
   return (
-    <PortalMenu
+    <ContextMenu
       disableBoundariesCheck
       id={contextId}
       className={classNames(
@@ -106,28 +109,8 @@ export default function ShareOptionsMenu({
       )}
       animation="fade"
       onHidden={onHidden}
-      drawerOptions={shareOptions.map((o) => ({ ...o, label: o.text }))}
       isOpen={isShareOptionsOpen}
-    >
-      {shareOptions.map(({ href, icon, text, action }) => (
-        <Item key={text} className="w-64 py-1 typo-callout" onClick={action}>
-          {href ? (
-            <a
-              className="flex w-full items-center typo-callout"
-              data-testid={`social-share-${text}`}
-              href={href}
-              rel="noopener"
-              target="_blank"
-            >
-              {icon} {text}
-            </a>
-          ) : (
-            <span className="flex w-full items-center typo-callout">
-              {icon} {text}
-            </span>
-          )}
-        </Item>
-      ))}
-    </PortalMenu>
+      options={shareOptions}
+    />
   );
 }

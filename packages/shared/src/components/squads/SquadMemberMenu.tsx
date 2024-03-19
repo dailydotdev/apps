@@ -212,7 +212,6 @@ export default function SquadMemberMenu({
   return (
     <ContextMenu
       options={options}
-      drawerOptions={options}
       isOpen={isOpen}
       id={ContextMenuIds.SquadMemberContext}
     />

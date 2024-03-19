@@ -17,32 +17,14 @@ import {
 export default function PortalMenu({
   id,
   onHidden: onHiddenProps,
-  isOpen,
-  drawerOptions,
   ...props
-}: MenuProps & {
-  drawerOptions: ContextMenuDrawerItem[];
-  isOpen: boolean;
-}): ReactElement {
+}: MenuProps): ReactElement {
   const { onHide } = useContextMenu({ id: id?.toString() });
 
   const onHidden = () => {
     onHide();
     onHiddenProps?.();
   };
-
-  const isMobile = useViewSize(ViewSize.MobileL);
-
-  if (isMobile) {
-    return (
-      <RootPortal>
-        <ContextMenuDrawer
-          drawerProps={{ isOpen, onClose: onHidden, displayCloseButton: true }}
-          options={drawerOptions}
-        />
-      </RootPortal>
-    );
-  }
 
   return (
     <RootPortal>
@@ -56,7 +38,7 @@ export interface MenuItemProps<
   TArgs extends Array<unknown> = Array<unknown>,
   TAnchorProps = AnchorHTMLAttributes<HTMLAnchorElement>,
 > {
-  icon: ReactNode;
+  icon?: ReactNode;
   label: string;
   action?: (...args: TArgs) => TReturn;
   anchorProps?: TAnchorProps;
@@ -64,39 +46,56 @@ export interface MenuItemProps<
 }
 
 interface ContextMenuProps extends Omit<MenuProps, 'children'> {
-  options: MenuItemProps[];
-  drawerOptions: ContextMenuDrawerItem[];
+  options: MenuItemProps[] | ContextMenuDrawerItem[];
   isOpen: boolean;
 }
 
 export const ContextMenu = ({
   options,
   ...props
-}: ContextMenuProps): ReactElement => (
-  <PortalMenu
-    disableBoundariesCheck
-    className="menu-primary"
-    animation="fade"
-    drawerOptions={options}
-    {...props}
-  >
-    {options.map(({ label, icon, action, anchorProps, Wrapper }) => (
-      <ConditionalWrapper
-        key={label}
-        condition={!!Wrapper}
-        wrapper={(children) => <Wrapper>{children}</Wrapper>}
-      >
-        <Item className="typo-callout" onClick={action}>
-          <ConditionalWrapper
-            condition={!!anchorProps}
-            wrapper={(children) => <a {...anchorProps}>{children}</a>}
-          >
-            <span className="flex w-full items-center gap-2 typo-callout">
-              {icon} {label}
-            </span>
-          </ConditionalWrapper>
-        </Item>
-      </ConditionalWrapper>
-    ))}
-  </PortalMenu>
-);
+}: ContextMenuProps): ReactElement => {
+  const isMobile = useViewSize(ViewSize.MobileL);
+
+  if (isMobile) {
+    return (
+      <RootPortal>
+        <ContextMenuDrawer
+          drawerProps={{
+            isOpen: props.isOpen,
+            onClose: props.onHidden,
+            displayCloseButton: true,
+          }}
+          options={options}
+        />
+      </RootPortal>
+    );
+  }
+
+  return (
+    <PortalMenu
+      disableBoundariesCheck
+      className="menu-primary"
+      animation="fade"
+      {...props}
+    >
+      {options.map(({ label, icon, action, anchorProps, Wrapper }) => (
+        <ConditionalWrapper
+          key={label}
+          condition={!!Wrapper}
+          wrapper={(children) => <Wrapper>{children}</Wrapper>}
+        >
+          <Item className="typo-callout" onClick={action}>
+            <ConditionalWrapper
+              condition={!!anchorProps}
+              wrapper={(children) => <a {...anchorProps}>{children}</a>}
+            >
+              <span className="flex w-full items-center gap-2 typo-callout">
+                {icon} {label}
+              </span>
+            </ConditionalWrapper>
+          </Item>
+        </ConditionalWrapper>
+      ))}
+    </PortalMenu>
+  );
+};

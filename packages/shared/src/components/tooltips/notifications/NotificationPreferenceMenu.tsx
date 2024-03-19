@@ -92,7 +92,6 @@ export const NotificationPreferenceMenu = ({
       animation="fade"
       onHidden={onClose}
       options={[{ icon: <Icon />, label, action: onItemClick }]}
-      drawerOptions={[{ icon: <Icon />, label, action: onItemClick }]}
       isOpen={isOpen}
     />
   );

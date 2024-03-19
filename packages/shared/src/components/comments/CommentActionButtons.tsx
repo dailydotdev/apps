@@ -248,7 +248,6 @@ export default function CommentActionButtons({
         id={id}
         className="menu-primary typo-callout"
         animation="fade"
-        drawerOptions={commentOptions}
         options={commentOptions}
         isOpen={isOpen}
       />

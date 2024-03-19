@@ -479,7 +479,6 @@ export default function PostOptionsMenu({
       className="menu-primary"
       animation="fade"
       onHidden={onHidden}
-      drawerOptions={postOptions}
       options={postOptions}
       isOpen={isPostOptionsOpen}
     />

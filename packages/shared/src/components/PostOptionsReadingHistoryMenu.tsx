@@ -143,7 +143,6 @@ export default function PostOptionsReadingHistoryMenu({
         className="menu-primary"
         animation="fade"
         onHidden={onHiddenMenu}
-        drawerOptions={options}
         options={options}
         isOpen={isOpen}
       />
