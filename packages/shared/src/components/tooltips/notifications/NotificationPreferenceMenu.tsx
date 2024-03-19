@@ -1,5 +1,4 @@
 import React, { ReactElement, useMemo } from 'react';
-import { Item } from '@dailydotdev/react-contexify';
 import { ContextMenu } from '../../fields/PortalMenu';
 import { Loader } from '../../Loader';
 import {
