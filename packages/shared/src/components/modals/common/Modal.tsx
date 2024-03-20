@@ -131,7 +131,7 @@ export function Modal({
       }}
     >
       <ConditionalWrapper
-        condition={!!formProps && isMobile}
+        condition={isForm}
         wrapper={(component) => (
           <FormWrapper
             {...formProps}
