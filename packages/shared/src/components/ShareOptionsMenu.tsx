@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext } from 'react';
-import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { Post } from '../graphql/posts';

@@ -11,7 +11,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useDeleteSquad } from '../../hooks/useDeleteSquad';
 import { useLeaveSquad, useSquadNavigation } from '../../hooks';
-import ContextMenuItem, { ContextMenuIcon } from '../tooltips/ContextMenuItem';
+import { ContextMenuIcon } from '../tooltips/ContextMenuItem';
 import { verifyPermission } from '../../graphql/squads';
 import {
   SettingsIcon,
