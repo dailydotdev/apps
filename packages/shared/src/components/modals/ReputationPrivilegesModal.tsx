@@ -27,9 +27,10 @@ export const ReputationPrivilegesModal = ({
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.XSmall}
       onRequestClose={onClose}
+      isDrawerOnMobile
     >
       <ModalClose className="top-2" onClick={onClose} />
-      <div className="flex flex-col items-center gap-10 p-6 text-center">
+      <div className="flex flex-col items-center gap-10 p-0 text-center tablet:p-6">
         <Image
           src={cloudinary.reputation.privilegesUnlocked}
           alt="Privileges unlocked!"

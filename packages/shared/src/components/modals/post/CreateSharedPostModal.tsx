@@ -18,7 +18,6 @@ import { formToJson } from '../../../lib/form';
 import { useDebouncedUrl } from '../../../hooks/input';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import { Switch } from '../../fields/Switch';
-import { ModalClose } from '../common/ModalClose';
 
 export interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;
@@ -30,6 +29,7 @@ export function CreateSharedPostModal({
   preview,
   squad,
   onSharedSuccessfully,
+  onRequestClose,
   ...props
 }: CreateSharedPostModalProps): ReactElement {
   const markdownRef = useRef<MarkdownRef>();
@@ -50,7 +50,7 @@ export function CreateSharedPostModal({
         onSharedSuccessfully();
       }
       onSubmitted();
-      props.onRequestClose(null);
+      onRequestClose(null);
     },
   });
   const onFormSubmit: FormEventHandler<HTMLFormElement> = (e) => {
@@ -73,14 +73,26 @@ export function CreateSharedPostModal({
   };
 
   return (
-    <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Medium} {...props}>
+    <Modal
+      kind={Modal.Kind.FlexibleCenter}
+      size={Modal.Size.Medium}
+      onRequestClose={onRequestClose}
+      {...props}
+    >
       <Modal.Header
         showCloseButton={!isMobile}
         title={isMobile ? null : 'New post'}
       >
         {isMobile && (
           <div className="flex flex-1 flex-row items-center justify-between">
-            <ModalClose position="static" onClick={props.onRequestClose} />
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              type="button"
+              onClick={onRequestClose}
+            >
+              Cancel
+            </Button>
 
             <Button
               variant={ButtonVariant.Primary}

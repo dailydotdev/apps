@@ -54,6 +54,7 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import LoginButton from '@dailydotdev/shared/src/components/LoginButton';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import {
   getSeoDescription,
@@ -67,20 +68,26 @@ const Custom404 = dynamic(
 
 const CustomPostBanner = () => {
   const { shouldShowAuthBanner } = useOnboarding();
+  const { shouldShowLogin } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isTablet = useViewSize(ViewSize.Tablet);
+  const isValid =
+    shouldShowAuthBanner && !isLaptop && (isTablet || !shouldShowLogin);
+
+  if (!isValid) {
+    return null;
+  }
+
   return (
-    shouldShowAuthBanner &&
-    !isLaptop && (
-      <LoginButton
-        className={{
-          container: classNames(
-            authGradientBg,
-            'sticky left-0 top-0 z-max w-full justify-center gap-2 border-b border-theme-color-cabbage px-4 py-2',
-          ),
-          button: 'flex-1 tablet:max-w-[9rem]',
-        }}
-      />
-    )
+    <LoginButton
+      className={{
+        container: classNames(
+          authGradientBg,
+          'sticky left-0 top-0 z-max w-full justify-center gap-2 border-b border-theme-color-cabbage px-4 py-2',
+        ),
+        button: 'flex-1 tablet:max-w-[9rem]',
+      }}
+    />
   );
 };
 

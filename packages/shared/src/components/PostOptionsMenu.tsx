@@ -138,8 +138,17 @@ export default function PostOptionsMenu({
     shouldInvalidateQueries: false,
   });
 
+  const isSourceBlocked = useMemo(() => {
+    return !!feedSettings?.excludeSources?.some(
+      (excludedSource) => excludedSource.id === post?.source?.id,
+    );
+  }, [feedSettings?.excludeSources, post?.source?.id]);
+
+  const shouldShowSubscribe =
+    isLoggedIn && !isSourceBlocked && post?.source?.type === SourceType.Machine;
+
   const sourceSubscribe = useSourceSubscription({
-    source: post?.source,
+    source: shouldShowSubscribe ? post?.source : undefined,
   });
 
   const { toggleBookmark } = useBookmarkPost({
@@ -306,12 +315,6 @@ export default function PostOptionsMenu({
     );
   };
 
-  const isSourceBlocked = useMemo(() => {
-    return !!feedSettings?.excludeSources?.some(
-      (excludedSource) => excludedSource.id === post?.source?.id,
-    );
-  }, [feedSettings?.excludeSources, post?.source?.id]);
-
   const postOptions: MenuItemProps[] = [
     {
       icon: <MenuIcon Icon={EyeIcon} />,
@@ -353,9 +356,6 @@ export default function PostOptionsMenu({
       action: onToggleDownvotePost,
     });
   }
-
-  const shouldShowSubscribe =
-    isLoggedIn && !isSourceBlocked && post?.source?.type === SourceType.Machine;
 
   if (shouldShowSubscribe) {
     postOptions.push({

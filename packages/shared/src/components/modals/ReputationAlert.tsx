@@ -1,18 +1,13 @@
-import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import Alert, { AlertProps, AlertType } from '../widgets/Alert';
 
 export type ReputationAlertProps = Omit<AlertProps, 'type' | 'title'>;
 
-export const ReputationAlert = ({
-  className,
-  ...rest
-}: ReputationAlertProps): ReactElement => {
+export const ReputationAlert = (props: ReputationAlertProps): ReactElement => {
   return (
     <Alert
-      {...rest}
-      className={classNames(className, 'flex-1')}
+      {...props}
       type={AlertType.Error}
       title={
         <div className="block flex-1" data-testid="reputationAlert">

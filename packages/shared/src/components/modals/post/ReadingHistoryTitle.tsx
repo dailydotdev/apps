@@ -10,7 +10,7 @@ export function ReadingHistoryTitle({
 }: ReadingHistoryTitleProps): ReactElement {
   return (
     <>
-      <SquadTitle>
+      <SquadTitle className="hidden tablet:block">
         {hasNoData ? 'Read' : 'Share'} <SquadTitleColor>a post</SquadTitleColor>
       </SquadTitle>
       <p className="py-4 text-center">

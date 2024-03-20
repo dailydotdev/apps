@@ -5,6 +5,7 @@ import { PostItem } from '../../../graphql/posts';
 import { usePublicReadingHistory } from '../../../hooks/post';
 import { ReadingHistoryTitle } from './ReadingHistoryTitle';
 import ReadingHistoryPlaceholder from '../../history/ReadingHistoryPlaceholder';
+import { ModalHeaderKind } from '../common/types';
 
 interface ReadingHistoryModalProps extends ModalProps {
   onArticleSelected: (post: PostItem) => void;
@@ -34,6 +35,8 @@ export function ReadingHistoryModal({
     }
   };
 
+  const label = noDataAvailable ? 'Read' : 'Share';
+
   return (
     <Modal
       isOpen
@@ -41,6 +44,11 @@ export function ReadingHistoryModal({
       kind={Modal.Kind.FixedCenter}
       size={Modal.Size.Small}
     >
+      <Modal.Header
+        className="flex tablet:hidden"
+        kind={ModalHeaderKind.Primary}
+        title={`${label} a post`}
+      />
       <Modal.Body>
         <ReadingHistoryTitle hasNoData={noDataAvailable} />
         <InfiniteReadingHistory

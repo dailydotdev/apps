@@ -16,6 +16,7 @@ import { Modal, ModalProps } from '../modals/common/Modal';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
 import { ContentTypesFilter } from './ContentTypesFilter';
+import { useViewSize, ViewSize } from '../../hooks';
 
 enum FilterMenuTitle {
   Tags = 'Manage tags',
@@ -27,6 +28,7 @@ enum FilterMenuTitle {
 type FeedFiltersProps = ModalProps;
 
 export default function FeedFilters(props: FeedFiltersProps): ReactElement {
+  const isMobile = useViewSize(ViewSize.MobileL);
   const [isNavOpen, setIsNavOpen] = useState(false);
   const { showPrompt } = usePrompt();
   const unBlockPrompt = async ({ action, source, tag }: UnblockItem) => {
@@ -74,7 +76,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
           onViewChange={() => setIsNavOpen(false)}
         />
         <Modal.Sidebar.Inner>
-          <Modal.Header>
+          <Modal.Header showCloseButton={!isMobile}>
             <Button
               size={ButtonSize.Small}
               className="mr-2 flex -rotate-90 tablet:hidden"

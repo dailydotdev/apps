@@ -2,6 +2,7 @@ import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
 import { ButtonProps } from '../../buttons/Button';
 import CloseButton from '../../CloseButton';
+import { useModalContext } from './types';
 
 type ModalCloseProps = ButtonProps<'button'> & {
   position?: 'absolute' | 'fixed' | 'relative' | 'sticky' | 'static';
@@ -44,7 +45,9 @@ function ModalCloseComponent(
   }: ModalCloseProps,
   ref: Ref<HTMLButtonElement>,
 ): ReactElement {
-  if (!onClick) {
+  const { isDrawer } = useModalContext();
+
+  if (!onClick && isDrawer) {
     return null;
   }
 
@@ -54,6 +57,7 @@ function ModalCloseComponent(
       onClick={onClick}
       ref={ref}
       className={classNames(
+        'hidden tablet:flex',
         position,
         ZIndexToClassName[zIndex],
         RightToClassName[right],
