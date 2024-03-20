@@ -17,7 +17,13 @@ export default function ScrollToTopButton(): ReactElement {
   const [show, setShow] = useState(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
-  const touchDeviceSize = isTablet ? ButtonSize.Large : ButtonSize.Small;
+  const size = (() => {
+    if (isLaptop) {
+      return ButtonSize.XLarge;
+    }
+
+    return isTablet ? ButtonSize.Large : ButtonSize.Small;
+  })();
 
   useEffect(() => {
     const callback = () => {
@@ -48,7 +54,7 @@ export default function ScrollToTopButton(): ReactElement {
       {...props}
       className="absolute -top-12 right-4 z-2 tablet:-top-18 laptop:-top-24 laptop:right-8"
       variant={ButtonVariant.Primary}
-      size={isLaptop ? ButtonSize.XLarge : touchDeviceSize}
+      size={size}
       style={style}
     />
   );
