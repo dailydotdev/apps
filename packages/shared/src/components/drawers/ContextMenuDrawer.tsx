@@ -45,6 +45,7 @@ export function ContextMenuDrawer({
               <a
                 {...anchorProps}
                 className={classNames(classes, anchorProps.className)}
+                role="menuitem"
               >
                 {content}
               </a>
@@ -56,6 +57,7 @@ export function ContextMenuDrawer({
                   action({ value: label, index, event });
                   ref.current.onClose();
                 }}
+                role="menuitem"
               >
                 {content}
               </button>
