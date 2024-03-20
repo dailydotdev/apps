@@ -75,8 +75,8 @@ export function CreateSharedPostModal({
     <>
       <Button
         icon={<AtIcon />}
-        className="btn-tertiary"
         size={ButtonSize.Small}
+        variant={ButtonVariant.Tertiary}
         onClick={markdownRef?.current?.onMentionCommand}
       />
       <Divider vertical />
