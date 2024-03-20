@@ -18,6 +18,8 @@ import { ModalStepsWrapper } from './ModalStepsWrapper';
 import { AnalyticsEvent } from '../../../lib/analytics';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { Drawer, DrawerOnMobileProps } from '../../drawers';
+import { FormWrapper, FormWrapperProps } from '../../fields/form';
+import ConditionalWrapper from '../../ConditionalWrapper';
 
 export interface ModalProps extends ReactModal.Props, DrawerOnMobileProps {
   children?: React.ReactNode;
@@ -30,6 +32,7 @@ export interface ModalProps extends ReactModal.Props, DrawerOnMobileProps {
   onTrackNext?: AnalyticsEvent;
   onTrackPrev?: AnalyticsEvent;
   isDrawerOnMobile?: boolean;
+  formProps?: Omit<FormWrapperProps, 'children' | 'onLeftClick'>;
 }
 
 export type LazyModalCommonProps = Pick<
@@ -92,12 +95,14 @@ export function Modal({
   isDrawerOnMobile,
   drawerProps,
   shouldCloseOnOverlayClick,
+  formProps,
   ...props
 }: ModalProps): ReactElement {
   const stepTitle = steps ? steps?.[0].key : undefined;
   const tabTitle = tabs ? modalTabTitle(tabs[0]) : undefined;
   const isMobile = useViewSize(ViewSize.MobileL);
   const isDrawerOpen = isDrawerOnMobile && isMobile;
+  const isForm = formProps && isMobile;
   const [activeView, setView] = useState<string | undefined>(
     defaultView ?? stepTitle ?? tabTitle,
   );
@@ -122,9 +127,25 @@ export function Modal({
         onTrackNext,
         onTrackPrev,
         isDrawer: isDrawerOpen,
+        isForm,
       }}
     >
-      {children}
+      <ConditionalWrapper
+        condition={isForm}
+        wrapper={(component) => (
+          <FormWrapper
+            {...formProps}
+            leftButtonProps={{
+              ...(formProps.leftButtonProps ?? {}),
+              onClick: onRequestClose,
+            }}
+          >
+            {component}
+          </FormWrapper>
+        )}
+      >
+        {children}
+      </ConditionalWrapper>
     </ModalPropsContext.Provider>
   );
 
