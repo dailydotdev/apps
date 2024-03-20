@@ -39,7 +39,7 @@ const usePostContent = ({
   const { user } = useAuthContext();
   const { trackEvent } = useAnalyticsContext();
   const onPostClick = useOnPostClick({ origin });
-  const href = post.commentsPermalink;
+  const { permalink } = post;
   const cid = ReferralCampaignKey.SharePost;
   const { getShortUrl } = useGetShortUrl();
   const { sharePost, closeSharePost, copyLink } = useSharePost(origin);
@@ -52,7 +52,7 @@ const usePostContent = ({
     );
 
   const onCopyLink = async () => {
-    const shortLink = await getShortUrl(href, cid);
+    const shortLink = await getShortUrl(permalink, cid);
     copyLink({ link: shortLink });
     trackShareEvent(ShareProvider.CopyLink);
   };
