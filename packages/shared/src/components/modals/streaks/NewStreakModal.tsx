@@ -21,7 +21,6 @@ export default function NewStreakModal({
   const { trackEvent } = useAnalyticsContext();
   const { toggleOptOutWeeklyGoal, optOutWeeklyGoal } = useSettingsContext();
   const shouldShowSplash = currentStreak >= maxStreak;
-
   const daysPlural = currentStreak === 1 ? 'day' : 'days';
 
   const handleOptOut = () => {
@@ -40,9 +39,10 @@ export default function NewStreakModal({
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.XSmall}
       onRequestClose={onRequestClose}
+      isDrawerOnMobile
     >
       <ModalClose onClick={onRequestClose} className="right-2 top-2" />
-      <Modal.Body className="items-center">
+      <Modal.Body className="items-center overflow-hidden">
         <span className="relative flex flex-col items-center justify-center">
           <img
             src={

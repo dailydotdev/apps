@@ -1,4 +1,10 @@
-import { KeyboardEvent, MouseEvent, createContext, ReactNode } from 'react';
+import {
+  KeyboardEvent,
+  MouseEvent,
+  createContext,
+  ReactNode,
+  useContext,
+} from 'react';
 import { AnalyticsEvent } from '../../../lib/analytics';
 
 export enum ModalHeaderKind {
@@ -69,6 +75,7 @@ export type ModalContextProps = {
   tabs?: string[] | ModalTabItem[];
   onTrackNext?: AnalyticsEvent;
   onTrackPrev?: AnalyticsEvent;
+  isDrawer?: boolean;
 };
 
 export const ModalPropsContext = createContext<ModalContextProps>({
@@ -76,6 +83,9 @@ export const ModalPropsContext = createContext<ModalContextProps>({
   kind: ModalKind.FlexibleCenter,
   size: ModalSize.Medium,
 });
+
+export const useModalContext = (): ModalContextProps =>
+  useContext(ModalPropsContext);
 
 export function modalTabTitle(tab: string | ModalTabItem): string {
   return typeof tab === 'string' ? tab : tab.title;

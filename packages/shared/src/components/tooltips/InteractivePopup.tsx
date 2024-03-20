@@ -7,6 +7,8 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { MiniCloseIcon as CloseIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
+import { Drawer, DrawerOnMobileProps, PopupCloseFunc } from '../drawers';
+import { useViewSize, ViewSize } from '../../hooks';
 
 export enum InteractivePopupPosition {
   Center = 'center',
@@ -28,12 +30,12 @@ type CloseButtonProps = {
   position?: string;
 };
 
-interface InteractivePopupProps {
+export interface InteractivePopupProps extends DrawerOnMobileProps {
   children: ReactNode;
   className?: string;
   position?: InteractivePopupPosition;
   closeOutsideClick?: boolean;
-  onClose?: (e: MouseEvent | KeyboardEvent | MessageEvent) => void;
+  onClose?: PopupCloseFunc;
   closeButton?: CloseButtonProps;
 }
 
@@ -72,6 +74,8 @@ function InteractivePopup({
   closeOutsideClick,
   onClose,
   closeButton = {},
+  isDrawerOnMobile,
+  drawerProps,
   ...props
 }: InteractivePopupProps): ReactElement {
   const {
@@ -79,26 +83,39 @@ function InteractivePopup({
     variant: buttonVariant = ButtonVariant.Secondary,
     position: buttonPosition = 'right-2 top-2',
   } = closeButton;
+  const isMobile = useViewSize(ViewSize.MobileL);
   const container = useRef<HTMLDivElement>();
   const onCloseRef = useRef(onClose);
   const { sidebarRendered } = useSidebarRendered();
   const validateSidebar =
     sidebarRendered || position === InteractivePopupPosition.Screen;
+  const withOverlay =
+    position === InteractivePopupPosition.Center || !validateSidebar;
+  const shouldCloseOnOverlayClick = closeOutsideClick || withOverlay;
   const { sidebarExpanded } = useSettingsContext();
   const finalPosition = validateSidebar
     ? position
     : InteractivePopupPosition.Center;
   const classes = positionClass[finalPosition];
-  useOutsideClick(
-    container,
-    onCloseRef.current,
-    closeOutsideClick || !validateSidebar,
-  );
+  useOutsideClick(container, onCloseRef.current, shouldCloseOnOverlayClick);
+
+  if (isDrawerOnMobile && isMobile) {
+    return (
+      <Drawer
+        {...drawerProps}
+        isOpen
+        onClose={onCloseRef.current}
+        closeOnOutsideClick={shouldCloseOnOverlayClick}
+      >
+        {children}
+      </Drawer>
+    );
+  }
 
   return (
     <RootPortal>
       <ConditionalWrapper
-        condition={!validateSidebar}
+        condition={withOverlay}
         wrapper={(child) => (
           <div className="fixed inset-0 z-modal flex flex-col items-center bg-overlay-quaternary-onion">
             {child}

@@ -12,7 +12,7 @@ function SquadTourModal({
   const { onCloseTour } = useSquadTour();
   const onModalClose: typeof onRequestClose = (param) => {
     onCloseTour();
-    onRequestClose(param);
+    onRequestClose?.(param);
   };
 
   return (
@@ -22,8 +22,10 @@ function SquadTourModal({
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
       className="overflow-hidden !border-theme-color-cabbage"
+      isDrawerOnMobile
+      drawerProps={{ className: { drawer: 'pb-4', close: 'mx-4' } }}
     >
-      <SquadTour onClose={onModalClose} />
+      <SquadTour onClose={() => onModalClose(null)} />
       <ModalClose
         size={ButtonSize.Small}
         variant={ButtonVariant.Secondary}

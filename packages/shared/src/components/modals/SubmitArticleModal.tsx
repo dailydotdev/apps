@@ -144,7 +144,7 @@ export default function SubmitArticleModal({
     }
 
     if (!isEnabled) {
-      return <ReputationAlert className="mt-4" />;
+      return <ReputationAlert />;
     }
 
     return (
@@ -202,18 +202,14 @@ export default function SubmitArticleModal({
           id="submit-article"
           aria-busy={isValidating}
           onSubmit={onSubmit}
+          className="flex flex-col gap-5"
         >
-          <div>
-            <p className="mb-2 text-theme-label-tertiary typo-callout">
+          <div className="flex flex-col gap-4">
+            <p className="text-theme-label-tertiary typo-callout">
               Found an interesting post? Do you want to share it with the
               community? Enter the post&apos;s URL / link below to add it to the
               feed.
             </p>
-            {!isEnabled && (
-              <p className="mb-2 mt-6 text-theme-label-tertiary typo-callout">
-                You need more reputation to enable this feature
-              </p>
-            )}
             <a
               className="font-bold text-theme-label-link underline typo-callout"
               target="_blank"
@@ -222,52 +218,50 @@ export default function SubmitArticleModal({
             >
               Learn more
             </a>
-            <p className="mb-4 mt-6 typo-callout">
-              Daily suggestions used&nbsp;
-              {submissionAvailability?.todaySubmissionsCount ?? 0}/
-              {submissionAvailability?.limit ?? 3}
-            </p>
-            <TextField
-              autoFocus
-              type="url"
-              autoComplete="off"
-              leftIcon={<LinkIcon />}
-              rightIcon={
-                !isEnabled ? (
-                  <LockIcon className="text-theme-label-disabled" />
-                ) : undefined
-              }
-              fieldType="tertiary"
-              name="articleUrl"
-              inputId="article_url"
-              label="Paste post url"
-              disabled={!isEnabled}
-              hint={urlHint}
-              valid={!urlHint}
-              valueChanged={onUrlChanged}
-            />
-            {isSubmitted ? (
-              <Alert
-                className="mt-4"
-                type={AlertType.Success}
-                title="We will notify you about the post-submission status via email"
-              />
-            ) : (
-              submissionAvailability?.todaySubmissionsCount === 3 && (
-                <Alert
-                  className="mt-4"
-                  type={AlertType.Error}
-                  title="You have reached the limit of 3 submissions per day"
-                />
-              )
-            )}
-            {isEnabled && (
-              <EnableNotification
-                source={NotificationPromptSource.CommunityPicks}
-              />
-            )}
-            {getAlert()}
           </div>
+          <p className="typo-callout">
+            Daily suggestions used&nbsp;
+            {submissionAvailability?.todaySubmissionsCount ?? 0}/
+            {submissionAvailability?.limit ?? 3}
+          </p>
+          <TextField
+            autoFocus
+            type="url"
+            autoComplete="off"
+            leftIcon={<LinkIcon />}
+            rightIcon={
+              !isEnabled ? (
+                <LockIcon className="text-theme-label-disabled" />
+              ) : undefined
+            }
+            fieldType="tertiary"
+            name="articleUrl"
+            inputId="article_url"
+            label="Post url"
+            disabled={!isEnabled}
+            hint={urlHint}
+            valid={!urlHint}
+            valueChanged={onUrlChanged}
+          />
+          {isSubmitted ? (
+            <Alert
+              type={AlertType.Success}
+              title="We will notify you about the post-submission status via email"
+            />
+          ) : (
+            submissionAvailability?.todaySubmissionsCount === 3 && (
+              <Alert
+                type={AlertType.Error}
+                title="You have reached the limit of 3 submissions per day"
+              />
+            )
+          )}
+          {isEnabled && (
+            <EnableNotification
+              source={NotificationPromptSource.CommunityPicks}
+            />
+          )}
+          {getAlert()}
         </form>
       </Modal.Body>
       {existingArticle && (

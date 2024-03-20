@@ -40,11 +40,23 @@ jest.mock('next/router', () => ({
   },
 }));
 
+const matchMedia = (value: string) => {
+  Object.defineProperty(global, 'matchMedia', {
+    writable: true,
+    value: jest.fn().mockImplementation((query) => ({
+      matches: query.includes(value),
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+    })),
+  });
+};
+
 beforeEach(() => {
   jest.resetAllMocks();
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
+  matchMedia('1020');
 });
 
 const defaultLoggedUser: LoggedUser = {

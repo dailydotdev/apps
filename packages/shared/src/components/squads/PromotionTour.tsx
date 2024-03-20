@@ -135,22 +135,28 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
       onEnd={() => onClose?.(null)}
     >
       {({ onSwipedLeft, onSwipedRight, index }, indicator) => (
-        <ModalFooter justify={Justify.Between}>
-          <FooterButton
-            variant={ButtonVariant.Tertiary}
-            onClick={(e) => onSwipedRight(e)}
-          >
-            {index === 0 ? 'Close' : 'Back'}
-          </FooterButton>
-          {indicator}
-          <FooterButton
-            variant={ButtonVariant.Primary}
-            color={ButtonColor.Cabbage}
-            onClick={(e) => onSwipedLeft(e)}
-          >
-            {index === items.length - 1 ? 'Close' : 'Next'}
-          </FooterButton>
-        </ModalFooter>
+        <>
+          <span className="mb-3 flex w-full justify-center tablet:hidden">
+            {indicator}
+          </span>
+          <ModalFooter justify={Justify.Between}>
+            <FooterButton
+              variant={ButtonVariant.Tertiary}
+              onClick={(e) => onSwipedRight(e)}
+            >
+              {index === 0 ? 'Close' : 'Back'}
+            </FooterButton>
+            {indicator}
+            <FooterButton
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Cabbage}
+              onClick={(e) => onSwipedLeft(e)}
+            >
+              {index === items.length - 1 ? 'Close' : 'Next'}
+            </FooterButton>
+          </ModalFooter>
+          )
+        </>
       )}
     </Carousel>
   );

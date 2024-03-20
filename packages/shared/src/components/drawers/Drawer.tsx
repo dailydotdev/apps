@@ -14,6 +14,15 @@ import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import { ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 
+export type PopupEventType =
+  | MouseEvent
+  | KeyboardEvent
+  | MessageEvent
+  | React.MouseEvent
+  | React.KeyboardEvent;
+
+export type PopupCloseFunc = (e: PopupEventType) => void;
+
 export enum DrawerPosition {
   Bottom = 'bottom',
   Top = 'top',
@@ -24,9 +33,10 @@ export enum DrawerPosition {
 interface ClassName {
   overlay?: string;
   drawer?: string;
+  close?: string;
 }
 
-interface DrawerProps
+export interface DrawerProps
   extends Omit<HTMLAttributes<HTMLDivElement>, 'className'> {
   children: ReactNode;
   className?: ClassName;
@@ -35,8 +45,13 @@ interface DrawerProps
   isFullScreen?: boolean;
   isClosing?: boolean;
   title?: string;
-  onClose(): void;
+  onClose: PopupCloseFunc;
   displayCloseButton?: boolean;
+}
+
+export interface DrawerOnMobileProps {
+  isDrawerOnMobile?: boolean;
+  drawerProps?: Omit<DrawerProps, 'children' | 'onClose'>;
 }
 
 const drawerPositionToClassName: Record<DrawerPosition, string> = {
@@ -116,11 +131,16 @@ function BaseDrawer({
           {children}
         </ConditionalWrapper>
         {displayCloseButton && (
-          <div className="sticky -bottom-3 bg-background-default">
+          <div
+            className={classNames(
+              'sticky -bottom-3 bg-background-default',
+              className?.close,
+            )}
+          >
             <Button
               variant={ButtonVariant.Float}
               className="mt-3 w-full"
-              onClick={onClose}
+              onClick={(e) => onClose(e.nativeEvent)}
             >
               Close
             </Button>
@@ -146,9 +166,9 @@ function AnimatedDrawer(
   ref: MutableRefObject<DrawerRef>,
 ): ReactElement {
   const [isClosing, setIsClosing] = useState(false);
-  const [debounceClosing] = useDebounce(() => {
+  const [debounceClosing] = useDebounce((e: PopupEventType) => {
     setIsClosing(false);
-    onClose?.();
+    onClose?.(e);
   }, ANIMATION_MS);
 
   const onClosing = () => {

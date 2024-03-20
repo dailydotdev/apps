@@ -10,7 +10,7 @@ const RanksTags = ({
 }: RanksTagsProps): ReactElement => {
   return (
     <RanksTagsSection>
-      <Modal.Subtitle>Reading status per tag</Modal.Subtitle>
+      <Modal.Subtitle className="mb-2">Reading status per tag</Modal.Subtitle>
       <RanksTagsList>
         {Array(limit)
           .fill(0)
