@@ -4,7 +4,12 @@ import { ExternalLinkPreview } from '../../../graphql/posts';
 import MarkdownInput, { MarkdownRef } from '../../fields/MarkdownInput';
 import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
 import { usePostToSquad } from '../../../hooks';
-import { Button, ButtonSize } from '../../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/Button';
 import { AtIcon } from '../../icons';
 import { Divider, Justify } from '../../utilities';
 import SourceButton from '../../cards/SourceButton';
@@ -83,13 +88,25 @@ export function CreateSharedPostModal({
     </>
   );
 
+  const submitProps = {
+    color: ButtonColor.Cabbage,
+    variant: ButtonVariant.Primary,
+    disabled: isPosting,
+    loading: isPosting,
+  };
+
   return (
     <Modal
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
       {...props}
-      formProps={{ form: 'share_post', title: 'New post' }}
+      formProps={{
+        form: 'share_post',
+        title: 'New post',
+        rightButtonProps: submitProps,
+        copy: { right: 'Post' },
+      }}
     >
       <Modal.Header title="New post" />
       <form
@@ -142,12 +159,7 @@ export function CreateSharedPostModal({
       <Modal.Footer className="typo-caption1" justify={Justify.Start}>
         {footer}
 
-        <Button
-          className="btn-primary-cabbage ml-auto"
-          disabled={isPosting}
-          loading={isPosting}
-          form="share_post"
-        >
+        <Button {...submitProps} className="ml-auto" form="share_post">
           Post
         </Button>
       </Modal.Footer>
