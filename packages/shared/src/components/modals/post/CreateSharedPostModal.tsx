@@ -3,13 +3,8 @@ import { Modal, ModalProps } from '../common/Modal';
 import { ExternalLinkPreview } from '../../../graphql/posts';
 import MarkdownInput, { MarkdownRef } from '../../fields/MarkdownInput';
 import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
-import { usePostToSquad, useViewSize, ViewSize } from '../../../hooks';
-import {
-  Button,
-  ButtonColor,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
+import { usePostToSquad } from '../../../hooks';
+import { Button, ButtonSize } from '../../buttons/Button';
 import { AtIcon } from '../../icons';
 import { Divider, Justify } from '../../utilities';
 import SourceButton from '../../cards/SourceButton';
@@ -36,7 +31,6 @@ export function CreateSharedPostModal({
   const [link, setLink] = useState(preview?.permalink ?? preview?.url ?? '');
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
-  const isMobile = useViewSize(ViewSize.MobileL);
   const {
     getLinkPreview,
     isLoadingPreview,
@@ -72,41 +66,32 @@ export function CreateSharedPostModal({
     checkUrl(value);
   };
 
+  const footer = (
+    <>
+      <Button
+        icon={<AtIcon />}
+        className="btn-tertiary"
+        size={ButtonSize.Small}
+        onClick={markdownRef?.current?.onMentionCommand}
+      />
+      <Divider vertical />
+      <SourceButton source={squad} size="small" />
+      <span className="-ml-1 flex-1">
+        <strong>{squad.name}</strong>
+        <span className="ml-1 text-theme-label-tertiary">@{squad.handle}</span>
+      </span>
+    </>
+  );
+
   return (
     <Modal
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
       {...props}
+      formProps={{ form: 'share_post', title: 'New post' }}
     >
-      <Modal.Header
-        showCloseButton={!isMobile}
-        title={isMobile ? null : 'New post'}
-      >
-        {isMobile && (
-          <div className="flex flex-1 flex-row items-center justify-between">
-            <Button
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              type="button"
-              onClick={onRequestClose}
-            >
-              Cancel
-            </Button>
-
-            <Button
-              variant={ButtonVariant.Primary}
-              color={ButtonColor.Cabbage}
-              disabled={isPosting}
-              loading={isPosting}
-              form="share_post"
-              size={ButtonSize.Small}
-            >
-              Post
-            </Button>
-          </div>
-        )}
-      </Modal.Header>
+      <Modal.Header title="New post" />
       <form
         className="flex w-full flex-col p-3"
         action="#"
@@ -151,32 +136,20 @@ export function CreateSharedPostModal({
           </Switch>
         )}
       </form>
+      <span className="flex flex-row items-center gap-2 px-4 tablet:hidden">
+        {footer}
+      </span>
       <Modal.Footer className="typo-caption1" justify={Justify.Start}>
-        <Button
-          icon={<AtIcon />}
-          className="btn-tertiary"
-          size={ButtonSize.Small}
-          onClick={markdownRef?.current?.onMentionCommand}
-        />
-        <Divider vertical />
-        <SourceButton source={squad} size="small" />
-        <span className="-ml-1 flex-1">
-          <strong>{squad.name}</strong>
-          <span className="ml-1 text-theme-label-tertiary">
-            @{squad.handle}
-          </span>
-        </span>
+        {footer}
 
-        {!isMobile && (
-          <Button
-            className="btn-primary-cabbage ml-auto"
-            disabled={isPosting}
-            loading={isPosting}
-            form="share_post"
-          >
-            Post
-          </Button>
-        )}
+        <Button
+          className="btn-primary-cabbage ml-auto"
+          disabled={isPosting}
+          loading={isPosting}
+          form="share_post"
+        >
+          Post
+        </Button>
       </Modal.Footer>
     </Modal>
   );
