@@ -42,7 +42,7 @@ function UserListModal({
       {...props}
     >
       {header ?? <Modal.Header title={title} />}
-      <Modal.Body className="px-0 py-0" onScroll={onScroll} ref={container}>
+      <Modal.Body className="!p-0" onScroll={onScroll} ref={container}>
         {onSearch && (
           <SearchField
             className="mx-6 my-4"
