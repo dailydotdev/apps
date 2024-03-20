@@ -36,6 +36,7 @@ import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
 import Link from 'next/link';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -72,6 +73,8 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
     },
   );
   const hasSquad = !!squads?.length;
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isTabbedContainer = !isLaptop && hasSquad;
 
   return (
     <>
@@ -81,7 +84,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
         <BaseFeedPage className="relative mb-4 flex-col pt-2 laptop:pt-8">
           <span
             className={classNames(
-              'flex w-full flex-row items-center justify-between px-4 pb-2 typo-body',
+              'flex w-full flex-row items-center justify-between px-4 pb-2 typo-body laptop:hidden',
               !hasSquad && 'border-b border-border-subtlest-tertiary',
             )}
           >
@@ -95,10 +98,13 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
             </Button>
           </span>
           <ConditionalWrapper
-            condition={hasSquad}
+            condition={isTabbedContainer}
             wrapper={(component) => (
               <TabContainer className={{ container: 'w-full' }}>
-                <Tab label="Your squads" className="px-4 py-5">
+                <Tab
+                  label="Your squads"
+                  className="grid grid-cols-1 gap-4 px-4 py-5"
+                >
                   {squads.map((squad) => (
                     <Link href={squad.permalink} key={squad.handle} passHref>
                       <YourSquadItem
