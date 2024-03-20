@@ -84,7 +84,7 @@ function SquadPostContent({
       )}
       <PostContentContainer
         className={classNames(
-          'relative flex-1 flex-col tablet:flex-row tablet:pb-0',
+          'bg-bg-primary relative flex-1 flex-col tablet:flex-row tablet:pb-0',
           className?.container,
         )}
         hasNavigation={hasNavigation}
