@@ -21,7 +21,6 @@ import {
 import {
   ExperimentWinner,
   OnboardingCopy,
-  OnboardingV4dot5,
   UserAcquisition,
 } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
@@ -127,12 +126,8 @@ export function OnboardPage(): ReactElement {
   const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
   const isOnboardingCopyV1 =
     useFeature(feature.onboardingCopy) === OnboardingCopy.V1;
-  const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
   const userAcquisitionVersion = useFeature(feature.userAcquisition);
-  const targetId: string =
-    onboardingV4dot5 === OnboardingV4dot5.Control
-      ? ExperimentWinner.OnboardingV4
-      : OnboardingV4dot5.V4dot5;
+  const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
 
   const onClickNext = () => {
@@ -183,13 +178,7 @@ export function OnboardPage(): ReactElement {
   };
 
   const onSuccessfulRegistration = () => {
-    if (onboardingV4dot5 === OnboardingV4dot5.Control) {
-      setIsFiltering(true);
-    } else {
-      router.replace({
-        pathname: '/my-feed',
-      });
-    }
+    setIsFiltering(true);
   };
 
   useEffect(() => {
