@@ -12,7 +12,7 @@ import { StarIcon, UserIcon, SquadIcon, BlockIcon, FlagIcon } from '../icons';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
 import { ModalSize } from '../modals/common/types';
-import { ContextMenu, MenuItemProps } from '../fields/PortalMenu';
+import ContextMenu, { MenuItemProps } from '../fields/PortalMenu';
 import { UseSquadActions, useToastNotification } from '../../hooks';
 import { verifyPermission } from '../../graphql/squads';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';

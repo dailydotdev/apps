@@ -64,10 +64,7 @@ import { SourceType } from '../graphql/sources';
 import { withExperiment } from './withExperiment';
 
 const ContextMenu = dynamic(
-  () =>
-    import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu').then(
-      (module) => module.ContextMenu,
-    ),
+  () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
   {
     ssr: false,
   },

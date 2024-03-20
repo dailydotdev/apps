@@ -30,10 +30,7 @@ import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import useContextMenu from '../../hooks/useContextMenu';
 
 const ContextMenu = dynamic(
-  () =>
-    import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu').then(
-      (module) => module.ContextMenu,
-    ),
+  () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
   {
     ssr: false,
   },

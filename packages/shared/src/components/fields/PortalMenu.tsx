@@ -14,7 +14,7 @@ import {
   ContextMenuDrawerItem,
 } from '../drawers/ContextMenuDrawer';
 
-export default function PortalMenu({
+function PortalMenu({
   id,
   onHidden: onHiddenProps,
   ...props
@@ -50,10 +50,10 @@ interface ContextMenuProps extends Omit<MenuProps, 'children'> {
   isOpen: boolean;
 }
 
-export const ContextMenu = ({
+export default function ContextMenu({
   options,
   ...props
-}: ContextMenuProps): ReactElement => {
+}: ContextMenuProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
 
   if (isMobile) {
@@ -98,4 +98,4 @@ export const ContextMenu = ({
       ))}
     </PortalMenu>
   );
-};
+}
