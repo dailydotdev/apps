@@ -76,6 +76,7 @@ export type ModalContextProps = {
   onTrackNext?: AnalyticsEvent;
   onTrackPrev?: AnalyticsEvent;
   isDrawer?: boolean;
+  isForm?: boolean;
 };
 
 export const ModalPropsContext = createContext<ModalContextProps>({

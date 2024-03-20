@@ -236,8 +236,24 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     return <PushNotificationModal {...modalProps} />;
   }
 
+  const linkHasFeed = !!feeds?.length;
+
   return (
-    <Modal {...modalProps}>
+    <Modal
+      {...modalProps}
+      formProps={{
+        form: linkHasFeed ? 'select-feed' : 'submit-source',
+        copy: { right: linkHasFeed ? 'Submit for review' : 'Check link' },
+        rightButtonProps: {
+          disabled: linkHasFeed
+            ? !selectedFeed || !!existingSource
+            : !enableSubmission || !isEnabled,
+          loading: linkHasFeed
+            ? checkingIfExists || requestingSource
+            : isScraping,
+        },
+      }}
+    >
       <Modal.Header title="Suggest new source" />
       <Modal.Body>
         <Modal.Text>
