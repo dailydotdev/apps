@@ -68,14 +68,16 @@ const Custom404 = dynamic(
 
 const CustomPostBanner = () => {
   const { shouldShowAuthBanner } = useOnboarding();
+  const { shouldShowLogin } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isTablet = useViewSize(ViewSize.Tablet);
   const isValid =
     shouldShowAuthBanner && !isLaptop && (isTablet || !shouldShowLogin);
-  
+
   if (!isValid) {
     return null;
   }
-  
+
   return (
     <LoginButton
       className={{
@@ -115,10 +117,8 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const router = useRouter();
   const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
   const { isFallback } = router;
-  const { shouldShowLogin } = useAuthContext();
   const { shouldShowAuthBanner } = useOnboarding();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const isTablet = useViewSize(ViewSize.Tablet);
   const { post, isError, isLoading } = usePostById({
     id,
     options: { initialData, retry: false },
