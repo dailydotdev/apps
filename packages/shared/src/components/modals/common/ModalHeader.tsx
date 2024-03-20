@@ -29,10 +29,7 @@ const headerKindToTitleClassName: Record<ModalHeaderKind, string> = {
   [ModalHeaderKind.Quaternary]: 'typo-callout text-theme-label-tertiary',
 };
 const ModalHeaderTitle = classed('h3', 'font-bold');
-const ModalHeaderOuter = classed(
-  'header',
-  'flex items-center py-4 px-4 tablet:px-6 w-full h-14',
-);
+const ModalHeaderOuter = classed('header', 'flex py-4 px-4 tablet:px-6 w-full');
 const ModalHeaderSubtitle = classed('h3', 'font-bold typo-callout');
 
 export function ModalHeader({
@@ -55,7 +52,7 @@ export function ModalHeader({
   return (
     <ModalHeaderOuter
       className={classNames(
-        'relative',
+        'relative h-14 items-center',
         (modalTitle || children) && 'border-b border-theme-divider-tertiary',
         className,
       )}
@@ -84,7 +81,15 @@ export function ModalHeader({
 export function ModalHeaderTabs(props: ModalTabsProps): ReactElement {
   const { onRequestClose } = useContext(ModalPropsContext);
   return (
-    <ModalHeaderOuter className="border-b border-theme-divider-tertiary">
+    <ModalHeaderOuter className="h-auto flex-col items-start gap-2 border-b border-theme-divider-tertiary tablet:h-14 tablet:flex-row tablet:items-center">
+      {onRequestClose && (
+        <Button
+          size={ButtonSize.Small}
+          className="flex -rotate-90 tablet:hidden"
+          icon={<ArrowIcon />}
+          onClick={onRequestClose}
+        />
+      )}
       <ModalTabs {...props} />
       {onRequestClose && <ModalClose onClick={onRequestClose} />}
     </ModalHeaderOuter>
