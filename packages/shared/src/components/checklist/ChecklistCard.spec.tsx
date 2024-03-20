@@ -1,16 +1,9 @@
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-} from '@testing-library/react';
+import { render, RenderResult, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ChecklistCardProps } from '../../lib/checklist';
 import { ChecklistCard } from './ChecklistCard';
 import { defaultSteps, updateStep } from '../../hooks/useChecklist.spec';
-
-const noop = jest.fn();
 
 describe('ChecklistCard component', () => {
   beforeEach(() => {
@@ -66,36 +59,5 @@ describe('ChecklistCard component', () => {
 
     const progress = await screen.findAllByTestId('checklist-card-progress');
     expect(progress).toHaveLength(2);
-  });
-
-  it('should not render close button if onRequestClose is provided', async () => {
-    const steps = [...defaultSteps];
-
-    renderComponent({
-      steps,
-      title: 'Card title',
-      description: 'Card description',
-      onRequestClose: noop,
-    });
-
-    const closeButton = await screen.findByTitle('Close');
-    expect(closeButton).toBeInTheDocument();
-  });
-
-  it('should call onRequestClose on close button click', async () => {
-    const steps = [...defaultSteps];
-
-    renderComponent({
-      steps,
-      title: 'Card title',
-      description: 'Card description',
-      onRequestClose: noop,
-    });
-
-    const closeButton = await screen.findByTitle('Close');
-    expect(closeButton).toBeInTheDocument();
-
-    fireEvent.click(closeButton);
-    expect(noop).toHaveBeenCalledTimes(1);
   });
 });

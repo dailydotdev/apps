@@ -16,10 +16,11 @@ export default function FirstStreakModal({
       onRequestClose={onRequestClose}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.XSmall}
+      isDrawerOnMobile
     >
       <ModalClose className="right-2 top-2" onClick={onRequestClose} />
-      <Modal.Body>
-        <span className="flex w-full flex-row items-end gap-2">
+      <Modal.Body className="items-center tablet:items-start">
+        <span className="flex flex-row items-end gap-2">
           <DayStreak
             className="opacity-32"
             streak={Streak.Completed}

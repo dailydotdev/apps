@@ -17,6 +17,7 @@ import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import classed from '../../lib/classed';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { link } from '../../lib/links';
+import SquadChecklistCard from '../checklist/SquadChecklistCard';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -45,6 +46,7 @@ export function SquadPageHeader({
         'relative min-h-20 w-full items-center border-theme-divider-tertiary px-6 tablet:mb-6 tablet:border-b tablet:pb-20 laptopL:items-start laptopL:px-18 laptopL:pb-14',
       )}
     >
+      {isChecklistVisible && <SquadChecklistCard squad={squad} />}
       <div className="flex flex-col items-center laptopL:flex-row">
         <SquadImage className="h-16 w-16 tablet:h-24 tablet:w-24" {...squad} />
         <FlexCol className="mt-4 laptopL:ml-6 laptopL:mt-0">

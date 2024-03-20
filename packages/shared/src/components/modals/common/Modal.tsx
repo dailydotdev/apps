@@ -16,8 +16,10 @@ import {
 import classed from '../../../lib/classed';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
 import { AnalyticsEvent } from '../../../lib/analytics';
+import { useViewSize, ViewSize } from '../../../hooks';
+import { Drawer, DrawerOnMobileProps } from '../../drawers';
 
-export interface ModalProps extends ReactModal.Props {
+export interface ModalProps extends ReactModal.Props, DrawerOnMobileProps {
   children?: React.ReactNode;
   kind?: ModalKind;
   size?: ModalSize;
@@ -27,6 +29,7 @@ export interface ModalProps extends ReactModal.Props {
   onViewChange?: (view: string) => void;
   onTrackNext?: AnalyticsEvent;
   onTrackPrev?: AnalyticsEvent;
+  isDrawerOnMobile?: boolean;
 }
 
 export type LazyModalCommonProps = Pick<
@@ -35,7 +38,7 @@ export type LazyModalCommonProps = Pick<
 > & { onRequestClose: (e?: React.MouseEvent | React.KeyboardEvent) => void };
 
 const modalKindToOverlayClassName: Record<ModalKind, string> = {
-  [ModalKind.FixedCenter]: 'mobileL:justify-center pt-10 mobileL:pt-0',
+  [ModalKind.FixedCenter]: 'tablet:justify-center',
   [ModalKind.FlexibleCenter]: 'justify-center',
   [ModalKind.FlexibleTop]: '',
   [ModalKind.FixedBottom]: 'justify-end',
@@ -44,16 +47,15 @@ const modalKindAndSizeToOverlayClassName: Partial<
   Record<ModalKind, Partial<Record<ModalSize, string>>>
 > = {
   [ModalKind.FlexibleTop]: {
-    [ModalSize.Small]: 'pt-10 mobileL:pt-20',
-    [ModalSize.Medium]: 'pt-10 mobileL:pt-20',
+    [ModalSize.Small]: 'tablet:pt-20',
+    [ModalSize.Medium]: 'tablet:pt-20',
   },
 };
 const modalKindToClassName: Record<ModalKind, string> = {
-  [ModalKind.FixedCenter]:
-    'h-full max-h-[calc(100vh-2.5rem)] mobileL:h-[40rem] mobileL:max-h-[calc(100vh-5rem)]',
+  [ModalKind.FixedCenter]: 'tablet:h-[40rem] tablet:max-h-[calc(100vh-5rem)]',
   [ModalKind.FlexibleCenter]:
-    'mx-4 max-w-[calc(100vw-2rem)] max-h-[min(calc(100vh),40rem)] mobileL:max-h-[min(calc(100vh-5rem),40rem)]',
-  [ModalKind.FlexibleTop]: 'h-auto',
+    'tablet:mx-4 max-w-[calc(100vw-2rem)] tablet:max-h-[min(calc(100vh-5rem),40rem)]',
+  [ModalKind.FlexibleTop]: '',
   [ModalKind.FixedBottom]: 'rounded-b-none max-h-[34.75rem]',
 };
 const modalKindAndSizeToClassName: Partial<
@@ -61,18 +63,17 @@ const modalKindAndSizeToClassName: Partial<
 > = {
   [ModalKind.FlexibleTop]: {
     [ModalSize.XSmall]: 'laptop:mt-16 laptop:mb-10',
-    [ModalSize.Medium]:
-      'h-full mobileL:h-auto min-h-[25rem] max-h-[calc(100vh-10rem)]',
+    [ModalSize.Medium]: 'min-h-[25rem] tablet:max-h-[calc(100vh-10rem)]',
     [ModalSize.Large]: 'laptop:mt-16 laptop:mb-10',
     [ModalSize.XLarge]: 'laptop:mt-16 laptop:mb-10',
   },
 };
 export const modalSizeToClassName: Record<ModalSize, string> = {
-  [ModalSize.XSmall]: '!w-[21.25rem]',
-  [ModalSize.Small]: '!w-[26.25rem]',
-  [ModalSize.Medium]: '!w-[35rem]',
-  [ModalSize.Large]: '!w-[42.5rem]',
-  [ModalSize.XLarge]: '!w-[63.75rem]',
+  [ModalSize.XSmall]: 'tablet:w-[21.25rem]',
+  [ModalSize.Small]: 'tablet:w-[26.25rem]',
+  [ModalSize.Medium]: 'tablet:w-[35rem]',
+  [ModalSize.Large]: 'tablet:w-[42.5rem]',
+  [ModalSize.XLarge]: 'tablet:w-[63.75rem]',
 };
 
 export function Modal({
@@ -88,10 +89,15 @@ export function Modal({
   onRequestClose,
   tabs,
   steps,
+  isDrawerOnMobile,
+  drawerProps,
+  shouldCloseOnOverlayClick,
   ...props
 }: ModalProps): ReactElement {
   const stepTitle = steps ? steps?.[0].key : undefined;
   const tabTitle = tabs ? modalTabTitle(tabs[0]) : undefined;
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const isDrawerOpen = isDrawerOnMobile && isMobile;
   const [activeView, setView] = useState<string | undefined>(
     defaultView ?? stepTitle ?? tabTitle,
   );
@@ -101,6 +107,41 @@ export function Modal({
     }
     setView(view);
   };
+
+  const content = (
+    <ModalPropsContext.Provider
+      value={{
+        activeView,
+        size,
+        kind,
+        onViewChange,
+        onRequestClose,
+        setActiveView,
+        steps,
+        tabs,
+        onTrackNext,
+        onTrackPrev,
+        isDrawer: isDrawerOpen,
+      }}
+    >
+      {children}
+    </ModalPropsContext.Provider>
+  );
+
+  if (isDrawerOpen) {
+    return (
+      <Drawer
+        displayCloseButton
+        {...drawerProps}
+        isOpen
+        onClose={onRequestClose}
+        closeOnOutsideClick={shouldCloseOnOverlayClick}
+      >
+        {content}
+      </Drawer>
+    );
+  }
+
   const modalOverlayClassName = classNames(
     'overlay fixed inset-0 z-modal flex flex-col items-center bg-overlay-quaternary-onion',
     modalKindAndSizeToOverlayClassName[kind]?.[size],
@@ -108,7 +149,8 @@ export function Modal({
     overlayClassName,
   );
   const modalClassName = classNames(
-    'modal relative flex max-w-full flex-col items-center rounded-16 border border-theme-divider-secondary bg-accent-pepper-subtlest antialiased shadow-2 focus:outline-none',
+    'modal relative flex max-w-full flex-col items-center border border-theme-divider-secondary bg-accent-pepper-subtlest antialiased shadow-2 focus:outline-none',
+    'h-full w-full tablet:h-auto tablet:rounded-16',
     modalKindToClassName[kind],
     modalSizeToClassName[size],
     modalKindAndSizeToClassName[kind]?.[size],
@@ -123,31 +165,13 @@ export function Modal({
       className={modalClassName}
       {...props}
     >
-      <ModalPropsContext.Provider
-        value={{
-          activeView,
-          size,
-          kind,
-          onViewChange,
-          onRequestClose,
-          setActiveView,
-          steps,
-          tabs,
-          onTrackNext,
-          onTrackPrev,
-        }}
-      >
-        {children}
-      </ModalPropsContext.Provider>
+      {content}
     </ReactModal>
   );
 }
 
-export const ModalTitle = classed(
-  'h1',
-  'typo-title1 font-bold text-center mb-4',
-);
-export const ModalSubtitle = classed('strong', 'typo-body font-bold mb-2');
+export const ModalTitle = classed('h1', 'typo-title1 font-bold text-center');
+export const ModalSubtitle = classed('strong', 'typo-body font-bold');
 export const ModalText = classed('p', 'typo-callout text-theme-label-tertiary');
 
 Modal.Size = ModalSize;

@@ -28,6 +28,8 @@ export function SquadPromotionModal({
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
       className="overflow-hidden !border-theme-color-cabbage"
+      isDrawerOnMobile
+      drawerProps={{ className: { drawer: 'pb-4' } }}
     >
       <PromotionTour onClose={onRequestClose} source={squad} />
       <ModalClose

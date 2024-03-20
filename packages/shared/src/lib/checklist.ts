@@ -8,7 +8,6 @@ export type ChecklistCardProps = {
   title: string;
   description: string;
   steps: ChecklistStepType[];
-  onRequestClose?: () => void;
 };
 
 export type ChecklistStepType = {

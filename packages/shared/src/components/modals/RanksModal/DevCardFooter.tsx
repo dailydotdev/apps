@@ -17,7 +17,7 @@ export default function DevCardFooter({
 }: DevCardFooterProps): ReactElement {
   return (
     <div className="pt-2">
-      <Modal.Subtitle>Generate your DevCard</Modal.Subtitle>
+      <Modal.Subtitle className="mb-2">Generate your DevCard</Modal.Subtitle>
       <div className="mt-2 flex">
         <DevCardPlaceholder profileImage={user?.image} height={80} width={60} />
         <div className="ml-6 flex flex-1 flex-col items-start">

@@ -89,10 +89,7 @@ export default function SquadHeaderMenu({
 
     list.push({
       icon: <ContextMenuIcon Icon={TourIcon} />,
-      action: () =>
-        openModal({
-          type: LazyModal.SquadTour,
-        }),
+      action: () => openModal({ type: LazyModal.SquadTour }),
       label: 'Learn how Squads work',
     });
 
