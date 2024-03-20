@@ -18,6 +18,7 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { ListDrawer } from '../drawers/ListDrawer';
 import { SelectParams } from '../drawers/common';
 import { RootPortal } from '../tooltips/Portal';
+import { DrawerProps } from '../drawers';
 
 interface ClassName {
   container?: string;
@@ -43,6 +44,7 @@ export interface DropdownProps {
   renderItem?: (value: string, index: number) => ReactNode;
   placeholder?: string;
   iconOnly?: boolean;
+  drawerProps?: Omit<DrawerProps, 'children' | 'onClose'>;
 }
 
 const getButtonSizeClass = (buttonSize: string): string => {
@@ -71,6 +73,7 @@ export function Dropdown({
   renderItem,
   placeholder = '',
   iconOnly,
+  drawerProps,
   ...props
 }: DropdownProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -158,11 +161,12 @@ export function Dropdown({
         <RootPortal>
           <ListDrawer
             drawerProps={{
+              ...drawerProps,
               isOpen: isVisible,
-              displayCloseButton: true,
               onClose: () => setVisibility(false),
             }}
             options={options}
+            customItem={renderItem}
             selected={selectedIndex}
             onSelectedChange={handleChange}
           />

@@ -50,6 +50,7 @@ export function SquadsDropdown({
       scrollable
       data-testid="timezone_dropdown"
       renderItem={renderDropdownItem}
+      drawerProps={{ isFullScreen: true }}
     />
   );
 }
