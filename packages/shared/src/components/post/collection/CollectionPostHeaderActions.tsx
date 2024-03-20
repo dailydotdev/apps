@@ -9,7 +9,6 @@ import { CollectionSubscribeButton } from './CollectionSubscribeButton';
 const Container = classed('div', 'flex flex-row items-center');
 
 export const CollectionPostHeaderActions = ({
-  onShare,
   post,
   onClose,
   inlineActions,
@@ -23,7 +22,6 @@ export const CollectionPostHeaderActions = ({
     <Container {...props} className={classNames('gap-2', className)}>
       <CollectionSubscribeButton post={post} />
       <PostMenuOptions
-        onShare={onShare}
         post={post}
         onClose={onClose}
         inlineActions={inlineActions}

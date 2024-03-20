@@ -20,6 +20,8 @@ import { useFeature } from '../GrowthBookProvider';
 
 const Container = classed('div', 'flex flex-row items-center');
 
+type PostHeaderActionsPropsNoShare = Omit<PostHeaderActionsProps, 'onShare'>;
+
 const getButtonVariant = ({
   inlineActions,
   isSourceSubscribeV1,
@@ -40,7 +42,6 @@ const getButtonVariant = ({
 
 export function PostHeaderActions({
   onReadArticle,
-  onShare,
   post,
   onClose,
   inlineActions,
@@ -49,7 +50,7 @@ export function PostHeaderActions({
   contextMenuId,
   onRemovePost,
   ...props
-}: PostHeaderActionsProps): ReactElement {
+}: PostHeaderActionsPropsNoShare): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
 
   const readButtonText = getReadPostButtonText(post);
@@ -85,7 +86,6 @@ export function PostHeaderActions({
       {!isInternalReadType(post) && !!onReadArticle && <ButtonWithExperiment />}
       {isCollection && <CollectionSubscribeButton post={post} isCondensed />}
       <PostMenuOptions
-        onShare={onShare}
         post={post}
         onClose={onClose}
         inlineActions={inlineActions}

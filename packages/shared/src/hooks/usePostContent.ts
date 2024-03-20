@@ -13,10 +13,14 @@ import useOnPostClick from './useOnPostClick';
 import useSubscription from './useSubscription';
 import { PostOrigin } from './analytics/useAnalyticsContextData';
 import { updatePostCache } from './usePostById';
+import { ReferralCampaignKey } from '../lib/referral';
+import { useGetShortUrl } from './utils/useGetShortUrl';
+import { ShareProvider } from '../lib/share';
+import { Origin } from '../lib/analytics';
 
 export interface UsePostContent {
   sharePost: Post;
-  onSharePost: () => void;
+  onCopyPostLink: () => void;
   onCloseShare: () => void;
   onReadArticle: () => Promise<void>;
 }
@@ -35,13 +39,29 @@ const usePostContent = ({
   const { user } = useAuthContext();
   const { trackEvent } = useAnalyticsContext();
   const onPostClick = useOnPostClick({ origin });
+  const href = post.commentsPermalink;
+  const cid = ReferralCampaignKey.SharePost;
+  const { getShortUrl } = useGetShortUrl();
+  const { sharePost, closeSharePost, copyLink } = useSharePost(origin);
+
+  const trackShareEvent = (provider: ShareProvider) =>
+    trackEvent(
+      postAnalyticsEvent('share post', post, {
+        extra: { provider, origin: Origin.ShareBar },
+      }),
+    );
+
+  const onCopyLink = async () => {
+    const shortLink = await getShortUrl(href, cid);
+    copyLink({ link: shortLink });
+    trackShareEvent(ShareProvider.CopyLink);
+  };
+
   const onReadArticle = () =>
     onPostClick({
       post: post?.sharedPost || post,
       optional: { parent_id: post.sharedPost && post.id },
     });
-  const { sharePost, closeSharePost, copyLink } = useSharePost(origin);
-  const onShare = () => copyLink(post);
   useSubscription(
     () => ({
       query: POSTS_ENGAGED_SUBSCRIPTION,
@@ -72,7 +92,7 @@ const usePostContent = ({
     () => ({
       sharePost,
       onReadArticle,
-      onSharePost: onShare,
+      onCopyPostLink: onCopyLink,
       onCloseShare: closeSharePost,
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM

@@ -44,7 +44,7 @@ function SquadPostContent({
   const onSendViewPost = useViewPost();
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const engagementActions = usePostContent({ origin, post });
-  const { onReadArticle, onSharePost } = engagementActions;
+  const { onReadArticle, onCopyPostLink } = engagementActions;
   const { role } = useMemberRoleForSource({
     source: post?.source,
     user: post?.author,
@@ -54,7 +54,7 @@ function SquadPostContent({
     post,
     onPreviousPost,
     onNextPost,
-    onShare: onSharePost,
+    onShare: onCopyPostLink,
     postPosition,
     onClose,
     inlineActions,
@@ -127,7 +127,7 @@ function SquadPostContent({
           </BasePostContent>
         </div>
         <SquadPostWidgets
-          onShare={onSharePost}
+          onShare={onCopyPostLink}
           onReadArticle={onReadArticle}
           post={post}
           className="mb-6 border-l border-theme-divider-tertiary tablet:mb-0"

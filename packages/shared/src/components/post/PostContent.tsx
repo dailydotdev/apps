@@ -47,7 +47,7 @@ export function PostContent({
     origin,
     post,
   });
-  const { onSharePost: onShare, onReadArticle } = engagementActions;
+  const { onCopyPostLink: onShare, onReadArticle } = engagementActions;
   const onSendViewPost = useViewPost();
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
@@ -91,14 +91,12 @@ export function PostContent({
           className={className?.fixedNavigation}
         />
       )}
-
       <PostContainer
         className={classNames('relative', className?.content)}
         data-testid="postContainer"
       >
         {!hasNavigation && (
           <PostHeaderActions
-            onShare={onShare}
             onReadArticle={onReadArticle}
             post={post}
             onClose={onClose}
