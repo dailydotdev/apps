@@ -7,7 +7,10 @@ interface PostContentContainerProps {
   children: ReactNode;
 }
 
-const BodyContainer = classed('div', 'flex flex-col w-full pb-6 bg-bg-primary');
+const BodyContainer = classed(
+  'div',
+  'flex flex-col w-full pb-6 bg-background-default',
+);
 
 const PageBodyContainer = classed(
   BodyContainer,
