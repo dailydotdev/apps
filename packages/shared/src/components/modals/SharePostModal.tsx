@@ -9,7 +9,6 @@ import { ONBOARDING_OFFSET } from '../post/BasePostContent';
 import { PassedPostNavigationProps } from '../post/common';
 import { Post, PostType } from '../../graphql/posts';
 import EnableNotification from '../notifications/EnableNotification';
-import { isSourcePublicSquad } from '../../graphql/squads';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
@@ -32,13 +31,12 @@ export default function PostModal({
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
-  const isPublicSquad = isSourcePublicSquad(post.source);
 
   return (
     <BasePostModal
       {...props}
       onAfterOpen={onLoad}
-      size={isPublicSquad ? Modal.Size.XLarge : Modal.Size.Large}
+      size={Modal.Size.XLarge}
       onRequestClose={onRequestClose}
       postType={PostType.Share}
       source={post.source}

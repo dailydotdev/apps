@@ -46,7 +46,7 @@ export default function NewRankModal({
 
   const title = useMemo(() => {
     if (user) {
-      const firstName = user.name.split(' ')[0];
+      const firstName = user.name?.split(' ')[0];
       if (rank === 1) {
         return `Wow, ${firstName}!`;
       }

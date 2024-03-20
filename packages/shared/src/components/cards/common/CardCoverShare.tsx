@@ -16,7 +16,7 @@ export function CardCoverShare({
   onCopy,
   onShare,
 }: CardCoverShareProps): ReactElement {
-  const onCopyLink = useTrackedCopyPostLink(post);
+  const { onCopyLink, isLoading } = useTrackedCopyPostLink(post);
   const onClick = () => {
     onCopyLink(ShareProvider.CopyLink);
     onCopy();
@@ -28,7 +28,11 @@ export function CardCoverShare({
         Should anyone else see this post?
       </p>
       <span className="mt-2 flex flex-row gap-3 p-2">
-        <Button variant={ButtonVariant.Secondary} onClick={onClick}>
+        <Button
+          variant={ButtonVariant.Secondary}
+          onClick={onClick}
+          loading={isLoading}
+        >
           Copy link
         </Button>
         <Button

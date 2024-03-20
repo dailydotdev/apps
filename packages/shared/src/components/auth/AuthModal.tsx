@@ -9,6 +9,7 @@ import { Modal, ModalProps } from '../modals/common/Modal';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { OnboardingV4dot5 } from '../../lib/featureValues';
+import { LogoutReason } from '../../lib/user';
 
 export interface AuthModalProps extends ModalProps {
   trigger?: AuthTriggersType;
@@ -35,7 +36,7 @@ export default function AuthModal({
 
   const closeAndLogout = (e) => {
     if (user && !user.username) {
-      logout();
+      logout(LogoutReason.IncomleteOnboarding);
     }
     onClose(e);
   };

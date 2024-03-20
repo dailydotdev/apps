@@ -35,9 +35,6 @@ import SquadPostPageNavigation from '@dailydotdev/shared/src/components/post/Squ
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { ONBOARDING_OFFSET } from '@dailydotdev/shared/src/components/post/BasePostContent';
-import { modalSizeToClassName } from '@dailydotdev/shared/src/components/modals/common/Modal';
-import { ModalSize } from '@dailydotdev/shared/src/components/modals/common/types';
-import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
@@ -59,15 +56,38 @@ import {
 import LoginButton from '@dailydotdev/shared/src/components/LoginButton';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
-import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import {
   getSeoDescription,
   PostSEOSchema,
 } from '../../../components/PostSEOSchema';
+import { getLayout } from '../../../components/layouts/MainLayout';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
 );
+
+const CustomPostBanner = () => {
+  const { shouldShowAuthBanner } = useOnboarding();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isValid =
+    shouldShowAuthBanner && !isLaptop && (isTablet || !shouldShowLogin);
+  
+  if (!isValid) {
+    return null;
+  }
+  
+  return (
+    <LoginButton
+      className={{
+        container: classNames(
+          authGradientBg,
+          'sticky left-0 top-0 z-max w-full justify-center gap-2 border-b border-theme-color-cabbage px-4 py-2',
+        ),
+        button: 'flex-1 tablet:max-w-[9rem]',
+      }}
+    />
+  );
+};
 
 export interface Props {
   id: string;
@@ -94,7 +114,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
   const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
-  const { sidebarRendered } = useSidebarRendered();
   const { isFallback } = router;
   const { shouldShowLogin } = useAuthContext();
   const { shouldShowAuthBanner } = useOnboarding();
@@ -106,11 +125,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   });
   const containerClass = classNames(
     'max-w-screen-laptop pb-20 laptop:min-h-page laptop:pb-6 laptopL:pb-0',
-    [PostType.Share, PostType.Welcome, PostType.Freeform].includes(
-      post?.type,
-    ) &&
-      sidebarRendered &&
-      modalSizeToClassName[ModalSize.Large],
+    [PostType.Share, PostType.Welcome, PostType.Freeform].includes(post?.type),
   );
   const seoTitle = () => {
     if (post?.type === PostType.Share && post?.title === null) {
@@ -193,7 +208,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     return <Custom404 />;
   }
 
-  return getMainLayout(
+  return (
     <>
       <Head>
         <link rel="preload" as="image" href={post?.image} />
@@ -221,25 +236,14 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
         }}
       />
       {shouldShowAuthBanner && isLaptop && <AuthenticationBanner />}
-    </>,
-    {},
-    {
-      screenCentered: false,
-      customBanner: shouldShowAuthBanner &&
-        !isLaptop &&
-        (isTablet || !shouldShowLogin) && (
-          <LoginButton
-            className={{
-              container: classNames(
-                authGradientBg,
-                'sticky left-0 top-0 z-max w-full justify-center gap-2 border-b border-theme-color-cabbage px-4 py-2',
-              ),
-              button: 'flex-1 tablet:max-w-[9rem]',
-            }}
-          />
-        ),
-    },
-  ) as ReactElement;
+    </>
+  );
+};
+
+PostPage.getLayout = getLayout;
+PostPage.layoutProps = {
+  screenCentered: false,
+  customBanner: <CustomPostBanner />,
 };
 
 export default PostPage;

@@ -51,33 +51,38 @@ export function PostHeaderActions({
   ...props
 }: PostHeaderActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
-  const isSourceSubscribeV1 =
-    useFeature(feature.sourceSubscribe) === SourceSubscribeExperiment.V1;
 
   const readButtonText = getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
 
+  const ButtonWithExperiment = () => {
+    const isSourceSubscribeV1 =
+      useFeature(feature.sourceSubscribe) === SourceSubscribeExperiment.V1;
+
+    return (
+      <SimpleTooltip
+        placement="bottom"
+        content={readButtonText}
+        disabled={!inlineActions}
+      >
+        <Button
+          variant={getButtonVariant({ inlineActions, isSourceSubscribeV1 })}
+          tag="a"
+          href={post.sharedPost?.permalink ?? post.permalink}
+          target={openNewTab ? '_blank' : '_self'}
+          icon={<OpenLinkIcon />}
+          onClick={onReadArticle}
+          data-testid="postActionsRead"
+        >
+          {!inlineActions && readButtonText}
+        </Button>
+      </SimpleTooltip>
+    );
+  };
+
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      {!isInternalReadType(post) && !!onReadArticle && (
-        <SimpleTooltip
-          placement="bottom"
-          content={readButtonText}
-          disabled={!inlineActions}
-        >
-          <Button
-            variant={getButtonVariant({ inlineActions, isSourceSubscribeV1 })}
-            tag="a"
-            href={post.sharedPost?.permalink ?? post.permalink}
-            target={openNewTab ? '_blank' : '_self'}
-            icon={<OpenLinkIcon />}
-            onClick={onReadArticle}
-            data-testid="postActionsRead"
-          >
-            {!inlineActions && readButtonText}
-          </Button>
-        </SimpleTooltip>
-      )}
+      {!isInternalReadType(post) && !!onReadArticle && <ButtonWithExperiment />}
       {isCollection && <CollectionSubscribeButton post={post} isCondensed />}
       <PostMenuOptions
         onShare={onShare}
