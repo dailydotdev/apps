@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, MouseEventHandler } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from '../../buttons/Button';
 
@@ -7,13 +7,14 @@ interface Copy {
   right?: string;
 }
 
-interface FormWrapperProps {
+export interface FormWrapperProps {
   children: ReactNode;
   className?: string;
   form: string;
   copy?: Copy;
-  onLeftClick?(): void;
-  onRightClick?(): void;
+  onLeftClick?: MouseEventHandler;
+  onRightClick?: MouseEventHandler;
+  title?: string;
 }
 
 export function FormWrapper({
@@ -23,6 +24,7 @@ export function FormWrapper({
   copy = {},
   onLeftClick,
   onRightClick,
+  title,
 }: FormWrapperProps): ReactElement {
   return (
     <div className={classNames('flex flex-col', className)}>
@@ -38,6 +40,7 @@ export function FormWrapper({
           {copy?.right ?? 'Submit'}
         </Button>
       </div>
+      {title && <p className="mt-5 px-4 font-bold typo-body">{title}</p>}
       {children}
     </div>
   );

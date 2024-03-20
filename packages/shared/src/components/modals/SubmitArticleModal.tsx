@@ -194,6 +194,7 @@ export default function SubmitArticleModal({
       kind={Modal.Kind.FlexibleTop}
       size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
+      formProps={{ form: 'submit-article', title: FeedItemTitle.SubmitArticle }}
     >
       <Modal.Header title={FeedItemTitle.SubmitArticle} />
       <Modal.Body>
