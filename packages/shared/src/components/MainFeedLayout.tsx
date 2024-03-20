@@ -17,15 +17,13 @@ import {
   FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
-  PREVIEW_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
-import { OtherFeedPage, RequestKey, generateQueryKey } from '../lib/query';
+import { generateQueryKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
 import { useFeature } from './GrowthBookProvider';
-import { OnboardingV4dot5 } from '../lib/featureValues';
 import {
   algorithms,
   LayoutHeader,
@@ -39,9 +37,6 @@ import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
 import { FeedContainerProps } from './feeds';
 import { getFeedName } from '../lib/feed';
-import useFeedSettings from '../hooks/useFeedSettings';
-import { OnboardingFeedHeader } from './onboarding/OnboardingFeedHeader';
-import { REQUIRED_TAGS_THRESHOLD } from './onboarding/common';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -125,15 +120,9 @@ export default function MainFeedLayout({
     hasUser: !!user,
   });
   const feedVersion = useFeature(feature.feedVersion);
-  const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
   const searchVersion = useFeature(feature.searchVersion);
-  const isOnboardingV4dot5 = onboardingV4dot5 === OnboardingV4dot5.V4dot5;
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const { shouldUseMobileFeedLayout } = useFeedLayout();
-  const { feedSettings } = useFeedSettings();
-
-  const isOnboardingFeed =
-    isOnboardingV4dot5 && alerts?.filter && feedName === SharedFeedPage.MyFeed;
 
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
@@ -179,17 +168,6 @@ export default function MainFeedLayout({
     // so returning false so feed does not do any requests
     if (isSearchOn && !searchQuery) {
       return null;
-    }
-
-    if (isOnboardingFeed) {
-      return {
-        feedName: OtherFeedPage.Preview,
-        feedQueryKey: [RequestKey.FeedPreview, user?.id],
-        query: PREVIEW_FEED_QUERY,
-        forceCardMode: true,
-        showSearch: false,
-        options: { refetchOnMount: true },
-      };
     }
 
     if (isSearchOn && searchQuery) {
@@ -268,35 +246,16 @@ export default function MainFeedLayout({
 
   const disableTopPadding = isFinder || shouldUseMobileFeedLayout;
 
-  const tagsCount = feedSettings?.includeTags?.length || 0;
-  const isFeedPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
-  const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);
-
   return (
     <FeedPageComponent
-      className={classNames(
-        'relative',
-        disableTopPadding && '!pt-0',
-        isOnboardingFeed && '!p-0',
-      )}
+      className={classNames('relative', disableTopPadding && '!pt-0')}
     >
-      {isOnboardingFeed && (
-        <OnboardingFeedHeader
-          isPreviewFeedVisible={isPreviewFeedVisible}
-          setPreviewFeedVisible={setPreviewFeedVisible}
-          isFeedPreviewEnabled={isFeedPreviewEnabled}
-          tagsCount={tagsCount}
-        />
-      )}
       {isSearchOn && search}
-      {(isOnboardingFeed
-        ? isFeedPreviewEnabled && isPreviewFeedVisible
-        : feedProps) && (
+      {feedProps && (
         <Feed
           {...feedProps}
           className={classNames(
             shouldUseMobileFeedLayout && !isFinder && 'laptop:px-6',
-            isOnboardingFeed && 'px-6 laptop:px-16',
           )}
         />
       )}
