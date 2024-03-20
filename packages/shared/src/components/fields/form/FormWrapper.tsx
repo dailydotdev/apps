@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, MouseEventHandler } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonProps, ButtonVariant } from '../../buttons/Button';
 
