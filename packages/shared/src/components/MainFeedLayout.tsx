@@ -37,7 +37,6 @@ import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
 import { FeedContainerProps } from './feeds';
 import { getFeedName } from '../lib/feed';
-import useFeedSettings from '../hooks/useFeedSettings';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -124,7 +123,6 @@ export default function MainFeedLayout({
   const searchVersion = useFeature(feature.searchVersion);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const { shouldUseMobileFeedLayout } = useFeedLayout();
-  const { feedSettings } = useFeedSettings();
 
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
