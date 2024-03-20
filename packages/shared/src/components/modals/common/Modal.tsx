@@ -133,7 +133,13 @@ export function Modal({
       <ConditionalWrapper
         condition={!!formProps && isMobile}
         wrapper={(component) => (
-          <FormWrapper {...formProps} onLeftClick={onRequestClose}>
+          <FormWrapper
+            {...formProps}
+            leftButtonProps={{
+              ...(formProps.leftButtonProps ?? {}),
+              onClick: onRequestClose,
+            }}
+          >
             {component}
           </FormWrapper>
         )}

@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode, MouseEventHandler } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { Button, ButtonProps, ButtonVariant } from '../../buttons/Button';
 
 interface Copy {
   left?: string;
@@ -12,8 +12,8 @@ export interface FormWrapperProps {
   className?: string;
   form: string;
   copy?: Copy;
-  onLeftClick?: MouseEventHandler;
-  onRightClick?: MouseEventHandler;
+  leftButtonProps?: ButtonProps<'button'>;
+  rightButtonProps?: ButtonProps<'button'>;
   title?: string;
 }
 
@@ -22,19 +22,19 @@ export function FormWrapper({
   className,
   form,
   copy = {},
-  onLeftClick,
-  onRightClick,
+  leftButtonProps = {},
+  rightButtonProps = {},
   title,
 }: FormWrapperProps): ReactElement {
   return (
     <div className={classNames('flex flex-col', className)}>
       <div className="flex flex-row justify-between border-b border-theme-divider-tertiary px-4 py-2">
-        <Button variant={ButtonVariant.Tertiary} onClick={onLeftClick}>
+        <Button {...leftButtonProps} variant={ButtonVariant.Tertiary}>
           {copy?.left ?? 'Cancel'}
         </Button>
         <Button
+          {...rightButtonProps}
           variant={ButtonVariant.Primary}
-          onClick={onRightClick}
           form={form}
         >
           {copy?.right ?? 'Submit'}
