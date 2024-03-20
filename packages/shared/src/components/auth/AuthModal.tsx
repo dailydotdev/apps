@@ -6,9 +6,6 @@ import AuthContext from '../../contexts/AuthContext';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Modal, ModalProps } from '../modals/common/Modal';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { OnboardingV4dot5 } from '../../lib/featureValues';
 import { LogoutReason } from '../../lib/user';
 
 export interface AuthModalProps extends ModalProps {
@@ -23,8 +20,6 @@ export default function AuthModal({
 }: AuthModalProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const [screenValue, setScreenValue] = useState<Display>(Display.Default);
-  const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
-  const isOnboardingV4dot5 = onboardingV4dot5 === OnboardingV4dot5.V4dot5;
   const { user, closeLogin, logout, loginState } = useContext(AuthContext);
   const onClose = (e) => {
     trackEvent({
@@ -50,10 +45,7 @@ export default function AuthModal({
     closeLogin();
   };
 
-  const defaultDisplay =
-    isOnboardingV4dot5 && !loginState?.isLogin
-      ? Display.OnboardingSignupV4d5
-      : Display.Default;
+  const defaultDisplay = Display.Default;
 
   return (
     <Modal
@@ -73,7 +65,6 @@ export default function AuthModal({
         trigger={trigger}
         isLoginFlow={isLogoutFlow || loginState?.isLogin}
         defaultDisplay={defaultDisplay}
-        targetId={isOnboardingV4dot5 ? OnboardingV4dot5.V4dot5 : undefined}
         onDisplayChange={(display: Display) => setScreenValue(display)}
       />
     </Modal>

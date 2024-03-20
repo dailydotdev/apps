@@ -188,12 +188,23 @@ export default function SubmitArticleModal({
     return <></>;
   }
 
+  const submitButtonProps = {
+    'aria-label': 'Submit article',
+    loading: isValidating,
+    disabled: !enableSubmission || !isEnabled || !!existingArticle,
+  };
+
   return (
     <Modal
       {...modalProps}
       kind={Modal.Kind.FlexibleTop}
       size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
+      formProps={{
+        form: 'submit-article',
+        title: FeedItemTitle.SubmitArticle,
+        rightButtonProps: submitButtonProps,
+      }}
     >
       <Modal.Header title={FeedItemTitle.SubmitArticle} />
       <Modal.Body>
@@ -273,11 +284,9 @@ export default function SubmitArticleModal({
       <Modal.Footer justify={isSubmitted ? Justify.Center : Justify.End}>
         {(!isSubmitted || !!existingArticle) && (
           <Button
+            {...submitButtonProps}
             variant={ButtonVariant.Primary}
             type="submit"
-            aria-label="Submit article"
-            disabled={!enableSubmission || !isEnabled || !!existingArticle}
-            loading={isValidating}
             form="submit-article"
           >
             <span className={isValidating ? 'invisible' : ''}>

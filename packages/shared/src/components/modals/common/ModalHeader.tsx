@@ -39,10 +39,10 @@ export function ModalHeader({
   title,
   showCloseButton = true,
 }: ModalHeaderProps): ReactElement {
-  const { activeView, onRequestClose, tabs, isDrawer } =
+  const { activeView, onRequestClose, tabs, isDrawer, isForm } =
     useContext(ModalPropsContext);
 
-  if (isDrawer) {
+  if (isDrawer || isForm) {
     return null;
   }
 

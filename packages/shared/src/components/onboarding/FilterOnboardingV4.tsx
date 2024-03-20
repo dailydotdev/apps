@@ -21,9 +21,6 @@ import type { FilterOnboardingProps } from './FilterOnboarding';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { Origin } from '../../lib/analytics';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { OnboardingV4dot5 } from '../../lib/featureValues';
 
 type OnSelectTagProps = {
   tag: Tag;
@@ -46,14 +43,12 @@ export function FilterOnboardingV4({
   const queryClient = useQueryClient();
 
   const { feedSettings } = useFeedSettings();
-  const onboardingV4dot5 = useFeature(feature.onboardingV4dot5);
-  const isOnboardingV4dot5 = onboardingV4dot5 === OnboardingV4dot5.V4dot5;
   const selectedTags = useMemo(() => {
     return new Set(feedSettings?.includeTags || []);
   }, [feedSettings?.includeTags]);
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
     origin: Origin.Onboarding,
-    shouldUpdateAlerts: !isOnboardingV4dot5,
+    shouldUpdateAlerts: true,
   });
 
   const [refetchFeed] = useDebounce(() => {
