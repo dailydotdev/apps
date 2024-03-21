@@ -1,4 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
+import request from 'graphql-request';
 import { BOOT_QUERY_KEY } from '../contexts/common';
 import { Squad } from '../graphql/sources';
 import { Boot } from '../lib/boot';
@@ -6,12 +7,15 @@ import {
   MarketingCta,
   MarketingCtaVariant,
 } from '../components/cards/MarketingCta/common';
+import { CLEAR_MARKETING_CTA_MUTATION } from '../graphql/users';
+import { graphqlUrl } from '../lib/config';
 
 type UseBoot = {
   addSquad: (squad: Squad) => void;
   deleteSquad: (squadId: string) => void;
   updateSquad: (squad: Squad) => void;
   getMarketingCta: (variant: MarketingCtaVariant) => MarketingCta | null;
+  clearMarketingCta: (campaignId: string) => void;
 };
 
 const sortByName = (squads: Squad[]): Squad[] =>
@@ -22,6 +26,7 @@ const sortByName = (squads: Squad[]): Squad[] =>
 export const useBoot = (): UseBoot => {
   const client = useQueryClient();
   const getBootData = () => client.getQueryData<Boot>(BOOT_QUERY_KEY);
+
   const addSquad = (squad: Squad) => {
     const bootData = getBootData();
     const currentSquads = bootData?.squads || [];
@@ -34,11 +39,13 @@ export const useBoot = (): UseBoot => {
     const squads = sortByName([...currentSquads, squad]);
     client.setQueryData<Boot>(BOOT_QUERY_KEY, { ...bootData, squads });
   };
+
   const deleteSquad = (squadId: string) => {
     const bootData = getBootData();
     const squads = bootData.squads?.filter((squad) => squad.id !== squadId);
     client.setQueryData<Boot>(BOOT_QUERY_KEY, { ...bootData, squads });
   };
+
   const updateSquad = (squad: Squad) => {
     const bootData = getBootData();
     const squads = bootData.squads?.map((bootSquad) =>
@@ -62,10 +69,23 @@ export const useBoot = (): UseBoot => {
     return marketingCta;
   };
 
+  const clearMarketingCta = (campaignId: string) => {
+    const bootData = getBootData();
+    request(graphqlUrl, CLEAR_MARKETING_CTA_MUTATION, {
+      campaignId,
+    });
+
+    client.setQueryData<Boot>(BOOT_QUERY_KEY, {
+      ...bootData,
+      marketingCta: null,
+    });
+  };
+
   return {
     addSquad,
     deleteSquad,
     updateSquad,
     getMarketingCta,
+    clearMarketingCta,
   };
 };
