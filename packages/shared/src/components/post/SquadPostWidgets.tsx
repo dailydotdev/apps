@@ -6,7 +6,6 @@ import AuthContext, { useAuthContext } from '../../contexts/AuthContext';
 import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
 import { PostHeaderActions } from './PostHeaderActions';
-import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import SourceButton from '../cards/SourceButton';
 import { SourceMember, Squad } from '../../graphql/sources';
 import { SquadJoinButton } from '../squads/SquadJoinButton';
@@ -14,12 +13,7 @@ import { Origin } from '../../lib/analytics';
 import { useSquad } from '../../hooks';
 import { getSquadMembers, isSourcePublicSquad } from '../../graphql/squads';
 import SquadMemberShortList from '../squads/SquadMemberShortList';
-import { PostHeaderActionsProps } from './common';
-
-interface PostWidgetsProps
-  extends Omit<PostHeaderActionsProps, 'contextMenuId'> {
-  origin?: PostOrigin;
-}
+import { PostWidgetsProps } from './PostWidgets';
 
 const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
   const { isFetched } = useAuthContext();
@@ -82,7 +76,6 @@ export function SquadPostWidgets({
   return (
     <PageWidgets className={className}>
       <PostHeaderActions
-        onShare={onShare}
         post={post}
         onClose={onClose}
         className="hidden pt-6 tablet:flex"

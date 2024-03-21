@@ -23,6 +23,7 @@ function FixedPostNavigation({
     <PostNavigation
       {...props}
       inlineActions
+      isFixedNavigation
       post={post}
       contextMenuId="fixed-post-navigation-context"
       className={{

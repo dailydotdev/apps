@@ -7,7 +7,6 @@ import { LazyImage } from '../LazyImage';
 import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
-import { PostHeaderActions } from './PostHeaderActions';
 import { ToastSubject, useToastNotification } from '../../hooks';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
@@ -40,6 +39,7 @@ export function PostContent({
   onRemovePost,
   backToSquad,
   isBannerVisible,
+  isPostPage,
 }: PostContentProps): ReactElement {
   const { user } = useAuthContext();
   const { subject } = useToastNotification();
@@ -64,7 +64,6 @@ export function PostContent({
     post,
     onReadArticle,
     onClose,
-    onShare,
     inlineActions,
     onRemovePost,
   };
@@ -96,17 +95,6 @@ export function PostContent({
         className={classNames('relative', className?.content)}
         data-testid="postContainer"
       >
-        {!hasNavigation && (
-          <PostHeaderActions
-            onShare={onShare}
-            onReadArticle={onReadArticle}
-            post={post}
-            onClose={onClose}
-            className="mb-4 flex tablet:hidden"
-            contextMenuId="post-header-actions-context"
-          />
-        )}
-
         <BasePostContent
           className={{
             ...className,
@@ -119,6 +107,7 @@ export function PostContent({
               container: classNames('pt-6', className?.navigation?.container),
             },
           }}
+          isPostPage={isPostPage}
           isFallback={isFallback}
           customNavigation={customNavigation}
           enableShowShareNewComment={enableShowShareNewComment}

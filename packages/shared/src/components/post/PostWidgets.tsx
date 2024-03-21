@@ -8,9 +8,11 @@ import { PostUsersHighlights } from '../widgets/PostUsersHighlights';
 import { PostHeaderActions } from './PostHeaderActions';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import { PostHeaderActionsProps } from './common';
+import { ShareBookmarkProps } from './PostActions';
 
-interface PostWidgetsProps
-  extends Omit<PostHeaderActionsProps, 'contextMenuId'> {
+export interface PostWidgetsProps
+  extends Omit<PostHeaderActionsProps, 'contextMenuId'>,
+    ShareBookmarkProps {
   origin?: PostOrigin;
 }
 
@@ -26,7 +28,6 @@ export function PostWidgets({
   return (
     <PageWidgets className={className}>
       <PostHeaderActions
-        onShare={onShare}
         onReadArticle={onReadArticle}
         post={post}
         onClose={onClose}

@@ -2,17 +2,11 @@ import React, { ReactElement } from 'react';
 import { PageWidgets } from '../../utilities';
 import { ShareMobile } from '../../ShareMobile';
 import ShareBar from '../../ShareBar';
-import { PostOrigin } from '../../../hooks/analytics/useAnalyticsContextData';
 import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
-import { PostHeaderActionsProps } from '../common';
 import { CollectionsIntro } from '../widgets';
 import { RelatedPostsWidget } from '../RelatedPostsWidget';
 import { PostRelationType } from '../../../graphql/posts';
-
-interface PostWidgetsProps
-  extends Omit<PostHeaderActionsProps, 'contextMenuId'> {
-  origin?: PostOrigin;
-}
+import { PostWidgetsProps } from '../PostWidgets';
 
 export const CollectionPostWidgets = ({
   onShare,
@@ -23,7 +17,6 @@ export const CollectionPostWidgets = ({
   return (
     <PageWidgets className={className}>
       <CollectionPostHeaderActions
-        onShare={onShare}
         post={post}
         onClose={onClose}
         className="hidden pt-6 tablet:flex"

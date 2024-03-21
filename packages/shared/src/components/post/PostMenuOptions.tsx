@@ -10,30 +10,30 @@ import AuthContext from '../../contexts/AuthContext';
 import { banPost, demotePost, Post, promotePost } from '../../graphql/posts';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import PostOptionsMenu, { PostOptionsMenuProps } from '../PostOptionsMenu';
-import { ShareBookmarkProps } from './PostActions';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { Origin } from '../../lib/analytics';
 import useContextMenu from '../../hooks/useContextMenu';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
-export interface PostMenuOptionssProps extends ShareBookmarkProps {
+export interface PostMenuOptionsProps {
   post: Post;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   inlineActions?: boolean;
   contextMenuId: string;
   onRemovePost?: PostOptionsMenuProps['onRemovePost'];
   origin: Origin;
+  isEnlarged?: boolean;
 }
 
 export function PostMenuOptions({
-  onShare,
   post,
   onClose,
   inlineActions,
   contextMenuId,
   onRemovePost,
   origin,
-}: PostMenuOptionssProps): ReactElement {
+  isEnlarged,
+}: PostMenuOptionsProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
   const { onMenuClick, isOpen, onHide } = useContextMenu({ id: contextMenuId });
@@ -78,10 +78,11 @@ export function PostMenuOptions({
     <>
       <SimpleTooltip placement="bottom" content="Options">
         <Button
-          variant={ButtonVariant.Tertiary}
           className={!inlineActions && 'ml-auto'}
           icon={<MenuIcon />}
           onClick={onMenuClick}
+          size={isEnlarged ? ButtonSize.Medium : ButtonSize.Small}
+          variant={isEnlarged ? ButtonVariant.Tertiary : ButtonVariant.Float}
         />
       </SimpleTooltip>
       {onClose && (
@@ -94,7 +95,6 @@ export function PostMenuOptions({
         </SimpleTooltip>
       )}
       <PostOptionsMenu
-        onShare={onShare}
         post={post}
         onRemovePost={onRemovePost}
         setShowBanPost={isModerator ? () => banPostPrompt() : null}

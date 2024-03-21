@@ -2,13 +2,13 @@ import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { OpenLinkIcon } from '../icons';
 import {
-  PostType,
   getReadPostButtonText,
   isInternalReadType,
+  PostType,
 } from '../../graphql/posts';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import SettingsContext from '../../contexts/SettingsContext';
 import { PostHeaderActionsProps } from './common';
 import { PostMenuOptions } from './PostMenuOptions';
@@ -17,16 +17,19 @@ import { CollectionSubscribeButton } from './collection/CollectionSubscribeButto
 import { SourceSubscribeExperiment } from '../../lib/featureValues';
 import { feature } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
+import { useViewSize, ViewSize } from '../../hooks';
 
 const Container = classed('div', 'flex flex-row items-center');
+
+interface GetButtonVariantProps {
+  inlineActions: boolean;
+  isSourceSubscribeV1: boolean;
+}
 
 const getButtonVariant = ({
   inlineActions,
   isSourceSubscribeV1,
-}: {
-  inlineActions: boolean;
-  isSourceSubscribeV1: boolean;
-}): ButtonVariant => {
+}: GetButtonVariantProps): ButtonVariant => {
   if (inlineActions) {
     return ButtonVariant.Tertiary;
   }
@@ -40,7 +43,6 @@ const getButtonVariant = ({
 
 export function PostHeaderActions({
   onReadArticle,
-  onShare,
   post,
   onClose,
   inlineActions,
@@ -48,13 +50,14 @@ export function PostHeaderActions({
   notificationClassName,
   contextMenuId,
   onRemovePost,
+  isFixedNavigation,
   ...props
 }: PostHeaderActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
-
+  const isMobile = useViewSize(ViewSize.MobileL);
   const readButtonText = getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
-
+  const isEnlarged = isFixedNavigation || !isMobile;
   const ButtonWithExperiment = () => {
     const isSourceSubscribeV1 =
       useFeature(feature.sourceSubscribe) === SourceSubscribeExperiment.V1;
@@ -66,15 +69,20 @@ export function PostHeaderActions({
         disabled={!inlineActions}
       >
         <Button
-          variant={getButtonVariant({ inlineActions, isSourceSubscribeV1 })}
+          variant={
+            isEnlarged
+              ? getButtonVariant({ inlineActions, isSourceSubscribeV1 })
+              : ButtonVariant.Float
+          }
           tag="a"
           href={post.sharedPost?.permalink ?? post.permalink}
           target={openNewTab ? '_blank' : '_self'}
           icon={<OpenLinkIcon />}
           onClick={onReadArticle}
           data-testid="postActionsRead"
+          size={isEnlarged ? ButtonSize.Medium : ButtonSize.Small}
         >
-          {!inlineActions && readButtonText}
+          {!inlineActions ? readButtonText : null}
         </Button>
       </SimpleTooltip>
     );
@@ -85,13 +93,13 @@ export function PostHeaderActions({
       {!isInternalReadType(post) && !!onReadArticle && <ButtonWithExperiment />}
       {isCollection && <CollectionSubscribeButton post={post} isCondensed />}
       <PostMenuOptions
-        onShare={onShare}
         post={post}
         onClose={onClose}
         inlineActions={inlineActions}
         contextMenuId={contextMenuId}
         onRemovePost={onRemovePost}
         origin={Origin.ArticleModal}
+        isEnlarged={isEnlarged}
       />
     </Container>
   );
