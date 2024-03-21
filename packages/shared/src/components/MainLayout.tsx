@@ -110,7 +110,7 @@ function MainLayoutComponent({
           onAfterOpen: () => {
             trackEvent({
               event_name: AnalyticsEvent.Impression,
-              target_type: TargetType.MarketingCtaCard,
+              target_type: TargetType.MarketingCtaPopover,
               target_id: marketingCta.campaignId,
             });
           },
