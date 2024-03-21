@@ -19,9 +19,6 @@ import { feature } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
 
 const Container = classed('div', 'flex flex-row items-center');
-
-type PostHeaderActionsPropsNoShare = Omit<PostHeaderActionsProps, 'onShare'>;
-
 const getButtonVariant = ({
   inlineActions,
   isSourceSubscribeV1,
@@ -50,7 +47,7 @@ export function PostHeaderActions({
   contextMenuId,
   onRemovePost,
   ...props
-}: PostHeaderActionsPropsNoShare): ReactElement {
+}: PostHeaderActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
 
   const readButtonText = getReadPostButtonText(post);

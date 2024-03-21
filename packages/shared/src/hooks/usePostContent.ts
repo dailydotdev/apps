@@ -17,6 +17,7 @@ import { ReferralCampaignKey } from '../lib/referral';
 import { useGetShortUrl } from './utils/useGetShortUrl';
 import { ShareProvider } from '../lib/share';
 import { Origin } from '../lib/analytics';
+import { useCopyPostLink } from './useCopyPostLink';
 
 export interface UsePostContent {
   sharePost: Post;
@@ -39,11 +40,11 @@ const usePostContent = ({
   const { user } = useAuthContext();
   const { trackEvent } = useAnalyticsContext();
   const onPostClick = useOnPostClick({ origin });
-  const { permalink } = post;
+  const { commentsPermalink } = post;
   const cid = ReferralCampaignKey.SharePost;
   const { getShortUrl } = useGetShortUrl();
-  const { sharePost, closeSharePost, copyLink } = useSharePost(origin);
-
+  const { sharePost, closeSharePost } = useSharePost(origin);
+  const [, copyLink] = useCopyPostLink();
   const trackShareEvent = (provider: ShareProvider) =>
     trackEvent(
       postAnalyticsEvent('share post', post, {
@@ -52,7 +53,7 @@ const usePostContent = ({
     );
 
   const onCopyLink = async () => {
-    const shortLink = await getShortUrl(permalink, cid);
+    const shortLink = await getShortUrl(commentsPermalink, cid);
     copyLink({ link: shortLink });
     trackShareEvent(ShareProvider.CopyLink);
   };
