@@ -5,7 +5,7 @@ import { MyProfileEmptyScreen } from './MyProfileEmptyScreen';
 import Markdown from '../Markdown';
 import MarkdownInput from '../fields/MarkdownInput';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useProfileReadme } from '../../hooks/profile/useProfileReadme';
 
 export interface ReadmeProps {
@@ -56,7 +56,7 @@ function EditableReadme({
 }): ReactElement {
   const onSubmitForm: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
-    const { content } = formToJson(e.currentTarget);
+    const { content } = formToJson<{ content: string }>(e.currentTarget);
     return updateReadme(content);
   };
 

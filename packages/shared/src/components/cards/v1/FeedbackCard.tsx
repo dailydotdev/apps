@@ -4,13 +4,13 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../../buttons/ButtonV2';
+} from '../../buttons/Button';
 import { DownvoteIcon, UpvoteIcon } from '../../icons';
 import { Post, UserPostVote } from '../../../graphql/posts';
 import { usePostFeedback } from '../../../hooks';
 import CloseButton from '../../CloseButton';
-import { cloudinary } from '../../../lib/image';
-import { CardContent, CardImage, CardVideoImage } from './Card';
+import { CardContent } from './Card';
+import { CardCover } from '../common/CardCover';
 
 interface FeedbackCardProps {
   post: Post;
@@ -27,7 +27,6 @@ export const FeedbackCard = ({
   isVideoType,
 }: FeedbackCardProps): ReactElement => {
   const { dismissFeedback } = usePostFeedback({ post });
-  const ImageComponent = isVideoType ? CardVideoImage : CardImage;
 
   return (
     <div className="flex-1 space-y-4">
@@ -74,16 +73,18 @@ export const FeedbackCard = ({
           <h2 className="mb-2 line-clamp-1 typo-body">{post.title}</h2>
         </div>
 
-        <ImageComponent
-          alt="Post Cover image"
-          src={post.image}
-          fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-          className="!h-full max-h-[5rem] object-cover"
-          loading="lazy"
+        <CardCover
           data-testid="postImage"
-          {...(isVideoType && {
-            wrapperClassName: 'mobileXL:w-40 mobileXXL:w-56',
-          })}
+          isVideoType={isVideoType}
+          imageProps={{
+            loading: 'lazy',
+            alt: 'Post Cover image',
+            src: post.image,
+            className: '!h-full max-h-[5rem]',
+          }}
+          videoProps={{
+            className: 'mobileXL:w-40 mobileXXL:w-56',
+          }}
         />
       </CardContent>
     </div>

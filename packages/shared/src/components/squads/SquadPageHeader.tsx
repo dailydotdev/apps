@@ -13,10 +13,11 @@ import { verifyPermission } from '../../graphql/squads';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { ActionType } from '../../graphql/actions';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import classed from '../../lib/classed';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { link } from '../../lib/links';
+import SquadChecklistCard from '../checklist/SquadChecklistCard';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -45,6 +46,7 @@ export function SquadPageHeader({
         'relative min-h-20 w-full items-center border-theme-divider-tertiary px-6 tablet:mb-6 tablet:border-b tablet:pb-20 laptopL:items-start laptopL:px-18 laptopL:pb-14',
       )}
     >
+      {isChecklistVisible && <SquadChecklistCard squad={squad} />}
       <div className="flex flex-col items-center laptopL:flex-row">
         <SquadImage className="h-16 w-16 tablet:h-24 tablet:w-24" {...squad} />
         <FlexCol className="mt-4 laptopL:ml-6 laptopL:mt-0">
@@ -83,7 +85,7 @@ export function SquadPageHeader({
       />
       <div
         className={classNames(
-          'relative bottom-0 flex w-full flex-col bg-theme-bg-primary pt-8 tablet:absolute tablet:translate-y-1/2 tablet:flex-row tablet:p-0 laptopL:px-0',
+          'relative bottom-0 flex w-full flex-col bg-background-default pt-8 tablet:absolute tablet:translate-y-1/2 tablet:flex-row tablet:p-0 laptopL:px-0',
           shouldShowHighlightPulse && 'highlight-pulse',
           allowedToPost
             ? 'items-center justify-center laptop:max-w-[41.5rem]'
@@ -98,7 +100,7 @@ export function SquadPageHeader({
               {children}
               <FlexCentered className="relative mx-2 my-2 w-full text-theme-label-tertiary typo-callout tablet:w-auto">
                 <span className="absolute -left-6 flex h-px w-[calc(100%+3rem)] bg-theme-divider-tertiary tablet:hidden" />
-                <span className="z-0 bg-theme-bg-primary px-4">or</span>
+                <span className="z-0 bg-background-default px-4">or</span>
               </FlexCentered>
               <Button
                 tag="a"

@@ -3,13 +3,13 @@ import { Modal, ModalProps } from '../common/Modal';
 import { ExternalLinkPreview } from '../../../graphql/posts';
 import MarkdownInput, { MarkdownRef } from '../../fields/MarkdownInput';
 import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
-import { usePostToSquad, useViewSize, ViewSize } from '../../../hooks';
+import { usePostToSquad } from '../../../hooks';
 import {
   Button,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../../buttons/ButtonV2';
+} from '../../buttons/Button';
 import { AtIcon } from '../../icons';
 import { Divider, Justify } from '../../utilities';
 import SourceButton from '../../cards/SourceButton';
@@ -18,7 +18,6 @@ import { formToJson } from '../../../lib/form';
 import { useDebouncedUrl } from '../../../hooks/input';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import { Switch } from '../../fields/Switch';
-import { ModalClose } from '../common/ModalClose';
 
 export interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;
@@ -30,13 +29,13 @@ export function CreateSharedPostModal({
   preview,
   squad,
   onSharedSuccessfully,
+  onRequestClose,
   ...props
 }: CreateSharedPostModalProps): ReactElement {
   const markdownRef = useRef<MarkdownRef>();
   const [link, setLink] = useState(preview?.permalink ?? preview?.url ?? '');
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
-  const isMobile = useViewSize(ViewSize.MobileL);
   const {
     getLinkPreview,
     isLoadingPreview,
@@ -50,13 +49,13 @@ export function CreateSharedPostModal({
         onSharedSuccessfully();
       }
       onSubmitted();
-      props.onRequestClose(null);
+      onRequestClose(null);
     },
   });
   const onFormSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
-    const { commentary } = formToJson(e.currentTarget);
+    const { commentary } = formToJson<{ commentary: string }>(e.currentTarget);
 
     return onSubmitPost(e, squad.id, commentary);
   };
@@ -72,29 +71,44 @@ export function CreateSharedPostModal({
     checkUrl(value);
   };
 
-  return (
-    <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Medium} {...props}>
-      <Modal.Header
-        showCloseButton={!isMobile}
-        title={isMobile ? null : 'New post'}
-      >
-        {isMobile && (
-          <div className="flex flex-1 flex-row items-center justify-between">
-            <ModalClose position="static" onClick={props.onRequestClose} />
+  const footer = (
+    <>
+      <Button
+        icon={<AtIcon />}
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Tertiary}
+        onClick={markdownRef?.current?.onMentionCommand}
+      />
+      <Divider vertical />
+      <SourceButton source={squad} size="small" />
+      <span className="-ml-1 flex-1">
+        <strong>{squad.name}</strong>
+        <span className="ml-1 text-theme-label-tertiary">@{squad.handle}</span>
+      </span>
+    </>
+  );
 
-            <Button
-              variant={ButtonVariant.Primary}
-              color={ButtonColor.Cabbage}
-              disabled={isPosting}
-              loading={isPosting}
-              form="share_post"
-              size={ButtonSize.Small}
-            >
-              Post
-            </Button>
-          </div>
-        )}
-      </Modal.Header>
+  const submitProps = {
+    color: ButtonColor.Cabbage,
+    variant: ButtonVariant.Primary,
+    disabled: isPosting,
+    loading: isPosting,
+  };
+
+  return (
+    <Modal
+      kind={Modal.Kind.FlexibleCenter}
+      size={Modal.Size.Medium}
+      onRequestClose={onRequestClose}
+      {...props}
+      formProps={{
+        form: 'share_post',
+        title: 'New post',
+        rightButtonProps: submitProps,
+        copy: { right: 'Post' },
+      }}
+    >
+      <Modal.Header title="New post" />
       <form
         className="flex w-full flex-col p-3"
         action="#"
@@ -139,32 +153,15 @@ export function CreateSharedPostModal({
           </Switch>
         )}
       </form>
+      <span className="flex flex-row items-center gap-2 px-4 tablet:hidden">
+        {footer}
+      </span>
       <Modal.Footer className="typo-caption1" justify={Justify.Start}>
-        <Button
-          icon={<AtIcon />}
-          className="btn-tertiary"
-          size={ButtonSize.Small}
-          onClick={markdownRef?.current?.onMentionCommand}
-        />
-        <Divider vertical />
-        <SourceButton source={squad} size="small" />
-        <span className="-ml-1 flex-1">
-          <strong>{squad.name}</strong>
-          <span className="ml-1 text-theme-label-tertiary">
-            @{squad.handle}
-          </span>
-        </span>
+        {footer}
 
-        {!isMobile && (
-          <Button
-            className="btn-primary-cabbage ml-auto"
-            disabled={isPosting}
-            loading={isPosting}
-            form="share_post"
-          >
-            Post
-          </Button>
-        )}
+        <Button {...submitProps} className="ml-auto" form="share_post">
+          Post
+        </Button>
       </Modal.Footer>
     </Modal>
   );

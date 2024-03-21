@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
+import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
@@ -21,12 +21,21 @@ import {
   SendBackwardIcon,
   BringForwardIcon,
   PinIcon,
+  BellSubscribedIcon,
+  BellIcon,
 } from './icons';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
-import { ToastSubject, useFeedLayout, useToastNotification } from '../hooks';
+import {
+  ToastSubject,
+  useFeedLayout,
+  useSourceSubscription,
+  useToastNotification,
+  useViewSize,
+  ViewSize,
+} from '../hooks';
 import {
   AllFeedPages,
   generateQueryKey,
@@ -48,6 +57,11 @@ import { useActiveFeedContext } from '../contexts';
 import { useAdvancedSettings } from '../hooks/feed';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
+import { ContextMenuDrawer } from './drawers/ContextMenuDrawer';
+import { RootPortal } from './tooltips/Portal';
+import { SourceSubscribeExperiment } from '../lib/featureValues';
+import { SourceType } from '../graphql/sources';
+import { withExperiment } from './withExperiment';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -73,6 +87,14 @@ export interface PostOptionsMenuProps extends ShareBookmarkProps {
   isOpen?: boolean;
 }
 
+const PostOptionSourceSubscribe = withExperiment(
+  ({ children }: { children: ReactNode }) => <>{children}</>,
+  {
+    feature: feature.sourceSubscribe,
+    value: SourceSubscribeExperiment.V1,
+  },
+);
+
 export default function PostOptionsMenu({
   postIndex,
   post,
@@ -90,7 +112,7 @@ export default function PostOptionsMenu({
 }: PostOptionsMenuProps): ReactElement {
   const client = useQueryClient();
   const router = useRouter();
-  const { user } = useContext(AuthContext);
+  const { user, isLoggedIn } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({ enabled: isOpen });
@@ -109,6 +131,19 @@ export default function PostOptionsMenu({
     origin: Origin.PostContextMenu,
     postId: post?.id,
     shouldInvalidateQueries: false,
+  });
+
+  const isSourceBlocked = useMemo(() => {
+    return !!feedSettings?.excludeSources?.some(
+      (excludedSource) => excludedSource.id === post?.source?.id,
+    );
+  }, [feedSettings?.excludeSources, post?.source?.id]);
+
+  const shouldShowSubscribe =
+    isLoggedIn && !isSourceBlocked && post?.source?.type === SourceType.Machine;
+
+  const sourceSubscribe = useSourceSubscription({
+    source: shouldShowSubscribe ? post?.source : undefined,
   });
 
   const { toggleBookmark } = useBookmarkPost({
@@ -264,12 +299,6 @@ export default function PostOptionsMenu({
     );
   };
 
-  const isSourceBlocked = useMemo(() => {
-    return !!feedSettings?.excludeSources?.some(
-      (excludedSource) => excludedSource.id === post?.source?.id,
-    );
-  }, [feedSettings?.excludeSources, post?.source?.id]);
-
   const postOptions: MenuItemProps[] = [
     {
       icon: <MenuIcon Icon={EyeIcon} />,
@@ -278,10 +307,10 @@ export default function PostOptionsMenu({
     },
   ];
 
-  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
 
-  if (!bookmarkOnCard && !shouldUseFeedLayoutV1) {
+  if (!bookmarkOnCard && !shouldUseMobileFeedLayout) {
     postOptions.push({
       icon: (
         <MenuIcon
@@ -295,7 +324,7 @@ export default function PostOptionsMenu({
     });
   }
 
-  if (!shouldUseFeedLayoutV1) {
+  if (!shouldUseMobileFeedLayout) {
     postOptions.push({
       icon: (
         <MenuIcon
@@ -309,6 +338,21 @@ export default function PostOptionsMenu({
       ),
       label: 'Downvote',
       action: onToggleDownvotePost,
+    });
+  }
+
+  if (shouldShowSubscribe) {
+    postOptions.push({
+      icon: (
+        <MenuIcon
+          Icon={sourceSubscribe.isSubscribed ? BellSubscribedIcon : BellIcon}
+        />
+      ),
+      label: `${
+        sourceSubscribe.isSubscribed ? 'Unsubscribe from' : 'Subscribe to'
+      } ${post?.source?.name}`,
+      action: sourceSubscribe.isReady ? sourceSubscribe.onSubscribe : undefined,
+      Wrapper: PostOptionSourceSubscribe,
     });
   }
 
@@ -411,23 +455,34 @@ export default function PostOptionsMenu({
     });
   }
 
+  const isMobile = useViewSize(ViewSize.MobileL);
+
+  if (isMobile) {
+    return (
+      <RootPortal>
+        <ContextMenuDrawer
+          drawerProps={{ isOpen, onClose: onHidden, displayCloseButton: true }}
+          options={postOptions}
+        />
+      </RootPortal>
+    );
+  }
+
   return (
-    <>
-      <PortalMenu
-        disableBoundariesCheck
-        id={contextId}
-        className="menu-primary"
-        animation="fade"
-        onHidden={onHidden}
-      >
-        {postOptions.map(({ icon, label, action }) => (
-          <Item key={label} className="typo-callout" onClick={action}>
-            <span className="flex w-full items-center typo-callout">
-              {icon} {label}
-            </span>
-          </Item>
-        ))}
-      </PortalMenu>
-    </>
+    <PortalMenu
+      disableBoundariesCheck
+      id={contextId}
+      className="menu-primary"
+      animation="fade"
+      onHidden={onHidden}
+    >
+      {postOptions.map(({ icon, label, action }) => (
+        <Item key={label} className="typo-callout" onClick={action}>
+          <span className="flex w-full items-center typo-callout">
+            {icon} {label}
+          </span>
+        </Item>
+      ))}
+    </PortalMenu>
   );
 }

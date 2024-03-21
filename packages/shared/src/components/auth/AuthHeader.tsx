@@ -4,13 +4,13 @@ import React, {
   KeyboardEvent,
   ReactElement,
 } from 'react';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import { Modal } from '../modals/common/Modal';
 import { ModalHeaderKind } from '../modals/common/types';
 
 export interface AuthHeaderProps {
-  simplified: boolean;
+  simplified?: boolean;
   title: string;
   className?: string;
   onBack?: (e: MouseEvent | KeyboardEvent | FormEvent) => void;

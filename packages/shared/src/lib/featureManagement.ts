@@ -1,9 +1,11 @@
 import { JSONValue } from '@growthbook/growthbook';
 import {
-  FeedLayout,
-  PostPageOnboarding,
   ReadingStreaksExperiment,
-  SearchExperiment,
+  PostPageOnboarding,
+  UserAcquisition,
+  PublishTimeFormat,
+  OnboardingCopy,
+  SourceSubscribeExperiment,
 } from './featureValues';
 import { cloudinary } from './image';
 
@@ -20,10 +22,9 @@ export class Feature<T extends JSONValue> {
 
 const feature = {
   feedVersion: new Feature('feed_version', 15),
-  search: new Feature('search', SearchExperiment.Control),
+  onboardingAnimation: new Feature('onboarding_fake_loading', false),
   lowImps: new Feature('feed_low_imps'),
   bookmarkOnCard: new Feature('bookmark_on_card', false),
-  feedLayout: new Feature('feed_layout', FeedLayout.Control),
   readingStreaks: new Feature(
     'reading_streaks',
     ReadingStreaksExperiment.Control,
@@ -38,7 +39,22 @@ const feature = {
     'post_page_onboarding',
     PostPageOnboarding.Control,
   ),
-  copyLink: new Feature('copy_link', false),
+  onboardingOptimizations: new Feature('onboarding_optimizations', false),
+  userAcquisition: new Feature('user_acquisition', UserAcquisition.Control),
+  forceRefresh: new Feature('force_refresh', false),
+  feedAdSpot: new Feature('feed_ad_spot', 0),
+  shareLoops: new Feature('share_loops', false),
+  publishTimeFormat: new Feature(
+    'publish_time_format',
+    PublishTimeFormat.Control,
+  ),
+  onboardingOnlineUsers: new Feature('onboarding_online_users', false),
+  onboardingCopy: new Feature('onboarding_copy', OnboardingCopy.Control),
+  sourceSubscribe: new Feature(
+    'source_subscribe',
+    SourceSubscribeExperiment.Control,
+  ),
+  searchVersion: new Feature('search_version', 1),
 };
 
 export { feature };

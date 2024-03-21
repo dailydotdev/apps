@@ -20,7 +20,7 @@ import { BaseField, FieldInput } from '../fields/common';
 import { AiIcon, MiniCloseIcon as CloseIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { getFieldFontColor } from '../fields/BaseFieldContainer';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useInputField } from '../../hooks/useInputField';
 import { SearchProgressBar } from './SearchProgressBar';
 import { SearchChunk, SearchProviderEnum } from '../../graphql/search';
@@ -168,7 +168,7 @@ function SearchBarInputComponent(
         <BaseField
           {...props}
           className={classNames(
-            'relative h-16 items-center rounded-14 border !border-theme-divider-tertiary !bg-theme-bg-primary px-3',
+            'relative h-16 items-center rounded-14 border !border-theme-divider-tertiary !bg-background-default px-3',
             className?.field,
             { focused },
           )}

@@ -1,13 +1,7 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import {
-  CardContainer,
-  CardContent,
-  CardImage,
-  CardTitle,
-  CardVideoImage,
-} from './Card';
+import { CardContainer, CardContent, CardTitle } from './Card';
 import ActionButtons from './ActionButtons';
 import { PostCardHeader } from './PostCardHeader';
 import { Container, PostCardProps } from '../common';
@@ -22,7 +16,7 @@ import { Origin } from '../../../lib/analytics';
 import SourceButton from '../SourceButton';
 import { isVideoPost } from '../../../graphql/posts';
 import PostReadTime from './PostReadTime';
-import { cloudinary } from '../../../lib/image';
+import { CardCover } from '../common/CardCover';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -39,6 +33,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
     showImage = true,
     onReadArticleClick,
     domProps = {},
+    onShare,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -52,8 +47,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useTruncatedSummary(post);
-
-  const ImageComponent = isVideoType ? CardVideoImage : CardImage;
 
   return (
     <FeedItemContainer
@@ -122,19 +115,23 @@ export const ArticlePostCard = forwardRef(function PostCard(
                 </CardTitle>
               </div>
 
-              <ImageComponent
-                alt="Post Cover image"
-                src={post.image}
-                fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-                className={classNames(
-                  'object-cover mobileXXL:self-start',
-                  !isVideoType && 'mt-4',
-                )}
-                loading="lazy"
+              <CardCover
                 data-testid="postImage"
-                {...(isVideoType && {
-                  wrapperClassName: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',
-                })}
+                isVideoType={isVideoType}
+                onShare={onShare}
+                post={post}
+                imageProps={{
+                  loading: 'lazy',
+                  alt: 'Post Cover image',
+                  src: post.image,
+                  className: classNames(
+                    'mobileXXL:self-start',
+                    !isVideoType && 'mt-4',
+                  ),
+                }}
+                videoProps={{
+                  className: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',
+                }}
               />
             </CardContent>
           </CardContainer>

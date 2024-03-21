@@ -8,7 +8,9 @@ import { NotificationPreferenceStatus } from '../../../graphql/notifications';
 import { BellDisabledIcon, BellIcon } from '../../icons';
 import { Post } from '../../../graphql/posts';
 import { SimpleTooltip } from '../../tooltips';
-import { Button, ButtonVariant } from '../../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../../buttons/Button';
+import { AuthTriggers } from '../../../lib/auth';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 export type CollectionSubscribeButtonProps = {
   post: Post;
@@ -59,6 +61,7 @@ export const CollectionSubscribeButton = ({
   post,
   isCondensed,
 }: CollectionSubscribeButtonProps): ReactElement => {
+  const { isLoggedIn, showLogin } = useAuthContext();
   const {
     preferences,
     subscribeNotification,
@@ -84,6 +87,12 @@ export const CollectionSubscribeButton = ({
   );
 
   const onClick = () => {
+    if (!isLoggedIn) {
+      showLogin({ trigger: AuthTriggers.CollectionSubscribe });
+
+      return;
+    }
+
     const notificationPreferenceParams = {
       type: NotificationType.CollectionUpdated,
       referenceId: post.id,

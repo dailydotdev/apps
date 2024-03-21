@@ -3,7 +3,7 @@ import {
   Button,
   ButtonColor,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { AppIcon as CompanionIcon } from '@dailydotdev/shared/src/components/icons';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -54,7 +54,7 @@ export const CompanionPopupButton = (): ReactElement => {
       showArrow={false}
       container={{
         paddingClassName: 'px-6 py-4',
-        bgClassName: 'bg-theme-bg-primary',
+        bgClassName: 'bg-background-default',
         textClassName: 'text-theme-label-primary typo-callout',
         className:
           'border border-theme-status-cabbage w-[30.75rem] whitespace-pre-wrap shadow-2',

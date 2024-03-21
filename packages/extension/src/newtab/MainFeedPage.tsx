@@ -7,12 +7,6 @@ import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import {
-  FeedLayout as FeedLayoutEnum,
-  SearchExperiment,
-} from '@dailydotdev/shared/src/lib/featureValues';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import {
   SearchProviderEnum,
@@ -21,6 +15,7 @@ import {
 import classNames from 'classnames';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
 import DndContext from './DndContext';
@@ -45,7 +40,6 @@ export type MainFeedPageProps = {
 export default function MainFeedPage({
   onPageChanged,
 }: MainFeedPageProps): ReactElement {
-  const searchVersion = useFeature(feature.search);
   const { alerts } = useContext(AlertContext);
   const { trackEvent } = useAnalyticsContext();
   const [isSearchOn, setIsSearchOn] = useState(false);
@@ -53,20 +47,13 @@ export default function MainFeedPage({
   const [feedName, setFeedName] = useState<string>('default');
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
-  const layout = useFeature(feature.feedLayout);
+  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
   useCompanionSettings();
   const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
-    if (searchVersion !== SearchExperiment.Control) {
-      window.location.assign(
-        getSearchUrl({ provider: SearchProviderEnum.Posts }),
-      );
-      return;
-    }
-
-    setIsSearchOn(true);
-    setSearchQuery(null);
-    onPageChanged('/search');
+    window.location.assign(
+      getSearchUrl({ provider: SearchProviderEnum.Posts }),
+    );
   };
 
   const onNavTabClick = (tab: string): void => {
@@ -111,7 +98,6 @@ export default function MainFeedPage({
         <ScrollToTopButton />
       </div>
       <MainLayout
-        greeting
         mainPage
         isNavItemsButton
         activePage={activePage}
@@ -130,7 +116,6 @@ export default function MainFeedPage({
             feedName={feedName}
             isSearchOn={isSearchOn}
             searchQuery={searchQuery}
-            onFeedPageChanged={onNavTabClick}
             searchChildren={
               <PostsSearch
                 onSubmitQuery={async (query) => {
@@ -153,7 +138,7 @@ export default function MainFeedPage({
             shortcuts={
               <ShortcutLinks
                 className={classNames(
-                  layout === FeedLayoutEnum.Control
+                  !shouldUseMobileFeedLayout
                     ? 'ml-auto'
                     : 'mt-4 w-fit [@media(width<=680px)]:mx-6',
                 )}

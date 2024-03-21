@@ -8,8 +8,15 @@ import { Post } from '../../graphql/posts';
 import classed, { ClassedHTML } from '../../lib/classed';
 import { Origin } from '../../lib/analytics';
 
+export interface CommonCardCoverProps {
+  post?: Post;
+  onShare?: (post: Post) => unknown;
+}
+
+export const separatorCharacter = <>&#x2022;</>;
+
 export const Separator = (): ReactElement => (
-  <span className="mx-1">&#x2022;</span>
+  <span className="mx-1">{separatorCharacter}</span>
 );
 
 export const visibleOnGroupHover =
@@ -26,7 +33,7 @@ export type Callback = (post: Post) => unknown;
 
 export const Container = classed('div', 'relative flex flex-1 flex-col');
 
-export interface PostCardProps {
+export interface PostCardProps extends CommonCardCoverProps {
   post: Post;
   onPostClick?: Callback;
   onBookmarkClick?: Callback;

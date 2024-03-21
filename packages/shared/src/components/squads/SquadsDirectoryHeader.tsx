@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { cloudinary } from '../../lib/image';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import SourceBetaIcon from '../../../icons/source_beta.svg';
 import { Origin } from '../../lib/analytics';
 import { useSquadNavigation } from '../../hooks';
@@ -11,7 +11,7 @@ export const SquadsDirectoryHeader = (): ReactElement => {
   return (
     <div className="mb-4">
       <div
-        className="relative mb-16 flex flex-col items-center rounded-24 bg-theme-bg-primary bg-cover bg-center p-6 pb-1 text-center"
+        className="relative mb-16 flex flex-col items-center rounded-24 bg-background-default bg-cover bg-center p-6 pb-1 text-center"
         style={{
           backgroundImage: `url(${cloudinary.squads.directory.banner})`,
         }}
@@ -25,7 +25,7 @@ export const SquadsDirectoryHeader = (): ReactElement => {
           <div className="mb-3 flex items-center justify-center font-bold text-white typo-large-title">
             Public Squads
           </div>
-          <div className="mb-4 max-w-[40rem] font-normal text-salt-50 typo-title3">
+          <div className="mb-4 max-w-[40rem] font-normal text-raw-salt-50 typo-title3">
             Unleashing the magic of developer communities with Squads. An
             opportunity to dive deep and go niche together with like-minded
             devs.
@@ -45,7 +45,7 @@ export const SquadsDirectoryHeader = (): ReactElement => {
             coming soon.
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 z-0 h-full bg-gradient-to-t from-theme-bg-primary to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 z-0 h-full bg-gradient-to-t from-background-default to-transparent" />
       </div>
     </div>
   );

@@ -18,7 +18,7 @@ import {
   ButtonProps,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
@@ -122,14 +122,14 @@ export default function FooterNavBar({
   };
 
   return (
-    <div className="fixed bottom-0 left-0 z-2 w-full">
+    <div className="fixed !bottom-0 left-0 z-2 w-full">
       <ScrollToTopButton />
       <Flipper
         flipKey={selectedTab}
         spring="veryGentle"
         element="nav"
         className={classNames(
-          'grid w-full grid-flow-col items-center border-t border-theme-divider-tertiary bg-theme-bg-primary',
+          'grid w-full grid-flow-col items-center border-t border-theme-divider-tertiary bg-background-default',
           !showNav && 'hidden',
           styles.footerNavBar,
         )}

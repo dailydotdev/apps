@@ -2,7 +2,7 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import { Modal, ModalProps } from '../common/Modal';
 import { cloudinary } from '../../../lib/image';
 import { ModalSize } from '../common/types';
-import { ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
+import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { link } from '../../../lib/links';
 import { AnalyticsEvent, TargetId, TargetType } from '../../../lib/analytics';
 import { ReferralCampaignKey, useReferralCampaign } from '../../../hooks';
@@ -57,7 +57,10 @@ function GenericReferralModal({
           className="absolute left-0 top-0 z-0 aspect-square w-full object-cover"
         />
         <InviteLinkInput
-          targetId={TargetId.GenericReferralPopup}
+          trackingProps={{
+            event_name: AnalyticsEvent.CopyReferralLink,
+            target_id: TargetId.GenericReferralPopup,
+          }}
           link={inviteLink}
           onCopy={() => setShareState(true)}
           text={{ initial: 'Copy link 😀', copied: 'Copied 😉' }}

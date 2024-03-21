@@ -22,6 +22,8 @@ import { NotificationsContextProvider } from './NotificationsContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
 import { AnalyticsContextProvider } from './AnalyticsContext';
 import { GrowthBookProvider } from '../components/GrowthBookProvider';
+import { useHostStatus } from '../hooks/useHostPermissionStatus';
+import { checkIsExtension } from '../lib/func';
 
 function filteredProps<T extends Record<string, unknown>>(
   obj: T,
@@ -80,7 +82,11 @@ export const BootDataProvider = ({
   getRedirectUri,
   getPage,
 }: BootDataProviderProps): ReactElement => {
+  const { hostGranted } = useHostStatus();
+  const isExtension = checkIsExtension();
+
   const queryClient = useQueryClient();
+
   const [cachedBootData, setCachedBootData] =
     useState<Partial<BootCacheData>>(localBootData);
   const [lastAppliedChange, setLastAppliedChange] =
@@ -98,6 +104,7 @@ export const BootDataProvider = ({
   } = useQuery(BOOT_QUERY_KEY, () => getBootData(app), {
     refetchOnWindowFocus: loggedUser,
     staleTime: STALE_TIME,
+    enabled: isExtension ? !!hostGranted : true,
   });
 
   useEffect(() => {
@@ -222,7 +229,6 @@ export const BootDataProvider = ({
               deviceId={deviceId}
             >
               <NotificationsContextProvider
-                app={app}
                 isNotificationsReady={initialLoad}
                 unreadCount={notifications?.unreadNotificationsCount}
               >

@@ -1,11 +1,6 @@
-import React, {
-  HTMLAttributes,
-  ReactElement,
-  ReactHTML,
-  ReactNode,
-} from 'react';
+import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import classed, { ClassedHTML } from '../../lib/classed';
+import classed from '../../lib/classed';
 import styles from './utilities.module.css';
 import { ArrowIcon } from '../icons';
 import { Post, PostType, isSharedPostSquadPost } from '../../graphql/posts';
@@ -63,6 +58,9 @@ export const PageContainer = classed(
   pageContainerClassNames,
 );
 
+export const truncateTextClassNames = 'max-w-full shrink truncate';
+export const TruncateText = classed('span', truncateTextClassNames);
+
 const RawPageWidgets = classed(
   'aside',
   'flex flex-col gap-6 px-4 w-full max-w-full',
@@ -103,8 +101,12 @@ export const BaseFeedPage = classed(
   styles.feedPage,
 );
 
-export const FeedPage = classed(BaseFeedPage, styles.feedPage);
-export const FeedPageLayoutV1 = classed(
+export const FeedPage = classed(
+  BaseFeedPage,
+  'pt-10 px-6 laptop:px-16',
+  styles.feedPage,
+);
+export const FeedPageLayoutMobile = classed(
   BasePageContainer,
   pageContainerClassNames,
   'pt-10 tablet:px-6 !ml-auto !px-0',
@@ -149,18 +151,10 @@ export const TLDRText = classed(
 );
 
 export const HotLabel = (): ReactElement => (
-  <div className="rounded bg-theme-status-error px-2 py-px font-bold uppercase text-white typo-caption2">
+  <div className="rounded-4 bg-theme-status-error px-2 py-px font-bold uppercase text-white typo-caption2">
     Hot
   </div>
 );
-
-export const getTextEllipsis = <
-  P extends HTMLAttributes<T>,
-  T extends HTMLElement,
->(
-  type: keyof ReactHTML = 'span',
-): ClassedHTML<P, T> =>
-  classed<P, T>(type, 'overflow-hidden whitespace-nowrap text-ellipsis');
 
 export const SecondaryCenteredBodyText = classed(
   'p',

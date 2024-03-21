@@ -26,6 +26,8 @@ import { ArrowKeyEnum } from '../../../lib/func';
 import { ArrowIcon } from '../../icons';
 import { useSearchProvider } from '../../../hooks/search';
 import { SearchPanelCustomAction } from './SearchPanelCustomAction';
+import { AnalyticsEvent } from '../../../lib/analytics';
+import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 
 export type SearchPanelProps = {
   className?: SearchPanelClassName;
@@ -40,6 +42,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   useContext(SettingsContext);
   const { search } = useSearchProvider();
   const { query } = useRouter();
+  const { trackEvent } = useAnalyticsContext();
 
   const [state, setState] = useState(() => {
     return {
@@ -167,7 +170,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
           {showDropdown && (
             <div
               className={classNames(
-                'absolute w-full items-center rounded-b-16 border-0 border-theme-divider-tertiary bg-theme-bg-primary px-3 py-2 laptop:h-auto laptop:border-x laptop:border-b laptop:bg-theme-bg-secondary laptop:shadow-2',
+                'absolute w-full items-center rounded-b-16 border-0 border-theme-divider-tertiary bg-background-default px-3 py-2 laptop:h-auto laptop:border-x laptop:border-b laptop:bg-background-subtle laptop:shadow-2',
               )}
             >
               <div className="flex flex-1 flex-col">
@@ -177,6 +180,14 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
                 <SearchPanelCustomAction
                   provider={SearchProviderEnum.Posts}
                   onClick={() => {
+                    trackEvent({
+                      event_name: AnalyticsEvent.SubmitSearch,
+                      extra: JSON.stringify({
+                        query: state.query,
+                        provider: SearchProviderEnum.Posts,
+                      }),
+                    });
+
                     search({
                       provider: SearchProviderEnum.Posts,
                       query: state.query,

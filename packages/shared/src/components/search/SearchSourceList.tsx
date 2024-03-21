@@ -9,7 +9,7 @@ import { SearchChunkSource } from '../../graphql/search';
 import { PaginationActions } from '../pagination';
 import { usePagination } from '../../hooks/utils';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
 interface SearchSourceListProps {
   sources: SearchChunkSource[];
@@ -42,7 +42,7 @@ export const SearchSourceList = ({
       <div className={classNames('flex flex-col', widgetClasses)}>
         <div
           className={classNames(
-            'flex cursor-pointer items-center justify-between rounded-t-16 bg-theme-bg-secondary px-4 py-1.5 laptop:cursor-auto laptop:bg-transparent laptop:py-4 laptop:!pb-0',
+            'flex cursor-pointer items-center justify-between rounded-t-16 bg-background-subtle px-4 py-1.5 laptop:cursor-auto laptop:bg-transparent laptop:py-4 laptop:!pb-0',
             isSourcesOpen ? 'rounded-t-16' : 'rounded-16',
           )}
           role="button"

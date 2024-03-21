@@ -7,7 +7,6 @@ import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import Pointer, {
   PointerColor,
 } from '@dailydotdev/shared/src/components/alert/Pointer';
-import NotificationsContext from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -17,21 +16,25 @@ import {
   NotificationChannel,
   NotificationPromptSource,
 } from '@dailydotdev/shared/src/lib/analytics';
-import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import { usePersonalizedDigest } from '@dailydotdev/shared/src/hooks';
+import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
+import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 
+const ALERT_PUSH_KEY = 'alert_push_key';
+
 const AccountNotificationsPage = (): ReactElement => {
-  const {
-    shouldShowSettingsAlert,
-    onShouldShowSettingsAlert,
-    onTogglePermission,
-    isSubscribed,
-    isInitialized,
-    isNotificationSupported,
-  } = useContext(NotificationsContext);
+  const { isSubscribed, isInitialized, isPushSupported } =
+    usePushNotificationContext();
+  const { onTogglePermission } = usePushNotificationMutation();
+  const [isAlertShown, setIsAlertShown] = usePersistentContext<boolean>(
+    ALERT_PUSH_KEY,
+    true,
+  );
   const { updateUserProfile } = useProfileForm();
   const { trackEvent } = useAnalyticsContext();
   const { user } = useContext(AuthContext);
@@ -86,13 +89,13 @@ const AccountNotificationsPage = (): ReactElement => {
     });
   };
 
-  const onTogglePush = () => {
+  const onTogglePush = async () => {
     onTrackToggle(
       !isSubscribed,
       NotificationChannel.Web,
       NotificationCategory.Product,
     );
-    onTogglePermission(NotificationPromptSource.NotificationsPage);
+    return onTogglePermission(NotificationPromptSource.NotificationsPage);
   };
 
   const onToggleEmailNotification = () => {
@@ -129,9 +132,12 @@ const AccountNotificationsPage = (): ReactElement => {
     }
   };
 
+  const showAlert =
+    isPushSupported && isAlertShown && isInitialized && !isSubscribed;
+
   return (
     <AccountPageContainer title="Notifications">
-      {isNotificationSupported && (
+      {isPushSupported && (
         <div className="flex flex-row">
           <AccountContentSection
             className={{
@@ -156,7 +162,7 @@ const AccountNotificationsPage = (): ReactElement => {
           </Switch>
         </div>
       )}
-      {isNotificationSupported && shouldShowSettingsAlert && isInitialized && (
+      {showAlert && (
         <div className="relative mt-6 w-full rounded-16 border border-theme-color-cabbage">
           <Pointer
             className="absolute -top-5 right-8"
@@ -175,17 +181,12 @@ const AccountNotificationsPage = (): ReactElement => {
             <CloseButton
               size={ButtonSize.XSmall}
               className="ml-auto laptopL:ml-32"
-              onClick={() => onShouldShowSettingsAlert(false)}
+              onClick={() => setIsAlertShown(false)}
             />
           </div>
         </div>
       )}
-      <div
-        className={classNames(
-          'flex flex-row',
-          isNotificationSupported && 'mt-6',
-        )}
-      >
+      <div className={classNames('flex flex-row', isPushSupported && 'mt-6')}>
         <AccountContentSection
           className={{
             heading: 'mt-0',

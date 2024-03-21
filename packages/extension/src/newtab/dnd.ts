@@ -14,7 +14,7 @@ export enum CustomTime {
 }
 
 const DEFAULT_URL = 'https://www.google.com';
-const CHROME_DEFAULT_URL = 'chrome-search://local-ntp/local-ntp.html';
+const CHROME_DEFAULT_URL = 'chrome://new-tab-page';
 const BRAVE_DEFAULT_URL = 'chrome://new-tab-page';
 
 const browserTest = () =>

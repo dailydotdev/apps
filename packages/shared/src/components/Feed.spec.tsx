@@ -1,7 +1,6 @@
 import nock from 'nock';
 import React from 'react';
 import {
-  act,
   findByRole,
   findByText,
   fireEvent,
@@ -13,6 +12,9 @@ import {
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { OperationOptions } from 'subscriptions-transport-ws';
+import { mocked } from 'ts-jest/utils';
+import { useRouter } from 'next/router';
+
 import {
   ADD_BOOKMARKS_MUTATION,
   FeedData,
@@ -38,7 +40,11 @@ import defaultFeedPage from '../../__tests__/fixture/feed';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import ad from '../../__tests__/fixture/ad';
 import { LoggedUser } from '../lib/user';
-import { MyRankData } from '../graphql/users';
+import {
+  AcquisitionChannel,
+  MyRankData,
+  USER_ACQUISITION_MUTATION,
+} from '../graphql/users';
 import { getRankQueryKey } from '../hooks/useReadingRank';
 import { SubscriptionCallbacks } from '../hooks/useSubscription';
 import SettingsContext, {
@@ -57,10 +63,12 @@ import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
 import Toast from './notifications/Toast';
 import OnboardingContext from '../contexts/OnboardingContext';
 import { LazyModalElement } from './modals/LazyModalElement';
-import { feature } from '../lib/featureManagement';
-import { SearchExperiment } from '../lib/featureValues';
 import { AuthTriggers } from '../lib/auth';
 import { SourceType } from '../graphql/sources';
+import { acquisitionKey } from './cards/AcquisitionFormCard';
+import { removeQueryParam } from '../lib/links';
+import { SharedFeedPage } from './utilities';
+import { AllFeedPages } from '../lib/query';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -96,7 +104,6 @@ const originalScrollTo = window.scrollTo;
 
 beforeAll(() => {
   window.scrollTo = jest.fn();
-  feature.search.defaultValue = SearchExperiment.Control;
 });
 
 afterAll(() => {
@@ -139,6 +146,7 @@ let queryClient: QueryClient;
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user: LoggedUser = defaultUser,
+  feedName: AllFeedPages = SharedFeedPage.MyFeed,
 ): RenderResult => {
   queryClient = new QueryClient();
 
@@ -171,6 +179,7 @@ const renderComponent = (
       <AuthContext.Provider
         value={{
           user,
+          isLoggedIn: !!user,
           shouldShowLogin: false,
           showLogin,
           logout: jest.fn(),
@@ -196,6 +205,7 @@ const renderComponent = (
             <Toast autoDismissNotifications={false} />
             <Feed
               feedQueryKey={['feed']}
+              feedName={feedName}
               query={ANONYMOUS_FEED_QUERY}
               variables={variables}
             />
@@ -366,7 +376,7 @@ it('should send add bookmark mutation', async () => {
     },
   ]);
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   const el = await screen.findByText('Save to bookmarks');
   el.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
@@ -396,7 +406,7 @@ it('should send remove bookmark mutation', async () => {
     },
   ]);
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   const el = await screen.findByText('Remove from bookmarks');
   el.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
@@ -420,7 +430,7 @@ it('should open login modal on anonymous bookmark', async () => {
     null,
   );
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   const el = await screen.findByText('Save to bookmarks');
   el.click();
   await waitFor(() =>
@@ -635,26 +645,14 @@ it('should report broken link', async () => {
     },
   ]);
 
-  await act(async () => {
-    const [menuBtn] = await screen.findAllByLabelText('Options');
-    menuBtn.click();
-  });
-
-  await act(async () => {
-    const contextBtn = await screen.findByText('Report');
-    contextBtn.click();
-    const brokenLinkBtn = await screen.findByText('Broken link');
-    brokenLinkBtn.click();
-    const submitBtn = await screen.findByText('Submit report');
-    submitBtn.click();
-  });
-
-  await waitFor(async () => {
-    await screen.findByRole('alert');
-    const feed = await screen.findByTestId('posts-feed');
-
-    return expect(feed).toHaveAttribute('aria-live', 'assertive');
-  });
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  fireEvent.click(menuBtn);
+  const contextBtn = await screen.findByText('Report');
+  fireEvent.click(contextBtn);
+  const brokenLinkBtn = await screen.findByText('Broken link');
+  fireEvent.click(brokenLinkBtn);
+  const submitBtn = await screen.findByText('Submit report');
+  fireEvent.click(submitBtn);
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
@@ -687,24 +685,18 @@ it('should report broken link with comment', async () => {
       },
     },
   ]);
+
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   const contextBtn = await screen.findByText('Report');
-  contextBtn.click();
+  fireEvent.click(contextBtn);
   const brokenLinkBtn = await screen.findByText('Broken link');
-  brokenLinkBtn.click();
+  fireEvent.click(brokenLinkBtn);
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
   fireEvent.change(input, { target: { value: 'comment' } });
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const submitBtn = await screen.findByText('Submit report');
-  submitBtn.click();
-
-  await waitFor(async () => {
-    await screen.findByRole('alert');
-    const feed = await screen.findByTestId('posts-feed');
-
-    return expect(feed).toHaveAttribute('aria-live', 'assertive');
-  });
+  fireEvent.click(submitBtn);
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
@@ -736,24 +728,18 @@ it('should report nsfw', async () => {
       },
     },
   ]);
+
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   const contextBtn = await screen.findByText('Report');
-  contextBtn.click();
+  fireEvent.click(contextBtn);
   const brokenLinkBtn = await screen.findByText('NSFW');
-  brokenLinkBtn.click();
+  fireEvent.click(brokenLinkBtn);
 
   await screen.findByTitle('Eminem Quotes Generator - Simple PHP RESTful API');
 
   const submitBtn = await screen.findByText('Submit report');
-  submitBtn.click();
-
-  await waitFor(async () => {
-    await screen.findByRole('alert');
-    const feed = await screen.findByTestId('posts-feed');
-
-    return expect(feed).toHaveAttribute('aria-live', 'assertive');
-  });
+  fireEvent.click(submitBtn);
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
@@ -782,7 +768,7 @@ it('should hide post', async () => {
     },
   ]);
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   const contextBtn = await screen.findByText('Hide');
   contextBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
@@ -811,8 +797,9 @@ it('should block a source', async () => {
       },
     },
   ]);
+
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   mockGraphQL(createTagsSettingsMock());
   await waitFor(async () => {
     const data = await queryClient.getQueryData(
@@ -821,14 +808,7 @@ it('should block a source', async () => {
     expect(data).toBeTruthy();
   });
   const contextBtn = await screen.findByText("Don't show posts from Echo JS");
-  contextBtn.click();
-
-  await waitFor(async () => {
-    await screen.findByRole('alert');
-    const feed = await screen.findByTestId('posts-feed');
-
-    return expect(feed).toHaveAttribute('aria-live', 'assertive');
-  });
+  fireEvent.click(contextBtn);
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
@@ -852,7 +832,7 @@ it('should unblock a source', async () => {
     },
   ]);
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   mockGraphQL(
     createTagsSettingsMock({
       includeTags: [],
@@ -909,7 +889,7 @@ it('should block a tag', async () => {
   ]);
 
   const [menuBtn] = await screen.findAllByLabelText('Options');
-  menuBtn.click();
+  fireEvent.click(menuBtn);
   mockGraphQL(createTagsSettingsMock());
   await waitFor(async () => {
     const data = await queryClient.getQueryData(
@@ -918,14 +898,7 @@ it('should block a tag', async () => {
     expect(data).toBeTruthy();
   });
   const contextBtn = await screen.findByText('Not interested in #javascript');
-  contextBtn.click();
-
-  await waitFor(async () => {
-    await screen.findByRole('alert');
-    const feed = await screen.findByTestId('posts-feed');
-
-    return expect(feed).toHaveAttribute('aria-live', 'assertive');
-  });
+  fireEvent.click(contextBtn);
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
@@ -1033,6 +1006,7 @@ it('should report irrelevant tags', async () => {
       },
     },
   ]);
+
   const [menuBtn] = await screen.findAllByLabelText('Options');
   fireEvent.click(menuBtn);
   const contextBtn = await screen.findByText('Report');
@@ -1047,17 +1021,115 @@ it('should report irrelevant tags', async () => {
   const submitBtn = await screen.findByText('Submit report');
   fireEvent.click(submitBtn);
 
-  await waitFor(async () => {
-    await screen.findByRole('alert');
-    const feed = await screen.findByTestId('posts-feed');
-
-    return expect(feed).toHaveAttribute('aria-live', 'assertive');
-  });
-
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
     expect(
       screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
     ).not.toBeInTheDocument(),
   );
+});
+
+describe('acquisition form card', () => {
+  const replaceRouter = jest.fn();
+  const url = new URL(`http://localhost:5002?${acquisitionKey}=true`);
+  const mockedQuery = { [acquisitionKey]: 'true' };
+
+  beforeEach(() => {
+    /* eslint-disable @typescript-eslint/no-var-requires,global-require */
+    mockedQuery[acquisitionKey] = 'true';
+    mocked(useRouter).mockImplementation(() => ({
+      route: '/',
+      pathname: '',
+      query: mockedQuery,
+      asPath: '',
+      push: jest.fn(),
+      events: {
+        on: jest.fn(),
+        off: jest.fn(),
+      },
+      replace: replaceRouter,
+      beforePopState: jest.fn(() => null),
+      prefetch: jest.fn(() => null),
+    }));
+
+    Object.defineProperty(window, 'location', {
+      value: url,
+      configurable: true,
+    });
+  });
+
+  it('should show the form card when the right url query param is present', async () => {
+    renderComponent([createFeedMock()], defaultUser);
+    await screen.findByTestId('acquisitionFormCard');
+  });
+
+  it('should hide the card once form is submitted', async () => {
+    let mutationCalled = false;
+    const { unmount } = renderComponent([createFeedMock()], defaultUser);
+
+    const card = await screen.findByTestId('acquisitionFormCard');
+    expect(card).toBeInTheDocument();
+
+    const radio = await screen.findByLabelText('Other');
+    fireEvent.click(radio);
+
+    mockGraphQL({
+      request: {
+        query: USER_ACQUISITION_MUTATION,
+        variables: { acquisitionChannel: 'other' },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { addUserAcquisitionChannel: { _: null } } };
+      },
+    });
+
+    const submit = await screen.findByText('Submit');
+    fireEvent.click(submit);
+
+    await waitFor(() => {
+      expect(mutationCalled).toBeTruthy();
+    });
+
+    // set mocked query to false
+    mockedQuery[acquisitionKey] = 'false';
+
+    // rerender
+    unmount();
+    renderComponent([createFeedMock()], defaultUser);
+
+    expect(screen.queryByTestId('acquisitionFormCard')).not.toBeInTheDocument();
+  });
+
+  it('should not show the card if the user dismissed it', async () => {
+    renderComponent([createFeedMock()], defaultUser);
+    const close = await screen.findByLabelText('Close acquisition form');
+    fireEvent.click(close);
+
+    await waitFor(() => {
+      expect(replaceRouter).toHaveBeenCalledWith(
+        removeQueryParam(url.toString(), acquisitionKey),
+      );
+    });
+
+    const card = screen.queryByTestId('acquisitionFormCard');
+    expect(card).not.toBeInTheDocument();
+  });
+
+  it('should not show the card if the user has submitted already', async () => {
+    renderComponent([createFeedMock()], {
+      ...defaultUser,
+      acquisitionChannel: AcquisitionChannel.Blog,
+    });
+
+    const card = screen.queryByTestId('acquisitionFormCard');
+    expect(card).not.toBeInTheDocument();
+  });
+
+  it('should not show the card if the feed is different than My Feed', async () => {
+    renderComponent(undefined, undefined, SharedFeedPage.Popular);
+
+    const card = screen.queryByTestId('acquisitionFormCard');
+    expect(card).not.toBeInTheDocument();
+  });
 });

@@ -57,7 +57,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
           <CollectionPillSources
             className={{
               main: classNames(!!post.collectionSources?.length && '-my-0.5'),
-              avatar: 'group-hover:border-theme-bg-secondary',
+              avatar: 'group-hover:border-background-subtle',
             }}
             sources={post.collectionSources}
             totalSources={post.numCollectionSources}
@@ -84,7 +84,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
               alt="Post Cover image"
               src={image}
               fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-              className="my-2 object-cover mobileXXL:self-start"
+              className="my-2 mobileXXL:self-start"
               loading="lazy"
             />
           )}
@@ -92,7 +92,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
       </CardContainer>
 
       {!!post.image && <CardSpace />}
-      <Container className="pointer-events-none">
+      <Container className="pointer-events-none mt-2">
         <ActionButtons
           openNewTab={openNewTab}
           post={post}

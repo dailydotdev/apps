@@ -44,14 +44,14 @@ export const PostLoadingPlaceholder = ({
   return (
     <>
       <Container className={className}>
-        <ElementPlaceholder className="my-2 mb-8 h-8 w-3/5 rounded-full" />
+        <ElementPlaceholder className="my-2 mb-8 h-8 w-3/5 rounded-10" />
         <ListItemPlaceholder padding="p-0 gap-2" textClassName="h-4" />
         <div className="my-8 flex flex-row gap-2">
-          <ElementPlaceholder className="h-6 w-20 rounded-full" />
-          <ElementPlaceholder className="h-6 w-20 rounded-full" />
+          <ElementPlaceholder className="h-6 w-20 rounded-10" />
+          <ElementPlaceholder className="h-6 w-20 rounded-10" />
         </div>
         <ElementPlaceholder className="h-52 w-4/5 rounded-16" />
-        <ElementPlaceholder className="my-8 h-8 w-2/5 rounded-full" />
+        <ElementPlaceholder className="my-8 h-8 w-2/5 rounded-10" />
         <PlaceholderSeparator />
         <PlaceholderCommentList />
       </Container>

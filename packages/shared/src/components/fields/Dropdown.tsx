@@ -8,13 +8,16 @@ import React, {
 import classNames from 'classnames';
 import {
   Item,
-  ItemParams,
   Menu,
   TriggerEvent,
   useContextMenu,
 } from '@dailydotdev/react-contexify';
 import { ArrowIcon, VIcon } from '../icons';
 import styles from './Dropdown.module.css';
+import { useViewSize, ViewSize } from '../../hooks';
+import { ListDrawer } from '../drawers/ListDrawer';
+import { SelectParams } from '../drawers/common';
+import { RootPortal } from '../tooltips/Portal';
 
 interface ClassName {
   container?: string;
@@ -47,7 +50,7 @@ const getButtonSizeClass = (buttonSize: string): string => {
     return 'h-9 rounded-10 text-theme-label-primary typo-body';
   }
   if (buttonSize === 'medium') {
-    return 'h-10 rounded-xl min-w-[2.5rem]';
+    return 'h-10 rounded-12 min-w-[2.5rem]';
   }
   if (buttonSize === 'small') {
     return 'h-8 rounded-10';
@@ -70,6 +73,7 @@ export function Dropdown({
   iconOnly,
   ...props
 }: DropdownProps): ReactElement {
+  const isMobile = useViewSize(ViewSize.MobileL);
   const [id] = useState(`dropdown-${Math.random().toString(36).substring(7)}`);
   const [isVisible, setVisibility] = useState(false);
   const [menuWidth, setMenuWidth] = useState<number>();
@@ -110,10 +114,8 @@ export function Dropdown({
     }
   };
 
-  const handleChange = ({
-    data,
-  }: ItemParams<unknown, { value: string; index: number }>): void => {
-    onChange(data.value, data.index);
+  const handleChange = ({ value, index }: SelectParams): void => {
+    onChange(value, index);
   };
 
   return (
@@ -152,31 +154,48 @@ export function Dropdown({
           )}
         />
       </button>
-      <Menu
-        disableBoundariesCheck
-        id={id}
-        className={classNames(className.menu || 'menu-primary', { scrollable })}
-        animation="fade"
-        onHidden={() => setVisibility(false)}
-        style={{ width: !dynamicMenuWidth && menuWidth }}
-      >
-        {options.map((option, index) => (
-          <Item
-            key={option}
-            onClick={handleChange}
-            data={{ value: option, index }}
-            className={classNames(styles.item, className?.item)}
-          >
-            {renderItem ? renderItem(option, index) : option}
-            {shouldIndicateSelected && selectedIndex === index && (
-              <VIcon
-                className={classNames('ml-auto', className.indicator)}
-                secondary
-              />
-            )}
-          </Item>
-        ))}
-      </Menu>
+      {isMobile ? (
+        <RootPortal>
+          <ListDrawer
+            drawerProps={{
+              isOpen: isVisible,
+              displayCloseButton: true,
+              onClose: () => setVisibility(false),
+            }}
+            options={options}
+            selected={selectedIndex}
+            onSelectedChange={handleChange}
+          />
+        </RootPortal>
+      ) : (
+        <Menu
+          disableBoundariesCheck
+          id={id}
+          className={classNames(className.menu || 'menu-primary', {
+            scrollable,
+          })}
+          animation="fade"
+          onHidden={() => setVisibility(false)}
+          style={{ width: !dynamicMenuWidth && menuWidth }}
+        >
+          {options.map((option, index) => (
+            <Item
+              key={option}
+              onClick={({ data, event }) => handleChange({ event, ...data })}
+              data={{ value: option, index }}
+              className={classNames(styles.item, className?.item)}
+            >
+              {renderItem ? renderItem(option, index) : option}
+              {shouldIndicateSelected && selectedIndex === index && (
+                <VIcon
+                  className={classNames('ml-auto', className.indicator)}
+                  secondary
+                />
+              )}
+            </Item>
+          ))}
+        </Menu>
+      )}
     </div>
   );
 }

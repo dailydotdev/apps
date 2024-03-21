@@ -12,7 +12,7 @@ import { ProfileV2 } from '../../graphql/users';
 import { ReferralCampaignKey, useReferralCampaign } from '../../hooks';
 import ReferralWidget from '../widgets/ReferralWidget';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { Button } from '../buttons/ButtonV2';
+import { Button } from '../buttons/Button';
 import { PlusIcon } from '../icons';
 
 export interface ProfileWidgetsProps extends ProfileV2 {
@@ -27,7 +27,7 @@ export function ProfileWidgets({
   className,
   enableSticky,
 }: ProfileWidgetsProps): ReactElement {
-  const { user: loggedUser } = useContext(AuthContext);
+  const { user: loggedUser, logout } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user.id;
   const stats = { ...userStats, reputation: user?.reputation };
 
@@ -48,9 +48,10 @@ export function ProfileWidgets({
       {!hideSticky && (
         <Header
           user={user}
+          logout={logout}
           isSameUser={isSameUser}
           sticky
-          className="fixed left-0 top-0 z-3 w-full bg-theme-bg-primary transition-transform duration-75"
+          className="fixed left-0 top-0 z-3 w-full bg-background-default transition-transform duration-75"
           style={{ transform: `translateY(${(stickyProgress - 1) * 100}%)` }}
         />
       )}
@@ -60,6 +61,9 @@ export function ProfileWidgets({
         username={user.username}
         id={user.id}
         ref={stickyRef}
+        className={{
+          container: 'mx-4',
+        }}
       />
       <div className="relative flex flex-col gap-6 px-4">
         <UserMetadata

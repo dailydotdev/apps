@@ -4,7 +4,7 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { cloudinary } from '../../lib/image';
 import Logo, { LogoPosition } from '../Logo';
 import { AuthProps, AuthDisplay } from '../auth/AuthOptions';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { CreateFeedButton } from './CreateFeedButton';
 import { wrapperMaxWidth } from './common';
 
@@ -76,7 +76,7 @@ export const OnboardingHeader = ({
       <span
         className={classNames('flex items-center', 'text-theme-label-tertiary')}
       >
-        <span className="hidden tablet:block">Already a daily.dev member?</span>
+        <span className="hidden tablet:block">Already using daily.dev?</span>
         <Button
           className="ml-3"
           variant={ButtonVariant.Secondary}

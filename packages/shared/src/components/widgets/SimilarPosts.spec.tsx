@@ -52,7 +52,12 @@ it('should show trending info for trending posts', async () => {
 
 it('should show number of upvotes and comments', async () => {
   renderComponent();
-  expect(await screen.findByText('15 Comments')).toBeInTheDocument();
-  expect(await screen.findByText('5 Comments')).toBeInTheDocument();
-  expect(await screen.findAllByText('1 Upvotes')).toHaveLength(2);
+  renderComponent();
+  const [element1, element2] = await screen.findAllByTestId(
+    'post-engagements-count',
+  );
+  expect(element1).toHaveTextContent('15 Comments');
+  expect(element1).toHaveTextContent('1 Upvotes');
+  expect(element2).toHaveTextContent('5 Comments');
+  expect(element2).toHaveTextContent('1 Upvotes');
 });

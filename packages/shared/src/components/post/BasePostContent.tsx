@@ -1,11 +1,8 @@
 import dynamic from 'next/dynamic';
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import PostNavigation from './PostNavigation';
-import { PostFeedFiltersOnboarding } from './PostFeedFiltersOnboarding';
 import PostEngagements from './PostEngagements';
-import OnboardingContext from '../../contexts/OnboardingContext';
 import { BasePostContentProps } from './common';
-import { useOnboarding } from '../../hooks/auth';
 
 const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ '../modals/ShareModal'),
@@ -31,9 +28,6 @@ export function BasePostContent({
 }: BasePostContentProps): ReactElement {
   const { id } = post ?? {};
   const { onCloseShare, sharePost, onSharePost } = engagementProps;
-  const { onStartArticleOnboarding, showArticleOnboarding } =
-    useContext(OnboardingContext);
-  const { shouldShowAuthBanner } = useOnboarding();
 
   if (!id && !isFallback) {
     return <Custom404 />;
@@ -41,12 +35,6 @@ export function BasePostContent({
 
   return (
     <>
-      {showArticleOnboarding && !shouldShowAuthBanner && (
-        <PostFeedFiltersOnboarding
-          className={className?.onboarding}
-          onInitializeOnboarding={onStartArticleOnboarding}
-        />
-      )}
       {customNavigation ?? (
         <PostNavigation {...navigationProps} className={className.navigation} />
       )}

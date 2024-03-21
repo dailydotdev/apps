@@ -13,7 +13,8 @@ import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
-import { useFeedLayout } from '../hooks';
+import { useFeedLayout, useGetShortUrl } from '../hooks';
+import { ReferralCampaignKey } from '../lib/referral';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
@@ -41,9 +42,10 @@ export default function ShareOptionsMenu({
   onHidden,
   contextId = 'share-context',
 }: ShareOptionsMenuProps): ReactElement {
-  const link = post && post?.commentsPermalink;
+  const link = post?.commentsPermalink;
   const [, copyLink] = useCopyPostLink(link);
   const { trackEvent } = useContext(AnalyticsContext);
+  const { getShortUrl } = useGetShortUrl();
   const onClick = (provider: ShareProvider) =>
     trackEvent(
       postAnalyticsEvent('share post', post, {
@@ -51,13 +53,14 @@ export default function ShareOptionsMenu({
       }),
     );
 
-  const trackAndCopyLink = () => {
-    copyLink();
+  const trackAndCopyLink = async () => {
+    const shortLink = await getShortUrl(link, ReferralCampaignKey.SharePost);
+    copyLink({ link: shortLink });
     onClick(ShareProvider.CopyLink);
   };
 
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
-  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
 
   const shareOptions: ShareOption[] = [
     {
@@ -67,7 +70,7 @@ export default function ShareOptionsMenu({
     },
   ];
 
-  if (!bookmarkOnCard && !shouldUseFeedLayoutV1) {
+  if (!bookmarkOnCard && !shouldUseMobileFeedLayout) {
     shareOptions.push({
       icon: (
         <MenuIcon
@@ -91,7 +94,10 @@ export default function ShareOptionsMenu({
     <PortalMenu
       disableBoundariesCheck
       id={contextId}
-      className={classNames('menu-primary', shouldUseFeedLayoutV1 && 'left-0')}
+      className={classNames(
+        'menu-primary',
+        shouldUseMobileFeedLayout && 'left-0',
+      )}
       animation="fade"
       onHidden={onHidden}
     >

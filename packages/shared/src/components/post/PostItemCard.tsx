@@ -22,7 +22,7 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 
 export interface PostItemCardProps {
   className?: string;
@@ -37,7 +37,7 @@ export interface PostItemCardProps {
 
 const SourceShadow = classed(
   'div',
-  'absolute left-5 -my-1 w-8 h-8 rounded-full bg-theme-bg-primary',
+  'absolute left-5 -my-1 w-8 h-8 rounded-full bg-background-default',
 );
 
 export default function PostItemCard({

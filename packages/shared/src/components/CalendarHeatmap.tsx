@@ -219,7 +219,7 @@ export function CalendarHeatmap<T extends { date: string }>({
               x={x + 1}
               y={y + 1}
               rx="2"
-              fill="var(--theme-background-primary)"
+              fill="var(--theme-background-default)"
             />
           )}
         </g>

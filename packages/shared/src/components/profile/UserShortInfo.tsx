@@ -2,9 +2,10 @@ import classNames from 'classnames';
 import React, { forwardRef, ReactElement, ReactNode, Ref } from 'react';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { TooltipProps } from '../tooltips/BaseTooltip';
-import { getTextEllipsis } from '../utilities';
+import { TruncateText } from '../utilities';
 import { ProfileTooltip } from './ProfileTooltip';
 import { UserShortProfile } from '../../lib/user';
+import { ReputationUserBadge } from '../ReputationUserBadge';
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]
@@ -31,8 +32,6 @@ export interface UserShortInfoProps<
   showDescription?: boolean;
   transformUsername?(user: UserShortProfile): ReactNode;
 }
-
-const TextEllipsis = getTextEllipsis();
 
 const defaultClassName = {
   container: 'py-3 px-6 hover:bg-theme-hover',
@@ -85,14 +84,22 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
       >
         <div
           className={classNames(
-            'ml-4 flex flex-col overflow-hidden typo-callout',
+            'ml-4 flex max-w-full flex-col overflow-auto typo-callout',
             className.textWrapper ?? defaultClassName.textWrapper,
           )}
         >
-          <TextEllipsis className="font-bold">{name}</TextEllipsis>
-          <TextEllipsis className="text-theme-label-secondary">
+          <div className="flex">
+            <TruncateText className="font-bold" title={name}>
+              {name}
+            </TruncateText>
+            <ReputationUserBadge user={user} />
+          </div>
+          <TruncateText
+            className="text-theme-label-secondary"
+            title={`@${username}`}
+          >
             {transformUsername ? transformUsername(user) : `@${username}`}
-          </TextEllipsis>
+          </TruncateText>
           {bio && showDescription && (
             <span className="mt-1 text-theme-label-tertiary">{bio}</span>
           )}

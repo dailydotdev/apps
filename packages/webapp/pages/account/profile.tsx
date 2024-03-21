@@ -13,7 +13,7 @@ import {
   Button,
   ButtonColor,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import React, { ReactElement, useContext, useRef, useState } from 'react';
 import useProfileForm, {
   UpdateProfileParameters,
@@ -110,7 +110,7 @@ const AccountProfilePage = (): ReactElement => {
               id={imageId}
               className={{
                 img: 'object-cover',
-                container: 'border-4 !border-theme-bg-primary',
+                container: 'border-4 !border-background-default',
               }}
               initialValue={user.image}
               hoverIcon={<CameraIcon size={IconSize.Large} />}
@@ -129,7 +129,7 @@ const AccountProfilePage = (): ReactElement => {
               className={{
                 root: 'absolute left-0 top-0 flex w-full',
                 container:
-                  'border-0 bg-theme-bg-secondary hover:bg-theme-bg-tertiary',
+                  'border-0 bg-background-subtle hover:bg-accent-pepper-subtlest',
                 img: 'object-cover',
               }}
               size="cover"

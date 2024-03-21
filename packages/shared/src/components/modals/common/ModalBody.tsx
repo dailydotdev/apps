@@ -20,10 +20,11 @@ function ModalBodyComponent(
   { children, className, view, ...props }: ModalBodyProps,
   ref: MutableRefObject<HTMLElement>,
 ): ReactElement {
-  const { activeView, kind, size } = useContext(ModalPropsContext);
+  const { activeView, kind, size, isDrawer } = useContext(ModalPropsContext);
   const sectionClassName = classNames(
-    'relative flex h-full max-h-full w-full shrink flex-col overflow-auto p-6',
-    kind === ModalKind.FlexibleTop && bigModals.includes(size) && 'mobileL:p-8',
+    'relative flex h-full max-h-full w-full shrink flex-col overflow-auto',
+    kind === ModalKind.FlexibleTop && bigModals.includes(size) && 'tablet:p-8',
+    isDrawer ? 'p-0' : 'p-4 tablet:p-6',
     className,
   );
   if (view && view !== activeView) {

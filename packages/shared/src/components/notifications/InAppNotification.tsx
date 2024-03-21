@@ -14,16 +14,16 @@ import styles from './InAppNotification.module.css';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { NotificationType } from './utils';
-import { ButtonSize } from '../buttons/ButtonV2';
-import { useNotificationContext } from '../../contexts/NotificationsContext';
+import { ButtonSize } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
+import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 
 const Container = classed(
   'div',
   classNames(
     styles.inAppNotificationContainer,
     'animate-bounce',
-    'in-app-notification slide-in fixed right-1/2 z-max h-22 w-[22.5rem] translate-x-1/2 rounded-16 border border-theme-active bg-theme-bg-notification laptop:right-10 laptop:translate-x-0',
+    'in-app-notification slide-in fixed right-1/2 z-max h-22 w-[22.5rem] translate-x-1/2 rounded-16 border border-theme-active bg-accent-pepper-subtler laptop:right-10 laptop:translate-x-0',
   ),
 );
 
@@ -34,7 +34,7 @@ export function InAppNotificationElement(): ReactElement {
   const client = useQueryClient();
   const { trackEvent } = useAnalyticsContext();
   const { clearNotifications, dismissNotification } = useInAppNotification();
-  const { isSubscribed } = useNotificationContext();
+  const { isSubscribed } = usePushNotificationContext();
   const [isExit, setIsExit] = useState(false);
   const closeNotification = () => {
     setIsExit(true);

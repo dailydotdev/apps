@@ -5,7 +5,6 @@ import styles from './Card.module.css';
 import classed from '../../lib/classed';
 import { Post } from '../../graphql/posts';
 import { Image } from '../image/Image';
-import VideoImage from '../image/VideoImage';
 
 type TitleProps = HTMLAttributes<HTMLHeadingElement> & {
   lineClamp?: `line-clamp-${number}`;
@@ -44,12 +43,7 @@ export const ListCardTitle = classed(Title, 'mr-2');
 
 export const CardTextContainer = classed('div', 'flex flex-col mx-4');
 
-export const CardImage = classed(Image, 'rounded-12 h-40');
-export const CardVideoImage = classed(
-  VideoImage,
-  'rounded-12 h-40 object-cover',
-);
-
+export const CardImage = classed(Image, 'rounded-12 h-40 object-cover');
 export const CardSpace = classed('div', 'flex-1');
 
 const clickableCardClasses = classNames(
@@ -64,13 +58,13 @@ export const CardLink = classed('a', clickableCardClasses);
 export const Card = classed(
   'article',
   styles.card,
-  'relative max-h-card h-full flex flex-col p-2 rounded-2xl bg-theme-bg-secondary border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
+  'relative max-h-card h-full flex flex-col p-2 rounded-16 bg-background-subtle border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
 );
 
 export const ChecklistCardComponent = classed(
   'article',
   styles.card,
-  'max-w-[21.5rem] w-full relative max-h-fit h-full flex flex-col rounded-14 bg-theme-bg-secondary border border-theme-color-cabbage hover:border-theme-color-cabbage shadow-2',
+  'tablet:max-w-[21.5rem] w-full relative max-h-fit h-full flex flex-col rounded-14 bg-background-subtle tablet:border border-theme-color-cabbage hover:border-theme-color-cabbage shadow-2',
 );
 
 export const CardHeader = classed(
@@ -82,7 +76,7 @@ export const CardHeader = classed(
 export const ListCard = classed(
   'article',
   styles.card,
-  'relative flex items-stretch pt-4 pb-3 pr-4 rounded-2xl bg-theme-bg-secondary border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
+  'relative flex items-stretch pt-4 pb-3 pr-4 rounded-16 bg-background-subtle border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
 );
 
 export const ListCardMain = classed(

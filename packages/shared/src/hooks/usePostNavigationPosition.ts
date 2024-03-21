@@ -1,26 +1,29 @@
-import { CSSProperties, useEffect, useState } from 'react';
+import { CSSProperties, useCallback, useState } from 'react';
 import { SCROLL_OFFSET } from '../components/post/PostContent';
 import { useHideOnModal } from './useHideOnModal';
 import { useResetScrollForResponsiveModal } from './useResetScrollForResponsiveModal';
 import { useScrollTopOffset } from './useScrollTopOffset';
 
-interface UsePostNavigationPosition {
-  isLoading: boolean;
+interface UsePostNavigationPositionProps {
   isDisplayed?: boolean;
   offset?: number;
 }
 
+interface UsePostNavigationPosition {
+  position: CSSProperties['position'];
+  onLoad: () => void;
+}
 const usePostNavigationPosition = ({
-  isLoading,
   isDisplayed,
   offset = 0,
-}: UsePostNavigationPosition): CSSProperties['position'] => {
+}: UsePostNavigationPositionProps): UsePostNavigationPosition => {
   useResetScrollForResponsiveModal();
   useHideOnModal(isDisplayed);
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
+  const [modalParent, setModalParent] = useState<HTMLElement>();
   useScrollTopOffset(
-    () => document?.getElementById?.('post-modal')?.parentElement,
+    useCallback(() => modalParent, [modalParent]),
     {
       onOverOffset: () => position !== 'fixed' && setPosition('fixed'),
       onUnderOffset: () => position !== 'relative' && setPosition('relative'),
@@ -28,22 +31,20 @@ const usePostNavigationPosition = ({
     },
   );
 
-  useEffect(() => {
-    if (isLoading) {
-      const modal = document.getElementById('post-modal');
+  const onLoad = useCallback(() => {
+    const modal = document.getElementById('post-modal');
 
-      if (!modal) {
-        return;
-      }
-
-      const parent = modal.parentElement;
-
-      parent?.scrollTo?.(0, 0);
-      setPosition('relative');
+    if (!modal) {
+      return;
     }
-  }, [isLoading]);
 
-  return position;
+    const parent = modal.parentElement;
+    setModalParent(parent);
+    parent?.scrollTo?.(0, 0);
+    setPosition('relative');
+  }, []);
+
+  return { position, onLoad };
 };
 
 export default usePostNavigationPosition;

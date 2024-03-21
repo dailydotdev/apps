@@ -3,7 +3,7 @@ import Icon, { IconProps } from '../../Icon';
 import { PlusIcon } from '../Plus';
 
 const Primary = () => (
-  <div className="rounded-6 bg-theme-bg-secondary">
+  <div className="rounded-6 bg-background-subtle">
     <PlusIcon />
   </div>
 );

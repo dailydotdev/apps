@@ -1,7 +1,7 @@
 import React, { FormEvent, ReactElement, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { ProfilePicture } from '../ProfilePicture';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { LockIcon } from '../icons';
 import { Card } from '../cards/Card';
@@ -104,7 +104,7 @@ function SharePostBar({
           name="share-post-bar"
           placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
           className={classNames(
-            'w-full flex-1 bg-theme-bg-transparent pl-1 text-theme-label-primary outline-none typo-body hover:placeholder-theme-label-primary focus:placeholder-theme-label-quaternary tablet:w-auto tablet:min-w-[11rem] tablet:flex-none',
+            'w-full flex-1 bg-transparent pl-1 text-theme-label-primary outline-none typo-body hover:placeholder-theme-label-primary focus:placeholder-theme-label-quaternary tablet:w-auto tablet:min-w-[11rem] tablet:flex-none',
             !shouldRenderReadingHistory && '!flex-1 pr-2',
           )}
           onInput={(e) => setUrl(e.currentTarget.value)}

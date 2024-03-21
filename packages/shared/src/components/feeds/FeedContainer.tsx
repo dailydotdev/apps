@@ -9,11 +9,7 @@ import { useRouter } from 'next/router';
 import { Spaciness } from '../../graphql/settings';
 import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
-import ScrollToTopButton from '../ScrollToTopButton';
 import styles from '../Feed.module.css';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { SearchExperiment } from '../../lib/featureValues';
 import { FeedReadyMessage } from '../onboarding';
 import { useFeedLayout, ToastSubject, useToastNotification } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -118,24 +114,23 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { feedRef } = useActiveFeedContext();
   const { shouldUseFeedLayoutV1 } = useFeedLayout();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
-  const searchValue = useFeature(feature.search);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
-  const isList = (insaneMode && numCards > 1) || shouldUseFeedLayoutV1;
+  const isList = (insaneMode && numCards > 1) || shouldUseMobileFeedLayout;
   // const feedGapPx =
-  //   getFeedGapPx[gapClass(isList, shouldUseFeedLayoutV1, spaciness)];
+  //   getFeedGapPx[gapClass(isList, shouldUseMobileFeedLayout, spaciness)];
   // const style = {
   //   '--num-cards': numCards,
   //   '--feed-gap': `${feedGapPx / 16}rem`,
   // } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
   const isFinder = router.pathname === '/search/posts';
-  const isV1Search =
-    searchValue === SearchExperiment.V1 && showSearch && !isFinder;
+  const isSearch = showSearch && !isFinder;
 
   if (!loadedSettings) {
     return <></>;
@@ -184,7 +179,6 @@ export const FeedContainer = ({
         className,
       )}
     >
-      <ScrollToTopButton />
       <div className="flex w-full flex-col laptopL:mx-auto">
         <div>Injection area for outside feed wrapper</div>
         {/* {!inlineHeader && header} */}
@@ -203,18 +197,20 @@ export const FeedContainer = ({
           {showFeedReadyMessage && (
             <FeedReadyMessage
               className={{
-                main: shouldUseFeedLayoutV1
+                main: shouldUseMobileFeedLayout
                   ? 'mb-8 mt-8 w-full laptop:gap-4 [@media(width<=680px)]:px-6'
                   : 'mb-10 max-w-xl laptop:gap-6',
-                textContainer: shouldUseFeedLayoutV1
+                textContainer: shouldUseMobileFeedLayout
                   ? 'laptop:flex-1'
                   : 'flex flex-col',
-                header: shouldUseFeedLayoutV1 ? 'mb-0.5' : 'mb-2 laptop:mb-1',
+                header: shouldUseMobileFeedLayout
+                  ? 'mb-0.5'
+                  : 'mb-2 laptop:mb-1',
               }}
             />
           )}
           {inlineHeader && header}
-          {isV1Search && !shouldUseFeedLayoutV1 && (
+          {isSearch && !shouldUseMobileFeedLayout && (
             <span className="flex flex-1 flex-row items-center">
               {!!actionButtons && (
                 <span className="mr-auto flex flex-row gap-3 border-theme-divider-tertiary pr-3">
@@ -224,14 +220,14 @@ export const FeedContainer = ({
               {shortcuts}
             </span>
           )}
-          {shouldUseFeedLayoutV1 && shortcuts}
+          {shouldUseMobileFeedLayout && shortcuts}
           <ConditionalWrapper
-            condition={shouldUseFeedLayoutV1}
+            condition={shouldUseMobileFeedLayout}
             wrapper={(child) => (
               <div
                 className={classNames(
                   'flex flex-col rounded-16 border border-theme-divider-tertiary tablet:mt-6',
-                  isV1Search && 'mt-6',
+                  isSearch && 'mt-6',
                 )}
               >
                 <span className="flex w-full flex-row items-center justify-between px-6 py-4">
@@ -248,7 +244,7 @@ export const FeedContainer = ({
               className={classNames(
                 'grid grid-flow-row auto-rows-auto grid-cols-[repeat(auto-fit,_minmax(272px,_320px))] items-center justify-center',
                 gap(spaciness),
-                isV1Search && !shouldUseFeedLayoutV1 && 'mt-8',
+                isSearch && !shouldUseMobileFeedLayout && 'mt-8',
               )}
               ref={feedRef}
             >

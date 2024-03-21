@@ -23,6 +23,7 @@ import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useDeleteComment } from '../../hooks/comments/useDeleteComment';
 import { lazyCommentThreshold } from '../utilities';
+import { isNullOrUndefined } from '../../lib/func';
 
 interface PostCommentsProps {
   post: Post;
@@ -68,7 +69,7 @@ export function PostComments({
         refetchOnWindowFocus: false,
       },
     );
-  const { hash: commentHash } = window.location;
+  const { hash: commentHash } = globalThis?.window?.location || {};
   const commentsCount = comments?.postComments?.edges?.length || 0;
   const commentRef = useRef<HTMLElement>(null);
   const { deleteComment } = useDeleteComment();
@@ -89,7 +90,7 @@ export function PostComments({
     );
   }
 
-  if (isLoadingComments || comments === null) {
+  if (isLoadingComments || isNullOrUndefined(comments)) {
     return <PlaceholderCommentList placeholderAmount={post.numComments} />;
   }
 

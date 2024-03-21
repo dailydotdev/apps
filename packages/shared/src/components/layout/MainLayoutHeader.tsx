@@ -7,7 +7,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../../lib/analytics';
 import { webappUrl } from '../../lib/constants';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { BellIcon, HamburgerIcon } from '../icons';
 import LoginButton from '../LoginButton';
 import MobileHeaderRankProgress from '../MobileHeaderRankProgress';
@@ -23,12 +23,10 @@ import { CreatePostButton } from '../post/write';
 import { useViewSize, ViewSize } from '../../hooks';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { SearchExperiment } from '../../lib/featureValues';
+import { LogoPosition } from '../Logo';
+import { UserStreak } from '../../graphql/users';
 
 export interface MainLayoutHeaderProps {
-  greeting?: boolean;
   hasBanner?: boolean;
   sidebarRendered?: boolean;
   optOutWeeklyGoal?: boolean;
@@ -44,8 +42,26 @@ const SearchPanel = dynamic(
     ),
 );
 
+interface StreakButtonProps {
+  isLoading: boolean;
+  streak: UserStreak;
+}
+
+const StreakButton = ({ streak, isLoading }: StreakButtonProps) => {
+  if (isLoading) {
+    return (
+      <div className="h-8 w-14 rounded-12 bg-surface-float laptop:h-10 laptop:w-20" />
+    );
+  }
+
+  if (!streak) {
+    return null;
+  }
+
+  return <ReadingStreakButton streak={streak} />;
+};
+
 function MainLayoutHeader({
-  greeting,
   hasBanner,
   sidebarRendered,
   optOutWeeklyGoal,
@@ -53,19 +69,17 @@ function MainLayoutHeader({
   onLogoClick,
   onMobileSidebarToggle,
 }: MainLayoutHeaderProps): ReactElement {
-  const searchVersion = useFeature(feature.search);
-  const isSearchV1 = searchVersion === SearchExperiment.V1;
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
-  const { user, loadingUser } = useContext(AuthContext);
-  const { streak, isEnabled, isLoading } = useReadingStreak();
-  const hideButton = loadingUser || (isEnabled && isLoading);
+  const { user } = useContext(AuthContext);
+  const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
 
   const headerButton = (() => {
-    if (hideButton) {
+    if (!user) {
       return null;
     }
 
@@ -93,9 +107,11 @@ function MainLayoutHeader({
   const RenderButtons = () => {
     return (
       <div className="flex gap-3">
-        <CreatePostButton />
-        {streak && <ReadingStreakButton streak={streak} />}
-        {!hideButton && user && (
+        {isStreaksEnabled && (
+          <StreakButton streak={streak} isLoading={isLoading} />
+        )}
+        <CreatePostButton compact={isStreaksEnabled} />
+        {!!user && (
           <>
             <LinkWithTooltip
               tooltip={{ placement: 'bottom', content: 'Notifications' }}
@@ -126,9 +142,10 @@ function MainLayoutHeader({
         )}
         {additionalButtons}
         {headerButton}
-        {!sidebarRendered && !optOutWeeklyGoal && !isMobile && (
-          <MobileHeaderRankProgress />
-        )}
+        {!isStreaksEnabled &&
+          !sidebarRendered &&
+          !optOutWeeklyGoal &&
+          !isMobile && <MobileHeaderRankProgress />}
       </div>
     );
   };
@@ -136,8 +153,8 @@ function MainLayoutHeader({
   return (
     <header
       className={classNames(
-        'sticky z-header flex h-14 flex-row items-center justify-between gap-3 border-b border-theme-divider-tertiary bg-theme-bg-primary px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:flex-row laptop:px-4',
-        hasBanner ? 'top-8' : 'top-0',
+        'sticky top-0 z-header flex h-14 flex-row items-center justify-between gap-3 border-b border-theme-divider-tertiary bg-background-default px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:flex-row laptop:px-4',
+        hasBanner && 'laptop:top-8',
         isSearchPage && 'mb-16 laptop:mb-0',
       )}
     >
@@ -149,19 +166,28 @@ function MainLayoutHeader({
             onClick={() => onMobileSidebarToggle(true)}
             icon={<HamburgerIcon secondary />}
           />
-          <div className="flex flex-1 justify-center laptop:flex-none laptop:justify-start">
+          <div
+            className={classNames(
+              'flex flex-1  laptop:flex-none laptop:justify-start',
+              isStreakLarge ? 'justify-start' : 'justify-center',
+            )}
+          >
             <HeaderLogo
+              position={
+                isStreaksEnabled && isStreakLarge
+                  ? LogoPosition.Relative
+                  : LogoPosition.Absolute
+              }
               user={user}
               onLogoClick={onLogoClick}
-              // currently isSearchV1 we do not show greeting
-              greeting={isSearchV1 ? false : greeting}
+              greeting={false}
             />
           </div>
-          {isSearchV1 && !!user && (
+          {!!user && (
             <SearchPanel
               className={{
                 container: classNames(
-                  'mx-auto bg-theme-bg-primary py-3 laptop:bg-transparent',
+                  'mx-auto bg-background-default py-3 laptop:bg-transparent',
                   isSearchPage
                     ? 'absolute left-0 right-0 top-14 laptop:relative laptop:top-0'
                     : 'hidden laptop:flex',

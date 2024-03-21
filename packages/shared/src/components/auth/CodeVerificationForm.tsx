@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { CloseModalFunc } from '../modals/common';
 import AuthHeader from './AuthHeader';
@@ -51,7 +51,7 @@ function CodeVerificationForm({
     });
     setHint('');
     const { code } = formToJson<{ code: string }>(e.currentTarget);
-    await verifyCode(code);
+    await verifyCode({ code });
   };
 
   const onSendEmail = async () => {

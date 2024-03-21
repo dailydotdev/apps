@@ -3,7 +3,7 @@ import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import {
   Button,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   Modal,
   ModalProps,
@@ -23,7 +23,7 @@ export default function MostVisitedSitesModal({
     <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Medium} {...props}>
       <Modal.Header />
       <Modal.Body>
-        <Modal.Title>Show most visited sites</Modal.Title>
+        <Modal.Title className="mb-4">Show most visited sites</Modal.Title>
         <Modal.Text className="text-center">
           To show your most visited sites, your browser will now ask for more
           permissions. Once approved, it will be kept locally.
@@ -35,7 +35,7 @@ export default function MostVisitedSitesModal({
               : '/mvs_google.jpg'
           }
           imgAlt="Image of the browser's default home screen"
-          className="mx-auto my-8 w-full max-w-[22rem] rounded-2xl"
+          className="mx-auto my-8 w-full max-w-[22rem] rounded-16"
           ratio="45.8%"
           eager
         />

@@ -10,7 +10,7 @@ import {
   AllowedTags,
   Button,
   ButtonProps,
-  ButtonSize,
+  ButtonVariant,
 } from '../buttons/Button';
 import { AiIcon } from '../icons';
 import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
@@ -35,6 +35,7 @@ export const SearchBarSuggestion = ({
   id: suggestionId,
   isHistory,
   prompt,
+  children,
   ...props
 }: SearchBarSuggestionProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
@@ -73,16 +74,13 @@ export const SearchBarSuggestion = ({
 
   return (
     <Button
-      spanClassName="w-fit my-2 flex-shrink tablet:line-clamp-1"
-      textPosition="justify-start"
       icon={<AiIcon />}
-      buttonSize={ButtonSize.Medium}
-      className={classNames(
-        'btn-secondary !h-auto min-h-[2.5rem] w-fit border-theme-divider-tertiary text-theme-label-tertiary typo-subhead',
-        className,
-      )}
+      variant={ButtonVariant.Subtle}
+      className={classNames('w-fit !justify-start typo-subhead', className)}
       onClick={handleSuggestionsClick}
       {...props}
-    />
+    >
+      <span className="w-fit tablet:!line-clamp-1">{children}</span>
+    </Button>
   );
 };

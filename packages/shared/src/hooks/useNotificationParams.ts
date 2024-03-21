@@ -1,22 +1,22 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { NotificationPromptSource } from '../lib/analytics';
-import { useNotificationContext } from '../contexts/NotificationsContext';
 import { stripLinkParameters } from '../lib/links';
+import { usePushNotificationContext } from '../contexts/PushNotificationContext';
+import { usePushNotificationMutation } from './notifications';
 
 export const useNotificationParams = (): void => {
   const router = useRouter();
-  const { isSubscribed, onTogglePermission } = useNotificationContext();
+  const { isSubscribed } = usePushNotificationContext();
+  const { onEnablePush } = usePushNotificationMutation();
 
   useEffect(() => {
     if (isSubscribed || !router?.query.notify) {
       return;
     }
 
-    onTogglePermission(NotificationPromptSource.NotificationItem).then(
-      (permission) => {
-        const isGranted = permission === 'granted';
-
+    onEnablePush(NotificationPromptSource.NotificationItem).then(
+      (isGranted) => {
         if (!isGranted) {
           return;
         }
@@ -25,5 +25,5 @@ export const useNotificationParams = (): void => {
         router.replace(link);
       },
     );
-  }, [onTogglePermission, isSubscribed, router]);
+  }, [onEnablePush, isSubscribed, router]);
 };

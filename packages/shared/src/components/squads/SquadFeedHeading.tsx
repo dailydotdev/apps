@@ -1,5 +1,5 @@
 import React, { ReactElement, useMemo } from 'react';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { PinIcon } from '../icons';
 import { Squad } from '../../graphql/sources';
 import { useActiveFeedContext } from '../../contexts';
@@ -15,6 +15,7 @@ function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
     squad,
   });
   const collapsePinnedPosts = squad?.currentMember?.flags?.collapsePinnedPosts;
+  const isSquadMember = !!squad.currentMember;
 
   const onClick = async () => {
     return collapsePinnedPosts
@@ -36,15 +37,17 @@ function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
   return (
     <div className="flex w-full flex-row flex-wrap items-center justify-end gap-4 pb-6">
       <span className="ml-auto flex flex-row gap-3 border-l border-theme-divider-tertiary pl-3">
-        <Button
-          variant={ButtonVariant.Float}
-          onClick={onClick}
-          icon={<PinIcon />}
-        >
-          {collapsePinnedPosts
-            ? `Show pinned posts (${pinnedPostsCount})`
-            : 'Hide pinned posts'}
-        </Button>
+        {isSquadMember && (
+          <Button
+            variant={ButtonVariant.Float}
+            onClick={onClick}
+            icon={<PinIcon />}
+          >
+            {collapsePinnedPosts
+              ? `Show pinned posts (${pinnedPostsCount})`
+              : 'Hide pinned posts'}
+          </Button>
+        )}
       </span>
     </div>
   );

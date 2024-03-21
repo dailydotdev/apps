@@ -1,10 +1,11 @@
 import React, { ReactElement, ReactNode, useState } from 'react';
 import { Radio, RadioOption } from '../../fields/Radio';
-import { Button, ButtonVariant } from '../../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../../buttons/Button';
 import { Modal, ModalProps } from '../common/Modal';
 import { Justify } from '../../utilities';
 import { ReportReason } from '../../../graphql/posts';
 import { ReportCommentReason } from '../../../graphql/comments';
+import { useViewSize, ViewSize } from '../../../hooks';
 
 interface Props extends ModalProps {
   onReport(
@@ -32,6 +33,7 @@ export function ReportModal({
 }: Props): ReactElement {
   const [reason, setReason] = useState(null);
   const [note, setNote] = useState<string>();
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   return (
     <Modal isOpen kind={Modal.Kind.FixedCenter} {...props}>
@@ -55,9 +57,12 @@ export function ReportModal({
           className="mb-1 h-20 w-full resize-none self-stretch rounded-10 bg-theme-float p-2 typo-body"
           data-testid="report_comment"
         />
+        {isMobile ? footer : null}
       </Modal.Body>
-      <Modal.Footer justify={footer ? Justify.Between : Justify.End}>
-        {footer}
+      <Modal.Footer
+        justify={footer && !isMobile ? Justify.Between : Justify.End}
+      >
+        {isMobile ? null : footer}
         <Button
           variant={ButtonVariant.Primary}
           disabled={!reason || (reason === OTHER_KEY && !note) || disabled}

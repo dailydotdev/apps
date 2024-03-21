@@ -17,6 +17,8 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { Readme } from '@dailydotdev/shared/src/components/profile/Readme';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
+import { useStreakExperiment } from '@dailydotdev/shared/src/hooks/streaks';
+import { useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import {
   getLayout as getProfileLayout,
   getStaticPaths as getProfileStaticPaths,
@@ -28,7 +30,9 @@ import {
 const ProfilePage = ({
   user: initialUser,
 }: ProfileLayoutProps): ReactElement => {
+  useJoinReferral();
   const { tokenRefreshed } = useContext(AuthContext);
+  const { shouldShowStreak } = useStreakExperiment();
 
   const {
     selectedHistoryYear,
@@ -64,12 +68,14 @@ const ProfilePage = ({
       <Readme user={user} />
       {readingHistory?.userReadingRankHistory && (
         <>
-          <RanksWidget
-            rankHistory={readingHistory?.userReadingRankHistory}
-            yearOptions={yearOptions}
-            selectedHistoryYear={selectedHistoryYear}
-            setSelectedHistoryYear={setSelectedHistoryYear}
-          />
+          {!shouldShowStreak && (
+            <RanksWidget
+              rankHistory={readingHistory?.userReadingRankHistory}
+              yearOptions={yearOptions}
+              selectedHistoryYear={selectedHistoryYear}
+              setSelectedHistoryYear={setSelectedHistoryYear}
+            />
+          )}
           <ReadingTagsWidget mostReadTags={readingHistory?.userMostReadTags} />
           <ReadingHeatmapWidget
             fullHistory={fullHistory}

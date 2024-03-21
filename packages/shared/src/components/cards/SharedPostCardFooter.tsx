@@ -1,21 +1,24 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { Post } from '../../graphql/posts';
-import { cloudinary } from '../../lib/image';
 import { IconSize } from '../Icon';
-import { CardImage, CardVideoImage } from './Card';
+import { CardCover } from './common/CardCover';
+import { CommonCardCoverProps } from './common';
 
-type SharedPostCardFooterProps = {
+interface SharedPostCardFooterProps
+  extends Pick<Post, 'sharedPost'>,
+    CommonCardCoverProps {
   isShort: boolean;
   isVideoType?: boolean;
-} & Pick<Post, 'sharedPost'>;
+}
 
 export const SharedPostCardFooter = ({
   sharedPost,
   isShort,
   isVideoType,
+  onShare,
+  post,
 }: SharedPostCardFooterProps): ReactElement => {
-  const ImageComponent = isVideoType ? CardVideoImage : CardImage;
   return (
     <div
       className={classNames(
@@ -23,28 +26,34 @@ export const SharedPostCardFooter = ({
         isShort ? 'flex-row items-center' : 'flex-col',
       )}
     >
-      <div
+      <p
         className={classNames(
-          'flex text-theme-label-secondary typo-footnote',
+          'text-theme-label-secondary typo-footnote',
           isShort ? 'line-clamp-4 w-8/12 pr-3' : 'line-clamp-2',
         )}
       >
         {sharedPost.title}
-      </div>
+      </p>
 
       <div className={classNames('flex h-auto flex-auto overflow-auto')}>
-        <ImageComponent
-          size={isShort ? IconSize.XLarge : IconSize.XXXLarge}
-          alt="Shared Post Cover image"
-          src={sharedPost.image}
-          fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-          className={classNames(
-            'h-auto min-h-0 object-cover',
-            isShort ? 'aspect-square' : 'w-full',
-          )}
-          {...(isVideoType && { wrapperClassName: 'overflow-hidden' })}
-          loading="lazy"
+        <CardCover
           data-testid="sharedPostImage"
+          isVideoType={isVideoType}
+          onShare={onShare}
+          post={post}
+          imageProps={{
+            loading: 'lazy',
+            alt: 'Shared Post Cover image',
+            src: sharedPost.image,
+            className: classNames(
+              'h-auto min-h-0',
+              isShort ? 'aspect-square' : 'w-full',
+            ),
+          }}
+          videoProps={{
+            size: isShort ? IconSize.XLarge : IconSize.XXXLarge,
+            className: 'overflow-hidden',
+          }}
         />
       </div>
     </div>

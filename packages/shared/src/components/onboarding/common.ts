@@ -14,10 +14,9 @@ export const OnboardingTitle = classed(
   'text-center typo-title2 font-bold px-4',
 );
 
-export const OnboardingTitleGradient = classed(
-  'h1',
-  'font-bold text-transparent bg-clip-text bg-gradient-to-r from-theme-color-bacon to-theme-color-cabbage',
-);
+export const OnboardingGradientClasses =
+  'font-bold text-transparent bg-clip-text bg-gradient-to-r from-theme-color-bacon to-theme-color-cabbage';
+export const OnboardingTitleGradient = classed('h1', OnboardingGradientClasses);
 
 export interface OnboardingStepProps {
   onClose?: (e: React.MouseEvent | React.KeyboardEvent) => void;

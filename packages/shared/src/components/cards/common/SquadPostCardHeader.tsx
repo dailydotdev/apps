@@ -32,7 +32,7 @@ export const SquadPostCardHeader = ({
   };
 
   return (
-    <div className="relative m-2 flex flex-row gap-2">
+    <div className="relative m-2 flex gap-2">
       <div className="relative">
         {author && (
           <ProfilePicture
@@ -48,8 +48,13 @@ export const SquadPostCardHeader = ({
           size={enableSourceHeader ? 'large' : 'xsmall'}
         />
       </div>
-      <div className="ml-2 mr-6 flex flex-1 flex-grow flex-col typo-footnote">
-        <span className="line-clamp-2 font-bold">{getHeaderName()}</span>
+      <div className="ml-2 mr-6 flex flex-1 flex-col overflow-auto typo-footnote">
+        <span
+          className="line-clamp-2 break-words font-bold"
+          title={getHeaderName()}
+        >
+          {getHeaderName()}
+        </span>
         <PostMetadata
           className="line-clamp-1 break-words"
           createdAt={createdAt}

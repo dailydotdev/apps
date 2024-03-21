@@ -25,8 +25,7 @@ export default function ArticlePostModal({
   ...props
 }: ArticlePostModalProps): ReactElement {
   const { showArticleOnboarding } = useContext(OnboardingContext);
-  const position = usePostNavigationPosition({
-    isLoading: false,
+  const { position, onLoad } = usePostNavigationPosition({
     isDisplayed: props.isOpen,
     offset: showArticleOnboarding ? ONBOARDING_OFFSET : 0,
   });
@@ -34,6 +33,7 @@ export default function ArticlePostModal({
   return (
     <BasePostModal
       {...props}
+      onAfterOpen={onLoad}
       onRequestClose={onRequestClose}
       postType={PostType.Article}
       source={post.source}

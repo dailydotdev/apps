@@ -17,6 +17,8 @@ export interface AnonymousUser {
   isFirstVisit?: boolean;
   referralId?: string;
   referralOrigin?: string;
+  email?: string; // Needed for users that need to verify
+  shouldVerify?: boolean;
 }
 
 export interface PublicProfile {
@@ -56,7 +58,10 @@ export interface UserProfile {
 }
 
 export interface UserShortProfile
-  extends Pick<PublicProfile, 'id' | 'name' | 'image' | 'bio' | 'createdAt'> {
+  extends Pick<
+    PublicProfile,
+    'id' | 'name' | 'image' | 'bio' | 'createdAt' | 'reputation'
+  > {
   username: string;
   permalink: string;
 }
@@ -75,6 +80,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   referralLink?: string;
   canSubmitArticle?: boolean;
   password?: string;
+  acquisitionChannel?: string;
 }
 
 interface BaseError {
@@ -90,8 +96,9 @@ interface BadRequestError extends BaseError {
 
 export type APIError = BaseError | BadRequestError;
 
-export async function logout(): Promise<void> {
-  await fetch(`${apiUrl}/v1/users/logout`, {
+export async function logout(reason: string): Promise<void> {
+  const urlParams = reason ? `?${new URLSearchParams({ reason })}` : '';
+  await fetch(`${apiUrl}/v1/users/logout${urlParams}`, {
     method: 'POST',
     credentials: 'include',
   });
@@ -189,4 +196,10 @@ export async function getProfileV2ExtraSSR(
 
 export enum ReferralOriginKey {
   Squad = 'squad',
+}
+
+export enum LogoutReason {
+  IncomleteOnboarding = 'incomplete onboarding',
+  ManualLogout = 'manual logout',
+  KratosSessionAlreadyAvailable = `kratos session already available`,
 }

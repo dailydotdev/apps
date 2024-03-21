@@ -5,9 +5,10 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { MiniCloseIcon as CloseIcon } from '../icons';
-import { isNullOrUndefined } from '../../lib/func';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
-import { useEventListener } from '../../hooks';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
+import { Drawer, DrawerOnMobileProps, PopupCloseFunc } from '../drawers';
+import { useViewSize, ViewSize } from '../../hooks';
 
 export enum InteractivePopupPosition {
   Center = 'center',
@@ -23,13 +24,19 @@ export enum InteractivePopupPosition {
   Screen = 'screen',
 }
 
-interface InteractivePopupProps {
+type CloseButtonProps = {
+  size?: ButtonSize;
+  variant?: ButtonVariant;
+  position?: string;
+};
+
+export interface InteractivePopupProps extends DrawerOnMobileProps {
   children: ReactNode;
   className?: string;
   position?: InteractivePopupPosition;
   closeOutsideClick?: boolean;
-  onClose?: (e: MouseEvent | KeyboardEvent | MessageEvent) => void;
-  closeButtonVariant?: ButtonVariant.Secondary | ButtonVariant.Tertiary;
+  onClose?: PopupCloseFunc;
+  closeButton?: CloseButtonProps;
 }
 
 const centerClassX = 'left-1/2 -translate-x-1/2';
@@ -66,38 +73,49 @@ function InteractivePopup({
   position = InteractivePopupPosition.Center,
   closeOutsideClick,
   onClose,
-  closeButtonVariant = ButtonVariant.Secondary,
+  closeButton = {},
+  isDrawerOnMobile,
+  drawerProps,
   ...props
 }: InteractivePopupProps): ReactElement {
+  const {
+    size: buttonSize = ButtonSize.Small,
+    variant: buttonVariant = ButtonVariant.Secondary,
+    position: buttonPosition = 'right-2 top-2',
+  } = closeButton;
+  const isMobile = useViewSize(ViewSize.MobileL);
   const container = useRef<HTMLDivElement>();
   const onCloseRef = useRef(onClose);
   const { sidebarRendered } = useSidebarRendered();
   const validateSidebar =
     sidebarRendered || position === InteractivePopupPosition.Screen;
+  const withOverlay =
+    position === InteractivePopupPosition.Center || !validateSidebar;
+  const shouldCloseOnOverlayClick = closeOutsideClick || withOverlay;
   const { sidebarExpanded } = useSettingsContext();
   const finalPosition = validateSidebar
     ? position
     : InteractivePopupPosition.Center;
   const classes = positionClass[finalPosition];
+  useOutsideClick(container, onCloseRef.current, shouldCloseOnOverlayClick);
 
-  useEventListener(globalThis, 'click', (e) => {
-    if (!closeOutsideClick && validateSidebar) {
-      return;
-    }
-
-    if (
-      !isNullOrUndefined(container.current) &&
-      !container.current.contains(e.target as Node) &&
-      onCloseRef.current
-    ) {
-      onCloseRef.current(e);
-    }
-  });
+  if (isDrawerOnMobile && isMobile) {
+    return (
+      <Drawer
+        {...drawerProps}
+        isOpen
+        onClose={onCloseRef.current}
+        closeOnOutsideClick={shouldCloseOnOverlayClick}
+      >
+        {children}
+      </Drawer>
+    );
+  }
 
   return (
     <RootPortal>
       <ConditionalWrapper
-        condition={!validateSidebar}
+        condition={withOverlay}
         wrapper={(child) => (
           <div className="fixed inset-0 z-modal flex flex-col items-center bg-overlay-quaternary-onion">
             {child}
@@ -107,7 +125,7 @@ function InteractivePopup({
         <div
           ref={container}
           className={classNames(
-            'fixed z-popup overflow-hidden rounded-16 bg-theme-bg-primary shadow-2',
+            'fixed z-popup overflow-hidden rounded-16 bg-background-default shadow-2',
             className,
             classes,
             !validateSidebar && 'shadow-2',
@@ -120,9 +138,9 @@ function InteractivePopup({
           {finalPosition !== InteractivePopupPosition.ProfileMenu &&
             onClose && (
               <Button
-                size={ButtonSize.Small}
-                variant={closeButtonVariant}
-                className="absolute right-2 top-2 z-1"
+                size={buttonSize}
+                variant={buttonVariant}
+                className={classNames('absolute z-1', buttonPosition)}
                 icon={<CloseIcon />}
                 onClick={(e: React.MouseEvent) => onClose(e.nativeEvent)}
                 data-testid="close-interactive-popup"

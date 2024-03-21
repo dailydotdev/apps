@@ -1,11 +1,11 @@
-import React, { ReactElement, ReactNode, useMemo } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import { postDateFormat } from '../../lib/dateFormat';
+import { TimeFormatType } from '../../lib/dateFormat';
 import { Separator } from './common';
 import { Post } from '../../graphql/posts';
 import { PlayIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { formatReadTime } from '../utilities';
+import { formatReadTime, TruncateText, DateFormat } from '../utilities';
 
 interface PostMetadataProps
   extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {
@@ -26,11 +26,6 @@ export default function PostMetadata({
   isVideoType,
   insaneMode,
 }: PostMetadataProps): ReactElement {
-  const date = useMemo(
-    () => createdAt && postDateFormat(createdAt),
-    [createdAt],
-  );
-
   const timeActionContent = isVideoType ? 'watch' : 'read';
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
 
@@ -48,9 +43,13 @@ export default function PostMetadata({
           className="my-auto mr-1 text-theme-label-primary"
         />
       )}
-      {!!description && <span>{description}</span>}
+      {!!description && (
+        <TruncateText title={description}>{description}</TruncateText>
+      )}
       {!!createdAt && !!description && <Separator />}
-      {!!createdAt && <time dateTime={createdAt}>{date}</time>}
+      {!!createdAt && (
+        <DateFormat date={createdAt} type={TimeFormatType.Post} />
+      )}
       {!!createdAt && showReadTime && <Separator />}
       {showReadTime && (
         <span data-testid="readTime">

@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import EmailSentIcon from '../../../icons/mail_sent.svg';
 import useTimer from '../../hooks/useTimer';
 import {

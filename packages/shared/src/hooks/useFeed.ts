@@ -22,11 +22,15 @@ import {
   removeCachedPagePost,
   updateCachedPagePost,
 } from '../lib/query';
+import { getShouldRefreshFeed } from '../lib/refreshFeed';
+import { MarketingCta as MarketingCtaEntity } from '../components/cards/MarketingCta/common';
 
 export enum FeedItemType {
   Post = 'post',
   Ad = 'ad',
   Placeholder = 'placeholder',
+  UserAcquisition = 'userAcquisition',
+  MarketingCta = 'marketingCta',
 }
 export type FeedOrPostType = FeedItemType | PostType;
 
@@ -38,7 +42,17 @@ export type PostItem = {
 };
 export type AdItem = { type: FeedItemType.Ad; ad: AdEntity };
 export type PlaceholderItem = { type: FeedItemType.Placeholder };
-export type FeedItem = PostItem | AdItem | PlaceholderItem;
+export type UserAcquisitionItem = { type: FeedItemType.UserAcquisition };
+export type MarketingCtaItem = {
+  type: FeedItemType.MarketingCta;
+  marketingCta: MarketingCtaEntity;
+};
+export type FeedItem =
+  | PostItem
+  | AdItem
+  | PlaceholderItem
+  | UserAcquisitionItem
+  | MarketingCtaItem;
 
 export type UpdateFeedPost = (
   page: number,
@@ -77,6 +91,7 @@ const findIndexOfPostInData = (
 type UseFeedSettingParams = {
   adPostLength?: number;
   disableAds?: boolean;
+  showAcquisitionForm?: boolean;
 };
 
 export interface UseFeedOptionalParams<T> {
@@ -103,6 +118,7 @@ export default function useFeed<T>(
     ({ pageParam }) =>
       request(graphqlUrl, query, {
         ...variables,
+        ...(getShouldRefreshFeed() && { refresh: true }),
         first: pageSize,
         after: pageParam,
         loggedIn: !!user,
@@ -164,7 +180,9 @@ export default function useFeed<T>(
             index,
           }));
 
-          if (isAdsQueryEnabled) {
+          if (settings.showAcquisitionForm) {
+            posts.splice(adSpot, 0, { type: 'userAcquisition' });
+          } else if (isAdsQueryEnabled) {
             if (adsQuery.data?.pages[pageIndex]) {
               posts.splice(adSpot, 0, {
                 type: FeedItemType.Ad,
@@ -194,6 +212,7 @@ export default function useFeed<T>(
     feedQuery.isFetching,
     adsQuery.data,
     adsQuery.isFetching,
+    settings.showAcquisitionForm,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);

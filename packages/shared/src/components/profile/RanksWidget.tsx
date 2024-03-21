@@ -20,7 +20,7 @@ const RankHistory = ({
   count,
 }: RankHistoryProps): ReactElement => (
   <div
-    className="flex flex-col items-center rounded-12 border border-theme-bg-secondary p-2 font-bold typo-callout tablet:flex-row tablet:py-1 tablet:pl-2 tablet:pr-4"
+    className="flex flex-col items-center rounded-12 border border-background-subtle p-2 font-bold typo-callout tablet:flex-row tablet:py-1 tablet:pl-2 tablet:pr-4"
     aria-label={`${rankName}: ${count}`}
   >
     <Rank className="size-8" rank={rank} colorByRank />

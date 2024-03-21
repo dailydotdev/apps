@@ -5,16 +5,21 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useSquad, useViewSize, ViewSize } from '../../../hooks';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { PlusIcon } from '../../icons';
+import ConditionalWrapper from '../../ConditionalWrapper';
+import { SimpleTooltip } from '../../tooltips';
 
 interface CreatePostButtonProps {
   className?: string;
+  compact?: boolean;
 }
 
 export function CreatePostButton({
   className,
+  compact,
 }: CreatePostButtonProps): ReactElement {
-  const { user, isAuthReady, squads } = useAuthContext();
+  const { user, squads } = useAuthContext();
   const { route, query } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const handle = route === '/squads/[handle]' ? (query.handle as string) : '';
@@ -24,7 +29,7 @@ export function CreatePostButton({
     verifyPermission(item, SourcePermissions.Post),
   );
 
-  if (!user || !isAuthReady || !squads?.length) {
+  if (!user || !squads?.length) {
     return null;
   }
 
@@ -40,19 +45,29 @@ export function CreatePostButton({
     return !allowedToPost;
   };
 
+  const href =
+    link.post.create + (squad && allowedToPost ? `?sid=${squad.handle}` : '');
+
   return (
-    <Button
-      variant={ButtonVariant.Secondary}
-      className={className}
-      disabled={getIsDisabled()}
-      tag="a"
-      href={
-        link.post.create +
-        (squad && allowedToPost ? `?sid=${squad.handle}` : '')
-      }
-      size={isLaptop ? ButtonSize.Medium : ButtonSize.Small}
+    <ConditionalWrapper
+      condition={compact}
+      wrapper={(component: ReactElement) => (
+        <SimpleTooltip placement="bottom" content="New Post">
+          {component}
+        </SimpleTooltip>
+      )}
     >
-      New post
-    </Button>
+      <Button
+        variant={ButtonVariant.Secondary}
+        className={className}
+        disabled={getIsDisabled()}
+        icon={compact && <PlusIcon />}
+        tag="a"
+        size={isLaptop ? ButtonSize.Medium : ButtonSize.Small}
+        href={href}
+      >
+        {!compact ? 'New post' : null}
+      </Button>
+    </ConditionalWrapper>
   );
 }

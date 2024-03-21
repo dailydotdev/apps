@@ -25,7 +25,7 @@ import {
   UPDATE_USER_SETTINGS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/settings';
 import { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
-import { browser, TopSites } from 'webextension-polyfill-ts';
+import browser, { TopSites } from 'webextension-polyfill';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import {
   AnalyticsEvent,
@@ -40,34 +40,32 @@ jest.mock('@dailydotdev/shared/src/lib/boot', () => ({
   getBootData: jest.fn(),
 }));
 
-jest.mock('webextension-polyfill-ts', () => {
+jest.mock('webextension-polyfill', () => {
   let providedPermission = false;
 
   return {
-    browser: {
-      permissions: {
-        remove: jest.fn(),
-        request: () =>
-          new Promise((resolve) => {
-            providedPermission = true;
-            resolve(true);
-          }),
-      },
-      topSites: {
-        get: () =>
-          new Promise((resolve, reject): TopSites.MostVisitedURL[] | void => {
-            if (!providedPermission) {
-              return reject();
-            }
+    permissions: {
+      remove: jest.fn(),
+      request: () =>
+        new Promise((resolve) => {
+          providedPermission = true;
+          resolve(true);
+        }),
+    },
+    topSites: {
+      get: () =>
+        new Promise((resolve, reject): TopSites.MostVisitedURL[] | void => {
+          if (!providedPermission) {
+            return reject();
+          }
 
-            providedPermission = false;
-            return resolve([
-              { url: 'http://abc1.com' },
-              { url: 'http://abc2.com' },
-              { url: 'http://abc3.com' },
-            ]);
-          }),
-      },
+          providedPermission = false;
+          return resolve([
+            { url: 'http://abc1.com' },
+            { url: 'http://abc2.com' },
+            { url: 'http://abc3.com' },
+          ]);
+        }),
     },
   };
 });

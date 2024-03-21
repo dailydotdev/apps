@@ -16,7 +16,7 @@ import { CustomFeedHeader, FeedPage, FeedPageHeader } from './utilities';
 import SearchEmptyScreen from './SearchEmptyScreen';
 import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
-import { Button, ButtonVariant } from './buttons/ButtonV2';
+import { Button, ButtonVariant } from './buttons/Button';
 import { ShareIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import GenericFeedItemComponent from './feed/feedItemComponent/GenericFeedItemComponent';

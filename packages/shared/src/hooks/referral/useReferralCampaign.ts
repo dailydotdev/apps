@@ -9,6 +9,10 @@ import { Feature } from '../../lib/featureManagement';
 import { useFeatureIsOn } from '../../components/GrowthBookProvider';
 import { isTesting } from '../../lib/constants';
 
+import { ReferralCampaignKey } from '../../lib/referral';
+
+export { ReferralCampaignKey };
+
 export interface ReferralCampaign {
   referredUsersCount: number;
   referralCountLimit: number;
@@ -21,10 +25,6 @@ export interface UseReferralCampaign extends ReferralCampaign {
   isReady: boolean;
   availableCount: number;
   noKeysAvailable: boolean;
-}
-
-export enum ReferralCampaignKey {
-  Generic = 'generic',
 }
 
 export type UseReferralCampaignProps = {

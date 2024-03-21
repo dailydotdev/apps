@@ -37,6 +37,7 @@ export enum Origin {
   HistoryPage = 'history page',
   HistoryTooltip = 'history tooltip',
   // search - end
+  PostContent = 'post content',
   History = 'history',
   FeedbackCard = 'feedback card',
   InitializeRegistrationFlow = 'initialize registration flow',
@@ -132,6 +133,16 @@ export enum AnalyticsEvent {
   GenerateDevcard = 'generate devcard',
   DownloadDevcard = 'download devcard',
   CopyDevcardCode = 'copy devcard code',
+  // Reading Streaks
+  OpenStreaks = 'open streaks',
+  DismissStreaksMilestone = 'dismiss streaks milestone',
+  // 404 page
+  View404Page = '404 page',
+  // Refresh feed
+  RefreshFeed = 'refresh feed',
+  // source
+  SubscribeSource = 'subscribe source',
+  UnsubscribeSource = 'unsubscribe source',
 }
 
 export enum FeedItemTitle {
@@ -156,6 +167,9 @@ export enum TargetType {
   ProfilePage = 'profile page',
   GenericReferralPopup = 'generic referral popup',
   Shortcuts = 'shortcuts',
+  VerifyEmail = 'verify email',
+  ResendVerificationCode = 'resend verification code',
+  StreaksMilestone = 'streaks milestone',
 }
 
 export enum TargetId {
@@ -196,9 +210,15 @@ export enum NotificationPromptSource {
   SquadPostCommentary = 'squad post commentary',
   SquadPostModal = 'squad post modal',
   SquadChecklist = 'squad checklist',
+  SourceSubscribe = 'source subscribe',
 }
 
 export enum ShortcutsSourceType {
   Custom = 'custom',
   Browser = 'browser',
+}
+
+export enum UserAcquisitionEvent {
+  Dismiss = 'dismiss ua',
+  Submit = 'choose ua',
 }

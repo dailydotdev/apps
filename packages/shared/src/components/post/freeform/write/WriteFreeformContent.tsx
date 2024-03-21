@@ -71,13 +71,21 @@ export function WriteFreeformContent({
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     completeAction(ActionType.WritePost);
-    const { title, content, image: files } = formToJson(e.currentTarget);
+    const {
+      title,
+      content,
+      image: files,
+    } = formToJson<{ title: string; content: string; image: string | File }>(
+      e.currentTarget,
+    );
     const image = files?.[0] ?? (await getDraftImage());
     await onSubmitForm(e, { title, content, image });
   };
 
   const onUpdate = async () => {
-    const { title, content } = formToJson(formRef.current);
+    const { title, content } = formToJson<{ title: string; content: string }>(
+      formRef.current,
+    );
     await updateDraft({ title, content, image: draft?.image });
   };
 
@@ -88,7 +96,7 @@ export function WriteFreeformContent({
       <ImageInput
         className={{
           container:
-            '!w-[11.5rem] border-none bg-theme-bg-tertiary text-theme-label-tertiary',
+            '!w-[11.5rem] border-none bg-accent-pepper-subtlest text-theme-label-tertiary',
         }}
         enableHover={false}
         fallbackImage={null}
@@ -110,7 +118,7 @@ export function WriteFreeformContent({
         </span>
       </ImageInput>
       <AlertPointer
-        className={{ container: 'bg-theme-bg-primary' }}
+        className={{ container: 'bg-background-default' }}
         offset={[0, -12]}
         message={
           <div className="flex w-64 flex-col">

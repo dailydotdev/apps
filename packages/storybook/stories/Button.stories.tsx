@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import classNames from 'classnames';
-
 import {
   Button,
+  ButtonIconPosition,
   ButtonSize,
+  ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ShareIcon } from '@dailydotdev/shared/src/components/icons';
 
@@ -12,6 +12,10 @@ const meta: Meta<typeof Button> = {
   parameters: {
     controls: {
       expanded: true,
+    },
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/C7n8EiXBwV1sYIEHkQHS8R/daily.dev---Design-System?type=design&node-id=1177-4542&mode=design&t=G2RMnPc48y6jEo5a-0',
     },
   },
   argTypes: {
@@ -34,60 +38,43 @@ export const Sizes: Story = {
       <h2>Size</h2>
       <h2>Button</h2>
       <h2>IconOnly Button</h2>
-      {Object.values(ButtonSize)
-        .reverse()
-        .map((size) => (
-          <>
-            <span key={size + '_header'}>{size}</span>
-            <span key={size}>
-              <Button {...props} buttonSize={size}>
-                {children}
-              </Button>
-            </span>
-            <span key={size + '_iconOnly'}>
-              <Button {...props} buttonSize={size} icon={<ShareIcon />} />
-            </span>
-          </>
-        ))}
+      {Object.values(ButtonSize).map((size) => (
+        <>
+          <span key={size + '_header'}>{size}</span>
+          <span key={size}>
+            <Button {...props} size={size}>
+              {children}
+            </Button>
+          </span>
+          <span key={size + '_iconOnly'}>
+            <Button {...props} size={size} icon={<ShareIcon />} />
+          </span>
+        </>
+      ))}
     </div>
   ),
   name: 'Sizes',
   args: {
     children: 'Button',
-    className: 'btn-primary',
+    variant: ButtonVariant.Primary,
   },
 };
 
 export const Variants: Story = {
-  render: ({ className, children, ...props }) => (
-    <div className="grid grid-cols-4 gap-4">
-      <h2>Primary</h2>
-      <h2>Secondary</h2>
-      <h2>Tertiary</h2>
-      <h2>Float</h2>
-      <span>
-        <Button {...props} className={classNames(className, 'btn-primary')}>
-          {children}
-        </Button>
-      </span>
-      <span>
-        <Button {...props} className={classNames(className, 'btn-secondary')}>
-          {children}
-        </Button>
-      </span>
-      <span>
-        <Button {...props} className={classNames(className, 'btn-tertiary')}>
-          {children}
-        </Button>
-      </span>
-      <span>
-        <Button
-          {...props}
-          className={classNames(className, 'btn-tertiaryFloat')}
-        >
-          {children}
-        </Button>
-      </span>
+  render: ({ children, variant, ...props }) => (
+    <div
+      className={`grid grid-cols-${Object.values(ButtonVariant).length} gap-4`}
+    >
+      {Object.keys(ButtonVariant).map((variantLabel) => (
+        <h2>{variantLabel}</h2>
+      ))}
+      {Object.values(ButtonVariant).map((variant) => (
+        <span key={variant}>
+          <Button {...props} variant={variant}>
+            {children}
+          </Button>
+        </span>
+      ))}
     </div>
   ),
   name: 'Variants',
@@ -97,7 +84,7 @@ export const Variants: Story = {
 };
 
 export const Icon: Story = {
-  render: ({ children, icon, rightIcon, ...props }) => (
+  render: ({ children, icon, iconPosition, ...props }) => (
     <div className="grid grid-cols-3 gap-4">
       <h2>Icon left</h2>
       <h2>Icon right</h2>
@@ -108,12 +95,12 @@ export const Icon: Story = {
         </Button>
       </span>
       <span>
-        <Button {...props} rightIcon={rightIcon}>
+        <Button {...props} icon={icon!} iconPosition={ButtonIconPosition.Right}>
           {children}
         </Button>
       </span>
       <span>
-        <Button {...props} icon={icon} iconOnly />
+        <Button {...props} icon={icon} />
       </span>
     </div>
   ),
@@ -121,7 +108,12 @@ export const Icon: Story = {
   args: {
     children: 'Share',
     icon: <ShareIcon />,
-    rightIcon: <ShareIcon />,
-    className: 'btn-primary',
+    variant: ButtonVariant.Primary,
+  },
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/C7n8EiXBwV1sYIEHkQHS8R/daily.dev---Design-System?type=design&node-id=1115-10302&mode=design&t=G2RMnPc48y6jEo5a-0',
+    },
   },
 };

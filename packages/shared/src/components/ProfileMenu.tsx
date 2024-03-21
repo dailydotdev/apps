@@ -1,18 +1,28 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import AuthContext from '../contexts/AuthContext';
 import {
-  PowerIcon,
   InviteIcon,
   UserIcon,
   DevCardIcon,
   SettingsIcon,
+  ReputationLightningIcon,
+  ExitIcon,
 } from './icons';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from './tooltips/InteractivePopup';
-import { AllowedTags, Button, ButtonProps } from './buttons/ButtonV2';
-import { LabeledImage } from './image';
-import { webappUrl } from '../lib/constants';
+import {
+  AllowedTags,
+  Button,
+  ButtonProps,
+  ButtonSize,
+  ButtonVariant,
+} from './buttons/Button';
+import { reputation, webappUrl } from '../lib/constants';
+import { UserMetadata } from './profile/UserMetadata';
+import { HeroImage } from './profile/HeroImage';
+import { anchorDefaultRel } from '../lib/strings';
+import { LogoutReason } from '../lib/user';
 
 interface ListItem {
   title: string;
@@ -46,6 +56,16 @@ export default function ProfileMenu({
         },
       },
       {
+        title: 'Reputation',
+        buttonProps: {
+          tag: 'a',
+          icon: <ReputationLightningIcon />,
+          href: reputation,
+          target: '_blank',
+          rel: anchorDefaultRel,
+        },
+      },
+      {
         title: 'Devcard',
         buttonProps: {
           tag: 'a',
@@ -53,9 +73,6 @@ export default function ProfileMenu({
           href: `${webappUrl}devcard`,
         },
       },
-    ];
-
-    list.push(
       {
         title: 'Invite friends',
         buttonProps: {
@@ -67,11 +84,11 @@ export default function ProfileMenu({
       {
         title: 'Logout',
         buttonProps: {
-          icon: <PowerIcon />,
-          onClick: logout,
+          icon: <ExitIcon />,
+          onClick: () => logout(LogoutReason.ManualLogout),
         },
       },
-    );
+    ];
 
     return list;
   }, [logout, user]);
@@ -85,17 +102,31 @@ export default function ProfileMenu({
       onClose={onClose}
       closeOutsideClick
       position={InteractivePopupPosition.ProfileMenu}
-      className="w-full max-w-[21.25rem] !rounded-14 border border-theme-divider-tertiary laptop:max-w-[13.75rem]"
+      className="w-full max-w-64 !rounded-24 border border-theme-divider-tertiary"
+      closeButton={{
+        variant: ButtonVariant.Primary,
+        size: ButtonSize.XSmall,
+        position: 'right-3 top-3',
+      }}
     >
-      <LabeledImage
-        src={user.image}
-        alt={`${user.username}'s avatar`}
-        className={{ content: '-mt-10' }}
-      >
-        <span className="font-bold typo-title3">{user.name}</span>
-        <span className="mt-1 typo-callout">@{user.username}</span>
-      </LabeledImage>
-      <div className="relative -mt-16 flex flex-col">
+      <HeroImage
+        cover={user.cover}
+        image={user.image}
+        username={user.username}
+        id={user.id}
+        className={{
+          cover: '!rounded-24 border-4 border-background-default',
+          profile: '!rounded-24',
+        }}
+      />
+      <UserMetadata
+        username={user.username}
+        name={user.name}
+        createdAt={user.createdAt}
+        reputation={user.reputation}
+        className="gap-3 p-4"
+      />
+      <div className="flex flex-col border-t border-theme-divider-tertiary py-2">
         {items.map(({ title, buttonProps }) => (
           <Button
             key={title}

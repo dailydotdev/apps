@@ -32,14 +32,13 @@ function BasePostModal({
       overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
       className={classNames(
         className,
-        'mx-auto !bg-theme-bg-primary focus:outline-none',
+        'laptop: mx-auto !bg-background-default focus:outline-none laptop:overflow-hidden',
       )}
     >
       {isLoading ? (
         <PostLoadingSkeleton
           hasNavigation
           type={postType}
-          source={source}
           className={loadingClassName}
         />
       ) : (

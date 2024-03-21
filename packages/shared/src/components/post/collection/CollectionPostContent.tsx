@@ -1,18 +1,15 @@
 import classNames from 'classnames';
 import React, { ReactElement, useEffect } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import Link from 'next/link';
 import { LazyImage } from '../../LazyImage';
-import {
-  ToastSubject,
-  useToastNotification,
-} from '../../../hooks/useToastNotification';
+import { ToastSubject, useToastNotification } from '../../../hooks';
 import PostContentContainer from '../PostContentContainer';
 import usePostContent from '../../../hooks/usePostContent';
 import FixedPostNavigation from '../FixedPostNavigation';
 import { BasePostContent } from '../BasePostContent';
 import { cloudinary } from '../../../lib/image';
 import { Separator } from '../../cards/common';
-import { postDateFormat } from '../../../lib/dateFormat';
+import { TimeFormatType } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
 import { CollectionPostWidgets } from './CollectionPostWidgets';
 import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
@@ -23,8 +20,10 @@ import {
 } from '../common';
 import { Pill } from '../../Pill';
 import { CollectionsIntro } from '../widgets';
-import { sendViewPost } from '../../../graphql/posts';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { webappUrl } from '../../../lib/constants';
+import { useViewPost } from '../../../hooks/post/useViewPost';
+import { DateFormat } from '../../utilities';
 
 export const CollectionPostContent = ({
   post,
@@ -71,7 +70,7 @@ export const CollectionPostContent = ({
     onRemovePost,
   };
 
-  const { mutateAsync: onSendViewPost } = useMutation(sendViewPost);
+  const onSendViewPost = useViewPost();
 
   useEffect(() => {
     if (!post?.id || !user?.id) {
@@ -137,11 +136,13 @@ export const CollectionPostContent = ({
             )}
           >
             <CollectionsIntro className="tablet:hidden" />
-            <Pill
-              label="Collection"
-              className="bg-theme-overlay-float-cabbage text-theme-color-cabbage"
-            />
-
+            <Link href={`${webappUrl}sources/collections`} passHref>
+              <Pill
+                tag="a"
+                label="Collection"
+                className="bg-theme-overlay-float-cabbage text-theme-color-cabbage"
+              />
+            </Link>
             <h1
               className="break-words font-bold typo-large-title"
               data-testid="post-modal-title"
@@ -151,11 +152,11 @@ export const CollectionPostContent = ({
             {!!updatedAt && (
               <div className="flex items-center text-theme-label-tertiary typo-footnote">
                 <span>Last updated</span> <Separator />
-                <time dateTime={updatedAt}>{postDateFormat(updatedAt)}</time>
+                <DateFormat date={updatedAt} type={TimeFormatType.Post} />
               </div>
             )}
             {image && (
-              <div className="block h-auto w-full cursor-pointer overflow-hidden rounded-xl">
+              <div className="block h-auto w-full overflow-hidden rounded-12">
                 <LazyImage
                   imgSrc={image}
                   imgAlt="Post cover image"

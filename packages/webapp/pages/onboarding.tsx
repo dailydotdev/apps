@@ -15,9 +15,14 @@ import {
 import {
   Button,
   ButtonIconPosition,
+  ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
-import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  ExperimentWinner,
+  OnboardingCopy,
+  UserAcquisition,
+} from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useRouter } from 'next/router';
@@ -37,7 +42,6 @@ import {
   PREVIEW_FEED_QUERY,
 } from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import {
@@ -57,21 +61,25 @@ import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   GtagTracking,
   PixelTracking,
+  TwitterTracking,
 } from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import GenericFeedItemComponent from '@dailydotdev/shared/src/components/feed/feedItemComponent/GenericFeedItemComponent';
+import {
+  OnboardingHeadline,
+  PreparingYourFeed,
+  OnboardingContainer as Container,
+} from '@dailydotdev/shared/src/components/auth';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useOnboardingAnimation } from '@dailydotdev/shared/src/hooks/auth';
+import { ActiveUsersCounter } from '@dailydotdev/shared/src/components/auth/ActiveUsersCounter';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
 const Title = classed('h2', 'font-bold');
 
 const maxAuthWidth = 'tablet:max-w-[30rem]';
-
-const Container = classed(
-  'div',
-  'flex flex-col overflow-x-hidden items-center min-h-[100vh] w-full h-full max-h-[100vh] flex-1 z-max',
-);
 
 const seo: NextSeoProps = {
   title: 'Get started',
@@ -82,17 +90,26 @@ const seo: NextSeoProps = {
 export function OnboardPage(): ReactElement {
   const router = useRouter();
   const isTracked = useRef(false);
-  const { user, isAuthReady } = useAuthContext();
+  const { user, isAuthReady, anonymous } = useAuthContext();
+  const shouldVerify = anonymous?.shouldVerify;
   const [isFiltering, setIsFiltering] = useState(false);
-  const [finishedOnboarding, setFinishedOnboarding] = useState(false);
+  const {
+    isAnimating,
+    finishedOnboarding,
+    onFinishedOnboarding,
+    postOnboardingRedirect,
+  } = useOnboardingAnimation();
   const { onShouldUpdateFilters } = useOnboardingContext();
   const { growthbook } = useGrowthBookContext();
   const { trackEvent } = useAnalyticsContext();
   const [hasSelectTopics, setHasSelectTopics] = useState(false);
   const [auth, setAuth] = useState<AuthProps>({
-    isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY),
+    isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY) || shouldVerify,
     isLoginFlow: false,
-    defaultDisplay: AuthDisplay.OnboardingSignup,
+    defaultDisplay: shouldVerify
+      ? AuthDisplay.EmailVerification
+      : AuthDisplay.OnboardingSignup,
+    ...(anonymous?.email && { email: anonymous.email }),
   });
   const { isAuthenticating, isLoginFlow, email, defaultDisplay } = auth;
   const isPageReady = growthbook?.ready && isAuthReady;
@@ -104,10 +121,15 @@ export function OnboardPage(): ReactElement {
     webm?: string;
     mp4?: string;
   };
+  const isMobile = useViewSize(ViewSize.MobileL);
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
   );
-  const targetId = ExperimentWinner.OnboardingV4;
+  const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
+  const isOnboardingCopyV1 =
+    useFeature(feature.onboardingCopy) === OnboardingCopy.V1;
+  const userAcquisitionVersion = useFeature(feature.userAcquisition);
+  const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
 
   const onClickNext = () => {
@@ -126,7 +148,7 @@ export function OnboardPage(): ReactElement {
       return setIsFiltering(true);
     }
 
-    setFinishedOnboarding(true);
+    onFinishedOnboarding();
     if (!hasSelectTopics) {
       trackEvent({
         event_name: AnalyticsEvent.OnboardingSkip,
@@ -139,17 +161,21 @@ export function OnboardPage(): ReactElement {
       });
     }
 
-    return router.replace({
+    return postOnboardingRedirect({
       pathname: '/',
       query: {
-        welcome: 'true',
-        hset: 'true',
+        ...(userAcquisitionVersion === UserAcquisition.V1 && {
+          ua: 'true',
+        }),
+        ...(!onboardingOptimizations && {
+          welcome: 'true',
+          hset: 'true',
+        }),
       },
     });
   };
 
   const onSuccessfulLogin = () => {
-    setFinishedOnboarding(true);
     router.replace('/');
   };
 
@@ -197,6 +223,10 @@ export function OnboardPage(): ReactElement {
             isAuthenticating && 'h-full',
             !isAuthenticating && 'max-w-full',
           ),
+          onboardingSignup: classNames(
+            '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
+            isOnboardingCopyV1 && 'flex !flex-row *:grow',
+          ),
         }}
         trigger={AuthTriggers.Onboarding}
         formRef={formRef}
@@ -210,6 +240,12 @@ export function OnboardPage(): ReactElement {
         onAuthStateUpdate={(props: AuthProps) =>
           setAuth({ isAuthenticating: true, ...props })
         }
+        onboardingSignupButton={{
+          size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
+          variant: isOnboardingCopyV1
+            ? ButtonVariant.Float
+            : ButtonVariant.Primary,
+        }}
       />
     );
   };
@@ -228,7 +264,7 @@ export function OnboardPage(): ReactElement {
       <div
         className={classNames(
           'flex tablet:flex-1',
-          !isFiltering && 'ml-auto laptop:max-w-[37.5rem]',
+          !isFiltering && 'tablet:ml-auto laptop:max-w-[37.5rem]',
           isFiltering &&
             'mb-10 ml-0 flex w-full flex-col items-center justify-start',
         )}
@@ -294,8 +330,12 @@ export function OnboardPage(): ReactElement {
           </>
         )}
         {!isFiltering && (
-          <div className="hidden flex-1 tablet:block">
-            <div className={classNames('relative', styles.videoWrapper)}>
+          <div className="block flex-1">
+            <div
+              className={classNames(
+                'tablet:min-h-[800px]:pt-[100%] relative overflow-y-clip tablet:overflow-y-visible tablet:pt-[80%]',
+              )}
+            >
               {onboardingVisual?.poster ? (
                 // eslint-disable-next-line jsx-a11y/media-has-caption
                 <video
@@ -303,7 +343,7 @@ export function OnboardPage(): ReactElement {
                   autoPlay
                   muted
                   className={classNames(
-                    'absolute -top-[20%] left-0 -z-1 tablet:top-0',
+                    'tablet:absolute tablet:left-0 tablet:top-0 tablet:-z-1',
                     styles.video,
                   )}
                   poster={onboardingVisual.poster}
@@ -316,18 +356,22 @@ export function OnboardPage(): ReactElement {
                   src={onboardingVisual.image}
                   alt="Onboarding cover"
                   className={classNames(
-                    'absolute -top-[20%] left-0 -z-1 tablet:top-0',
-                    styles.video,
+                    'relative tablet:absolute tablet:left-0 tablet:top-0 tablet:-z-1',
+                    styles.image,
                   )}
                 />
               )}
             </div>
-            {onboardingVisual.showCompanies && <TrustedCompanies />}
+            {onboardingVisual.showCompanies && (
+              <TrustedCompanies className="hidden tablet:block" />
+            )}
           </div>
         )}
       </div>
     );
   };
+
+  const shouldShowOnline = useFeature(feature.onboardingOnlineUsers);
 
   const getProgressBar = () => {
     if (isFiltering) {
@@ -338,27 +382,22 @@ export function OnboardPage(): ReactElement {
     return <ProgressBar percentage={isAuthenticating ? percentage : 0} />;
   };
 
-  const showOnboardingPage = !isAuthenticating && !isFiltering;
+  const showOnboardingPage = !isAuthenticating && !isFiltering && !shouldVerify;
 
   if (!isPageReady) {
     return null;
   }
 
   if (finishedOnboarding) {
-    return (
-      <Container className="justify-center typo-title2">
-        <Loader innerClassName="before:border-t-theme-color-cabbage after:border-theme-color-cabbage typo-title2" />
-        <span className="ml-3">Building your feed...</span>
-      </Container>
-    );
+    return <PreparingYourFeed isAnimating={isAnimating} />;
   }
 
   return (
-    // eslint-disable-next-line @dailydotdev/daily-dev-eslint-rules/no-custom-color
     <Container className="bg-[#0e1019]">
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <PixelTracking />
       <GtagTracking />
+      <TwitterTracking />
       {getProgressBar()}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
@@ -368,7 +407,7 @@ export function OnboardPage(): ReactElement {
       />
       <div
         className={classNames(
-          'flex w-full flex-grow flex-wrap justify-center px-6 tablet:gap-10',
+          'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
           !isFiltering && wrapperMaxWidth,
           !isAuthenticating && 'mt-7.5 flex-1 content-center',
         )}
@@ -377,33 +416,44 @@ export function OnboardPage(): ReactElement {
           <div
             className={classNames(
               'flex flex-1 flex-col laptop:mr-8 laptop:max-w-[27.5rem]',
+              `${isOnboardingCopyV1 ? 'mt-6' : 'mt-5'} tablet:mt-0`,
             )}
           >
+            {shouldShowOnline && <ActiveUsersCounter />}
             <OnboardingHeadline
               className={{
-                title: 'typo-large-title tablet:typo-mega1',
+                title: classNames(
+                  'typo-large-title',
+                  isOnboardingCopyV1
+                    ? 'tablet:typo-mega2'
+                    : 'tablet:typo-mega-1',
+                ),
                 description: 'typo-body tablet:typo-title2',
               }}
+              isOnboardingCopyV1={isOnboardingCopyV1}
             />
             {getAuthOptions()}
           </div>
+        )}
+        {showOnboardingPage && (
+          <SignupDisclaimer className="mb-0 tablet:mb-10 tablet:hidden" />
         )}
         {getContent()}
       </div>
       {showOnboardingPage && (
         <footer
           className={classNames(
-            'flex h-full max-h-[10rem] w-full px-6',
+            'flex h-full max-h-[10rem] w-full px-4 tablet:px-6',
             wrapperMaxWidth,
           )}
         >
           <div className="relative flex flex-1 flex-col gap-6 pb-6 tablet:mt-auto laptop:mr-8 laptop:max-w-[27.5rem]">
-            <SignupDisclaimer className="mb-0 tablet:mb-10" />
+            <SignupDisclaimer className="mb-0 hidden tablet:mb-10 tablet:block" />
 
             <TrustedCompanies
               iconSize={IconSize.Small}
               reverse
-              className="block tablet:hidden"
+              className=" mt-5 block tablet:hidden"
             />
 
             <img

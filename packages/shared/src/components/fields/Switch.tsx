@@ -32,7 +32,7 @@ export function Switch({
       className={classNames(
         className,
         'group relative flex items-center',
-        disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+        disabled ? 'pointer-events-none cursor-not-allowed' : 'cursor-pointer',
         styles.switch,
       )}
       htmlFor={inputId}
@@ -56,14 +56,14 @@ export function Switch({
         <span
           className={classNames(
             'absolute bottom-0 left-0 top-0 my-auto w-full bg-theme-overlay-quaternary',
-            compact ? 'h-2.5 rounded-3' : 'h-3 rounded',
+            compact ? 'h-2.5 rounded-3' : 'h-3 rounded-4',
             styles.track,
           )}
         />
         <span
           className={classNames(
             'absolute left-0 top-0 bg-theme-label-tertiary',
-            compact ? 'h-4 w-4 rounded-3' : 'h-5 w-5 rounded-md',
+            compact ? 'h-4 w-4 rounded-3' : 'h-5 w-5 rounded-6',
             styles.knob,
           )}
         />

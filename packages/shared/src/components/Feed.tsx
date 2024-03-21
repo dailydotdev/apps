@@ -93,7 +93,14 @@ export default function Feed<T>({
   const { spaciness, loadedSettings } = useContext(SettingsContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === 'squad';
-  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const showAcquisitionForm =
+    feedName === SharedFeedPage.MyFeed &&
+    (router.query?.[acquisitionKey] as string)?.toLocaleLowerCase() ===
+      'true' &&
+    !user?.acquisitionChannel;
+  const adSpot = useFeature(feature.feedAdSpot);
+
   const {
     items,
     updatePost,
@@ -106,7 +113,7 @@ export default function Feed<T>({
   } = useFeed(
     feedQueryKey,
     currentSettings.pageSize,
-    isSquadFeed || shouldUseFeedLayoutV1 ? 2 : currentSettings.adSpot,
+    isSquadFeed || shouldUseMobileFeedLayout ? 2 : adSpot,
     numCards,
     {
       query,
@@ -115,6 +122,7 @@ export default function Feed<T>({
       settings: {
         disableAds,
         adPostLength: isSquadFeed ? 2 : undefined,
+        showAcquisitionForm,
       },
     },
   );

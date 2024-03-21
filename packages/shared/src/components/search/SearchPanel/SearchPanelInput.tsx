@@ -30,7 +30,7 @@ import { minSearchQueryLength } from '../../../graphql/search';
 import { SearchPanelInputCursor } from './SearchPanelInputCursor';
 import { useSearchProvider } from '../../../hooks/search';
 import { defaultSearchProvider, providerToLabelTextMap } from './common';
-import { Button, ButtonSize } from '../../buttons/ButtonV2';
+import { Button, ButtonSize } from '../../buttons/Button';
 import { useSearchPanelAction } from './useSearchPanelAction';
 
 export type SearchPanelInputClassName = {
@@ -172,7 +172,7 @@ export const SearchPanelInput = ({
       >
         <BaseField
           className={classNames(
-            'relative h-12 items-center rounded-12 !bg-theme-bg-secondary !px-3 laptop:border laptop:py-1 laptop:backdrop-blur-[3.75rem]',
+            'relative h-12 items-center rounded-12 !bg-background-subtle !px-3 laptop:border laptop:py-1 laptop:backdrop-blur-[3.75rem]',
             className?.field,
             { focused },
             searchPanel.isActive &&
@@ -211,11 +211,6 @@ export const SearchPanelInput = ({
             onInput={onInput}
             type="primary"
             autoComplete="off"
-            style={{
-              // needed to overwrite fill from base.css input style
-              // to make the placeholder color work
-              WebkitTextFillColor: 'unset',
-            }}
             className={classNames(
               'h-full flex-1',
               searchPanel.isActive
@@ -226,7 +221,7 @@ export const SearchPanelInput = ({
           />
           <div
             className={classNames(
-              'flex h-full items-center bg-theme-bg-secondary',
+              'flex h-full items-center bg-background-subtle',
               searchPanel.isActive && '-mr-2',
             )}
           >

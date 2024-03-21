@@ -10,7 +10,58 @@ import {
 export const oneMinute = 60;
 export const oneHour = 3600;
 export const oneDay = 86400;
+const oneWeek = 7 * oneDay;
+const oneMonth = 28 * oneDay;
 export const oneYear = oneDay * 365;
+
+const publishTimeV1 = (
+  value: Date | number | string,
+  now = new Date(),
+): string => {
+  const date = new Date(value);
+
+  // Calculate time delta in seconds.
+  const dt = (now.getTime() - date.getTime()) / 1000;
+
+  if (dt <= oneMinute) {
+    return 'Now';
+  }
+
+  if (dt <= oneHour) {
+    const numMinutes = Math.round(dt / oneMinute);
+    return `${numMinutes} ${numMinutes === 1 ? 'minute' : 'minutes'} ago`;
+  }
+
+  if (dt <= oneDay) {
+    const numHours = Math.round(dt / oneHour);
+    return `${numHours} ${numHours === 1 ? 'hour' : 'hours'} ago`;
+  }
+
+  if (dt <= oneWeek) {
+    const numDays = Math.round(dt / oneDay);
+    return `${numDays} ${numDays === 1 ? 'day' : 'days'} ago`;
+  }
+
+  if (dt <= oneMonth) {
+    const numWeeks = Math.round(dt / oneWeek);
+    return `${numWeeks} ${numWeeks === 1 ? 'week' : 'weeks'} ago`;
+  }
+
+  if (dt <= oneYear) {
+    const numMonths = Math.round(dt / oneMonth);
+    return `${numMonths} ${numMonths === 1 ? 'month' : 'months'} ago`;
+  }
+
+  const numYears = Math.round(dt / oneYear);
+  return `${numYears} ${numYears === 1 ? 'year' : 'years'} ago`;
+};
+
+export enum TimeFormatType {
+  Generic = 'generic',
+  Post = 'post',
+  Comment = 'comment',
+  ReadHistory = 'readHistory',
+}
 
 export function postDateFormat(
   value: Date | number | string,
@@ -124,3 +175,36 @@ export enum Day {
 }
 
 export const Weekends = [Day.Saturday, Day.Sunday];
+
+export const getTodayTz = (timeZone: string): Date => {
+  const now = new Date();
+  const timeZonedToday = now.toLocaleDateString('en', { timeZone });
+  return new Date(timeZonedToday);
+};
+
+interface FormatDateProps {
+  value: Date | number | string;
+  type: TimeFormatType;
+}
+
+export const formatDate = ({ value, type }: FormatDateProps): string => {
+  const date = new Date(value);
+
+  if (type === TimeFormatType.Generic) {
+    return publishTimeV1(date);
+  }
+
+  if (type === TimeFormatType.Post) {
+    return postDateFormat(date);
+  }
+
+  if (type === TimeFormatType.Comment) {
+    return commentDateFormat(date);
+  }
+
+  if (type === TimeFormatType.ReadHistory) {
+    return getReadHistoryDateFormat(date);
+  }
+
+  return postDateFormat(date);
+};

@@ -7,10 +7,9 @@ import {
   BookmarkIcon,
   DownvoteIcon,
   DiscussIcon as CommentIcon,
-  ShareIcon,
   LinkIcon,
 } from '../../icons';
-import { Button, ButtonColor, ButtonVariant } from '../../buttons/ButtonV2';
+import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
 import { useFeedPreviewMode } from '../../../hooks';
 import { ActionButtonsProps } from '../ActionButtons';
@@ -20,19 +19,16 @@ import ConditionalWrapper from '../../ConditionalWrapper';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { IconSize } from '../../Icon';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
-import { useFeature } from '../../GrowthBookProvider';
-import { feature } from '../../../lib/featureManagement';
 
 interface ShareButtonProps {
   onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
   post: Post;
-  copyLinkFeature?: boolean;
 }
 
 function ShareButton(props: ShareButtonProps) {
-  const { onShareClick, post, copyLinkFeature } = props;
+  const { onShareClick, post } = props;
   const onClickShare = (event) => onShareClick?.(event, post);
-  return copyLinkFeature ? (
+  return (
     <SimpleTooltip content="Copy link">
       <Button
         className="pointer-events-auto ml-2"
@@ -40,16 +36,6 @@ function ShareButton(props: ShareButtonProps) {
         onClick={onClickShare}
         variant={ButtonVariant.Float}
         color={ButtonColor.Cabbage}
-      />
-    </SimpleTooltip>
-  ) : (
-    <SimpleTooltip content="Share post">
-      <Button
-        className="pointer-events-auto ml-2"
-        icon={<ShareIcon />}
-        onClick={onClickShare}
-        color={ButtonColor.Cabbage}
-        variant={ButtonVariant.Float}
       />
     </SimpleTooltip>
   );
@@ -68,7 +54,6 @@ export default function ActionButtons({
   onShareClick,
   className,
 }: ActionButtonsPropsV1): ReactElement {
-  const copyLinkFeature = useFeature(feature.copyLink);
   const isFeedPreview = useFeedPreviewMode();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
@@ -80,7 +65,6 @@ export default function ActionButtons({
   const shareButton = ShareButton({
     post,
     onShareClick,
-    copyLinkFeature,
   });
 
   const onToggleDownvote = async () => {

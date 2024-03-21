@@ -26,7 +26,7 @@ export function ModalSidebarList({
 }: ModalSidebarListProps): ReactElement {
   const { activeView, tabs, setActiveView } = useContext(ModalPropsContext);
   return (
-    <nav className={classNames('z-2 bg-theme-bg-primary', className)}>
+    <nav className={classNames('z-2 bg-background-default', className)}>
       <SidebarList
         className="z-1 pb-6"
         active={activeView}

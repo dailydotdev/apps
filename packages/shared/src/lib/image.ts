@@ -13,7 +13,7 @@ export const cloudinary = {
   },
   post: {
     imageCoverPlaceholder:
-      'https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1',
+      'https://res.cloudinary.com/daily-now/image/upload/s--P4t4XyoV--/f_auto/v1710058033/public/Placeholder%2001',
   },
   feedFilters: {
     recommended:
@@ -151,11 +151,15 @@ export const cloudinary = {
       webm: 'https://daily-now-res.cloudinary.com/video/upload/v1695808184/daily.dev_onboarding_wall_video_qzmrzm_iroigf.webm',
     },
   },
+  postPageOnboarding: {
+    image:
+      'https://daily-now-res.cloudinary.com/image/upload/s--orOMA924--/f_auto/v1708950923/social_proof_af0h6j',
+  },
   generic: {
     notFound: {
       light:
-        'https://daily-now-res.cloudinary.com/image/upload/s--DEBKQRIw--/v1704439964/webapp/NotFound.svg',
-      dark: 'https://daily-now-res.cloudinary.com/image/upload/s--QKyyqLHH--/v1704440574/webapp/NotFound-Dark.svg',
+        'https://daily-now-res.cloudinary.com/image/upload/s--t81_4qLS--/f_auto/v1708330060/404-lightmode_eweviu',
+      dark: 'https://daily-now-res.cloudinary.com/image/upload/s--Rxdm7vdJ--/f_auto/v1708328512/404_z4xiwg',
     },
   },
   streak: {
@@ -165,7 +169,11 @@ export const cloudinary = {
   },
   devcard: {
     defaultCoverImage:
-      'https://daily-now-res.cloudinary.com/image/upload/s--b9BjE_Vi--/f_auto/v1707404283/card-cover_emugw3',
+      'https://res.cloudinary.com/daily-now/image/upload/s--VMbOMIjj--/f_auto/v1710057765/public/DevCard-cover',
+  },
+  reputation: {
+    privilegesUnlocked:
+      'https://daily-now-res.cloudinary.com/image/upload/s--6sO7fJKh--/v1709136797/image_epr7dz.svg',
   },
 };
 

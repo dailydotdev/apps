@@ -1,19 +1,21 @@
-import { useContext, useEffect, useMemo } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { QueryKey, useMutation, useQuery } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
 import {
+  AuthEventNames,
   errorsToJson,
+  getNodeValue,
   RegistrationError,
   RegistrationParameters,
-  getNodeValue,
   ValidateRegistrationParams,
-  AuthEventNames,
 } from '../lib/auth';
 import {
   AuthFlow,
+  ContinueWithAction,
   InitializationData,
   initializeKratosFlow,
   KRATOS_ERROR,
+  KRATOS_ERROR_MESSAGE,
   submitKratosFlow,
   SuccessfulRegistrationData,
 } from '../lib/kratos';
@@ -21,6 +23,7 @@ import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { Origin } from '../lib/analytics';
+import { LogoutReason } from '../lib/user';
 
 type ParamKeys = keyof RegistrationParameters;
 
@@ -30,6 +33,7 @@ interface UseRegistrationProps {
   onRedirectFail?: () => void;
   onValidRegistration?: (params: ValidateRegistrationParams) => void;
   onInvalidRegistration?: (errors: RegistrationError) => void;
+  onInitializeVerification?: () => void;
 }
 
 interface UseRegistration {
@@ -39,6 +43,7 @@ interface UseRegistration {
   isReady: boolean;
   validateRegistration: (values: FormParams) => Promise<void>;
   onSocialRegistration?: (provider: string) => void;
+  verificationFlowId?: string;
 }
 
 type FormParams = Omit<RegistrationParameters, 'csrf_token'>;
@@ -51,10 +56,13 @@ const useRegistration = ({
   onRedirectFail,
   onValidRegistration,
   onInvalidRegistration,
+  onInitializeVerification,
 }: UseRegistrationProps): UseRegistration => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
-  const { trackingId, referral, referralOrigin } = useContext(AuthContext);
+  const [verificationId, setVerificationId] = useState<string>();
+  const { trackingId, referral, referralOrigin, logout } =
+    useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
   const {
     data: registration,
@@ -63,6 +71,24 @@ const useRegistration = ({
   } = useQuery(key, () => initializeKratosFlow(AuthFlow.Registration), {
     refetchOnWindowFocus: false,
   });
+
+  if (registration?.error) {
+    trackEvent({
+      event_name: AuthEventNames.RegistrationInitializationError,
+      extra: JSON.stringify({
+        error: JSON.stringify(registration.error),
+        origin: Origin.InitializeRegistrationFlow,
+      }),
+    });
+    /**
+     * In case a valid session exists on kratos, but not FE we should logout the user
+     */
+    if (
+      registration.error?.id === KRATOS_ERROR_MESSAGE.SESSION_ALREADY_AVAILABLE
+    ) {
+      logout(LogoutReason.KratosSessionAlreadyAvailable);
+    }
+  }
 
   useEffect(() => {
     if (registrationError) {
@@ -98,6 +124,18 @@ const useRegistration = ({
     {
       onSuccess: ({ data, error, redirect }, params) => {
         const successfulData = data as SuccessfulRegistrationData;
+
+        if (successfulData?.continue_with?.length) {
+          const continueWith = successfulData.continue_with.find(
+            ({ action }) => action === ContinueWithAction.ShowVerification,
+          );
+
+          if (continueWith) {
+            setVerificationId(continueWith.flow.id);
+            return onInitializeVerification?.();
+          }
+        }
+
         if (successfulData) {
           return onValidRegistration?.(params);
         }
@@ -193,10 +231,11 @@ const useRegistration = ({
       onSocialRegistration,
       validateRegistration: onValidateRegistration,
       isValidationIdle: status === 'idle',
+      verificationFlowId: verificationId,
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [registration, status, isQueryLoading, isMutationLoading],
+    [registration, status, isQueryLoading, isMutationLoading, verificationId],
   );
 };
 

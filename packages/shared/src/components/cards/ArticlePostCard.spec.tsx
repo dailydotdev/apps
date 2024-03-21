@@ -86,9 +86,9 @@ it('should call on comment click on comment button click', async () => {
   await waitFor(() => expect(defaultProps.onCommentClick).toBeCalledWith(post));
 });
 
-it('should call on share click on share button click', async () => {
+it('should call on share click on copy link button click', async () => {
   renderComponent({});
-  const el = await screen.findByLabelText('Share post');
+  const el = await screen.findByLabelText('Copy link');
   el.click();
   await waitFor(() => expect(defaultProps.onShareClick).toBeCalled());
 });
@@ -168,7 +168,7 @@ it('should show read post button on hover when in laptop size', async () => {
 
 it('should show cover image when available', async () => {
   renderComponent();
-  const image = await screen.findByTestId('postImage');
+  const image = await screen.findByAltText('Post Cover image');
   expect(image).toBeInTheDocument();
 });
 

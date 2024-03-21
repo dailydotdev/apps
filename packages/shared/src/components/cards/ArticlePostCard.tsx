@@ -55,7 +55,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
   const isVideoType = isVideoPost(post);
-  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -72,7 +72,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
       return null;
     }
 
-    if (!shouldUseFeedLayoutV1) {
+    if (!shouldUseMobileFeedLayout) {
       return <CardButton title={post.title} onClick={onPostCardClick} />;
     }
 
@@ -113,7 +113,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
       <div
         className={classNames(
           showFeedback
-            ? 'overflow-hidden rounded-2xl border !border-theme-divider-tertiary p-2'
+            ? 'overflow-hidden rounded-16 border !border-theme-divider-tertiary p-2'
             : 'flex flex-1 flex-col',
           showFeedback && styles.post,
           showFeedback && styles.read,
@@ -151,6 +151,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
             openNewTab={openNewTab}
             post={post}
             showImage={showImage}
+            onShare={onShare}
             className={{
               image: classNames(showFeedback && 'mb-0'),
             }}

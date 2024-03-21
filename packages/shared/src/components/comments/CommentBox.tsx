@@ -11,7 +11,7 @@ import { ProfileLink } from '../profile/ProfileLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import SquadMemberBadge from '../squads/SquadMemberBadge';
 import UserBadge from '../UserBadge';
-import { FlexRow } from '../utilities';
+import { FlexRow, TruncateText } from '../utilities';
 import CommentActionButtons, {
   CommentActionProps,
 } from './CommentActionButtons';
@@ -20,6 +20,7 @@ import { CommentPublishDate } from './CommentPublishDate';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { CardLink } from '../cards/Card';
+import { ReputationUserBadge } from '../ReputationUserBadge';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -83,48 +84,53 @@ function CommentBox({
         </Link>
       )}
       {children}
-      <header className="z-1 flex flex-row self-start">
+      <header className="z-1 flex w-full flex-row self-start">
         <ProfileTooltip
           user={comment.author}
           tooltip={{ appendTo: appendTooltipTo }}
         >
           <ProfileImageLink user={comment.author} />
         </ProfileTooltip>
-        <div className="ml-3 flex flex-col typo-callout">
+        <div className="ml-3 flex min-w-0 flex-1 flex-col typo-callout">
           <FlexRow>
             <CommentAuthor
               author={comment.author}
               appendTooltipTo={appendTooltipTo}
-              badges={[
-                <SquadMemberBadge key="squadMemberRole" role={role} />,
-                comment.author.id === postAuthorId && (
-                  <UserBadge
-                    key="author"
-                    className="text-theme-status-help"
-                    content="Author"
-                    Icon={FeatherIcon}
-                    iconProps={{
-                      secondary: true,
-                    }}
-                  />
-                ),
-                comment.author.id === postScoutId && (
-                  <UserBadge
-                    key="scout"
-                    className="text-theme-color-bun"
-                    content="Scout"
-                    Icon={ScoutIcon}
-                    iconProps={{
-                      secondary: true,
-                    }}
-                  />
-                ),
-              ]}
             />
+            <ReputationUserBadge
+              key="reputation"
+              className="ml-1"
+              user={comment.author}
+            />
+            <SquadMemberBadge key="squadMemberRole" role={role} />
+            {comment.author.id === postAuthorId && (
+              <UserBadge
+                key="author"
+                className="text-theme-status-help"
+                content="Creator"
+                Icon={FeatherIcon}
+                iconProps={{
+                  secondary: true,
+                }}
+              />
+            )}
+            {comment.author.id === postScoutId && (
+              <UserBadge
+                key="scout"
+                className="text-theme-color-bun"
+                content="Scout"
+                Icon={ScoutIcon}
+                iconProps={{
+                  secondary: true,
+                }}
+              />
+            )}
           </FlexRow>
           <FlexRow className="items-center text-theme-label-quaternary">
             <ProfileLink href={comment.author.permalink}>
-              @{comment.author.username}
+              <TruncateText title={`@${comment.author.username}`}>
+                @{comment.author.username}
+              </TruncateText>
             </ProfileLink>
             <div className="mx-2 h-0.5 w-0.5 bg-theme-label-quaternary" />
             <CommentPublishDate comment={comment} />

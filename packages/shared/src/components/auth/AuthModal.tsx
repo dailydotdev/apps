@@ -6,6 +6,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Modal, ModalProps } from '../modals/common/Modal';
+import { LogoutReason } from '../../lib/user';
 
 export interface AuthModalProps extends ModalProps {
   trigger?: AuthTriggersType;
@@ -30,7 +31,7 @@ export default function AuthModal({
 
   const closeAndLogout = (e) => {
     if (user && !user.username) {
-      logout();
+      logout(LogoutReason.IncomleteOnboarding);
     }
     onClose(e);
   };
@@ -43,6 +44,8 @@ export default function AuthModal({
     loginState?.onLoginSuccess?.();
     closeLogin();
   };
+
+  const defaultDisplay = Display.Default;
 
   return (
     <Modal
@@ -61,6 +64,7 @@ export default function AuthModal({
         onSuccessfulRegistration={loginState?.onRegistrationSuccess}
         trigger={trigger}
         isLoginFlow={isLogoutFlow || loginState?.isLogin}
+        defaultDisplay={defaultDisplay}
         onDisplayChange={(display: Display) => setScreenValue(display)}
       />
     </Modal>

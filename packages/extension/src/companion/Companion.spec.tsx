@@ -12,31 +12,33 @@ import App from './App';
 
 jest.mock('content-scripts-register-polyfill', () => ({}));
 
-jest.mock('webextension-polyfill-ts', () => {
+jest.mock('webextension-polyfill', () => {
   return {
-    browser: {
-      contentScripts: {
-        register: jest.fn(),
+    contentScripts: {
+      register: jest.fn(),
+    },
+    scripting: {
+      getRegisteredContentScripts: jest.fn().mockImplementation(() => []),
+      registerContentScripts: jest.fn(),
+    },
+    runtime: {
+      id: 123,
+      getURL: () => '',
+      onMessage: {
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
       },
-      runtime: {
-        id: 123,
-        getURL: () => '',
-        onMessage: {
-          addListener: jest.fn(),
-          removeListener: jest.fn(),
-        },
-        sendMessage: () =>
-          new Promise((resolve) => {
-            resolve(true);
-          }),
-      },
-      permissions: {
-        remove: jest.fn(),
-        request: () =>
-          new Promise((resolve) => {
-            resolve(true);
-          }),
-      },
+      sendMessage: () =>
+        new Promise((resolve) => {
+          resolve(true);
+        }),
+    },
+    permissions: {
+      remove: jest.fn(),
+      request: () =>
+        new Promise((resolve) => {
+          resolve(true);
+        }),
     },
   };
 });

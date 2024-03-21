@@ -11,6 +11,29 @@ export type FurtherReadingData = {
   discussedPosts: Post[];
 };
 
+const FURTHER_READING_FRAGMENT = gql`
+  fragment FurtherReading on Post {
+    id
+    title
+    permalink
+    commentsPermalink
+    bookmarked @include(if: $loggedIn)
+    image
+    readTime
+    source {
+      ...SourceShortInfo
+    }
+    scout {
+      ...UserShortInfo
+    }
+    author {
+      ...UserShortInfo
+    }
+  }
+  ${SOURCE_SHORT_INFO_FRAGMENT}
+  ${USER_SHORT_INFO_FRAGMENT}
+`;
+
 export const FURTHER_READING_QUERY = gql`
   query SimilarPosts(
     $post: ID!
@@ -18,23 +41,12 @@ export const FURTHER_READING_QUERY = gql`
     $trendingFirst: Int
     $similarFirst: Int
     $discussedFirst: Int
+    $withDiscussedPosts: Boolean! = false
     $tags: [String]!
   ) {
     trendingPosts: randomTrendingPosts(post: $post, first: $trendingFirst) {
-      id
-      title
-      permalink
-      commentsPermalink
+      ...FurtherReading
       bookmarked @include(if: $loggedIn)
-      source {
-        ...SourceShortInfo
-      }
-      scout {
-        ...UserShortInfo
-      }
-      author {
-        ...UserShortInfo
-      }
       trending
       tags
     }
@@ -43,42 +55,16 @@ export const FURTHER_READING_QUERY = gql`
       post: $post
       first: $similarFirst
     ) {
-      id
-      title
-      permalink
-      commentsPermalink
+      ...FurtherReading
       bookmarked @include(if: $loggedIn)
-      source {
-        ...SourceShortInfo
-      }
-      scout {
-        ...UserShortInfo
-      }
-      author {
-        ...UserShortInfo
-      }
       numComments
       numUpvotes
       tags
     }
-    discussedPosts: randomDiscussedPosts(post: $post, first: $discussedFirst) {
-      id
-      title
-      permalink
-      commentsPermalink
-      numComments
-      source {
-        ...SourceShortInfo
-      }
-      tags
-      scout {
-        ...UserShortInfo
-      }
-      author {
-        ...UserShortInfo
-      }
+    discussedPosts: randomDiscussedPosts(post: $post, first: $discussedFirst)
+      @include(if: $withDiscussedPosts) {
+      ...FurtherReading
     }
   }
-  ${USER_SHORT_INFO_FRAGMENT}
-  ${SOURCE_SHORT_INFO_FRAGMENT}
+  ${FURTHER_READING_FRAGMENT}
 `;

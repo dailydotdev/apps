@@ -17,6 +17,8 @@ export enum ButtonVariant {
   Secondary = 'secondary',
   Tertiary = 'tertiary',
   Float = 'tertiaryFloat',
+  Subtle = 'subtle',
+  Option = 'option',
 }
 
 export enum ButtonIconPosition {
@@ -45,6 +47,8 @@ export const VariantToClassName: Record<ButtonVariant, string> = {
   [ButtonVariant.Secondary]: 'btn-secondary',
   [ButtonVariant.Tertiary]: 'btn-tertiary',
   [ButtonVariant.Float]: 'btn-tertiaryFloat',
+  [ButtonVariant.Subtle]: 'btn-subtle',
+  [ButtonVariant.Option]: 'btn-option gap-1',
 };
 
 export const VariantColorToClassName: Record<
@@ -134,6 +138,48 @@ export const VariantColorToClassName: Record<
     [ButtonColor.Twitter]: 'btn-tertiaryFloat-twitter',
     [ButtonColor.Water]: 'btn-tertiaryFloat-water',
     [ButtonColor.WhatsApp]: 'btn-tertiaryFloat-whatsapp',
+  },
+  [ButtonVariant.Subtle]: {
+    [ButtonColor.Avocado]: 'btn-subtle-avocado',
+    [ButtonColor.Bacon]: 'btn-subtle-bacon',
+    [ButtonColor.BlueCheese]: 'btn-subtle-blueCheese',
+    [ButtonColor.Bun]: 'btn-subtle-bun',
+    [ButtonColor.Burger]: 'btn-subtle-burger',
+    [ButtonColor.Cabbage]: 'btn-subtle-cabbage',
+    [ButtonColor.Cheese]: 'btn-subtle-cheese',
+    [ButtonColor.Facebook]: 'btn-subtle-facebook',
+    [ButtonColor.Ketchup]: 'btn-subtle-ketchup',
+    [ButtonColor.LinkedIn]: 'btn-subtle-linkedin',
+    [ButtonColor.Lettuce]: 'btn-subtle-lettuce',
+    [ButtonColor.Onion]: 'btn-subtle-onion',
+    [ButtonColor.Pepper]: 'btn-subtle-pepper',
+    [ButtonColor.Salt]: 'btn-subtle-salt',
+    [ButtonColor.Reddit]: 'btn-subtle-reddit',
+    [ButtonColor.Telegram]: 'btn-subtle-telegram',
+    [ButtonColor.Twitter]: 'btn-subtle-twitter',
+    [ButtonColor.Water]: 'btn-subtle-water',
+    [ButtonColor.WhatsApp]: 'btn-subtle-whatsapp',
+  },
+  [ButtonVariant.Option]: {
+    [ButtonColor.Avocado]: 'btn-option-avocado',
+    [ButtonColor.Bacon]: 'btn-option-bacon',
+    [ButtonColor.BlueCheese]: 'btn-option-blueCheese',
+    [ButtonColor.Bun]: 'btn-option-bun',
+    [ButtonColor.Burger]: 'btn-option-burger',
+    [ButtonColor.Cabbage]: 'btn-option-cabbage',
+    [ButtonColor.Cheese]: 'btn-option-cheese',
+    [ButtonColor.Facebook]: 'btn-option-facebook',
+    [ButtonColor.Ketchup]: 'btn-option-ketchup',
+    [ButtonColor.LinkedIn]: 'btn-option-linkedin',
+    [ButtonColor.Lettuce]: 'btn-option-lettuce',
+    [ButtonColor.Onion]: 'btn-option-onion',
+    [ButtonColor.Pepper]: 'btn-option-pepper',
+    [ButtonColor.Salt]: 'btn-option-salt',
+    [ButtonColor.Reddit]: 'btn-option-reddit',
+    [ButtonColor.Telegram]: 'btn-option-telegram',
+    [ButtonColor.Twitter]: 'btn-option-twitter',
+    [ButtonColor.Water]: 'btn-option-water',
+    [ButtonColor.WhatsApp]: 'btn-option-whatsapp',
   },
 };
 

@@ -1,11 +1,13 @@
-import React, { CSSProperties, ReactElement } from 'react';
+import React, { CSSProperties, ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { PublicProfile } from '../../lib/user';
 import { ShareIcon, SettingsIcon } from '../icons';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { ProfilePicture } from '../ProfilePicture';
 import { largeNumberFormat } from '../../lib/numberFormat';
+import { ReferralCampaignKey } from '../../lib/referral';
+import { ProfileSettingsMenu } from './ProfileSettingsMenu';
 
 export type HeaderProps = {
   user: PublicProfile;
@@ -13,10 +15,12 @@ export type HeaderProps = {
   sticky?: boolean;
   className?: string;
   style?: CSSProperties;
+  logout?: (reason: string) => Promise<void>;
 };
 
 export function Header({
   user,
+  logout,
   isSameUser,
   sticky,
   className,
@@ -25,8 +29,10 @@ export function Header({
   const [, onShareOrCopyLink] = useShareOrCopyLink({
     text: `Check out ${user.name}'s profile on daily.dev`,
     link: user.permalink,
+    cid: ReferralCampaignKey.ShareProfile,
     trackObject: () => ({ event_name: 'share profile', target_id: user.id }),
   });
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <header
@@ -65,15 +71,21 @@ export function Header({
         onClick={() => onShareOrCopyLink()}
       />
       {isSameUser && (
-        <Button
-          className="ml-2 tablet:hidden"
-          variant={ButtonVariant.Float}
-          size={ButtonSize.Small}
-          icon={<SettingsIcon />}
-          tag="a"
-          href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
-          aria-label="Edit profile"
-        />
+        <>
+          <Button
+            className="ml-2 tablet:hidden"
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            icon={<SettingsIcon />}
+            onClick={() => setIsMenuOpen(true)}
+            aria-label="Edit profile"
+          />
+          <ProfileSettingsMenu
+            isOpen={isMenuOpen}
+            logout={logout}
+            onClose={() => setIsMenuOpen(false)}
+          />
+        </>
       )}
     </header>
   );

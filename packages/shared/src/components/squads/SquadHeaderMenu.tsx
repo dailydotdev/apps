@@ -25,6 +25,7 @@ import { squadFeedback } from '../../lib/constants';
 import { MenuItemProps } from '../fields/PortalMenu';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { Origin } from '../../lib/analytics';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 const PortalMenu = dynamic(
   () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
@@ -40,6 +41,7 @@ interface SquadHeaderMenuProps {
 export default function SquadHeaderMenu({
   squad,
 }: SquadHeaderMenuProps): ReactElement {
+  const { isLoggedIn } = useAuthContext();
   const { trackAndCopyLink } = useSquadInvitation({
     squad,
     origin: Origin.SquadPage,
@@ -77,7 +79,7 @@ export default function SquadHeaderMenu({
       });
     }
 
-    if (!squad.currentMember && squad.public) {
+    if (!squad.currentMember && squad.public && isLoggedIn) {
       list.push({
         icon: <ContextMenuIcon Icon={LinkIcon} />,
         action: () => trackAndCopyLink(),
@@ -87,10 +89,7 @@ export default function SquadHeaderMenu({
 
     list.push({
       icon: <ContextMenuIcon Icon={TourIcon} />,
-      action: () =>
-        openModal({
-          type: LazyModal.SquadTour,
-        }),
+      action: () => openModal({ type: LazyModal.SquadTour }),
       label: 'Learn how Squads work',
     });
 
@@ -134,6 +133,7 @@ export default function SquadHeaderMenu({
     onLeaveSquad,
     openModal,
     squad,
+    isLoggedIn,
   ]);
 
   return (

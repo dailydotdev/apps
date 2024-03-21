@@ -89,7 +89,13 @@ export enum RequestKey {
   ReadingStats = 'reading_stats',
   UserComments = 'user_comments',
   Readme = 'readme',
+  Host = 'host',
   Source = 'source',
+  OneSignal = 'onesignal',
+  ActiveUsers = 'active_users',
+  PushNotification = 'push_notification',
+  ShortUrl = 'short_url',
+  SourceRequestAvailability = 'source_request_availability',
 }
 
 export type HasConnection<

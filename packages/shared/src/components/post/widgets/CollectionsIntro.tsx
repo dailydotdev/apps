@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import CloseButton from '../../CloseButton';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
-import { ButtonSize } from '../../buttons/ButtonV2';
+import { ButtonSize } from '../../buttons/Button';
 
 export type CollectionsIntroProps = {
   className?: string;

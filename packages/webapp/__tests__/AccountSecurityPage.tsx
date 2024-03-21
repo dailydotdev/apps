@@ -3,12 +3,14 @@ import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import {
   loginVerificationMockData,
+  mockApiVerificationFlow,
   mockKratosPost,
   mockListProviders,
   mockLoginReverifyFlow,
   mockSettingsFlow,
   mockSettingsValidation,
   mockVerificationFlow,
+  mockVerificationValidation,
   mockWhoAmIFlow,
   requireVerificationSettingsMock,
   settingsFlowMockData,
@@ -38,9 +40,23 @@ jest.mock('next/router', () => ({
   },
 }));
 
+const matchMedia = (value: string) => {
+  Object.defineProperty(global, 'matchMedia', {
+    writable: true,
+    value: jest.fn().mockImplementation((query) => ({
+      matches: query.includes(value),
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+    })),
+  });
+};
+
 beforeEach(() => {
-  nock.cleanAll();
+  jest.resetAllMocks();
+  jest.restoreAllMocks();
   jest.clearAllMocks();
+  nock.cleanAll();
+  matchMedia('1020');
 });
 
 const defaultLoggedUser: LoggedUser = {
@@ -62,6 +78,7 @@ const waitAllRenderMocks = async () => {
 
 const renderComponent = (): RenderResult => {
   const client = new QueryClient();
+  mockApiVerificationFlow();
   mockSettingsFlow();
   mockListProviders();
   mockVerificationFlow();
@@ -142,12 +159,22 @@ it('should allow changing of email', async () => {
     'traits.username': getNodeValue('traits.username', nodes),
     'traits.image': getNodeValue('traits.image', nodes),
   };
-  mockVerificationFlow();
   mockWhoAmIFlow(email);
   mockSettingsValidation(params);
-  const submitChanges = await screen.findByText('Save changes');
+  const submitChanges = await screen.findByText('Send code');
   fireEvent.click(submitChanges);
+  const codeField = await screen.findByPlaceholderText('Enter 6-digit code');
+  fireEvent.input(codeField, {
+    target: { value: '123456' },
+  });
+  const secondSubmit = await screen.findByTestId('change_email_btn');
+  fireEvent.click(secondSubmit);
+  mockVerificationValidation({
+    code: '123456',
+    method: 'code',
+  });
   await waitForNock();
+  await act(() => new Promise((resolve) => setTimeout(resolve, 300)));
   const sent = await screen.findByTestId('email_verification_sent');
   expect(sent).toBeInTheDocument();
 });
@@ -175,8 +202,18 @@ it('should allow changing of email but require verification', async () => {
   };
   mockSettingsValidation(params, requireVerificationSettingsMock, 403);
   mockLoginReverifyFlow();
-  const submitChanges = await screen.findByText('Save changes');
+  const submitChanges = await screen.findByText('Send code');
   fireEvent.click(submitChanges);
+  const codeField = await screen.findByPlaceholderText('Enter 6-digit code');
+  fireEvent.input(codeField, {
+    target: { value: '123456' },
+  });
+  const secondSubmit = await screen.findByTestId('change_email_btn');
+  fireEvent.click(secondSubmit);
+  mockVerificationValidation({
+    code: '123456',
+    method: 'code',
+  });
   await waitForNock();
   mockSettingsValidation(params);
   await verifySession();

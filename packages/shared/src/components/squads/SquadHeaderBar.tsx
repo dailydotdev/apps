@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { HTMLAttributes, ReactElement } from 'react';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import SquadHeaderMenu from './SquadHeaderMenu';
 import useContextMenu from '../../hooks/useContextMenu';
@@ -59,21 +59,23 @@ export function SquadHeaderBar({
       )}
     >
       <div className="relative">
-        {verifyPermission(squad, SourcePermissions.Invite) && !showJoinButton && (
-          <Button
-            variant={ButtonVariant.Secondary}
-            className={classNames(
-              tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
-            )}
-            onClick={() => {
-              trackAndCopyLink();
-            }}
-            icon={<AddUserIcon />}
-            disabled={copying}
-          >
-            Invitation link
-          </Button>
-        )}
+        {verifyPermission(squad, SourcePermissions.Invite) &&
+          !showJoinButton && (
+            <Button
+              variant={ButtonVariant.Secondary}
+              className={classNames(
+                tourIndex === TourScreenIndex.CopyInvitation &&
+                  'highlight-pulse',
+              )}
+              onClick={() => {
+                trackAndCopyLink();
+              }}
+              icon={<AddUserIcon />}
+              disabled={copying}
+            >
+              Invitation link
+            </Button>
+          )}
       </div>
       {showJoinButton && (
         <SquadJoinButton

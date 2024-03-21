@@ -8,7 +8,7 @@ export const reportIssue = 'https://r.daily.dev/report-issue';
 export const termsOfService = 'https://r.daily.dev/tos';
 export const privacyPolicy = 'https://r.daily.dev/privacy-policy';
 export const cookiePolicy = 'https://r.daily.dev/cookie-policy';
-export const reputationGuide = 'https://r.daily.dev/reputation-guide';
+export const reputation = 'https://r.daily.dev/reputation';
 export const ownershipGuide = 'https://r.daily.dev/claim';
 export const contentGuidelines = 'https://r.daily.dev/content-guidelines';
 export const communityLinksGuidelines = 'https://r.daily.dev/community-links';
@@ -43,6 +43,7 @@ export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProduction = process.env.NODE_ENV === 'production';
 export const isTesting =
   process.env.NODE_ENV === 'test' || (!isDevelopment && !isProduction);
+export const isGBDevMode = process.env.NEXT_PUBLIC_GB_DEV_MODE === 'true';
 
 export const isBrave = (): boolean => {
   if (!window.Promise) {

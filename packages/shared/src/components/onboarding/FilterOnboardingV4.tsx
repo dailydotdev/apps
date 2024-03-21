@@ -12,7 +12,7 @@ import {
 } from '../../graphql/feedSettings';
 import { graphqlUrl } from '../../lib/config';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { SearchField } from '../fields/SearchField';
 import useDebounce from '../../hooks/useDebounce';
@@ -48,6 +48,7 @@ export function FilterOnboardingV4({
   }, [feedSettings?.includeTags]);
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
     origin: Origin.Onboarding,
+    shouldUpdateAlerts: true,
   });
 
   const [refetchFeed] = useDebounce(() => {

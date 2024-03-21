@@ -10,7 +10,6 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   GitHubIcon,
   OpenLinkIcon,
-  ShareIcon,
   TwitterIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
@@ -18,7 +17,7 @@ import {
   Button,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
@@ -52,13 +51,9 @@ import {
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
-import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/SocialShareList';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
-import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
-import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { labels } from '@dailydotdev/shared/src/lib';
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
 import { checkLowercaseEquality } from '@dailydotdev/shared/src/lib/strings';
@@ -161,17 +156,6 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     [user?.name, user?.username, devCardSrc, type],
   );
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
-  const [copyingLink, copyLink] = useCopyLink(() => devCardSrc);
-  const [, onShareOrCopyLink] = useShareOrCopyLink({
-    text: labels.devcard.generic.shareText,
-    link: devCardSrc,
-    trackObject: (provider) => ({
-      event_name: AnalyticsEvent.ShareDevcard,
-      extra: JSON.stringify({
-        provider,
-      }),
-    }),
-  });
   const [selectedTab, setSelectedTab] = useState(0);
   const { mutateAsync: onDownloadUrl, isLoading: downloading } =
     useMutation(downloadUrl);
@@ -199,15 +183,6 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
       },
     },
   );
-
-  const onTrackShare = (provider: ShareProvider) => {
-    trackEvent({
-      event_name: AnalyticsEvent.ShareDevcard,
-      extra: JSON.stringify({
-        provider,
-      }),
-    });
-  };
 
   const onUpdatePreference = useCallback(
     (props: Partial<Omit<GenerateDevCardParams, 'type'>>) => {
@@ -312,7 +287,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
         <WidgetContainer className="flex max-w-[26.25rem] flex-1 flex-col mobileL:min-w-96">
           <div
             className={classNames(
-              'sticky top-12 flex justify-around rounded-24 bg-theme-bg-primary tablet:top-14 tablet:justify-start',
+              'sticky top-12 flex justify-around rounded-24 bg-background-default tablet:top-14 tablet:justify-start',
               styles.nav,
             )}
           >
@@ -418,24 +393,6 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     Download X cover image
                   </Button>
                 </div>
-
-                <div>
-                  <h3 className="typo-title4 flex font-bold">
-                    <ShareIcon size={IconSize.Small} className="mr-1.5" />
-                    Share
-                  </h3>
-                  <div className="mt-3 flex flex-row flex-wrap gap-3 gap-y-3">
-                    <SocialShareList
-                      link={devCardSrc}
-                      description={labels.devcard.generic.shareText}
-                      isCopying={copyingLink}
-                      onCopy={copyLink}
-                      onNativeShare={onShareOrCopyLink}
-                      onClickSocial={onTrackShare}
-                      emailTitle={labels.devcard.generic.emailTitle}
-                    />
-                  </div>
-                </div>
               </>
             )}
 
@@ -451,18 +408,20 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                         <SimpleTooltip
                           key={value}
                           content={
-                            isLocked
-                              ? `Earn ${requiredPoints[value]} reputation points to unlock this theme`
-                              : null
+                            isLocked ? (
+                              `Earn ${requiredPoints[value]} reputation points to unlock ${value} theme`
+                            ) : (
+                              <span className="capitalize">{value}</span>
+                            )
                           }
                         >
-                          <span>
+                          <span className="mb-3 mr-3">
                             <button
                               disabled={isLocked || isLoading}
                               type="button"
                               aria-label={`Select ${value} theme`}
                               className={classNames(
-                                'mb-3 mr-3 h-10 w-10 rounded-full',
+                                'h-10 w-10 rounded-full',
                                 isLocked && 'opacity-32',
                                 checkLowercaseEquality(theme, value) &&
                                   'border-4 border-theme-color-cabbage',

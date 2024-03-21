@@ -132,7 +132,7 @@ export const COMMENT_FRAGMENT = gql`
 export const RELATED_POST_FRAGMENT = gql`
   fragment RelatedPost on Post {
     id
-    permalink
+    commentsPermalink
     title
     summary
     createdAt

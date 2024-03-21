@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import {
   Button,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
@@ -32,7 +32,7 @@ function CompanionToggle({
   return (
     <AlertPointer
       offset={[-4]}
-      className={{ message: 'bg-theme-bg-primary' }}
+      className={{ message: 'bg-background-default' }}
       isAlertDisabled={isAlertDisabled}
       placement={AlertPlacement.Left}
       message={companionAlertMessage}

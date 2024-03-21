@@ -14,7 +14,7 @@ import {
   ButtonProps,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/ButtonV2';
+} from '../buttons/Button';
 import { getFieldFontColor } from './BaseFieldContainer';
 
 export interface SearchFieldProps
@@ -95,7 +95,12 @@ export const SearchField = forwardRef(function SearchField(
   return (
     <BaseField
       {...props}
-      className={classNames('items-center', sizeClass, className, { focused })}
+      className={classNames(
+        'items-center !border !border-theme-divider-tertiary !bg-background-default',
+        sizeClass,
+        className,
+        { focused },
+      )}
       onClick={focusInput}
       data-testid="searchField"
       ref={ref}

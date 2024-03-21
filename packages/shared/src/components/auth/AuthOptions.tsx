@@ -40,7 +40,7 @@ import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
 import EmailVerified from './EmailVerified';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import SettingsContext from '../../contexts/SettingsContext';
-import { useToastNotification } from '../../hooks/useToastNotification';
+import { useToastNotification, useEventListener } from '../../hooks';
 import CodeVerificationForm from './CodeVerificationForm';
 import ChangePasswordForm from './ChangePasswordForm';
 import { isTesting } from '../../lib/constants';
@@ -52,8 +52,11 @@ import {
 import { LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
 import OnboardingRegistrationForm from './OnboardingRegistrationForm';
-import { useEventListener } from '../../hooks';
+import EmailCodeVerification from './EmailCodeVerification';
 import { trackAnalyticsSignUp } from './OnboardingAnalytics';
+import { ButtonProps } from '../buttons/Button';
+import { nextTick } from '../../lib/func';
+import { OnboardingRegistrationForm4d5 } from './OnboardingRegistrationForm4d5';
 
 export enum AuthDisplay {
   Default = 'default',
@@ -66,6 +69,8 @@ export enum AuthDisplay {
   EmailSent = 'email_sent',
   VerifiedEmail = 'VerifiedEmail',
   OnboardingSignup = 'onboarding_signup',
+  EmailVerification = 'email_verification',
+  OnboardingSignupV4d5 = 'onboarding_signup_v4.5',
 }
 
 export interface AuthProps {
@@ -96,6 +101,7 @@ export interface AuthOptionsProps {
   initialEmail?: string;
   targetId?: string;
   ignoreMessages?: boolean;
+  onboardingSignupButton?: ButtonProps<'button'>;
 }
 
 function AuthOptions({
@@ -114,6 +120,7 @@ function AuthOptions({
   simplified = false,
   initialEmail = '',
   ignoreMessages = false,
+  onboardingSignupButton,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
@@ -140,8 +147,13 @@ function AuthOptions({
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
   const [chosenProvider, setChosenProvider] = useState<string>(null);
   const [isRegistration, setIsRegistration] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
   const windowPopup = useRef<Window>(null);
-  const onLoginCheck = () => {
+  const onLoginCheck = (shouldVerify?: boolean) => {
+    if (shouldVerify) {
+      onSetActiveDisplay(AuthDisplay.EmailVerification);
+      return;
+    }
     if (isRegistration) {
       return;
     }
@@ -176,10 +188,14 @@ function AuthOptions({
   const {
     isReady: isRegistrationReady,
     registration,
+    verificationFlowId,
     validateRegistration,
     onSocialRegistration,
   } = useRegistration({
     key: ['registration_form'],
+    onInitializeVerification: () => {
+      onSetActiveDisplay(AuthDisplay.EmailVerification);
+    },
     onValidRegistration: async () => {
       setIsRegistration(true);
       const { data } = await refetchBoot();
@@ -213,6 +229,9 @@ function AuthOptions({
     ...(!isTesting && { queryEnabled: !user && isRegistrationReady }),
     trigger,
     provider: chosenProvider,
+    onLoginError: () => {
+      return displayToast(labels.auth.error.generic);
+    },
   });
   const onProfileSuccess = async () => {
     await refetchBoot();
@@ -350,7 +369,7 @@ function AuthOptions({
     <div
       className={classNames(
         'z-1 flex w-full max-w-[26.25rem] flex-col overflow-y-auto rounded-16',
-        !simplified && 'bg-theme-bg-tertiary',
+        !simplified && 'bg-accent-pepper-subtlest',
         className?.container,
       )}
     >
@@ -368,7 +387,7 @@ function AuthOptions({
             onPasswordLogin={onPasswordLogin}
             loginHint={loginHint}
             isLoading={isPasswordLoginLoading}
-            isLoginFlow={isForgotPasswordReturn || isLoginFlow}
+            isLoginFlow={isForgotPasswordReturn || isLoginFlow || isLogin}
             trigger={trigger}
             isReady={isReady}
             simplified={simplified}
@@ -418,8 +437,9 @@ function AuthOptions({
                 email: existingEmail,
               });
             }}
-            onProviderClick={(provider, login) => {
+            onProviderClick={async (provider, login) => {
               onProviderClick(provider, login);
+              await nextTick();
               onAuthStateUpdate({ isAuthenticating: true });
             }}
             trigger={trigger}
@@ -427,6 +447,7 @@ function AuthOptions({
             simplified={simplified}
             targetId={targetId}
             className={className?.onboardingSignup}
+            onboardingSignupButton={onboardingSignupButton}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>
@@ -491,6 +512,14 @@ function AuthOptions({
           />
           <EmailVerificationSent email={email} />
         </Tab>
+        <Tab label={AuthDisplay.EmailVerification}>
+          <AuthHeader simplified={simplified} title="Verify your email" />
+          <EmailCodeVerification
+            email={email}
+            flowId={verificationFlowId}
+            onSubmit={onProfileSuccess}
+          />
+        </Tab>
         <Tab label={AuthDisplay.VerifiedEmail}>
           <EmailVerified hasUser={!!user} simplified={simplified}>
             {!user && (
@@ -507,6 +536,30 @@ function AuthOptions({
               />
             )}
           </EmailVerified>
+        </Tab>
+        <Tab label={AuthDisplay.OnboardingSignupV4d5}>
+          <OnboardingRegistrationForm4d5
+            onSignup={(signupEmail) => {
+              setEmail(signupEmail);
+              setActiveDisplay(AuthDisplay.Registration);
+            }}
+            onExistingEmail={(existingEmail) => {
+              setEmail(existingEmail);
+              setIsLogin(true);
+              setActiveDisplay(AuthDisplay.Default);
+            }}
+            onProviderClick={onProviderClick}
+            onShowLoginOptions={() => {
+              setIsLogin(true);
+              setActiveDisplay(AuthDisplay.Default);
+            }}
+            trigger={trigger}
+            isReady={isReady}
+            simplified={simplified}
+            targetId={targetId}
+            className={className?.onboardingSignup}
+            onClose={onClose}
+          />
         </Tab>
       </TabContainer>
     </div>

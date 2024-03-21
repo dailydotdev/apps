@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Modal, ModalProps } from '../common/Modal';
-import { ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
+import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import PromotionTour from '../../squads/PromotionTour';
 import { useSquad } from '../../../hooks';
 import { ModalClose } from '../common/ModalClose';
@@ -28,6 +28,8 @@ export function SquadPromotionModal({
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
       className="overflow-hidden !border-theme-color-cabbage"
+      isDrawerOnMobile
+      drawerProps={{ className: { drawer: 'pb-4' } }}
     >
       <PromotionTour onClose={onRequestClose} source={squad} />
       <ModalClose

@@ -31,6 +31,7 @@ import {
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral/InviteLinkInput';
+import { TruncateText } from '@dailydotdev/shared/src/components/utilities';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
@@ -87,8 +88,11 @@ const AccountInvitePage = (): ReactElement => {
   return (
     <AccountPageContainer title="Invite friends">
       <InviteLinkInput
-        targetId={TargetId.InviteFriendsPage}
         link={inviteLink}
+        trackingProps={{
+          event_name: AnalyticsEvent.CopyReferralLink,
+          target_id: TargetId.InviteFriendsPage,
+        }}
       />
       <span className="my-4 p-0.5 font-bold text-theme-label-tertiary typo-callout">
         or invite via
@@ -99,6 +103,7 @@ const AccountInvitePage = (): ReactElement => {
           description={labels.referral.generic.inviteText}
           onNativeShare={onShareOrCopyLink}
           onClickSocial={onTrackShare}
+          shortenUrl={false}
         />
       </div>
       <AccountContentSection
@@ -131,8 +136,8 @@ const AccountInvitePage = (): ReactElement => {
               createdAt,
             }: UserShortProfile): React.ReactNode {
               return (
-                <span className="mt-2 text-theme-label-secondary typo-callout">
-                  @{username}
+                <span className="flex text-theme-label-secondary typo-callout">
+                  <TruncateText>@{username}</TruncateText>
                   <Separator />
                   <time dateTime={createdAt}>
                     {format(new Date(createdAt), 'dd MMM yyyy')}

@@ -1,14 +1,14 @@
 import React, { ReactElement } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonColor, ButtonSize } from '../buttons/Button';
 import { cloudinary } from '../../lib/image';
-import { postDateFormat } from '../../lib/dateFormat';
+import { TimeFormatType } from '../../lib/dateFormat';
 import { Image } from '../image/Image';
 import { useChangelog } from '../../hooks/useChangelog';
 import { ExtensionMessageType } from '../../lib/extension';
 import { useToastNotification } from '../../hooks';
 import { updateFirefoxExtensionLink } from '../../lib/constants';
-import { UpvoteIcon, DiscussIcon as CommentIcon } from '../icons';
+import { DiscussIcon as CommentIcon, UpvoteIcon } from '../icons';
 import InteractionCounter from '../InteractionCounter';
 import { checkIsExtension } from '../../lib/func';
 import { UserPostVote } from '../../graphql/posts';
@@ -16,6 +16,7 @@ import InteractivePopup, { InteractivePopupPosition } from './InteractivePopup';
 import { Origin } from '../../lib/analytics';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import { ButtonVariant } from '../buttons/common';
+import { DateFormat } from '../utilities';
 
 const toastMessageMap = {
   error: 'Something went wrong, try again later',
@@ -48,8 +49,8 @@ function ChangelogTooltip(): ReactElement {
           );
         }
 
-        const browser = await import('webextension-polyfill-ts').then(
-          (mod) => mod.browser,
+        const browser = await import('webextension-polyfill').then(
+          (mod) => mod.default,
         );
 
         const updateResponse: { status: string } =
@@ -83,10 +84,12 @@ function ChangelogTooltip(): ReactElement {
     !!post && (
       <InteractivePopup
         position={InteractivePopupPosition.LeftEnd}
-        className="ml-6 w-[24rem] max-w-[360px] border border-theme-color-cabbage bg-theme-bg-tertiary shadow-2 focus:outline-none"
+        className="ml-6 w-[24rem] max-w-[360px] border border-theme-color-cabbage bg-accent-pepper-subtlest shadow-2 focus:outline-none"
         data-testid="changelog"
         onClose={dismissChangelog}
-        closeButtonVariant={ButtonVariant.Tertiary}
+        closeButton={{
+          variant: ButtonVariant.Tertiary,
+        }}
       >
         <header className="flex flex-1 items-center border-b border-theme-divider-tertiary px-4 py-3">
           <h3
@@ -98,7 +101,7 @@ function ChangelogTooltip(): ReactElement {
         </header>
         <section className="flex h-full max-h-full flex-1 shrink flex-col p-5">
           <Image
-            className="h-[108px] w-[207px] rounded-lg object-cover"
+            className="h-[108px] w-[207px] rounded-8 object-cover"
             alt="Post cover image"
             src={post.image}
             fallbackSrc={cloudinary.post.imageCoverPlaceholder}
@@ -111,13 +114,12 @@ function ChangelogTooltip(): ReactElement {
           >
             {post.title}
           </h3>
-          <time
-            className="text-theme-label-quaternary typo-callout"
-            dateTime={post.createdAt}
+          <DateFormat
             data-testid="changelogDate"
-          >
-            {postDateFormat(post.createdAt)}
-          </time>
+            date={post.createdAt}
+            type={TimeFormatType.Post}
+            className="text-theme-label-quaternary typo-callout"
+          />
           {!!post.summary && (
             <div
               className="w mt-2 text-theme-label-tertiary typo-callout"
@@ -165,11 +167,11 @@ function ChangelogTooltip(): ReactElement {
         </section>
         <footer className="flex h-16 w-full items-center justify-between border-t border-theme-divider-tertiary p-3">
           <Button
-            className="btn-tertiary"
             onClick={dismissChangelog}
             tag="a"
             href={post.commentsPermalink}
             data-testid="changelogReleaseNotesBtn"
+            variant={ButtonVariant.Tertiary}
           >
             Release notes
           </Button>
@@ -177,10 +179,11 @@ function ChangelogTooltip(): ReactElement {
             <Button
               tag={isFirefoxExtension ? 'a' : undefined}
               href={isFirefoxExtension ? updateFirefoxExtensionLink : undefined}
-              className="btn-primary-cabbage"
               data-testid="changelogExtensionBtn"
               loading={isExtensionUpdating}
               onClick={onExtensionUpdateClick}
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Cabbage}
             >
               Update extension
             </Button>

@@ -1,27 +1,37 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { LazyModalCommonProps, Modal } from '../common/Modal';
+import { Modal } from '../common/Modal';
 import classed from '../../../lib/classed';
 import { Checkbox } from '../../fields/Checkbox';
 import { ModalClose } from '../common/ModalClose';
 import { cloudinary } from '../../../lib/image';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
-
-interface FirstStreakModalProps extends LazyModalCommonProps {
-  currentStreak: number;
-  previousStreak: number;
-}
+import { StreakModalProps } from './common';
+import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
+import { AnalyticsEvent } from '../../../lib/analytics';
 
 const Paragraph = classed('p', 'text-center text-theme-label-tertiary');
 
-export default function FirstStreakModal({
+export default function NewStreakModal({
   currentStreak,
-  previousStreak,
+  maxStreak,
   onRequestClose,
   ...props
-}: FirstStreakModalProps): ReactElement {
+}: StreakModalProps): ReactElement {
+  const { trackEvent } = useAnalyticsContext();
   const { toggleOptOutWeeklyGoal, optOutWeeklyGoal } = useSettingsContext();
-  const shouldShowSplash = currentStreak > 20;
+  const shouldShowSplash = currentStreak >= maxStreak;
+  const daysPlural = currentStreak === 1 ? 'day' : 'days';
+
+  const handleOptOut = () => {
+    if (!optOutWeeklyGoal) {
+      trackEvent({
+        event_name: AnalyticsEvent.DismissStreaksMilestone,
+      });
+    }
+
+    toggleOptOutWeeklyGoal();
+  };
 
   return (
     <Modal
@@ -29,9 +39,10 @@ export default function FirstStreakModal({
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.XSmall}
       onRequestClose={onRequestClose}
+      isDrawerOnMobile
     >
       <ModalClose onClick={onRequestClose} className="right-2 top-2" />
-      <Modal.Body className="items-center">
+      <Modal.Body className="items-center overflow-hidden">
         <span className="relative flex flex-col items-center justify-center">
           <img
             src={
@@ -62,7 +73,7 @@ export default function FirstStreakModal({
         >
           {shouldShowSplash
             ? 'New streak record!'
-            : `${currentStreak} days streak`}
+            : `${currentStreak} ${daysPlural} streak`}
         </strong>
         <Paragraph
           className={classNames(
@@ -71,15 +82,14 @@ export default function FirstStreakModal({
           )}
         >
           {shouldShowSplash
-            ? 'Epic win! You are on a league of your own'
-            : `New milestone reached! You are unstoppable. Your previous record was
-        ${previousStreak} days.`}
+            ? 'Epic win! You are in a league of your own'
+            : `New milestone reached! You are unstoppable.`}
         </Paragraph>
         <Checkbox
           name="show_streaks"
           className="mt-10"
           checked={optOutWeeklyGoal}
-          onToggle={toggleOptOutWeeklyGoal}
+          onToggle={handleOptOut}
         >
           Never show this again
         </Checkbox>

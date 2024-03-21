@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
-import { AnalyticsEvent, TargetId } from '../../lib/analytics';
 import { useCopyLink } from '../../hooks/useCopy';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { FieldClassName } from '../fields/BaseFieldContainer';
+import { AnalyticsEvent } from '../../hooks/analytics/useAnalyticsQueue';
 
 interface Text {
   copied?: string;
@@ -12,28 +12,25 @@ interface Text {
 }
 
 interface InviteLinkInputProps {
-  targetId: TargetId;
   link: string;
   text?: Text;
   onCopy?: () => void;
   className?: FieldClassName;
+  trackingProps: AnalyticsEvent;
 }
 
 export function InviteLinkInput({
   link,
-  targetId,
   text = {},
   onCopy,
   className,
+  trackingProps,
 }: InviteLinkInputProps): ReactElement {
   const [copied, onCopyLink] = useCopyLink(() => link);
   const { trackEvent } = useAnalyticsContext();
   const onCopyClick = () => {
     onCopyLink();
-    trackEvent({
-      event_name: AnalyticsEvent.CopyReferralLink,
-      target_id: targetId,
-    });
+    trackEvent(trackingProps);
 
     if (onCopy) {
       onCopy();

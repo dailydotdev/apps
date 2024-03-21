@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
 import { ChecklistStepProps } from '../../lib/checklist';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { ChecklistStep } from './ChecklistStep';
 import { BellIcon } from '../icons';
 import { NotificationPromptSource } from '../../lib/analytics';
-import { useEnableNotification } from '../../hooks/useEnableNotification';
+import { useEnableNotification } from '../../hooks/notifications';
 
 const NotificationChecklistStep = (props: ChecklistStepProps): ReactElement => {
   const { onEnable } = useEnableNotification({

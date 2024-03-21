@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import request from 'graphql-request';
-import { Button, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { formToJson } from '../../lib/form';
 import { graphqlUrl } from '../../lib/config';
 import {
@@ -25,7 +25,7 @@ import {
 import PostItemCard from '../post/PostItemCard';
 import { PostItem } from '../../graphql/posts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { LinkIcon } from '../icons';
+import { LinkIcon, LockIcon } from '../icons';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Modal, ModalProps } from './common/Modal';
 import EnableNotification from '../notifications/EnableNotification';
@@ -35,6 +35,7 @@ import {
   NotificationPromptSource,
 } from '../../lib/analytics';
 import { Justify } from '../utilities';
+import { ReputationAlert } from './ReputationAlert';
 
 const defaultErrorMessage = 'Something went wrong, try again';
 
@@ -143,13 +144,7 @@ export default function SubmitArticleModal({
     }
 
     if (!isEnabled) {
-      return (
-        <Alert
-          className="mt-4"
-          type={AlertType.Error}
-          title="You do not have enough reputation to use this feature yet."
-        />
-      );
+      return <ReputationAlert />;
     }
 
     return (
@@ -193,12 +188,23 @@ export default function SubmitArticleModal({
     return <></>;
   }
 
+  const submitButtonProps = {
+    'aria-label': 'Submit article',
+    loading: isValidating,
+    disabled: !enableSubmission || !isEnabled || !!existingArticle,
+  };
+
   return (
     <Modal
       {...modalProps}
       kind={Modal.Kind.FlexibleTop}
       size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
+      formProps={{
+        form: 'submit-article',
+        title: FeedItemTitle.SubmitArticle,
+        rightButtonProps: submitButtonProps,
+      }}
     >
       <Modal.Header title={FeedItemTitle.SubmitArticle} />
       <Modal.Body>
@@ -207,18 +213,14 @@ export default function SubmitArticleModal({
           id="submit-article"
           aria-busy={isValidating}
           onSubmit={onSubmit}
+          className="flex flex-col gap-5"
         >
-          <div>
-            <p className="mb-2 text-theme-label-tertiary typo-callout">
+          <div className="flex flex-col gap-4">
+            <p className="text-theme-label-tertiary typo-callout">
               Found an interesting post? Do you want to share it with the
               community? Enter the post&apos;s URL / link below to add it to the
               feed.
             </p>
-            {!isEnabled && (
-              <p className="mb-2 mt-6 text-theme-label-tertiary typo-callout">
-                You need more reputation to enable this feature
-              </p>
-            )}
             <a
               className="font-bold text-theme-label-link underline typo-callout"
               target="_blank"
@@ -227,47 +229,50 @@ export default function SubmitArticleModal({
             >
               Learn more
             </a>
-            <p className="mb-4 mt-6 typo-callout">
-              Daily suggestions used&nbsp;
-              {submissionAvailability?.todaySubmissionsCount ?? 0}/
-              {submissionAvailability?.limit ?? 3}
-            </p>
-            <TextField
-              autoFocus
-              type="url"
-              autoComplete="off"
-              leftIcon={<LinkIcon />}
-              fieldType="tertiary"
-              name="articleUrl"
-              inputId="article_url"
-              label="Paste post url"
-              disabled={!isEnabled}
-              hint={urlHint}
-              valid={!urlHint}
-              valueChanged={onUrlChanged}
-            />
-            {isSubmitted ? (
-              <Alert
-                className="mt-4"
-                type={AlertType.Success}
-                title="We will notify you about the post-submission status via email"
-              />
-            ) : (
-              submissionAvailability?.todaySubmissionsCount === 3 && (
-                <Alert
-                  className="mt-4"
-                  type={AlertType.Error}
-                  title="You have reached the limit of 3 submissions per day"
-                />
-              )
-            )}
-            {isEnabled && (
-              <EnableNotification
-                source={NotificationPromptSource.CommunityPicks}
-              />
-            )}
-            {getAlert()}
           </div>
+          <p className="typo-callout">
+            Daily suggestions used&nbsp;
+            {submissionAvailability?.todaySubmissionsCount ?? 0}/
+            {submissionAvailability?.limit ?? 3}
+          </p>
+          <TextField
+            autoFocus
+            type="url"
+            autoComplete="off"
+            leftIcon={<LinkIcon />}
+            rightIcon={
+              !isEnabled ? (
+                <LockIcon className="text-theme-label-disabled" />
+              ) : undefined
+            }
+            fieldType="tertiary"
+            name="articleUrl"
+            inputId="article_url"
+            label="Post url"
+            disabled={!isEnabled}
+            hint={urlHint}
+            valid={!urlHint}
+            valueChanged={onUrlChanged}
+          />
+          {isSubmitted ? (
+            <Alert
+              type={AlertType.Success}
+              title="We will notify you about the post-submission status via email"
+            />
+          ) : (
+            submissionAvailability?.todaySubmissionsCount === 3 && (
+              <Alert
+                type={AlertType.Error}
+                title="You have reached the limit of 3 submissions per day"
+              />
+            )
+          )}
+          {isEnabled && (
+            <EnableNotification
+              source={NotificationPromptSource.CommunityPicks}
+            />
+          )}
+          {getAlert()}
         </form>
       </Modal.Body>
       {existingArticle && (
@@ -279,11 +284,9 @@ export default function SubmitArticleModal({
       <Modal.Footer justify={isSubmitted ? Justify.Center : Justify.End}>
         {(!isSubmitted || !!existingArticle) && (
           <Button
+            {...submitButtonProps}
             variant={ButtonVariant.Primary}
             type="submit"
-            aria-label="Submit article"
-            disabled={!enableSubmission || !isEnabled || !!existingArticle}
-            loading={isValidating}
             form="submit-article"
           >
             <span className={isValidating ? 'invisible' : ''}>

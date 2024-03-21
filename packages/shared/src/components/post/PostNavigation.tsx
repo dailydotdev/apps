@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Button } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { ArrowIcon } from '../icons';
 import { PostHeaderActions } from './PostHeaderActions';
@@ -13,6 +13,7 @@ function PostNavigation({
   onNextPost,
   className = {},
   children,
+  contextMenuId = 'post-navigation-context',
   ...props
 }: PostNavigationProps): ReactElement {
   return (
@@ -26,8 +27,9 @@ function PostNavigation({
       {onPreviousPost && (
         <SimpleTooltip content="Previous">
           <Button
-            className="btn-tertiary -rotate-90"
+            className="-rotate-90"
             icon={<ArrowIcon />}
+            variant={ButtonVariant.Tertiary}
             onClick={onPreviousPost}
             disabled={[PostPosition.First, PostPosition.Only].includes(
               postPosition,
@@ -38,8 +40,9 @@ function PostNavigation({
       {onNextPost && (
         <SimpleTooltip content="Next">
           <Button
-            className="btn-tertiary rotate-90"
+            className="rotate-90"
             icon={<ArrowIcon />}
+            variant={ButtonVariant.Tertiary}
             onClick={onNextPost}
             disabled={[PostPosition.Last, PostPosition.Only].includes(
               postPosition,
@@ -52,7 +55,7 @@ function PostNavigation({
         {...props}
         className={classNames('flex', className?.actions)}
         notificationClassName="ml-4"
-        contextMenuId="post-navigation-context"
+        contextMenuId={contextMenuId}
       />
     </div>
   );

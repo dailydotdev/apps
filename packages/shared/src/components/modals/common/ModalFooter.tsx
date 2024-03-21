@@ -16,10 +16,16 @@ export function ModalFooter({
   justify = Justify.End,
   view,
 }: ModalFooterProps): ReactElement {
-  const { activeView } = useContext(ModalPropsContext);
+  const { activeView, isDrawer, isForm } = useContext(ModalPropsContext);
+
+  if (isForm || isDrawer) {
+    return null;
+  }
+
   if (view && view !== activeView) {
     return null;
   }
+
   return (
     <footer
       className={classNames(

@@ -14,7 +14,7 @@ import { LoggedUser } from '../../lib/user';
 import { Checkbox } from '../fields/Checkbox';
 import RadialProgress from '../RadialProgress';
 import Rank from '../Rank';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import styles from './NewRankModal.module.css';
 import GoToDevCardButton from '../GoToDevCardButton';
 import useDebounce from '../../hooks/useDebounce';
@@ -46,7 +46,7 @@ export default function NewRankModal({
 
   const title = useMemo(() => {
     if (user) {
-      const firstName = user.name.split(' ')[0];
+      const firstName = user.name?.split(' ')[0];
       if (rank === 1) {
         return `Wow, ${firstName}!`;
       }
@@ -144,7 +144,7 @@ export default function NewRankModal({
                 alt="Your profile"
               />
               <Rank
-                className={`${styles.newRankBadge} absolute inset-x-0 bottom-4 mx-auto rounded-full bg-theme-bg-tertiary`}
+                className={`${styles.newRankBadge} absolute inset-x-0 bottom-4 mx-auto rounded-full bg-accent-pepper-subtlest`}
                 rank={rank}
                 colorByRank
               />

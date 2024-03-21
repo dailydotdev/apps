@@ -36,7 +36,8 @@ const ChecklistStep = ({
           >
             <div
               className={classNames(
-                isActive && 'rounded-full bg-theme-bg-cabbage-opacity-24 p-1',
+                isActive &&
+                  'bg-theme-bg-raw-cabbage-opacity-24 rounded-full p-1',
               )}
               data-testid={`checklist-step-${isActive ? 'active' : 'inactive'}`}
             >

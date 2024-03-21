@@ -33,6 +33,8 @@ import { useReferralReminder } from '../hooks/referral/useReferralReminder';
 import GenericFeedItemComponent from './feed/feedItemComponent/GenericFeedItemComponent';
 import { ActiveFeedNameContextProvider } from '../contexts';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
+import { useStreakMilestone } from '../hooks/streaks';
+import { ReputationPrivilegesModalTrigger } from './modals';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -55,7 +57,6 @@ const feeds = Object.values(SharedFeedPage);
 
 function MainLayoutComponent({
   children,
-  greeting,
   activePage,
   isNavItemsButton,
   showDnd,
@@ -82,13 +83,14 @@ function MainLayoutComponent({
   const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
 
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
-  const { shouldUseFeedLayoutV1 } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
 
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useAuthErrors();
   useAuthVerificationRecovery();
   useNotificationParams();
   useReferralReminder();
+  useStreakMilestone();
 
   const onMobileSidebarToggle = (state: boolean) => {
     trackEvent({
@@ -169,7 +171,7 @@ function MainLayoutComponent({
     return null;
   }
   const isScreenCentered =
-    isLaptopXL && shouldUseFeedLayoutV1 ? true : screenCentered;
+    isLaptopXL && shouldUseMobileFeedLayout ? true : screenCentered;
 
   return (
     <div className="antialiased">
@@ -178,8 +180,8 @@ function MainLayoutComponent({
       <InAppNotificationElement />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
+      <ReputationPrivilegesModalTrigger />
       <MainLayoutHeader
-        greeting={greeting}
         hasBanner={isBannerAvailable}
         sidebarRendered={sidebarRendered}
         optOutWeeklyGoal={optOutWeeklyGoal}
@@ -200,7 +202,6 @@ function MainLayoutComponent({
         {renderSidebar()}
         {children}
       </main>
-      <PromptElement />
     </div>
   );
 }

@@ -4,10 +4,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
 import NewSourceModal from './NewSourceModal';
-import { mockGraphQL } from '../../../__tests__/helpers/graphql';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '../../../__tests__/helpers/graphql';
 import {
   REQUEST_SOURCE_MUTATION,
   SOURCE_BY_FEED_QUERY,
+  SOURCE_REQUEST_AVAILABILITY_QUERY,
 } from '../../graphql/newSource';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { AnonymousUser, LoggedUser } from '../../lib/user';
@@ -27,10 +31,35 @@ const defaultAnonymousUser: AnonymousUser = {
   referrer: 'string',
 };
 
+const userWithReputation = {
+  ...user,
+  reputation: 250,
+};
+
+const createSourceRequestAvailabilityMock = (userUpdate: {
+  reputation?: number;
+}) => ({
+  request: { query: SOURCE_REQUEST_AVAILABILITY_QUERY },
+  result: () => {
+    return {
+      data: {
+        sourceRequestAvailability: {
+          hasAccess: userUpdate?.reputation >= 250,
+        },
+      },
+    };
+  },
+});
+
 const renderComponent = (
-  userUpdate: LoggedUser | AnonymousUser = user,
+  userUpdate: LoggedUser | AnonymousUser = userWithReputation,
+  mocks: MockedGraphQLResponse[] = [
+    createSourceRequestAvailabilityMock(userUpdate as unknown),
+  ],
 ): RenderResult => {
   const client = new QueryClient();
+  mocks.forEach(mockGraphQL);
+
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
@@ -77,15 +106,10 @@ it('should show a contact button on an unexpected error', async () => {
   expect(await screen.findByText('Contact')).toBeInTheDocument();
 });
 
-it('should show login modal for anonymous users', async () => {
+it('should show error alert for anonymous users', async () => {
   renderComponent(defaultAnonymousUser);
-  const input = await screen.findByRole('textbox');
-  userEvent.type(input, 'https://daily.dev');
-  const btn = await screen.findByText('Check link');
-  btn.click();
-  expect(
-    await screen.findByTestId('login state: submit new source'),
-  ).toBeInTheDocument();
+  const alertEl = await screen.findByTestId('reputationAlert');
+  expect(alertEl).toBeInTheDocument();
 });
 
 it('should show if the source already exists in the system', async () => {
@@ -176,4 +200,13 @@ it('should send source request', async () => {
 
   userEvent.click(await screen.findByText('Submit for review'));
   await waitFor(() => expect(onRequestClose).toBeCalledTimes(1));
+});
+
+it('should show error alert when user does not have enough reputation', async () => {
+  renderComponent({
+    ...user,
+    reputation: 10,
+  });
+  const alertEl = await screen.findByTestId('reputationAlert');
+  expect(alertEl).toBeInTheDocument();
 });

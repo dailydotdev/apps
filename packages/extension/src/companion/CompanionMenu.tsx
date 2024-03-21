@@ -3,7 +3,7 @@ import {
   Button,
   ButtonColor,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   UpvoteIcon,
   DiscussIcon as CommentIcon,
@@ -207,7 +207,7 @@ export default function CompanionMenu({
   });
 
   return (
-    <div className="group relative my-6 flex w-14 flex-col gap-2 self-center rounded-l-16 border border-theme-divider-quaternary bg-theme-bg-primary p-2">
+    <div className="group relative my-6 flex w-14 flex-col gap-2 self-center rounded-l-16 border border-theme-divider-quaternary bg-background-default p-2">
       <CompanionToggle
         companionState={companionState}
         isAlertDisabled={!showCompanionHelper}

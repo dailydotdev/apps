@@ -24,10 +24,9 @@ interface UsePostByIdProps {
   options?: QueryObserverOptions<PostData>;
 }
 
-interface UsePostById extends Pick<UseQueryResult, 'isError' | 'isFetched'> {
+interface UsePostById extends Pick<UseQueryResult, 'isError' | 'isLoading'> {
   post: Post;
   relatedCollectionPosts?: Connection<RelatedPost>;
-  isPostLoadingOrFetching?: boolean;
 }
 
 const POST_KEY = 'post';
@@ -105,10 +104,7 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
   const {
     data: postById,
     isError,
-    isFetched,
     isLoading,
-    isFetching,
-    isRefetching,
   } = useQuery<PostData>(
     key,
     () => request(graphqlUrl, POST_BY_ID_QUERY, { id }),
@@ -124,10 +120,9 @@ const usePostById = ({ id, options = {} }: UsePostByIdProps): UsePostById => {
       post: post?.post,
       relatedCollectionPosts: post?.relatedCollectionPosts,
       isError,
-      isFetched,
-      isPostLoadingOrFetching: (isLoading || isFetching) && !isRefetching,
+      isLoading,
     }),
-    [post, isError, isFetched, isLoading, isFetching, isRefetching],
+    [post, isError, isLoading],
   );
 };
 

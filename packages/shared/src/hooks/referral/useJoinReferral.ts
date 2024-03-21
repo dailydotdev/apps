@@ -47,6 +47,8 @@ export const useJoinReferral = (): void => {
         }
       }
     }
+
+    return null;
   };
 
   useQuery(['join_referral', { cid, userid }], loadReferralCookie, {

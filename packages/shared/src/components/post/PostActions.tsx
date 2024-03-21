@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import {
   UpvoteIcon,
   DiscussIcon as CommentIcon,
-  ShareIcon,
   BookmarkIcon,
   DownvoteIcon,
   LinkIcon,
@@ -25,8 +24,6 @@ import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
 } from '../../hooks/useBookmarkPost';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
 
 export interface ShareBookmarkProps {
   onShare: (post: Post) => void;
@@ -47,7 +44,6 @@ export function PostActions({
   onComment,
   origin = Origin.ArticlePage,
 }: PostActionsProps): ReactElement {
-  const copyLinkFeature = useFeature(feature.copyLink);
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
   const { queryKey: feedQueryKey, items } = useActiveFeedContext();
@@ -169,27 +165,15 @@ export function PostActions({
           >
             Bookmark
           </QuaternaryButton>
-          {copyLinkFeature ? (
-            <QuaternaryButton
-              id="share-post-btn"
-              onClick={() => onShare(post)}
-              icon={<LinkIcon />}
-              responsiveLabelClass={actionsClassName}
-              className="btn-tertiary-cabbage"
-            >
-              Copy
-            </QuaternaryButton>
-          ) : (
-            <QuaternaryButton
-              id="share-post-btn"
-              onClick={() => onShare(post)}
-              icon={<ShareIcon />}
-              responsiveLabelClass={actionsClassName}
-              className="btn-tertiary-cabbage"
-            >
-              Share
-            </QuaternaryButton>
-          )}
+          <QuaternaryButton
+            id="share-post-btn"
+            onClick={() => onShare(post)}
+            icon={<LinkIcon />}
+            responsiveLabelClass={actionsClassName}
+            className="btn-tertiary-cabbage"
+          >
+            Copy
+          </QuaternaryButton>
         </div>
       </div>
     </ConditionalWrapper>
