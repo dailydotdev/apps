@@ -36,7 +36,7 @@ import ShareOptionsMenu from './ShareOptionsMenu';
 import { SharedFeedPage } from './utilities';
 import { FeedContainer, FeedContainerProps } from './feeds';
 import { ActiveFeedContext } from '../contexts';
-import { useFeedLayout, useFeedVotePost } from '../hooks';
+import { useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
 import {
   AllFeedPages,
   OtherFeedPage,
@@ -51,6 +51,7 @@ import { isNullOrUndefined } from '../lib/func';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { acquisitionKey } from './cards/AcquisitionFormCard';
+import { MarketingCtaVariant } from './cards/MarketingCta/common';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'>,
@@ -149,6 +150,9 @@ export default function Feed<T>({
       'true' &&
     !user?.acquisitionChannel;
   const adSpot = useFeature(feature.feedAdSpot);
+  const { getMarketingCta } = useBoot();
+  const marketingCta = getMarketingCta(MarketingCtaVariant.Card);
+  const showMarketingCta = feedName === SharedFeedPage.MyFeed && !!marketingCta;
 
   const {
     items,
@@ -172,6 +176,7 @@ export default function Feed<T>({
         disableAds,
         adPostLength: isSquadFeed ? 2 : undefined,
         showAcquisitionForm,
+        ...(showMarketingCta && { marketingCta }),
       },
     },
   );

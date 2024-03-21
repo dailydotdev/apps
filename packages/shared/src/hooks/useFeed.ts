@@ -78,6 +78,7 @@ type UseFeedSettingParams = {
   adPostLength?: number;
   disableAds?: boolean;
   showAcquisitionForm?: boolean;
+  marketingCta?: MarketingCta;
 };
 
 export interface UseFeedOptionalParams<T> {
@@ -166,8 +167,13 @@ export default function useFeed<T>(
             index,
           }));
 
-          if (settings.showAcquisitionForm) {
+          if (pageIndex === 0 && settings.showAcquisitionForm) {
             posts.splice(adSpot, 0, { type: 'userAcquisition' });
+          } else if (pageIndex === 0 && !!settings.marketingCta) {
+            posts.splice(adSpot, 0, {
+              type: 'marketingCta',
+              marketingCta: settings.marketingCta,
+            });
           } else if (isAdsQueryEnabled) {
             if (adsQuery.data?.pages[pageIndex]) {
               posts.splice(adSpot, 0, {
@@ -199,6 +205,7 @@ export default function useFeed<T>(
     adsQuery.data,
     adsQuery.isFetching,
     settings.showAcquisitionForm,
+    settings.marketingCta,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
