@@ -19,7 +19,6 @@ import { feature } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
 
 const Container = classed('div', 'flex flex-row items-center');
-
 const getButtonVariant = ({
   inlineActions,
   isSourceSubscribeV1,
@@ -40,7 +39,6 @@ const getButtonVariant = ({
 
 export function PostHeaderActions({
   onReadArticle,
-  onShare,
   post,
   onClose,
   inlineActions,
@@ -85,7 +83,6 @@ export function PostHeaderActions({
       {!isInternalReadType(post) && !!onReadArticle && <ButtonWithExperiment />}
       {isCollection && <CollectionSubscribeButton post={post} isCondensed />}
       <PostMenuOptions
-        onShare={onShare}
         post={post}
         onClose={onClose}
         inlineActions={inlineActions}

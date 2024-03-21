@@ -16,23 +16,24 @@ import { useAnalyticsContext } from '../contexts/AnalyticsContext';
 export interface Props {
   post: Post;
   link: string;
-  share: (post: Post) => void;
+  share: () => void;
 }
 
 export function ShareMobile({ post, share, link }: Props): ReactElement {
-  const [copying, copyLink] = useCopyPostLink(link);
+  const [copying] = useCopyPostLink(link);
+
   const { trackEvent } = useAnalyticsContext();
 
   const onShare = () => {
     trackEvent(postAnalyticsEvent(AnalyticsEvent.StartShareToSquad, post));
-    share(post);
+    share();
   };
 
   return (
     <WidgetContainer className="flex flex-col items-start gap-2 p-3 laptop:hidden">
       <Button
         size={ButtonSize.Small}
-        onClick={() => copyLink()}
+        onClick={share}
         pressed={copying}
         icon={<CopyIcon />}
         variant={ButtonVariant.Tertiary}

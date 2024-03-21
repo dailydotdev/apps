@@ -23,7 +23,6 @@ export const CollectionPostWidgets = ({
   return (
     <PageWidgets className={className}>
       <CollectionPostHeaderActions
-        onShare={onShare}
         post={post}
         onClose={onClose}
         className="hidden pt-6 tablet:flex"
