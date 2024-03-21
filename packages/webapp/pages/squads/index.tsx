@@ -36,7 +36,12 @@ import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
 import Link from 'next/link';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  useSquadNavigation,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
+import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -56,6 +61,7 @@ const seo: NextSeoProps = {
 
 const SquadsPage = ({ initialData }: Props): ReactElement => {
   const { user, squads } = useContext(AuthContext);
+  const { openNewSquad } = useSquadNavigation();
 
   const queryResult = useInfiniteQuery(
     ['sourcesFeed'],
@@ -93,6 +99,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
               icon={<PlusIcon />}
+              onClick={() => openNewSquad({ origin: Origin.SquadDirectory })}
             >
               New Squad
             </Button>
