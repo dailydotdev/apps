@@ -21,7 +21,11 @@ import MainLayoutHeader, {
 } from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
-import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
+import {
+  AnalyticsEvent,
+  NotificationTarget,
+  TargetType,
+} from '../lib/analytics';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -103,10 +107,17 @@ function MainLayoutComponent({
         type: LazyModal.MarketingCta,
         props: {
           marketingCta,
+          onAfterOpen: () => {
+            trackEvent({
+              event_name: AnalyticsEvent.Impression,
+              target_type: TargetType.MarketingCtaCard,
+              target_id: marketingCta.campaignId,
+            });
+          },
         },
       });
     }
-  }, [marketingCta, openModal]);
+  }, [marketingCta, openModal, trackEvent]);
 
   const onMobileSidebarToggle = (state: boolean) => {
     trackEvent({
