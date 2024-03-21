@@ -37,7 +37,12 @@ import { SharedFeedPage } from './utilities';
 import { FeedContainer, FeedContainerProps } from './feeds';
 import { ActiveFeedContext } from '../contexts';
 import { useFeedLayout, useFeedVotePost } from '../hooks';
-import { AllFeedPages, RequestKey, updateCachedPagePost } from '../lib/query';
+import {
+  AllFeedPages,
+  OtherFeedPage,
+  RequestKey,
+  updateCachedPagePost,
+} from '../lib/query';
 import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
@@ -136,7 +141,7 @@ export default function Feed<T>({
   } = useContext(SettingsContext);
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
-  const isSquadFeed = feedName === 'squad';
+  const isSquadFeed = feedName === OtherFeedPage.Squad;
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const showAcquisitionForm =
     feedName === SharedFeedPage.MyFeed &&

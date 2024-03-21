@@ -20,6 +20,7 @@ export interface FeedContainerProps {
   children: ReactNode;
   forceCardMode?: boolean;
   header?: ReactNode;
+  footer?: ReactNode;
   className?: string;
   inlineHeader?: boolean;
   showSearch?: boolean;
@@ -91,6 +92,7 @@ export const FeedContainer = ({
   children,
   forceCardMode,
   header,
+  footer,
   className,
   inlineHeader = false,
   showSearch,
@@ -202,6 +204,7 @@ export const FeedContainer = ({
               {children}
             </div>
           </ConditionalWrapper>
+          {footer}
         </div>
       </div>
     </div>
