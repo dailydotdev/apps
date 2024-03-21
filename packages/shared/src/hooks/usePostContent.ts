@@ -16,7 +16,6 @@ import { updatePostCache } from './usePostById';
 import { ReferralCampaignKey } from '../lib/referral';
 import { useGetShortUrl } from './utils/useGetShortUrl';
 import { ShareProvider } from '../lib/share';
-import { Origin } from '../lib/analytics';
 import { useCopyPostLink } from './useCopyPostLink';
 
 export interface UsePostContent {
