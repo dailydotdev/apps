@@ -6,22 +6,24 @@ import classed from '../../../lib/classed';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { Pill, PillSize } from '../../Pill';
 
+export type MarketingCtaFlags = {
+  title: string;
+  description?: string;
+  image?: string;
+  tagText?: string;
+  tagColor?: string;
+  ctaUrl: string;
+  ctaText: string;
+};
+
 export interface MarketingCta {
   campaignId: string;
   createdAt: Date;
   variant: 'card' | 'popover';
-  flags: {
-    image?: string;
-    title: string;
-    ctaUrl: string;
-    ctaText: string;
-    tagText?: string;
-    tagColor?: string;
-    description?: string;
-  };
+  flags: MarketingCtaFlags;
 }
 
-type HeaderProps = Pick<MarketingCta['flags'], 'tagText' | 'tagColor'> & {
+type HeaderProps = Pick<MarketingCtaFlags, 'tagText' | 'tagColor'> & {
   onClose?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
   buttonSize?: ButtonSize;
 };
@@ -59,7 +61,7 @@ export const Description = classed(
   'text-theme-label-secondary typo-callout',
 );
 
-type CTAButtonType = Pick<MarketingCta['flags'], 'ctaText' | 'ctaUrl'> & {
+type CTAButtonType = Pick<MarketingCtaFlags, 'ctaText' | 'ctaUrl'> & {
   onClick?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
   className?: string;
   buttonSize?: ButtonSize;
