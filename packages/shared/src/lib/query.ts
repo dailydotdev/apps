@@ -15,7 +15,7 @@ import { SharedFeedPage } from '../components/utilities';
 
 export enum OtherFeedPage {
   Tag = 'tag',
-  Squad = 'squad',
+  Squad = 'squads',
   Source = 'source',
   Bookmarks = 'bookmarks',
   SearchBookmarks = 'search-bookmarks',
