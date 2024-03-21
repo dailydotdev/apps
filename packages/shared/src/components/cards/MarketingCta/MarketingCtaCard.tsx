@@ -40,7 +40,7 @@ export function MarketingCtaCard({
       target_id: marketingCta.campaignId,
     });
     clearMarketingCta(marketingCta.campaignId);
-  }, [marketingCta.campaignId, trackEvent]);
+  }, [clearMarketingCta, marketingCta.campaignId, trackEvent]);
 
   const onCtaDismiss = useCallback(() => {
     trackEvent({
