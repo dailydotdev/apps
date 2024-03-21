@@ -3,6 +3,7 @@ import React, {
   ComponentType,
   ReactElement,
   ReactNode,
+  useCallback,
 } from 'react';
 import { Item, Menu, MenuProps } from '@dailydotdev/react-contexify';
 import { RootPortal } from '../tooltips/Portal';
@@ -52,9 +53,16 @@ interface ContextMenuProps extends Omit<MenuProps, 'children'> {
 
 export default function ContextMenu({
   options,
+  onHidden,
   ...props
 }: ContextMenuProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
+  const { onHide } = useContextMenu({ id: String(props.id) });
+
+  const handleClose = useCallback(() => {
+    onHide();
+    onHidden?.();
+  }, [onHide, onHidden]);
 
   if (isMobile) {
     return (
@@ -62,7 +70,7 @@ export default function ContextMenu({
         <ContextMenuDrawer
           drawerProps={{
             isOpen: props.isOpen,
-            onClose: props.onHidden,
+            onClose: handleClose,
             displayCloseButton: true,
           }}
           options={options}
@@ -76,6 +84,7 @@ export default function ContextMenu({
       disableBoundariesCheck
       className="menu-primary"
       animation="fade"
+      onHidden={onHidden}
       {...props}
     >
       {options.map(({ label, icon, action, anchorProps, Wrapper }) => (
