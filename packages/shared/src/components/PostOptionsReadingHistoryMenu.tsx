@@ -133,16 +133,14 @@ export default function PostOptionsReadingHistoryMenu({
   ];
 
   return (
-    <>
-      <ContextMenu
-        disableBoundariesCheck
-        id="reading-history-options-context"
-        className="menu-primary"
-        animation="fade"
-        onHidden={onHiddenMenu}
-        options={options}
-        isOpen={isOpen}
-      />
-    </>
+    <ContextMenu
+      disableBoundariesCheck
+      id="reading-history-options-context"
+      className="menu-primary"
+      animation="fade"
+      onHidden={onHiddenMenu}
+      options={options}
+      isOpen={isOpen}
+    />
   );
 }

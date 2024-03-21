@@ -104,7 +104,9 @@ const Notifications = (): ReactElement => {
 
   usePromotionModal();
 
-  const { onMenuClick, isOpen } = useContextMenu({ id: contextId });
+  const { onMenuClick: showOptionsMenu, isOpen } = useContextMenu({
+    id: contextId,
+  });
   const [notification, setNotification] = useState<Notification>();
 
   const onOptionsClick = (e: React.MouseEvent, item: Notification) => {
@@ -119,7 +121,7 @@ const Notifications = (): ReactElement => {
     }
 
     setNotification(item);
-    onMenuClick(e);
+    showOptionsMenu(e);
   };
 
   return (

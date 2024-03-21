@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { Tag } from '../../graphql/feedSettings';
 import { getTagPageLink } from '../../lib/links';
@@ -33,32 +33,37 @@ export default function TagOptionsMenu({
   const { isOpen } = useContextMenu({
     id: ContextMenuIds.TagOptionsContext,
   });
-  const tagOptions: MenuItemProps[] = [];
 
-  if (tag) {
-    tagOptions.push({
-      label: 'View',
-      anchorProps: {
-        href: getTagPageLink(tag.name ?? (tag as string)),
-      },
-    });
-  }
+  const tagOptions = useMemo(() => {
+    const opts: MenuItemProps[] = [];
 
-  if (onFollow) {
-    tagOptions.push({ label: 'Follow', action: onFollow });
-  }
+    if (tag) {
+      opts.push({
+        label: 'View',
+        anchorProps: {
+          href: getTagPageLink(tag.name ?? (tag as string)),
+        },
+      });
+    }
 
-  if (onUnfollow) {
-    tagOptions.push({ label: 'Unfollow', action: onUnfollow });
-  }
+    if (onFollow) {
+      opts.push({ label: 'Follow', action: onFollow });
+    }
 
-  if (onBlock) {
-    tagOptions.push({ label: 'Block', action: onBlock });
-  }
+    if (onUnfollow) {
+      opts.push({ label: 'Unfollow', action: onUnfollow });
+    }
 
-  if (onUnblock) {
-    tagOptions.push({ label: 'Unblock', action: onUnblock });
-  }
+    if (onBlock) {
+      opts.push({ label: 'Block', action: onBlock });
+    }
+
+    if (onUnblock) {
+      opts.push({ label: 'Unblock', action: onUnblock });
+    }
+
+    return opts;
+  }, [tag, onFollow, onUnfollow, onBlock, onUnblock]);
 
   return (
     <ContextMenu
