@@ -18,6 +18,19 @@ export function DiscoverSection({
   const discoverMenuItems: SidebarMenuItem[] = [
     {
       icon: (active: boolean) => (
+        <ListIcon Icon={() => <DiscussIcon secondary={active} />} />
+      ),
+      title: 'Discussions',
+      path: '/discussed',
+      action: () => onNavTabClick?.('discussed'),
+      rightIcon: () => (
+        <span className="flex h-4 items-center rounded-6 bg-brand-default px-1 font-bold text-white typo-caption2">
+          NEW
+        </span>
+      ),
+    },
+    {
+      icon: (active: boolean) => (
         <ListIcon Icon={() => <HotIcon secondary={active} />} />
       ),
       title: 'Popular',
@@ -31,14 +44,6 @@ export function DiscoverSection({
       title: 'Most upvoted',
       path: '/upvoted',
       action: () => onNavTabClick?.('upvoted'),
-    },
-    {
-      icon: (active: boolean) => (
-        <ListIcon Icon={() => <DiscussIcon secondary={active} />} />
-      ),
-      title: 'Best discussions',
-      path: '/discussed',
-      action: () => onNavTabClick?.('discussed'),
     },
     {
       icon: (active: boolean) => (
