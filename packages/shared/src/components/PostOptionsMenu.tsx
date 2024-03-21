@@ -44,7 +44,6 @@ import {
   updateCachedPagePost,
 } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
-import { ShareBookmarkProps } from './post/PostActions';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
 import { getPostByIdKey } from '../hooks/usePostById';
@@ -73,7 +72,7 @@ const PortalMenu = dynamic(
   },
 );
 
-export interface PostOptionsMenuProps extends ShareBookmarkProps {
+export interface PostOptionsMenuProps {
   postIndex?: number;
   post: Post;
   prevPost?: Post;
