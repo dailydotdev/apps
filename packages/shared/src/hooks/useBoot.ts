@@ -2,11 +2,16 @@ import { useQueryClient } from '@tanstack/react-query';
 import { BOOT_QUERY_KEY } from '../contexts/common';
 import { Squad } from '../graphql/sources';
 import { Boot } from '../lib/boot';
+import {
+  MarketingCta,
+  MarketingCtaVariant,
+} from '../components/cards/MarketingCta/common';
 
 type UseBoot = {
   addSquad: (squad: Squad) => void;
   deleteSquad: (squadId: string) => void;
   updateSquad: (squad: Squad) => void;
+  getMarketingCta: (variant: MarketingCtaVariant) => MarketingCta | null;
 };
 
 const sortByName = (squads: Squad[]): Squad[] =>
@@ -44,9 +49,23 @@ export const useBoot = (): UseBoot => {
       squads: sortByName(squads ?? []),
     });
   };
+
+  const getMarketingCta = (
+    variant: MarketingCtaVariant,
+  ): MarketingCta | null => {
+    const { marketingCta } = getBootData();
+
+    if (marketingCta?.variant !== variant) {
+      return null;
+    }
+
+    return marketingCta;
+  };
+
   return {
     addSquad,
     deleteSquad,
     updateSquad,
+    getMarketingCta,
   };
 };

@@ -16,10 +16,15 @@ export type MarketingCtaFlags = {
   ctaText: string;
 };
 
+export enum MarketingCtaVariant {
+  Card = 'card',
+  Popover = 'popover',
+}
+
 export interface MarketingCta {
   campaignId: string;
   createdAt: Date;
-  variant: 'card' | 'popover';
+  variant: MarketingCtaVariant;
   flags: MarketingCtaFlags;
 }
 

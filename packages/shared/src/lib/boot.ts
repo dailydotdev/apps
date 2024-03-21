@@ -6,6 +6,7 @@ import { RemoteSettings } from '../graphql/settings';
 import { Post } from '../graphql/posts';
 import { Squad } from '../graphql/sources';
 import { decrypt } from '../components/crypto';
+import { MarketingCta } from '../components/cards/MarketingCta/common';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -60,6 +61,7 @@ export type Boot = {
     a: string[];
     features?: Record<string, FeatureDefinition>;
   };
+  marketingCta?: MarketingCta | null;
 };
 
 export type BootCacheData = Pick<
