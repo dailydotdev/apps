@@ -64,7 +64,6 @@ export function PostContent({
     post,
     onReadArticle,
     onClose,
-    onShare,
     inlineActions,
     onRemovePost,
   };

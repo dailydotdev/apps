@@ -48,7 +48,7 @@ const usePostContent = ({
   const trackShareEvent = (provider: ShareProvider) =>
     trackEvent(
       postAnalyticsEvent('share post', post, {
-        extra: { provider, origin: Origin.ShareBar },
+        extra: { provider, origin },
       }),
     );
 
