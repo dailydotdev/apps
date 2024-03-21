@@ -24,8 +24,6 @@ import {
   BellSubscribedIcon,
   BellIcon,
 } from './icons';
-
-import { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
@@ -50,13 +48,12 @@ import { usePostMenuActions } from '../hooks/usePostMenuActions';
 import { getPostByIdKey } from '../hooks/usePostById';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
-import { labels } from '../lib';
 import { MenuItemProps } from './fields/PortalMenu';
 import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
 } from '../hooks/useBookmarkPost';
-import { ActiveFeedContext } from '../contexts';
+import { useActiveFeedContext } from '../contexts';
 import { useAdvancedSettings } from '../hooks/feed';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
@@ -123,7 +120,7 @@ export default function PostOptionsMenu({
   const { trackEvent } = useContext(AnalyticsContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openModal } = useLazyModal();
-  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
+  const { queryKey: feedQueryKey, items } = useActiveFeedContext();
   const {
     onFollowSource,
     onUnfollowSource,
@@ -220,17 +217,6 @@ export default function PostOptionsMenu({
     },
     origin,
   });
-
-  const onReportedPost: ReportedCallback = async (
-    reportedPost,
-    { index, shouldBlockSource },
-  ): Promise<void> => {
-    showMessageAndRemovePost(labels.reporting.reportFeedbackText, index);
-
-    if (shouldBlockSource) {
-      await onUnfollowSource({ source: reportedPost?.source });
-    }
-  };
 
   const onBlockSource = async (): Promise<void> => {
     const { successful } = await onUnfollowSource({
@@ -408,7 +394,6 @@ export default function PostOptionsMenu({
         props: {
           index: postIndex,
           post,
-          onReported: onReportedPost,
           origin: Origin.PostContextMenu,
         },
       }),

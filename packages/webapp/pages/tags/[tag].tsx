@@ -34,6 +34,7 @@ import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import GenericFeedItemComponent from '@dailydotdev/shared/src/components/feed/feedItemComponent/GenericFeedItemComponent';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
@@ -159,6 +160,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
         )}
       </CustomFeedHeader>
       <Feed
+        feedItemComponent={GenericFeedItemComponent}
         feedName={OtherFeedPage.Tag}
         feedQueryKey={[
           'tagFeed',

@@ -6,6 +6,7 @@ import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
 import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import GenericFeedItemComponent from '@dailydotdev/shared/src/components/feed/feedItemComponent/GenericFeedItemComponent';
 import {
   getLayout as getProfileLayout,
   getStaticPaths as getProfileStaticPaths,
@@ -29,6 +30,7 @@ const ProfilePostsPage = ({ user }: ProfileLayoutProps): ReactElement => {
     variables: {
       userId,
     },
+    feedItemComponent: GenericFeedItemComponent,
     forceCardMode: true,
     disableAds: true,
     emptyScreen: isSameUser ? (

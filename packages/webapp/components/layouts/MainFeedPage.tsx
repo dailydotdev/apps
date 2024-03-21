@@ -12,9 +12,12 @@ import MainFeedLayout, {
 } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
+import GenericFeedItemComponent from '@dailydotdev/shared/src/components/feed/feedItemComponent/GenericFeedItemComponent';
+import { FeedItem } from '@dailydotdev/shared/src/hooks/useFeed';
 import { getLayout } from './FeedLayout';
 
 export type MainFeedPageProps = {
+  feedItemComponent: React.ComponentType<{ item: FeedItem }>;
   children?: ReactNode;
   isFinder?: boolean;
 } & Pick<MainFeedLayoutProps, 'searchChildren'>;
@@ -35,6 +38,7 @@ export default function MainFeedPage({
   children,
   isFinder,
   searchChildren,
+  feedItemComponent,
 }: MainFeedPageProps): ReactElement {
   const router = useRouter();
   const { user } = useContext(AuthContext);
@@ -73,6 +77,7 @@ export default function MainFeedPage({
       isSearchOn={isSearchOn}
       searchQuery={router.query?.q?.toString()}
       isFinder={isFinder}
+      feedItemComponent={feedItemComponent}
       searchChildren={searchChildren}
     >
       {children}
@@ -93,6 +98,7 @@ export function getMainFeedLayout(
 }
 
 export const mainFeedLayoutProps: MainLayoutProps = {
+  feedItemComponent: GenericFeedItemComponent,
   mainPage: true,
   screenCentered: false,
 };

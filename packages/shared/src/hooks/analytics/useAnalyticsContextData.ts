@@ -54,6 +54,7 @@ export default function useAnalyticsContextData(
   return useMemo<AnalyticsContextData>(
     () => ({
       trackEvent(event: AnalyticsEvent) {
+        console.log('event', event);
         pushToQueue([generateEvent(event, sharedPropsRef, getPage())]);
       },
       trackEventStart(id, event) {

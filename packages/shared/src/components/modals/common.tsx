@@ -78,6 +78,10 @@ const VerifySession = dynamic(
     ),
 );
 
+const ShareModal = dynamic(
+  () => import(/* webpackChunkName: "shadeModal" */ './ShareModal'),
+);
+
 const VideoModal = dynamic(
   () => import(/* webpackChunkName: "videoModal" */ './VideoModal'),
 );
@@ -126,6 +130,7 @@ export const modals = {
   [LazyModal.SquadPromotion]: SquadPromotionModal,
   [LazyModal.CreateSharedPost]: CreateSharedPostModal,
   [LazyModal.ReportPost]: ReportPostModal,
+  [LazyModal.SharePost]: ShareModal,
   [LazyModal.ReportComment]: ReportCommentModal,
   [LazyModal.SquadNotifications]: SquadNotificationsModal,
   [LazyModal.SubmitArticle]: SubmitArticle,

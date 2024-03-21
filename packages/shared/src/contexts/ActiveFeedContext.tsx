@@ -1,11 +1,56 @@
-import { createContext } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useMemo,
+  useRef,
+} from 'react';
 import { FeedReturnType } from '../hooks/useFeed';
+import { AllFeedPages } from '../lib/query';
 
 export type ActiveFeedContextValue = {
   queryKey?: unknown[];
   items: FeedReturnType['items'];
+  feedRef?: React.RefObject<HTMLDivElement>;
+  onOpenModal?: (index: number) => void;
+  feedName?: AllFeedPages;
 };
 
-export const ActiveFeedContext = createContext<ActiveFeedContextValue>({
+const ActiveFeedContext = React.createContext<ActiveFeedContextValue>({
   items: [],
 });
+
+export default ActiveFeedContext;
+
+type ActiveFeedContextProviderProps = ActiveFeedContextValue & {
+  children: ReactNode;
+};
+
+export const ActiveFeedContextProvider = ({
+  feedName,
+  children,
+  items,
+  queryKey,
+  onOpenModal,
+}: ActiveFeedContextProviderProps): ReactElement => {
+  const feedRef = useRef();
+
+  const data: ActiveFeedContextValue = useMemo(
+    () => ({
+      feedName,
+      items,
+      queryKey,
+      feedRef,
+      onOpenModal,
+    }),
+    [items, queryKey, onOpenModal, feedName],
+  );
+  return (
+    <ActiveFeedContext.Provider value={data}>
+      {children}
+    </ActiveFeedContext.Provider>
+  );
+};
+
+export const useActiveFeedContext = (): ActiveFeedContextValue =>
+  useContext(ActiveFeedContext);

@@ -64,6 +64,8 @@ import {
   TwitterTracking,
 } from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
+import GenericFeedItemComponent from '@dailydotdev/shared/src/components/feed/feedItemComponent/GenericFeedItemComponent';
 import {
   OnboardingHeadline,
   PreparingYourFeed,
@@ -312,6 +314,7 @@ export function OnboardPage(): ReactElement {
                   feed preview.
                 </p>
                 <Feed
+                  feedItemComponent={GenericFeedItemComponent}
                   className="px-6 pt-14 laptop:pt-10"
                   feedName={OtherFeedPage.Preview}
                   feedQueryKey={[RequestKey.FeedPreview, user?.id]}

@@ -7,11 +7,12 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import {
-  Ad,
+  Ad as AdEntity,
   FeedData,
-  Post,
+  Post as PostEntity,
   POSTS_ENGAGED_SUBSCRIPTION,
   PostsEngaged,
+  PostType,
 } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import { apiUrl, graphqlUrl } from '../lib/config';
@@ -22,20 +23,29 @@ import {
   updateCachedPagePost,
 } from '../lib/query';
 import { getShouldRefreshFeed } from '../lib/refreshFeed';
-import { MarketingCta } from '../components/cards/MarketingCta/common';
+import { MarketingCta as MarketingCtaEntity } from '../components/cards/MarketingCta/common';
+
+export enum FeedItemType {
+  Post = 'post',
+  Ad = 'ad',
+  Placeholder = 'placeholder',
+  UserAcquisition = 'userAcquisition',
+  MarketingCta = 'marketingCta',
+}
+export type FeedOrPostType = FeedItemType | PostType;
 
 export type PostItem = {
-  type: 'post';
-  post: Post;
+  type: FeedItemType.Post;
+  post: PostEntity;
   page: number;
   index: number;
 };
-export type AdItem = { type: 'ad'; ad: Ad };
-export type PlaceholderItem = { type: 'placeholder' };
-export type UserAcquisitionItem = { type: 'userAcquisition' };
+export type AdItem = { type: FeedItemType.Ad; ad: AdEntity };
+export type PlaceholderItem = { type: FeedItemType.Placeholder };
+export type UserAcquisitionItem = { type: FeedItemType.UserAcquisition };
 export type MarketingCtaItem = {
-  type: 'marketingCta';
-  marketingCta: MarketingCta;
+  type: FeedItemType.MarketingCta;
+  marketingCta: MarketingCtaEntity;
 };
 export type FeedItem =
   | PostItem
@@ -44,7 +54,11 @@ export type FeedItem =
   | UserAcquisitionItem
   | MarketingCtaItem;
 
-export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
+export type UpdateFeedPost = (
+  page: number,
+  index: number,
+  post: PostEntity,
+) => void;
 
 export type FeedReturnType = {
   items: FeedItem[];
@@ -127,11 +141,11 @@ export default function useFeed<T>(
     (!settings?.adPostLength ||
       feedQuery.data?.pages[0]?.page.edges.length > settings?.adPostLength) &&
     !settings?.disableAds;
-  const adsQuery = useInfiniteQuery<Ad>(
+  const adsQuery = useInfiniteQuery<AdEntity>(
     ['ads', ...feedQueryKey],
     async ({ pageParam }) => {
       const res = await fetch(`${apiUrl}/v1/a?active=${!!pageParam}`);
-      const ads: Ad[] = await res.json();
+      const ads: AdEntity[] = await res.json();
       return ads[0];
     },
     {
@@ -160,7 +174,7 @@ export default function useFeed<T>(
       newItems = feedQuery.data.pages.flatMap(
         ({ page }, pageIndex): FeedItem[] => {
           const posts: FeedItem[] = page.edges.map(({ node }, index) => ({
-            type: 'post',
+            type: FeedItemType.Post,
             post: node,
             page: pageIndex,
             index,
@@ -171,12 +185,12 @@ export default function useFeed<T>(
           } else if (isAdsQueryEnabled) {
             if (adsQuery.data?.pages[pageIndex]) {
               posts.splice(adSpot, 0, {
-                type: 'ad',
+                type: FeedItemType.Ad,
                 ad: adsQuery.data?.pages[pageIndex],
               });
             } else {
               posts.splice(adSpot, 0, {
-                type: 'placeholder',
+                type: FeedItemType.Placeholder,
               });
             }
           }

@@ -30,6 +30,7 @@ import { isTesting, onboardingUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
 import { useReferralReminder } from '../hooks/referral/useReferralReminder';
+import GenericFeedItemComponent from './feed/feedItemComponent/GenericFeedItemComponent';
 import { ActiveFeedNameContextProvider } from '../contexts';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { useStreakMilestone } from '../hooks/streaks';
@@ -38,6 +39,7 @@ import { ReputationPrivilegesModalTrigger } from './modals';
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
     HTMLAttributes<HTMLDivElement> {
+  feedItemComponent?: typeof GenericFeedItemComponent;
   mainPage?: boolean;
   activePage?: string;
   isNavItemsButton?: boolean;

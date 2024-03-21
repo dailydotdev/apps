@@ -6,50 +6,33 @@ import React, {
   useMemo,
 } from 'react';
 import dynamic from 'next/dynamic';
-import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import useFeed, { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
-import { Ad, Post, PostType } from '../graphql/posts';
-import AuthContext from '../contexts/AuthContext';
+import useFeed, {
+  FeedItem,
+  PostItem,
+  UseFeedOptionalParams,
+} from '../hooks/useFeed';
+import { PostType } from '../graphql/posts';
 import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
-import useCommentPopup from '../hooks/feed/useCommentPopup';
-import useFeedOnPostClick, {
-  FeedPostClick,
-} from '../hooks/feed/useFeedOnPostClick';
-import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
-import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
-import AnalyticsContext from '../contexts/AnalyticsContext';
-import {
-  adAnalyticsEvent,
-  feedAnalyticsExtra,
-  postAnalyticsEvent,
-} from '../lib/feed';
-import PostOptionsMenu from './PostOptionsMenu';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
-import { useSharePost } from '../hooks/useSharePost';
-import { Origin } from '../lib/analytics';
-import ShareOptionsMenu from './ShareOptionsMenu';
 import { SharedFeedPage } from './utilities';
 import { FeedContainer, FeedContainerProps } from './feeds';
-import { ActiveFeedContext } from '../contexts';
-import { useFeedLayout, useFeedVotePost } from '../hooks';
-import { AllFeedPages, RequestKey, updateCachedPagePost } from '../lib/query';
-import {
-  mutateBookmarkFeedPost,
-  useBookmarkPost,
-} from '../hooks/useBookmarkPost';
-import { isNullOrUndefined } from '../lib/func';
+import { ActiveFeedContextProvider } from '../contexts';
+import { AllFeedPages, RequestKey } from '../lib/query';
+import { useFeedLayout } from '../hooks';
+import { acquisitionKey } from './cards/AcquisitionFormCard';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
-import { acquisitionKey } from './cards/AcquisitionFormCard';
+import AuthContext from '../contexts/AuthContext';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'>,
     Pick<FeedContainerProps, 'shortcuts'> {
+  feedItemComponent: React.ComponentType<{ item: FeedItem; index?: number }>;
   feedName: AllFeedPages;
   feedQueryKey: unknown[];
   query?: string;
@@ -66,13 +49,6 @@ export interface FeedProps<T>
   disableAds?: boolean;
 }
 
-interface RankVariables {
-  ranking?: string;
-}
-
-const ShareModal = dynamic(
-  () => import(/* webpackChunkName: "shareModal" */ './modals/ShareModal'),
-);
 const ArticlePostModal = dynamic(
   () =>
     import(
@@ -90,11 +66,6 @@ const CollectionPostModal = dynamic(
     ),
 );
 
-const calculateRow = (index: number, numCards: number): number =>
-  Math.floor(index / numCards);
-const calculateColumn = (index: number, numCards: number): number =>
-  index % numCards;
-
 const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Article]: ArticlePostModal,
   [PostType.Share]: SharePostModal,
@@ -106,6 +77,7 @@ const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
 
 export default function Feed<T>({
   feedName,
+  feedItemComponent,
   feedQueryKey,
   query,
   variables,
@@ -116,26 +88,17 @@ export default function Feed<T>({
   emptyScreen,
   forceCardMode,
   options,
-  allowPin,
   showSearch = true,
   shortcuts,
   actionButtons,
   disableAds,
 }: FeedProps<T>): ReactElement {
-  const origin = Origin.Feed;
-  const { trackEvent } = useContext(AnalyticsContext);
-  const currentSettings = useContext(FeedContext);
-  const { user } = useContext(AuthContext);
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const {
-    openNewTab,
-    spaciness,
-    insaneMode: listMode,
-    loadedSettings,
-  } = useContext(SettingsContext);
-  const insaneMode = !forceCardMode && listMode;
+  const FeedTag = feedItemComponent;
+  const currentSettings = useContext(FeedContext);
+  const { spaciness, loadedSettings } = useContext(SettingsContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
+  const { user } = useContext(AuthContext);
   const isSquadFeed = feedName === 'squad';
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const showAcquisitionForm =
@@ -170,14 +133,7 @@ export default function Feed<T>({
       },
     },
   );
-  const feedContextValue = useMemo(() => {
-    return {
-      queryKey: feedQueryKey,
-      items,
-    };
-  }, [feedQueryKey, items]);
 
-  const { ranking } = (variables as RankVariables) || {};
   const {
     onOpenModal,
     onCloseModal,
@@ -187,6 +143,15 @@ export default function Feed<T>({
     selectedPost,
     selectedPostIndex,
   } = usePostModalNavigation(items, fetchPage, updatePost, canFetchMore);
+
+  const feedContextValue = useMemo(() => {
+    return {
+      feedName,
+      queryKey: feedQueryKey,
+      items,
+      onOpenModal,
+    };
+  }, [feedQueryKey, items, onOpenModal, feedName]);
 
   useEffect(() => {
     if (emptyFeed) {
@@ -198,62 +163,6 @@ export default function Feed<T>({
     fetchPage,
     canFetchMore: canFetchMore && feedQueryKey?.[0] !== RequestKey.FeedPreview,
   });
-
-  const useList = insaneMode && numCards > 1;
-  const virtualizedNumCards = useList ? 1 : numCards;
-
-  const {
-    showCommentPopupId,
-    setShowCommentPopupId,
-    comment,
-    isSendingComment,
-  } = useCommentPopup(feedName);
-
-  const { toggleUpvote, toggleDownvote } = useFeedVotePost({
-    feedName,
-    ranking,
-    items,
-    updatePost,
-  });
-
-  const { toggleBookmark: onBookmark } = useBookmarkPost({
-    mutationKey: feedQueryKey,
-    onMutate: ({ id }) => {
-      return mutateBookmarkFeedPost({
-        id,
-        items,
-        updatePost: updateCachedPagePost(feedQueryKey, queryClient),
-      });
-    },
-  });
-
-  const onPostClick = useFeedOnPostClick(
-    items,
-    updatePost,
-    virtualizedNumCards,
-    feedName,
-    ranking,
-  );
-
-  const onReadArticleClick = useFeedOnPostClick(
-    items,
-    updatePost,
-    virtualizedNumCards,
-    feedName,
-    ranking,
-    'go to link',
-  );
-
-  const { onMenuClick, postMenuIndex, postMenuLocation, setPostMenuIndex } =
-    useFeedContextMenu();
-
-  const {
-    sharePost,
-    sharePostFeedLocation,
-    openSharePost,
-    copyLink,
-    closeSharePost,
-  } = useSharePost(origin);
 
   useEffect(() => {
     return () => {
@@ -271,103 +180,12 @@ export default function Feed<T>({
     return <></>;
   }
 
-  const onPostModalOpen = (index: number, callback?: () => unknown) => {
-    document.body.classList.add('hidden-scrollbar');
-    callback?.();
-    onOpenModal(index);
-  };
-
-  const onPostCardClick: FeedPostClick = async (post, index, row, column) => {
-    await onPostClick(post, index, row, column, {
-      skipPostUpdate: true,
-    });
-    if (!shouldUseMobileFeedLayout) {
-      onPostModalOpen(index);
-    }
-  };
-
-  const onShareMenuClickTracked = (
-    e: React.MouseEvent,
-    post: Post,
-    index: number,
-    row: number,
-    column: number,
-  ) => {
-    copyLink(post, index, row, column);
-  };
-
-  const onShareOptionsHidden = () => {
-    setPostMenuIndex(null);
-  };
-
   const onRemovePost = async (removePostIndex: number) => {
     const item = items[removePostIndex] as PostItem;
     removePost(item.page, item.index);
   };
 
-  const onCommentClick = (
-    post: Post,
-    index: number,
-    row: number,
-    column: number,
-  ): void => {
-    trackEvent(
-      postAnalyticsEvent('comments click', post, {
-        columns: virtualizedNumCards,
-        column,
-        row,
-        ...feedAnalyticsExtra(feedName, ranking),
-      }),
-    );
-    if (!shouldUseMobileFeedLayout) {
-      onPostModalOpen(index);
-    }
-  };
-
-  const onAdClick = (ad: Ad, row: number, column: number) => {
-    trackEvent(
-      adAnalyticsEvent('click', ad, {
-        columns: virtualizedNumCards,
-        column,
-        row,
-        ...feedAnalyticsExtra(feedName, ranking),
-      }),
-    );
-  };
-
-  const onCardBookmark = (post: Post, row: number, column: number) =>
-    onBookmark({
-      post,
-      origin,
-      opts: {
-        row,
-        column,
-        columns: virtualizedNumCards,
-        ...feedAnalyticsExtra(feedName, ranking),
-      },
-    });
-
-  const onShareClick = (post: Post, row?: number, column?: number) =>
-    openSharePost(post, virtualizedNumCards, column, row);
-
-  const post = (items[postMenuIndex] as PostItem)?.post;
-  const commonMenuItems = {
-    onShare: () =>
-      openSharePost(
-        post,
-        virtualizedNumCards,
-        postMenuLocation.row,
-        postMenuLocation.column,
-      ),
-    onBookmark: () => {
-      onBookmark({ post, origin, opts: feedAnalyticsExtra(feedName, ranking) });
-    },
-    post,
-    prevPost: (items[postMenuIndex - 1] as PostItem)?.post,
-    nextPost: (items[postMenuIndex + 1] as PostItem)?.post,
-  };
-
-  const PostModal = PostModalMap[selectedPost?.type];
+  const ArticleModal = PostModalMap[selectedPost?.type];
 
   if (emptyScreen && emptyFeed) {
     return <>{emptyScreen}</>;
@@ -378,7 +196,7 @@ export default function Feed<T>({
   );
 
   return (
-    <ActiveFeedContext.Provider value={feedContextValue}>
+    <ActiveFeedContextProvider {...feedContextValue}>
       <FeedContainer
         forceCardMode={forceCardMode}
         header={header}
@@ -388,56 +206,14 @@ export default function Feed<T>({
         shortcuts={shortcuts}
         actionButtons={actionButtons}
       >
-        {items.map((_, index) => (
-          <FeedItemComponent
-            items={items}
-            index={index}
-            row={calculateRow(index, virtualizedNumCards)}
-            column={calculateColumn(index, virtualizedNumCards)}
-            columns={virtualizedNumCards}
-            key={getFeedItemKey(items, index)}
-            useList={useList}
-            openNewTab={openNewTab}
-            insaneMode={insaneMode}
-            postMenuIndex={postMenuIndex}
-            showCommentPopupId={showCommentPopupId}
-            setShowCommentPopupId={setShowCommentPopupId}
-            isSendingComment={isSendingComment}
-            comment={comment}
-            user={user}
-            feedName={feedName}
-            ranking={ranking}
-            onBookmark={onCardBookmark}
-            toggleUpvote={toggleUpvote}
-            toggleDownvote={toggleDownvote}
-            onPostClick={onPostCardClick}
-            onShare={onShareClick}
-            onMenuClick={onMenuClick}
-            onShareClick={onShareMenuClickTracked}
-            onCommentClick={onCommentClick}
-            onAdClick={onAdClick}
-            onReadArticleClick={onReadArticleClick}
-          />
+        {items.map((item, index) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <FeedTag item={item} key={index} index={index} />
         ))}
-        {!isFetching && !isInitialLoading && (
-          <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
-        )}
-        <PostOptionsMenu
-          {...commonMenuItems}
-          feedName={feedName}
-          postIndex={postMenuIndex}
-          onHidden={() => setPostMenuIndex(null)}
-          onRemovePost={onRemovePost}
-          origin={origin}
-          allowPin={allowPin}
-          isOpen={!isNullOrUndefined(postMenuIndex)}
-        />
-        <ShareOptionsMenu
-          {...commonMenuItems}
-          onHidden={onShareOptionsHidden}
-        />
-        {!shouldUseMobileFeedLayout && selectedPost && PostModal && (
-          <PostModal
+        <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
+
+        {selectedPost && ArticleModal && (
+          <ArticleModal
             isOpen={!!selectedPost}
             id={selectedPost.id}
             onRequestClose={() => onCloseModal(false)}
@@ -448,16 +224,7 @@ export default function Feed<T>({
             onRemovePost={() => onRemovePost(selectedPostIndex)}
           />
         )}
-        {sharePost && (
-          <ShareModal
-            isOpen={!!sharePost}
-            post={sharePost}
-            origin={origin}
-            {...sharePostFeedLocation}
-            onRequestClose={closeSharePost}
-          />
-        )}
       </FeedContainer>
-    </ActiveFeedContext.Provider>
+    </ActiveFeedContextProvider>
   );
 }

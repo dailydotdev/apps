@@ -1,8 +1,8 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { PinIcon } from '../icons';
 import { Squad } from '../../graphql/sources';
-import { ActiveFeedContext } from '../../contexts';
+import { useActiveFeedContext } from '../../contexts';
 import { useSquadActions } from '../../hooks';
 
 interface SquadFeedHeadingProps {
@@ -10,7 +10,7 @@ interface SquadFeedHeadingProps {
 }
 
 function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
-  const { items } = useContext(ActiveFeedContext);
+  const { items } = useActiveFeedContext();
   const { collapseSquadPinnedPosts, expandSquadPinnedPosts } = useSquadActions({
     squad,
   });

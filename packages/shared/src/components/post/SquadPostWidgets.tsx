@@ -3,8 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { PageWidgets } from '../utilities';
 import { ShareMobile } from '../ShareMobile';
 import AuthContext, { useAuthContext } from '../../contexts/AuthContext';
-import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
+import ShareBar from '../ShareBar';
 import { PostHeaderActions } from './PostHeaderActions';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import SourceButton from '../cards/SourceButton';
@@ -89,6 +89,8 @@ export function SquadPostWidgets({
         contextMenuId="post-widgets-context"
       />
       {!!squad && !squad.currentMember && <SquadCard squadSource={squad} />}
+      <ShareBar post={post} />
+      <ShareMobile post={post} share={onShare} link={post.commentsPermalink} />
       {isPublicSquad && (
         <>
           <ShareBar post={post} />

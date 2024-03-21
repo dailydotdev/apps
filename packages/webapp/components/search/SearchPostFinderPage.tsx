@@ -19,6 +19,7 @@ import styles from '@dailydotdev/shared/src/components/Feed.module.css';
 import FeedContext from '@dailydotdev/shared/src/contexts/FeedContext';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import GenericFeedItemComponent from '@dailydotdev/shared/src/components/feed/feedItemComponent/GenericFeedItemComponent';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
@@ -125,6 +126,7 @@ Search.getLayout = getMainFeedLayout;
 Search.layoutProps = {
   ...mainFeedLayoutProps,
   isFinder: true,
+  feedItemComponent: GenericFeedItemComponent,
   searchChildren: <AiSearchProviderButton />,
 };
 
