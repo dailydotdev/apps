@@ -26,27 +26,17 @@ export const MarketingCtaModal = ({
   const { tagColor, tagText, title, description, image, ctaUrl, ctaText } =
     marketingCta.flags;
 
-  const onModalClose: typeof onRequestClose = (param) => {
+  const onModalClose = (
+    param: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<Element>,
+    eventName: AnalyticsEvent,
+  ) => {
+    trackEvent({
+      event_name: eventName,
+      target_type: TargetType.MarketingCtaPopover,
+      target_id: marketingCta.campaignId,
+    });
     clearMarketingCta(marketingCta.campaignId);
     onRequestClose(param);
-  };
-
-  const onCtaClick: typeof onRequestClose = (param) => {
-    trackEvent({
-      event_name: AnalyticsEvent.Click,
-      target_type: TargetType.MarketingCtaCard,
-      target_id: marketingCta.campaignId,
-    });
-    onModalClose(param);
-  };
-
-  const onModalDismiss: typeof onRequestClose = (param) => {
-    trackEvent({
-      event_name: AnalyticsEvent.MarketingCtaDismiss,
-      target_type: TargetType.MarketingCtaCard,
-      target_id: marketingCta.campaignId,
-    });
-    onModalClose(param);
   };
 
   return (
@@ -54,12 +44,16 @@ export const MarketingCtaModal = ({
       {...modalProps}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
-      onRequestClose={onModalDismiss}
+      onRequestClose={(event) =>
+        onModalClose(event, AnalyticsEvent.MarketingCtaDismiss)
+      }
     >
       <div className="p-6 !pt-4">
         {tagColor && tagText && (
           <Header
-            onClose={onModalDismiss}
+            onClose={(event) =>
+              onModalClose(event, AnalyticsEvent.MarketingCtaDismiss)
+            }
             tagColor={tagColor}
             tagText={tagText}
             buttonSize={ButtonSize.Medium}
@@ -83,7 +77,7 @@ export const MarketingCtaModal = ({
           <CTAButton
             ctaUrl={ctaUrl}
             ctaText={ctaText}
-            onClick={onCtaClick}
+            onClick={(event) => onModalClose(event, AnalyticsEvent.Click)}
             buttonSize={ButtonSize.Medium}
           />
         )}
