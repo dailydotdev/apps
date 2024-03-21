@@ -167,13 +167,13 @@ export default function useFeed<T>(
             index,
           }));
 
-          if (pageIndex === 0 && settings.showAcquisitionForm) {
-            posts.splice(adSpot, 0, { type: 'userAcquisition' });
-          } else if (pageIndex === 0 && !!settings.marketingCta) {
+          if (pageIndex === 0 && !!settings.marketingCta) {
             posts.splice(adSpot, 0, {
               type: 'marketingCta',
               marketingCta: settings.marketingCta,
             });
+          } else if (pageIndex === 0 && settings.showAcquisitionForm) {
+            posts.splice(adSpot, 0, { type: 'userAcquisition' });
           } else if (isAdsQueryEnabled) {
             if (adsQuery.data?.pages[pageIndex]) {
               posts.splice(adSpot, 0, {
