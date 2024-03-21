@@ -8,7 +8,7 @@ type AdImageProps = { ad: Ad };
 export default function AdImage({ ad }: AdImageProps): ReactElement {
   const showBlurredImage = ad.source === 'Carbon' || ad.source === 'EthicalAds';
   return (
-    <div className="relative overflow-hidden rounded-xl">
+    <div className="relative overflow-hidden rounded-16">
       <Image
         alt="Ad image"
         src={ad.image}

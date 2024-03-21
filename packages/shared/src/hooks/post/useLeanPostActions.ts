@@ -158,7 +158,7 @@ export default function useLeanPostActions({
   const { feedSettings } = useFeedSettings();
   const { show } = useContextMenu();
   const computedRef = useRef<CSSStyleDeclaration>();
-  if (!computedRef.current) {
+  if (!computedRef.current && feedRef?.current) {
     computedRef.current = globalThis?.window?.getComputedStyle(
       feedRef?.current,
     );

@@ -27,7 +27,7 @@ export const AdCard = ({ ad }: { ad: Ad }): ReactElement => {
           </div>
         </section>
 
-        <section>
+        <section className="relative overflow-hidden rounded-12">
           <Image
             alt="Ad image"
             src={ad.image}

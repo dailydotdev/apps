@@ -5,7 +5,7 @@ import { CardContainer } from '../atoms/CardContainer';
 import { Card } from '../atoms/Card';
 import classed from '../../../../lib/classed';
 
-const Text = classed(ElementPlaceholder, 'h-3 rounded-xl my-2');
+const Text = classed(ElementPlaceholder, 'h-3 rounded-16 my-2');
 
 export const PlaceholderCard = (): ReactElement => {
   return (
@@ -18,7 +18,7 @@ export const PlaceholderCard = (): ReactElement => {
           <Text style={{ width: '80%' }} />
         </CardTextContainer>
         <CardSpace className="my-2" />
-        <ElementPlaceholder className="my-2 h-40 rounded-xl" />
+        <ElementPlaceholder className="my-2 h-40 rounded-16" />
         <CardTextContainer>
           <Text style={{ width: '32%' }} />
         </CardTextContainer>

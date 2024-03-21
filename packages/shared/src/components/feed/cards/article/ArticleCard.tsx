@@ -35,7 +35,11 @@ export const ArticleCard = ({ post, index }: CardType): ReactElement => {
         </header>
         <section className="flex flex-1">
           <div className="mx-4 flex flex-1 flex-col">
-            <Typography type={TypographyType.Title3} bold className="my-2">
+            <Typography
+              type={TypographyType.Title3}
+              bold
+              className="my-2 line-clamp-3"
+            >
               {post.title}
             </Typography>
             <div className="flex-1" />

@@ -6,7 +6,7 @@ import styles from '../../../cards/Card.module.css';
 const BasicCard = classed(
   'article',
   styles.card,
-  'relative flex flex-col rounded-2xl',
+  'relative flex flex-col rounded-16',
 );
 
 type CardProps = {
@@ -20,7 +20,7 @@ type CardProps = {
 };
 export function Card({
   height = 'h-full',
-  background = 'bg-theme-bg-secondary',
+  background = 'bg-background-subtle',
   border = 'border border-theme-divider-tertiary hover:border-theme-divider-secondary',
   padding = 'p-2',
   shadow = true,

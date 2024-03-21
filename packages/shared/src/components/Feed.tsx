@@ -6,6 +6,7 @@ import React, {
   useMemo,
 } from 'react';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import useFeed, {
   FeedItem,
   PostItem,
@@ -23,6 +24,10 @@ import { FeedContainer, FeedContainerProps } from './feeds';
 import { ActiveFeedContextProvider } from '../contexts';
 import { AllFeedPages, RequestKey } from '../lib/query';
 import { useFeedLayout } from '../hooks';
+import { acquisitionKey } from './cards/AcquisitionFormCard';
+import { useFeature } from './GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
+import AuthContext from '../contexts/AuthContext';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'>,
@@ -88,10 +93,12 @@ export default function Feed<T>({
   actionButtons,
   disableAds,
 }: FeedProps<T>): ReactElement {
+  const router = useRouter();
   const FeedTag = feedItemComponent;
   const currentSettings = useContext(FeedContext);
   const { spaciness, loadedSettings } = useContext(SettingsContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
+  const { user } = useContext(AuthContext);
   const isSquadFeed = feedName === 'squad';
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const showAcquisitionForm =

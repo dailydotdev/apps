@@ -39,6 +39,8 @@ import { FeedContainerProps } from './feeds';
 import { getFeedName } from '../lib/feed';
 import { FeedGradientBg } from './feeds/FeedGradientBg';
 import { FeedItem } from '../hooks/useFeed';
+import GenericFeedItemComponent from './feed/feedItemComponent/GenericFeedItemComponent';
+import SquadFeedItemComponent from './feed/feedItemComponent/SquadFeedItemComponent';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -53,12 +55,18 @@ type FeedQueryProps = {
   query: string;
   queryIfLogged?: string;
   variables?: Record<string, unknown>;
+  feedItemComponent?: any;
 };
 
 const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
   'my-feed': {
     query: ANONYMOUS_FEED_QUERY,
     queryIfLogged: FEED_QUERY,
+    feedItemComponent: {
+      mobile: SquadFeedItemComponent,
+      list: GenericFeedItemComponent,
+      card: GenericFeedItemComponent,
+    },
   },
   popular: {
     query: ANONYMOUS_FEED_QUERY,
@@ -126,7 +134,8 @@ export default function MainFeedLayout({
   const feedVersion = useFeature(feature.feedVersion);
   const searchVersion = useFeature(feature.searchVersion);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
+  console.log('shouldUseMobileFeedLayout', shouldUseMobileFeedLayout);
 
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
@@ -166,6 +175,18 @@ export default function MainFeedLayout({
     </LayoutHeader>
   );
 
+  const isList = true;
+  const FeedItemVariant = () => {
+    if (shouldUseMobileFeedLayout) {
+      return 'mobile';
+    }
+    if (isList) {
+      return 'list';
+    }
+
+    return 'card';
+  };
+
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     const feedWithActions = isUpvoted || isSortableFeed;
     // in v1 search by default we do not show any results but empty state
@@ -176,7 +197,8 @@ export default function MainFeedLayout({
 
     if (isSearchOn && searchQuery) {
       return {
-        feedItemComponent,
+        feedItemComponent:
+          propsByFeed[feedName].feedItemComponent[FeedItemVariant()],
         feedName: SharedFeedPage.Search,
         feedQueryKey: generateQueryKey(
           SharedFeedPage.Search,
@@ -211,7 +233,8 @@ export default function MainFeedLayout({
 
     return {
       feedName,
-      feedItemComponent,
+      feedItemComponent:
+        propsByFeed[feedName].feedItemComponent[FeedItemVariant()],
       feedQueryKey: generateQueryKey(
         feedName,
         user,
@@ -249,6 +272,8 @@ export default function MainFeedLayout({
   const FeedPageComponent = shouldUseMobileFeedLayout
     ? FeedPageLayoutMobile
     : FeedPage;
+
+  console.log(feedProps);
 
   const disableTopPadding = isFinder || shouldUseMobileFeedLayout;
 

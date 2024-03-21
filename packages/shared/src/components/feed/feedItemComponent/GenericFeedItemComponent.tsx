@@ -19,14 +19,35 @@ const ItemTypeToTag: Record<PostType, React.ComponentType<CardType>> = {
   [PostType.VideoYouTube]: VideoCard,
   [PostType.Collection]: CollectionCard,
 };
+const ListItemTypeToTag: Record<PostType, React.ComponentType<CardType>> = {
+  [PostType.Article]: ArticleCard,
+  [PostType.Share]: ShareCard,
+  [PostType.Welcome]: ArticleCard,
+  [PostType.Freeform]: ArticleCard,
+  [PostType.VideoYouTube]: VideoCard,
+  [PostType.Collection]: CollectionCard,
+};
+const MobileItemTypeToTag: Record<PostType, React.ComponentType<CardType>> = {
+  [PostType.Article]: ArticleCard,
+  [PostType.Share]: ShareCard,
+  [PostType.Welcome]: ArticleCard,
+  [PostType.Freeform]: ArticleCard,
+  [PostType.VideoYouTube]: VideoCard,
+  [PostType.Collection]: CollectionCard,
+};
 
 export default function GenericFeedItemComponent({
   item,
   index,
 }: LeanFeedItemComponentProps): ReactElement {
+  const isMobile = true;
+  const isList = true;
+
+  const ListOrCard = isList ? ListItemTypeToTag : ItemTypeToTag;
+  const TagEvaluation = isMobile ? MobileItemTypeToTag : ListOrCard;
   switch (item.type) {
     case FeedItemType.Post: {
-      const PostTag = ItemTypeToTag[item.post.type ?? PostType.Article];
+      const PostTag = TagEvaluation[item.post.type ?? PostType.Article];
       return <PostTag post={{ ...item.post, index }} />;
     }
     case FeedItemType.Ad:

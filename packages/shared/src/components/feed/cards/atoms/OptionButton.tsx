@@ -191,7 +191,7 @@ const OptionButton = ({
             show(e);
           }}
           className={classNames('btn-tertiary my-auto', className)}
-          buttonSize={buttonSize}
+          size={buttonSize}
           icon={<MenuIcon />}
         />
       </SimpleTooltip>

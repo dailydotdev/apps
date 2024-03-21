@@ -77,7 +77,7 @@ export default function ShareButton({ post }: ShareButtonProps): ReactElement {
       <SimpleTooltip content="Share post">
         <Button
           icon={<ShareIcon />}
-          buttonSize={ButtonSize.Small}
+          size={ButtonSize.Small}
           onClick={(e) => show(e, { position: getContextBottomPosition(e) })}
           className="btn-tertiary-cabbage"
         />

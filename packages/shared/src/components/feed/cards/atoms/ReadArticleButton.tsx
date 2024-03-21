@@ -28,7 +28,7 @@ export const ReadArticleButton = ({
       href={post.permalink}
       title={post.title}
       {...props}
-      buttonSize={buttonSize}
+      size={buttonSize}
       rightIcon={<OpenLinkIcon className="ml-2" secondary />}
       onClick={onClickHandler}
       target={openNewTab ? '_blank' : '_self'}

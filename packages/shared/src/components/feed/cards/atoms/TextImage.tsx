@@ -17,7 +17,7 @@ export default function TextImage({
     <Card className={className} shadow={false} padding="p-3" height="">
       {text}
       <div
-        className={classNames('rounded-xl', 'aspect-square h-40')}
+        className={classNames('rounded-16', 'aspect-square h-40')}
         style={{
           background: `url(${image}) center center / cover, url(${cloudinary.post.imageCoverPlaceholder}) center center / cover`,
         }}
