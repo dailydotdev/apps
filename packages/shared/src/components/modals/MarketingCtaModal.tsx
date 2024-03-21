@@ -9,6 +9,7 @@ import {
   Header,
   Title,
 } from '../cards/MarketingCta/common';
+import { useBoot } from '../../hooks';
 
 export interface MarketingCtaModalProps extends ModalProps {
   marketingCta: MarketingCta;
@@ -18,10 +19,12 @@ export const MarketingCtaModal = ({
   onRequestClose,
   ...modalProps
 }: MarketingCtaModalProps): ReactElement => {
+  const { clearMarketingCta } = useBoot();
   const { tagColor, tagText, title, description, image, ctaUrl, ctaText } =
     marketingCta.flags;
 
   const onModalClose: typeof onRequestClose = (param) => {
+    clearMarketingCta(marketingCta.campaignId);
     onRequestClose(param);
   };
 
