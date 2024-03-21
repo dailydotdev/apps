@@ -62,7 +62,10 @@ export const useBoot = (): UseBoot => {
   ): MarketingCta | null => {
     const bootData = getBootData();
 
-    if (bootData?.marketingCta?.variant !== variant) {
+    if (
+      !bootData?.marketingCta ||
+      bootData?.marketingCta?.variant !== variant
+    ) {
       return null;
     }
 
