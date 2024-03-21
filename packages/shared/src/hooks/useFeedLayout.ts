@@ -28,11 +28,9 @@ export const useFeedLayout = ({
 }: UseFeedLayoutProps = {}): UseFeedLayout => {
   const { feedName } = useActiveFeedNameContext();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const name = feedNameProp ?? feedName;
+  const name = (feedNameProp ?? feedName) as SharedFeedPage;
   const isIncludedFeed = useMemo(
-    () =>
-      checkShouldUseMobileFeedLayout(name as SharedFeedPage) ||
-      name === OtherFeedPage.Squad, // actual squad feed page has a different feed name
+    () => checkShouldUseMobileFeedLayout(name),
     [name],
   );
   const shouldUseMobileFeedLayout = !feedRelated
