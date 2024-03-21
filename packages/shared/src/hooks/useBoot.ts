@@ -60,13 +60,13 @@ export const useBoot = (): UseBoot => {
   const getMarketingCta = (
     variant: MarketingCtaVariant,
   ): MarketingCta | null => {
-    const { marketingCta } = getBootData();
+    const bootData = getBootData();
 
-    if (marketingCta?.variant !== variant) {
+    if (bootData?.marketingCta?.variant !== variant) {
       return null;
     }
 
-    return marketingCta;
+    return bootData?.marketingCta;
   };
 
   const clearMarketingCta = (campaignId: string) => {
