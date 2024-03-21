@@ -109,7 +109,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                     <Link href={squad.permalink} key={squad.handle} passHref>
                       <YourSquadItem
                         squad={squad}
-                        anchorProps={{ href: squad.permalink }}
+                        elementProps={{ href: squad.permalink }}
                       />
                     </Link>
                   ))}

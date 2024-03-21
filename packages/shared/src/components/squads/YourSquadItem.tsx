@@ -1,4 +1,8 @@
-import React, { AnchorHTMLAttributes, ReactElement } from 'react';
+import React, {
+  AnchorHTMLAttributes,
+  HTMLAttributes,
+  ReactElement,
+} from 'react';
 import { Squad } from '../../graphql/sources';
 import classed from '../../lib/classed';
 import { ArrowIcon } from '../icons';
@@ -6,7 +10,9 @@ import { IconSize } from '../Icon';
 
 interface YourSquadItemProps {
   squad: Squad;
-  anchorProps?: AnchorHTMLAttributes<HTMLAnchorElement>;
+  elementProps?:
+    | HTMLAttributes<HTMLSpanElement>
+    | AnchorHTMLAttributes<HTMLAnchorElement>;
 }
 
 const classes = 'flex flex-row items-center gap-4';
@@ -15,12 +21,12 @@ const Span = classed('span', classes);
 
 export function YourSquadItem({
   squad,
-  anchorProps,
+  elementProps,
 }: YourSquadItemProps): ReactElement {
-  const Element = anchorProps ? Anchor : Span;
+  const Element = elementProps && 'href' in elementProps ? Anchor : Span;
 
   return (
-    <Element {...anchorProps}>
+    <Element {...elementProps}>
       <img
         src={squad.image}
         alt={`avatar of ${squad.handle}`}
