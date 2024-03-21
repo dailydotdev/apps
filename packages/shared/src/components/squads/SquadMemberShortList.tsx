@@ -35,7 +35,7 @@ function SquadMemberShortList({
       <button
         type="button"
         className={classNames(
-          'flex flex-row-reverse items-center rounded-12 border border-theme-divider-secondary p-1 pl-3 hover:bg-theme-hover active:bg-theme-active',
+          'flex h-10 flex-row-reverse items-center rounded-12 border border-theme-divider-secondary p-1 pl-3 hover:bg-theme-hover active:bg-theme-active',
           className,
         )}
         onClick={openMemberListModal}
