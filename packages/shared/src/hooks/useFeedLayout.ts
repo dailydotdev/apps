@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { SharedFeedPage } from '../components/utilities';
-import { AllFeedPages, OtherFeedPage } from '../lib/query';
+import { AllFeedPages } from '../lib/query';
 import { useActiveFeedNameContext } from '../contexts';
 import { useViewSize, ViewSize } from './useViewSize';
 
