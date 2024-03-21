@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { SharedFeedPage } from '../components/utilities';
-import { AllFeedPages } from '../lib/query';
+import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import { useActiveFeedNameContext } from '../contexts';
 import { useViewSize, ViewSize } from './useViewSize';
 
@@ -28,9 +28,11 @@ export const useFeedLayout = ({
 }: UseFeedLayoutProps = {}): UseFeedLayout => {
   const { feedName } = useActiveFeedNameContext();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const name = (feedNameProp ?? feedName) as SharedFeedPage;
+  const name = feedNameProp ?? feedName;
   const isIncludedFeed = useMemo(
-    () => checkShouldUseMobileFeedLayout(name),
+    () =>
+      checkShouldUseMobileFeedLayout(name as SharedFeedPage) ||
+      name === OtherFeedPage.Squad, // actual squad feed page has a different feed name
     [name],
   );
   const shouldUseMobileFeedLayout = !feedRelated
