@@ -86,6 +86,7 @@ export const CTAButton = ({
     variant={ButtonVariant.Primary}
     onClick={onClick}
     size={buttonSize}
+    target="_blank"
   >
     {ctaText}
   </Button>
