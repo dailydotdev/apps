@@ -157,7 +157,7 @@ export function Modal({
         isOpen
         onClose={() => {
           onRequestClose(null);
-          props.onAfterClose();
+          props.onAfterClose?.();
         }}
         closeOnOutsideClick={shouldCloseOnOverlayClick}
       >
