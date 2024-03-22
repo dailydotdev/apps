@@ -11,7 +11,12 @@ import classNames from 'classnames';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
-import { FeedPage, FeedPageLayoutMobile, SharedFeedPage } from './utilities';
+import {
+  CommentFeedPage,
+  FeedPage,
+  FeedPageLayoutMobile,
+  SharedFeedPage,
+} from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
@@ -19,7 +24,7 @@ import {
   MOST_UPVOTED_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
-import { generateQueryKey } from '../lib/query';
+import { generateQueryKey, RequestKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
@@ -37,6 +42,10 @@ import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
 import { FeedContainerProps } from './feeds';
 import { getFeedName } from '../lib/feed';
+import CommentFeed from './CommentFeed';
+import { COMMENT_FEED_QUERY } from '../graphql/comments';
+import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
+import { Origin } from '../lib/analytics';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -101,6 +110,13 @@ const getQueryBasedOnLogin = (
 
 const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
 
+const commentClassName = {
+  container: 'rounded-none border-0 border-b border-x',
+  commentBox: {
+    container: 'relative border-0 rounded-none',
+  },
+};
+
 export default function MainFeedLayout({
   feedName: feedNameProp,
   searchQuery,
@@ -121,9 +137,11 @@ export default function MainFeedLayout({
   });
   const feedVersion = useFeature(feature.feedVersion);
   const searchVersion = useFeature(feature.searchVersion);
+  const hasCommentFeed = useFeature(feature.commentFeed);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const { shouldUseMobileFeedLayout } = useFeedLayout();
-
+  const shouldUseCommentFeedLayout =
+    hasCommentFeed && feedName === SharedFeedPage.Discussed;
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
     query = {
@@ -240,24 +258,43 @@ export default function MainFeedLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
-  const FeedPageComponent = shouldUseMobileFeedLayout
+  const MobileOrDesktopLayout = shouldUseMobileFeedLayout
     ? FeedPageLayoutMobile
     : FeedPage;
+  const FeedPageComponent = shouldUseCommentFeedLayout
+    ? CommentFeedPage
+    : MobileOrDesktopLayout;
 
-  const disableTopPadding = isFinder || shouldUseMobileFeedLayout;
+  const disableTopPadding =
+    isFinder || shouldUseMobileFeedLayout || shouldUseCommentFeedLayout;
 
   return (
     <FeedPageComponent
       className={classNames('relative', disableTopPadding && '!pt-0')}
     >
       {isSearchOn && search}
-      {feedProps && (
-        <Feed
-          {...feedProps}
-          className={classNames(
-            shouldUseMobileFeedLayout && !isFinder && 'laptop:px-6',
-          )}
+      {shouldUseCommentFeedLayout ? (
+        <CommentFeed
+          feedQueryKey={generateQueryKey(RequestKey.CommentFeed, null)}
+          query={COMMENT_FEED_QUERY}
+          analyticsOrigin={Origin.CommentFeed}
+          emptyScreen={
+            <ProfileEmptyScreen
+              title="Nobody has replied to any post yet"
+              text="You could be the first you know?"
+            />
+          }
+          commentClassName={commentClassName}
         />
+      ) : (
+        feedProps && (
+          <Feed
+            {...feedProps}
+            className={classNames(
+              shouldUseMobileFeedLayout && !isFinder && 'laptop:px-6',
+            )}
+          />
+        )
       )}
       {children}
     </FeedPageComponent>
