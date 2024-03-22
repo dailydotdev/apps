@@ -14,7 +14,7 @@ import { Comment } from '../../graphql/comments';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useCommentEdit } from '../../hooks/post/useCommentEdit';
-import CommentInputOrModal from './CommentInputOrModal';
+import CommentInputOrPage from './CommentInputOrPage';
 
 type ClassName = {
   container?: string;
@@ -113,7 +113,7 @@ export default function MainComment({
         />
       )}
       {editProps && (
-        <CommentInputOrModal
+        <CommentInputOrPage
           {...editProps}
           post={props.post}
           onCommented={(...params) => {
@@ -125,7 +125,7 @@ export default function MainComment({
         />
       )}
       {commentId === comment.id && (
-        <CommentInputOrModal
+        <CommentInputOrPage
           {...replyProps}
           post={props.post}
           onCommented={(...params) => {
@@ -156,7 +156,7 @@ export default function MainComment({
           post={props.post}
         />
       )}
-      {!showJoinSquadBanner && showNotificationPermissionBanner && (
+      {(true || (!showJoinSquadBanner && showNotificationPermissionBanner)) && (
         <EnableNotification
           className={!comment.children?.edges?.length && 'mt-3'}
           source={NotificationPromptSource.NewComment}

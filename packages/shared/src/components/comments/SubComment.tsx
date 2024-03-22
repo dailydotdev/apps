@@ -4,7 +4,7 @@ import CommentBox, { CommentBoxProps } from './CommentBox';
 import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
 import { useCommentEdit } from '../../hooks/post/useCommentEdit';
-import CommentInputOrModal from './CommentInputOrModal';
+import CommentInputOrPage from './CommentInputOrPage';
 
 export interface SubCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
@@ -53,7 +53,7 @@ function SubComment({
         </CommentBox>
       )}
       {editProps && (
-        <CommentInputOrModal
+        <CommentInputOrPage
           {...editProps}
           post={props.post}
           onCommented={(data, isNew) => {
@@ -65,7 +65,7 @@ function SubComment({
         />
       )}
       {commentId === comment.id && (
-        <CommentInputOrModal
+        <CommentInputOrPage
           {...inputProps}
           className={{ input: className }}
           post={props.post}
@@ -74,6 +74,7 @@ function SubComment({
             onCommented(...params);
           }}
           onClose={() => onReplyTo(null)}
+          replyToCommentId={commentId}
         />
       )}
     </>

@@ -118,10 +118,6 @@ const UserSettingsModal = dynamic(
     import(/* webpackChunkName: "userSettingsModal" */ './UserSettingsModal'),
 );
 
-const CommentModal = dynamic(
-  () => import(/* webpackChunkName: "commentModal" */ './post/CommentModal'),
-);
-
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -143,7 +139,6 @@ export const modals = {
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.UserSettings]: UserSettingsModal,
-  [LazyModal.Comment]: CommentModal,
 };
 
 type GetComponentProps<T> = T extends

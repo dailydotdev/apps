@@ -1,4 +1,9 @@
-import React, { InputHTMLAttributes, ReactElement, ReactNode } from 'react';
+import React, {
+  InputHTMLAttributes,
+  MutableRefObject,
+  ReactElement,
+  ReactNode,
+} from 'react';
 import classNames from 'classnames';
 import styles from './Switch.module.css';
 
@@ -14,19 +19,22 @@ export interface SwitchProps extends InputHTMLAttributes<HTMLInputElement> {
   defaultTypo?: boolean;
 }
 
-export function Switch({
-  className,
-  labelClassName,
-  inputId,
-  name,
-  checked,
-  children,
-  onToggle,
-  compact = true,
-  defaultTypo = true,
-  disabled,
-  ...props
-}: SwitchProps): ReactElement {
+function SwitchComponent(
+  {
+    className,
+    labelClassName,
+    inputId,
+    name,
+    checked,
+    children,
+    onToggle,
+    compact = true,
+    defaultTypo = true,
+    disabled,
+    ...props
+  }: SwitchProps,
+  ref: MutableRefObject<HTMLLabelElement>,
+): ReactElement {
   return (
     <label
       className={classNames(
@@ -36,6 +44,7 @@ export function Switch({
         styles.switch,
       )}
       htmlFor={inputId}
+      ref={ref}
     >
       <input
         {...props}
@@ -83,3 +92,5 @@ export function Switch({
     </label>
   );
 }
+
+export const Switch = React.forwardRef(SwitchComponent);

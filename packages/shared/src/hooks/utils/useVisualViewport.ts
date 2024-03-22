@@ -6,17 +6,20 @@ interface VisualViewportResult {
 }
 
 const getVisualViewport = (): VisualViewportResult => ({
-  width: globalThis?.window.visualViewport.width,
-  height: globalThis?.window.visualViewport.height,
+  width: globalThis?.window?.visualViewport.width ?? 0,
+  height: globalThis?.window?.visualViewport.height ?? 0,
 });
 
 export const useVisualViewport = (): VisualViewportResult => {
   const [viewPort, setViewPort] = useState(getVisualViewport); // <- only calls the function 1 time this way - performance improvement
   useEffect(() => {
     const handleResize = () => setViewPort(getVisualViewport);
-    window.visualViewport.addEventListener('resize', handleResize);
+    globalThis?.window?.visualViewport.addEventListener('resize', handleResize);
     return () =>
-      window.visualViewport.removeEventListener('resize', handleResize);
+      globalThis?.window?.visualViewport.removeEventListener(
+        'resize',
+        handleResize,
+      );
   }, []);
 
   return viewPort;

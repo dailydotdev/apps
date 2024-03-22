@@ -24,7 +24,7 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { PostType } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
-import CommentInputOrModal from '../comments/CommentInputOrModal';
+import CommentInputOrPage from '../comments/CommentInputOrPage';
 
 interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
@@ -96,7 +96,7 @@ function NewCommentComponent(
 
   if (typeof inputContent !== 'undefined') {
     return (
-      <CommentInputOrModal
+      <CommentInputOrPage
         {...props}
         post={post}
         className={{ input: { container: 'my-4', tab: className?.tab } }}
