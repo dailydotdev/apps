@@ -152,7 +152,7 @@ export default function Feed<T>({
   const adSpot = useFeature(feature.feedAdSpot);
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Card);
-  const showMarketingCta = feedName === SharedFeedPage.MyFeed && !!marketingCta;
+  const showMarketingCta = !!marketingCta;
 
   const {
     items,
