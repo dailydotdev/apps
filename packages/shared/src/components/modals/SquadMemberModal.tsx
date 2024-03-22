@@ -128,7 +128,10 @@ export function SquadMemberModal({
               onUnblock={() =>
                 onUnblock({ sourceId: squad.id, memberId: user.id })
               }
-              onOptionsClick={(e) => onOptionsClick(e, members[index])}
+              onOptionsClick={(e) => {
+                e.stopPropagation();
+                onOptionsClick(e, members[index]);
+              }}
             />
           ),
           emptyPlaceholder: query ? (
