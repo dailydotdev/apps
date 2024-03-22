@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import { TimerIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
 import { useSearchHistory } from '../../hooks/search';
-import ContextMenu, { MenuItemProps } from '../fields/PortalMenu';
+import ContextMenu, { MenuItemProps } from '../fields/ContextMenu';
 import useContextMenu from '../../hooks/useContextMenu';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import { SearchProviderEnum, getSearchUrl } from '../../graphql/search';

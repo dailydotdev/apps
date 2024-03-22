@@ -2,12 +2,12 @@ import React, { ReactElement, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { Tag } from '../../graphql/feedSettings';
 import { getTagPageLink } from '../../lib/links';
-import { MenuItemProps } from '../fields/PortalMenu';
+import { MenuItemProps } from '../fields/ContextMenu';
 import useContextMenu from '../../hooks/useContextMenu';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 
 const ContextMenu = dynamic(
-  () => import(/* webpackChunkName: "ContextMenu" */ '../fields/PortalMenu'),
+  () => import(/* webpackChunkName: "contextMenu" */ '../fields/ContextMenu'),
   {
     ssr: false,
   },

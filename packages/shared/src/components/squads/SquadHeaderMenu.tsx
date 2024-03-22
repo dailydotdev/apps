@@ -22,7 +22,7 @@ import {
   ExitIcon,
 } from '../icons';
 import { squadFeedback } from '../../lib/constants';
-import { MenuItemProps } from '../fields/PortalMenu';
+import { MenuItemProps } from '../fields/ContextMenu';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { Origin } from '../../lib/analytics';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -30,7 +30,7 @@ import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import useContextMenu from '../../hooks/useContextMenu';
 
 const ContextMenu = dynamic(
-  () => import(/* webpackChunkName: "ContextMenu" */ '../fields/PortalMenu'),
+  () => import(/* webpackChunkName: "contextMenu" */ '../fields/ContextMenu'),
   {
     ssr: false,
   },

@@ -47,7 +47,7 @@ import { getPostByIdKey } from '../hooks/usePostById';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
-import { MenuItemProps } from './fields/PortalMenu';
+import { MenuItemProps } from './fields/ContextMenu';
 import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
@@ -63,7 +63,7 @@ import { SourceType } from '../graphql/sources';
 import { withExperiment } from './withExperiment';
 
 const ContextMenu = dynamic(
-  () => import(/* webpackChunkName: "ContextMenu" */ './fields/PortalMenu'),
+  () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
   {
     ssr: false,
   },

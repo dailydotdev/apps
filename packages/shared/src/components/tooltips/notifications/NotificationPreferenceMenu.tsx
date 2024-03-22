@@ -1,5 +1,5 @@
 import React, { ReactElement, useMemo } from 'react';
-import ContextMenu from '../../fields/PortalMenu';
+import ContextMenu from '../../fields/ContextMenu';
 import { Loader } from '../../Loader';
 import {
   Notification,
