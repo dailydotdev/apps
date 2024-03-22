@@ -95,13 +95,16 @@ function ButtonComponent<TagName extends AllowedTags>(
         variant !== ButtonVariant.Option && 'justify-center font-bold',
         { iconOnly },
         iconOnly ? IconOnlySizeToClassName[size] : SizeToClassName[size],
+        iconPosition === ButtonIconPosition.Top && `flex-col`,
         !color && VariantToClassName[variant],
         VariantColorToClassName[variant]?.[color],
         className,
       )}
     >
       {icon &&
-        iconPosition === ButtonIconPosition.Left &&
+        new RegExp(
+          `(${ButtonIconPosition.Left}|${ButtonIconPosition.Top})`,
+        ).test(iconPosition) &&
         getIconWithSize(icon)}
       {loading ? <span className="invisible">{children}</span> : children}
       {icon &&

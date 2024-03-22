@@ -129,6 +129,7 @@ function MainLayoutComponent({
         dndActive={dndActive}
         isNavButtons={isNavItemsButton}
         onShowDndClick={onShowDndClick}
+        onLogoClick={onLogoClick}
         setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
       />
     );

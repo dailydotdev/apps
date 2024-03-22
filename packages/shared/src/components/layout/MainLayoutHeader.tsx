@@ -25,6 +25,7 @@ import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { LogoPosition } from '../Logo';
 import { UserStreak } from '../../graphql/users';
+import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -73,10 +74,12 @@ function MainLayoutHeader({
   const { unreadCount } = useNotificationContext();
   const { user } = useContext(AuthContext);
   const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
+  const isTablet = useViewSize(ViewSize.Tablet);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
+  const { useNewMobileLayout } = useMobileUxExperiment();
 
   const headerButton = (() => {
     if (!user) {
@@ -149,6 +152,10 @@ function MainLayoutHeader({
       </div>
     );
   };
+
+  if ((isMobile || isTablet) && useNewMobileLayout) {
+    return null;
+  }
 
   return (
     <header

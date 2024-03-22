@@ -22,6 +22,7 @@ export interface SidebarProps {
   setOpenMobileSidebar?: () => unknown;
   enableSearch?: () => void;
   onShowDndClick?: () => void;
+  onLogoClick?: (e: React.MouseEvent) => unknown;
 }
 
 export interface SidebarUserButtonProps {

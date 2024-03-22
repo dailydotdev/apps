@@ -1,7 +1,9 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 
 const FooterNavBar = dynamic(
   () => import(/* webpackChunkName: "footerNavBar" */ '../FooterNavBar'),
@@ -14,10 +16,24 @@ export default function FooterNavBarLayout({
 }: FooterNavBarLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { sidebarRendered } = useSidebarRendered();
+  const { useNewMobileLayout } = useMobileUxExperiment();
+  const isTablet = useViewSize(ViewSize.Tablet);
+
+  const showNav = useMemo(() => {
+    if (!windowLoaded) {
+      return false;
+    }
+
+    if (useNewMobileLayout) {
+      return !isTablet;
+    }
+
+    return sidebarRendered === false;
+  }, [useNewMobileLayout, windowLoaded, isTablet, sidebarRendered]);
 
   return (
     <>
-      <FooterNavBar showNav={sidebarRendered === false && windowLoaded} />
+      <FooterNavBar showNav={showNav} />
       {children}
     </>
   );

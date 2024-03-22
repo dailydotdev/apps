@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import classNames from 'classnames';
+import Link from 'next/link';
 import SettingsContext from '../../contexts/SettingsContext';
 import {
   Nav,
@@ -13,18 +14,30 @@ import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import AuthContext from '../../contexts/AuthContext';
 import { ProfilePicture } from '../ProfilePicture';
 import {
-  SquadSection,
-  DiscoverSection,
   ContributeSection,
+  DiscoverSection,
+  ManageSection,
   MobileMenuIcon,
-  SidebarUserButton,
   MyFeedButton,
   SidebarBottomSection,
-  ManageSection,
+  SidebarUserButton,
+  SquadSection,
 } from './index';
 import { getFeedName } from '../../lib/feed';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
+import Logo, { LogoPosition } from '../Logo';
+import { useViewSize, ViewSize } from '../../hooks';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonProps,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
+import { AiIcon, HomeIcon, SearchIcon, SourceIcon, UserIcon } from '../icons';
+import { IconSize } from '../Icon';
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -38,6 +51,7 @@ export default function Sidebar({
   enableSearch,
   setOpenMobileSidebar,
   onShowDndClick,
+  onLogoClick,
 }: SidebarProps): ReactElement {
   const { user, isLoggedIn } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
@@ -49,6 +63,9 @@ export default function Sidebar({
   } = useContext(SettingsContext);
   const { modal, openModal } = useLazyModal();
   const showSettings = modal?.type === LazyModal.UserSettings;
+  const { useNewMobileLayout } = useMobileUxExperiment();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
@@ -73,6 +90,77 @@ export default function Sidebar({
 
   if (!loadedSettings) {
     return <></>;
+  }
+
+  if (useNewMobileLayout && !isLaptop && !isMobile) {
+    const buttonProps: ButtonProps<'a' | 'button'> = {
+      variant: ButtonVariant.Tertiary,
+      style: { width: '100%' },
+      size: ButtonSize.Large,
+    };
+
+    return (
+      <SidebarAside
+        data-testid="sidebar-aside"
+        className={classNames('max-w-16 basis-10 items-center gap-4')}
+      >
+        <Logo
+          compact
+          position={LogoPosition.Relative}
+          onLogoClick={onLogoClick}
+          className={classNames('h-10 pt-4')}
+        />
+
+        <Link href="/" prefetch={false} passHref>
+          <Button
+            {...buttonProps}
+            tag="a"
+            icon={<HomeIcon secondary size={IconSize.Medium} />}
+            iconPosition={ButtonIconPosition.Top}
+            variant={ButtonVariant.Option}
+            pressed
+          >
+            Home
+          </Button>
+        </Link>
+
+        <Link href="/search" prefetch={false} passHref>
+          <Button
+            {...buttonProps}
+            tag="a"
+            icon={<AiIcon size={IconSize.Medium} />}
+            iconPosition={ButtonIconPosition.Top}
+            variant={ButtonVariant.Option}
+          >
+            Search
+          </Button>
+        </Link>
+
+        <Link href="/squads" prefetch={false} passHref>
+          <Button
+            {...buttonProps}
+            tag="a"
+            icon={<SourceIcon size={IconSize.Medium} />}
+            iconPosition={ButtonIconPosition.Top}
+            variant={ButtonVariant.Option}
+          >
+            Squads
+          </Button>
+        </Link>
+
+        <Link href={user.permalink} prefetch={false} passHref>
+          <Button
+            {...buttonProps}
+            tag="a"
+            icon={<UserIcon size={IconSize.Medium} />}
+            iconPosition={ButtonIconPosition.Top}
+            variant={ButtonVariant.Option}
+          >
+            Profile
+          </Button>
+        </Link>
+      </SidebarAside>
+    );
   }
 
   return (
