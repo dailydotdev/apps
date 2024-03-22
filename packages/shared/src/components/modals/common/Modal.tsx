@@ -155,7 +155,15 @@ export function Modal({
         displayCloseButton
         {...drawerProps}
         isOpen
-        onClose={onRequestClose}
+        onClose={() => {
+          if (onRequestClose) {
+            onRequestClose(null);
+          }
+
+          if (props.onAfterClose) {
+            props.onAfterClose();
+          }
+        }}
         closeOnOutsideClick={shouldCloseOnOverlayClick}
       >
         {content}

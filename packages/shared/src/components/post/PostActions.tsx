@@ -26,7 +26,7 @@ import {
 } from '../../hooks/useBookmarkPost';
 
 export interface ShareBookmarkProps {
-  onShare: (post: Post) => void;
+  onShare?: (post?: Post) => void;
 }
 
 interface PostActionsProps extends ShareBookmarkProps {

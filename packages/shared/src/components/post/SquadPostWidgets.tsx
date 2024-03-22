@@ -82,7 +82,6 @@ export function SquadPostWidgets({
   return (
     <PageWidgets className={className}>
       <PostHeaderActions
-        onShare={onShare}
         post={post}
         onClose={onClose}
         className="hidden pt-6 tablet:flex"
