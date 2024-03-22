@@ -4,7 +4,7 @@ import { Drawer, DrawerRef, DrawerWrapperProps } from './Drawer';
 import { SelectParams } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 
-interface ContextMenuDrawerItem {
+export interface ContextMenuDrawerItem {
   label: string;
   icon?: ReactNode;
   anchorProps?: React.AnchorHTMLAttributes<HTMLAnchorElement>;
@@ -45,6 +45,7 @@ export function ContextMenuDrawer({
               <a
                 {...anchorProps}
                 className={classNames(classes, anchorProps.className)}
+                role="menuitem"
               >
                 {content}
               </a>
@@ -56,6 +57,7 @@ export function ContextMenuDrawer({
                   action({ value: label, index, event });
                   ref.current.onClose();
                 }}
+                role="menuitem"
               >
                 {content}
               </button>

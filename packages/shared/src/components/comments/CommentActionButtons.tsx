@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import { Item, useContextMenu } from '@dailydotdev/react-contexify';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
@@ -28,13 +27,13 @@ import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { postAnalyticsEvent } from '../../lib/feed';
-import { getContextBottomPosition, upvoteCommentEventName } from '../utilities';
+import { upvoteCommentEventName } from '../utilities';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Origin } from '../../lib/analytics';
 import { Post } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
-import PortalMenu, { MenuItemProps } from '../fields/PortalMenu';
-import classed from '../../lib/classed';
+import ContextMenu, { MenuItemProps } from '../fields/ContextMenu';
+import useContextMenu from '../../hooks/useContextMenu';
 import OptionsButton from '../buttons/OptionsButton';
 import { SourcePermissions } from '../../graphql/sources';
 import { RequestKey } from '../../lib/query';
@@ -42,8 +41,6 @@ import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { labels } from '../../lib';
 import { useToastNotification } from '../../hooks/useToastNotification';
-
-const ContextItem = classed('span', 'flex gap-2 items-center w-full');
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -74,7 +71,7 @@ export default function CommentActionButtons({
   onShowUpvotes,
 }: Props): ReactElement {
   const id = `comment-actions-menu-${comment.id}`;
-  const { show } = useContextMenu({ id });
+  const { onMenuClick, isOpen } = useContextMenu({ id });
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
   const [upvoted, setUpvoted] = useState(comment.upvoted);
@@ -234,10 +231,7 @@ export default function CommentActionButtons({
         />
       </SimpleTooltip>
       {!!commentOptions && (
-        <OptionsButton
-          tooltipPlacement="top"
-          onClick={(e) => show(e, { position: getContextBottomPosition(e) })}
-        />
+        <OptionsButton tooltipPlacement="top" onClick={onMenuClick} />
       )}
       {numUpvotes > 0 && (
         <SimpleTooltip content="See who upvoted">
@@ -249,20 +243,14 @@ export default function CommentActionButtons({
           </ClickableText>
         </SimpleTooltip>
       )}
-      <PortalMenu
+      <ContextMenu
         disableBoundariesCheck
         id={id}
         className="menu-primary typo-callout"
         animation="fade"
-      >
-        {commentOptions.map(({ label, action, icon }) => (
-          <Item key={label} onClick={action}>
-            <ContextItem>
-              {icon} {label}
-            </ContextItem>
-          </Item>
-        ))}
-      </PortalMenu>
+        options={commentOptions}
+        isOpen={isOpen}
+      />
     </div>
   );
 }
