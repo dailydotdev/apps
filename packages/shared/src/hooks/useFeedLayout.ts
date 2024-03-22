@@ -3,6 +3,8 @@ import { SharedFeedPage } from '../components/utilities';
 import { AllFeedPages } from '../lib/query';
 import { useActiveFeedNameContext } from '../contexts';
 import { useViewSize, ViewSize } from './useViewSize';
+import { useFeature } from '../components/GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
 
 interface UseFeedLayoutProps {
   feedName?: AllFeedPages;
@@ -11,6 +13,7 @@ interface UseFeedLayoutProps {
 
 interface UseFeedLayout {
   shouldUseMobileFeedLayout: boolean;
+  shouldUseCommentFeedLayout: boolean;
 }
 
 export const FeedLayoutMobileFeedPages = new Set(
@@ -26,6 +29,7 @@ export const useFeedLayout = ({
   feedName: feedNameProp,
   feedRelated = true,
 }: UseFeedLayoutProps = {}): UseFeedLayout => {
+  const hasCommentFeed = useFeature(feature.commentFeed);
   const { feedName } = useActiveFeedNameContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const name = (feedNameProp ?? feedName) as SharedFeedPage;
@@ -33,11 +37,16 @@ export const useFeedLayout = ({
     () => checkShouldUseMobileFeedLayout(name),
     [name],
   );
-  const shouldUseMobileFeedLayout = !feedRelated
-    ? isMobile
-    : isMobile && isIncludedFeed;
+
+  const shouldUseCommentFeedLayout =
+    hasCommentFeed && feedName === SharedFeedPage.Discussed;
+  const isMobileAndIncludedFeed = isMobile && isIncludedFeed;
+  const shouldUseMobileFeedLayout = feedRelated
+    ? isMobileAndIncludedFeed
+    : isMobile;
 
   return {
     shouldUseMobileFeedLayout,
+    shouldUseCommentFeedLayout,
   };
 };

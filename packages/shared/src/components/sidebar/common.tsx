@@ -33,6 +33,7 @@ export interface SidebarMenuItem {
   title: string;
   rightIcon?: (active: boolean) => ReactElement;
   path?: string;
+  onClick?: () => unknown;
   target?: HTMLAttributeAnchorTarget | undefined;
   isForcedLink?: boolean;
   action?: () => unknown;

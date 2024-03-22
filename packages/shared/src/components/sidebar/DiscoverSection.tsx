@@ -2,6 +2,10 @@ import React, { ReactElement } from 'react';
 import { DiscussIcon, HotIcon, SearchIcon, UpvoteIcon } from '../icons';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { useActions } from '../../hooks';
+import { ActionType } from '../../graphql/actions';
 
 interface DiscoverSectionProps extends SectionCommonProps {
   isItemsButton?: boolean;
@@ -15,20 +19,10 @@ export function DiscoverSection({
   enableSearch,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement {
+  const hasCommentFeed = useFeature(feature.commentFeed);
+  const { checkHasCompleted, completeAction } = useActions();
+  const hasCompletedCommentFeed = checkHasCompleted(ActionType.CommentFeed);
   const discoverMenuItems: SidebarMenuItem[] = [
-    {
-      icon: (active: boolean) => (
-        <ListIcon Icon={() => <DiscussIcon secondary={active} />} />
-      ),
-      title: 'Discussions',
-      path: '/discussed',
-      action: () => onNavTabClick?.('discussed'),
-      rightIcon: () => (
-        <span className="flex h-4 items-center rounded-6 bg-brand-default px-1 font-bold text-white typo-caption2">
-          NEW
-        </span>
-      ),
-    },
     {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <HotIcon secondary={active} />} />
@@ -55,6 +49,40 @@ export function DiscoverSection({
       action: enableSearch,
     },
   ];
+
+  const completeCommentFeed = () => completeAction(ActionType.CommentFeed);
+  const discussedAction = () => {
+    completeCommentFeed();
+    onNavTabClick?.('discussed');
+  };
+
+  if (hasCommentFeed) {
+    discoverMenuItems.unshift({
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <DiscussIcon secondary={active} />} />
+      ),
+      title: 'Discussions',
+      path: '/discussed',
+      onClick: completeCommentFeed,
+      action: discussedAction,
+      ...(!hasCompletedCommentFeed && {
+        rightIcon: () => (
+          <span className="flex h-4 items-center rounded-6 bg-brand-default px-1 font-bold text-white typo-caption2">
+            NEW
+          </span>
+        ),
+      }),
+    });
+  } else {
+    discoverMenuItems.splice(2, 0, {
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <DiscussIcon secondary={active} />} />
+      ),
+      title: 'Best discussions',
+      path: '/discussed',
+      action: () => onNavTabClick?.('discussed'),
+    });
+  }
 
   return (
     <Section
