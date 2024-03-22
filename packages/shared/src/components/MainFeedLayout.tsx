@@ -137,9 +137,11 @@ export default function MainFeedLayout({
   });
   const feedVersion = useFeature(feature.feedVersion);
   const searchVersion = useFeature(feature.searchVersion);
+  const hasCommentFeed = useFeature(feature.commentFeed);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
-  const { shouldUseMobileFeedLayout, shouldUseCommentFeedLayout } =
-    useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const shouldUseCommentFeedLayout =
+    hasCommentFeed && feedName === SharedFeedPage.Discussed;
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
     query = {
