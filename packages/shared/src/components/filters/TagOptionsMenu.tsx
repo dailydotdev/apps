@@ -1,12 +1,13 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import { Item } from '@dailydotdev/react-contexify';
-import Link from 'next/link';
 import { Tag } from '../../graphql/feedSettings';
 import { getTagPageLink } from '../../lib/links';
+import { MenuItemProps } from '../fields/ContextMenu';
+import useContextMenu from '../../hooks/useContextMenu';
+import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 
-const PortalMenu = dynamic(
-  () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
+const ContextMenu = dynamic(
+  () => import(/* webpackChunkName: "contextMenu" */ '../fields/ContextMenu'),
   {
     ssr: false,
   },
@@ -29,30 +30,51 @@ export default function TagOptionsMenu({
   onFollow,
   onUnfollow,
 }: TagOptionsMenuProps): ReactElement {
+  const { isOpen } = useContextMenu({
+    id: ContextMenuIds.TagOptionsContext,
+  });
+
+  const tagOptions = useMemo(() => {
+    const opts: MenuItemProps[] = [];
+
+    if (tag) {
+      opts.push({
+        label: 'View',
+        anchorProps: {
+          href: getTagPageLink(tag.name ?? (tag as string)),
+        },
+      });
+    }
+
+    if (onFollow) {
+      opts.push({ label: 'Follow', action: onFollow });
+    }
+
+    if (onUnfollow) {
+      opts.push({ label: 'Unfollow', action: onUnfollow });
+    }
+
+    if (onBlock) {
+      opts.push({ label: 'Block', action: onBlock });
+    }
+
+    if (onUnblock) {
+      opts.push({ label: 'Unblock', action: onUnblock });
+    }
+
+    return opts;
+  }, [tag, onFollow, onUnfollow, onBlock, onUnblock]);
+
   return (
-    <PortalMenu
+    <ContextMenu
       disableBoundariesCheck
-      id="tag-options-context"
+      id={ContextMenuIds.TagOptionsContext}
       className="menu-primary"
       animation="fade"
       onHidden={onHidden}
       style={{ width: '7rem' }}
-    >
-      {tag && (
-        <Item>
-          <Link
-            href={getTagPageLink(tag.name ?? (tag as string))}
-            passHref
-            prefetch={false}
-          >
-            <a className="w-full">View</a>
-          </Link>
-        </Item>
-      )}
-      {onFollow && <Item onClick={onFollow}>Follow</Item>}
-      {onUnfollow && <Item onClick={onUnfollow}>Unfollow</Item>}
-      {onBlock && <Item onClick={onBlock}>Block</Item>}
-      {onUnblock && <Item onClick={onUnblock}>Unblock</Item>}
-    </PortalMenu>
+      isOpen={isOpen}
+      options={tagOptions}
+    />
   );
 }

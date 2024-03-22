@@ -47,7 +47,6 @@ import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
 } from '../hooks/useBookmarkPost';
-import { isNullOrUndefined } from '../lib/func';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { acquisitionKey } from './cards/AcquisitionFormCard';
@@ -435,7 +434,6 @@ export default function Feed<T>({
           onRemovePost={onRemovePost}
           origin={origin}
           allowPin={allowPin}
-          isOpen={!isNullOrUndefined(postMenuIndex)}
         />
         <ShareOptionsMenu
           {...commonMenuItems}

@@ -11,7 +11,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useDeleteSquad } from '../../hooks/useDeleteSquad';
 import { useLeaveSquad, useSquadNavigation } from '../../hooks';
-import ContextMenuItem, { ContextMenuIcon } from '../tooltips/ContextMenuItem';
+import { ContextMenuIcon } from '../tooltips/ContextMenuItem';
 import { verifyPermission } from '../../graphql/squads';
 import {
   SettingsIcon,
@@ -22,13 +22,15 @@ import {
   ExitIcon,
 } from '../icons';
 import { squadFeedback } from '../../lib/constants';
-import { MenuItemProps } from '../fields/PortalMenu';
+import { MenuItemProps } from '../fields/ContextMenu';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
 import { Origin } from '../../lib/analytics';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
+import useContextMenu from '../../hooks/useContextMenu';
 
-const PortalMenu = dynamic(
-  () => import(/* webpackChunkName: "portalMenu" */ '../fields/PortalMenu'),
+const ContextMenu = dynamic(
+  () => import(/* webpackChunkName: "contextMenu" */ '../fields/ContextMenu'),
   {
     ssr: false,
   },
@@ -49,6 +51,7 @@ export default function SquadHeaderMenu({
   const router = useRouter();
   const { openModal } = useLazyModal();
   const { editSquad } = useSquadNavigation();
+  const { isOpen } = useContextMenu({ id: ContextMenuIds.SquadMenuContext });
 
   const { onDeleteSquad } = useDeleteSquad({
     squad,
@@ -137,15 +140,13 @@ export default function SquadHeaderMenu({
   ]);
 
   return (
-    <PortalMenu
+    <ContextMenu
       disableBoundariesCheck
-      id="squad-menu-context"
+      id={ContextMenuIds.SquadMenuContext}
       className="menu-primary"
       animation="fade"
-    >
-      {items.map((props) => (
-        <ContextMenuItem key={props.label} {...props} />
-      ))}
-    </PortalMenu>
+      options={items}
+      isOpen={isOpen}
+    />
   );
 }

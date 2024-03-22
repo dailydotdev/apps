@@ -1,5 +1,4 @@
 import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
-import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
@@ -35,8 +34,6 @@ import {
   useFeedLayout,
   useSourceSubscription,
   useToastNotification,
-  useViewSize,
-  ViewSize,
 } from '../hooks';
 import {
   AllFeedPages,
@@ -50,7 +47,7 @@ import { getPostByIdKey } from '../hooks/usePostById';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
-import { MenuItemProps } from './fields/PortalMenu';
+import { MenuItemProps } from './fields/ContextMenu';
 import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
@@ -59,14 +56,14 @@ import { ActiveFeedContext } from '../contexts';
 import { useAdvancedSettings } from '../hooks/feed';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
-import { ContextMenuDrawer } from './drawers/ContextMenuDrawer';
-import { RootPortal } from './tooltips/Portal';
 import { SourceSubscribeExperiment } from '../lib/featureValues';
+import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
+import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';
 import { withExperiment } from './withExperiment';
 
-const PortalMenu = dynamic(
-  () => import(/* webpackChunkName: "portalMenu" */ './fields/PortalMenu'),
+const ContextMenu = dynamic(
+  () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
   {
     ssr: false,
   },
@@ -86,7 +83,6 @@ export interface PostOptionsMenuProps {
   contextId?: string;
   origin: Origin;
   allowPin?: boolean;
-  isOpen?: boolean;
 }
 
 const PostOptionSourceSubscribe = withExperiment(
@@ -109,18 +105,21 @@ export default function PostOptionsMenu({
   setShowPromotePost,
   origin,
   allowPin,
-  isOpen,
-  contextId = 'post-context',
+  contextId = ContextMenuTypes.PostContext,
 }: PostOptionsMenuProps): ReactElement {
   const client = useQueryClient();
   const router = useRouter();
   const { user, isLoggedIn } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
+  const { isOpen: isPostOptionsOpen } = useContextMenu({
+    id: contextId,
+  });
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
-    useFeedSettings({ enabled: isOpen });
+    useFeedSettings({ enabled: isPostOptionsOpen });
   const { onUpdateSettings } = useAdvancedSettings({ enabled: false });
   const { trackEvent } = useContext(AnalyticsContext);
   const { hidePost, unhidePost } = useReportPost();
+
   const { openModal } = useLazyModal();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const {
@@ -469,34 +468,15 @@ export default function PostOptionsMenu({
     });
   }
 
-  const isMobile = useViewSize(ViewSize.MobileL);
-
-  if (isMobile) {
-    return (
-      <RootPortal>
-        <ContextMenuDrawer
-          drawerProps={{ isOpen, onClose: onHidden, displayCloseButton: true }}
-          options={postOptions}
-        />
-      </RootPortal>
-    );
-  }
-
   return (
-    <PortalMenu
+    <ContextMenu
       disableBoundariesCheck
       id={contextId}
       className="menu-primary"
       animation="fade"
       onHidden={onHidden}
-    >
-      {postOptions.map(({ icon, label, action }) => (
-        <Item key={label} className="typo-callout" onClick={action}>
-          <span className="flex w-full items-center typo-callout">
-            {icon} {label}
-          </span>
-        </Item>
-      ))}
-    </PortalMenu>
+      options={postOptions}
+      isOpen={isPostOptionsOpen}
+    />
   );
 }
