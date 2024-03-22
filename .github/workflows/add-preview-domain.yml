@@ -1,0 +1,57 @@
+name: Assign preview-domain
+on:
+  # Trigger when a pull request is opened or reopened
+  pull_request:
+    types: [opened, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  assign-preview-domain:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Prepare domain
+        id: prepare
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            const domain = `${{ github.head_ref }}.${{ vars.PREVIEW_DOMAIN }}`.toLowerCase()
+            core.setOutput('domain', domain)
+
+      - name: Comment with the assigned preview-domain
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            const knownString = '### Preview domain'
+            const pullRequest = await github.rest.pulls.get({
+              pull_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+            const hasAlreadyCommented = pullRequest.data.body.includes(knownString)
+
+            if (hasAlreadyCommented) {
+              console.log('Already commented once')
+            } else {
+              console.log('Creating comment for the first time')
+              const body = pullRequest.data.body
+                ? `${pullRequest.data.body}\n\n${knownString}\nhttps://${{ steps.prepare.outputs.domain }}`
+                : `${knownString}\nhttps://${{ steps.prepare.outputs.domain }}`
+
+              await github.rest.pulls.update({
+                pull_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body,
+              })
+            }
+
+      - name: Assign preview-domain
+        run: |
+          curl -sX POST "https://vercel.com/api/v10/projects/${{ secrets.VERCEL_PROJECT_ID }}/domains?teamId=${{ secrets.VERCEL_TEAM_ID }}" \
+            -H "Authorization: Bearer ${{ secrets.VERCEL_BEARER_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"name": "${{ steps.prepare.outputs.domain }}","gitBranch":"${{ github.head_ref }}"}'
