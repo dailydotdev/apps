@@ -125,7 +125,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     options: { initialData, retry: false },
   });
   const containerClass = classNames(
-    'max-w-screen-laptop mb-16 tablet:mb-8 laptop:mb-0 laptop:min-h-page laptop:pb-6 laptopL:pb-0',
+    'mb-16 max-w-screen-laptop tablet:mb-8 laptop:mb-0 laptop:min-h-page laptop:pb-6 laptopL:pb-0',
     [PostType.Share, PostType.Welcome, PostType.Freeform].includes(post?.type),
   );
   const seoTitle = () => {

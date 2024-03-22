@@ -16,26 +16,26 @@ const NewCommentPage = (): ReactElement => {
   return <CommentInputPage id={id} replyCommentId={replyCommentId} />;
 };
 
-// export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-//   return { paths: [], fallback: true };
-// }
+export async function getStaticPaths(): Promise<GetStaticPathsResult> {
+  return { paths: [], fallback: true };
+}
 
 interface NewCommentPageParams extends ParsedUrlQuery {
   id: string;
 }
 
-// export async function getStaticProps({
-//   params,
-// }: GetStaticPropsContext<NewCommentPageParams>): Promise<
-//   GetStaticPropsResult<Props>
-// > {
-//   const { id } = params;
-//   return {
-//     props: {
-//       id,
-//     },
-//     revalidate: 60,
-//   };
-// }
+export async function getStaticProps({
+  params,
+}: GetStaticPropsContext<NewCommentPageParams>): Promise<
+  GetStaticPropsResult<Props>
+> {
+  const { id } = params;
+  return {
+    props: {
+      id,
+    },
+    revalidate: 60,
+  };
+}
 
 export default NewCommentPage;

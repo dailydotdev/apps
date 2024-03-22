@@ -54,7 +54,6 @@ const CommentInputPage = ({
     () => comment?.parentId ?? replyCommentId,
     [comment, replyCommentId],
   );
-  console.log('Parent', parentCommentId);
 
   const refCallback = useCallback(
     (node) => {
@@ -80,7 +79,7 @@ const CommentInputPage = ({
   useLayoutEffect(() => {
     // scroll to bottom
     if (isReply && comment) {
-      bottomNode?.scrollIntoView({ behavior: 'instant', block: 'end' });
+      bottomNode?.scrollIntoView({ behavior: 'auto', block: 'end' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bottomNode, isReply, comment]);
