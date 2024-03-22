@@ -10,7 +10,7 @@ interface ClassName {
   container?: string;
   header?: string;
 }
-interface FormWrapperProps {
+export interface FormWrapperProps {
   children: ReactNode;
   className?: string | ClassName;
   form: string;

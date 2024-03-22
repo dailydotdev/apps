@@ -8,12 +8,15 @@ import {
 import { ParsedUrlQuery } from 'querystring';
 import CommentInputPage from '@dailydotdev/shared/src/components/comments/CommentInputPage';
 
-const NewCommentPage = (): ReactElement => {
+interface Props {
+  id: string;
+}
+
+const NewCommentPage = ({ id }): ReactElement => {
   const router = useRouter();
-  const id = router.query.id as string;
   const replyCommentId = router.query.replyTo as string;
 
-  return <CommentInputPage id={id} replyCommentId={replyCommentId} />;
+  return <CommentInputPage postId={id} replyCommentId={replyCommentId} />;
 };
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {

@@ -13,7 +13,7 @@ export interface Props {
 }
 
 const EditCommentPage = ({ id, commentId }: Props): ReactElement => {
-  return <CommentInputPage id={id} editCommentId={commentId} />;
+  return <CommentInputPage postId={id} editCommentId={commentId} />;
 };
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {

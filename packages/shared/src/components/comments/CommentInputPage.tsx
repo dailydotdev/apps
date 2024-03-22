@@ -20,13 +20,13 @@ const headerSize = 57;
 const replySize = 40;
 
 export interface Props {
-  id: string;
+  postId: string;
   editCommentId?: string;
   replyCommentId?: string;
 }
 
 const CommentInputPage = ({
-  id,
+  postId,
   editCommentId,
   replyCommentId,
 }: Props): ReactElement => {
@@ -35,7 +35,7 @@ const CommentInputPage = ({
   const [bottomNode, setBottomNode] = useState<HTMLElement>(null);
   const router = useRouter();
 
-  const postPath = `/posts/${id}`;
+  const postPath = `/posts/${postId}`;
   const isEdit = !!editCommentId;
   const isReply = !!replyCommentId;
 
@@ -130,6 +130,8 @@ const CommentInputPage = ({
               className={{
                 container: 'mx-4 mt-4 border',
               }}
+              postAuthorId={post?.author?.id}
+              postScoutId={post?.scout?.id}
             />
             <div className="ml-12 flex gap-2 border-l border-theme-divider-tertiary py-3 pl-5 text-theme-label-tertiary typo-caption1">
               Reply to
