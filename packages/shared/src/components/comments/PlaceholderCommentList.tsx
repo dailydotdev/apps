@@ -1,7 +1,9 @@
 import React, { ReactElement } from 'react';
-import PlaceholderComment from './PlaceholderComment';
+import PlaceholderComment, {
+  PlaceholderCommentProps,
+} from './PlaceholderComment';
 
-export interface PlaceholderCommentListProps {
+export interface PlaceholderCommentListProps extends PlaceholderCommentProps {
   placeholderAmount?: number;
 }
 
@@ -9,6 +11,7 @@ const MAX_DISPLAY = 5;
 
 export default function PlaceholderCommentList({
   placeholderAmount,
+  ...props
 }: PlaceholderCommentListProps): ReactElement {
   const amount =
     placeholderAmount <= MAX_DISPLAY ? placeholderAmount : MAX_DISPLAY;
@@ -16,7 +19,7 @@ export default function PlaceholderCommentList({
   return (
     <>
       {Object.keys([...Array(amount)]).map((key) => (
-        <PlaceholderComment key={key} />
+        <PlaceholderComment {...props} key={key} />
       ))}
     </>
   );

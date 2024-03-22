@@ -50,7 +50,7 @@ export const CollectionPostContent = ({
     post,
   });
   const { updatedAt, contentHtml, image } = post;
-  const { onSharePost: onShare, onReadArticle } = engagementActions;
+  const { onCopyPostLink: onShare, onReadArticle } = engagementActions;
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
@@ -100,7 +100,6 @@ export const CollectionPostContent = ({
       >
         {!hasNavigation && (
           <CollectionPostHeaderActions
-            onShare={onShare}
             post={post}
             onClose={onClose}
             className="flex tablet:hidden"

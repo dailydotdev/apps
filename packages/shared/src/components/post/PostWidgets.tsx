@@ -26,7 +26,6 @@ export function PostWidgets({
   return (
     <PageWidgets className={className}>
       <PostHeaderActions
-        onShare={onShare}
         onReadArticle={onReadArticle}
         post={post}
         onClose={onClose}

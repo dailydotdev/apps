@@ -22,6 +22,7 @@ import NotificationItem from '@dailydotdev/shared/src/components/notifications/N
 import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
+import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
 import InfiniteScrolling, {
   checkFetchMore,
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
@@ -32,7 +33,6 @@ import {
   NotificationType,
 } from '@dailydotdev/shared/src/components/notifications/utils';
 import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
-import { useContextMenu } from '@dailydotdev/react-contexify';
 import { NotificationPreferenceMenu } from '@dailydotdev/shared/src/components/tooltips/notifications';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
@@ -104,7 +104,9 @@ const Notifications = (): ReactElement => {
 
   usePromotionModal();
 
-  const { show } = useContextMenu({ id: contextId });
+  const { onMenuClick: showOptionsMenu, isOpen } = useContextMenu({
+    id: contextId,
+  });
   const [notification, setNotification] = useState<Notification>();
 
   const onOptionsClick = (e: React.MouseEvent, item: Notification) => {
@@ -119,8 +121,7 @@ const Notifications = (): ReactElement => {
     }
 
     setNotification(item);
-    const { right, bottom } = e.currentTarget.getBoundingClientRect();
-    show(e, { position: { x: right, y: bottom + 4 } });
+    showOptionsMenu(e);
   };
 
   return (
@@ -174,6 +175,7 @@ const Notifications = (): ReactElement => {
         </InfiniteScrolling>
       </main>
       <NotificationPreferenceMenu
+        isOpen={isOpen}
         contextId={contextId}
         notification={notification}
         onClose={() => setNotification(undefined)}

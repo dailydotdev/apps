@@ -27,7 +27,7 @@ export function BasePostContent({
   customNavigation,
 }: BasePostContentProps): ReactElement {
   const { id } = post ?? {};
-  const { onCloseShare, sharePost, onSharePost } = engagementProps;
+  const { onCloseShare, sharePost, onCopyPostLink } = engagementProps;
 
   if (!id && !isFallback) {
     return <Custom404 />;
@@ -41,7 +41,7 @@ export function BasePostContent({
       {children}
       <PostEngagements
         post={post}
-        onShare={onSharePost}
+        onShare={onCopyPostLink}
         analyticsOrigin={origin}
         shouldOnboardAuthor={shouldOnboardAuthor}
         enableShowShareNewComment={enableShowShareNewComment}

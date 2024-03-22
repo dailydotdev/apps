@@ -15,7 +15,7 @@ import { SharedFeedPage } from '../components/utilities';
 
 export enum OtherFeedPage {
   Tag = 'tag',
-  Squad = 'squad',
+  Squad = 'squads',
   Source = 'source',
   Bookmarks = 'bookmarks',
   SearchBookmarks = 'search-bookmarks',
@@ -96,6 +96,7 @@ export enum RequestKey {
   PushNotification = 'push_notification',
   ShortUrl = 'short_url',
   SourceRequestAvailability = 'source_request_availability',
+  CommentFeed = 'comment_feed',
 }
 
 export type HasConnection<

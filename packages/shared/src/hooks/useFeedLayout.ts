@@ -33,9 +33,11 @@ export const useFeedLayout = ({
     () => checkShouldUseMobileFeedLayout(name),
     [name],
   );
-  const shouldUseMobileFeedLayout = !feedRelated
-    ? isMobile
-    : isMobile && isIncludedFeed;
+
+  const isMobileAndIncludedFeed = isMobile && isIncludedFeed;
+  const shouldUseMobileFeedLayout = feedRelated
+    ? isMobileAndIncludedFeed
+    : isMobile;
 
   return {
     shouldUseMobileFeedLayout,

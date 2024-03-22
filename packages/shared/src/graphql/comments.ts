@@ -43,6 +43,7 @@ export interface Comment {
   upvoted?: boolean;
   numUpvotes: number;
   children?: Connection<Comment>;
+  parent?: Comment;
   post?: Post;
   parentId?: string;
 }
@@ -52,6 +53,19 @@ export const getCommentHash = (id: string): string => `#c-${id}`;
 export interface RecommendedMentionsData {
   recommendedMentions: UserShortProfile[];
 }
+
+export const COMMENT_WITH_PARENT_FRAGMENT = gql`
+  fragment CommentWithParentFragment on Comment {
+    ...CommentFragment
+    parent {
+      author {
+        username
+        permalink
+      }
+    }
+  }
+  ${COMMENT_FRAGMENT}
+`;
 
 export const COMMENT_WITH_CHILDREN_FRAGMENT = gql`
   fragment CommentWithChildrenFragment on Comment {
@@ -87,6 +101,28 @@ export interface PostCommentsData {
 export interface UserCommentsData {
   page: Connection<Comment>;
 }
+
+export const COMMENT_FEED_QUERY = gql`
+  query CommentFeed($after: String, $first: Int) {
+    page: commentFeed(after: $after, first: $first) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          ...CommentWithParentFragment
+          post {
+            id
+            title
+            commentsPermalink
+          }
+        }
+      }
+    }
+  }
+  ${COMMENT_WITH_PARENT_FRAGMENT}
+`;
 
 export const POST_COMMENTS_QUERY = gql`
   query PostComments($postId: ID!, $after: String, $first: Int) {

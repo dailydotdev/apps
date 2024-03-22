@@ -10,13 +10,12 @@ import AuthContext from '../../contexts/AuthContext';
 import { banPost, demotePost, Post, promotePost } from '../../graphql/posts';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import PostOptionsMenu, { PostOptionsMenuProps } from '../PostOptionsMenu';
-import { ShareBookmarkProps } from './PostActions';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { Origin } from '../../lib/analytics';
 import useContextMenu from '../../hooks/useContextMenu';
 import { Button, ButtonVariant } from '../buttons/Button';
 
-export interface PostMenuOptionssProps extends ShareBookmarkProps {
+export interface PostMenuOptionssProps {
   post: Post;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   inlineActions?: boolean;
@@ -26,7 +25,6 @@ export interface PostMenuOptionssProps extends ShareBookmarkProps {
 }
 
 export function PostMenuOptions({
-  onShare,
   post,
   onClose,
   inlineActions,
@@ -36,7 +34,7 @@ export function PostMenuOptions({
 }: PostMenuOptionssProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
-  const { onMenuClick, isOpen, onHide } = useContextMenu({ id: contextMenuId });
+  const { onMenuClick, onHide } = useContextMenu({ id: contextMenuId });
   const isModerator = user?.roles?.includes(Roles.Moderator);
 
   const banPostPrompt = async () => {
@@ -94,14 +92,12 @@ export function PostMenuOptions({
         </SimpleTooltip>
       )}
       <PostOptionsMenu
-        onShare={onShare}
         post={post}
         onRemovePost={onRemovePost}
         setShowBanPost={isModerator ? () => banPostPrompt() : null}
         setShowPromotePost={isModerator ? () => promotePostPrompt() : null}
         contextId={contextMenuId}
         origin={origin}
-        isOpen={isOpen}
         onHidden={onHide}
       />
     </>

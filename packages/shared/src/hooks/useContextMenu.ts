@@ -2,6 +2,7 @@ import { MouseEventHandler, useCallback, useMemo } from 'react';
 import { useContextMenu as useContexifyContextMenu } from '@dailydotdev/react-contexify';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { generateQueryKey, RequestKey } from '../lib/query';
+import { useViewSize, ViewSize } from './useViewSize';
 
 interface UseContextMenuProps {
   id: string;
@@ -28,6 +29,8 @@ export default function useContextMenu({
     { initialData: false },
   );
 
+  const isMobile = useViewSize(ViewSize.MobileL);
+
   const onIsOpen = useCallback(
     (value: boolean) => client.setQueryData(key, value),
     [client, key],
@@ -43,14 +46,17 @@ export default function useContextMenu({
       const { right, bottom } = e.currentTarget.getBoundingClientRect();
       const state = !isOpen;
 
-      if (state) {
+      // calling `show` from `react-contextify` requires a `Menu` component from the same library to be rendered
+      // on mobile we don't render it that way, so we don't call `show` on mobile
+      // see `PortalMenu` implementation for more details
+      if (!isMobile && state) {
         show(e, {
           position: { x: right, y: bottom + 4 },
         });
       }
       onIsOpen(state);
     },
-    [show, isOpen, onIsOpen],
+    [show, isOpen, onIsOpen, isMobile],
   );
 
   return { onMenuClick, onHide, isOpen };

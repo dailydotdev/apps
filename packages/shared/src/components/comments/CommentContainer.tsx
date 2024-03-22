@@ -25,14 +25,15 @@ interface ClassName extends CommentClassName {
 export interface CommentContainerProps {
   post: Post;
   comment: Comment;
-  postAuthorId?: string | null;
-  postScoutId?: string | null;
   commentHash?: string;
   commentRef?: React.MutableRefObject<HTMLElement>;
-  className?: ClassName;
   appendTooltipTo?: () => HTMLElement;
+  postAuthorId: string | null;
+  postScoutId: string | null;
+  className?: ClassName;
   children?: ReactNode;
   linkToComment?: boolean;
+  showContextHeader?: boolean;
   actions?: ReactNode;
 }
 
@@ -46,8 +47,9 @@ export default function CommentContainer({
   postScoutId,
   className = {},
   children,
-  actions,
   linkToComment,
+  showContextHeader,
+  actions,
 }: CommentContainerProps): ReactElement {
   const isCommentReferenced = commentHash === getCommentHash(comment.id);
   const { role } = useMemberRoleForSource({
@@ -73,6 +75,19 @@ export default function CommentContainer({
         </Link>
       )}
       {children}
+      {showContextHeader && (
+        <header className="mb-4 line-clamp-1 text-text-tertiary typo-footnote">
+          {comment.parent ? (
+            <p>
+              Replied to <strong>@{comment.parent.author.username}</strong>
+            </p>
+          ) : (
+            <p>
+              Commented on <strong>{comment.post.title}</strong>
+            </p>
+          )}
+        </header>
+      )}
       <header className="z-1 flex w-full flex-row self-start">
         <ProfileTooltip
           user={comment.author}

@@ -19,6 +19,7 @@ export enum ActionType {
   CollectionsIntro = 'collections_intro',
   DevCardGenerate = 'dev_card_generate',
   AckRep250 = 'ack_rep_250',
+  CommentFeed = 'comment_feed',
 }
 
 export interface Action {
