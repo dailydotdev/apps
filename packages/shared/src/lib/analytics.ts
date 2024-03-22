@@ -144,6 +144,8 @@ export enum AnalyticsEvent {
   // source
   SubscribeSource = 'subscribe source',
   UnsubscribeSource = 'unsubscribe source',
+  // marketing CTA
+  MarketingCtaDismiss = 'dismiss promotion',
 }
 
 export enum FeedItemTitle {
@@ -171,6 +173,8 @@ export enum TargetType {
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
   StreaksMilestone = 'streaks milestone',
+  MarketingCtaCard = 'promotion_card',
+  MarketingCtaPopover = 'promotion_popover',
 }
 
 export enum TargetId {
