@@ -97,7 +97,7 @@ function Enable(): React.ReactElement {
       </Description>
       <div>
         <InstructionContainer className="mb-1">
-          <Description>1. Click on the lock icon in the search bar</Description>
+          <Description>1. Click on the icon in the search bar</Description>
           <BrowserIcon
             className={classNames(iconClasses, 'h-8 w-full max-w-[18.75rem]')}
           />
