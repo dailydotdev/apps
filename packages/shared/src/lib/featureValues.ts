@@ -35,8 +35,3 @@ export enum SourceSubscribeExperiment {
   Control = 'control',
   V1 = 'v1',
 }
-
-export enum MobileUXLayout {
-  Control = 'control',
-  V1 = 'v1',
-}

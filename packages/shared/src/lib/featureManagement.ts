@@ -6,7 +6,6 @@ import {
   PublishTimeFormat,
   OnboardingCopy,
   SourceSubscribeExperiment,
-  MobileUXLayout,
 } from './featureValues';
 import { cloudinary } from './image';
 
@@ -57,7 +56,7 @@ const feature = {
   ),
   searchVersion: new Feature('search_version', 1),
   commentFeed: new Feature('comment_feed', false),
-  mobileUxLayout: new Feature('mobile_ux_layout', MobileUXLayout.Control),
+  mobileUxLayout: new Feature('mobile_ux_layout', false),
 };
 
 export { feature };
