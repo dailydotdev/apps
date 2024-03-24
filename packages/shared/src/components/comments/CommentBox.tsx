@@ -39,6 +39,7 @@ export interface CommentBoxProps extends CommentActionProps {
   appendTooltipTo?: () => HTMLElement;
   children?: ReactNode;
   linkToComment?: boolean;
+  showContextHeader?: boolean;
 }
 
 function CommentBox({
@@ -59,6 +60,7 @@ function CommentBox({
   className = {},
   children,
   linkToComment,
+  showContextHeader,
 }: CommentBoxProps): ReactElement {
   const isCommentReferenced = commentHash === getCommentHash(comment.id);
   const { role } = useMemberRoleForSource({
@@ -84,6 +86,19 @@ function CommentBox({
         </Link>
       )}
       {children}
+      {showContextHeader && (
+        <header className="mb-4 line-clamp-1 text-text-tertiary typo-footnote">
+          {comment.parent ? (
+            <p>
+              Replied to <strong>@{comment.parent.author.username}</strong>
+            </p>
+          ) : (
+            <p>
+              Commented on <strong>{comment.post.title}</strong>
+            </p>
+          )}
+        </header>
+      )}
       <header className="z-1 flex w-full flex-row self-start">
         <ProfileTooltip
           user={comment.author}

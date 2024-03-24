@@ -96,6 +96,7 @@ export enum RequestKey {
   PushNotification = 'push_notification',
   ShortUrl = 'short_url',
   SourceRequestAvailability = 'source_request_availability',
+  CommentFeed = 'comment_feed',
 }
 
 export type HasConnection<

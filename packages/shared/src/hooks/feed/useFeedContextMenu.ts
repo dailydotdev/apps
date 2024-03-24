@@ -1,5 +1,5 @@
-import { useContextMenu } from '@dailydotdev/react-contexify';
 import React, { useState } from 'react';
+import useContextMenu from '../useContextMenu';
 import { Post } from '../../graphql/posts';
 import { ContextMenu } from '../constants';
 import useReportPostMenu from '../useReportPostMenu';
@@ -32,8 +32,8 @@ type FeedContextMenu = {
 export default function useFeedContextMenu(): FeedContextMenu {
   const [postMenuLocation, setPostMenuLocation] = useState<PostMenuLocation>();
   const postMenuIndex = postMenuLocation?.index;
-  const { showReportMenu } = useReportPostMenu();
-  const { show: showShareMenu } = useContextMenu({
+  const { showReportMenu } = useReportPostMenu(ContextMenu.PostContext);
+  const { onMenuClick: showShareMenu } = useContextMenu({
     id: ContextMenu.ShareContext,
   });
 
@@ -48,15 +48,12 @@ export default function useFeedContextMenu(): FeedContextMenu {
       return;
     }
     setPostMenuLocation({ index, row, column });
-    const { right, bottom } = e.currentTarget.getBoundingClientRect();
-    showReportMenu(e, {
-      position: { x: right, y: bottom + 4 },
-    });
+    showReportMenu(e);
   };
 
   const onShareMenuClick = (
     e: React.MouseEvent,
-    post: Post,
+    _post: Post,
     index: number,
     row: number,
     column: number,
@@ -66,10 +63,7 @@ export default function useFeedContextMenu(): FeedContextMenu {
       return;
     }
     setPostMenuLocation({ index, row, column });
-    const { right, bottom } = e.currentTarget.getBoundingClientRect();
-    showShareMenu(e, {
-      position: { x: right, y: bottom + 4 },
-    });
+    showShareMenu(e);
   };
 
   return {

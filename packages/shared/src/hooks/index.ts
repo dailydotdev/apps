@@ -23,3 +23,4 @@ export * from './useTruncatedSummary';
 export * from './useScrollRestoration';
 export * from './utils/useGetShortUrl';
 export * from './source';
+export * from './useBoot';

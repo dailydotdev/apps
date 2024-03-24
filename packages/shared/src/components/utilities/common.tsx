@@ -113,6 +113,8 @@ export const FeedPageLayoutMobile = classed(
   styles.feedPage,
 );
 
+export const CommentFeedPage = classed(BasePageContainer, '!px-0 !mx-auto');
+
 export const FormErrorMessage = classed(
   'div',
   'mt-4 text-theme-status-error typo-caption1',

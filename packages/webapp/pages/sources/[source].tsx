@@ -183,7 +183,11 @@ export async function getStaticProps({
       revalidate: 60,
     };
   } catch (err) {
-    if (err?.response?.errors?.[0].extensions.code === ApiError.NotFound) {
+    if (
+      [ApiError.NotFound, ApiError.Forbidden].includes(
+        err?.response?.errors?.[0]?.extensions?.code,
+      )
+    ) {
       return {
         props: {
           source: null,

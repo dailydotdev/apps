@@ -56,6 +56,7 @@ const feature = {
     SourceSubscribeExperiment.Control,
   ),
   searchVersion: new Feature('search_version', 1),
+  commentFeed: new Feature('comment_feed', false),
   mobileUxLayout: new Feature('mobile_ux_layout', MobileUXLayout.Control),
 };
 
