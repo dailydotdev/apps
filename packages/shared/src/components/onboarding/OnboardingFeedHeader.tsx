@@ -21,17 +21,9 @@ import { AnalyticsEvent } from '../../lib/analytics';
 const promptConfig = {
   title: 'Discard tag selection?',
   description: 'Your personalized feed is only a few tags away',
-  cancelButton: {
-    title: 'Stay',
-    variant: ButtonVariant.Primary,
-    color: ButtonColor.Cabbage,
-  },
   okButton: {
-    title: 'Leave',
-    variant: ButtonVariant.Secondary,
-  },
-  className: {
-    buttons: 'flex-row-reverse',
+    title: 'Yes, discard tag selection',
+    color: ButtonColor.Ketchup,
   },
 };
 
