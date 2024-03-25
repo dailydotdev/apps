@@ -14,6 +14,10 @@ import { feature } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
 import { setShouldRefreshFeed } from '../../lib/refreshFeed';
 import { SharedFeedPage } from '../utilities';
+import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { useReadingStreak } from '../../hooks/streaks';
+import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 
 export const filterAlertMessage = 'Edit your personal feed preferences here';
 
@@ -29,6 +33,8 @@ function MyFeedHeading({
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const queryClient = useQueryClient();
   const forceRefresh = useFeature(feature.forceRefresh);
+  const { isNewMobileLayout } = useMobileUxExperiment();
+  const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
 
   const onClick = () => {
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
@@ -49,39 +55,59 @@ function MyFeedHeading({
   });
   const isRefreshing = feedQueryState?.status === 'success' && isFetchingFeed;
 
-  return (
-    <>
-      {forceRefresh && (
+  const RenderFeedActions = () => {
+    return (
+      <>
+        {forceRefresh && (
+          <Button
+            size={
+              shouldUseMobileFeedLayout ? ButtonSize.Small : ButtonSize.Medium
+            }
+            variant={ButtonVariant.Float}
+            className="mr-auto"
+            onClick={onRefresh}
+            icon={<RefreshIcon />}
+            iconPosition={
+              shouldUseMobileFeedLayout ? ButtonIconPosition.Right : undefined
+            }
+            loading={isRefreshing}
+          >
+            {!isMobile && !isNewMobileLayout ? 'Refresh feed' : null}
+          </Button>
+        )}
         <Button
           size={
             shouldUseMobileFeedLayout ? ButtonSize.Small : ButtonSize.Medium
           }
           variant={ButtonVariant.Float}
           className="mr-auto"
-          onClick={onRefresh}
-          icon={<RefreshIcon />}
+          onClick={onClick}
+          icon={<FilterIcon />}
           iconPosition={
             shouldUseMobileFeedLayout ? ButtonIconPosition.Right : undefined
           }
-          loading={isRefreshing}
         >
-          {!isMobile ? 'Refresh feed' : null}
+          {!isMobile && !isNewMobileLayout ? 'Feed settings' : null}
         </Button>
-      )}
-      <Button
-        size={shouldUseMobileFeedLayout ? ButtonSize.Small : ButtonSize.Medium}
-        variant={ButtonVariant.Float}
-        className="mr-auto"
-        onClick={onClick}
-        icon={<FilterIcon />}
-        iconPosition={
-          shouldUseMobileFeedLayout ? ButtonIconPosition.Right : undefined
-        }
-      >
-        {!isMobile ? 'Feed settings' : null}
-      </Button>
-    </>
-  );
+      </>
+    );
+  };
+
+  if (isNewMobileLayout) {
+    return (
+      <div className="flex w-full justify-between">
+        {isStreaksEnabled && (
+          <ReadingStreakButton streak={streak} isLoading={isLoading} />
+        )}
+
+        <div>
+          <RenderFeedActions />
+        </div>
+      </div>
+    );
+  }
+
+  return <RenderFeedActions />;
 }
 
 export default MyFeedHeading;

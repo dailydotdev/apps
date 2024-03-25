@@ -46,6 +46,8 @@ import CommentFeed from './CommentFeed';
 import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/analytics';
+import FeedNav from './feeds/FeedNav';
+import { useMobileUxExperiment } from '../hooks/useMobileUxExperiment';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -140,6 +142,7 @@ export default function MainFeedLayout({
   const hasCommentFeed = useFeature(feature.commentFeed);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { useNewMobileLayout } = useMobileUxExperiment();
   const shouldUseCommentFeedLayout =
     hasCommentFeed && feedName === SharedFeedPage.Discussed;
   let query: { query: string; variables?: Record<string, unknown> };
@@ -270,7 +273,11 @@ export default function MainFeedLayout({
 
   return (
     <FeedPageComponent
-      className={classNames('relative', disableTopPadding && '!pt-0')}
+      className={classNames(
+        'relative',
+        disableTopPadding && '!pt-0',
+        useNewMobileLayout && 'tablet:pl-22',
+      )}
     >
       {isSearchOn && search}
       {shouldUseCommentFeedLayout ? (
