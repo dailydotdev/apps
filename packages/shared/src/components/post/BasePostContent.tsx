@@ -37,7 +37,10 @@ export function BasePostContent({
   return (
     <>
       {isPostPage ? (
-        <PostContentHeader post={post} onReadArticle={onSharePost} />
+        <PostContentHeader
+          post={post}
+          onReadArticle={navigationProps.onReadArticle}
+        />
       ) : (
         <PostNavigation {...navigationProps} className={className.navigation} />
       )}
