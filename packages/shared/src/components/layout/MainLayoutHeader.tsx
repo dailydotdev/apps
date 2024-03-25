@@ -74,7 +74,6 @@ function MainLayoutHeader({
   const { unreadCount } = useNotificationContext();
   const { user } = useContext(AuthContext);
   const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
-  const isTablet = useViewSize(ViewSize.Tablet);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();

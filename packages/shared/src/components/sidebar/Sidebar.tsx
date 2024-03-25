@@ -36,7 +36,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import { AiIcon, HomeIcon, SearchIcon, SourceIcon, UserIcon } from '../icons';
+import { AiIcon, HomeIcon, SourceIcon, UserIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { CreatePostButton } from '../post/write';
 
