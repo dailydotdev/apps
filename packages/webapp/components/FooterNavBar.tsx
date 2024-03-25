@@ -3,10 +3,6 @@ import { Flipped, Flipper } from 'react-flip-toolkit';
 import classNames from 'classnames';
 import {
   HomeIcon,
-  BookmarkIcon,
-  SearchIcon,
-  FilterIcon,
-  BellIcon,
   AiIcon,
   SourceIcon,
   UserIcon,
@@ -25,8 +21,6 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
-import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import {
