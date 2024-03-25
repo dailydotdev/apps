@@ -156,7 +156,7 @@ export default function MainComment({
           post={props.post}
         />
       )}
-      {(true || (!showJoinSquadBanner && showNotificationPermissionBanner)) && (
+      {!showJoinSquadBanner && showNotificationPermissionBanner && (
         <EnableNotification
           className={!comment.children?.edges?.length && 'mt-3'}
           source={NotificationPromptSource.NewComment}

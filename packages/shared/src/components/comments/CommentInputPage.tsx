@@ -15,10 +15,13 @@ import { COMMENT_BY_ID_WITH_POST_QUERY } from '../../graphql/comments';
 import CommentContainer from './CommentContainer';
 import useCommentById from '../../hooks/comments/useCommentById';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { Switch } from '../fields/Switch';
+import { useEnableNotification } from '../../hooks/notifications';
+import { NotificationPromptSource } from '../../lib/analytics';
 
 const headerSize = 57;
 const replySize = 40;
-
+const footerSize = 48;
 export interface Props {
   postId: string;
   editCommentId?: string;
@@ -31,15 +34,23 @@ const CommentInputPage = ({
   replyCommentId,
 }: Props): ReactElement => {
   const [value, setValue] = useState('');
+  const [isEnabled, setIsEnabled] = useState(false);
   const { user } = useAuthContext();
   const [bottomNode, setBottomNode] = useState<HTMLElement>(null);
   const router = useRouter();
 
-  const postPath = `/posts/${postId}`;
+  const { shouldShowCta, onToggle } = useEnableNotification({
+    source: NotificationPromptSource.NewComment,
+    ignoreDismiss: true,
+  });
+
   const isEdit = !!editCommentId;
   const isReply = !!replyCommentId;
 
-  const goBack = useCallback(() => router.push(postPath), [router, postPath]);
+  const goBack = useCallback(
+    () => router.push({ pathname: `/posts/[id]`, query: { id: postId } }),
+    [router, postId],
+  );
 
   const { comment } = useCommentById({
     id: isEdit ? editCommentId : replyCommentId,
@@ -73,8 +84,8 @@ const CommentInputPage = ({
 
   const { height } = useVisualViewport();
   const inputHeight = isReply
-    ? height - headerSize - replySize
-    : height - headerSize;
+    ? height - headerSize - replySize - (shouldShowCta ? footerSize : 0)
+    : height - headerSize - (shouldShowCta ? footerSize : 0);
 
   useLayoutEffect(() => {
     // scroll to bottom
@@ -102,6 +113,11 @@ const CommentInputPage = ({
     }
     return { submitCopy: 'Comment' };
   }, [isEdit, isReply, comment, user?.id]);
+
+  const onToggleNotification = useCallback(() => {
+    setIsEnabled((state) => !state);
+    onToggle();
+  }, [setIsEnabled, onToggle]);
 
   return (
     <div>
@@ -163,6 +179,19 @@ const CommentInputPage = ({
             height: `${inputHeight}px`,
           }}
         />
+        {shouldShowCta && (
+          <Switch
+            inputId="push_notification-switch"
+            name="push_notification"
+            labelClassName="flex-1 font-normal"
+            className="my-3.5 mx-3"
+            compact={false}
+            checked={isEnabled}
+            onToggle={onToggleNotification}
+          >
+            Receive updates when other members engage
+          </Switch>
+        )}
         <span ref={refCallback} />
       </FormWrapper>
     </div>
