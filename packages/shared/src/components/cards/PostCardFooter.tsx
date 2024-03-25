@@ -25,6 +25,9 @@ export const PostCardFooter = ({
   className,
   onShare,
 }: PostCardFooterProps): ReactElement => {
+  post.author = {
+    name: 'test',
+  };
   const isVideoType = isVideoPost(post);
   return (
     <>
@@ -64,7 +67,7 @@ export const PostCardFooter = ({
         >
           <ProfilePicture size="small" user={post.author} />
           <span className="mx-3 flex-1 truncate">{post.author.name}</span>
-          <FeatherIcon secondary className="text-2xl text-theme-status-help" />
+          <FeatherIcon secondary className="text-2xl text-status-help" />
         </div>
       )}
     </>

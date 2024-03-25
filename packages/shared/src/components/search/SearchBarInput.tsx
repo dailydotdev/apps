@@ -200,7 +200,7 @@ function SearchBarInputComponent(
             type="primary"
             autoComplete="off"
             className={classNames(
-              'h-full flex-1 caret-theme-status-cabbage',
+              'h-full flex-1 caret-accent-cabbage-default',
               getFieldFontColor({ readOnly, disabled, hasInput, focused }),
             )}
           />

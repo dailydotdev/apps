@@ -7,23 +7,23 @@ import { IconSize } from '../Icon';
 const passwordStrengthStates = {
   0: {
     label: 'Risky',
-    className: 'text-theme-status-error',
-    progress: 'bg-theme-status-error w-1/6',
+    className: 'text-status-error',
+    progress: 'bg-status-error w-1/6',
   },
   1: {
     label: 'Risky',
-    className: 'text-theme-status-error',
-    progress: 'bg-theme-status-error w-1/6',
+    className: 'text-status-error',
+    progress: 'bg-status-error w-1/6',
   },
   2: {
     label: `You're almost there`,
-    className: 'text-theme-status-warning',
-    progress: 'bg-theme-status-warning w-1/4',
+    className: 'text-status-warning',
+    progress: 'bg-status-warning w-1/4',
   },
   3: {
     label: 'Strong as it gets',
-    className: 'text-theme-status-success',
-    progress: 'bg-theme-status-success w-1/2',
+    className: 'text-status-success',
+    progress: 'bg-status-success w-1/2',
   },
 };
 
@@ -70,7 +70,7 @@ export function PasswordField({
         ...className,
         hint: shouldShowStrength
           ? passwordStrengthStates[passwordStrengthLevel].className
-          : 'text-theme-status-error',
+          : 'text-status-error',
         baseField: shouldShowStrength && `password-${passwordStrengthLevel}`,
       }}
       progress={

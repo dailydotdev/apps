@@ -53,7 +53,7 @@ export const CollectionPillSources = ({
         <Pill
           label="Collection"
           className={classNames(
-            'inline-flex bg-theme-overlay-float-cabbage text-theme-color-cabbage',
+            'inline-flex bg-theme-overlay-float-cabbage text-brand-default',
             hasSources && 'group-hover:hidden',
           )}
         />

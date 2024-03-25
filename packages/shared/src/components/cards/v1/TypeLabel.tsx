@@ -8,7 +8,7 @@ const typeToClassName: Record<
   PostType.Collection | PostType.VideoYouTube,
   string
 > = {
-  [PostType.Collection]: 'text-theme-color-cabbage',
+  [PostType.Collection]: 'text-brand-default',
   [PostType.VideoYouTube]: 'text-theme-color-blueCheese',
 };
 

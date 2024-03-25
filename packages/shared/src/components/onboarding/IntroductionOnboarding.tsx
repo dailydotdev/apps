@@ -19,7 +19,7 @@ export const IntroductionOnboardingTitle = ({
 }: IntroductionOnboardingTitleProps): ReactElement => (
   <OnboardingTitle className={className}>
     Make the feed,
-    <span className="ml-1 text-theme-color-cabbage">your feed.</span>
+    <span className="ml-1 text-brand-default">your feed.</span>
   </OnboardingTitle>
 );
 

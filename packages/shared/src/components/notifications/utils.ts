@@ -29,7 +29,7 @@ export const NotifMessage = classed(
 );
 export const NotifProgress = classed(
   'span',
-  'absolute -bottom-2 h-1 ease-in-out bg-theme-status-cabbage rounded-8',
+  'absolute -bottom-2 h-1 ease-in-out bg-accent-cabbage-default rounded-8',
 );
 
 export enum NotificationType {
@@ -94,15 +94,15 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
   {
     [NotificationType.System]: '',
-    [NotificationType.SquadPostAdded]: 'text-theme-color-cabbage',
-    [NotificationType.SquadMemberJoined]: 'text-theme-color-cabbage',
-    [NotificationType.DemotedToMember]: 'text-theme-color-cabbage',
-    [NotificationType.PromotedToModerator]: 'text-theme-color-cabbage',
-    [NotificationType.PromotedToAdmin]: 'text-theme-color-cabbage',
-    [NotificationType.SquadBlocked]: 'text-theme-color-cabbage',
-    [NotificationType.SquadSubscribeNotification]: 'text-theme-color-cabbage',
-    [NotificationType.CollectionUpdated]: 'text-theme-color-cabbage',
-    [NotificationType.SourcePostAdded]: 'text-theme-color-cabbage',
+    [NotificationType.SquadPostAdded]: 'text-brand-default',
+    [NotificationType.SquadMemberJoined]: 'text-brand-default',
+    [NotificationType.DemotedToMember]: 'text-brand-default',
+    [NotificationType.PromotedToModerator]: 'text-brand-default',
+    [NotificationType.PromotedToAdmin]: 'text-brand-default',
+    [NotificationType.SquadBlocked]: 'text-brand-default',
+    [NotificationType.SquadSubscribeNotification]: 'text-brand-default',
+    [NotificationType.CollectionUpdated]: 'text-brand-default',
+    [NotificationType.SourcePostAdded]: 'text-brand-default',
   };
 
 const notificationsUrl = `/notifications`;
