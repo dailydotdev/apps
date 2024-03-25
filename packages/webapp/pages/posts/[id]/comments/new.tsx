@@ -12,7 +12,7 @@ interface Props {
   id: string;
 }
 
-const NewCommentPage = ({ id }): ReactElement => {
+const NewCommentPage = ({ id }: Props): ReactElement => {
   const router = useRouter();
   const replyCommentId = router.query.replyTo as string;
 
