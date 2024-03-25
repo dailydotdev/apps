@@ -27,6 +27,9 @@ import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { UPLOAD_COVER_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import { ResponseError } from '@dailydotdev/shared/src/graphql/common';
+import { FormWrapper } from '@dailydotdev/shared/src/components/fields/form';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useRouter } from 'next/router';
 import { AccountTextField } from '../../components/layouts/AccountLayout/common';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -36,6 +39,7 @@ const imageId = 'avatar_file';
 const coverId = 'cover_file';
 
 const AccountProfilePage = (): ReactElement => {
+  const router = useRouter();
   const formRef = useRef<HTMLFormElement>();
   const { displayToast } = useToastNotification();
   const onSuccess = () => displayToast('Profile updated');
@@ -43,6 +47,7 @@ const AccountProfilePage = (): ReactElement => {
   const { user, updateUser } = useContext(AuthContext);
   const [coverImage, setCoverImage] = useState<string>(user.cover);
   const currentCoverImage = coverImage || user.cover;
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -83,6 +88,165 @@ const AccountProfilePage = (): ReactElement => {
     },
   );
 
+  const RenderForm = () => (
+    <form ref={formRef} id="submit-profile">
+      <AccountContentSection
+        className={{ heading: 'mt-0' }}
+        title="Profile Picture"
+        description="Upload a picture to make your profile stand out and let people recognize
+        your comments and contributions easily!"
+      >
+        <div className="relative mt-6 flex">
+          <ImageInput
+            id={imageId}
+            className={{
+              img: 'object-cover',
+              container: 'border-4 !border-background-default',
+            }}
+            initialValue={user.image}
+            hoverIcon={<CameraIcon size={IconSize.Large} />}
+            onChange={(_, file) => {
+              if (!file) {
+                return;
+              }
+
+              updateUserProfile({
+                image: file,
+              });
+            }}
+          />
+          <ImageInput
+            id={coverId}
+            className={{
+              root: 'absolute left-0 top-0 flex w-full',
+              container:
+                'border-0 bg-background-subtle hover:bg-accent-pepper-subtlest',
+              img: 'object-cover',
+            }}
+            size="cover"
+            initialValue={currentCoverImage}
+            fallbackImage={null}
+            alwaysShowHover={!currentCoverImage}
+            hoverIcon={
+              <span className="ml-26 mr-3 flex flex-wrap items-center justify-center text-theme-label-secondary">
+                <CameraIcon size={IconSize.Large} />
+                <span className="ml-1.5 font-bold typo-callout">
+                  Upload cover image
+                </span>
+              </span>
+            }
+            fileSizeLimitMB={5}
+            onChange={(fileName, file) => {
+              setCoverImage(fileName);
+              if (!file) {
+                return;
+              }
+
+              uploadCoverImage({
+                image: file,
+              });
+            }}
+          />
+        </div>
+      </AccountContentSection>
+      <AccountContentSection title="Account Information">
+        <AccountTextField
+          label="Full Name"
+          inputId="name"
+          name="name"
+          hint={hint.name}
+          valid={!hint.name}
+          leftIcon={<UserIcon />}
+          value={user.name}
+        />
+        <AccountTextField
+          label="Username"
+          inputId="username"
+          hint={hint.username}
+          valid={!hint.username}
+          name="username"
+          leftIcon={<AtIcon />}
+          value={user.username}
+        />
+      </AccountContentSection>
+      <AccountContentSection title="About">
+        <Textarea
+          label="Bio"
+          inputId="bio"
+          name="bio"
+          rows={5}
+          value={user.bio}
+          className={{ container: 'mt-6 max-w-sm' }}
+        />
+        <AccountTextField
+          label="Company"
+          inputId="company"
+          name="company"
+          value={user.company}
+        />
+        <AccountTextField
+          label="Job Title"
+          inputId="title"
+          name="title"
+          value={user.title}
+        />
+      </AccountContentSection>
+      <AccountContentSection
+        title="Profile Social Links"
+        description="Add your social media profiles so others can connect with you and you
+        can grow your network!"
+      >
+        <AccountTextField
+          leftIcon={<TwitterIcon />}
+          label="X"
+          inputId="twitter"
+          hint={hint.twitter}
+          valid={!hint.twitter}
+          name="twitter"
+          value={user.twitter}
+        />
+        <AccountTextField
+          leftIcon={<GitHubIcon />}
+          label="GitHub"
+          inputId="github"
+          hint={hint.github}
+          valid={!hint.github}
+          name="github"
+          value={user.github}
+        />
+        <AccountTextField
+          leftIcon={<LinkIcon />}
+          label="Your Website"
+          inputId="portfolio"
+          hint={hint.portfolio}
+          valid={!hint.portfolio}
+          name="portfolio"
+          value={user.portfolio}
+        />
+      </AccountContentSection>
+    </form>
+  );
+
+  if (isMobile) {
+    return (
+      <FormWrapper
+        className="relative max-w-[100vw]"
+        title="Edit Profile"
+        form="submit-profile"
+        rightButtonProps={{ onClick: onSubmit, disabled: isLoading }}
+        leftButtonProps={{
+          onClick: () => {
+            router.push(user.permalink);
+          },
+        }}
+      >
+        <div className="p-4">
+          <RenderForm />
+        </div>
+      </FormWrapper>
+    );
+  }
+
   return (
     <AccountPageContainer
       title="Profile"
@@ -98,142 +262,7 @@ const AccountProfilePage = (): ReactElement => {
         </Button>
       }
     >
-      <form ref={formRef}>
-        <AccountContentSection
-          className={{ heading: 'mt-0' }}
-          title="Profile Picture"
-          description="Upload a picture to make your profile stand out and let people recognize
-        your comments and contributions easily!"
-        >
-          <div className="relative mt-6 flex">
-            <ImageInput
-              id={imageId}
-              className={{
-                img: 'object-cover',
-                container: 'border-4 !border-background-default',
-              }}
-              initialValue={user.image}
-              hoverIcon={<CameraIcon size={IconSize.Large} />}
-              onChange={(_, file) => {
-                if (!file) {
-                  return;
-                }
-
-                updateUserProfile({
-                  image: file,
-                });
-              }}
-            />
-            <ImageInput
-              id={coverId}
-              className={{
-                root: 'absolute left-0 top-0 flex w-full',
-                container:
-                  'border-0 bg-background-subtle hover:bg-accent-pepper-subtlest',
-                img: 'object-cover',
-              }}
-              size="cover"
-              initialValue={currentCoverImage}
-              fallbackImage={null}
-              alwaysShowHover={!currentCoverImage}
-              hoverIcon={
-                <span className="ml-26 mr-3 flex flex-wrap items-center justify-center text-theme-label-secondary">
-                  <CameraIcon size={IconSize.Large} />
-                  <span className="ml-1.5 font-bold typo-callout">
-                    Upload cover image
-                  </span>
-                </span>
-              }
-              fileSizeLimitMB={5}
-              onChange={(fileName, file) => {
-                setCoverImage(fileName);
-                if (!file) {
-                  return;
-                }
-
-                uploadCoverImage({
-                  image: file,
-                });
-              }}
-            />
-          </div>
-        </AccountContentSection>
-        <AccountContentSection title="Account Information">
-          <AccountTextField
-            label="Full Name"
-            inputId="name"
-            name="name"
-            hint={hint.name}
-            valid={!hint.name}
-            leftIcon={<UserIcon />}
-            value={user.name}
-          />
-          <AccountTextField
-            label="Username"
-            inputId="username"
-            hint={hint.username}
-            valid={!hint.username}
-            name="username"
-            leftIcon={<AtIcon />}
-            value={user.username}
-          />
-        </AccountContentSection>
-        <AccountContentSection title="About">
-          <Textarea
-            label="Bio"
-            inputId="bio"
-            name="bio"
-            rows={5}
-            value={user.bio}
-            className={{ container: 'mt-6 max-w-sm' }}
-          />
-          <AccountTextField
-            label="Company"
-            inputId="company"
-            name="company"
-            value={user.company}
-          />
-          <AccountTextField
-            label="Job Title"
-            inputId="title"
-            name="title"
-            value={user.title}
-          />
-        </AccountContentSection>
-        <AccountContentSection
-          title="Profile Social Links"
-          description="Add your social media profiles so others can connect with you and you
-        can grow your network!"
-        >
-          <AccountTextField
-            leftIcon={<TwitterIcon />}
-            label="X"
-            inputId="twitter"
-            hint={hint.twitter}
-            valid={!hint.twitter}
-            name="twitter"
-            value={user.twitter}
-          />
-          <AccountTextField
-            leftIcon={<GitHubIcon />}
-            label="GitHub"
-            inputId="github"
-            hint={hint.github}
-            valid={!hint.github}
-            name="github"
-            value={user.github}
-          />
-          <AccountTextField
-            leftIcon={<LinkIcon />}
-            label="Your Website"
-            inputId="portfolio"
-            hint={hint.portfolio}
-            valid={!hint.portfolio}
-            name="portfolio"
-            value={user.portfolio}
-          />
-        </AccountContentSection>
-      </form>
+      <RenderForm />
     </AccountPageContainer>
   );
 };
