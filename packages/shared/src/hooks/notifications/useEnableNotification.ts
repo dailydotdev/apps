@@ -14,32 +14,24 @@ export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 
 interface UseEnableNotificationProps {
   source: NotificationPromptSource;
-  alwaysShow?: boolean;
 }
 
 interface UseEnableNotification {
   acceptedJustNow: boolean;
   shouldShowCta: boolean;
-  isSubscribed: boolean;
   onDismiss: () => void;
   onEnable: () => Promise<boolean>;
-  onToggle: () => Promise<unknown>;
 }
 
 export const useEnableNotification = ({
   source = NotificationPromptSource.NotificationsPage,
-  alwaysShow = false,
 }: UseEnableNotificationProps): UseEnableNotification => {
   const isExtension = checkIsExtension();
   const { trackEvent } = useAnalyticsContext();
   const { isInitialized, isPushSupported, isSubscribed, shouldOpenPopup } =
     usePushNotificationContext();
-  const {
-    hasPermissionCache,
-    acceptedJustNow,
-    onEnablePush,
-    onTogglePermission,
-  } = usePushNotificationMutation();
+  const { hasPermissionCache, acceptedJustNow, onEnablePush } =
+    usePushNotificationMutation();
   const [isDismissed, setIsDismissed, isLoaded] = usePersistentContext(
     DISMISS_PERMISSION_BANNER,
     false,
@@ -57,18 +49,13 @@ export const useEnableNotification = ({
     [source, onEnablePush],
   );
 
-  const onToggle = useCallback(
-    () => onTogglePermission(source),
-    [source, onTogglePermission],
-  );
-
   const subscribed = isSubscribed || (shouldOpenPopup && hasPermissionCache);
   const enabledJustNow = subscribed && acceptedJustNow;
 
   const conditions = [
     isLoaded,
-    !subscribed || alwaysShow,
-    !isDismissed || alwaysShow,
+    !subscribed,
+    !isDismissed,
     isInitialized,
     isPushSupported || isExtension,
   ];
@@ -94,9 +81,7 @@ export const useEnableNotification = ({
   return {
     acceptedJustNow,
     shouldShowCta,
-    isSubscribed: subscribed,
     onDismiss,
     onEnable,
-    onToggle,
   };
 };

@@ -16,7 +16,7 @@ import CommentContainer from './CommentContainer';
 import useCommentById from '../../hooks/comments/useCommentById';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Switch } from '../fields/Switch';
-import { useEnableNotification } from '../../hooks/notifications';
+import { useNotificationToggle } from '../../hooks/notifications';
 import { NotificationPromptSource } from '../../lib/analytics';
 
 const headerSize = 57;
@@ -38,12 +38,10 @@ const CommentInputPage = ({
   const [bottomNode, setBottomNode] = useState<HTMLElement>(null);
   const router = useRouter();
 
-  const { shouldShowCta, onToggle, isSubscribed } = useEnableNotification({
-    source: NotificationPromptSource.NewComment,
-    alwaysShow: true,
-  });
-
-  const [isEnabled, setIsEnabled] = useState(isSubscribed);
+  const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
+    useNotificationToggle({
+      source: NotificationPromptSource.NewComment,
+    });
 
   const isEdit = !!editCommentId;
   const isReply = !!replyCommentId;
@@ -115,11 +113,6 @@ const CommentInputPage = ({
     return { submitCopy: 'Comment' };
   }, [isEdit, isReply, comment, user?.id]);
 
-  const onToggleNotification = useCallback(() => {
-    setIsEnabled((state) => !state);
-    onToggle();
-  }, [setIsEnabled, onToggle]);
-
   return (
     <div>
       <FormWrapper
@@ -129,7 +122,8 @@ const CommentInputPage = ({
           onClick: goBack,
         }}
         rightButtonProps={{
-          onClick: () => {
+          onClick: async () => {
+            await onSubmitted();
             mutateComment(value);
           },
           loading: isLoading,
@@ -188,7 +182,7 @@ const CommentInputPage = ({
             className="mx-3 my-3.5"
             compact={false}
             checked={isEnabled}
-            onToggle={onToggleNotification}
+            onToggle={onToggle}
           >
             Receive updates when other members engage
           </Switch>
