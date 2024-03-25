@@ -25,9 +25,6 @@ export const PostCardFooter = ({
   className,
   onShare,
 }: PostCardFooterProps): ReactElement => {
-  post.author = {
-    name: 'test',
-  };
   const isVideoType = isVideoPost(post);
   return (
     <>
