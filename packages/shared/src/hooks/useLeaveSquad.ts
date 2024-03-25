@@ -5,8 +5,7 @@ import { PromptOptions, usePrompt } from './usePrompt';
 import { useBoot } from './useBoot';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
-import { ButtonColor, ButtonVariant } from '../components/buttons/Button';
-import { ColorName } from '../styles/colors';
+import { ButtonColor } from '../components/buttons/Button';
 
 type UseLeaveSquad = () => Promise<boolean>;
 
