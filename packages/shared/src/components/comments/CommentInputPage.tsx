@@ -34,15 +34,16 @@ const CommentInputPage = ({
   replyCommentId,
 }: Props): ReactElement => {
   const [value, setValue] = useState('');
-  const [isEnabled, setIsEnabled] = useState(false);
   const { user } = useAuthContext();
   const [bottomNode, setBottomNode] = useState<HTMLElement>(null);
   const router = useRouter();
 
-  const { shouldShowCta, onToggle } = useEnableNotification({
+  const { shouldShowCta, onToggle, isSubscribed } = useEnableNotification({
     source: NotificationPromptSource.NewComment,
-    ignoreDismiss: true,
+    alwaysShow: true,
   });
+
+  const [isEnabled, setIsEnabled] = useState(isSubscribed);
 
   const isEdit = !!editCommentId;
   const isReply = !!replyCommentId;

@@ -14,12 +14,13 @@ export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 
 interface UseEnableNotificationProps {
   source: NotificationPromptSource;
-  ignoreDismiss?: boolean;
+  alwaysShow?: boolean;
 }
 
 interface UseEnableNotification {
   acceptedJustNow: boolean;
   shouldShowCta: boolean;
+  isSubscribed: boolean;
   onDismiss: () => void;
   onEnable: () => Promise<boolean>;
   onToggle: () => Promise<unknown>;
@@ -27,7 +28,7 @@ interface UseEnableNotification {
 
 export const useEnableNotification = ({
   source = NotificationPromptSource.NotificationsPage,
-  ignoreDismiss = false,
+  alwaysShow = false,
 }: UseEnableNotificationProps): UseEnableNotification => {
   const isExtension = checkIsExtension();
   const { trackEvent } = useAnalyticsContext();
@@ -66,8 +67,8 @@ export const useEnableNotification = ({
 
   const conditions = [
     isLoaded,
-    !subscribed,
-    !isDismissed || ignoreDismiss,
+    !subscribed || alwaysShow,
+    !isDismissed || alwaysShow,
     isInitialized,
     isPushSupported || isExtension,
   ];
@@ -93,6 +94,7 @@ export const useEnableNotification = ({
   return {
     acceptedJustNow,
     shouldShowCta,
+    isSubscribed: subscribed,
     onDismiss,
     onEnable,
     onToggle,
