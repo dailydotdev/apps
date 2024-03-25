@@ -7,7 +7,6 @@ import {
 import { Post } from '../../graphql/posts';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import classed from '../../lib/classed';
-import { ShareBookmarkProps } from './PostActions';
 import { PostOptionsMenuProps } from '../PostOptionsMenu';
 import { PostPosition } from '../../hooks/usePostModalNavigation';
 import {
