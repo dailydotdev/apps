@@ -51,6 +51,9 @@ export const isBrave = (): boolean => {
   }
   return typeof navigator.brave?.isBrave === 'function';
 };
+export const isChrome = (): boolean =>
+  /Chrome/.test(globalThis?.navigator?.userAgent) &&
+  /Google Inc/.test(globalThis?.navigator?.vendor);
 
 export const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL;
 export const onboardingUrl = `${webappUrl}onboarding`;

@@ -1,18 +1,12 @@
 import React, { ReactElement } from 'react';
 import { SourceMember, SourceMemberRole } from '../../graphql/sources';
-import {
-  Button,
-  ButtonColor,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { BlockIcon, MenuIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import SquadMemberBadge from './SquadMemberBadge';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
-import { ModalSize } from '../modals/common/types';
 import { useToastNotification } from '../../hooks';
 
 interface SquadMemberActionsProps {
@@ -40,7 +34,6 @@ function SquadMemberItemAdditionalContent({
       okButton: {
         title: 'Unblock',
         variant: ButtonVariant.Primary,
-        color: ButtonColor.Cabbage,
       },
       content: (
         <UserShortInfo
@@ -52,7 +45,6 @@ function SquadMemberItemAdditionalContent({
           }}
         />
       ),
-      promptSize: ModalSize.Small,
       className: { buttons: 'mt-6' },
     };
 

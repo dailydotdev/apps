@@ -1,15 +1,31 @@
+import React, { ComponentType, useEffect } from 'react';
 import classNames from 'classnames';
-import BrowserPermissionIcon from '@dailydotdev/shared/src/components/icons/BrowserPermission/primary.svg';
 import NotificationToggleIcon from '@dailydotdev/shared/src/components/icons/NotificationToggle/primary.svg';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
-import React, { useEffect } from 'react';
 import { ENABLE_NOTIFICATION_WINDOW_KEY } from '@dailydotdev/shared/src/hooks/useNotificationPermissionPopup';
 import { useRouter } from 'next/router';
 import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/analytics';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications';
+import dynamic from 'next/dynamic';
+import { isChrome } from '@dailydotdev/shared/src/lib/constants';
+
+const BrowserPermissionIcon: ComponentType<{ className: string }> = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "browserPermissionIcon" */ '@dailydotdev/shared/src/components/icons/BrowserPermission/primary.svg'
+    ),
+);
+const ChromePermissionIcon: ComponentType<{ className: string }> = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "browserPermissionIcon" */ '@dailydotdev/shared/src/components/icons/BrowserPermission/chrome.svg'
+    ),
+);
+
+const BrowserIcon = isChrome() ? ChromePermissionIcon : BrowserPermissionIcon;
 
 const InstructionContainer = classed(
   'div',
@@ -81,8 +97,8 @@ function Enable(): React.ReactElement {
       </Description>
       <div>
         <InstructionContainer className="mb-1">
-          <Description>1. Click on the lock icon in the search bar</Description>
-          <BrowserPermissionIcon
+          <Description>1. Click on the icon in the search bar</Description>
+          <BrowserIcon
             className={classNames(iconClasses, 'h-8 w-full max-w-[18.75rem]')}
           />
         </InstructionContainer>

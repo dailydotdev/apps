@@ -3,7 +3,6 @@ import {
   ReadingStreaksExperiment,
   PostPageOnboarding,
   UserAcquisition,
-  PublishTimeFormat,
   OnboardingCopy,
   SourceSubscribeExperiment,
 } from './featureValues';
@@ -39,15 +38,10 @@ const feature = {
     'post_page_onboarding',
     PostPageOnboarding.Control,
   ),
-  onboardingOptimizations: new Feature('onboarding_optimizations', false),
   userAcquisition: new Feature('user_acquisition', UserAcquisition.Control),
   forceRefresh: new Feature('force_refresh', false),
   feedAdSpot: new Feature('feed_ad_spot', 0),
   shareLoops: new Feature('share_loops', false),
-  publishTimeFormat: new Feature(
-    'publish_time_format',
-    PublishTimeFormat.Control,
-  ),
   onboardingOnlineUsers: new Feature('onboarding_online_users', false),
   onboardingCopy: new Feature('onboarding_copy', OnboardingCopy.Control),
   sourceSubscribe: new Feature(
