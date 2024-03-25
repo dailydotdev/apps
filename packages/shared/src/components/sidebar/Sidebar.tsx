@@ -64,9 +64,8 @@ export default function Sidebar({
   } = useContext(SettingsContext);
   const { modal, openModal } = useLazyModal();
   const showSettings = modal?.type === LazyModal.UserSettings;
-  const { useNewMobileLayout } = useMobileUxExperiment();
-  const isLaptop = useViewSize(ViewSize.Laptop);
-  const isMobile = useViewSize(ViewSize.MobileL);
+  const { isNewMobileLayout } = useMobileUxExperiment();
+  const isTablet = useViewSize(ViewSize.Tablet);
 
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
@@ -93,11 +92,11 @@ export default function Sidebar({
     return <></>;
   }
 
-  if (useNewMobileLayout && !isLaptop && !isMobile) {
+  if (isNewMobileLayout && isTablet) {
     const buttonProps: ButtonProps<'a' | 'button'> = {
       variant: ButtonVariant.Tertiary,
-      style: { width: '100%' },
       size: ButtonSize.Large,
+      className: 'w-full',
     };
 
     return (

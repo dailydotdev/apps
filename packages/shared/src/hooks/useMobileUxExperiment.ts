@@ -3,7 +3,7 @@ import { feature } from '../lib/featureManagement';
 import { useViewSize, ViewSize } from './useViewSize';
 
 interface UseStreakExperiment {
-  useNewMobileLayout: boolean;
+  isNewMobileLayout: boolean;
 }
 
 export const useMobileUxExperiment = (): UseStreakExperiment => {
@@ -11,6 +11,6 @@ export const useMobileUxExperiment = (): UseStreakExperiment => {
   const isLaptop = useViewSize(ViewSize.Laptop);
 
   return {
-    useNewMobileLayout: !isLaptop && featureEnabled,
+    isNewMobileLayout: !isLaptop && featureEnabled,
   };
 };

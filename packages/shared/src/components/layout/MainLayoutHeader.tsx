@@ -79,7 +79,7 @@ function MainLayoutHeader({
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
-  const { useNewMobileLayout } = useMobileUxExperiment();
+  const { isNewMobileLayout } = useMobileUxExperiment();
 
   const headerButton = (() => {
     if (!user) {
@@ -153,7 +153,7 @@ function MainLayoutHeader({
     );
   };
 
-  if ((isMobile || isTablet) && useNewMobileLayout) {
+  if (isNewMobileLayout) {
     return null;
   }
 

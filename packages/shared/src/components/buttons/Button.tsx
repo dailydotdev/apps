@@ -102,9 +102,9 @@ function ButtonComponent<TagName extends AllowedTags>(
       )}
     >
       {icon &&
-        new RegExp(
-          `(${ButtonIconPosition.Left}|${ButtonIconPosition.Top})`,
-        ).test(iconPosition) &&
+        [ButtonIconPosition.Left, ButtonIconPosition.Top].includes(
+          iconPosition,
+        ) &&
         getIconWithSize(icon)}
       {loading ? <span className="invisible">{children}</span> : children}
       {icon &&

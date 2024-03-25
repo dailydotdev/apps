@@ -16,7 +16,7 @@ export default function FooterNavBarLayout({
 }: FooterNavBarLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { sidebarRendered } = useSidebarRendered();
-  const { useNewMobileLayout } = useMobileUxExperiment();
+  const { isNewMobileLayout } = useMobileUxExperiment();
   const isTablet = useViewSize(ViewSize.Tablet);
 
   const showNav = useMemo(() => {
@@ -24,12 +24,12 @@ export default function FooterNavBarLayout({
       return false;
     }
 
-    if (useNewMobileLayout) {
+    if (isNewMobileLayout) {
       return !isTablet;
     }
 
     return sidebarRendered === false;
-  }, [useNewMobileLayout, windowLoaded, isTablet, sidebarRendered]);
+  }, [isNewMobileLayout, windowLoaded, isTablet, sidebarRendered]);
 
   return (
     <>

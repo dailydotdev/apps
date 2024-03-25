@@ -105,8 +105,8 @@ export default function FooterNavBar({
 
   const buttonProps: ButtonProps<'a' | 'button'> = {
     variant: ButtonVariant.Tertiary,
-    style: { width: '100%' },
     size: ButtonSize.Large,
+    className: 'w-full',
   };
 
   const onNavigateNotifications = () => {
