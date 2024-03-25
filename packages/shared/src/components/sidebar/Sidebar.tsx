@@ -38,6 +38,7 @@ import {
 } from '../buttons/Button';
 import { AiIcon, HomeIcon, SearchIcon, SourceIcon, UserIcon } from '../icons';
 import { IconSize } from '../Icon';
+import { CreatePostButton } from '../post/write';
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -159,6 +160,8 @@ export default function Sidebar({
             Profile
           </Button>
         </Link>
+
+        <CreatePostButton compact sidebar />
       </SidebarAside>
     );
   }
