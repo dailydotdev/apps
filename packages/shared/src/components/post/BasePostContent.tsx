@@ -3,7 +3,7 @@ import React, { ReactElement } from 'react';
 import PostNavigation from './PostNavigation';
 import PostEngagements from './PostEngagements';
 import { BasePostContentProps } from './common';
-import { PostContentHeader } from './PostContentHeader';
+import { PostContentHeaderMobile } from './PostContentHeaderMobile';
 
 const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ '../modals/ShareModal'),
@@ -37,7 +37,7 @@ export function BasePostContent({
   return (
     <>
       {isPostPage ? (
-        <PostContentHeader
+        <PostContentHeaderMobile
           post={post}
           onReadArticle={navigationProps.onReadArticle}
         />

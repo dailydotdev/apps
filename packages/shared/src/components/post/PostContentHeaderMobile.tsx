@@ -6,7 +6,7 @@ import { PostHeaderActions } from './PostHeaderActions';
 import { PostNavigationProps } from './common';
 import { SourceType } from '../../graphql/sources';
 
-export function PostContentHeader({
+export function PostContentHeaderMobile({
   post,
   onReadArticle,
 }: Pick<PostNavigationProps, 'onReadArticle' | 'post'>): ReactElement {
@@ -15,11 +15,11 @@ export function PostContentHeader({
   const routedFromSquad = router?.query?.squad;
   const squadLink = `/squads/${router.query.squad}`;
 
-  if (!canGoBack && !routedFromSquad && post.source.type !== SourceType.Squad) {
-    return null;
-  }
-
   const onBackClick = () => {
+    if (canGoBack) {
+      return router.back();
+    }
+
     if (routedFromSquad) {
       return router.push(squadLink);
     }
@@ -37,7 +37,13 @@ export function PostContentHeader({
         icon={<ArrowIcon className="-rotate-90" />}
         size={ButtonSize.Small}
         variant={ButtonVariant.Tertiary}
-        onClick={canGoBack ? router.back : onBackClick}
+        onClick={onBackClick}
+        className={
+          !canGoBack &&
+          !routedFromSquad &&
+          post.source.type !== SourceType.Squad &&
+          'invisible'
+        }
       />
       <PostHeaderActions
         post={post}
