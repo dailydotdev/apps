@@ -14,8 +14,7 @@ import { NextRouter, useRouter } from 'next/router';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
-import { Alerts, UPDATE_ALERTS } from '@dailydotdev/shared/src/graphql/alerts';
-import { filterAlertMessage } from '@dailydotdev/shared/src/components/filters/MyFeedHeading';
+import { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import {
   MockedGraphQLResponse,
