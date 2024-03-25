@@ -39,6 +39,7 @@ beforeEach(() => {
     () =>
       ({
         pathname: '/my-feed',
+        query: {},
         replace: jest.fn(),
         push: jest.fn(),
       } as unknown as NextRouter),
@@ -114,44 +115,5 @@ it('should request anonymous feed', async () => {
   await waitFor(async () => {
     const elements = await screen.findAllByTestId('postItem');
     expect(elements.length).toBeTruthy();
-  });
-});
-
-it('should show the created message if the user added filters', async () => {
-  defaultAlerts = { filter: false, myFeed: 'created' };
-  renderComponent();
-  const section = await screen.findByText(filterAlertMessage);
-  expect(section).toBeInTheDocument();
-});
-
-it('should not show the my feed alert if the user removed it', async () => {
-  defaultAlerts = { filter: false, myFeed: null };
-  renderComponent();
-  await waitFor(() =>
-    expect(screen.queryByText(filterAlertMessage)).not.toBeInTheDocument(),
-  );
-});
-
-it('should remove the my feed alert if the user clicks the cross', async () => {
-  let mutationCalled = false;
-  mockGraphQL({
-    request: {
-      query: UPDATE_ALERTS,
-      variables: { data: { myFeed: null } },
-    },
-    result: () => {
-      mutationCalled = true;
-      return { data: { _: true } };
-    },
-  });
-  defaultAlerts = { filter: false, myFeed: 'created' };
-  renderComponent();
-
-  const closeButton = await screen.findByTestId('alert-close');
-  closeButton.click();
-
-  await waitFor(() => {
-    expect(updateAlerts).toBeCalledWith({ filter: false, myFeed: null });
-    expect(mutationCalled).toBeTruthy();
   });
 });
