@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { CommentWrite, CommentWriteProps } from './common';
 import useCommentById from '../comments/useCommentById';
 
@@ -24,10 +24,13 @@ export const useCommentEdit = (): UseCommentEdit => {
   }, [comment, state]);
 
   return {
-    onEdit: (params) => {
-      onEdit(params.lastUpdatedAt);
-      setState(params);
-    },
+    onEdit: useCallback(
+      (params) => {
+        onEdit(params.lastUpdatedAt);
+        setState(params);
+      },
+      [onEdit, setState],
+    ),
     inputProps,
   };
 };

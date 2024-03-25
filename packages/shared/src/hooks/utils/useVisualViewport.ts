@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useEventListener } from '../useEventListener';
 
 interface VisualViewportResult {
   width?: number;
@@ -12,15 +13,9 @@ const getVisualViewport = (): VisualViewportResult => ({
 
 export const useVisualViewport = (): VisualViewportResult => {
   const [viewPort, setViewPort] = useState(getVisualViewport); // <- only calls the function 1 time this way - performance improvement
-  useEffect(() => {
-    const handleResize = () => setViewPort(getVisualViewport);
-    globalThis?.window?.visualViewport.addEventListener('resize', handleResize);
-    return () =>
-      globalThis?.window?.visualViewport.removeEventListener(
-        'resize',
-        handleResize,
-      );
-  }, []);
+  useEventListener(globalThis?.window?.visualViewport, 'resize', () =>
+    setViewPort(getVisualViewport),
+  );
 
   return viewPort;
 };

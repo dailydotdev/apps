@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import cloneDeep from 'lodash.clonedeep';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
   Comment,
   PostCommentsData,
@@ -57,6 +57,7 @@ export const useMutateComment = ({
 }: UseMutateCommentProps): UseMutateCommentResult => {
   const sourceId = post?.source?.id;
   const postId = post?.id;
+  const parentOrPostId = parentCommentId ?? postId;
 
   const { user } = useAuthContext();
   const client = useQueryClient();
@@ -176,13 +177,16 @@ export const useMutateComment = ({
     { onSuccess: (data) => onSuccess(data?.comment) },
   );
 
-  const onSubmit = (content: string) => {
-    if (editCommentId) {
-      return editComment({ id: editCommentId, content });
-    }
+  const onSubmit = useCallback(
+    (content: string) => {
+      if (editCommentId) {
+        return editComment({ id: editCommentId, content });
+      }
 
-    return onComment({ content, id: parentCommentId ?? postId });
-  };
+      return onComment({ content, id: parentOrPostId });
+    },
+    [editCommentId, parentOrPostId, editComment, onComment],
+  );
 
   return {
     mutateComment: onSubmit,
