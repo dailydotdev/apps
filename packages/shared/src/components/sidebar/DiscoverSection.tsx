@@ -20,8 +20,9 @@ export function DiscoverSection({
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement {
   const hasCommentFeed = useFeature(feature.commentFeed);
-  const { checkHasCompleted, completeAction } = useActions();
-  const hasCompletedCommentFeed = checkHasCompleted(ActionType.CommentFeed);
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
+  const hasCompletedCommentFeed =
+    !isActionsFetched || checkHasCompleted(ActionType.CommentFeed);
   const discoverMenuItems: SidebarMenuItem[] = [
     {
       icon: (active: boolean) => (
