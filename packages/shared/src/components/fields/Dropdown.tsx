@@ -19,6 +19,7 @@ import { ListDrawer } from '../drawers/ListDrawer';
 import { SelectParams } from '../drawers/common';
 import { RootPortal } from '../tooltips/Portal';
 import { DrawerProps } from '../drawers';
+import { Button, ButtonSize } from '../buttons/Button';
 
 interface ClassName {
   container?: string;
@@ -164,11 +165,23 @@ export function Dropdown({
               ...drawerProps,
               isOpen: isVisible,
               onClose: () => setVisibility(false),
+              title: drawerProps?.title ? (
+                <>
+                  <Button
+                    size={ButtonSize.Small}
+                    className="mr-2"
+                    icon={<ArrowIcon className="-rotate-90" secondary />}
+                    onClick={handleMenuTrigger}
+                  />
+                  {drawerProps.title}
+                </>
+              ) : null,
             }}
             options={options}
             customItem={renderItem}
             selected={selectedIndex}
             onSelectedChange={handleChange}
+            shouldIndicateSelected={shouldIndicateSelected}
           />
         </RootPortal>
       ) : (
