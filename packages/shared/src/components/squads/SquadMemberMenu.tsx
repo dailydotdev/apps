@@ -12,14 +12,16 @@ import { StarIcon, UserIcon, SquadIcon, BlockIcon, FlagIcon } from '../icons';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UserShortInfo } from '../profile/UserShortInfo';
 import { ModalSize } from '../modals/common/types';
-import { ContextMenu, MenuItemProps } from '../fields/PortalMenu';
+import ContextMenu, { MenuItemProps } from '../fields/ContextMenu';
 import { UseSquadActions, useToastNotification } from '../../hooks';
 import { verifyPermission } from '../../graphql/squads';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
+import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 
 interface SquadMemberMenuProps extends Pick<UseSquadActions, 'onUpdateRole'> {
   squad: Squad;
   member: SourceMember;
+  isOpen?: boolean;
 }
 
 enum MenuItemTitle {
@@ -110,6 +112,7 @@ export default function SquadMemberMenu({
   squad,
   member,
   onUpdateRole,
+  isOpen,
 }: SquadMemberMenuProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
@@ -206,5 +209,11 @@ export default function SquadMemberMenu({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [member]);
 
-  return <ContextMenu options={options} id="squad-member-menu-context" />;
+  return (
+    <ContextMenu
+      options={options}
+      isOpen={isOpen}
+      id={ContextMenuIds.SquadMemberContext}
+    />
+  );
 }

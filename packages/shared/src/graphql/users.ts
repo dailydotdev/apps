@@ -519,3 +519,11 @@ export const updateUserAcquisition = (
   acquisitionChannel: AcquisitionChannel,
 ): Promise<void> =>
   request(graphqlUrl, USER_ACQUISITION_MUTATION, { acquisitionChannel });
+
+export const CLEAR_MARKETING_CTA_MUTATION = gql`
+  mutation ClearUserMarketingCta($campaignId: String!) {
+    clearUserMarketingCta(campaignId: $campaignId) {
+      _
+    }
+  }
+`;

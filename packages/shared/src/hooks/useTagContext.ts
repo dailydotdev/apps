@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { useContextMenu } from '@dailydotdev/react-contexify';
+import React, { useState } from 'react';
+import useContextMenu from './useContextMenu';
 import { Tag } from '../graphql/feedSettings';
+import { ContextMenu } from './constants';
 
 export default function useTagContext(): {
   contextSelectedTag;
@@ -8,15 +9,14 @@ export default function useTagContext(): {
   onTagContextOptions;
 } {
   const [contextSelectedTag, setContextSelectedTag] = useState<Tag>();
-  const { show: showTagOptionsMenu } = useContextMenu({
-    id: 'tag-options-context',
+
+  const { onMenuClick: showTagOptionsMenu } = useContextMenu({
+    id: ContextMenu.TagOptionsContext,
   });
+
   const onTagContextOptions = (event: React.MouseEvent, tag: Tag): void => {
     setContextSelectedTag(tag);
-    const { right, bottom } = event.currentTarget.getBoundingClientRect();
-    showTagOptionsMenu(event, {
-      position: { x: right, y: bottom + 4 },
-    });
+    showTagOptionsMenu(event);
   };
 
   return {
