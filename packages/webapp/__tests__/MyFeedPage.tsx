@@ -39,9 +39,6 @@ beforeEach(() => {
     () =>
       ({
         pathname: '/my-feed',
-        query: {
-          hset: 'true',
-        },
         replace: jest.fn(),
         push: jest.fn(),
       } as unknown as NextRouter),

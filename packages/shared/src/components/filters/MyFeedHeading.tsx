@@ -1,6 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import { useRouter } from 'next/router';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { FilterIcon, RefreshIcon } from '../icons';
 import {
@@ -33,15 +32,12 @@ interface MyFeedHeadingProps {
 }
 
 function MyFeedHeading({
-  isAlertDisabled,
   sidebarRendered,
   onUpdateAlerts,
   onOpenFeedFilters,
 }: MyFeedHeadingProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const router = useRouter();
   const { trackEvent } = useContext(AnalyticsContext);
-  const shouldHighlightFeedSettings = router.query?.hset === 'true';
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const queryClient = useQueryClient();
   const forceRefresh = useFeature(feature.forceRefresh);
@@ -49,14 +45,6 @@ function MyFeedHeading({
   const onClick = () => {
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
     onOpenFeedFilters();
-
-    if (shouldHighlightFeedSettings) {
-      const { hset, ...query } = router.query;
-
-      router.replace({ pathname: router.pathname, query }, undefined, {
-        shallow: true,
-      });
-    }
   };
 
   const getPlacement = () => {
@@ -73,7 +61,7 @@ function MyFeedHeading({
 
   const alertProps: Omit<AlertPointerProps, 'children'> = {
     offset: getOffset(),
-    isAlertDisabled: shouldHighlightFeedSettings ? isAlertDisabled : true,
+    isAlertDisabled: true,
     onClose: () => onUpdateAlerts({ myFeed: null }),
     className: {
       label: 'w-44',
@@ -128,10 +116,7 @@ function MyFeedHeading({
             shouldUseMobileFeedLayout ? ButtonSize.Small : ButtonSize.Medium
           }
           variant={ButtonVariant.Float}
-          className={classNames(
-            'mr-auto',
-            shouldHighlightFeedSettings && 'highlight-pulse',
-          )}
+          className="mr-auto"
           onClick={onClick}
           icon={<FilterIcon />}
           iconPosition={
