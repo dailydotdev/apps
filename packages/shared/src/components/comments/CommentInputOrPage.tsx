@@ -36,8 +36,6 @@ export default function CommentInputOrPage({
       query.replyTo = props.replyToCommentId ?? props.parentCommentId;
     }
 
-    console.log('Calling router.push');
-
     router.push({
       pathname: `/posts/[id]/comments/[commentId]${editSuffix}`,
       query,

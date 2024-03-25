@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser } from '../../lib/user';
 import MainComment, { MainCommentProps } from './MainComment';
@@ -9,7 +10,6 @@ import comment from '../../../__tests__/fixture/comment';
 import post from '../../../__tests__/fixture/post';
 import { Origin } from '../../lib/analytics';
 import { useViewSize } from '../../hooks';
-import { useRouter } from 'next/router';
 
 const onDelete = jest.fn();
 const mockUseViewSize = useViewSize as jest.MockedFunction<typeof useViewSize>;
