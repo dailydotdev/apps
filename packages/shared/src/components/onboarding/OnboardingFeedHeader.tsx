@@ -17,10 +17,6 @@ import { useMyFeed } from '../../hooks/useMyFeed';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
-import { checkIsExtension } from '../../lib/func';
-import { feature } from '../../lib/featureManagement';
-import { useFeature } from '../GrowthBookProvider';
-import { webappUrl } from '../../lib/constants';
 
 const promptConfig = {
   title: 'Discard tag selection?',
@@ -30,8 +26,6 @@ const promptConfig = {
     color: ButtonColor.Ketchup,
   },
 };
-
-const isExtension = checkIsExtension();
 
 type OnboardingFeedHeaderProps = {
   isPreviewFeedVisible: boolean;
@@ -51,7 +45,6 @@ export const OnboardingFeedHeader = ({
   const { showPrompt } = usePrompt();
   const router = useRouter();
   const { registerLocalFilters } = useMyFeed();
-  const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
 
   const completeOnboarding = useCallback(() => {
     registerLocalFilters();
@@ -60,26 +53,7 @@ export const OnboardingFeedHeader = ({
     trackEvent({
       event_name: AnalyticsEvent.CreateFeed,
     });
-
-    if (!onboardingOptimizations) {
-      router.replace(
-        isExtension
-          ? `${webappUrl}/?welcome=true`
-          : {
-              pathname: router.route,
-              query: {
-                welcome: 'true',
-              },
-            },
-      );
-    }
-  }, [
-    onboardingOptimizations,
-    registerLocalFilters,
-    router,
-    trackEvent,
-    updateAlerts,
-  ]);
+  }, [registerLocalFilters, trackEvent, updateAlerts]);
 
   useEffect(() => {
     let stopNav = true;
