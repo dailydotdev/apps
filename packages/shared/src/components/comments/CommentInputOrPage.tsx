@@ -27,18 +27,21 @@ export default function CommentInputOrPage({
   if (isMobile) {
     const commentId = props.editCommentId ?? 'new';
     const editSuffix = props.editCommentId ? '/edit' : '';
-    const url = new URL(
-      `${props.post.commentsPermalink}/comments/${commentId}${editSuffix}`,
-    );
+    const query: Record<string, string> = {
+      id: props.post.id,
+      commentId,
+    };
 
     if (!editSuffix && props.parentCommentId) {
-      url.searchParams.set(
-        'replyTo',
-        props.replyToCommentId ?? props.parentCommentId,
-      );
+      query.replyTo = props.replyToCommentId ?? props.parentCommentId;
     }
 
-    router.push(url.toString());
+    console.log('Calling router.push');
+
+    router.push({
+      pathname: `/posts/[id]/comments/[commentId]${editSuffix}`,
+      query,
+    });
 
     return null;
   }
