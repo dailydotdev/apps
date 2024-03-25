@@ -6,6 +6,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
 import { ButtonSize } from '../../buttons/common';
+import { useViewSize, ViewSize } from '../../../hooks';
 
 interface SquadsDropdownProps {
   onSelect: (index: number) => void;
@@ -17,6 +18,7 @@ export function SquadsDropdown({
   selected,
 }: SquadsDropdownProps): ReactElement {
   const { squads } = useAuthContext();
+  const isMobile = useViewSize(ViewSize.MobileL);
   const activeSquads = squads?.filter(
     (squad) => squad?.active && verifyPermission(squad, SourcePermissions.Post),
   );
@@ -28,7 +30,8 @@ export function SquadsDropdown({
     return (
       <SourceShortInfo
         source={source}
-        className="w-full items-center pl-1 tablet:w-auto"
+        size={isMobile ? 'xxlarge' : undefined}
+        className="w-full items-center pl-1 tablet:w-auto tablet:py-3"
       >
         <ArrowIcon className="ml-auto rotate-90" secondary />
       </SourceShortInfo>
@@ -61,7 +64,7 @@ export function SquadsDropdown({
       drawerProps={{
         isFullScreen: true,
         title: 'Choose a Squad',
-        className: { drawer: 'p-0 pr-2 gap-4', title: 'mb-4' },
+        className: { drawer: 'p-0 pr-2', title: 'mb-4' },
       }}
     />
   );

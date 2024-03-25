@@ -27,7 +27,7 @@ export function ListDrawerItem({
       role="menuitem"
       type="button"
       className={classNames(
-        'flex h-10 flex-row items-center overflow-hidden text-ellipsis whitespace-nowrap px-2 typo-callout',
+        'flex flex-row items-center overflow-hidden text-ellipsis whitespace-nowrap px-2 py-2 typo-callout',
         isSelected ? 'font-bold' : 'text-theme-label-tertiary',
       )}
       onClick={(event) => onClick({ value, event })}
