@@ -70,7 +70,7 @@ export const tabs: Tab[] = [
   {
     component: (
       <div key="new-post" className="text-center">
-        <CreatePostButton compact sidebar />
+        <CreatePostButton compact sidebar className="h-8" />
       </div>
     ),
   },
@@ -123,6 +123,10 @@ export default function FooterNavBar({
     });
   };
 
+  const getPath = (path: Tab['path']) => {
+    return typeof path === 'string' ? path : path(user);
+  };
+
   const onItemClick = {
     [notificationsPath]: onNavigateNotifications,
   };
@@ -146,7 +150,7 @@ export default function FooterNavBar({
         spring="veryGentle"
         element="nav"
         className={classNames(
-          'grid w-full grid-flow-col items-center border-t border-theme-divider-tertiary bg-background-default',
+          'grid h-14 w-full grid-flow-col items-center border-t border-theme-divider-tertiary bg-background-default',
           !showNav && 'hidden',
           styles.footerNavBar,
         )}
@@ -158,9 +162,7 @@ export default function FooterNavBar({
               <div key={tab.title} className="relative">
                 {!tab.shouldShowLogin || user ? (
                   <LinkWithTooltip
-                    href={
-                      typeof tab.path === 'string' ? tab.path : tab.path(user)
-                    }
+                    href={getPath(tab.path)}
                     prefetch={false}
                     passHref
                     tooltip={{ content: tab.title }}
@@ -169,15 +171,10 @@ export default function FooterNavBar({
                       {...buttonProps}
                       tag="a"
                       icon={tab.icon(index === selectedTab, unreadCount)}
+                      className="px-4 font-normal typo-footnote"
                       iconPosition={ButtonIconPosition.Top}
                       pressed={index === selectedTab}
-                      onClick={
-                        onItemClick[
-                          typeof tab.path === 'string'
-                            ? tab.path
-                            : tab.path(user)
-                        ]
-                      }
+                      onClick={onItemClick[getPath(tab.path)]}
                     >
                       {tab.title}
                     </Button>
@@ -188,6 +185,7 @@ export default function FooterNavBar({
                       {...buttonProps}
                       icon={tab.icon(index === selectedTab, unreadCount)}
                       iconPosition={ButtonIconPosition.Top}
+                      className="font-normal typo-footnote"
                       onClick={() =>
                         showLogin({ trigger: AuthTriggers.Bookmark })
                       }
