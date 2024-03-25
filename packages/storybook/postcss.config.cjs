@@ -6,7 +6,7 @@ module.exports = ({ env }) => ({
         pageMaxWidth: '42.5rem',
         headerHeight: '3rem',
         headerRankHeight: '4.5rem',
-        navBarHeight: '3rem',
+        navBarHeight: '4rem',
         promotionWidth: '9rem',
         shareBarWidth: '1.75rem',
       },

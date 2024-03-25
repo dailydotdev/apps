@@ -7,6 +7,9 @@ import {
   SearchIcon,
   FilterIcon,
   BellIcon,
+  AiIcon,
+  SourceIcon,
+  UserIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
@@ -15,6 +18,7 @@ import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/Lin
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import {
   Button,
+  ButtonIconPosition,
   ButtonProps,
   ButtonSize,
   ButtonVariant,
@@ -32,15 +36,18 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
+import { CreatePostButton } from '@dailydotdev/shared/src/components/post/write';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import styles from './FooterNavBar.module.css';
 
 type Tab = {
-  path: string;
-  title: string;
-  icon: (active: boolean, unread?: number) => ReactElement;
+  path?: string | ((user: LoggedUser) => string);
+  title?: string;
+  icon?: (active: boolean, unread?: number) => ReactElement;
   requiresLogin?: boolean;
   shouldShowLogin?: boolean;
   onClick?: () => void;
+  component?: ReactElement;
 };
 
 const notificationsPath = '/notifications';
@@ -53,41 +60,36 @@ export const tabs: Tab[] = [
     ),
   },
   {
-    path: '/bookmarks',
-    title: 'Bookmarks',
+    path: '/search',
+    title: 'Search',
     icon: (active: boolean) => (
-      <BookmarkIcon secondary={active} size={IconSize.Medium} />
+      <AiIcon secondary={active} size={IconSize.Medium} />
     ),
     shouldShowLogin: true,
   },
   {
-    path: '/search',
-    title: 'Search',
-    icon: (active: boolean) => (
-      <SearchIcon secondary={active} size={IconSize.Medium} />
+    component: (
+      <div key="new-post" className="text-center">
+        <CreatePostButton compact sidebar />
+      </div>
     ),
   },
   {
     requiresLogin: true,
     shouldShowLogin: true,
-    path: notificationsPath,
-    title: 'Notifications',
-    icon: (active: boolean, unreadCount) => (
-      <span className="relative">
-        {unreadCount > 0 ? (
-          <Bubble className="right-0 top-0 translate-x-1/2 px-1">
-            {getUnreadText(unreadCount)}
-          </Bubble>
-        ) : null}
-        <BellIcon secondary={active} size={IconSize.Medium} />
-      </span>
+    path: '/squads',
+    title: 'Squads',
+    icon: (active: boolean) => (
+      <SourceIcon secondary={active} size={IconSize.Medium} />
     ),
   },
   {
-    path: '/filters',
-    title: 'Filters',
+    requiresLogin: true,
+    shouldShowLogin: true,
+    path: (user) => user?.permalink,
+    title: 'Profile',
     icon: (active: boolean) => (
-      <FilterIcon secondary={active} size={IconSize.Medium} />
+      <UserIcon secondary={active} size={IconSize.Medium} />
     ),
   },
 ];
@@ -149,45 +151,61 @@ export default function FooterNavBar({
           styles.footerNavBar,
         )}
       >
-        {tabs.map((tab, index) =>
-          tab.requiresLogin && !user ? null : (
-            <div key={tab.path} className="relative">
-              {!tab.shouldShowLogin || user ? (
-                <LinkWithTooltip
-                  href={tab.path}
-                  prefetch={false}
-                  passHref
-                  tooltip={{ content: tab.title }}
-                >
-                  <Button
-                    {...buttonProps}
-                    tag="a"
-                    icon={tab.icon(index === selectedTab, unreadCount)}
-                    pressed={index === selectedTab}
-                    onClick={onItemClick[tab.path]}
-                  />
-                </LinkWithTooltip>
-              ) : (
-                <SimpleTooltip content={tab.title}>
-                  <Button
-                    {...buttonProps}
-                    icon={tab.icon(index === selectedTab, unreadCount)}
-                    onClick={() =>
-                      showLogin({ trigger: AuthTriggers.Bookmark })
+        {tabs.map(
+          (tab, index) =>
+            tab.component ||
+            (tab.requiresLogin && !user ? null : (
+              <div key={tab.title} className="relative">
+                {!tab.shouldShowLogin || user ? (
+                  <LinkWithTooltip
+                    href={
+                      typeof tab.path === 'string' ? tab.path : tab.path(user)
                     }
-                  />
-                </SimpleTooltip>
-              )}
-              <Flipped flipId="activeTabIndicator">
-                {selectedTab === index && (
-                  <ActiveTabIndicator
-                    className="w-12"
-                    style={{ top: '-0.125rem' }}
-                  />
+                    prefetch={false}
+                    passHref
+                    tooltip={{ content: tab.title }}
+                  >
+                    <Button
+                      {...buttonProps}
+                      tag="a"
+                      icon={tab.icon(index === selectedTab, unreadCount)}
+                      iconPosition={ButtonIconPosition.Top}
+                      pressed={index === selectedTab}
+                      onClick={
+                        onItemClick[
+                          typeof tab.path === 'string'
+                            ? tab.path
+                            : tab.path(user)
+                        ]
+                      }
+                    >
+                      {tab.title}
+                    </Button>
+                  </LinkWithTooltip>
+                ) : (
+                  <SimpleTooltip content={tab.title}>
+                    <Button
+                      {...buttonProps}
+                      icon={tab.icon(index === selectedTab, unreadCount)}
+                      iconPosition={ButtonIconPosition.Top}
+                      onClick={() =>
+                        showLogin({ trigger: AuthTriggers.Bookmark })
+                      }
+                    >
+                      {tab.title}
+                    </Button>
+                  </SimpleTooltip>
                 )}
-              </Flipped>
-            </div>
-          ),
+                <Flipped flipId="activeTabIndicator">
+                  {selectedTab === index && (
+                    <ActiveTabIndicator
+                      className="w-12"
+                      style={{ top: '-0.125rem' }}
+                    />
+                  )}
+                </Flipped>
+              </div>
+            )),
         )}
       </Flipper>
     </div>
