@@ -1,5 +1,4 @@
 import React, {
-  ChangeEventHandler,
   InputHTMLAttributes,
   MutableRefObject,
   ReactElement,
@@ -15,7 +14,7 @@ export interface SwitchProps extends InputHTMLAttributes<HTMLInputElement> {
   inputId: string;
   name: string;
   checked?: boolean;
-  onToggle?: ChangeEventHandler<HTMLInputElement>;
+  onToggle?: () => unknown;
   compact?: boolean;
   defaultTypo?: boolean;
 }
