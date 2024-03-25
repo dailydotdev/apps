@@ -36,13 +36,8 @@ const promptOptions: PromptOptions = {
   description:
     'You will lose any personalization preferences you have chosen if you quit. Continue to personalize your feed?',
   okButton: {
-    title: 'Quit',
-    variant: ButtonVariant.Primary,
+    title: 'Yes, quit personalization',
     color: ButtonColor.Ketchup,
-  },
-  cancelButton: {
-    title: 'Continue',
-    variant: ButtonVariant.Secondary,
   },
 };
 

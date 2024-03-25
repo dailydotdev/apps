@@ -22,16 +22,8 @@ const promptOptions: PromptOptions = {
   title: 'Discard changes?',
   description: 'If you leave your changes will not be saved',
   okButton: {
-    title: 'Leave',
-    variant: ButtonVariant.Secondary,
-  },
-  cancelButton: {
-    title: 'Stay',
-    variant: ButtonVariant.Primary,
-    color: ButtonColor.Cabbage,
-  },
-  className: {
-    buttons: 'flex-row-reverse',
+    title: 'Yes, discard changes',
+    color: ButtonColor.Ketchup,
   },
 };
 

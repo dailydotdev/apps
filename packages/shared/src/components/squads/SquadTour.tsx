@@ -29,7 +29,6 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
       <FooterButton
         className="w-full tablet:ml-auto tablet:w-auto"
         variant={ButtonVariant.Primary}
-        color={ButtonColor.Cabbage}
         onClick={(e) => {
           e.stopPropagation();
           onTourIndexChange(0);
@@ -117,7 +116,6 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
             {indicator}
             <FooterButton
               variant={ButtonVariant.Primary}
-              color={ButtonColor.Cabbage}
               onClick={(e) => onSwipedLeft(e)}
             >
               {index === items.length - 1 ? 'Close' : 'Next'}

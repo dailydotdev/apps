@@ -32,6 +32,10 @@ enum MenuItemTitle {
   BlockMember = 'Block member',
 }
 
+const promptButtonCopy: Partial<Record<MenuItemTitle, string>> = {
+  [MenuItemTitle.BlockMember]: 'Yes, block member',
+};
+
 const promptDescription: Record<
   MenuItemTitle,
   (memberName: string, squadName: string) => string
@@ -46,6 +50,10 @@ const promptDescription: Record<
     `${memberName} will lose the moderator permissions and become a regular member.`,
   [MenuItemTitle.BlockMember]: (memberName, squadName) =>
     `${memberName} will be blocked and will no longer have access to ${squadName}. They will not be able to rejoin unless you unblock them.`,
+};
+
+const promptColor: Partial<Record<MenuItemTitle, ButtonColor>> = {
+  [MenuItemTitle.BlockMember]: ButtonColor.Ketchup,
 };
 
 const toastDescription: Partial<Record<MenuItemTitle, string>> = {
@@ -125,9 +133,9 @@ export default function SquadMemberMenu({
       title: `${title}?`,
       description: promptDescription[title](member.user.name, squad.name),
       okButton: {
-        title,
+        title: promptButtonCopy[title] || title,
         variant: ButtonVariant.Primary,
-        color: ButtonColor.Cabbage,
+        ...(promptColor[title] && { color: promptColor[title] }),
       },
       content: (
         <UserShortInfo
@@ -139,7 +147,6 @@ export default function SquadMemberMenu({
           }}
         />
       ),
-      promptSize: ModalSize.Small,
       className: { buttons: 'mt-6' },
     });
 

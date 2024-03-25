@@ -40,7 +40,6 @@ function SquadMemberItemAdditionalContent({
       okButton: {
         title: 'Unblock',
         variant: ButtonVariant.Primary,
-        color: ButtonColor.Cabbage,
       },
       content: (
         <UserShortInfo
@@ -52,7 +51,6 @@ function SquadMemberItemAdditionalContent({
           }}
         />
       ),
-      promptSize: ModalSize.Small,
       className: { buttons: 'mt-6' },
     };
 

@@ -33,16 +33,8 @@ export const useDeleteSquad = ({
         ? `Deleting ${squad.name} means you and all Squad members will lose access to all posts that were shared in the Squad. Are you sure?`
         : `Deleting your Squad will free up your handle and members you invited will not be able to join`,
       okButton: {
-        title: 'Delete',
-        variant: ButtonVariant.Secondary,
-      },
-      cancelButton: {
-        title: 'No, keep it',
-        variant: ButtonVariant.Primary,
-        color: ButtonColor.Cabbage,
-      },
-      className: {
-        buttons: 'flex-row-reverse',
+        title: 'Yes, delete Squad',
+        color: ButtonColor.Ketchup,
       },
     };
     if (await showPrompt(options)) {
