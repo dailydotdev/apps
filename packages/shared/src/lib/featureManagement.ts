@@ -38,7 +38,6 @@ const feature = {
     'post_page_onboarding',
     PostPageOnboarding.Control,
   ),
-  onboardingOptimizations: new Feature('onboarding_optimizations', false),
   userAcquisition: new Feature('user_acquisition', UserAcquisition.Control),
   forceRefresh: new Feature('force_refresh', false),
   feedAdSpot: new Feature('feed_ad_spot', 0),
