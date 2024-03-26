@@ -59,16 +59,17 @@ const CommentInputPage = ({
       enabled: !!editCommentId || !!replyCommentId,
     },
   });
-  const post = useMemo(() => comment?.post, [comment]);
-
-  // const post = useMemo(() => comment?.post, [comment]);
+  const post = useMemo(
+    () => comment?.post ?? ({ id: postId } as Post),
+    [comment],
+  );
   const parentCommentId = useMemo(
-    () => comment?.parentId ?? replyCommentId,
+    () => comment?.parent?.id ?? replyCommentId,
     [comment, replyCommentId],
   );
 
   const { mutateComment, isLoading } = useMutateComment({
-    post: post ?? ({ id: postId } as Post),
+    post,
     editCommentId: isEdit && editCommentId,
     parentCommentId,
     onCommented: goBack,

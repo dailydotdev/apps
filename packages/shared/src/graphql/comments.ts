@@ -280,7 +280,9 @@ export const COMMENT_BY_ID_WITH_POST_QUERY = gql`
       permalink
       upvoted
       numUpvotes
-      parentId
+      parent {
+        id
+      }
       author {
         ...UserShortInfo
       }
