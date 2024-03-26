@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
   QueryObserverOptions,
   useQuery,
+  useQueryClient,
   UseQueryResult,
 } from '@tanstack/react-query';
 import { graphqlUrl } from '../../lib/config';
@@ -23,7 +24,7 @@ interface UseCommentByIdProps {
 interface UseCommentByIdResult
   extends Pick<UseQueryResult, 'isError' | 'isLoading'> {
   comment: Comment;
-  onEdit: (lastUpdatedAt: string) => void;
+  onEdit: () => void;
 }
 
 const useCommentById = ({
@@ -31,16 +32,15 @@ const useCommentById = ({
   query = COMMENT_BY_ID_QUERY,
   options = {},
 }: UseCommentByIdProps): UseCommentByIdResult => {
-  const [lastUpdatedAt, setLastUpdatedAt] = useState<string>();
-
   const { user } = useAuthContext();
   const { requestMethod } = useRequestProtocol();
+  const client = useQueryClient();
   const {
     data: commentById,
     isError,
     isLoading,
   } = useQuery<CommentOnData>(
-    generateQueryKey(RequestKey.Comment, user, id, lastUpdatedAt),
+    generateQueryKey(RequestKey.Comment, user, id),
     () => requestMethod(graphqlUrl, query, { id: `${id}` }),
     {
       ...options,
@@ -49,14 +49,21 @@ const useCommentById = ({
   );
   const comment = commentById || (options?.initialData as CommentOnData);
 
+  const invalidate = useCallback(() => {
+    client.invalidateQueries({
+      queryKey: generateQueryKey(RequestKey.Comment, user, id),
+      exact: true,
+    });
+  }, [client, user, id]);
+
   return useMemo(
     () => ({
       comment: comment?.comment,
-      onEdit: setLastUpdatedAt,
+      onEdit: invalidate,
       isError,
       isLoading,
     }),
-    [comment, isError, isLoading],
+    [comment, isError, isLoading, invalidate],
   );
 };
 

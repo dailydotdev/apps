@@ -26,7 +26,7 @@ export const useEditCommentProps = (): UseCommentEdit => {
   return {
     onEdit: useCallback(
       (params) => {
-        onEdit(params.lastUpdatedAt);
+        onEdit();
         setState(params);
       },
       [onEdit, setState],
