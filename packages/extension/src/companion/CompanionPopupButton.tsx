@@ -57,7 +57,7 @@ export const CompanionPopupButton = (): ReactElement => {
         bgClassName: 'bg-background-default',
         textClassName: 'text-theme-label-primary typo-callout',
         className:
-          'border border-theme-status-cabbage w-[30.75rem] whitespace-pre-wrap shadow-2',
+          'border border-accent-cabbage-default w-[30.75rem] whitespace-pre-wrap shadow-2',
       }}
       interactive
       visible={showCompanionPermission}
@@ -70,14 +70,14 @@ export const CompanionPopupButton = (): ReactElement => {
             : ButtonVariant.Secondary
         }
         color={ButtonColor.Cabbage}
-        className="hidden border-theme-status-cabbage laptop:flex"
+        className="hidden border-accent-cabbage-default laptop:flex"
         icon={
           <CompanionIcon
             secondary={showCompanionPermission}
             className={
               showCompanionPermission
                 ? 'h-7 w-7 text-theme-label-primary'
-                : 'h-6 w-6 text-theme-status-cabbage'
+                : 'h-6 w-6 text-accent-cabbage-default'
             }
           />
         }

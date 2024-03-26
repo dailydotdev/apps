@@ -39,7 +39,7 @@ const SquadMemberBadge = ({
 
   return (
     <UserBadge
-      className={classNames('text-theme-color-cabbage', className)}
+      className={classNames('text-brand-default', className)}
       content={role}
       Icon={Icon}
       iconProps={iconProps}

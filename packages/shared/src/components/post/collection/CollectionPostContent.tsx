@@ -140,7 +140,7 @@ export const CollectionPostContent = ({
               <Pill
                 tag="a"
                 label="Collection"
-                className="bg-theme-overlay-float-cabbage text-theme-color-cabbage"
+                className="bg-theme-overlay-float-cabbage text-brand-default"
               />
             </Link>
             <h1
