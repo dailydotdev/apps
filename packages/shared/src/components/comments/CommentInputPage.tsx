@@ -1,7 +1,7 @@
 import React, {
   ReactElement,
   useCallback,
-  useLayoutEffect,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -12,12 +12,12 @@ import { CommentMarkdownInput } from '../fields/MarkdownInput/CommentMarkdownInp
 import { useMutateComment } from '../../hooks/post/useMutateComment';
 import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
 import { COMMENT_BY_ID_WITH_POST_QUERY } from '../../graphql/comments';
-import CommentContainer from './CommentContainer';
 import useCommentById from '../../hooks/comments/useCommentById';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Switch } from '../fields/Switch';
 import { useNotificationToggle } from '../../hooks/notifications';
 import { NotificationPromptSource } from '../../lib/analytics';
+import { Post } from '../../graphql/posts';
 
 const headerSize = 57;
 const replySize = 40;
@@ -34,8 +34,8 @@ const CommentInputPage = ({
   replyCommentId,
 }: Props): ReactElement => {
   const [value, setValue] = useState('');
+  const [styleHeight, setStyleHeight] = useState<Number | 'auto'>('auto');
   const { user } = useAuthContext();
-  const [bottomNode, setBottomNode] = useState<HTMLElement>(null);
   const router = useRouter();
 
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
@@ -53,6 +53,7 @@ const CommentInputPage = ({
 
   const { comment } = useCommentById({
     id: isEdit ? editCommentId : replyCommentId,
+    postId,
     query: COMMENT_BY_ID_WITH_POST_QUERY,
     options: {
       retry: false,
@@ -60,39 +61,29 @@ const CommentInputPage = ({
     },
   });
   const post = useMemo(() => comment?.post, [comment]);
+
+  // const post = useMemo(() => comment?.post, [comment]);
   const parentCommentId = useMemo(
     () => comment?.parentId ?? replyCommentId,
     [comment, replyCommentId],
   );
 
-  const refCallback = useCallback(
-    (node) => {
-      if (node) {
-        setBottomNode(node);
-      }
-    },
-    [setBottomNode],
-  );
-
   const { mutateComment, isLoading } = useMutateComment({
-    post,
+    post: post ?? ({ id: postId } as Post),
     editCommentId: isEdit && editCommentId,
     parentCommentId,
     onCommented: goBack,
   });
 
   const { height } = useVisualViewport();
-  const inputHeight = isReply
-    ? height - headerSize - replySize - (shouldShowCta ? footerSize : 0)
-    : height - headerSize - (shouldShowCta ? footerSize : 0);
+  const replyHeight = height > 0 ? replySize : 0;
+  const footerHeight = shouldShowCta ? footerSize : 0;
+  const totalHeight = height - headerSize - replyHeight - footerHeight;
+  const inputHeight = totalHeight > 0 ? totalHeight : 'auto';
 
-  useLayoutEffect(() => {
-    // scroll to bottom
-    if (isReply && comment) {
-      bottomNode?.scrollIntoView({ behavior: 'auto', block: 'end' });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bottomNode, isReply, comment]);
+  useEffect(() => {
+    setStyleHeight(inputHeight);
+  }, [inputHeight, setStyleHeight]);
 
   const { submitCopy, initialContent } = useMemo(() => {
     if (isEdit) {
@@ -134,23 +125,12 @@ const CommentInputPage = ({
         }}
       >
         {isReply && comment && (
-          <>
-            <CommentContainer
-              post={post}
-              comment={comment}
-              className={{
-                container: 'mx-4 mt-4 border',
-              }}
-              postAuthorId={post?.author?.id}
-              postScoutId={post?.scout?.id}
-            />
-            <div className="ml-12 flex gap-2 border-l border-theme-divider-tertiary py-3 pl-5 text-theme-label-tertiary typo-caption1">
-              Reply to
-              <span className="font-bold text-theme-label-primary">
-                {comment.author?.username}
-              </span>
-            </div>
-          </>
+          <div className="ml-12 flex gap-2 border-l border-theme-divider-tertiary py-3 pl-5 text-theme-label-tertiary typo-caption1">
+            Reply to
+            <span className="font-bold text-theme-label-primary">
+              {comment.author?.username}
+            </span>
+          </div>
         )}
         <CommentMarkdownInput
           replyTo={null}
@@ -171,7 +151,7 @@ const CommentInputPage = ({
           showUserAvatar={false}
           onChange={setValue}
           style={{
-            height: `${inputHeight}px`,
+            height: `${styleHeight}px`,
           }}
         />
         {shouldShowCta && (
@@ -187,7 +167,6 @@ const CommentInputPage = ({
             Receive updates when other members engage
           </Switch>
         )}
-        <span ref={refCallback} />
       </FormWrapper>
     </div>
   );
