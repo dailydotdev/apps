@@ -24,7 +24,7 @@ import { BootApp, BootCacheData } from '../lib/boot';
 import { apiUrl } from '../lib/config';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
 import { Feature } from '../lib/featureManagement';
-import { useViewSize, ViewSize } from '../hooks';
+import { useViewSize, ViewSize } from '../hooks/useViewSize';
 
 export type FeaturesReadyContextValue = {
   ready: boolean;

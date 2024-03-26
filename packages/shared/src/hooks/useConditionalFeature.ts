@@ -13,10 +13,6 @@ export const useConditionalFeature = <T extends JSONValue>({
   shouldEvaluate: boolean;
 }): WidenPrimitives<T> => {
   const growthbook = useGrowthBook();
-  if (!shouldEvaluate) {
-    return feature.defaultValue as WidenPrimitives<T>;
-  }
-
   const queryKey = generateQueryKey(
     RequestKey.Feature,
     null,

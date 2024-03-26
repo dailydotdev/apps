@@ -32,7 +32,7 @@ describe('useConditionalFeature hook', () => {
   });
 
   it('should return feature value if evaluation is true', async () => {
-    const { result, rerender } = renderHook(
+    const { result } = renderHook(
       () =>
         useConditionalFeature({ feature: testFeature, shouldEvaluate: true }),
       {
