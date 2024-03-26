@@ -2,11 +2,12 @@ import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { waitFor } from '@testing-library/react';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import { useConditionalFeature } from './useConditionalFeature';
 import { Feature } from '../lib/featureManagement';
 import loggedUser from '../../__tests__/fixture/loggedUser';
 import { AuthContextProvider } from '../contexts/AuthContext';
+import { GrowthBookProvider } from '../components/GrowthBookProvider';
+import { BootApp } from '../lib/boot';
 
 const client = new QueryClient();
 const testFeature: Feature<string> = new Feature<string>(
@@ -14,8 +15,8 @@ const testFeature: Feature<string> = new Feature<string>(
   'default_value',
 );
 
-const Wrapper = ({ children }) => {
-  return (
+const createWrapper = ({ value = testFeature.defaultValue }) => {
+  const Wrapper = ({ children }) => (
     <QueryClientProvider client={client}>
       <AuthContextProvider
         user={loggedUser}
@@ -26,10 +27,28 @@ const Wrapper = ({ children }) => {
         loadedUserFromCache
         squads={[]}
       >
-        {children}
+        <GrowthBookProvider
+          app={BootApp.Test}
+          user={loggedUser}
+          deviceId="123"
+          experimentation={{
+            f: '{}',
+            e: [],
+            a: [],
+            features: {
+              test_feature: {
+                defaultValue: value,
+              },
+            },
+          }}
+        >
+          {children}
+        </GrowthBookProvider>
       </AuthContextProvider>
     </QueryClientProvider>
   );
+
+  return Wrapper;
 };
 
 describe('useConditionalFeature hook', () => {
@@ -42,7 +61,7 @@ describe('useConditionalFeature hook', () => {
       () =>
         useConditionalFeature({ feature: testFeature, shouldEvaluate: false }),
       {
-        wrapper: Wrapper,
+        wrapper: createWrapper({}),
       },
     );
 
@@ -53,13 +72,16 @@ describe('useConditionalFeature hook', () => {
   it('should return feature value if evaluation is true', async () => {
     const { result } = renderHook(
       () =>
-        useConditionalFeature({ feature: testFeature, shouldEvaluate: true }),
+        useConditionalFeature({
+          feature: testFeature,
+          shouldEvaluate: true,
+        }),
       {
-        wrapper: Wrapper,
+        wrapper: createWrapper({ value: 'new_value' }),
       },
     );
 
     await waitFor(() => expect(result.current.isLoading).toBeFalsy());
-    expect(result.current.value).toBe('default_value');
+    expect(result.current.value).toBe('new_value');
   });
 });
