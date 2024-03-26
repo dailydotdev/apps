@@ -50,6 +50,7 @@ const feature = {
   ),
   searchVersion: new Feature('search_version', 1),
   commentFeed: new Feature('comment_feed', false),
+  forcedTagSelection: new Feature('forced_tag_selection', false),
 };
 
 export { feature };
