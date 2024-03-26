@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ReactElement, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { FormWrapper } from '../fields/form';
@@ -46,11 +40,6 @@ const CommentInputPage = ({
   const isEdit = !!editCommentId;
   const isReply = !!replyCommentId;
 
-  const goBack = useCallback(
-    () => router.push({ pathname: `/posts/[id]`, query: { id: postId } }),
-    [router, postId],
-  );
-
   const { comment } = useCommentById({
     id: isEdit ? editCommentId : replyCommentId,
     query: COMMENT_BY_ID_WITH_POST_QUERY,
@@ -72,7 +61,7 @@ const CommentInputPage = ({
     post,
     editCommentId: isEdit && editCommentId,
     parentCommentId,
-    onCommented: goBack,
+    onCommented: router.back,
   });
 
   const { height } = useVisualViewport();
@@ -110,7 +99,7 @@ const CommentInputPage = ({
         form="new comment"
         copy={{ right: submitCopy }}
         leftButtonProps={{
-          onClick: goBack,
+          onClick: router.back,
         }}
         rightButtonProps={{
           onClick: async () => {

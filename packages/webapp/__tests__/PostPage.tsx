@@ -51,10 +51,10 @@ import {
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
+import { useViewSize } from '@dailydotdev/shared/src/hooks';
 import PostPage, { Props } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
-import { useViewSize } from '@dailydotdev/shared/src/hooks';
 
 const mockUseViewSize = useViewSize as jest.MockedFunction<typeof useViewSize>;
 
