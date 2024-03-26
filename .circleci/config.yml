@@ -43,6 +43,7 @@ jobs:
   test_extension:
     docker:
       - image: cimg/node:18.16.0
+    parallelism: 1
     steps:
       - checkout
       - restore_cache:
@@ -50,8 +51,13 @@ jobs:
             - deps-v6-{{ checksum "pnpm-lock.yaml" }}
             - deps-v6-{{ .Branch }}
       - run:
+          name: Pretest
+          command: npm run pretest
+      - run:
           name: Test
-          command: npm run test -- --ci --reporters=default --reporters=jest-junit
+          command: |
+            TEST=$(./node_modules/.bin/jest --listTests)
+            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
           working_directory: packages/extension
@@ -61,6 +67,7 @@ jobs:
     docker:
       - image: cimg/node:18.16.0
     resource_class: medium+
+    parallelism: 1
     steps:
       - checkout
       - restore_cache:
@@ -68,8 +75,13 @@ jobs:
             - deps-v6-{{ checksum "pnpm-lock.yaml" }}
             - deps-v6-{{ .Branch }}
       - run:
+          name: Pretest
+          command: npm run pretest
+      - run:
           name: Test
-          command: npm run test -- --ci --reporters=default --reporters=jest-junit
+          command: |
+            TEST=$(./node_modules/.bin/jest --listTests)
+            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
           working_directory: packages/webapp
