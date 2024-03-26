@@ -34,7 +34,7 @@ const CommentInputPage = ({
   replyCommentId,
 }: Props): ReactElement => {
   const [value, setValue] = useState('');
-  const [styleHeight, setStyleHeight] = useState<Number | 'auto'>('auto');
+  const [styleHeight, setStyleHeight] = useState<number | 'auto'>('auto');
   const { user } = useAuthContext();
   const router = useRouter();
 
