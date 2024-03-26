@@ -96,7 +96,13 @@ export const SquadJoinButton = ({
       onError: () => {
         displayToast(labels.error.generic);
       },
-      onSuccess,
+      onSuccess: () => {
+        console.log('joining squad');
+        if (onSuccess) {
+          console.log('running success');
+          onSuccess();
+        }
+      },
     },
   );
 
@@ -104,6 +110,7 @@ export const SquadJoinButton = ({
     useLeaveSquad({ squad }),
     {
       onSuccess: (left) => {
+        console.log('leaving squad');
         if (!left) {
           return;
         }

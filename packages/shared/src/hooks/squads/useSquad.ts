@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { ClientError } from 'graphql-request';
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { Squad } from '../../graphql/sources';
 import { getSquad } from '../../graphql/squads';
 import { ApiError, ApiErrorResult, getApiError } from '../../graphql/common';
 import AuthContext from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
-import { generateQueryKey, RequestKey } from '../../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 
 interface UseSquadProps {
   handle: string;
@@ -20,17 +20,25 @@ interface UseSquad {
 }
 
 export const useSquad = ({ handle }: UseSquadProps): UseSquad => {
-  const { isFetched: isBootFetched, user } = useContext(AuthContext);
+  const { user, isAuthReady } = useContext(AuthContext);
   const queryKey = generateQueryKey(RequestKey.Squad, user, handle);
   const {
     data: squad,
     isLoading,
     isFetched,
     error,
-  } = useQuery<Squad, ClientError>(queryKey, () => getSquad(handle), {
-    enabled: isBootFetched && !!handle,
-    retry: false,
-  });
+  } = useQuery<Squad, ClientError>(
+    queryKey,
+    () => {
+      console.log('running the query: -', queryKey, '- ', JSON.stringify(user));
+      return getSquad(handle);
+    },
+    {
+      enabled: isAuthReady && !!handle,
+      staleTime: StaleTime.Default,
+      retry: false,
+    },
+  );
 
   return {
     squad,

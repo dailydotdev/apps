@@ -51,6 +51,7 @@ export const useJoinSquad = ({
       result.currentMember.user,
       result.handle,
     );
+    console.log('joining key: ', queryKey);
     queryClient.setQueryData(queryKey, result);
     queryClient.invalidateQueries(['squadMembersInitial', squad.handle]);
     completeAction(ActionType.JoinSquad);
