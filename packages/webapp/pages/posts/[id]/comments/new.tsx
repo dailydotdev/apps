@@ -7,16 +7,29 @@ import {
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import CommentInputPage from '@dailydotdev/shared/src/components/comments/CommentInputPage';
+import { NextSeo, NextSeoProps } from 'next-seo';
+import { defaultOpenGraph, defaultSeo } from '../../../../next-seo';
 
 interface Props {
   id: string;
 }
 
+const seo: NextSeoProps = {
+  title: 'Post comment',
+  openGraph: { ...defaultOpenGraph },
+  ...defaultSeo,
+};
+
 const NewCommentPage = ({ id }: Props): ReactElement => {
   const router = useRouter();
   const replyCommentId = router.query.replyTo as string;
 
-  return <CommentInputPage postId={id} replyCommentId={replyCommentId} />;
+  return (
+    <>
+      <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
+      <CommentInputPage postId={id} replyCommentId={replyCommentId} />
+    </>
+  );
 };
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
