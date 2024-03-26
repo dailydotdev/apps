@@ -52,7 +52,7 @@ jobs:
             - deps-v6-{{ .Branch }}
       - run:
           name: Test
-          command: npm run test
+          command: npm run test -- --ci --reporters=default --reporters=jest-junit --runInBand
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
           working_directory: packages/extension
@@ -70,7 +70,7 @@ jobs:
             - deps-v6-{{ .Branch }}
       - run:
           name: Test
-          command: npm run test
+          command: npm run test -- --ci --reporters=default --reporters=jest-junit --runInBand
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
           working_directory: packages/webapp
@@ -88,7 +88,7 @@ jobs:
             - deps-v6-{{ .Branch }}
       - run:
           name: Test
-          command: npm run test
+          command: npm run test -- --ci --reporters=default --reporters=jest-junit --runInBand
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
           working_directory: packages/shared
