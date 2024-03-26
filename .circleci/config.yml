@@ -40,24 +40,58 @@ jobs:
           name: Build
           command: npm run build:chrome
           working_directory: packages/extension
-  test:
+  test_extension:
     docker:
       - image: cimg/node:18.16.0
     resource_class: medium+
     steps:
       - checkout
-      - run:
-          name: Install pnpm
-          command: npm i --prefix=$HOME/.local -g pnpm
       - restore_cache:
           keys:
             - deps-v6-{{ checksum "pnpm-lock.yaml" }}
             - deps-v6-{{ .Branch }}
       - run:
           name: Test
-          command: pnpm run -r test:ci
+          command: npm run test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
+          working_directory: packages/extension
+      - store_test_results:
+          path: ./test-results
+  test_webapp:
+    docker:
+      - image: cimg/node:18.16.0
+    resource_class: medium+
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v6-{{ .Branch }}
+      - run:
+          name: Test
+          command: npm run test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ../../test-results
+          working_directory: packages/webapp
+      - store_test_results:
+          path: ./test-results
+  test_shared:
+    docker:
+      - image: cimg/node:18.16.0
+    resource_class: medium+
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v6-{{ .Branch }}
+      - run:
+          name: Test
+          command: npm run test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ../../test-results
+          working_directory: packages/shared
       - store_test_results:
           path: ./test-results
 workflows:
@@ -67,6 +101,12 @@ workflows:
       - build:
           requires:
             - install_deps
-      - test:
+      - test_extension:
+          requires:
+            - install_deps
+      - test_webapp:
+          requires:
+            - install_deps
+      - test_shared:
           requires:
             - install_deps
