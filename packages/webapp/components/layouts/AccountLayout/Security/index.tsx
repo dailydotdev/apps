@@ -1,6 +1,7 @@
 import { getProviderMapClone } from '@dailydotdev/shared/src/components/auth/common';
 import {
   Button,
+  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -32,6 +33,7 @@ import {
 } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { useEventListener } from '@dailydotdev/shared/src/hooks';
+import { capitalize } from '@dailydotdev/shared/src/lib/strings';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import {
@@ -72,21 +74,15 @@ interface AccountSecurityDefaultProps {
 
 const alreadyLinkedProviderOptions: PromptOptions = {
   title: 'Account already linked',
-  cancelButton: {
-    title: 'Close',
-  },
   okButton: null,
 };
 const unlinkProviderPromptOptions: PromptOptions = {
   title: 'Remove provider?',
   description:
     'You will no longer be able to log in with this connected account',
-  cancelButton: {
-    title: 'Leave',
-  },
   okButton: {
     title: 'Remove',
-    className: 'text-white btn-primary-ketchup',
+    color: ButtonColor.Ketchup,
   },
 };
 const deleteAccountPromptOptions: PromptOptions = {
@@ -94,8 +90,8 @@ const deleteAccountPromptOptions: PromptOptions = {
   description:
     'Are you sure you want to delete your account? This action cannot be undone.',
   okButton: {
-    title: 'Delete',
-    className: 'btn-primary-ketchup',
+    title: 'Yes, delete my account',
+    color: ButtonColor.Ketchup,
   },
 };
 
@@ -131,7 +127,11 @@ function AccountSecurityDefault({
     if (
       await showPrompt({
         ...unlinkProviderPromptOptions,
-        title: `Remove ${provider}?`,
+        title: `Remove ${capitalize(provider)}?`,
+        okButton: {
+          title: `Yes, remove ${capitalize(provider)}`,
+          color: ButtonColor.Ketchup,
+        },
       })
     ) {
       manageSocialProviders({ type: 'unlink', provider });
@@ -266,7 +266,7 @@ function AccountSecurityDefault({
       <AccountContentSection title="🚨 Danger Zone">
         <AccountDangerZone
           onDelete={() => deleteAccountPrompt()}
-          className="relative mt-6 overflow-hidden rounded-26 border border-theme-status-error px-6 py-4"
+          className="relative mt-6 overflow-hidden rounded-26 border border-status-error px-6 py-4"
         >
           <AlertBackground className="bg-overlay-quaternary-ketchup" />
         </AccountDangerZone>

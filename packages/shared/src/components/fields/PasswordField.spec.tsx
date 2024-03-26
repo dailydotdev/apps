@@ -39,7 +39,7 @@ it('should show password strength on input', async () => {
   input.value = 'a';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Risky');
-  await waitFor(() => expect(el).toHaveClass('text-theme-status-error'));
+  await waitFor(() => expect(el).toHaveClass('text-status-error'));
 });
 
 it('should show medium password strength on input', async () => {
@@ -54,7 +54,7 @@ it('should show medium password strength on input', async () => {
   input.value = 'asAS12!@';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText(`You're almost there`);
-  await waitFor(() => expect(el).toHaveClass('text-theme-status-warning'));
+  await waitFor(() => expect(el).toHaveClass('text-status-warning'));
 });
 
 it('should show strong password strength on input', async () => {
@@ -69,7 +69,7 @@ it('should show strong password strength on input', async () => {
   input.value = 'asAS12!@as';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Strong as it gets');
-  await waitFor(() => expect(el).toHaveClass('text-theme-status-success'));
+  await waitFor(() => expect(el).toHaveClass('text-status-success'));
 });
 
 it('should show the password plain text on icon click', async () => {

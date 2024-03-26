@@ -22,7 +22,7 @@ export const SearchProgressBar = ({
           className={classNames(
             'relative z-0 h-2 flex-1 overflow-hidden rounded-10',
             index < progress || isDone
-              ? 'bg-theme-status-cabbage'
+              ? 'bg-accent-cabbage-default'
               : 'bg-theme-float',
           )}
         >

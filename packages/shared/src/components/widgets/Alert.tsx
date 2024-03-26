@@ -14,14 +14,14 @@ export enum AlertType {
 
 const fontColor: AlertPropObject<string> = {
   info: 'text-theme-color-bun',
-  error: 'text-theme-status-error',
-  success: 'text-theme-status-success',
+  error: 'text-status-error',
+  success: 'text-status-success',
 };
 
 const borderColor: AlertPropObject<string> = {
   info: 'border-l-theme-color-bun',
-  error: 'border-l-theme-status-error',
-  success: 'border-l-theme-status-success',
+  error: 'border-l-status-error',
+  success: 'border-l-status-success',
 };
 
 const iconType: AlertPropObject<typeof FeedbackIcon> = {

@@ -103,7 +103,7 @@ export const SourceCard = ({
                 alt={`${title} source`}
               />
             ) : (
-              <div className="-mt-14 flex h-24 w-24 items-center justify-center rounded-full bg-theme-bg-pepper40">
+              <div className="-mt-14 flex h-24 w-24 items-center justify-center rounded-full bg-accent-pepper-subtle">
                 {icon}
               </div>
             )}

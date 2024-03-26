@@ -12,7 +12,7 @@ const Description = classed(
 );
 const Buttons = classed(
   'div',
-  'flex items-center justify-around self-stretch flex-col tablet:flex-row gap-4',
+  'flex items-center justify-center self-stretch flex-col tablet:flex-row gap-4',
 );
 
 export function PromptElement(props: Partial<ModalProps>): ReactElement {
@@ -27,7 +27,7 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
       title,
       description,
       content,
-      promptSize = Modal.Size.XSmall,
+      promptSize = Modal.Size.Small,
       cancelButton = {},
       okButton = {},
       className = {},

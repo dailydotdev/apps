@@ -31,7 +31,10 @@ jest.mock('next/router', () => {
   };
 });
 
+const date = new Date(2024, 6, 6, 12, 30, 30);
+
 beforeEach(() => {
+  jest.useFakeTimers('modern').setSystemTime(date);
   jest.clearAllMocks();
   mockUseViewSize.mockImplementation(() => false);
 });
@@ -84,7 +87,7 @@ it('should show author name', async () => {
 
 it('should show formatted comment date', async () => {
   renderLayout();
-  await screen.findByText('Feb 10, 2017');
+  await screen.findByText('7 years ago');
 });
 
 it('should show last updated comment date', async () => {
@@ -94,7 +97,7 @@ it('should show last updated comment date', async () => {
       lastUpdatedAt: new Date(2017, 2, 10, 0, 0).toISOString(),
     },
   });
-  await screen.findByText('Modified Mar 10, 2017');
+  await screen.findByText('Modified 7 years ago');
 });
 
 it('should show comment content', async () => {

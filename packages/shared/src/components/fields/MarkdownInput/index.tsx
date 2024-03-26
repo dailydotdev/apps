@@ -270,7 +270,7 @@ function MarkdownInput(
               color={uploadingCount ? ButtonColor.Cabbage : undefined}
               className={classNames(
                 'font-normal',
-                uploadingCount && 'mr-auto text-theme-color-cabbage',
+                uploadingCount && 'mr-auto text-brand-default',
               )}
               icon={icon}
               onClick={() => uploadRef?.current?.click()}

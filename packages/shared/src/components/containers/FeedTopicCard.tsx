@@ -17,7 +17,7 @@ interface FeedTopicCardProps {
 
 const BackgroundLayer = classed(
   'div',
-  'group-hover:z-0 absolute inset-0 w-full h-full rounded-14 bg-theme-status-cabbage transition-transform',
+  'group-hover:z-0 absolute inset-0 w-full h-full rounded-14 bg-accent-cabbage-default transition-transform',
 );
 
 interface IconProps {
@@ -27,7 +27,7 @@ interface IconProps {
 const Icon = ({ isActive }: IconProps) => {
   const iconClasses = classNames(
     'absolute right-1 top-1 rounded-full',
-    isActive && 'bg-theme-status-invert-cabbage',
+    isActive && 'bg-accent-cabbage-bolder',
   );
 
   if (isActive) {
