@@ -14,7 +14,7 @@ const oneWeek = 7 * oneDay;
 const oneMonth = 28 * oneDay;
 export const oneYear = oneDay * 365;
 
-const publishTimeV1 = (
+const publishTimeRelative = (
   value: Date | number | string,
   now = new Date(),
 ): string => {
@@ -57,7 +57,6 @@ const publishTimeV1 = (
 };
 
 export enum TimeFormatType {
-  Generic = 'generic',
   Post = 'post',
   Comment = 'comment',
   ReadHistory = 'readHistory',
@@ -190,16 +189,12 @@ interface FormatDateProps {
 export const formatDate = ({ value, type }: FormatDateProps): string => {
   const date = new Date(value);
 
-  if (type === TimeFormatType.Generic) {
-    return publishTimeV1(date);
-  }
-
   if (type === TimeFormatType.Post) {
     return postDateFormat(date);
   }
 
   if (type === TimeFormatType.Comment) {
-    return commentDateFormat(date);
+    return publishTimeRelative(date);
   }
 
   if (type === TimeFormatType.ReadHistory) {

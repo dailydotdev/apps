@@ -19,7 +19,7 @@ import AuthOptions, { AuthDisplay } from '../auth/AuthOptions';
 import { AuthEventNames, AuthTriggers } from '../../lib/auth';
 import { ExperimentWinner } from '../../lib/featureValues';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { ButtonColor, ButtonVariant } from '../buttons/Button';
+import { ButtonColor } from '../buttons/Button';
 
 interface OnboardingModalProps extends ModalProps {
   mode?: OnboardingMode;
@@ -36,13 +36,8 @@ const promptOptions: PromptOptions = {
   description:
     'You will lose any personalization preferences you have chosen if you quit. Continue to personalize your feed?',
   okButton: {
-    title: 'Quit',
-    variant: ButtonVariant.Primary,
+    title: 'Yes, quit personalization',
     color: ButtonColor.Ketchup,
-  },
-  cancelButton: {
-    title: 'Continue',
-    variant: ButtonVariant.Secondary,
   },
 };
 

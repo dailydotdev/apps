@@ -14,8 +14,7 @@ import { NextRouter, useRouter } from 'next/router';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
-import { Alerts, UPDATE_ALERTS } from '@dailydotdev/shared/src/graphql/alerts';
-import { filterAlertMessage } from '@dailydotdev/shared/src/components/filters/MyFeedHeading';
+import { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import {
   MockedGraphQLResponse,
@@ -39,9 +38,7 @@ beforeEach(() => {
     () =>
       ({
         pathname: '/my-feed',
-        query: {
-          hset: 'true',
-        },
+        query: {},
         replace: jest.fn(),
         push: jest.fn(),
       } as unknown as NextRouter),
@@ -117,44 +114,5 @@ it('should request anonymous feed', async () => {
   await waitFor(async () => {
     const elements = await screen.findAllByTestId('postItem');
     expect(elements.length).toBeTruthy();
-  });
-});
-
-it('should show the created message if the user added filters', async () => {
-  defaultAlerts = { filter: false, myFeed: 'created' };
-  renderComponent();
-  const section = await screen.findByText(filterAlertMessage);
-  expect(section).toBeInTheDocument();
-});
-
-it('should not show the my feed alert if the user removed it', async () => {
-  defaultAlerts = { filter: false, myFeed: null };
-  renderComponent();
-  await waitFor(() =>
-    expect(screen.queryByText(filterAlertMessage)).not.toBeInTheDocument(),
-  );
-});
-
-it('should remove the my feed alert if the user clicks the cross', async () => {
-  let mutationCalled = false;
-  mockGraphQL({
-    request: {
-      query: UPDATE_ALERTS,
-      variables: { data: { myFeed: null } },
-    },
-    result: () => {
-      mutationCalled = true;
-      return { data: { _: true } };
-    },
-  });
-  defaultAlerts = { filter: false, myFeed: 'created' };
-  renderComponent();
-
-  const closeButton = await screen.findByTestId('alert-close');
-  closeButton.click();
-
-  await waitFor(() => {
-    expect(updateAlerts).toBeCalledWith({ filter: false, myFeed: null });
-    expect(mutationCalled).toBeTruthy();
   });
 });
