@@ -3,7 +3,7 @@ import { Comment } from '../../graphql/comments';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
-import { useCommentEdit } from '../../hooks/post/useCommentEdit';
+import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
 import CommentInputOrPage from './CommentInputOrPage';
 
 export interface SubCommentProps
@@ -20,7 +20,7 @@ function SubComment({
   ...props
 }: SubCommentProps): ReactElement {
   const { inputProps, commentId, onReplyTo } = useComments(props.post);
-  const { inputProps: editProps, onEdit } = useCommentEdit();
+  const { inputProps: editProps, onEdit } = useEditCommentProps();
 
   return (
     <>

@@ -6,7 +6,7 @@ interface UseCommentEdit extends CommentWrite {
   onEdit: (params: CommentWriteProps) => void;
 }
 
-export const useCommentEdit = (): UseCommentEdit => {
+export const useEditCommentProps = (): UseCommentEdit => {
   const [state, setState] = useState<CommentWriteProps>();
   const { commentId: id } = state ?? {};
   const { comment, onEdit } = useCommentById({ id });

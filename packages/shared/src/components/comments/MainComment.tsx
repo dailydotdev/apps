@@ -13,7 +13,7 @@ import { Squad } from '../../graphql/sources';
 import { Comment } from '../../graphql/comments';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
-import { useCommentEdit } from '../../hooks/post/useCommentEdit';
+import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
 import CommentInputOrPage from './CommentInputOrPage';
 
 type ClassName = {
@@ -69,7 +69,7 @@ export default function MainComment({
     inputProps: replyProps,
     onReplyTo,
   } = useComments(props.post);
-  const { inputProps: editProps, onEdit } = useCommentEdit();
+  const { inputProps: editProps, onEdit } = useEditCommentProps();
 
   const initialInView = !lazy;
   const { ref: inViewRef, inView } = useInView({

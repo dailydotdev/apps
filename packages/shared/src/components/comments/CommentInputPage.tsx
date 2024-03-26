@@ -13,6 +13,9 @@ import { useNotificationToggle } from '../../hooks/notifications';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { Post } from '../../graphql/posts';
 
+// statically defined heights of various containers that
+// affect final height of the input container
+// when styles change, these should be updated accordingly
 const headerSize = 57;
 const replySize = 40;
 const footerSize = 48;
