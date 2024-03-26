@@ -92,8 +92,7 @@ jobs:
   test_shared:
     docker:
       - image: cimg/node:18.16.0
-    resource_class: medium+
-    parallelism: 4
+    parallelism: 1
     steps:
       - checkout
       - restore_cache:
