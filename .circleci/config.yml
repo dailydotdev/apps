@@ -102,8 +102,8 @@ jobs:
       - run:
           name: Test
           command: |
-            TEST=$(circleci tests glob "src/**/*.spec.ts" "src/**/*.spec.tsx" | circleci tests split --split-by=timings)
-            ./node_modules/.bin/jest --ci --runInBand $TEST --reporters=default --reporters=jest-junit
+            TEST=$(./node_modules/.bin/jest --listTests)
+            echo $TEST | circleci tests run --command="xargs -I {} ./node_modules/.bin/jest --runInBand --ci --runInBand {} --reporters=default --reporters=jest-junit" --verbose --split-by=timings
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
           working_directory: packages/shared
