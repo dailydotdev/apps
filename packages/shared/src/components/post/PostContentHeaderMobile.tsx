@@ -12,10 +12,10 @@ export function PostContentHeaderMobile({
 }: Pick<PostNavigationProps, 'onReadArticle' | 'post'>): ReactElement {
   const router = useRouter();
   const canGoBack =
-    globalThis?.history &&
-    !!globalThis.history.length &&
+    !!globalThis?.history?.length &&
+    globalThis?.history?.state &&
     isNullOrUndefined(globalThis.history.state.options.shallow) &&
-    !globalThis.document.referrer; // empty referrer means you are from the same site
+    !globalThis?.document?.referrer; // empty referrer means you are from the same site
 
   return (
     <span className="-mx-4 flex flex-row items-center border-b border-border-subtlest-tertiary px-4 py-2 tablet:hidden">
