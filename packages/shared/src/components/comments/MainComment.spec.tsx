@@ -1,6 +1,7 @@
 import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser } from '../../lib/user';
 import MainComment, { MainCommentProps } from './MainComment';
@@ -8,14 +9,34 @@ import loggedUser from '../../../__tests__/fixture/loggedUser';
 import comment from '../../../__tests__/fixture/comment';
 import post from '../../../__tests__/fixture/post';
 import { Origin } from '../../lib/analytics';
+import { useViewSize } from '../../hooks';
 
 const onDelete = jest.fn();
+const mockUseViewSize = useViewSize as jest.MockedFunction<typeof useViewSize>;
+
+jest.mock('../../hooks', () => {
+  const originalModule = jest.requireActual('../../hooks');
+  return {
+    ...originalModule,
+    useViewSize: jest.fn(),
+  };
+});
+
+jest.mock('next/router', () => {
+  const push = jest.fn();
+  const original = jest.requireActual('next/router');
+  return {
+    ...original,
+    useRouter: () => ({ push }),
+  };
+});
 
 const date = new Date(2024, 6, 6, 12, 30, 30);
 
 beforeEach(() => {
   jest.useFakeTimers('modern').setSystemTime(date);
   jest.clearAllMocks();
+  mockUseViewSize.mockImplementation(() => false);
 });
 
 const renderLayout = (
@@ -116,6 +137,20 @@ it('should render the comment box', async () => {
   el.click();
   const [commentBox] = await screen.findAllByRole('textbox');
   expect(commentBox).toBeInTheDocument();
+});
+
+it('should redirect to comment page on mobile', async () => {
+  const router = useRouter();
+  mockUseViewSize.mockImplementation(() => true);
+  renderLayout({}, loggedUser);
+  const el = await screen.findByLabelText('Reply');
+  el.click();
+  await waitFor(() => expect(router.push).toHaveBeenCalledTimes(1));
+
+  expect(router.push).toHaveBeenCalledWith({
+    pathname: '/posts/[id]/comments/[commentId]',
+    query: { id: post.id, commentId: 'new', replyTo: comment.id },
+  });
 });
 
 it('should call onDelete callback', async () => {

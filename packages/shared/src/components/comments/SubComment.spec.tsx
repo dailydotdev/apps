@@ -8,14 +8,25 @@ import loggedUser from '../../../__tests__/fixture/loggedUser';
 import comment from '../../../__tests__/fixture/comment';
 import { Origin } from '../../lib/analytics';
 import post from '../../../__tests__/fixture/post';
+import { useViewSize } from '../../hooks';
 
 const onDelete = jest.fn();
+const mockUseViewSize = useViewSize as jest.MockedFunction<typeof useViewSize>;
+
+jest.mock('../../hooks', () => {
+  const originalModule = jest.requireActual('../../hooks');
+  return {
+    ...originalModule,
+    useViewSize: jest.fn(),
+  };
+});
 
 const date = new Date(2024, 6, 6, 12, 30, 30);
 
 beforeEach(() => {
   jest.useFakeTimers('modern').setSystemTime(date);
   jest.clearAllMocks();
+  mockUseViewSize.mockImplementation(() => false);
 });
 
 const renderLayout = (
