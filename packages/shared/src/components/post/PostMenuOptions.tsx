@@ -13,15 +13,16 @@ import PostOptionsMenu, { PostOptionsMenuProps } from '../PostOptionsMenu';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { Origin } from '../../lib/analytics';
 import useContextMenu from '../../hooks/useContextMenu';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
-export interface PostMenuOptionssProps {
+export interface PostMenuOptionsProps {
   post: Post;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   inlineActions?: boolean;
   contextMenuId: string;
   onRemovePost?: PostOptionsMenuProps['onRemovePost'];
   origin: Origin;
+  isEnlarged?: boolean;
 }
 
 export function PostMenuOptions({
@@ -31,7 +32,8 @@ export function PostMenuOptions({
   contextMenuId,
   onRemovePost,
   origin,
-}: PostMenuOptionssProps): ReactElement {
+  isEnlarged,
+}: PostMenuOptionsProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
   const { onMenuClick, onHide } = useContextMenu({ id: contextMenuId });
@@ -76,10 +78,11 @@ export function PostMenuOptions({
     <>
       <SimpleTooltip placement="bottom" content="Options">
         <Button
-          variant={ButtonVariant.Tertiary}
           className={!inlineActions && 'ml-auto'}
           icon={<MenuIcon />}
           onClick={onMenuClick}
+          size={isEnlarged ? ButtonSize.Medium : ButtonSize.Small}
+          variant={isEnlarged ? ButtonVariant.Tertiary : ButtonVariant.Float}
         />
       </SimpleTooltip>
       {onClose && (
