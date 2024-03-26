@@ -14,7 +14,13 @@ import {
   ButtonColor,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import React, { ReactElement, useContext, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from 'react';
 import useProfileForm, {
   UpdateProfileParameters,
 } from '@dailydotdev/shared/src/hooks/useProfileForm';
@@ -88,6 +94,36 @@ const AccountProfilePage = (): ReactElement => {
     },
   );
 
+  const onImageInputChange = useCallback(
+    (file: File, fileName?: string, isCover = false) => {
+      if (isCover) {
+        setCoverImage(fileName);
+      }
+
+      if (!file) {
+        return;
+      }
+
+      if (isCover) {
+        uploadCoverImage({
+          image: file,
+        });
+      } else {
+        updateUserProfile({
+          image: file,
+        });
+      }
+    },
+    [updateUserProfile, uploadCoverImage],
+  );
+
+  const CoverHoverIcon = () => (
+    <span className="ml-26 mr-3 flex flex-wrap items-center justify-center text-theme-label-secondary">
+      <CameraIcon size={IconSize.Large} />
+      <span className="ml-1.5 font-bold typo-callout">Upload cover image</span>
+    </span>
+  );
+
   const RenderForm = () => (
     <form ref={formRef} id="submit-profile">
       <AccountContentSection
@@ -105,15 +141,7 @@ const AccountProfilePage = (): ReactElement => {
             }}
             initialValue={user.image}
             hoverIcon={<CameraIcon size={IconSize.Large} />}
-            onChange={(_, file) => {
-              if (!file) {
-                return;
-              }
-
-              updateUserProfile({
-                image: file,
-              });
-            }}
+            onChange={(_, file) => onImageInputChange(file)}
           />
           <ImageInput
             id={coverId}
@@ -127,25 +155,11 @@ const AccountProfilePage = (): ReactElement => {
             initialValue={currentCoverImage}
             fallbackImage={null}
             alwaysShowHover={!currentCoverImage}
-            hoverIcon={
-              <span className="ml-26 mr-3 flex flex-wrap items-center justify-center text-theme-label-secondary">
-                <CameraIcon size={IconSize.Large} />
-                <span className="ml-1.5 font-bold typo-callout">
-                  Upload cover image
-                </span>
-              </span>
-            }
+            hoverIcon={<CoverHoverIcon />}
             fileSizeLimitMB={5}
-            onChange={(fileName, file) => {
-              setCoverImage(fileName);
-              if (!file) {
-                return;
-              }
-
-              uploadCoverImage({
-                image: file,
-              });
-            }}
+            onChange={(fileName, file) =>
+              onImageInputChange(file, fileName, true)
+            }
           />
         </div>
       </AccountContentSection>
