@@ -75,6 +75,20 @@ jobs:
           working_directory: packages/webapp
       - store_test_results:
           path: ./test-results
+  lint_shared:
+    docker:
+      - image: cimg/node:18.16.0
+    resource_class: large
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v6-{{ .Branch }}
+      - run:
+          name: Lint
+          command: npm run pretest
+          working_directory: packages/shared
   test_shared:
     docker:
       - image: cimg/node:18.16.0
@@ -90,7 +104,7 @@ jobs:
           name: Test
           command: |
             TEST=$(circleci tests glob "src/**/*.spec.ts" "src/**/*.spec.tsx" | circleci tests split --split-by=timings)
-            npm run test -- --ci $TEST --reporters=default --reporters=jest-junit
+            ./node_modules/.bin/jest --ci --runInBand $TEST --reporters=default --reporters=jest-junit
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
           working_directory: packages/shared
@@ -107,6 +121,9 @@ workflows:
           requires:
             - install_deps
       - test_webapp:
+          requires:
+            - install_deps
+      - lint_shared:
           requires:
             - install_deps
       - test_shared:
