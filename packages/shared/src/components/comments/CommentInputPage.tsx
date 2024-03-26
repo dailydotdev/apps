@@ -61,7 +61,7 @@ const CommentInputPage = ({
   });
   const post = useMemo(
     () => comment?.post ?? ({ id: postId } as Post),
-    [comment],
+    [comment, postId],
   );
   const parentCommentId = useMemo(
     () => comment?.parent?.id ?? replyCommentId,
