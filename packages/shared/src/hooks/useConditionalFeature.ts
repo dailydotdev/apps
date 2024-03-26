@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { JSONValue, WidenPrimitives } from '@growthbook/growthbook';
-import { useGrowthBook } from '@growthbook/growthbook-react';
 import { useContext } from 'react';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { Feature } from '../lib/featureManagement';
