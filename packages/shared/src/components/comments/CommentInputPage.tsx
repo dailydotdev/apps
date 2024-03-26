@@ -53,7 +53,6 @@ const CommentInputPage = ({
 
   const { comment } = useCommentById({
     id: isEdit ? editCommentId : replyCommentId,
-    postId,
     query: COMMENT_BY_ID_WITH_POST_QUERY,
     options: {
       retry: false,
