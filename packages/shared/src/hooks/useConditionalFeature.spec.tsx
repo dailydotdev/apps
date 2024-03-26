@@ -3,6 +3,8 @@ import { renderHook } from '@testing-library/react-hooks';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useConditionalFeature } from './useConditionalFeature';
 import { Feature } from '../lib/featureManagement';
+import loggedUser from '../../__tests__/fixture/loggedUser';
+import { AuthContextProvider } from '../contexts/AuthContext';
 
 const client = new QueryClient();
 const testFeature: Feature<string> = new Feature<string>(
@@ -11,7 +13,21 @@ const testFeature: Feature<string> = new Feature<string>(
 );
 
 const Wrapper = ({ children }) => {
-  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+  return (
+    <QueryClientProvider client={client}>
+      <AuthContextProvider
+        user={loggedUser}
+        updateUser={jest.fn()}
+        tokenRefreshed
+        getRedirectUri={jest.fn()}
+        loadingUser={false}
+        loadedUserFromCache
+        squads={[]}
+      >
+        {children}
+      </AuthContextProvider>
+    </QueryClientProvider>
+  );
 };
 
 describe('useConditionalFeature hook', () => {
