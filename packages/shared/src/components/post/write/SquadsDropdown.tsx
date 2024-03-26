@@ -64,7 +64,7 @@ export function SquadsDropdown({
       drawerProps={{
         isFullScreen: true,
         title: 'Choose a Squad',
-        className: { drawer: 'p-0 pr-2', title: 'mb-4' },
+        className: { drawer: 'p-0 pr-2 gap-3', title: 'mb-4' },
       }}
     />
   );
