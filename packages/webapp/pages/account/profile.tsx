@@ -69,6 +69,7 @@ const AccountProfilePage = (): ReactElement => {
       portfolio: values.portfolio,
     };
     updateUserProfile(params);
+    router.push(`/${values.username}`);
   };
 
   const { mutate: uploadCoverImage } = useMutation<
