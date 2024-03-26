@@ -29,7 +29,6 @@ jobs:
   build:
     docker:
       - image: cimg/node:18.16.0
-    resource_class: medium+
     steps:
       - checkout
       - restore_cache:
@@ -43,7 +42,6 @@ jobs:
   test_extension:
     docker:
       - image: cimg/node:18.16.0
-    resource_class: medium+
     steps:
       - checkout
       - restore_cache:
@@ -80,6 +78,7 @@ jobs:
     docker:
       - image: cimg/node:18.16.0
     resource_class: medium+
+    parallelism: 3
     steps:
       - checkout
       - restore_cache:
@@ -88,7 +87,9 @@ jobs:
             - deps-v6-{{ .Branch }}
       - run:
           name: Test
-          command: npm run test -- --ci --reporters=default --reporters=jest-junit --runInBand
+          command: |
+            TEST=$(circleci tests glob "src/**/*.spec.ts?" | circleci tests split --split-by=timings)
+            npm run test -- --ci $TEST --reporters=default --reporters=jest-junit --runInBand
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
           working_directory: packages/shared
