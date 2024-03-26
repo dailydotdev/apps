@@ -51,11 +51,9 @@ jobs:
             - deps-v6-{{ checksum "pnpm-lock.yaml" }}
             - deps-v6-{{ .Branch }}
       - run:
-          name: Pretest
-          command: npm run pretest
-      - run:
           name: Test
           command: |
+            npm run pretest
             TEST=$(./node_modules/.bin/jest --listTests)
             echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
           environment:
@@ -75,11 +73,9 @@ jobs:
             - deps-v6-{{ checksum "pnpm-lock.yaml" }}
             - deps-v6-{{ .Branch }}
       - run:
-          name: Pretest
-          command: npm run pretest
-      - run:
           name: Test
           command: |
+            npm run pretest
             TEST=$(./node_modules/.bin/jest --listTests)
             echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
           environment:
