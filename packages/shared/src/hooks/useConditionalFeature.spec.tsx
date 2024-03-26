@@ -1,6 +1,8 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { waitFor } from '@testing-library/react';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import { useConditionalFeature } from './useConditionalFeature';
 import { Feature } from '../lib/featureManagement';
 import loggedUser from '../../__tests__/fixture/loggedUser';
@@ -35,7 +37,7 @@ describe('useConditionalFeature hook', () => {
     client.clear();
   });
 
-  it('should return default value if evaluation is false', async () => {
+  it('should return undefined and isLoading if not ready', async () => {
     const { result } = renderHook(
       () =>
         useConditionalFeature({ feature: testFeature, shouldEvaluate: false }),
@@ -44,7 +46,8 @@ describe('useConditionalFeature hook', () => {
       },
     );
 
-    expect(result.current).toBe('default_value');
+    await waitFor(() => expect(result.current.isLoading).toBeTruthy());
+    expect(result.current.value).toBe(undefined);
   });
 
   it('should return feature value if evaluation is true', async () => {
@@ -56,6 +59,7 @@ describe('useConditionalFeature hook', () => {
       },
     );
 
-    expect(result.current).toBe('default_value');
+    await waitFor(() => expect(result.current.isLoading).toBeFalsy());
+    expect(result.current.value).toBe('default_value');
   });
 });

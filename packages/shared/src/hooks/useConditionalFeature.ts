@@ -7,18 +7,27 @@ import { disabledRefetch } from '../lib/func';
 import AuthContext from '../contexts/AuthContext';
 import { useGrowthBookContext } from '../components/GrowthBookProvider';
 
+interface UseConditionalFeature<T> {
+  value: WidenPrimitives<T>;
+  isLoading: boolean;
+}
 export const useConditionalFeature = <T extends JSONValue>({
   feature,
   shouldEvaluate,
 }: {
   feature: Feature<T>;
   shouldEvaluate: boolean;
-}): WidenPrimitives<T> => {
+}): UseConditionalFeature<T> => {
   const { user } = useContext(AuthContext);
   const { growthbook } = useGrowthBookContext();
-  const queryKey = generateQueryKey(RequestKey.Feature, user, feature.id);
+  const queryKey = generateQueryKey(
+    RequestKey.Feature,
+    user,
+    feature.id,
+    growthbook,
+  );
 
-  const { data: featureValue } = useQuery(
+  const { data: featureValue, isLoading } = useQuery(
     queryKey,
     () => {
       return growthbook
@@ -26,11 +35,10 @@ export const useConditionalFeature = <T extends JSONValue>({
         : (feature.defaultValue as WidenPrimitives<T>);
     },
     {
-      initialData: feature.defaultValue as WidenPrimitives<T>,
       enabled: shouldEvaluate,
       ...disabledRefetch,
     },
   );
 
-  return featureValue;
+  return { value: featureValue, isLoading };
 };

@@ -154,7 +154,7 @@ export default function MainFeedLayout({
     hasCommentFeed && feedName === SharedFeedPage.Discussed;
   const shouldEnrollInForcedTagSelection =
     alerts?.filter && feedName === SharedFeedPage.MyFeed;
-  const showForcedTagSelection = useConditionalFeature({
+  const { value: showForcedTagSelection } = useConditionalFeature({
     feature: feature.forcedTagSelection,
     shouldEvaluate: shouldEnrollInForcedTagSelection,
   });
