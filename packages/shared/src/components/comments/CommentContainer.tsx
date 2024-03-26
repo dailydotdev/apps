@@ -110,7 +110,7 @@ export default function CommentContainer({
             {comment.author.id === postAuthorId && (
               <UserBadge
                 key="author"
-                className="text-theme-status-help"
+                className="text-status-help"
                 content="Creator"
                 Icon={FeatherIcon}
                 iconProps={{
