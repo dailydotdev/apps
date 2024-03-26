@@ -8,6 +8,7 @@ interface ListDrawerProps extends Pick<ListDrawerItemProps, 'customItem'> {
   options: string[];
   selected: number; // index
   onSelectedChange(props: SelectParams): void;
+  shouldIndicateSelected?: boolean;
 }
 
 export function ListDrawer({
@@ -16,6 +17,7 @@ export function ListDrawer({
   selected,
   options,
   customItem,
+  shouldIndicateSelected,
 }: ListDrawerProps): ReactElement {
   const ref = React.useRef<DrawerRef>();
 
@@ -27,7 +29,9 @@ export function ListDrawer({
           value={value}
           index={index}
           customItem={customItem}
-          isSelected={index === selected}
+          isSelected={
+            shouldIndicateSelected === false ? false : index === selected
+          }
           onClick={(params) => {
             onSelectedChange({ ...params, index });
             ref.current?.onClose();

@@ -210,7 +210,7 @@ export function SquadDetails({
               value={activeHandle ?? ''}
               onChange={() => !!handleHint && setHandleHint(null)}
               className={{
-                hint: 'text-theme-status-error',
+                hint: 'text-status-error',
                 container: classNames('w-full', !handleHint && 'mb-1'),
               }}
             />

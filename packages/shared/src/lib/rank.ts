@@ -73,7 +73,7 @@ export const RANKS: Rank[] = [
     level: 6,
     background: 'bg-theme-color-cabbage',
     border: 'border-theme-color-cabbage',
-    color: 'text-theme-color-cabbage',
+    color: 'text-brand-default',
   },
   {
     name: 'Legendary',

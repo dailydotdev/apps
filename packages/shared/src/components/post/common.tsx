@@ -7,7 +7,6 @@ import {
 import { Post } from '../../graphql/posts';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import classed from '../../lib/classed';
-import { ShareBookmarkProps } from './PostActions';
 import { PostOptionsMenuProps } from '../PostOptionsMenu';
 import { PostPosition } from '../../hooks/usePostModalNavigation';
 import {
@@ -27,10 +26,10 @@ type PostActions = Pick<
   PostHeaderActionsProps,
   | 'post'
   | 'onClose'
-  | 'onShare'
   | 'onReadArticle'
   | 'inlineActions'
   | 'onRemovePost'
+  | 'isFixedNavigation'
 >;
 
 export interface PostNavigationClassName {
@@ -58,7 +57,7 @@ export type PassedPostNavigationProps = Pick<
   | 'isBannerVisible'
 >;
 
-export interface PostHeaderActionsProps extends ShareBookmarkProps {
+export interface PostHeaderActionsProps {
   post: Post;
   onReadArticle?: () => void;
   onClose?: MouseEventHandler | KeyboardEventHandler;
@@ -68,6 +67,7 @@ export interface PostHeaderActionsProps extends ShareBookmarkProps {
   notificationClassName?: string;
   contextMenuId: string;
   onRemovePost?: PostOptionsMenuProps['onRemovePost'];
+  isFixedNavigation?: boolean;
 }
 
 export interface PostContentProps
@@ -82,6 +82,7 @@ export interface PostContentProps
   customNavigation?: ReactNode;
   position?: CSSProperties['position'];
   backToSquad?: boolean;
+  isPostPage?: boolean;
 }
 
 export const PostContainer = classed(
@@ -100,4 +101,5 @@ export interface BasePostContentProps extends UsePostContentProps {
   enableShowShareNewComment?: boolean;
   loadingPlaceholder?: ReactNode;
   customNavigation?: ReactNode;
+  isPostPage?: boolean;
 }

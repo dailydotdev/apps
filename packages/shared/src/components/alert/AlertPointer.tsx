@@ -28,8 +28,8 @@ export enum AlertPlacement {
 }
 
 const messageBorder: Record<PointerColor, string> = {
-  [PointerColor.Cabbage]: 'border-theme-status-cabbage',
-  [PointerColor.Success]: 'border-theme-status-success',
+  [PointerColor.Cabbage]: 'border-accent-cabbage-default',
+  [PointerColor.Success]: 'border-status-success',
 };
 
 const pointerClasses: Record<AlertPlacement, string> = {

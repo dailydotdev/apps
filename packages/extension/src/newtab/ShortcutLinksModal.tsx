@@ -1,6 +1,7 @@
 import React, { FormEventHandler, MutableRefObject, ReactElement } from 'react';
 import {
   Button,
+  ButtonColor,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { UserIcon, SitesIcon } from '@dailydotdev/shared/src/components/icons';
@@ -85,7 +86,8 @@ export default function CustomLinksModal({
           <Button
             onClick={onRevokePermission}
             form="shortcuts-modal"
-            variant={ButtonVariant.Secondary}
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Ketchup}
             type="button"
           >
             Revoke access

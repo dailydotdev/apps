@@ -9,7 +9,7 @@ export const SquadSubTitle = classed(
   'p',
   'text-center typo-title3 text-theme-label-tertiary',
 );
-export const SquadTitleColor = classed('span', 'text-theme-color-cabbage');
+export const SquadTitleColor = classed('span', 'text-brand-default');
 
 export const ManageSquadPageContainer = classed(
   BasePageContainer,

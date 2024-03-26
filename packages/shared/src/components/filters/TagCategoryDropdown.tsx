@@ -59,7 +59,7 @@ export default function TagCategoryDropdown({
           isSettings && 'rounded-14 bg-theme-divider-tertiary px-4 py-5',
           isSettings &&
             categoryFollowed &&
-            'border-l-4 border-theme-status-cabbage',
+            'border-l-4 border-accent-cabbage-default',
         )}
       >
         <div className="flex items-center">

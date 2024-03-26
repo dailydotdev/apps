@@ -52,9 +52,7 @@ it('should set hint role as alert when invalid', async () => {
   userEvent.tab();
   userEvent.tab();
   const el = screen.getByText('Hint');
-  await waitFor(() =>
-    expect(el).toHaveStyle({ color: 'var(--theme-status-error)' }),
-  );
+  await waitFor(() => expect(el).toHaveStyle({ color: 'var(--status-error)' }));
   await waitFor(() => expect(el).toHaveAttribute('role', 'alert'));
 });
 

@@ -199,7 +199,7 @@ function BaseFieldContainer(
           className={classNames(
             'mt-1 px-2 typo-caption1',
             saveHintSpace && 'h-4',
-            invalid ? 'text-theme-status-error' : 'text-theme-label-quaternary',
+            invalid ? 'text-status-error' : 'text-theme-label-quaternary',
             className.hint,
           )}
         >

@@ -117,7 +117,7 @@ export const CommentFeedPage = classed(BasePageContainer, '!px-0 !mx-auto');
 
 export const FormErrorMessage = classed(
   'div',
-  'mt-4 text-theme-status-error typo-caption1',
+  'mt-4 text-status-error typo-caption1',
 );
 
 export const ActiveTabIndicator = classed(
@@ -144,16 +144,16 @@ export const SummaryArrow = classed(ArrowIcon, 'icon arrow ml-auto text-xl');
 
 export const SummaryContainer = classed(
   'div',
-  'text-theme-label-secondary multi-truncate border-l border-theme-status-cabbage pl-4',
+  'text-theme-label-secondary multi-truncate border-l border-accent-cabbage-default pl-4',
 );
 
 export const TLDRText = classed(
   'span',
-  'pr-1 font-bold text-theme-status-cabbage',
+  'pr-1 font-bold text-accent-cabbage-default',
 );
 
 export const HotLabel = (): ReactElement => (
-  <div className="rounded-4 bg-theme-status-error px-2 py-px font-bold uppercase text-white typo-caption2">
+  <div className="rounded-4 bg-status-error px-2 py-px font-bold uppercase text-white typo-caption2">
     Hot
   </div>
 );
