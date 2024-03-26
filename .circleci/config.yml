@@ -103,7 +103,7 @@ jobs:
           name: Test
           command: |
             TEST=$(./node_modules/.bin/jest --listTests)
-            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --runInBand --ci --runInBand --" --split-by=timings
+            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
           working_directory: packages/shared
