@@ -11,8 +11,9 @@ import surface from './tailwind/colors/surface';
 import action from './tailwind/colors/action';
 import overlayColors from './tailwind/colors/overlay';
 import border from './tailwind/colors/border';
-import statusColors from './tailwind/colors/status';
+import status from './tailwind/colors/status';
 import text from './tailwind/colors/text';
+import blur from './tailwind/colors/blur';
 import shadow from './tailwind/colors/shadow';
 import overlay from './tailwind/overlay';
 
@@ -26,6 +27,7 @@ export default {
       },
       accent,
       background,
+      blur,
       brand,
       surface,
       action,
@@ -35,7 +37,7 @@ export default {
         ...overlayColors,
       },
       border,
-      status: statusColors,
+      status,
       text,
       shadow,
       black: '#000000',
@@ -53,16 +55,10 @@ export default {
           bun: 'var(--theme-background-bun)',
           onion: 'var(--theme-background-onion)',
           pepper: 'var(--theme-background-pepper)',
-          pepper40: 'var(--theme-background-pepper-40)',
           mention: {
             primary: 'var(--theme-mention)',
             hover: 'var(--theme-mention-hover)',
           },
-          'cabbage-opacity-24': 'var(--theme-background-cabbage-opacity-24)',
-          'overlay-cabbage-opacity': 'var(--theme-overlay-cabbage-opacity)',
-          'overlay-onion-opacity': 'var(--theme-overlay-onion-opacity)',
-          popover: 'var(--theme-background-popover)',
-          subtle: 'var(--theme-background-subtle)',
         },
         surface: {
           invert: 'var(--theme-surface-invert)',
@@ -104,15 +100,6 @@ export default {
         gradient: {
           cabbage: 'var(--theme-gradient-cabbage)',
           onion: 'var(--theme-gradient-onion)',
-        },
-        status: {
-          error: 'var(--theme-status-error)',
-          help: 'var(--theme-status-help)',
-          fill: 'var(--theme-status-fill)',
-          success: 'var(--theme-status-success)',
-          warning: 'var(--theme-status-warning)',
-          cabbage: 'var(--theme-status-cabbage)',
-          invert: { cabbage: 'var(--theme-status-cabbage-invert)' },
         },
         color: {
           burger: 'var(--theme-color-burger)',

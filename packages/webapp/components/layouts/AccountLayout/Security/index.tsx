@@ -266,7 +266,7 @@ function AccountSecurityDefault({
       <AccountContentSection title="🚨 Danger Zone">
         <AccountDangerZone
           onDelete={() => deleteAccountPrompt()}
-          className="relative mt-6 overflow-hidden rounded-26 border border-theme-status-error px-6 py-4"
+          className="relative mt-6 overflow-hidden rounded-26 border border-status-error px-6 py-4"
         >
           <AlertBackground className="bg-overlay-quaternary-ketchup" />
         </AccountDangerZone>

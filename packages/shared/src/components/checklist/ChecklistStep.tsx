@@ -36,14 +36,13 @@ const ChecklistStep = ({
           >
             <div
               className={classNames(
-                isActive &&
-                  'bg-theme-bg-raw-cabbage-opacity-24 rounded-full p-1',
+                isActive && 'rounded-full bg-brand-active p-1',
               )}
               data-testid={`checklist-step-${isActive ? 'active' : 'inactive'}`}
             >
               <ChecklistAIcon
                 className={classNames(
-                  isActive && 'text-theme-color-cabbage',
+                  isActive && 'text-brand-default',
                   className.checkmark,
                 )}
                 data-testid={`checklist-step-${

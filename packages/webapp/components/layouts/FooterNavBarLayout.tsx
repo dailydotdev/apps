@@ -4,15 +4,20 @@ import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/Prog
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
+import { Post } from '@dailydotdev/shared/src/graphql/posts';
 
 const FooterNavBar = dynamic(
   () => import(/* webpackChunkName: "footerNavBar" */ '../FooterNavBar'),
 );
 
-type FooterNavBarLayoutProps = { children?: ReactNode };
+interface FooterNavBarLayoutProps {
+  children?: ReactNode;
+  post?: Post;
+}
 
 export default function FooterNavBarLayout({
   children,
+  post,
 }: FooterNavBarLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { sidebarRendered } = useSidebarRendered();
@@ -33,6 +38,10 @@ export default function FooterNavBarLayout({
 
   return (
     <>
+      <FooterNavBar
+        showNav={sidebarRendered === false && windowLoaded}
+        post={post}
+      />
       <FooterNavBar showNav={showNav} />
       {children}
     </>

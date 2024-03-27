@@ -62,7 +62,7 @@ export function Referral({
         </span>
         <h1 className="break-words-overflow w-full text-center typo-large-title tablet:typo-mega2 laptop:text-left laptopL:typo-giga2">
           The homepage
-          <span className="block font-bold text-theme-color-cabbage">
+          <span className="block font-bold text-brand-default">
             {' '}
             developers deserve
           </span>

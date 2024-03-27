@@ -11,8 +11,8 @@ const PointerPoint = classed('i', 'w-1.5 h-1.5 rounded-full block');
 const PointerLine = classed('i', 'w-px h-3.5  block');
 
 export enum PointerColor {
-  Success = 'bg-theme-status-success',
-  Cabbage = 'bg-theme-status-cabbage',
+  Success = 'bg-status-success',
+  Cabbage = 'bg-accent-cabbage-default',
 }
 
 interface PointerProps {

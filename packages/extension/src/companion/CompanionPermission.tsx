@@ -68,7 +68,7 @@ const CompanionPermissionComponent = (
           defaultTypo={false}
           href={companionExplainerVideo}
           className="mx-auto mt-2 text-center"
-          textClassName="text-theme-status-cabbage typo-footnote"
+          textClassName="text-accent-cabbage-default typo-footnote"
         >
           {link}
         </ClickableText>

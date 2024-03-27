@@ -50,6 +50,7 @@ export type DOMEventMapDefinitions = [
   [TextTrack, TextTrackEventMap],
   [TextTrackCue, TextTrackCueEventMap],
   [TextTrackList, TextTrackListEventMap],
+  [VisualViewport, VisualViewportEventMap],
   [WebSocket, WebSocketEventMap],
   [Window, WindowEventMap],
   [WindowEventHandlers, WindowEventHandlersEventMap],

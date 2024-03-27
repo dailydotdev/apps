@@ -1,7 +1,6 @@
 import React, {
   CSSProperties,
   ReactElement,
-  ReactNode,
   useContext,
   useState,
 } from 'react';
@@ -31,17 +30,12 @@ import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContex
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import SquadPostContent from '@dailydotdev/shared/src/components/post/SquadPostContent';
-import SquadPostPageNavigation from '@dailydotdev/shared/src/components/post/SquadPostPageNavigation';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { ONBOARDING_OFFSET } from '@dailydotdev/shared/src/components/post/BasePostContent';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import Link from 'next/link';
 import { CollectionPostContent } from '@dailydotdev/shared/src/components/post/collection';
-import { PostBackButton } from '@dailydotdev/shared/src/components/post/common/PostBackButton';
 import {
   AuthenticationBanner,
   authGradientBg,
@@ -49,18 +43,18 @@ import {
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth/useOnboarding';
 import {
   useJoinReferral,
-  useFeedLayout,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import LoginButton from '@dailydotdev/shared/src/components/LoginButton';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { getLayout } from '../../../components/layouts/MainLayout';
+import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
 import {
   getSeoDescription,
   PostSEOSchema,
 } from '../../../components/PostSEOSchema';
-import { getLayout } from '../../../components/layouts/MainLayout';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
@@ -115,7 +109,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
-  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
   const { isFallback } = router;
   const { shouldShowAuthBanner } = useOnboarding();
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -124,7 +117,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     options: { initialData, retry: false },
   });
   const containerClass = classNames(
-    'max-w-screen-laptop pb-20 laptop:min-h-page laptop:pb-6 laptopL:pb-0',
+    'mb-16 max-w-screen-laptop tablet:mb-8 laptop:mb-0 laptop:min-h-page laptop:pb-6 laptopL:pb-0',
     [PostType.Share, PostType.Welcome, PostType.Freeform].includes(post?.type),
   );
   const seoTitle = () => {
@@ -166,50 +159,13 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
   }
 
   const Content = CONTENT_MAP[post?.type];
-  const shareNavigation = !post?.source ? (
-    <></>
-  ) : (
-    <SquadPostPageNavigation squadLink={post.source.permalink} />
-  );
-
-  const articleNavigation = (() => {
-    const routedFromSquad = router?.query?.squad;
-    const squadLink = `/squads/${router.query.squad}`;
-
-    if (shouldUseMobileFeedLayout) {
-      return <PostBackButton link={routedFromSquad ? squadLink : undefined} />;
-    }
-
-    if (!routedFromSquad) {
-      return <></>;
-    }
-
-    return (
-      <Link href={squadLink}>
-        <a className="flex flex-row items-center font-bold text-theme-label-tertiary typo-callout">
-          <ArrowIcon size={IconSize.Medium} className="mr-2 -rotate-90" />
-          Back to {router.query.n || 'Squad'}
-        </a>
-      </Link>
-    );
-  })();
-
-  const navigation: Record<PostType, ReactNode> = {
-    article: articleNavigation,
-    share: shareNavigation,
-    welcome: shareNavigation,
-    freeform: shareNavigation,
-    [PostType.VideoYouTube]: articleNavigation,
-    collection: articleNavigation,
-  };
-  const customNavigation = navigation[post?.type] ?? navigation.article;
 
   if (!Content || isError) {
     return <Custom404 />;
   }
 
   return (
-    <>
+    <FooterNavBarLayout post={post}>
       <Head>
         <link rel="preload" as="image" href={post?.image} />
       </Head>
@@ -217,9 +173,9 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
       <PostSEOSchema post={post} />
       <Content
         position={position}
+        isPostPage
         post={post}
         isFallback={isFallback}
-        customNavigation={customNavigation}
         backToSquad={!!router?.query?.squad}
         shouldOnboardAuthor={!!router.query?.author}
         enableShowShareNewComment={!!router?.query.new}
@@ -232,11 +188,11 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
             container: 'flex tablet:hidden',
             actions: 'flex-1 justify-between',
           },
-          content: 'pt-8',
+          content: 'laptop:pt-8',
         }}
       />
       {shouldShowAuthBanner && isLaptop && <AuthenticationBanner />}
-    </>
+    </FooterNavBarLayout>
   );
 };
 
