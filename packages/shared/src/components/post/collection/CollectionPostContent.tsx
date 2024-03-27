@@ -98,15 +98,6 @@ export const CollectionPostContent = ({
         className={classNames('relative', className?.content)}
         data-testid="postContainer"
       >
-        {!hasNavigation && (
-          <CollectionPostHeaderActions
-            post={post}
-            onClose={onClose}
-            className="flex tablet:hidden"
-            contextMenuId="post-widgets-context"
-          />
-        )}
-
         <BasePostContent
           className={{
             ...className,
