@@ -64,7 +64,7 @@ export function NavDrawer({
       )}
       <NavDrawerContent>
         {items.map((item) => (
-          <NavDrawerItem key={item.label} {...item} />
+          <NavDrawerItem key={item.label} {...item} drawerRef={ref} />
         ))}
       </NavDrawerContent>
     </Drawer>
