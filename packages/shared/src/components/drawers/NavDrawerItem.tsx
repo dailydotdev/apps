@@ -7,7 +7,7 @@ import { DrawerRef } from './Drawer';
 export type NavItemProps = ButtonProps<'a'> & {
   label: string;
   isHeader?: boolean;
-  ref?: MutableRefObject<DrawerRef>;
+  drawerRef?: MutableRefObject<DrawerRef>;
 };
 
 const NavDrawerHeaderItem = ({ label }: { label: string }): ReactElement => (
@@ -20,7 +20,7 @@ export function NavDrawerItem({
   isHeader = false,
   href,
   label,
-  ref,
+  drawerRef,
   onClick,
   ...rest
 }: NavItemProps): ReactElement {
@@ -45,8 +45,8 @@ export function NavDrawerItem({
             onClick(e);
           }
 
-          if (ref?.current) {
-            ref.current?.onClose();
+          if (drawerRef?.current) {
+            drawerRef.current?.onClose();
           }
         }}
       >
