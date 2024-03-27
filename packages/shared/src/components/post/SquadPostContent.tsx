@@ -86,6 +86,7 @@ function SquadPostContent({
         className={classNames(
           'relative flex-1 flex-col tablet:flex-row tablet:pb-0',
           className?.container,
+          isPostPage && 'pt-6 tablet:pt-0',
         )}
         hasNavigation={hasNavigation}
       >
