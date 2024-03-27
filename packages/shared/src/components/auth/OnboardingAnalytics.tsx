@@ -5,6 +5,7 @@ import { isProduction } from '../../lib/constants';
 export const FB_PIXEL_ID = '519268979315924';
 export const GA_TRACKING_ID = 'AW-619408403';
 export const TWITTER_TRACKING_ID = 'o6izs';
+export const REDDIT_TRACKING_ID = 't2_j1li1n7e';
 
 export const PixelTracking = (): ReactElement => {
   if (!isProduction) {
@@ -68,6 +69,21 @@ export const TwitterTracking = (): ReactElement => {
   );
 };
 
+export const RedditTracking = (): ReactElement => {
+  if (!isProduction) {
+    return null;
+  }
+
+  return (
+    <Script
+      id="reddit-pixel"
+      src="/scripts/reddit.js"
+      strategy="afterInteractive"
+      data-reddit-id={REDDIT_TRACKING_ID}
+    />
+  );
+};
+
 export const trackAnalyticsSignUp = (): void => {
   if (typeof globalThis.gtag === 'function') {
     globalThis.gtag('event', 'signup');
@@ -79,5 +95,9 @@ export const trackAnalyticsSignUp = (): void => {
 
   if (typeof globalThis.twq === 'function') {
     globalThis.twq('event', 'tw-o6izs-okoq6', {});
+  }
+
+  if (typeof globalThis.rdt === 'function') {
+    globalThis.rdt('track', 'SignUp');
   }
 };
