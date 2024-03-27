@@ -11,7 +11,7 @@ import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import { webappUrl } from '../../lib/constants';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 
-function NotificationsBell(): ReactElement {
+function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
   const { isNewMobileLayout } = useMobileUxExperiment();
@@ -52,7 +52,12 @@ function NotificationsBell(): ReactElement {
           }
         />
         {hasNotification && (
-          <Bubble className="-right-1.5 -top-1.5 cursor-pointer px-1">
+          <Bubble
+            className={classNames(
+              '-right-1.5 -top-1.5 cursor-pointer px-1',
+              compact && 'right-0 top-0',
+            )}
+          >
             {getUnreadText(unreadCount)}
           </Bubble>
         )}
