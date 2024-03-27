@@ -43,7 +43,6 @@ import { labels } from '@dailydotdev/shared/src/lib';
 import { SimpleSquadJoinButton } from '@dailydotdev/shared/src/components/squads/SquadJoinButton';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import classNames from 'classnames';
-import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { getSquadOpenGraph } from '../../../next-seo';
 
@@ -81,7 +80,6 @@ const SquadReferral = ({
   const { displayToast } = useToastNotification();
   const { showLogin, user: loggedUser } = useAuthContext();
   const [trackedImpression, setTrackedImpression] = useState(false);
-  const { isNewMobileLayout } = useMobileUxExperiment();
   const { data: member, isFetched } = useQuery(
     ['squad_referral', token, loggedUser?.id],
     () => getSquadInvitation(token),
