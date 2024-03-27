@@ -82,13 +82,21 @@ export default function CommentFeed<T>({
   }
 
   if (showEmptyScreen && emptyScreen) {
-    return <>{emptyScreen}</>;
+    return (
+      <>
+        {isNewMobileLayout && isMainFeed && (
+          <FeedSelector className="self-start py-8" />
+        )}
+
+        {emptyScreen}
+      </>
+    );
   }
 
   return (
     <>
       {isNewMobileLayout && isMainFeed && (
-        <FeedSelector className="self-start" />
+        <FeedSelector className="self-start py-8" />
       )}
 
       <InfiniteScrolling
@@ -104,7 +112,7 @@ export default function CommentFeed<T>({
             <MainComment
               key={node.id}
               className={{ ...commentClassName,
-                container: classNames(commentClassName.container, index && isNewMobileLayout && isMainFeed && 'border-t-1 rounded-t-24'),
+                container: classNames(commentClassName.container, index === 0 && isNewMobileLayout && isMainFeed && 'border-t rounded-t-24'),
               }}
               post={node.post}
               comment={node}
