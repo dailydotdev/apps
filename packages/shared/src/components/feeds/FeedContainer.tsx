@@ -15,6 +15,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
 import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
+import { useReadingStreak } from '../../hooks/streaks';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -108,6 +109,7 @@ export const FeedContainer = ({
   } = useContext(SettingsContext);
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { isNewMobileLayout } = useMobileUxExperiment();
+  const { isEnabled: isStreaksEnabled } = useReadingStreak();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
@@ -151,7 +153,12 @@ export const FeedContainer = ({
           {isSearch && !shouldUseMobileFeedLayout && (
             <span className="flex flex-1 flex-row items-center">
               {!!actionButtons && (
-                <span className="mr-auto flex w-full flex-row gap-3 border-theme-divider-tertiary pr-3">
+                <span
+                  className={classNames(
+                    'mr-auto flex flex-row gap-3 border-theme-divider-tertiary pr-3',
+                    isNewMobileLayout && isStreaksEnabled && 'w-full',
+                  )}
+                >
                   {actionButtons}
                 </span>
               )}
