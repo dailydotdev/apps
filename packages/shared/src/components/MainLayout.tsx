@@ -92,7 +92,7 @@ function MainLayoutComponent({
 
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { shouldUseMobileFeedLayout } = useFeedLayout();
-  const { useNewMobileLayout } = useMobileUxExperiment();
+  const { isNewMobileLayout } = useMobileUxExperiment();
 
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useAuthErrors();

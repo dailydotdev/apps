@@ -14,7 +14,7 @@ import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 function NotificationsBell(): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
-  const { useNewMobileLayout } = useMobileUxExperiment();
+  const { isNewMobileLayout } = useMobileUxExperiment();
   const hasNotification = !!unreadCount;
   const atNotificationsPage = checkAtNotificationsPage();
   const onNavigateNotifications = () => {
@@ -33,12 +33,12 @@ function NotificationsBell(): ReactElement {
       <div
         className={classNames(
           'relative laptop:flex',
-          !useNewMobileLayout && 'hidden',
+          !isNewMobileLayout && 'hidden',
         )}
       >
         <Button
           variant={
-            useNewMobileLayout ? ButtonVariant.Option : ButtonVariant.Float
+            isNewMobileLayout ? ButtonVariant.Option : ButtonVariant.Float
           }
           onClick={onNavigateNotifications}
           icon={

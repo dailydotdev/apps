@@ -107,7 +107,7 @@ export const FeedContainer = ({
     loadedSettings,
   } = useContext(SettingsContext);
   const { shouldUseMobileFeedLayout } = useFeedLayout();
-  const { useNewMobileLayout } = useMobileUxExperiment();
+  const { isNewMobileLayout } = useMobileUxExperiment();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
@@ -169,7 +169,7 @@ export const FeedContainer = ({
                 )}
               >
                 <span className="flex w-full flex-row items-center justify-between px-6 py-4">
-                  {!useNewMobileLayout && (
+                  {!isNewMobileLayout && (
                     <strong className="typo-title3">
                       {feedNameToHeading[feedName] ?? ''}
                     </strong>
@@ -177,7 +177,7 @@ export const FeedContainer = ({
                   <span
                     className={classNames(
                       'flex flex-row gap-3',
-                      useNewMobileLayout && 'w-full',
+                      isNewMobileLayout && 'w-full',
                     )}
                   >
                     {actionButtons}

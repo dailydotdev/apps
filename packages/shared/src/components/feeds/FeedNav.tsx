@@ -14,7 +14,7 @@ enum FeedNavTab {
 function FeedNav(): ReactElement {
   const router = useRouter();
   const shouldRenderNav = useMemo(() => {
-    return /(\/|\/popular|\/bookmarks|\/history|\/notifications)$/.test(
+    return /(\/|\/my-feed|\/popular|\/upvoted|\/discussed|\/bookmarks|\/history|\/notifications)$/.test(
       router?.pathname,
     );
   }, [router?.pathname]);

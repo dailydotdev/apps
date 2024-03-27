@@ -6,7 +6,7 @@ import { Button, ButtonProps, ButtonVariant } from './buttons/Button';
 
 export const EmptyScreenContainer = classed(
   'div',
-  'flex flex-col justify-center items-center px-6 w-full max-w-screen-tablet h-screen max-h-full -mt-12',
+  'flex flex-col justify-center items-center px-6 w-full max-w-screen-tablet h-[calc(100vh-3rem)] max-h-full',
 );
 
 export const EmptyScreenTitle = classed('h2', 'my-4 text-center typo-title1');

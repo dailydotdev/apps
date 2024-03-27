@@ -2,8 +2,10 @@ import React, {
   Dispatch,
   ReactElement,
   SetStateAction,
+  useCallback,
   useContext,
 } from 'react';
+import { useRouter } from 'next/router';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
@@ -11,12 +13,21 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Dropdown, DropdownProps } from '../fields/Dropdown';
 import { ButtonSize } from '../buttons/common';
-import { CalendarIcon, SortIcon } from '../icons';
+import {
+  CalendarIcon,
+  DiscussIcon,
+  HotIcon,
+  SortIcon,
+  UpvoteIcon,
+} from '../icons';
 import { IconSize } from '../Icon';
 import { RankingAlgorithm } from '../../graphql/feed';
 import SettingsContext from '../../contexts/SettingsContext';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useFeedLayout } from '../../hooks';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
+import FeedSelector from '../FeedSelector';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -50,8 +61,11 @@ export const SearchControlHeader = ({
 }: SearchControlHeaderProps): ReactElement => {
   const { openModal } = useLazyModal();
   const { sortingEnabled } = useContext(SettingsContext);
-  const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
+  const { isUpvoted, isPopular, isDiscussed, isSortableFeed } = useFeedName({
+    feedName,
+  });
   const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { isNewMobileLayout } = useMobileUxExperiment();
   const openFeedFilters = () =>
     openModal({ type: LazyModal.FeedFilters, persistOnRouteChange: true });
 
@@ -91,5 +105,17 @@ export const SearchControlHeader = ({
   ];
   const actions = actionButtons.filter((button) => !!button);
 
-  return actions?.length ? <>{actions}</> : null;
+  return (
+    <ConditionalWrapper
+      condition={isNewMobileLayout && (isPopular || isUpvoted || isDiscussed)}
+      wrapper={(children) => (
+        <div className="flex items-center justify-between">
+          <FeedSelector currentFeed={feedName} />
+          <div>{children}</div>
+        </div>
+      )}
+    >
+      {actions}
+    </ConditionalWrapper>
+  );
 };

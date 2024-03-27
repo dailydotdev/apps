@@ -140,9 +140,9 @@ export default function MainFeedLayout({
   const feedVersion = useFeature(feature.feedVersion);
   const searchVersion = useFeature(feature.searchVersion);
   const hasCommentFeed = useFeature(feature.commentFeed);
-  const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
+  const { isUpvoted, isPopular, isSortableFeed } = useFeedName({ feedName });
   const { shouldUseMobileFeedLayout } = useFeedLayout();
-  const { useNewMobileLayout } = useMobileUxExperiment();
+  const { isNewMobileLayout } = useMobileUxExperiment();
   const shouldUseCommentFeedLayout =
     hasCommentFeed && feedName === SharedFeedPage.Discussed;
   let query: { query: string; variables?: Record<string, unknown> };
@@ -184,7 +184,7 @@ export default function MainFeedLayout({
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
-    const feedWithActions = isUpvoted || isSortableFeed;
+    const feedWithActions = isUpvoted || isPopular || isSortableFeed;
     // in v1 search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
     if (isSearchOn && !searchQuery) {
@@ -234,7 +234,7 @@ export default function MainFeedLayout({
       ),
       query: query.query,
       variables,
-      emptyScreen: <FeedEmptyScreen />,
+      emptyScreen: <FeedEmptyScreen feedName={feedName} />,
       header: null,
       actionButtons: feedWithActions && (
         <SearchControlHeader {...searchProps} />
@@ -276,7 +276,7 @@ export default function MainFeedLayout({
       className={classNames(
         'relative',
         disableTopPadding && '!pt-0',
-        useNewMobileLayout && 'tablet:pl-22',
+        isNewMobileLayout && 'tablet:pl-22',
       )}
     >
       {isSearchOn && search}

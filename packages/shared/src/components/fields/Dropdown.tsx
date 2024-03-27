@@ -20,6 +20,7 @@ import { SelectParams } from '../drawers/common';
 import { RootPortal } from '../tooltips/Portal';
 import { DrawerProps } from '../drawers';
 import { Button, ButtonSize } from '../buttons/Button';
+import { IconProps } from '../Icon';
 
 interface ClassName {
   container?: string;
@@ -143,7 +144,10 @@ export function Dropdown({
         aria-expanded={isVisible}
       >
         {icon &&
-          React.cloneElement(icon as ReactElement, { secondary: isVisible })}
+          React.cloneElement(icon as ReactElement<IconProps>, {
+            secondary:
+              (icon as ReactElement<IconProps>).props.secondary ?? isVisible,
+          })}
         <span
           className={classNames('mr-1 flex flex-1 truncate', className.label)}
         >
