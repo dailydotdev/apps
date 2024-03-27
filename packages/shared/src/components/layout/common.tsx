@@ -2,10 +2,8 @@ import React, {
   Dispatch,
   ReactElement,
   SetStateAction,
-  useCallback,
   useContext,
 } from 'react';
-import { useRouter } from 'next/router';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
@@ -13,13 +11,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Dropdown, DropdownProps } from '../fields/Dropdown';
 import { ButtonSize } from '../buttons/common';
-import {
-  CalendarIcon,
-  DiscussIcon,
-  HotIcon,
-  SortIcon,
-  UpvoteIcon,
-} from '../icons';
+import { CalendarIcon, SortIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { RankingAlgorithm } from '../../graphql/feed';
 import SettingsContext from '../../contexts/SettingsContext';

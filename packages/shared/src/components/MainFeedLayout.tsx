@@ -46,7 +46,6 @@ import CommentFeed from './CommentFeed';
 import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/analytics';
-import FeedNav from './feeds/FeedNav';
 import { useMobileUxExperiment } from '../hooks/useMobileUxExperiment';
 
 const SearchEmptyScreen = dynamic(

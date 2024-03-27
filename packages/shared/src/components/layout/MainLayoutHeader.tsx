@@ -16,7 +16,6 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { LogoPosition } from '../Logo';
-import { UserStreak } from '../../graphql/users';
 import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import NotificationsBell from '../notifications/NotificationsBell';
 import FeedNav from '../feeds/FeedNav';
