@@ -34,9 +34,24 @@ export function ReportModal({
   const [reason, setReason] = useState(null);
   const [note, setNote] = useState<string>();
   const isMobile = useViewSize(ViewSize.MobileL);
+  const submitButtonProps = {
+    disabled: !reason || (reason === OTHER_KEY && !note) || disabled,
+    onClick: (e) => onReport(e, reason, note),
+  };
 
   return (
-    <Modal isOpen kind={Modal.Kind.FixedCenter} {...props}>
+    <Modal
+      isOpen
+      kind={Modal.Kind.FixedCenter}
+      {...props}
+      formProps={{
+        form: null,
+        title: heading,
+        rightButtonProps: submitButtonProps,
+        className: 'w-full',
+        copy: { right: 'Submit report' },
+      }}
+    >
       <Modal.Header title={heading} />
       <Modal.Body className="py-5">
         {title && (
