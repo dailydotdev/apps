@@ -29,7 +29,10 @@ export default function AccountLayout({
   children,
 }: AccountLayoutProps): ReactElement {
   const { user: profile, isFetched, logout } = useContext(AuthContext);
-  const [isOpen, setIsOpen] = useQueryState(navigationKey, false);
+  const [isOpen, setIsOpen] = useQueryState({
+    key: navigationKey,
+    defaultValue: false,
+  });
   const isMobile = useViewSize(ViewSize.MobileL);
 
   if (!profile || !Object.keys(profile).length || (isFetched && !profile)) {

@@ -13,10 +13,15 @@ type UseQueryState<T> = [
   Omit<UseQueryResult<T>, 'data'>,
 ];
 
-export const useQueryState = <T>(
-  key: QueryKey,
-  defaultValue: T,
-): UseQueryState<T> => {
+interface UseQueryStateProps<T> {
+  key: QueryKey;
+  defaultValue: T;
+}
+
+export const useQueryState = <T>({
+  key,
+  defaultValue,
+}: UseQueryStateProps<T>): UseQueryState<T> => {
   const client = useQueryClient();
   const { data, ...rest } = useQuery<T>(key, () => client.getQueryData(key), {
     ...disabledRefetch,

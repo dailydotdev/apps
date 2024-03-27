@@ -38,7 +38,10 @@ export const AccountPageContainer = ({
   className = {},
   onBack,
 }: AccountPageContainerProps): ReactElement => {
-  const [, setIsOpen] = useQueryState(navigationKey, false);
+  const [, setIsOpen] = useQueryState({
+    key: navigationKey,
+    defaultValue: false,
+  });
 
   return (
     <AccountPageContent className={classNames('relative', className.container)}>
