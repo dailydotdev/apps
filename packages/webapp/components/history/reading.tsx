@@ -16,8 +16,6 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import ReadingHistoryEmptyScreen from '@dailydotdev/shared/src/components/history/ReadingHistoryEmptyScreen';
-import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
-import classNames from 'classnames';
 
 const PostsSearch = dynamic(
   () =>

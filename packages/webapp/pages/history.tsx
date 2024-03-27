@@ -6,10 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { NextSeo } from 'next-seo';
-import {
-  ResponsivePageContainer,
-  SharedFeedPage,
-} from '@dailydotdev/shared/src/components/utilities';
+import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { useRouter } from 'next/router';
 import {
   Tab,
@@ -23,12 +20,6 @@ import classNames from 'classnames';
 import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
-import {
-  DiscussIcon,
-  HotIcon,
-  UpvoteIcon,
-} from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { HistoryType, ReadingHistory } from '../components/history';
 import ProtectedPage from '../components/ProtectedPage';
 import { getLayout } from '../components/layouts/MainLayout';
