@@ -13,8 +13,9 @@ enum FeedNavTab {
 
 function FeedNav(): ReactElement {
   const router = useRouter();
+
   const shouldRenderNav = useMemo(() => {
-    return /(\/|\/my-feed|\/popular|\/upvoted|\/discussed|\/bookmarks|\/history|\/notifications)$/.test(
+    return /(?<!\/.+)\/(?:my-feed|popular|upvoted|discussed|bookmarks|history|notifications|)$/.test(
       router?.pathname,
     );
   }, [router?.pathname]);
@@ -42,7 +43,7 @@ function FeedNav(): ReactElement {
         <Tab label={FeedNavTab.History} url="/history" />
       </TabContainer>
 
-      <div className="fixed right-0 top-0 my-1 mr-0.5 flex h-12 w-36 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-60% to-background-default">
+      <div className="fixed right-0 top-0 my-1 mr-1 flex h-12 w-36 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-60% to-background-default">
         <NotificationsBell />
       </div>
     </div>

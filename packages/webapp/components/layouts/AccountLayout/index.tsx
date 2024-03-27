@@ -4,6 +4,8 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
+import classNames from 'classnames';
+import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import { ProfileSettingsMenu } from '@dailydotdev/shared/src/components/profile/ProfileSettingsMenu';
 import {
   generateQueryKey,
@@ -28,6 +30,7 @@ export const navigationKey = generateQueryKey(
 export default function AccountLayout({
   children,
 }: AccountLayoutProps): ReactElement {
+  const { isNewMobileLayout } = useMobileUxExperiment();
   const { user: profile, isFetched, logout } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useQueryState({
     key: navigationKey,
@@ -60,7 +63,12 @@ export default function AccountLayout({
         <link rel="preload" as="image" href={profile.image} />
       </Head>
       <NextSeo {...Seo} noindex nofollow />
-      <main className="relative mx-auto flex w-full flex-1 flex-row items-stretch pt-0 laptop:max-w-[calc(100vw-17.5rem)]">
+      <main
+        className={classNames(
+          'relative mx-auto flex w-full flex-1 flex-row items-stretch pt-0 laptop:max-w-[calc(100vw-17.5rem)]',
+          isNewMobileLayout && 'tablet:pl-16',
+        )}
+      >
         {isMobile ? (
           <ProfileSettingsMenu
             isOpen={isOpen}

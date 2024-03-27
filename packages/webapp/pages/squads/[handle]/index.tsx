@@ -38,6 +38,7 @@ import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
+import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage, {
@@ -92,6 +93,7 @@ const SquadPage = ({
   const { user, isFetched: isBootFetched } = useContext(AuthContext);
   const [trackedImpression, setTrackedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
+  const { isNewMobileLayout } = useMobileUxExperiment();
 
   const squadId = squad?.id;
 
@@ -179,7 +181,12 @@ const SquadPage = ({
       fallback={<></>}
       shouldFallback={!user}
     >
-      <BaseFeedPage className="relative mb-4 pt-2 laptop:pt-8">
+      <BaseFeedPage
+        className={classNames(
+          'relative mb-4 pt-2 laptop:pt-8',
+          isNewMobileLayout && 'tablet:pl-16',
+        )}
+      >
         <div
           className={classNames(
             'squad-background-fade absolute top-0 h-full w-full',

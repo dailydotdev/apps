@@ -21,6 +21,8 @@ import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squad
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
+import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
+import classNames from 'classnames';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
@@ -39,6 +41,7 @@ const NewSquad = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const { addSquad } = useBoot();
   const { completeAction } = useActions();
+  const { isNewMobileLayout } = useMobileUxExperiment();
   const [form] = useState<Partial<SquadForm>>({
     public: false,
   });
@@ -78,7 +81,9 @@ const NewSquad = (): ReactElement => {
   return (
     <ManageSquadPageContainer>
       <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
-      <ManageSquadPageMain>
+      <ManageSquadPageMain
+        className={classNames(isNewMobileLayout && 'tablet:pl-16')}
+      >
         <div
           style={{
             backgroundImage: `url(${cloudinary.squads.createSquad})`,

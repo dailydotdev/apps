@@ -31,6 +31,8 @@ import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
+import classNames from 'classnames';
+import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -55,6 +57,7 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
   const queryClient = useQueryClient();
   const { updateSquad } = useBoot();
   const { displayToast } = useToastNotification();
+  const { isNewMobileLayout } = useMobileUxExperiment();
 
   const onSubmit = async (e, form: SquadForm) => {
     e.preventDefault();
@@ -97,7 +100,9 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
   return (
     <ManageSquadPageContainer>
       <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
-      <ManageSquadPageMain>
+      <ManageSquadPageMain
+        className={classNames(isNewMobileLayout && 'tablet:pl-16')}
+      >
         <ManageSquadPageHeader>
           <Button
             className="mr-2"
