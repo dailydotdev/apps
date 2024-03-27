@@ -1,11 +1,13 @@
-import React, { ReactElement } from 'react';
+import React, { MutableRefObject, ReactElement, Ref } from 'react';
 import Link from 'next/link';
 import { Button, ButtonProps, ButtonVariant } from '../buttons/Button';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { DrawerRef } from './Drawer';
 
 export type NavItemProps = ButtonProps<'a'> & {
   label: string;
   isHeader?: boolean;
+  ref?: MutableRefObject<DrawerRef>;
 };
 
 const NavDrawerHeaderItem = ({ label }: { label: string }): ReactElement => (
@@ -18,6 +20,8 @@ export function NavDrawerItem({
   isHeader = false,
   href,
   label,
+  ref,
+  onClick,
   ...rest
 }: NavItemProps): ReactElement {
   if (isHeader) {
@@ -36,6 +40,15 @@ export function NavDrawerItem({
         tag={href ? 'a' : 'button'}
         variant={ButtonVariant.Option}
         {...rest}
+        onClick={(e) => {
+          if (onClick) {
+            onClick(e);
+          }
+
+          if (ref?.current) {
+            ref.current?.onClose();
+          }
+        }}
       >
         {label}
       </Button>

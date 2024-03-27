@@ -64,16 +64,7 @@ export function NavDrawer({
       )}
       <NavDrawerContent>
         {items.map((item) => (
-          <NavDrawerItem
-            key={item.label}
-            {...item}
-            onClick={(e) => {
-              if (item.onClick) {
-                item.onClick(e);
-              }
-              ref.current?.onClose();
-            }}
-          />
+          <NavDrawerItem key={item.label} {...item} />
         ))}
       </NavDrawerContent>
     </Drawer>
