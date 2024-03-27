@@ -5,7 +5,10 @@ import { generateQueryKey, RequestKey } from '../lib/query';
 import { Feature } from '../lib/featureManagement';
 import { disabledRefetch } from '../lib/func';
 import AuthContext from '../contexts/AuthContext';
-import { useGrowthBookContext } from '../components/GrowthBookProvider';
+import {
+  useFeaturesReadyContext,
+  useGrowthBookContext,
+} from '../components/GrowthBookProvider';
 
 interface UseConditionalFeature<T> {
   value: WidenPrimitives<T>;
@@ -20,7 +23,13 @@ export const useConditionalFeature = <T extends JSONValue>({
 }): UseConditionalFeature<T> => {
   const { user } = useContext(AuthContext);
   const { growthbook } = useGrowthBookContext();
-  const queryKey = generateQueryKey(RequestKey.Feature, user, feature.id);
+  const { ready } = useFeaturesReadyContext();
+  const queryKey = generateQueryKey(
+    RequestKey.Feature,
+    user,
+    feature.id,
+    ready,
+  );
 
   const { data: featureValue, isLoading } = useQuery(
     queryKey,
@@ -30,7 +39,7 @@ export const useConditionalFeature = <T extends JSONValue>({
         : (feature.defaultValue as WidenPrimitives<T>);
     },
     {
-      enabled: shouldEvaluate,
+      enabled: shouldEvaluate && ready,
       ...disabledRefetch,
     },
   );

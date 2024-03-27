@@ -6,7 +6,10 @@ import { useConditionalFeature } from './useConditionalFeature';
 import { Feature } from '../lib/featureManagement';
 import loggedUser from '../../__tests__/fixture/loggedUser';
 import { AuthContextProvider } from '../contexts/AuthContext';
-import { GrowthBookProvider } from '../components/GrowthBookProvider';
+import {
+  FeaturesReadyContext,
+  GrowthBookProvider,
+} from '../components/GrowthBookProvider';
 import { BootApp } from '../lib/boot';
 
 const client = new QueryClient();
@@ -27,23 +30,25 @@ const createWrapper = ({ value = testFeature.defaultValue }) => {
         loadedUserFromCache
         squads={[]}
       >
-        <GrowthBookProvider
-          app={BootApp.Test}
-          user={loggedUser}
-          deviceId="123"
-          experimentation={{
-            f: '{}',
-            e: [],
-            a: [],
-            features: {
-              test_feature: {
-                defaultValue: value,
+        <FeaturesReadyContext.Provider value={{ ready: !!value }}>
+          <GrowthBookProvider
+            app={BootApp.Test}
+            user={loggedUser}
+            deviceId="123"
+            experimentation={{
+              f: '{}',
+              e: [],
+              a: [],
+              features: {
+                test_feature: {
+                  defaultValue: value,
+                },
               },
-            },
-          }}
-        >
-          {children}
-        </GrowthBookProvider>
+            }}
+          >
+            {children}
+          </GrowthBookProvider>
+        </FeaturesReadyContext.Provider>
       </AuthContextProvider>
     </QueryClientProvider>
   );
