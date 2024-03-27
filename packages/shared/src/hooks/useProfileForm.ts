@@ -56,6 +56,8 @@ export const onValidateHandles = (
     if (!isValid) {
       return { username: errorMessage.profile.invalidUsername };
     }
+  } else {
+    return { username: errorMessage.profile.invalidUsername };
   }
 
   return socials.reduce((obj, social) => {
