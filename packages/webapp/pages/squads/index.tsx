@@ -87,9 +87,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
       <NextSeo {...seo} />
 
       <FeedLayout>
-        <BaseFeedPage
-          className={classNames('relative mb-4 flex-col pt-2 laptop:pt-8')}
-        >
+        <BaseFeedPage className="relative mb-4 flex-col pt-2 laptop:pt-8">
           <span
             className={classNames(
               'flex w-full flex-row items-center justify-between px-4 pb-2 typo-body laptop:hidden',

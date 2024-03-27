@@ -16,7 +16,6 @@ import { SearchHistory } from '@dailydotdev/shared/src/components';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import classNames from 'classnames';
 import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
@@ -73,10 +72,7 @@ const History = (): ReactElement => {
         <div className="absolute left-0 top-[6.75rem] flex h-px w-full bg-theme-divider-tertiary laptop:hidden" />
       )}
 
-      <ResponsivePageContainer
-        className={classNames('relative !p-0')}
-        role="main"
-      >
+      <ResponsivePageContainer className="relative !p-0" role="main">
         {isNewMobileLayout && (
           <>
             <Dropdown

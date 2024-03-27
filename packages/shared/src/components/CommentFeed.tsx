@@ -30,7 +30,7 @@ interface CommentFeedProps<T> {
   variables?: T;
   emptyScreen?: ReactNode;
   commentClassName?: CommentClassName;
-  isMainFeed?: boolean
+  isMainFeed?: boolean;
 }
 
 interface CommentFeedData {
@@ -85,7 +85,7 @@ export default function CommentFeed<T>({
     return (
       <>
         {isNewMobileLayout && isMainFeed && (
-          <FeedSelector className="self-start py-10 px-4" />
+          <FeedSelector className="self-start px-4 py-10" />
         )}
 
         {emptyScreen}
@@ -105,20 +105,21 @@ export default function CommentFeed<T>({
         fetchNextPage={queryResult.fetchNextPage}
         className={classNames(
           'w-full',
-          isNewMobileLayout && isMainFeed && 'px-4'
+          isNewMobileLayout && isMainFeed && 'px-4',
         )}
       >
         {queryResult.data.pages.flatMap((page) =>
           page.page.edges.map(({ node }, index) => (
             <MainComment
               key={node.id}
-              className={{ ...commentClassName,
+              className={{
+                ...commentClassName,
                 container: classNames(
                   commentClassName.container,
                   index === 0 &&
-                  isNewMobileLayout &&
-                  isMainFeed &&
-                  'border-t rounded-t-24'
+                    isNewMobileLayout &&
+                    isMainFeed &&
+                    'rounded-t-24 border-t',
                 ),
               }}
               post={node.post}

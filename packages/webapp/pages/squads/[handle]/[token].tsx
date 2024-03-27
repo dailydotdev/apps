@@ -42,7 +42,6 @@ import { useJoinSquad } from '@dailydotdev/shared/src/hooks';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { SimpleSquadJoinButton } from '@dailydotdev/shared/src/components/squads/SquadJoinButton';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import classNames from 'classnames';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { getSquadOpenGraph } from '../../../next-seo';
 
@@ -206,9 +205,7 @@ const SquadReferral = ({
   }
 
   return (
-    <PageContainer
-      className={classNames('relative items-center pt-10 tablet:pt-20')}
-    >
+    <PageContainer className="relative items-center pt-10 tablet:pt-20">
       <NextSeo {...seo} />
       <div className="squad-background-fade absolute -top-4 left-0 right-0 h-40 max-w-[100vw] rounded-26 tablet:-left-20 tablet:-right-20" />
       <h1 className="typo-title1">You are invited to join {source.name}</h1>

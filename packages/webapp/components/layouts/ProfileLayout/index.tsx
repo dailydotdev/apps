@@ -18,7 +18,6 @@ import { NextSeo } from 'next-seo';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
-import classNames from 'classnames';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import NavBar, { tabs } from './NavBar';
@@ -76,11 +75,7 @@ export default function ProfileLayout({
   };
 
   return (
-    <div
-      className={classNames(
-        'm-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:flex-row tablet:pb-0 laptop:min-h-page laptop:border-l laptop:border-r laptop:border-theme-divider-tertiary laptop:pb-6 laptopL:pb-0',
-      )}
-    >
+    <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:flex-row tablet:pb-0 laptop:min-h-page laptop:border-l laptop:border-r laptop:border-theme-divider-tertiary laptop:pb-6 laptopL:pb-0">
       <Head>
         <link rel="preload" as="image" href={user.image} />
       </Head>

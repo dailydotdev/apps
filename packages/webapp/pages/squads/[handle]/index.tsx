@@ -179,7 +179,7 @@ const SquadPage = ({
       fallback={<></>}
       shouldFallback={!user}
     >
-      <BaseFeedPage className={classNames('relative mb-4 pt-2 laptop:pt-8')}>
+      <BaseFeedPage className="relative mb-4 pt-2 laptop:pt-8">
         <div
           className={classNames(
             'squad-background-fade absolute top-0 h-full w-full',

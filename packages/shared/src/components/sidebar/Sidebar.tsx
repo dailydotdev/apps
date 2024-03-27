@@ -1,6 +1,7 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import SettingsContext from '../../contexts/SettingsContext';
 import {
   Nav,
@@ -39,6 +40,7 @@ import {
 import { AiIcon, HomeIcon, SourceIcon, UserIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { CreatePostButton } from '../post/write';
+import { SharedFeedPage } from '../utilities';
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -54,6 +56,7 @@ export default function Sidebar({
   onShowDndClick,
   onLogoClick,
 }: SidebarProps): ReactElement {
+  const router = useRouter();
   const { user, isLoggedIn } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const {
@@ -102,7 +105,7 @@ export default function Sidebar({
     return (
       <SidebarAside
         data-testid="sidebar-aside"
-        className={classNames('max-w-16 basis-10 items-center gap-4')}
+        className="w-16 basis-10 items-center gap-4"
       >
         <Logo
           compact
@@ -118,7 +121,10 @@ export default function Sidebar({
             icon={<HomeIcon secondary size={IconSize.Medium} />}
             iconPosition={ButtonIconPosition.Top}
             variant={ButtonVariant.Option}
-            pressed
+            pressed={
+              router.pathname === '/' ||
+              router.pathname === SharedFeedPage.MyFeed
+            }
           >
             Home
           </Button>
@@ -131,6 +137,7 @@ export default function Sidebar({
             icon={<AiIcon size={IconSize.Medium} />}
             iconPosition={ButtonIconPosition.Top}
             variant={ButtonVariant.Option}
+            pressed={router.pathname === 'search'}
           >
             Search
           </Button>
@@ -143,6 +150,7 @@ export default function Sidebar({
             icon={<SourceIcon size={IconSize.Medium} />}
             iconPosition={ButtonIconPosition.Top}
             variant={ButtonVariant.Option}
+            pressed={router.pathname === 'squads'}
           >
             Squads
           </Button>
@@ -155,6 +163,7 @@ export default function Sidebar({
             icon={<UserIcon size={IconSize.Medium} />}
             iconPosition={ButtonIconPosition.Top}
             variant={ButtonVariant.Option}
+            pressed={router.pathname === user.permalink}
           >
             Profile
           </Button>
