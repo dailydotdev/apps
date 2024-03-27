@@ -275,6 +275,7 @@ export default function MainFeedLayout({
       {isSearchOn && search}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
+          isMainFeed
           feedQueryKey={generateQueryKey(RequestKey.CommentFeed, null)}
           query={COMMENT_FEED_QUERY}
           analyticsOrigin={Origin.CommentFeed}
