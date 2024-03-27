@@ -56,7 +56,7 @@ export const onValidateHandles = (
     if (!isValid) {
       return { username: errorMessage.profile.invalidUsername };
     }
-  } else if (!after.username) {
+  } else if ('username' in after && !after.username) {
     return { username: errorMessage.profile.invalidUsername };
   }
 
