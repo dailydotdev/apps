@@ -85,7 +85,7 @@ export default function CommentFeed<T>({
     return (
       <>
         {isNewMobileLayout && isMainFeed && (
-          <FeedSelector className="self-start py-8" />
+          <FeedSelector className="self-start py-10 px-4" />
         )}
 
         {emptyScreen}
@@ -96,7 +96,7 @@ export default function CommentFeed<T>({
   return (
     <>
       {isNewMobileLayout && isMainFeed && (
-        <FeedSelector className="self-start py-8" />
+        <FeedSelector className="self-start p-4" />
       )}
 
       <InfiniteScrolling
@@ -105,6 +105,7 @@ export default function CommentFeed<T>({
         fetchNextPage={queryResult.fetchNextPage}
         className={classNames(
           'w-full',
+          isNewMobileLayout && isMainFeed && 'px-4'
         )}
       >
         {queryResult.data.pages.flatMap((page) =>
@@ -112,7 +113,13 @@ export default function CommentFeed<T>({
             <MainComment
               key={node.id}
               className={{ ...commentClassName,
-                container: classNames(commentClassName.container, index === 0 && isNewMobileLayout && isMainFeed && 'border-t rounded-t-24'),
+                container: classNames(
+                  commentClassName.container,
+                  index === 0 &&
+                  isNewMobileLayout &&
+                  isMainFeed &&
+                  'border-t rounded-t-24'
+                ),
               }}
               post={node.post}
               comment={node}
