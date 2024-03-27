@@ -1,17 +1,16 @@
-import React, { ReactElement, ReactNode, useCallback, useContext } from 'react';
+import React, { ReactElement, ReactNode, useContext } from 'react';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
 import { ProfileSettingsMenu } from '@dailydotdev/shared/src/components/profile/ProfileSettingsMenu';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getTemplatedTitle } from '../utils';
 import SidebarNav from './SidebarNav';
@@ -30,14 +29,7 @@ export default function AccountLayout({
   children,
 }: AccountLayoutProps): ReactElement {
   const { user: profile, isFetched, logout } = useContext(AuthContext);
-  const client = useQueryClient();
-  const closeSideNav = useCallback(
-    () => client.setQueryData(navigationKey, false),
-    [client],
-  );
-  const { data: isOpen } = useQuery(navigationKey, () => false, {
-    ...disabledRefetch,
-  });
+  const [isOpen, setIsOpen] = useQueryState(navigationKey, false);
   const isMobile = useViewSize(ViewSize.MobileL);
 
   if (!profile || !Object.keys(profile).length || (isFetched && !profile)) {
@@ -70,7 +62,7 @@ export default function AccountLayout({
           <ProfileSettingsMenu
             isOpen={isOpen}
             logout={logout}
-            onClose={closeSideNav}
+            onClose={() => setIsOpen(false)}
           />
         ) : (
           <SidebarNav
