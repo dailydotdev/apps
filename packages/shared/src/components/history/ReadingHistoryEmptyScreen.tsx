@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import {
   EmptyScreenButton,
   EmptyScreenDescription,
@@ -8,10 +9,18 @@ import {
 } from '../EmptyScreen';
 import { EyeIcon } from '../icons';
 import { ButtonSize } from '../buttons/common';
+import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 
 function ReadingHistoryEmptyScreen(): ReactElement {
+  const { isNewMobileLayout } = useMobileUxExperiment();
+
   return (
-    <div className="mt-20 flex flex-1 flex-col items-center justify-center px-6">
+    <div
+      className={classNames(
+        'mt-20 flex flex-1 flex-col items-center justify-center px-6',
+        isNewMobileLayout && 'tablet:pl-22',
+      )}
+    >
       <EyeIcon
         className={EmptyScreenIcon.className}
         style={EmptyScreenIcon.style}

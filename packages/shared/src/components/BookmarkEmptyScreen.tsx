@@ -1,12 +1,21 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
+import classNames from 'classnames';
 import { BookmarkIcon } from './icons';
 import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { EmptyScreenIcon } from './EmptyScreen';
+import { useMobileUxExperiment } from '../hooks/useMobileUxExperiment';
 
 export default function BookmarkEmptyScreen(): ReactElement {
+  const { isNewMobileLayout } = useMobileUxExperiment();
+
   return (
-    <main className="withNavBar inset-0 mx-auto mt-12 flex max-w-full flex-col items-center justify-center px-6 text-theme-label-secondary">
+    <main
+      className={classNames(
+        'withNavBar inset-0 mx-auto mt-12 flex max-w-full flex-col items-center justify-center px-6 text-theme-label-secondary',
+        isNewMobileLayout && 'tablet:pl-22',
+      )}
+    >
       <BookmarkIcon
         className="icon m-0 text-theme-label-tertiary"
         style={EmptyScreenIcon.style}

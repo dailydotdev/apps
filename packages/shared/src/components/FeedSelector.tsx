@@ -58,7 +58,12 @@ export default function FeedSelector({
       dynamicMenuWidth
       shouldIndicateSelected
       buttonSize={ButtonSize.Medium}
-      className={{ button: 'px-1', label: 'mr-5', container: className }}
+      className={{
+        button: 'px-1',
+        label: 'mr-5',
+        container: className,
+        indicator: '!ml-2',
+      }}
       iconOnly={false}
       key="feed"
       icon={feedOptions[selectedFeedIdx].icon(true)}
