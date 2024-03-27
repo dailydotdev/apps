@@ -28,6 +28,8 @@ import { useFeedLayout } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import FeedSelector from '../FeedSelector';
+import { ReadingStreakButton } from '../streak/ReadingStreakButton';
+import { useReadingStreak } from '../../hooks/streaks';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -66,6 +68,7 @@ export const SearchControlHeader = ({
   });
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { isNewMobileLayout } = useMobileUxExperiment();
+  const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
   const openFeedFilters = () =>
     openModal({ type: LazyModal.FeedFilters, persistOnRouteChange: true });
 
@@ -107,10 +110,17 @@ export const SearchControlHeader = ({
 
   return (
     <ConditionalWrapper
-      condition={isNewMobileLayout && (isPopular || isUpvoted || isDiscussed)}
+      condition={isNewMobileLayout}
       wrapper={(children) => (
-        <div className="flex items-center justify-between">
-          <FeedSelector currentFeed={feedName} />
+        <div className="flex w-full items-center justify-between">
+          {isPopular ||
+            isUpvoted ||
+            (isDiscussed && <FeedSelector currentFeed={feedName} />)}
+
+          {isStreaksEnabled && (
+            <ReadingStreakButton streak={streak} isLoading={isLoading} />
+          )}
+
           <div>{children}</div>
         </div>
       )}

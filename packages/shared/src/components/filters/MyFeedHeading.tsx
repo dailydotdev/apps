@@ -15,9 +15,6 @@ import { useFeature } from '../GrowthBookProvider';
 import { setShouldRefreshFeed } from '../../lib/refreshFeed';
 import { SharedFeedPage } from '../utilities';
 import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
-import ConditionalWrapper from '../ConditionalWrapper';
-import { useReadingStreak } from '../../hooks/streaks';
-import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 
 export const filterAlertMessage = 'Edit your personal feed preferences here';
 
@@ -34,7 +31,6 @@ function MyFeedHeading({
   const queryClient = useQueryClient();
   const forceRefresh = useFeature(feature.forceRefresh);
   const { isNewMobileLayout } = useMobileUxExperiment();
-  const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
 
   const onClick = () => {
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
@@ -92,20 +88,6 @@ function MyFeedHeading({
       </>
     );
   };
-
-  if (isNewMobileLayout) {
-    return (
-      <div className="flex w-full justify-between">
-        {isStreaksEnabled && (
-          <ReadingStreakButton streak={streak} isLoading={isLoading} />
-        )}
-
-        <div>
-          <RenderFeedActions />
-        </div>
-      </div>
-    );
-  }
 
   return <RenderFeedActions />;
 }
