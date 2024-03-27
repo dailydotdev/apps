@@ -196,10 +196,10 @@ body {
   --theme-border-bolder-quaternary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 92%);
 
   /* Status */
-  --theme-status-error: var(--theme-accent-ketchup-default);
-  --theme-status-warning: var(--theme-accent-bun-default);
-  --theme-status-help: var(--theme-accent-cheese-default);
-  --theme-status-success: var(--theme-accent-avocado-default);
+  --status-error: var(--theme-accent-ketchup-default);
+  --status-warning: var(--theme-accent-bun-default);
+  --status-help: var(--theme-accent-cheese-default);
+  --status-success: var(--theme-accent-avocado-default);
   --theme-status-info: var(--theme-accent-water-default);
 
   /* Text */
@@ -215,14 +215,11 @@ body {
   --theme-shadow-shadow2: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 60%);
   --theme-shadow-shadow3: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 36%);
 
-
-
-
-
-
-
-
-
+  /* Blur */
+  --theme-blur-blur-highlight: color-mix(in srgb, theme('colors.raw.pepper.70'), transparent 12%);
+  --theme-blur-blur-baseline: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 12%);
+  --theme-blur-blur-bg: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 36%);
+  --theme-blur-blur-glass: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 92%);
 
 /**
   * Current old colors, these should all be changed to one of the above matching ones.
@@ -236,9 +233,6 @@ body {
   --theme-background-bun: theme('colors.raw.bun.80');
   --theme-background-onion: theme('colors.raw.onion.80');
   --theme-background-pepper: theme('colors.raw.pepper.20');
-  --theme-background-pepper-40: theme('colors.raw.pepper.40');
-  /* stylelint-disable-next-line unit-no-unknown */
-  --theme-background-cabbage-opacity-24: theme('colors.raw.cabbage.40')3D;
 
   /* Turned off because duplication */
   /*--theme-surface-invert: theme('colors.raw.pepper.90');*/
@@ -257,14 +251,8 @@ body {
   --theme-divider-tertiary: theme('colors.raw.salt.90')33;
   --theme-divider-quaternary: theme('colors.raw.salt.90')14;
 
-  /* Turned off because duplication */
-  /*--theme-status-error: theme('colors.raw.ketchup.40');*/
-  /*--theme-status-help: theme('colors.raw.cheese.40');*/
-  /*--theme-status-success: theme('colors.raw.avocado.40');*/
-  /*--theme-status-warning: theme('colors.raw.bun.40');*/
-  --theme-status-cabbage-invert: theme('colors.raw.cabbage.60');
-  --theme-status-cabbage: theme('colors.raw.cabbage.40');
-  --theme-status-fill: theme('colors.raw.water.40');
+  --accent-cabbage-default-invert: theme('colors.raw.cabbage.60');
+  --accent-cabbage-default: theme('colors.raw.cabbage.40');
 
   --theme-shadow2: theme('boxShadow.2-black');
   --theme-shadow3: theme('boxShadow.3-black');
@@ -290,9 +278,6 @@ body {
 
   --theme-gradient-cabbage: theme('colors.raw.cabbage.10')66;
   --theme-gradient-onion: theme('colors.raw.onion.10')66;
-
-  --theme-overlay-cabbage-opacity: theme('colors.raw.cabbage.90')A3;
-  --theme-overlay-onion-opacity: theme('colors.raw.onion.90')A3;
 
   --theme-rank-highlight: theme('colors.raw.salt.10');
 
@@ -507,10 +492,10 @@ body {
   --theme-border-bolder-quaternary: color-mix(in srgb, var(--theme-border-bolder-primary), transparent 92%);
 
   /* Status */
-  --theme-status-error: var(--theme-accent-ketchup-default);
-  --theme-status-warning: var(--theme-accent-bun-default);
-  --theme-status-help: var(--theme-accent-cheese-default);
-  --theme-status-success: var(--theme-accent-avocado-default);
+  --status-error: var(--theme-accent-ketchup-default);
+  --status-warning: var(--theme-accent-bun-default);
+  --status-help: var(--theme-accent-cheese-default);
+  --status-success: var(--theme-accent-avocado-default);
   --theme-status-info: var(--theme-accent-water-default);
 
   /* Text */
@@ -526,7 +511,11 @@ body {
   --theme-shadow-shadow2: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 60%);
   --theme-shadow-shadow3: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 36%);
 
-
+  /* Blur */
+  --theme-blur-blur-highlight: color-mix(in srgb, theme('colors.raw.salt.0'), transparent 12%);
+  --theme-blur-blur-baseline: color-mix(in srgb, theme('colors.raw.salt.0'), transparent 12%);
+  --theme-blur-blur-bg: color-mix(in srgb, theme('colors.raw.salt.0'), transparent 36%);
+  --theme-blur-blur-glass: color-mix(in srgb, theme('colors.raw.salt.0'), transparent 36%);
 
 
 
@@ -548,13 +537,6 @@ body {
   --theme-background-bun: theme('colors.raw.bun.20');
   --theme-background-onion: theme('colors.raw.onion.20');
   --theme-background-pepper: theme('colors.raw.pepper.20');
-  --theme-background-pepper-40: theme('colors.raw.salt.40');
-  /* stylelint-disable-next-line unit-no-unknown */
-  --theme-background-cabbage-opacity-24: theme('colors.raw.cabbage.40')3D;
-  /*--theme-background-subtle: theme('colors.raw.salt.10');*/
-  /*--theme-background-popover: theme('colors.raw.salt.0');*/
-
-  /*--theme-surface-invert: theme('colors.raw.salt.0');*/
 
   --theme-label-primary: theme('colors.raw.pepper.90');
   --theme-label-secondary: theme('colors.raw.pepper.50');
@@ -570,13 +552,8 @@ body {
   --theme-divider-tertiary: theme('colors.raw.pepper.10')33;
   --theme-divider-quaternary: theme('colors.raw.pepper.10')14;
 
-  /*--theme-status-error: theme('colors.raw.ketchup.60');*/
-  /*--theme-status-help: theme('colors.raw.cheese.60');*/
-  /*--theme-status-success: theme('colors.raw.avocado.60');*/
-  /*--theme-status-warning: theme('colors.raw.bun.60');*/
-  --theme-status-cabbage: theme('colors.raw.cabbage.60');
-  --theme-status-cabbage-invert: theme('colors.raw.cabbage.40');
-  --theme-status-fill: theme('colors.raw.water.60');
+  --accent-cabbage-default: theme('colors.raw.cabbage.60');
+  --accent-cabbage-default-invert: theme('colors.raw.cabbage.40');
 
   /*--theme-shadow2: theme('boxShadow.2-salt');*/
   /*--theme-shadow3: theme('boxShadow.3-salt');*/
@@ -603,9 +580,6 @@ body {
 
   --theme-gradient-cabbage: theme('colors.raw.cabbage.10')66;
   --theme-gradient-onion: theme('colors.raw.onion.10')66;
-
-  --theme-overlay-cabbage-opacity: theme('colors.raw.cabbage.90')A3;
-  --theme-overlay-onion-opacity: theme('colors.raw.onion.90')A3;
 
   --theme-rank-highlight: theme('colors.raw.salt.10');
 

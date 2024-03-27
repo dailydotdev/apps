@@ -39,6 +39,7 @@ function SquadPostContent({
   onClose,
   onRemovePost,
   isBannerVisible,
+  isPostPage,
 }: PostContentProps): ReactElement {
   const { user } = useAuthContext();
   const onSendViewPost = useViewPost();
@@ -54,7 +55,6 @@ function SquadPostContent({
     post,
     onPreviousPost,
     onNextPost,
-    onShare: onCopyPostLink,
     postPosition,
     onClose,
     inlineActions,
@@ -99,11 +99,13 @@ function SquadPostContent({
             className={{
               ...className,
               onboarding: classNames('mb-6', className?.onboarding),
+              header: 'mb-6',
               navigation: {
                 actions: 'ml-auto tablet:hidden',
                 container: 'mb-6 pt-6',
               },
             }}
+            isPostPage={isPostPage}
             isFallback={isFallback}
             customNavigation={customNavigation}
             enableShowShareNewComment={enableShowShareNewComment}

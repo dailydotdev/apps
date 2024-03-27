@@ -17,29 +17,15 @@ import { useMyFeed } from '../../hooks/useMyFeed';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
-import { checkIsExtension } from '../../lib/func';
-import { feature } from '../../lib/featureManagement';
-import { useFeature } from '../GrowthBookProvider';
-import { webappUrl } from '../../lib/constants';
 
 const promptConfig = {
   title: 'Discard tag selection?',
   description: 'Your personalized feed is only a few tags away',
-  cancelButton: {
-    title: 'Stay',
-    variant: ButtonVariant.Primary,
-    color: ButtonColor.Cabbage,
-  },
   okButton: {
-    title: 'Leave',
-    variant: ButtonVariant.Secondary,
-  },
-  className: {
-    buttons: 'flex-row-reverse',
+    title: 'Yes, discard tag selection',
+    color: ButtonColor.Ketchup,
   },
 };
-
-const isExtension = checkIsExtension();
 
 type OnboardingFeedHeaderProps = {
   isPreviewFeedVisible: boolean;
@@ -59,7 +45,6 @@ export const OnboardingFeedHeader = ({
   const { showPrompt } = usePrompt();
   const router = useRouter();
   const { registerLocalFilters } = useMyFeed();
-  const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
 
   const completeOnboarding = useCallback(() => {
     registerLocalFilters();
@@ -68,26 +53,7 @@ export const OnboardingFeedHeader = ({
     trackEvent({
       event_name: AnalyticsEvent.CreateFeed,
     });
-
-    if (!onboardingOptimizations) {
-      router.replace(
-        isExtension
-          ? `${webappUrl}/?welcome=true`
-          : {
-              pathname: router.route,
-              query: {
-                welcome: 'true',
-              },
-            },
-      );
-    }
-  }, [
-    onboardingOptimizations,
-    registerLocalFilters,
-    router,
-    trackEvent,
-    updateAlerts,
-  ]);
+  }, [registerLocalFilters, trackEvent, updateAlerts]);
 
   useEffect(() => {
     let stopNav = true;
@@ -119,7 +85,7 @@ export const OnboardingFeedHeader = ({
   return (
     <LayoutHeader className="flex-col overflow-x-visible">
       <div className="fixed z-1 flex w-full justify-center bg-gradient-to-b from-theme-surface-invert via-theme-surface-invert tablet:px-4 tablet:py-10">
-        <div className="flex h-44 w-full max-w-[40rem] flex-col items-center border-b-2 border-theme-color-cabbage bg-theme-bg-subtle p-6 tablet:h-auto tablet:flex-row tablet:rounded-16 tablet:border-b-0 tablet:border-l-2">
+        <div className="flex h-44 w-full max-w-[40rem] flex-col items-center border-b-2 border-theme-color-cabbage bg-background-subtle p-6 tablet:h-auto tablet:flex-row tablet:rounded-16 tablet:border-b-0 tablet:border-l-2">
           <div className="text-center tablet:text-left">
             <p className="font-bold typo-title3">
               Pick tags that are relevant to you

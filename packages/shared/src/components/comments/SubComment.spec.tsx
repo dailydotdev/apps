@@ -8,11 +8,25 @@ import loggedUser from '../../../__tests__/fixture/loggedUser';
 import comment from '../../../__tests__/fixture/comment';
 import { Origin } from '../../lib/analytics';
 import post from '../../../__tests__/fixture/post';
+import { useViewSize } from '../../hooks';
 
 const onDelete = jest.fn();
+const mockUseViewSize = useViewSize as jest.MockedFunction<typeof useViewSize>;
+
+jest.mock('../../hooks', () => {
+  const originalModule = jest.requireActual('../../hooks');
+  return {
+    ...originalModule,
+    useViewSize: jest.fn(),
+  };
+});
+
+const date = new Date(2024, 6, 6, 12, 30, 30);
 
 beforeEach(() => {
+  jest.useFakeTimers('modern').setSystemTime(date);
   jest.clearAllMocks();
+  mockUseViewSize.mockImplementation(() => false);
 });
 
 const renderLayout = (
@@ -67,7 +81,7 @@ it('should show author name', async () => {
 
 it('should show formatted comment date', async () => {
   renderLayout();
-  await screen.findByText('Feb 10, 2017');
+  await screen.findByText('7 years ago');
 });
 
 it('should show last updated comment date', async () => {
@@ -77,7 +91,7 @@ it('should show last updated comment date', async () => {
       lastUpdatedAt: new Date(2017, 2, 10, 0, 0).toISOString(),
     },
   });
-  await screen.findByText('Modified Mar 10, 2017');
+  await screen.findByText('Modified 7 years ago');
 });
 
 it('should show comment content', async () => {

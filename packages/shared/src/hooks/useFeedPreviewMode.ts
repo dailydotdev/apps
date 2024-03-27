@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { ActiveFeedContext } from '../contexts';
+import { ActiveFeedContext } from '../contexts/ActiveFeedContext';
 import { RequestKey } from '../lib/query';
 
 export const useFeedPreviewMode = (): boolean => {

@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import { cloudinary } from '../../lib/image';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { Justify } from '../utilities';
 import Carousel from '../containers/Carousel';
 import { ModalFooter } from '../modals/common/ModalFooter';
@@ -29,7 +29,6 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
       <FooterButton
         className="w-full tablet:ml-auto tablet:w-auto"
         variant={ButtonVariant.Primary}
-        color={ButtonColor.Cabbage}
         onClick={(e) => {
           e.stopPropagation();
           onTourIndexChange(0);
@@ -117,7 +116,6 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
             {indicator}
             <FooterButton
               variant={ButtonVariant.Primary}
-              color={ButtonColor.Cabbage}
               onClick={(e) => onSwipedLeft(e)}
             >
               {index === items.length - 1 ? 'Close' : 'Next'}

@@ -34,17 +34,18 @@ interface ClassName {
   overlay?: string;
   drawer?: string;
   close?: string;
+  title?: string;
 }
 
 export interface DrawerProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'className'> {
+  extends Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'title'> {
   children: ReactNode;
   className?: ClassName;
   position?: DrawerPosition;
   closeOnOutsideClick?: boolean;
   isFullScreen?: boolean;
   isClosing?: boolean;
-  title?: string;
+  title?: ReactNode;
   onClose: PopupCloseFunc;
   displayCloseButton?: boolean;
 }
@@ -116,7 +117,12 @@ function BaseDrawer({
         }}
       >
         {title && (
-          <h3 className="border-b border-theme-divider-tertiary p-4 font-bold typo-title3">
+          <h3
+            className={classNames(
+              'flex flex-row items-center border-b border-theme-divider-tertiary p-4 font-bold typo-title3',
+              className?.title,
+            )}
+          >
             {title}
           </h3>
         )}

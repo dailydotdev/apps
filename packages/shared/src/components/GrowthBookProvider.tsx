@@ -34,6 +34,9 @@ export const FeaturesReadyContext = createContext<FeaturesReadyContextValue>({
   ready: false,
 });
 
+export const useFeaturesReadyContext = (): FeaturesReadyContextValue =>
+  useContext(FeaturesReadyContext);
+
 export type GrowthBookProviderProps = {
   app: BootApp;
   user: BootCacheData['user'];

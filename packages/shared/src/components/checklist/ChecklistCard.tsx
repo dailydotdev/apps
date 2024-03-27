@@ -55,7 +55,7 @@ const ChecklistCard = ({
               isActive={activeStep === step.action.type}
               onToggle={onToggleStep}
               className={{
-                checkmark: isDone && 'text-theme-color-cabbage',
+                checkmark: isDone && 'text-brand-default',
               }}
             />
           );

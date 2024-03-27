@@ -28,7 +28,7 @@ function AuthorOnboarding({ onSignUp }: AuthorOnboardingProps): ReactElement {
         <FeatherIcon
           secondary
           size={IconSize.XLarge}
-          className="icon text-theme-status-help"
+          className="icon text-status-help"
         />
         <h3>Creator</h3>
         <h2>Is this post yours?</h2>

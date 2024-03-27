@@ -97,6 +97,8 @@ export enum RequestKey {
   ShortUrl = 'short_url',
   SourceRequestAvailability = 'source_request_availability',
   CommentFeed = 'comment_feed',
+  Feature = 'feature',
+  AccountNavigation = 'account_navigation',
 }
 
 export type HasConnection<

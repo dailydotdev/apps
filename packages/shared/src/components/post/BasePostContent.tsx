@@ -3,6 +3,7 @@ import React, { ReactElement } from 'react';
 import PostNavigation from './PostNavigation';
 import PostEngagements from './PostEngagements';
 import { BasePostContentProps } from './common';
+import { PostContentHeaderMobile } from './PostContentHeaderMobile';
 
 const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ '../modals/ShareModal'),
@@ -24,7 +25,7 @@ export function BasePostContent({
   engagementProps,
   shouldOnboardAuthor,
   enableShowShareNewComment,
-  customNavigation,
+  isPostPage,
 }: BasePostContentProps): ReactElement {
   const { id } = post ?? {};
   const { onCloseShare, sharePost, onCopyPostLink } = engagementProps;
@@ -35,7 +36,13 @@ export function BasePostContent({
 
   return (
     <>
-      {customNavigation ?? (
+      {isPostPage ? (
+        <PostContentHeaderMobile
+          post={post}
+          className={className.header}
+          onReadArticle={navigationProps.onReadArticle}
+        />
+      ) : (
         <PostNavigation {...navigationProps} className={className.navigation} />
       )}
       {children}

@@ -7,8 +7,6 @@ import React, {
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
-import AlertContext from '../../contexts/AlertContext';
-import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Dropdown, DropdownProps } from '../fields/Dropdown';
@@ -50,8 +48,6 @@ export const SearchControlHeader = ({
   algoState: [selectedAlgo, setSelectedAlgo],
   periodState: [selectedPeriod, setSelectedPeriod],
 }: SearchControlHeaderProps): ReactElement => {
-  const { alerts, updateAlerts } = useContext(AlertContext);
-  const { sidebarRendered } = useSidebarRendered();
   const { openModal } = useLazyModal();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
@@ -70,13 +66,7 @@ export const SearchControlHeader = ({
   };
   const actionButtons = [
     feedName === SharedFeedPage.MyFeed ? (
-      <MyFeedHeading
-        key="my-feed"
-        isAlertDisabled={!alerts.myFeed}
-        sidebarRendered={sidebarRendered}
-        onOpenFeedFilters={openFeedFilters}
-        onUpdateAlerts={() => updateAlerts({ myFeed: null })}
-      />
+      <MyFeedHeading key="my-feed" onOpenFeedFilters={openFeedFilters} />
     ) : null,
     isUpvoted ? (
       <Dropdown

@@ -17,16 +17,14 @@ import {
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Image } from '../image/Image';
 import { fallbackImages } from '../../lib/config';
-import {
-  CommentMarkdownInput,
-  CommentMarkdownInputProps,
-} from '../fields/MarkdownInput/CommentMarkdownInput';
+import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { PostType } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
+import CommentInputOrPage from '../comments/CommentInputOrPage';
 
 interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
@@ -50,6 +48,11 @@ function NewCommentComponent(
   const { user, showLogin } = useAuthContext();
   const [inputContent, setInputContent] = useState<string>(undefined);
 
+  const onSuccess: typeof onCommented = (comment, isNew) => {
+    setInputContent(undefined);
+    onCommented(comment, isNew);
+  };
+
   const onShowComment = useCallback(
     (origin: Origin, content = '') => {
       trackEvent(
@@ -58,15 +61,10 @@ function NewCommentComponent(
         }),
       );
 
-      return setInputContent(content);
+      setInputContent(content);
     },
-    [post, trackEvent],
+    [post, trackEvent, setInputContent],
   );
-
-  const onSuccess: typeof onCommented = (comment, isNew) => {
-    setInputContent(undefined);
-    onCommented(comment, isNew);
-  };
 
   const hasCommentQuery = typeof router.query.comment === 'string';
 
@@ -82,7 +80,7 @@ function NewCommentComponent(
     router.replace({ pathname: router.pathname, query }, undefined, {
       shallow: true,
     });
-  }, [post, hasCommentQuery, setInputContent, onShowComment, router]);
+  }, [post, hasCommentQuery, onShowComment, router]);
 
   const onCommentClick = (origin: Origin) => {
     if (!user) {
@@ -98,41 +96,51 @@ function NewCommentComponent(
 
   if (typeof inputContent !== 'undefined') {
     return (
-      <CommentMarkdownInput
+      <CommentInputOrPage
         {...props}
         post={post}
-        className={{ container: 'my-4', tab: className?.tab }}
+        className={{ input: { container: 'my-4', tab: className?.tab } }}
         onCommented={onSuccess}
         initialContent={inputContent}
+        onClose={() => setInputContent(undefined)}
       />
     );
   }
+
+  const pictureClasses = 'hidden tablet:flex';
 
   return (
     <button
       type="button"
       className={classNames(
-        'flex w-full items-center rounded-16 border border-theme-divider-tertiary bg-theme-float p-3 typo-callout hover:border-theme-divider-primary hover:bg-theme-hover',
+        'flex w-full items-center gap-4 rounded-16 border-t border-theme-divider-tertiary bg-blur-highlight p-3 typo-callout hover:border-theme-divider-primary hover:bg-theme-hover tablet:border tablet:bg-theme-float',
         className?.container,
       )}
       onClick={() => onCommentClick(Origin.StartDiscussion)}
     >
       {user ? (
-        <ProfilePicture user={user} size={size} nativeLazyLoading />
+        <ProfilePicture
+          user={user}
+          size={size}
+          nativeLazyLoading
+          className={pictureClasses}
+        />
       ) : (
         <Image
           src={fallbackImages.avatar}
           alt="Placeholder image for anonymous user"
-          className={getProfilePictureClasses('large')}
+          className={classNames(
+            pictureClasses,
+            getProfilePictureClasses('large'),
+          )}
         />
       )}
-      <span className="ml-4 text-theme-label-tertiary">
-        Share your thoughts
-      </span>
+      <span className="text-theme-label-tertiary">Share your thoughts</span>
       <Button
         size={buttonSize[size]}
-        className="ml-auto text-theme-label-primary"
+        className="ml-auto hidden text-theme-label-primary tablet:flex"
         variant={ButtonVariant.Secondary}
+        tag="a"
         disabled
       >
         Post

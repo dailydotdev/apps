@@ -346,7 +346,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
                 <div
                   id="new-source-field-desc"
                   className={classNames(
-                    'self-start text-theme-status-error typo-callout',
+                    'self-start text-status-error typo-callout',
                     !showContact && 'mb-6',
                   )}
                 >

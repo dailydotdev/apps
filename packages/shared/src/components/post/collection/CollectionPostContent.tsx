@@ -12,7 +12,6 @@ import { Separator } from '../../cards/common';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
 import { CollectionPostWidgets } from './CollectionPostWidgets';
-import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
 import {
   PostContainer,
   PostContentProps,
@@ -42,6 +41,7 @@ export const CollectionPostContent = ({
   onRemovePost,
   backToSquad,
   isBannerVisible,
+  isPostPage,
 }: PostContentProps): ReactElement => {
   const { user } = useAuthContext();
   const { subject } = useToastNotification();
@@ -65,7 +65,6 @@ export const CollectionPostContent = ({
     post,
     onReadArticle,
     onClose,
-    onShare,
     inlineActions,
     onRemovePost,
   };
@@ -98,15 +97,6 @@ export const CollectionPostContent = ({
         className={classNames('relative', className?.content)}
         data-testid="postContainer"
       >
-        {!hasNavigation && (
-          <CollectionPostHeaderActions
-            post={post}
-            onClose={onClose}
-            className="flex tablet:hidden"
-            contextMenuId="post-widgets-context"
-          />
-        )}
-
         <BasePostContent
           className={{
             ...className,
@@ -119,6 +109,7 @@ export const CollectionPostContent = ({
               container: classNames('pt-6', className?.navigation?.container),
             },
           }}
+          isPostPage={isPostPage}
           isFallback={isFallback}
           customNavigation={customNavigation}
           enableShowShareNewComment={enableShowShareNewComment}
@@ -139,7 +130,7 @@ export const CollectionPostContent = ({
               <Pill
                 tag="a"
                 label="Collection"
-                className="bg-theme-overlay-float-cabbage text-theme-color-cabbage"
+                className="bg-theme-overlay-float-cabbage text-brand-default"
               />
             </Link>
             <h1

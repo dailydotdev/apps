@@ -9,10 +9,16 @@ interface UseNotificationToggle {
   onSubmitted: () => Promise<void>;
 }
 
-export const useNotificationToggle = (): UseNotificationToggle => {
+interface Params {
+  source?: NotificationPromptSource;
+}
+
+export const useNotificationToggle = ({
+  source = NotificationPromptSource.SquadPostCommentary,
+}: Params = {}): UseNotificationToggle => {
   const [isEnabled, setIsEnabled] = useState(true);
   const { shouldShowCta, onEnable, onDismiss } = useEnableNotification({
-    source: NotificationPromptSource.SquadPostCommentary,
+    source,
   });
 
   const onSubmitted = async () => {

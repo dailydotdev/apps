@@ -262,7 +262,7 @@ function MarkdownInput(
         appendTo={parentSelector}
       />
       {footer ?? (
-        <span className="flex flex-row items-center justify-end gap-3 border-t border-theme-divider-tertiary p-3 px-4 text-theme-label-tertiary">
+        <span className="flex flex-row items-center gap-3 border-theme-divider-tertiary p-3 px-4 text-theme-label-tertiary laptop:justify-end laptop:border-t">
           {!!onUploadCommand && (
             <Button
               size={actionButtonSizes}
@@ -270,7 +270,7 @@ function MarkdownInput(
               color={uploadingCount ? ButtonColor.Cabbage : undefined}
               className={classNames(
                 'font-normal',
-                uploadingCount && 'mr-auto text-theme-color-cabbage',
+                uploadingCount && 'mr-auto text-brand-default',
               )}
               icon={icon}
               onClick={() => uploadRef?.current?.click()}

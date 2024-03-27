@@ -124,7 +124,6 @@ export function OnboardPage(): ReactElement {
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
   );
-  const onboardingOptimizations = useFeature(feature.onboardingOptimizations);
   const isOnboardingCopyV1 =
     useFeature(feature.onboardingCopy) === OnboardingCopy.V1;
   const userAcquisitionVersion = useFeature(feature.userAcquisition);
@@ -165,10 +164,6 @@ export function OnboardPage(): ReactElement {
       query: {
         ...(userAcquisitionVersion === UserAcquisition.V1 && {
           ua: 'true',
-        }),
-        ...(!onboardingOptimizations && {
-          welcome: 'true',
-          hset: 'true',
         }),
       },
     });
