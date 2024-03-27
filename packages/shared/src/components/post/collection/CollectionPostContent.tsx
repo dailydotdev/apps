@@ -12,7 +12,6 @@ import { Separator } from '../../cards/common';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
 import { CollectionPostWidgets } from './CollectionPostWidgets';
-import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
 import {
   PostContainer,
   PostContentProps,
