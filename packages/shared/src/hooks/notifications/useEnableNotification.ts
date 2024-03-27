@@ -59,6 +59,7 @@ export const useEnableNotification = ({
     isInitialized,
     isPushSupported || isExtension,
   ];
+
   const shouldShowCta =
     conditions.every(Boolean) ||
     (enabledJustNow && source !== NotificationPromptSource.SquadPostModal);

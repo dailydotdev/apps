@@ -30,6 +30,8 @@ import {
   NotificationTarget,
 } from '@dailydotdev/shared/src/lib/analytics';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
 import styles from './FooterNavBar.module.css';
 
 type Tab = {
@@ -92,10 +94,12 @@ export const tabs: Tab[] = [
 
 interface FooterNavBarProps {
   showNav?: boolean;
+  post?: Post;
 }
 
 export default function FooterNavBar({
   showNav = false,
+  post,
 }: FooterNavBarProps): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
   const { unreadCount } = useNotificationContext();
@@ -122,8 +126,19 @@ export default function FooterNavBar({
   };
 
   return (
-    <div className="fixed !bottom-0 left-0 z-2 w-full">
-      <ScrollToTopButton />
+    <div
+      className={classNames(
+        'fixed !bottom-0 left-0 z-2 w-full',
+        post && 'bg-blur-bg backdrop-blur-20',
+      )}
+    >
+      {post ? (
+        <div className="mb-2 w-full px-2 tablet:hidden">
+          <NewComment post={post} />
+        </div>
+      ) : (
+        <ScrollToTopButton />
+      )}
       <Flipper
         flipKey={selectedTab}
         spring="veryGentle"
