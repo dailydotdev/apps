@@ -5,9 +5,9 @@ import { ButtonSize } from './buttons/common';
 import { SharedFeedPage } from './utilities';
 import { DiscussIcon, HotIcon, UpvoteIcon } from './icons';
 import { IconSize } from './Icon';
+import { useActiveFeedNameContext } from '../contexts';
 
 interface FeedSelectorProps {
-  currentFeed: SharedFeedPage;
   className?: string;
 }
 
@@ -36,10 +36,10 @@ const feedOptions = [
 ];
 
 export default function FeedSelector({
-  currentFeed,
   className,
 }: FeedSelectorProps): ReactElement {
   const router = useRouter();
+  const { feedName: currentFeed } = useActiveFeedNameContext();
   const selectedFeedIdx = feedOptions.findIndex((f) => f.value === currentFeed);
   const handleSwitchFeed = useCallback(
     (feed: SharedFeedPage) => {
@@ -66,7 +66,7 @@ export default function FeedSelector({
       }}
       iconOnly={false}
       key="feed"
-      icon={feedOptions[selectedFeedIdx].icon(true)}
+      icon={feedOptions[selectedFeedIdx]?.icon?.(true)}
       selectedIndex={selectedFeedIdx}
       renderItem={(_, index) => (
         <>

@@ -106,7 +106,7 @@ export const SearchControlHeader = ({
       wrapper={(children) => (
         <div className="flex w-full items-center justify-between">
           {isPopular || isUpvoted || isDiscussed ? (
-            <FeedSelector currentFeed={feedName} />
+            <FeedSelector />
           ) : (
             isStreaksEnabled && (
               <ReadingStreakButton streak={streak} isLoading={isLoading} />

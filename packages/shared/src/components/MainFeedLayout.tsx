@@ -231,7 +231,7 @@ export default function MainFeedLayout({
       ),
       query: query.query,
       variables,
-      emptyScreen: <FeedEmptyScreen feedName={feedName} />,
+      emptyScreen: <FeedEmptyScreen />,
       header: null,
       actionButtons: feedWithActions && (
         <SearchControlHeader {...searchProps} />

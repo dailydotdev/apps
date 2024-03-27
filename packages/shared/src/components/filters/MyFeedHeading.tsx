@@ -51,45 +51,39 @@ function MyFeedHeading({
   });
   const isRefreshing = feedQueryState?.status === 'success' && isFetchingFeed;
 
-  const RenderFeedActions = () => {
-    return (
-      <>
-        {forceRefresh && (
-          <Button
-            size={
-              shouldUseMobileFeedLayout ? ButtonSize.Small : ButtonSize.Medium
-            }
-            variant={ButtonVariant.Float}
-            className="mr-auto"
-            onClick={onRefresh}
-            icon={<RefreshIcon />}
-            iconPosition={
-              shouldUseMobileFeedLayout ? ButtonIconPosition.Right : undefined
-            }
-            loading={isRefreshing}
-          >
-            {!isMobile && !isNewMobileLayout ? 'Refresh feed' : null}
-          </Button>
-        )}
+  return (
+    <>
+      {forceRefresh && (
         <Button
           size={
             shouldUseMobileFeedLayout ? ButtonSize.Small : ButtonSize.Medium
           }
           variant={ButtonVariant.Float}
           className="mr-auto"
-          onClick={onClick}
-          icon={<FilterIcon />}
+          onClick={onRefresh}
+          icon={<RefreshIcon />}
           iconPosition={
             shouldUseMobileFeedLayout ? ButtonIconPosition.Right : undefined
           }
+          loading={isRefreshing}
         >
-          {!isMobile && !isNewMobileLayout ? 'Feed settings' : null}
+          {!isMobile && !isNewMobileLayout ? 'Refresh feed' : null}
         </Button>
-      </>
-    );
-  };
-
-  return <RenderFeedActions />;
+      )}
+      <Button
+        size={shouldUseMobileFeedLayout ? ButtonSize.Small : ButtonSize.Medium}
+        variant={ButtonVariant.Float}
+        className="mr-auto"
+        onClick={onClick}
+        icon={<FilterIcon />}
+        iconPosition={
+          shouldUseMobileFeedLayout ? ButtonIconPosition.Right : undefined
+        }
+      >
+        {!isMobile && !isNewMobileLayout ? 'Feed settings' : null}
+      </Button>
+    </>
+  );
 }
 
 export default MyFeedHeading;
