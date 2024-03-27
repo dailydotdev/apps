@@ -92,7 +92,12 @@ export function WriteFreeformContent({
   const [onFormUpdate] = useDebounce(onUpdate, 3000);
 
   return (
-    <WritePageMain className={className} onSubmit={handleSubmit} ref={formRef}>
+    <WritePageMain
+      className={className}
+      onSubmit={handleSubmit}
+      ref={formRef}
+      id="write-post"
+    >
       <ImageInput
         className={{
           container:
