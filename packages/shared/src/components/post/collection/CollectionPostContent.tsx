@@ -12,7 +12,6 @@ import { Separator } from '../../cards/common';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
 import { CollectionPostWidgets } from './CollectionPostWidgets';
-import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
 import {
   PostContainer,
   PostContentProps,
@@ -98,15 +97,6 @@ export const CollectionPostContent = ({
         className={classNames('relative', className?.content)}
         data-testid="postContainer"
       >
-        {!hasNavigation && (
-          <CollectionPostHeaderActions
-            post={post}
-            onClose={onClose}
-            className="flex tablet:hidden"
-            contextMenuId="post-widgets-context"
-          />
-        )}
-
         <BasePostContent
           className={{
             ...className,

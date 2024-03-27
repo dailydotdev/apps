@@ -39,6 +39,7 @@ export function BasePostContent({
       {isPostPage ? (
         <PostContentHeaderMobile
           post={post}
+          className={className.header}
           onReadArticle={navigationProps.onReadArticle}
         />
       ) : (
