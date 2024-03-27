@@ -13,6 +13,8 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
+import classNames from 'classnames';
+import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getTemplatedTitle } from '../utils';
 import SidebarNav from './SidebarNav';
@@ -30,6 +32,8 @@ export const navigationKey = generateQueryKey(
 export default function AccountLayout({
   children,
 }: AccountLayoutProps): ReactElement {
+  const { user: profile, isFetched } = useContext(AuthContext);
+  const { isNewMobileLayout } = useMobileUxExperiment();
   const { isNewMobileLayout } = useMobileUxExperiment();
   const { user: profile, isFetched, logout } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useQueryState({
@@ -66,7 +70,6 @@ export default function AccountLayout({
       <main
         className={classNames(
           'relative mx-auto flex w-full flex-1 flex-row items-stretch pt-0 laptop:max-w-[calc(100vw-17.5rem)]',
-          isNewMobileLayout && 'tablet:pl-16',
         )}
       >
         {isMobile ? (
