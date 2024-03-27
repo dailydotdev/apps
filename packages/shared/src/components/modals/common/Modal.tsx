@@ -32,7 +32,7 @@ export interface ModalProps extends ReactModal.Props, DrawerOnMobileProps {
   onTrackNext?: AnalyticsEvent;
   onTrackPrev?: AnalyticsEvent;
   isDrawerOnMobile?: boolean;
-  formProps?: Omit<FormWrapperProps, 'children' | 'onLeftClick'>;
+  formProps?: Omit<FormWrapperProps, 'children'>;
 }
 
 export type LazyModalCommonProps = Pick<

@@ -20,6 +20,7 @@ export interface PostContentClassName {
   onboarding?: string;
   navigation?: PostNavigationClassName;
   fixedNavigation?: PostNavigationClassName;
+  header?: string;
 }
 
 type PostActions = Pick<

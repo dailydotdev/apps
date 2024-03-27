@@ -95,7 +95,7 @@ export function PostComments({
   }
 
   return (
-    <div className="mb-12 flex flex-col gap-4" ref={container}>
+    <div className="mb-12 mt-6 flex flex-col gap-4" ref={container}>
       {comments.postComments.edges.map((e, index) => (
         <MainComment
           className={{ commentBox: className }}
