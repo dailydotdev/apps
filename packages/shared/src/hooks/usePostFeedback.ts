@@ -5,7 +5,7 @@ import { Post, dismissPostFeedback, UserPostVote } from '../graphql/posts';
 import { optimisticPostUpdateInFeed } from '../lib/feed';
 import { updatePostCache } from './usePostById';
 import { updateCachedPagePost } from '../lib/query';
-import { ActiveFeedContext } from '../contexts';
+import { ActiveFeedContext } from '../contexts/ActiveFeedContext';
 import { SharedFeedPage } from '../components/utilities';
 import { EmptyResponse } from '../graphql/emptyResponse';
 import AnalyticsContext from '../contexts/AnalyticsContext';

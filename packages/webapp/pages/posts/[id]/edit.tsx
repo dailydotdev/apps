@@ -13,7 +13,7 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
 import { NextSeo, NextSeoProps } from 'next-seo';
-import { WritePostContext } from '@dailydotdev/shared/src/contexts';
+import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
@@ -34,6 +34,7 @@ function EditPost(): ReactElement {
     draft,
     updateDraft,
     isDraftReady,
+    isUpdatingDraft,
     formRef,
     clearDraft,
   } = useDiscardPost({ post });
@@ -87,17 +88,16 @@ function EditPost(): ReactElement {
   })();
 
   return (
-    <WritePostContext.Provider
-      value={{
-        updateDraft,
-        onSubmitForm: onClickSubmit,
-        formRef,
-        draft,
-        squad,
-        post,
-        isPosting: isPosting || isSuccess,
-        enableUpload: true,
-      }}
+    <WritePostContextProvider
+      post={post}
+      draft={draft}
+      squad={squad}
+      formRef={formRef}
+      isUpdatingDraft={isUpdatingDraft}
+      isPosting={isPosting || isSuccess}
+      updateDraft={updateDraft}
+      onSubmitForm={onClickSubmit}
+      enableUpload
     >
       <NextSeo {...seo} noindex nofollow />
       <WritePage
@@ -120,7 +120,7 @@ function EditPost(): ReactElement {
           <WriteFreeformContent className="px-4 py-6" />
         )}
       </WritePage>
-    </WritePostContext.Provider>
+    </WritePostContextProvider>
   );
 }
 

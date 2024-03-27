@@ -1,71 +1,137 @@
 version: 2.1
 
 jobs:
+  install_deps:
+    docker:
+      - image: cimg/node:18.16.0
+    steps:
+      - checkout
+      - run:
+          name: Install pnpm
+          command: npm i --prefix=$HOME/.local -g pnpm
+      - restore_cache:
+          keys:
+            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v6-{{ .Branch }}
+      - run:
+          name: Install dependencies
+          command: pnpm install
+      - save_cache:
+          key: deps-v6-{{ checksum "pnpm-lock.yaml" }}
+          paths:
+            - ./node_modules
+            - ./packages/eslint-config/node_modules
+            - ./packages/eslint-rules/node_modules
+            - ./packages/prettier-config/node_modules
+            - ./packages/shared/node_modules
+            - ./packages/webapp/node_modules
+            - ./packages/extension/node_modules
   build:
     docker:
       - image: cimg/node:18.16.0
     resource_class: medium+
     steps:
       - checkout
-      - run:
-          name: Install pnpm
-          command: npm i --prefix=$HOME/.local -g pnpm
       - restore_cache:
           keys:
             - deps-v6-{{ checksum "pnpm-lock.yaml" }}
             - deps-v6-{{ .Branch }}
-      - run:
-          name: Install dependencies
-          command: pnpm install
-      - save_cache:
-          key: deps-v6-{{ checksum "pnpm-lock.yaml" }}
-          paths:
-            - ./node_modules
-            - ./packages/eslint-config/node_modules
-            - ./packages/eslint-rules/node_modules
-            - ./packages/prettier-config/node_modules
-            - ./packages/shared/node_modules
-            - ./packages/webapp/node_modules
-            - ./packages/extension/node_modules
       - run:
           name: Build
           command: npm run build:chrome
           working_directory: packages/extension
-  test:
+  test_extension:
     docker:
       - image: cimg/node:18.16.0
-    resource_class: medium+
+    parallelism: 1
     steps:
       - checkout
-      - run:
-          name: Install pnpm
-          command: npm i --prefix=$HOME/.local -g pnpm
       - restore_cache:
           keys:
             - deps-v6-{{ checksum "pnpm-lock.yaml" }}
             - deps-v6-{{ .Branch }}
       - run:
-          name: Install dependencies
-          command: pnpm install
-      - save_cache:
-          key: deps-v6-{{ checksum "pnpm-lock.yaml" }}
-          paths:
-            - ./node_modules
-            - ./packages/eslint-config/node_modules
-            - ./packages/eslint-rules/node_modules
-            - ./packages/prettier-config/node_modules
-            - ./packages/shared/node_modules
-            - ./packages/webapp/node_modules
-            - ./packages/extension/node_modules
-      - run:
           name: Test
-          command: pnpm run -r test:ci
+          command: |
+            npm run pretest
+            TEST=$(./node_modules/.bin/jest --listTests)
+            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
+          working_directory: packages/extension
+      - store_test_results:
+          path: ./test-results
+  test_webapp:
+    docker:
+      - image: cimg/node:18.16.0
+    parallelism: 1
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v6-{{ .Branch }}
+      - run:
+          name: Test
+          command: |
+            npm run pretest
+            TEST=$(./node_modules/.bin/jest --listTests)
+            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ../../test-results
+          working_directory: packages/webapp
+      - store_test_results:
+          path: ./test-results
+  lint_shared:
+    docker:
+      - image: cimg/node:18.16.0
+    resource_class: large
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v6-{{ .Branch }}
+      - run:
+          name: Lint
+          command: npm run pretest
+          working_directory: packages/shared
+  test_shared:
+    docker:
+      - image: cimg/node:18.16.0
+    parallelism: 1
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - deps-v6-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v6-{{ .Branch }}
+      - run:
+          name: Test
+          command: |
+            TEST=$(./node_modules/.bin/jest --listTests)
+            echo $TEST | circleci tests run --command="xargs ./node_modules/.bin/jest --ci --runInBand --reporters=default --reporters=jest-junit --" --split-by=timings
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ../../test-results
+          working_directory: packages/shared
       - store_test_results:
           path: ./test-results
 workflows:
   build:
     jobs:
-      - build
-      - test
+      - install_deps
+      - build:
+          requires:
+            - install_deps
+      - test_extension:
+          requires:
+            - install_deps
+      - test_webapp:
+          requires:
+            - install_deps
+      - lint_shared:
+          requires:
+            - install_deps
+      - test_shared:
+          requires:
+            - install_deps
