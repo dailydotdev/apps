@@ -11,10 +11,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Dropdown, DropdownProps } from '../fields/Dropdown';
 import { ButtonSize } from '../buttons/common';
-import {
-  CalendarIcon,
-  SortIcon,
-} from '../icons';
+import { CalendarIcon, SortIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { RankingAlgorithm } from '../../graphql/feed';
 import SettingsContext from '../../contexts/SettingsContext';
