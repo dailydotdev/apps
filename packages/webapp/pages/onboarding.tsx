@@ -62,6 +62,7 @@ import {
   GtagTracking,
   PixelTracking,
   TwitterTracking,
+  RedditTracking,
 } from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
@@ -390,6 +391,7 @@ export function OnboardPage(): ReactElement {
       <PixelTracking />
       <GtagTracking />
       <TwitterTracking />
+      <RedditTracking />
       {getProgressBar()}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}

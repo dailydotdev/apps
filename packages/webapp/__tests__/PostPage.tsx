@@ -51,9 +51,20 @@ import {
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
+import { useViewSize } from '@dailydotdev/shared/src/hooks';
 import PostPage, { Props } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
+
+const mockUseViewSize = useViewSize as jest.MockedFunction<typeof useViewSize>;
+
+jest.mock('@dailydotdev/shared/src/hooks', () => {
+  const originalModule = jest.requireActual('@dailydotdev/shared/src/hooks');
+  return {
+    ...originalModule,
+    useViewSize: jest.fn(),
+  };
+});
 
 const showLogin = jest.fn();
 // let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -86,6 +97,7 @@ beforeEach(() => {
         query: {},
       } as unknown as NextRouter),
   );
+  mockUseViewSize.mockImplementation(() => false);
 });
 
 const createPostMock = (
