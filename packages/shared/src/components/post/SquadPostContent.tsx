@@ -86,7 +86,6 @@ function SquadPostContent({
         className={classNames(
           'relative flex-1 flex-col tablet:flex-row tablet:pb-0',
           className?.container,
-          isPostPage && 'pt-6 tablet:pt-0',
         )}
         hasNavigation={hasNavigation}
       >
@@ -100,6 +99,7 @@ function SquadPostContent({
             className={{
               ...className,
               onboarding: classNames('mb-6', className?.onboarding),
+              header: 'mb-6',
               navigation: {
                 actions: 'ml-auto tablet:hidden',
                 container: 'mb-6 pt-6',
