@@ -12,7 +12,7 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useDiscardPost } from '@dailydotdev/shared/src/hooks/input/useDiscardPost';
-import { WritePostContext } from '@dailydotdev/shared/src/contexts';
+import { WritePostContextProvider } from '@dailydotdev/shared/src/contexts';
 import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
@@ -108,17 +108,15 @@ function CreatePost(): ReactElement {
   }
 
   return (
-    <WritePostContext.Provider
-      value={{
-        draft,
-        updateDraft,
-        formRef,
-        isUpdatingDraft,
-        onSubmitForm: onClickSubmit,
-        squad,
-        isPosting: isPosting || isSuccess,
-        enableUpload: true,
-      }}
+    <WritePostContextProvider
+      draft={draft}
+      squad={squad}
+      formRef={formRef}
+      isUpdatingDraft={isUpdatingDraft}
+      isPosting={isPosting || isSuccess}
+      updateDraft={updateDraft}
+      onSubmitForm={onClickSubmit}
+      enableUpload
     >
       <WritePageContainer>
         <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
@@ -145,7 +143,7 @@ function CreatePost(): ReactElement {
           </Tab>
         </TabContainer>
       </WritePageContainer>
-    </WritePostContext.Provider>
+    </WritePostContextProvider>
   );
 }
 
