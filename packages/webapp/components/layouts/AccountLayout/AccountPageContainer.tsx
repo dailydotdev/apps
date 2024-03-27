@@ -1,5 +1,4 @@
 import React, { ReactElement, ReactNode } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
   Button,
@@ -7,11 +6,13 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import {
   AccountPageContent,
   AccountPageHeading,
   AccountPageSection,
 } from './common';
+import { navigationKey } from '.';
 
 interface ClassName {
   container?: string;
@@ -37,8 +38,10 @@ export const AccountPageContainer = ({
   className = {},
   onBack,
 }: AccountPageContainerProps): ReactElement => {
-  const client = useQueryClient();
-  const openSideNav = () => client.setQueryData(['account_nav_open'], true);
+  const [, setIsOpen] = useQueryState({
+    key: navigationKey,
+    defaultValue: false,
+  });
 
   return (
     <AccountPageContent className={classNames('relative', className.container)}>
@@ -48,7 +51,7 @@ export const AccountPageContainer = ({
           icon={<ArrowIcon className="-rotate-90" />}
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.XSmall}
-          onClick={openSideNav}
+          onClick={() => setIsOpen(true)}
         />
         {onBack && (
           <Button

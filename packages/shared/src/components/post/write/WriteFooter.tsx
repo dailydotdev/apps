@@ -48,7 +48,7 @@ export function WriteFooter({
         variant={ButtonVariant.Primary}
         color={ButtonColor.Cabbage}
         className={classNames(
-          'ml-auto w-full tablet:mt-0 tablet:w-32',
+          'ml-auto hidden w-full tablet:mt-0 tablet:w-32 laptop:flex',
           shouldShowCta && 'mt-6',
         )}
         disabled={isLoading}
