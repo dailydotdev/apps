@@ -5,6 +5,7 @@ import React, {
   ReactElement,
   useContext,
 } from 'react';
+import { useRouter } from 'next/router';
 import { Post } from '../graphql/posts';
 import { Squad } from '../graphql/sources';
 import ConditionalWrapper from '../components/ConditionalWrapper';
@@ -52,6 +53,7 @@ export const WritePostContextProvider = ({
   ...props
 }: PropsWithChildren<WritePostProps>): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const router = useRouter();
 
   return (
     <WritePostContext.Provider value={props}>
@@ -62,6 +64,7 @@ export const WritePostContextProvider = ({
             className={{ container: 'w-full', header: 'border-b-0' }}
             copy={{ right: 'Post' }}
             rightButtonProps={{ disabled: props.isPosting }}
+            leftButtonProps={{ onClick: () => router.back() }}
             form="write-post"
           >
             {component}
