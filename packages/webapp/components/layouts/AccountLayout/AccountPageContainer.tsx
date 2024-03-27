@@ -12,6 +12,7 @@ import {
   AccountPageHeading,
   AccountPageSection,
 } from './common';
+import { navigationKey } from '.';
 
 interface ClassName {
   container?: string;
@@ -38,7 +39,7 @@ export const AccountPageContainer = ({
   onBack,
 }: AccountPageContainerProps): ReactElement => {
   const client = useQueryClient();
-  const openSideNav = () => client.setQueryData(['account_nav_open'], true);
+  const openSideNav = () => client.setQueryData(navigationKey, true);
 
   return (
     <AccountPageContent className={classNames('relative', className.container)}>
