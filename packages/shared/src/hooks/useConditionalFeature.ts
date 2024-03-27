@@ -20,12 +20,7 @@ export const useConditionalFeature = <T extends JSONValue>({
 }): UseConditionalFeature<T> => {
   const { user } = useContext(AuthContext);
   const { growthbook } = useGrowthBookContext();
-  const queryKey = generateQueryKey(
-    RequestKey.Feature,
-    user,
-    feature.id,
-    growthbook,
-  );
+  const queryKey = generateQueryKey(RequestKey.Feature, user, feature.id);
 
   const { data: featureValue, isLoading } = useQuery(
     queryKey,
