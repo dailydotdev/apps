@@ -31,7 +31,7 @@ const CompanionPermissionComponent = (
           {title}
         </p>
         <p
-          className="my-2 text-theme-label-tertiary"
+          className="my-2 text-text-tertiary"
           data-testid="companion_permission_description"
         >
           {description}

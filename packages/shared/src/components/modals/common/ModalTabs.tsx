@@ -31,7 +31,7 @@ export function ModalTabs({
               disabled && 'opacity-64',
               tab === activeView
                 ? 'bg-theme-active font-bold'
-                : 'text-theme-label-tertiary',
+                : 'text-text-tertiary',
             )}
             onClick={() => onClick(tabTitle)}
             type="button"
@@ -40,7 +40,7 @@ export function ModalTabs({
             {tabTitle}
             {tabTitle === activeView && (
               <div
-                className="absolute mx-auto h-px w-4 bg-theme-label-primary"
+                className="absolute mx-auto h-px w-4 bg-text-primary"
                 style={{ bottom: '-0.75rem', left: 'calc(50% - 0.5rem)' }}
               />
             )}

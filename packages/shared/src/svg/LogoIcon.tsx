@@ -5,7 +5,7 @@ export default function LogoIcon(
 ): ReactElement {
   return (
     <svg viewBox="0 0 32 18" xmlns="http://www.w3.org/2000/svg" {...props}>
-      <g fill="var(--theme-label-primary)" fillRule="nonzero">
+      <g fill="var(--theme-text-primary)" fillRule="nonzero">
         <path
           d="M26.633 8.69l-3.424-3.431 1.711-3.43 5.563 5.575c.709.71.709 1.861 0 2.572l-6.847 6.86c-.709.711-1.858.711-2.567 0a1.821 1.821 0 010-2.571l5.564-5.575z"
           fillOpacity={0.64}

@@ -41,7 +41,7 @@
     padding: 0 1.5rem;
     font-size: 1.0625rem;
     border-radius: 0.875rem;
-    color: var(--theme-label-primary);
+    color: var(--theme-text-primary);
   }
 
   &.bg-theme-color-cabbage {
@@ -256,7 +256,7 @@
 }
 
 .btn-signback {
-  @apply flex flex-row items-center p-3 py-2 w-full rounded-12 bg-theme-label-primary;
+  @apply flex flex-row items-center p-3 py-2 w-full rounded-12 bg-text-primary;
 
   padding: 0.5rem 0.75rem 0.5rem 0.75rem !important;
   height: 3.25rem;

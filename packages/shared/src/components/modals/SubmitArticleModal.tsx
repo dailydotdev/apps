@@ -161,7 +161,7 @@ export default function SubmitArticleModal({
         <AlertParagraph>
           For more details see our{' '}
           <a
-            className="text-theme-label-link hover:underline"
+            className="text-text-link hover:underline"
             href={contentGuidelinesLink}
             target="_blank"
             rel="noopener"
@@ -216,13 +216,13 @@ export default function SubmitArticleModal({
           className="flex flex-col gap-5"
         >
           <div className="flex flex-col gap-4">
-            <p className="text-theme-label-tertiary typo-callout">
+            <p className="text-text-tertiary typo-callout">
               Found an interesting post? Do you want to share it with the
               community? Enter the post&apos;s URL / link below to add it to the
               feed.
             </p>
             <a
-              className="font-bold text-theme-label-link underline typo-callout"
+              className="font-bold text-text-link underline typo-callout"
               target="_blank"
               rel="noopener"
               href={communityLinksGuidelines}
@@ -242,7 +242,7 @@ export default function SubmitArticleModal({
             leftIcon={<LinkIcon />}
             rightIcon={
               !isEnabled ? (
-                <LockIcon className="text-theme-label-disabled" />
+                <LockIcon className="text-text-disabled" />
               ) : undefined
             }
             fieldType="tertiary"

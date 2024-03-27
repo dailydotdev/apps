@@ -10,7 +10,7 @@
 
 .switch {
   &:hover .knob {
-    background: var(--theme-label-primary);
+    background: var(--theme-text-primary);
   }
 
   &:hover input:checked ~ * .knob {
@@ -33,7 +33,7 @@
       }
 
       & ~ .children {
-        color: var(--theme-label-primary);
+        color: var(--theme-text-primary);
       }
   }
 }

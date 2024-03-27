@@ -31,7 +31,7 @@ export function WritePreviewSkeleton({
         value={link}
       />
       <WritePreviewContent>
-        <span className="absolute left-2 top-2 text-theme-label-quaternary typo-caption1">
+        <span className="absolute left-2 top-2 text-text-quaternary typo-caption1">
           Fetching preview, please hold...
         </span>
         <div className="flex flex-1 flex-col typo-footnote">

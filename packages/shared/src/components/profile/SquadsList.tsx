@@ -92,12 +92,12 @@ function SquadItem({
             <p className="overflow-hidden text-ellipsis whitespace-nowrap font-bold typo-caption1">
               {squad.name}
             </p>
-            <p className="overflow-hidden text-ellipsis whitespace-nowrap text-theme-label-quaternary typo-caption2">
+            <p className="overflow-hidden text-ellipsis whitespace-nowrap text-text-quaternary typo-caption2">
               @{squad.handle}
             </p>
           </div>
         </div>
-        <div className="mt-1 flex h-6 items-center text-theme-label-tertiary typo-caption2 tablet:h-auto">
+        <div className="mt-1 flex h-6 items-center text-text-tertiary typo-caption2 tablet:h-auto">
           {membership.role !== SourceMemberRole.Member && (
             <>
               <SquadMemberBadge

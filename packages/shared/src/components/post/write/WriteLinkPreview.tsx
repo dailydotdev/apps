@@ -57,7 +57,7 @@ export function WriteLinkPreview({
               ) : (
                 <span className="mt-1 flex flex-row items-center">
                   <SourceAvatar size="small" source={preview.source} />
-                  <span className="text-theme-label-tertiary">
+                  <span className="text-text-tertiary">
                     {preview.source?.name}
                   </span>
                 </span>

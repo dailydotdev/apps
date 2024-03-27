@@ -170,7 +170,7 @@ const UserHighlight = (props: SourceAuthorProps) => {
           )}
           {(handle || username || id) && (
             <ProfileLink
-              className="mt-0.5 !block truncate text-theme-label-tertiary typo-footnote"
+              className="mt-0.5 !block truncate text-text-tertiary typo-footnote"
               href={permalink}
             >
               @{handle || username || id}

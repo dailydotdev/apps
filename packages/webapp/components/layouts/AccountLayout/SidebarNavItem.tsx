@@ -32,7 +32,7 @@ function SidebarNavItem({
         <span
           className={classNames(
             'ml-2 typo-callout',
-            !isActive && 'text-theme-label-tertiary',
+            !isActive && 'text-text-tertiary',
           )}
         >
           {title}

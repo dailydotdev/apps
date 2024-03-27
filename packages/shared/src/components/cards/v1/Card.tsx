@@ -19,7 +19,7 @@ const Title = ({
     <h3
       {...rest}
       className={classNames(
-        'multi-truncate font-bold text-theme-label-primary typo-title3',
+        'multi-truncate font-bold text-text-primary typo-title3',
         lineClamp,
         className,
       )}

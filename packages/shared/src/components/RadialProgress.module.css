@@ -18,7 +18,7 @@
       var(--radial-progress-transition-delay);
 
     &:global(.primary) {
-      stroke: var(--theme-label-primary);
+      stroke: var(--theme-text-primary);
     }
   }
 }

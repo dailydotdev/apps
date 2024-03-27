@@ -13,10 +13,10 @@ const order: (keyof UserStatsProps['stats'])[] = [
 
 export function UserStats({ stats }: UserStatsProps): ReactElement {
   return (
-    <div className="flex flex-wrap items-center gap-2 text-theme-label-tertiary typo-footnote">
+    <div className="flex flex-wrap items-center gap-2 text-text-tertiary typo-footnote">
       {order.map((key) => (
         <div className="flex items-center gap-1" key={key} data-testid={key}>
-          <b className="text-theme-label-primary typo-subhead">
+          <b className="text-text-primary typo-subhead">
             {largeNumberFormat(stats[key] || 0)}
           </b>
           <span className="capitalize">{key}</span>

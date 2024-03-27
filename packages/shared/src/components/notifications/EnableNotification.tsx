@@ -129,7 +129,7 @@ function EnableNotification({
       <div className="mt-2 flex justify-between gap-2">
         <p
           className={classNames(
-            'w-full text-theme-label-tertiary tablet:w-3/5',
+            'w-full text-text-tertiary tablet:w-3/5',
             source === NotificationPromptSource.SourceSubscribe && 'flex-1',
           )}
         >

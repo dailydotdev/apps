@@ -45,7 +45,7 @@ function FixedPostNavigation({
           hasNavigation && 'hidden tablet:flex',
         )}
       >
-        <span className="overflow-hidden text-ellipsis whitespace-nowrap text-theme-label-tertiary typo-footnote">
+        <span className="overflow-hidden text-ellipsis whitespace-nowrap text-text-tertiary typo-footnote">
           {content.subtitle}
         </span>
         <h3 className="overflow-hidden text-ellipsis whitespace-nowrap font-bold typo-body">

@@ -68,7 +68,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
 
   return (
     <WidgetContainer className="hidden flex-col p-3 laptop:flex">
-      <p className="mb-4 text-theme-label-tertiary typo-callout">
+      <p className="mb-4 text-text-tertiary typo-callout">
         Would you recommend this post?
       </p>
       <div className="grid grid-cols-4 gap-2 gap-y-4">

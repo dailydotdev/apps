@@ -73,7 +73,7 @@ export function ProfileWidgets({
         />
         <UserStats stats={stats} />
         {(user.bio || isSameUser) && (
-          <div className="text-theme-label-tertiary typo-callout">
+          <div className="text-text-tertiary typo-callout">
             {user.bio || (
               <Button
                 variant={ButtonVariant.Secondary}
@@ -91,7 +91,7 @@ export function ProfileWidgets({
       <SocialChips links={user} />
       {(isSameUser || sources?.edges?.length > 0) && (
         <div className="flex flex-col gap-3">
-          <div className="px-4 text-theme-label-tertiary typo-footnote">
+          <div className="px-4 text-text-tertiary typo-footnote">
             Active in these Squads
           </div>
           <SquadsList memberships={sources} userId={user.id} />

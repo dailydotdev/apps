@@ -22,7 +22,7 @@ export function SidebarUserButton({
               <div className="mb-4 flex items-center">
                 <ProfileLink
                   href={user.permalink}
-                  className="focus-outline flex h-10 cursor-pointer items-center rounded-12 border-none bg-background-subtle p-0 font-bold text-theme-label-primary no-underline typo-callout"
+                  className="focus-outline flex h-10 cursor-pointer items-center rounded-12 border-none bg-background-subtle p-0 font-bold text-text-primary no-underline typo-callout"
                 >
                   <ProfilePicture user={user} size="large" />
                   <ReputationUserBadge
@@ -38,7 +38,7 @@ export function SidebarUserButton({
                 <ProfileButton settingsIconOnly />
               </div>
               <strong className="mb-0.5 typo-callout">{user.name}</strong>
-              <p className="text-theme-label-secondary typo-footnote">
+              <p className="text-text-secondary typo-footnote">
                 @{user.username}
               </p>
             </>

@@ -53,7 +53,7 @@ export function SquadPageHeader({
           <h3 className="text-center font-bold typo-title2 laptopL:text-left">
             {squad.name}
           </h3>
-          <h4 className="mt-1 text-center text-theme-label-tertiary typo-body tablet:mt-2 laptopL:text-left">
+          <h4 className="mt-1 text-center text-text-tertiary typo-body tablet:mt-2 laptopL:text-left">
             @{squad.handle}
           </h4>
         </FlexCol>
@@ -61,7 +61,7 @@ export function SquadPageHeader({
       {squad.description && (
         <p
           className={classNames(
-            'mt-6 w-full text-center text-theme-label-tertiary typo-body laptopL:text-left',
+            'mt-6 w-full text-center text-text-tertiary typo-body laptopL:text-left',
             MAX_WIDTH,
           )}
         >
@@ -98,7 +98,7 @@ export function SquadPageHeader({
             <>
               <Divider />
               {children}
-              <FlexCentered className="relative mx-2 my-2 w-full text-theme-label-tertiary typo-callout tablet:w-auto">
+              <FlexCentered className="relative mx-2 my-2 w-full text-text-tertiary typo-callout tablet:w-auto">
                 <span className="absolute -left-6 flex h-px w-[calc(100%+3rem)] bg-theme-divider-tertiary tablet:hidden" />
                 <span className="z-0 bg-background-default px-4">or</span>
               </FlexCentered>

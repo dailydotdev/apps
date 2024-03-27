@@ -73,9 +73,7 @@ export const OnboardingHeader = ({
         position={LogoPosition.Relative}
       />
 
-      <span
-        className={classNames('flex items-center', 'text-theme-label-tertiary')}
-      >
+      <span className={classNames('flex items-center', 'text-text-tertiary')}>
         <span className="hidden tablet:block">Already using daily.dev?</span>
         <Button
           className="ml-3"

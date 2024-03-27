@@ -14,7 +14,7 @@ const IntroSection = (): ReactElement => {
           target="_blank"
           href={weeklyGoal}
           rel="noopener"
-          className="inline-flex text-theme-label-link"
+          className="inline-flex text-text-link"
         >
           Learn more.
         </ClickableText>

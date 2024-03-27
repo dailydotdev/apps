@@ -55,7 +55,7 @@ export function ReportModal({
       <Modal.Header title={heading} />
       <Modal.Body className="py-5">
         {title && (
-          <p className="mb-6 text-theme-label-tertiary typo-callout">{title}</p>
+          <p className="mb-6 text-text-tertiary typo-callout">{title}</p>
         )}
         <Radio
           name="report_reason"

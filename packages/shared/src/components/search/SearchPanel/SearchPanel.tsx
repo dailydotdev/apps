@@ -194,7 +194,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
                     });
                   }}
                 >
-                  <div className="flex items-center justify-center text-theme-label-tertiary typo-subhead">
+                  <div className="flex items-center justify-center text-text-tertiary typo-subhead">
                     See more posts <ArrowIcon className="!size-4 rotate-90" />
                   </div>
                 </SearchPanelCustomAction>

@@ -26,7 +26,7 @@ export const PaginationActions = ({
 }: PaginationActionsProps): ReactElement => {
   return (
     <div className="hidden items-center justify-between border-t border-theme-divider-tertiary p-3 laptop:flex">
-      <p className="ml-1 text-theme-label-tertiary typo-callout">
+      <p className="ml-1 text-text-tertiary typo-callout">
         {current}/{max}
       </p>
       <div className="flex ">

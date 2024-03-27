@@ -239,7 +239,7 @@ function MarkdownInput(
                 {...callbacks}
                 ref={textareaRef}
                 className={classNames(
-                  'flex max-h-commentBox flex-1 bg-transparent placeholder-theme-label-quaternary outline-none typo-body',
+                  'flex max-h-commentBox flex-1 bg-transparent placeholder-text-quaternary outline-none typo-body',
                   showUserAvatar ? 'm-3' : 'm-4',
                   className?.input,
                 )}
@@ -262,7 +262,7 @@ function MarkdownInput(
         appendTo={parentSelector}
       />
       {footer ?? (
-        <span className="flex flex-row items-center gap-3 border-theme-divider-tertiary p-3 px-4 text-theme-label-tertiary laptop:justify-end laptop:border-t">
+        <span className="flex flex-row items-center gap-3 border-theme-divider-tertiary p-3 px-4 text-text-tertiary laptop:justify-end laptop:border-t">
           {!!onUploadCommand && (
             <Button
               size={actionButtonSizes}

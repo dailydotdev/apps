@@ -230,7 +230,7 @@ export const SocialRegistrationForm = ({
             }}
           />
         )}
-        <span className="border-b border-theme-divider-tertiary pb-4 text-theme-label-secondary typo-subhead">
+        <span className="border-b border-theme-divider-tertiary pb-4 text-text-secondary typo-subhead">
           Your email will be used to send you product and community updates
         </span>
         <Checkbox name="optOutMarketing" className="font-normal">

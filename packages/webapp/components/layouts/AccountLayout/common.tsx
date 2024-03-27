@@ -98,7 +98,7 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
     getIcon: ({ isActive }) => (
       <LockIcon
         secondary={isActive}
-        className={!isActive && 'text-theme-label-secondary'}
+        className={!isActive && 'text-text-secondary'}
       />
     ),
   },
@@ -108,7 +108,7 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
     getIcon: ({ isActive }) => (
       <BellIcon
         secondary={isActive}
-        className={!isActive && 'text-theme-label-secondary'}
+        className={!isActive && 'text-text-secondary'}
       />
     ),
   },
@@ -118,7 +118,7 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
     getIcon: ({ isActive }) => (
       <InviteIcon
         secondary={isActive}
-        className={!isActive && 'text-theme-label-secondary'}
+        className={!isActive && 'text-text-secondary'}
       />
     ),
   },
@@ -128,7 +128,7 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
     getIcon: ({ isActive }) => (
       <SettingsIcon
         secondary={isActive}
-        className={!isActive && 'text-theme-label-secondary'}
+        className={!isActive && 'text-text-secondary'}
       />
     ),
   },

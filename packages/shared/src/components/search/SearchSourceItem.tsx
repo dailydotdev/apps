@@ -41,7 +41,7 @@ export function SearchSourceItem({
       >
         {name}
       </ClickableText>
-      <p className="multi-truncate line-clamp-4 text-theme-label-tertiary typo-footnote">
+      <p className="multi-truncate line-clamp-4 text-text-tertiary typo-footnote">
         {snippet}
       </p>
     </div>

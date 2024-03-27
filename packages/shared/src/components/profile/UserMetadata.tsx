@@ -25,7 +25,7 @@ export function UserMetadata({
   return (
     <div
       className={classNames(
-        'flex flex-col text-theme-label-quaternary typo-caption2',
+        'flex flex-col text-text-quaternary typo-caption2',
         className,
       )}
     >
@@ -33,7 +33,7 @@ export function UserMetadata({
         <h2
           className={classNames(
             truncateTextClassNames,
-            'font-bold text-theme-label-primary typo-title3',
+            'font-bold text-text-primary typo-title3',
           )}
         >
           {name}
@@ -48,12 +48,12 @@ export function UserMetadata({
         )}
       </div>
       <div className="flex items-center">
-        <TruncateText className="text-theme-label-secondary typo-footnote">
+        <TruncateText className="text-text-secondary typo-footnote">
           @{username}
         </TruncateText>
         <Separator />
         <JoinedDate
-          className="text-theme-label-quaternary typo-caption2"
+          className="text-text-quaternary typo-caption2"
           date={new Date(createdAt)}
         />
       </div>

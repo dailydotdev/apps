@@ -356,7 +356,7 @@ export function RankProgress({
               <span className="font-bold text-theme-rank typo-callout">
                 {animatingProgress ? getLevelText : getRankName(shownRank)}
               </span>
-              <span className="text-theme-label-tertiary typo-footnote">
+              <span className="text-text-tertiary typo-footnote">
                 {getNextRankText({
                   nextRank,
                   rank,

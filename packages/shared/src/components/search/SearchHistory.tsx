@@ -37,7 +37,7 @@ export function SearchHistory({
 
   return (
     <SearchHistoryContainer className={className}>
-      <span className="font-bold text-theme-label-quaternary typo-footnote">
+      <span className="font-bold text-text-quaternary typo-footnote">
         {title}
       </span>
       {nodes?.map(({ node: suggestion }) => (

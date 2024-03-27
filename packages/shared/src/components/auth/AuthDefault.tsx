@@ -142,7 +142,7 @@ const AuthDefault = ({
     <>
       <AuthHeader simplified={simplified} title={title} />
       {simplified && !shouldLogin && (
-        <p className="mt-3 whitespace-pre-line px-6 text-center text-theme-label-secondary typo-body">
+        <p className="mt-3 whitespace-pre-line px-6 text-center text-text-secondary typo-body">
           Once you sign up, your personal feed will be ready to explore.
         </p>
       )}

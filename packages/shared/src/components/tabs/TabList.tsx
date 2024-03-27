@@ -42,7 +42,7 @@ function TabList({
           }}
           className={classNames(
             'relative p-2 py-4 text-center font-bold typo-callout',
-            tab === active ? '' : 'text-theme-label-tertiary',
+            tab === active ? '' : 'text-text-tertiary',
           )}
           onClick={() => onClick(tab)}
           type="button"
@@ -61,7 +61,7 @@ function TabList({
       {offset !== undefined && (
         <div
           className={classNames(
-            'absolute bottom-0 mx-auto h-0.5 w-12 -translate-x-1/2 rounded-4 bg-theme-label-primary transition-[left] ease-linear',
+            'absolute bottom-0 mx-auto h-0.5 w-12 -translate-x-1/2 rounded-4 bg-text-primary transition-[left] ease-linear',
             className?.indicator,
           )}
           style={{ left: offset }}

@@ -6,9 +6,9 @@ import { IconSize } from '../Icon';
 export function SearchEmpty(): ReactElement {
   return (
     <SearchHistoryContainer className="items-center pt-24">
-      <AiIcon className="text-theme-label-tertiary" size={IconSize.XXXLarge} />
+      <AiIcon className="text-text-tertiary" size={IconSize.XXXLarge} />
       <h1 className="text-center typo-title1">Your search history is empty.</h1>
-      <p className="text-center text-theme-label-secondary typo-body">
+      <p className="text-center text-text-secondary typo-body">
         Go back to your feed, begin exploring with your queries. Each search
         query will be listed here.
       </p>

@@ -37,7 +37,7 @@ const PanelItem = ({
     <SearchPanelItem {...rest} icon={<SearchIcon />} {...itemProps}>
       {!!purifySanitize && (
         <span
-          className="flex-shrink overflow-hidden overflow-ellipsis whitespace-nowrap typo-subhead [&>strong]:text-theme-label-primary"
+          className="flex-shrink overflow-hidden overflow-ellipsis whitespace-nowrap typo-subhead [&>strong]:text-text-primary"
           dangerouslySetInnerHTML={{
             __html: purifySanitize(suggestion.title),
           }}

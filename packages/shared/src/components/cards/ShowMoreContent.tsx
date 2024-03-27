@@ -42,7 +42,7 @@ export default function ShowMoreContent({
         {getContent()}{' '}
         {displayShowMoreLink() && (
           <ClickableText
-            className="inline-flex !text-theme-label-link"
+            className="inline-flex !text-text-link"
             onClick={toggleTextExpanded}
           >
             {linkName}

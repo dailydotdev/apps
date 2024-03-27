@@ -21,7 +21,7 @@ function SquadEmptyScreen(): ReactElement {
             : cloudinary.squads.emptySquad
         }
       />
-      <span className="max-w-lg text-theme-label-primary typo-body tablet:typo-title1">
+      <span className="max-w-lg text-text-primary typo-body tablet:typo-title1">
         Get started by sharing your first post and inviting other developers you
         know and appreciate.
       </span>

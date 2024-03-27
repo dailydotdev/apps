@@ -38,7 +38,7 @@ export const SearchPanelInputCursor = ({
       {!!purifySanitize && (
         <div className="ml-0.5 flex items-center rounded-4 bg-overlay-quaternary-cabbage px-1">
           <span
-            className="text-theme-label-tertiary typo-footnote"
+            className="text-text-tertiary typo-footnote"
             dangerouslySetInnerHTML={{
               __html: purifySanitize(searchPanel.providerText),
             }}
