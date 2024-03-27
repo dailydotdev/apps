@@ -33,6 +33,7 @@ module.exports = {
   },
   rules: {
     curly: ['error', 'all'],
+    'import/no-cycle': ['error', {ignoreExternal: false, maxDepth: 3}],
     'react/prop-types': 0,
     'react/require-default-props': 0,
     'react/no-unused-prop-types': 0,
