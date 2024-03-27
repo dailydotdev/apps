@@ -42,7 +42,6 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
-import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -63,7 +62,6 @@ const seo: NextSeoProps = {
 const SquadsPage = ({ initialData }: Props): ReactElement => {
   const { user, squads } = useContext(AuthContext);
   const { openNewSquad } = useSquadNavigation();
-  const { isNewMobileLayout } = useMobileUxExperiment();
 
   const queryResult = useInfiniteQuery(
     ['sourcesFeed'],
@@ -90,10 +88,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
 
       <FeedLayout>
         <BaseFeedPage
-          className={classNames(
-            'relative mb-4 flex-col pt-2 laptop:pt-8',
-            isNewMobileLayout && 'tablet:pl-16',
-          )}
+          className={classNames('relative mb-4 flex-col pt-2 laptop:pt-8')}
         >
           <span
             className={classNames(

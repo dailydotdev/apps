@@ -209,10 +209,7 @@ const SquadReferral = ({
 
   return (
     <PageContainer
-      className={classNames(
-        'relative items-center pt-10 tablet:pt-20',
-        isNewMobileLayout && 'tablet:pl-16',
-      )}
+      className={classNames('relative items-center pt-10 tablet:pt-20')}
     >
       <NextSeo {...seo} />
       <div className="squad-background-fade absolute -top-4 left-0 right-0 h-40 max-w-[100vw] rounded-26 tablet:-left-20 tablet:-right-20" />

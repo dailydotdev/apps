@@ -35,7 +35,6 @@ import {
 import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
 import { NotificationPreferenceMenu } from '@dailydotdev/shared/src/components/tooltips/notifications';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
-import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -59,7 +58,6 @@ const Notifications = (): ReactElement => {
   const { trackEvent } = useAnalyticsContext();
   const { clearUnreadCount } = useNotificationContext();
   const { isSubscribed } = usePushNotificationContext();
-  const { isNewMobileLayout } = useMobileUxExperiment();
 
   const { mutateAsync: readNotifications } = useMutation(
     () => request(graphqlUrl, READ_NOTIFICATIONS_MUTATION),
@@ -130,12 +128,7 @@ const Notifications = (): ReactElement => {
   return (
     <ProtectedPage seo={seo}>
       <main
-        className={classNames(
-          pageBorders,
-          pageContainerClassNames,
-          'pb-12',
-          isNewMobileLayout && 'tablet:pl-28',
-        )}
+        className={classNames(pageBorders, pageContainerClassNames, 'pb-12')}
       >
         <EnableNotification />
         <h2

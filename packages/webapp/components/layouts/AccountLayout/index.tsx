@@ -4,8 +4,6 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
-import classNames from 'classnames';
-import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import { ProfileSettingsMenu } from '@dailydotdev/shared/src/components/profile/ProfileSettingsMenu';
 import {
   generateQueryKey,
@@ -14,7 +12,6 @@ import {
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import classNames from 'classnames';
-import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getTemplatedTitle } from '../utils';
 import SidebarNav from './SidebarNav';
@@ -32,9 +29,6 @@ export const navigationKey = generateQueryKey(
 export default function AccountLayout({
   children,
 }: AccountLayoutProps): ReactElement {
-  const { user: profile, isFetched } = useContext(AuthContext);
-  const { isNewMobileLayout } = useMobileUxExperiment();
-  const { isNewMobileLayout } = useMobileUxExperiment();
   const { user: profile, isFetched, logout } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useQueryState({
     key: navigationKey,

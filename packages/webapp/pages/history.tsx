@@ -74,10 +74,7 @@ const History = (): ReactElement => {
       )}
 
       <ResponsivePageContainer
-        className={classNames(
-          isNewMobileLayout && 'tablet:!pl-22',
-          'relative !p-0',
-        )}
+        className={classNames('relative !p-0')}
         role="main"
       >
         {isNewMobileLayout && (

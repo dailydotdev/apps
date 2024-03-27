@@ -144,7 +144,7 @@ export default function FooterNavBar({
         spring="veryGentle"
         element="nav"
         className={classNames(
-          'grid h-14 w-full grid-flow-col items-center border-t border-theme-divider-tertiary bg-background-default',
+          'grid h-14 w-full grid-flow-col items-center justify-between rounded-t-24 border-t border-theme-divider-tertiary bg-background-default',
           !showNav && 'hidden',
           styles.footerNavBar,
         )}
@@ -190,10 +190,7 @@ export default function FooterNavBar({
                 )}
                 <Flipped flipId="activeTabIndicator">
                   {selectedTab === index && (
-                    <ActiveTabIndicator
-                      className="w-12"
-                      style={{ top: '-0.125rem' }}
-                    />
+                    <ActiveTabIndicator className="-top-0.5 w-6" />
                   )}
                 </Flipped>
               </div>

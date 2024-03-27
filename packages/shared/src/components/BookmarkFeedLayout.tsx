@@ -6,7 +6,6 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
-import classNames from 'classnames';
 import {
   BOOKMARKS_FEED_QUERY,
   SEARCH_BOOKMARKS_QUERY,
@@ -20,7 +19,6 @@ import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button, ButtonVariant } from './buttons/Button';
 import { ShareIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
-import { useMobileUxExperiment } from '../hooks/useMobileUxExperiment';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -45,7 +43,6 @@ export default function BookmarkFeedLayout({
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
   const defaultKey = generateQueryKey(RequestKey.Bookmarks, user);
-  const { isNewMobileLayout } = useMobileUxExperiment();
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (searchQuery) {
       return {
@@ -89,7 +86,7 @@ export default function BookmarkFeedLayout({
   );
 
   return (
-    <FeedPage className={classNames(isNewMobileLayout && 'tablet:pl-22')}>
+    <FeedPage>
       {children}
       <FeedPageHeader className="mb-5">
         <h3 className="font-bold typo-callout">Bookmarks</h3>

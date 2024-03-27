@@ -9,16 +9,12 @@ import {
 } from '../EmptyScreen';
 import { EyeIcon } from '../icons';
 import { ButtonSize } from '../buttons/common';
-import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 
 function ReadingHistoryEmptyScreen(): ReactElement {
-  const { isNewMobileLayout } = useMobileUxExperiment();
-
   return (
     <div
       className={classNames(
         'mt-20 flex flex-1 flex-col items-center justify-center px-6',
-        isNewMobileLayout && 'tablet:pl-22',
       )}
     >
       <EyeIcon
