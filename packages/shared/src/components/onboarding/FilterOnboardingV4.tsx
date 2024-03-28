@@ -38,6 +38,7 @@ const placeholderTags = new Array(24)
   );
 
 export function FilterOnboardingV4({
+  shouldUpdateAlerts = true,
   className,
 }: FilterOnboardingProps): ReactElement {
   const queryClient = useQueryClient();
@@ -48,7 +49,7 @@ export function FilterOnboardingV4({
   }, [feedSettings?.includeTags]);
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
     origin: Origin.Onboarding,
-    shouldUpdateAlerts: true,
+    shouldUpdateAlerts,
   });
 
   const [refetchFeed] = useDebounce(() => {
