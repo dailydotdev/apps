@@ -52,8 +52,6 @@ import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/analytics';
 import { OnboardingFeedHeader } from './onboarding/OnboardingFeedHeader';
-import useFeedSettings from '../hooks/useFeedSettings';
-import { REQUIRED_TAGS_THRESHOLD } from './onboarding/common';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -149,7 +147,7 @@ export default function MainFeedLayout({
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);
-  const { feedSettings } = useFeedSettings();
+  const [isPreviewFeedEnabled, setPreviewFeedEnabled] = useState(false);
   const shouldUseCommentFeedLayout =
     hasCommentFeed && feedName === SharedFeedPage.Discussed;
   const shouldEnrollInForcedTagSelection =
@@ -295,9 +293,6 @@ export default function MainFeedLayout({
   const disableTopPadding =
     isFinder || shouldUseMobileFeedLayout || shouldUseCommentFeedLayout;
 
-  const tagsCount = feedSettings?.includeTags?.length || 0;
-  const isFeedPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
-
   return (
     <FeedPageComponent
       className={classNames(
@@ -310,8 +305,8 @@ export default function MainFeedLayout({
         <OnboardingFeedHeader
           isPreviewFeedVisible={isPreviewFeedVisible}
           setPreviewFeedVisible={setPreviewFeedVisible}
-          isFeedPreviewEnabled={isFeedPreviewEnabled}
-          tagsCount={tagsCount}
+          isPreviewFeedEnabled={isPreviewFeedEnabled}
+          setPreviewFeedEnabled={setPreviewFeedEnabled}
         />
       )}
       {isSearchOn && search}
@@ -329,7 +324,9 @@ export default function MainFeedLayout({
           commentClassName={commentClassName}
         />
       ) : (
-        feedProps && (
+        (showForcedTagSelection
+          ? isPreviewFeedEnabled && isPreviewFeedVisible
+          : feedProps) && (
           <Feed
             {...feedProps}
             className={classNames(
