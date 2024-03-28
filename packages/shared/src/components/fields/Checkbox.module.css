@@ -23,11 +23,11 @@
   }
 
   &:global(.disabled), &:global(.checked.disabled) {
-    color: var(--theme-label-disabled);
+    color: var(--theme-text-disabled);
   }
 
   &:global(.checked) {
-    color: var(--theme-label-primary);
+    color: var(--theme-text-primary);
 
     & .checkmark {
       & :global(.icon) {
@@ -39,7 +39,7 @@
   &:hover,
   &:focus-within {
     & .checkmark {
-      border-color: var(--theme-label-primary);
+      border-color: var(--theme-text-primary);
 
       &:before {
         background: var(--theme-hover);
@@ -62,7 +62,7 @@
 
     &:global(.disabled) {
       & .checkmark {
-        background: var(--theme-label-disabled);
+        background: var(--theme-text-disabled);
       }
     }
 

@@ -48,7 +48,7 @@ export function AuthenticationBanner(): ReactElement {
             })
           }
           className={{
-            container: 'justify-center text-theme-label-secondary typo-callout',
+            container: 'justify-center text-text-secondary typo-callout',
             login: 'font-bold',
           }}
         />

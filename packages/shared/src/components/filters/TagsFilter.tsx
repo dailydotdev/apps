@@ -95,7 +95,7 @@ export default function TagsFilter({
           valueChanged={onSearch}
         />
         <h3 className="mb-3 font-bold typo-body">Choose tags to follow</h3>
-        <p className="mb-2 text-theme-label-tertiary typo-callout">
+        <p className="mb-2 text-text-tertiary typo-callout">
           Let’s super-charge your feed with relevant content! Start by choosing
           tags you want to follow, and we will curate your feed accordingly.
         </p>

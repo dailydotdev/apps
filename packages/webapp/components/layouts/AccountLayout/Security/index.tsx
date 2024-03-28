@@ -196,7 +196,7 @@ function AccountSecurityDefault({
             inputId="email"
             data-testid="current_email"
             leftIcon={<MailIcon />}
-            rightIcon={<LockIcon className="text-theme-label-secondary" />}
+            rightIcon={<LockIcon className="text-text-secondary" />}
             isLocked
           />
         </SimpleTooltip>

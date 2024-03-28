@@ -13,7 +13,7 @@ export const EmptyScreenTitle = classed('h2', 'my-4 text-center typo-title1');
 
 export const EmptyScreenDescription = classed(
   'p',
-  'p-0 m-0 text-center text-theme-label-secondary typo-body',
+  'p-0 m-0 text-center text-text-secondary typo-body',
 );
 
 export const EmptyScreenButton = ({
@@ -32,6 +32,6 @@ export const EmptyScreenButton = ({
 );
 
 export const EmptyScreenIcon = {
-  className: 'text-theme-label-disabled',
+  className: 'text-text-disabled',
   style: { fontSize: '5rem', width: 'auto', height: 'auto' },
 };

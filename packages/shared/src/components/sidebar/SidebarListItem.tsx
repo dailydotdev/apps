@@ -30,12 +30,12 @@ function SidebarListItem({
     <>
       {React.cloneElement(icon as ReactElement, {
         secondary: isActive,
-        className: !isActive && 'text-theme-label-secondary',
+        className: !isActive && 'text-text-secondary',
       })}
       <span
         className={classNames(
           'ml-2 typo-callout',
-          !isActive && 'text-theme-label-tertiary',
+          !isActive && 'text-text-tertiary',
         )}
       >
         {title}
@@ -43,7 +43,7 @@ function SidebarListItem({
       <ArrowIcon
         className={classNames(
           'ml-auto rotate-90',
-          !isActive && 'text-theme-label-secondary',
+          !isActive && 'text-text-secondary',
         )}
       />
     </>

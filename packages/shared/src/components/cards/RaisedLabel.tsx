@@ -60,7 +60,7 @@ export function RaisedLabel({
         </div>
       </SimpleTooltip>
       {!listMode && description && (
-        <span className="ml-2 text-theme-label-tertiary typo-footnote mouse:hidden">
+        <span className="ml-2 text-text-tertiary typo-footnote mouse:hidden">
           {description}
         </span>
       )}

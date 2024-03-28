@@ -37,10 +37,10 @@ export const ReputationPrivilegesModal = ({
         />
 
         <div className="flex flex-col gap-5">
-          <h3 className="font-bold text-theme-label-primary typo-title1">
+          <h3 className="font-bold text-text-primary typo-title1">
             Privileges unlocked!
           </h3>
-          <p className="text-theme-label-tertiary typo-body">
+          <p className="text-text-tertiary typo-body">
             Congratulations on your 250 reputation points achievement! Your
             meaningful contributions has propelled you into a realm of special
             privileges and superpowers. Keep up the fantastic work!

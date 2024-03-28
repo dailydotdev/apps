@@ -58,14 +58,14 @@ const Search = (): ReactElement => {
           )}
         >
           <MagicIcon
-            className="text-theme-label-disabled"
+            className="text-text-disabled"
             secondary
             size={IconSize.XXXLarge}
           />
-          <h2 className="text-center font-bold text-theme-label-primary typo-title2">
+          <h2 className="text-center font-bold text-text-primary typo-title2">
             Ready to dive in?
           </h2>
-          <p className="text-center text-theme-label-tertiary typo-callout">
+          <p className="text-center text-text-tertiary typo-callout">
             Start your search to explore a world of developer resources.
           </p>
         </div>
@@ -112,7 +112,7 @@ const AiSearchProviderButton = () => {
           });
         }}
       >
-        <span className="text-theme-label-primary">{searchQuery}</span>
+        <span className="text-text-primary">{searchQuery}</span>
         <span className="ml-2 typo-footnote">
           {providerToLabelTextMap[SearchProviderEnum.Chat]}
         </span>

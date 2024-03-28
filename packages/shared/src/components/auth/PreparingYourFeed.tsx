@@ -49,7 +49,7 @@ export function PreparingYourFeed({
           <span className="absolute right-0 h-5 w-5 translate-x-1/2 bg-theme-color-cabbage blur-[10px]" />
         </span>
       </span>
-      <span className="mt-3 font-normal text-theme-label-secondary typo-body">
+      <span className="mt-3 font-normal text-text-secondary typo-body">
         Preparing your feed...
       </span>
     </OnboardingContainer>

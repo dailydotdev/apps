@@ -90,10 +90,7 @@ function SquadPostAuthor({
             </div>
           </div>
           <div
-            className={classNames(
-              'flex text-theme-label-tertiary',
-              className?.handle,
-            )}
+            className={classNames('flex text-text-tertiary', className?.handle)}
           >
             <TruncateText title={`@${author.username}`}>
               @{author.username}

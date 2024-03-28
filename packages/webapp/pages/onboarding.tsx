@@ -62,6 +62,7 @@ import {
   GtagTracking,
   PixelTracking,
   TwitterTracking,
+  RedditTracking,
 } from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
@@ -302,7 +303,7 @@ export function OnboardPage(): ReactElement {
             </Button>
             {isPreviewEnabled && isPreviewVisible && (
               <FeedLayout>
-                <p className="-mb-4 mt-6 text-center text-theme-label-secondary typo-body">
+                <p className="-mb-4 mt-6 text-center text-text-secondary typo-body">
                   Change your tag selection until you&apos;re happy with your
                   feed preview.
                 </p>
@@ -390,6 +391,7 @@ export function OnboardPage(): ReactElement {
       <PixelTracking />
       <GtagTracking />
       <TwitterTracking />
+      <RedditTracking />
       {getProgressBar()}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}

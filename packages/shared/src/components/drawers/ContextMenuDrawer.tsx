@@ -27,7 +27,7 @@ export function ContextMenuDrawer({
     <Drawer {...drawerProps} ref={ref}>
       {options.map(({ label, icon, action, anchorProps, Wrapper }, index) => {
         const classes =
-          'flex h-10 flex-row items-center overflow-hidden text-ellipsis whitespace-nowrap px-2 text-theme-label-tertiary typo-callout';
+          'flex h-10 flex-row items-center overflow-hidden text-ellipsis whitespace-nowrap px-2 text-text-tertiary typo-callout';
         const content = (
           <>
             {icon && <span className="mr-1">{icon}</span>}

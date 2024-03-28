@@ -63,7 +63,7 @@ export default function TagCategoryDropdown({
         )}
       >
         <div className="flex items-center">
-          <ArrowIcon className="icon mr-2 rotate-90 text-xl text-theme-label-tertiary transition-transform" />{' '}
+          <ArrowIcon className="icon mr-2 rotate-90 text-xl text-text-tertiary transition-transform" />{' '}
           <span className="mr-3 typo-title1">{tagCategory.emoji}</span>{' '}
           <h4 className="font-bold typo-callout">{tagCategory.title}</h4>{' '}
         </div>

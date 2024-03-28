@@ -189,7 +189,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                       icon={
                         <EditIcon
                           size={IconSize.XXLarge}
-                          className="text-theme-label-tertiary"
+                          className="text-text-tertiary"
                         />
                       }
                       description="We're thrilled to see how our community has grown and evolved, thanks to your incredible support. Let your voice be heard and be part of the decision-making process."

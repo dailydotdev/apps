@@ -90,7 +90,7 @@ const Step1 = ({ onGenerateImage }: Step1Props): ReactElement => {
     <>
       <DevCardPlaceholder profileImage={user?.image} />
       <h1 className="mt-10 font-bold typo-title1">Generate your DevCard</h1>
-      <p className="mt-4 max-w-[23.5rem] text-center text-theme-label-secondary typo-callout">
+      <p className="mt-4 max-w-[23.5rem] text-center text-text-secondary typo-callout">
         Flexing is fun, and doing it with a DevCard takes it to the next level.
         Generate a DevCard to showcase your activity on daily.dev, including
         your reading habits, top topics, and more.
@@ -325,7 +325,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
           <div className="flex flex-col gap-8 p-5">
             {selectedTab === 0 && (
               <>
-                <p className="text-theme-label-tertiary typo-callout">
+                <p className="text-text-tertiary typo-callout">
                   Show off your daily.dev activity easily by adding your DevCard
                   to GitHub, your website, or use it as a dynamic Twitter cover
                   (now called X, but we still like the old name better).
@@ -337,7 +337,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     Embed the DevCard on your GitHub profile
                   </h3>
 
-                  <p className="mt-2 inline-block text-theme-label-tertiary typo-callout">
+                  <p className="mt-2 inline-block text-text-tertiary typo-callout">
                     Find out how to put your DevCard in your GitHub README and
                     make it update automatically using GitHub Actions.{' '}
                     <ClickableText
@@ -355,7 +355,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     </ClickableText>
                   </p>
 
-                  <p className="white-space-pre-wrap mt-4 break-words rounded-10 bg-theme-float px-4 py-2 text-theme-label-tertiary">
+                  <p className="white-space-pre-wrap mt-4 break-words rounded-10 bg-theme-float px-4 py-2 text-text-tertiary">
                     {embedCode}
                   </p>
                   <Button
@@ -378,7 +378,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     <TwitterIcon size={IconSize.Small} className="mr-1.5" />
                     Use as X header
                   </h3>
-                  <p className="mt-2 text-theme-label-tertiary typo-callout">
+                  <p className="mt-2 text-text-tertiary typo-callout">
                     Level up your Twitter game with a DevCard header image!
                   </p>
                   <Button
@@ -443,7 +443,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                 </div>
                 <div>
                   <h3 className="typo-title4 mb-2 font-bold">Cover image</h3>
-                  <p className="text-theme-label-tertiary typo-callout">
+                  <p className="text-text-tertiary typo-callout">
                     You can use our default image or update the image by editing
                     your profile
                   </p>

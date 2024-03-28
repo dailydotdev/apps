@@ -47,7 +47,7 @@ export const SearchPanelAction = ({
     >
       <span className="flex-shrink overflow-hidden overflow-ellipsis whitespace-nowrap typo-callout">
         {searchPanel.query}{' '}
-        <span className="text-theme-label-quaternary typo-footnote">
+        <span className="text-text-quaternary typo-footnote">
           {providerToLabelTextMap[provider]}
         </span>
       </span>

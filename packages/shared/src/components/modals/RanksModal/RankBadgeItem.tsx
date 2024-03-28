@@ -32,12 +32,12 @@ const RankBadgeItem = ({
     }
 
     if (itemRank.level > showRank) {
-      return 'text-theme-label-quaternary';
+      return 'text-text-quaternary';
     }
 
     return showRank === itemRank.level && rankCompleted
       ? itemRank.color
-      : 'text-theme-label-tertiary';
+      : 'text-text-tertiary';
   };
 
   const isColorByRank =

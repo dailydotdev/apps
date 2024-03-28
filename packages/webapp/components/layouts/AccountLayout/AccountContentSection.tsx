@@ -14,7 +14,7 @@ interface AccountContentSectionProps {
 }
 
 const ContentHeading = classed('h2', 'font-bold typo-body');
-const ContentText = classed('p', 'mt-1 typo-callout text-theme-label-tertiary');
+const ContentText = classed('p', 'mt-1 typo-callout text-text-tertiary');
 
 function AccountContentSection({
   title,

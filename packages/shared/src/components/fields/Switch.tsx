@@ -71,7 +71,7 @@ function SwitchComponent(
         />
         <span
           className={classNames(
-            'absolute left-0 top-0 bg-theme-label-tertiary',
+            'absolute left-0 top-0 bg-text-tertiary',
             compact ? 'h-4 w-4 rounded-3' : 'h-5 w-5 rounded-6',
             styles.knob,
           )}
@@ -80,7 +80,7 @@ function SwitchComponent(
       {children && (
         <span
           className={classNames(
-            'ml-3 font-bold text-theme-label-tertiary',
+            'ml-3 font-bold text-text-tertiary',
             defaultTypo && 'typo-footnote',
             styles.children,
             labelClassName,

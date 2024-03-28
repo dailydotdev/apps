@@ -20,7 +20,7 @@ export function PostUpvotesCommentsCount({
     <></>
   ) : (
     <div
-      className="mb-5 flex items-center gap-x-4 text-theme-label-tertiary typo-callout"
+      className="mb-5 flex items-center gap-x-4 text-text-tertiary typo-callout"
       data-testid="statsBar"
     >
       {post.views > 0 && <span>{post.views.toLocaleString()} Views</span>}

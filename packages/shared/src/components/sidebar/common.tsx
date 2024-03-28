@@ -83,7 +83,7 @@ export const Nav = classed('nav', 'my-4 mt-10 laptop:mt-8');
 export const NavSection = classed('ul', 'mt-0 laptop:mt-4');
 export const NavHeader = classed(
   'li',
-  'typo-footnote text-theme-label-quaternary h-7 flex items-center font-bold  transition-opacity',
+  'typo-footnote text-text-quaternary h-7 flex items-center font-bold  transition-opacity',
 );
 
 const RawNavItem = classed(
@@ -166,8 +166,8 @@ export const ItemInner = ({
 export const NavItem = forwardRef<HTMLElement, NavItemProps>(
   ({ className, color, active, children }, ref): ReactElement => {
     const baseClasses = active
-      ? 'text-theme-label-primary'
-      : 'hover:text-theme-label-primary text-theme-label-tertiary';
+      ? 'text-text-primary'
+      : 'hover:text-text-primary text-text-tertiary';
 
     return (
       <RawNavItem

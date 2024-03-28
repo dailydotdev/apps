@@ -12,7 +12,7 @@ const variations = {
         color:
           color && colors[color]?.darkLabel
             ? colors[color].darkLabel
-            : 'var(--theme-label-invert)',
+            : 'var(--theme-surface-invert)',
         background: color ? colors[color]['40'] : '#FFFFFF',
         'border-color': 'transparent',
       },
@@ -25,12 +25,12 @@ const variations = {
         'box-shadow': color ? boxShadow[`2-${color}`] : 'var(--theme-shadow2)',
       },
       pressed: {
-        color: 'var(--theme-label-primary)',
+        color: 'var(--theme-text-primary)',
         background: 'none',
-        'border-color': 'var(--theme-label-primary)',
+        'border-color': 'var(--theme-text-primary)',
       },
       disabled: {
-        color: 'var(--theme-label-tertiary)',
+        color: 'var(--theme-text-tertiary)',
         background: color
           ? `${colors[color]['10']}33`
           : `${colors.salt['90']}33`,
@@ -51,7 +51,7 @@ const variations = {
         background: color ? colors[color]['90'] : colors.pepper['10'],
       },
       disabled: {
-        color: 'var(--theme-label-tertiary)',
+        color: 'var(--theme-text-tertiary)',
         background: color
           ? `${colors[color]['90']}33`
           : `${colors.pepper['10']}33`,
@@ -61,9 +61,9 @@ const variations = {
   secondary: (color) => ({
     darkStates: {
       default: {
-        color: 'var(--theme-label-primary)',
+        color: 'var(--theme-text-primary)',
         background: 'none',
-        'border-color': 'var(--theme-label-primary)',
+        'border-color': 'var(--theme-text-primary)',
       },
       hover: {
         color: color ? colors[color]['40'] : undefined,
@@ -80,13 +80,13 @@ const variations = {
         'box-shadow': color ? boxShadow[`2-${color}`] : 'var(--theme-shadow2)',
       },
       pressed: {
-        color: 'var(--theme-label-invert)',
+        color: 'var(--theme-surface-invert)',
         background: color ? colors[color]['40'] : '#FFFFFF',
         'border-color': 'transparent',
       },
       disabled: {
         'border-color': `${colors.salt['90']}33`,
-        color: 'var(--theme-label-disabled)',
+        color: 'var(--theme-text-disabled)',
       },
     },
     lightStates: {
@@ -115,27 +115,27 @@ const variations = {
   tertiary: (color) => ({
     darkStates: {
       default: {
-        color: 'var(--theme-label-tertiary)',
+        color: 'var(--theme-text-tertiary)',
         background: 'none',
         'border-color': 'transparent',
       },
       hover: {
-        color: color ? colors[color]['40'] : 'var(--theme-label-primary)',
+        color: color ? colors[color]['40'] : 'var(--theme-text-primary)',
         background: color
           ? overlay.quaternary[color]
           : `${colors.salt['90']}1F`,
       },
       active: {
-        color: color ? overlay.tertiary[color] : 'var(--theme-label-primary)',
+        color: color ? overlay.tertiary[color] : 'var(--theme-text-primary)',
         background: color
           ? `${colors[color]['10']}33`
           : `${colors.salt['90']}33`,
       },
       pressed: {
-        color: color ? colors[color]['40'] : 'var(--theme-label-primary)',
+        color: color ? colors[color]['40'] : 'var(--theme-text-primary)',
       },
       disabled: {
-        color: 'var(--theme-label-disabled)',
+        color: 'var(--theme-text-disabled)',
       },
     },
     lightStates: {
@@ -169,22 +169,22 @@ const variations = {
   },
   option: (color) => {
     const states = variations.tertiary(color);
-    states.darkStates.hover.color = 'var(--theme-label-tertiary)';
-    states.lightStates.hover.color = 'var(--theme-label-tertiary)';
+    states.darkStates.hover.color = 'var(--theme-text-tertiary)';
+    states.lightStates.hover.color = 'var(--theme-text-tertiary)';
     return states;
   },
   tag: (color) => {
     const states = variations.tertiaryFloat(color);
-    states.darkStates.default.color = 'var(--theme-label-primary)';
-    states.darkStates.default.icon = 'var(--theme-label-secondary)';
-    states.darkStates.hover.icon = 'var(--theme-label-primary)';
+    states.darkStates.default.color = 'var(--theme-text-primary)';
+    states.darkStates.default.icon = 'var(--theme-text-secondary)';
+    states.darkStates.hover.icon = 'var(--theme-text-primary)';
     return states;
   },
   tagBlocked: (color) => {
     const states = variations.tag(color);
-    states.darkStates.default.color = 'var(--theme-label-secondary)';
-    states.darkStates.hover.color = 'var(--theme-label-primary)';
-    states.darkStates.default.icon = 'var(--theme-label-secondary)';
+    states.darkStates.default.color = 'var(--theme-text-secondary)';
+    states.darkStates.hover.color = 'var(--theme-text-primary)';
+    states.darkStates.default.icon = 'var(--theme-text-secondary)';
     states.darkStates.hover.icon = 'var(--status-error)';
     states.darkStates.active.icon = 'var(--status-error)';
     return states;

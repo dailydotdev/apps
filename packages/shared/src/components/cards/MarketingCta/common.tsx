@@ -61,10 +61,7 @@ export const Header = ({
 
 export const Title = classed(CardTitle, 'my-2');
 
-export const Description = classed(
-  'p',
-  'text-theme-label-secondary typo-callout',
-);
+export const Description = classed('p', 'text-text-secondary typo-callout');
 
 type CTAButtonType = Pick<MarketingCtaFlags, 'ctaText' | 'ctaUrl'> & {
   onClick?: (e?: React.MouseEvent | React.KeyboardEvent) => void;

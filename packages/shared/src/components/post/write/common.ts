@@ -2,7 +2,7 @@ import classed from '../../../lib/classed';
 import { FlexCol, FlexRow } from '../../utilities';
 
 export const previewImageClass =
-  'w-28 h-16 rounded-12 bg-theme-label-disabled object-cover';
+  'w-28 h-16 rounded-12 bg-text-disabled object-cover';
 
 export const WritePreviewContainer = classed(
   FlexCol,

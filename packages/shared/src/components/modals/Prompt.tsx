@@ -8,7 +8,7 @@ import { Modal, ModalProps } from './common/Modal';
 const Title = classed('h1', 'font-bold typo-title3 text-center');
 const Description = classed(
   'div',
-  'mt-4 mb-6 text-theme-label-secondary text-center typo-callout',
+  'mt-4 mb-6 text-text-secondary text-center typo-callout',
 );
 const Buttons = classed(
   'div',

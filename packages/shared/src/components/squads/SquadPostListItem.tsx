@@ -43,8 +43,8 @@ export const SquadPostListItem = ({
         {post?.author && (
           <SquadPostAuthor
             className={{
-              name: 'text-theme-label-primary typo-callout',
-              handle: 'text-theme-label-quaternary typo-callout',
+              name: 'text-text-primary typo-callout',
+              handle: 'text-text-quaternary typo-callout',
               details: 'flex-1 pr-8',
             }}
             author={post.author}
@@ -52,7 +52,7 @@ export const SquadPostListItem = ({
             date={post.createdAt}
           />
         )}
-        <p className="mt-2 line-clamp-3 text-theme-label-primary typo-callout">
+        <p className="mt-2 line-clamp-3 text-text-primary typo-callout">
           {post.title}
         </p>
       </div>

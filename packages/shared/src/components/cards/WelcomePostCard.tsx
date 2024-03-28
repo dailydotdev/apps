@@ -83,7 +83,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
             hasImage: !!image,
             hasHtmlContent: !!post.contentHtml,
           }),
-          'px-2 font-bold !text-theme-label-primary typo-title3',
+          'px-2 font-bold !text-text-primary typo-title3',
         )}
       >
         {post.title}

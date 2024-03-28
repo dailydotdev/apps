@@ -1,6 +1,6 @@
 .field {
   &:hover {
-    box-shadow: inset 0.125rem 0 0 0 var(--theme-label-primary);
+    box-shadow: inset 0.125rem 0 0 0 var(--theme-text-primary);
   }
 
   &:global(.focused.readOnly) {
@@ -9,8 +9,8 @@
   }
 
   &:global(.focused) {
-    box-shadow: inset 0.125rem 0 0 0 var(--theme-label-primary);
-    border-color: var(--theme-label-primary);
+    box-shadow: inset 0.125rem 0 0 0 var(--theme-text-primary);
+    border-color: var(--theme-text-primary);
   }
 
   &:global(.invalid) {

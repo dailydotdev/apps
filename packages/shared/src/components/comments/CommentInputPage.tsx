@@ -117,9 +117,9 @@ const CommentInputPage = ({
         }}
       >
         {isReply && comment && (
-          <div className="ml-12 flex gap-2 border-l border-theme-divider-tertiary py-3 pl-5 text-theme-label-tertiary typo-caption1">
+          <div className="ml-12 flex gap-2 border-l border-theme-divider-tertiary py-3 pl-5 text-text-tertiary typo-caption1">
             Reply to
-            <span className="font-bold text-theme-label-primary">
+            <span className="font-bold text-text-primary">
               {comment.author?.username}
             </span>
           </div>

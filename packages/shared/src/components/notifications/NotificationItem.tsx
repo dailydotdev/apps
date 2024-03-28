@@ -139,7 +139,7 @@ function NotificationItem({
         />
         {description && (
           <p
-            className="mt-2 w-4/5 break-words text-theme-label-quaternary"
+            className="mt-2 w-4/5 break-words text-text-quaternary"
             dangerouslySetInnerHTML={{
               __html: memoizedDescription,
             }}

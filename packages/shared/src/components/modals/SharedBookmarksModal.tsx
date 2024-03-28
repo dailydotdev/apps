@@ -70,7 +70,7 @@ export default function SharedBookmarksModal({
         >
           Public mode
         </Switch>
-        <p className="text-theme-label-tertiary typo-callout">
+        <p className="text-text-tertiary typo-callout">
           Switching to public mode will generate a public rss feed of your
           bookmarks. Use this link to integrate and automatically share your
           bookmarks with other developers.
@@ -98,7 +98,7 @@ export default function SharedBookmarksModal({
           </div>
         )}
         <div className="mt-4 rounded-16 border border-theme-divider-tertiary p-6">
-          <p className="text-theme-label-tertiary typo-callout">
+          <p className="text-text-tertiary typo-callout">
             Need inspiration? we prepared some tutorials explaining some best
             practices of integrating your bookmarks with other platforms.
           </p>

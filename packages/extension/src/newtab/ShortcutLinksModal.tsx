@@ -74,7 +74,7 @@ export default function CustomLinksModal({
             />
           </nav>
           {!isManual && (
-            <p className="mb-6 text-theme-label-tertiary typo-callout">
+            <p className="mb-6 text-text-tertiary typo-callout">
               To edit links, please switch to &quot;My shortcuts&quot; mode
             </p>
           )}

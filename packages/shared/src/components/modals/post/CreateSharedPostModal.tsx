@@ -83,7 +83,7 @@ export function CreateSharedPostModal({
       <SourceButton source={squad} size="small" />
       <span className="-ml-1 flex-1">
         <strong>{squad.name}</strong>
-        <span className="ml-1 text-theme-label-tertiary">@{squad.handle}</span>
+        <span className="ml-1 text-text-tertiary">@{squad.handle}</span>
       </span>
     </>
   );

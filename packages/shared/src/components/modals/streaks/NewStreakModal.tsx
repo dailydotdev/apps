@@ -10,7 +10,7 @@ import { StreakModalProps } from './common';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../../lib/analytics';
 
-const Paragraph = classed('p', 'text-center text-theme-label-tertiary');
+const Paragraph = classed('p', 'text-center text-text-tertiary');
 
 export default function NewStreakModal({
   currentStreak,

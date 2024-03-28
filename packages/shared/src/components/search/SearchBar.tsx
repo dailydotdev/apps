@@ -31,7 +31,7 @@ export function SearchBar({
         <div className="mb-4">
           <SearchProgressBar max={chunk?.steps} progress={chunk?.progress} />
           {!!chunk?.status && (
-            <div className="mt-2 text-theme-label-tertiary typo-callout">
+            <div className="mt-2 text-text-tertiary typo-callout">
               {chunk?.status}
             </div>
           )}

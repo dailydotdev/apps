@@ -1,12 +1,12 @@
 html, #daily-companion-wrapper {
   background: var(--theme-background-default);
-  color: var(--theme-label-primary);
+  color: var(--theme-text-primary);
   height: stretch;
 }
 :root {
   --balloon-border-radius: 0.625rem;
-  --balloon-color: var(--theme-label-primary);
-  --balloon-text-color: var(--theme-label-invert);
+  --balloon-color: var(--theme-text-primary);
+  --balloon-text-color: var(--theme-surface-invert);
 }
 body {
   min-width: 20rem;
@@ -232,19 +232,6 @@ body {
 
   --theme-background-bun: theme('colors.raw.bun.80');
   --theme-background-onion: theme('colors.raw.onion.80');
-  --theme-background-pepper: theme('colors.raw.pepper.20');
-
-  /* Turned off because duplication */
-  /*--theme-surface-invert: theme('colors.raw.pepper.90');*/
-
-  --theme-label-primary: #ffffff;
-  --theme-label-secondary: theme('colors.raw.salt.50');
-  --theme-label-tertiary: theme('colors.raw.salt.90');
-  --theme-label-quaternary: theme('colors.raw.salt.90')A3;
-  --theme-label-disabled: theme('colors.raw.salt.90')52;
-  --theme-label-link: theme('colors.raw.water.20');
-  --theme-label-invert: theme('colors.raw.pepper.90');
-  --theme-label-bun: theme('colors.raw.bun.20');
 
   --theme-divider-primary: theme('colors.raw.salt.90');
   --theme-divider-secondary: theme('colors.raw.salt.90')66;
@@ -536,16 +523,6 @@ body {
   --theme-background-bacon: theme('colors.raw.bacon.20');
   --theme-background-bun: theme('colors.raw.bun.20');
   --theme-background-onion: theme('colors.raw.onion.20');
-  --theme-background-pepper: theme('colors.raw.pepper.20');
-
-  --theme-label-primary: theme('colors.raw.pepper.90');
-  --theme-label-secondary: theme('colors.raw.pepper.50');
-  --theme-label-tertiary: theme('colors.raw.pepper.10');
-  --theme-label-quaternary: theme('colors.raw.pepper.10')A3;
-  --theme-label-disabled: theme('colors.raw.pepper.10')52;
-  --theme-label-link: theme('colors.raw.water.80');
-  --theme-label-invert: #ffffff;
-  --theme-label-bun: theme('colors.raw.bun.80');
 
   --theme-divider-primary: theme('colors.raw.pepper.10');
   --theme-divider-secondary: theme('colors.raw.pepper.10')66;
@@ -748,15 +725,15 @@ img.lazyload:not([src]) {
 
 ::-webkit-scrollbar-thumb {
   border-radius: 0.25rem;
-  background: var(--theme-label-tertiary);
+  background: var(--theme-text-tertiary);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--theme-label-primary);
+  background: var(--theme-text-primary);
 }
 
 ::-webkit-scrollbar-thumb:active {
-  background: var(--theme-label-primary);
+  background: var(--theme-text-primary);
 }
 
 summary {

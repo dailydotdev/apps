@@ -101,7 +101,7 @@ export function WriteFreeformContent({
       <ImageInput
         className={{
           container:
-            '!w-[11.5rem] border-none bg-accent-pepper-subtlest text-theme-label-tertiary',
+            '!w-[11.5rem] border-none bg-accent-pepper-subtlest text-text-tertiary',
         }}
         enableHover={false}
         fallbackImage={null}

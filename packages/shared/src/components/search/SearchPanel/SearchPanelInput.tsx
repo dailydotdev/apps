@@ -183,10 +183,7 @@ export const SearchPanelInput = ({
           )}
           ref={fieldRef}
         >
-          <AiIcon
-            size={IconSize.Large}
-            className="mr-3 text-theme-label-tertiary"
-          />
+          <AiIcon size={IconSize.Large} className="mr-3 text-text-tertiary" />
           <FieldInput
             {...inputProps}
             data-search-panel-item="true"
@@ -214,8 +211,8 @@ export const SearchPanelInput = ({
             className={classNames(
               'h-full flex-1',
               searchPanel.isActive
-                ? '!placeholder-theme-label-quaternary'
-                : '!placeholder-theme-label-tertiary',
+                ? '!placeholder-text-quaternary'
+                : '!placeholder-text-tertiary',
               getFieldFontColor({ readOnly, disabled, hasInput, focused }),
             )}
           />

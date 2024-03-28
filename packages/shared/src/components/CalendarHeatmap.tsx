@@ -26,7 +26,7 @@ const DAY_LABELS = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
 
 const weekdayLabelSize = 50;
 const labelStyle: CSSProperties = {
-  fill: 'var(--theme-label-primary)',
+  fill: 'var(--theme-text-primary)',
   fontSize: '13',
   lineHeight: '18',
 };
@@ -36,13 +36,13 @@ const binsAttributes: React.SVGProps<SVGRectElement>[] = [
     fill: 'var(--theme-divider-quaternary)',
   },
   {
-    fill: 'var(--theme-label-disabled)',
+    fill: 'var(--theme-text-disabled)',
   },
   {
-    fill: 'var(--theme-label-quaternary)',
+    fill: 'var(--theme-text-quaternary)',
   },
   {
-    fill: 'var(--theme-label-primary)',
+    fill: 'var(--theme-text-primary)',
   },
 ];
 

@@ -67,7 +67,7 @@ const Step1 = ({ onGenerateImage, error }: StepProps): ReactElement => {
           Get roasted based on your reading history
         </h2>
         <div className="flex flex-col items-center gap-4">
-          <p className="font-bold text-theme-label-tertiary typo-body">
+          <p className="font-bold text-text-tertiary typo-body">
             Suffering level:
           </p>
           <Dropdown
@@ -103,7 +103,7 @@ const Step2 = ({ roast, error }: StepProps): ReactElement => {
         <h2 className="text-center font-bold typo-title2	">
           Your roast is ready 🤬
         </h2>
-        <p className="text-center text-theme-label-tertiary typo-body">
+        <p className="text-center text-text-tertiary typo-body">
           Download and share #IGotRoasted 📸
         </p>
       </div>
@@ -156,7 +156,7 @@ const Loading = (): ReactElement => {
       <h2 className="text-center font-bold typo-title2">
         Roasting in progress... Brace yourself
       </h2>
-      <p className="mt-4 text-center text-theme-label-tertiary typo-body">
+      <p className="mt-4 text-center text-text-tertiary typo-body">
         It takes 40 seconds to roast a developer, wanna play{' '}
         <a
           href="https://buzzwordquiz.dev/"

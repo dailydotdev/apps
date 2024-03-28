@@ -18,7 +18,7 @@ export function WritePostHeader({
         <>
           <div className="ml-auto flex flex-col text-right">
             <span className="text font-bold typo-subhead">{squad.name}</span>
-            <span className="text-theme-label-tertiary typo-caption1">
+            <span className="text-text-tertiary typo-caption1">
               @{squad.handle}
             </span>
           </div>

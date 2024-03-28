@@ -84,13 +84,13 @@ export const OnboardingFeedHeader = ({
 
   return (
     <LayoutHeader className="flex-col overflow-x-visible">
-      <div className="fixed z-1 flex w-full justify-center bg-gradient-to-b from-theme-surface-invert via-theme-surface-invert tablet:px-4 tablet:py-10">
+      <div className="fixed z-1 flex w-full justify-center bg-gradient-to-b from-surface-invert via-surface-invert tablet:px-4 tablet:py-10">
         <div className="flex h-44 w-full max-w-[40rem] flex-col items-center border-b-2 border-theme-color-cabbage bg-background-subtle p-6 tablet:h-auto tablet:flex-row tablet:rounded-16 tablet:border-b-0 tablet:border-l-2">
           <div className="text-center tablet:text-left">
             <p className="font-bold typo-title3">
               Pick tags that are relevant to you
             </p>
-            <p className="text-theme-label-tertiary typo-callout">
+            <p className="text-text-tertiary typo-callout">
               You can always modify your tags later
             </p>
           </div>
@@ -108,7 +108,7 @@ export const OnboardingFeedHeader = ({
 
       <div className="flex w-full max-w-full flex-col">
         <FilterOnboardingV4 className="mt-44 px-4 pt-6 tablet:px-10 tablet:pt-0" />
-        <div className="mt-10 flex items-center justify-center gap-10 text-theme-label-quaternary typo-callout">
+        <div className="mt-10 flex items-center justify-center gap-10 text-text-quaternary typo-callout">
           <div className="h-px flex-1 bg-theme-divider-tertiary" />
           <Button
             variant={ButtonVariant.Float}

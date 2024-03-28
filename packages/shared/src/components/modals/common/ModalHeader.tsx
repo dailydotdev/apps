@@ -25,8 +25,8 @@ export type ModalHeaderProps = {
 const headerKindToTitleClassName: Record<ModalHeaderKind, string> = {
   [ModalHeaderKind.Primary]: 'typo-title3',
   [ModalHeaderKind.Secondary]: 'typo-body',
-  [ModalHeaderKind.Tertiary]: 'typo-callout text-theme-label-tertiary',
-  [ModalHeaderKind.Quaternary]: 'typo-callout text-theme-label-tertiary',
+  [ModalHeaderKind.Tertiary]: 'typo-callout text-text-tertiary',
+  [ModalHeaderKind.Quaternary]: 'typo-callout text-text-tertiary',
 };
 const ModalHeaderTitle = classed('h3', 'font-bold');
 const ModalHeaderOuter = classed('header', 'flex py-4 px-4 tablet:px-6 w-full');
