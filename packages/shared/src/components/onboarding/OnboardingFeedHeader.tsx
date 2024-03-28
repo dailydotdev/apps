@@ -17,6 +17,7 @@ import { useMyFeed } from '../../hooks/useMyFeed';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
+import useFeedSettings from '../../hooks/useFeedSettings';
 
 const promptConfig = {
   title: 'Discard tag selection?',
@@ -30,21 +31,21 @@ const promptConfig = {
 type OnboardingFeedHeaderProps = {
   isPreviewFeedVisible: boolean;
   setPreviewFeedVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  isFeedPreviewEnabled: boolean;
-  tagsCount: number;
 };
 
 export const OnboardingFeedHeader = ({
   isPreviewFeedVisible,
   setPreviewFeedVisible,
-  isFeedPreviewEnabled,
-  tagsCount,
 }: OnboardingFeedHeaderProps): JSX.Element => {
   const { updateAlerts } = useAlertsContext();
+  const { feedSettings } = useFeedSettings();
   const { trackEvent } = useAnalyticsContext();
   const { showPrompt } = usePrompt();
   const router = useRouter();
   const { registerLocalFilters } = useMyFeed();
+
+  const tagsCount = feedSettings?.includeTags?.length || 0;
+  const isFeedPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
 
   const completeOnboarding = useCallback(() => {
     registerLocalFilters();
