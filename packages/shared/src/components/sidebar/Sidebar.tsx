@@ -76,9 +76,18 @@ export default function Sidebar({
     hasFiltered: !alerts?.filter,
   });
   const activePage = `/${feedName}`;
-  const isMyFeed =
-    router.pathname === '/' || feedName === SharedFeedPage.MyFeed;
   const isProfilePage = router.pathname?.includes('/[userId]');
+  const isHomeActive = useMemo(() => {
+    return [
+      SharedFeedPage.MyFeed,
+      SharedFeedPage.Popular,
+      SharedFeedPage.Upvoted,
+      SharedFeedPage.Discussed,
+      OtherFeedPage.Bookmarks,
+      OtherFeedPage.History,
+      OtherFeedPage.Notifications,
+    ].includes(feedName);
+  }, [feedName]);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -123,10 +132,10 @@ export default function Sidebar({
           <Button
             {...buttonProps}
             tag="a"
-            icon={<HomeIcon secondary={isMyFeed} size={IconSize.Medium} />}
+            icon={<HomeIcon secondary={isHomeActive} size={IconSize.Medium} />}
             iconPosition={ButtonIconPosition.Top}
             variant={ButtonVariant.Option}
-            pressed={isMyFeed}
+            pressed={isHomeActive}
           >
             Home
           </Button>
@@ -161,7 +170,7 @@ export default function Sidebar({
               />
             }
             iconPosition={ButtonIconPosition.Top}
-            variant={ButtonVariant.Tertiary}
+            variant={ButtonVariant.Option}
             pressed={feedName === OtherFeedPage.Squad}
           >
             Squads
