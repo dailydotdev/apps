@@ -35,6 +35,7 @@ export interface CommentContainerProps {
   linkToComment?: boolean;
   showContextHeader?: boolean;
   actions?: ReactNode;
+  onClick?: () => void;
 }
 
 export default function CommentContainer({
@@ -50,6 +51,7 @@ export default function CommentContainer({
   linkToComment,
   showContextHeader,
   actions,
+  onClick,
 }: CommentContainerProps): ReactElement {
   const isCommentReferenced = commentHash === getCommentHash(comment.id);
   const { role } = useMemberRoleForSource({
@@ -71,7 +73,7 @@ export default function CommentContainer({
     >
       {linkToComment && (
         <Link href={comment.permalink} prefetch={false} passHref>
-          <CardLink />
+          <CardLink onClick={onClick} />
         </Link>
       )}
       {children}

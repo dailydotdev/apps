@@ -175,6 +175,7 @@ export enum TargetType {
   StreaksMilestone = 'streaks milestone',
   MarketingCtaCard = 'promotion_card',
   MarketingCtaPopover = 'promotion_popover',
+  Comment = 'comment',
 }
 
 export enum TargetId {
