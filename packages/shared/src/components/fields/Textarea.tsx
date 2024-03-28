@@ -109,7 +109,7 @@ function Textarea({
         readOnly={readOnly}
         rows={rows}
         className={classNames(
-          'w-full min-w-0 resize-none self-stretch bg-transparent caret-theme-label-link typo-body focus:outline-none',
+          'w-full min-w-0 resize-none self-stretch bg-transparent caret-text-link typo-body focus:outline-none',
           className.input,
           hasAdditionalSpacing && 'mb-3',
           getFieldFontColor({
@@ -120,7 +120,7 @@ function Textarea({
           }),
         )}
       />
-      <span className="ml-auto py-2 text-theme-label-quaternary typo-caption1">
+      <span className="ml-auto py-2 text-text-quaternary typo-caption1">
         {`${inputLength}/${maxLength}`}
       </span>
     </BaseFieldContainer>

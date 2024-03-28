@@ -21,7 +21,7 @@ export default function CommentAuthor({
       <ProfileLink
         href={author.permalink}
         className={classNames(
-          'commentAuthor w-fit font-bold text-theme-label-primary typo-callout',
+          'commentAuthor w-fit font-bold text-text-primary typo-callout',
           className,
         )}
         title={author.name}

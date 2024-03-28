@@ -67,7 +67,7 @@ export function Referral({
             developers deserve
           </span>
         </h1>
-        <p className="mx-auto mt-7 max-w-sm text-center text-theme-label-tertiary typo-title3 tablet:mt-8 laptop:mx-0 laptop:text-left laptopL:max-w-xl">
+        <p className="mx-auto mt-7 max-w-sm text-center text-text-tertiary typo-title3 tablet:mt-8 laptop:mx-0 laptop:text-left laptopL:max-w-xl">
           We know how hard it is to be a developer. It doesn’t have to be.
           Personalized news feed, dev communities and search, much better than
           what’s out there. Maybe 😉
@@ -85,7 +85,7 @@ export function Referral({
           rel={anchorDefaultRel}
         >
           <FlexCentered className="gap-2 tablet:typo-title3">
-            <BrowsersIcon className="h-[1.9rem] w-[3.7rem] text-theme-label-primary tablet:h-10 tablet:w-20" />
+            <BrowsersIcon className="h-[1.9rem] w-[3.7rem] text-text-primary tablet:h-10 tablet:w-20" />
             Try it now - It&apos;s free
           </FlexCentered>
         </Button>

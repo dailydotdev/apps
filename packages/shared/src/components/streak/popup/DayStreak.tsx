@@ -50,7 +50,7 @@ export function DayStreak({
         className={classNames(
           className,
           iconSizeToClassName[size],
-          streak === Streak.Freeze && 'bg-theme-label-disabled',
+          streak === Streak.Freeze && 'bg-text-disabled',
         )}
       />
     );

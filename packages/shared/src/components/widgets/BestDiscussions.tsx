@@ -46,13 +46,13 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
     </Link>
     <h5
       className={classNames(
-        'multi-truncate mb-2 text-theme-label-primary typo-callout',
+        'multi-truncate mb-2 text-text-primary typo-callout',
         styles.title,
       )}
     >
       {post.title}
     </h5>
-    <div className="flex items-center text-theme-label-tertiary typo-footnote">
+    <div className="flex items-center text-text-tertiary typo-footnote">
       <div>{post.numComments} Comments</div>
     </div>
   </article>
@@ -97,7 +97,7 @@ export default function BestDiscussions({
 
   return (
     <BestDiscussionsContainer className={className}>
-      <h4 className="py-3 pl-6 pr-4 text-theme-label-tertiary typo-body">
+      <h4 className="py-3 pl-6 pr-4 text-text-tertiary typo-body">
         Best discussions
       </h4>
       {Separator}

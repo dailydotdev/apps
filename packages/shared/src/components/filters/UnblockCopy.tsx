@@ -8,8 +8,8 @@ export type CopyProps = {
 export const UnblockTagCopy = ({ name }: CopyProps): ReactElement => {
   return (
     <p>
-      Unblocking <strong className="text-theme-label-primary">#{name}</strong>{' '}
-      means that you might see posts containing this tag in your feed.
+      Unblocking <strong className="text-text-primary">#{name}</strong> means
+      that you might see posts containing this tag in your feed.
     </p>
   );
 };
@@ -17,8 +17,8 @@ export const UnblockTagCopy = ({ name }: CopyProps): ReactElement => {
 export const UnblockSourceCopy = ({ name }: CopyProps): ReactElement => {
   return (
     <p>
-      Unblocking <strong className="text-theme-label-primary">{name}</strong>{' '}
-      means that you might see posts from this source in your feed.
+      Unblocking <strong className="text-text-primary">{name}</strong> means
+      that you might see posts from this source in your feed.
     </p>
   );
 };

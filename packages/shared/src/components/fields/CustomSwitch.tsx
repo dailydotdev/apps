@@ -25,7 +25,7 @@ const ContentContainer = classed(
 );
 
 const baseContentClass = 'transform transition-transform text-base';
-const unselectedContentClass = 'text-theme-label-tertiary';
+const unselectedContentClass = 'text-text-tertiary';
 const selectedContentClass = 'scale-125';
 
 export function CustomSwitch({
@@ -85,7 +85,7 @@ export function CustomSwitch({
       />
       <ContentContainer
         ref={leftRef}
-        className={checked && 'text-theme-label-tertiary'}
+        className={checked && 'text-text-tertiary'}
       >
         {typeof leftContent === 'string'
           ? leftContent
@@ -98,7 +98,7 @@ export function CustomSwitch({
       </ContentContainer>
       <ContentContainer
         ref={rightRef}
-        className={!checked && 'text-theme-label-tertiary'}
+        className={!checked && 'text-text-tertiary'}
       >
         {typeof rightContent === 'string'
           ? rightContent

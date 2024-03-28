@@ -74,7 +74,7 @@ export default function CommentPopup({
         )}
       >
         <ModalClose onClick={onClose} top="2" />
-        <h3 className="ml-2 mr-11 font-bold text-theme-label-primary typo-callout">
+        <h3 className="ml-2 mr-11 font-bold text-text-primary typo-callout">
           {text.title}
         </h3>
         <div
@@ -88,7 +88,7 @@ export default function CommentPopup({
             onChange={(event) => setComment(event.target.value)}
             onKeyDown={onKeyDown}
             className={classNames(
-              'focus-outline flex-1 resize-none bg-theme-float px-3 text-theme-label-primary placeholder-theme-label-tertiary caret-theme-label-link typo-callout',
+              'focus-outline flex-1 resize-none bg-theme-float px-3 text-text-primary placeholder-text-tertiary caret-text-link typo-callout',
               listMode ? 'mr-4 h-10 py-2.5' : 'my-4 py-3',
             )}
             style={{

@@ -47,7 +47,7 @@ export const SquadsDirectoryHeader = ({
         >
           New Squad
         </Button>
-        <div className="text-center text-theme-label-quaternary typo-footnote">
+        <div className="text-center text-text-quaternary typo-footnote">
           Squads are just getting started.
           <br className="inline-block tablet:hidden" /> More awesomeness coming
           soon.

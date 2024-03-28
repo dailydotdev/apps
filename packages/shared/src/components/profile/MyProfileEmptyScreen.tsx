@@ -19,7 +19,7 @@ export function MyProfileEmptyScreen({
 }: MyProfileEmptyScreenProps): ReactElement {
   return (
     <div className={classNames('flex flex-col gap-6', className)}>
-      <p className="text-theme-label-tertiary typo-callout">{text}</p>
+      <p className="text-text-tertiary typo-callout">{text}</p>
       <Button variant={ButtonVariant.Primary} {...buttonProps}>
         {cta}
       </Button>

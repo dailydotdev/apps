@@ -35,7 +35,7 @@ export const ReputationUserBadge = ({
       <div>
         <UserBadge
           {...rest}
-          className={classNames(className, 'text-theme-label-primary')}
+          className={classNames(className, 'text-text-primary')}
           content={largeNumberFormat(user.reputation)}
           Icon={ReputationIcon}
           iconProps={{

@@ -21,9 +21,7 @@ export function FilterSwitch({
       >
         {label}
       </Switch>
-      <p className="mt-3 text-theme-label-tertiary typo-callout">
-        {description}
-      </p>
+      <p className="mt-3 text-text-tertiary typo-callout">{description}</p>
     </div>
   );
 }

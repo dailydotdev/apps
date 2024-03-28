@@ -20,7 +20,7 @@ export function SquadSection(props: SectionCommonProps): ReactElement {
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}squads`,
       isForcedLink: true,
       rightIcon: () => (
-        <span className="font-bold text-theme-label-quaternary typo-caption1">
+        <span className="font-bold text-text-quaternary typo-caption1">
           beta
         </span>
       ),

@@ -7,7 +7,7 @@ export const SquadTitle = classed(
 );
 export const SquadSubTitle = classed(
   'p',
-  'text-center typo-title3 text-theme-label-tertiary',
+  'text-center typo-title3 text-text-tertiary',
 );
 export const SquadTitleColor = classed('span', 'text-brand-default');
 

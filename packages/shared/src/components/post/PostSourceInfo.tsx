@@ -22,7 +22,7 @@ function PostSourceInfo({
   return (
     <span
       className={classNames(
-        'flex flex-row items-center text-theme-label-tertiary typo-footnote',
+        'flex flex-row items-center text-text-tertiary typo-footnote',
         className,
       )}
     >

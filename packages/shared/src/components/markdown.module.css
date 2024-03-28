@@ -19,10 +19,10 @@
     @apply typo-body font-bold mt-6 mb-4;
   }
   & :where(h5) {
-    @apply text-theme-label-tertiary font-bold typo-markdown mt-5 mb-4;
+    @apply text-text-tertiary font-bold typo-markdown mt-5 mb-4;
   }
   & :where(h6) {
-    @apply text-theme-label-tertiary font-bold mt-4 mb-3;
+    @apply text-text-tertiary font-bold mt-4 mb-3;
   }
   & :where(p) {
     @apply typo-markdown my-5 relative;
@@ -51,7 +51,7 @@
     @apply typo-markdown my-2 pl-2;
   }
   & ::marker {
-    @apply text-theme-label-secondary;
+    @apply text-text-secondary;
   }
   & :where(ul ul, ul ol, ol ul, ol ol) {
     @apply typo-markdown my-2;
@@ -60,10 +60,10 @@
     @apply my-0;
   }
   & :where(a) {
-    @apply typo-markdown text-theme-label-link hover:underline;
+    @apply typo-markdown text-text-link hover:underline;
   }
   & :where(a[data-mention-username]) {
-    @apply relative text-theme-label-primary hover:underline bg-theme-bg-mention-primary font-bold px-1 rounded-6;
+    @apply relative text-text-primary hover:underline bg-theme-bg-mention-primary font-bold px-1 rounded-6;
 
     &:hover {
       @apply bg-theme-bg-mention-hover;

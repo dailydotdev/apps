@@ -64,7 +64,7 @@ export const SquadCommentJoinBanner = ({
       )}
     >
       <div className="flex flex-1 flex-col">
-        <p className="flex flex-1 text-theme-label-tertiary typo-callout">
+        <p className="flex flex-1 text-text-tertiary typo-callout">
           Join {squad.name} to see more posts like this one, contribute to
           conversation and more...
         </p>

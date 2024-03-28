@@ -8,17 +8,17 @@ export const ActivityContainer = classed('section', 'flex flex-col');
 
 export const ActivitySectionTitle = classed(
   'h2',
-  'flex items-center mb-4 text-theme-label-primary font-bold typo-body',
+  'flex items-center mb-4 text-text-primary font-bold typo-body',
 );
 
 export const ActivitySectionSubTitle = classed(
   'span',
-  'flex flex-row mt-1 text-theme-label-tertiary typo-callout font-normal',
+  'flex flex-row mt-1 text-text-tertiary typo-callout font-normal',
 );
 
 export const ActivitySectionTitleStat = classed(
   'span',
-  'ml-1 text-theme-label-secondary font-normal',
+  'ml-1 text-text-secondary font-normal',
 );
 
 interface ActivitySectionHeaderProps {
@@ -54,7 +54,7 @@ export const ActivitySectionHeader = ({
 
 export const LoadMore = classed(
   'button',
-  'mt-3 self-start p-0 bg-none border-none text-theme-label-link cursor-pointer typo-callout font-outline',
+  'mt-3 self-start p-0 bg-none border-none text-text-link cursor-pointer typo-callout font-outline',
 );
 
 export interface ActivitySectionProps<TElement, TError> {

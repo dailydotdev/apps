@@ -6,13 +6,13 @@ import { EmptyScreenIcon } from './EmptyScreen';
 
 export default function BookmarkEmptyScreen(): ReactElement {
   return (
-    <main className="withNavBar inset-0 mx-auto mt-12 flex max-w-full flex-col items-center justify-center px-6 text-theme-label-secondary">
+    <main className="withNavBar inset-0 mx-auto mt-12 flex max-w-full flex-col items-center justify-center px-6 text-text-secondary">
       <BookmarkIcon
-        className="icon m-0 text-theme-label-tertiary"
+        className="icon m-0 text-text-tertiary"
         style={EmptyScreenIcon.style}
       />
       <h1
-        className="my-4 text-center text-theme-label-primary typo-title1"
+        className="my-4 text-center text-text-primary typo-title1"
         style={{ maxWidth: '32.5rem' }}
       >
         Your bookmark list is empty.

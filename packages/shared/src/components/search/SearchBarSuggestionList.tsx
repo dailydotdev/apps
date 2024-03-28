@@ -50,7 +50,7 @@ export function SearchBarSuggestionList({
     return (
       <span
         className={classNames(
-          'flex h-10 flex-row items-center text-theme-label-quaternary',
+          'flex h-10 flex-row items-center text-text-quaternary',
           className,
         )}
       >

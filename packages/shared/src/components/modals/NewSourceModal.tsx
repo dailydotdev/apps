@@ -261,7 +261,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
           feed.
         </Modal.Text>
         <a
-          className="mb-2 font-bold text-theme-label-link underline typo-callout"
+          className="mb-2 font-bold text-text-link underline typo-callout"
           target="_blank"
           rel="noopener"
           href={contentGuidelines}
@@ -294,7 +294,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
             leftIcon={<LinkIcon />}
             rightIcon={
               !isEnabled ? (
-                <LockIcon className="text-theme-label-disabled" />
+                <LockIcon className="text-text-disabled" />
               ) : undefined
             }
           />
@@ -320,7 +320,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
           <>
             {!!feeds?.length && !existingSource && (
               <>
-                <div className="mb-6 self-start text-theme-label-tertiary typo-callout">
+                <div className="mb-6 self-start text-text-tertiary typo-callout">
                   {feeds.length} RSS feed{feeds.length > 1 ? 's' : ''} found
                 </div>
                 <form

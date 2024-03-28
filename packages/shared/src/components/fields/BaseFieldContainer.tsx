@@ -43,10 +43,10 @@ export const getFieldLabelColor = ({
     (hasInput && !focused) ||
     (isPrimaryField && hasInput)
   ) {
-    return 'text-theme-label-tertiary';
+    return 'text-text-tertiary';
   }
 
-  return disabled ? 'text-theme-label-disabled' : 'text-theme-label-primary';
+  return disabled ? 'text-text-disabled' : 'text-text-primary';
 };
 
 export const getFieldFontColor = ({
@@ -58,22 +58,22 @@ export const getFieldFontColor = ({
   hasActionIcon,
 }: FieldStateProps): string => {
   if ((readOnly && hasActionIcon) || hasInput) {
-    return 'text-theme-label-primary';
+    return 'text-text-primary';
   }
 
   if (readOnly || isLocked) {
-    return 'text-theme-label-quaternary';
+    return 'text-text-quaternary';
   }
 
   if (disabled) {
-    return 'text-theme-label-disabled';
+    return 'text-text-disabled';
   }
 
   if (focused) {
-    return 'text-theme-label-quaternary';
+    return 'text-text-quaternary';
   }
 
-  return 'text-theme-label-tertiary hover:text-theme-label-primary';
+  return 'text-text-tertiary hover:text-text-primary';
 };
 
 interface InnerLabelProps extends FieldStateProps {
@@ -199,7 +199,7 @@ function BaseFieldContainer(
           className={classNames(
             'mt-1 px-2 typo-caption1',
             saveHintSpace && 'h-4',
-            invalid ? 'text-status-error' : 'text-theme-label-quaternary',
+            invalid ? 'text-status-error' : 'text-text-quaternary',
             className.hint,
           )}
         >

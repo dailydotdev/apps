@@ -75,14 +75,14 @@ const DefaultListItem = ({
     <div className={textContainerClassName}>
       <h5
         className={classNames(
-          'multi-truncate mb-0.5 text-ellipsis break-words text-theme-label-primary typo-callout',
+          'multi-truncate mb-0.5 text-ellipsis break-words text-text-primary typo-callout',
           styles.title,
         )}
       >
         {post.title}
       </h5>
       {post.trending ? (
-        <div className="flex items-center text-theme-label-tertiary typo-footnote">
+        <div className="flex items-center text-text-tertiary typo-footnote">
           <HotLabel />
           <div className="ml-2">{post.trending} devs read it last hour</div>
         </div>
@@ -167,9 +167,7 @@ export default function SimilarPosts({
         className,
       )}
     >
-      <h4 className="py-3 pl-6 pr-4 text-theme-label-tertiary typo-body">
-        {title}
-      </h4>
+      <h4 className="py-3 pl-6 pr-4 text-text-tertiary typo-body">{title}</h4>
       {Separator}
       {isLoading ? (
         <>

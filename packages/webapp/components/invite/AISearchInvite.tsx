@@ -88,7 +88,7 @@ export function AISearchInvite({
       <div className="relative z-1 flex w-full flex-col tablet:max-w-[27.5rem] laptop:ml-3 laptopL:ml-[9.75rem]">
         <span className="mb-6 flex flex-col items-center gap-3 tablet:mb-10 tablet:gap-4 laptop:mb-8 laptop:flex-row laptop:items-start laptop:gap-2">
           <ProfileImageLink user={referringUser} />
-          <p className="text-center text-theme-label-tertiary typo-callout laptop:text-left">
+          <p className="text-center text-text-tertiary typo-callout laptop:text-left">
             {referringUser.name}
             <br />
             invites you to try daily.dev search
@@ -98,7 +98,7 @@ export function AISearchInvite({
           {referringUser.name.split(' ')[0]} gave you early access to daily.dev
           search!
         </h1>
-        <p className="mt-6 text-center text-theme-label-secondary laptop:text-left">
+        <p className="mt-6 text-center text-text-secondary laptop:text-left">
           This isn’t just another search engine; it’s a search engine that’s
           both fine-tuned for developers and fully integrated into the daily.dev
           ecosystem.

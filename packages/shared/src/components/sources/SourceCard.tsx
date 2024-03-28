@@ -82,7 +82,7 @@ export const SourceCard = ({
         borderColorToClassName[source?.borderColor || borderColor],
       )}
     >
-      <div className="h-24 rounded-t-16 bg-theme-bg-onion">
+      <div className="h-24 rounded-t-16 bg-accent-onion-bolder">
         <Image
           className="h-full w-full object-cover"
           src={
@@ -126,12 +126,12 @@ export const SourceCard = ({
             <a href={source?.permalink}>
               <div className="font-bold typo-title3">{title}</div>
               {subtitle && (
-                <div className="text-theme-label-secondary">{subtitle}</div>
+                <div className="text-text-secondary">{subtitle}</div>
               )}
             </a>
             {description ||
               (source?.description && (
-                <div className="multi-truncate mt-1 line-clamp-5 text-theme-label-secondary">
+                <div className="multi-truncate mt-1 line-clamp-5 text-text-secondary">
                   {source?.description || description}
                 </div>
               ))}

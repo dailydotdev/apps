@@ -44,7 +44,7 @@ export function Header({
           <ProfilePicture user={user} nativeLazyLoading size="medium" />
           <div className="ml-2 flex flex-col typo-footnote">
             <p className="font-bold">{user.name}</p>
-            <p className="text-theme-label-tertiary">
+            <p className="text-text-tertiary">
               {largeNumberFormat(user.reputation)} Reputation
             </p>
           </div>

@@ -32,7 +32,7 @@ export default function PostMetadata({
   return (
     <div
       className={classNames(
-        'flex items-center text-theme-label-tertiary typo-footnote',
+        'flex items-center text-text-tertiary typo-footnote',
         className,
       )}
     >
@@ -40,7 +40,7 @@ export default function PostMetadata({
         <PlayIcon
           secondary
           size={IconSize.XXSmall}
-          className="my-auto mr-1 text-theme-label-primary"
+          className="my-auto mr-1 text-text-primary"
         />
       )}
       {!!description && (

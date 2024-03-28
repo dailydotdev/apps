@@ -71,7 +71,7 @@ function SharePostBar({
     return (
       <Card
         className={classNames(
-          'flex !flex-row items-center gap-1.5 px-3 py-5 text-theme-label-quaternary hover:border-theme-divider-tertiary',
+          'flex !flex-row items-center gap-1.5 px-3 py-5 text-text-quaternary hover:border-theme-divider-tertiary',
           className,
         )}
       >
@@ -104,7 +104,7 @@ function SharePostBar({
           name="share-post-bar"
           placeholder={`Enter URL${isMobile ? '' : ' / Choose from'}`}
           className={classNames(
-            'w-full flex-1 bg-transparent pl-1 text-theme-label-primary outline-none typo-body hover:placeholder-theme-label-primary focus:placeholder-theme-label-quaternary tablet:w-auto tablet:min-w-[11rem] tablet:flex-none',
+            'w-full flex-1 bg-transparent pl-1 text-text-primary outline-none typo-body hover:placeholder-text-primary focus:placeholder-text-quaternary tablet:w-auto tablet:min-w-[11rem] tablet:flex-none',
             !shouldRenderReadingHistory && '!flex-1 pr-2',
           )}
           onInput={(e) => setUrl(e.currentTarget.value)}
@@ -114,7 +114,7 @@ function SharePostBar({
         />
         {shouldRenderReadingHistory && (
           <ClickableText
-            className="reading-history ml-1.5 hidden font-bold hover:text-theme-label-primary tablet:flex"
+            className="reading-history ml-1.5 hidden font-bold hover:text-text-primary tablet:flex"
             inverseUnderline
             onClick={onOpenHistory}
             type="button"
@@ -134,7 +134,7 @@ function SharePostBar({
         </Button>
       </span>
       <button
-        className="flex w-full items-center justify-center border-t border-theme-divider-tertiary py-5 font-bold text-theme-label-tertiary typo-callout tablet:hidden"
+        className="flex w-full items-center justify-center border-t border-theme-divider-tertiary py-5 font-bold text-text-tertiary typo-callout tablet:hidden"
         type="button"
         onClick={onOpenHistory}
       >

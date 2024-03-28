@@ -124,8 +124,8 @@ function MainLayoutHeader({
                   icon={
                     <BellIcon
                       className={classNames(
-                        'hover:text-theme-label-primary',
-                        atNotificationsPage && 'text-theme-label-primary',
+                        'hover:text-text-primary',
+                        atNotificationsPage && 'text-text-primary',
                       )}
                       secondary={atNotificationsPage}
                     />

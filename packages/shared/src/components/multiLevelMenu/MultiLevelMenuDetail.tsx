@@ -16,7 +16,7 @@ export default function MultiLevelMenuDetail({
     <>
       <div className="mb-6 border-b border-theme-divider-tertiary px-4 py-1">
         <Button
-          className="btn-quaternary p-0 text-theme-label-tertiary typo-callout"
+          className="btn-quaternary p-0 text-text-tertiary typo-callout"
           onClick={() => setMultiLevelMenuDetail(null, null)}
           icon={<ArrowIcon className="mr-2 -rotate-90 text-2xl" />}
         >

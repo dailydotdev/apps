@@ -140,7 +140,7 @@ export const CollectionPostContent = ({
               {post.title}
             </h1>
             {!!updatedAt && (
-              <div className="flex items-center text-theme-label-tertiary typo-footnote">
+              <div className="flex items-center text-text-tertiary typo-footnote">
                 <span>Last updated</span> <Separator />
                 <DateFormat date={updatedAt} type={TimeFormatType.Post} />
               </div>

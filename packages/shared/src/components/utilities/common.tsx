@@ -122,7 +122,7 @@ export const FormErrorMessage = classed(
 
 export const ActiveTabIndicator = classed(
   'div',
-  'absolute inset-x-0 bottom-0 h-0.5 my-0 mx-auto bg-theme-label-primary',
+  'absolute inset-x-0 bottom-0 h-0.5 my-0 mx-auto bg-text-primary',
   styles.activeTabIndicator,
 );
 
@@ -136,7 +136,7 @@ export const FeedPageHeader = classed(
   'overflow-x-auto self-stretch mb-6 no-scrollbar hidden laptop:flex',
 );
 
-export const customFeedIcon = 'text-2xl text-theme-label-tertiary mr-2';
+export const customFeedIcon = 'text-2xl text-text-tertiary mr-2';
 
 export const Summary = classed('summary', 'cursor-pointer focus-outline');
 
@@ -144,7 +144,7 @@ export const SummaryArrow = classed(ArrowIcon, 'icon arrow ml-auto text-xl');
 
 export const SummaryContainer = classed(
   'div',
-  'text-theme-label-secondary multi-truncate border-l border-accent-cabbage-default pl-4',
+  'text-text-secondary multi-truncate border-l border-accent-cabbage-default pl-4',
 );
 
 export const TLDRText = classed(
@@ -160,7 +160,7 @@ export const HotLabel = (): ReactElement => (
 
 export const SecondaryCenteredBodyText = classed(
   'p',
-  'typo-body text-theme-label-secondary text-center',
+  'typo-body text-text-secondary text-center',
 );
 
 export type HTMLElementComponent<T = HTMLElement> = React.FC<HTMLAttributes<T>>;

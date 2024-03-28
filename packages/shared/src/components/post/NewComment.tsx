@@ -135,10 +135,10 @@ function NewCommentComponent(
           )}
         />
       )}
-      <span className="text-theme-label-tertiary">Share your thoughts</span>
+      <span className="text-text-tertiary">Share your thoughts</span>
       <Button
         size={buttonSize[size]}
-        className="ml-auto hidden text-theme-label-primary tablet:flex"
+        className="ml-auto hidden text-text-primary tablet:flex"
         variant={ButtonVariant.Secondary}
         tag="a"
         disabled

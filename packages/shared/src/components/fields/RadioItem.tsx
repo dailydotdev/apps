@@ -25,8 +25,8 @@ export function RadioItem({
           styles.item,
           { [styles.checked]: checked },
           disabled
-            ? 'text-theme-label-disabled'
-            : 'pointer cursor-pointer text-theme-label-tertiary focus-within:text-theme-label-primary hover:text-theme-label-primary',
+            ? 'text-text-disabled'
+            : 'pointer cursor-pointer text-text-tertiary focus-within:text-text-primary hover:text-text-primary',
           'relative flex select-none flex-row items-center pr-3 font-bold typo-footnote',
           className,
         )}
@@ -48,7 +48,7 @@ export function RadioItem({
           <span
             className={classNames(
               'flex h-full w-full rounded-full border-2 ',
-              !disabled && 'border-theme-label-tertiary',
+              !disabled && 'border-text-tertiary',
               styles.innerRing,
             )}
           />

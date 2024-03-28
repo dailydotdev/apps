@@ -1,15 +1,15 @@
 .field {
-  --field-placeholder-color: var(--theme-label-tertiary);
+  --field-placeholder-color: var(--theme-text-tertiary);
 
   &:hover {
     background: var(--theme-hover);
-    --field-placeholder-color: var(--theme-label-primary);
+    --field-placeholder-color: var(--theme-text-primary);
   }
 
   &:global(.focused) {
     background: transparent;
-    border-color: var(--theme-label-primary);
-    --field-placeholder-color: var(--theme-label-quaternary);
+    border-color: var(--theme-text-primary);
+    --field-placeholder-color: var(--theme-text-quaternary);
   }
 
   & input::placeholder, & textarea::placeholder {
@@ -17,6 +17,6 @@
   }
 
   & input:focus::placeholder, & textarea:focus::placeholder {
-    color: var(--theme-label-quaternary);
+    color: var(--theme-text-quaternary);
   }
 }

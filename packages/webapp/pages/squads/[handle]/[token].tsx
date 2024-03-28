@@ -59,8 +59,8 @@ const getOthers = (others: Edge<SourceMember>[], total: number) => {
   return `and ${total - 1} others are`;
 };
 
-const BodyParagraph = classed('p', 'typo-body text-theme-label-tertiary');
-const HighlightedText = classed('span', 'font-bold text-theme-label-primary');
+const BodyParagraph = classed('p', 'typo-body text-text-tertiary');
+const HighlightedText = classed('span', 'font-bold text-text-primary');
 
 export interface SquadReferralProps {
   token: string;

@@ -34,7 +34,7 @@ const InstructionContainer = classed(
 
 const iconClasses = 'flex flex-grow mt-2';
 
-const Description = classed('p', 'typo-callout text-theme-label-tertiary');
+const Description = classed('p', 'typo-callout text-text-tertiary');
 
 function Enable(): React.ReactElement {
   const router = useRouter();
@@ -88,7 +88,7 @@ function Enable(): React.ReactElement {
         <div className="absolute inset-0 -z-1 size-52 -translate-y-[25%] rounded-50 bg-accent-cabbage-bolder opacity-64 blur-[3.125rem]" />
         Click allow
       </h1>
-      <p className="mt-6 text-theme-label-secondary typo-body">
+      <p className="mt-6 text-text-secondary typo-body">
         Enable web push notifications to be notified of important events such as
         replies, mentions, updates, etc.
       </p>

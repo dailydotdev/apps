@@ -58,7 +58,7 @@ function EmailVerificationSent({
       <SecondaryCenteredBodyText>
         We just sent an email to:
       </SecondaryCenteredBodyText>
-      <SecondaryCenteredBodyText className="mt-4 font-bold text-theme-label-primary">
+      <SecondaryCenteredBodyText className="mt-4 font-bold text-text-primary">
         {email}
       </SecondaryCenteredBodyText>
       <SecondaryCenteredBodyText className="mt-5">
