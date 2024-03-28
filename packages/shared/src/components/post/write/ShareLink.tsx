@@ -51,6 +51,7 @@ export function ShareLink({
     <form
       className={classNames('flex flex-col gap-4', className)}
       onSubmit={onSubmit}
+      id="write-post"
     >
       {post?.id ? (
         <WriteLinkPreview
