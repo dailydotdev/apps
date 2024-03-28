@@ -78,7 +78,7 @@ export default function Sidebar({
   const activePage = `/${feedName}`;
   const isMyFeed =
     router.pathname === '/' || feedName === SharedFeedPage.MyFeed;
-  const isProfilePage = router.pathname.includes('/[userId]');
+  const isProfilePage = router.pathname?.includes('/[userId]');
 
   useHideMobileSidebar({
     state: openMobileSidebar,
