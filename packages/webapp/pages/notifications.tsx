@@ -58,6 +58,7 @@ const Notifications = (): ReactElement => {
   const { trackEvent } = useAnalyticsContext();
   const { clearUnreadCount } = useNotificationContext();
   const { isSubscribed } = usePushNotificationContext();
+
   const { mutateAsync: readNotifications } = useMutation(
     () => request(graphqlUrl, READ_NOTIFICATIONS_MUTATION),
     { onSuccess: clearUnreadCount },

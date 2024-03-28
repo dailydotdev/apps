@@ -1,5 +1,7 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import classNames from 'classnames';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 import SettingsContext from '../../contexts/SettingsContext';
 import {
   Nav,
@@ -13,18 +15,33 @@ import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import AuthContext from '../../contexts/AuthContext';
 import { ProfilePicture } from '../ProfilePicture';
 import {
-  SquadSection,
-  DiscoverSection,
   ContributeSection,
+  DiscoverSection,
+  ManageSection,
   MobileMenuIcon,
-  SidebarUserButton,
   MyFeedButton,
   SidebarBottomSection,
-  ManageSection,
+  SidebarUserButton,
+  SquadSection,
 } from './index';
 import { getFeedName } from '../../lib/feed';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
+import Logo, { LogoPosition } from '../Logo';
+import { useViewSize, ViewSize } from '../../hooks';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonProps,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
+import { AiIcon, HomeIcon, SourceIcon, UserIcon } from '../icons';
+import { IconSize } from '../Icon';
+import { CreatePostButton } from '../post/write';
+import { SharedFeedPage } from '../utilities';
+import { OtherFeedPage } from '../../lib/query';
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -38,7 +55,9 @@ export default function Sidebar({
   enableSearch,
   setOpenMobileSidebar,
   onShowDndClick,
+  onLogoClick,
 }: SidebarProps): ReactElement {
+  const router = useRouter();
   const { user, isLoggedIn } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const {
@@ -49,12 +68,26 @@ export default function Sidebar({
   } = useContext(SettingsContext);
   const { modal, openModal } = useLazyModal();
   const showSettings = modal?.type === LazyModal.UserSettings;
+  const { isNewMobileLayout } = useMobileUxExperiment();
+  const isTablet = useViewSize(ViewSize.Tablet);
 
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
     hasFiltered: !alerts?.filter,
   });
   const activePage = `/${feedName}`;
+  const isProfilePage = router.pathname?.includes('/[userId]');
+  const isHomeActive = useMemo(() => {
+    return [
+      SharedFeedPage.MyFeed,
+      SharedFeedPage.Popular,
+      SharedFeedPage.Upvoted,
+      SharedFeedPage.Discussed,
+      OtherFeedPage.Bookmarks,
+      OtherFeedPage.History,
+      OtherFeedPage.Notifications,
+    ].includes(feedName);
+  }, [feedName]);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -75,6 +108,93 @@ export default function Sidebar({
     return <></>;
   }
 
+  if (isNewMobileLayout && isTablet) {
+    const buttonProps: ButtonProps<'a' | 'button'> = {
+      variant: ButtonVariant.Tertiary,
+      size: ButtonSize.Large,
+      className:
+        'w-full !bg-transparent active:bg-transparent aria-pressed:bg-transparent',
+    };
+
+    return (
+      <SidebarAside
+        data-testid="sidebar-aside"
+        className="w-16 items-center gap-4"
+      >
+        <Logo
+          compact
+          position={LogoPosition.Relative}
+          onLogoClick={onLogoClick}
+          className={classNames('h-10 pt-4')}
+        />
+
+        <Link href="/" prefetch={false} passHref>
+          <Button
+            {...buttonProps}
+            tag="a"
+            icon={<HomeIcon secondary={isHomeActive} size={IconSize.Medium} />}
+            iconPosition={ButtonIconPosition.Top}
+            variant={ButtonVariant.Option}
+            pressed={isHomeActive}
+          >
+            Home
+          </Button>
+        </Link>
+
+        <Link href="/search" prefetch={false} passHref>
+          <Button
+            {...buttonProps}
+            tag="a"
+            icon={
+              <AiIcon
+                secondary={feedName === SharedFeedPage.Search}
+                size={IconSize.Medium}
+              />
+            }
+            iconPosition={ButtonIconPosition.Top}
+            variant={ButtonVariant.Option}
+            pressed={feedName === SharedFeedPage.Search}
+          >
+            Search
+          </Button>
+        </Link>
+
+        <Link href="/squads" prefetch={false} passHref>
+          <Button
+            {...buttonProps}
+            tag="a"
+            icon={
+              <SourceIcon
+                secondary={feedName === OtherFeedPage.Squad}
+                size={IconSize.Medium}
+              />
+            }
+            iconPosition={ButtonIconPosition.Top}
+            variant={ButtonVariant.Option}
+            pressed={feedName === OtherFeedPage.Squad}
+          >
+            Squads
+          </Button>
+        </Link>
+
+        <Link href={user.permalink} prefetch={false} passHref>
+          <Button
+            {...buttonProps}
+            tag="a"
+            icon={<UserIcon secondary={isProfilePage} size={IconSize.Medium} />}
+            iconPosition={ButtonIconPosition.Top}
+            variant={ButtonVariant.Option}
+            pressed={isProfilePage}
+          >
+            Profile
+          </Button>
+        </Link>
+
+        <CreatePostButton compact sidebar />
+      </SidebarAside>
+    );
+  }
+
   return (
     <>
       {openMobileSidebar && sidebarRendered === false && (
@@ -83,6 +203,7 @@ export default function Sidebar({
       <SidebarAside
         data-testid="sidebar-aside"
         className={classNames(
+          'w-70',
           sidebarExpanded ? 'laptop:w-60' : 'laptop:w-11',
           openMobileSidebar ? '-translate-x-0' : '-translate-x-70',
           promotionalBannerActive

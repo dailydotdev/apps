@@ -3,10 +3,9 @@ import { Flipped, Flipper } from 'react-flip-toolkit';
 import classNames from 'classnames';
 import {
   HomeIcon,
-  BookmarkIcon,
-  SearchIcon,
-  FilterIcon,
-  BellIcon,
+  AiIcon,
+  SourceIcon,
+  UserIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
@@ -15,14 +14,13 @@ import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/Lin
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import {
   Button,
+  ButtonIconPosition,
   ButtonProps,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
-import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import {
@@ -32,15 +30,18 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
+import { CreatePostButton } from '@dailydotdev/shared/src/components/post/write';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import styles from './FooterNavBar.module.css';
 
 type Tab = {
-  path: string;
-  title: string;
-  icon: (active: boolean, unread?: number) => ReactElement;
+  path?: string | ((user: LoggedUser) => string);
+  title?: string;
+  icon?: (active: boolean, unread?: number) => ReactElement;
   requiresLogin?: boolean;
   shouldShowLogin?: boolean;
   onClick?: () => void;
+  component?: ReactElement;
 };
 
 const notificationsPath = '/notifications';
@@ -53,41 +54,36 @@ export const tabs: Tab[] = [
     ),
   },
   {
-    path: '/bookmarks',
-    title: 'Bookmarks',
+    path: '/search',
+    title: 'Search',
     icon: (active: boolean) => (
-      <BookmarkIcon secondary={active} size={IconSize.Medium} />
+      <AiIcon secondary={active} size={IconSize.Medium} />
     ),
     shouldShowLogin: true,
   },
   {
-    path: '/search',
-    title: 'Search',
-    icon: (active: boolean) => (
-      <SearchIcon secondary={active} size={IconSize.Medium} />
+    component: (
+      <div key="new-post" className="text-center">
+        <CreatePostButton compact sidebar className="h-8" />
+      </div>
     ),
   },
   {
     requiresLogin: true,
     shouldShowLogin: true,
-    path: notificationsPath,
-    title: 'Notifications',
-    icon: (active: boolean, unreadCount) => (
-      <span className="relative">
-        {unreadCount > 0 ? (
-          <Bubble className="right-0 top-0 translate-x-1/2 px-1">
-            {getUnreadText(unreadCount)}
-          </Bubble>
-        ) : null}
-        <BellIcon secondary={active} size={IconSize.Medium} />
-      </span>
+    path: '/squads',
+    title: 'Squads',
+    icon: (active: boolean) => (
+      <SourceIcon secondary={active} size={IconSize.Medium} />
     ),
   },
   {
-    path: '/filters',
-    title: 'Filters',
+    requiresLogin: true,
+    shouldShowLogin: true,
+    path: (user) => user?.permalink,
+    title: 'Profile',
     icon: (active: boolean) => (
-      <FilterIcon secondary={active} size={IconSize.Medium} />
+      <UserIcon secondary={active} size={IconSize.Medium} />
     ),
   },
 ];
@@ -109,8 +105,8 @@ export default function FooterNavBar({
 
   const buttonProps: ButtonProps<'a' | 'button'> = {
     variant: ButtonVariant.Tertiary,
-    style: { width: '100%' },
     size: ButtonSize.Large,
+    className: 'w-full',
   };
 
   const onNavigateNotifications = () => {
@@ -119,6 +115,10 @@ export default function FooterNavBar({
       target_id: NotificationTarget.Footer,
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
+  };
+
+  const getPath = (path: Tab['path']) => {
+    return typeof path === 'string' ? path : path(user);
   };
 
   const onItemClick = {
@@ -144,50 +144,57 @@ export default function FooterNavBar({
         spring="veryGentle"
         element="nav"
         className={classNames(
-          'grid w-full grid-flow-col items-center border-t border-theme-divider-tertiary bg-background-default',
+          'grid h-14 w-full grid-flow-col items-center justify-between rounded-t-24 border-t border-theme-divider-tertiary bg-background-default',
           !showNav && 'hidden',
           styles.footerNavBar,
         )}
       >
-        {tabs.map((tab, index) =>
-          tab.requiresLogin && !user ? null : (
-            <div key={tab.path} className="relative">
-              {!tab.shouldShowLogin || user ? (
-                <LinkWithTooltip
-                  href={tab.path}
-                  prefetch={false}
-                  passHref
-                  tooltip={{ content: tab.title }}
-                >
-                  <Button
-                    {...buttonProps}
-                    tag="a"
-                    icon={tab.icon(index === selectedTab, unreadCount)}
-                    pressed={index === selectedTab}
-                    onClick={onItemClick[tab.path]}
-                  />
-                </LinkWithTooltip>
-              ) : (
-                <SimpleTooltip content={tab.title}>
-                  <Button
-                    {...buttonProps}
-                    icon={tab.icon(index === selectedTab, unreadCount)}
-                    onClick={() =>
-                      showLogin({ trigger: AuthTriggers.Bookmark })
-                    }
-                  />
-                </SimpleTooltip>
-              )}
-              <Flipped flipId="activeTabIndicator">
-                {selectedTab === index && (
-                  <ActiveTabIndicator
-                    className="w-12"
-                    style={{ top: '-0.125rem' }}
-                  />
+        {tabs.map(
+          (tab, index) =>
+            tab.component ||
+            (tab.requiresLogin && !user ? null : (
+              <div key={tab.title} className="relative">
+                {!tab.shouldShowLogin || user ? (
+                  <LinkWithTooltip
+                    href={getPath(tab.path)}
+                    prefetch={false}
+                    passHref
+                    tooltip={{ content: tab.title }}
+                  >
+                    <Button
+                      {...buttonProps}
+                      tag="a"
+                      icon={tab.icon(index === selectedTab, unreadCount)}
+                      className="px-4 font-normal typo-footnote"
+                      iconPosition={ButtonIconPosition.Top}
+                      pressed={index === selectedTab}
+                      onClick={onItemClick[getPath(tab.path)]}
+                    >
+                      {tab.title}
+                    </Button>
+                  </LinkWithTooltip>
+                ) : (
+                  <SimpleTooltip content={tab.title}>
+                    <Button
+                      {...buttonProps}
+                      icon={tab.icon(index === selectedTab, unreadCount)}
+                      iconPosition={ButtonIconPosition.Top}
+                      className="font-normal typo-footnote"
+                      onClick={() =>
+                        showLogin({ trigger: AuthTriggers.Bookmark })
+                      }
+                    >
+                      {tab.title}
+                    </Button>
+                  </SimpleTooltip>
                 )}
-              </Flipped>
-            </div>
-          ),
+                <Flipped flipId="activeTabIndicator">
+                  {selectedTab === index && (
+                    <ActiveTabIndicator className="-top-0.5 w-6" />
+                  )}
+                </Flipped>
+              </div>
+            )),
         )}
       </Flipper>
     </div>

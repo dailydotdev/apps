@@ -14,6 +14,7 @@ import { feature } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
 import { setShouldRefreshFeed } from '../../lib/refreshFeed';
 import { SharedFeedPage } from '../utilities';
+import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 
 export const filterAlertMessage = 'Edit your personal feed preferences here';
 
@@ -29,6 +30,7 @@ function MyFeedHeading({
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const queryClient = useQueryClient();
   const forceRefresh = useFeature(feature.forceRefresh);
+  const { isNewMobileLayout } = useMobileUxExperiment();
 
   const onClick = () => {
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
@@ -65,7 +67,7 @@ function MyFeedHeading({
           }
           loading={isRefreshing}
         >
-          {!isMobile ? 'Refresh feed' : null}
+          {!isMobile && !isNewMobileLayout ? 'Refresh feed' : null}
         </Button>
       )}
       <Button
@@ -78,7 +80,7 @@ function MyFeedHeading({
           shouldUseMobileFeedLayout ? ButtonIconPosition.Right : undefined
         }
       >
-        {!isMobile ? 'Feed settings' : null}
+        {!isMobile && !isNewMobileLayout ? 'Feed settings' : null}
       </Button>
     </>
   );

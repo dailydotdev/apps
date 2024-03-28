@@ -17,11 +17,17 @@ import { RankingAlgorithm } from '../../graphql/feed';
 import SettingsContext from '../../contexts/SettingsContext';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useFeedLayout } from '../../hooks';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
+import FeedSelector from '../FeedSelector';
+import { ReadingStreakButton } from '../streak/ReadingStreakButton';
+import { useReadingStreak } from '../../hooks/streaks';
+import { AllFeedPages } from '../../lib/query';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
 export interface SearchControlHeaderProps {
-  feedName: SharedFeedPage;
+  feedName: AllFeedPages;
   algoState: State<number>;
   periodState: State<number>;
 }
@@ -50,8 +56,12 @@ export const SearchControlHeader = ({
 }: SearchControlHeaderProps): ReactElement => {
   const { openModal } = useLazyModal();
   const { sortingEnabled } = useContext(SettingsContext);
-  const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
+  const { isUpvoted, isPopular, isDiscussed, isSortableFeed } = useFeedName({
+    feedName,
+  });
   const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { isNewMobileLayout } = useMobileUxExperiment();
+  const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
   const openFeedFilters = () =>
     openModal({ type: LazyModal.FeedFilters, persistOnRouteChange: true });
 
@@ -91,5 +101,24 @@ export const SearchControlHeader = ({
   ];
   const actions = actionButtons.filter((button) => !!button);
 
-  return actions?.length ? <>{actions}</> : null;
+  return (
+    <ConditionalWrapper
+      condition={isNewMobileLayout}
+      wrapper={(children) => (
+        <div className="flex w-full items-center justify-between">
+          {isPopular || isUpvoted || isDiscussed ? (
+            <FeedSelector />
+          ) : (
+            isStreaksEnabled && (
+              <ReadingStreakButton streak={streak} isLoading={isLoading} />
+            )
+          )}
+
+          <div>{children}</div>
+        </div>
+      )}
+    >
+      {actions}
+    </ConditionalWrapper>
+  );
 };

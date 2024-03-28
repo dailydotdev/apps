@@ -1,4 +1,5 @@
 import React, { ReactElement, useCallback, useState } from 'react';
+import classnames from 'classnames';
 import { ReadingStreakPopup } from './popup';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ReadingStreakIcon } from '../icons';
@@ -11,6 +12,8 @@ import { AnalyticsEvent } from '../../lib/analytics';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
+  isLoading: boolean;
+  compact?: boolean;
 }
 
 interface CustomStreaksTooltipProps {
@@ -48,12 +51,15 @@ function CustomStreaksTooltip({
 
 export function ReadingStreakButton({
   streak,
+  isLoading,
+  compact,
 }: ReadingStreakButtonProps): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isMobile = useViewSize(ViewSize.MobileL);
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
   const hasReadToday =
-    new Date(streak.lastViewAt).getDate() === new Date().getDate();
+    new Date(streak?.lastViewAt).getDate() === new Date().getDate();
 
   const handleToggle = useCallback(() => {
     setShouldShowStreaks((state) => !state);
@@ -67,6 +73,16 @@ export function ReadingStreakButton({
 
   const Tooltip = shouldShowStreaks ? CustomStreaksTooltip : SimpleTooltip;
 
+  if (isLoading) {
+    return (
+      <div className="h-8 w-14 rounded-12 bg-surface-float laptop:h-10 laptop:w-20" />
+    );
+  }
+
+  if (!streak) {
+    return null;
+  }
+
   return (
     <Tooltip
       content="Current streak"
@@ -79,10 +95,15 @@ export function ReadingStreakButton({
         icon={<ReadingStreakIcon secondary={hasReadToday} />}
         variant={ButtonVariant.Float}
         onClick={handleToggle}
-        className="gap-1 text-theme-color-bacon"
-        size={isLaptop ? ButtonSize.Medium : ButtonSize.Small}
+        className={classnames('gap-1', compact && 'text-theme-color-bacon')}
+        size={
+          (isLaptop || !compact) && !isMobile
+            ? ButtonSize.Medium
+            : ButtonSize.Small
+        }
       >
         {streak?.current}
+        {!compact && ' reading days'}
       </Button>
     </Tooltip>
   );

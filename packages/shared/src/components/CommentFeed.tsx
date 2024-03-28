@@ -16,6 +16,8 @@ import { graphqlUrl } from '../lib/config';
 import { Connection } from '../graphql/common';
 import PlaceholderCommentList from './comments/PlaceholderCommentList';
 import { CommentClassName } from './comments/common';
+import { useMobileUxExperiment } from '../hooks/useMobileUxExperiment';
+import FeedSelector from './FeedSelector';
 
 const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ './modals/ShareModal'),
@@ -28,6 +30,7 @@ interface CommentFeedProps<T> {
   variables?: T;
   emptyScreen?: ReactNode;
   commentClassName?: CommentClassName;
+  isMainFeed?: boolean;
 }
 
 interface CommentFeedData {
@@ -40,11 +43,13 @@ export default function CommentFeed<T>({
   variables,
   emptyScreen,
   commentClassName,
+  isMainFeed,
 }: CommentFeedProps<T>): ReactElement {
   const { shareComment, openShareComment, closeShareComment } =
     useShareComment(analyticsOrigin);
   const { onShowUpvoted } = useUpvoteQuery();
   const { deleteComment } = useDeleteComment();
+  const { isNewMobileLayout } = useMobileUxExperiment();
 
   const queryResult = useInfiniteQuery<CommentFeedData>(
     feedQueryKey,
@@ -77,22 +82,46 @@ export default function CommentFeed<T>({
   }
 
   if (showEmptyScreen && emptyScreen) {
-    return <>{emptyScreen}</>;
+    return (
+      <>
+        {isNewMobileLayout && isMainFeed && (
+          <FeedSelector className="self-start px-4 py-10" />
+        )}
+
+        {emptyScreen}
+      </>
+    );
   }
 
   return (
     <>
+      {isNewMobileLayout && isMainFeed && (
+        <FeedSelector className="self-start p-4" />
+      )}
+
       <InfiniteScrolling
         isFetchingNextPage={queryResult.isFetchingNextPage}
         canFetchMore={checkFetchMore(queryResult)}
         fetchNextPage={queryResult.fetchNextPage}
-        className="w-full"
+        className={classNames(
+          'w-full',
+          isNewMobileLayout && isMainFeed && 'px-4',
+        )}
       >
         {queryResult.data.pages.flatMap((page) =>
-          page.page.edges.map(({ node }) => (
+          page.page.edges.map(({ node }, index) => (
             <MainComment
               key={node.id}
-              className={commentClassName}
+              className={{
+                ...commentClassName,
+                container: classNames(
+                  commentClassName.container,
+                  index === 0 &&
+                    isNewMobileLayout &&
+                    isMainFeed &&
+                    'rounded-t-24 border-t',
+                ),
+              }}
               post={node.post}
               comment={node}
               origin={analyticsOrigin}

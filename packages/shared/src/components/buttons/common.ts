@@ -24,6 +24,7 @@ export enum ButtonVariant {
 export enum ButtonIconPosition {
   Left = 'left',
   Right = 'right',
+  Top = 'top',
 }
 
 export const SizeToClassName: Record<ButtonSize, string> = {

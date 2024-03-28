@@ -11,7 +11,7 @@ import TabList, { TabListProps } from './TabList';
 
 export interface TabProps<T extends string> {
   key?: number;
-  children: ReactNode;
+  children?: ReactNode;
   label: T;
   className?: string;
   style?: CSSProperties;

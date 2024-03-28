@@ -4,6 +4,7 @@ import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
 import { PostBootData } from './boot';
 import { Origin } from './analytics';
 import { SharedFeedPage } from '../components/utilities';
+import { AllFeedPages } from './query';
 
 export function optimisticPostUpdateInFeed(
   items: FeedItem[],
@@ -168,7 +169,7 @@ export const defaultFeedConditions = [null, 'default', '/', ''];
 export const getFeedName = (
   path: string,
   options: GetDefaultFeedProps = {},
-): SharedFeedPage => {
+): AllFeedPages => {
   const feed = path?.replaceAll?.('/', '') || '';
 
   if (defaultFeedConditions.some((condition) => condition === feed)) {

@@ -14,6 +14,8 @@ import { useFeedLayout, ToastSubject, useToastNotification } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
+import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
+import { useReadingStreak } from '../../hooks/streaks';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -106,6 +108,8 @@ export const FeedContainer = ({
     loadedSettings,
   } = useContext(SettingsContext);
   const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { isNewMobileLayout } = useMobileUxExperiment();
+  const { isEnabled: isStreaksEnabled } = useReadingStreak();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
@@ -149,7 +153,12 @@ export const FeedContainer = ({
           {isSearch && !shouldUseMobileFeedLayout && (
             <span className="flex flex-1 flex-row items-center">
               {!!actionButtons && (
-                <span className="mr-auto flex flex-row gap-3 border-theme-divider-tertiary pr-3">
+                <span
+                  className={classNames(
+                    'mr-auto flex flex-row gap-3 border-theme-divider-tertiary pr-3',
+                    isNewMobileLayout && isStreaksEnabled && 'w-full',
+                  )}
+                >
                   {actionButtons}
                 </span>
               )}
@@ -167,10 +176,19 @@ export const FeedContainer = ({
                 )}
               >
                 <span className="flex w-full flex-row items-center justify-between px-6 py-4">
-                  <strong className="typo-title3">
-                    {feedNameToHeading[feedName] ?? ''}
-                  </strong>
-                  <span className="flex flex-row gap-3">{actionButtons}</span>
+                  {!isNewMobileLayout && (
+                    <strong className="typo-title3">
+                      {feedNameToHeading[feedName] ?? ''}
+                    </strong>
+                  )}
+                  <span
+                    className={classNames(
+                      'flex flex-row gap-3',
+                      isNewMobileLayout && 'w-full',
+                    )}
+                  >
+                    {actionButtons}
+                  </span>
                 </span>
                 {child}
               </div>

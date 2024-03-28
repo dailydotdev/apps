@@ -24,6 +24,7 @@ interface LogoProps {
   showGreeting?: boolean;
   onLogoClick?: (e: React.MouseEvent) => unknown;
   hideTextMobile?: boolean;
+  compact?: boolean;
   position?: LogoPosition;
 }
 
@@ -33,6 +34,7 @@ export default function Logo({
   showGreeting,
   onLogoClick,
   hideTextMobile = false,
+  compact = false,
   position = LogoPosition.Absolute,
 }: LogoProps): ReactElement {
   return (
@@ -52,20 +54,23 @@ export default function Logo({
         onClick={onLogoClick}
       >
         <LogoIcon className={logoClassName} />
-        <CSSTransition
-          in={!showGreeting}
-          timeout={500}
-          classNames="fade"
-          unmountOnExit
-        >
-          <LogoText
-            className={classNames(
-              'ml-1',
-              logoClassName,
-              hideTextMobile && 'hidden laptop:block',
-            )}
-          />
-        </CSSTransition>
+
+        {!compact && (
+          <CSSTransition
+            in={!showGreeting}
+            timeout={500}
+            classNames="fade"
+            unmountOnExit
+          >
+            <LogoText
+              className={classNames(
+                'ml-1',
+                logoClassName,
+                hideTextMobile && 'hidden laptop:block',
+              )}
+            />
+          </CSSTransition>
+        )}
       </a>
     </LinkWithTooltip>
   );
