@@ -13,7 +13,7 @@ export enum ReadingStreaksExperiment {
 
 export enum PostPageOnboarding {
   Control = 'control',
-  V4 = 'v4',
+  V5 = 'v5',
 }
 
 export enum UserAcquisition {
