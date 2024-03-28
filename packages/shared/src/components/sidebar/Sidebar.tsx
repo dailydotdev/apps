@@ -41,6 +41,7 @@ import { AiIcon, HomeIcon, SourceIcon, UserIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { CreatePostButton } from '../post/write';
 import { SharedFeedPage } from '../utilities';
+import { OtherFeedPage } from '../../lib/query';
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -75,6 +76,9 @@ export default function Sidebar({
     hasFiltered: !alerts?.filter,
   });
   const activePage = `/${feedName}`;
+  const isMyFeed =
+    router.pathname === '/' || feedName === SharedFeedPage.MyFeed;
+  const isProfilePage = router.pathname.includes('/[userId]');
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -99,13 +103,14 @@ export default function Sidebar({
     const buttonProps: ButtonProps<'a' | 'button'> = {
       variant: ButtonVariant.Tertiary,
       size: ButtonSize.Large,
-      className: 'w-full',
+      className:
+        'w-full !bg-transparent active:bg-transparent aria-pressed:bg-transparent',
     };
 
     return (
       <SidebarAside
         data-testid="sidebar-aside"
-        className="w-16 basis-10 items-center gap-4"
+        className="max-w-16 items-center gap-4"
       >
         <Logo
           compact
@@ -118,13 +123,10 @@ export default function Sidebar({
           <Button
             {...buttonProps}
             tag="a"
-            icon={<HomeIcon secondary size={IconSize.Medium} />}
+            icon={<HomeIcon secondary={isMyFeed} size={IconSize.Medium} />}
             iconPosition={ButtonIconPosition.Top}
             variant={ButtonVariant.Option}
-            pressed={
-              router.pathname === '/' ||
-              router.pathname === SharedFeedPage.MyFeed
-            }
+            pressed={isMyFeed}
           >
             Home
           </Button>
@@ -134,10 +136,15 @@ export default function Sidebar({
           <Button
             {...buttonProps}
             tag="a"
-            icon={<AiIcon size={IconSize.Medium} />}
+            icon={
+              <AiIcon
+                secondary={feedName === SharedFeedPage.Search}
+                size={IconSize.Medium}
+              />
+            }
             iconPosition={ButtonIconPosition.Top}
             variant={ButtonVariant.Option}
-            pressed={router.pathname === 'search'}
+            pressed={feedName === SharedFeedPage.Search}
           >
             Search
           </Button>
@@ -147,10 +154,15 @@ export default function Sidebar({
           <Button
             {...buttonProps}
             tag="a"
-            icon={<SourceIcon size={IconSize.Medium} />}
+            icon={
+              <SourceIcon
+                secondary={feedName === OtherFeedPage.Squad}
+                size={IconSize.Medium}
+              />
+            }
             iconPosition={ButtonIconPosition.Top}
-            variant={ButtonVariant.Option}
-            pressed={router.pathname === 'squads'}
+            variant={ButtonVariant.Tertiary}
+            pressed={feedName === OtherFeedPage.Squad}
           >
             Squads
           </Button>
@@ -160,10 +172,10 @@ export default function Sidebar({
           <Button
             {...buttonProps}
             tag="a"
-            icon={<UserIcon size={IconSize.Medium} />}
+            icon={<UserIcon secondary={isProfilePage} size={IconSize.Medium} />}
             iconPosition={ButtonIconPosition.Top}
             variant={ButtonVariant.Option}
-            pressed={router.pathname === user.permalink}
+            pressed={isProfilePage}
           >
             Profile
           </Button>
