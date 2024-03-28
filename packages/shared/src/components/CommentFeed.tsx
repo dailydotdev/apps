@@ -135,7 +135,10 @@ export default function CommentFeed<T>({
               postScoutId={null}
               appendTooltipTo={() => document.body}
               linkToComment
+              lazy
               showContextHeader
+              trackImpression
+              trackClick
             />
           )),
         )}
