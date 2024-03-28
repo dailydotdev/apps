@@ -24,11 +24,19 @@ export const useConditionalFeature = <T extends JSONValue>({
   const { user } = useContext(AuthContext);
   const { growthbook } = useGrowthBookContext();
   const { ready } = useFeaturesReadyContext();
-  const queryKey = generateQueryKey(RequestKey.Feature, user, feature.id);
+  const queryKey = generateQueryKey(
+    RequestKey.Feature,
+    user,
+    feature.id,
+    shouldEvaluate,
+  );
 
   const { data: featureValue, isLoading } = useQuery(
     queryKey,
     () => {
+      if (!shouldEvaluate) {
+        return false as WidenPrimitives<T>;
+      }
       return growthbook
         ? growthbook.getFeatureValue(feature.id, feature.defaultValue)
         : (feature.defaultValue as WidenPrimitives<T>);
