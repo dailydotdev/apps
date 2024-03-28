@@ -5,6 +5,10 @@ const textColors = {
   quaternary: 'var(--theme-text-quaternary)',
   disabled: 'var(--theme-text-disabled)',
   link: 'var(--theme-text-link)',
+  highlight: {
+    default: 'var(--theme-text-highlight-default)',
+    hover: 'var(--theme-text-highlight-hover)',
+  },
 };
 
 export default textColors;
