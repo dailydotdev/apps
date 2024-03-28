@@ -35,7 +35,7 @@ export const useConditionalFeature = <T extends JSONValue>({
     queryKey,
     () => {
       if (!shouldEvaluate) {
-        return false as WidenPrimitives<T>;
+        return feature.defaultValue as WidenPrimitives<T>;
       }
       return growthbook
         ? growthbook.getFeatureValue(feature.id, feature.defaultValue)
