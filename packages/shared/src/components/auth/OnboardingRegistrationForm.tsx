@@ -32,6 +32,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   isReady: boolean;
   className?: string;
   onboardingSignupButton?: ButtonProps<'button'>;
+  compact?: boolean;
 }
 
 const OnboardingRegistrationForm = ({
@@ -43,6 +44,7 @@ const OnboardingRegistrationForm = ({
   trigger,
   className,
   onboardingSignupButton,
+  compact,
 }: OnboardingRegistrationFormProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const [shouldLogin, setShouldLogin] = useState(false);
@@ -102,7 +104,10 @@ const OnboardingRegistrationForm = ({
 
   return (
     <>
-      <AuthForm className="mb-8 gap-8" onSubmit={onEmailSignup}>
+      <AuthForm
+        className={compact ? 'mb-3 gap-3' : 'mb-8 gap-8'}
+        onSubmit={onEmailSignup}
+      >
         <TextField
           leftIcon={<MailIcon size={IconSize.Small} />}
           required
@@ -140,7 +145,10 @@ const OnboardingRegistrationForm = ({
           Sign up - Free forever ➔
         </Button>
       </AuthForm>
-      <OrDivider className="mb-8" label="Or sign up with" />
+      <OrDivider
+        className={compact ? 'mb-3' : 'mb-8'}
+        label="Or sign up with"
+      />
 
       <div className={classNames('flex flex-col gap-8 pb-8', className)}>
         {signupProviders.map((provider) => (

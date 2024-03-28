@@ -13,7 +13,7 @@ export default function DndBanner(): ReactElement {
   const turnOff = () => onDndSettings(null);
 
   return (
-    <div className="relative z-3 flex w-full flex-col items-start bg-theme-bg-onion py-3 pl-3 pr-12 typo-footnote laptop:fixed laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:p-0">
+    <div className="relative z-popup flex w-full flex-col items-start bg-accent-onion-default py-3 pl-3 pr-12 typo-footnote laptop:fixed laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:p-0">
       <strong>daily.dev in a new tab is paused</strong>
       <Button
         size={ButtonSize.XSmall}
