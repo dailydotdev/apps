@@ -12,7 +12,7 @@ export enum RaisedLabelType {
 
 const typeToClassName: Record<RaisedLabelType, string> = {
   [RaisedLabelType.Hot]: 'bg-status-error',
-  [RaisedLabelType.Pinned]: 'bg-theme-bg-bun',
+  [RaisedLabelType.Pinned]: 'bg-status-warning',
   [RaisedLabelType.Beta]: 'bg-raw-cabbage-40',
 };
 

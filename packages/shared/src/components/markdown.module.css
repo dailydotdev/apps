@@ -63,10 +63,10 @@
     @apply typo-markdown text-text-link hover:underline;
   }
   & :where(a[data-mention-username]) {
-    @apply relative text-text-primary hover:underline bg-theme-bg-mention-primary font-bold px-1 rounded-6;
+    @apply relative text-text-primary hover:underline bg-brand-active font-bold px-1 rounded-6;
 
     &:hover {
-      @apply bg-theme-bg-mention-hover;
+      @apply bg-brand-hover;
     }
   }
   & :where(hr) {

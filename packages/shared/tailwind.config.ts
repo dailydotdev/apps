@@ -51,14 +51,6 @@ export default {
         float: 'var(--theme-float)',
         hover: 'var(--theme-hover)',
         rank: 'var(--rank-color)',
-        bg: {
-          bun: 'var(--theme-background-bun)',
-          onion: 'var(--theme-background-onion)',
-          mention: {
-            primary: 'var(--theme-mention)',
-            hover: 'var(--theme-mention-hover)',
-          },
-        },
         divider: {
           primary: 'var(--theme-divider-primary)',
           secondary: 'var(--theme-divider-secondary)',
