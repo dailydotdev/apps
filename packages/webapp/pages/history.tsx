@@ -16,9 +16,21 @@ import { SearchHistory } from '@dailydotdev/shared/src/components';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { getLayout } from '../components/layouts/MainLayout';
-import ProtectedPage from '../components/ProtectedPage';
+import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
+import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
+import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { HistoryType, ReadingHistory } from '../components/history';
+import ProtectedPage from '../components/ProtectedPage';
+import { getLayout } from '../components/layouts/MainLayout';
+
+const feedOptions = [
+  {
+    value: HistoryType.Reading,
+  },
+  {
+    value: HistoryType.Search,
+  },
+];
 
 const History = (): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
@@ -27,6 +39,8 @@ const History = (): ReactElement => {
   const router = useRouter();
   const tabQuery = router.query?.t?.toString() as HistoryType;
   const [page, setPage] = useState(HistoryType.Reading);
+  const { isNewMobileLayout } = useMobileUxExperiment();
+  const selectedFeedIdx = feedOptions.findIndex((f) => f.value === page);
 
   const handleSetPage = useCallback(
     (active: HistoryType) => {
@@ -54,20 +68,55 @@ const History = (): ReactElement => {
 
   return (
     <ProtectedPage seo={seo}>
-      <div className="absolute left-0 top-[6.75rem] flex h-px w-full bg-theme-divider-tertiary laptop:hidden" />
+      {!isNewMobileLayout && (
+        <div className="absolute left-0 top-[6.75rem] flex h-px w-full bg-theme-divider-tertiary laptop:hidden" />
+      )}
+
       <ResponsivePageContainer className="relative !p-0" role="main">
-        <TabContainer<HistoryType>
-          controlledActive={page}
-          onActiveChange={handleSetPage}
-          showBorder={isLaptop}
-        >
-          <Tab label={HistoryType.Reading}>
-            <ReadingHistory />
-          </Tab>
-          <Tab label={HistoryType.Search}>
-            <SearchHistory origin={Origin.HistoryPage} />
-          </Tab>
-        </TabContainer>
+        {isNewMobileLayout && (
+          <>
+            <Dropdown
+              dynamicMenuWidth
+              shouldIndicateSelected
+              buttonSize={ButtonSize.Medium}
+              className={{
+                button: 'px-1',
+                label: 'mr-5',
+                container: 'self-start px-4 pt-4',
+                indicator: '!ml-2',
+              }}
+              iconOnly={false}
+              key="feed"
+              selectedIndex={selectedFeedIdx}
+              renderItem={(_, index) => (
+                <span className="typo-callout">{feedOptions[index].value}</span>
+              )}
+              options={feedOptions.map((f) => f.value)}
+              onChange={(feed: HistoryType) => handleSetPage(feed)}
+            />
+
+            {page === HistoryType.Reading && <ReadingHistory />}
+
+            {page === HistoryType.Search && (
+              <SearchHistory origin={Origin.HistoryPage} />
+            )}
+          </>
+        )}
+
+        {!isNewMobileLayout && (
+          <TabContainer<HistoryType>
+            controlledActive={page}
+            onActiveChange={handleSetPage}
+            showBorder={isLaptop}
+          >
+            <Tab label={HistoryType.Reading}>
+              <ReadingHistory />
+            </Tab>
+            <Tab label={HistoryType.Search}>
+              <SearchHistory origin={Origin.HistoryPage} />
+            </Tab>
+          </TabContainer>
+        )}
       </ResponsivePageContainer>
     </ProtectedPage>
   );

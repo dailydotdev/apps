@@ -144,7 +144,7 @@ export default function MainFeedLayout({
   const feedVersion = useFeature(feature.feedVersion);
   const searchVersion = useFeature(feature.searchVersion);
   const hasCommentFeed = useFeature(feature.commentFeed);
-  const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
+  const { isUpvoted, isPopular, isSortableFeed } = useFeedName({ feedName });
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);
   const [isPreviewFeedEnabled, setPreviewFeedEnabled] = useState(false);
@@ -195,7 +195,7 @@ export default function MainFeedLayout({
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
-    const feedWithActions = isUpvoted || isSortableFeed;
+    const feedWithActions = isUpvoted || isPopular || isSortableFeed;
     // in v1 search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
     if (isSearchOn && !searchQuery) {
@@ -312,6 +312,7 @@ export default function MainFeedLayout({
       {isSearchOn && search}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
+          isMainFeed
           feedQueryKey={generateQueryKey(RequestKey.CommentFeed, null)}
           query={COMMENT_FEED_QUERY}
           analyticsOrigin={Origin.CommentFeed}

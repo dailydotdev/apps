@@ -13,11 +13,13 @@ import { SimpleTooltip } from '../../tooltips';
 interface CreatePostButtonProps {
   className?: string;
   compact?: boolean;
+  sidebar?: boolean;
 }
 
 export function CreatePostButton({
   className,
   compact,
+  sidebar,
 }: CreatePostButtonProps): ReactElement {
   const { user, squads } = useAuthContext();
   const { route, query } = useRouter();
@@ -58,12 +60,12 @@ export function CreatePostButton({
       )}
     >
       <Button
-        variant={ButtonVariant.Secondary}
+        variant={sidebar ? ButtonVariant.Float : ButtonVariant.Secondary}
         className={className}
         disabled={getIsDisabled()}
         icon={compact && <PlusIcon />}
         tag="a"
-        size={isLaptop ? ButtonSize.Medium : ButtonSize.Small}
+        size={isLaptop || sidebar ? ButtonSize.Medium : ButtonSize.Small}
         href={href}
       >
         {!compact ? 'New post' : null}

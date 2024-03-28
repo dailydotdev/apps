@@ -2,29 +2,23 @@ import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
-import { useNotificationContext } from '../../contexts/NotificationsContext';
-import { AnalyticsEvent, NotificationTarget } from '../../lib/analytics';
 import { webappUrl } from '../../lib/constants';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { BellIcon, HamburgerIcon } from '../icons';
+import { HamburgerIcon } from '../icons';
 import LoginButton from '../LoginButton';
 import MobileHeaderRankProgress from '../MobileHeaderRankProgress';
-import {
-  checkAtNotificationsPage,
-  getUnreadText,
-} from '../notifications/utils';
 import ProfileButton from '../profile/ProfileButton';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
-import { Bubble } from '../tooltips/utils';
 import HeaderLogo from './HeaderLogo';
 import { CreatePostButton } from '../post/write';
 import { useViewSize, ViewSize } from '../../hooks';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { LogoPosition } from '../Logo';
-import { UserStreak } from '../../graphql/users';
+import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
+import NotificationsBell from '../notifications/NotificationsBell';
+import FeedNav from '../feeds/FeedNav';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -42,25 +36,6 @@ const SearchPanel = dynamic(
     ),
 );
 
-interface StreakButtonProps {
-  isLoading: boolean;
-  streak: UserStreak;
-}
-
-const StreakButton = ({ streak, isLoading }: StreakButtonProps) => {
-  if (isLoading) {
-    return (
-      <div className="h-8 w-14 rounded-12 bg-surface-float laptop:h-10 laptop:w-20" />
-    );
-  }
-
-  if (!streak) {
-    return null;
-  }
-
-  return <ReadingStreakButton streak={streak} />;
-};
-
 function MainLayoutHeader({
   hasBanner,
   sidebarRendered,
@@ -69,14 +44,13 @@ function MainLayoutHeader({
   onLogoClick,
   onMobileSidebarToggle,
 }: MainLayoutHeaderProps): ReactElement {
-  const { trackEvent } = useAnalyticsContext();
-  const { unreadCount } = useNotificationContext();
   const { user } = useContext(AuthContext);
   const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
   const isMobile = useViewSize(ViewSize.MobileL);
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
+  const { isNewMobileLayout } = useMobileUxExperiment();
 
   const headerButton = (() => {
     if (!user) {
@@ -94,21 +68,11 @@ function MainLayoutHeader({
     );
   })();
 
-  const hasNotification = !!unreadCount;
-  const atNotificationsPage = checkAtNotificationsPage();
-  const onNavigateNotifications = () => {
-    trackEvent({
-      event_name: AnalyticsEvent.ClickNotificationIcon,
-      target_id: NotificationTarget.Header,
-      extra: JSON.stringify({ notifications_number: unreadCount }),
-    });
-  };
-
   const RenderButtons = () => {
     return (
       <div className="flex gap-3">
         {isStreaksEnabled && (
-          <StreakButton streak={streak} isLoading={isLoading} />
+          <ReadingStreakButton streak={streak} isLoading={isLoading} compact />
         )}
         <CreatePostButton compact={isStreaksEnabled} />
         {!!user && (
@@ -117,26 +81,7 @@ function MainLayoutHeader({
               tooltip={{ placement: 'bottom', content: 'Notifications' }}
               href={`${webappUrl}notifications`}
             >
-              <div className="relative hidden laptop:flex">
-                <Button
-                  variant={ButtonVariant.Float}
-                  onClick={onNavigateNotifications}
-                  icon={
-                    <BellIcon
-                      className={classNames(
-                        'hover:text-text-primary',
-                        atNotificationsPage && 'text-text-primary',
-                      )}
-                      secondary={atNotificationsPage}
-                    />
-                  }
-                />
-                {hasNotification && (
-                  <Bubble className="-right-1.5 -top-1.5 cursor-pointer px-1">
-                    {getUnreadText(unreadCount)}
-                  </Bubble>
-                )}
-              </div>
+              <NotificationsBell />
             </LinkWithTooltip>
           </>
         )}
@@ -149,6 +94,10 @@ function MainLayoutHeader({
       </div>
     );
   };
+
+  if (isNewMobileLayout) {
+    return <FeedNav />;
+  }
 
   return (
     <header

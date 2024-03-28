@@ -41,6 +41,7 @@ import { ReputationPrivilegesModalTrigger } from './modals';
 import { MarketingCtaVariant } from './cards/MarketingCta/common';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
+import { useMobileUxExperiment } from '../hooks/useMobileUxExperiment';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -91,6 +92,7 @@ function MainLayoutComponent({
 
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { isNewMobileLayout } = useMobileUxExperiment();
 
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useAuthErrors();
@@ -158,6 +160,7 @@ function MainLayoutComponent({
         dndActive={dndActive}
         isNavButtons={isNavItemsButton}
         onShowDndClick={onShowDndClick}
+        onLogoClick={onLogoClick}
         setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
       />
     );
@@ -223,6 +226,7 @@ function MainLayoutComponent({
           !isScreenCentered && sidebarExpanded
             ? 'laptop:pl-60'
             : 'laptop:pl-11',
+          isNewMobileLayout && 'tablet:pl-16',
           isBannerAvailable && 'laptop:pt-8',
         )}
       >
