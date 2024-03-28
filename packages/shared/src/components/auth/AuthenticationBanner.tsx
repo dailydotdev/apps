@@ -7,6 +7,10 @@ import { AuthTriggers } from '../../lib/auth';
 import { MemberAlready } from '../onboarding/MemberAlready';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { BottomBannerContainer } from '../banners';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { PostPageOnboarding } from '../../lib/featureValues';
+import { ButtonVariant } from '../buttons/common';
 
 const Section = classed('div', 'flex flex-col');
 export const authGradientBg =
@@ -14,15 +18,20 @@ export const authGradientBg =
 
 export function AuthenticationBanner(): ReactElement {
   const { showLogin } = useAuthContext();
+  const isPostPageOnboardingV5 =
+    useFeature(feature.postPageOnboarding) === PostPageOnboarding.V5;
 
   return (
     <BottomBannerContainer
       className={classNames(
-        'gap-24 border-t border-theme-color-cabbage py-10 shadow-3 laptopL:gap-32',
+        'border-t border-theme-color-cabbage py-10 shadow-3 laptopL:gap-32',
+        isPostPageOnboardingV5 ? 'gap-10' : 'gap-24',
         authGradientBg,
       )}
     >
-      <Section className="w-[32.5rem]">
+      <Section
+        className={isPostPageOnboardingV5 ? 'w-[23.25rem]' : 'w-[32.5rem]'}
+      >
         <OnboardingHeadline
           className={{ title: 'typo-mega3', description: 'typo-title3' }}
         />
@@ -35,10 +44,22 @@ export function AuthenticationBanner(): ReactElement {
           simplified
           defaultDisplay={AuthDisplay.OnboardingSignup}
           forceDefaultDisplay
-          className={{ onboardingSignup: '!gap-4' }}
+          className={{
+            onboardingSignup: classNames(
+              isPostPageOnboardingV5
+                ? 'flex !flex-row !gap-3 !pb-3 *:grow'
+                : '!gap-4',
+            ),
+          }}
           onAuthStateUpdate={() =>
             showLogin({ trigger: AuthTriggers.Onboarding })
           }
+          compact={isPostPageOnboardingV5}
+          onboardingSignupButton={{
+            variant: isPostPageOnboardingV5
+              ? ButtonVariant.Float
+              : ButtonVariant.Primary,
+          }}
         />
         <MemberAlready
           onLogin={() =>
@@ -48,7 +69,10 @@ export function AuthenticationBanner(): ReactElement {
             })
           }
           className={{
-            container: 'justify-center text-text-secondary typo-callout',
+            container: classNames(
+              'justify-center text-text-secondary typo-callout',
+              isPostPageOnboardingV5 && 'py-3',
+            ),
             login: 'font-bold',
           }}
         />
