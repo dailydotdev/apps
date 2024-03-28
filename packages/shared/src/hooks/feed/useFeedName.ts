@@ -1,7 +1,8 @@
 import { SharedFeedPage } from '../../components/utilities';
+import { AllFeedPages } from '../../lib/query';
 
 interface UseFeedNameProps {
-  feedName: SharedFeedPage;
+  feedName: AllFeedPages;
 }
 
 interface UseFeedName {
@@ -11,7 +12,10 @@ interface UseFeedName {
   isSortableFeed: boolean;
 }
 
-const sortableFeeds = [SharedFeedPage.Popular, SharedFeedPage.MyFeed];
+const sortableFeeds: AllFeedPages[] = [
+  SharedFeedPage.Popular,
+  SharedFeedPage.MyFeed,
+];
 
 export const useFeedName = ({ feedName }: UseFeedNameProps): UseFeedName => {
   return {

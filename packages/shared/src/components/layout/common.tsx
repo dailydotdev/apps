@@ -22,11 +22,12 @@ import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import FeedSelector from '../FeedSelector';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
+import { AllFeedPages } from '../../lib/query';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
 export interface SearchControlHeaderProps {
-  feedName: SharedFeedPage;
+  feedName: AllFeedPages;
   algoState: State<number>;
   periodState: State<number>;
 }
