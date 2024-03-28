@@ -8,7 +8,7 @@ const textColors = {
   highlight: {
     default: 'var(--theme-text-highlight-default)',
     hover: 'var(--theme-text-highlight-hover)',
-  }
+  },
 };
 
 export default textColors;
