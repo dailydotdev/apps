@@ -110,7 +110,7 @@ export default function Sidebar({
     return (
       <SidebarAside
         data-testid="sidebar-aside"
-        className="max-w-16 items-center gap-4"
+        className="w-16 items-center gap-4"
       >
         <Logo
           compact
@@ -194,6 +194,7 @@ export default function Sidebar({
       <SidebarAside
         data-testid="sidebar-aside"
         className={classNames(
+          'w-70',
           sidebarExpanded ? 'laptop:w-60' : 'laptop:w-11',
           openMobileSidebar ? '-translate-x-0' : '-translate-x-70',
           promotionalBannerActive
