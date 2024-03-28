@@ -23,7 +23,7 @@ export function SignBackButton({
       onClick={onClick}
     >
       <ProfilePicture user={signBack} size="large" />
-      <div className="ml-2 flex flex-col items-start text-theme-label-invert">
+      <div className="ml-2 flex flex-col items-start text-surface-invert">
         {!!signBack.name && (
           <span className="font-bold typo-callout">
             Continue as {signBack.name.split(' ')[0]}
@@ -31,7 +31,7 @@ export function SignBackButton({
         )}
         <span className="typo-footnote">{signBack.email}</span>
       </div>
-      <span className="ml-auto rounded-8 border border-theme-divider-secondary p-1 text-theme-label-invert">
+      <span className="ml-auto rounded-8 border border-theme-divider-secondary p-1 text-surface-invert">
         {item.icon}
       </span>
     </button>

@@ -40,12 +40,10 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
           className="h-10"
         />
       </div>
-      <h3 className="mt-3 text-theme-label-primary typo-title2">
-        {squad.name}
-      </h3>
-      <h4 className="text-theme-label-tertiary typo-callout">{`@${squad.handle}`}</h4>
+      <h3 className="mt-3 text-text-primary typo-title2">{squad.name}</h3>
+      <h4 className="text-text-tertiary typo-callout">{`@${squad.handle}`}</h4>
       {squad.description && (
-        <p className="mt-1 text-theme-label-tertiary typo-callout">
+        <p className="mt-1 text-text-tertiary typo-callout">
           {squad.description}
         </p>
       )}
@@ -55,7 +53,7 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
         origin={Origin.ArticleModal}
       />
       {!squad.currentMember && (
-        <p className="mt-3 text-theme-label-tertiary typo-callout">
+        <p className="mt-3 text-text-tertiary typo-callout">
           Join Squad to see more posts from {squad.name}
         </p>
       )}

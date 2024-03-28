@@ -29,8 +29,8 @@ const ChecklistStep = ({
         <div className="flex-start flex flex-1 items-center gap-1">
           <div
             className={classNames(
-              '-ml-2 flex h-10 w-10 items-center justify-center text-theme-label-tertiary',
-              isCompleted && 'text-theme-label-quaternary',
+              '-ml-2 flex h-10 w-10 items-center justify-center text-text-tertiary',
+              isCompleted && 'text-text-quaternary',
             )}
             id={step.action.type}
           >
@@ -56,10 +56,8 @@ const ChecklistStep = ({
           <p
             className={classNames(
               'flex-1 text-left typo-callout',
-              isActive ? 'font-bold text-theme-label-primary' : 'font-normal',
-              isCompleted
-                ? 'text-theme-label-quaternary'
-                : 'text-theme-label-tertiary',
+              isActive ? 'font-bold text-text-primary' : 'font-normal',
+              isCompleted ? 'text-text-quaternary' : 'text-text-tertiary',
               className.title,
             )}
           >
@@ -68,7 +66,7 @@ const ChecklistStep = ({
         </div>
         <ArrowIcon
           className={classNames(
-            isActive ? 'text-theme-label-primary' : 'text-theme-label-tertiary',
+            isActive ? 'text-text-primary' : 'text-text-tertiary',
             !isOpen && 'rotate-180',
             isCompleted && 'opacity-32',
           )}
@@ -80,7 +78,7 @@ const ChecklistStep = ({
         <div className="my-2 ml-9">
           <p
             className={classNames(
-              'text-theme-label-tertiary typo-callout',
+              'text-text-tertiary typo-callout',
               className.description,
             )}
           >

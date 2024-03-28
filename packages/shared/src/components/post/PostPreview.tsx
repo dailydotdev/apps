@@ -47,7 +47,7 @@ function PostPreview({
           <ParagraphPlaceholder className="w-1/3" />
         </div>
       ) : (
-        <p className="multi-truncate line-clamp-3 flex-1 text-theme-label-secondary typo-caption1">
+        <p className="multi-truncate line-clamp-3 flex-1 text-text-secondary typo-caption1">
           {title}
         </p>
       )}
@@ -69,7 +69,7 @@ function PostPreview({
       >
         <OpenLinkIcon
           size={IconSize.Medium}
-          className={isLoading && 'text-theme-label-disabled'}
+          className={isLoading && 'text-text-disabled'}
         />
       </a>
     </div>

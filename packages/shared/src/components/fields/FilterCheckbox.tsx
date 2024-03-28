@@ -14,9 +14,7 @@ export function FilterCheckbox({
     <Checkbox {...props} className="!items-start !typo-callout">
       <div className="flex flex-col">
         <span className="mb-2">{children}</span>
-        <span className="font-normal text-theme-label-secondary">
-          {description}
-        </span>
+        <span className="font-normal text-text-secondary">{description}</span>
       </div>
     </Checkbox>
   );

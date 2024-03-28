@@ -24,7 +24,7 @@ const RankHistory = ({
     aria-label={`${rankName}: ${count}`}
   >
     <Rank className="size-8" rank={rank} colorByRank />
-    <span className="ml-1 hidden text-theme-label-tertiary tablet:block">
+    <span className="ml-1 hidden text-text-tertiary tablet:block">
       {rankName}
     </span>
     <span className="tablet:ml-auto">{count}</span>

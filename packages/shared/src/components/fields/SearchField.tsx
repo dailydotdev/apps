@@ -114,7 +114,7 @@ export const SearchField = forwardRef(function SearchField(
             title="Clear query"
             onClick={onClearClick}
             icon={
-              <CloseIcon className="icon text-lg group-hover:text-theme-label-primary" />
+              <CloseIcon className="icon text-lg group-hover:text-text-primary" />
             }
             disabled={!hasInput}
           />
@@ -125,7 +125,7 @@ export const SearchField = forwardRef(function SearchField(
             style={{
               color:
                 focused || hasInput
-                  ? 'var(--theme-label-primary)'
+                  ? 'var(--theme-text-primary)'
                   : 'var(--field-placeholder-color)',
             }}
           />

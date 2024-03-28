@@ -93,7 +93,7 @@ function ChangelogTooltip(): ReactElement {
       >
         <header className="flex flex-1 items-center border-b border-theme-divider-tertiary px-4 py-3">
           <h3
-            className="font-bold text-theme-label-primary typo-title3"
+            className="font-bold text-text-primary typo-title3"
             data-testid="changelogNewReleaseTag"
           >
             New release
@@ -109,7 +109,7 @@ function ChangelogTooltip(): ReactElement {
             data-testid="changelogImage"
           />
           <h3
-            className="mt-3 font-normal text-theme-label-primary typo-title3"
+            className="mt-3 font-normal text-text-primary typo-title3"
             data-testid="changelogTitle"
           >
             {post.title}
@@ -118,11 +118,11 @@ function ChangelogTooltip(): ReactElement {
             data-testid="changelogDate"
             date={post.createdAt}
             type={TimeFormatType.Post}
-            className="text-theme-label-quaternary typo-callout"
+            className="text-text-quaternary typo-callout"
           />
           {!!post.summary && (
             <div
-              className="w mt-2 text-theme-label-tertiary typo-callout"
+              className="w mt-2 text-text-tertiary typo-callout"
               data-testid="changelogSummary"
             >
               {post.summary}

@@ -48,7 +48,7 @@ export const Checkbox = forwardRef(function Checkbox(
   return (
     <label
       className={classNames(
-        'relative z-1 inline-flex cursor-pointer select-none items-center p-1 pr-3 text-theme-label-tertiary typo-footnote',
+        'relative z-1 inline-flex cursor-pointer select-none items-center p-1 pr-3 text-text-tertiary typo-footnote',
         styles.label,
         className,
         { checked: actualChecked, disabled },
@@ -74,7 +74,7 @@ export const Checkbox = forwardRef(function Checkbox(
         )}
       >
         <VIcon
-          className="icon h-full w-full text-theme-label-primary opacity-0"
+          className="icon h-full w-full text-text-primary opacity-0"
           style={{ transition: 'opacity 0.1s linear' }}
         />
       </div>

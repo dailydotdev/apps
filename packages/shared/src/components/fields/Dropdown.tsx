@@ -50,7 +50,7 @@ export interface DropdownProps {
 
 const getButtonSizeClass = (buttonSize: string): string => {
   if (buttonSize === 'select') {
-    return 'h-9 rounded-10 text-theme-label-primary typo-body';
+    return 'h-9 rounded-10 text-text-primary typo-body';
   }
   if (buttonSize === 'medium') {
     return 'h-10 rounded-12 min-w-[2.5rem]';
@@ -131,7 +131,7 @@ export function Dropdown({
         type="button"
         ref={triggerRef}
         className={classNames(
-          'group flex w-full items-center bg-theme-float px-3 font-normal text-theme-label-tertiary typo-body hover:bg-theme-hover hover:text-theme-label-primary',
+          'group flex w-full items-center bg-theme-float px-3 font-normal text-text-tertiary typo-body hover:bg-theme-hover hover:text-text-primary',
           getButtonSizeClass(buttonSize),
           className?.button,
           iconOnly && 'items-center justify-center',
@@ -151,7 +151,7 @@ export function Dropdown({
         </span>
         <ArrowIcon
           className={classNames(
-            'ml-auto text-xl transition-transform group-hover:text-theme-label-tertiary',
+            'ml-auto text-xl transition-transform group-hover:text-text-tertiary',
             isVisible ? 'rotate-0' : 'rotate-180',
             styles.chevron,
             className.chevron,

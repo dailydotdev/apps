@@ -16,7 +16,7 @@ const getDateGroup = (date: Date) => {
     <DateFormat
       date={date}
       type={TimeFormatType.ReadHistory}
-      className="my-3 px-6 text-theme-label-tertiary typo-body first:mt-0"
+      className="my-3 px-6 text-text-tertiary typo-body first:mt-0"
     />
   );
 };

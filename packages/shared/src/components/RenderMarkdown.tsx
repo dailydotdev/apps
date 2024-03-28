@@ -150,7 +150,7 @@ const RenderMarkdown = ({
             <>
               {!inline && (
                 <div className="flex items-center justify-between bg-theme-float px-5 py-2">
-                  <span className="inline leading-8 text-theme-label-tertiary">
+                  <span className="inline leading-8 text-text-tertiary">
                     {language || 'code'}
                   </span>
 

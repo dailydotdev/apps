@@ -8,10 +8,7 @@ type SocialShareButtonProps = ButtonProps<'a'> & {
   label: string;
 };
 
-export const ShareText = classed(
-  'span',
-  'text-theme-label-tertiary cursor-pointer',
-);
+export const ShareText = classed('span', 'text-text-tertiary cursor-pointer');
 
 const sizeToText = {
   [ButtonSize.Large]: 'typo-caption2',

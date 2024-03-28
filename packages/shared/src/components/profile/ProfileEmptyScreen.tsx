@@ -22,7 +22,7 @@ export function ProfileEmptyScreen({
       )}
     >
       <h3 className="font-bold typo-title3">{title}</h3>
-      <p className="text-theme-label-tertiary typo-callout">{text}</p>
+      <p className="text-text-tertiary typo-callout">{text}</p>
       {children}
     </div>
   );

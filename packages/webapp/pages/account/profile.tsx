@@ -137,7 +137,7 @@ const AccountProfilePage = (): ReactElement => {
               fallbackImage={null}
               alwaysShowHover={!currentCoverImage}
               hoverIcon={
-                <span className="ml-26 mr-3 flex flex-wrap items-center justify-center text-theme-label-secondary">
+                <span className="ml-26 mr-3 flex flex-wrap items-center justify-center text-text-secondary">
                   <CameraIcon size={IconSize.Large} />
                   <span className="ml-1.5 font-bold typo-callout">
                     Upload cover image

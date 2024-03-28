@@ -54,10 +54,7 @@ export const getProviderMapClone = (
 
 export const providers: Provider[] = Object.values(providerMap);
 
-export const AuthModalText = classed(
-  'p',
-  'typo-body text-theme-label-secondary',
-);
+export const AuthModalText = classed('p', 'typo-body text-text-secondary');
 
 export interface AuthFormProps {
   simplified?: boolean;

@@ -91,7 +91,7 @@ function SidebarNav({
               key={accountSidebarPage.title}
             >
               <a
-                className="w-full text-theme-label-tertiary typo-callout"
+                className="w-full text-text-tertiary typo-callout"
                 target={accountSidebarPage.target}
               >
                 {accountSidebarPage.title}

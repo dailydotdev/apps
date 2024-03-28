@@ -107,7 +107,7 @@ export default function KeywordManagement({
     <ResponsivePageContainer>
       <NextSeo title="Pending Keywords" nofollow noindex />
       <h1 className="m-0 font-bold typo-title2">{keyword.value}</h1>
-      <div className="my-1 flex items-center justify-between text-theme-label-tertiary typo-callout">
+      <div className="my-1 flex items-center justify-between text-text-tertiary typo-callout">
         <span>Occurrences: {keyword.occurrences}</span>
         <span>{subtitle}</span>
       </div>
@@ -138,7 +138,7 @@ export default function KeywordManagement({
                 className="h-16 w-16 rounded-16"
               />
               <p
-                className="break-words-overflow multi-truncate ml-4 flex-1 self-center whitespace-pre-wrap p-0 text-theme-label-primary typo-callout tablet:mr-6"
+                className="break-words-overflow multi-truncate ml-4 flex-1 self-center whitespace-pre-wrap p-0 text-text-primary typo-callout tablet:mr-6"
                 style={{
                   maxHeight: '3.75rem',
                   maxWidth: '19.25rem',

@@ -28,7 +28,7 @@ export const SharedPostCardFooter = ({
     >
       <p
         className={classNames(
-          'text-theme-label-secondary typo-footnote',
+          'text-text-secondary typo-footnote',
           isShort ? 'line-clamp-4 w-8/12 pr-3' : 'line-clamp-2',
         )}
       >

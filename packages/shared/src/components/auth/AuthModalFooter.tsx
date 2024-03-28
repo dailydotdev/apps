@@ -35,10 +35,7 @@ function AuthModalFooter({
         <Modal.Text className={className?.body}>{text.body}</Modal.Text>
       )}
       <ClickableText
-        className={classNames(
-          className?.button,
-          'ml-1 !text-theme-label-primary',
-        )}
+        className={classNames(className?.button, 'ml-1 !text-text-primary')}
         inverseUnderline
         onClick={onClick}
       >

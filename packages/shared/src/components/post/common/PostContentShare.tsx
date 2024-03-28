@@ -29,7 +29,7 @@ export function PostContentShare({
 
   return (
     <div className="mt-6 flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-4 py-2 tablet:flex-row tablet:gap-4">
-      <span className="font-bold text-theme-label-tertiary typo-callout">
+      <span className="font-bold text-text-tertiary typo-callout">
         Should anyone else see this post?
       </span>
       <InviteLinkInput

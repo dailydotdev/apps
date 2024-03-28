@@ -201,7 +201,7 @@ export function Modal({
 
 export const ModalTitle = classed('h1', 'typo-title1 font-bold text-center');
 export const ModalSubtitle = classed('strong', 'typo-body font-bold');
-export const ModalText = classed('p', 'typo-callout text-theme-label-tertiary');
+export const ModalText = classed('p', 'typo-callout text-text-tertiary');
 
 Modal.Size = ModalSize;
 Modal.Kind = ModalKind;

@@ -86,7 +86,7 @@ export function PasswordField({
           }}
           aria-label="Set password"
         >
-          <Icon className="text-theme-label-secondary" />
+          <Icon className="text-text-secondary" />
         </button>
       }
     />

@@ -20,7 +20,7 @@ const colors = {
     70: '#05B5C5',
     80: '#02AABD',
     90: '#009FB3',
-    lightLabel: 'var(--theme-label-primary)',
+    lightLabel: 'var(--theme-text-primary)',
   },
   avocado: {
     10: '#74F3BC',
@@ -32,7 +32,7 @@ const colors = {
     70: '#0FC54F',
     80: '#0ABD42',
     90: '#04B435',
-    lightLabel: 'var(--theme-label-primary)',
+    lightLabel: 'var(--theme-text-primary)',
   },
   lettuce: {
     10: '#DBFE6C',
@@ -44,7 +44,7 @@ const colors = {
     70: '#6FE20F',
     80: '#62DB09',
     90: '#58D404',
-    lightLabel: 'var(--theme-label-primary)',
+    lightLabel: 'var(--theme-text-primary)',
   },
   cheese: {
     10: '#FFF76F',
@@ -56,7 +56,7 @@ const colors = {
     70: '#F9CC00',
     80: '#F6C400',
     90: '#F3BC00',
-    lightLabel: 'var(--theme-label-primary)',
+    lightLabel: 'var(--theme-text-primary)',
   },
   bun: {
     10: '#FFB760',
@@ -68,7 +68,7 @@ const colors = {
     70: '#F55919',
     80: '#F04C11',
     90: '#EB3F0A',
-    lightLabel: 'var(--theme-label-primary)',
+    lightLabel: 'var(--theme-text-primary)',
   },
   ketchup: {
     10: '#F3796C',

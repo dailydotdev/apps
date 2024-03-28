@@ -111,9 +111,9 @@ export function CommentMarkdownInput({
         submitCopy={showSubmit && (editCommentId ? 'Update' : 'Comment')}
         timeline={
           replyTo ? (
-            <span className="py-2 pl-12 text-theme-label-tertiary typo-caption1">
+            <span className="py-2 pl-12 text-text-tertiary typo-caption1">
               Reply to
-              <span className="ml-2 font-bold text-theme-label-primary">
+              <span className="ml-2 font-bold text-text-primary">
                 {replyTo}
               </span>
             </span>

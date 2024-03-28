@@ -51,18 +51,18 @@
 .radialProgress {
   transform: rotate(180deg);
   font-size: inherit;
-  --radial-progress-step: var(--theme-label-disabled);
-  --radial-progress-completed-step: var(--theme-label-disabled);
+  --radial-progress-step: var(--theme-text-disabled);
+  --radial-progress-completed-step: var(--theme-text-disabled);
   --radial-progress-transition-delay: 0.3s;
 }
 
 .rank {
-  --stop-color1: var(--theme-label-disabled);
-  --stop-color2: var(--theme-label-disabled);
+  --stop-color1: var(--theme-text-disabled);
+  --stop-color2: var(--theme-text-disabled);
 
   &.hasRank {
-    --stop-color1: var(--theme-label-tertiary);
-    --stop-color2: var(--theme-label-tertiary);
+    --stop-color1: var(--theme-text-tertiary);
+    --stop-color2: var(--theme-text-tertiary);
   }
 
   & stop {

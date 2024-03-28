@@ -21,11 +21,11 @@ export default function CookieBanner({
   };
 
   return (
-    <div className="fixed bottom-0 left-0 z-max flex w-full flex-col border-t border-theme-divider-secondary bg-accent-pepper-subtlest py-4 pl-4 pr-14 text-theme-label-secondary typo-footnote laptop:bottom-6 laptop:left-[unset] laptop:right-6 laptop:w-48 laptop:items-center laptop:rounded-16 laptop:border laptop:p-6 laptop:text-center">
+    <div className="fixed bottom-0 left-0 z-max flex w-full flex-col border-t border-theme-divider-secondary bg-accent-pepper-subtlest py-4 pl-4 pr-14 text-text-secondary typo-footnote laptop:bottom-6 laptop:left-[unset] laptop:right-6 laptop:w-48 laptop:items-center laptop:rounded-16 laptop:border laptop:p-6 laptop:text-center">
       <ModalClose onClick={close} top="2" />
       <CookieIcon
         size={IconSize.XXLarge}
-        className="mb-4 hidden text-theme-label-primary laptop:block"
+        className="mb-4 hidden text-text-primary laptop:block"
       />
       <div>
         Our lawyers advised us to tell you that we use{' '}

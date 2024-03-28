@@ -27,7 +27,7 @@ import { getCommentHash } from '../graphql/comments';
 import { IconSize } from './Icon';
 import { ModalClose } from './modals/common/ModalClose';
 
-const ShareButton = classed(Button, 'text-theme-label-primary');
+const ShareButton = classed(Button, 'text-text-primary');
 interface ShareNewCommentPopupProps {
   onRequestClose: () => void;
   commentId: string;
@@ -57,7 +57,7 @@ export default function ShareNewCommentPopup({
       <h2 className="mt-2 typo-title3">
         That&apos;s a great comment, {user.name?.split(' ')[0]}!
       </h2>
-      <div className="mb-6 mt-4 text-theme-label-tertiary typo-callout">
+      <div className="mb-6 mt-4 text-text-tertiary typo-callout">
         Discussions are super fun when shared with friends and team members.
         Give it a try!
       </div>

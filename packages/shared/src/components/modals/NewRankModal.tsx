@@ -168,7 +168,7 @@ export default function NewRankModal({
           </CSSTransition>
         </div>
         <h1 className="mt-2 text-center font-bold typo-callout">{title}</h1>
-        <p className="mb-8 mt-1 text-center text-theme-label-secondary typo-callout">
+        <p className="mb-8 mt-1 text-center text-text-secondary typo-callout">
           You earned the {RANKS[getRank(rank)].name?.toLowerCase()} rank
           {!user && (
             <>

@@ -55,7 +55,7 @@ export const CompanionPopupButton = (): ReactElement => {
       container={{
         paddingClassName: 'px-6 py-4',
         bgClassName: 'bg-background-default',
-        textClassName: 'text-theme-label-primary typo-callout',
+        textClassName: 'text-text-primary typo-callout',
         className:
           'border border-accent-cabbage-default w-[30.75rem] whitespace-pre-wrap shadow-2',
       }}
@@ -76,7 +76,7 @@ export const CompanionPopupButton = (): ReactElement => {
             secondary={showCompanionPermission}
             className={
               showCompanionPermission
-                ? 'h-7 w-7 text-theme-label-primary'
+                ? 'h-7 w-7 text-text-primary'
                 : 'h-6 w-6 text-accent-cabbage-default'
             }
           />

@@ -28,7 +28,7 @@ const InstallExtensionChecklistStep = (
           <BrowsersIcon
             width="50px"
             height="23px"
-            className="text-theme-label-primary"
+            className="text-text-primary"
           />
           Add to browser - it&apos;s free!
         </FlexCentered>

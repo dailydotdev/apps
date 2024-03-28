@@ -1,6 +1,6 @@
 .item {
   &.checked {
-    @apply text-theme-label-primary;
+    @apply text-text-primary;
 
     & .innerRing {
       @apply border-4 border-raw-cabbage-40 bg-raw-cabbage-80;
@@ -12,7 +12,7 @@
   @apply bg-theme-hover;
 
   & .innerRing {
-    @apply border-4 border-theme-label-primary;
+    @apply border-4 border-text-primary;
   }
 }
 

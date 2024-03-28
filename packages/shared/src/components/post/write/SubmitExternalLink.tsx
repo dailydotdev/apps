@@ -74,7 +74,7 @@ export function SubmitExternalLink({
       {(url === undefined || isMobile) && (
         <ClickableText
           className={classNames(
-            'reading-history font-bold hover:text-theme-label-primary',
+            'reading-history font-bold hover:text-text-primary',
             isMobile
               ? 'w-full justify-center py-4'
               : 'absolute left-56 ml-3 hidden tablet:flex',

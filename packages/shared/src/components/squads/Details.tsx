@@ -70,14 +70,14 @@ const squadTypeOptions = (userId: string) => [
     value: 'public',
     disabled: true,
     afterElement: (
-      <p className="mb-2 ml-10 text-theme-label-tertiary typo-footnote">
+      <p className="mb-2 ml-10 text-text-tertiary typo-footnote">
         Everyone can see the content, and the posts may appear on the main
         feed.&nbsp;
         <a
           href={`${squadsPublicWaitlist}#user_id=${userId}`}
           rel={anchorDefaultRel}
           target="_blank"
-          className="text-theme-label-link underline"
+          className="text-text-link underline"
         >
           Join waitlist
         </a>
@@ -216,7 +216,7 @@ export function SquadDetails({
             />
             {!isDescriptionOpen && (
               <button
-                className="mr-auto text-theme-label-tertiary typo-callout"
+                className="mr-auto text-text-tertiary typo-callout"
                 type="button"
                 onClick={() => {
                   setDescriptionOpen((current) => !current);
@@ -254,7 +254,7 @@ export function SquadDetails({
             <div className="mt-2 flex flex-col gap-4 tablet:flex-row">
               <div className="flex flex-1 flex-col">
                 <h4 className="mb-2 font-bold typo-body">Post permissions</h4>
-                <p className="mb-4 text-theme-label-tertiary typo-callout">
+                <p className="mb-4 text-text-tertiary typo-callout">
                   Choose who is allowed to post new content in this Squad.
                 </p>
                 <Radio
@@ -270,7 +270,7 @@ export function SquadDetails({
                 <h4 className="mb-2 font-bold typo-body">
                   Invitation permissions
                 </h4>
-                <p className="mb-4 text-theme-label-tertiary typo-callout">
+                <p className="mb-4 text-text-tertiary typo-callout">
                   Choose who is allowed to invite new members to this Squad.
                 </p>
                 <Radio

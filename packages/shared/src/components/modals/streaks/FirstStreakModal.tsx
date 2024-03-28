@@ -42,7 +42,7 @@ export default function FirstStreakModal({
           </div>
         </span>
         <strong className="mt-4 typo-title1">Reading streak is here</strong>
-        <p className="mt-5 text-center text-theme-label-tertiary typo-body">
+        <p className="mt-5 text-center text-text-tertiary typo-body">
           Level up your coding game with a daily dose of tech wisdom.
         </p>
         <Button
