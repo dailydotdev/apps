@@ -95,7 +95,7 @@ function ButtonComponent<TagName extends AllowedTags>(
         variant !== ButtonVariant.Option && 'justify-center font-bold',
         { iconOnly },
         iconOnly ? IconOnlySizeToClassName[size] : SizeToClassName[size],
-        iconPosition === ButtonIconPosition.Top && `flex-col`,
+        iconPosition === ButtonIconPosition.Top && `flex-col !px-2`,
         !color && VariantToClassName[variant],
         VariantColorToClassName[variant]?.[color],
         className,
