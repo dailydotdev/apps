@@ -1,11 +1,21 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import classNames from 'classnames';
 import { useInView } from 'react-intersection-observer';
 import EnableNotification from '../notifications/EnableNotification';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import SubComment from './SubComment';
 import AuthContext from '../../contexts/AuthContext';
-import { NotificationPromptSource } from '../../lib/analytics';
+import {
+  AnalyticsEvent,
+  NotificationPromptSource,
+  TargetType,
+} from '../../lib/analytics';
 import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
 import { SquadCommentJoinBanner } from '../squads/SquadCommentJoinBanner';
@@ -15,6 +25,7 @@ import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
 import CommentInputOrPage from './CommentInputOrPage';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 type ClassName = {
   container?: string;
@@ -28,6 +39,8 @@ export interface MainCommentProps
   onCommented: CommentMarkdownInputProps['onCommented'];
   className?: ClassName;
   lazy?: boolean;
+  trackImpression?: boolean;
+  trackClick?: boolean;
 }
 
 const shouldShowBannerOnComment = (
@@ -45,13 +58,18 @@ export default function MainComment({
   joinNotificationCommentId,
   onCommented,
   lazy = false,
+  trackImpression,
+  trackClick,
   ...props
 }: MainCommentProps): ReactElement {
   const { user } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
+  const isTrackedImpression = useRef(false);
   const showNotificationPermissionBanner = useMemo(
     () => shouldShowBannerOnComment(permissionNotificationCommentId, comment),
     [permissionNotificationCommentId, comment],
   );
+
   const [isJoinSquadBannerDismissed] = usePersistentContext(
     SQUAD_COMMENT_JOIN_BANNER_KEY,
     false,
@@ -77,6 +95,38 @@ export default function MainComment({
     initialInView,
   });
 
+  useEffect(() => {
+    if (trackImpression && !isTrackedImpression.current && inView) {
+      isTrackedImpression.current = true;
+      trackEvent({
+        event_name: AnalyticsEvent.Impression,
+        target_type: TargetType.Comment,
+        target_id: comment.id,
+        extra: JSON.stringify({ origin: props.origin }),
+      });
+    }
+  }, [
+    isTrackedImpression,
+    props.origin,
+    trackEvent,
+    trackImpression,
+    inView,
+    comment.id,
+  ]);
+
+  const onClick = () => {
+    if (!trackClick && !props.linkToComment) {
+      return;
+    }
+
+    trackEvent({
+      event_name: AnalyticsEvent.Click,
+      target_type: TargetType.Comment,
+      target_id: comment.id,
+      extra: JSON.stringify({ origin: props.origin }),
+    });
+  };
+
   return (
     <section
       ref={inViewRef}
@@ -90,7 +140,7 @@ export default function MainComment({
         contentVisibility: initialInView ? 'visible' : 'auto',
       }}
     >
-      {!editProps && inView && (
+      {!editProps && (trackImpression || inView) && (
         <CommentBox
           {...props}
           comment={comment}
@@ -110,6 +160,7 @@ export default function MainComment({
           onEdit={({ id, lastUpdatedAt }) =>
             onEdit({ commentId: id, lastUpdatedAt })
           }
+          onClick={onClick}
         />
       )}
       {editProps && (
