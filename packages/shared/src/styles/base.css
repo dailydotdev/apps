@@ -209,6 +209,9 @@ body {
   --theme-text-quaternary: color-mix(in srgb, var(--theme-accent-salt-default), transparent 36%);
   --theme-text-disabled: color-mix(in srgb, var(--theme-accent-salt-default), transparent 68%);
   --theme-text-link: var(--theme-accent-water-subtler);
+  /* Highlight */
+  --theme-text-highlight-default: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 76%);
+  --theme-text-highlight-hover: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 68%);
 
   /* Shadow */
   --theme-shadow-shadow1: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 68%);
@@ -487,6 +490,9 @@ body {
   --theme-text-quaternary: color-mix(in srgb, var(--theme-accent-salt-default), transparent 36%);
   --theme-text-disabled: color-mix(in srgb, var(--theme-accent-salt-default), transparent 68%);
   --theme-text-link: var(--theme-accent-water-subtler);
+  /* Highlight */
+  --theme-text-highlight-default: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 76%);
+  --theme-text-highlight-hover: color-mix(in srgb, var(--theme-accent-bacon-bolder), transparent 68%);
 
   /* Shadow */
   --theme-shadow-shadow1: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 68%);
