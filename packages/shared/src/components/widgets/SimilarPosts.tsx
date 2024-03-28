@@ -20,10 +20,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { PostPageOnboarding } from '../../lib/featureValues';
-import { PostEngagementCounts, SidePost } from '../cards/SimilarPosts';
+import { PostEngagementCounts } from '../cards/SimilarPosts';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -131,8 +128,6 @@ export default function SimilarPosts({
   moreButtonProps,
   ListItem = DefaultListItem,
 }: SimilarPostsProps): ReactElement {
-  const postPageOnboarding = useFeature(feature.postPageOnboarding);
-  const isV4 = postPageOnboarding === PostPageOnboarding.V4;
   const { trackEvent } = useContext(AnalyticsContext);
   const moreButtonHref =
     moreButtonProps?.href || process.env.NEXT_PUBLIC_WEBAPP_URL;
@@ -145,20 +140,6 @@ export default function SimilarPosts({
       }),
     );
   };
-
-  if (isV4 && posts?.length) {
-    return (
-      <section className="grid grid-cols-2 gap-4">
-        {posts.map((post) => (
-          <SidePost
-            key={post.id}
-            post={post}
-            onLinkClick={() => onLinkClick(post)}
-          />
-        ))}
-      </section>
-    );
-  }
 
   return (
     <section
