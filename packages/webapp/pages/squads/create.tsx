@@ -123,7 +123,7 @@ function CreatePost(): ReactElement {
         <TabContainer<WriteFormTab>
           onActiveChange={(active) => setDisplay(active)}
           controlledActive={display}
-          shouldMountInactive
+          shouldMountInactive={false}
           className={{ header: 'px-1' }}
         >
           <Tab label={WriteFormTab.NewPost} className="px-5">
