@@ -295,7 +295,7 @@ export default function Feed<T>({
     }
   };
 
-  const onShareMenuClickTracked = (
+  const onCopyLinkClickTracked = (
     e: React.MouseEvent,
     post: Post,
     index: number,
@@ -422,7 +422,7 @@ export default function Feed<T>({
             onPostClick={onPostCardClick}
             onShare={onShareClick}
             onMenuClick={onMenuClick}
-            onShareClick={onShareMenuClickTracked}
+            onCopyLinkClick={onCopyLinkClickTracked}
             onCommentClick={onCommentClick}
             onAdClick={onAdClick}
             onReadArticleClick={onReadArticleClick}
