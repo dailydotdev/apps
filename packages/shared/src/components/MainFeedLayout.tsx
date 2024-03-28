@@ -147,6 +147,7 @@ export default function MainFeedLayout({
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);
+  const [isPreviewFeedEnabled, setPreviewFeedEnabled] = useState(false);
   const shouldUseCommentFeedLayout =
     hasCommentFeed && feedName === SharedFeedPage.Discussed;
   const shouldEnrollInForcedTagSelection =
@@ -304,6 +305,8 @@ export default function MainFeedLayout({
         <OnboardingFeedHeader
           isPreviewFeedVisible={isPreviewFeedVisible}
           setPreviewFeedVisible={setPreviewFeedVisible}
+          isPreviewFeedEnabled={isPreviewFeedEnabled}
+          setPreviewFeedEnabled={setPreviewFeedEnabled}
         />
       )}
       {isSearchOn && search}
@@ -321,7 +324,9 @@ export default function MainFeedLayout({
           commentClassName={commentClassName}
         />
       ) : (
-        feedProps && (
+        (showForcedTagSelection
+          ? isPreviewFeedEnabled && isPreviewFeedVisible
+          : feedProps) && (
           <Feed
             {...feedProps}
             className={classNames(

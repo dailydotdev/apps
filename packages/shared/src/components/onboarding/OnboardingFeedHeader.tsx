@@ -31,11 +31,15 @@ const promptConfig = {
 type OnboardingFeedHeaderProps = {
   isPreviewFeedVisible: boolean;
   setPreviewFeedVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  isPreviewFeedEnabled: boolean;
+  setPreviewFeedEnabled: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const OnboardingFeedHeader = ({
   isPreviewFeedVisible,
   setPreviewFeedVisible,
+  isPreviewFeedEnabled,
+  setPreviewFeedEnabled,
 }: OnboardingFeedHeaderProps): JSX.Element => {
   const { updateAlerts } = useAlertsContext();
   const { feedSettings } = useFeedSettings();
@@ -45,7 +49,11 @@ export const OnboardingFeedHeader = ({
   const { registerLocalFilters } = useMyFeed();
 
   const tagsCount = feedSettings?.includeTags?.length || 0;
-  const isFeedPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
+  if (tagsCount >= REQUIRED_TAGS_THRESHOLD) {
+    setPreviewFeedEnabled(true);
+  } else {
+    setPreviewFeedEnabled(false);
+  }
 
   const completeOnboarding = useCallback(() => {
     registerLocalFilters();
@@ -99,7 +107,7 @@ export const OnboardingFeedHeader = ({
           <Button
             size={ButtonSize.Large}
             variant={ButtonVariant.Primary}
-            disabled={!isFeedPreviewEnabled}
+            disabled={!isPreviewFeedEnabled}
             onClick={completeOnboarding}
           >
             Create my feed
@@ -113,7 +121,7 @@ export const OnboardingFeedHeader = ({
           <div className="h-px flex-1 bg-theme-divider-tertiary" />
           <Button
             variant={ButtonVariant.Float}
-            disabled={!isFeedPreviewEnabled}
+            disabled={!isPreviewFeedEnabled}
             icon={
               <ArrowIcon
                 className={classNames(!isPreviewFeedVisible && 'rotate-180')}
@@ -124,7 +132,7 @@ export const OnboardingFeedHeader = ({
               setPreviewFeedVisible((current) => !current);
             }}
           >
-            {isFeedPreviewEnabled
+            {isPreviewFeedEnabled
               ? `${isPreviewFeedVisible ? 'Hide' : 'Show'} feed preview`
               : `${tagsCount}/${REQUIRED_TAGS_THRESHOLD} to show feed preview`}
           </Button>
