@@ -55,7 +55,7 @@ export const RelatedPostsWidget = ({
   return (
     <div className={classNames(className, 'flex flex-col', widgetClasses)}>
       <div className="flex cursor-pointer items-center justify-between rounded-16 rounded-t-16 px-4 py-1.5 laptop:cursor-auto laptop:py-4 laptop:!pb-0">
-        <p className="font-bold text-theme-label-quaternary typo-callout laptop:text-theme-label-quaternary">
+        <p className="font-bold text-text-quaternary typo-callout laptop:text-text-quaternary">
           {post.numCollectionSources} sources
         </p>
       </div>
@@ -94,11 +94,11 @@ export const RelatedPostsWidget = ({
                     createdAt={relatedPost.createdAt}
                   />
                 </div>
-                <p className="line-clamp-2 text-theme-label-link typo-callout">
+                <p className="line-clamp-2 text-text-link typo-callout">
                   {relatedPost.title}
                 </p>
                 {!!relatedPost.summary && (
-                  <p className="line-clamp-2 text-theme-label-tertiary typo-footnote">
+                  <p className="line-clamp-2 text-text-tertiary typo-footnote">
                     {relatedPost.summary}
                   </p>
                 )}

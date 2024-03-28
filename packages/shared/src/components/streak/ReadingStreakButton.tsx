@@ -35,7 +35,7 @@ function CustomStreaksTooltip({
       container={{
         paddingClassName: 'p-4',
         bgClassName: 'bg-accent-pepper-subtlest',
-        textClassName: 'text-theme-label-primary typo-callout',
+        textClassName: 'text-text-primary typo-callout',
         className: 'border border-theme-divider-tertiary',
       }}
       content={<ReadingStreakPopup streak={streak} />}

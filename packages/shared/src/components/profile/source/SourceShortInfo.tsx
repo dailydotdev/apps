@@ -26,7 +26,7 @@ export function SourceShortInfo({
       <SourceAvatar source={source} size={size} />
       <span className="flex flex-col typo-callout">
         <h3 className="font-bold">{source.name}</h3>
-        <p className="text-theme-label-quaternary">@{source.handle}</p>
+        <p className="text-text-quaternary">@{source.handle}</p>
       </span>
       {children}
     </FlexRow>

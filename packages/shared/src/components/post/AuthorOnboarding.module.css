@@ -14,7 +14,7 @@
 
   & p,
   & ol {
-    color: var(--theme-label-secondary);
+    color: var(--theme-text-secondary);
     @apply typo-callout;
   }
 }

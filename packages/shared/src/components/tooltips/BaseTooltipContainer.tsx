@@ -39,8 +39,8 @@ export function BaseTooltipContainer({
   placement = 'top',
   paddingClassName = 'py-1 px-3',
   roundedClassName = 'rounded-10',
-  bgClassName = 'bg-theme-label-primary',
-  textClassName = 'text-theme-label-invert typo-subhead',
+  bgClassName = 'bg-text-primary',
+  textClassName = 'text-surface-invert typo-subhead',
   children,
 }: BaseTooltipContainerProps): ReactElement {
   const Arrow = ArrowComponent ?? DefaultArrow;

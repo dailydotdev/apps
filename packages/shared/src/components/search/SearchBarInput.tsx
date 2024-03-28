@@ -175,10 +175,7 @@ function SearchBarInputComponent(
           data-testid="searchBar"
           ref={ref}
         >
-          <AiIcon
-            size={IconSize.Large}
-            className="mr-3 text-theme-label-tertiary"
-          />
+          <AiIcon size={IconSize.Large} className="mr-3 text-text-tertiary" />
           <FieldInput
             {...inputProps}
             placeholder={placeholder}
@@ -231,7 +228,7 @@ function SearchBarInputComponent(
         <div className="mt-3">
           <SearchProgressBar max={chunk?.steps} progress={chunk?.progress} />
           {!!chunk?.status && (
-            <div className="mt-2 text-theme-label-tertiary typo-callout">
+            <div className="mt-2 text-text-tertiary typo-callout">
               {chunk?.status}
             </div>
           )}

@@ -51,7 +51,7 @@ export const SearchSourceList = ({
           onKeyDown={handleSourceClick}
           onClick={handleSourceClick}
         >
-          <p className="font-bold text-theme-label-quaternary typo-callout laptop:text-theme-label-quaternary">
+          <p className="font-bold text-text-quaternary typo-callout laptop:text-text-quaternary">
             Sources{' '}
             <span className="inline-block laptop:hidden">
               ({sources?.length ?? 1})

@@ -33,7 +33,7 @@ export const RANKS: Rank[] = [
     level: 1,
     background: 'bg-theme-divider-primary',
     border: 'border-theme-divider-primary',
-    color: 'text-theme-label-tertiary',
+    color: 'text-text-tertiary',
   },
   {
     name: 'Bronze',
@@ -86,7 +86,7 @@ export const RANKS: Rank[] = [
 ];
 
 const colorOrDefault = (rank: number, color: string): string =>
-  rank > 0 ? color : 'var(--theme-label-tertiary)';
+  rank > 0 ? color : 'var(--theme-text-tertiary)';
 
 export const rankToColor = (rank: number): string =>
   colorOrDefault(rank, `var(--theme-rank-${rank}-color)`);

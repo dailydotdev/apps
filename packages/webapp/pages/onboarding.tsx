@@ -303,7 +303,7 @@ export function OnboardPage(): ReactElement {
             </Button>
             {isPreviewEnabled && isPreviewVisible && (
               <FeedLayout>
-                <p className="-mb-4 mt-6 text-center text-theme-label-secondary typo-body">
+                <p className="-mb-4 mt-6 text-center text-text-secondary typo-body">
                   Change your tag selection until you&apos;re happy with your
                   feed preview.
                 </p>

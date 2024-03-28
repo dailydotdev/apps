@@ -61,9 +61,7 @@ export default function DndModal({
     >
       <Modal.Header title="Pause new tab" />
       <Modal.Body>
-        <p className="text-theme-label-secondary typo-callout">
-          {getDescription()}
-        </p>
+        <p className="text-text-secondary typo-callout">{getDescription()}</p>
         {!isActive && (
           <div className="mt-6">
             <TextField

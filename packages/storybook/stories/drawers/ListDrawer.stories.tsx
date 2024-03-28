@@ -49,7 +49,7 @@ export const Drawer: Story = {
           selected={selected}
           onSelectedChange={({ index }) => setSelected(index)}
         />
-        <p className="mt-4 typo-footnote text-theme-label-tertiary">One thing to note:<br/>When implementing a custom "Close" button,you will have to utilize injecting a `ref` object which you will use when closing the drawer to keep the exit animation. <br/>The sample code here does that.</p>
+        <p className="mt-4 typo-footnote text-text-tertiary">One thing to note:<br/>When implementing a custom "Close" button,you will have to utilize injecting a `ref` object which you will use when closing the drawer to keep the exit animation. <br/>The sample code here does that.</p>
       </>
     );
   },

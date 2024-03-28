@@ -63,9 +63,7 @@ function SquadTourCard({
           {title}
         </h3>
         {description && (
-          <p className="mt-2 text-theme-label-secondary typo-body">
-            {description}
-          </p>
+          <p className="mt-2 text-text-secondary typo-body">{description}</p>
         )}
       </FlexCol>
       {children}

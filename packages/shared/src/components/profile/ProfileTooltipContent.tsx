@@ -37,24 +37,21 @@ export function ProfileTooltipContent({
         )}
       </div>
       <ProfileLink
-        className="mt-5 font-bold text-theme-label-primary"
+        className="mt-5 font-bold text-text-primary"
         href={user.permalink}
       >
         {user.name}
       </ProfileLink>
-      <ProfileLink
-        className="mb-3 text-theme-label-secondary"
-        href={user.permalink}
-      >
+      <ProfileLink className="mb-3 text-text-secondary" href={user.permalink}>
         @{user.username}
       </ProfileLink>
       {user.bio && (
-        <p className="mb-3 line-clamp-3 break-words text-theme-label-tertiary">
+        <p className="mb-3 line-clamp-3 break-words text-text-tertiary">
           {user.bio}
         </p>
       )}
       {tags?.length ? (
-        <span className="mb-2 text-theme-label-quaternary typo-subhead">
+        <span className="mb-2 text-text-quaternary typo-subhead">
           Loves reading about
         </span>
       ) : null}

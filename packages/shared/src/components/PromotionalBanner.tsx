@@ -19,7 +19,7 @@ const classNamesByTheme: Record<BannerTheme, string[]> = {
   ],
   [BannerCustomTheme.WhitePepper]: [
     'bg-surface-primary',
-    'text-theme-label-invert',
+    'text-surface-invert',
   ],
   [Theme.Avocado]: ['bg-theme-color-avocado', 'text-raw-pepper-90'],
   [Theme.Bacon]: ['bg-theme-color-bacon', 'text-white'],

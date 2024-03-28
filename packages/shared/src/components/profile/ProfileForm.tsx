@@ -36,7 +36,7 @@ export interface ProfileFormProps extends HTMLAttributes<HTMLFormElement> {
 const FormField = classed(TextField, 'self-stretch mb-3');
 const SectionHeading = classed(
   'h3',
-  'mb-4 text-theme-label-tertiary typo-body',
+  'mb-4 text-text-tertiary typo-body',
   styles.sectionHeading,
 );
 const FormSwitch = classed(Switch, 'my-3', styles.formSwitch);
@@ -259,7 +259,7 @@ export default function ProfileForm({
         }
       />
       <div className="mb-3 flex flex-col items-stretch self-stretch">
-        <p className="mb-1 px-2 font-bold text-theme-label-primary typo-caption1">
+        <p className="mb-1 px-2 font-bold text-text-primary typo-caption1">
           Time zone
         </p>
         <Dropdown
@@ -272,7 +272,7 @@ export default function ProfileForm({
           scrollable
           className={{ menu: 'menu-secondary' }}
         />
-        <div className="mt-1 px-2 text-theme-label-tertiary typo-caption1">
+        <div className="mt-1 px-2 text-text-tertiary typo-caption1">
           Your current time zone. Used to calculate your weekly goal&apos;s
           cycle and other time-based activities.
         </div>
@@ -296,7 +296,7 @@ export default function ProfileForm({
           className={`flex w-full flex-col border-b border-theme-divider-tertiary ${styles.optionalFields}`}
         >
           <Summary className={styles.optionalSummary}>
-            <div className="flex h-10 items-center font-bold text-theme-label-tertiary typo-callout">
+            <div className="flex h-10 items-center font-bold text-text-tertiary typo-callout">
               More details (optional)
               <SummaryArrow />
             </div>

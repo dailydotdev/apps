@@ -12,7 +12,7 @@ export function StreakSection({
   return (
     <span className="flex flex-1 flex-col">
       <strong className="typo-title3">{streak}</strong>
-      <p className="text-theme-label-quaternary typo-subhead">{label}</p>
+      <p className="text-text-quaternary typo-subhead">{label}</p>
     </span>
   );
 }

@@ -28,7 +28,7 @@ const densities = [
 const Section = classed('section', 'flex flex-col font-bold mt-6');
 const SectionTitle = classed(
   'h3',
-  'text-theme-label-tertiary mb-4 font-bold typo-footnote',
+  'text-text-tertiary mb-4 font-bold typo-footnote',
 );
 const SectionContent = classed(
   'div',

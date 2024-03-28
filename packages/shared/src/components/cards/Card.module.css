@@ -60,7 +60,7 @@
     box-shadow: none;
 
     & .title {
-      color: var(--theme-label-tertiary);
+      color: var(--theme-text-tertiary);
     }
   }
 }

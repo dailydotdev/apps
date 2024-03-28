@@ -71,7 +71,7 @@ const TrustedCompanies = ({
         className,
       )}
     >
-      <p className="relative z-3 max-w-[15rem] text-center text-theme-label-quaternary typo-callout tablet:max-w-full tablet:flex-1">
+      <p className="relative z-3 max-w-[15rem] text-center text-text-quaternary typo-callout tablet:max-w-full tablet:flex-1">
         Trusted by 350K+ developers from the world&apos;s leading companies
       </p>
 
@@ -79,7 +79,7 @@ const TrustedCompanies = ({
         {Object.values(TRUSTES_COMPANIES_MAP).map(({ Icon, label }) => (
           <Icon
             key={`trusted-company-${label}`}
-            className={classNames('flex-1 text-theme-label-disabled')}
+            className={classNames('flex-1 text-text-disabled')}
             size={iconSize}
           />
         ))}

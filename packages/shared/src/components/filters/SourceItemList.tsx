@@ -13,7 +13,7 @@ export default function SourceItemList({
   return (
     <FiltersList className={!excludeSources?.length ? 'mt-0' : 'mt-3'}>
       {!excludeSources?.length && (
-        <p className="mx-6 text-theme-label-tertiary typo-callout">
+        <p className="mx-6 text-text-tertiary typo-callout">
           No blocked sources.
         </p>
       )}

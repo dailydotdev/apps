@@ -26,7 +26,7 @@ function EmailVerified({
           children ? 'h-44' : 'mt-12 h-60',
         )}
       />
-      <p className="px-8 text-center text-theme-label-secondary typo-body tablet:px-12">
+      <p className="px-8 text-center text-text-secondary typo-body tablet:px-12">
         Your email address is now verified.
       </p>
       {children}

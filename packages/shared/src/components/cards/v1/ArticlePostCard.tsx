@@ -109,7 +109,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
               <div className="mr-4 flex-1">
                 <CardTitle
                   lineClamp={undefined}
-                  className={!!post.read && 'text-theme-label-tertiary'}
+                  className={!!post.read && 'text-text-tertiary'}
                 >
                   {title}
                 </CardTitle>

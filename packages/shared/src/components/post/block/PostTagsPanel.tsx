@@ -88,7 +88,7 @@ export function PostTagsPanel({
         size={ButtonSize.Small}
       />
       <h4 className="font-bold typo-body">Don&apos;t show me posts from...</h4>
-      <p className="mt-1 text-theme-label-tertiary typo-callout">
+      <p className="mt-1 text-text-tertiary typo-callout">
         Pick all the topics you are not interested to see on your feed
       </p>
       <span

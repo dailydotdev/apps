@@ -23,7 +23,7 @@ export default function SourceItemRow({
           imgAlt={`${source.name} logo`}
           className="h-8 w-8 rounded-6"
         />
-        <span className="ml-3 flex-1 truncate text-left text-theme-label-tertiary typo-callout">
+        <span className="ml-3 flex-1 truncate text-left text-text-tertiary typo-callout">
           {source.name}
         </span>
       </a>

@@ -127,7 +127,7 @@ export default function TagButton<Tag extends AllowedTags>({
 
   if (!onFollowTags) {
     return (
-      <span className="flex-1 truncate text-left text-theme-label-tertiary typo-callout">
+      <span className="flex-1 truncate text-left text-text-tertiary typo-callout">
         {`#${tagItem}`}
       </span>
     );

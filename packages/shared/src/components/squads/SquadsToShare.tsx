@@ -60,7 +60,7 @@ export function SquadsToShare({
           origin: Origin.Share,
         })
       }
-      icon={<PlusIcon className="text-theme-label-invert" />}
+      icon={<PlusIcon className="text-surface-invert" />}
       variant={ButtonVariant.Primary}
       color={ButtonColor.Cabbage}
       className="!rounded-full"

@@ -12,17 +12,17 @@
 
   &.menu-primary {
     & .react-contexify__item__content {
-      @apply text-theme-label-tertiary;
+      @apply text-text-tertiary;
     }
   }
 
   &.menu-secondary {
     & .react-contexify__item__content {
-      @apply text-theme-label-primary;
+      @apply text-text-primary;
 
       & .icon {
         font-size: 1.5rem;
-        @apply text-theme-label-disabled mr-2;
+        @apply text-text-disabled mr-2;
       }
 
       & span {
