@@ -119,7 +119,7 @@ const AccountProfilePage = (): ReactElement => {
   );
 
   const CoverHoverIcon = () => (
-    <span className="ml-26 mr-3 flex flex-wrap items-center justify-center text-theme-label-secondary">
+    <span className="text-theme-label-secondary ml-26 mr-3 flex flex-wrap items-center justify-center">
       <CameraIcon size={IconSize.Large} />
       <span className="ml-1.5 font-bold typo-callout">Upload cover image</span>
     </span>
