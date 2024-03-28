@@ -6,6 +6,7 @@ import { SharedFeedPage } from './utilities';
 import { DiscussIcon, HotIcon, UpvoteIcon } from './icons';
 import { IconSize } from './Icon';
 import { useActiveFeedNameContext } from '../contexts';
+import { useMobileUxExperiment } from '../hooks/useMobileUxExperiment';
 
 interface FeedSelectorProps {
   className?: string;
@@ -38,6 +39,7 @@ const feedOptions = [
 export default function FeedSelector({
   className,
 }: FeedSelectorProps): ReactElement {
+  const { isNewMobileLayout } = useMobileUxExperiment();
   const router = useRouter();
   const { feedName: currentFeed } = useActiveFeedNameContext();
   const selectedFeedIdx = feedOptions.findIndex((f) => f.value === currentFeed);
@@ -52,6 +54,10 @@ export default function FeedSelector({
     },
     [router],
   );
+
+  if (!isNewMobileLayout) {
+    return null;
+  }
 
   return (
     <Dropdown
