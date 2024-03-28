@@ -17,7 +17,7 @@ const client = new GraphQLClient(graphqlUrl, { fetch: globalThis.fetch });
 const excludedCompanionOrigins = [
   'http://127.0.0.1:5002',
   'http://localhost',
-  'http://app.daily.dev',
+  'https://app.daily.dev',
   'https://twitter.com',
   'https://www.google.com',
   'https://stackoverflow.com',
