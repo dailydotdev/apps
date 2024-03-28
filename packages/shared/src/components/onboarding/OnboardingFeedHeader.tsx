@@ -17,6 +17,7 @@ import { useMyFeed } from '../../hooks/useMyFeed';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
+import useFeedSettings from '../../hooks/useFeedSettings';
 
 const promptConfig = {
   title: 'Discard tag selection?',
@@ -30,21 +31,29 @@ const promptConfig = {
 type OnboardingFeedHeaderProps = {
   isPreviewFeedVisible: boolean;
   setPreviewFeedVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  isFeedPreviewEnabled: boolean;
-  tagsCount: number;
+  isPreviewFeedEnabled: boolean;
+  setPreviewFeedEnabled: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const OnboardingFeedHeader = ({
   isPreviewFeedVisible,
   setPreviewFeedVisible,
-  isFeedPreviewEnabled,
-  tagsCount,
+  isPreviewFeedEnabled,
+  setPreviewFeedEnabled,
 }: OnboardingFeedHeaderProps): JSX.Element => {
   const { updateAlerts } = useAlertsContext();
+  const { feedSettings } = useFeedSettings();
   const { trackEvent } = useAnalyticsContext();
   const { showPrompt } = usePrompt();
   const router = useRouter();
   const { registerLocalFilters } = useMyFeed();
+
+  const tagsCount = feedSettings?.includeTags?.length || 0;
+  if (tagsCount >= REQUIRED_TAGS_THRESHOLD) {
+    setPreviewFeedEnabled(true);
+  } else {
+    setPreviewFeedEnabled(false);
+  }
 
   const completeOnboarding = useCallback(() => {
     registerLocalFilters();
@@ -98,7 +107,7 @@ export const OnboardingFeedHeader = ({
           <Button
             size={ButtonSize.Large}
             variant={ButtonVariant.Primary}
-            disabled={!isFeedPreviewEnabled}
+            disabled={!isPreviewFeedEnabled}
             onClick={completeOnboarding}
           >
             Create my feed
@@ -107,12 +116,15 @@ export const OnboardingFeedHeader = ({
       </div>
 
       <div className="flex w-full max-w-full flex-col">
-        <FilterOnboardingV4 className="mt-44 px-4 pt-6 tablet:px-10 tablet:pt-0" />
+        <FilterOnboardingV4
+          className="mt-44 px-4 pt-6 tablet:px-10 tablet:pt-0"
+          shouldUpdateAlerts={false}
+        />
         <div className="mt-10 flex items-center justify-center gap-10 text-text-quaternary typo-callout">
           <div className="h-px flex-1 bg-theme-divider-tertiary" />
           <Button
             variant={ButtonVariant.Float}
-            disabled={!isFeedPreviewEnabled}
+            disabled={!isPreviewFeedEnabled}
             icon={
               <ArrowIcon
                 className={classNames(!isPreviewFeedVisible && 'rotate-180')}
@@ -123,7 +135,7 @@ export const OnboardingFeedHeader = ({
               setPreviewFeedVisible((current) => !current);
             }}
           >
-            {isFeedPreviewEnabled
+            {isPreviewFeedEnabled
               ? `${isPreviewFeedVisible ? 'Hide' : 'Show'} feed preview`
               : `${tagsCount}/${REQUIRED_TAGS_THRESHOLD} to show feed preview`}
           </Button>
