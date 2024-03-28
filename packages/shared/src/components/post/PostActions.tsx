@@ -25,20 +25,17 @@ import {
   useBookmarkPost,
 } from '../../hooks/useBookmarkPost';
 
-export interface ShareBookmarkProps {
-  onShare?: (post?: Post) => void;
-}
-
-interface PostActionsProps extends ShareBookmarkProps {
+interface PostActionsProps {
   post: Post;
   postQueryKey: QueryKey;
   actionsClassName?: string;
   onComment?: () => unknown;
   origin?: PostOrigin;
+  onCopyLinkClick?: (post?: Post) => void;
 }
 
 export function PostActions({
-  onShare,
+  onCopyLinkClick,
   post,
   actionsClassName = 'hidden mobileL:flex',
   onComment,
@@ -167,7 +164,7 @@ export function PostActions({
           </QuaternaryButton>
           <QuaternaryButton
             id="share-post-btn"
-            onClick={() => onShare(post)}
+            onClick={() => onCopyLinkClick(post)}
             icon={<LinkIcon />}
             responsiveLabelClass={actionsClassName}
             className="btn-tertiary-cabbage"

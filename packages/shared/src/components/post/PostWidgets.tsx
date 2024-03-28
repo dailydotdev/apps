@@ -8,12 +8,12 @@ import { PostUsersHighlights } from '../widgets/PostUsersHighlights';
 import { PostHeaderActions } from './PostHeaderActions';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import { PostHeaderActionsProps } from './common';
-import { ShareBookmarkProps } from './PostActions';
+import { Post } from '../../graphql/posts';
 
 export interface PostWidgetsProps
-  extends Omit<PostHeaderActionsProps, 'contextMenuId'>,
-    ShareBookmarkProps {
+  extends Omit<PostHeaderActionsProps, 'contextMenuId'> {
   origin?: PostOrigin;
+  onShare?: (post?: Post) => void;
 }
 
 export function PostWidgets({

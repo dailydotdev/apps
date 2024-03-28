@@ -12,7 +12,7 @@ const defaultProps: PostCardProps = {
   onUpvoteClick: jest.fn(),
   onCommentClick: jest.fn(),
   onShare: jest.fn(),
-  onShareClick: jest.fn(),
+  onCopyLinkClick: jest.fn(),
   onReadArticleClick: jest.fn(),
 };
 
@@ -53,7 +53,7 @@ it('should call on share click on copy link button click', async () => {
   renderComponent({});
   const el = await screen.findByLabelText('Copy link');
   el.click();
-  await waitFor(() => expect(defaultProps.onShareClick).toBeCalled());
+  await waitFor(() => expect(defaultProps.onCopyLinkClick).toBeCalled());
 });
 
 it('should not display publication date createdAt is empty', async () => {

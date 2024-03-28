@@ -20,27 +20,6 @@ import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { IconSize } from '../../Icon';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 
-interface ShareButtonProps {
-  onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
-  post: Post;
-}
-
-function ShareButton(props: ShareButtonProps) {
-  const { onShareClick, post } = props;
-  const onClickShare = (event) => onShareClick?.(event, post);
-  return (
-    <SimpleTooltip content="Copy link">
-      <Button
-        className="pointer-events-auto ml-2"
-        icon={<LinkIcon />}
-        onClick={onClickShare}
-        variant={ButtonVariant.Float}
-        color={ButtonColor.Cabbage}
-      />
-    </SimpleTooltip>
-  );
-}
-
 interface ActionButtonsPropsV1 extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
 }
@@ -51,7 +30,7 @@ export default function ActionButtons({
   onDownvoteClick,
   onCommentClick,
   onBookmarkClick,
-  onShareClick,
+  onCopyLinkClick,
   className,
 }: ActionButtonsPropsV1): ReactElement {
   const isFeedPreview = useFeedPreviewMode();
@@ -61,11 +40,6 @@ export default function ActionButtons({
   if (isFeedPreview) {
     return null;
   }
-
-  const shareButton = ShareButton({
-    post,
-    onShareClick,
-  });
 
   const onToggleDownvote = async () => {
     if (post.userState?.vote !== UserPostVote.Down) {
@@ -181,7 +155,15 @@ export default function ActionButtons({
             variant={ButtonVariant.Float}
           />
         </SimpleTooltip>
-        {shareButton}
+        <SimpleTooltip content="Copy link">
+          <Button
+            className="pointer-events-auto ml-2"
+            icon={<LinkIcon />}
+            onClick={(e) => onCopyLinkClick?.(e, post)}
+            variant={ButtonVariant.Float}
+            color={ButtonColor.Cabbage}
+          />
+        </SimpleTooltip>
       </div>
     </ConditionalWrapper>
   );
