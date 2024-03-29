@@ -96,6 +96,7 @@ export const SearchControlHeader = ({
         selectedIndex={selectedAlgo}
         options={algorithmsList}
         onChange={(_, index) => setSelectedAlgo(index)}
+        drawerProps={{ displayCloseButton: true }}
       />
     ) : null,
   ];
