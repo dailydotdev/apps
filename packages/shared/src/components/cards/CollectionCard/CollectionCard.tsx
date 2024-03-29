@@ -22,8 +22,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
     onUpvoteClick,
     onCommentClick,
     onMenuClick,
-    onShare,
-    onShareClick,
+    onCopyLinkClick,
     openNewTab,
     onReadArticleClick,
     onPostClick,
@@ -75,8 +74,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
           post={post}
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
-          onShare={onShare}
-          onShareClick={onShareClick}
+          onCopyLinkClick={onCopyLinkClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
           className={classNames('mx-4 mt-auto justify-between')}

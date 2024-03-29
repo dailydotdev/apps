@@ -63,7 +63,7 @@ export type FeedItemComponentProps = {
     row: number,
     column: number,
   ) => void;
-  onShareClick: (
+  onCopyLinkClick: (
     e: React.MouseEvent,
     post: Post,
     index: number,
@@ -151,7 +151,7 @@ export default function FeedItemComponent({
   toggleDownvote,
   onPostClick,
   onShare,
-  onShareClick,
+  onCopyLinkClick,
   onBookmark,
   onMenuClick,
   onCommentClick,
@@ -226,8 +226,8 @@ export default function FeedItemComponent({
           openNewTab={openNewTab}
           enableMenu={!!user}
           onMenuClick={(event) => onMenuClick(event, index, row, column)}
-          onShareClick={(event, post) =>
-            onShareClick(event, post, index, row, column)
+          onCopyLinkClick={(event, post) =>
+            onCopyLinkClick(event, post, index, row, column)
           }
           menuOpened={postMenuIndex === index}
           showImage={!insaneMode}

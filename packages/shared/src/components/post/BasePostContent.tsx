@@ -48,7 +48,7 @@ export function BasePostContent({
       {children}
       <PostEngagements
         post={post}
-        onShare={onCopyPostLink}
+        onCopyLinkClick={onCopyPostLink}
         analyticsOrigin={origin}
         shouldOnboardAuthor={shouldOnboardAuthor}
         enableShowShareNewComment={enableShowShareNewComment}
