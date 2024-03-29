@@ -13,7 +13,6 @@ import {
 } from '@dailydotdev/shared/src/components/modals';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { ShareBookmarkProps } from '@dailydotdev/shared/src/components/post/PostActions';
 import { feedback } from '@dailydotdev/shared/src/lib/constants';
 import {
   PromptOptions,
@@ -23,15 +22,15 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import classNames from 'classnames';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { labels } from '@dailydotdev/shared/src/lib';
-import { UserPostVote } from '@dailydotdev/shared/src/graphql/posts';
+import { Post, UserPostVote } from '@dailydotdev/shared/src/graphql/posts';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 
-interface CompanionContextMenuProps
-  extends Omit<ShareBookmarkProps, 'onBookmark'> {
+interface CompanionContextMenuProps {
   postData: PostBootData;
   onBlockSource: (T) => void;
   onDisableCompanion: () => void;
   onDownvote: () => void;
+  onShare?: (post?: Post) => void;
 }
 
 export default function CompanionContextMenu({

@@ -7,7 +7,7 @@ import { useShareComment } from '../../hooks/useShareComment';
 import { useUpvoteQuery } from '../../hooks/useUpvoteQuery';
 import { AuthTriggers } from '../../lib/auth';
 import { NewComment, NewCommentRef } from './NewComment';
-import { PostActions, ShareBookmarkProps } from './PostActions';
+import { PostActions } from './PostActions';
 import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import { Comment } from '../../graphql/comments';
@@ -35,16 +35,17 @@ const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ '../modals/ShareModal'),
 );
 
-interface PostEngagementsProps extends ShareBookmarkProps {
+interface PostEngagementsProps {
   post: Post;
   analyticsOrigin: PostOrigin;
   shouldOnboardAuthor?: boolean;
   enableShowShareNewComment?: boolean;
+  onCopyLinkClick?: (post?: Post) => void;
 }
 
 function PostEngagements({
   post,
-  onShare,
+  onCopyLinkClick,
   analyticsOrigin,
   shouldOnboardAuthor,
   enableShowShareNewComment,
@@ -99,7 +100,7 @@ function PostEngagements({
         onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
       />
       <PostActions
-        onShare={onShare}
+        onCopyLinkClick={onCopyLinkClick}
         post={post}
         postQueryKey={postQueryKey}
         onComment={() =>

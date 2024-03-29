@@ -6,7 +6,6 @@ import { ShareIcon, BookmarkIcon, LinkIcon } from './icons';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
-import { ShareBookmarkProps } from './post/PostActions';
 import { Origin } from '../lib/analytics';
 import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
@@ -22,11 +21,12 @@ const ContextMenu = dynamic(
   { ssr: false },
 );
 
-interface ShareOptionsMenuProps extends ShareBookmarkProps {
+interface ShareOptionsMenuProps {
   post: Post;
   onHidden?: () => unknown;
   onBookmark?: () => unknown;
   contextId?: string;
+  onShare?: (post?: Post) => void;
 }
 
 type ShareOption = {
