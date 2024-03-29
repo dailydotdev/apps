@@ -40,6 +40,7 @@ function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
           variant={
             isNewMobileLayout ? ButtonVariant.Option : ButtonVariant.Float
           }
+          className={classNames(isNewMobileLayout && 'justify-center')}
           onClick={onNavigateNotifications}
           icon={
             <BellIcon

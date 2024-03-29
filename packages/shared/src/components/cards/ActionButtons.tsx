@@ -37,34 +37,12 @@ export interface ActionButtonsProps {
   onMenuClick?: (e: React.MouseEvent) => unknown;
   onUpvoteClick?: (post: Post) => unknown;
   onCommentClick?: (post: Post) => unknown;
-  onShare?: (post: Post) => unknown;
   onBookmarkClick?: (post: Post) => unknown;
-  onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
+  onCopyLinkClick?: (event: React.MouseEvent, post: Post) => unknown;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   className?: string;
   insaneMode?: boolean;
   openNewTab?: boolean;
-}
-
-type LastActionButtonProps = {
-  onShare?: (post: Post) => unknown;
-  onShareClick?: (event: React.MouseEvent, post: Post) => unknown;
-  post: Post;
-};
-function LastActionButton(props: LastActionButtonProps) {
-  const { onShareClick, post } = props;
-  const onClickShare = (event) => onShareClick?.(event, post);
-  return (
-    <SimpleTooltip content="Copy link">
-      <Button
-        size={ButtonSize.Small}
-        icon={<LinkIcon />}
-        onClick={onClickShare}
-        variant={ButtonVariant.Tertiary}
-        color={ButtonColor.Cabbage}
-      />
-    </SimpleTooltip>
-  );
 }
 
 export default function ActionButtons({
@@ -74,9 +52,8 @@ export default function ActionButtons({
   onCommentClick,
   onMenuClick,
   onReadArticleClick,
-  onShare,
   onBookmarkClick,
-  onShareClick,
+  onCopyLinkClick,
   className,
   insaneMode,
 }: ActionButtonsProps): ReactElement {
@@ -90,11 +67,6 @@ export default function ActionButtons({
     return null;
   }
 
-  const lastActionButton = LastActionButton({
-    post,
-    onShare,
-    onShareClick,
-  });
   const lastActions = (
     <>
       {bookmarkOnCard && (
@@ -111,7 +83,15 @@ export default function ActionButtons({
           />
         </SimpleTooltip>
       )}
-      {lastActionButton}
+      <SimpleTooltip content="Copy link">
+        <Button
+          size={ButtonSize.Small}
+          icon={<LinkIcon />}
+          onClick={(e) => onCopyLinkClick?.(e, post)}
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.Cabbage}
+        />
+      </SimpleTooltip>
     </>
   );
 

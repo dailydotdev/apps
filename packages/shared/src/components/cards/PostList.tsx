@@ -24,8 +24,7 @@ export const PostList = forwardRef(function PostList(
     onCommentClick,
     onReadArticleClick,
     onMenuClick,
-    onShare,
-    onShareClick,
+    onCopyLinkClick,
     onBookmarkClick,
     openNewTab,
     children,
@@ -90,8 +89,7 @@ export const PostList = forwardRef(function PostList(
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
           onReadArticleClick={onReadArticleClick}
-          onShare={onShare}
-          onShareClick={onShareClick}
+          onCopyLinkClick={onCopyLinkClick}
           onBookmarkClick={onBookmarkClick}
           className="relative mt-1 self-stretch"
           onMenuClick={(event) => onMenuClick?.(event, post)}
