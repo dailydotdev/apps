@@ -41,7 +41,7 @@ function FeedNav(): ReactElement {
       <TabContainer
         shouldMountInactive
         className={{
-          header: 'no-scrollbar overflow-x-auto px-1',
+          header: 'no-scrollbar overflow-x-auto px-1 pr-28',
         }}
         tabListProps={{ className: { indicator: '!w-6' } }}
       >
@@ -51,7 +51,7 @@ function FeedNav(): ReactElement {
         <Tab label={FeedNavTab.History} url="/history" />
       </TabContainer>
 
-      <div className="fixed right-0 top-0 my-1 mr-1 flex h-12 w-36 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-60% to-background-default">
+      <div className="fixed right-0 top-0 my-1 flex h-12 w-36 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-60% to-background-default pr-1">
         <NotificationsBell compact />
       </div>
     </div>
