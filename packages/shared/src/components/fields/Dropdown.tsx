@@ -125,6 +125,8 @@ export function Dropdown({
     onChange(value, index);
   };
 
+  const fullScreen = openFullScreen ?? isMobile;
+
   return (
     <div
       className={classNames(styles.dropdown, className.container)}
@@ -164,7 +166,7 @@ export function Dropdown({
           )}
         />
       </button>
-      {isMobile || openFullScreen ? (
+      {fullScreen ? (
         <RootPortal>
           <ListDrawer
             drawerProps={{
