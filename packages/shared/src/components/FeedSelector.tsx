@@ -84,6 +84,7 @@ export default function FeedSelector({
       )}
       options={feedOptions.map((f) => f.text)}
       onChange={(feed: SharedFeedPage) => handleSwitchFeed(feed)}
+      drawerProps={{ displayCloseButton: true }}
     />
   );
 }
