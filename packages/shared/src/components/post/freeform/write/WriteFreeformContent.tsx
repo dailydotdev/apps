@@ -101,7 +101,8 @@ export function WriteFreeformContent({
       <ImageInput
         className={{
           container:
-            '!w-[11.5rem] border-none bg-accent-pepper-subtlest text-text-tertiary',
+            '!w-full border-none bg-accent-pepper-subtlest text-text-tertiary tablet:!w-[20.25rem] laptop:!w-[11.5rem]',
+          root: 'mobileL:w-full',
         }}
         enableHover={false}
         fallbackImage={null}

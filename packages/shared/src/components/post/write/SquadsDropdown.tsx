@@ -51,7 +51,7 @@ export function SquadsDropdown({
       placeholder="Select Squad"
       buttonSize={ButtonSize.Large}
       className={{
-        container: classnames('mt-6', isLaptop && 'w-70'),
+        container: 'mt-6 laptop:w-70',
         menu: 'menu-secondary',
         item: 'h-auto',
       }}
