@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import classnames from 'classnames';
 import { SourceAvatar, SourceShortInfo } from '../../profile/source';
 import { ArrowIcon, SquadIcon } from '../../icons';
 import { Dropdown } from '../../fields/Dropdown';
