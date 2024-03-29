@@ -95,8 +95,31 @@ function MainLayoutHeader({
     );
   };
 
+  const RenderSearchPanel = () =>
+    !!user && (
+      <SearchPanel
+        className={{
+          container: classNames(
+            'mx-auto bg-background-default py-3 laptop:bg-transparent',
+            isNewMobileLayout
+              ? 'left-0 top-0 z-header tablet:left-16'
+              : 'left-0 top-14',
+            isSearchPage
+              ? 'absolute right-0 laptop:relative laptop:top-0'
+              : 'hidden laptop:flex',
+          ),
+          field: 'mx-2 laptop:mx-auto',
+        }}
+      />
+    );
+
   if (isNewMobileLayout) {
-    return <FeedNav />;
+    return (
+      <>
+        <FeedNav />
+        <RenderSearchPanel />
+      </>
+    );
   }
 
   return (
@@ -132,19 +155,7 @@ function MainLayoutHeader({
               greeting={false}
             />
           </div>
-          {!!user && (
-            <SearchPanel
-              className={{
-                container: classNames(
-                  'mx-auto bg-background-default py-3 laptop:bg-transparent',
-                  isSearchPage
-                    ? 'absolute left-0 right-0 top-14 laptop:relative laptop:top-0'
-                    : 'hidden laptop:flex',
-                ),
-                field: 'mx-2 laptop:mx-auto',
-              }}
-            />
-          )}
+          <RenderSearchPanel />
           <RenderButtons />
         </>
       )}
