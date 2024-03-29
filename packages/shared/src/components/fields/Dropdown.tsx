@@ -47,6 +47,7 @@ export interface DropdownProps {
   placeholder?: string;
   iconOnly?: boolean;
   drawerProps?: Omit<DrawerProps, 'children' | 'onClose'>;
+  openFullScreen?: boolean;
 }
 
 const getButtonSizeClass = (buttonSize: string): string => {
@@ -76,6 +77,7 @@ export function Dropdown({
   placeholder = '',
   iconOnly,
   drawerProps,
+  openFullScreen,
   ...props
 }: DropdownProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -162,7 +164,7 @@ export function Dropdown({
           )}
         />
       </button>
-      {isMobile ? (
+      {isMobile || openFullScreen ? (
         <RootPortal>
           <ListDrawer
             drawerProps={{

@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import classnames from 'classnames';
 import { SourceAvatar, SourceShortInfo } from '../../profile/source';
 import { ArrowIcon, SquadIcon } from '../../icons';
 import { Dropdown } from '../../fields/Dropdown';
@@ -18,7 +19,7 @@ export function SquadsDropdown({
   selected,
 }: SquadsDropdownProps): ReactElement {
   const { squads } = useAuthContext();
-  const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const activeSquads = squads?.filter(
     (squad) => squad?.active && verifyPermission(squad, SourcePermissions.Post),
   );
@@ -30,7 +31,7 @@ export function SquadsDropdown({
     return (
       <SourceShortInfo
         source={source}
-        size={isMobile ? 'xxlarge' : undefined}
+        size={!isLaptop ? 'xxlarge' : undefined}
         className="w-full items-center pl-1 tablet:w-auto tablet:py-3"
       >
         <ArrowIcon className="ml-auto rotate-90" secondary />
@@ -50,7 +51,7 @@ export function SquadsDropdown({
       placeholder="Select Squad"
       buttonSize={ButtonSize.Large}
       className={{
-        container: 'mt-6 w-70',
+        container: classnames('mt-6', isLaptop && 'w-70'),
         menu: 'menu-secondary',
         item: 'h-auto',
       }}
@@ -66,6 +67,7 @@ export function SquadsDropdown({
         title: 'Choose a Squad',
         className: { drawer: 'p-0 pr-2 gap-3', title: 'mb-4' },
       }}
+      openFullScreen={!isLaptop}
     />
   );
 }
