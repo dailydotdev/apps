@@ -106,15 +106,17 @@ export const SearchControlHeader = ({
       condition={isNewMobileLayout}
       wrapper={(children) => (
         <div className="flex w-full items-center justify-between">
-          {isPopular || isUpvoted || isDiscussed ? (
-            <FeedSelector />
-          ) : (
-            isStreaksEnabled && (
-              <ReadingStreakButton streak={streak} isLoading={isLoading} />
-            )
-          )}
+          <div className="flex-0">
+            {isPopular || isUpvoted || isDiscussed ? (
+              <FeedSelector />
+            ) : (
+              isStreaksEnabled && (
+                <ReadingStreakButton streak={streak} isLoading={isLoading} />
+              )
+            )}
+          </div>
 
-          <div>{children}</div>
+          <div className="flex gap-2">{children}</div>
         </div>
       )}
     >

@@ -6,6 +6,10 @@ import {
   AiIcon,
   SourceIcon,
   UserIcon,
+  BookmarkIcon,
+  SearchIcon,
+  BellIcon,
+  FilterIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
@@ -32,6 +36,9 @@ import { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
 import { CreatePostButton } from '@dailydotdev/shared/src/components/post/write';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
+import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
+import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import styles from './FooterNavBar.module.css';
 
 type Tab = {
@@ -45,7 +52,56 @@ type Tab = {
 };
 
 const notificationsPath = '/notifications';
+
 export const tabs: Tab[] = [
+  {
+    path: '/',
+    title: 'Home',
+    icon: (active: boolean) => (
+      <HomeIcon secondary={active} size={IconSize.Medium} />
+    ),
+  },
+  {
+    path: '/bookmarks',
+    title: 'Bookmarks',
+    icon: (active: boolean) => (
+      <BookmarkIcon secondary={active} size={IconSize.Medium} />
+    ),
+    shouldShowLogin: true,
+  },
+  {
+    path: '/search',
+    title: 'Search',
+    icon: (active: boolean) => (
+      <SearchIcon secondary={active} size={IconSize.Medium} />
+    ),
+  },
+  {
+    requiresLogin: true,
+    shouldShowLogin: true,
+    path: notificationsPath,
+    title: 'Notifications',
+    icon: (active: boolean, unreadCount) => (
+      <span className="relative">
+        {unreadCount > 0 ? (
+          <Bubble className="right-0 top-0 translate-x-1/2 px-1">
+            {getUnreadText(unreadCount)}
+          </Bubble>
+        ) : null}
+        <BellIcon secondary={active} size={IconSize.Medium} />
+      </span>
+    ),
+  },
+  {
+    path: '/filters',
+    title: 'Filters',
+    icon: (active: boolean) => (
+      <FilterIcon secondary={active} size={IconSize.Medium} />
+    ),
+  },
+];
+
+export const mobileUxTabs: Tab[] = [
   {
     path: '/',
     title: 'Home',
@@ -102,6 +158,7 @@ export default function FooterNavBar({
   const { trackEvent } = useAnalyticsContext();
   const router = useRouter();
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
+  const { isNewMobileLayout } = useMobileUxExperiment();
 
   const buttonProps: ButtonProps<'a' | 'button'> = {
     variant: ButtonVariant.Tertiary,
@@ -149,7 +206,7 @@ export default function FooterNavBar({
           styles.footerNavBar,
         )}
       >
-        {tabs.map(
+        {(isNewMobileLayout ? mobileUxTabs : tabs).map(
           (tab, index) =>
             tab.component ||
             (tab.requiresLogin && !user ? null : (
