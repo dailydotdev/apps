@@ -61,7 +61,7 @@ export function SocialChips({ links }: SocialChipsProps): ReactElement {
   }
 
   return (
-    <div className="no-scrollbar flex items-center gap-2 overflow-x-auto px-4 tablet:flex-wrap">
+    <div className="no-scrollbar flex items-center gap-2 overflow-x-auto px-4 laptop:flex-wrap">
       {elements}
     </div>
   );

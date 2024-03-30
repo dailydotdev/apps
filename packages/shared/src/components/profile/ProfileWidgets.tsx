@@ -42,7 +42,7 @@ export function ProfileWidgets({
 
   return (
     <div
-      className={classNames('my-4 flex flex-col gap-6 tablet:my-0', className)}
+      className={classNames('my-4 flex flex-col gap-6 laptop:my-0', className)}
     >
       <Header user={user} isSameUser={isSameUser} className="-mb-2" />
       {!hideSticky && (
@@ -98,7 +98,7 @@ export function ProfileWidgets({
         </div>
       )}
       {isSameUser && (
-        <ReferralWidget url={referralUrl} className="hidden tablet:flex" />
+        <ReferralWidget url={referralUrl} className="hidden laptop:flex" />
       )}
     </div>
   );

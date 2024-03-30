@@ -186,7 +186,7 @@ export function SquadsList({
   }
 
   return (
-    <div className="no-scrollbar flex items-center gap-2 overflow-x-auto tablet:flex-col tablet:items-stretch tablet:px-4">
+    <div className="no-scrollbar flex items-center gap-2 overflow-x-auto laptop:flex-col laptop:items-stretch laptop:px-4">
       {edges.map(({ node }) => (
         <SquadItem key={node.source.id} membership={node} loading={loading} />
       ))}
