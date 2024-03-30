@@ -51,7 +51,7 @@ export function ProfileWidgets({
           logout={logout}
           isSameUser={isSameUser}
           sticky
-          className="fixed left-0 top-0 z-3 w-full bg-background-default pl-20 transition-transform duration-75"
+          className="fixed left-0 top-0 z-3 w-full bg-background-default transition-transform duration-75 tablet:pl-20"
           style={{ transform: `translateY(${(stickyProgress - 1) * 100}%)` }}
         />
       )}
