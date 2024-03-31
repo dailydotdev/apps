@@ -6,7 +6,7 @@ export const FB_PIXEL_ID = '519268979315924';
 export const GA_TRACKING_ID = 'AW-619408403';
 export const TWITTER_TRACKING_ID = 'o6izs';
 export const REDDIT_TRACKING_ID = 't2_j1li1n7e';
-export const TIKTOK_TRACKING_ID = 'CO22M7BC77U685I8CSHG';
+export const TIKTOK_TRACKING_ID = 'CO2RCPBC77U37LT1TAIG';
 
 export const PixelTracking = (): ReactElement => {
   if (!isProduction) {
@@ -115,5 +115,9 @@ export const trackAnalyticsSignUp = (): void => {
 
   if (typeof globalThis.rdt === 'function') {
     globalThis.rdt('track', 'SignUp');
+  }
+
+  if (typeof globalThis.ttq?.track === 'function') {
+    globalThis.ttq.track('signup');
   }
 };
