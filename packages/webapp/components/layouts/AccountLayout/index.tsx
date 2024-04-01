@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { NextSeoProps } from 'next-seo/lib/types';
@@ -35,6 +35,12 @@ export default function AccountLayout({
   });
   const isMobile = useViewSize(ViewSize.MobileL);
 
+  useEffect(() => {
+    return () => {
+      setIsOpen(false);
+    };
+  }, [setIsOpen]);
+
   if (!profile || !Object.keys(profile).length || (isFetched && !profile)) {
     return null;
   }
@@ -62,11 +68,7 @@ export default function AccountLayout({
       <NextSeo {...Seo} noindex nofollow />
       <main className="relative mx-auto flex w-full flex-1 flex-row items-stretch pt-0 laptop:max-w-[calc(100vw-17.5rem)]">
         {isMobile ? (
-          <ProfileSettingsMenu
-            isOpen={isOpen}
-            logout={logout}
-            onClose={() => setIsOpen(false)}
-          />
+          <ProfileSettingsMenu isOpen={isOpen} logout={logout} />
         ) : (
           <SidebarNav
             className="absolute z-3 ml-auto h-full w-full border-l border-theme-divider-tertiary bg-background-default tablet:relative tablet:w-[unset]"

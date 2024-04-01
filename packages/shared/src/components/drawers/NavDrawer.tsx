@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useRouter } from 'next/router';
 import {
   Drawer,
   DrawerPosition,
@@ -14,6 +15,7 @@ interface NavDrawerProps {
   drawerProps: Omit<DrawerWrapperProps, 'children'>;
   items: NavItemProps[];
   header?: string;
+  shouldGoBack?: boolean;
 }
 
 const NavDrawerHeader = classed(
@@ -29,7 +31,9 @@ export function NavDrawer({
   drawerProps,
   header,
   items,
+  shouldGoBack,
 }: NavDrawerProps): ReactElement {
+  const router = useRouter();
   const ref = React.useRef<DrawerRef>();
   const {
     position,
@@ -56,7 +60,7 @@ export function NavDrawer({
           <Button
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
-            onClick={() => ref.current?.onClose()}
+            onClick={shouldGoBack ? router.back : ref.current?.onClose}
             icon={<ArrowIcon className="-rotate-90" />}
           />
           <NavHeading>{header}</NavHeading>

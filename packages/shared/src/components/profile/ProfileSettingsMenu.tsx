@@ -28,6 +28,7 @@ import type { LazyModalType } from '../modals/common';
 import { anchorDefaultRel } from '../../lib/strings';
 import type { NavItemProps } from '../drawers/NavDrawerItem';
 import { LogoutReason } from '../../lib/user';
+import { isNullOrUndefined } from '../../lib/func';
 
 const createMenuItems = (
   logout: (reason: string) => Promise<void>,
@@ -123,7 +124,7 @@ const createMenuItems = (
 interface ProfileSettingsMenuProps {
   isOpen: boolean;
   logout?: (reason: string) => Promise<void>;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 export function ProfileSettingsMenu({
@@ -141,6 +142,7 @@ export function ProfileSettingsMenu({
   return (
     <NavDrawer
       header="Settings"
+      shouldGoBack={isNullOrUndefined(onClose)}
       drawerProps={{
         isOpen,
         onClose,
