@@ -2,9 +2,10 @@ import React, { FormEvent, ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
 import { ClientError } from 'graphql-request';
 import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
-import { AtIcon, CameraIcon, SquadIcon } from '../icons';
+import { AtIcon, CameraIcon, SourceIcon, SquadIcon } from '../icons';
 import Textarea from '../fields/Textarea';
 import ImageInput from '../fields/ImageInput';
 import { cloudinary } from '../../lib/image';
@@ -16,8 +17,11 @@ import { IconSize } from '../Icon';
 import { SourceMemberRole } from '../../graphql/sources';
 import { Radio } from '../fields/Radio';
 import { squadsPublicWaitlist } from '../../lib/constants';
-import { ManageSquadPageFooter } from './utils';
+import { ManageSquadPageFooter, SquadSubTitle, SquadTitle } from './utils';
 import AuthContext from '../../contexts/AuthContext';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { useViewSize, ViewSize } from '../../hooks';
+import { FormWrapper } from '../fields/form';
 
 const squadImageId = 'squad_image_file';
 
@@ -27,6 +31,8 @@ interface SquadDetailsProps {
   form: Partial<SquadForm>;
   createMode: boolean;
   onRequestClose?: () => void;
+  onCanSubmit?: (canSubmit: boolean) => void;
+  canSubmit?: (canSubmit: boolean) => void;
 }
 
 const getFormData = async (
@@ -101,11 +107,13 @@ export function SquadDetails({
     memberPostingRole: initialMemberPostingRole,
     memberInviteRole: initialMemberInviteRole,
   } = form;
+  const isMobile = useViewSize(ViewSize.MobileL);
   const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
   const [handleHint, setHandleHint] = useState<string>(null);
   const [canSubmit, setCanSubmit] = useState(!!name && !!activeHandle);
   const [isDescriptionOpen, setDescriptionOpen] = useState(!createMode);
+  const router = useRouter();
   const [memberPostingRole, setMemberPostingRole] = useState(
     () => initialMemberPostingRole || SourceMemberRole.Member,
   );
@@ -165,7 +173,41 @@ export function SquadDetails({
   };
 
   return (
-    <>
+    <ConditionalWrapper
+      condition={isMobile}
+      wrapper={(component) => (
+        <FormWrapper
+          form="squad-form"
+          copy={{ right: createMode ? 'Create Squad' : 'Save' }}
+          leftButtonProps={{
+            onClick: () =>
+              router.push(createMode ? '/squads' : `/squads/${handle}`),
+          }}
+          rightButtonProps={{
+            disabled: !canSubmit,
+            variant: ButtonVariant.Primary,
+            color: createMode ? ButtonColor.Cabbage : undefined,
+          }}
+        >
+          {component}
+        </FormWrapper>
+      )}
+    >
+      {createMode && (
+        <div
+          style={{
+            backgroundImage: `url(${cloudinary.squads.createSquad})`,
+          }}
+          className="mb-6 flex h-52 w-full flex-col items-center justify-center bg-cover bg-center"
+        >
+          <SourceIcon size={IconSize.XXXLarge} />
+          <SquadTitle className="mb-2">Create new Squad</SquadTitle>
+          <SquadSubTitle>
+            Create a group where you can learn and interact privately with other
+            developers around topics that matter to you
+          </SquadSubTitle>
+        </div>
+      )}
       <div className={classNames('flex flex-col', className)}>
         <form
           className="-mb-2 flex flex-col items-center gap-4"
@@ -286,25 +328,30 @@ export function SquadDetails({
           </div>
         </form>
       </div>
-      <ManageSquadPageFooter
-        className={classNames(!createMode && 'px-6', 'mt-auto justify-between')}
-      >
-        {createMode && (
-          <Button onClick={onRequestClose} variant={ButtonVariant.Tertiary}>
-            Close
-          </Button>
-        )}
-        <Button
-          variant={ButtonVariant.Primary}
-          color={createMode ? ButtonColor.Cabbage : undefined}
-          className={!createMode && 'w-full'}
-          form="squad-form"
-          type="submit"
-          disabled={!canSubmit}
+      {!isMobile && (
+        <ManageSquadPageFooter
+          className={classNames(
+            !createMode && 'px-6',
+            'mt-auto justify-between',
+          )}
         >
-          {createMode ? 'Create Squad' : 'Save'}
-        </Button>
-      </ManageSquadPageFooter>
-    </>
+          {createMode && (
+            <Button onClick={onRequestClose} variant={ButtonVariant.Tertiary}>
+              Close
+            </Button>
+          )}
+          <Button
+            variant={ButtonVariant.Primary}
+            color={createMode ? ButtonColor.Cabbage : undefined}
+            className={!createMode && 'w-full'}
+            form="squad-form"
+            type="submit"
+            disabled={!canSubmit}
+          >
+            {createMode ? 'Create Squad' : 'Save'}
+          </Button>
+        </ManageSquadPageFooter>
+      )}
+    </ConditionalWrapper>
   );
 }

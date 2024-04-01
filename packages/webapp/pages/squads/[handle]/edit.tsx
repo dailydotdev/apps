@@ -98,7 +98,7 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
     <ManageSquadPageContainer>
       <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
       <ManageSquadPageMain>
-        <ManageSquadPageHeader>
+        <ManageSquadPageHeader className="hidden tablet:flex">
           <Button
             className="mr-2"
             variant={ButtonVariant.Tertiary}
