@@ -10,7 +10,7 @@ import { WithClassNameProps } from '../utilities';
 
 const checkSameSite = () => {
   const referrer = globalThis?.document?.referrer;
-  const origin = globalThis?.window.location.origin;
+  const origin = globalThis?.window?.location.origin;
 
   if (!referrer) {
     return true; // empty referrer means you are from the same site
@@ -27,13 +27,12 @@ export function PostContentHeaderMobile({
   onReadArticle,
 }: Pick<PostNavigationProps, 'onReadArticle' | 'post'> &
   WithClassNameProps): ReactElement {
-  const isSameSite = checkSameSite();
   const router = useRouter();
   const canGoBack =
     !!globalThis?.history?.length &&
     globalThis?.history?.state &&
     isNullOrUndefined(globalThis.history.state.options.shallow) &&
-    isSameSite;
+    checkSameSite();
 
   return (
     <span
