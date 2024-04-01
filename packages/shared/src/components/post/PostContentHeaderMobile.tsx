@@ -5,7 +5,6 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import { PostHeaderActions } from './PostHeaderActions';
 import { PostNavigationProps } from './common';
-import { isNullOrUndefined } from '../../lib/func';
 import { WithClassNameProps } from '../utilities';
 
 const checkSameSite = () => {
@@ -28,11 +27,7 @@ export function PostContentHeaderMobile({
 }: Pick<PostNavigationProps, 'onReadArticle' | 'post'> &
   WithClassNameProps): ReactElement {
   const router = useRouter();
-  const canGoBack =
-    !!globalThis?.history?.length &&
-    globalThis?.history?.state &&
-    isNullOrUndefined(globalThis.history.state.options.shallow) &&
-    checkSameSite();
+  const canGoBack = !!globalThis?.history?.length && checkSameSite();
 
   return (
     <span
