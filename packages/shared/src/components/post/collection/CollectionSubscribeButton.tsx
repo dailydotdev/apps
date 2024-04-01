@@ -7,8 +7,7 @@ import { NotificationType } from '../../notifications/utils';
 import { NotificationPreferenceStatus } from '../../../graphql/notifications';
 import { BellDisabledIcon, BellIcon } from '../../icons';
 import { Post } from '../../../graphql/posts';
-import { SimpleTooltip } from '../../tooltips';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { AuthTriggers } from '../../../lib/auth';
 import { useAuthContext } from '../../../contexts/AuthContext';
 
@@ -46,14 +45,15 @@ const CollectionSubscribeButtonCondensed = ({
   onClick,
 }: CollectionSubscribeButtonViewProps): ReactElement => {
   return (
-    <SimpleTooltip content={isSubscribed ? 'Unsubscribe' : 'Subscribe'}>
-      <Button
-        variant={ButtonVariant.Float}
-        icon={isSubscribed ? <BellDisabledIcon /> : <BellIcon />}
-        disabled={isFetching}
-        onClick={onClick}
-      />
-    </SimpleTooltip>
+    <Button
+      variant={ButtonVariant.Float}
+      size={ButtonSize.Small}
+      icon={isSubscribed ? <BellDisabledIcon /> : <BellIcon />}
+      disabled={isFetching}
+      onClick={onClick}
+    >
+      {isSubscribed ? 'Unsubscribe' : 'Subscribe'}
+    </Button>
   );
 };
 
