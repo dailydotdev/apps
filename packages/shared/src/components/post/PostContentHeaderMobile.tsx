@@ -8,18 +8,32 @@ import { PostNavigationProps } from './common';
 import { isNullOrUndefined } from '../../lib/func';
 import { WithClassNameProps } from '../utilities';
 
+const checkSameSite = () => {
+  const referrer = globalThis?.document?.referrer;
+  const origin = globalThis?.window.location.origin;
+
+  if (!referrer) {
+    return true; // empty referrer means you are from the same site
+  }
+
+  return (
+    referrer === origin || origin === referrer.substring(0, referrer.length - 1) // remove trailing slash
+  );
+};
+
 export function PostContentHeaderMobile({
   post,
   className,
   onReadArticle,
 }: Pick<PostNavigationProps, 'onReadArticle' | 'post'> &
   WithClassNameProps): ReactElement {
+  const isSameSite = checkSameSite();
   const router = useRouter();
   const canGoBack =
     !!globalThis?.history?.length &&
     globalThis?.history?.state &&
     isNullOrUndefined(globalThis.history.state.options.shallow) &&
-    !globalThis?.document?.referrer; // empty referrer means you are from the same site
+    isSameSite;
 
   return (
     <span
