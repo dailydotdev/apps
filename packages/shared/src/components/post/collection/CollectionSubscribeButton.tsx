@@ -48,7 +48,7 @@ const CollectionSubscribeButtonCondensed = ({
   return (
     <SimpleTooltip content={isSubscribed ? 'Unsubscribe' : 'Subscribe'}>
       <Button
-        variant={ButtonVariant.Tertiary}
+        variant={ButtonVariant.Float}
         icon={isSubscribed ? <BellDisabledIcon /> : <BellIcon />}
         disabled={isFetching}
         onClick={onClick}

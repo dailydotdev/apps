@@ -91,7 +91,9 @@ export function PostHeaderActions({
   return (
     <Container {...props} className={classNames('gap-2', className)}>
       {!isInternalReadType(post) && !!onReadArticle && <ButtonWithExperiment />}
-      {isCollection && <CollectionSubscribeButton post={post} isCondensed />}
+      {isCollection && (
+        <CollectionSubscribeButton post={post} isCondensed={!isEnlarged} />
+      )}
       <PostMenuOptions
         post={post}
         onClose={onClose}
