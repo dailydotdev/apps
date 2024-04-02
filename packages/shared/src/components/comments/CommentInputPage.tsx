@@ -97,7 +97,9 @@ const CommentInputPage = ({
   }, [isEdit, isReply, comment, user?.id]);
 
   return (
-    <WriteCommentContext.Provider value={{ mutateCommentResult }}>
+    <WriteCommentContext.Provider
+      value={{ mutateComment: mutateCommentResult }}
+    >
       <div>
         <FormWrapper
           form="write-comment"

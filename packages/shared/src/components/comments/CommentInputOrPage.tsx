@@ -53,7 +53,9 @@ export default function CommentInputOrPage({
   }
 
   return (
-    <WriteCommentContext.Provider value={{ mutateCommentResult }}>
+    <WriteCommentContext.Provider
+      value={{ mutateComment: mutateCommentResult }}
+    >
       <CommentMarkdownInput {...props} className={className.input} />
     </WriteCommentContext.Provider>
   );

@@ -56,7 +56,7 @@ export function CommentMarkdownInput({
   const sourceId = post?.source?.id;
   const markdownRef = useRef<MarkdownRef>();
   const {
-    mutateCommentResult: { mutateComment, isLoading, isSuccess },
+    mutateComment: { mutateComment, isLoading, isSuccess },
   } = useWriteCommentContext();
   const onSubmitForm: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
