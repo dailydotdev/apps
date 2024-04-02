@@ -61,12 +61,20 @@ export function CommentMarkdownInput({
   const onSubmitForm: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
+    if (isLoading || isSuccess) {
+      return null;
+    }
+
     const { content } = formToJson<{ content: string }>(e.currentTarget);
 
     return mutateComment(content);
   };
 
   const onKeyboardSubmit: FormEventHandler<HTMLTextAreaElement> = (e) => {
+    if (isLoading || isSuccess) {
+      return null;
+    }
+
     const content = e.currentTarget.value;
 
     return mutateComment(content);
