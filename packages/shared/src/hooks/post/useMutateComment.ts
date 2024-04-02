@@ -152,10 +152,15 @@ export const useMutateComment = ({
     isLoading: isCommenting,
     isSuccess,
   } = useMutation<MutateCommentResult, unknown, SubmitComment>(
-    (variables) =>
-      requestMethod(graphqlUrl, mutation, variables, {
+    (variables) => {
+      if (isCommenting || isSuccess) {
+        return Promise.resolve(null);
+      }
+
+      return requestMethod(graphqlUrl, mutation, variables, {
         requestKey: JSON.stringify(key),
-      }),
+      });
+    },
     {
       onSuccess: (data) => onSuccess(data?.comment),
     },
