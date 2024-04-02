@@ -1,15 +1,9 @@
-import React, {
-  ReactElement,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { ReactElement, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { FormWrapper } from '../fields/form';
 import { CommentMarkdownInput } from '../fields/MarkdownInput/CommentMarkdownInput';
-import { UseMutateCommentResult } from '../../hooks/post/useMutateComment';
+import { useMutateComment } from '../../hooks/post/useMutateComment';
 import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
 import { COMMENT_BY_ID_WITH_POST_QUERY } from '../../graphql/comments';
 import useCommentById from '../../hooks/comments/useCommentById';
@@ -36,7 +30,6 @@ const CommentInputPage = ({
   editCommentId,
   replyCommentId,
 }: Props): ReactElement => {
-  const [value, setValue] = useState('');
   const [styleHeight, setStyleHeight] = useState<number | 'auto'>('auto');
   const { user } = useAuthContext();
   const router = useRouter();
@@ -65,8 +58,13 @@ const CommentInputPage = ({
     () => comment?.parent?.id ?? replyCommentId,
     [comment, replyCommentId],
   );
-  const mutateRef = useRef<UseMutateCommentResult>();
-  const { mutateComment, isLoading, isSuccess } = mutateRef?.current ?? {};
+  const mutateCommentResult = useMutateComment({
+    post,
+    editCommentId,
+    parentCommentId,
+    onCommented: router.back,
+  });
+  const { isLoading, isSuccess } = mutateCommentResult;
 
   const { height } = useVisualViewport();
   const replyHeight = height > 0 ? replySize : 0;
@@ -100,7 +98,7 @@ const CommentInputPage = ({
   return (
     <div>
       <FormWrapper
-        form="new comment"
+        form="write-comment"
         copy={{ right: submitCopy }}
         leftButtonProps={{
           onClick: router.back,
@@ -108,7 +106,6 @@ const CommentInputPage = ({
         rightButtonProps={{
           onClick: async () => {
             await onSubmitted();
-            mutateComment(value);
           },
           loading: isLoading,
           disabled: isSuccess,
@@ -143,12 +140,11 @@ const CommentInputPage = ({
           }}
           showSubmit={false}
           showUserAvatar={false}
-          onChange={setValue}
-          mutateRef={mutateRef}
+          mutateCommentResult={mutateCommentResult}
           style={{
             height: `${styleHeight}px`,
           }}
-          onCommented={router.back}
+          formProps={{ id: 'write-comment' }}
         />
         {shouldShowCta && (
           <Switch
