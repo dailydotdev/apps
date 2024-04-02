@@ -51,7 +51,7 @@ export function Header({
       )}
       {isSameUser && (
         <Button
-          className="ml-auto mr-2 hidden tablet:flex"
+          className="ml-auto mr-2 hidden laptop:flex"
           variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           tag="a"
@@ -61,7 +61,7 @@ export function Header({
         </Button>
       )}
       <Button
-        className={classNames('ml-auto', isSameUser && 'tablet:ml-0')}
+        className={classNames('ml-auto', isSameUser && 'laptop:ml-0')}
         variant={ButtonVariant.Float}
         size={ButtonSize.Small}
         icon={<ShareIcon />}
@@ -70,7 +70,7 @@ export function Header({
       {isSameUser && (
         <>
           <Button
-            className="ml-2 tablet:hidden"
+            className="ml-2 laptop:hidden"
             variant={ButtonVariant.Float}
             size={ButtonSize.Small}
             icon={<SettingsIcon />}
