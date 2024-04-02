@@ -12,6 +12,7 @@ import { Switch } from '../fields/Switch';
 import { useNotificationToggle } from '../../hooks/notifications';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { Post } from '../../graphql/posts';
+import { WriteCommentContext } from '../../contexts/WriteCommentContext';
 
 // statically defined heights of various containers that
 // affect final height of the input container
@@ -96,71 +97,72 @@ const CommentInputPage = ({
   }, [isEdit, isReply, comment, user?.id]);
 
   return (
-    <div>
-      <FormWrapper
-        form="write-comment"
-        copy={{ right: submitCopy }}
-        leftButtonProps={{
-          onClick: router.back,
-        }}
-        rightButtonProps={{
-          onClick: async () => {
-            await onSubmitted();
-          },
-          loading: isLoading,
-          disabled: isSuccess,
-        }}
-        className={{
-          container: 'flex-1 first:!border-none',
-          header: 'sticky top-0 z-2 w-full bg-background-default',
-        }}
-      >
-        {isReply && comment && (
-          <div className="ml-12 flex gap-2 border-l border-theme-divider-tertiary py-3 pl-5 text-text-tertiary typo-caption1">
-            Reply to
-            <span className="font-bold text-text-primary">
-              {comment.author?.username}
-            </span>
-          </div>
-        )}
-        <CommentMarkdownInput
-          replyTo={null}
-          post={post}
-          parentCommentId={parentCommentId}
-          editCommentId={isEdit && editCommentId}
-          initialContent={initialContent}
+    <WriteCommentContext.Provider value={{ mutateCommentResult }}>
+      <div>
+        <FormWrapper
+          form="write-comment"
+          copy={{ right: submitCopy }}
+          leftButtonProps={{
+            onClick: router.back,
+          }}
+          rightButtonProps={{
+            onClick: async () => {
+              await onSubmitted();
+            },
+            loading: isLoading,
+            disabled: isSuccess,
+          }}
           className={{
-            markdownContainer: 'flex-1',
-            container: classNames(
-              'flex flex-col',
-              isReply ? 'h-[calc(100%-2.5rem)]' : 'h-full',
-            ),
-            tab: 'flex-1',
-            input: '!max-h-none flex-1',
+            container: 'flex-1 first:!border-none',
+            header: 'sticky top-0 z-2 w-full bg-background-default',
           }}
-          showSubmit={false}
-          showUserAvatar={false}
-          mutateCommentResult={mutateCommentResult}
-          style={{
-            height: `${styleHeight}px`,
-          }}
-          formProps={{ id: 'write-comment' }}
-        />
-        {shouldShowCta && (
-          <Switch
-            inputId="push_notification-switch"
-            name="push_notification"
-            labelClassName="flex-1 font-normal"
-            className="mx-3 my-3.5"
-            compact={false}
-            checked={isEnabled}
-            onToggle={onToggle}
-          >
-            Receive updates when other members engage
-          </Switch>
-        )}
-      </FormWrapper>
-    </div>
+        >
+          {isReply && comment && (
+            <div className="ml-12 flex gap-2 border-l border-theme-divider-tertiary py-3 pl-5 text-text-tertiary typo-caption1">
+              Reply to
+              <span className="font-bold text-text-primary">
+                {comment.author?.username}
+              </span>
+            </div>
+          )}
+          <CommentMarkdownInput
+            replyTo={null}
+            post={post}
+            parentCommentId={parentCommentId}
+            editCommentId={isEdit && editCommentId}
+            initialContent={initialContent}
+            className={{
+              markdownContainer: 'flex-1',
+              container: classNames(
+                'flex flex-col',
+                isReply ? 'h-[calc(100%-2.5rem)]' : 'h-full',
+              ),
+              tab: 'flex-1',
+              input: '!max-h-none flex-1',
+            }}
+            showSubmit={false}
+            showUserAvatar={false}
+            style={{
+              height: `${styleHeight}px`,
+            }}
+            formProps={{ id: 'write-comment' }}
+          />
+          {shouldShowCta && (
+            <Switch
+              inputId="push_notification-switch"
+              name="push_notification"
+              labelClassName="flex-1 font-normal"
+              className="mx-3 my-3.5"
+              compact={false}
+              checked={isEnabled}
+              onToggle={onToggle}
+            >
+              Receive updates when other members engage
+            </Switch>
+          )}
+        </FormWrapper>
+      </div>
+    </WriteCommentContext.Provider>
   );
 };
 

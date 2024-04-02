@@ -12,7 +12,7 @@ import MarkdownInput, { MarkdownRef } from './index';
 import { Comment } from '../../../graphql/comments';
 import { formToJson } from '../../../lib/form';
 import { Post } from '../../../graphql/posts';
-import { UseMutateCommentResult } from '../../../hooks/post/useMutateComment';
+import { useWriteCommentContext } from '../../../contexts/WriteCommentContext';
 
 export interface CommentClassName {
   container?: string;
@@ -37,7 +37,6 @@ export interface CommentMarkdownInputProps {
   showSubmit?: boolean;
   showUserAvatar?: boolean;
   onChange?: (value: string) => void;
-  mutateCommentResult?: UseMutateCommentResult;
   formProps?: FormHTMLAttributes<HTMLFormElement>;
 }
 
@@ -51,13 +50,14 @@ export function CommentMarkdownInput({
   onChange,
   showSubmit = true,
   showUserAvatar = true,
-  mutateCommentResult,
   formProps = {},
 }: CommentMarkdownInputProps): ReactElement {
   const postId = post?.id;
   const sourceId = post?.source?.id;
   const markdownRef = useRef<MarkdownRef>();
-  const { mutateComment, isLoading, isSuccess } = mutateCommentResult;
+  const {
+    mutateCommentResult: { mutateComment, isLoading, isSuccess },
+  } = useWriteCommentContext();
   const onSubmitForm: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 

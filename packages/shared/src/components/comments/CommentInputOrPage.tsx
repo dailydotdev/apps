@@ -6,6 +6,7 @@ import {
 } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { ViewSize, useViewSize } from '../../hooks';
 import { useMutateComment } from '../../hooks/post/useMutateComment';
+import { WriteCommentContext } from '../../contexts/WriteCommentContext';
 
 interface CommentInputOrPageProps
   extends Omit<CommentMarkdownInputProps, 'className'> {
@@ -52,10 +53,8 @@ export default function CommentInputOrPage({
   }
 
   return (
-    <CommentMarkdownInput
-      {...props}
-      className={className.input}
-      mutateCommentResult={mutateCommentResult}
-    />
+    <WriteCommentContext.Provider value={{ mutateCommentResult }}>
+      <CommentMarkdownInput {...props} className={className.input} />
+    </WriteCommentContext.Provider>
   );
 }
