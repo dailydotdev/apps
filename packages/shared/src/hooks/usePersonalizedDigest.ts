@@ -6,6 +6,7 @@ import {
   UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
   UserPersonalizedDigest,
   UserPersonalizedDigestSubscribe,
+  UserPersonalizedDigestType,
 } from '../graphql/users';
 import { graphqlUrl } from '../lib/config';
 import { RequestKey, generateQueryKey } from '../lib/query';
@@ -15,7 +16,13 @@ import { ApiError, getApiError } from '../graphql/common';
 export type UsePersonalizedDigest = {
   personalizedDigest: UserPersonalizedDigest | null;
   isLoading: boolean;
-  subscribePersonalizedDigest: () => Promise<UserPersonalizedDigest>;
+  subscribePersonalizedDigest: ({
+    hour,
+    type,
+  }: {
+    hour?: number;
+    type?: UserPersonalizedDigestType;
+  }) => Promise<UserPersonalizedDigest>;
   unsubscribePersonalizedDigest: () => Promise<null>;
 };
 
@@ -51,7 +58,13 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
   );
 
   const { mutateAsync: subscribePersonalizedDigest } = useMutation(
-    async () => {
+    async ({
+      hour = 8,
+      type = UserPersonalizedDigestType.Digest,
+    }: {
+      hour?: number;
+      type?: UserPersonalizedDigestType;
+    }) => {
       const result = await request<
         {
           subscribePersonalizedDigest: UserPersonalizedDigest;
@@ -59,8 +72,9 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         Partial<UserPersonalizedDigestSubscribe>
       >(graphqlUrl, SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, {
         day: 3,
-        hour: 8,
+        hour,
         timezone: user?.timezone || undefined,
+        type,
       });
 
       queryClient.setQueryData(queryKey, result.subscribePersonalizedDigest);
