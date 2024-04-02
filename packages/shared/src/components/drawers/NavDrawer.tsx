@@ -14,6 +14,7 @@ interface NavDrawerProps {
   drawerProps: Omit<DrawerWrapperProps, 'children'>;
   items: NavItemProps[];
   header?: string;
+  shouldKeepOpen?: boolean;
 }
 
 const NavDrawerHeader = classed(
@@ -29,6 +30,7 @@ export function NavDrawer({
   drawerProps,
   header,
   items,
+  shouldKeepOpen,
 }: NavDrawerProps): ReactElement {
   const ref = React.useRef<DrawerRef>();
   const {
@@ -56,7 +58,9 @@ export function NavDrawer({
           <Button
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
-            onClick={() => ref.current?.onClose()}
+            onClick={
+              shouldKeepOpen ? drawerProps.onClose : ref.current?.onClose
+            }
             icon={<ArrowIcon className="-rotate-90" />}
           />
           <NavHeading>{header}</NavHeading>

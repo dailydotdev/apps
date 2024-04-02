@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { NextSeoProps } from 'next-seo/lib/types';
@@ -11,6 +11,7 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
+import { useRouter } from 'next/router';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getTemplatedTitle } from '../utils';
 import SidebarNav from './SidebarNav';
@@ -28,12 +29,23 @@ export const navigationKey = generateQueryKey(
 export default function AccountLayout({
   children,
 }: AccountLayoutProps): ReactElement {
-  const { user: profile, isFetched, logout } = useContext(AuthContext);
+  const router = useRouter();
+  const { user: profile, isFetched } = useContext(AuthContext);
+  const isMobile = useViewSize(ViewSize.MobileL);
   const [isOpen, setIsOpen] = useQueryState({
     key: navigationKey,
     defaultValue: false,
   });
-  const isMobile = useViewSize(ViewSize.MobileL);
+
+  useEffect(() => {
+    const onClose = () => setIsOpen(false);
+
+    router.events.on('routeChangeComplete', onClose);
+
+    return () => {
+      router.events.off('routeChangeComplete', onClose);
+    };
+  }, [router.events, setIsOpen]);
 
   if (!profile || !Object.keys(profile).length || (isFetched && !profile)) {
     return null;
@@ -63,9 +75,9 @@ export default function AccountLayout({
       <main className="relative mx-auto flex w-full flex-1 flex-row items-stretch pt-0 laptop:max-w-[calc(100vw-17.5rem)]">
         {isMobile ? (
           <ProfileSettingsMenu
+            shouldKeepOpen
             isOpen={isOpen}
-            logout={logout}
-            onClose={() => setIsOpen(false)}
+            onClose={() => router.push(profile.permalink)}
           />
         ) : (
           <SidebarNav
