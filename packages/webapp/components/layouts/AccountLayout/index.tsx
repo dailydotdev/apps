@@ -74,7 +74,11 @@ export default function AccountLayout({
       <NextSeo {...Seo} noindex nofollow />
       <main className="relative mx-auto flex w-full flex-1 flex-row items-stretch pt-0 laptop:max-w-[calc(100vw-17.5rem)]">
         {isMobile ? (
-          <ProfileSettingsMenu isOpen={isOpen} />
+          <ProfileSettingsMenu
+            shouldKeepOpen
+            isOpen={isOpen}
+            onClose={() => router.push(profile.permalink)}
+          />
         ) : (
           <SidebarNav
             className="absolute z-3 ml-auto h-full w-full border-l border-theme-divider-tertiary bg-background-default tablet:relative tablet:w-[unset]"

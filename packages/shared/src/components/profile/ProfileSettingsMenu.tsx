@@ -27,7 +27,6 @@ import { LazyModal } from '../modals/common/types';
 import { anchorDefaultRel } from '../../lib/strings';
 import type { NavItemProps } from '../drawers/NavDrawerItem';
 import { LogoutReason } from '../../lib/user';
-import { isNullOrUndefined } from '../../lib/func';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 const useMenuItems = (): NavItemProps[] => {
@@ -131,16 +130,18 @@ const useMenuItems = (): NavItemProps[] => {
 interface ProfileSettingsMenuProps {
   isOpen: boolean;
   onClose?: () => void;
+  shouldKeepOpen?: boolean;
 }
 
 export function ProfileSettingsMenu({
   isOpen,
   onClose,
+  shouldKeepOpen,
 }: ProfileSettingsMenuProps): ReactElement {
   return (
     <NavDrawer
       header="Settings"
-      shouldGoBack={isNullOrUndefined(onClose)}
+      shouldKeepOpen={shouldKeepOpen}
       drawerProps={{
         isOpen,
         onClose,
