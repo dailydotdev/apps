@@ -75,7 +75,7 @@ export default function ProfileLayout({
   };
 
   return (
-    <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:flex-row tablet:pb-0 laptop:min-h-page laptop:border-l laptop:border-r laptop:border-theme-divider-tertiary laptop:pb-6 laptopL:pb-0">
+    <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-theme-divider-tertiary laptop:pb-6 laptopL:pb-0">
       <Head>
         <link rel="preload" as="image" href={user.image} />
       </Head>
@@ -86,12 +86,12 @@ export default function ProfileLayout({
           userStats={userStats}
           sources={sources}
           enableSticky
-          className="tablet:hidden"
+          className="laptop:hidden"
         />
         <NavBar selectedTab={selectedTab} profile={user} />
         {children}
       </main>
-      <PageWidgets className="hidden !px-0 tablet:flex">
+      <PageWidgets className="hidden !px-0 laptop:flex">
         <ProfileWidgets
           user={user}
           userStats={userStats}
