@@ -5,22 +5,20 @@ import { ShareIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { ProfilePicture } from '../ProfilePicture';
-import { largeNumberFormat } from '../../lib/numberFormat';
+import { largeNumberFormat } from '../../lib';
 import { ReferralCampaignKey } from '../../lib/referral';
 import { ProfileSettingsMenu } from './ProfileSettingsMenu';
 
-export type HeaderProps = {
+export interface HeaderProps {
   user: PublicProfile;
   isSameUser: boolean;
   sticky?: boolean;
   className?: string;
   style?: CSSProperties;
-  logout?: (reason: string) => Promise<void>;
-};
+}
 
 export function Header({
   user,
-  logout,
   isSameUser,
   sticky,
   className,
@@ -82,7 +80,6 @@ export function Header({
           />
           <ProfileSettingsMenu
             isOpen={isMenuOpen}
-            logout={logout}
             onClose={() => setIsMenuOpen(false)}
           />
         </>

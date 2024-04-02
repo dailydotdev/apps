@@ -28,12 +28,12 @@ export const navigationKey = generateQueryKey(
 export default function AccountLayout({
   children,
 }: AccountLayoutProps): ReactElement {
-  const { user: profile, isFetched, logout } = useContext(AuthContext);
+  const { user: profile, isFetched } = useContext(AuthContext);
+  const isMobile = useViewSize(ViewSize.MobileL);
   const [isOpen, setIsOpen] = useQueryState({
     key: navigationKey,
     defaultValue: false,
   });
-  const isMobile = useViewSize(ViewSize.MobileL);
 
   useEffect(() => {
     return () => {
@@ -68,7 +68,7 @@ export default function AccountLayout({
       <NextSeo {...Seo} noindex nofollow />
       <main className="relative mx-auto flex w-full flex-1 flex-row items-stretch pt-0 laptop:max-w-[calc(100vw-17.5rem)]">
         {isMobile ? (
-          <ProfileSettingsMenu isOpen={isOpen} logout={logout} />
+          <ProfileSettingsMenu isOpen={isOpen} />
         ) : (
           <SidebarNav
             className="absolute z-3 ml-auto h-full w-full border-l border-theme-divider-tertiary bg-background-default tablet:relative tablet:w-[unset]"
