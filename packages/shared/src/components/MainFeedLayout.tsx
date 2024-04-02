@@ -117,7 +117,7 @@ const getQueryBasedOnLogin = (
 const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
 
 const commentClassName = {
-  container: 'rounded-none border-0 border-b border-x',
+  container: 'rounded-none border-0 border-b tablet:border-x',
   commentBox: {
     container: 'relative border-0 rounded-none',
   },

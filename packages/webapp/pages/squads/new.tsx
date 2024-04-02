@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import router, { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -9,16 +9,11 @@ import { SquadForm, createSquad } from '@dailydotdev/shared/src/graphql/squads';
 import { useBoot } from '@dailydotdev/shared/src/hooks/useBoot';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
-import { SourceIcon } from '@dailydotdev/shared/src/components/icons';
 import {
-  SquadTitle,
-  SquadSubTitle,
   ManageSquadPageContainer,
   ManageSquadPageMain,
 } from '@dailydotdev/shared/src/components/squads/utils';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
@@ -39,9 +34,6 @@ const NewSquad = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const { addSquad } = useBoot();
   const { completeAction } = useActions();
-  const [form] = useState<Partial<SquadForm>>({
-    public: false,
-  });
 
   const onCreate = async (e, newSquadForm: SquadForm) => {
     e.preventDefault();
@@ -79,22 +71,9 @@ const NewSquad = (): ReactElement => {
     <ManageSquadPageContainer>
       <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
       <ManageSquadPageMain>
-        <div
-          style={{
-            backgroundImage: `url(${cloudinary.squads.createSquad})`,
-          }}
-          className="mb-6 flex h-52 w-full flex-col items-center justify-center bg-cover"
-        >
-          <SourceIcon size={IconSize.XXXLarge} />
-          <SquadTitle className="mb-2">Create new Squad</SquadTitle>
-          <SquadSubTitle>
-            Create a group where you can learn and interact privately with other
-            developers around topics that matter to you
-          </SquadSubTitle>
-        </div>
         <SquadDetails
           className="p-8 pt-0"
-          form={form}
+          form={{ public: false }}
           onRequestClose={handleClose}
           onSubmit={onCreate}
           createMode
