@@ -3,6 +3,7 @@ import React, {
   FormEventHandler,
   ReactElement,
   useEffect,
+  useImperativeHandle,
   useRef,
 } from 'react';
 import classNames from 'classnames';
@@ -11,7 +12,10 @@ import MarkdownInput, { MarkdownRef } from './index';
 import { Comment } from '../../../graphql/comments';
 import { formToJson } from '../../../lib/form';
 import { Post } from '../../../graphql/posts';
-import { useMutateComment } from '../../../hooks/post/useMutateComment';
+import {
+  useMutateComment,
+  UseMutateCommentResult,
+} from '../../../hooks/post/useMutateComment';
 
 export interface CommentClassName {
   container?: string;
@@ -36,6 +40,7 @@ export interface CommentMarkdownInputProps {
   showSubmit?: boolean;
   showUserAvatar?: boolean;
   onChange?: (value: string) => void;
+  mutateRef?: React.MutableRefObject<UseMutateCommentResult>;
 }
 
 export function CommentMarkdownInput({
@@ -50,17 +55,22 @@ export function CommentMarkdownInput({
   onChange,
   showSubmit = true,
   showUserAvatar = true,
+  mutateRef,
 }: CommentMarkdownInputProps): ReactElement {
   const postId = post?.id;
   const sourceId = post?.source?.id;
   const markdownRef = useRef<MarkdownRef>();
-
   const { mutateComment, isLoading, isSuccess } = useMutateComment({
     post,
     editCommentId,
     parentCommentId,
     onCommented,
   });
+  useImperativeHandle(mutateRef, () => ({
+    mutateComment,
+    isLoading,
+    isSuccess,
+  }));
 
   const onSubmitForm: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
