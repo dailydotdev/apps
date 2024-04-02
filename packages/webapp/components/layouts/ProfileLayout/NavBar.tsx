@@ -50,7 +50,7 @@ export default function NavBar({
   return (
     <div
       className={classNames(
-        'sticky top-14 z-3 -mt-px flex justify-around bg-background-default tablet:top-14 tablet:justify-start',
+        'sticky top-12 z-3 -mt-px flex justify-around bg-background-default tablet:top-14 tablet:justify-start',
         styles.nav,
         isNewMobileLayout && 'tablet:!top-0',
       )}
