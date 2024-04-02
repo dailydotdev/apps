@@ -177,7 +177,7 @@ describe('useChangelog hook', () => {
     });
 
     expect(toggleUpvote).toHaveBeenCalledWith({
-      post: defaultPost,
+      payload: defaultPost,
       origin: Origin.ChangelogPopup,
     });
   });
