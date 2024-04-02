@@ -14,31 +14,22 @@ import { PostHeaderActionsProps } from './common';
 import { PostMenuOptions } from './PostMenuOptions';
 import { Origin } from '../../lib/analytics';
 import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';
-import { SourceSubscribeExperiment } from '../../lib/featureValues';
-import { feature } from '../../lib/featureManagement';
-import { useFeature } from '../GrowthBookProvider';
 import { useViewSize, ViewSize } from '../../hooks';
 
 const Container = classed('div', 'flex flex-row items-center');
 
 interface GetButtonVariantProps {
   inlineActions: boolean;
-  isSourceSubscribeV1: boolean;
 }
 
 const getButtonVariant = ({
   inlineActions,
-  isSourceSubscribeV1,
 }: GetButtonVariantProps): ButtonVariant => {
   if (inlineActions) {
     return ButtonVariant.Tertiary;
   }
 
-  if (isSourceSubscribeV1) {
-    return ButtonVariant.Primary;
-  }
-
-  return ButtonVariant.Secondary;
+  return ButtonVariant.Primary;
 };
 
 export function PostHeaderActions({
@@ -59,9 +50,6 @@ export function PostHeaderActions({
   const isCollection = post?.type === PostType.Collection;
   const isEnlarged = isFixedNavigation || !isMobile;
   const ButtonWithExperiment = () => {
-    const isSourceSubscribeV1 =
-      useFeature(feature.sourceSubscribe) === SourceSubscribeExperiment.V1;
-
     return (
       <SimpleTooltip
         placement="bottom"
@@ -71,7 +59,7 @@ export function PostHeaderActions({
         <Button
           variant={
             isEnlarged
-              ? getButtonVariant({ inlineActions, isSourceSubscribeV1 })
+              ? getButtonVariant({ inlineActions })
               : ButtonVariant.Float
           }
           tag="a"

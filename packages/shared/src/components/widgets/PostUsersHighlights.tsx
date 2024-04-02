@@ -13,13 +13,9 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { SourceSubscribeButton } from '../sources';
 import { ButtonVariant } from '../buttons/common';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { SourceSubscribeExperiment } from '../../lib/featureValues';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import EnableNotification from '../notifications/EnableNotification';
 import { NotificationPromptSource } from '../../lib/analytics';
-import { withExperiment } from '../withExperiment';
 import { useSourceSubscription } from '../../hooks';
 
 interface PostAuthorProps {
@@ -104,9 +100,7 @@ const UserHighlight = (props: SourceAuthorProps) => {
   } = props;
   const Icon = getUserIcon(userType);
   const isUserTypeSource = userType === UserType.Source;
-  const isSourceSubscribeV1 =
-    useFeature(feature.sourceSubscribe) === SourceSubscribeExperiment.V1;
-  const { feedSettings } = useFeedSettings({ enabled: isSourceSubscribeV1 });
+  const { feedSettings } = useFeedSettings();
 
   const isSourceBlocked = useMemo(() => {
     if (!isUserTypeSource) {
@@ -189,11 +183,6 @@ const UserHighlight = (props: SourceAuthorProps) => {
   );
 };
 
-const EnableNotificationWithExperiment = withExperiment(EnableNotification, {
-  feature: feature.sourceSubscribe,
-  value: SourceSubscribeExperiment.V1,
-});
-
 const EnableNotificationSourceSubscribe = ({
   source,
 }: Pick<Post, 'source'>) => {
@@ -206,7 +195,7 @@ const EnableNotificationSourceSubscribe = ({
   }
 
   return (
-    <EnableNotificationWithExperiment
+    <EnableNotification
       source={NotificationPromptSource.SourceSubscribe}
       contentName={source.name}
     />

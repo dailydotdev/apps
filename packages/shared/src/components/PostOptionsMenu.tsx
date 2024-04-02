@@ -56,11 +56,9 @@ import { ActiveFeedContext } from '../contexts';
 import { useAdvancedSettings } from '../hooks/feed';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
-import { SourceSubscribeExperiment } from '../lib/featureValues';
 import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';
-import { withExperiment } from './withExperiment';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -84,14 +82,6 @@ export interface PostOptionsMenuProps {
   origin: Origin;
   allowPin?: boolean;
 }
-
-const PostOptionSourceSubscribe = withExperiment(
-  ({ children }: { children: ReactNode }) => <>{children}</>,
-  {
-    feature: feature.sourceSubscribe,
-    value: SourceSubscribeExperiment.V1,
-  },
-);
 
 export default function PostOptionsMenu({
   postIndex,
@@ -364,7 +354,7 @@ export default function PostOptionsMenu({
         sourceSubscribe.isSubscribed ? 'Unsubscribe from' : 'Subscribe to'
       } ${post?.source?.name}`,
       action: sourceSubscribe.isReady ? sourceSubscribe.onSubscribe : undefined,
-      Wrapper: PostOptionSourceSubscribe,
+      Wrapper: ({ children }: { children: ReactNode }) => <>{children}</>,
     });
   }
 
