@@ -66,11 +66,15 @@ export function CommentMarkdownInput({
     parentCommentId,
     onCommented,
   });
-  useImperativeHandle(mutateRef, () => ({
-    mutateComment,
-    isLoading,
-    isSuccess,
-  }));
+  useImperativeHandle(
+    mutateRef,
+    () => ({
+      mutateComment,
+      isLoading,
+      isSuccess,
+    }),
+    [mutateComment, isLoading, isSuccess],
+  );
 
   const onSubmitForm: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();

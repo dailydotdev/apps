@@ -144,9 +144,11 @@ const CommentInputPage = ({
           showSubmit={false}
           showUserAvatar={false}
           onChange={setValue}
+          mutateRef={mutateRef}
           style={{
             height: `${styleHeight}px`,
           }}
+          onCommented={router.back}
         />
         {shouldShowCta && (
           <Switch
