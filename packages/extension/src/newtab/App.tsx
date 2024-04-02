@@ -62,7 +62,7 @@ function InternalApp(): ReactElement {
   useLazyModal();
   usePrompt();
   useWebVitals();
-  const { setCurrentPage } = useExtensionContext();
+  const { setCurrentPage, currentPage } = useExtensionContext();
   const { unreadCount } = useNotificationContext();
   const { closeLogin, shouldShowLogin, loginState } = useContext(AuthContext);
   const { contentScriptGranted } = useContentScriptStatus();
@@ -81,13 +81,12 @@ function InternalApp(): ReactElement {
     if (routeChangedCallbackRef.current && isPageReady) {
       routeChangedCallbackRef.current();
     }
-  }, [isPageReady, routeChangedCallbackRef]);
+  }, [isPageReady, routeChangedCallbackRef, currentPage]);
 
   const { dismissToast } = useToastNotification();
 
   const onPageChanged = (page: string): void => {
     setCurrentPage(page);
-    routeChangedCallbackRef.current();
     dismissToast();
   };
 
