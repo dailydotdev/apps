@@ -36,6 +36,7 @@ import { ResponseError } from '@dailydotdev/shared/src/graphql/common';
 import { FormWrapper } from '@dailydotdev/shared/src/components/fields/form';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
+import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { AccountTextField } from '../../components/layouts/AccountLayout/common';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -283,5 +284,8 @@ const AccountProfilePage = (): ReactElement => {
 };
 
 AccountProfilePage.getLayout = getAccountLayout;
+AccountProfilePage.layoutProps = {
+  customBanner: <CustomAuthBanner />,
+};
 
 export default AccountProfilePage;

@@ -42,6 +42,7 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -207,7 +208,10 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
 };
 
 SquadsPage.getLayout = getLayout;
-SquadsPage.layoutProps = mainFeedLayoutProps;
+SquadsPage.layoutProps = {
+  ...mainFeedLayoutProps,
+  customBanner: <CustomAuthBanner />,
+};
 
 export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
   try {
