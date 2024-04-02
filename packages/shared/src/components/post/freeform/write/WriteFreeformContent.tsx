@@ -17,7 +17,7 @@ import {
 import { formToJson } from '../../../../lib/form';
 import useDebounce from '../../../../hooks/useDebounce';
 import AlertPointer, { AlertPlacement } from '../../../alert/AlertPointer';
-import { useActions } from '../../../../hooks';
+import { useActions, useViewSize, ViewSize } from '../../../../hooks';
 import { ActionType } from '../../../../graphql/actions';
 import useSidebarRendered from '../../../../hooks/useSidebarRendered';
 import { base64ToFile } from '../../../../lib/base64';
@@ -59,6 +59,7 @@ export function WriteFreeformContent({
   useImperativeHandle(propRef, () => formRef?.current);
   const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
   const { sidebarRendered } = useSidebarRendered();
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const getDraftImage = () => {
     if (!draft?.image) {
@@ -99,9 +100,11 @@ export function WriteFreeformContent({
       id="write-post"
     >
       <ImageInput
+        size={isLaptop ? 'medium' : 'large'}
         className={{
           container:
-            '!w-[11.5rem] border-none bg-accent-pepper-subtlest text-text-tertiary',
+            '!w-full border-none bg-accent-pepper-subtlest text-text-tertiary tablet:!w-[20.25rem] laptop:!w-[11.5rem]',
+          root: 'mobileL:w-full',
         }}
         enableHover={false}
         fallbackImage={null}
