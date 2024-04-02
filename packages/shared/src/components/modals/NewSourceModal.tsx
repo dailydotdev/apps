@@ -242,6 +242,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     <Modal
       {...modalProps}
       formProps={{
+        title: 'Suggest new source',
         form: linkHasFeed ? 'select-feed' : 'submit-source',
         copy: { right: linkHasFeed ? 'Submit for review' : 'Check link' },
         rightButtonProps: {

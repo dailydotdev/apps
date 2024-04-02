@@ -27,7 +27,7 @@ export function ProfileWidgets({
   className,
   enableSticky,
 }: ProfileWidgetsProps): ReactElement {
-  const { user: loggedUser, logout } = useContext(AuthContext);
+  const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user.id;
   const stats = { ...userStats, reputation: user?.reputation };
 
@@ -42,16 +42,15 @@ export function ProfileWidgets({
 
   return (
     <div
-      className={classNames('my-4 flex flex-col gap-6 tablet:my-0', className)}
+      className={classNames('my-4 flex flex-col gap-6 laptop:my-0', className)}
     >
       <Header user={user} isSameUser={isSameUser} className="-mb-2" />
       {!hideSticky && (
         <Header
           user={user}
-          logout={logout}
           isSameUser={isSameUser}
           sticky
-          className="fixed left-0 top-0 z-3 w-full bg-background-default transition-transform duration-75"
+          className="fixed left-0 top-0 z-3 w-full bg-background-default transition-transform duration-75 tablet:pl-20"
           style={{ transform: `translateY(${(stickyProgress - 1) * 100}%)` }}
         />
       )}
@@ -98,7 +97,7 @@ export function ProfileWidgets({
         </div>
       )}
       {isSameUser && (
-        <ReferralWidget url={referralUrl} className="hidden tablet:flex" />
+        <ReferralWidget url={referralUrl} className="hidden laptop:flex" />
       )}
     </div>
   );
