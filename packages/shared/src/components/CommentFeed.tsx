@@ -103,10 +103,7 @@ export default function CommentFeed<T>({
         isFetchingNextPage={queryResult.isFetchingNextPage}
         canFetchMore={checkFetchMore(queryResult)}
         fetchNextPage={queryResult.fetchNextPage}
-        className={classNames(
-          'w-full',
-          isNewMobileLayout && isMainFeed && 'px-4',
-        )}
+        className="w-full"
       >
         {queryResult.data.pages.flatMap((page) =>
           page.page.edges.map(({ node }, index) => (

@@ -31,8 +31,6 @@ interface SquadDetailsProps {
   form: Partial<SquadForm>;
   createMode: boolean;
   onRequestClose?: () => void;
-  onCanSubmit?: (canSubmit: boolean) => void;
-  canSubmit?: (canSubmit: boolean) => void;
 }
 
 const getFormData = async (
