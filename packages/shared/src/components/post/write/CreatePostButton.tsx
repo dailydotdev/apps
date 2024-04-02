@@ -5,7 +5,12 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useSquad, useViewSize, ViewSize } from '../../../hooks';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import {
+  AllowedTags,
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/Button';
 import { PlusIcon } from '../../icons';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { SimpleTooltip } from '../../tooltips';
@@ -14,12 +19,14 @@ interface CreatePostButtonProps {
   className?: string;
   compact?: boolean;
   sidebar?: boolean;
+  onClick?: () => void;
 }
 
 export function CreatePostButton({
   className,
   compact,
   sidebar,
+  onClick,
 }: CreatePostButtonProps): ReactElement {
   const { user, squads } = useAuthContext();
   const { route, query } = useRouter();
@@ -50,6 +57,12 @@ export function CreatePostButton({
   const href =
     link.post.create + (squad && allowedToPost ? `?sid=${squad.handle}` : '');
 
+  const buttonProps: {
+    tag?: AllowedTags;
+    href?: string;
+    onClick?: () => void;
+  } = onClick ? { onClick } : { tag: 'a', href };
+
   return (
     <ConditionalWrapper
       condition={compact}
@@ -60,13 +73,12 @@ export function CreatePostButton({
       )}
     >
       <Button
+        {...buttonProps}
         variant={sidebar ? ButtonVariant.Float : ButtonVariant.Secondary}
         className={className}
         disabled={getIsDisabled()}
         icon={compact && <PlusIcon />}
-        tag="a"
         size={isLaptop || sidebar ? ButtonSize.Medium : ButtonSize.Small}
-        href={href}
       >
         {!compact ? 'New post' : null}
       </Button>
