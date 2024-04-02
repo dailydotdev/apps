@@ -58,9 +58,7 @@ export const FeedbackCard = ({
           pressed={post?.userState?.vote === UserVote.Down}
           onClick={onDownvoteClick}
           icon={
-            <DownvoteIcon
-              secondary={post?.userState?.vote === UserVote.Down}
-            />
+            <DownvoteIcon secondary={post?.userState?.vote === UserVote.Down} />
           }
           variant={ButtonVariant.Secondary}
           color={ButtonColor.Ketchup}
