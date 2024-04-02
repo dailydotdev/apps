@@ -10,6 +10,7 @@ import { NavDrawerItem, NavItemProps } from './NavDrawerItem';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import classed from '../../lib/classed';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 interface NavDrawerProps {
   drawerProps: Omit<DrawerWrapperProps, 'children'>;
@@ -33,6 +34,7 @@ export function NavDrawer({
   items,
   shouldGoBack,
 }: NavDrawerProps): ReactElement {
+  const { user } = useAuthContext();
   const router = useRouter();
   const ref = React.useRef<DrawerRef>();
   const {
@@ -60,7 +62,11 @@ export function NavDrawer({
           <Button
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
-            onClick={shouldGoBack ? router.back : ref.current?.onClose}
+            onClick={
+              shouldGoBack
+                ? () => router.push(user.permalink)
+                : ref.current?.onClose
+            }
             icon={<ArrowIcon className="-rotate-90" />}
           />
           <NavHeading>{header}</NavHeading>

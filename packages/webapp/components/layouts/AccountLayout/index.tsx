@@ -11,6 +11,7 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
+import { useRouter } from 'next/router';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getTemplatedTitle } from '../utils';
 import SidebarNav from './SidebarNav';
@@ -28,6 +29,7 @@ export const navigationKey = generateQueryKey(
 export default function AccountLayout({
   children,
 }: AccountLayoutProps): ReactElement {
+  const router = useRouter();
   const { user: profile, isFetched } = useContext(AuthContext);
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isOpen, setIsOpen] = useQueryState({
@@ -36,10 +38,14 @@ export default function AccountLayout({
   });
 
   useEffect(() => {
+    const onClose = () => setIsOpen(false);
+
+    router.events.on('routeChangeComplete', onClose);
+
     return () => {
-      setIsOpen(false);
+      router.events.off('routeChangeComplete', onClose);
     };
-  }, [setIsOpen]);
+  }, [router.events, setIsOpen]);
 
   if (!profile || !Object.keys(profile).length || (isFetched && !profile)) {
     return null;
