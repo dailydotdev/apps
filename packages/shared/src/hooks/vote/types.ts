@@ -1,3 +1,4 @@
+import { MutationKey } from '@tanstack/react-query';
 import {
   Post as PostEntity,
   ReadHistoryPost,
@@ -57,6 +58,7 @@ export enum UserVoteEntity {
 
 export type UseVoteMutationProps = {
   id: string;
+  entity: UserVoteEntity;
   vote: UserVote;
 };
 
@@ -73,15 +75,33 @@ export type UseVotePostProps = {
   variables?: unknown;
 };
 
-export const upvoteMutationKey = ['post', 'mutation'];
+export const createVoteMutationKey = ({
+  entity,
+  variables,
+}: {
+  entity: UserVoteEntity;
+  variables?: unknown;
+}): MutationKey => {
+  const base = [entity, 'mutation', 'vote'];
+
+  return variables ? [...base, variables] : base;
+};
 
 export const voteMutationMatcher: UseMutationMatcher = ({
   status,
   mutation,
 }) => {
+  const variables = mutation?.options?.variables as UseVoteMutationProps;
+  const entity = variables?.entity;
+
+  if (!entity) {
+    return false;
+  }
+
   return (
     status === 'success' &&
-    mutation?.options?.mutationKey?.toString() === upvoteMutationKey.toString()
+    mutation?.options?.mutationKey?.toString() ===
+      createVoteMutationKey({ entity }).toString()
   );
 };
 

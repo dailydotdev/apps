@@ -280,14 +280,6 @@ export const DISMISS_POST_FEEDBACK_MUTATION = gql`
   }
 `;
 
-export const VOTE_POST_MUTATION = gql`
-  mutation VotePost($id: ID!, $vote: Int!) {
-    votePost(id: $id, vote: $vote) {
-      _
-    }
-  }
-`;
-
 export const DELETE_POST_MUTATION = gql`
   mutation DeletePost($id: ID!) {
     deletePost(id: $id) {

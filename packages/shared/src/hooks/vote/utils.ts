@@ -74,7 +74,7 @@ export const mutateVoteFeedPost = ({
   vote,
   items,
   updatePost,
-}: UseVoteMutationProps & {
+}: Omit<UseVoteMutationProps, 'entity'> & {
   items: FeedItem[];
   updatePost: UpdateFeedPost;
 }): ReturnType<UseVotePostProps['onMutate']> => {

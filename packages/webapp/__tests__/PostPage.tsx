@@ -17,7 +17,6 @@ import {
   PostData,
   REMOVE_BOOKMARK_MUTATION,
   PostType,
-  VOTE_POST_MUTATION,
   UserVote,
   VIEW_POST_MUTATION,
 } from '@dailydotdev/shared/src/graphql/posts';
@@ -51,7 +50,8 @@ import {
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
-import { useViewSize } from '@dailydotdev/shared/src/hooks';
+import { UserVoteEntity, useViewSize } from '@dailydotdev/shared/src/hooks';
+import { VOTE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import PostPage, { Props } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
@@ -353,10 +353,11 @@ it('should send upvote mutation', async () => {
     createCommentsMock(),
     {
       request: {
-        query: VOTE_POST_MUTATION,
+        query: VOTE_MUTATION,
         variables: {
           id: '0e4005b2d3cf191f8c44c2718a457a1e',
           vote: UserVote.Up,
+          entity: UserVoteEntity.Post,
         },
       },
       result: () => {
@@ -381,10 +382,11 @@ it('should send cancel upvote mutation', async () => {
     createCommentsMock(),
     {
       request: {
-        query: VOTE_POST_MUTATION,
+        query: VOTE_MUTATION,
         variables: {
           id: '0e4005b2d3cf191f8c44c2718a457a1e',
           vote: UserVote.None,
+          entity: UserVoteEntity.Post,
         },
       },
       result: () => {
@@ -666,10 +668,11 @@ it('should send downvote mutation', async () => {
     createCommentsMock(),
     {
       request: {
-        query: VOTE_POST_MUTATION,
+        query: VOTE_MUTATION,
         variables: {
           id: '0e4005b2d3cf191f8c44c2718a457a1e',
           vote: UserVote.Down,
+          entity: UserVoteEntity.Post,
         },
       },
       result: () => {
@@ -696,10 +699,11 @@ it('should send cancel downvote mutation', async () => {
     createCommentsMock(),
     {
       request: {
-        query: VOTE_POST_MUTATION,
+        query: VOTE_MUTATION,
         variables: {
           id: '0e4005b2d3cf191f8c44c2718a457a1e',
           vote: UserVote.None,
+          entity: UserVoteEntity.Post,
         },
       },
       result: () => {
@@ -726,10 +730,11 @@ it('should decrement number of upvotes if downvoting post that was upvoted', asy
     createCommentsMock(),
     {
       request: {
-        query: VOTE_POST_MUTATION,
+        query: VOTE_MUTATION,
         variables: {
           id: '0e4005b2d3cf191f8c44c2718a457a1e',
           vote: UserVote.Down,
+          entity: UserVoteEntity.Post,
         },
       },
       result: () => {
@@ -786,10 +791,11 @@ describe('downvote flow', () => {
       createCommentsMock(),
       {
         request: {
-          query: VOTE_POST_MUTATION,
+          query: VOTE_MUTATION,
           variables: {
             id: '0e4005b2d3cf191f8c44c2718a457a1e',
             vote: UserVote.Down,
+            entity: UserVoteEntity.Post,
           },
         },
         result: () => ({ data: { _: true } }),

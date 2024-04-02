@@ -1,11 +1,10 @@
 import { useContext, useCallback } from 'react';
-import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { PostData, UserVote } from '../../graphql/posts';
 import { AnalyticsEvent } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
-import { graphqlUrl } from '../../lib/config';
 import {
   PostAnalyticsEventFnOptions,
   postAnalyticsEvent,
@@ -14,18 +13,14 @@ import {
   getPostByIdKey,
   updatePostCache as updateSinglePostCache,
 } from '../usePostById';
-import { useRequestProtocol } from '../useRequestProtocol';
 import {
   UseVotePostProps,
   UseVotePost,
   voteMutationHandlers,
-  UseVoteMutationProps,
-  upvoteMutationKey,
-  VoteProps,
   ToggleVoteProps,
   UserVoteEntity,
 } from './types';
-import { VOTE_MUTATION } from '../../graphql/users';
+import { useVote } from './useVote';
 
 const prepareVotePostAnalyticsOptions = ({
   origin,
@@ -45,7 +40,6 @@ const useVotePost = ({
   onMutate,
   variables,
 }: UseVotePostProps = {}): UseVotePost => {
-  const { requestMethod } = useRequestProtocol();
   const client = useQueryClient();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -71,41 +65,15 @@ const useVotePost = ({
     };
   };
 
-  const { mutateAsync: votePost } = useMutation(
-    ({ id, vote }: UseVoteMutationProps) => {
-      return requestMethod(graphqlUrl, VOTE_MUTATION, {
-        id,
-        vote,
-        entity: UserVoteEntity.Post,
-      });
-    },
-    {
-      mutationKey: variables
-        ? [...upvoteMutationKey, variables]
-        : upvoteMutationKey,
-      onMutate: onMutate ?? defaultOnMutate,
-      onError: (err, _, rollback?: () => void) => rollback?.(),
-    },
-  );
-
-  const upvotePost = useCallback(
-    ({ id }: VoteProps) => {
-      return votePost({ id, vote: UserVote.Up });
-    },
-    [votePost],
-  );
-  const downvotePost = useCallback(
-    ({ id }: VoteProps) => {
-      return votePost({ id, vote: UserVote.Down });
-    },
-    [votePost],
-  );
-  const cancelPostVote = useCallback(
-    ({ id }: VoteProps) => {
-      return votePost({ id, vote: UserVote.None });
-    },
-    [votePost],
-  );
+  const {
+    upvote: upvotePost,
+    downvote: downvotePost,
+    cancelVote: cancelPostVote,
+  } = useVote({
+    onMutate: onMutate || defaultOnMutate,
+    entity: UserVoteEntity.Post,
+    variables,
+  });
 
   const toggleUpvote: UseVotePost['toggleUpvote'] = useCallback(
     async ({ payload: post, origin, opts }) => {

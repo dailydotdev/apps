@@ -7,29 +7,24 @@ import { graphqlUrl } from '../../lib/config';
 import { useRequestProtocol } from '../useRequestProtocol';
 import {
   UseVoteMutationProps,
-  upvoteMutationKey,
   VoteProps,
   UseVote,
   UseVoteProps,
+  createVoteMutationKey,
 } from './types';
 import { VOTE_MUTATION } from '../../graphql/users';
 
 const useVote = ({ onMutate, entity, variables }: UseVoteProps): UseVote => {
   const { requestMethod } = useRequestProtocol();
   const { user, showLogin } = useContext(AuthContext);
+  const mutationKey = createVoteMutationKey({ entity, variables });
 
   const { mutateAsync: voteEntity } = useMutation(
-    ({ id, vote }: UseVoteMutationProps) => {
-      return requestMethod(graphqlUrl, VOTE_MUTATION, {
-        id,
-        vote,
-        entity,
-      });
+    (mutationProps: UseVoteMutationProps) => {
+      return requestMethod(graphqlUrl, VOTE_MUTATION, mutationProps);
     },
     {
-      mutationKey: variables
-        ? [...upvoteMutationKey, variables]
-        : upvoteMutationKey,
+      mutationKey,
       onMutate,
       onError: (err, _, rollback?: () => void) => rollback?.(),
     },
@@ -37,21 +32,21 @@ const useVote = ({ onMutate, entity, variables }: UseVoteProps): UseVote => {
 
   const upvote = useCallback(
     ({ id }: VoteProps) => {
-      return voteEntity({ id, vote: UserVote.Up });
+      return voteEntity({ id, vote: UserVote.Up, entity });
     },
-    [voteEntity],
+    [voteEntity, entity],
   );
   const downvote = useCallback(
     ({ id }: VoteProps) => {
-      return voteEntity({ id, vote: UserVote.Down });
+      return voteEntity({ id, vote: UserVote.Down, entity });
     },
-    [voteEntity],
+    [voteEntity, entity],
   );
   const cancelVote = useCallback(
     ({ id }: VoteProps) => {
-      return voteEntity({ id, vote: UserVote.None });
+      return voteEntity({ id, vote: UserVote.None, entity });
     },
-    [voteEntity],
+    [voteEntity, entity],
   );
 
   const toggleUpvote: UseVote['toggleUpvote'] = useCallback(

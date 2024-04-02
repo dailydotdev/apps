@@ -3,7 +3,11 @@ import { useActiveFeedNameContext } from '../../contexts';
 import { useFeature } from '../../components/GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { useMutationSubscription } from '../mutationSubscription';
-import { upvoteMutationKey, UseVoteMutationProps } from '../vote';
+import {
+  UseVoteMutationProps,
+  UserVoteEntity,
+  createVoteMutationKey,
+} from '../vote';
 import { Post } from '../../graphql/posts';
 
 interface UsePostShareLoop {
@@ -18,7 +22,11 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
   const shareLoopsEnabled = useFeature(feature.shareLoops);
   const shouldShowOverlay = justUpvoted && !hasInteracted && shareLoopsEnabled;
   const key = useMemo(
-    () => [...upvoteMutationKey, { feedName }].toString(),
+    () =>
+      createVoteMutationKey({
+        entity: UserVoteEntity.Post,
+        variables: { feedName },
+      }).toString(),
     [feedName],
   );
 

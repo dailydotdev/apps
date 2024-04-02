@@ -26,7 +26,6 @@ import {
   REMOVE_BOOKMARK_MUTATION,
   REPORT_POST_MUTATION,
   PostType,
-  VOTE_POST_MUTATION,
   UserVote,
 } from '../graphql/posts';
 import {
@@ -44,6 +43,7 @@ import {
   AcquisitionChannel,
   MyRankData,
   USER_ACQUISITION_MUTATION,
+  VOTE_MUTATION,
 } from '../graphql/users';
 import { getRankQueryKey } from '../hooks/useReadingRank';
 import { SubscriptionCallbacks } from '../hooks/useSubscription';
@@ -69,6 +69,7 @@ import { acquisitionKey } from './cards/AcquisitionFormCard';
 import { removeQueryParam } from '../lib/links';
 import { SharedFeedPage } from './utilities';
 import { AllFeedPages } from '../lib/query';
+import { UserVoteEntity } from '../hooks';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -277,10 +278,11 @@ it('should send upvote mutation', async () => {
     }),
     {
       request: {
-        query: VOTE_POST_MUTATION,
+        query: VOTE_MUTATION,
         variables: {
           id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
           vote: UserVote.Up,
+          entity: UserVoteEntity.Post,
         },
       },
       result: () => {
@@ -313,10 +315,11 @@ it('should send cancel upvote mutation', async () => {
     }),
     {
       request: {
-        query: VOTE_POST_MUTATION,
+        query: VOTE_MUTATION,
         variables: {
           id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
           vote: UserVote.None,
+          entity: UserVoteEntity.Post,
         },
       },
       result: () => {
