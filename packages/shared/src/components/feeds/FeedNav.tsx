@@ -1,10 +1,9 @@
 import classNames from 'classnames';
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement } from 'react';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import NotificationsBell from '../notifications/NotificationsBell';
 import { useActiveFeedNameContext } from '../../contexts';
-import { SharedFeedPage } from '../utilities';
-import { OtherFeedPage } from '../../lib/query';
+import useActiveNav from '../../hooks/useActiveNav';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -15,18 +14,7 @@ enum FeedNavTab {
 
 function FeedNav(): ReactElement {
   const { feedName } = useActiveFeedNameContext();
-
-  const shouldRenderNav = useMemo(() => {
-    return [
-      SharedFeedPage.MyFeed,
-      SharedFeedPage.Popular,
-      SharedFeedPage.Upvoted,
-      SharedFeedPage.Discussed,
-      OtherFeedPage.Bookmarks,
-      OtherFeedPage.History,
-      OtherFeedPage.Notifications,
-    ].includes(feedName);
-  }, [feedName]);
+  const { home: shouldRenderNav } = useActiveNav(feedName);
 
   if (!shouldRenderNav) {
     return null;
