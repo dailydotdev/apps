@@ -19,7 +19,7 @@ export type UsePersonalizedDigest = {
   subscribePersonalizedDigest: ({
     hour,
     type,
-  }: {
+  }?: {
     hour?: number;
     type?: UserPersonalizedDigestType;
   }) => Promise<UserPersonalizedDigest>;
