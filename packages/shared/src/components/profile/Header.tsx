@@ -5,8 +5,7 @@ import { ShareIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { ProfilePicture } from '../ProfilePicture';
-import { largeNumberFormat } from '../../lib';
-import { ReferralCampaignKey } from '../../lib/referral';
+import { largeNumberFormat, ReferralCampaignKey } from '../../lib';
 import { ProfileSettingsMenu } from './ProfileSettingsMenu';
 
 export interface HeaderProps {
