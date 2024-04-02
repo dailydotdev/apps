@@ -8,7 +8,7 @@ import {
   DownvoteIcon,
   LinkIcon,
 } from '../icons';
-import { Post, UserPostVote } from '../../graphql/posts';
+import { Post, UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import { useVotePost } from '../../hooks';
@@ -73,21 +73,21 @@ export function PostActions({
   };
 
   const onToggleUpvote = async () => {
-    if (post?.userState?.vote === UserPostVote.None) {
+    if (post?.userState?.vote === UserVote.None) {
       onClose(true);
     }
 
-    await toggleUpvote({ post, origin });
+    await toggleUpvote({ payload: post, origin });
   };
 
   const onToggleDownvote = async () => {
-    if (post.userState?.vote !== UserPostVote.Down) {
+    if (post.userState?.vote !== UserVote.Down) {
       onShowPanel();
     } else {
       onClose(true);
     }
 
-    await toggleDownvote({ post, origin });
+    await toggleDownvote({ payload: post, origin });
   };
 
   return (
@@ -106,20 +106,18 @@ export function PostActions({
             'flex !flex-row gap-2 hover:border-theme-divider-tertiary',
             {
               'border-theme-color-avocado hover:!border-theme-color-avocado bg-theme-overlay-float-avocado':
-                post?.userState?.vote === UserPostVote.Up,
+                post?.userState?.vote === UserVote.Up,
               'border-theme-color-ketchup hover:!border-theme-color-ketchup bg-theme-overlay-float-ketchup':
-                post?.userState?.vote === UserPostVote.Down,
+                post?.userState?.vote === UserVote.Down,
             },
           )}
         >
           <QuaternaryButton
             id="upvote-post-btn"
-            pressed={post?.userState?.vote === UserPostVote.Up}
+            pressed={post?.userState?.vote === UserVote.Up}
             onClick={onToggleUpvote}
             icon={
-              <UpvoteIcon
-                secondary={post?.userState?.vote === UserPostVote.Up}
-              />
+              <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
             }
             aria-label="Upvote"
             responsiveLabelClass={actionsClassName}
@@ -127,11 +125,11 @@ export function PostActions({
           />
           <QuaternaryButton
             id="downvote-post-btn"
-            pressed={post?.userState?.vote === UserPostVote.Down}
+            pressed={post?.userState?.vote === UserVote.Down}
             onClick={onToggleDownvote}
             icon={
               <DownvoteIcon
-                secondary={post?.userState?.vote === UserPostVote.Down}
+                secondary={post?.userState?.vote === UserVote.Down}
               />
             }
             aria-label="Downvote"

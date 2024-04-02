@@ -2,11 +2,7 @@ import { useContext, useCallback } from 'react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
-import {
-  PostData,
-  VOTE_POST_MUTATION,
-  UserPostVote,
-} from '../../graphql/posts';
+import { PostData, UserVote } from '../../graphql/posts';
 import { AnalyticsEvent } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
 import { graphqlUrl } from '../../lib/config';
@@ -23,11 +19,13 @@ import {
   UseVotePostProps,
   UseVotePost,
   voteMutationHandlers,
-  UseVotePostMutationProps,
+  UseVoteMutationProps,
   upvoteMutationKey,
   VoteProps,
   ToggleVoteProps,
+  UserVoteEntity,
 } from './types';
+import { VOTE_MUTATION } from '../../graphql/users';
 
 const prepareVotePostAnalyticsOptions = ({
   origin,
@@ -74,10 +72,11 @@ const useVotePost = ({
   };
 
   const { mutateAsync: votePost } = useMutation(
-    ({ id, vote }: UseVotePostMutationProps) => {
-      return requestMethod(graphqlUrl, VOTE_POST_MUTATION, {
+    ({ id, vote }: UseVoteMutationProps) => {
+      return requestMethod(graphqlUrl, VOTE_MUTATION, {
         id,
         vote,
+        entity: UserVoteEntity.Post,
       });
     },
     {
@@ -91,25 +90,25 @@ const useVotePost = ({
 
   const upvotePost = useCallback(
     ({ id }: VoteProps) => {
-      return votePost({ id, vote: UserPostVote.Up });
+      return votePost({ id, vote: UserVote.Up });
     },
     [votePost],
   );
   const downvotePost = useCallback(
     ({ id }: VoteProps) => {
-      return votePost({ id, vote: UserPostVote.Down });
+      return votePost({ id, vote: UserVote.Down });
     },
     [votePost],
   );
   const cancelPostVote = useCallback(
     ({ id }: VoteProps) => {
-      return votePost({ id, vote: UserPostVote.None });
+      return votePost({ id, vote: UserVote.None });
     },
     [votePost],
   );
 
-  const toggleUpvote = useCallback(
-    async ({ post, origin, opts }: ToggleVoteProps) => {
+  const toggleUpvote: UseVotePost['toggleUpvote'] = useCallback(
+    async ({ payload: post, origin, opts }) => {
       if (!post) {
         return;
       }
@@ -121,12 +120,13 @@ const useVotePost = ({
       }
 
       const analyticsOptions = prepareVotePostAnalyticsOptions({
-        post,
+        payload: post,
         origin,
+        entity: UserVoteEntity.Post,
         opts,
       });
 
-      if (post?.userState?.vote === UserPostVote.Up) {
+      if (post?.userState?.vote === UserVote.Up) {
         trackEvent(
           postAnalyticsEvent(
             AnalyticsEvent.RemovePostUpvote,
@@ -135,7 +135,7 @@ const useVotePost = ({
           ),
         );
 
-        await cancelPostVote({ id: post.id });
+        await cancelPostVote({ id: post.id, entity: UserVoteEntity.Post });
 
         return;
       }
@@ -144,13 +144,13 @@ const useVotePost = ({
         postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, analyticsOptions),
       );
 
-      await upvotePost({ id: post.id });
+      await upvotePost({ id: post.id, entity: UserVoteEntity.Post });
     },
     [cancelPostVote, showLogin, trackEvent, upvotePost, user],
   );
 
-  const toggleDownvote = useCallback(
-    async ({ post, origin, opts }: ToggleVoteProps) => {
+  const toggleDownvote: UseVotePost['toggleDownvote'] = useCallback(
+    async ({ payload: post, origin, opts }) => {
       if (!post) {
         return;
       }
@@ -162,12 +162,13 @@ const useVotePost = ({
       }
 
       const analyticsOptions = prepareVotePostAnalyticsOptions({
-        post,
+        payload: post,
         origin,
+        entity: UserVoteEntity.Post,
         opts,
       });
 
-      if (post?.userState?.vote === UserPostVote.Down) {
+      if (post?.userState?.vote === UserVote.Down) {
         trackEvent(
           postAnalyticsEvent(
             AnalyticsEvent.RemovePostDownvote,
@@ -176,7 +177,7 @@ const useVotePost = ({
           ),
         );
 
-        await cancelPostVote({ id: post.id });
+        await cancelPostVote({ id: post.id, entity: UserVoteEntity.Post });
 
         return;
       }
@@ -185,7 +186,7 @@ const useVotePost = ({
         postAnalyticsEvent(AnalyticsEvent.DownvotePost, post, analyticsOptions),
       );
 
-      downvotePost({ id: post.id });
+      downvotePost({ id: post.id, entity: UserVoteEntity.Post });
     },
     [cancelPostVote, downvotePost, showLogin, trackEvent, user],
   );

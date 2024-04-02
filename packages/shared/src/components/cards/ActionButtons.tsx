@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import {
   Post,
-  UserPostVote,
+  UserVote,
   getReadPostButtonText,
   isInternalReadType,
   isSharedPostSquadPost,
@@ -111,19 +111,15 @@ export default function ActionButtons({
       >
         <SimpleTooltip
           content={
-            post?.userState?.vote === UserPostVote.Up
-              ? 'Remove upvote'
-              : 'Upvote'
+            post?.userState?.vote === UserVote.Up ? 'Remove upvote' : 'Upvote'
           }
         >
           <QuaternaryButton
             id={`post-${post.id}-upvote-btn`}
             icon={
-              <UpvoteIcon
-                secondary={post?.userState?.vote === UserPostVote.Up}
-              />
+              <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
             }
-            pressed={post?.userState?.vote === UserPostVote.Up}
+            pressed={post?.userState?.vote === UserVote.Up}
             onClick={() => onUpvoteClick?.(post)}
             {...upvoteCommentProps}
             className="btn-tertiary-avocado !min-w-[4.625rem]"

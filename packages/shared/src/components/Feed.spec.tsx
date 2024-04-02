@@ -27,7 +27,7 @@ import {
   REPORT_POST_MUTATION,
   PostType,
   VOTE_POST_MUTATION,
-  UserPostVote,
+  UserVote,
 } from '../graphql/posts';
 import {
   MockedGraphQLResponse,
@@ -280,7 +280,7 @@ it('should send upvote mutation', async () => {
         query: VOTE_POST_MUTATION,
         variables: {
           id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
-          vote: UserPostVote.Up,
+          vote: UserVote.Up,
         },
       },
       result: () => {
@@ -305,7 +305,7 @@ it('should send cancel upvote mutation', async () => {
           node: {
             ...defaultFeedPage.edges[0].node,
             userState: {
-              vote: UserPostVote.Up,
+              vote: UserVote.Up,
             },
           },
         },
@@ -316,7 +316,7 @@ it('should send cancel upvote mutation', async () => {
         query: VOTE_POST_MUTATION,
         variables: {
           id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
-          vote: UserPostVote.None,
+          vote: UserVote.None,
         },
       },
       result: () => {

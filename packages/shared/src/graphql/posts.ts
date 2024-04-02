@@ -63,7 +63,7 @@ type PostFlags = {
   promoteToPublic: number;
 };
 
-export enum UserPostVote {
+export enum UserVote {
   Up = 1,
   None = 0,
   Down = -1,
@@ -74,7 +74,7 @@ export type UserPostFlags = {
 };
 
 export interface PostUserState {
-  vote: UserPostVote;
+  vote: UserVote;
   flags?: UserPostFlags;
 }
 

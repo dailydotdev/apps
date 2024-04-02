@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AlertContext from '../contexts/AlertContext';
 import { getLatestChangelogPost, Post } from '../graphql/posts';
 import useSidebarRendered from './useSidebarRendered';
-import { ToggleVoteProps, useVotePost, voteMutationHandlers } from './vote';
+import { UseVotePost, useVotePost, voteMutationHandlers } from './vote';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { useAuthContext } from '../contexts/AuthContext';
 
@@ -11,7 +11,7 @@ type UseChangelog = {
   isAvailable: boolean;
   latestPost?: Post;
   dismiss: () => Promise<void>;
-  toggleUpvote: (props: ToggleVoteProps) => Promise<void>;
+  toggleUpvote: UseVotePost['toggleUpvote'];
 };
 
 export function useChangelog(): UseChangelog {

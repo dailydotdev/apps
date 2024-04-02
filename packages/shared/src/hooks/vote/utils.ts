@@ -8,7 +8,7 @@ import {
 import { LoggedUser } from '../../lib/user';
 import { ReadHistoryInfiniteData } from '../useInfiniteReadingHistory';
 import {
-  UseVotePostMutationProps,
+  UseVoteMutationProps,
   UseVotePostProps,
   voteMutationHandlers,
 } from './types';
@@ -22,7 +22,7 @@ export const mutateVoteReadHistoryPost = ({
   data,
   user,
   queryClient,
-}: UseVotePostMutationProps & {
+}: UseVoteMutationProps & {
   data: ReadHistoryInfiniteData;
   user: LoggedUser;
   queryClient: QueryClient;
@@ -74,7 +74,7 @@ export const mutateVoteFeedPost = ({
   vote,
   items,
   updatePost,
-}: UseVotePostMutationProps & {
+}: UseVoteMutationProps & {
   items: FeedItem[];
   updatePost: UpdateFeedPost;
 }): ReturnType<UseVotePostProps['onMutate']> => {

@@ -18,7 +18,7 @@ import {
   REMOVE_BOOKMARK_MUTATION,
   PostType,
   VOTE_POST_MUTATION,
-  UserPostVote,
+  UserVote,
   VIEW_POST_MUTATION,
 } from '@dailydotdev/shared/src/graphql/posts';
 import {
@@ -356,7 +356,7 @@ it('should send upvote mutation', async () => {
         query: VOTE_POST_MUTATION,
         variables: {
           id: '0e4005b2d3cf191f8c44c2718a457a1e',
-          vote: UserPostVote.Up,
+          vote: UserVote.Up,
         },
       },
       result: () => {
@@ -375,7 +375,7 @@ it('should send cancel upvote mutation', async () => {
   renderPost({}, [
     createPostMock({
       userState: {
-        vote: UserPostVote.Up,
+        vote: UserVote.Up,
       },
     }),
     createCommentsMock(),
@@ -384,7 +384,7 @@ it('should send cancel upvote mutation', async () => {
         query: VOTE_POST_MUTATION,
         variables: {
           id: '0e4005b2d3cf191f8c44c2718a457a1e',
-          vote: UserPostVote.None,
+          vote: UserVote.None,
         },
       },
       result: () => {
@@ -669,7 +669,7 @@ it('should send downvote mutation', async () => {
         query: VOTE_POST_MUTATION,
         variables: {
           id: '0e4005b2d3cf191f8c44c2718a457a1e',
-          vote: UserPostVote.Down,
+          vote: UserVote.Down,
         },
       },
       result: () => {
@@ -690,7 +690,7 @@ it('should send cancel downvote mutation', async () => {
   renderPost({}, [
     createPostMock({
       userState: {
-        vote: UserPostVote.Down,
+        vote: UserVote.Down,
       },
     }),
     createCommentsMock(),
@@ -699,7 +699,7 @@ it('should send cancel downvote mutation', async () => {
         query: VOTE_POST_MUTATION,
         variables: {
           id: '0e4005b2d3cf191f8c44c2718a457a1e',
-          vote: UserPostVote.None,
+          vote: UserVote.None,
         },
       },
       result: () => {
@@ -719,7 +719,7 @@ it('should decrement number of upvotes if downvoting post that was upvoted', asy
   renderPost({}, [
     createPostMock({
       userState: {
-        vote: UserPostVote.Up,
+        vote: UserVote.Up,
       },
       numUpvotes: 15,
     }),
@@ -729,7 +729,7 @@ it('should decrement number of upvotes if downvoting post that was upvoted', asy
         query: VOTE_POST_MUTATION,
         variables: {
           id: '0e4005b2d3cf191f8c44c2718a457a1e',
-          vote: UserPostVote.Down,
+          vote: UserVote.Down,
         },
       },
       result: () => {
@@ -776,7 +776,7 @@ describe('downvote flow', () => {
       createActionsMock(),
       createPostMock({
         userState: {
-          vote: UserPostVote.Up,
+          vote: UserVote.Up,
         },
         numUpvotes: 15,
       }),
@@ -789,7 +789,7 @@ describe('downvote flow', () => {
           query: VOTE_POST_MUTATION,
           variables: {
             id: '0e4005b2d3cf191f8c44c2718a457a1e',
-            vote: UserPostVote.Down,
+            vote: UserVote.Down,
           },
         },
         result: () => ({ data: { _: true } }),

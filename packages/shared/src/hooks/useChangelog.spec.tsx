@@ -172,7 +172,7 @@ describe('useChangelog hook', () => {
 
     const changelog = result.current;
     await changelog.toggleUpvote({
-      post: defaultPost,
+      payload: defaultPost,
       origin: Origin.ChangelogPopup,
     });
 

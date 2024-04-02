@@ -22,7 +22,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import classNames from 'classnames';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { labels } from '@dailydotdev/shared/src/lib';
-import { Post, UserPostVote } from '@dailydotdev/shared/src/graphql/posts';
+import { Post, UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 
 interface CompanionContextMenuProps {
@@ -77,9 +77,9 @@ export default function CompanionContextMenu({
       >
         <Item
           onClick={onDownvote}
-          aria-pressed={postData?.userState?.vote === UserPostVote.Down}
+          aria-pressed={postData?.userState?.vote === UserVote.Down}
           aria-label={
-            postData?.userState?.vote === UserPostVote.Down
+            postData?.userState?.vote === UserVote.Down
               ? 'Remove downvote'
               : 'Downvote'
           }
@@ -88,10 +88,10 @@ export default function CompanionContextMenu({
             size={IconSize.Small}
             className={classNames(
               'mr-2',
-              postData?.userState?.vote === UserPostVote.Down &&
+              postData?.userState?.vote === UserVote.Down &&
                 'text-theme-color-ketchup',
             )}
-            secondary={postData?.userState?.vote === UserPostVote.Down}
+            secondary={postData?.userState?.vote === UserVote.Down}
           />{' '}
           Downvote
         </Item>

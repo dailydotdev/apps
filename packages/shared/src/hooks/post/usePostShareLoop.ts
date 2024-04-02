@@ -3,7 +3,7 @@ import { useActiveFeedNameContext } from '../../contexts';
 import { useFeature } from '../../components/GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { useMutationSubscription } from '../mutationSubscription';
-import { upvoteMutationKey, UseVotePostMutationProps } from '../vote';
+import { upvoteMutationKey, UseVoteMutationProps } from '../vote';
 import { Post } from '../../graphql/posts';
 
 interface UsePostShareLoop {
@@ -27,7 +27,7 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
       status === 'success' &&
       mutation?.options?.mutationKey?.toString() === key,
     callback: ({ variables }) => {
-      const vars = variables as UseVotePostMutationProps;
+      const vars = variables as UseVoteMutationProps;
 
       if (vars.id !== post?.id || !shareLoopsEnabled) {
         return;

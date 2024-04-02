@@ -2,7 +2,7 @@ import React, { MouseEvent, ReactElement } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { HidePostItemCardProps } from '../../graphql/users';
-import { PostItem, UserPostVote, isVideoPost } from '../../graphql/posts';
+import { PostItem, UserVote, isVideoPost } from '../../graphql/posts';
 import {
   MiniCloseIcon as XIcon,
   MenuIcon,
@@ -125,14 +125,14 @@ export default function PostItemCard({
                     variant={ButtonVariant.Tertiary}
                     color={showVoteActions ? ButtonColor.Avocado : undefined}
                     className={showVoteActions ? 'flex' : 'hidden laptop:flex'}
-                    pressed={post?.userState?.vote === UserPostVote.Up}
+                    pressed={post?.userState?.vote === UserVote.Up}
                     onClick={(e) => {
                       e.preventDefault();
-                      toggleUpvote({ post, origin: analyticsOrigin });
+                      toggleUpvote({ payload: post, origin: analyticsOrigin });
                     }}
                     icon={
                       <UpvoteIcon
-                        secondary={post?.userState?.vote === UserPostVote.Up}
+                        secondary={post?.userState?.vote === UserVote.Up}
                       />
                     }
                   />
@@ -141,14 +141,17 @@ export default function PostItemCard({
                     variant={ButtonVariant.Tertiary}
                     color={showVoteActions ? ButtonColor.Ketchup : undefined}
                     className={showVoteActions ? 'flex' : 'hidden laptop:flex'}
-                    pressed={post?.userState?.vote === UserPostVote.Down}
+                    pressed={post?.userState?.vote === UserVote.Down}
                     onClick={(e) => {
                       e.preventDefault();
-                      toggleDownvote({ post, origin: analyticsOrigin });
+                      toggleDownvote({
+                        payload: post,
+                        origin: analyticsOrigin,
+                      });
                     }}
                     icon={
                       <DownvoteIcon
-                        secondary={post?.userState?.vote === UserPostVote.Down}
+                        secondary={post?.userState?.vote === UserVote.Down}
                       />
                     }
                   />
