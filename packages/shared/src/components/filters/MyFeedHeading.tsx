@@ -58,7 +58,11 @@ function MyFeedHeading({
           size={
             shouldUseMobileFeedLayout ? ButtonSize.Small : ButtonSize.Medium
           }
-          variant={ButtonVariant.Float}
+          variant={
+            isMobile && isNewMobileLayout
+              ? ButtonVariant.Tertiary
+              : ButtonVariant.Float
+          }
           className="mr-auto"
           onClick={onRefresh}
           icon={<RefreshIcon />}
@@ -72,7 +76,11 @@ function MyFeedHeading({
       )}
       <Button
         size={shouldUseMobileFeedLayout ? ButtonSize.Small : ButtonSize.Medium}
-        variant={ButtonVariant.Float}
+        variant={
+          isMobile && isNewMobileLayout
+            ? ButtonVariant.Tertiary
+            : ButtonVariant.Float
+        }
         className="mr-auto"
         onClick={onClick}
         icon={<FilterIcon />}
