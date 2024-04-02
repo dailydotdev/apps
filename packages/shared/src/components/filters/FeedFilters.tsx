@@ -29,7 +29,7 @@ type FeedFiltersProps = ModalProps;
 
 export default function FeedFilters(props: FeedFiltersProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const [isNavOpen, setIsNavOpen] = useState(false);
+  const [isNavOpen, setIsNavOpen] = useState(true);
   const { showPrompt } = usePrompt();
   const unBlockPrompt = async ({ action, source, tag }: UnblockItem) => {
     const description = tag ? (
