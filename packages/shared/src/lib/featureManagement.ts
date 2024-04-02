@@ -4,7 +4,6 @@ import {
   PostPageOnboarding,
   UserAcquisition,
   OnboardingCopy,
-  SourceSubscribeExperiment,
 } from './featureValues';
 import { cloudinary } from './image';
 
@@ -44,10 +43,6 @@ const feature = {
   shareLoops: new Feature('share_loops', false),
   onboardingOnlineUsers: new Feature('onboarding_online_users', false),
   onboardingCopy: new Feature('onboarding_copy', OnboardingCopy.Control),
-  sourceSubscribe: new Feature(
-    'source_subscribe',
-    SourceSubscribeExperiment.Control,
-  ),
   searchVersion: new Feature('search_version', 1),
   commentFeed: new Feature('comment_feed', false),
   forcedTagSelection: new Feature('forced_tag_selection', false),
