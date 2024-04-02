@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { RequestKey, generateQueryKey } from '../../lib/query';
 import { ReadHistoryInfiniteData } from '../useInfiniteReadingHistory';
-import { UseVotePost } from './types';
+import { UseVotePost, UserVoteEntity } from './types';
 import { useVotePost } from './useVotePost';
 import { mutateVoteReadHistoryPost } from './utils';
 
@@ -26,6 +26,7 @@ export const useReadHistoryVotePost = (): UseReadHistoryVotePost => {
         data,
         user,
         queryClient,
+        entity: UserVoteEntity.Post,
       });
     },
   });

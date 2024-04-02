@@ -7,6 +7,7 @@ import {
   UseVotePost,
   UseVoteMutationProps,
   voteMutationMatcher,
+  UserVoteEntity,
 } from './types';
 import { useVotePost } from './useVotePost';
 import { mutateVoteFeedPost } from './utils';
@@ -49,6 +50,7 @@ export const useFeedVotePost = ({
         vote,
         items,
         updatePost,
+        entity: UserVoteEntity.Post,
       });
     },
   });

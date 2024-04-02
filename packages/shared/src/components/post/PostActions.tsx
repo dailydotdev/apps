@@ -11,7 +11,7 @@ import {
 import { Post, UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
-import { useVotePost } from '../../hooks';
+import { UserVoteEntity, useVotePost } from '../../hooks';
 import { Origin } from '../../lib/analytics';
 import { Card } from '../cards/Card';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -52,7 +52,13 @@ export function PostActions({
       ? ({ id, vote }) => {
           const updatePost = updateCachedPagePost(feedQueryKey, queryClient);
 
-          return mutateVoteFeedPost({ id, vote, items, updatePost });
+          return mutateVoteFeedPost({
+            id,
+            vote,
+            items,
+            updatePost,
+            entity: UserVoteEntity.Post,
+          });
         }
       : undefined,
   });
