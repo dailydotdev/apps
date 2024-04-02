@@ -6,9 +6,6 @@ import { SimpleTooltip } from '../tooltips';
 import { Source } from '../../graphql/sources';
 import { isTesting } from '../../lib/constants';
 import { useSourceSubscription } from '../../hooks';
-import { withExperiment } from '../withExperiment';
-import { feature } from '../../lib/featureManagement';
-import { SourceSubscribeExperiment } from '../../lib/featureValues';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 export type SourceSubscribeButtonProps = {
@@ -86,9 +83,4 @@ const SourceSubscribeButton = ({
   );
 };
 
-const SourceSubscribeButtonExperiment = withExperiment(SourceSubscribeButton, {
-  feature: feature.sourceSubscribe,
-  value: SourceSubscribeExperiment.V1,
-});
-
-export { SourceSubscribeButtonExperiment as SourceSubscribeButton };
+export { SourceSubscribeButton };
