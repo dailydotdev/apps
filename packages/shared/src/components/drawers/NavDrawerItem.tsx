@@ -21,7 +21,6 @@ export function NavDrawerItem({
   href,
   label,
   drawerRef,
-  onClick,
   ...rest
 }: NavItemProps): ReactElement {
   if (isHeader) {
@@ -40,15 +39,6 @@ export function NavDrawerItem({
         tag={href ? 'a' : 'button'}
         variant={ButtonVariant.Option}
         {...rest}
-        onClick={(e) => {
-          if (onClick) {
-            onClick(e);
-          }
-
-          if (drawerRef?.current) {
-            drawerRef.current?.onClose();
-          }
-        }}
       >
         {label}
       </Button>

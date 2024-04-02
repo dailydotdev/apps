@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import { Flipped, Flipper } from 'react-flip-toolkit';
 import classNames from 'classnames';
 import {
@@ -10,6 +10,8 @@ import {
   SearchIcon,
   BellIcon,
   FilterIcon,
+  EditIcon,
+  LinkIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
@@ -39,6 +41,8 @@ import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
+import { link } from '@dailydotdev/shared/src/lib/links';
+import { Drawer } from '@dailydotdev/shared/src/components/drawers';
 import styles from './FooterNavBar.module.css';
 
 type Tab = {
@@ -48,7 +52,7 @@ type Tab = {
   requiresLogin?: boolean;
   shouldShowLogin?: boolean;
   onClick?: () => void;
-  component?: ReactElement;
+  component?: (onClick: () => void) => ReactElement;
 };
 
 const notificationsPath = '/notifications';
@@ -118,9 +122,9 @@ export const mobileUxTabs: Tab[] = [
     shouldShowLogin: true,
   },
   {
-    component: (
+    component: (onClick: () => void) => (
       <div key="new-post" className="text-center">
-        <CreatePostButton compact sidebar className="h-8" />
+        <CreatePostButton onClick={onClick} compact sidebar className="h-8" />
       </div>
     ),
   },
@@ -159,6 +163,7 @@ export default function FooterNavBar({
   const router = useRouter();
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
   const { isNewMobileLayout } = useMobileUxExperiment();
+  const [newPostOptsOpen, toggleNewPostOpts] = useState(false);
 
   const buttonProps: ButtonProps<'a' | 'button'> = {
     variant: ButtonVariant.Tertiary,
@@ -208,7 +213,7 @@ export default function FooterNavBar({
       >
         {(isNewMobileLayout ? mobileUxTabs : tabs).map(
           (tab, index) =>
-            tab.component ||
+            tab.component?.(() => toggleNewPostOpts(true)) ||
             (tab.requiresLogin && !user ? null : (
               <div key={tab.title} className="relative">
                 {!tab.shouldShowLogin || user ? (
@@ -254,6 +259,41 @@ export default function FooterNavBar({
             )),
         )}
       </Flipper>
+
+      <Drawer
+        displayCloseButton
+        isOpen={newPostOptsOpen}
+        onClose={() => {
+          toggleNewPostOpts(false);
+        }}
+      >
+        <div className="flex h-auto justify-around p-4">
+          <div className="flex flex-col items-center gap-2">
+            <Button
+              size={ButtonSize.XLarge}
+              icon={<EditIcon />}
+              variant={ButtonVariant.Float}
+              tag="a"
+              href={link.post.create}
+            />
+
+            <span className="font-normal text-text-tertiary">New post</span>
+          </div>
+
+          <div className="flex flex-col items-center gap-2">
+            <Button
+              size={ButtonSize.XLarge}
+              className="flex flex-col"
+              tag="a"
+              variant={ButtonVariant.Float}
+              href={`${link.post.create}?share=true`}
+              icon={<LinkIcon />}
+            />
+
+            <span className="font-normal text-text-tertiary">Share a link</span>
+          </div>
+        </div>
+      </Drawer>
     </div>
   );
 }
