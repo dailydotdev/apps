@@ -1,9 +1,15 @@
-import React, { ReactElement, useEffect, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { FormWrapper } from '../fields/form';
 import { CommentMarkdownInput } from '../fields/MarkdownInput/CommentMarkdownInput';
-import { useMutateComment } from '../../hooks/post/useMutateComment';
+import { UseMutateCommentResult } from '../../hooks/post/useMutateComment';
 import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
 import { COMMENT_BY_ID_WITH_POST_QUERY } from '../../graphql/comments';
 import useCommentById from '../../hooks/comments/useCommentById';
@@ -59,13 +65,8 @@ const CommentInputPage = ({
     () => comment?.parent?.id ?? replyCommentId,
     [comment, replyCommentId],
   );
-
-  const { mutateComment, isLoading } = useMutateComment({
-    post,
-    editCommentId: isEdit && editCommentId,
-    parentCommentId,
-    onCommented: router.back,
-  });
+  const mutateRef = useRef<UseMutateCommentResult>();
+  const { mutateComment, isLoading, isSuccess } = mutateRef?.current ?? {};
 
   const { height } = useVisualViewport();
   const replyHeight = height > 0 ? replySize : 0;
@@ -110,6 +111,7 @@ const CommentInputPage = ({
             mutateComment(value);
           },
           loading: isLoading,
+          disabled: isSuccess,
         }}
         className={{
           container: 'flex-1 first:!border-none',

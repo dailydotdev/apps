@@ -43,7 +43,8 @@ interface UseMutateCommentProps {
 interface MutateCommentResult {
   comment?: Comment;
 }
-interface UseMutateCommentResult {
+
+export interface UseMutateCommentResult {
   mutateComment: (content: string) => Promise<MutateCommentResult>;
   isLoading: boolean;
   isSuccess: boolean;
