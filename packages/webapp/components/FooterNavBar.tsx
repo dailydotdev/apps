@@ -214,13 +214,21 @@ export default function FooterNavBar({
     [notificationsPath]: onNavigateNotifications,
   };
 
+  const activeClasses =
+    'bg-blur-highlight shadow-[0_4px_30px_rgba(0,0,0.1)] backdrop-blur-[2.5rem]';
+
   return (
     <div
       className={classNames(
         'sticky bottom-0 left-0 z-2 mt-auto w-full',
         post && 'bg-blur-bg backdrop-blur-20',
+        isNewMobileLayout &&
+          'bg-gradient-to-t from-blur-baseline via-blur-bg via-70% to-transparent p-2',
       )}
     >
+      {isNewMobileLayout && (
+        <div className="absolute bottom-0 left-0 right-0 h-[calc(100%-1.25rem)] backdrop-blur-[2.5rem]" />
+      )}
       {post ? (
         <div className="mb-2 w-full px-2 tablet:hidden">
           <NewComment post={post} />
@@ -233,9 +241,12 @@ export default function FooterNavBar({
         spring="veryGentle"
         element="nav"
         className={classNames(
-          'grid h-14 w-full grid-flow-col items-center justify-between rounded-t-24 border-t border-theme-divider-tertiary bg-background-default',
+          'grid h-14 w-full grid-flow-col items-center justify-between border-t border-theme-divider-tertiary',
           !showNav && 'hidden',
           styles.footerNavBar,
+          isNewMobileLayout
+            ? classNames('rounded-16', activeClasses)
+            : 'rounded-t-24 bg-background-default',
         )}
       >
         {(isNewMobileLayout ? mobileUxTabs : tabs).map(
