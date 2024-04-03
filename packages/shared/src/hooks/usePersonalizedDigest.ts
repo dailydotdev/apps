@@ -56,10 +56,8 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
 
   const { mutateAsync: subscribePersonalizedDigest } = useMutation(
     async (params: { hour?: number; type?: UserPersonalizedDigestType }) => {
-      const { hour, type } = params || {
-        hour: 8,
-        type: UserPersonalizedDigestType.Digest,
-      };
+      const { hour = 8, type = UserPersonalizedDigestType.Digest } =
+        params || {};
       const result = await request<
         {
           subscribePersonalizedDigest: UserPersonalizedDigest;

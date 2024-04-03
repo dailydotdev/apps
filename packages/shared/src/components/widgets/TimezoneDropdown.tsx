@@ -38,6 +38,10 @@ const TimezoneDropdown = ({
       options={timeZoneValues}
       scrollable
       data-testid="timezone_dropdown"
+      drawerProps={{
+        displayCloseButton: true,
+        className: { close: 'pb-4' },
+      }}
     />
   );
 };
