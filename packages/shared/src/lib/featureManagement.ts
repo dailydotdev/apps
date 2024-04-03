@@ -47,6 +47,7 @@ const feature = {
   commentFeed: new Feature('comment_feed', false),
   forcedTagSelection: new Feature('forced_tag_selection', false),
   mobileUxLayout: new Feature('mobile_ux_layout', false),
+  readingReminder: new Feature('reading_reminder', false),
 };
 
 export { feature };

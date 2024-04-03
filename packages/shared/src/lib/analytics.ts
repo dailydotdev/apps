@@ -146,6 +146,9 @@ export enum AnalyticsEvent {
   UnsubscribeSource = 'unsubscribe source',
   // marketing CTA
   MarketingCtaDismiss = 'dismiss promotion',
+  // Reading reminder
+  ScheduleReadingReminder = 'schedule reading reminder',
+  SkipReadingReminder = 'skip reading reminder',
 }
 
 export enum FeedItemTitle {
@@ -176,6 +179,7 @@ export enum TargetType {
   MarketingCtaCard = 'promotion_card',
   MarketingCtaPopover = 'promotion_popover',
   Comment = 'comment',
+  ReadingReminder = 'reading reminder',
 }
 
 export enum TargetId {
@@ -217,6 +221,7 @@ export enum NotificationPromptSource {
   SquadPostModal = 'squad post modal',
   SquadChecklist = 'squad checklist',
   SourceSubscribe = 'source subscribe',
+  ReadingReminder = 'reading reminder',
 }
 
 export enum ShortcutsSourceType {
