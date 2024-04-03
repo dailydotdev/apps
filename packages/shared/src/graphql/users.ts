@@ -369,16 +369,20 @@ export const GET_REFERRING_USER_QUERY = gql`
   ${USER_SHORT_INFO_FRAGMENT}
 `;
 
+export enum UserPersonalizedDigestType {
+  Digest = 'digest',
+  ReadingReminder = 'reading_reminder',
+}
+
 export type UserPersonalizedDigest = {
   preferredDay: number;
   preferredHour: number;
-  preferredTimezone: string;
 };
 
 export type UserPersonalizedDigestSubscribe = {
   day?: number;
   hour?: number;
-  timezone?: string;
+  type?: UserPersonalizedDigestType;
 };
 
 export const GET_PERSONALIZED_DIGEST_SETTINGS = gql`
@@ -386,7 +390,6 @@ export const GET_PERSONALIZED_DIGEST_SETTINGS = gql`
     personalizedDigest {
       preferredDay
       preferredHour
-      preferredTimezone
     }
   }
 `;
@@ -412,12 +415,12 @@ export const SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION = gql`
   mutation SubscribePersonalizedDigest(
     $hour: Int
     $day: Int
-    $timezone: String
+    $type: DigestType
   ) {
-    subscribePersonalizedDigest(hour: $hour, day: $day, timezone: $timezone) {
+    subscribePersonalizedDigest(hour: $hour, day: $day, type: $type) {
       preferredDay
       preferredHour
-      preferredTimezone
+      type
     }
   }
 `;

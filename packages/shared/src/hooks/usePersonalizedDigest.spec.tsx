@@ -9,6 +9,7 @@ import {
   GET_PERSONALIZED_DIGEST_SETTINGS,
   SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
   UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+  UserPersonalizedDigestType,
 } from '../graphql/users';
 import user from '../../__tests__/fixture/loggedUser';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
@@ -46,7 +47,6 @@ describe('usePersonalizedDigest hook', () => {
           personalizedDigest: {
             preferredDay: 1,
             preferredHour: 9,
-            preferredTimezone: 'Etc/UTC',
           },
         },
       },
@@ -64,7 +64,6 @@ describe('usePersonalizedDigest hook', () => {
     expect(result.current.personalizedDigest).toMatchObject({
       preferredDay: 1,
       preferredHour: 9,
-      preferredTimezone: 'Etc/UTC',
     });
   });
 
@@ -81,6 +80,7 @@ describe('usePersonalizedDigest hook', () => {
         variables: {
           day: 3,
           hour: 8,
+          type: UserPersonalizedDigestType.Digest,
         },
       },
       result: () => {
@@ -91,7 +91,7 @@ describe('usePersonalizedDigest hook', () => {
             subscribePersonalizedDigest: {
               preferredDay: 1,
               preferredHour: 9,
-              preferredTimezone: 'Etc/UTC',
+              type: UserPersonalizedDigestType.Digest,
             },
           },
         };
