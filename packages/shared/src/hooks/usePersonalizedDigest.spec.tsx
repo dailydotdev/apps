@@ -47,7 +47,6 @@ describe('usePersonalizedDigest hook', () => {
           personalizedDigest: {
             preferredDay: 1,
             preferredHour: 9,
-            preferredTimezone: 'Etc/UTC',
           },
         },
       },
@@ -65,7 +64,6 @@ describe('usePersonalizedDigest hook', () => {
     expect(result.current.personalizedDigest).toMatchObject({
       preferredDay: 1,
       preferredHour: 9,
-      preferredTimezone: 'Etc/UTC',
     });
   });
 
@@ -93,7 +91,6 @@ describe('usePersonalizedDigest hook', () => {
             subscribePersonalizedDigest: {
               preferredDay: 1,
               preferredHour: 9,
-              preferredTimezone: 'Etc/UTC',
               type: UserPersonalizedDigestType.Digest,
             },
           },

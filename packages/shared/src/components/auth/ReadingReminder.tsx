@@ -31,6 +31,7 @@ const ReadingReminderOptions = [
 ];
 
 export const ReadingReminderTimes = [
+  { value: 0, label: '00:00' },
   { value: 1, label: '01:00' },
   { value: 2, label: '02:00' },
   { value: 3, label: '03:00' },
@@ -54,7 +55,6 @@ export const ReadingReminderTimes = [
   { value: 21, label: '21:00' },
   { value: 22, label: '22:00' },
   { value: 23, label: '23:00' },
-  { value: 24, label: '24:00' },
 ];
 const ReadingReminderTimeOptions = ReadingReminderTimes.map(
   (item) => item.label,

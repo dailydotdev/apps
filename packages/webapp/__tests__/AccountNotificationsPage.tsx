@@ -157,7 +157,6 @@ it('should change user all email subscription', async () => {
           subscribePersonalizedDigest: {
             preferredDay: 1,
             preferredHour: 9,
-            preferredTimezone: 'Etc/UTC',
           },
         },
       };
@@ -213,7 +212,6 @@ it('should subscribe to personalized digest subscription', async () => {
         subscribePersonalizedDigest: {
           preferredDay: 1,
           preferredHour: 9,
-          preferredTimezone: 'Etc/UTC',
         },
       },
     },
@@ -238,7 +236,6 @@ it('should unsubscribe from personalized digest subscription', async () => {
         personalizedDigest: {
           preferredDay: 1,
           preferredHour: 9,
-          preferredTimezone: 'Etc/UTC',
         },
       },
     },

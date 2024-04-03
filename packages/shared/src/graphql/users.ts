@@ -377,13 +377,11 @@ export enum UserPersonalizedDigestType {
 export type UserPersonalizedDigest = {
   preferredDay: number;
   preferredHour: number;
-  preferredTimezone: string;
 };
 
 export type UserPersonalizedDigestSubscribe = {
   day?: number;
   hour?: number;
-  timezone?: string;
   type?: UserPersonalizedDigestType;
 };
 
@@ -392,7 +390,6 @@ export const GET_PERSONALIZED_DIGEST_SETTINGS = gql`
     personalizedDigest {
       preferredDay
       preferredHour
-      preferredTimezone
     }
   }
 `;
@@ -418,18 +415,11 @@ export const SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION = gql`
   mutation SubscribePersonalizedDigest(
     $hour: Int
     $day: Int
-    $timezone: String
     $type: DigestType
   ) {
-    subscribePersonalizedDigest(
-      hour: $hour
-      day: $day
-      timezone: $timezone
-      type: $type
-    ) {
+    subscribePersonalizedDigest(hour: $hour, day: $day, type: $type) {
       preferredDay
       preferredHour
-      preferredTimezone
       type
     }
   }
