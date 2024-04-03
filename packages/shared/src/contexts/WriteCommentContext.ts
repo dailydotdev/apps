@@ -6,7 +6,7 @@ interface WriteCommentContextProp {
 }
 
 export const WriteCommentContext = createContext<WriteCommentContextProp>({
-  mutateComment: {} as UseMutateCommentResult,
+  mutateComment: null,
 });
 
 export const useWriteCommentContext = (): WriteCommentContextProp =>

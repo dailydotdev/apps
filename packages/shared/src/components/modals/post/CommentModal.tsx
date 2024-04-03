@@ -1,9 +1,9 @@
 import React, {
   ReactElement,
   useCallback,
-  useEffect,
   useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
@@ -23,6 +23,7 @@ import { NotificationPromptSource } from '../../../lib/analytics';
 import { Switch } from '../../fields/Switch';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import CommentContainer from '../../comments/CommentContainer';
+import { WriteCommentContext } from '../../../contexts/WriteCommentContext';
 
 const getCommentFromCache = ({
   client,
@@ -63,13 +64,6 @@ const getCommentFromCache = ({
   return undefined;
 };
 
-// statically defined heights of various containers that
-// affect final height of the input container
-// when styles change, these should be updated accordingly
-const headerSize = 57;
-const replySize = 40;
-const footerSize = 48;
-
 export interface CommentModalProps
   extends LazyModalCommonProps,
     CommentMarkdownInputProps {
@@ -86,8 +80,11 @@ export default function CommentModal({
   editCommentId,
   post,
 }: CommentModalProps): ReactElement {
-  const [value, setValue] = useState('');
-  const [styleHeight, setStyleHeight] = useState<number | 'auto'>('auto');
+  const inputRef = useRef<HTMLFormElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const replyRef = useRef<HTMLDivElement>(null);
+  const switchRef = useRef<HTMLLabelElement>(null);
+
   const { user } = useAuthContext();
   const client = useQueryClient();
   const [modalNode, setModalNode] = useState<HTMLElement>(null);
@@ -113,6 +110,7 @@ export default function CommentModal({
     if (onCommented) {
       onCommented(comment, isNew, parentCommentID);
     }
+
     onRequestClose();
   };
 
@@ -133,12 +131,13 @@ export default function CommentModal({
     ],
   );
 
-  const { mutateComment, isLoading } = useMutateComment({
+  const mutateCommentResult = useMutateComment({
     post,
     editCommentId: isEdit && editCommentId,
     parentCommentId: isEdit ? comment?.parent?.id : parentCommentId,
     onCommented: onSuccess,
   });
+  const { isLoading, isSuccess } = mutateCommentResult;
 
   useLayoutEffect(() => {
     // scroll to bottom of modal
@@ -146,14 +145,24 @@ export default function CommentModal({
   }, [modalNode]);
 
   const { height } = useVisualViewport();
-  const replyHeight = height > 0 ? replySize : 0;
-  const footerHeight = shouldShowCta ? footerSize : 0;
-  const totalHeight = height - headerSize - replyHeight - footerHeight;
-  const inputHeight = totalHeight > 0 ? Math.max(totalHeight, 300) : 'auto';
 
-  useEffect(() => {
-    setStyleHeight(inputHeight);
-  }, [inputHeight, setStyleHeight]);
+  useLayoutEffect(() => {
+    const replyHeight = replyRef.current?.clientHeight ?? 0;
+    const footerHeight = switchRef.current?.clientHeight ?? 0;
+    const headerHeight = headerRef.current?.clientHeight ?? 0;
+    const totalHeight = height - headerHeight - replyHeight - footerHeight;
+    const inputHeight = totalHeight > 0 ? Math.max(totalHeight, 300) : 'auto';
+
+    if (inputRef.current) {
+      inputRef.current.style.height = `${inputHeight}px`;
+    }
+  }, [
+    height,
+    inputRef?.current,
+    switchRef?.current,
+    replyRef?.current,
+    headerRef?.current,
+  ]);
 
   const { submitCopy, initialContent } = useMemo(() => {
     if (isEdit) {
@@ -179,83 +188,90 @@ export default function CommentModal({
       isOpen={isOpen}
       onRequestClose={onRequestClose}
       onAfterClose={onAfterClose}
-      className="!h-full !max-h-none !w-full !border-none"
+      className="!border-none"
       overlayClassName="!touch-none"
     >
       <Modal.Body className="!p-0" ref={refCallback}>
-        <FormWrapper
-          form="new comment"
-          copy={{ right: submitCopy }}
-          leftButtonProps={{
-            onClick: onRequestClose,
-          }}
-          rightButtonProps={{
-            onClick: async () => {
-              await onSubmitted();
-              mutateComment(value);
-            },
-            loading: isLoading,
-          }}
-          className={{
-            container: 'flex-1 first:!border-none',
-            header: 'sticky top-0 z-2 w-full bg-background-default',
-          }}
+        <WriteCommentContext.Provider
+          value={{ mutateComment: mutateCommentResult }}
         >
-          {isReply && comment && (
-            <>
-              <CommentContainer
-                post={post}
-                comment={comment}
-                className={{
-                  container: 'mx-4 mt-4 border',
-                }}
-                postAuthorId={post?.author?.id}
-                postScoutId={post?.scout?.id}
-              />
-              <div className="text-theme-label-tertiary ml-12 flex gap-2 border-l border-theme-divider-tertiary py-3 pl-5 typo-caption1">
-                Reply to
-                <span className="text-theme-label-primary font-bold">
-                  {comment.author?.username}
-                </span>
-              </div>
-            </>
-          )}
-          <CommentMarkdownInput
-            replyTo={null}
-            post={post}
-            parentCommentId={parentCommentId}
-            editCommentId={isEdit && editCommentId}
-            initialContent={initialContent}
+          <FormWrapper
+            form="write-comment"
+            copy={{ right: submitCopy }}
+            leftButtonProps={{
+              onClick: onRequestClose,
+            }}
+            rightButtonProps={{
+              onClick: async () => {
+                await onSubmitted();
+              },
+              loading: isLoading,
+              disabled: isSuccess,
+            }}
             className={{
-              markdownContainer: 'flex-1',
-              container: classNames(
-                'flex flex-col',
-                isReply ? 'h-[calc(100%-2.5rem)]' : 'h-full',
-              ),
-              tab: 'flex-1',
-              input: 'comment-input-123 !max-h-none flex-1',
+              container: 'flex-1 first:!border-none',
+              header: 'sticky top-0 z-2 w-full bg-background-default',
             }}
-            showSubmit={false}
-            showUserAvatar={false}
-            onChange={setValue}
-            style={{
-              height: `${styleHeight}px`,
-            }}
-          />
-          {shouldShowCta && (
-            <Switch
-              inputId="push_notification-switch"
-              name="push_notification"
-              labelClassName="flex-1 font-normal"
-              className="mx-3 my-3.5"
-              compact={false}
-              checked={isEnabled}
-              onToggle={onToggle}
-            >
-              Receive updates when other members engage
-            </Switch>
-          )}
-        </FormWrapper>
+            headerRef={headerRef}
+          >
+            {isReply && comment && (
+              <>
+                <CommentContainer
+                  post={post}
+                  comment={comment}
+                  className={{
+                    container: 'mx-4 mt-4 border',
+                  }}
+                  postAuthorId={post?.author?.id}
+                  postScoutId={post?.scout?.id}
+                />
+                <div
+                  className="text-text-tertiary ml-12 flex gap-2 border-l border-theme-divider-tertiary py-3 pl-5 typo-caption1"
+                  ref={replyRef}
+                >
+                  Reply to
+                  <span className="text-text-primary font-bold">
+                    {comment.author?.username}
+                  </span>
+                </div>
+              </>
+            )}
+            <CommentMarkdownInput
+              ref={inputRef}
+              replyTo={null}
+              post={post}
+              parentCommentId={parentCommentId}
+              editCommentId={isEdit && editCommentId}
+              initialContent={initialContent}
+              className={{
+                markdownContainer: 'flex-1',
+                container: classNames(
+                  'flex flex-col',
+                  isReply ? 'h-[calc(100%-2.5rem)]' : 'h-full',
+                ),
+                tab: 'flex-1',
+                input: 'comment-input-123 !max-h-none flex-1',
+              }}
+              showSubmit={false}
+              showUserAvatar={false}
+              formProps={{ id: 'write-comment' }}
+            />
+            {shouldShowCta && (
+              <Switch
+                inputId="push_notification-switch"
+                name="push_notification"
+                labelClassName="flex-1 font-normal"
+                className="px-3 py-3.5"
+                compact={false}
+                checked={isEnabled}
+                onToggle={onToggle}
+                ref={switchRef}
+              >
+                Receive updates when other members engage
+              </Switch>
+            )}
+          </FormWrapper>
+        </WriteCommentContext.Provider>
       </Modal.Body>
     </Modal>
   );

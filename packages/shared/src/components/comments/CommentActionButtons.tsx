@@ -71,7 +71,7 @@ export default function CommentActionButtons({
   onShowUpvotes,
 }: Props): ReactElement {
   const id = `comment-actions-menu-${comment.id}`;
-  const { onMenuClick, isOpen } = useContextMenu({ id });
+  const { onMenuClick, isOpen, onHide } = useContextMenu({ id });
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
   const [upvoted, setUpvoted] = useState(comment.upvoted);
@@ -175,7 +175,10 @@ export default function CommentActionButtons({
   if (isAuthor) {
     commentOptions.push({
       label: 'Edit comment',
-      action: () => onEdit(comment),
+      action: () => {
+        onEdit(comment);
+        onHide();
+      },
       icon: <EditIcon />,
     });
   }
