@@ -211,7 +211,7 @@ const SquadPage = ({
 };
 
 SquadPage.getLayout = getLayout;
-SquadPage.layoutProps = mainFeedLayoutProps;
+SquadPage.layoutProps = { ...mainFeedLayoutProps, canGoBack: true };
 
 export default SquadPage;
 

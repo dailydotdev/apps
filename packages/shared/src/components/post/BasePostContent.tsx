@@ -1,9 +1,11 @@
 import dynamic from 'next/dynamic';
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import PostNavigation from './PostNavigation';
 import PostEngagements from './PostEngagements';
 import { BasePostContentProps } from './common';
-import { PostContentHeaderMobile } from './PostContentHeaderMobile';
+import { GoBackHeaderMobile } from './GoBackHeaderMobile';
+import { PostHeaderActions } from './PostHeaderActions';
 
 const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ '../modals/ShareModal'),
@@ -37,11 +39,14 @@ export function BasePostContent({
   return (
     <>
       {isPostPage ? (
-        <PostContentHeaderMobile
-          post={post}
-          className={className.header}
-          onReadArticle={navigationProps.onReadArticle}
-        />
+        <GoBackHeaderMobile className={classNames(className.header, '-mx-4')}>
+          <PostHeaderActions
+            post={post}
+            className="ml-auto"
+            contextMenuId="post-page-header-actions"
+            onReadArticle={navigationProps.onReadArticle}
+          />
+        </GoBackHeaderMobile>
       ) : (
         <PostNavigation {...navigationProps} className={className.navigation} />
       )}
