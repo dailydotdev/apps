@@ -1,7 +1,6 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import SettingsContext from '../../contexts/SettingsContext';
 import {
   Nav,
@@ -40,8 +39,7 @@ import {
 import { AiIcon, HomeIcon, SourceIcon, UserIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { CreatePostButton } from '../post/write';
-import { SharedFeedPage } from '../utilities';
-import { OtherFeedPage } from '../../lib/query';
+import useActiveNav from '../../hooks/useActiveNav';
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -57,7 +55,6 @@ export default function Sidebar({
   onShowDndClick,
   onLogoClick,
 }: SidebarProps): ReactElement {
-  const router = useRouter();
   const { user, isLoggedIn } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const {
@@ -75,19 +72,9 @@ export default function Sidebar({
     hasUser: !!user,
     hasFiltered: !alerts?.filter,
   });
+
+  const activeNav = useActiveNav(feedName);
   const activePage = `/${feedName}`;
-  const isProfilePage = router.pathname?.includes('/[userId]');
-  const isHomeActive = useMemo(() => {
-    return [
-      SharedFeedPage.MyFeed,
-      SharedFeedPage.Popular,
-      SharedFeedPage.Upvoted,
-      SharedFeedPage.Discussed,
-      OtherFeedPage.Bookmarks,
-      OtherFeedPage.History,
-      OtherFeedPage.Notifications,
-    ].includes(feedName);
-  }, [feedName]);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -132,10 +119,12 @@ export default function Sidebar({
           <Button
             {...buttonProps}
             tag="a"
-            icon={<HomeIcon secondary={isHomeActive} size={IconSize.Medium} />}
+            icon={
+              <HomeIcon secondary={activeNav.home} size={IconSize.Medium} />
+            }
             iconPosition={ButtonIconPosition.Top}
             variant={ButtonVariant.Option}
-            pressed={isHomeActive}
+            pressed={activeNav.home}
           >
             Home
           </Button>
@@ -146,14 +135,11 @@ export default function Sidebar({
             {...buttonProps}
             tag="a"
             icon={
-              <AiIcon
-                secondary={feedName === SharedFeedPage.Search}
-                size={IconSize.Medium}
-              />
+              <AiIcon secondary={activeNav.search} size={IconSize.Medium} />
             }
             iconPosition={ButtonIconPosition.Top}
             variant={ButtonVariant.Option}
-            pressed={feedName === SharedFeedPage.Search}
+            pressed={activeNav.search}
           >
             Search
           </Button>
@@ -164,14 +150,11 @@ export default function Sidebar({
             {...buttonProps}
             tag="a"
             icon={
-              <SourceIcon
-                secondary={feedName === OtherFeedPage.Squad}
-                size={IconSize.Medium}
-              />
+              <SourceIcon secondary={activeNav.squads} size={IconSize.Medium} />
             }
             iconPosition={ButtonIconPosition.Top}
             variant={ButtonVariant.Option}
-            pressed={feedName === OtherFeedPage.Squad}
+            pressed={activeNav.squads}
           >
             Squads
           </Button>
@@ -181,10 +164,12 @@ export default function Sidebar({
           <Button
             {...buttonProps}
             tag="a"
-            icon={<UserIcon secondary={isProfilePage} size={IconSize.Medium} />}
+            icon={
+              <UserIcon secondary={activeNav.profile} size={IconSize.Medium} />
+            }
             iconPosition={ButtonIconPosition.Top}
             variant={ButtonVariant.Option}
-            pressed={isProfilePage}
+            pressed={activeNav.profile}
           >
             Profile
           </Button>

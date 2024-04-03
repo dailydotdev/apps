@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import { Flipped, Flipper } from 'react-flip-toolkit';
 import classNames from 'classnames';
 import {
@@ -43,6 +43,8 @@ import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/
 import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import { link } from '@dailydotdev/shared/src/lib/links';
 import { Drawer } from '@dailydotdev/shared/src/components/drawers';
+import useActiveNav from '@dailydotdev/shared/src/hooks/useActiveNav';
+import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import styles from './FooterNavBar.module.css';
 
 type Tab = {
@@ -161,15 +163,40 @@ export default function FooterNavBar({
   const { unreadCount } = useNotificationContext();
   const { trackEvent } = useAnalyticsContext();
   const router = useRouter();
-  const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
   const { isNewMobileLayout } = useMobileUxExperiment();
   const [newPostOptsOpen, toggleNewPostOpts] = useState(false);
+  const feedName = getFeedName(router.pathname, {
+    hasUser: !!user,
+  });
+  const activeNav = useActiveNav(feedName);
 
   const buttonProps: ButtonProps<'a' | 'button'> = {
     variant: ButtonVariant.Tertiary,
     size: ButtonSize.Large,
     className: 'w-full',
   };
+
+  const selectedTab = useMemo(() => {
+    const computedTabs = isNewMobileLayout ? mobileUxTabs : tabs;
+
+    if (activeNav.home) {
+      return computedTabs.findIndex((t) => t.title === 'Home');
+    }
+
+    if (activeNav.search) {
+      return computedTabs.findIndex((t) => t.title === 'Search');
+    }
+
+    if (activeNav.squads) {
+      return computedTabs.findIndex((t) => t.title === 'Squads');
+    }
+
+    if (activeNav.profile) {
+      return computedTabs.findIndex((t) => t.title === 'Profile');
+    }
+
+    return computedTabs.findIndex((tab) => tab.path === router?.pathname);
+  }, [activeNav, router, isNewMobileLayout]);
 
   const onNavigateNotifications = () => {
     trackEvent({
