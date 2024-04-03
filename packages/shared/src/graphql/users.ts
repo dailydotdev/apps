@@ -372,13 +372,11 @@ export const GET_REFERRING_USER_QUERY = gql`
 export type UserPersonalizedDigest = {
   preferredDay: number;
   preferredHour: number;
-  preferredTimezone: string;
 };
 
 export type UserPersonalizedDigestSubscribe = {
   day?: number;
   hour?: number;
-  timezone?: string;
 };
 
 export const GET_PERSONALIZED_DIGEST_SETTINGS = gql`
@@ -386,7 +384,6 @@ export const GET_PERSONALIZED_DIGEST_SETTINGS = gql`
     personalizedDigest {
       preferredDay
       preferredHour
-      preferredTimezone
     }
   }
 `;
@@ -409,15 +406,10 @@ export const REFERRED_USERS_QUERY = gql`
 `;
 
 export const SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION = gql`
-  mutation SubscribePersonalizedDigest(
-    $hour: Int
-    $day: Int
-    $timezone: String
-  ) {
-    subscribePersonalizedDigest(hour: $hour, day: $day, timezone: $timezone) {
+  mutation SubscribePersonalizedDigest($hour: Int, $day: Int) {
+    subscribePersonalizedDigest(hour: $hour, day: $day) {
       preferredDay
       preferredHour
-      preferredTimezone
     }
   }
 `;

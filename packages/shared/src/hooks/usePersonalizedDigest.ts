@@ -60,7 +60,6 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
       >(graphqlUrl, SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, {
         day: 3,
         hour: 8,
-        timezone: user?.timezone || undefined,
       });
 
       queryClient.setQueryData(queryKey, result.subscribePersonalizedDigest);
