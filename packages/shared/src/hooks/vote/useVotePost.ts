@@ -103,7 +103,7 @@ const useVotePost = ({
           ),
         );
 
-        await cancelPostVote({ id: post.id, entity: UserVoteEntity.Post });
+        await cancelPostVote({ id: post.id });
 
         return;
       }
@@ -112,7 +112,7 @@ const useVotePost = ({
         postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, analyticsOptions),
       );
 
-      await upvotePost({ id: post.id, entity: UserVoteEntity.Post });
+      await upvotePost({ id: post.id });
     },
     [cancelPostVote, showLogin, trackEvent, upvotePost, user],
   );
@@ -145,7 +145,7 @@ const useVotePost = ({
           ),
         );
 
-        await cancelPostVote({ id: post.id, entity: UserVoteEntity.Post });
+        await cancelPostVote({ id: post.id });
 
         return;
       }
@@ -154,7 +154,7 @@ const useVotePost = ({
         postAnalyticsEvent(AnalyticsEvent.DownvotePost, post, analyticsOptions),
       );
 
-      downvotePost({ id: post.id, entity: UserVoteEntity.Post });
+      downvotePost({ id: post.id });
     },
     [cancelPostVote, downvotePost, showLogin, trackEvent, user],
   );

@@ -24,7 +24,6 @@ export type ToggleVoteProps<T extends VoteEntityPayload = VoteEntityPayload> = {
 
 export type VoteProps = {
   id: string;
-  entity: UserVoteEntity;
 };
 
 export type UseVote = {
@@ -66,14 +65,13 @@ export type UseVotePostRollback = () => void;
 
 export type UseVoteProps = {
   entity: UserVoteEntity;
-  onMutate: (props: UseVoteMutationProps) => UseVotePostRollback | undefined;
+  onMutate?: (props: UseVoteMutationProps) => UseVotePostRollback | undefined;
   variables?: unknown;
 };
 
 export type UseVotePostProps = {
-  onMutate?: UseVoteProps['onMutate'];
   variables?: unknown;
-};
+} & Pick<UseVoteProps, 'onMutate'>;
 
 export const createVoteMutationKey = ({
   entity,

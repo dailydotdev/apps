@@ -62,14 +62,14 @@ const useVote = ({ onMutate, entity, variables }: UseVoteProps): UseVote => {
       }
 
       if (payload?.userState?.vote === UserVote.Up) {
-        await cancelVote({ id: payload.id, entity });
+        await cancelVote({ id: payload.id });
 
         return;
       }
 
-      await upvote({ id: payload.id, entity });
+      await upvote({ id: payload.id });
     },
-    [cancelVote, showLogin, upvote, user, entity],
+    [cancelVote, showLogin, upvote, user],
   );
 
   const toggleDownvote = useCallback(
@@ -85,14 +85,14 @@ const useVote = ({ onMutate, entity, variables }: UseVoteProps): UseVote => {
       }
 
       if (payload?.userState?.vote === UserVote.Down) {
-        await cancelVote({ id: payload.id, entity });
+        await cancelVote({ id: payload.id });
 
         return;
       }
 
-      await downvote({ id: payload.id, entity });
+      await downvote({ id: payload.id });
     },
-    [cancelVote, downvote, showLogin, user, entity],
+    [cancelVote, downvote, showLogin, user],
   );
 
   return {
