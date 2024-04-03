@@ -7,6 +7,7 @@ import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { ProfilePicture } from '../ProfilePicture';
 import { largeNumberFormat, ReferralCampaignKey } from '../../lib';
 import { ProfileSettingsMenu } from './ProfileSettingsMenu';
+import { RootPortal } from '../tooltips/Portal';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -77,10 +78,12 @@ export function Header({
             onClick={() => setIsMenuOpen(true)}
             aria-label="Edit profile"
           />
-          <ProfileSettingsMenu
-            isOpen={isMenuOpen}
-            onClose={() => setIsMenuOpen(false)}
-          />
+          <RootPortal>
+            <ProfileSettingsMenu
+              isOpen={isMenuOpen}
+              onClose={() => setIsMenuOpen(false)}
+            />
+          </RootPortal>
         </>
       )}
     </header>
