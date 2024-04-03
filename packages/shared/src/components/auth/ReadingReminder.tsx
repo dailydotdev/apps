@@ -68,6 +68,7 @@ export const ReadingReminder = ({
 }: ReadingReminderProps): ReactElement => {
   const { user } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
+  const [loading, setLoading] = useState(false);
   const [userTimeZone, setUserTimeZone] = useState<string>(
     getUserInitialTimezone({
       userTimezone: user?.timezone,
@@ -99,23 +100,28 @@ export const ReadingReminder = ({
   };
 
   const onSubmit = async () => {
-    onEnablePush(NotificationPromptSource.ReadingReminder).then((_) => {
-      const selectedHour =
-        timeOption === 'custom'
-          ? ReadingReminderTimes[customTimeIndex].value
-          : parseInt(timeOption, 10);
-      trackEvent({
-        event_name: AnalyticsEvent.ScheduleReadingReminder,
-        extra: JSON.stringify({
-          hour: selectedHour,
-          timezone: userTimeZone,
-        }),
-      });
-      subscribePersonalizedDigest({
+    if (loading) {
+      return;
+    }
+    setLoading(true);
+    const selectedHour =
+      timeOption === 'custom'
+        ? ReadingReminderTimes[customTimeIndex].value
+        : parseInt(timeOption, 10);
+    trackEvent({
+      event_name: AnalyticsEvent.ScheduleReadingReminder,
+      extra: JSON.stringify({
         hour: selectedHour,
-        type: UserPersonalizedDigestType.ReadingReminder,
-      });
+        timezone: userTimeZone,
+      }),
+    });
+    subscribePersonalizedDigest({
+      hour: selectedHour,
+      type: UserPersonalizedDigestType.ReadingReminder,
+    });
+    onEnablePush(NotificationPromptSource.ReadingReminder).then(() => {
       onClickNext();
+      setLoading(false);
     });
   };
 
@@ -172,7 +178,11 @@ export const ReadingReminder = ({
         <Button onClick={onSkip} variant={ButtonVariant.Secondary}>
           I&apos;ll do it later
         </Button>
-        <Button onClick={onSubmit} variant={ButtonVariant.Primary}>
+        <Button
+          onClick={onSubmit}
+          variant={ButtonVariant.Primary}
+          loading={loading}
+        >
           Submit
         </Button>
       </div>
