@@ -160,20 +160,25 @@ export default function Sidebar({
           </Button>
         </Link>
 
-        <Link href={user.permalink} prefetch={false} passHref>
-          <Button
-            {...buttonProps}
-            tag="a"
-            icon={
-              <UserIcon secondary={activeNav.profile} size={IconSize.Medium} />
-            }
-            iconPosition={ButtonIconPosition.Top}
-            variant={ButtonVariant.Option}
-            pressed={activeNav.profile}
-          >
-            Profile
-          </Button>
-        </Link>
+        {isLoggedIn && (
+          <Link href={user.permalink} prefetch={false} passHref>
+            <Button
+              {...buttonProps}
+              tag="a"
+              icon={
+                <UserIcon
+                  secondary={activeNav.profile}
+                  size={IconSize.Medium}
+                />
+              }
+              iconPosition={ButtonIconPosition.Top}
+              variant={ButtonVariant.Option}
+              pressed={activeNav.profile}
+            >
+              Profile
+            </Button>
+          </Link>
+        )}
 
         <CreatePostButton compact sidebar />
       </SidebarAside>
