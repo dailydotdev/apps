@@ -28,7 +28,7 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
       return isIncluded;
     }
 
-    return router.route.startsWith('/posts/[id]'); // if post page the [id] was expected
+    return router?.route?.startsWith('/posts/[id]'); // if post page the [id] was expected
   }, [activeFeed, router.route]);
 
   const isProfileActive = router.pathname?.includes('/[userId]');
