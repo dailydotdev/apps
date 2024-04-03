@@ -217,7 +217,7 @@ export default function FooterNavBar({
   return (
     <div
       className={classNames(
-        'fixed !bottom-0 left-0 z-2 w-full',
+        'sticky bottom-0 left-0 z-2 mt-auto w-full',
         post && 'bg-blur-bg backdrop-blur-20',
       )}
     >

@@ -36,6 +36,15 @@ body {
   }
 
   overflow-x: hidden;
+
+  @screen mobileL {
+    display: flex;
+    flex-direction: column;
+  }
+
+  @screen tablet {
+    display: block;
+  }
 }
 
 @define-mixin dark-mode {
@@ -661,6 +670,14 @@ html.light .invert .invert,
   position: relative;
   flex-direction: column;
   align-items: stretch;
+
+  @screen mobileL {
+    flex: 1;
+  }
+
+  @screen tablet {
+    flex: unset;
+  }
 }
 
 img.lazyload:not([src]) {
