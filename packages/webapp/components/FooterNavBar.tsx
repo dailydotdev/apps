@@ -126,12 +126,11 @@ export const mobileUxTabs: Tab[] = [
   {
     component: (onClick: () => void) => (
       <div key="new-post" className="text-center">
-        <CreatePostButton onClick={onClick} compact sidebar className="h-8" />
+        <CreatePostButton onClick={onClick} compact footer className="h-8" />
       </div>
     ),
   },
   {
-    requiresLogin: true,
     shouldShowLogin: true,
     path: '/squads',
     title: 'Squads',
@@ -140,7 +139,6 @@ export const mobileUxTabs: Tab[] = [
     ),
   },
   {
-    requiresLogin: true,
     shouldShowLogin: true,
     path: (user) => user?.permalink,
     title: 'Profile',
