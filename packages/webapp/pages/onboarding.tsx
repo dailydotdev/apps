@@ -61,19 +61,24 @@ import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   GtagTracking,
   PixelTracking,
-  TwitterTracking,
   RedditTracking,
   TiktokTracking,
+  TwitterTracking,
 } from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
+  OnboardingContainer as Container,
   OnboardingHeadline,
   PreparingYourFeed,
-  OnboardingContainer as Container,
 } from '@dailydotdev/shared/src/components/auth';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  useConditionalFeature,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { useOnboardingAnimation } from '@dailydotdev/shared/src/hooks/auth';
 import { ActiveUsersCounter } from '@dailydotdev/shared/src/components/auth/ActiveUsersCounter';
+import { ReadingReminder } from '@dailydotdev/shared/src/components/auth/ReadingReminder';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -92,7 +97,6 @@ export function OnboardPage(): ReactElement {
   const isTracked = useRef(false);
   const { user, isAuthReady, anonymous } = useAuthContext();
   const shouldVerify = anonymous?.shouldVerify;
-  const [isFiltering, setIsFiltering] = useState(false);
   const {
     isAnimating,
     finishedOnboarding,
@@ -103,6 +107,12 @@ export function OnboardPage(): ReactElement {
   const { growthbook } = useGrowthBookContext();
   const { trackEvent } = useAnalyticsContext();
   const [hasSelectTopics, setHasSelectTopics] = useState(false);
+  const [shouldEnrollInReadingReminder, setShouldEnrollInReadingReminder] =
+    useState(false);
+  const { value: showReadingReminder, isLoading } = useConditionalFeature({
+    feature: feature.readingReminder,
+    shouldEvaluate: shouldEnrollInReadingReminder,
+  });
   const [auth, setAuth] = useState<AuthProps>({
     isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY) || shouldVerify,
     isLoginFlow: false,
@@ -130,21 +140,19 @@ export function OnboardPage(): ReactElement {
   const userAcquisitionVersion = useFeature(feature.userAcquisition);
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
-
+  const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const onClickNext = () => {
-    let screen = OnboardingStep.Intro;
-
-    if (isFiltering) {
-      screen = OnboardingStep.EditTag;
-    }
-
     trackEvent({
       event_name: AnalyticsEvent.ClickOnboardingNext,
-      extra: JSON.stringify({ screen_value: screen }),
+      extra: JSON.stringify({ screen_value: activeScreen }),
     });
 
-    if (!isFiltering) {
-      return setIsFiltering(true);
+    if (activeScreen === OnboardingStep.Intro) {
+      return setActiveScreen(OnboardingStep.EditTag);
+    }
+
+    if (activeScreen === OnboardingStep.EditTag && showReadingReminder) {
+      return setActiveScreen(OnboardingStep.ReadingReminder);
     }
 
     onFinishedOnboarding();
@@ -170,12 +178,26 @@ export function OnboardPage(): ReactElement {
     });
   };
 
+  const onClickCreateFeed = () => {
+    setShouldEnrollInReadingReminder(true);
+  };
+
+  // Manual evaluation after feature is loaded to force next from the above onClickCreateFeed function
+  if (
+    !isLoading &&
+    activeScreen === OnboardingStep.EditTag &&
+    shouldEnrollInReadingReminder
+  ) {
+    onClickNext();
+    setShouldEnrollInReadingReminder(false);
+  }
+
   const onSuccessfulLogin = () => {
     router.replace('/');
   };
 
   const onSuccessfulRegistration = () => {
-    setIsFiltering(true);
+    setActiveScreen(OnboardingStep.EditTag);
   };
 
   useEffect(() => {
@@ -251,7 +273,7 @@ export function OnboardPage(): ReactElement {
     const tagsCount = feedSettings?.includeTags?.length || 0;
     const isPreviewEnabled = tagsCount >= REQUIRED_TAGS_THRESHOLD;
 
-    if (isAuthenticating && !isFiltering) {
+    if (isAuthenticating && activeScreen === OnboardingStep.Intro) {
       return getAuthOptions();
     }
 
@@ -259,12 +281,15 @@ export function OnboardPage(): ReactElement {
       <div
         className={classNames(
           'flex tablet:flex-1',
-          !isFiltering && 'tablet:ml-auto laptop:max-w-[37.5rem]',
-          isFiltering &&
-            'mb-10 ml-0 flex w-full flex-col items-center justify-start',
+          activeScreen === OnboardingStep.Intro
+            ? 'tablet:ml-auto laptop:max-w-[37.5rem]'
+            : 'mb-10 ml-0 flex w-full flex-col items-center justify-start',
         )}
       >
-        {isFiltering && (
+        {activeScreen === OnboardingStep.ReadingReminder && (
+          <ReadingReminder onClickNext={onClickNext} />
+        )}
+        {activeScreen === OnboardingStep.EditTag && (
           <>
             <Title className="text-center typo-large-title">
               Pick tags that are relevant to you
@@ -318,12 +343,15 @@ export function OnboardPage(): ReactElement {
                   options={{ refetchOnMount: true }}
                   allowPin
                 />
-                <CreateFeedButton className="mt-20" onClick={onClickNext} />
+                <CreateFeedButton
+                  className="mt-20"
+                  onClick={onClickCreateFeed}
+                />
               </FeedLayout>
             )}
           </>
         )}
-        {!isFiltering && (
+        {activeScreen === OnboardingStep.Intro && (
           <div className="block flex-1">
             <div
               className={classNames(
@@ -368,15 +396,16 @@ export function OnboardPage(): ReactElement {
   const shouldShowOnline = useFeature(feature.onboardingOnlineUsers);
 
   const getProgressBar = () => {
-    if (isFiltering) {
+    if (activeScreen !== OnboardingStep.Intro) {
       return null;
     }
 
-    const percentage = isFiltering ? 100 : 50;
+    const percentage = 50;
     return <ProgressBar percentage={isAuthenticating ? percentage : 0} />;
   };
 
-  const showOnboardingPage = !isAuthenticating && !isFiltering && !shouldVerify;
+  const showOnboardingPage =
+    !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
 
   if (!isPageReady) {
     return null;
@@ -398,13 +427,13 @@ export function OnboardPage(): ReactElement {
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
         setAuth={setAuth}
-        onClickNext={onClickNext}
-        isFiltering={isFiltering}
+        onClickNext={onClickCreateFeed}
+        activeScreen={activeScreen}
       />
       <div
         className={classNames(
           'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
-          !isFiltering && wrapperMaxWidth,
+          activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
           !isAuthenticating && 'mt-7.5 flex-1 content-center',
         )}
       >
