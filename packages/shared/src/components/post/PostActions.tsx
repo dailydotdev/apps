@@ -11,7 +11,7 @@ import {
 import { Post, UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
-import { UserVoteEntity, useVotePost } from '../../hooks';
+import { useVotePost } from '../../hooks';
 import { Origin } from '../../lib/analytics';
 import { Card } from '../cards/Card';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -57,7 +57,6 @@ export function PostActions({
             vote,
             items,
             updatePost,
-            entity: UserVoteEntity.Post,
           });
         }
       : undefined,
