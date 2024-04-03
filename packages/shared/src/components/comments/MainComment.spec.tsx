@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { render, RenderResult, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser } from '../../lib/user';
