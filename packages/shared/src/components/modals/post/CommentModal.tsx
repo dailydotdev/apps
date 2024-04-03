@@ -145,24 +145,18 @@ export default function CommentModal({
   }, [modalNode]);
 
   const { height } = useVisualViewport();
+  const replyHeight = replyRef.current?.clientHeight ?? 0;
+  const footerHeight = switchRef.current?.clientHeight ?? 0;
+  const headerHeight = headerRef.current?.offsetHeight ?? 0;
+  const totalHeight = height - headerHeight - replyHeight - footerHeight;
+  const inputHeight = totalHeight > 0 ? Math.max(totalHeight, 300) : 'auto';
 
-  useLayoutEffect(() => {
-    const replyHeight = replyRef.current?.clientHeight ?? 0;
-    const footerHeight = switchRef.current?.clientHeight ?? 0;
-    const headerHeight = headerRef.current?.clientHeight ?? 0;
-    const totalHeight = height - headerHeight - replyHeight - footerHeight;
-    const inputHeight = totalHeight > 0 ? Math.max(totalHeight, 300) : 'auto';
-
-    if (inputRef.current) {
-      inputRef.current.style.height = `${inputHeight}px`;
-    }
-  }, [
-    height,
-    inputRef?.current,
-    switchRef?.current,
-    replyRef?.current,
-    headerRef?.current,
-  ]);
+  if (
+    inputRef.current &&
+    inputRef.current.style?.height !== `${inputHeight}px`
+  ) {
+    inputRef.current.style.height = `${inputHeight}px`;
+  }
 
   const { submitCopy, initialContent } = useMemo(() => {
     if (isEdit) {
@@ -226,11 +220,11 @@ export default function CommentModal({
                   postScoutId={post?.scout?.id}
                 />
                 <div
-                  className="text-text-tertiary ml-12 flex gap-2 border-l border-theme-divider-tertiary py-3 pl-5 typo-caption1"
+                  className="ml-12 flex gap-2 border-l border-theme-divider-tertiary py-3 pl-5 text-text-tertiary typo-caption1"
                   ref={replyRef}
                 >
                   Reply to
-                  <span className="text-text-primary font-bold">
+                  <span className="font-bold text-text-primary">
                     {comment.author?.username}
                   </span>
                 </div>
