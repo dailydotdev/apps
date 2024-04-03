@@ -166,7 +166,10 @@ export default function Sidebar({
               {...buttonProps}
               tag="a"
               icon={
-                <UserIcon secondary={activeNav.profile} size={IconSize.Medium} />
+                <UserIcon
+                  secondary={activeNav.profile}
+                  size={IconSize.Medium}
+                />
               }
               iconPosition={ButtonIconPosition.Top}
               variant={ButtonVariant.Option}
