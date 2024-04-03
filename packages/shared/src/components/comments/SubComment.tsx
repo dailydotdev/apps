@@ -4,7 +4,6 @@ import CommentBox, { CommentBoxProps } from './CommentBox';
 import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
-import CommentInputOrPage from './CommentInputOrPage';
 import CommentInputOrModal from './CommentInputOrModal';
 
 export interface SubCommentProps

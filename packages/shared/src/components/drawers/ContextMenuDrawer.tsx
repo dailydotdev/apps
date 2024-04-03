@@ -1,6 +1,6 @@
 import React, { ComponentType, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import { Drawer, DrawerRef, DrawerWrapperProps } from './Drawer';
+import { Drawer, DrawerWrapperProps } from './Drawer';
 import { SelectParams } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 

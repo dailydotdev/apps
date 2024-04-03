@@ -45,11 +45,13 @@ const getCommentFromCache = ({
     return undefined;
   }
 
+  // eslint-disable-next-line no-restricted-syntax
   for (const item of data?.postComments?.edges) {
     if (item.node.id === commentId) {
       return item.node;
     }
-    if (!!item.node.children) {
+    if (item.node.children) {
+      // eslint-disable-next-line no-restricted-syntax
       for (const child of item.node.children.edges) {
         if (child.node.id === commentId) {
           return child.node;
@@ -83,7 +85,6 @@ export default function CommentModal({
   replyToCommentId,
   editCommentId,
   post,
-  ...props
 }: CommentModalProps): ReactElement {
   const [value, setValue] = useState('');
   const [styleHeight, setStyleHeight] = useState<number | 'auto'>('auto');
@@ -122,7 +123,14 @@ export default function CommentModal({
         postId: post?.id,
         commentId: isEdit ? editCommentId : replyToCommentId ?? parentCommentId,
       }),
-    [client, post?.id, parentCommentId, replyToCommentId],
+    [
+      client,
+      post?.id,
+      isEdit,
+      editCommentId,
+      parentCommentId,
+      replyToCommentId,
+    ],
   );
 
   const { mutateComment, isLoading } = useMutateComment({
@@ -134,7 +142,7 @@ export default function CommentModal({
 
   useLayoutEffect(() => {
     // scroll to bottom of modal
-    modalNode?.scrollTo({ behavior: 'instant', top: 10000 });
+    modalNode?.scrollTo({ behavior: 'auto', top: 10000 });
   }, [modalNode]);
 
   const { height } = useVisualViewport();
@@ -204,9 +212,9 @@ export default function CommentModal({
                 postAuthorId={post?.author?.id}
                 postScoutId={post?.scout?.id}
               />
-              <div className="ml-12 flex gap-2 border-l border-theme-divider-tertiary py-3 pl-5 text-theme-label-tertiary typo-caption1">
+              <div className="text-theme-label-tertiary ml-12 flex gap-2 border-l border-theme-divider-tertiary py-3 pl-5 typo-caption1">
                 Reply to
-                <span className="font-bold text-theme-label-primary">
+                <span className="text-theme-label-primary font-bold">
                   {comment.author?.username}
                 </span>
               </div>
@@ -225,7 +233,7 @@ export default function CommentModal({
                 isReply ? 'h-[calc(100%-2.5rem)]' : 'h-full',
               ),
               tab: 'flex-1',
-              input: '!max-h-none flex-1 comment-input-123',
+              input: 'comment-input-123 !max-h-none flex-1',
             }}
             showSubmit={false}
             showUserAvatar={false}

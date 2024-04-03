@@ -24,7 +24,6 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { PostType } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
-import CommentInputOrPage from '../comments/CommentInputOrPage';
 import CommentInputOrModal from '../comments/CommentInputOrModal';
 
 interface NewCommentProps extends CommentMarkdownInputProps {

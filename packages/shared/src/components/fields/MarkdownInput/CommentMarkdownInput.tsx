@@ -4,10 +4,8 @@ import React, {
   FormHTMLAttributes,
   ReactElement,
   useEffect,
-  useLayoutEffect,
   useRef,
 } from 'react';
-import { FocusOn } from 'react-focus-on';
 import classNames from 'classnames';
 import { defaultMarkdownCommands } from '../../../hooks/input';
 import MarkdownInput, { MarkdownRef } from './index';
