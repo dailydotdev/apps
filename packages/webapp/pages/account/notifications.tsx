@@ -233,7 +233,7 @@ const AccountNotificationsPage = (): ReactElement => {
           onToggle={onTogglePersonalizedDigest}
           disabled={isPersonalizedDigestLoading}
         >
-          Personalized Weekly Digest
+          Personalized digest
         </Checkbox>
         <Checkbox name="newsletter" checked disabled>
           System alerts (security, privacy, etc.)
