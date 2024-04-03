@@ -50,6 +50,7 @@ export enum LazyModal {
   ReputationPrivileges = 'reputationPrivileges',
   MarketingCta = 'marketingCta',
   UserSettings = 'userSettings',
+  Comment = 'comment',
 }
 
 export type ModalTabItem = {

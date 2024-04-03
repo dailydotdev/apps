@@ -21,10 +21,8 @@ export function ContextMenuDrawer({
   drawerProps,
   options,
 }: ContextMenuDrawerProps): ReactElement {
-  const ref = React.useRef<DrawerRef>();
-
   return (
-    <Drawer {...drawerProps} ref={ref}>
+    <Drawer {...drawerProps}>
       {options.map(({ label, icon, action, anchorProps, Wrapper }, index) => {
         const classes =
           'flex h-10 flex-row items-center overflow-hidden text-ellipsis whitespace-nowrap px-2 text-text-tertiary typo-callout';
@@ -55,7 +53,7 @@ export function ContextMenuDrawer({
                 className={classes}
                 onClick={(event) => {
                   action({ value: label, index, event });
-                  ref.current.onClose();
+                  drawerProps.onClose?.(event);
                 }}
                 role="menuitem"
               >
