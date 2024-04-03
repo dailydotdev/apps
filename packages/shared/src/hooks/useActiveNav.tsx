@@ -16,14 +16,20 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
   const router = useRouter();
 
   const isHomeActive = useMemo(() => {
-    return [
+    const isIncluded = [
       SharedFeedPage.MyFeed,
       SharedFeedPage.Popular,
       SharedFeedPage.Upvoted,
       SharedFeedPage.Discussed,
       OtherFeedPage.History,
     ].includes(activeFeed);
-  }, [activeFeed]);
+
+    if (isIncluded) {
+      return isIncluded;
+    }
+
+    return router.route.startsWith('/posts/[id]'); // if post page the [id] was expected
+  }, [activeFeed, router.route]);
 
   const isProfileActive = router.pathname?.includes('/[userId]');
   const isSearchActive = activeFeed === SharedFeedPage.Search;
