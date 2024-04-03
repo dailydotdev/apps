@@ -42,6 +42,7 @@ import { MarketingCtaVariant } from './cards/MarketingCta/common';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { useMobileUxExperiment } from '../hooks/useMobileUxExperiment';
+import { GoBackHeaderMobile } from './post/GoBackHeaderMobile';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -57,6 +58,7 @@ export interface MainLayoutProps
   enableSearch?: () => void;
   onNavTabClick?: (tab: string) => void;
   onShowDndClick?: () => unknown;
+  canGoBack?: string;
 }
 
 const feeds = Object.values(SharedFeedPage);
@@ -76,6 +78,7 @@ function MainLayoutComponent({
   onNavTabClick,
   enableSearch,
   onShowDndClick,
+  canGoBack,
 }: MainLayoutProps): ReactElement {
   const router = useRouter();
   const { trackEvent } = useContext(AnalyticsContext);
@@ -205,6 +208,7 @@ function MainLayoutComponent({
 
   return (
     <div className="antialiased">
+      {canGoBack && <GoBackHeaderMobile />}
       {customBanner}
       {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />
