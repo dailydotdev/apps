@@ -1,27 +1,21 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement } from 'react';
 import { ButtonSize } from '../buttons/common';
 import { Dropdown } from '../fields/Dropdown';
-import {
-  getTimeZoneIcon,
-  getTimeZoneOptions,
-  getUserInitialTimezone,
-} from '../../lib/timezones';
-import AuthContext from '../../contexts/AuthContext';
+import { getTimeZoneIcon, getTimeZoneOptions } from '../../lib/timezones';
 import useProfileForm from '../../hooks/useProfileForm';
 
 const timeZoneOptions = getTimeZoneOptions();
 const timeZoneValues = timeZoneOptions.map((timeZone) => timeZone.label);
 
-const Timezone = (): ReactElement => {
-  const { user } = useContext(AuthContext);
+interface TimezoneDropdownProps {
+  userTimeZone: string;
+  setUserTimeZone: (timezone: string) => void;
+}
+const TimezoneDropdown = ({
+  userTimeZone,
+  setUserTimeZone,
+}: TimezoneDropdownProps): ReactElement => {
   const { updateUserProfile } = useProfileForm();
-
-  const [userTimeZone, setUserTimeZone] = useState<string>(
-    getUserInitialTimezone({
-      userTimezone: user?.timezone,
-      update: true,
-    }),
-  );
 
   const timezoneUpdated = async (timezone: string) => {
     const findTimeZoneRow = timeZoneOptions.find((_timeZone) => {
@@ -47,4 +41,4 @@ const Timezone = (): ReactElement => {
     />
   );
 };
-export { Timezone };
+export { TimezoneDropdown };

@@ -16,10 +16,7 @@ import { ApiError, getApiError } from '../graphql/common';
 export type UsePersonalizedDigest = {
   personalizedDigest: UserPersonalizedDigest | null;
   isLoading: boolean;
-  subscribePersonalizedDigest: ({
-    hour,
-    type,
-  }?: {
+  subscribePersonalizedDigest: (params?: {
     hour?: number;
     type?: UserPersonalizedDigestType;
   }) => Promise<UserPersonalizedDigest>;
@@ -58,13 +55,11 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
   );
 
   const { mutateAsync: subscribePersonalizedDigest } = useMutation(
-    async ({
-      hour = 8,
-      type = UserPersonalizedDigestType.Digest,
-    }: {
-      hour?: number;
-      type?: UserPersonalizedDigestType;
-    }) => {
+    async (params: { hour?: number; type?: UserPersonalizedDigestType }) => {
+      const { hour, type } = params || {
+        hour: 8,
+        type: UserPersonalizedDigestType.Digest,
+      };
       const result = await request<
         {
           subscribePersonalizedDigest: UserPersonalizedDigest;

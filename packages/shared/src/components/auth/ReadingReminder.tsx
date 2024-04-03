@@ -1,14 +1,27 @@
-import React, { ReactElement, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { ClickableText } from '../buttons/ClickableText';
 import { Radio } from '../fields/Radio';
 import { Dropdown } from '../fields/Dropdown';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { useEnableNotification } from '../../hooks/notifications';
-import { NotificationPromptSource } from '../../lib/analytics';
+import {
+  AnalyticsEvent,
+  NotificationPromptSource,
+  TargetType,
+} from '../../lib/analytics';
 import { usePersonalizedDigest } from '../../hooks';
 import { UserPersonalizedDigestType } from '../../graphql/users';
-import { Timezone } from '../widgets/Timezone';
+import { TimezoneDropdown } from '../widgets/TimezoneDropdown';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import AuthContext from '../../contexts/AuthContext';
+import { getUserInitialTimezone } from '../../lib/timezones';
 
 const ReadingReminderOptions = [
   { label: '09:00 ☕️', value: '9' },
@@ -53,18 +66,52 @@ interface ReadingReminderProps {
 export const ReadingReminder = ({
   onClickNext,
 }: ReadingReminderProps): ReactElement => {
+  const { user } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
+  const [userTimeZone, setUserTimeZone] = useState<string>(
+    getUserInitialTimezone({
+      userTimezone: user?.timezone,
+      update: true,
+    }),
+  );
   const [timeOption, setTimeOption] = useState('9');
   const [customTimeIndex, setCustomTimeIndex] = useState(8);
   const [isEditingTimezone, setIsEditingTimezone] = useState(false);
+  const isTracked = useRef(false);
   const { onEnable } = useEnableNotification({
     source: NotificationPromptSource.ReadingReminder,
   });
   const { subscribePersonalizedDigest } = usePersonalizedDigest();
+
+  useEffect(() => {
+    if (!isTracked.current) {
+      isTracked.current = true;
+      trackEvent({
+        event_name: AnalyticsEvent.Impression,
+        target_type: TargetType.ReadingReminder,
+      });
+    }
+  }, [trackEvent]);
+
+  const onSkip = () => {
+    trackEvent({
+      event_name: AnalyticsEvent.SkipReadingReminder,
+    });
+    onClickNext();
+  };
+
   const onSubmit = () => {
     const selectedHour =
       timeOption === 'custom'
         ? ReadingReminderTimes[customTimeIndex].value
         : parseInt(timeOption, 10);
+    trackEvent({
+      event_name: AnalyticsEvent.ScheduleReadingReminder,
+      extra: JSON.stringify({
+        hour: selectedHour,
+        timezone: userTimeZone,
+      }),
+    });
     subscribePersonalizedDigest({
       hour: selectedHour,
       type: UserPersonalizedDigestType.ReadingReminder,
@@ -81,9 +128,12 @@ export const ReadingReminder = ({
           When do you need that reading nudge?
         </h2>
         <p className="text-center text-text-quaternary typo-callout">
-          Your timezone: GMT+2 16:00{' '}
+          Your timezone: {userTimeZone}{' '}
           {isEditingTimezone ? (
-            <Timezone />
+            <TimezoneDropdown
+              userTimeZone={userTimeZone}
+              setUserTimeZone={setUserTimeZone}
+            />
           ) : (
             <ClickableText
               className="ml-3 inline-flex !text-text-link"
@@ -120,7 +170,7 @@ export const ReadingReminder = ({
         </AlertParagraph>
       </Alert>
       <div className="mt-4 flex w-full flex-col-reverse gap-3 tablet:mt-10 tablet:w-auto tablet:flex-row tablet:gap-5">
-        <Button onClick={onClickNext} variant={ButtonVariant.Secondary}>
+        <Button onClick={onSkip} variant={ButtonVariant.Secondary}>
           I&apos;ll do it later
         </Button>
         <Button onClick={onSubmit} variant={ButtonVariant.Primary}>

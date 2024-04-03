@@ -71,7 +71,11 @@ import {
   OnboardingHeadline,
   PreparingYourFeed,
 } from '@dailydotdev/shared/src/components/auth';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import {
+  useConditionalFeature,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { useOnboardingAnimation } from '@dailydotdev/shared/src/hooks/auth';
 import { ActiveUsersCounter } from '@dailydotdev/shared/src/components/auth/ActiveUsersCounter';
 import { ReadingReminder } from '@dailydotdev/shared/src/components/auth/ReadingReminder';
@@ -103,6 +107,12 @@ export function OnboardPage(): ReactElement {
   const { growthbook } = useGrowthBookContext();
   const { trackEvent } = useAnalyticsContext();
   const [hasSelectTopics, setHasSelectTopics] = useState(false);
+  const [shouldEnrollInReadingReminder, setShouldEnrollInReadingReminder] =
+    useState(false);
+  const { value: showReadingReminder, isLoading } = useConditionalFeature({
+    feature: feature.readingReminder,
+    shouldEvaluate: shouldEnrollInReadingReminder,
+  });
   const [auth, setAuth] = useState<AuthProps>({
     isAuthenticating: !!storage.getItem(SIGNIN_METHOD_KEY) || shouldVerify,
     isLoginFlow: false,
@@ -141,7 +151,7 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.EditTag);
     }
 
-    if (activeScreen === OnboardingStep.EditTag) {
+    if (activeScreen === OnboardingStep.EditTag && showReadingReminder) {
       return setActiveScreen(OnboardingStep.ReadingReminder);
     }
 
@@ -167,6 +177,20 @@ export function OnboardPage(): ReactElement {
       },
     });
   };
+
+  const onClickCreateFeed = () => {
+    setShouldEnrollInReadingReminder(true);
+  };
+
+  // Manual evaluation after feature is loaded to force next from the above onClickCreateFeed function
+  if (
+    !isLoading &&
+    activeScreen === OnboardingStep.EditTag &&
+    shouldEnrollInReadingReminder
+  ) {
+    onClickNext();
+    setShouldEnrollInReadingReminder(false);
+  }
 
   const onSuccessfulLogin = () => {
     router.replace('/');
@@ -319,7 +343,10 @@ export function OnboardPage(): ReactElement {
                   options={{ refetchOnMount: true }}
                   allowPin
                 />
-                <CreateFeedButton className="mt-20" onClick={onClickNext} />
+                <CreateFeedButton
+                  className="mt-20"
+                  onClick={onClickCreateFeed}
+                />
               </FeedLayout>
             )}
           </>
@@ -400,7 +427,7 @@ export function OnboardPage(): ReactElement {
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
         setAuth={setAuth}
-        onClickNext={onClickNext}
+        onClickNext={onClickCreateFeed}
         activeScreen={activeScreen}
       />
       <div
