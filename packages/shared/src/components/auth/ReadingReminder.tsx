@@ -10,7 +10,7 @@ import { Radio } from '../fields/Radio';
 import { Dropdown } from '../fields/Dropdown';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Button, ButtonVariant } from '../buttons/Button';
-import { useEnableNotification } from '../../hooks/notifications';
+import { usePushNotificationMutation } from '../../hooks/notifications';
 import {
   AnalyticsEvent,
   NotificationPromptSource,
@@ -78,9 +78,7 @@ export const ReadingReminder = ({
   const [customTimeIndex, setCustomTimeIndex] = useState(8);
   const [isEditingTimezone, setIsEditingTimezone] = useState(false);
   const isTracked = useRef(false);
-  const { onEnable } = useEnableNotification({
-    source: NotificationPromptSource.ReadingReminder,
-  });
+  const { onEnablePush } = usePushNotificationMutation();
   const { subscribePersonalizedDigest } = usePersonalizedDigest();
 
   useEffect(() => {
@@ -100,24 +98,25 @@ export const ReadingReminder = ({
     onClickNext();
   };
 
-  const onSubmit = () => {
-    const selectedHour =
-      timeOption === 'custom'
-        ? ReadingReminderTimes[customTimeIndex].value
-        : parseInt(timeOption, 10);
-    trackEvent({
-      event_name: AnalyticsEvent.ScheduleReadingReminder,
-      extra: JSON.stringify({
+  const onSubmit = async () => {
+    onEnablePush(NotificationPromptSource.ReadingReminder).then((_) => {
+      const selectedHour =
+        timeOption === 'custom'
+          ? ReadingReminderTimes[customTimeIndex].value
+          : parseInt(timeOption, 10);
+      trackEvent({
+        event_name: AnalyticsEvent.ScheduleReadingReminder,
+        extra: JSON.stringify({
+          hour: selectedHour,
+          timezone: userTimeZone,
+        }),
+      });
+      subscribePersonalizedDigest({
         hour: selectedHour,
-        timezone: userTimeZone,
-      }),
+        type: UserPersonalizedDigestType.ReadingReminder,
+      });
+      onClickNext();
     });
-    subscribePersonalizedDigest({
-      hour: selectedHour,
-      type: UserPersonalizedDigestType.ReadingReminder,
-    });
-    onEnable();
-    onClickNext();
   };
 
   return (
