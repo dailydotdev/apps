@@ -87,11 +87,9 @@ export const createVoteMutationKey = ({
   return variables ? [...base, variables] : base;
 };
 
-export const voteMutationMatcher: UseMutationMatcher = ({
-  status,
-  mutation,
-}) => {
-  const variables = mutation?.options?.variables as UseVoteMutationProps;
+export const voteMutationMatcher: UseMutationMatcher<
+  Partial<UseVoteMutationProps>
+> = ({ status, mutation, variables }) => {
   const entity = variables?.entity;
 
   if (!entity) {
