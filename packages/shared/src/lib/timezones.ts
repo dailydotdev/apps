@@ -502,6 +502,10 @@ const TIME_ZONES: TimeZoneItem[] = [
     value: 'Pacific/Kiritimati',
     label: 'Kiritimati Island',
   },
+  {
+    value: 'Etc/UTC',
+    label: 'Universal Time Coordinated',
+  },
 ];
 
 const timeZoneCurrentOffsetLabel = (timeZone: TimeZoneItem) => {
