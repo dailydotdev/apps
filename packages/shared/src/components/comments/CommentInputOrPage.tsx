@@ -5,6 +5,8 @@ import {
   CommentMarkdownInputProps,
 } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { ViewSize, useViewSize } from '../../hooks';
+import { useMutateComment } from '../../hooks/post/useMutateComment';
+import { WriteCommentContext } from '../../contexts/WriteCommentContext';
 
 interface CommentInputOrPageProps
   extends Omit<CommentMarkdownInputProps, 'className'> {
@@ -23,6 +25,12 @@ export default function CommentInputOrPage({
 }: CommentInputOrPageProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
   const router = useRouter();
+  const mutateCommentResult = useMutateComment({
+    post: props.post,
+    editCommentId: props.editCommentId,
+    parentCommentId: props.parentCommentId,
+    onCommented: props.onCommented,
+  });
 
   if (isMobile) {
     const commentId = props.editCommentId ?? 'new';
@@ -44,5 +52,11 @@ export default function CommentInputOrPage({
     return null;
   }
 
-  return <CommentMarkdownInput {...props} className={className.input} />;
+  return (
+    <WriteCommentContext.Provider
+      value={{ mutateComment: mutateCommentResult }}
+    >
+      <CommentMarkdownInput {...props} className={className.input} />
+    </WriteCommentContext.Provider>
+  );
 }

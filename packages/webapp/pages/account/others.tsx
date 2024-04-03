@@ -22,7 +22,7 @@ const AccountOthersPage = (): ReactElement => {
     <AccountPageContainer title="Other settings">
       <AccountContentSection
         className={{ heading: 'mt-0' }}
-        title="TimezoneDropdown"
+        title="Timezone"
         description="Used to calculate your weekly goal cycle and other time-based
         activities."
       >
