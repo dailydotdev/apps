@@ -21,7 +21,7 @@ import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { HistoryType, ReadingHistory } from '../components/history';
 import ProtectedPage from '../components/ProtectedPage';
-import { getLayout } from '../components/layouts/MainLayout';
+import { geHistoryLayout } from '../components/layouts/HistoryLayout';
 
 const feedOptions = [
   {
@@ -122,6 +122,6 @@ const History = (): ReactElement => {
   );
 };
 
-History.getLayout = getLayout;
+History.getLayout = geHistoryLayout;
 
 export default History;
