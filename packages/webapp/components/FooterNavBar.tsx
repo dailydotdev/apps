@@ -221,9 +221,9 @@ export default function FooterNavBar({
     <div
       className={classNames(
         'sticky bottom-0 left-0 z-2 mt-auto w-full',
-        post && 'bg-blur-bg backdrop-blur-20',
-        isNewMobileLayout &&
-          'bg-gradient-to-t from-blur-baseline via-blur-bg via-70% to-transparent p-2',
+        isNewMobileLayout
+          ? 'bg-gradient-to-t from-blur-baseline via-blur-bg via-70% to-transparent p-2'
+          : post && 'bg-blur-bg backdrop-blur-20',
       )}
     >
       {isNewMobileLayout && (
@@ -231,7 +231,7 @@ export default function FooterNavBar({
       )}
       {post ? (
         <div className="mb-2 w-full px-2 tablet:hidden">
-          <NewComment post={post} />
+          <NewComment post={post} className={{ container: activeClasses }} />
         </div>
       ) : (
         <ScrollToTopButton />
@@ -245,7 +245,7 @@ export default function FooterNavBar({
           !showNav && 'hidden',
           styles.footerNavBar,
           isNewMobileLayout
-            ? classNames('rounded-16', activeClasses)
+            ? classNames('rounded-16', !post && activeClasses)
             : 'rounded-t-24 bg-background-default',
         )}
       >
