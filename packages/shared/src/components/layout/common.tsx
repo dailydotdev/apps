@@ -10,13 +10,13 @@ import MyFeedHeading from '../filters/MyFeedHeading';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { Dropdown, DropdownProps } from '../fields/Dropdown';
-import { ButtonSize } from '../buttons/common';
+import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { CalendarIcon, SortIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { RankingAlgorithm } from '../../graphql/feed';
 import SettingsContext from '../../contexts/SettingsContext';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import { useFeedLayout } from '../../hooks';
+import { useFeedLayout, useViewSize, ViewSize } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import FeedSelector from '../FeedSelector';
@@ -61,6 +61,7 @@ export const SearchControlHeader = ({
   });
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { isNewMobileLayout } = useMobileUxExperiment();
+  const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
   const openFeedFilters = () =>
     openModal({ type: LazyModal.FeedFilters, persistOnRouteChange: true });
@@ -73,6 +74,10 @@ export const SearchControlHeader = ({
       ? ButtonSize.Small
       : ButtonSize.Medium,
     iconOnly: true,
+    buttonVariant:
+      isNewMobileLayout && isMobile
+        ? ButtonVariant.Tertiary
+        : ButtonVariant.Float,
   };
   const actionButtons = [
     feedName === SharedFeedPage.MyFeed ? (
