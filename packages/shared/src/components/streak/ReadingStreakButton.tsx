@@ -9,6 +9,7 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { isTesting } from '../../lib/constants';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
+import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -57,6 +58,7 @@ export function ReadingStreakButton({
   const { trackEvent } = useAnalyticsContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const { isNewMobileLayout } = useMobileUxExperiment();
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
   const hasReadToday =
     new Date(streak?.lastViewAt).getDate() === new Date().getDate();
@@ -93,7 +95,11 @@ export function ReadingStreakButton({
       <Button
         type="button"
         icon={<ReadingStreakIcon secondary={hasReadToday} />}
-        variant={ButtonVariant.Float}
+        variant={
+          isNewMobileLayout && isMobile
+            ? ButtonVariant.Tertiary
+            : ButtonVariant.Float
+        }
         onClick={handleToggle}
         className={classnames('gap-1', compact && 'text-theme-color-bacon')}
         size={

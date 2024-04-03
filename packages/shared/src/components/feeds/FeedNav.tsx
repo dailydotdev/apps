@@ -39,7 +39,7 @@ function FeedNav(): ReactElement {
         <Tab label={FeedNavTab.History} url="/history" />
       </TabContainer>
 
-      <div className="fixed right-0 top-0 my-1 flex h-12 w-20 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-1">
+      <div className="fixed right-0 top-0 my-1 flex h-12 w-20 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-2">
         <NotificationsBell compact />
       </div>
     </div>

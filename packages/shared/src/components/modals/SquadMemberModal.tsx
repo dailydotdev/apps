@@ -129,7 +129,7 @@ export function SquadMemberModal({
                 onUnblock({ sourceId: squad.id, memberId: user.id })
               }
               onOptionsClick={(e) => {
-                e.stopPropagation();
+                e.preventDefault();
                 onOptionsClick(e, members[index]);
               }}
             />

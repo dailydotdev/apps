@@ -19,7 +19,7 @@ import { ListDrawer } from '../drawers/ListDrawer';
 import { SelectParams } from '../drawers/common';
 import { RootPortal } from '../tooltips/Portal';
 import { DrawerProps } from '../drawers';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { IconProps } from '../Icon';
 
 interface ClassName {
@@ -41,7 +41,8 @@ export interface DropdownProps {
   selectedIndex: number;
   options: string[];
   onChange: (value: string, index: number) => unknown;
-  buttonSize?: 'small' | 'medium' | 'large' | 'select';
+  buttonSize?: ButtonSize;
+  buttonVariant?: ButtonVariant;
   scrollable?: boolean;
   renderItem?: (value: string, index: number) => ReactNode;
   placeholder?: string;
@@ -49,19 +50,6 @@ export interface DropdownProps {
   drawerProps?: Omit<DrawerProps, 'children' | 'onClose'>;
   openFullScreen?: boolean;
 }
-
-const getButtonSizeClass = (buttonSize: string): string => {
-  if (buttonSize === 'select') {
-    return 'h-9 rounded-10 text-text-primary typo-body';
-  }
-  if (buttonSize === 'medium') {
-    return 'h-10 rounded-12 min-w-[2.5rem]';
-  }
-  if (buttonSize === 'small') {
-    return 'h-8 rounded-10';
-  }
-  return 'h-12 rounded-14';
-};
 
 export function Dropdown({
   icon,
@@ -71,7 +59,8 @@ export function Dropdown({
   onChange,
   dynamicMenuWidth,
   shouldIndicateSelected,
-  buttonSize = 'large',
+  buttonSize = ButtonSize.Large,
+  buttonVariant = ButtonVariant.Float,
   scrollable = false,
   renderItem,
   placeholder = '',
@@ -132,12 +121,13 @@ export function Dropdown({
       className={classNames(styles.dropdown, className.container)}
       {...props}
     >
-      <button
+      <Button
         type="button"
         ref={triggerRef}
+        variant={buttonVariant}
+        size={buttonSize}
         className={classNames(
-          'group flex w-full items-center bg-theme-float px-3 font-normal text-text-tertiary typo-body hover:bg-theme-hover hover:text-text-primary',
-          getButtonSizeClass(buttonSize),
+          'group flex w-full items-center px-3 font-normal text-text-tertiary typo-body hover:bg-theme-hover hover:text-text-primary',
           className?.button,
           iconOnly && 'items-center justify-center',
         )}
@@ -165,7 +155,7 @@ export function Dropdown({
             className.chevron,
           )}
         />
-      </button>
+      </Button>
       {fullScreen ? (
         <RootPortal>
           <ListDrawer
