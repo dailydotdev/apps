@@ -25,7 +25,7 @@ export default function CommentInputOrModal({
   className,
   ...props
 }: CommentInputOrModalProps): ReactElement {
-  const isModal = !useViewSize(ViewSize.Laptop);
+  const isModal = !useViewSize(ViewSize.Tablet);
 
   const mutateCommentResult = useMutateComment({
     post: props.post,
