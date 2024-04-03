@@ -18,6 +18,7 @@ import { NextSeo } from 'next-seo';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
+import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import NavBar, { tabs } from './NavBar';
@@ -110,6 +111,7 @@ export const getLayout = (
   getFooterNavBarLayout(
     getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, null, {
       screenCentered: false,
+      customBanner: <CustomAuthBanner />,
     }),
   );
 

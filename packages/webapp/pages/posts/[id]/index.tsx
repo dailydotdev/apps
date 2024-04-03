@@ -36,18 +36,14 @@ import { ONBOARDING_OFFSET } from '@dailydotdev/shared/src/components/post/BaseP
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
 import { CollectionPostContent } from '@dailydotdev/shared/src/components/post/collection';
-import {
-  AuthenticationBanner,
-  authGradientBg,
-} from '@dailydotdev/shared/src/components/auth';
+import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth/useOnboarding';
 import {
   useJoinReferral,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
-import LoginButton from '@dailydotdev/shared/src/components/LoginButton';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -59,31 +55,6 @@ import {
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
 );
-
-const CustomPostBanner = () => {
-  const { shouldShowAuthBanner } = useOnboarding();
-  const { shouldShowLogin } = useAuthContext();
-  const isLaptop = useViewSize(ViewSize.Laptop);
-  const isTablet = useViewSize(ViewSize.Tablet);
-  const isValid =
-    shouldShowAuthBanner && !isLaptop && (isTablet || !shouldShowLogin);
-
-  if (!isValid) {
-    return null;
-  }
-
-  return (
-    <LoginButton
-      className={{
-        container: classNames(
-          authGradientBg,
-          'sticky left-0 top-0 z-max w-full justify-center gap-2 border-b border-theme-color-cabbage px-4 py-2',
-        ),
-        button: 'flex-1 tablet:max-w-[9rem]',
-      }}
-    />
-  );
-};
 
 export interface Props {
   id: string;
@@ -199,7 +170,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
 PostPage.getLayout = getLayout;
 PostPage.layoutProps = {
   screenCentered: false,
-  customBanner: <CustomPostBanner />,
+  customBanner: <CustomAuthBanner />,
 };
 
 export default PostPage;
