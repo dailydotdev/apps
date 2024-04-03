@@ -52,7 +52,10 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   return (
     <InteractivePopup
       isDrawerOnMobile
-      drawerProps={{ className: { drawer: 'pb-4' } }}
+      drawerProps={{
+        className: { drawer: 'pb-4', close: 'px-4' },
+        displayCloseButton: true,
+      }}
       position={InteractivePopupPosition.RightEnd}
       className="flex w-full max-w-[21.5rem] justify-center rounded-none"
       onClose={onRequestClose}

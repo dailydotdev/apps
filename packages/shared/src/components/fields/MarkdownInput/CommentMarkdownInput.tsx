@@ -1,9 +1,9 @@
 import React, {
   CSSProperties,
   FormEventHandler,
+  FormHTMLAttributes,
   ReactElement,
   useEffect,
-  useImperativeHandle,
   useRef,
 } from 'react';
 import classNames from 'classnames';
@@ -12,10 +12,7 @@ import MarkdownInput, { MarkdownRef } from './index';
 import { Comment } from '../../../graphql/comments';
 import { formToJson } from '../../../lib/form';
 import { Post } from '../../../graphql/posts';
-import {
-  useMutateComment,
-  UseMutateCommentResult,
-} from '../../../hooks/post/useMutateComment';
+import { useWriteCommentContext } from '../../../contexts/WriteCommentContext';
 
 export interface CommentClassName {
   container?: string;
@@ -40,40 +37,33 @@ export interface CommentMarkdownInputProps {
   showSubmit?: boolean;
   showUserAvatar?: boolean;
   onChange?: (value: string) => void;
-  mutateRef?: React.MutableRefObject<UseMutateCommentResult>;
+  formProps?: FormHTMLAttributes<HTMLFormElement>;
 }
 
 export function CommentMarkdownInput({
   post,
-  parentCommentId,
   initialContent,
   replyTo,
   editCommentId,
   className = {},
   style,
-  onCommented,
   onChange,
   showSubmit = true,
   showUserAvatar = true,
-  mutateRef,
+  formProps = {},
 }: CommentMarkdownInputProps): ReactElement {
   const postId = post?.id;
   const sourceId = post?.source?.id;
   const markdownRef = useRef<MarkdownRef>();
-  const { mutateComment, isLoading, isSuccess } = useMutateComment({
-    post,
-    editCommentId,
-    parentCommentId,
-    onCommented,
-  });
-  useImperativeHandle(mutateRef, () => ({
-    mutateComment,
-    isLoading,
-    isSuccess,
-  }));
-
+  const {
+    mutateComment: { mutateComment, isLoading, isSuccess },
+  } = useWriteCommentContext();
   const onSubmitForm: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
+
+    if (isLoading || isSuccess) {
+      return null;
+    }
 
     const { content } = formToJson<{ content: string }>(e.currentTarget);
 
@@ -81,6 +71,10 @@ export function CommentMarkdownInput({
   };
 
   const onKeyboardSubmit: FormEventHandler<HTMLTextAreaElement> = (e) => {
+    if (isLoading || isSuccess) {
+      return null;
+    }
+
     const content = e.currentTarget.value;
 
     return mutateComment(content);
@@ -92,6 +86,7 @@ export function CommentMarkdownInput({
 
   return (
     <form
+      {...formProps}
       action="#"
       onSubmit={onSubmitForm}
       className={className?.container}
