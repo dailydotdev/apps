@@ -51,19 +51,6 @@ export interface DropdownProps {
   openFullScreen?: boolean;
 }
 
-const getButtonSizeClass = (buttonSize: string): string => {
-  if (buttonSize === 'select') {
-    return 'h-9 rounded-10 text-text-primary typo-body';
-  }
-  if (buttonSize === 'medium') {
-    return 'h-10 rounded-12 min-w-[2.5rem]';
-  }
-  if (buttonSize === 'small') {
-    return 'h-8 rounded-10';
-  }
-  return 'h-12 rounded-14';
-};
-
 export function Dropdown({
   icon,
   className = {},
