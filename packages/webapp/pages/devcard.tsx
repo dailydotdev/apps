@@ -57,7 +57,7 @@ import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsC
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
 import { checkLowercaseEquality } from '@dailydotdev/shared/src/lib/strings';
-import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
+import { getLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import styles from '../components/layouts/ProfileLayout/NavBar.module.css';
@@ -66,6 +66,7 @@ import {
   GENERATE_DEVCARD_MUTATION,
   GenerateDevCardParams,
 } from '../graphql/devcard';
+import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 
 interface Step1Props {
   onGenerateImage(url: string): void;
@@ -542,7 +543,7 @@ const DevCardPage = (): ReactElement => {
   return (
     <div
       className={classNames(
-        'page mx-auto flex min-h-page max-w-full flex-col items-center justify-center py-10 mobileL:px-6 tablet:-mt-12',
+        'page mx-auto flex min-h-page max-w-full flex-col items-center justify-center py-10 pb-20 mobileL:px-6 tablet:-mt-12 tablet:pb-10',
         isDevCardGenerated && 'laptop:flex-row laptop:gap-20',
       )}
     >
@@ -556,7 +557,10 @@ const DevCardPage = (): ReactElement => {
   );
 };
 
-DevCardPage.getLayout = getMainLayout;
-DevCardPage.layoutProps = { screenCentered: false };
+const getDevCardLayout: typeof getLayout = (...props) =>
+  getFooterNavBarLayout(getLayout(...props));
+
+DevCardPage.getLayout = getDevCardLayout;
+DevCardPage.layoutProps = { screenCentered: false, canGoBack: true };
 
 export default DevCardPage;
