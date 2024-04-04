@@ -27,12 +27,10 @@ export const mobileUxTabs: (FooterTab | ReactNode)[] = [
     icon: (active: boolean) => (
       <AiIcon secondary={active} size={IconSize.Medium} />
     ),
-    shouldShowLogin: true,
   },
   <FooterPlusButton key="write-action" />,
   {
     requiresLogin: true,
-    shouldShowLogin: true,
     path: '/squads',
     title: 'Squads',
     icon: (active: boolean) => (
@@ -41,7 +39,6 @@ export const mobileUxTabs: (FooterTab | ReactNode)[] = [
   },
   {
     requiresLogin: true,
-    shouldShowLogin: true,
     path: (user) => user?.permalink,
     title: 'Profile',
     icon: (active: boolean) => (
