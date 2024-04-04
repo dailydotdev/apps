@@ -19,6 +19,7 @@ interface CreatePostButtonProps {
   className?: string;
   compact?: boolean;
   sidebar?: boolean;
+  footer?: boolean;
   onClick?: () => void;
 }
 
@@ -26,6 +27,7 @@ export function CreatePostButton({
   className,
   compact,
   sidebar,
+  footer,
   onClick,
 }: CreatePostButtonProps): ReactElement {
   const { user, squads } = useAuthContext();
@@ -38,7 +40,7 @@ export function CreatePostButton({
     verifyPermission(item, SourcePermissions.Post),
   );
 
-  if (!user || !squads?.length) {
+  if (!footer && (!user || !squads?.length)) {
     return null;
   }
 
@@ -74,11 +76,15 @@ export function CreatePostButton({
     >
       <Button
         {...buttonProps}
-        variant={sidebar ? ButtonVariant.Float : ButtonVariant.Secondary}
+        variant={
+          sidebar || footer ? ButtonVariant.Float : ButtonVariant.Secondary
+        }
         className={className}
         disabled={getIsDisabled()}
         icon={compact && <PlusIcon />}
-        size={isLaptop || sidebar ? ButtonSize.Medium : ButtonSize.Small}
+        size={
+          isLaptop || sidebar || footer ? ButtonSize.Medium : ButtonSize.Small
+        }
       >
         {!compact ? 'New post' : null}
       </Button>
