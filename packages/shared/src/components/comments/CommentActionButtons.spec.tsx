@@ -211,3 +211,64 @@ it('should show num upvotes when it is greater than zero', async () => {
   const el = await screen.findByText('2 upvotes');
   expect(el).toBeInTheDocument();
 });
+
+it('should show login on downvote click', async () => {
+  renderComponent();
+  const el = await screen.findByLabelText('Downvote');
+  el.click();
+  expect(showLogin).toBeCalledTimes(1);
+});
+
+it('should send downvote mutation', async () => {
+  let mutationCalled = false;
+  renderComponent({}, loggedUser, [
+    {
+      request: {
+        query: VOTE_MUTATION,
+        variables: {
+          id: 'c1',
+          entity: UserVoteEntity.Comment,
+          vote: UserVote.Down,
+        },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  const el = await screen.findByLabelText('Downvote');
+  el.click();
+  await waitFor(() => mutationCalled);
+});
+
+it('should send cancel downvote mutation', async () => {
+  let mutationCalled = false;
+  renderComponent(
+    {
+      userState: {
+        vote: UserVote.Down,
+      },
+    },
+    loggedUser,
+    [
+      {
+        request: {
+          query: VOTE_MUTATION,
+          variables: {
+            id: 'c1',
+            entity: UserVoteEntity.Comment,
+            vote: UserVote.None,
+          },
+        },
+        result: () => {
+          mutationCalled = true;
+          return { data: { _: true } };
+        },
+      },
+    ],
+  );
+  const el = await screen.findByLabelText('Downvote');
+  el.click();
+  await waitFor(() => mutationCalled);
+});

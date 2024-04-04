@@ -90,7 +90,6 @@ const useVotePost = ({
       const analyticsOptions = prepareVotePostAnalyticsOptions({
         payload: post,
         origin,
-        entity: UserVoteEntity.Post,
         opts,
       });
 
@@ -132,7 +131,6 @@ const useVotePost = ({
       const analyticsOptions = prepareVotePostAnalyticsOptions({
         payload: post,
         origin,
-        entity: UserVoteEntity.Post,
         opts,
       });
 

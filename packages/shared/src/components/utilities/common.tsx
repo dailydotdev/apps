@@ -24,9 +24,6 @@ export enum Justify {
   Start = 'justify-start',
 }
 
-export const upvoteCommentEventName = (upvoted: boolean): string =>
-  upvoted ? 'upvote comment' : 'remove comment upvote';
-
 export const pageBorders =
   'laptop:border-r laptop:border-l border-theme-divider-tertiary';
 

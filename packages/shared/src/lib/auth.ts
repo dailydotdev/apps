@@ -60,6 +60,7 @@ export enum AuthTriggers {
   Roast = 'roast',
   CollectionSubscribe = 'collection subscribe',
   SourceSubscribe = 'source subscribe',
+  CommentDownvote = 'comment downvote',
 }
 
 export type AuthTriggersType =
