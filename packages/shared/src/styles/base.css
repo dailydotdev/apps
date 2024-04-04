@@ -42,7 +42,7 @@ body {
     flex-direction: column;
   }
 
-  @screen tablet {
+  @screen laptop {
     display: block;
   }
 }
@@ -675,7 +675,7 @@ html.light .invert .invert,
     flex: 1;
   }
 
-  @screen tablet {
+  @screen laptop {
     flex: unset;
   }
 }
