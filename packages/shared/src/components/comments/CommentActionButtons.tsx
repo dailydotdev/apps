@@ -9,14 +9,10 @@ import {
   EditIcon,
   ShareIcon,
   FlagIcon,
+  DownvoteIcon,
 } from '../icons';
-import {
-  CANCEL_COMMENT_UPVOTE_MUTATION,
-  Comment,
-  UPVOTE_COMMENT_MUTATION,
-} from '../../graphql/comments';
+import { Comment } from '../../graphql/comments';
 import { Roles } from '../../lib/user';
-import { graphqlUrl } from '../../lib/config';
 import {
   Button,
   ButtonColor,
@@ -25,12 +21,11 @@ import {
 } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { upvoteCommentEventName } from '../utilities';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Origin } from '../../lib/analytics';
-import { Post } from '../../graphql/posts';
+import { Post, UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
 import ContextMenu, { MenuItemProps } from '../fields/ContextMenu';
 import useContextMenu from '../../hooks/useContextMenu';
@@ -41,6 +36,8 @@ import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { labels } from '../../lib';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { useVote } from '../../hooks/vote/useVote';
+import { UserVoteEntity } from '../../hooks';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -74,24 +71,25 @@ export default function CommentActionButtons({
   const { onMenuClick, isOpen } = useContextMenu({ id });
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
-  const [upvoted, setUpvoted] = useState(comment.upvoted);
+  const [upvoted, setUpvoted] = useState(
+    comment.userState?.vote === UserVote.Up,
+  );
   const [numUpvotes, setNumUpvotes] = useState(comment.numUpvotes);
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
+  const { upvote, cancelVote } = useVote({
+    entity: UserVoteEntity.Comment,
+  });
 
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    setUpvoted(comment.upvoted);
+    setUpvoted(comment.userState?.vote === UserVote.Up);
     setNumUpvotes(comment.numUpvotes);
   }, [comment]);
 
-  const { requestMethod } = useRequestProtocol();
   const { mutateAsync: upvoteComment } = useMutation(
-    () =>
-      requestMethod(graphqlUrl, UPVOTE_COMMENT_MUTATION, {
-        id: comment.id,
-      }),
+    () => upvote({ id: comment.id }),
     {
       onMutate: async () => {
         await queryClient.cancelQueries([RequestKey.PostComments]);
@@ -107,10 +105,7 @@ export default function CommentActionButtons({
   );
 
   const { mutateAsync: cancelCommentUpvote } = useMutation(
-    () =>
-      requestMethod(graphqlUrl, CANCEL_COMMENT_UPVOTE_MUTATION, {
-        id: comment.id,
-      }),
+    () => cancelVote({ id: comment.id }),
     {
       onMutate: async () => {
         await queryClient.cancelQueries([RequestKey.PostComments]);
@@ -205,9 +200,22 @@ export default function CommentActionButtons({
           pressed={upvoted}
           onClick={toggleUpvote}
           icon={<UpvoteIcon secondary={upvoted} />}
-          className="mr-3"
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Avocado}
+        />
+      </SimpleTooltip>
+      <SimpleTooltip content="Downvote">
+        <Button
+          id={`comment-${comment.id}-downvote-btn`}
+          size={ButtonSize.Small}
+          pressed={false}
+          onClick={() => {
+            // TODO
+          }}
+          icon={<DownvoteIcon secondary={false} />}
+          className="mr-3"
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.Ketchup}
         />
       </SimpleTooltip>
       <SimpleTooltip content="Reply">

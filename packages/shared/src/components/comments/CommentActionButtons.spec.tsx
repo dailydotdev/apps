@@ -4,11 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser, Roles } from '../../lib/user';
 import CommentActionButtons, { Props } from './CommentActionButtons';
-import {
-  CANCEL_COMMENT_UPVOTE_MUTATION,
-  Comment,
-  UPVOTE_COMMENT_MUTATION,
-} from '../../graphql/comments';
+import { Comment } from '../../graphql/comments';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
@@ -17,6 +13,9 @@ import loggedUser from '../../../__tests__/fixture/loggedUser';
 import comment from '../../../__tests__/fixture/comment';
 import post from '../../../__tests__/fixture/post';
 import { Origin } from '../../lib/analytics';
+import { VOTE_MUTATION } from '../../graphql/users';
+import { UserVoteEntity } from '../../hooks';
+import { UserVote } from '../../graphql/posts';
 
 const showLogin = jest.fn();
 const onComment = jest.fn();
@@ -105,8 +104,12 @@ it('should send upvote mutation', async () => {
   renderComponent({}, loggedUser, [
     {
       request: {
-        query: UPVOTE_COMMENT_MUTATION,
-        variables: { id: 'c1' },
+        query: VOTE_MUTATION,
+        variables: {
+          id: 'c1',
+          entity: UserVoteEntity.Comment,
+          vote: UserVote.Up,
+        },
       },
       result: () => {
         mutationCalled = true;
@@ -121,18 +124,30 @@ it('should send upvote mutation', async () => {
 
 it('should send cancel upvote mutation', async () => {
   let mutationCalled = false;
-  renderComponent({ upvoted: true }, loggedUser, [
+  renderComponent(
     {
-      request: {
-        query: CANCEL_COMMENT_UPVOTE_MUTATION,
-        variables: { id: 'c1' },
-      },
-      result: () => {
-        mutationCalled = true;
-        return { data: { _: true } };
+      userState: {
+        vote: UserVote.Up,
       },
     },
-  ]);
+    loggedUser,
+    [
+      {
+        request: {
+          query: VOTE_MUTATION,
+          variables: {
+            id: 'c1',
+            entity: UserVoteEntity.Comment,
+            vote: UserVote.None,
+          },
+        },
+        result: () => {
+          mutationCalled = true;
+          return { data: { _: true } };
+        },
+      },
+    ],
+  );
   const el = await screen.findByLabelText('Upvote');
   el.click();
   await waitFor(() => mutationCalled);

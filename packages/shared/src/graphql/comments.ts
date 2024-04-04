@@ -8,7 +8,7 @@ import {
 import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
 import { graphqlUrl } from '../lib/config';
-import type { Post } from './posts';
+import type { Post, UserVote } from './posts';
 
 export type ReportCommentReason =
   | 'HATEFUL'
@@ -31,6 +31,10 @@ export interface Author {
 
 export type Scout = Author;
 
+export interface CommentUserState {
+  vote: UserVote;
+}
+
 export interface Comment {
   __typename?: string;
   id: string;
@@ -40,12 +44,12 @@ export interface Comment {
   lastUpdatedAt?: string;
   author?: Author;
   permalink: string;
-  upvoted?: boolean;
   numUpvotes: number;
   children?: Connection<Comment>;
   parent?: Comment;
   post?: Post;
   parentId?: string;
+  userState?: CommentUserState;
 }
 
 export const getCommentHash = (id: string): string => `#c-${id}`;
@@ -178,22 +182,6 @@ export const COMMENT_UPVOTES_BY_ID_QUERY = gql`
   }
 `;
 
-export const UPVOTE_COMMENT_MUTATION = gql`
-  mutation UpvoteComment($id: ID!) {
-    upvoteComment(id: $id) {
-      _
-    }
-  }
-`;
-
-export const CANCEL_COMMENT_UPVOTE_MUTATION = gql`
-  mutation CancelCommentUpvote($id: ID!) {
-    cancelCommentUpvote(id: $id) {
-      _
-    }
-  }
-`;
-
 export interface CommentOnData {
   comment: Comment;
 }
@@ -278,7 +266,6 @@ export const COMMENT_BY_ID_WITH_POST_QUERY = gql`
       createdAt
       lastUpdatedAt
       permalink
-      upvoted
       numUpvotes
       parent {
         id
@@ -288,6 +275,9 @@ export const COMMENT_BY_ID_WITH_POST_QUERY = gql`
       }
       post {
         ...SharedPostInfo
+      }
+      userState {
+        vote
       }
     }
   }
