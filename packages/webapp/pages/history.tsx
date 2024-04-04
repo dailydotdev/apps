@@ -22,6 +22,7 @@ import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { HistoryType, ReadingHistory } from '../components/history';
 import ProtectedPage from '../components/ProtectedPage';
 import { getLayout } from '../components/layouts/MainLayout';
+import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 
 const feedOptions = [
   {
@@ -122,6 +123,9 @@ const History = (): ReactElement => {
   );
 };
 
-History.getLayout = getLayout;
+const geHistoryLayout: typeof getLayout = (...props) =>
+  getFooterNavBarLayout(getLayout(...props));
+
+History.getLayout = geHistoryLayout;
 
 export default History;
