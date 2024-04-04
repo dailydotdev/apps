@@ -5,7 +5,6 @@ import { LazyImage } from '../../LazyImage';
 import { ToastSubject, useToastNotification } from '../../../hooks';
 import PostContentContainer from '../PostContentContainer';
 import usePostContent from '../../../hooks/usePostContent';
-import FixedPostNavigation from '../FixedPostNavigation';
 import { BasePostContent } from '../BasePostContent';
 import { cloudinary } from '../../../lib/image';
 import { Separator } from '../../cards/common';

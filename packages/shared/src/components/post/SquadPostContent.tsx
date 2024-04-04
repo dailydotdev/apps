@@ -2,7 +2,6 @@ import React, { ReactElement, useEffect } from 'react';
 import classNames from 'classnames';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
-import FixedPostNavigation from './FixedPostNavigation';
 import PostSourceInfo from './PostSourceInfo';
 import { BasePostContent } from './BasePostContent';
 import { PostType, isVideoPost } from '../../graphql/posts';
