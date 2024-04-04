@@ -105,10 +105,7 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.SourcePostAdded]: 'text-brand-default',
   };
 
-const notificationsUrl = `/notifications`;
-
-export const checkAtNotificationsPage = (): boolean =>
-  notificationsUrl === globalThis.window?.location.pathname;
+export const notificationsUrl = `/notifications`;
 
 const MAX_UNREAD_DISPLAY = 20;
 
