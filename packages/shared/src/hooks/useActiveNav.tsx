@@ -30,10 +30,8 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
       homePages.push(OtherFeedPage.Bookmarks, OtherFeedPage.Notifications);
     }
 
-    const isIncluded = homePages.includes(activeFeed);
-
-    if (isIncluded) {
-      return isIncluded;
+    if (homePages.includes(activeFeed)) {
+      return true;
     }
 
     return router?.route?.startsWith('/posts/[id]'); // if post page the [id] was expected
