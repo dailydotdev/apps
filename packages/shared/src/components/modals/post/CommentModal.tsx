@@ -141,7 +141,7 @@ export default function CommentModal({
 
   useLayoutEffect(() => {
     // scroll to bottom of modal
-    modalNode?.scrollTo({ behavior: 'auto', top: 10000 });
+    modalNode?.scrollTo?.({ behavior: 'auto', top: 10000 });
   }, [modalNode]);
 
   const { height } = useVisualViewport();
