@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Post, UserPostVote } from '../../../graphql/posts';
+import { Post, UserVote } from '../../../graphql/posts';
 import InteractionCounter from '../../InteractionCounter';
 import {
   UpvoteIcon,
@@ -42,7 +42,7 @@ export default function ActionButtons({
   }
 
   const onToggleDownvote = async () => {
-    if (post.userState?.vote !== UserPostVote.Down) {
+    if (post.userState?.vote !== UserVote.Down) {
       onShowPanel();
     } else {
       onClose(true);
@@ -65,9 +65,7 @@ export default function ActionButtons({
         <div className="flex flex-row items-center rounded-12 bg-theme-float">
           <SimpleTooltip
             content={
-              post?.userState?.vote === UserPostVote.Up
-                ? 'Remove upvote'
-                : 'Upvote'
+              post?.userState?.vote === UserVote.Up ? 'Remove upvote' : 'Upvote'
             }
           >
             <Button
@@ -77,12 +75,12 @@ export default function ActionButtons({
               )}
               id={`post-${post.id}-upvote-btn`}
               color={ButtonColor.Avocado}
-              pressed={post?.userState?.vote === UserPostVote.Up}
+              pressed={post?.userState?.vote === UserVote.Up}
               onClick={() => onUpvoteClick?.(post)}
               variant={ButtonVariant.Tertiary}
             >
               <UpvoteIcon
-                secondary={post?.userState?.vote === UserPostVote.Up}
+                secondary={post?.userState?.vote === UserVote.Up}
                 size={IconSize.Medium}
               />
               {post?.numUpvotes > 0 ? (
@@ -96,7 +94,7 @@ export default function ActionButtons({
           <div className="box-border border border-theme-float py-2.5" />
           <SimpleTooltip
             content={
-              post?.userState?.vote === UserPostVote.Down
+              post?.userState?.vote === UserVote.Down
                 ? 'Remove downvote'
                 : 'Downvote'
             }
@@ -107,10 +105,10 @@ export default function ActionButtons({
               color={ButtonColor.Ketchup}
               icon={
                 <DownvoteIcon
-                  secondary={post?.userState?.vote === UserPostVote.Down}
+                  secondary={post?.userState?.vote === UserVote.Down}
                 />
               }
-              pressed={post?.userState?.vote === UserPostVote.Down}
+              pressed={post?.userState?.vote === UserVote.Down}
               onClick={onToggleDownvote}
               variant={ButtonVariant.Tertiary}
             />

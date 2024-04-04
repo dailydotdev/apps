@@ -197,7 +197,7 @@ export default function FeedItemComponent({
           data-testid="postItem"
           onUpvoteClick={(post, origin = Origin.Feed) => {
             toggleUpvote({
-              post,
+              payload: post,
               origin,
               opts: {
                 columns,
@@ -208,7 +208,7 @@ export default function FeedItemComponent({
           }}
           onDownvoteClick={(post, origin = Origin.Feed) => {
             toggleDownvote({
-              post,
+              payload: post,
               origin,
               opts: {
                 columns,

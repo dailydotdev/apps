@@ -20,7 +20,7 @@ export const useMutationSubscription = ({
     mutationSuccessSubscribers.set(
       subscriptionId,
       (data, variables, context, mutation) => {
-        if (!matcherRef.current({ status: 'success', mutation })) {
+        if (!matcherRef.current({ status: 'success', mutation, variables })) {
           return;
         }
 
