@@ -44,6 +44,7 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -99,7 +100,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     return post?.title;
   };
   const seo: NextSeoProps = {
-    canonical: post?.slug,
+    canonical: `${webappUrl}/posts/${post?.slug}`,
     title: getTemplatedTitle(seoTitle()),
     description: getSeoDescription(post),
     openGraph: {
