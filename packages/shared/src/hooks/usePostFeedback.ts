@@ -1,7 +1,7 @@
 import { useContext, useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
-import { Post, dismissPostFeedback, UserPostVote } from '../graphql/posts';
+import { Post, dismissPostFeedback, UserVote } from '../graphql/posts';
 import { optimisticPostUpdateInFeed } from '../lib/feed';
 import { updatePostCache } from './usePostById';
 import { updateCachedPagePost } from '../lib/query';
@@ -83,7 +83,7 @@ export const usePostFeedback = ({
   );
 
   const shouldShowFeedback =
-    isMyFeed && !!post?.read && post?.userState?.vote === UserPostVote.None;
+    isMyFeed && !!post?.read && post?.userState?.vote === UserVote.None;
 
   const showFeedback = useMemo(() => {
     if (!shouldShowFeedback) {

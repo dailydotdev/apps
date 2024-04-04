@@ -21,7 +21,6 @@ import {
 import {
   ExperimentWinner,
   OnboardingCopy,
-  UserAcquisition,
 } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
@@ -137,7 +136,6 @@ export function OnboardPage(): ReactElement {
   );
   const isOnboardingCopyV1 =
     useFeature(feature.onboardingCopy) === OnboardingCopy.V1;
-  const userAcquisitionVersion = useFeature(feature.userAcquisition);
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
@@ -171,9 +169,7 @@ export function OnboardPage(): ReactElement {
     return postOnboardingRedirect({
       pathname: '/',
       query: {
-        ...(userAcquisitionVersion === UserAcquisition.V1 && {
-          ua: 'true',
-        }),
+        ua: 'true',
       },
     });
   };

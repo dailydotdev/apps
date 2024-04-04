@@ -11,7 +11,7 @@ import { updateFirefoxExtensionLink } from '../../lib/constants';
 import { DiscussIcon as CommentIcon, UpvoteIcon } from '../icons';
 import InteractionCounter from '../InteractionCounter';
 import { checkIsExtension } from '../../lib/func';
-import { UserPostVote } from '../../graphql/posts';
+import { UserVote } from '../../graphql/posts';
 import InteractivePopup, { InteractivePopupPosition } from './InteractivePopup';
 import { Origin } from '../../lib/analytics';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
@@ -77,7 +77,7 @@ function ChangelogTooltip(): ReactElement {
   };
 
   const onToggleUpvote = async () => {
-    await toggleUpvote({ post, origin: Origin.ChangelogPopup });
+    await toggleUpvote({ payload: post, origin: Origin.ChangelogPopup });
   };
 
   return (
@@ -132,11 +132,9 @@ function ChangelogTooltip(): ReactElement {
             <QuaternaryButton
               id={`post-${post.id}-upvote-btn`}
               icon={
-                <UpvoteIcon
-                  secondary={post?.userState?.vote === UserPostVote.Up}
-                />
+                <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
               }
-              pressed={post?.userState?.vote === UserPostVote.Up}
+              pressed={post?.userState?.vote === UserVote.Up}
               onClick={onToggleUpvote}
               size={ButtonSize.Small}
               className="btn-tertiary-avocado"

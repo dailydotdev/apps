@@ -1,15 +1,10 @@
 import { useContext, useCallback } from 'react';
-import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
-import {
-  PostData,
-  VOTE_POST_MUTATION,
-  UserPostVote,
-} from '../../graphql/posts';
+import { PostData, UserVote } from '../../graphql/posts';
 import { AnalyticsEvent } from '../../lib/analytics';
 import { AuthTriggers } from '../../lib/auth';
-import { graphqlUrl } from '../../lib/config';
 import {
   PostAnalyticsEventFnOptions,
   postAnalyticsEvent,
@@ -18,16 +13,14 @@ import {
   getPostByIdKey,
   updatePostCache as updateSinglePostCache,
 } from '../usePostById';
-import { useRequestProtocol } from '../useRequestProtocol';
 import {
   UseVotePostProps,
   UseVotePost,
   voteMutationHandlers,
-  UseVotePostMutationProps,
-  upvoteMutationKey,
-  VoteProps,
   ToggleVoteProps,
+  UserVoteEntity,
 } from './types';
+import { useVote } from './useVote';
 
 const prepareVotePostAnalyticsOptions = ({
   origin,
@@ -47,7 +40,6 @@ const useVotePost = ({
   onMutate,
   variables,
 }: UseVotePostProps = {}): UseVotePost => {
-  const { requestMethod } = useRequestProtocol();
   const client = useQueryClient();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -73,43 +65,18 @@ const useVotePost = ({
     };
   };
 
-  const { mutateAsync: votePost } = useMutation(
-    ({ id, vote }: UseVotePostMutationProps) => {
-      return requestMethod(graphqlUrl, VOTE_POST_MUTATION, {
-        id,
-        vote,
-      });
-    },
-    {
-      mutationKey: variables
-        ? [...upvoteMutationKey, variables]
-        : upvoteMutationKey,
-      onMutate: onMutate ?? defaultOnMutate,
-      onError: (err, _, rollback?: () => void) => rollback?.(),
-    },
-  );
+  const {
+    upvote: upvotePost,
+    downvote: downvotePost,
+    cancelVote: cancelPostVote,
+  } = useVote({
+    onMutate: onMutate || defaultOnMutate,
+    entity: UserVoteEntity.Post,
+    variables,
+  });
 
-  const upvotePost = useCallback(
-    ({ id }: VoteProps) => {
-      return votePost({ id, vote: UserPostVote.Up });
-    },
-    [votePost],
-  );
-  const downvotePost = useCallback(
-    ({ id }: VoteProps) => {
-      return votePost({ id, vote: UserPostVote.Down });
-    },
-    [votePost],
-  );
-  const cancelPostVote = useCallback(
-    ({ id }: VoteProps) => {
-      return votePost({ id, vote: UserPostVote.None });
-    },
-    [votePost],
-  );
-
-  const toggleUpvote = useCallback(
-    async ({ post, origin, opts }: ToggleVoteProps) => {
+  const toggleUpvote: UseVotePost['toggleUpvote'] = useCallback(
+    async ({ payload: post, origin, opts }) => {
       if (!post) {
         return;
       }
@@ -121,12 +88,13 @@ const useVotePost = ({
       }
 
       const analyticsOptions = prepareVotePostAnalyticsOptions({
-        post,
+        payload: post,
         origin,
+        entity: UserVoteEntity.Post,
         opts,
       });
 
-      if (post?.userState?.vote === UserPostVote.Up) {
+      if (post?.userState?.vote === UserVote.Up) {
         trackEvent(
           postAnalyticsEvent(
             AnalyticsEvent.RemovePostUpvote,
@@ -149,8 +117,8 @@ const useVotePost = ({
     [cancelPostVote, showLogin, trackEvent, upvotePost, user],
   );
 
-  const toggleDownvote = useCallback(
-    async ({ post, origin, opts }: ToggleVoteProps) => {
+  const toggleDownvote: UseVotePost['toggleDownvote'] = useCallback(
+    async ({ payload: post, origin, opts }) => {
       if (!post) {
         return;
       }
@@ -162,12 +130,13 @@ const useVotePost = ({
       }
 
       const analyticsOptions = prepareVotePostAnalyticsOptions({
-        post,
+        payload: post,
         origin,
+        entity: UserVoteEntity.Post,
         opts,
       });
 
-      if (post?.userState?.vote === UserPostVote.Down) {
+      if (post?.userState?.vote === UserVote.Down) {
         trackEvent(
           postAnalyticsEvent(
             AnalyticsEvent.RemovePostDownvote,

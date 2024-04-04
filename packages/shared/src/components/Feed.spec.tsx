@@ -26,8 +26,7 @@ import {
   REMOVE_BOOKMARK_MUTATION,
   REPORT_POST_MUTATION,
   PostType,
-  VOTE_POST_MUTATION,
-  UserPostVote,
+  UserVote,
 } from '../graphql/posts';
 import {
   MockedGraphQLResponse,
@@ -44,6 +43,7 @@ import {
   AcquisitionChannel,
   MyRankData,
   USER_ACQUISITION_MUTATION,
+  VOTE_MUTATION,
 } from '../graphql/users';
 import { getRankQueryKey } from '../hooks/useReadingRank';
 import { SubscriptionCallbacks } from '../hooks/useSubscription';
@@ -69,6 +69,7 @@ import { acquisitionKey } from './cards/AcquisitionFormCard';
 import { removeQueryParam } from '../lib/links';
 import { SharedFeedPage } from './utilities';
 import { AllFeedPages } from '../lib/query';
+import { UserVoteEntity } from '../hooks';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -277,10 +278,11 @@ it('should send upvote mutation', async () => {
     }),
     {
       request: {
-        query: VOTE_POST_MUTATION,
+        query: VOTE_MUTATION,
         variables: {
           id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
-          vote: UserPostVote.Up,
+          vote: UserVote.Up,
+          entity: UserVoteEntity.Post,
         },
       },
       result: () => {
@@ -305,7 +307,7 @@ it('should send cancel upvote mutation', async () => {
           node: {
             ...defaultFeedPage.edges[0].node,
             userState: {
-              vote: UserPostVote.Up,
+              vote: UserVote.Up,
             },
           },
         },
@@ -313,10 +315,11 @@ it('should send cancel upvote mutation', async () => {
     }),
     {
       request: {
-        query: VOTE_POST_MUTATION,
+        query: VOTE_MUTATION,
         variables: {
           id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
-          vote: UserPostVote.None,
+          vote: UserVote.None,
+          entity: UserVoteEntity.Post,
         },
       },
       result: () => {
@@ -1119,7 +1122,7 @@ describe('acquisition form card', () => {
   it('should not show the card if the user has submitted already', async () => {
     renderComponent([createFeedMock()], {
       ...defaultUser,
-      acquisitionChannel: AcquisitionChannel.Blog,
+      acquisitionChannel: AcquisitionChannel.Friend,
     });
 
     const card = screen.queryByTestId('acquisitionFormCard');
