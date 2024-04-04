@@ -25,12 +25,11 @@ function FeedNav(): ReactElement {
   return (
     <div
       className={classNames(
-        'sticky top-0 z-header h-14 w-full bg-background-default tablet:pl-16',
+        'Zbg-background-default sticky top-0 z-header flex h-14 w-full tablet:pl-16',
       )}
     >
       <TabContainer
         controlledActive={notifications ? 'notifications' : undefined}
-        shouldMountInactive
         className={{
           header: 'no-scrollbar overflow-x-auto px-1 pr-28',
         }}
@@ -42,7 +41,7 @@ function FeedNav(): ReactElement {
         <Tab label={FeedNavTab.History} url="/history" />
       </TabContainer>
 
-      <div className="fixed right-0 top-0 my-1 flex h-12 w-20 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4">
+      <div className="fixed left-[100vw] top-0 my-1 flex h-12 w-20 -translate-x-full items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4">
         <NotificationsBell compact />
       </div>
     </div>
