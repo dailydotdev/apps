@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { MutableRefObject, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonProps, ButtonVariant } from '../../buttons/Button';
 
@@ -18,6 +18,7 @@ export interface FormWrapperProps {
   leftButtonProps?: ButtonProps<'button'>;
   rightButtonProps?: ButtonProps<'button'>;
   title?: string;
+  headerRef?: MutableRefObject<HTMLDivElement>;
 }
 
 export function FormWrapper({
@@ -28,6 +29,7 @@ export function FormWrapper({
   leftButtonProps = {},
   rightButtonProps = {},
   title,
+  headerRef,
 }: FormWrapperProps): ReactElement {
   const containerClassName =
     typeof className === 'string' ? className : className?.container;
@@ -41,6 +43,7 @@ export function FormWrapper({
           'flex flex-row justify-between border-b border-theme-divider-tertiary px-4 py-2',
           headerClassName,
         )}
+        ref={headerRef}
       >
         <Button {...leftButtonProps} variant={ButtonVariant.Tertiary}>
           {copy?.left ?? 'Cancel'}

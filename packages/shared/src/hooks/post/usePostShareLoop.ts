@@ -1,7 +1,5 @@
 import { useMemo, useState } from 'react';
 import { useActiveFeedNameContext } from '../../contexts';
-import { useFeature } from '../../components/GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
 import { useMutationSubscription } from '../mutationSubscription';
 import {
   UseVoteMutationProps,
@@ -19,8 +17,7 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
   const { feedName } = useActiveFeedNameContext();
   const [justUpvoted, setJustUpvoted] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const shareLoopsEnabled = useFeature(feature.shareLoops);
-  const shouldShowOverlay = justUpvoted && !hasInteracted && shareLoopsEnabled;
+  const shouldShowOverlay = justUpvoted && !hasInteracted;
   const key = useMemo(
     () =>
       createVoteMutationKey({
@@ -37,7 +34,7 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
     callback: ({ variables }) => {
       const vars = variables as UseVoteMutationProps;
 
-      if (vars.id !== post?.id || !shareLoopsEnabled) {
+      if (vars.id !== post?.id) {
         return;
       }
 
