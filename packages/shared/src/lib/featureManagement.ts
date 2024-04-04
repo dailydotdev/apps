@@ -43,7 +43,7 @@ const feature = {
   searchVersion: new Feature('search_version', 1),
   commentFeed: new Feature('comment_feed', false),
   forcedTagSelection: new Feature('forced_tag_selection', false),
-  mobileUxLayout: new Feature('mobile_ux_layout', false),
+  mobileUxLayout: new Feature('mobile_ux_layout', true),
   readingReminder: new Feature('reading_reminder', false),
 };
 
