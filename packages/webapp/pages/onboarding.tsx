@@ -65,17 +65,12 @@ import {
   TwitterTracking,
 } from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import {
-  OnboardingContainer as Container,
-  OnboardingHeadline,
-  PreparingYourFeed,
-} from '@dailydotdev/shared/src/components/auth';
+import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
   useConditionalFeature,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
-import { useOnboardingAnimation } from '@dailydotdev/shared/src/hooks/auth';
 import { ActiveUsersCounter } from '@dailydotdev/shared/src/components/auth/ActiveUsersCounter';
 import { ReadingReminder } from '@dailydotdev/shared/src/components/auth/ReadingReminder';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
@@ -96,12 +91,6 @@ export function OnboardPage(): ReactElement {
   const isTracked = useRef(false);
   const { user, isAuthReady, anonymous } = useAuthContext();
   const shouldVerify = anonymous?.shouldVerify;
-  const {
-    isAnimating,
-    finishedOnboarding,
-    onFinishedOnboarding,
-    postOnboardingRedirect,
-  } = useOnboardingAnimation();
   const { onShouldUpdateFilters } = useOnboardingContext();
   const { growthbook } = useGrowthBookContext();
   const { trackEvent } = useAnalyticsContext();
@@ -153,7 +142,6 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.ReadingReminder);
     }
 
-    onFinishedOnboarding();
     if (!hasSelectTopics) {
       trackEvent({
         event_name: AnalyticsEvent.OnboardingSkip,
@@ -166,7 +154,7 @@ export function OnboardPage(): ReactElement {
       });
     }
 
-    return postOnboardingRedirect({
+    return router.replace({
       pathname: '/',
       query: {
         ua: 'true',
@@ -407,12 +395,8 @@ export function OnboardPage(): ReactElement {
     return null;
   }
 
-  if (finishedOnboarding) {
-    return <PreparingYourFeed isAnimating={isAnimating} />;
-  }
-
   return (
-    <Container className="bg-[#0e1019]">
+    <div className="z-max flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden bg-[#0e1019]">
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <PixelTracking />
       <GtagTracking />
@@ -486,7 +470,7 @@ export function OnboardPage(): ReactElement {
           <div className="hidden flex-1 tablet:block" />
         </footer>
       )}
-    </Container>
+    </div>
   );
 }
 
