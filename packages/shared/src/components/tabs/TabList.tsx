@@ -1,5 +1,11 @@
 import classNames from 'classnames';
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 interface ClassName {
   indicator?: string;
@@ -22,17 +28,22 @@ function TabList({
   autoScrollActive,
 }: TabListProps): ReactElement {
   const [offset, setOffset] = useState<number>(0);
-  const [indicatorOffset, setIndicatorOffset] = useState<number>(undefined);
   const currentActiveTab = useRef<HTMLButtonElement>(null);
+  const activeTabRect = currentActiveTab.current?.getBoundingClientRect();
+  const indicatorOffset = activeTabRect
+    ? activeTabRect.width / 2 + activeTabRect.left
+    : 0;
 
-  useEffect(() => {
+  const scrollIfNotInView = useCallback(() => {
     if (autoScrollActive && currentActiveTab.current) {
+      if (!activeTabRect) {
+        return;
+      }
+
       const scrollableParent =
         currentActiveTab.current.parentElement.parentElement;
-      const activeTabRect = currentActiveTab.current.getBoundingClientRect();
       const scrollableParentRect = scrollableParent.getBoundingClientRect();
 
-      // only try to scroll if the active tab is not in view
       if (
         activeTabRect.left < scrollableParentRect.left ||
         activeTabRect.right > scrollableParentRect.right
@@ -43,7 +54,11 @@ function TabList({
         });
       }
     }
-  }, [offset, autoScrollActive]);
+  }, [autoScrollActive, activeTabRect, offset]);
+
+  useEffect(() => {
+    scrollIfNotInView();
+  }, [scrollIfNotInView]);
 
   return (
     <ul className="relative flex flex-row">
@@ -56,16 +71,7 @@ function TabList({
             }
 
             currentActiveTab.current = el;
-            const rect = el.getBoundingClientRect();
-
-            if (rect.width === 0) {
-              return;
-            }
-
-            const size = rect.width;
-            const leftOffset = el.offsetLeft;
-            setOffset(leftOffset);
-            setIndicatorOffset(size / 2 + leftOffset);
+            setOffset(el.offsetLeft);
           }}
           className={classNames(
             className.item,
@@ -86,7 +92,7 @@ function TabList({
           </span>
         </button>
       ))}
-      {indicatorOffset !== undefined && (
+      {indicatorOffset && (
         <div
           className={classNames(
             'absolute bottom-0 mx-auto h-0.5 w-12 -translate-x-1/2 rounded-4 bg-text-primary transition-[left] ease-linear',
