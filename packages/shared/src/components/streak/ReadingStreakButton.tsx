@@ -10,6 +10,9 @@ import { isTesting } from '../../lib/constants';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
 import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
+import { RootPortal } from '../tooltips/Portal';
+import { Drawer } from '../drawers';
+import ConditionalWrapper from '../ConditionalWrapper';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -86,31 +89,52 @@ export function ReadingStreakButton({
   }
 
   return (
-    <Tooltip
-      content="Current streak"
-      streak={streak}
-      shouldShowStreaks={shouldShowStreaks}
-      setShouldShowStreaks={setShouldShowStreaks}
-    >
-      <Button
-        type="button"
-        icon={<ReadingStreakIcon secondary={hasReadToday} />}
-        variant={
-          isNewMobileLayout && isMobile
-            ? ButtonVariant.Tertiary
-            : ButtonVariant.Float
-        }
-        onClick={handleToggle}
-        className={classnames('gap-1', compact && 'text-theme-color-bacon')}
-        size={
-          (isLaptop || !compact) && !isMobile
-            ? ButtonSize.Medium
-            : ButtonSize.Small
-        }
+    <>
+      <ConditionalWrapper
+        condition={!isMobile}
+        wrapper={(children: ReactElement) => (
+          <Tooltip
+            content="Current streak"
+            streak={streak}
+            shouldShowStreaks={shouldShowStreaks}
+            setShouldShowStreaks={setShouldShowStreaks}
+          >
+            {children}
+          </Tooltip>
+        )}
       >
-        {streak?.current}
-        {!compact && ' reading days'}
-      </Button>
-    </Tooltip>
+        <Button
+          type="button"
+          icon={<ReadingStreakIcon secondary={hasReadToday} />}
+          variant={
+            isNewMobileLayout && isMobile
+              ? ButtonVariant.Tertiary
+              : ButtonVariant.Float
+          }
+          onClick={handleToggle}
+          className={classnames('gap-1', compact && 'text-theme-color-bacon')}
+          size={
+            (isLaptop || !compact) && !isMobile
+              ? ButtonSize.Medium
+              : ButtonSize.Small
+          }
+        >
+          {streak?.current}
+          {!compact && ' reading days'}
+        </Button>
+      </ConditionalWrapper>
+
+      {isMobile && (
+        <RootPortal>
+          <Drawer
+            displayCloseButton
+            isOpen={shouldShowStreaks}
+            onClose={handleToggle}
+          >
+            <ReadingStreakPopup streak={streak} fullWidth />
+          </Drawer>
+        </RootPortal>
+      )}
+    </>
   );
 }
