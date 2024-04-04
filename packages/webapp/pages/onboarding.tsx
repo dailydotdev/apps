@@ -21,7 +21,6 @@ import {
 import {
   ExperimentWinner,
   OnboardingCopy,
-  UserAcquisition,
 } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
@@ -66,18 +65,12 @@ import {
   TwitterTracking,
 } from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import {
-  OnboardingContainer as Container,
-  OnboardingHeadline,
-  PreparingYourFeed,
-} from '@dailydotdev/shared/src/components/auth';
+import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
   useConditionalFeature,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
-import { useOnboardingAnimation } from '@dailydotdev/shared/src/hooks/auth';
-import { ActiveUsersCounter } from '@dailydotdev/shared/src/components/auth/ActiveUsersCounter';
 import { ReadingReminder } from '@dailydotdev/shared/src/components/auth/ReadingReminder';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
@@ -97,12 +90,6 @@ export function OnboardPage(): ReactElement {
   const isTracked = useRef(false);
   const { user, isAuthReady, anonymous } = useAuthContext();
   const shouldVerify = anonymous?.shouldVerify;
-  const {
-    isAnimating,
-    finishedOnboarding,
-    onFinishedOnboarding,
-    postOnboardingRedirect,
-  } = useOnboardingAnimation();
   const { onShouldUpdateFilters } = useOnboardingContext();
   const { growthbook } = useGrowthBookContext();
   const { trackEvent } = useAnalyticsContext();
@@ -137,7 +124,6 @@ export function OnboardPage(): ReactElement {
   );
   const isOnboardingCopyV1 =
     useFeature(feature.onboardingCopy) === OnboardingCopy.V1;
-  const userAcquisitionVersion = useFeature(feature.userAcquisition);
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
@@ -155,7 +141,6 @@ export function OnboardPage(): ReactElement {
       return setActiveScreen(OnboardingStep.ReadingReminder);
     }
 
-    onFinishedOnboarding();
     if (!hasSelectTopics) {
       trackEvent({
         event_name: AnalyticsEvent.OnboardingSkip,
@@ -168,12 +153,10 @@ export function OnboardPage(): ReactElement {
       });
     }
 
-    return postOnboardingRedirect({
+    return router.replace({
       pathname: '/',
       query: {
-        ...(userAcquisitionVersion === UserAcquisition.V1 && {
-          ua: 'true',
-        }),
+        ua: 'true',
       },
     });
   };
@@ -392,9 +375,6 @@ export function OnboardPage(): ReactElement {
       </div>
     );
   };
-
-  const shouldShowOnline = useFeature(feature.onboardingOnlineUsers);
-
   const getProgressBar = () => {
     if (activeScreen !== OnboardingStep.Intro) {
       return null;
@@ -411,12 +391,8 @@ export function OnboardPage(): ReactElement {
     return null;
   }
 
-  if (finishedOnboarding) {
-    return <PreparingYourFeed isAnimating={isAnimating} />;
-  }
-
   return (
-    <Container className="bg-[#0e1019]">
+    <div className="z-max flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden bg-[#0e1019]">
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <PixelTracking />
       <GtagTracking />
@@ -444,7 +420,6 @@ export function OnboardPage(): ReactElement {
               `${isOnboardingCopyV1 ? 'mt-6' : 'mt-5'} tablet:mt-0`,
             )}
           >
-            {shouldShowOnline && <ActiveUsersCounter />}
             <OnboardingHeadline
               className={{
                 title: classNames(
@@ -490,7 +465,7 @@ export function OnboardPage(): ReactElement {
           <div className="hidden flex-1 tablet:block" />
         </footer>
       )}
-    </Container>
+    </div>
   );
 }
 

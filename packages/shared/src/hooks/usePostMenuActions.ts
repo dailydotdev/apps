@@ -6,7 +6,7 @@ import {
   Post,
   swapPinnedPosts,
   updatePinnedPost,
-  UserPostVote,
+  UserVote,
 } from '../graphql/posts';
 import { SourcePermissions, SourceType } from '../graphql/sources';
 import { Roles } from '../lib/user';
@@ -108,13 +108,13 @@ export const usePostMenuActions = ({
     onPinPost: canPin ? onPinPost : null,
     onSwapPinnedPost: canSwap ? onSwapPinnedPost : null,
     onToggleDownvotePost: () => {
-      if (post.userState?.vote !== UserPostVote.Down) {
+      if (post.userState?.vote !== UserVote.Down) {
         onShowPanel();
       } else {
         onClose(true);
       }
 
-      toggleDownvote({ post, origin });
+      toggleDownvote({ payload: post, origin });
     },
   };
 };

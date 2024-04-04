@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useActiveFeedNameContext } from '../../contexts';
-import { useFeature } from '../../components/GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
 import { useMutationSubscription } from '../mutationSubscription';
-import { upvoteMutationKey, UseVotePostMutationProps } from '../vote';
+import {
+  UseVoteMutationProps,
+  UserVoteEntity,
+  createVoteMutationKey,
+} from '../vote';
 import { Post } from '../../graphql/posts';
 
 interface UsePostShareLoop {
@@ -15,10 +17,13 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
   const { feedName } = useActiveFeedNameContext();
   const [justUpvoted, setJustUpvoted] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const shareLoopsEnabled = useFeature(feature.shareLoops);
-  const shouldShowOverlay = justUpvoted && !hasInteracted && shareLoopsEnabled;
+  const shouldShowOverlay = justUpvoted && !hasInteracted;
   const key = useMemo(
-    () => [...upvoteMutationKey, { feedName }].toString(),
+    () =>
+      createVoteMutationKey({
+        entity: UserVoteEntity.Post,
+        variables: { feedName },
+      }).toString(),
     [feedName],
   );
 
@@ -27,9 +32,9 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
       status === 'success' &&
       mutation?.options?.mutationKey?.toString() === key,
     callback: ({ variables }) => {
-      const vars = variables as UseVotePostMutationProps;
+      const vars = variables as UseVoteMutationProps;
 
-      if (vars.id !== post?.id || !shareLoopsEnabled) {
+      if (vars.id !== post?.id) {
         return;
       }
 

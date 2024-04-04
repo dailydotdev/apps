@@ -6,7 +6,7 @@ import {
   ButtonVariant,
 } from '../../buttons/Button';
 import { DownvoteIcon, UpvoteIcon } from '../../icons';
-import { Post, UserPostVote } from '../../../graphql/posts';
+import { Post, UserVote } from '../../../graphql/posts';
 import { usePostFeedback } from '../../../hooks';
 import CloseButton from '../../CloseButton';
 import { CardContent } from './Card';
@@ -44,10 +44,10 @@ export const FeedbackCard = ({
       <div className="relative flex items-center gap-3">
         <Button
           id="upvote-post-btn"
-          pressed={post?.userState?.vote === UserPostVote.Up}
+          pressed={post?.userState?.vote === UserVote.Up}
           onClick={onUpvoteClick}
           icon={
-            <UpvoteIcon secondary={post?.userState?.vote === UserPostVote.Up} />
+            <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
           }
           variant={ButtonVariant.Secondary}
           color={ButtonColor.Avocado}
@@ -55,12 +55,10 @@ export const FeedbackCard = ({
         />
         <Button
           id="downvote-post-btn"
-          pressed={post?.userState?.vote === UserPostVote.Down}
+          pressed={post?.userState?.vote === UserVote.Down}
           onClick={onDownvoteClick}
           icon={
-            <DownvoteIcon
-              secondary={post?.userState?.vote === UserPostVote.Down}
-            />
+            <DownvoteIcon secondary={post?.userState?.vote === UserVote.Down} />
           }
           variant={ButtonVariant.Secondary}
           color={ButtonColor.Ketchup}
