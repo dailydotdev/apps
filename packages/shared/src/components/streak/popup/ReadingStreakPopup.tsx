@@ -1,6 +1,7 @@
 import React, { ReactElement, useMemo } from 'react';
 import { addDays, isSameDay, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
+import classNames from 'classnames';
 import { StreakSection } from './StreakSection';
 import { DayStreak, Streak } from './DayStreak';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
@@ -24,10 +25,12 @@ const streakDays = [
 
 interface ReadingStreakPopupProps {
   streak: UserStreak;
+  fullWidth?: boolean;
 }
 
 export function ReadingStreakPopup({
   streak,
+  fullWidth,
 }: ReadingStreakPopupProps): ReactElement {
   const { user } = useAuthContext();
   const { data: history } = useQuery(
@@ -83,7 +86,14 @@ export function ReadingStreakPopup({
         <StreakSection streak={streak.current} label="Current streak" />
         <StreakSection streak={streak.max} label="Longest streak 🏆" />
       </div>
-      <div className="mt-6 flex flex-row gap-2">{streaks}</div>
+      <div
+        className={classNames(
+          'mt-6 flex flex-row gap-2',
+          fullWidth && 'justify-between',
+        )}
+      >
+        {streaks}
+      </div>
       <div className="mt-4 text-center font-bold leading-8 text-text-tertiary">
         Total reading days: {streak.total}
       </div>
