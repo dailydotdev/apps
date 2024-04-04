@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
 
 interface ClassName {
   indicator?: string;
@@ -11,6 +11,7 @@ export interface TabListProps {
   active: string;
   onClick?: (label: string) => unknown;
   className?: ClassName;
+  autoScrollActive?: boolean;
 }
 
 function TabList({
@@ -18,8 +19,20 @@ function TabList({
   active,
   onClick,
   className = {},
+  autoScrollActive,
 }: TabListProps): ReactElement {
-  const [offset, setOffset] = useState<number>(undefined);
+  const [offset, setOffset] = useState<number>(0);
+  const [indicatorOffset, setIndicatorOffset] = useState<number>(undefined);
+  const currentActiveTab = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (autoScrollActive && currentActiveTab.current) {
+      currentActiveTab.current.parentElement.parentElement.scrollTo({
+        left: offset,
+        behavior: 'smooth',
+      });
+    }
+  }, [offset, autoScrollActive]);
 
   return (
     <ul className="relative flex flex-row">
@@ -31,15 +44,17 @@ function TabList({
               return;
             }
 
+            currentActiveTab.current = el;
             const rect = el.getBoundingClientRect();
 
             if (rect.width === 0) {
               return;
             }
 
-            const size = rect.width / 2;
-            const value = size + el.offsetLeft;
-            setOffset(value);
+            const size = rect.width;
+            const leftOffset = el.offsetLeft;
+            setOffset(leftOffset);
+            setIndicatorOffset(size / 2 + leftOffset);
           }}
           className={classNames(
             className.item,
@@ -60,13 +75,13 @@ function TabList({
           </span>
         </button>
       ))}
-      {offset !== undefined && (
+      {indicatorOffset !== undefined && (
         <div
           className={classNames(
             'absolute bottom-0 mx-auto h-0.5 w-12 -translate-x-1/2 rounded-4 bg-text-primary transition-[left] ease-linear',
             className?.indicator,
           )}
-          style={{ left: offset }}
+          style={{ left: indicatorOffset }}
         />
       )}
     </ul>
