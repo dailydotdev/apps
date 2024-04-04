@@ -25,6 +25,7 @@ import {
   SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
   UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
   UPDATE_USER_PROFILE_MUTATION,
+  UserPersonalizedDigestType,
 } from '@dailydotdev/shared/src/graphql/users';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -145,6 +146,7 @@ it('should change user all email subscription', async () => {
       variables: {
         day: 3,
         hour: 8,
+        type: UserPersonalizedDigestType.Digest,
       },
     },
     result: () => {
@@ -155,7 +157,6 @@ it('should change user all email subscription', async () => {
           subscribePersonalizedDigest: {
             preferredDay: 1,
             preferredHour: 9,
-            preferredTimezone: 'Etc/UTC',
           },
         },
       };
@@ -203,6 +204,7 @@ it('should subscribe to personalized digest subscription', async () => {
       variables: {
         day: 3,
         hour: 8,
+        type: UserPersonalizedDigestType.Digest,
       },
     },
     result: {
@@ -210,7 +212,6 @@ it('should subscribe to personalized digest subscription', async () => {
         subscribePersonalizedDigest: {
           preferredDay: 1,
           preferredHour: 9,
-          preferredTimezone: 'Etc/UTC',
         },
       },
     },
@@ -235,7 +236,6 @@ it('should unsubscribe from personalized digest subscription', async () => {
         personalizedDigest: {
           preferredDay: 1,
           preferredHour: 9,
-          preferredTimezone: 'Etc/UTC',
         },
       },
     },

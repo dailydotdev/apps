@@ -33,6 +33,7 @@ const containerClassName: Record<NotificationPromptSource, string> = {
     'laptop:rounded-16 laptop:rounded-bl-[0] laptop:rounded-br-[0]',
   [NotificationPromptSource.SquadChecklist]: '',
   [NotificationPromptSource.SourceSubscribe]: 'w-full px-3 !pt-0 !pb-2',
+  [NotificationPromptSource.ReadingReminder]: '',
 };
 
 const sourceRenderTextCloseButton: Record<NotificationPromptSource, boolean> = {
@@ -46,6 +47,7 @@ const sourceRenderTextCloseButton: Record<NotificationPromptSource, boolean> = {
   [NotificationPromptSource.NotificationItem]: false,
   [NotificationPromptSource.SquadChecklist]: false,
   [NotificationPromptSource.SourceSubscribe]: true,
+  [NotificationPromptSource.ReadingReminder]: false,
 };
 
 const sourceToButtonText: Partial<Record<NotificationPromptSource, string>> = {
@@ -81,6 +83,7 @@ function EnableNotification({
     [NotificationPromptSource.SquadPage]: `Get notified whenever something important happens on ${contentName}.`,
     [NotificationPromptSource.SquadChecklist]: '',
     [NotificationPromptSource.SourceSubscribe]: `Get notified whenever there are new posts from ${contentName}.`,
+    [NotificationPromptSource.ReadingReminder]: '',
   };
   const message = sourceToMessage[source];
   const classes = containerClassName[source];

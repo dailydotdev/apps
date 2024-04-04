@@ -6,18 +6,18 @@ import Logo, { LogoPosition } from '../Logo';
 import { AuthProps, AuthDisplay } from '../auth/AuthOptions';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { CreateFeedButton } from './CreateFeedButton';
-import { wrapperMaxWidth } from './common';
+import { OnboardingStep, wrapperMaxWidth } from './common';
 
 type OnboardingHeaderProps = {
   showOnboardingPage: boolean;
   setAuth: Dispatch<SetStateAction<AuthProps>>;
   onClickNext: () => void;
-  isFiltering: boolean;
+  activeScreen: OnboardingStep;
 };
 
 export const OnboardingHeader = ({
   showOnboardingPage,
-  isFiltering,
+  activeScreen,
   setAuth,
   onClickNext,
 }: OnboardingHeaderProps): ReactElement => {
@@ -32,7 +32,7 @@ export const OnboardingHeader = ({
     return isLaptop ? cloudinary.feed.bg.laptop : cloudinary.feed.bg.tablet;
   };
 
-  if (isFiltering) {
+  if (activeScreen !== OnboardingStep.Intro) {
     return (
       <header className="sticky top-0 z-3 mb-10 flex w-full justify-center backdrop-blur-sm">
         <img
@@ -45,7 +45,9 @@ export const OnboardingHeader = ({
             logoClassName={classNames('h-6')}
             position={LogoPosition.Relative}
           />
-          <CreateFeedButton onClick={onClickNext} />
+          {activeScreen === OnboardingStep.EditTag && (
+            <CreateFeedButton onClick={onClickNext} />
+          )}
         </div>
       </header>
     );
