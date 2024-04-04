@@ -530,3 +530,11 @@ export const CLEAR_MARKETING_CTA_MUTATION = gql`
     }
   }
 `;
+
+export const VOTE_MUTATION = gql`
+  mutation Vote($id: ID!, $entity: UserVoteEntity!, $vote: Int!) {
+    vote(id: $id, entity: $entity, vote: $vote) {
+      _
+    }
+  }
+`;

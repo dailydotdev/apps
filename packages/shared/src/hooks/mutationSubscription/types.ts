@@ -1,23 +1,25 @@
 import { Mutation, MutationStatus, QueryClient } from '@tanstack/react-query';
 
-export type UseMutationMatcherProps = {
+export type UseMutationMatcherProps<TVariables = unknown> = {
   status: MutationStatus;
   mutation: Mutation<unknown, unknown, unknown>;
+  variables?: TVariables;
 };
 
-export type UseMutationMatcher = ({
+export type UseMutationMatcher<TVariables> = ({
   mutation,
-}: UseMutationMatcherProps) => boolean;
+  variables,
+}: UseMutationMatcherProps<TVariables>) => boolean;
 
-export type UseMutationSubscriptionProps = {
-  matcher: UseMutationMatcher;
+export type UseMutationSubscriptionProps<TVariables = unknown> = {
+  matcher: UseMutationMatcher<TVariables>;
   callback: ({
     mutation,
     queryClient,
     variables,
   }: UseMutationMatcherProps & {
     queryClient: QueryClient;
-    variables?: unknown;
+    variables?: TVariables;
   }) => void;
 };
 
