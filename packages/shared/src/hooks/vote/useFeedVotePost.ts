@@ -5,7 +5,7 @@ import { Origin } from '../../lib/analytics';
 import { useMutationSubscription } from '../mutationSubscription/useMutationSubscription';
 import {
   UseVotePost,
-  UseVotePostMutationProps,
+  UseVoteMutationProps,
   voteMutationMatcher,
 } from './types';
 import { useVotePost } from './useVotePost';
@@ -34,7 +34,7 @@ export const useFeedVotePost = ({
       }
 
       mutateVoteFeedPost({
-        ...(mutationVariables as UseVotePostMutationProps),
+        ...(mutationVariables as UseVoteMutationProps),
         items,
         updatePost,
       });
@@ -56,7 +56,7 @@ export const useFeedVotePost = ({
   return {
     ...restVotePost,
     toggleUpvote: useCallback(
-      ({ post, origin, opts }) => {
+      ({ payload, origin, opts }) => {
         const analyticsExtra = feedAnalyticsExtra(
           feedName,
           ranking,
@@ -64,7 +64,7 @@ export const useFeedVotePost = ({
         );
 
         return toggleUpvote({
-          post,
+          payload,
           origin: origin || (analyticsExtra.extra.origin as Origin),
           opts: {
             ...opts,
@@ -75,7 +75,7 @@ export const useFeedVotePost = ({
       [toggleUpvote, feedName, ranking],
     ),
     toggleDownvote: useCallback(
-      ({ post, origin, opts }) => {
+      ({ payload, origin, opts }) => {
         const analyticsExtra = feedAnalyticsExtra(
           feedName,
           ranking,
@@ -83,7 +83,7 @@ export const useFeedVotePost = ({
         );
 
         return toggleDownvote({
-          post,
+          payload,
           origin: origin || (analyticsExtra.extra.origin as Origin),
           opts: {
             ...opts,
