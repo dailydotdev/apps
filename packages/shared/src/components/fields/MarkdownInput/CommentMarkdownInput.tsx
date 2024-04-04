@@ -2,7 +2,9 @@ import React, {
   CSSProperties,
   FormEventHandler,
   FormHTMLAttributes,
+  MutableRefObject,
   ReactElement,
+  forwardRef,
   useEffect,
   useRef,
 } from 'react';
@@ -40,18 +42,21 @@ export interface CommentMarkdownInputProps {
   formProps?: FormHTMLAttributes<HTMLFormElement>;
 }
 
-export function CommentMarkdownInput({
-  post,
-  initialContent,
-  replyTo,
-  editCommentId,
-  className = {},
-  style,
-  onChange,
-  showSubmit = true,
-  showUserAvatar = true,
-  formProps = {},
-}: CommentMarkdownInputProps): ReactElement {
+export function CommentMarkdownInputComponent(
+  {
+    post,
+    initialContent,
+    replyTo,
+    editCommentId,
+    className = {},
+    style,
+    onChange,
+    showSubmit = true,
+    showUserAvatar = true,
+    formProps = {},
+  }: CommentMarkdownInputProps,
+  ref: MutableRefObject<HTMLFormElement>,
+): ReactElement {
   const postId = post?.id;
   const sourceId = post?.source?.id;
   const markdownRef = useRef<MarkdownRef>();
@@ -91,6 +96,7 @@ export function CommentMarkdownInput({
       onSubmit={onSubmitForm}
       className={className?.container}
       style={style}
+      ref={ref}
     >
       <MarkdownInput
         ref={markdownRef}
@@ -129,3 +135,5 @@ export function CommentMarkdownInput({
     </form>
   );
 }
+
+export const CommentMarkdownInput = forwardRef(CommentMarkdownInputComponent);

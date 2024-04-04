@@ -19,7 +19,6 @@ export class Feature<T extends JSONValue> {
 
 const feature = {
   feedVersion: new Feature('feed_version', 15),
-  onboardingAnimation: new Feature('onboarding_fake_loading', false),
   lowImps: new Feature('feed_low_imps'),
   bookmarkOnCard: new Feature('bookmark_on_card', false),
   readingStreaks: new Feature(
@@ -38,8 +37,6 @@ const feature = {
   ),
   forceRefresh: new Feature('force_refresh', false),
   feedAdSpot: new Feature('feed_ad_spot', 0),
-  shareLoops: new Feature('share_loops', false),
-  onboardingOnlineUsers: new Feature('onboarding_online_users', false),
   onboardingCopy: new Feature('onboarding_copy', OnboardingCopy.Control),
   searchVersion: new Feature('search_version', 1),
   commentFeed: new Feature('comment_feed', false),
