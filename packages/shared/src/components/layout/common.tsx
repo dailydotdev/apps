@@ -19,7 +19,6 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useFeedLayout, useViewSize, ViewSize } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
-import FeedSelector from '../FeedSelector';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { AllFeedPages } from '../../lib/query';
@@ -56,9 +55,7 @@ export const SearchControlHeader = ({
 }: SearchControlHeaderProps): ReactElement => {
   const { openModal } = useLazyModal();
   const { sortingEnabled } = useContext(SettingsContext);
-  const { isUpvoted, isPopular, isDiscussed, isSortableFeed } = useFeedName({
-    feedName,
-  });
+  const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { isNewMobileLayout } = useMobileUxExperiment();
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -113,12 +110,8 @@ export const SearchControlHeader = ({
       wrapper={(children) => (
         <div className="flex w-full items-center justify-between">
           <div className="flex-0">
-            {isPopular || isUpvoted || isDiscussed ? (
-              <FeedSelector />
-            ) : (
-              isStreaksEnabled && (
-                <ReadingStreakButton streak={streak} isLoading={isLoading} />
-              )
+            {isStreaksEnabled && (
+              <ReadingStreakButton streak={streak} isLoading={isLoading} />
             )}
           </div>
 
