@@ -172,12 +172,12 @@ describe('useChangelog hook', () => {
 
     const changelog = result.current;
     await changelog.toggleUpvote({
-      post: defaultPost,
+      payload: defaultPost,
       origin: Origin.ChangelogPopup,
     });
 
     expect(toggleUpvote).toHaveBeenCalledWith({
-      post: defaultPost,
+      payload: defaultPost,
       origin: Origin.ChangelogPopup,
     });
   });
