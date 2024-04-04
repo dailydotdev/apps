@@ -37,7 +37,6 @@ const feature = {
   ),
   forceRefresh: new Feature('force_refresh', false),
   feedAdSpot: new Feature('feed_ad_spot', 0),
-  shareLoops: new Feature('share_loops', false),
   onboardingCopy: new Feature('onboarding_copy', OnboardingCopy.Control),
   searchVersion: new Feature('search_version', 1),
   commentFeed: new Feature('comment_feed', false),
