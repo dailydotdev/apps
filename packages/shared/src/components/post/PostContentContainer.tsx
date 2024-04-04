@@ -1,10 +1,16 @@
 import React, { ReactElement, ReactNode } from 'react';
 import classed from '../../lib/classed';
+import FixedPostNavigation from './FixedPostNavigation';
+import { PostNavigationProps } from './common';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { useViewSize, ViewSize } from '../../hooks';
 
 interface PostContentContainerProps {
   hasNavigation?: boolean;
   className?: string;
   children: ReactNode;
+  navigationProps?: PostNavigationProps;
+  isNavigationOutside?: boolean;
 }
 
 const BodyContainer = classed(
@@ -21,10 +27,29 @@ function PostContentContainer({
   hasNavigation,
   className,
   children,
+  navigationProps,
+  isNavigationOutside,
 }: PostContentContainerProps): ReactElement {
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const props = !isMobile && navigationProps;
   const Wrapper = hasNavigation ? BodyContainer : PageBodyContainer;
 
-  return <Wrapper className={className}>{children}</Wrapper>;
+  return (
+    <ConditionalWrapper
+      condition={isNavigationOutside}
+      wrapper={(component) => (
+        <>
+          {props && <FixedPostNavigation {...props} />}
+          {component}
+        </>
+      )}
+    >
+      <Wrapper className={className}>
+        {props && !isNavigationOutside && <FixedPostNavigation {...props} />}
+        {children}
+      </Wrapper>
+    </ConditionalWrapper>
+  );
 }
 
 export default PostContentContainer;

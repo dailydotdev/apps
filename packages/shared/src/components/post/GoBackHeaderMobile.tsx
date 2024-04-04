@@ -34,7 +34,7 @@ export function GoBackHeaderMobile({
   return (
     <span
       className={classNames(
-        'flex flex-row items-center border-b border-border-subtlest-tertiary px-4 py-2 tablet:hidden',
+        'sticky top-0 z-postNavigation flex flex-row items-center border-b border-border-subtlest-tertiary bg-background-default px-4 py-2 tablet:hidden',
         className,
       )}
     >

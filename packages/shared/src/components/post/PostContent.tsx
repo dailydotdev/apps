@@ -82,14 +82,16 @@ export function PostContent({
       hasNavigation={hasNavigation}
       className={containerClass}
       aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
+      navigationProps={
+        position === 'fixed'
+          ? {
+              ...navigationProps,
+              isBannerVisible,
+              className: className?.fixedNavigation,
+            }
+          : null
+      }
     >
-      {position === 'fixed' && (
-        <FixedPostNavigation
-          {...navigationProps}
-          isBannerVisible={isBannerVisible}
-          className={className?.fixedNavigation}
-        />
-      )}
       <PostContainer
         className={classNames('relative', className?.content)}
         data-testid="postContainer"
