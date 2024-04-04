@@ -98,8 +98,7 @@ export default function FooterNavBar({
           isNewMobileLayout
             ? classNames('rounded-16', !post && activeClasses)
             : 'rounded-t-24 bg-background-default',
-          (!post || !isNewMobileLayout) &&
-            'border-t border-theme-divider-tertiary',
+          !post && 'border-t border-theme-divider-tertiary',
         )}
       >
         <Component activeTab={activeTab} />
