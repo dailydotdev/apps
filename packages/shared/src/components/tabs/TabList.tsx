@@ -27,10 +27,21 @@ function TabList({
 
   useEffect(() => {
     if (autoScrollActive && currentActiveTab.current) {
-      currentActiveTab.current.parentElement.parentElement.scrollTo({
-        left: offset,
-        behavior: 'smooth',
-      });
+      const scrollableParent =
+        currentActiveTab.current.parentElement.parentElement;
+      const activeTabRect = currentActiveTab.current.getBoundingClientRect();
+      const scrollableParentRect = scrollableParent.getBoundingClientRect();
+
+      // only try to scroll if the active tab is not in view
+      if (
+        activeTabRect.left < scrollableParentRect.left ||
+        activeTabRect.right > scrollableParentRect.right
+      ) {
+        currentActiveTab.current.parentElement.parentElement.scrollTo({
+          left: offset,
+          behavior: 'smooth',
+        });
+      }
     }
   }, [offset, autoScrollActive]);
 
