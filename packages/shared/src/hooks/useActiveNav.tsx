@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import { SharedFeedPage } from '../components/utilities';
+import { useMobileUxExperiment } from './useMobileUxExperiment';
 
 export interface UseActiveNav {
   home: boolean;
@@ -14,27 +15,36 @@ export interface UseActiveNav {
 
 export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
   const router = useRouter();
+  const { isNewMobileLayout } = useMobileUxExperiment();
 
   const isHomeActive = useMemo(() => {
-    const isIncluded = [
+    const homePages = [
       SharedFeedPage.MyFeed,
       SharedFeedPage.Popular,
       SharedFeedPage.Upvoted,
       SharedFeedPage.Discussed,
       OtherFeedPage.History,
-    ].includes(activeFeed);
+    ];
+
+    if (isNewMobileLayout) {
+      homePages.push(OtherFeedPage.Bookmarks, OtherFeedPage.Notifications);
+    }
+
+    const isIncluded = homePages.includes(activeFeed);
 
     if (isIncluded) {
       return isIncluded;
     }
 
     return router?.route?.startsWith('/posts/[id]'); // if post page the [id] was expected
-  }, [activeFeed, router.route]);
+  }, [activeFeed, isNewMobileLayout, router?.route]);
 
   const isProfileActive = router.pathname?.includes('/[userId]');
   const isSearchActive = activeFeed === SharedFeedPage.Search;
-  const isBookmarksActive = activeFeed === OtherFeedPage.Bookmarks;
-  const isNotificationsActive = activeFeed === OtherFeedPage.Notifications;
+  const isBookmarksActive =
+    !isNewMobileLayout && activeFeed === OtherFeedPage.Bookmarks;
+  const isNotificationsActive =
+    !isNewMobileLayout && activeFeed === OtherFeedPage.Notifications;
   const isSquadActive = activeFeed === OtherFeedPage.Squad;
 
   return {
