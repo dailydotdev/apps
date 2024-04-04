@@ -3,6 +3,7 @@ import React, { ReactElement, useState } from 'react';
 
 interface ClassName {
   indicator?: string;
+  item?: string;
 }
 
 export interface TabListProps {
@@ -41,6 +42,7 @@ function TabList({
             setOffset(value);
           }}
           className={classNames(
+            className.item,
             'relative p-2 py-4 text-center font-bold typo-callout',
             tab === active ? '' : 'text-text-tertiary',
           )}

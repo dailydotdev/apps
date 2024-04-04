@@ -31,7 +31,7 @@ function FeedNav(): ReactElement {
         className={{
           header: 'no-scrollbar overflow-x-auto px-1 pr-28',
         }}
-        tabListProps={{ className: { indicator: '!w-6' } }}
+        tabListProps={{ className: { indicator: '!w-6', item: 'px-1' } }}
       >
         <Tab label={FeedNavTab.ForYou} url="/" />
         <Tab label={FeedNavTab.Popular} url="/popular" />
