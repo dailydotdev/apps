@@ -121,6 +121,7 @@ export interface Post {
   userState?: PostUserState;
   videoId?: string;
   updatedAt?: string;
+  slug?: string;
 }
 
 export type RelatedPost = Pick<

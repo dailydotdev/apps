@@ -48,6 +48,7 @@ export const FEED_POST_FRAGMENT = gql`
     }
     numCollectionSources
     updatedAt
+    slug
   }
   ${SHARED_POST_INFO_FRAGMENT}
 `;
