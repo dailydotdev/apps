@@ -27,6 +27,7 @@ function TabList({
   className = {},
   autoScrollActive,
 }: TabListProps): ReactElement {
+  const hasActive = items.includes(active);
   const [offset, setOffset] = useState<number>(0);
   const currentActiveTab = useRef<HTMLButtonElement>(null);
   const activeTabRect = currentActiveTab.current?.getBoundingClientRect();
@@ -92,7 +93,7 @@ function TabList({
           </span>
         </button>
       ))}
-      {indicatorOffset && (
+      {indicatorOffset && hasActive && (
         <div
           className={classNames(
             'absolute bottom-0 mx-auto h-0.5 w-12 -translate-x-1/2 rounded-4 bg-text-primary transition-[left] ease-linear',
