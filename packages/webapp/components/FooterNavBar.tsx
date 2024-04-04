@@ -79,7 +79,10 @@ export default function FooterNavBar({
       )}
       {post ? (
         <div className="mb-2 w-full px-2 tablet:hidden">
-          <NewComment post={post} className={{ container: activeClasses }} />
+          <NewComment
+            post={post}
+            className={{ container: classNames(activeClasses, 'h-12') }}
+          />
         </div>
       ) : (
         <ScrollToTopButton />
