@@ -63,7 +63,7 @@ type PostFlags = {
   promoteToPublic: number;
 };
 
-export enum UserPostVote {
+export enum UserVote {
   Up = 1,
   None = 0,
   Down = -1,
@@ -74,7 +74,7 @@ export type UserPostFlags = {
 };
 
 export interface PostUserState {
-  vote: UserPostVote;
+  vote: UserVote;
   flags?: UserPostFlags;
 }
 
@@ -275,14 +275,6 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
 export const DISMISS_POST_FEEDBACK_MUTATION = gql`
   mutation DismissPostFeedback($id: ID!) {
     dismissPostFeedback(id: $id) {
-      _
-    }
-  }
-`;
-
-export const VOTE_POST_MUTATION = gql`
-  mutation VotePost($id: ID!, $vote: Int!) {
-    votePost(id: $id, vote: $vote) {
       _
     }
   }

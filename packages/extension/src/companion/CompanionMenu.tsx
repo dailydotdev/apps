@@ -29,7 +29,7 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import CreateSharedPostModal, {
   CreateSharedPostModalProps,
 } from '@dailydotdev/shared/src/components/modals/post/CreateSharedPostModal';
-import { UserPostVote } from '@dailydotdev/shared/src/graphql/posts';
+import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import { useVotePost } from '@dailydotdev/shared/src/hooks';
 import UpvotedPopupModal, {
   UpvotedPopupModalProps,
@@ -150,7 +150,7 @@ export default function CompanionMenu({
       return;
     }
 
-    await toggleUpvote({ post, origin: Origin.CompanionContextMenu });
+    await toggleUpvote({ payload: post, origin: Origin.CompanionContextMenu });
   };
 
   const onToggleDownvote = async () => {
@@ -163,7 +163,10 @@ export default function CompanionMenu({
       return;
     }
 
-    await toggleDownvote({ post, origin: Origin.CompanionContextMenu });
+    await toggleDownvote({
+      payload: post,
+      origin: Origin.CompanionContextMenu,
+    });
   };
 
   const toggleBookmark = async () => {
@@ -217,16 +220,16 @@ export default function CompanionMenu({
       <SimpleTooltip
         placement="left"
         content={
-          post?.userState?.vote === UserPostVote.Up ? 'Remove upvote' : 'Upvote'
+          post?.userState?.vote === UserVote.Up ? 'Remove upvote' : 'Upvote'
         }
         appendTo="parent"
         container={tooltipContainerProps}
       >
         <Button
           icon={
-            <UpvoteIcon secondary={post?.userState?.vote === UserPostVote.Up} />
+            <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
           }
-          pressed={post?.userState?.vote === UserPostVote.Up}
+          pressed={post?.userState?.vote === UserVote.Up}
           onClick={onToggleUpvote}
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Avocado}

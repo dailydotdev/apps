@@ -7,7 +7,7 @@ import {
   screen,
 } from '@testing-library/react';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { UserPostVote } from '@dailydotdev/shared/src/graphql/posts';
+import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import App from './App';
 
 jest.mock('content-scripts-register-polyfill', () => ({}));
@@ -57,7 +57,7 @@ const defaultPostData = {
   upvoted: true,
   downvoted: false,
   userState: {
-    vote: UserPostVote.Up,
+    vote: UserVote.Up,
   },
 };
 
@@ -119,7 +119,7 @@ describe('companion app', () => {
     renderComponent(
       {
         userState: {
-          vote: UserPostVote.None,
+          vote: UserVote.None,
         },
       },
       {},
@@ -180,7 +180,7 @@ describe('companion app', () => {
     renderComponent(
       {
         userState: {
-          vote: UserPostVote.Up,
+          vote: UserVote.Up,
         },
       },
       {},
@@ -197,7 +197,7 @@ describe('companion app', () => {
     renderComponent(
       {
         userState: {
-          vote: UserPostVote.Down,
+          vote: UserVote.Down,
         },
       },
       {},
@@ -214,7 +214,7 @@ describe('companion app', () => {
     renderComponent(
       {
         userState: {
-          vote: UserPostVote.Up,
+          vote: UserVote.Up,
         },
         numUpvotes: 6,
       },
