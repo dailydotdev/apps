@@ -502,10 +502,10 @@ export const DEV_CARD_QUERY = gql`
 
 export enum AcquisitionChannel {
   Friend = 'friend',
-  SocialMedia = 'social_media',
+  InstagramFacebook = 'instagram_facebook',
+  X = 'x',
+  TikTok = 'tiktok',
   SearchEngine = 'search_engine',
-  Blog = 'blog',
-  ExtensionStore = 'extension_store',
   Advertisement = 'ad',
   Other = 'other',
 }
@@ -526,6 +526,14 @@ export const updateUserAcquisition = (
 export const CLEAR_MARKETING_CTA_MUTATION = gql`
   mutation ClearUserMarketingCta($campaignId: String!) {
     clearUserMarketingCta(campaignId: $campaignId) {
+      _
+    }
+  }
+`;
+
+export const VOTE_MUTATION = gql`
+  mutation Vote($id: ID!, $entity: UserVoteEntity!, $vote: Int!) {
+    vote(id: $id, entity: $entity, vote: $vote) {
       _
     }
   }

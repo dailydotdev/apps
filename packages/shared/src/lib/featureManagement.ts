@@ -2,7 +2,6 @@ import { JSONValue } from '@growthbook/growthbook';
 import {
   ReadingStreaksExperiment,
   PostPageOnboarding,
-  UserAcquisition,
   OnboardingCopy,
 } from './featureValues';
 import { cloudinary } from './image';
@@ -37,7 +36,6 @@ const feature = {
     'post_page_onboarding',
     PostPageOnboarding.Control,
   ),
-  userAcquisition: new Feature('user_acquisition', UserAcquisition.Control),
   forceRefresh: new Feature('force_refresh', false),
   feedAdSpot: new Feature('feed_ad_spot', 0),
   shareLoops: new Feature('share_loops', false),

@@ -384,7 +384,7 @@ describe('ChangelogTooltip component', () => {
     });
 
     expect(toggleUpvote).toHaveBeenCalledWith({
-      post: defaultPost,
+      payload: defaultPost,
       origin: 'changelog popup',
     });
   });

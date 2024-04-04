@@ -19,13 +19,13 @@ const options = [
     label: 'Referred by a friend or colleague',
     value: AcquisitionChannel.Friend,
   },
-  { label: 'Social media', value: AcquisitionChannel.SocialMedia },
-  { label: 'Search engine', value: AcquisitionChannel.SearchEngine },
-  { label: 'Blog, forum, or discussion', value: AcquisitionChannel.Blog },
   {
-    label: 'Browser extension store',
-    value: AcquisitionChannel.ExtensionStore,
+    label: 'Instagram or Facebook',
+    value: AcquisitionChannel.InstagramFacebook,
   },
+  { label: 'X (Formerly Twitter)', value: AcquisitionChannel.X },
+  { label: 'TikTok', value: AcquisitionChannel.TikTok },
+  { label: 'Search engine', value: AcquisitionChannel.SearchEngine },
   {
     label: 'Advertisement or sponsorship',
     value: AcquisitionChannel.Advertisement,

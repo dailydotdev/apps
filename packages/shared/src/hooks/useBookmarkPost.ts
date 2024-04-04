@@ -31,7 +31,7 @@ export type ToggleBookmarkProps = {
   opts?: PostAnalyticsEventFnOptions;
 };
 
-export const bookmarkMutationKey = ['post', 'mutation'];
+export const bookmarkMutationKey = ['post', 'mutation', 'bookmark'];
 
 export type UseBookmarkPostMutationProps = {
   id?: string;

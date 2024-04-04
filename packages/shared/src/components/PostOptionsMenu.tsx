@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
-import { Post, UserPostVote, isVideoPost } from '../graphql/posts';
+import { Post, UserVote, isVideoPost } from '../graphql/posts';
 import {
   TrashIcon,
   HammerIcon,
@@ -331,11 +331,11 @@ export default function PostOptionsMenu({
       icon: (
         <MenuIcon
           className={classNames(
-            post?.userState?.vote === UserPostVote.Down &&
+            post?.userState?.vote === UserVote.Down &&
               'text-theme-color-ketchup',
           )}
           Icon={DownvoteIcon}
-          secondary={post?.userState?.vote === UserPostVote.Down}
+          secondary={post?.userState?.vote === UserVote.Down}
         />
       ),
       label: 'Downvote',
