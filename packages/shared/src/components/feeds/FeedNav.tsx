@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
+import { useRouter } from 'next/router';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import NotificationsBell from '../notifications/NotificationsBell';
 import { useActiveFeedNameContext } from '../../contexts';
@@ -13,10 +14,11 @@ enum FeedNavTab {
 }
 
 function FeedNav(): ReactElement {
+  const router = useRouter();
   const { feedName } = useActiveFeedNameContext();
-  const { home: shouldRenderNav } = useActiveNav(feedName);
+  const { home: shouldRenderNav, notifications } = useActiveNav(feedName);
 
-  if (!shouldRenderNav) {
+  if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
   }
 
@@ -27,6 +29,7 @@ function FeedNav(): ReactElement {
       )}
     >
       <TabContainer
+        controlledActive={notifications ? 'notifications' : undefined}
         shouldMountInactive
         className={{
           header: 'no-scrollbar overflow-x-auto px-1 pr-28',

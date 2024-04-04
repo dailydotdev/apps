@@ -19,6 +19,7 @@ function TabList({
   className = {},
 }: TabListProps): ReactElement {
   const [offset, setOffset] = useState<number>(undefined);
+  const hasActive = items.includes(active);
 
   return (
     <ul className="relative flex flex-row">
@@ -58,7 +59,7 @@ function TabList({
           </span>
         </button>
       ))}
-      {offset !== undefined && (
+      {offset !== undefined && hasActive && (
         <div
           className={classNames(
             'absolute bottom-0 mx-auto h-0.5 w-12 -translate-x-1/2 rounded-4 bg-text-primary transition-[left] ease-linear',

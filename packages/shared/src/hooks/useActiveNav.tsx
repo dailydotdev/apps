@@ -39,10 +39,8 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
 
   const isProfileActive = router.pathname?.includes('/[userId]');
   const isSearchActive = activeFeed === SharedFeedPage.Search;
-  const isBookmarksActive =
-    !isNewMobileLayout && activeFeed === OtherFeedPage.Bookmarks;
-  const isNotificationsActive =
-    !isNewMobileLayout && activeFeed === OtherFeedPage.Notifications;
+  const isBookmarksActive = activeFeed === OtherFeedPage.Bookmarks;
+  const isNotificationsActive = activeFeed === OtherFeedPage.Notifications;
   const isSquadActive = activeFeed === OtherFeedPage.Squad;
 
   return {
