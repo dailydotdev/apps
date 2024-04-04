@@ -1122,7 +1122,7 @@ describe('acquisition form card', () => {
   it('should not show the card if the user has submitted already', async () => {
     renderComponent([createFeedMock()], {
       ...defaultUser,
-      acquisitionChannel: AcquisitionChannel.Blog,
+      acquisitionChannel: AcquisitionChannel.Friend,
     });
 
     const card = screen.queryByTestId('acquisitionFormCard');
