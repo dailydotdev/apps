@@ -1,6 +1,7 @@
 import React, { ReactElement, useState } from 'react';
 import { Drawer } from '@dailydotdev/shared/src/components/drawers';
 import {
+  AllowedTags,
   Button,
   ButtonSize,
   ButtonVariant,
@@ -12,16 +13,21 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { link } from '@dailydotdev/shared/src/lib/links';
 import { RootPortal } from '@dailydotdev/shared/src/components/tooltips/Portal';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 
 export function FooterPlusButton(): ReactElement {
+  const { user } = useAuthContext();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const props = user
+    ? { onClick: () => setIsDrawerOpen(true) }
+    : { tag: 'a' as AllowedTags, href: '/onboarding' };
 
   return (
     <>
       <Button
+        {...props}
         icon={<PlusIcon />}
         variant={ButtonVariant.Float}
-        onClick={() => setIsDrawerOpen(true)}
         className="z-1 border border-border-subtlest-tertiary"
       />
       <RootPortal>

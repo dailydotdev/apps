@@ -15,6 +15,7 @@ import { FooterNavBarItem, FooterNavBarItemProps } from './FooterNavBarItem';
 
 export const mobileUxTabs: (FooterTab | ReactNode)[] = [
   {
+    requiresLogin: true,
     path: '/',
     title: 'Home',
     icon: (active: boolean) => (
@@ -22,6 +23,7 @@ export const mobileUxTabs: (FooterTab | ReactNode)[] = [
     ),
   },
   {
+    requiresLogin: true,
     path: '/search',
     title: 'Search',
     icon: (active: boolean) => (
@@ -30,7 +32,6 @@ export const mobileUxTabs: (FooterTab | ReactNode)[] = [
   },
   <FooterPlusButton key="write-action" />,
   {
-    requiresLogin: true,
     path: '/squads',
     title: 'Squads',
     icon: (active: boolean) => (
@@ -59,7 +60,14 @@ const Tab = ({ tab, isActive }: TabProps) => {
       isActive={isActive}
       className="flex h-full flex-col items-center justify-center"
     >
-      <Link href={getNavPath(tab.path, user)} passHref>
+      <Link
+        href={
+          !user && tab.requiresLogin
+            ? '/onboarding'
+            : getNavPath(tab.path, user)
+        }
+        passHref
+      >
         <a
           className={classNames(
             'flex flex-col items-center justify-center',
@@ -77,12 +85,6 @@ const Tab = ({ tab, isActive }: TabProps) => {
 export function FooterNavBarV1({
   activeTab,
 }: FooterNavBarContainerProps): ReactElement {
-  const { user } = useAuthContext();
-
-  if (!user) {
-    return null;
-  }
-
   return (
     <>
       {mobileUxTabs.map((tab) => {
