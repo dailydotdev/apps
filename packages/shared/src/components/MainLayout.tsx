@@ -225,7 +225,7 @@ function MainLayoutComponent({
       />
       <main
         className={classNames(
-          'flex flex-col tablet:flex-row',
+          'flex flex-col laptop:flex-row',
           className,
           !isScreenCentered && sidebarExpanded
             ? 'laptop:pl-60'
