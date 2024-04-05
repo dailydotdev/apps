@@ -34,6 +34,7 @@ import { feature } from '../../lib/featureManagement';
 import { getReadArticleLink } from '../utilities';
 import { FlagProps } from './FeedItemContainer';
 import { IconSize } from '../Icon';
+import { TrendingFlag } from './common/TrendingFlag';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -153,10 +154,7 @@ export default function ActionButtons({
       {insaneMode ? (
         <>
           {flagProps?.trending && (
-            <div className="absolute right-0 flex h-8 items-center rounded-10 bg-action-downvote-default px-3 py-1 font-bold text-white typo-callout laptop:mouse:group-hover:invisible">
-              Trending{' '}
-              <TrendingIcon className="ml-1" secondary size={IconSize.Small} />
-            </div>
+            <TrendingFlag className={{ container: 'right-0' }} />
           )}
           <div
             className={classNames('flex justify-between', visibleOnGroupHover)}

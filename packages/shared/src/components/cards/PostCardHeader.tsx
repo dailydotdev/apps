@@ -12,6 +12,7 @@ import { ButtonVariant } from '../buttons/Button';
 import { FlagProps } from './FeedItemContainer';
 import { TrendingIcon } from '../icons';
 import { IconSize } from '../Icon';
+import { TrendingFlag } from './common/TrendingFlag';
 
 interface CardHeaderProps {
   post: Post;
@@ -45,12 +46,7 @@ export const PostCardHeader = ({
     <CardHeader className={classNames(className, 'relative')}>
       <SourceButton source={source} />
       {children}
-      {trending && (
-        <div className="absolute right-0 flex h-8 items-center rounded-10 bg-action-downvote-default px-3 py-1 font-bold text-white typo-callout laptop:mouse:group-hover:invisible">
-          Trending{' '}
-          <TrendingIcon className="ml-1" secondary size={IconSize.Small} />
-        </div>
-      )}
+      {trending && <TrendingFlag className={{ container: 'right-0' }} />}
       <Container
         className="ml-auto flex flex-row"
         data-testid="cardHeaderActions"

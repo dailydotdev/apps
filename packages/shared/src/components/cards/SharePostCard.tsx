@@ -12,8 +12,7 @@ import { SquadPostCardHeader } from './common/SquadPostCardHeader';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { TrendingFlag } from '../../lib/featureValues';
-import { TrendingIcon } from '../icons';
-import { IconSize } from '../Icon';
+import { TrendingFlag as TrendingFlagComponent } from './common/TrendingFlag';
 
 export const SharePostCard = forwardRef(function SharePostCard(
   {
@@ -64,10 +63,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
         <CardButton title={post.title} onClick={onPostCardClick} />
       )}
       {trending && isTrendingFlagV1 && (
-        <div className="absolute right-2 top-2 z-1 flex h-8 items-center rounded-10 bg-action-downvote-default px-3 py-1 font-bold text-white typo-callout laptop:mouse:group-hover:invisible">
-          Trending{' '}
-          <TrendingIcon className="ml-1" secondary size={IconSize.Small} />
-        </div>
+        <TrendingFlagComponent className={{ container: 'right-2 top-2' }} />
       )}
       <OptionsButton
         className="absolute right-2 top-2 group-hover:flex laptop:hidden"
