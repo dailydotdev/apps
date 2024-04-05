@@ -24,8 +24,8 @@ import { Comment } from '../../graphql/comments';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
-import CommentInputOrPage from './CommentInputOrPage';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import CommentInputOrModal from './CommentInputOrModal';
 
 type ClassName = {
   container?: string;
@@ -164,7 +164,7 @@ export default function MainComment({
         />
       )}
       {editProps && (
-        <CommentInputOrPage
+        <CommentInputOrModal
           {...editProps}
           post={props.post}
           onCommented={(...params) => {
@@ -176,7 +176,7 @@ export default function MainComment({
         />
       )}
       {commentId === comment.id && (
-        <CommentInputOrPage
+        <CommentInputOrModal
           {...replyProps}
           post={props.post}
           onCommented={(...params) => {
@@ -185,6 +185,7 @@ export default function MainComment({
           }}
           onClose={() => onReplyTo(null)}
           className={{ input: className?.commentBox }}
+          replyToCommentId={commentId}
         />
       )}
       {inView &&

@@ -38,8 +38,8 @@ export default function FooterNavBarLayout({
 
   return (
     <>
-      <FooterNavBar showNav={showNav} post={post} />
       {children}
+      <FooterNavBar showNav={showNav} post={post} />
     </>
   );
 }

@@ -1,9 +1,10 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
+import { useRouter } from 'next/router';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { BellIcon } from '../icons';
 import { Bubble } from '../tooltips/utils';
-import { checkAtNotificationsPage, getUnreadText } from './utils';
+import { getUnreadText, notificationsUrl } from './utils';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../../lib/analytics';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
@@ -12,11 +13,12 @@ import { webappUrl } from '../../lib/constants';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 
 function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
+  const router = useRouter();
+  const atNotificationsPage = router.pathname === notificationsUrl;
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
   const { isNewMobileLayout } = useMobileUxExperiment();
   const hasNotification = !!unreadCount;
-  const atNotificationsPage = checkAtNotificationsPage();
   const onNavigateNotifications = () => {
     trackEvent({
       event_name: AnalyticsEvent.ClickNotificationIcon,
@@ -24,6 +26,8 @@ function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
   };
+
+  const mobileVariant = atNotificationsPage ? undefined : ButtonVariant.Option;
 
   return (
     <LinkWithTooltip
@@ -37,20 +41,10 @@ function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
         )}
       >
         <Button
-          variant={
-            isNewMobileLayout ? ButtonVariant.Option : ButtonVariant.Float
-          }
+          variant={isNewMobileLayout ? mobileVariant : ButtonVariant.Float}
           className={classNames(isNewMobileLayout && 'justify-center')}
           onClick={onNavigateNotifications}
-          icon={
-            <BellIcon
-              className={classNames(
-                'hover:text-theme-label-primary',
-                atNotificationsPage && 'text-theme-label-primary',
-              )}
-              secondary={atNotificationsPage}
-            />
-          }
+          icon={<BellIcon secondary={atNotificationsPage} />}
         />
         {hasNotification && (
           <Bubble
