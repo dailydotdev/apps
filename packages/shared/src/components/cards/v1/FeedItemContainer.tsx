@@ -32,11 +32,13 @@ function FeedItemContainer(
 ): ReactElement {
   const { adAttribution, pinnedAt, trending, type } = flagProps;
 
-  const raisedLabelType = pinnedAt
-    ? RaisedLabelType.Pinned
+  const HotType = isTrendingFlagV1
+    ? RaisedLabelType.HotV1
     : RaisedLabelType.Hot;
+  const raisedLabelType = pinnedAt ? RaisedLabelType.Pinned : HotType;
   const description =
-    raisedLabelType === RaisedLabelType.Hot && trending > 0
+    [RaisedLabelType.Hot, RaisedLabelType.HotV1].includes(raisedLabelType) &&
+    trending > 0
       ? `${trending} devs read it last hour`
       : undefined;
   const isFeedPreview = useFeedPreviewMode();

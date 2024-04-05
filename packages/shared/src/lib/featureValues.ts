@@ -20,3 +20,8 @@ export enum OnboardingCopy {
   Control = 'control',
   V1 = 'v1',
 }
+
+export enum TrendingFlag {
+  Control = 'control',
+  V1 = 'v1',
+}

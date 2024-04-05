@@ -14,6 +14,7 @@ import {
   DiscussIcon as CommentIcon,
   BookmarkIcon,
   LinkIcon,
+  TrendingIcon,
 } from '../icons';
 import {
   Button,
@@ -31,6 +32,8 @@ import { useFeedPreviewMode } from '../../hooks';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { getReadArticleLink } from '../utilities';
+import { FlagProps } from './FeedItemContainer';
+import { IconSize } from '../Icon';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -43,6 +46,7 @@ export interface ActionButtonsProps {
   className?: string;
   insaneMode?: boolean;
   openNewTab?: boolean;
+  flagProps?: FlagProps;
 }
 
 export default function ActionButtons({
@@ -56,6 +60,7 @@ export default function ActionButtons({
   onCopyLinkClick,
   className,
   insaneMode,
+  flagProps,
 }: ActionButtonsProps): ReactElement {
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
   const upvoteCommentProps: ButtonProps<'button'> = {
@@ -146,25 +151,33 @@ export default function ActionButtons({
         {insaneMode && lastActions}
       </ConditionalWrapper>
       {insaneMode ? (
-        <div
-          className={classNames('flex justify-between', visibleOnGroupHover)}
-        >
-          {!isInternalReadType(post) && (
-            <ReadArticleButton
-              content={getReadPostButtonText(post)}
-              className="mr-2"
-              variant={ButtonVariant.Primary}
-              href={getReadArticleLink(post)}
-              onClick={onReadArticleClick}
-              openNewTab={!isSharedPostSquadPost(post) && openNewTab}
-            />
+        <>
+          {flagProps?.trending && (
+            <div className="absolute right-0 flex h-8 items-center rounded-10 bg-action-downvote-default px-3 py-1 font-bold text-white typo-callout laptop:mouse:group-hover:invisible">
+              Trending{' '}
+              <TrendingIcon className="ml-1" secondary size={IconSize.Small} />
+            </div>
           )}
-          <OptionsButton
-            className={visibleOnGroupHover}
-            onClick={onMenuClick}
-            tooltipPlacement="top"
-          />
-        </div>
+          <div
+            className={classNames('flex justify-between', visibleOnGroupHover)}
+          >
+            {!isInternalReadType(post) && (
+              <ReadArticleButton
+                content={getReadPostButtonText(post)}
+                className="mr-2"
+                variant={ButtonVariant.Primary}
+                href={getReadArticleLink(post)}
+                onClick={onReadArticleClick}
+                openNewTab={!isSharedPostSquadPost(post) && openNewTab}
+              />
+            )}
+            <OptionsButton
+              className={visibleOnGroupHover}
+              onClick={onMenuClick}
+              tooltipPlacement="top"
+            />
+          </div>
+        </>
       ) : (
         lastActions
       )}
