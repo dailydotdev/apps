@@ -121,6 +121,7 @@ export interface Post {
   userState?: PostUserState;
   videoId?: string;
   updatedAt?: string;
+  slug?: string;
 }
 
 export type RelatedPost = Pick<
@@ -267,6 +268,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       type
       updatedAt
       numCollectionSources
+      slug
     }
   }
   ${SOURCE_SHORT_INFO_FRAGMENT}
