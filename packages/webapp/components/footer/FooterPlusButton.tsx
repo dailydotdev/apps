@@ -1,5 +1,5 @@
-import React, { ReactElement, useState } from 'react';
-import { Drawer } from '@dailydotdev/shared/src/components/drawers';
+import React, { ReactElement, useRef, useState } from 'react';
+import { Drawer, DrawerRef } from '@dailydotdev/shared/src/components/drawers';
 import {
   AllowedTags,
   Button,
@@ -40,6 +40,7 @@ const ActionButton = <TagName extends AllowedTags>({
 export function FooterPlusButton(): ReactElement {
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
+  const drawerRef = useRef<DrawerRef>();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const props = user
     ? { onClick: () => setIsDrawerOpen(true) }
@@ -55,6 +56,7 @@ export function FooterPlusButton(): ReactElement {
       />
       <RootPortal>
         <Drawer
+          ref={drawerRef}
           displayCloseButton
           isOpen={isDrawerOpen}
           onClose={() => setIsDrawerOpen(false)}
@@ -72,7 +74,10 @@ export function FooterPlusButton(): ReactElement {
             </ActionButton>
             <ActionButton
               icon={<DocsIcon />}
-              onClick={() => openModal({ type: LazyModal.SubmitArticle })}
+              onClick={() => {
+                drawerRef?.current?.onClose();
+                openModal({ type: LazyModal.SubmitArticle });
+              }}
             >
               Submit article
             </ActionButton>
