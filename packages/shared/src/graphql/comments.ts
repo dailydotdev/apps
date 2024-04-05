@@ -1,10 +1,6 @@
 import request, { gql } from 'graphql-request';
 import { Connection } from './common';
-import {
-  COMMENT_FRAGMENT,
-  SHARED_POST_INFO_FRAGMENT,
-  USER_SHORT_INFO_FRAGMENT,
-} from './fragments';
+import { COMMENT_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
 import { graphqlUrl } from '../lib/config';
@@ -267,29 +263,4 @@ export const COMMENT_BY_ID_QUERY = gql`
       content
     }
   }
-`;
-
-export const COMMENT_BY_ID_WITH_POST_QUERY = gql`
-  query CommentByIDWithPost($id: ID!) {
-    comment(id: $id) {
-      id
-      content
-      contentHtml
-      createdAt
-      lastUpdatedAt
-      permalink
-      upvoted
-      numUpvotes
-      parent {
-        id
-      }
-      author {
-        ...UserShortInfo
-      }
-      post {
-        ...SharedPostInfo
-      }
-    }
-  }
-  ${SHARED_POST_INFO_FRAGMENT}
 `;
