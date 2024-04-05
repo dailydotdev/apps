@@ -142,7 +142,7 @@ export default function Feed<T>({
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseMobileFeedLayout, shouldOpenPostModal } = useFeedLayout();
   const showAcquisitionForm =
     feedName === SharedFeedPage.MyFeed &&
     (router.query?.[acquisitionKey] as string)?.toLocaleLowerCase() ===
@@ -290,7 +290,7 @@ export default function Feed<T>({
     await onPostClick(post, index, row, column, {
       skipPostUpdate: true,
     });
-    if (!shouldUseMobileFeedLayout) {
+    if (shouldOpenPostModal) {
       onPostModalOpen(index);
     }
   };
@@ -328,7 +328,7 @@ export default function Feed<T>({
         ...feedAnalyticsExtra(feedName, ranking),
       }),
     );
-    if (!shouldUseMobileFeedLayout) {
+    if (shouldOpenPostModal) {
       onPostModalOpen(index);
     }
   };
@@ -444,7 +444,7 @@ export default function Feed<T>({
           {...commonMenuItems}
           onHidden={onShareOptionsHidden}
         />
-        {!shouldUseMobileFeedLayout && selectedPost && PostModal && (
+        {shouldOpenPostModal && selectedPost && PostModal && (
           <PostModal
             isOpen={!!selectedPost}
             id={selectedPost.id}

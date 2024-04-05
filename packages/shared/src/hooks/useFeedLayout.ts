@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { SharedFeedPage } from '../components/utilities';
 import { AllFeedPages } from '../lib/query';
-import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
+import { useActiveFeedNameContext } from '../contexts';
 import { useViewSize, ViewSize } from './useViewSize';
 
 interface UseFeedLayoutProps {
@@ -11,6 +11,7 @@ interface UseFeedLayoutProps {
 
 interface UseFeedLayout {
   shouldUseMobileFeedLayout: boolean;
+  shouldOpenPostModal: boolean;
 }
 
 export const FeedLayoutMobileFeedPages = new Set(
@@ -41,5 +42,6 @@ export const useFeedLayout = ({
 
   return {
     shouldUseMobileFeedLayout,
+    shouldOpenPostModal: isLaptop,
   };
 };
