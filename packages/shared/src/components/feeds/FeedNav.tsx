@@ -11,6 +11,8 @@ enum FeedNavTab {
   Popular = 'Popular',
   Bookmarks = 'Bookmarks',
   History = 'History',
+  MostUpvoted = 'Most Upvoted',
+  Discussions = 'Discussions',
 }
 
 function FeedNav(): ReactElement {
@@ -41,6 +43,8 @@ function FeedNav(): ReactElement {
       >
         <Tab label={FeedNavTab.ForYou} url="/" />
         <Tab label={FeedNavTab.Popular} url="/popular" />
+        <Tab label={FeedNavTab.MostUpvoted} url="/upvoted" />
+        <Tab label={FeedNavTab.Discussions} url="/discussed" />
         <Tab label={FeedNavTab.Bookmarks} url="/bookmarks" />
         <Tab label={FeedNavTab.History} url="/history" />
       </TabContainer>
