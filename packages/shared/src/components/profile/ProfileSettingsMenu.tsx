@@ -37,9 +37,8 @@ const useMenuItems = (): NavItemProps[] => {
   const onLogout = useCallback(async () => {
     const shouldLogout = await showPrompt({
       title: 'Are you sure?',
-      className: { buttons: 'mt-5' },
+      className: { buttons: 'mt-5 flex-col-reverse' },
       okButton: { title: 'Logout', color: ButtonColor.Ketchup },
-      cancelButton: { title: 'Stay' },
     });
 
     if (shouldLogout) {
