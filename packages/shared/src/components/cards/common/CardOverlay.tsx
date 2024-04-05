@@ -14,13 +14,13 @@ const CardOverlay = ({
   onPostCardClick,
 }: CardOverlayProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
-  const { shouldOpenPostModal } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
 
   if (isFeedPreview) {
     return null;
   }
 
-  if (shouldOpenPostModal) {
+  if (shouldUseMobileFeedLayout) {
     return <CardButton title={post.title} onClick={onPostCardClick} />;
   }
 

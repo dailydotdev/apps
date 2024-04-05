@@ -11,7 +11,6 @@ interface UseFeedLayoutProps {
 
 interface UseFeedLayout {
   shouldUseMobileFeedLayout: boolean;
-  shouldOpenPostModal: boolean;
 }
 
 export const FeedLayoutMobileFeedPages = new Set(
@@ -42,6 +41,5 @@ export const useFeedLayout = ({
 
   return {
     shouldUseMobileFeedLayout,
-    shouldOpenPostModal: isLaptop,
   };
 };
