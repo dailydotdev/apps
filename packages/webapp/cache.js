@@ -79,7 +79,8 @@ module.exports = [
     },
   },
   {
-    urlPattern: /\.(?:js)$/i,
+    urlPattern:
+      /^(?!.*react-syntax-highlighter|reactSyntaxHighlighterLanguages).*\.js$/i,
     handler: 'StaleWhileRevalidate',
     options: {
       cacheName: 'static-js-assets',
