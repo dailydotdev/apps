@@ -11,6 +11,8 @@ enum FeedNavTab {
   Popular = 'Popular',
   Bookmarks = 'Bookmarks',
   History = 'History',
+  MostUpvoted = 'Most Upvoted',
+  Discussions = 'Discussions',
 }
 
 function FeedNav(): ReactElement {
@@ -34,10 +36,15 @@ function FeedNav(): ReactElement {
         className={{
           header: 'no-scrollbar overflow-x-auto px-1 pr-28',
         }}
-        tabListProps={{ className: { indicator: '!w-6' } }}
+        tabListProps={{
+          className: { indicator: '!w-6', item: 'px-1' },
+          autoScrollActive: true,
+        }}
       >
         <Tab label={FeedNavTab.ForYou} url="/" />
         <Tab label={FeedNavTab.Popular} url="/popular" />
+        <Tab label={FeedNavTab.MostUpvoted} url="/upvoted" />
+        <Tab label={FeedNavTab.Discussions} url="/discussed" />
         <Tab label={FeedNavTab.Bookmarks} url="/bookmarks" />
         <Tab label={FeedNavTab.History} url="/history" />
       </TabContainer>

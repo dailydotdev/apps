@@ -9,7 +9,6 @@ import {
   DevCardIcon,
   ExitIcon,
   EmbedIcon,
-  LinkIcon,
   DocsIcon,
   TerminalIcon,
   FeedbackIcon,
@@ -89,11 +88,6 @@ const useMenuItems = (): NavItemProps[] => {
       {
         label: 'Contribute',
         isHeader: true,
-      },
-      {
-        label: 'Submit article',
-        icon: <LinkIcon />,
-        onClick: () => openModal({ type: LazyModal.SubmitArticle }),
       },
       {
         label: 'Suggest new source',
