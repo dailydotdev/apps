@@ -31,6 +31,8 @@ import { useFeedPreviewMode } from '../../hooks';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { getReadArticleLink } from '../utilities';
+import { FlagProps } from './FeedItemContainer';
+import { TrendingFlag } from './common/TrendingFlag';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -43,6 +45,7 @@ export interface ActionButtonsProps {
   className?: string;
   insaneMode?: boolean;
   openNewTab?: boolean;
+  flagProps?: FlagProps;
 }
 
 export default function ActionButtons({
@@ -56,6 +59,7 @@ export default function ActionButtons({
   onCopyLinkClick,
   className,
   insaneMode,
+  flagProps,
 }: ActionButtonsProps): ReactElement {
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
   const upvoteCommentProps: ButtonProps<'button'> = {
@@ -146,25 +150,30 @@ export default function ActionButtons({
         {insaneMode && lastActions}
       </ConditionalWrapper>
       {insaneMode ? (
-        <div
-          className={classNames('flex justify-between', visibleOnGroupHover)}
-        >
-          {!isInternalReadType(post) && (
-            <ReadArticleButton
-              content={getReadPostButtonText(post)}
-              className="mr-2"
-              variant={ButtonVariant.Primary}
-              href={getReadArticleLink(post)}
-              onClick={onReadArticleClick}
-              openNewTab={!isSharedPostSquadPost(post) && openNewTab}
-            />
+        <>
+          {flagProps?.trending && (
+            <TrendingFlag className={{ container: 'right-0' }} />
           )}
-          <OptionsButton
-            className={visibleOnGroupHover}
-            onClick={onMenuClick}
-            tooltipPlacement="top"
-          />
-        </div>
+          <div
+            className={classNames('flex justify-between', visibleOnGroupHover)}
+          >
+            {!isInternalReadType(post) && (
+              <ReadArticleButton
+                content={getReadPostButtonText(post)}
+                className="mr-2"
+                variant={ButtonVariant.Primary}
+                href={getReadArticleLink(post)}
+                onClick={onReadArticleClick}
+                openNewTab={!isSharedPostSquadPost(post) && openNewTab}
+              />
+            )}
+            <OptionsButton
+              className={visibleOnGroupHover}
+              onClick={onMenuClick}
+              tooltipPlacement="top"
+            />
+          </div>
+        </>
       ) : (
         lastActions
       )}

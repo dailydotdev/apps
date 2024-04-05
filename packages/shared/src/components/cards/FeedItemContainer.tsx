@@ -16,7 +16,7 @@ import {
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useFeedPreviewMode } from '../../hooks';
 
-interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
+export interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;
 }
 
