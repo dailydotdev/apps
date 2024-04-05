@@ -21,6 +21,7 @@ module.exports = withTM(
       dest: 'public',
       disable: process.env.NODE_ENV === 'development',
       runtimeCaching,
+      buildExcludes: [/react-syntax-highlighter|reactSyntaxHighlighter/]
     },
       ...withBundleAnalyzer({
         i18n: {

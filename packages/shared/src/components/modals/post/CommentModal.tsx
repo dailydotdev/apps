@@ -24,6 +24,7 @@ import { Switch } from '../../fields/Switch';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import CommentContainer from '../../comments/CommentContainer';
 import { WriteCommentContext } from '../../../contexts/WriteCommentContext';
+import useCommentById from '../../../hooks/comments/useCommentById';
 
 const getCommentFromCache = ({
   client,
@@ -92,6 +93,11 @@ export default function CommentModal({
   const isEdit = !!editCommentId;
   const isReply = !isEdit && !!replyToCommentId;
 
+  const { comment: commentById } = useCommentById({
+    id: editCommentId,
+    options: { enabled: !!editCommentId },
+  });
+
   const refCallback = useCallback(
     (node) => {
       if (node) {
@@ -134,7 +140,7 @@ export default function CommentModal({
   const mutateCommentResult = useMutateComment({
     post,
     editCommentId: isEdit && editCommentId,
-    parentCommentId: isEdit ? comment?.parent?.id : parentCommentId,
+    parentCommentId,
     onCommented: onSuccess,
   });
   const { isLoading, isSuccess } = mutateCommentResult;
@@ -162,7 +168,7 @@ export default function CommentModal({
     if (isEdit) {
       return {
         submitCopy: 'Save',
-        initialContent: comment?.content,
+        initialContent: commentById?.content,
       };
     }
     if (isReply) {
@@ -175,7 +181,7 @@ export default function CommentModal({
       };
     }
     return { submitCopy: 'Comment' };
-  }, [isEdit, isReply, comment, user?.id]);
+  }, [isEdit, isReply, comment, commentById, user?.id]);
 
   return (
     <Modal

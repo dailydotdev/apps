@@ -68,7 +68,7 @@ export default function FooterNavBar({
   return (
     <div
       className={classNames(
-        'sticky bottom-0 left-0 z-2 mt-auto w-full',
+        'fixed !bottom-0 left-0 z-2 w-full',
         isNewMobileLayout
           ? 'bg-gradient-to-t from-blur-baseline via-blur-bg via-70% to-transparent p-2'
           : post && 'bg-blur-bg backdrop-blur-20',
