@@ -67,13 +67,11 @@ const RawPageWidgets = classed(
 );
 
 interface PageWidgetsProps {
-  tablet?: boolean;
   laptop?: boolean;
   className?: string;
   children?: ReactNode;
 }
 export const PageWidgets = ({
-  tablet = true,
   laptop = true,
   className,
   children,
