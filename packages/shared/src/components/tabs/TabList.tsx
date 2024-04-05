@@ -1,8 +1,15 @@
 import classNames from 'classnames';
-import React, { ReactElement, useState } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 interface ClassName {
   indicator?: string;
+  item?: string;
 }
 
 export interface TabListProps {
@@ -10,6 +17,7 @@ export interface TabListProps {
   active: string;
   onClick?: (label: string) => unknown;
   className?: ClassName;
+  autoScrollActive?: boolean;
 }
 
 function TabList({
@@ -17,9 +25,41 @@ function TabList({
   active,
   onClick,
   className = {},
+  autoScrollActive,
 }: TabListProps): ReactElement {
-  const [offset, setOffset] = useState<number>(undefined);
   const hasActive = items.includes(active);
+  const [offset, setOffset] = useState<number>(0);
+  const currentActiveTab = useRef<HTMLButtonElement>(null);
+  const activeTabRect = currentActiveTab.current?.getBoundingClientRect();
+  const indicatorOffset = activeTabRect
+    ? activeTabRect.width / 2 + activeTabRect.left
+    : 0;
+
+  const scrollIfNotInView = useCallback(() => {
+    if (autoScrollActive && currentActiveTab.current) {
+      if (!activeTabRect) {
+        return;
+      }
+
+      const scrollableParent =
+        currentActiveTab.current.parentElement.parentElement;
+      const scrollableParentRect = scrollableParent.getBoundingClientRect();
+
+      if (
+        activeTabRect.left < scrollableParentRect.left ||
+        activeTabRect.right > scrollableParentRect.right
+      ) {
+        currentActiveTab.current.parentElement.parentElement.scrollTo({
+          left: offset,
+          behavior: 'smooth',
+        });
+      }
+    }
+  }, [autoScrollActive, activeTabRect, offset]);
+
+  useEffect(() => {
+    scrollIfNotInView();
+  }, [scrollIfNotInView]);
 
   return (
     <ul className="relative flex flex-row">
@@ -31,17 +71,11 @@ function TabList({
               return;
             }
 
-            const rect = el.getBoundingClientRect();
-
-            if (rect.width === 0) {
-              return;
-            }
-
-            const size = rect.width / 2;
-            const value = size + el.offsetLeft;
-            setOffset(value);
+            currentActiveTab.current = el;
+            setOffset(el.offsetLeft);
           }}
           className={classNames(
+            className.item,
             'relative p-2 py-4 text-center font-bold typo-callout',
             tab === active ? '' : 'text-text-tertiary',
           )}
@@ -59,13 +93,13 @@ function TabList({
           </span>
         </button>
       ))}
-      {offset !== undefined && hasActive && (
+      {indicatorOffset && hasActive && (
         <div
           className={classNames(
             'absolute bottom-0 mx-auto h-0.5 w-12 -translate-x-1/2 rounded-4 bg-text-primary transition-[left] ease-linear',
             className?.indicator,
           )}
-          style={{ left: offset }}
+          style={{ left: indicatorOffset }}
         />
       )}
     </ul>
