@@ -118,15 +118,11 @@ export const COMMENT_FRAGMENT = gql`
   fragment CommentFragment on Comment {
     id
     contentHtml
-    content
     createdAt
     lastUpdatedAt
     permalink
     upvoted
     numUpvotes
-    parent {
-      id
-    }
     author {
       ...UserShortInfo
     }
