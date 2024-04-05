@@ -159,6 +159,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
             container: 'flex tablet:hidden',
             actions: 'flex-1 justify-between',
           },
+          content: 'laptop:pt-8',
         }}
       />
       {shouldShowAuthBanner && isLaptop && <AuthenticationBanner />}

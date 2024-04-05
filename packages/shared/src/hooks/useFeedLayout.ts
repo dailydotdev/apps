@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { SharedFeedPage } from '../components/utilities';
 import { AllFeedPages } from '../lib/query';
-import { useActiveFeedNameContext } from '../contexts';
+import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import { useViewSize, ViewSize } from './useViewSize';
 
 interface UseFeedLayoutProps {

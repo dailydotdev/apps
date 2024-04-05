@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { CardButton, CardLink } from '../Card';
 import { useFeedLayout, useFeedPreviewMode } from '../../../hooks';
 import { Post } from '../../../graphql/posts';
@@ -9,7 +9,10 @@ interface CardOverlayProps {
   onPostCardClick: () => void;
 }
 
-const CardOverlay = ({ post, onPostCardClick }: CardOverlayProps) => {
+const CardOverlay = ({
+  post,
+  onPostCardClick,
+}: CardOverlayProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
   const { shouldOpenPostModal } = useFeedLayout();
 
