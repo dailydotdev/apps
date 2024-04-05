@@ -57,7 +57,7 @@ export const usePostModalNavigation = (
     setOpenedPostIndex(index);
     const post = !fromPopState && getPost(index);
     if (post) {
-      changeHistory({}, `Post: ${post.id}`, `/posts/${post.id}`);
+      changeHistory({}, `Post: ${post.id}`, `/posts/${post.slug}`);
     }
     if (post?.type === PostType.Share) {
       const item = getPostItem(index);

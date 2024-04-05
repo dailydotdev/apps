@@ -108,6 +108,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
         feedbackDismiss
       }
     }
+    slug
   }
   ${SOURCE_BASE_FRAGMENT}
   ${USER_SHORT_INFO_FRAGMENT}
@@ -117,15 +118,11 @@ export const COMMENT_FRAGMENT = gql`
   fragment CommentFragment on Comment {
     id
     contentHtml
-    content
     createdAt
     lastUpdatedAt
     permalink
     upvoted
     numUpvotes
-    parent {
-      id
-    }
     author {
       ...UserShortInfo
     }
