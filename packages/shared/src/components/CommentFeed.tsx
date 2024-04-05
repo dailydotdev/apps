@@ -17,7 +17,6 @@ import { Connection } from '../graphql/common';
 import PlaceholderCommentList from './comments/PlaceholderCommentList';
 import { CommentClassName } from './comments/common';
 import { useMobileUxExperiment } from '../hooks/useMobileUxExperiment';
-import FeedSelector from './FeedSelector';
 
 const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ './modals/ShareModal'),
@@ -82,23 +81,11 @@ export default function CommentFeed<T>({
   }
 
   if (showEmptyScreen && emptyScreen) {
-    return (
-      <>
-        {isNewMobileLayout && isMainFeed && (
-          <FeedSelector className="self-start px-4 py-10" />
-        )}
-
-        {emptyScreen}
-      </>
-    );
+    return <>{emptyScreen}</>;
   }
 
   return (
     <>
-      {isNewMobileLayout && isMainFeed && (
-        <FeedSelector className="self-start p-4" />
-      )}
-
       <InfiniteScrolling
         isFetchingNextPage={queryResult.isFetchingNextPage}
         canFetchMore={checkFetchMore(queryResult)}
