@@ -71,7 +71,6 @@ import {
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
-import { ActiveUsersCounter } from '@dailydotdev/shared/src/components/auth/ActiveUsersCounter';
 import { ReadingReminder } from '@dailydotdev/shared/src/components/auth/ReadingReminder';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
@@ -376,9 +375,6 @@ export function OnboardPage(): ReactElement {
       </div>
     );
   };
-
-  const shouldShowOnline = useFeature(feature.onboardingOnlineUsers);
-
   const getProgressBar = () => {
     if (activeScreen !== OnboardingStep.Intro) {
       return null;
@@ -424,7 +420,6 @@ export function OnboardPage(): ReactElement {
               `${isOnboardingCopyV1 ? 'mt-6' : 'mt-5'} tablet:mt-0`,
             )}
           >
-            {shouldShowOnline && <ActiveUsersCounter />}
             <OnboardingHeadline
               className={{
                 title: classNames(

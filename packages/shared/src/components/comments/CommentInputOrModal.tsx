@@ -1,15 +1,17 @@
 import React, { ReactElement } from 'react';
-import { useRouter } from 'next/router';
 import {
   CommentMarkdownInput,
   CommentMarkdownInputProps,
 } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { ViewSize, useViewSize } from '../../hooks';
-import { useMutateComment } from '../../hooks/post/useMutateComment';
+import { LazyModalCommonProps } from '../modals/common/Modal';
+import CommentModal from '../modals/post/CommentModal';
 import { WriteCommentContext } from '../../contexts/WriteCommentContext';
+import { useMutateComment } from '../../hooks/post/useMutateComment';
 
-interface CommentInputOrPageProps
-  extends Omit<CommentMarkdownInputProps, 'className'> {
+interface CommentInputOrModalProps
+  extends Partial<LazyModalCommonProps>,
+    Omit<CommentMarkdownInputProps, 'className'> {
   onClose?: () => void;
   className?: {
     input?: CommentMarkdownInputProps['className'];
@@ -18,13 +20,13 @@ interface CommentInputOrPageProps
   replyToCommentId?: string;
 }
 
-export default function CommentInputOrPage({
+export default function CommentInputOrModal({
   onClose,
   className,
   ...props
-}: CommentInputOrPageProps): ReactElement {
-  const isMobile = useViewSize(ViewSize.MobileL);
-  const router = useRouter();
+}: CommentInputOrModalProps): ReactElement {
+  const isModal = !useViewSize(ViewSize.Tablet);
+
   const mutateCommentResult = useMutateComment({
     post: props.post,
     editCommentId: props.editCommentId,
@@ -32,24 +34,8 @@ export default function CommentInputOrPage({
     onCommented: props.onCommented,
   });
 
-  if (isMobile) {
-    const commentId = props.editCommentId ?? 'new';
-    const editSuffix = props.editCommentId ? '/edit' : '';
-    const query: Record<string, string> = {
-      id: props.post.id,
-      commentId,
-    };
-
-    if (!editSuffix && props.parentCommentId) {
-      query.replyTo = props.replyToCommentId ?? props.parentCommentId;
-    }
-
-    router.push({
-      pathname: `/posts/[id]/comments/[commentId]${editSuffix}`,
-      query,
-    });
-
-    return null;
+  if (isModal) {
+    return <CommentModal {...props} isOpen onRequestClose={onClose} />;
   }
 
   return (
