@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
-import { IconSize } from '../../Icon';
 import { TrendingIcon } from '../../icons';
 
 export enum RaisedLabelType {
