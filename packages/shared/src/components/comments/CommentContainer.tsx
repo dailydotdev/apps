@@ -79,7 +79,7 @@ export default function CommentContainer({
       {children}
       {showContextHeader && (
         <header className="mb-4 line-clamp-1 text-text-tertiary typo-footnote">
-          {comment.parent ? (
+          {comment.parent?.author ? (
             <p>
               Replied to <strong>@{comment.parent.author.username}</strong>
             </p>
