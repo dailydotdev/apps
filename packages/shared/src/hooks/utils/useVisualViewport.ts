@@ -7,8 +7,8 @@ interface VisualViewportResult {
 }
 
 const getVisualViewport = (): VisualViewportResult => ({
-  width: globalThis?.window?.visualViewport.width ?? 0,
-  height: globalThis?.window?.visualViewport.height ?? 0,
+  width: globalThis?.window?.visualViewport?.width ?? 0,
+  height: globalThis?.window?.visualViewport?.height ?? 0,
 });
 
 export const useVisualViewport = (): VisualViewportResult => {

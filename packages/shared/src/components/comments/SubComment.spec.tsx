@@ -26,7 +26,7 @@ const date = new Date(2024, 6, 6, 12, 30, 30);
 beforeEach(() => {
   jest.useFakeTimers('modern').setSystemTime(date);
   jest.clearAllMocks();
-  mockUseViewSize.mockImplementation(() => false);
+  mockUseViewSize.mockImplementation(() => true);
 });
 
 const renderLayout = (
