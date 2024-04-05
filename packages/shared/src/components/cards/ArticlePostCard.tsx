@@ -1,9 +1,6 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
-import Link from 'next/link';
 import {
-  CardButton,
-  CardLink,
   CardSpace,
   CardTextContainer,
   CardTitle,
@@ -17,15 +14,12 @@ import { Container, PostCardProps } from './common';
 import FeedItemContainer from './FeedItemContainer';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { PostTagsPanel } from '../post/block/PostTagsPanel';
-import {
-  useFeedLayout,
-  useFeedPreviewMode,
-  usePostFeedback,
-} from '../../hooks';
+import { usePostFeedback } from '../../hooks';
 import styles from './Card.module.css';
 import { FeedbackCard } from './FeedbackCard';
 import { Origin } from '../../lib/analytics';
 import { isVideoPost } from '../../graphql/posts';
+import CardOverlay from './common/CardOverlay';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -53,9 +47,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const { trending, pinnedAt } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const { showFeedback } = usePostFeedback({ post });
-  const isFeedPreview = useFeedPreviewMode();
   const isVideoType = isVideoPost(post);
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -66,26 +58,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
       />
     );
   }
-
-  const renderOverlay = () => {
-    if (isFeedPreview) {
-      return null;
-    }
-
-    if (!shouldUseMobileFeedLayout) {
-      return <CardButton title={post.title} onClick={onPostCardClick} />;
-    }
-
-    return (
-      <Link href={post.commentsPermalink}>
-        <CardLink
-          title={post.title}
-          onClick={onPostCardClick}
-          href={post.commentsPermalink}
-        />
-      </Link>
-    );
-  };
 
   return (
     <FeedItemContainer
@@ -101,7 +73,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
       ref={ref}
       flagProps={{ pinnedAt, trending }}
     >
-      {renderOverlay()}
+      <CardOverlay post={post} onPostCardClick={onPostCardClick} />
       {showFeedback && (
         <FeedbackCard
           post={post}
