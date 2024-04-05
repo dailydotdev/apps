@@ -2,7 +2,6 @@ import React, { ReactElement, useEffect } from 'react';
 import classNames from 'classnames';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
-import FixedPostNavigation from './FixedPostNavigation';
 import PostSourceInfo from './PostSourceInfo';
 import { BasePostContent } from './BasePostContent';
 import { PostType, isVideoPost } from '../../graphql/posts';
@@ -73,71 +72,72 @@ function SquadPostContent({
   const Content = ContentMap[finalType];
 
   return (
-    <>
-      {position === 'fixed' && (
-        <FixedPostNavigation
-          {...navigationProps}
-          isBannerVisible={isBannerVisible}
-          onReadArticle={onReadArticle}
-          className={className?.fixedNavigation}
-        />
+    <PostContentContainer
+      className={classNames(
+        'relative flex-1 flex-col laptop:flex-row laptop:pb-0',
+        className?.container,
       )}
-      <PostContentContainer
+      hasNavigation={hasNavigation}
+      isNavigationOutside
+      navigationProps={
+        position === 'fixed'
+          ? {
+              ...navigationProps,
+              isBannerVisible,
+              onReadArticle,
+              className: className?.fixedNavigation,
+            }
+          : null
+      }
+    >
+      <div
         className={classNames(
-          'relative flex-1 flex-col laptop:flex-row laptop:pb-0',
-          className?.container,
+          'relative flex min-w-0 flex-1 flex-col px-4 laptop:px-8',
+          className?.content,
         )}
-        hasNavigation={hasNavigation}
       >
-        <div
-          className={classNames(
-            'relative flex min-w-0 flex-1 flex-col px-4 laptop:px-8',
-            className?.content,
-          )}
-        >
-          <BasePostContent
-            className={{
-              ...className,
-              onboarding: classNames('mb-6', className?.onboarding),
-              header: 'mb-6',
-              navigation: {
-                actions: 'ml-auto laptop:hidden',
-                container: 'mb-6 pt-6',
-              },
-            }}
-            isPostPage={isPostPage}
-            isFallback={isFallback}
-            customNavigation={customNavigation}
-            enableShowShareNewComment={enableShowShareNewComment}
-            shouldOnboardAuthor={shouldOnboardAuthor}
-            navigationProps={navigationProps}
-            engagementProps={engagementActions}
-            origin={origin}
-            post={post}
-          >
-            <PostSourceInfo
-              source={post.source}
-              className={classNames('!typo-body', customNavigation && 'mt-6')}
-            />
-            <SquadPostAuthor
-              author={post?.author}
-              role={role}
-              date={post.createdAt}
-              className={{ container: 'mt-3' }}
-            />
-            <Content post={post} onReadArticle={onReadArticle} />
-          </BasePostContent>
-        </div>
-        <SquadPostWidgets
-          onShare={onCopyPostLink}
-          onReadArticle={onReadArticle}
-          post={post}
-          className="mb-6 border-l border-theme-divider-tertiary laptop:mb-0"
-          onClose={onClose}
+        <BasePostContent
+          className={{
+            ...className,
+            onboarding: classNames('mb-6', className?.onboarding),
+            header: 'mb-6',
+            navigation: {
+              actions: 'ml-auto laptop:hidden',
+              container: 'mb-6 pt-6',
+            },
+          }}
+          isPostPage={isPostPage}
+          isFallback={isFallback}
+          customNavigation={customNavigation}
+          enableShowShareNewComment={enableShowShareNewComment}
+          shouldOnboardAuthor={shouldOnboardAuthor}
+          navigationProps={navigationProps}
+          engagementProps={engagementActions}
           origin={origin}
-        />
-      </PostContentContainer>
-    </>
+          post={post}
+        >
+          <PostSourceInfo
+            source={post.source}
+            className={classNames('!typo-body', customNavigation && 'mt-6')}
+          />
+          <SquadPostAuthor
+            author={post?.author}
+            role={role}
+            date={post.createdAt}
+            className={{ container: 'mt-3' }}
+          />
+          <Content post={post} onReadArticle={onReadArticle} />
+        </BasePostContent>
+      </div>
+      <SquadPostWidgets
+        onShare={onCopyPostLink}
+        onReadArticle={onReadArticle}
+        post={post}
+        className="mb-6 border-l border-theme-divider-tertiary laptop:mb-0"
+        onClose={onClose}
+        origin={origin}
+      />
+    </PostContentContainer>
   );
 }
 

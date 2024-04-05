@@ -10,7 +10,6 @@ import PostToc from '../widgets/PostToc';
 import { ToastSubject, useToastNotification } from '../../hooks';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
-import FixedPostNavigation from './FixedPostNavigation';
 import { BasePostContent } from './BasePostContent';
 import { cloudinary } from '../../lib/image';
 import { combinedClicks } from '../../lib/click';
@@ -82,14 +81,16 @@ export function PostContent({
       hasNavigation={hasNavigation}
       className={containerClass}
       aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
+      navigationProps={
+        position === 'fixed'
+          ? {
+              ...navigationProps,
+              isBannerVisible,
+              className: className?.fixedNavigation,
+            }
+          : null
+      }
     >
-      {position === 'fixed' && (
-        <FixedPostNavigation
-          {...navigationProps}
-          isBannerVisible={isBannerVisible}
-          className={className?.fixedNavigation}
-        />
-      )}
       <PostContainer
         className={classNames('relative', className?.content)}
         data-testid="postContainer"
