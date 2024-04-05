@@ -94,8 +94,8 @@ export default function CommentModal({
   const isReply = !isEdit && !!replyToCommentId;
 
   const { comment: commentById } = useCommentById({
-    id: isEdit ? editCommentId : parentCommentId,
-    options: { enabled: !!editCommentId || !!parentCommentId },
+    id: editCommentId,
+    options: { enabled: !!editCommentId },
   });
 
   const refCallback = useCallback(
