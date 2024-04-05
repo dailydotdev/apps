@@ -20,7 +20,7 @@ const CardOverlay = ({
     return null;
   }
 
-  if (shouldUseMobileFeedLayout) {
+  if (!shouldUseMobileFeedLayout) {
     return <CardButton title={post.title} onClick={onPostCardClick} />;
   }
 

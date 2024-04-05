@@ -290,7 +290,7 @@ export default function Feed<T>({
     await onPostClick(post, index, row, column, {
       skipPostUpdate: true,
     });
-    if (shouldUseMobileFeedLayout) {
+    if (!shouldUseMobileFeedLayout) {
       onPostModalOpen(index);
     }
   };
@@ -328,7 +328,7 @@ export default function Feed<T>({
         ...feedAnalyticsExtra(feedName, ranking),
       }),
     );
-    if (shouldUseMobileFeedLayout) {
+    if (!shouldUseMobileFeedLayout) {
       onPostModalOpen(index);
     }
   };
