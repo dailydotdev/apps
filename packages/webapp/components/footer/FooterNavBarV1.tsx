@@ -58,7 +58,7 @@ const Tab = ({ tab, isActive }: TabProps) => {
   return (
     <FooterNavBarItem
       isActive={isActive}
-      className="flex h-full flex-col items-center justify-center py-2"
+      className="flex h-full flex-col items-center justify-center"
     >
       <Link
         href={
