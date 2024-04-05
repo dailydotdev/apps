@@ -1,10 +1,6 @@
 import request, { gql } from 'graphql-request';
 import { Connection } from './common';
-import {
-  COMMENT_FRAGMENT,
-  SHARED_POST_INFO_FRAGMENT,
-  USER_SHORT_INFO_FRAGMENT,
-} from './fragments';
+import { COMMENT_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { EmptyResponse } from './emptyResponse';
 import { UserShortProfile } from '../lib/user';
 import { graphqlUrl } from '../lib/config';
