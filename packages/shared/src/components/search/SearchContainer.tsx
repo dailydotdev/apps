@@ -36,7 +36,7 @@ export function SearchContainer({
         )}
         {children}
       </main>
-      <PageWidgets tablet={false} className="items-center gap-6 !px-0">
+      <PageWidgets className="items-center gap-6 !px-0">
         <SearchFeedback className="order-2 max-w-widget laptop:order-1" />
         {!!chunk && (
           <SearchSourceList

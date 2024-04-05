@@ -37,7 +37,7 @@ export const SearchSourceList = ({
     !sidebarRendered && setIsSourcesOpen((prev) => !prev);
 
   return (
-    <PageWidgets tablet={false} className={classNames(className, 'relative')}>
+    <PageWidgets className={classNames(className, 'relative')}>
       <i className="absolute -left-8 top-8 hidden h-px w-12 bg-theme-divider-tertiary laptop:block" />
       <div className={classNames('flex flex-col', widgetClasses)}>
         <div
