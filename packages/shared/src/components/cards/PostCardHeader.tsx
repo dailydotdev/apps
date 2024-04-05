@@ -10,8 +10,6 @@ import { useFeedPreviewMode } from '../../hooks';
 import { getReadPostButtonText, Post } from '../../graphql/posts';
 import { ButtonVariant } from '../buttons/Button';
 import { FlagProps } from './FeedItemContainer';
-import { TrendingIcon } from '../icons';
-import { IconSize } from '../Icon';
 import { TrendingFlag } from './common/TrendingFlag';
 
 interface CardHeaderProps {

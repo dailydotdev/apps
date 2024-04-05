@@ -14,7 +14,6 @@ import {
   DiscussIcon as CommentIcon,
   BookmarkIcon,
   LinkIcon,
-  TrendingIcon,
 } from '../icons';
 import {
   Button,
@@ -33,7 +32,6 @@ import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { getReadArticleLink } from '../utilities';
 import { FlagProps } from './FeedItemContainer';
-import { IconSize } from '../Icon';
 import { TrendingFlag } from './common/TrendingFlag';
 
 export interface ActionButtonsProps {
