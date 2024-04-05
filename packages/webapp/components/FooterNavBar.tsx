@@ -68,7 +68,7 @@ export default function FooterNavBar({
   return (
     <div
       className={classNames(
-        'sticky bottom-0 left-0 z-2 mt-auto w-full',
+        'sticky bottom-0 left-0 z-2 mt-auto w-full pb-6',
         isNewMobileLayout
           ? 'bg-gradient-to-t from-blur-baseline via-blur-bg via-70% to-transparent p-2'
           : post && 'bg-blur-bg backdrop-blur-20',
@@ -92,12 +92,12 @@ export default function FooterNavBar({
         spring="veryGentle"
         element="nav"
         className={classNames(
-          'grid h-14 w-full grid-flow-col items-center justify-between px-3',
+          'grid w-full grid-flow-col items-center justify-between px-3',
           !showNav && 'hidden',
           styles.footerNavBar,
           isNewMobileLayout
             ? classNames('rounded-16', !post && activeClasses)
-            : 'rounded-t-24 bg-background-default',
+            : 'h-14 rounded-t-24 bg-background-default',
           !post && 'border-t border-theme-divider-tertiary',
         )}
       >
