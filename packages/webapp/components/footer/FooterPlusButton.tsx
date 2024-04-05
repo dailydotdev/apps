@@ -72,7 +72,10 @@ export function FooterPlusButton(): ReactElement {
             </ActionButton>
             <ActionButton
               icon={<DocsIcon />}
-              onClick={() => openModal({ type: LazyModal.SubmitArticle })}
+              onClick={() => {
+                setIsDrawerOpen(false);
+                openModal({ type: LazyModal.SubmitArticle });
+              }}
             >
               Submit article
             </ActionButton>
