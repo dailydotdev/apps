@@ -11,14 +11,12 @@ import { PageContainer } from './utilities';
 import { ButtonSize } from './buttons/common';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
-import FeedSelector from './FeedSelector';
 
 function FeedEmptyScreen(): ReactElement {
   const { openModal } = useLazyModal();
 
   return (
     <PageContainer className="mx-auto">
-      <FeedSelector className="self-start" />
       <EmptyScreenContainer>
         <FilterIcon
           className={EmptyScreenIcon.className}
