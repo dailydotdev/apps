@@ -37,6 +37,7 @@ import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -107,6 +108,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     (Component as ComponentGetLayout).getLayout || ((page) => page);
   const { layoutProps } = Component as ComponentGetLayout;
 
+  const { themeColor } = useThemedAsset();
+
   return (
     <>
       <Head>
@@ -114,18 +117,17 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           name="viewport"
           content="initial-scale=1.0, width=device-width, viewport-fit=cover"
         />
-        <meta name="theme-color" content="#151618" />
-        <meta name="msapplication-nav" content="#151618" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="#151618" />
+        <meta name="theme-color" content={themeColor} />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content={themeColor}
+        />
 
         <meta name="application-name" content="daily.dev" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="daily.dev" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="msapplication-TileColor" content="#151618" />
-        <meta name="msapplication-tap-highlight" content="no" />
 
         <link
           rel="apple-touch-icon"
