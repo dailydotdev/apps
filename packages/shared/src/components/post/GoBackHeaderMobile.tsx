@@ -5,7 +5,6 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import { WithClassNameProps } from '../utilities';
 import { isDevelopment } from '../../lib/constants';
-import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 
 const checkSameSite = () => {
   const referrer = globalThis?.document?.referrer;
@@ -25,11 +24,10 @@ export function GoBackHeaderMobile({
   className,
 }: PropsWithChildren<WithClassNameProps>): ReactElement {
   const router = useRouter();
-  const { isNewMobileLayout } = useMobileUxExperiment();
   const canGoBack =
     !!globalThis?.history?.length && (checkSameSite() || isDevelopment);
 
-  if ((!canGoBack && !children) || !isNewMobileLayout) {
+  if (!canGoBack && !children) {
     return null;
   }
 
