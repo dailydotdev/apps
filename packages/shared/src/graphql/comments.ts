@@ -268,28 +268,3 @@ export const COMMENT_BY_ID_QUERY = gql`
     }
   }
 `;
-
-export const COMMENT_BY_ID_WITH_POST_QUERY = gql`
-  query CommentByIDWithPost($id: ID!) {
-    comment(id: $id) {
-      id
-      content
-      contentHtml
-      createdAt
-      lastUpdatedAt
-      permalink
-      upvoted
-      numUpvotes
-      parent {
-        id
-      }
-      author {
-        ...UserShortInfo
-      }
-      post {
-        ...SharedPostInfo
-      }
-    }
-  }
-  ${SHARED_POST_INFO_FRAGMENT}
-`;
