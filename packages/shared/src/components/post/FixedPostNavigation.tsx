@@ -42,7 +42,7 @@ function FixedPostNavigation({
       <div
         className={classNames(
           'ml-2 flex-1 flex-col overflow-hidden',
-          hasNavigation && 'hidden tablet:flex',
+          hasNavigation && 'hidden laptop:flex',
         )}
       >
         <span className="overflow-hidden text-ellipsis whitespace-nowrap text-text-tertiary typo-footnote">
