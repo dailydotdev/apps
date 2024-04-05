@@ -1,11 +1,5 @@
 import classNames from 'classnames';
-import React, {
-  ReactElement,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { ReactElement, useCallback, useEffect, useRef } from 'react';
 
 interface ClassName {
   indicator?: string;
@@ -28,12 +22,10 @@ function TabList({
   autoScrollActive,
 }: TabListProps): ReactElement {
   const hasActive = items.includes(active);
-  const [offset, setOffset] = useState<number>(0);
   const currentActiveTab = useRef<HTMLButtonElement>(null);
   const activeTabRect = currentActiveTab.current?.getBoundingClientRect();
-  const indicatorOffset = activeTabRect
-    ? activeTabRect.width / 2 + activeTabRect.left
-    : 0;
+  const offset = activeTabRect ? currentActiveTab?.current.offsetLeft : 0;
+  const indicatorOffset = activeTabRect ? activeTabRect.width / 2 + offset : 0;
 
   const scrollIfNotInView = useCallback(() => {
     if (autoScrollActive && currentActiveTab.current) {
@@ -66,13 +58,12 @@ function TabList({
       {items.map((tab) => (
         <button
           key={tab}
-          ref={async (el) => {
+          ref={(el) => {
             if (!el || tab !== active) {
               return;
             }
 
             currentActiveTab.current = el;
-            setOffset(el.offsetLeft);
           }}
           className={classNames(
             className.item,
@@ -93,7 +84,7 @@ function TabList({
           </span>
         </button>
       ))}
-      {indicatorOffset && hasActive && (
+      {!!indicatorOffset && hasActive && (
         <div
           className={classNames(
             'absolute bottom-0 mx-auto h-0.5 w-12 -translate-x-1/2 rounded-4 bg-text-primary transition-[left] ease-linear',

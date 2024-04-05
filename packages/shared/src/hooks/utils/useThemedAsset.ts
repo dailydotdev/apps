@@ -1,14 +1,16 @@
 import { useMemo } from 'react';
 import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
+import colors from '../../styles/colors';
 import { cloudinary } from '../../lib/image';
 
-interface UseCloudinaryAsset {
+interface UseAsset {
   onboardingIntroduction: string;
   scrollBlock: string;
   notFound: string;
+  themeColor: string;
 }
 
-export const useThemedAsset = (): UseCloudinaryAsset => {
+export const useThemedAsset = (): UseAsset => {
   const { themeMode } = useSettingsContext();
   const isLight = useMemo(() => {
     if (themeMode === ThemeMode.Auto) {
@@ -29,5 +31,6 @@ export const useThemedAsset = (): UseCloudinaryAsset => {
     notFound: isLight
       ? cloudinary.generic.notFound.light
       : cloudinary.generic.notFound.dark,
+    themeColor: isLight ? colors.salt['0'] : colors.pepper['90'],
   };
 };
