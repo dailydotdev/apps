@@ -100,7 +100,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     return post?.title;
   };
   const seo: NextSeoProps = {
-    canonical: post?.slug ? `${webappUrl}/posts/${post.slug}` : undefined,
+    canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
     title: getTemplatedTitle(seoTitle()),
     description: getSeoDescription(post),
     openGraph: {
