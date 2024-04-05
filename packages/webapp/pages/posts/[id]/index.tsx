@@ -193,7 +193,7 @@ export async function getStaticProps({
     );
     return {
       props: {
-        id,
+        id: initialData.post.id,
         initialData,
       },
       revalidate: 60,
