@@ -3,7 +3,7 @@
   opacity: 0;
   user-select: none;
   z-index: 1000;
-  @apply py-1 px-0 m-0 bg-background-subtle rounded-12 border border-theme-divider-secondary shadow-2 -translate-x-full;
+  @apply py-1 px-0 m-0 bg-background-subtle rounded-12 border border-border-subtlest-secondary shadow-2 -translate-x-full;
 
   &.scrollable {
     height: 15rem;

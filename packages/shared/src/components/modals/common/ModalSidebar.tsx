@@ -49,7 +49,7 @@ export function ModalSidebarList({
 
 export const ModalSidebarInner = classed(
   'div',
-  'flex flex-1 flex-col border-l border-theme-divider-tertiary',
+  'flex flex-1 flex-col border-l border-border-subtlest-tertiary',
 );
 
 export function ModalSidebar({

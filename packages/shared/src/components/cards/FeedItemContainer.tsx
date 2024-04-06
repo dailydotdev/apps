@@ -59,7 +59,7 @@ function FeedItemContainer(
         ref={ref}
         className={classNames(
           domProps.className,
-          !listMode && isFeedPreview && 'hover:border-theme-divider-tertiary',
+          !listMode && isFeedPreview && 'hover:border-border-subtlest-tertiary',
         )}
       >
         {children}

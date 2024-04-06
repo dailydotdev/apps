@@ -31,8 +31,8 @@ export const RANKS: Rank[] = [
     name: 'Iron',
     steps: 1,
     level: 1,
-    background: 'bg-theme-divider-primary',
-    border: 'border-theme-divider-primary',
+    background: 'bg-border-subtlest-primary',
+    border: 'border-border-subtlest-primary',
     color: 'text-text-tertiary',
   },
   {

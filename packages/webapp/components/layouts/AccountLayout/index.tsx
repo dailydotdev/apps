@@ -81,7 +81,7 @@ export default function AccountLayout({
           />
         ) : (
           <SidebarNav
-            className="absolute z-3 ml-auto h-full w-full border-l border-theme-divider-tertiary bg-background-default tablet:relative tablet:w-[unset]"
+            className="absolute z-3 ml-auto h-full w-full border-l border-border-subtlest-tertiary bg-background-default tablet:relative tablet:w-[unset]"
             basePath="account"
           />
         )}

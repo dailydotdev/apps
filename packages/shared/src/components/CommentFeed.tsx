@@ -72,7 +72,7 @@ export default function CommentFeed<T>({
       <PlaceholderCommentList
         placeholderAmount={5}
         className={classNames(
-          '!mt-0 border-theme-divider-tertiary p-4',
+          '!mt-0 border-border-subtlest-tertiary p-4',
           commentClassName?.container,
         )}
         showContextHeader

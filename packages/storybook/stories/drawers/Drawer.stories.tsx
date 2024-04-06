@@ -41,7 +41,7 @@ export default meta;
 
 type Story = StoryObj<typeof DrawerComponent>;
 
-const Container = classed('div', 'px-3 py-4 border-b border-theme-divider-tertiary');
+const Container = classed('div', 'px-3 py-4 border-b border-border-subtlest-tertiary');
 
 export const Drawer: Story = {
   render: ({ children, ...props }) => {

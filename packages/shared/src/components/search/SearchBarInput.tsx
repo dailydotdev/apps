@@ -168,7 +168,7 @@ function SearchBarInputComponent(
         <BaseField
           {...props}
           className={classNames(
-            'relative h-16 items-center rounded-14 border !border-theme-divider-tertiary !bg-background-default px-3',
+            'relative h-16 items-center rounded-14 border !border-border-subtlest-tertiary !bg-background-default px-3',
             className?.field,
             { focused },
           )}
@@ -213,7 +213,7 @@ function SearchBarInputComponent(
                 type="button"
               />
             )}
-            <div className="h-8 border border-theme-divider-quaternary" />
+            <div className="h-8 border border-border-subtlest-quaternary" />
             <SearchHistoryButton />
             <SearchSubmitButton
               buttonProps={{ disabled: !hasInput }}

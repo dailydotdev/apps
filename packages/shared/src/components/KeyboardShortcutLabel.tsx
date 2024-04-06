@@ -28,7 +28,7 @@ export const KeyboadShortcutLabel = ({
       {keys.map((item, index) => {
         return (
           <Fragment key={item}>
-            <kbd className="flex min-w-5 justify-center rounded-8 border border-theme-divider-tertiary bg-background-subtle px-2 py-0.5 font-sans text-text-tertiary typo-footnote">
+            <kbd className="flex min-w-5 justify-center rounded-8 border border-border-subtlest-tertiary bg-background-subtle px-2 py-0.5 font-sans text-text-tertiary typo-footnote">
               {item}
             </kbd>
             {index !== keys.length - 1 && (

@@ -80,7 +80,7 @@ export const AccountPageContainer = ({
       {footer && (
         <div
           className={classNames(
-            'sticky flex flex-row gap-3 border-t border-theme-divider-tertiary p-3',
+            'sticky flex flex-row gap-3 border-t border-border-subtlest-tertiary p-3',
             className.footer,
           )}
         >

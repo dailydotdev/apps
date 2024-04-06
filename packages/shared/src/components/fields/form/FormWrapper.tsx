@@ -40,7 +40,7 @@ export function FormWrapper({
     <div className={classNames('flex flex-col', containerClassName)}>
       <div
         className={classNames(
-          'flex flex-row justify-between border-b border-theme-divider-tertiary px-4 py-2',
+          'flex flex-row justify-between border-b border-border-subtlest-tertiary px-4 py-2',
           headerClassName,
         )}
         ref={headerRef}

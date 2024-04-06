@@ -38,7 +38,7 @@ export const SearchSourceList = ({
 
   return (
     <PageWidgets tablet={false} className={classNames(className, 'relative')}>
-      <i className="absolute -left-8 top-8 hidden h-px w-12 bg-theme-divider-tertiary laptop:block" />
+      <i className="absolute -left-8 top-8 hidden h-px w-12 bg-border-subtlest-tertiary laptop:block" />
       <div className={classNames('flex flex-col', widgetClasses)}>
         <div
           className={classNames(

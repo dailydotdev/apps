@@ -36,7 +36,7 @@ function PostPreview({
   return (
     <div
       className={classNames(
-        'flex w-full items-center gap-4 rounded-12 border border-theme-divider-tertiary px-4 py-2',
+        'flex w-full items-center gap-4 rounded-12 border border-border-subtlest-tertiary px-4 py-2',
         className,
       )}
     >
