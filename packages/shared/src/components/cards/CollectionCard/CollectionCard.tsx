@@ -3,12 +3,7 @@ import classNames from 'classnames';
 import { Container, generateTitleClamp, PostCardProps } from '../common';
 import FeedItemContainer from '../FeedItemContainer';
 import { CollectionCardHeader } from './CollectionCardHeader';
-import {
-  getPostClassNames,
-  FreeformCardTitle,
-  CardSpace,
-  CardButton,
-} from '../Card';
+import { getPostClassNames, FreeformCardTitle, CardSpace } from '../Card';
 import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
 import ActionButtons from '../ActionButtons';
 import PostMetadata from '../PostMetadata';
@@ -17,6 +12,7 @@ import { useFeature } from '../../GrowthBookProvider';
 import { feature } from '../../../lib/featureManagement';
 import { TrendingFlag } from '../../../lib/featureValues';
 import { TrendingFlag as TrendingFlagComponent } from '../common/TrendingFlag';
+import CardOverlay from '../common/CardOverlay';
 
 export const CollectionCard = forwardRef(function CollectionCard(
   {
@@ -38,7 +34,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
   const isTrendingFlagV1 = trendingFlag === TrendingFlag.V1;
   const { pinnedAt, trending } = post;
   const image = usePostImage(post);
-
+  const onPostCardClick = () => onPostClick(post);
   return (
     <FeedItemContainer
       domProps={{
@@ -52,6 +48,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
       {trending && isTrendingFlagV1 && (
         <TrendingFlagComponent className={{ container: 'right-3 top-3' }} />
       )}
+      <CardOverlay post={post} onPostCardClick={onPostCardClick} />
       <CollectionCardHeader
         sources={post.collectionSources}
         totalSources={post.numCollectionSources}

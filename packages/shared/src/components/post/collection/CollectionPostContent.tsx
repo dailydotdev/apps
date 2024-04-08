@@ -53,7 +53,7 @@ export const CollectionPostContent = ({
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
-    'tablet:flex-row tablet:pb-0',
+    'laptop:flex-row laptop:pb-0',
     className?.container,
   );
 
@@ -122,10 +122,10 @@ export const CollectionPostContent = ({
           <div
             className={classNames(
               'mb-6 flex flex-col gap-6',
-              hasNavigation || customNavigation ? 'mt-6' : 'mt-6 tablet:mt-0',
+              hasNavigation || customNavigation ? 'mt-6' : 'mt-6 laptop:mt-0',
             )}
           >
-            <CollectionsIntro className="tablet:hidden" />
+            <CollectionsIntro className="laptop:hidden" />
             <Link href={`${webappUrl}sources/collections`} passHref>
               <Pill
                 tag="a"

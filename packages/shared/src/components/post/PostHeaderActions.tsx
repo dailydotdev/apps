@@ -45,10 +45,10 @@ export function PostHeaderActions({
   ...props
 }: PostHeaderActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
-  const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const readButtonText = getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
-  const isEnlarged = isFixedNavigation || !isMobile;
+  const isEnlarged = isFixedNavigation || isLaptop;
   const ButtonWithExperiment = () => {
     return (
       <SimpleTooltip

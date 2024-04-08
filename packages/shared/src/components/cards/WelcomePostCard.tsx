@@ -1,6 +1,6 @@
 import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
 import classNames from 'classnames';
-import { CardButton, FreeformCardTitle, getPostClassNames } from './Card';
+import { FreeformCardTitle, getPostClassNames } from './Card';
 import ActionButtons from './ActionButtons';
 import { Container, generateTitleClamp, PostCardProps } from './common';
 import OptionsButton from '../buttons/OptionsButton';
@@ -10,13 +10,13 @@ import { Squad } from '../../graphql/sources';
 import { ActionType } from '../../graphql/actions';
 import FeedItemContainer from './FeedItemContainer';
 import { PostType } from '../../graphql/posts';
-import { useFeedPreviewMode } from '../../hooks';
 import { SquadPostCardHeader } from './common/SquadPostCardHeader';
 import { usePostImage } from '../../hooks/post/usePostImage';
 import { TrendingFlag as TrendingFlagComponent } from './common/TrendingFlag';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { TrendingFlag } from '../../lib/featureValues';
+import CardOverlay from './common/CardOverlay';
 
 export const WelcomePostCard = forwardRef(function SharePostCard(
   {
@@ -40,7 +40,6 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
   const { pinnedAt, type: postType, trending } = post;
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
-  const isFeedPreview = useFeedPreviewMode();
   const image = usePostImage(post);
   const { openStep, isChecklistVisible } = useSquadChecklist({
     squad: post.source as Squad,
@@ -76,6 +75,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
           className={{ container: 'right-2 top-2' }}
         />
       )}
+      <CardOverlay post={post} onPostCardClick={onPostCardClick} />
       <OptionsButton
         className="absolute right-2 top-2 group-hover:flex laptop:hidden"
         onClick={(event) => onMenuClick?.(event, post)}
