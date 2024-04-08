@@ -49,6 +49,7 @@ export const periods = [
 const periodTexts = periods.map((period) => period.text);
 
 export const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
+export const DEFAULT_ALGORITHM_INDEX = 0;
 
 export const SearchControlHeader = ({
   feedName,

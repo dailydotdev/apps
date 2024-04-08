@@ -6,7 +6,11 @@ import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
 import { useViewSize, ViewSize } from '../../hooks';
 import usePersistentContext from '../../hooks/usePersistentContext';
-import { algorithmsList, DEFAULT_ALGORITHM_KEY } from '../layout/common';
+import {
+  algorithmsList,
+  DEFAULT_ALGORITHM_INDEX,
+  DEFAULT_ALGORITHM_KEY,
+} from '../layout/common';
 import { MobileFeedActions } from './MobileFeedActions';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import SettingsContext from '../../contexts/SettingsContext';
@@ -33,9 +37,9 @@ function FeedNav(): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
-    0,
+    DEFAULT_ALGORITHM_INDEX,
     [0, 1],
-    0,
+    DEFAULT_ALGORITHM_INDEX,
   );
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
