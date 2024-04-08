@@ -1,5 +1,4 @@
 import React, { ReactElement, useMemo, useRef } from 'react';
-import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
 import Classed from '../../lib/classed';
 
