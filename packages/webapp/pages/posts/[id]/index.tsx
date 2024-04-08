@@ -204,15 +204,8 @@ export async function getStaticProps({
     if (errors.includes(clientError?.response?.errors?.[0]?.extensions?.code)) {
       const { postId } = clientError.response.errors[0].extensions;
 
-      if (!postId) {
-        return {
-          notFound: true,
-          revalidate: 60,
-        };
-      }
-
       return {
-        props: { id: postId },
+        props: { id: postId || id },
         revalidate: 60,
       };
     }
