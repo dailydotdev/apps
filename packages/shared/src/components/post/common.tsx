@@ -88,7 +88,7 @@ export interface PostContentProps
 
 export const PostContainer = classed(
   'main',
-  'flex flex-col flex-1 px-4 tablet:px-8 tablet:border-r tablet:border-theme-divider-tertiary',
+  'flex flex-col flex-1 px-4 tablet:px-8 tablet:border-r tablet:border-border-subtlest-tertiary',
 );
 
 export interface BasePostContentProps extends UsePostContentProps {

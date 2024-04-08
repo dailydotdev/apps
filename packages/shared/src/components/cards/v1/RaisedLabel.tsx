@@ -1,17 +1,28 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { SimpleTooltip } from '../../tooltips/SimpleTooltip';
+import { TrendingIcon } from '../../icons';
 
 export enum RaisedLabelType {
+  HotV1 = 'HotV1',
   Hot = 'Hot',
   Pinned = 'Pinned',
   Beta = 'Beta',
 }
 
 const typeToClassName: Record<RaisedLabelType, string> = {
+  [RaisedLabelType.HotV1]: 'bg-action-downvote-default',
   [RaisedLabelType.Hot]: 'bg-status-error',
   [RaisedLabelType.Pinned]: 'bg-status-warning',
   [RaisedLabelType.Beta]: 'bg-theme-bg-cabbage',
+};
+
+const typeToContent: Partial<Record<RaisedLabelType, ReactElement>> = {
+  [RaisedLabelType.HotV1]: (
+    <>
+      Trending <TrendingIcon secondary className="ml-1 !size-4" />
+    </>
+  ),
 };
 
 export interface RaisedLabelProps {
@@ -39,11 +50,11 @@ export function RaisedLabel({
       <SimpleTooltip content={description}>
         <div
           className={classNames(
-            'relative -top-2 h-4 rounded-4 px-2 font-bold uppercase text-white typo-caption2',
+            'relative -top-2 flex h-4 rounded-4 px-2 font-bold uppercase text-white typo-caption2',
             typeToClassName[type],
           )}
         >
-          {type}
+          {typeToContent[type] ?? type}
         </div>
       </SimpleTooltip>
     </div>

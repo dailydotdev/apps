@@ -155,7 +155,7 @@ export const FeedContainer = ({
               {!!actionButtons && (
                 <span
                   className={classNames(
-                    'mr-auto flex flex-row gap-3 border-theme-divider-tertiary pr-3',
+                    'mr-auto flex flex-row gap-3 border-border-subtlest-tertiary pr-3',
                     isNewMobileLayout && isStreaksEnabled && 'w-full',
                   )}
                 >
@@ -171,7 +171,7 @@ export const FeedContainer = ({
             wrapper={(child) => (
               <div
                 className={classNames(
-                  'relative flex flex-col rounded-16 border border-theme-divider-tertiary tablet:mt-6',
+                  'flex flex-col rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
                   isSearch && 'mt-6',
                   isNewMobileLayout && '!mt-2 border-0',
                 )}

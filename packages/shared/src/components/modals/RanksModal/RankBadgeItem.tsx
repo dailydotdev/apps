@@ -52,7 +52,7 @@ const RankBadgeItem = ({
           className={
             rankCompleted
               ? itemRank.background
-              : 'bg-theme-divider-tertiary opacity-32'
+              : 'bg-border-subtlest-tertiary opacity-32'
           }
         />
       )}
@@ -60,7 +60,7 @@ const RankBadgeItem = ({
         className={classNames(
           rankCompleted
             ? itemRank.border
-            : 'border-theme-divider-tertiary border-opacity-32',
+            : 'border-border-subtlest-tertiary border-opacity-32',
           showRank === itemRank.level
             ? 'h-16 w-16'
             : 'h-10 w-10 rounded-12 border',

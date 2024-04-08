@@ -36,7 +36,7 @@ function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
 
   return (
     <div className="flex w-full flex-row flex-wrap items-center justify-end gap-4 pb-6">
-      <span className="ml-auto flex flex-row gap-3 border-l border-theme-divider-tertiary pl-3">
+      <span className="ml-auto flex flex-row gap-3 border-l border-border-subtlest-tertiary pl-3">
         {isSquadMember && (
           <Button
             variant={ButtonVariant.Float}

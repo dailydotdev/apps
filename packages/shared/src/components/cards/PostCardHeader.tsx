@@ -1,4 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
+import classNames from 'classnames';
 import OptionsButton from '../buttons/OptionsButton';
 import { CardHeader } from './Card';
 import SourceButton from './SourceButton';
@@ -6,8 +7,10 @@ import { Source } from '../../graphql/sources';
 import { ReadArticleButton } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useFeedPreviewMode } from '../../hooks';
-import { Post, getReadPostButtonText } from '../../graphql/posts';
+import { getReadPostButtonText, Post } from '../../graphql/posts';
 import { ButtonVariant } from '../buttons/Button';
+import { FlagProps } from './FeedItemContainer';
+import { TrendingFlag } from './common/TrendingFlag';
 
 interface CardHeaderProps {
   post: Post;
@@ -18,6 +21,7 @@ interface CardHeaderProps {
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   postLink: string;
   openNewTab?: boolean;
+  flagProps?: FlagProps;
 }
 
 const Container = getGroupedHoverContainer('span');
@@ -31,13 +35,16 @@ export const PostCardHeader = ({
   source,
   postLink,
   openNewTab,
+  flagProps,
 }: CardHeaderProps): ReactElement => {
+  const { trending } = flagProps;
   const isFeedPreview = useFeedPreviewMode();
 
   return (
-    <CardHeader className={className}>
+    <CardHeader className={classNames(className, 'relative')}>
       <SourceButton source={source} />
       {children}
+      {trending && <TrendingFlag className={{ container: 'right-0' }} />}
       <Container
         className="ml-auto flex flex-row"
         data-testid="cardHeaderActions"

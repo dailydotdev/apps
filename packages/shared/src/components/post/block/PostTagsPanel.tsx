@@ -78,7 +78,7 @@ export function PostTagsPanel({
   return (
     <div
       className={classNames(
-        'relative flex flex-col rounded-16 border border-theme-divider-tertiary p-4 pb-0',
+        'relative flex flex-col rounded-16 border border-border-subtlest-tertiary p-4 pb-0',
         className,
       )}
     >
@@ -116,7 +116,7 @@ export function PostTagsPanel({
           />
         ))}
       </span>
-      <span className="-mx-4 mt-4 flex flex-row gap-2 border-t border-theme-divider-tertiary p-3">
+      <span className="-mx-4 mt-4 flex flex-row gap-2 border-t border-border-subtlest-tertiary p-3">
         <Button
           className="ml-auto"
           variant={ButtonVariant.Tertiary}

@@ -88,7 +88,7 @@ export function MobileSearch({
           />
         </span>
         <input
-          className="mb-2 border-b border-theme-divider-secondary bg-transparent p-4 caret-theme-color-cabbage outline-none typo-body"
+          className="mb-2 border-b border-border-subtlest-secondary bg-transparent p-4 caret-theme-color-cabbage outline-none typo-body"
           type="text"
           value={input}
           ref={inputRef}

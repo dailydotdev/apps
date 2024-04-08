@@ -56,7 +56,7 @@ export default function TagCategoryDropdown({
     <Container>
       <Summary
         className={classNames(
-          isSettings && 'rounded-14 bg-theme-divider-tertiary px-4 py-5',
+          isSettings && 'rounded-14 bg-border-subtlest-tertiary px-4 py-5',
           isSettings &&
             categoryFollowed &&
             'border-l-4 border-accent-cabbage-default',

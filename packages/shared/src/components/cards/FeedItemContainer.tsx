@@ -16,7 +16,7 @@ import {
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useFeedPreviewMode } from '../../hooks';
 
-interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
+export interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;
 }
 
@@ -59,7 +59,7 @@ function FeedItemContainer(
         ref={ref}
         className={classNames(
           domProps.className,
-          !listMode && isFeedPreview && 'hover:border-theme-divider-tertiary',
+          !listMode && isFeedPreview && 'hover:border-border-subtlest-tertiary',
         )}
       >
         {children}

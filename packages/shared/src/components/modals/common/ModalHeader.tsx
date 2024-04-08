@@ -53,7 +53,7 @@ export function ModalHeader({
     <ModalHeaderOuter
       className={classNames(
         'relative h-14 items-center',
-        (modalTitle || children) && 'border-b border-theme-divider-tertiary',
+        (modalTitle || children) && 'border-b border-border-subtlest-tertiary',
         className,
       )}
     >
@@ -81,7 +81,7 @@ export function ModalHeader({
 export function ModalHeaderTabs(props: ModalTabsProps): ReactElement {
   const { onRequestClose } = useContext(ModalPropsContext);
   return (
-    <ModalHeaderOuter className="h-auto flex-col items-start gap-2 border-b border-theme-divider-tertiary tablet:h-14 tablet:flex-row tablet:items-center">
+    <ModalHeaderOuter className="h-auto flex-col items-start gap-2 border-b border-border-subtlest-tertiary tablet:h-14 tablet:flex-row tablet:items-center">
       {onRequestClose && (
         <Button
           size={ButtonSize.Small}

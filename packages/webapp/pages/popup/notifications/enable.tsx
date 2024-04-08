@@ -29,7 +29,7 @@ const BrowserIcon = isChrome() ? ChromePermissionIcon : BrowserPermissionIcon;
 
 const InstructionContainer = classed(
   'div',
-  'flex flex-col items-start p-4 mt-5 rounded-8 border border-theme-divider-tertiary',
+  'flex flex-col items-start p-4 mt-5 rounded-8 border border-border-subtlest-tertiary',
 );
 
 const iconClasses = 'flex flex-grow mt-2';

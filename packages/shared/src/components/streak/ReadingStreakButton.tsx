@@ -44,7 +44,7 @@ function CustomStreaksTooltip({
         paddingClassName: 'p-4',
         bgClassName: 'bg-accent-pepper-subtlest',
         textClassName: 'text-text-primary typo-callout',
-        className: 'border border-theme-divider-tertiary',
+        className: 'border border-border-subtlest-tertiary',
       }}
       content={<ReadingStreakPopup streak={streak} />}
       onClickOutside={() => setShouldShowStreaks(false)}

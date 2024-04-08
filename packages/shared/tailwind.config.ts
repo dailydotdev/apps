@@ -51,12 +51,6 @@ export default {
         float: 'var(--theme-float)',
         hover: 'var(--theme-hover)',
         rank: 'var(--rank-color)',
-        divider: {
-          primary: 'var(--theme-divider-primary)',
-          secondary: 'var(--theme-divider-secondary)',
-          tertiary: 'var(--theme-divider-tertiary)',
-          quaternary: 'var(--theme-divider-quaternary)',
-        },
         overlay: {
           quaternary: 'var(--theme-overlay-quaternary)',
           water: 'var(--theme-overlay-water)',

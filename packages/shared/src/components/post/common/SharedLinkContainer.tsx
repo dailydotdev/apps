@@ -47,7 +47,7 @@ export function SharedLinkContainer({
   return (
     <div
       className={classNames(
-        'flex flex-col rounded-16 border border-theme-divider-tertiary hover:border-theme-divider-secondary',
+        'flex flex-col rounded-16 border border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
         className,
       )}
     >
@@ -57,7 +57,7 @@ export function SharedLinkContainer({
           {Wrapper ? <Wrapper>{postSummary}</Wrapper> : postSummary}
           <button
             type="button"
-            className="flex w-full flex-row justify-center border-t border-theme-divider-tertiary py-2 font-bold typo-callout hover:underline"
+            className="flex w-full flex-row justify-center border-t border-border-subtlest-tertiary py-2 font-bold typo-callout hover:underline"
             onClick={() => setShouldShowSummary(!shouldShowSummary)}
           >
             {shouldShowSummary ? 'Hide' : 'Show'} TLDR{' '}

@@ -34,8 +34,8 @@ export function CustomLinks({
       className={classNames(
         'hidden h-fit flex-row gap-2 rounded-14 border p-2',
         shouldUseMobileFeedLayout
-          ? 'border-theme-divider-tertiary tablet:flex'
-          : 'border-theme-divider-secondary laptop:flex',
+          ? 'border-border-subtlest-tertiary tablet:flex'
+          : 'border-border-subtlest-secondary laptop:flex',
         className,
       )}
     >

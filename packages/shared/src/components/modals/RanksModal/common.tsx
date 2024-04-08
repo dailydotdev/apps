@@ -60,7 +60,7 @@ export const RankBadgeName = classed('strong', 'mt-2');
 /** Rank tag */
 export const RanksTagsSection = classed(
   'div',
-  'p-4 mb-4 rounded-16 border bg-background-subtle border-theme-divider-tertiary',
+  'p-4 mb-4 rounded-16 border bg-background-subtle border-border-subtlest-tertiary',
 );
 export const RanksTagsList = classed(
   'ul',

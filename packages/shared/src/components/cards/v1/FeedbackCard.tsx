@@ -66,7 +66,7 @@ export const FeedbackCard = ({
         />
       </div>
 
-      <CardContent className="rounded-14 border border-theme-divider-tertiary p-4">
+      <CardContent className="rounded-14 border border-border-subtlest-tertiary p-4">
         <div className="mr-2 flex-1">
           <h2 className="mb-2 line-clamp-1 typo-body">{post.title}</h2>
         </div>

@@ -18,7 +18,7 @@ export default function MultiLevelMenuMaster({
     <ul className="mt-6">
       {menuItems.map((item) => (
         <li
-          className="cursor-pointer border-b border-theme-divider-tertiary first:border-t"
+          className="cursor-pointer border-b border-border-subtlest-tertiary first:border-t"
           key={item.title}
         >
           <MenuButton

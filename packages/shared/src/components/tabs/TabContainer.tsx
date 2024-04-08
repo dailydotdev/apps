@@ -131,7 +131,7 @@ export function TabContainer<T extends string = string>({
         className={classNames(
           'flex flex-row',
           className?.header,
-          showBorder && 'border-b border-theme-divider-tertiary',
+          showBorder && 'border-b border-border-subtlest-tertiary',
         )}
       >
         <TabList

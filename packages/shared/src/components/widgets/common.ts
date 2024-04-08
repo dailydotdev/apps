@@ -1,7 +1,8 @@
 import classed from '../../lib/classed';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
-export const widgetClasses = 'border border-theme-divider-tertiary rounded-16';
+export const widgetClasses =
+  'border border-border-subtlest-tertiary rounded-16';
 
 export const WidgetContainer = classed('div', widgetClasses);
 
@@ -12,5 +13,5 @@ export const TextPlaceholder = classed(
 
 export const PlaceholderSeparator = classed(
   'div',
-  'h-px bg-theme-divider-tertiary',
+  'h-px bg-border-subtlest-tertiary',
 );

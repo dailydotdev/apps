@@ -102,7 +102,7 @@ export default function ProfileMenu({
       onClose={onClose}
       closeOutsideClick
       position={InteractivePopupPosition.ProfileMenu}
-      className="w-full max-w-64 !rounded-24 border border-theme-divider-tertiary"
+      className="w-full max-w-64 !rounded-24 border border-border-subtlest-tertiary"
       closeButton={{
         variant: ButtonVariant.Primary,
         size: ButtonSize.XSmall,
@@ -126,7 +126,7 @@ export default function ProfileMenu({
         reputation={user.reputation}
         className="gap-3 p-4"
       />
-      <div className="flex flex-col border-t border-theme-divider-tertiary py-2">
+      <div className="flex flex-col border-t border-border-subtlest-tertiary py-2">
         {items.map(({ title, buttonProps }) => (
           <Button
             key={title}

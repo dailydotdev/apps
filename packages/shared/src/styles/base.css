@@ -242,11 +242,6 @@ body {
   /* stylelint-disable-next-line unit-no-unknown */
   --theme-hover: theme('colors.raw.salt.90')1F;
 
-  --theme-divider-primary: theme('colors.raw.salt.90');
-  --theme-divider-secondary: theme('colors.raw.salt.90')66;
-  --theme-divider-tertiary: theme('colors.raw.salt.90')33;
-  --theme-divider-quaternary: theme('colors.raw.salt.90')14;
-
   --accent-cabbage-default-invert: theme('colors.raw.cabbage.60');
   --accent-cabbage-default: theme('colors.raw.cabbage.40');
 
@@ -529,11 +524,6 @@ body {
   --theme-float: theme('colors.raw.pepper.10')14;
   /* stylelint-disable-next-line unit-no-unknown */
   --theme-hover: theme('colors.raw.pepper.10')1F;
-
-  --theme-divider-primary: theme('colors.raw.pepper.10');
-  --theme-divider-secondary: theme('colors.raw.pepper.10')66;
-  --theme-divider-tertiary: theme('colors.raw.pepper.10')33;
-  --theme-divider-quaternary: theme('colors.raw.pepper.10')14;
 
   --accent-cabbage-default: theme('colors.raw.cabbage.60');
   --accent-cabbage-default-invert: theme('colors.raw.cabbage.40');

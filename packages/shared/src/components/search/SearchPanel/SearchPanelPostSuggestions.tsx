@@ -79,11 +79,11 @@ export const SearchPanelPostSuggestions = ({
   return (
     <div className={classNames(className, 'flex flex-col')}>
       <div className="relative my-2 flex items-center justify-start gap-2">
-        <hr className="w-2 border-theme-divider-tertiary" />
+        <hr className="w-2 border-border-subtlest-tertiary" />
         <span className="relative inline-flex font-bold typo-footnote">
           {title}
         </span>
-        <hr className="flex-1 border-theme-divider-tertiary" />
+        <hr className="flex-1 border-border-subtlest-tertiary" />
       </div>
       {suggestions?.hits?.map((suggestion) => {
         return (

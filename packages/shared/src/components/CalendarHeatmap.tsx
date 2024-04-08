@@ -33,7 +33,7 @@ const labelStyle: CSSProperties = {
 
 const binsAttributes: React.SVGProps<SVGRectElement>[] = [
   {
-    fill: 'var(--theme-divider-quaternary)',
+    fill: 'var(--theme-border-subtlest-quaternary)',
   },
   {
     fill: 'var(--theme-text-disabled)',
