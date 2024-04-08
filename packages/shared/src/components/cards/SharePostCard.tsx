@@ -63,7 +63,10 @@ export const SharePostCard = forwardRef(function SharePostCard(
         <CardButton title={post.title} onClick={onPostCardClick} />
       )}
       {trending && isTrendingFlagV1 && (
-        <TrendingFlagComponent className={{ container: 'right-2 top-2' }} />
+        <TrendingFlagComponent
+          iconOnly
+          className={{ container: 'right-2 top-2' }}
+        />
       )}
       <OptionsButton
         className="absolute right-2 top-2 group-hover:flex laptop:hidden"

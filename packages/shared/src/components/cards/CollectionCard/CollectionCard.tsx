@@ -13,6 +13,10 @@ import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
 import ActionButtons from '../ActionButtons';
 import PostMetadata from '../PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
+import { useFeature } from '../../GrowthBookProvider';
+import { feature } from '../../../lib/featureManagement';
+import { TrendingFlag } from '../../../lib/featureValues';
+import { TrendingFlag as TrendingFlagComponent } from '../common/TrendingFlag';
 
 export const CollectionCard = forwardRef(function CollectionCard(
   {
@@ -30,6 +34,9 @@ export const CollectionCard = forwardRef(function CollectionCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
+  const trendingFlag = useFeature(feature.trendingFlag);
+  const isTrendingFlagV1 = trendingFlag === TrendingFlag.V1;
+  const { pinnedAt, trending } = post;
   const image = usePostImage(post);
 
   return (
@@ -39,10 +46,12 @@ export const CollectionCard = forwardRef(function CollectionCard(
         className: getPostClassNames(post, domProps.className, 'min-h-card'),
       }}
       ref={ref}
-      flagProps={{ pinnedAt: post.pinnedAt }}
+      flagProps={{ pinnedAt, ...(!isTrendingFlagV1 && { trending }) }}
     >
       <CardButton title={post.title} onClick={() => onPostClick(post)} />
-
+      {trending && isTrendingFlagV1 && (
+        <TrendingFlagComponent className={{ container: 'right-3 top-3' }} />
+      )}
       <CollectionCardHeader
         sources={post.collectionSources}
         totalSources={post.numCollectionSources}
