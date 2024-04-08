@@ -75,6 +75,11 @@ function MyFeedHeading({
         </Button>
       )}
       <Button
+        size={
+          shouldUseMobileFeedLayout && !isNewMobileLayout
+            ? ButtonSize.Small
+            : ButtonSize.Medium
+        }
         variant={
           isNewMobileLayout ? ButtonVariant.Tertiary : ButtonVariant.Float
         }
@@ -85,7 +90,7 @@ function MyFeedHeading({
           shouldUseMobileFeedLayout ? ButtonIconPosition.Right : undefined
         }
       >
-        {!isMobile && !isNewMobileLayout ? 'Feed settings' : null}
+        {!isMobile ? 'Feed settings' : null}
       </Button>
     </>
   );
