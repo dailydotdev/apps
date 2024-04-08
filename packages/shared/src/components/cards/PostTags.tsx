@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo, useRef } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { Post } from '../../graphql/posts';
 import Classed from '../../lib/classed';
 
