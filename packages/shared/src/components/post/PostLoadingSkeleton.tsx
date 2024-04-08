@@ -24,7 +24,7 @@ function PostLoadingSkeleton({
       hasNavigation={hasNavigation}
       className={classNames(className, 'laptop:flex-row laptop:pb-0')}
     >
-      <PostLoadingPlaceholder className="tablet:border-r tablet:border-theme-divider-tertiary" />
+      <PostLoadingPlaceholder className="tablet:border-r tablet:border-border-subtlest-tertiary" />
     </PostContentContainer>
   );
 }

@@ -133,7 +133,7 @@ function SquadPostContent({
         onShare={onCopyPostLink}
         onReadArticle={onReadArticle}
         post={post}
-        className="mb-6 border-l border-theme-divider-tertiary laptop:mb-0"
+        className="mb-6 border-l border-border-subtlest-tertiary laptop:mb-0"
         onClose={onClose}
         origin={origin}
       />

@@ -20,10 +20,10 @@ export function CardSelection({
   return (
     <button
       className={classNames(
-        'relative flex flex-col items-center gap-1 rounded-16 border border-theme-divider-tertiary px-4 py-3 hover:cursor-pointer',
+        'relative flex flex-col items-center gap-1 rounded-16 border border-border-subtlest-tertiary px-4 py-3 hover:cursor-pointer',
         isActive
-          ? 'border-theme-divider-primary'
-          : 'border-theme-divider-tertiary',
+          ? 'border-border-subtlest-primary'
+          : 'border-border-subtlest-tertiary',
       )}
       onClick={onClick}
       type="button"

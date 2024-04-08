@@ -9,6 +9,10 @@ import FeedItemContainer from './FeedItemContainer';
 import { isVideoPost } from '../../graphql/posts';
 import { SquadPostCardHeader } from './common/SquadPostCardHeader';
 import CardOverlay from './common/CardOverlay';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { TrendingFlag } from '../../lib/featureValues';
+import { TrendingFlag as TrendingFlagComponent } from './common/TrendingFlag';
 
 export const SharePostCard = forwardRef(function SharePostCard(
   {
@@ -27,6 +31,8 @@ export const SharePostCard = forwardRef(function SharePostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const trendingFlag = useFeature(feature.trendingFlag);
+  const isTrendingFlagV1 = trendingFlag === TrendingFlag.V1;
   const { pinnedAt, trending } = post;
   const onPostCardClick = () => onPostClick(post);
   const [isSharedPostShort, setSharedPostShort] = useState(true);
@@ -50,9 +56,13 @@ export const SharePostCard = forwardRef(function SharePostCard(
         ),
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending }}
+      flagProps={{ pinnedAt, ...(!isTrendingFlagV1 && { trending }) }}
     >
       <CardOverlay post={post} onPostCardClick={onPostCardClick} />
+
+      {trending && isTrendingFlagV1 && (
+        <TrendingFlagComponent className={{ container: 'right-2 top-2' }} />
+      )}
 
       <OptionsButton
         className="absolute right-2 top-2 group-hover:flex laptop:hidden"

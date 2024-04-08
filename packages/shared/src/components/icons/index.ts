@@ -96,6 +96,7 @@ export * from './Terminal';
 export * from './Timer';
 export * from './Tour';
 export * from './Trash';
+export * from './Trending';
 export * from './Twitter';
 export * from './Unread';
 export * from './Upvote';

@@ -58,7 +58,7 @@ export const CardLink = classed('a', clickableCardClasses);
 export const Card = classed(
   'article',
   styles.card,
-  'relative max-h-card h-full flex flex-col p-2 rounded-16 bg-background-subtle border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
+  'relative max-h-card h-full flex flex-col p-2 rounded-16 bg-background-subtle border border-border-subtlest-tertiary hover:border-border-subtlest-secondary shadow-2',
 );
 
 export const ChecklistCardComponent = classed(
@@ -76,7 +76,7 @@ export const CardHeader = classed(
 export const ListCard = classed(
   'article',
   styles.card,
-  'relative flex items-stretch pt-4 pb-3 pr-4 rounded-16 bg-background-subtle border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
+  'relative flex items-stretch pt-4 pb-3 pr-4 rounded-16 bg-background-subtle border border-border-subtlest-tertiary hover:border-border-subtlest-secondary shadow-2',
 );
 
 export const ListCardMain = classed(
@@ -86,7 +86,7 @@ export const ListCardMain = classed(
 
 export const ListCardDivider = classed(
   'div',
-  'w-px h-full bg-theme-divider-tertiary',
+  'w-px h-full bg-border-subtlest-tertiary',
 );
 
 export const getPostClassNames = (

@@ -28,7 +28,7 @@ export const BaseTagCategoryDetails = classed(
 
 export const TagCategoryDetails = classed(
   BaseTagCategoryDetails,
-  'border-t border-b border-theme-divider-tertiary',
+  'border-t border-b border-border-subtlest-tertiary',
 );
 
 export const BaseTagCategorySummary = classed(

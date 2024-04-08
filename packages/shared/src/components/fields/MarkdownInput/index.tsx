@@ -208,7 +208,7 @@ function MarkdownInput(
           wrapper={(component) => (
             <span className="relative flex flex-col">
               <Divider
-                className="absolute left-8 !h-10 !bg-theme-divider-tertiary"
+                className="absolute left-8 !h-10 !bg-border-subtlest-tertiary"
                 vertical
               />
               {timeline}
@@ -262,7 +262,7 @@ function MarkdownInput(
         appendTo={parentSelector}
       />
       {footer ?? (
-        <span className="flex flex-row items-center gap-3 border-theme-divider-tertiary p-3 px-4 text-text-tertiary laptop:justify-end laptop:border-t">
+        <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-3 px-4 text-text-tertiary laptop:justify-end laptop:border-t">
           {!!onUploadCommand && (
             <Button
               size={actionButtonSizes}

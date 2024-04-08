@@ -121,7 +121,7 @@ export const OnboardingFeedHeader = ({
           shouldUpdateAlerts={false}
         />
         <div className="mt-10 flex items-center justify-center gap-10 text-text-quaternary typo-callout">
-          <div className="h-px flex-1 bg-theme-divider-tertiary" />
+          <div className="h-px flex-1 bg-border-subtlest-tertiary" />
           <Button
             variant={ButtonVariant.Float}
             disabled={!isPreviewFeedEnabled}
@@ -139,7 +139,7 @@ export const OnboardingFeedHeader = ({
               ? `${isPreviewFeedVisible ? 'Hide' : 'Show'} feed preview`
               : `${tagsCount}/${REQUIRED_TAGS_THRESHOLD} to show feed preview`}
           </Button>
-          <div className="h-px flex-1 bg-theme-divider-tertiary" />
+          <div className="h-px flex-1 bg-border-subtlest-tertiary" />
         </div>
       </div>
     </LayoutHeader>

@@ -7,7 +7,7 @@ import { RankTag, RankTagPill, RankTagProps } from './common';
 const RankTagItem = ({ tag, isColorPrimary }: RankTagProps): ReactElement => {
   const isPlaceholder = tag === undefined || tag === null;
   const className = isPlaceholder
-    ? 'w-24 rounded-8 border border-theme-divider-secondary'
+    ? 'w-24 rounded-8 border border-border-subtlest-secondary'
     : 'flex-shrink w-auto bg-theme-float';
 
   return (

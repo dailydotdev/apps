@@ -28,7 +28,7 @@ export const upvoteCommentEventName = (upvoted: boolean): string =>
   upvoted ? 'upvote comment' : 'remove comment upvote';
 
 export const pageBorders =
-  'laptop:border-r laptop:border-l border-theme-divider-tertiary';
+  'laptop:border-r laptop:border-l border-border-subtlest-tertiary';
 
 const pagePaddings = 'px-4 tablet:px-8';
 const basePageClassNames = classNames(

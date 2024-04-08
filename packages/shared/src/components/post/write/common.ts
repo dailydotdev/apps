@@ -6,7 +6,7 @@ export const previewImageClass =
 
 export const WritePreviewContainer = classed(
   FlexCol,
-  'rounded-16 border border-theme-divider-tertiary',
+  'rounded-16 border border-border-subtlest-tertiary',
 );
 
 export const WritePreviewContent = classed(

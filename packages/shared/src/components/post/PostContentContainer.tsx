@@ -20,7 +20,7 @@ const BodyContainer = classed(
 
 const PageBodyContainer = classed(
   BodyContainer,
-  'm-auto w-full laptop:border-x laptop:border-theme-divider-tertiary',
+  'm-auto w-full laptop:border-x laptop:border-border-subtlest-tertiary',
 );
 
 function PostContentContainer({

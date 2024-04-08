@@ -20,6 +20,9 @@ import { FeedbackCard } from './FeedbackCard';
 import { Origin } from '../../lib/analytics';
 import { isVideoPost } from '../../graphql/posts';
 import CardOverlay from './common/CardOverlay';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { TrendingFlag } from '../../lib/featureValues';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -41,10 +44,12 @@ export const ArticlePostCard = forwardRef(function PostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const trendingFlag = useFeature(feature.trendingFlag);
+  const isTrendingFlagV1 = trendingFlag === TrendingFlag.V1;
   const { className, style } = domProps;
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
-  const { trending, pinnedAt } = post;
+  const { pinnedAt, trending } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const { showFeedback } = usePostFeedback({ post });
   const isVideoType = isVideoPost(post);
@@ -71,7 +76,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
         ),
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending }}
+      flagProps={{ pinnedAt, ...(!isTrendingFlagV1 && { trending }) }}
     >
       <CardOverlay post={post} onPostCardClick={onPostCardClick} />
       {showFeedback && (
@@ -85,7 +90,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
       <div
         className={classNames(
           showFeedback
-            ? 'overflow-hidden rounded-16 border !border-theme-divider-tertiary p-2'
+            ? 'overflow-hidden rounded-16 border !border-border-subtlest-tertiary p-2'
             : 'flex flex-1 flex-col',
           showFeedback && styles.post,
           showFeedback && styles.read,
@@ -100,6 +105,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
             postLink={post.permalink}
             onMenuClick={(event) => onMenuClick?.(event, post)}
             onReadArticleClick={onReadArticleClick}
+            flagProps={{ ...(isTrendingFlagV1 && { trending }) }}
           />
           <CardTitle lineClamp={showFeedback ? 'line-clamp-2' : undefined}>
             {post.title}

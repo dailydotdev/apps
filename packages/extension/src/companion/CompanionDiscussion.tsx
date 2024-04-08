@@ -47,7 +47,7 @@ export function CompanionDiscussion({
       )}
     >
       <span className="px-6" />
-      <div className="mt-5 flex-1 overflow-y-auto overflow-x-hidden border-t border-theme-divider-tertiary px-4">
+      <div className="mt-5 flex-1 overflow-y-auto overflow-x-hidden border-t border-border-subtlest-tertiary px-4">
         <h3 className="mb-6 ml-2 mt-4 font-bold typo-callout">Discussion</h3>
         <NewComment
           size="medium"

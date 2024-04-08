@@ -12,7 +12,7 @@ export function WritePostHeader({
   const { squad } = useWritePostContext();
 
   return (
-    <header className="flex h-14 flex-row items-center border-b border-theme-divider-tertiary px-6 py-4">
+    <header className="flex h-14 flex-row items-center border-b border-border-subtlest-tertiary px-6 py-4">
       <h1 className="font-bold typo-title3">{isEdit ? 'Edit' : 'New'} post</h1>
       {squad && (
         <>

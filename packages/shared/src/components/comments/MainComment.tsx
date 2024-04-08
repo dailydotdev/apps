@@ -131,7 +131,7 @@ export default function MainComment({
     <section
       ref={inViewRef}
       className={classNames(
-        'flex scroll-mt-16 flex-col items-stretch rounded-24 border-theme-divider-tertiary',
+        'flex scroll-mt-16 flex-col items-stretch rounded-24 border-border-subtlest-tertiary',
         className?.container,
         inView && 'border',
       )}

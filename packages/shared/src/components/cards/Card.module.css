@@ -55,7 +55,7 @@
   }
 
   &.read {
-    border-color: var(--theme-divider-quaternary);
+    border-color: var(--theme-border-subtlest-quaternary);
     background: var(--theme-background-default);
     box-shadow: none;
 
