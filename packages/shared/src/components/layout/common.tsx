@@ -115,14 +115,14 @@ export const SearchControlHeader = ({
     <ConditionalWrapper
       condition={isNewMobileLayout}
       wrapper={(children) => (
-        <div className="flex w-full items-center justify-between">
+        <div className="flex w-full items-center justify-between tablet:mb-2 tablet:p-4">
           <div className="flex-0">
             {isStreaksEnabled && (
               <ReadingStreakButton streak={streak} isLoading={isLoading} />
             )}
           </div>
 
-          <div className="flex gap-2">{children}</div>
+          <div className="flex items-center gap-2">{children}</div>
         </div>
       )}
     >

@@ -8,6 +8,7 @@ import { LazyModal } from '../modals/common/types';
 import NotificationsBell from '../notifications/NotificationsBell';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useReadingStreak } from '../../hooks/streaks';
+import { ButtonIconPosition } from '../buttons/common';
 
 export function MobileFeedActions(): ReactElement {
   const router = useRouter();
@@ -28,6 +29,7 @@ export function MobileFeedActions(): ReactElement {
               isLoading={isLoading}
               streak={streak}
               compact
+              iconPosition={ButtonIconPosition.Right}
             />
             <Divider className="bg-border-subtlest-tertiary" vertical />
           </>
