@@ -226,7 +226,7 @@ export default function CommentModal({
                   postScoutId={post?.scout?.id}
                 />
                 <div
-                  className="ml-12 flex gap-2 border-l border-theme-divider-tertiary py-3 pl-5 text-text-tertiary typo-caption1"
+                  className="ml-12 flex gap-2 border-l border-border-subtlest-tertiary py-3 pl-5 text-text-tertiary typo-caption1"
                   ref={replyRef}
                 >
                   Reply to

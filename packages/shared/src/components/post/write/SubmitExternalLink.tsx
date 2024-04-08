@@ -56,7 +56,7 @@ export function SubmitExternalLink({
     <span
       className={classNames(
         'relative flex flex-col items-center tablet:flex-row',
-        isMobile ? 'rounded-16 border border-theme-divider-tertiary' : '',
+        isMobile ? 'rounded-16 border border-border-subtlest-tertiary' : '',
       )}
     >
       <TextField

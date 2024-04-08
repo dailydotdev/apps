@@ -7,7 +7,7 @@ interface DividerProps {
   vertical?: boolean;
 }
 
-const DividerBase = classed('span', 'bg-theme-divider-primary');
+const DividerBase = classed('span', 'bg-border-subtlest-primary');
 
 export const Divider = ({
   className,

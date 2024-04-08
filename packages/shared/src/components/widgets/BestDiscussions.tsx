@@ -24,7 +24,7 @@ export type BestDiscussionsProps = {
   className?: string;
 };
 
-const Separator = <div className="h-px bg-theme-divider-tertiary" />;
+const Separator = <div className="h-px bg-border-subtlest-tertiary" />;
 
 type PostProps = {
   post: Post;

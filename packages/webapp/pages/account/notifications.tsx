@@ -147,7 +147,7 @@ const AccountNotificationsPage = (): ReactElement => {
             title="Push notifications"
             description="The daily.dev notification system notifies you of important events such as replies, mentions, updates, etc."
           />
-          <div className="mx-4 h-full w-px bg-theme-divider-tertiary" />
+          <div className="mx-4 h-full w-px bg-border-subtlest-tertiary" />
           <Switch
             data-testid="push_notification-switch"
             inputId="push_notification-switch"
@@ -195,7 +195,7 @@ const AccountNotificationsPage = (): ReactElement => {
           title="Email notifications"
           description="Tailor your email notifications by selecting the types of emails that are important to you."
         />
-        <div className="mx-4 h-full w-px bg-theme-divider-tertiary" />
+        <div className="mx-4 h-full w-px bg-border-subtlest-tertiary" />
         <Switch
           data-testid="email_notification-switch"
           inputId="email_notification-switch"

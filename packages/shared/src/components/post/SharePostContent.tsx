@@ -25,7 +25,7 @@ interface SharePostContentProps {
 const SharePostContentSkeleton = () => (
   <>
     <ElementPlaceholder className="mt-6 h-6 w-2/4 rounded-10" />
-    <div className="mb-5 mt-8 rounded-16 border border-theme-divider-tertiary">
+    <div className="mb-5 mt-8 rounded-16 border border-border-subtlest-tertiary">
       <div className="flex max-w-full flex-col p-4 pt-5 laptop:flex-row">
         <div className="flex flex-1 flex-col gap-9">
           <ElementPlaceholder className="h-6 w-20 rounded-10" />

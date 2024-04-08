@@ -48,7 +48,7 @@ function FeedFilterCard({
       onClick={onClick}
       className={classNames(
         'group relative flex aspect-square w-full min-w-[8rem] max-w-[8rem] items-center justify-center rounded-14 transition-[background] typo-callout hover:bg-theme-color-cabbage hover:shadow-2-black tablet:min-w-full',
-        isActive ? 'bg-theme-color-cabbage' : 'bg-theme-divider-tertiary',
+        isActive ? 'bg-theme-color-cabbage' : 'bg-border-subtlest-tertiary',
       )}
     >
       <BackgroundLayer className="invisible -z-1 opacity-64 group-hover:visible group-hover:-rotate-12" />

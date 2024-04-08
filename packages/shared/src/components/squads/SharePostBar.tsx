@@ -71,7 +71,7 @@ function SharePostBar({
     return (
       <Card
         className={classNames(
-          'flex !flex-row items-center gap-1.5 px-3 py-5 text-text-quaternary hover:border-theme-divider-tertiary',
+          'flex !flex-row items-center gap-1.5 px-3 py-5 text-text-quaternary hover:border-border-subtlest-tertiary',
           className,
         )}
       >
@@ -86,7 +86,7 @@ function SharePostBar({
       onSubmit={onSubmit}
       className={classNames(
         'flex flex-col items-center overflow-hidden rounded-16 border typo-callout tablet:flex-row',
-        'border-theme-divider-tertiary bg-theme-float focus-within:border-theme-divider-primary hover:border-theme-divider-primary',
+        'border-border-subtlest-tertiary bg-theme-float focus-within:border-border-subtlest-primary hover:border-border-subtlest-primary',
         className,
       )}
     >
@@ -134,7 +134,7 @@ function SharePostBar({
         </Button>
       </span>
       <button
-        className="flex w-full items-center justify-center border-t border-theme-divider-tertiary py-5 font-bold text-text-tertiary typo-callout tablet:hidden"
+        className="flex w-full items-center justify-center border-t border-border-subtlest-tertiary py-5 font-bold text-text-tertiary typo-callout tablet:hidden"
         type="button"
         onClick={onOpenHistory}
       >

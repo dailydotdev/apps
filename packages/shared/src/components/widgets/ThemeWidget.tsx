@@ -33,7 +33,7 @@ function ThemeWidget({
   return (
     <label
       htmlFor={option.value}
-      className="relative flex h-24 w-full flex-row items-center overflow-hidden rounded-14 bg-theme-divider-tertiary pl-4 hover:cursor-pointer"
+      className="relative flex h-24 w-full flex-row items-center overflow-hidden rounded-14 bg-border-subtlest-tertiary pl-4 hover:cursor-pointer"
     >
       <RadioItem
         {...props}

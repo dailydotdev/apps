@@ -119,7 +119,7 @@ function BaseDrawer({
         {title && (
           <h3
             className={classNames(
-              'flex flex-row items-center border-b border-theme-divider-tertiary p-4 font-bold typo-title3',
+              'flex flex-row items-center border-b border-border-subtlest-tertiary p-4 font-bold typo-title3',
               className?.title,
             )}
           >

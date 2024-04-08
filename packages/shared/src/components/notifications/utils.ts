@@ -17,7 +17,7 @@ import { NotificationPromptSource } from '../../lib/analytics';
 
 export const NotifContainer = classed(
   'div',
-  'fixed left-1/2 flex flex-col justify-center bg-text-primary p-2 rounded-14 border-theme-divider-primary shadow-2',
+  'fixed left-1/2 flex flex-col justify-center bg-text-primary p-2 rounded-14 border-border-subtlest-primary shadow-2',
 );
 export const NotifContent = classed(
   'div',

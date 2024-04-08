@@ -64,7 +64,7 @@ function SidebarNav({
         className,
       )}
     >
-      <span className="mb-6 flex w-full flex-row items-center justify-between border-b border-theme-divider-tertiary p-2 tablet:hidden">
+      <span className="mb-6 flex w-full flex-row items-center justify-between border-b border-border-subtlest-tertiary p-2 tablet:hidden">
         <span className="ml-4 font-bold typo-title3">Account Settings</span>
         <CloseButton onClick={closeSideNav} />
       </span>
