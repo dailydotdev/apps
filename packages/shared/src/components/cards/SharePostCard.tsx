@@ -61,7 +61,10 @@ export const SharePostCard = forwardRef(function SharePostCard(
       <CardOverlay post={post} onPostCardClick={onPostCardClick} />
 
       {trending && isTrendingFlagV1 && (
-        <TrendingFlagComponent className={{ container: 'right-2 top-2' }} />
+        <TrendingFlagComponent
+          iconOnly
+          className={{ container: 'right-2 top-2' }}
+        />
       )}
 
       <OptionsButton

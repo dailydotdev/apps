@@ -12,6 +12,10 @@ import FeedItemContainer from './FeedItemContainer';
 import { PostType } from '../../graphql/posts';
 import { SquadPostCardHeader } from './common/SquadPostCardHeader';
 import { usePostImage } from '../../hooks/post/usePostImage';
+import { TrendingFlag as TrendingFlagComponent } from './common/TrendingFlag';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { TrendingFlag } from '../../lib/featureValues';
 import CardOverlay from './common/CardOverlay';
 
 export const WelcomePostCard = forwardRef(function SharePostCard(
@@ -31,7 +35,9 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const { pinnedAt, type: postType } = post;
+  const trendingFlag = useFeature(feature.trendingFlag);
+  const isTrendingFlagV1 = trendingFlag === TrendingFlag.V1;
+  const { pinnedAt, type: postType, trending } = post;
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const image = usePostImage(post);
@@ -58,10 +64,15 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
         ),
       }}
       ref={ref}
-      flagProps={{ pinnedAt }}
+      flagProps={{ pinnedAt, ...(!isTrendingFlagV1 && { trending }) }}
     >
+      {trending && isTrendingFlagV1 && (
+        <TrendingFlagComponent
+          iconOnly
+          className={{ container: 'right-2 top-2' }}
+        />
+      )}
       <CardOverlay post={post} onPostCardClick={onPostCardClick} />
-
       <OptionsButton
         className="absolute right-2 top-2 group-hover:flex laptop:hidden"
         onClick={(event) => onMenuClick?.(event, post)}
