@@ -75,7 +75,6 @@ function MyFeedHeading({
         </Button>
       )}
       <Button
-        size={shouldUseMobileFeedLayout ? ButtonSize.Small : ButtonSize.Medium}
         variant={
           isMobile && isNewMobileLayout
             ? ButtonVariant.Tertiary

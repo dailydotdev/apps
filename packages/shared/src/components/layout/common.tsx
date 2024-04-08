@@ -40,13 +40,15 @@ export const algorithms = [
   { value: RankingAlgorithm.Popularity, text: 'Recommended' },
   { value: RankingAlgorithm.Time, text: 'By date' },
 ];
-const algorithmsList = algorithms.map((algo) => algo.text);
+export const algorithmsList = algorithms.map((algo) => algo.text);
 export const periods = [
   { value: 7, text: 'Last week' },
   { value: 30, text: 'Last month' },
   { value: 365, text: 'Last year' },
 ];
 const periodTexts = periods.map((period) => period.text);
+
+export const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
 
 export const SearchControlHeader = ({
   feedName,
@@ -60,6 +62,11 @@ export const SearchControlHeader = ({
   const { isNewMobileLayout } = useMobileUxExperiment();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
+
+  if (isMobile) {
+    return null;
+  }
+
   const openFeedFilters = () =>
     openModal({ type: LazyModal.FeedFilters, persistOnRouteChange: true });
 
@@ -71,10 +78,9 @@ export const SearchControlHeader = ({
       ? ButtonSize.Small
       : ButtonSize.Medium,
     iconOnly: true,
-    buttonVariant:
-      isNewMobileLayout && isMobile
-        ? ButtonVariant.Tertiary
-        : ButtonVariant.Float,
+    buttonVariant: isNewMobileLayout
+      ? ButtonVariant.Tertiary
+      : ButtonVariant.Float,
   };
   const actionButtons = [
     feedName === SharedFeedPage.MyFeed ? (

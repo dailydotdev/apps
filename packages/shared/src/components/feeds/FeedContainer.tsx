@@ -171,26 +171,31 @@ export const FeedContainer = ({
             wrapper={(child) => (
               <div
                 className={classNames(
-                  'flex flex-col rounded-16 border border-theme-divider-tertiary tablet:mt-6',
+                  'relative flex flex-col rounded-16 border border-theme-divider-tertiary tablet:mt-6',
                   isSearch && 'mt-6',
                   isNewMobileLayout && '!mt-2 border-0',
                 )}
               >
-                <span className="flex w-full flex-row items-center justify-between px-6 py-4">
-                  {!isNewMobileLayout && (
-                    <strong className="typo-title3">
-                      {feedNameToHeading[feedName] ?? ''}
-                    </strong>
+                <ConditionalWrapper
+                  condition={!isNewMobileLayout}
+                  wrapper={(component) => (
+                    <span className="flex w-full flex-row items-center justify-between px-6 py-4">
+                      <strong className="typo-title3">
+                        {feedNameToHeading[feedName] ?? ''}
+                      </strong>
+                      <span
+                        className={classNames(
+                          'flex flex-row gap-3',
+                          isNewMobileLayout && 'w-full',
+                        )}
+                      >
+                        {component}
+                      </span>
+                    </span>
                   )}
-                  <span
-                    className={classNames(
-                      'flex flex-row gap-3',
-                      isNewMobileLayout && 'w-full',
-                    )}
-                  >
-                    {actionButtons}
-                  </span>
-                </span>
+                >
+                  {actionButtons}
+                </ConditionalWrapper>
                 {child}
               </div>
             )}

@@ -18,6 +18,7 @@ interface ReadingStreakButtonProps {
   streak: UserStreak;
   isLoading: boolean;
   compact?: boolean;
+  className?: string;
 }
 
 interface CustomStreaksTooltipProps {
@@ -57,6 +58,7 @@ export function ReadingStreakButton({
   streak,
   isLoading,
   compact,
+  className,
 }: ReadingStreakButtonProps): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -112,7 +114,11 @@ export function ReadingStreakButton({
               : ButtonVariant.Float
           }
           onClick={handleToggle}
-          className={classnames('gap-1', compact && 'text-theme-color-bacon')}
+          className={classnames(
+            'gap-1',
+            compact && 'text-theme-color-bacon',
+            className,
+          )}
           size={
             (isLaptop || !compact) && !isMobile
               ? ButtonSize.Medium

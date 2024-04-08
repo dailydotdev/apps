@@ -32,6 +32,7 @@ import AlertContext from '../contexts/AlertContext';
 import { useFeature } from './GrowthBookProvider';
 import {
   algorithms,
+  DEFAULT_ALGORITHM_KEY,
   LayoutHeader,
   periods,
   SearchControlHeader,
@@ -113,8 +114,6 @@ const getQueryBasedOnLogin = (
   }
   return null;
 };
-
-const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
 
 const commentClassName = {
   container: 'rounded-none border-0 border-b tablet:border-x',
