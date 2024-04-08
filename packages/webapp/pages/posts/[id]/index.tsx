@@ -202,8 +202,17 @@ export async function getStaticProps({
     const clientError = err as ClientError;
     const errors = Object.values(ApiError);
     if (errors.includes(clientError?.response?.errors?.[0]?.extensions?.code)) {
+      const { postId } = clientError.response.errors[0].extensions;
+
+      if (!postId) {
+        return {
+          notFound: true,
+          revalidate: 60,
+        };
+      }
+
       return {
-        props: { id },
+        props: { id: postId },
         revalidate: 60,
       };
     }
