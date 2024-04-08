@@ -70,7 +70,10 @@ export default function FooterNavBar({
       className={classNames(
         'fixed !bottom-0 left-0 z-2 w-full',
         isNewMobileLayout
-          ? 'bg-gradient-to-t from-blur-baseline via-blur-bg via-70% to-transparent p-2'
+          ? classNames(
+              'bg-gradient-to-t from-blur-baseline via-blur-bg via-70% to-transparent p-2',
+              styles.footerNavBar,
+            )
           : post && 'bg-blur-bg backdrop-blur-20',
       )}
     >
@@ -92,12 +95,14 @@ export default function FooterNavBar({
         spring="veryGentle"
         element="nav"
         className={classNames(
-          'grid h-14 w-full grid-flow-col items-center justify-between px-3',
+          'grid w-full grid-flow-col items-center justify-between px-3',
           !showNav && 'hidden',
-          styles.footerNavBar,
           isNewMobileLayout
             ? classNames('rounded-16', !post && activeClasses)
-            : 'rounded-t-24 bg-background-default',
+            : classNames(
+                'h-14 rounded-t-24 bg-background-default',
+                styles.footerNavBar,
+              ),
           !post && 'border-t border-border-subtlest-tertiary',
         )}
       >
