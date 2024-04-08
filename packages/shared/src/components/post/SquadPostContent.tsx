@@ -74,7 +74,7 @@ function SquadPostContent({
   return (
     <PostContentContainer
       className={classNames(
-        'relative flex-1 flex-col tablet:flex-row tablet:pb-0',
+        'relative flex-1 flex-col laptop:flex-row laptop:pb-0',
         className?.container,
       )}
       hasNavigation={hasNavigation}
@@ -92,7 +92,7 @@ function SquadPostContent({
     >
       <div
         className={classNames(
-          'relative flex min-w-0 flex-1 flex-col px-4 tablet:px-8',
+          'relative flex min-w-0 flex-1 flex-col px-4 laptop:px-8',
           className?.content,
         )}
       >
@@ -102,7 +102,7 @@ function SquadPostContent({
             onboarding: classNames('mb-6', className?.onboarding),
             header: 'mb-6',
             navigation: {
-              actions: 'ml-auto tablet:hidden',
+              actions: 'ml-auto laptop:hidden',
               container: 'mb-6 pt-6',
             },
           }}
@@ -133,7 +133,7 @@ function SquadPostContent({
         onShare={onCopyPostLink}
         onReadArticle={onReadArticle}
         post={post}
-        className="mb-6 border-l border-border-subtlest-tertiary tablet:mb-0"
+        className="mb-6 border-l border-border-subtlest-tertiary laptop:mb-0"
         onClose={onClose}
         origin={origin}
       />

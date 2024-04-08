@@ -1,14 +1,14 @@
 import React, { forwardRef, ReactElement, Ref, useRef, useState } from 'react';
-import { CardButton, getPostClassNames } from './Card';
+import { getPostClassNames } from './Card';
 import ActionButtons from './ActionButtons';
 import { SharedPostText } from './SharedPostText';
 import { SharedPostCardFooter } from './SharedPostCardFooter';
 import { Container, PostCardProps } from './common';
 import OptionsButton from '../buttons/OptionsButton';
 import FeedItemContainer from './FeedItemContainer';
-import { useFeedPreviewMode } from '../../hooks';
 import { isVideoPost } from '../../graphql/posts';
 import { SquadPostCardHeader } from './common/SquadPostCardHeader';
+import CardOverlay from './common/CardOverlay';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { TrendingFlag } from '../../lib/featureValues';
@@ -43,7 +43,6 @@ export const SharePostCard = forwardRef(function SharePostCard(
     }
     setSharedPostShort(containerRef.current.offsetHeight - height < 40);
   };
-  const isFeedPreview = useFeedPreviewMode();
   const isVideoType = isVideoPost(post);
 
   return (
@@ -59,12 +58,12 @@ export const SharePostCard = forwardRef(function SharePostCard(
       ref={ref}
       flagProps={{ pinnedAt, ...(!isTrendingFlagV1 && { trending }) }}
     >
-      {!isFeedPreview && (
-        <CardButton title={post.title} onClick={onPostCardClick} />
-      )}
+      <CardOverlay post={post} onPostCardClick={onPostCardClick} />
+
       {trending && isTrendingFlagV1 && (
         <TrendingFlagComponent className={{ container: 'right-2 top-2' }} />
       )}
+
       <OptionsButton
         className="absolute right-2 top-2 group-hover:flex laptop:hidden"
         onClick={(event) => onMenuClick?.(event, post)}

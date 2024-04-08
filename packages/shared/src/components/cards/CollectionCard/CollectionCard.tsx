@@ -3,16 +3,12 @@ import classNames from 'classnames';
 import { Container, generateTitleClamp, PostCardProps } from '../common';
 import FeedItemContainer from '../FeedItemContainer';
 import { CollectionCardHeader } from './CollectionCardHeader';
-import {
-  getPostClassNames,
-  FreeformCardTitle,
-  CardSpace,
-  CardButton,
-} from '../Card';
+import { getPostClassNames, FreeformCardTitle, CardSpace } from '../Card';
 import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
 import ActionButtons from '../ActionButtons';
 import PostMetadata from '../PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
+import CardOverlay from '../common/CardOverlay';
 
 export const CollectionCard = forwardRef(function CollectionCard(
   {
@@ -31,7 +27,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
   ref: Ref<HTMLElement>,
 ) {
   const image = usePostImage(post);
-
+  const onPostCardClick = () => onPostClick(post);
   return (
     <FeedItemContainer
       domProps={{
@@ -41,7 +37,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
       ref={ref}
       flagProps={{ pinnedAt: post.pinnedAt }}
     >
-      <CardButton title={post.title} onClick={() => onPostClick(post)} />
+      <CardOverlay post={post} onPostCardClick={onPostCardClick} />
 
       <CollectionCardHeader
         sources={post.collectionSources}
