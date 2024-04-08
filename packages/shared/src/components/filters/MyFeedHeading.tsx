@@ -76,9 +76,7 @@ function MyFeedHeading({
       )}
       <Button
         variant={
-          isMobile && isNewMobileLayout
-            ? ButtonVariant.Tertiary
-            : ButtonVariant.Float
+          isNewMobileLayout ? ButtonVariant.Tertiary : ButtonVariant.Float
         }
         className="mr-auto"
         onClick={onClick}
