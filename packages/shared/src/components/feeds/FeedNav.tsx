@@ -75,7 +75,7 @@ function FeedNav(): ReactElement {
         <Tab label={FeedNavTab.History} url="/history" />
       </TabContainer>
       {isMobile && sortingEnabled && isSortableFeed && (
-        <div className="fixed right-0 top-12 my-1 flex h-12 w-20 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4">
+        <div className="sticky flex h-12 w-20 -translate-y-12 translate-x-[calc(100vw-100%)] items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4">
           <Dropdown
             className={{ label: 'hidden', chevron: 'hidden', button: '!px-1' }}
             dynamicMenuWidth
