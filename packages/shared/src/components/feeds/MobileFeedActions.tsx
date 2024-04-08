@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import Logo, { LogoPosition } from '../Logo';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
