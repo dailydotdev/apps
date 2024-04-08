@@ -1,18 +1,21 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import classed from '../../lib/classed';
 
 interface DividerProps {
   className?: string;
   vertical?: boolean;
 }
 
+const DividerBase = classed('span', 'bg-border-subtlest-primary');
+
 export const Divider = ({
-  className = 'bg-theme-divider-primary',
+  className = 'bg-border-subtlest-primary',
   vertical = false,
 }: DividerProps): ReactElement => {
   if (vertical) {
-    return <span className={classNames(className, 'h-5 w-px')} />;
+    return <DividerBase className={classNames(className, 'h-5 w-px')} />;
   }
 
-  return <span className={classNames(className, 'h-px w-full')} />;
+  return <DividerBase className={classNames(className, 'h-px w-full')} />;
 };
