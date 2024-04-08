@@ -176,21 +176,19 @@ export const FeedContainer = ({
                   isNewMobileLayout && '!mt-2 border-0',
                 )}
               >
-                <span className="flex w-full flex-row items-center justify-between px-6 py-4">
-                  {!isNewMobileLayout && (
-                    <strong className="typo-title3">
-                      {feedNameToHeading[feedName] ?? ''}
-                    </strong>
+                <ConditionalWrapper
+                  condition={!isNewMobileLayout}
+                  wrapper={(component) => (
+                    <span className="flex w-full flex-row items-center justify-between px-6 py-4">
+                      <strong className="typo-title3">
+                        {feedNameToHeading[feedName] ?? ''}
+                      </strong>
+                      <span className="flex flex-row gap-3">{component}</span>
+                    </span>
                   )}
-                  <span
-                    className={classNames(
-                      'flex flex-row gap-3',
-                      isNewMobileLayout && 'w-full',
-                    )}
-                  >
-                    {actionButtons}
-                  </span>
-                </span>
+                >
+                  {actionButtons}
+                </ConditionalWrapper>
                 {child}
               </div>
             )}

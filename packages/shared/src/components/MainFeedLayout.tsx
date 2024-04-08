@@ -32,6 +32,8 @@ import AlertContext from '../contexts/AlertContext';
 import { useFeature } from './GrowthBookProvider';
 import {
   algorithms,
+  DEFAULT_ALGORITHM_INDEX,
+  DEFAULT_ALGORITHM_KEY,
   LayoutHeader,
   periods,
   SearchControlHeader,
@@ -114,8 +116,6 @@ const getQueryBasedOnLogin = (
   return null;
 };
 
-const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
-
 const commentClassName = {
   container: 'rounded-none border-0 border-b tablet:border-x',
   commentBox: {
@@ -176,9 +176,9 @@ export default function MainFeedLayout({
 
   const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
-    0,
+    DEFAULT_ALGORITHM_INDEX,
     [0, 1],
-    0,
+    DEFAULT_ALGORITHM_INDEX,
   );
   const periodState = useState(0);
   const [selectedPeriod] = periodState;

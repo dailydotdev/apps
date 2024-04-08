@@ -10,7 +10,7 @@ interface DividerProps {
 const DividerBase = classed('span', 'bg-border-subtlest-primary');
 
 export const Divider = ({
-  className,
+  className = 'bg-border-subtlest-primary',
   vertical = false,
 }: DividerProps): ReactElement => {
   if (vertical) {

@@ -1,7 +1,12 @@
 import React, { ReactElement, useCallback, useState } from 'react';
 import classnames from 'classnames';
 import { ReadingStreakPopup } from './popup';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import { ReadingStreakIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
 import { UserStreak } from '../../graphql/users';
@@ -18,6 +23,7 @@ interface ReadingStreakButtonProps {
   streak: UserStreak;
   isLoading: boolean;
   compact?: boolean;
+  iconPosition?: ButtonIconPosition;
 }
 
 interface CustomStreaksTooltipProps {
@@ -57,6 +63,7 @@ export function ReadingStreakButton({
   streak,
   isLoading,
   compact,
+  iconPosition,
 }: ReadingStreakButtonProps): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -105,6 +112,7 @@ export function ReadingStreakButton({
       >
         <Button
           type="button"
+          iconPosition={iconPosition}
           icon={<ReadingStreakIcon secondary={hasReadToday} />}
           variant={
             isNewMobileLayout && isMobile
