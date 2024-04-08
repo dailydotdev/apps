@@ -22,7 +22,7 @@ function PostLoadingSkeleton({
   return (
     <PostContentContainer
       hasNavigation={hasNavigation}
-      className={classNames(className, 'tablet:flex-row tablet:pb-0')}
+      className={classNames(className, 'laptop:flex-row laptop:pb-0')}
     >
       <PostLoadingPlaceholder className="tablet:border-r tablet:border-border-subtlest-tertiary" />
     </PostContentContainer>

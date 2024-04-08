@@ -22,6 +22,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { webappUrl } from '../../../lib/constants';
 import { useViewPost } from '../../../hooks/post/useViewPost';
 import { DateFormat } from '../../utilities';
+import { TagLinks } from '../../TagLinks';
 
 export const CollectionPostContent = ({
   post,
@@ -53,7 +54,7 @@ export const CollectionPostContent = ({
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
-    'tablet:flex-row tablet:pb-0',
+    'laptop:flex-row laptop:pb-0',
     className?.container,
   );
 
@@ -122,10 +123,10 @@ export const CollectionPostContent = ({
           <div
             className={classNames(
               'mb-6 flex flex-col gap-6',
-              hasNavigation || customNavigation ? 'mt-6' : 'mt-6 tablet:mt-0',
+              hasNavigation || customNavigation ? 'mt-6' : 'mt-6 laptop:mt-0',
             )}
           >
-            <CollectionsIntro className="tablet:hidden" />
+            <CollectionsIntro className="laptop:hidden" />
             <Link href={`${webappUrl}sources/collections`} passHref>
               <Pill
                 tag="a"
@@ -139,6 +140,7 @@ export const CollectionPostContent = ({
             >
               {post.title}
             </h1>
+            <TagLinks tags={post.tags || []} />
             {!!updatedAt && (
               <div className="flex items-center text-text-tertiary typo-footnote">
                 <span>Last updated</span> <Separator />
