@@ -63,7 +63,7 @@ export const SearchControlHeader = ({
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
 
-  if (isMobile) {
+  if (isMobile && isNewMobileLayout) {
     return null;
   }
 
