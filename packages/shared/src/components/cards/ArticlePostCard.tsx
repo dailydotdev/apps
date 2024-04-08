@@ -23,6 +23,7 @@ import CardOverlay from './common/CardOverlay';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { TrendingFlag } from '../../lib/featureValues';
+import PostTags from './PostTags';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -44,6 +45,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const tagsOnCard = useFeature(feature.tagsOnCard);
   const trendingFlag = useFeature(feature.trendingFlag);
   const isTrendingFlagV1 = trendingFlag === TrendingFlag.V1;
   const { className, style } = domProps;
@@ -114,6 +116,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
         {!showFeedback && (
           <Container>
             <CardSpace />
+            {tagsOnCard && <PostTags tags={post.tags} />}
             <PostMetadata
               createdAt={post.createdAt}
               readTime={post.readTime}

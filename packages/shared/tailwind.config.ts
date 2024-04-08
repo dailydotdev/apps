@@ -186,6 +186,7 @@ export default {
         page: 'calc(100vh - 4rem)',
         commentBox: '18.25rem',
         card: '24rem',
+        cardLarge: '27rem',
       },
       minHeight: {
         page: 'calc(100vh - 4rem)',

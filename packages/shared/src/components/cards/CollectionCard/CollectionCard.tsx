@@ -13,6 +13,7 @@ import { feature } from '../../../lib/featureManagement';
 import { TrendingFlag } from '../../../lib/featureValues';
 import { TrendingFlag as TrendingFlagComponent } from '../common/TrendingFlag';
 import CardOverlay from '../common/CardOverlay';
+import PostTags from '../PostTags';
 
 export const CollectionCard = forwardRef(function CollectionCard(
   {
@@ -30,6 +31,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
+  const tagsOnCard = useFeature(feature.tagsOnCard);
   const trendingFlag = useFeature(feature.trendingFlag);
   const isTrendingFlagV1 = trendingFlag === TrendingFlag.V1;
   const { pinnedAt, trending } = post;
@@ -66,6 +68,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
       </FreeformCardTitle>
 
       {!!post.image && <CardSpace />}
+      {tagsOnCard && <PostTags tags={post.tags} />}
       <PostMetadata
         createdAt={post.createdAt}
         readTime={post.readTime}
