@@ -183,14 +183,7 @@ export const FeedContainer = ({
                       <strong className="typo-title3">
                         {feedNameToHeading[feedName] ?? ''}
                       </strong>
-                      <span
-                        className={classNames(
-                          'flex flex-row gap-3',
-                          isNewMobileLayout && 'w-full',
-                        )}
-                      >
-                        {component}
-                      </span>
+                      <span className="flex flex-row gap-3">{component}</span>
                     </span>
                   )}
                 >
