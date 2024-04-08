@@ -522,7 +522,7 @@ it('should not update post on subscription message when id is not the same', asy
 
 it('should send bookmark mutation from options on desktop', async () => {
   // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
+  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
 
   let mutationCalled = false;
   renderPost({}, [
@@ -553,7 +553,7 @@ it('should send bookmark mutation from options on desktop', async () => {
 
 it('should send remove bookmark mutation from options on desktop', async () => {
   // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
+  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
 
   let mutationCalled = false;
   renderPost({}, [

@@ -41,7 +41,7 @@ export const CardTitle = classed(Title, 'mt-2 break-words');
 
 export const ListCardTitle = classed(Title, 'mr-2');
 
-export const CardTextContainer = classed('div', 'flex flex-col mx-4');
+export const CardTextContainer = classed('div', 'flex flex-col mx-2');
 
 export const CardImage = classed(Image, 'rounded-12 h-40 object-cover');
 export const CardSpace = classed('div', 'flex-1');
@@ -58,7 +58,7 @@ export const CardLink = classed('a', clickableCardClasses);
 export const Card = classed(
   'article',
   styles.card,
-  'relative max-h-card h-full flex flex-col p-2 rounded-16 bg-background-subtle border border-border-subtlest-tertiary hover:border-border-subtlest-secondary shadow-2',
+  'relative max-h-cardLarge h-full flex flex-col p-2 rounded-16 bg-background-subtle border border-border-subtlest-tertiary hover:border-border-subtlest-secondary shadow-2',
 );
 
 export const ChecklistCardComponent = classed(

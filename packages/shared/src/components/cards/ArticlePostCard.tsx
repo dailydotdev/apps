@@ -1,9 +1,6 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
-import Link from 'next/link';
 import {
-  CardButton,
-  CardLink,
   CardSpace,
   CardTextContainer,
   CardTitle,
@@ -17,18 +14,16 @@ import { Container, PostCardProps } from './common';
 import FeedItemContainer from './FeedItemContainer';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { PostTagsPanel } from '../post/block/PostTagsPanel';
-import {
-  useFeedLayout,
-  useFeedPreviewMode,
-  usePostFeedback,
-} from '../../hooks';
+import { usePostFeedback } from '../../hooks';
 import styles from './Card.module.css';
 import { FeedbackCard } from './FeedbackCard';
 import { Origin } from '../../lib/analytics';
 import { isVideoPost } from '../../graphql/posts';
+import CardOverlay from './common/CardOverlay';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { TrendingFlag } from '../../lib/featureValues';
+import PostTags from './PostTags';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -50,6 +45,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const tagsOnCard = useFeature(feature.tagsOnCard);
   const trendingFlag = useFeature(feature.trendingFlag);
   const isTrendingFlagV1 = trendingFlag === TrendingFlag.V1;
   const { className, style } = domProps;
@@ -58,9 +54,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const { pinnedAt, trending } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const { showFeedback } = usePostFeedback({ post });
-  const isFeedPreview = useFeedPreviewMode();
   const isVideoType = isVideoPost(post);
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -71,26 +65,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
       />
     );
   }
-
-  const renderOverlay = () => {
-    if (isFeedPreview) {
-      return null;
-    }
-
-    if (!shouldUseMobileFeedLayout) {
-      return <CardButton title={post.title} onClick={onPostCardClick} />;
-    }
-
-    return (
-      <Link href={post.commentsPermalink}>
-        <CardLink
-          title={post.title}
-          onClick={onPostCardClick}
-          href={post.commentsPermalink}
-        />
-      </Link>
-    );
-  };
 
   return (
     <FeedItemContainer
@@ -106,7 +80,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
       ref={ref}
       flagProps={{ pinnedAt, ...(!isTrendingFlagV1 && { trending }) }}
     >
-      {renderOverlay()}
+      <CardOverlay post={post} onPostCardClick={onPostCardClick} />
       {showFeedback && (
         <FeedbackCard
           post={post}
@@ -142,6 +116,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
         {!showFeedback && (
           <Container>
             <CardSpace />
+            {tagsOnCard && <PostTags tags={post.tags} />}
             <PostMetadata
               createdAt={post.createdAt}
               readTime={post.readTime}

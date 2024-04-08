@@ -60,8 +60,11 @@ export default function FooterNavBar({
     return active?.title;
   }, [activeNav, router?.pathname]);
 
-  const activeClasses =
-    'bg-blur-highlight shadow-[0_4px_30px_rgba(0,0,0.1)] backdrop-blur-[2.5rem]';
+  const blurClasses = 'bg-blur-highlight backdrop-blur-[2.5rem]';
+  const activeClasses = classNames(
+    blurClasses,
+    'shadow-[0_4px_30px_rgba(0,0,0.1)]',
+  );
 
   const Component = isNewMobileLayout ? FooterNavBarV1 : FooterNavBarControl;
 
@@ -70,7 +73,10 @@ export default function FooterNavBar({
       className={classNames(
         'fixed !bottom-0 left-0 z-2 w-full',
         isNewMobileLayout
-          ? 'bg-gradient-to-t from-blur-baseline via-blur-bg via-70% to-transparent p-2'
+          ? classNames(
+              'bg-gradient-to-t from-blur-baseline via-blur-bg via-70% to-transparent p-2',
+              styles.footerNavBar,
+            )
           : post && 'bg-blur-bg backdrop-blur-20',
       )}
     >
@@ -78,10 +84,15 @@ export default function FooterNavBar({
         <div className="absolute bottom-0 left-0 right-0 h-[calc(100%-1.25rem)] backdrop-blur-[2.5rem]" />
       )}
       {post ? (
-        <div className="mb-2 w-full px-2 tablet:hidden">
+        <div className="my-2 w-full px-2 tablet:hidden">
           <NewComment
             post={post}
-            className={{ container: classNames(activeClasses, 'h-12') }}
+            className={{
+              container: classNames(
+                blurClasses,
+                'h-12 shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)]',
+              ),
+            }}
           />
         </div>
       ) : (
@@ -92,12 +103,14 @@ export default function FooterNavBar({
         spring="veryGentle"
         element="nav"
         className={classNames(
-          'grid h-14 w-full grid-flow-col items-center justify-between px-3',
+          'grid w-full grid-flow-col items-center justify-between px-3',
           !showNav && 'hidden',
-          styles.footerNavBar,
           isNewMobileLayout
             ? classNames('rounded-16', !post && activeClasses)
-            : 'rounded-t-24 bg-background-default',
+            : classNames(
+                'h-14 rounded-t-24 bg-background-default',
+                styles.footerNavBar,
+              ),
           !post && 'border-t border-border-subtlest-tertiary',
         )}
       >

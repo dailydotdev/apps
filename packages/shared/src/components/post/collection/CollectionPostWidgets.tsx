@@ -19,10 +19,10 @@ export const CollectionPostWidgets = ({
       <CollectionPostHeaderActions
         post={post}
         onClose={onClose}
-        className="hidden pt-6 tablet:flex"
+        className="hidden pt-6 laptop:flex"
         contextMenuId="post-widgets-context"
       />
-      <CollectionsIntro className="hidden tablet:flex" />
+      <CollectionsIntro className="hidden laptop:flex" />
       <RelatedPostsWidget
         post={post}
         relationType={PostRelationType.Collection}
