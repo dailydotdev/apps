@@ -10,15 +10,15 @@ const Chip = Classed(
 );
 
 export default function PostTags({ tags }: PostTagsProps): ReactElement {
-  const totalLength = useRef(0);
   const tagList = useMemo(() => {
+    let totalLength = 0;
     return tags.reduce((acc, tag) => {
-      if (totalLength.current >= 15) {
+      if (totalLength >= 15) {
         return acc;
       }
 
       acc.push(tag);
-      totalLength.current += tag.length;
+      totalLength += tag.length;
       return acc;
     }, []);
   }, [tags]);
