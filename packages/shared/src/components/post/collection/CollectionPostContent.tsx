@@ -22,6 +22,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { webappUrl } from '../../../lib/constants';
 import { useViewPost } from '../../../hooks/post/useViewPost';
 import { DateFormat } from '../../utilities';
+import { TagLinks } from '../../TagLinks';
 
 export const CollectionPostContent = ({
   post,
@@ -139,6 +140,7 @@ export const CollectionPostContent = ({
             >
               {post.title}
             </h1>
+            <TagLinks tags={post.tags || []} />
             {!!updatedAt && (
               <div className="flex items-center text-text-tertiary typo-footnote">
                 <span>Last updated</span> <Separator />

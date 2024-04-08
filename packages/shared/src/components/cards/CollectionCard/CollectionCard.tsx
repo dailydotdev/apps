@@ -9,6 +9,9 @@ import ActionButtons from '../ActionButtons';
 import PostMetadata from '../PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import CardOverlay from '../common/CardOverlay';
+import PostTags from '../PostTags';
+import { useFeature } from '../../GrowthBookProvider';
+import { feature } from '../../../lib/featureManagement';
 
 export const CollectionCard = forwardRef(function CollectionCard(
   {
@@ -26,6 +29,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
+  const tagsOnCard = useFeature(feature.tagsOnCard);
   const image = usePostImage(post);
   const onPostCardClick = () => onPostClick(post);
   return (
@@ -57,6 +61,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
       </FreeformCardTitle>
 
       {!!post.image && <CardSpace />}
+      {tagsOnCard && <PostTags tags={post.tags} />}
       <PostMetadata
         createdAt={post.createdAt}
         readTime={post.readTime}

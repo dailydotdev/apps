@@ -44,7 +44,8 @@ const feature = {
   forcedTagSelection: new Feature('forced_tag_selection', false),
   mobileUxLayout: new Feature('mobile_ux_layout', false),
   readingReminder: new Feature('reading_reminder', false),
-  trendingFlag: new Feature('trending_flag', TrendingFlag.Control),
+  trendingFlag: new Feature('trending_flag', TrendingFlag.V1),
+  tagsOnCard: new Feature('tags_on_card', false),
 };
 
 export { feature };
