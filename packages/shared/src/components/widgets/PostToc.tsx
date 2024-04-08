@@ -14,7 +14,7 @@ export type PostTocProps = {
   collapsible?: boolean;
 };
 
-const Separator = <div className="mb-3 h-px bg-theme-divider-tertiary" />;
+const Separator = <div className="mb-3 h-px bg-border-subtlest-tertiary" />;
 
 const generateTocLink = (post: Post, item: TocItem): string => {
   if (!item.id) {
@@ -53,7 +53,7 @@ export default function PostToc({
   );
 
   const titleClass =
-    'flex items-center py-3 px-4 typo-body text-text-tertiary border border-theme-divider-quaternary';
+    'flex items-center py-3 px-4 typo-body text-text-tertiary border border-border-subtlest-quaternary';
   if (collapsible) {
     return (
       <details
@@ -78,7 +78,7 @@ export default function PostToc({
   return (
     <WidgetContainer
       className={classNames(
-        'flex-col overflow-hidden rounded-16 border border-theme-divider-quaternary pb-3',
+        'flex-col overflow-hidden rounded-16 border border-border-subtlest-quaternary pb-3',
         className,
       )}
     >

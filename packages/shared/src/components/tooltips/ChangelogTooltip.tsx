@@ -91,7 +91,7 @@ function ChangelogTooltip(): ReactElement {
           variant: ButtonVariant.Tertiary,
         }}
       >
-        <header className="flex flex-1 items-center border-b border-theme-divider-tertiary px-4 py-3">
+        <header className="flex flex-1 items-center border-b border-border-subtlest-tertiary px-4 py-3">
           <h3
             className="font-bold text-text-primary typo-title3"
             data-testid="changelogNewReleaseTag"
@@ -163,7 +163,7 @@ function ChangelogTooltip(): ReactElement {
             </QuaternaryButton>
           </div>
         </section>
-        <footer className="flex h-16 w-full items-center justify-between border-t border-theme-divider-tertiary p-3">
+        <footer className="flex h-16 w-full items-center justify-between border-t border-border-subtlest-tertiary p-3">
           <Button
             onClick={dismissChangelog}
             tag="a"

@@ -116,7 +116,7 @@ function ImageInput({
         type="button"
         onClick={onClick}
         className={classNames(
-          'group relative flex items-center justify-center overflow-hidden border border-theme-divider-primary',
+          'group relative flex items-center justify-center overflow-hidden border border-border-subtlest-primary',
           componentSize[size],
           className?.container,
         )}

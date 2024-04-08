@@ -105,10 +105,10 @@ export function PostActions({
         </div>
       )}
     >
-      <div className="flex items-center rounded-16 border border-theme-divider-tertiary">
+      <div className="flex items-center rounded-16 border border-border-subtlest-tertiary">
         <Card
           className={classNames(
-            'flex !flex-row gap-2 hover:border-theme-divider-tertiary',
+            'flex !flex-row gap-2 hover:border-border-subtlest-tertiary',
             {
               'border-theme-color-avocado hover:!border-theme-color-avocado bg-theme-overlay-float-avocado':
                 post?.userState?.vote === UserVote.Up,

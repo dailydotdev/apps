@@ -46,7 +46,7 @@ function SquadLoading({
           sidebarRendered && '-left-full translate-x-[60%]',
         )}
       />
-      <FlexCol className="relative min-h-20 w-full items-center border-theme-divider-tertiary px-6 tablet:mb-6 tablet:border-b tablet:pb-20 laptopL:items-start laptopL:px-18 laptopL:pb-14">
+      <FlexCol className="relative min-h-20 w-full items-center border-border-subtlest-tertiary px-6 tablet:mb-6 tablet:border-b tablet:pb-20 laptopL:items-start laptopL:px-18 laptopL:pb-14">
         <PlaceholderElement className="h-16 w-16 rounded-full tablet:h-24 tablet:w-24" />
         {squad?.description && <TitleDescription />}
         <div className="mt-8 flex h-fit w-full flex-row justify-center gap-4 tablet:w-auto laptopL:absolute laptopL:right-18 laptopL:top-0 laptopL:mt-0">

@@ -44,6 +44,7 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -88,7 +89,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     options: { initialData, retry: false },
   });
   const containerClass = classNames(
-    'mb-16 max-w-screen-laptop tablet:mb-8 laptop:mb-0 laptop:min-h-page laptop:pb-6 laptopL:pb-0',
+    'mb-16 min-h-page max-w-screen-laptop tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
     [PostType.Share, PostType.Welcome, PostType.Freeform].includes(post?.type),
   );
   const seoTitle = () => {
@@ -99,6 +100,7 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     return post?.title;
   };
   const seo: NextSeoProps = {
+    canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
     title: getTemplatedTitle(seoTitle()),
     description: getSeoDescription(post),
     openGraph: {
@@ -191,7 +193,7 @@ export async function getStaticProps({
     );
     return {
       props: {
-        id,
+        id: initialData.post.id,
         initialData,
       },
       revalidate: 60,

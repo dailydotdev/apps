@@ -31,7 +31,7 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
   }
 
   return (
-    <div className="rounded-16 border border-theme-divider-tertiary p-4">
+    <div className="rounded-16 border border-border-subtlest-tertiary p-4">
       <div className="flex flex-row justify-between">
         <SourceButton source={squad} size="xxxlarge" />
         <SquadMemberShortList

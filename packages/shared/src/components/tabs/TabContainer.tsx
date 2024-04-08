@@ -45,7 +45,7 @@ export interface TabContainerProps<T extends string> {
   style?: CSSProperties;
   showHeader?: boolean;
   controlledActive?: string;
-  tabListProps?: Pick<TabListProps, 'className'>;
+  tabListProps?: Pick<TabListProps, 'className' | 'autoScrollActive'>;
   showBorder?: boolean;
 }
 
@@ -131,7 +131,7 @@ export function TabContainer<T extends string = string>({
         className={classNames(
           'flex flex-row',
           className?.header,
-          showBorder && 'border-b border-theme-divider-tertiary',
+          showBorder && 'border-b border-border-subtlest-tertiary',
         )}
       >
         <TabList
@@ -139,6 +139,7 @@ export function TabContainer<T extends string = string>({
           onClick={onClick}
           active={currentActive}
           className={tabListProps?.className}
+          autoScrollActive={tabListProps?.autoScrollActive}
         />
       </header>
       {render}

@@ -96,7 +96,7 @@ export const SearchField = forwardRef(function SearchField(
     <BaseField
       {...props}
       className={classNames(
-        'items-center !border !border-theme-divider-tertiary !bg-background-default',
+        'items-center !border !border-border-subtlest-tertiary !bg-background-default',
         sizeClass,
         className,
         { focused },

@@ -88,7 +88,7 @@ export function ReadingHeatmapWidget({
         <div className="flex items-center">
           <div className="mr-2">Less</div>
           <div
-            className="mr-0.5 h-2 w-2 border border-theme-divider-quaternary"
+            className="mr-0.5 h-2 w-2 border border-border-subtlest-quaternary"
             style={{ borderRadius: '0.1875rem' }}
           />
           <div

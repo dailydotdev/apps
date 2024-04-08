@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, useCallback, useMemo } from 'react';
 import {
   AddUserIcon,
   BellIcon,
@@ -9,7 +9,6 @@ import {
   DevCardIcon,
   ExitIcon,
   EmbedIcon,
-  LinkIcon,
   DocsIcon,
   TerminalIcon,
   FeedbackIcon,
@@ -28,10 +27,24 @@ import { anchorDefaultRel } from '../../lib/strings';
 import type { NavItemProps } from '../drawers/NavDrawerItem';
 import { LogoutReason } from '../../lib/user';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { usePrompt } from '../../hooks/usePrompt';
+import { ButtonColor } from '../buttons/Button';
 
 const useMenuItems = (): NavItemProps[] => {
   const { logout } = useAuthContext();
   const { openModal } = useLazyModal();
+  const { showPrompt } = usePrompt();
+  const onLogout = useCallback(async () => {
+    const shouldLogout = await showPrompt({
+      title: 'Are you sure?',
+      className: { buttons: 'mt-5 flex-col-reverse' },
+      okButton: { title: 'Logout', color: ButtonColor.Ketchup },
+    });
+
+    if (shouldLogout) {
+      logout(LogoutReason.ManualLogout);
+    }
+  }, [logout, showPrompt]);
 
   return useMemo(
     () => [
@@ -49,7 +62,7 @@ const useMenuItems = (): NavItemProps[] => {
       {
         label: 'Logout',
         icon: <ExitIcon />,
-        onClick: () => logout(LogoutReason.ManualLogout),
+        onClick: onLogout,
       },
       {
         label: 'Manage',
@@ -74,11 +87,6 @@ const useMenuItems = (): NavItemProps[] => {
       {
         label: 'Contribute',
         isHeader: true,
-      },
-      {
-        label: 'Submit article',
-        icon: <LinkIcon />,
-        onClick: () => openModal({ type: LazyModal.SubmitArticle }),
       },
       {
         label: 'Suggest new source',
@@ -123,7 +131,7 @@ const useMenuItems = (): NavItemProps[] => {
         rel: anchorDefaultRel,
       },
     ],
-    [logout, openModal],
+    [onLogout, openModal],
   );
 };
 

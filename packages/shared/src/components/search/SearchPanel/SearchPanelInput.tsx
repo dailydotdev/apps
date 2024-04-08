@@ -176,7 +176,7 @@ export const SearchPanelInput = ({
             className?.field,
             { focused },
             searchPanel.isActive &&
-              '!border-theme-divider-tertiary laptop:shadow-2',
+              '!border-border-subtlest-tertiary laptop:shadow-2',
             searchPanel.isActive && showDropdown
               ? 'laptop:rounded-b-none laptop:rounded-t-16'
               : 'laptop:rounded-16',

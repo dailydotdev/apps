@@ -70,8 +70,8 @@ export const AccountPageContainer = ({
         className={classNames(
           'h-full overflow-y-scroll',
           footer
-            ? '!max-h-[calc(100dvh-11.25rem)] max-h-[calc(100vh-11.25rem)] !min-h-[calc(100dvh-11.25rem)] min-h-[calc(100vh-11.25rem)]'
-            : '!max-h-[calc(100dvh-7.25rem)] max-h-[calc(100vh-7.25rem)] !min-h-[calc(100dvh-7.25rem)] min-h-[calc(100vh-7.25rem)]',
+            ? '!max-h-[calc(100dvh-12rem)] max-h-[calc(100vh-12rem)] !min-h-[calc(100dvh-12rem)] min-h-[calc(100vh-12rem)]'
+            : '!max-h-[calc(100dvh-7.75rem)] max-h-[calc(100vh-7.75rem)] !min-h-[calc(100dvh-7.75rem)] min-h-[calc(100vh-7.75rem)]',
           className.section,
         )}
       >
@@ -80,7 +80,7 @@ export const AccountPageContainer = ({
       {footer && (
         <div
           className={classNames(
-            'sticky flex flex-row gap-3 border-t border-theme-divider-tertiary p-3',
+            'sticky flex flex-row gap-3 border-t border-border-subtlest-tertiary p-3',
             className.footer,
           )}
         >

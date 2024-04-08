@@ -12,7 +12,7 @@ function NotificationItemAttachment({
   type,
 }: NotificationAttachment): ReactElement {
   return (
-    <div className="mt-2 flex flex-row items-center rounded-16 border border-theme-divider-tertiary p-4">
+    <div className="mt-2 flex flex-row items-center rounded-16 border border-border-subtlest-tertiary p-4">
       <div>
         <CardCover
           data-testid="postImage"

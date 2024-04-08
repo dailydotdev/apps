@@ -14,9 +14,9 @@ function OrDivider({ className, label = 'or' }: OrDividerProps): ReactElement {
         className,
       )}
     >
-      <div className="h-px flex-1 bg-theme-divider-tertiary" />
+      <div className="h-px flex-1 bg-border-subtlest-tertiary" />
       {label && <span className="px-3">{label}</span>}
-      <div className="h-px flex-1 bg-theme-divider-tertiary" />
+      <div className="h-px flex-1 bg-border-subtlest-tertiary" />
     </div>
   );
 }

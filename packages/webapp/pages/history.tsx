@@ -22,6 +22,7 @@ import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { HistoryType, ReadingHistory } from '../components/history';
 import ProtectedPage from '../components/ProtectedPage';
 import { getLayout } from '../components/layouts/MainLayout';
+import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 
 const feedOptions = [
   {
@@ -69,7 +70,7 @@ const History = (): ReactElement => {
   return (
     <ProtectedPage seo={seo}>
       {!isNewMobileLayout && (
-        <div className="absolute left-0 top-[6.75rem] flex h-px w-full bg-theme-divider-tertiary laptop:hidden" />
+        <div className="absolute left-0 top-[6.75rem] flex h-px w-full bg-border-subtlest-tertiary laptop:hidden" />
       )}
 
       <ResponsivePageContainer className="relative !p-0" role="main">
@@ -122,6 +123,9 @@ const History = (): ReactElement => {
   );
 };
 
-History.getLayout = getLayout;
+const geHistoryLayout: typeof getLayout = (...props) =>
+  getFooterNavBarLayout(getLayout(...props));
+
+History.getLayout = geHistoryLayout;
 
 export default History;

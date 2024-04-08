@@ -14,7 +14,7 @@ export default function MultiLevelMenuDetail({
 }): ReactElement {
   return (
     <>
-      <div className="mb-6 border-b border-theme-divider-tertiary px-4 py-1">
+      <div className="mb-6 border-b border-border-subtlest-tertiary px-4 py-1">
         <Button
           className="btn-quaternary p-0 text-text-tertiary typo-callout"
           onClick={() => setMultiLevelMenuDetail(null, null)}

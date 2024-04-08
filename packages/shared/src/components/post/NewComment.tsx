@@ -24,7 +24,7 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import { PostType } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
-import CommentInputOrPage from '../comments/CommentInputOrPage';
+import CommentInputOrModal from '../comments/CommentInputOrModal';
 
 interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
@@ -50,7 +50,7 @@ function NewCommentComponent(
 
   const onSuccess: typeof onCommented = (comment, isNew) => {
     setInputContent(undefined);
-    onCommented(comment, isNew);
+    onCommented?.(comment, isNew);
   };
 
   const onShowComment = useCallback(
@@ -96,7 +96,7 @@ function NewCommentComponent(
 
   if (typeof inputContent !== 'undefined') {
     return (
-      <CommentInputOrPage
+      <CommentInputOrModal
         {...props}
         post={post}
         className={{ input: { container: 'my-4', tab: className?.tab } }}
@@ -113,7 +113,7 @@ function NewCommentComponent(
     <button
       type="button"
       className={classNames(
-        'flex w-full items-center gap-4 rounded-16 border-t border-theme-divider-tertiary bg-blur-highlight p-3 typo-callout hover:border-theme-divider-primary hover:bg-theme-hover tablet:border tablet:bg-theme-float',
+        'flex w-full items-center gap-4 rounded-16 border-t border-border-subtlest-tertiary bg-blur-highlight p-3 typo-callout hover:border-border-subtlest-primary hover:bg-theme-hover tablet:border tablet:bg-theme-float',
         className?.container,
       )}
       onClick={() => onCommentClick(Origin.StartDiscussion)}

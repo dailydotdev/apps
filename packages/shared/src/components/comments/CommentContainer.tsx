@@ -66,7 +66,7 @@ export default function CommentContainer({
         'flex flex-col rounded-24 p-4 hover:bg-theme-hover focus:outline',
         isCommentReferenced
           ? 'border border-theme-color-cabbage'
-          : 'border-theme-divider-tertiary',
+          : 'border-border-subtlest-tertiary',
         className.container,
       )}
       data-testid="comment"
@@ -79,7 +79,7 @@ export default function CommentContainer({
       {children}
       {showContextHeader && (
         <header className="mb-4 line-clamp-1 text-text-tertiary typo-footnote">
-          {comment.parent ? (
+          {comment.parent?.author ? (
             <p>
               Replied to <strong>@{comment.parent.author.username}</strong>
             </p>

@@ -69,7 +69,7 @@ export const Checkbox = forwardRef(function Checkbox(
       />
       <div
         className={classNames(
-          'relative z-1 mr-3 flex h-5 w-5 items-center justify-center rounded-6 border-2 border-theme-divider-primary',
+          'relative z-1 mr-3 flex h-5 w-5 items-center justify-center rounded-6 border-2 border-border-subtlest-primary',
           styles.checkmark,
         )}
       >

@@ -179,8 +179,8 @@ export function SquadsList({
           icon={<PlusIcon />}
           aria-label="Create a new Squad"
         />
-        <div className="flex-[3] rounded-16 border border-theme-divider-tertiary" />
-        <div className="flex-[2] rounded-l-16 border border-theme-divider-tertiary" />
+        <div className="flex-[3] rounded-16 border border-border-subtlest-tertiary" />
+        <div className="flex-[2] rounded-l-16 border border-border-subtlest-tertiary" />
       </div>
     );
   }

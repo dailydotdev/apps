@@ -24,7 +24,7 @@ interface DayStreakProps {
 const dayInitial = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const Circle = classed(
   'div',
-  'rounded-full border border-theme-divider-tertiary',
+  'rounded-full border border-border-subtlest-tertiary',
 );
 
 export function DayStreak({

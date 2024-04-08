@@ -25,7 +25,7 @@ interface SquadPageHeaderProps {
 }
 
 const MAX_WIDTH = 'laptopL:max-w-[38.5rem]';
-const Divider = classed('span', 'flex flex-1 h-px bg-theme-divider-tertiary');
+const Divider = classed('span', 'flex flex-1 h-px bg-border-subtlest-tertiary');
 
 export function SquadPageHeader({
   squad,
@@ -43,7 +43,7 @@ export function SquadPageHeader({
   return (
     <FlexCol
       className={classNames(
-        'relative min-h-20 w-full items-center border-theme-divider-tertiary px-6 tablet:mb-6 tablet:border-b tablet:pb-20 laptopL:items-start laptopL:px-18 laptopL:pb-14',
+        'relative min-h-20 w-full items-center border-border-subtlest-tertiary px-6 tablet:mb-6 tablet:border-b tablet:pb-20 laptopL:items-start laptopL:px-18 laptopL:pb-14',
       )}
     >
       {isChecklistVisible && <SquadChecklistCard squad={squad} />}
@@ -99,7 +99,7 @@ export function SquadPageHeader({
               <Divider />
               {children}
               <FlexCentered className="relative mx-2 my-2 w-full text-text-tertiary typo-callout tablet:w-auto">
-                <span className="absolute -left-6 flex h-px w-[calc(100%+3rem)] bg-theme-divider-tertiary tablet:hidden" />
+                <span className="absolute -left-6 flex h-px w-[calc(100%+3rem)] bg-border-subtlest-tertiary tablet:hidden" />
                 <span className="z-0 bg-background-default px-4">or</span>
               </FlexCentered>
               <Button
