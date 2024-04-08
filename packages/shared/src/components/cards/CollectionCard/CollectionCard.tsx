@@ -8,10 +8,12 @@ import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
 import ActionButtons from '../ActionButtons';
 import PostMetadata from '../PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
-import CardOverlay from '../common/CardOverlay';
-import PostTags from '../PostTags';
 import { useFeature } from '../../GrowthBookProvider';
 import { feature } from '../../../lib/featureManagement';
+import { TrendingFlag } from '../../../lib/featureValues';
+import { TrendingFlag as TrendingFlagComponent } from '../common/TrendingFlag';
+import CardOverlay from '../common/CardOverlay';
+import PostTags from '../PostTags';
 
 export const CollectionCard = forwardRef(function CollectionCard(
   {
@@ -30,6 +32,9 @@ export const CollectionCard = forwardRef(function CollectionCard(
   ref: Ref<HTMLElement>,
 ) {
   const tagsOnCard = useFeature(feature.tagsOnCard);
+  const trendingFlag = useFeature(feature.trendingFlag);
+  const isTrendingFlagV1 = trendingFlag === TrendingFlag.V1;
+  const { pinnedAt, trending } = post;
   const image = usePostImage(post);
   const onPostCardClick = () => onPostClick(post);
   return (
@@ -39,10 +44,12 @@ export const CollectionCard = forwardRef(function CollectionCard(
         className: getPostClassNames(post, domProps.className, 'min-h-card'),
       }}
       ref={ref}
-      flagProps={{ pinnedAt: post.pinnedAt }}
+      flagProps={{ pinnedAt, ...(!isTrendingFlagV1 && { trending }) }}
     >
+      {trending && isTrendingFlagV1 && (
+        <TrendingFlagComponent className={{ container: 'right-3 top-3' }} />
+      )}
       <CardOverlay post={post} onPostCardClick={onPostCardClick} />
-
       <CollectionCardHeader
         sources={post.collectionSources}
         totalSources={post.numCollectionSources}
