@@ -40,7 +40,7 @@ export default function CollectionPostModal({
       onRequestClose={onRequestClose}
       postType={PostType.Collection}
       source={post.source}
-      loadingClassName="!pb-2 tablet:pb-0"
+      loadingClassName="!pb-2 laptop:pb-0"
     >
       <CollectionPostContent
         position={position}
@@ -51,7 +51,7 @@ export default function CollectionPostModal({
         inlineActions
         className={{
           onboarding: 'mt-8',
-          navigation: { actions: 'ml-auto tablet:hidden' },
+          navigation: { actions: 'ml-auto laptop:hidden' },
           fixedNavigation: {
             container: modalSizeToClassName[Modal.Size.XLarge],
             actions: 'ml-auto',
