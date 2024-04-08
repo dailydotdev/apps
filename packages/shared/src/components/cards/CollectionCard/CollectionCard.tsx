@@ -44,7 +44,6 @@ export const CollectionCard = forwardRef(function CollectionCard(
       ref={ref}
       flagProps={{ pinnedAt, ...(!isTrendingFlagV1 && { trending }) }}
     >
-      <CardButton title={post.title} onClick={() => onPostClick(post)} />
       {trending && isTrendingFlagV1 && (
         <TrendingFlagComponent className={{ container: 'right-3 top-3' }} />
       )}

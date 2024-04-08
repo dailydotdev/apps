@@ -66,9 +66,6 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       ref={ref}
       flagProps={{ pinnedAt, ...(!isTrendingFlagV1 && { trending }) }}
     >
-      {!isFeedPreview && (
-        <CardButton title={post.title} onClick={onPostCardClick} />
-      )}
       {trending && isTrendingFlagV1 && (
         <TrendingFlagComponent
           iconOnly
