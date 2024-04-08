@@ -6,7 +6,7 @@ import {
   UserVoteEntity,
   createVoteMutationKey,
 } from '../vote';
-import { Post } from '../../graphql/posts';
+import { Post, UserVote } from '../../graphql/posts';
 
 interface UsePostShareLoop {
   shouldShowOverlay: boolean;
@@ -38,7 +38,7 @@ export const usePostShareLoop = (post: Post): UsePostShareLoop => {
         return;
       }
 
-      setJustUpvoted(!!vars.vote);
+      setJustUpvoted(vars.vote === UserVote.Up);
     },
   });
 
