@@ -189,15 +189,6 @@ export default function ShortcutLinks({
     return <></>;
   }
 
-  const onHide = () => {
-    trackEvent({
-      event_name: AnalyticsEvent.RevokeShortcutAccess,
-      target_type: TargetType.Shortcuts,
-      extra: JSON.stringify({ source: shortcutSource }),
-    });
-    toggleShowTopSites();
-  };
-
   const onShowTopSites = () => {
     if (hasTopSites === null) {
       setShowModal(true);
