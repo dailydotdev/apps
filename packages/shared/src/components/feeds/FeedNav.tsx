@@ -28,12 +28,21 @@ enum FeedNavTab {
   Discussions = 'Discussions',
 }
 
+const urlToTab: Record<string, FeedNavTab> = {
+  '/': FeedNavTab.ForYou,
+  '/popular': FeedNavTab.Popular,
+  '/upvoted': FeedNavTab.MostUpvoted,
+  '/discussed': FeedNavTab.Discussions,
+  '/bookmarks': FeedNavTab.Bookmarks,
+  '/history': FeedNavTab.History,
+};
+
 function FeedNav(): ReactElement {
   const router = useRouter();
   const { feedName } = useActiveFeedNameContext();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isSortableFeed } = useFeedName({ feedName });
-  const { home: shouldRenderNav, notifications } = useActiveNav(feedName);
+  const { home: shouldRenderNav } = useActiveNav(feedName);
   const isMobile = useViewSize(ViewSize.MobileL);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
@@ -54,7 +63,7 @@ function FeedNav(): ReactElement {
     >
       {isMobile && <MobileFeedActions />}
       <TabContainer
-        controlledActive={notifications ? 'notifications' : undefined}
+        controlledActive={urlToTab[router.asPath]}
         shouldMountInactive
         className={{
           header: classNames(
