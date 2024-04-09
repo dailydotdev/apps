@@ -121,10 +121,12 @@ export const COMMENT_FRAGMENT = gql`
     createdAt
     lastUpdatedAt
     permalink
-    upvoted
     numUpvotes
     author {
       ...UserShortInfo
+    }
+    userState {
+      vote
     }
   }
   ${USER_SHORT_INFO_FRAGMENT}
