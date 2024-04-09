@@ -157,7 +157,7 @@ export const errorRegistrationMockData: Partial<InitializationData> = {
             },
           },
         ],
-        meta: { label: { id: 1070002, text: 'Name', type: 'info' } },
+        meta: { label: { id: 1070002, text: 'Full name', type: 'info' } },
       },
       {
         type: 'input',
@@ -529,7 +529,7 @@ export const settingsFlowMockData: InitializationData & { identity: Identity } =
             node_type: 'input',
           },
           messages: [],
-          meta: { label: { id: 1070002, text: 'Name', type: 'info' } },
+          meta: { label: { id: 1070002, text: 'Full name', type: 'info' } },
         },
         {
           type: 'input',
@@ -865,7 +865,7 @@ export const successfulSettingsFlowData = {
           node_type: 'input',
         },
         messages: [],
-        meta: { label: { id: 1070002, text: 'Name', type: 'info' } },
+        meta: { label: { id: 1070002, text: 'Full name', type: 'info' } },
       },
       {
         type: 'input',
