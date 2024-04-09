@@ -152,10 +152,12 @@ export default function MainFeedLayout({
     hasCommentFeed && feedName === SharedFeedPage.Discussed;
   const shouldEnrollInForcedTagSelection =
     alerts?.filter && feedName === SharedFeedPage.MyFeed;
-  const { value: showForcedTagSelection } = useConditionalFeature({
+  const { value: showForcedTagSelectionFeature } = useConditionalFeature({
     feature: feature.forcedTagSelection,
     shouldEvaluate: shouldEnrollInForcedTagSelection,
   });
+  const showForcedTagSelection =
+    shouldEnrollInForcedTagSelection && showForcedTagSelectionFeature;
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
     query = {

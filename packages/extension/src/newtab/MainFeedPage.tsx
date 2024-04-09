@@ -12,7 +12,6 @@ import {
   SearchProviderEnum,
   getSearchUrl,
 } from '@dailydotdev/shared/src/graphql/search';
-import classNames from 'classnames';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
@@ -134,14 +133,9 @@ export default function MainFeedPage({
                 }}
               />
             }
-            navChildren={!isSearchOn && <ShortcutLinks />}
             shortcuts={
               <ShortcutLinks
-                className={classNames(
-                  !shouldUseMobileFeedLayout
-                    ? 'ml-auto'
-                    : 'mt-4 w-fit [@media(width<=680px)]:mx-6',
-                )}
+                shouldUseMobileFeedLayout={shouldUseMobileFeedLayout}
               />
             }
           />
