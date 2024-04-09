@@ -134,14 +134,9 @@ export default function MainFeedPage({
                 }}
               />
             }
-            navChildren={!isSearchOn && <ShortcutLinks />}
             shortcuts={
               <ShortcutLinks
-                className={classNames(
-                  !shouldUseMobileFeedLayout
-                    ? 'ml-auto'
-                    : 'mt-4 w-fit [@media(width<=680px)]:mx-6',
-                )}
+                shouldUseMobileFeedLayout={shouldUseMobileFeedLayout}
               />
             }
           />

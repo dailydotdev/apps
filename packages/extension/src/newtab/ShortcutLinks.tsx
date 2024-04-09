@@ -6,29 +6,114 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  ClearIcon,
+  MenuIcon,
+  PlusIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import {
   Button,
   ButtonIconPosition,
+  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import {
   AnalyticsEvent,
   ShortcutsSourceType,
   TargetType,
 } from '@dailydotdev/shared/src/lib/analytics';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
+import { ContextMenu } from '@dailydotdev/shared/src/hooks/constants';
+import classNames from 'classnames';
+import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
 import CustomLinksModal from './ShortcutLinksModal';
 import MostVisitedSitesModal from './MostVisitedSitesModal';
 import { CustomLinks } from './CustomLinks';
 import useShortcutLinks from './useShortcutLinks';
+import ShortcutOptionsMenu from './ShortcutOptionsMenu';
 
+const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
+const iconSize = Math.round(24 * pixelRatio);
+
+const ShortCutV1Placeholder = ({
+  initialItem = false,
+  onClick,
+}: {
+  initialItem?: boolean;
+  onClick: () => void;
+}) => {
+  return (
+    <button
+      className="group mr-4 flex flex-col items-center first:mr-2 last-of-type:mr-2 hover:cursor-pointer"
+      onClick={onClick}
+      type="button"
+    >
+      <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary group-first:mb-1 group-hover:text-text-primary">
+        <PlusIcon
+          className="inline group-hover:hidden"
+          size={IconSize.Size16}
+        />
+        <PlusIcon
+          className="hidden group-hover:inline"
+          secondary
+          size={IconSize.Size16}
+        />
+      </div>
+      {initialItem ? (
+        <span className="text-text-tertiary typo-caption2">Add shortcut</span>
+      ) : (
+        <span className="h-2 w-10 rounded-10 bg-surface-float" />
+      )}
+    </button>
+  );
+};
+
+const ShortcutV1Item = ({
+  url,
+  onLinkClick,
+}: {
+  url: string;
+  onLinkClick: () => void;
+}) => {
+  const cleanUrl = url.replace(/http(s)?(:)?(\/\/)?|(\/\/)?(www\.)?/g, '');
+  return (
+    <a
+      href={url}
+      rel="noopener noreferrer"
+      {...combinedClicks(onLinkClick)}
+      className="group mr-4 flex flex-col items-center"
+    >
+      <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
+        <img
+          src={`https://api.daily.dev/icon?url=${encodeURIComponent(
+            url,
+          )}&size=${iconSize}`}
+          alt={url}
+          className="size-6"
+        />
+      </div>
+      <span className="max-w-12 truncate text-text-tertiary typo-caption2">
+        {cleanUrl}
+      </span>
+    </a>
+  );
+};
+
+interface ShortcutLinksProps {
+  shouldUseMobileFeedLayout: boolean;
+}
 export default function ShortcutLinks({
-  className,
-}: WithClassNameProps): ReactElement {
-  const { showTopSites } = useContext(SettingsContext);
+  shouldUseMobileFeedLayout,
+}: ShortcutLinksProps): ReactElement {
+  const className = !shouldUseMobileFeedLayout
+    ? 'ml-auto'
+    : 'mt-4 w-fit [@media(width<=680px)]:mx-6';
+  const { showTopSites, toggleShowTopSites } = useContext(SettingsContext);
   const [showModal, setShowModal] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -50,10 +135,34 @@ export default function ShortcutLinks({
     ? ShortcutsSourceType.Browser
     : ShortcutsSourceType.Custom;
 
+  const trackedInitialRef = useRef(false);
   const trackedRef = useRef(false);
+
+  const { value: isShortcutsV1 } = useConditionalFeature({
+    feature: feature.onboardingMostVisited,
+    shouldEvaluate: showTopSites,
+    returnDefault: true,
+  });
+
+  const { onMenuClick, isOpen } = useContextMenu({
+    id: ContextMenu.ShortcutContext,
+  });
 
   useEffect(() => {
     if (!showTopSites || !hasCheckedPermission) {
+      if (!trackedInitialRef.current) {
+        trackedInitialRef.current = true;
+        trackEvent({
+          event_name: AnalyticsEvent.Impression,
+          target_type: TargetType.Shortcuts,
+          extra: JSON.stringify({
+            source: isShortcutsV1
+              ? ShortcutsSourceType.Placeholder
+              : ShortcutsSourceType.Button,
+          }),
+        });
+      }
+
       return;
     }
 
@@ -68,11 +177,26 @@ export default function ShortcutLinks({
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: shortcutSource }),
     });
-  }, [trackEvent, showTopSites, shortcutSource, hasCheckedPermission]);
+  }, [
+    trackEvent,
+    showTopSites,
+    shortcutSource,
+    hasCheckedPermission,
+    isShortcutsV1,
+  ]);
 
   if (!showTopSites) {
     return <></>;
   }
+
+  const onHide = () => {
+    trackEvent({
+      event_name: AnalyticsEvent.RevokeShortcutAccess,
+      target_type: TargetType.Shortcuts,
+      extra: JSON.stringify({ source: shortcutSource }),
+    });
+    toggleShowTopSites();
+  };
 
   const onShowTopSites = () => {
     if (hasTopSites === null) {
@@ -101,32 +225,83 @@ export default function ShortcutLinks({
     });
   };
 
+  const onLinkClick = () => {
+    trackEvent({
+      event_name: AnalyticsEvent.Click,
+      target_type: TargetType.Shortcuts,
+      extra: JSON.stringify({ source: shortcutSource }),
+    });
+  };
+
+  const ShortcutControl = () => {
+    return (
+      <>
+        {shortcutLinks?.length ? (
+          <CustomLinks
+            links={shortcutLinks}
+            className={className}
+            onOptions={onOptionsOpen}
+            onLinkClick={onLinkClick}
+          />
+        ) : (
+          <Button
+            className={className}
+            variant={ButtonVariant.Tertiary}
+            icon={<PlusIcon />}
+            iconPosition={ButtonIconPosition.Right}
+            onClick={onOptionsOpen}
+          >
+            Add shortcuts
+          </Button>
+        )}
+      </>
+    );
+  };
+
+  const ShortcutV1 = () => {
+    return (
+      <div
+        className={classNames(
+          'hidden tablet:flex',
+          shouldUseMobileFeedLayout ? 'mx-6 mb-3 mt-1' : '-mt-2 mb-5',
+        )}
+      >
+        {shortcutLinks?.length ? (
+          <>
+            {shortcutLinks.map((url) => (
+              <ShortcutV1Item key={url} url={url} onLinkClick={onLinkClick} />
+            ))}
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<MenuIcon className="rotate-90" secondary />}
+              onClick={onMenuClick}
+              className="mt-2"
+            />
+          </>
+        ) : (
+          <>
+            <ShortCutV1Placeholder initialItem onClick={onOptionsOpen} />
+            {Array.from({ length: 5 }).map((_, index) => (
+              /* eslint-disable-next-line react/no-array-index-key */
+              <ShortCutV1Placeholder key={index} onClick={onOptionsOpen} />
+            ))}
+            <Button
+              variant={ButtonVariant.Tertiary}
+              onClick={toggleShowTopSites}
+              size={ButtonSize.Small}
+              icon={<ClearIcon secondary />}
+              className="mt-2"
+            />
+          </>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
-      {shortcutLinks?.length ? (
-        <CustomLinks
-          links={shortcutLinks}
-          className={className}
-          onOptions={onOptionsOpen}
-          onLinkClick={() => {
-            trackEvent({
-              event_name: AnalyticsEvent.Click,
-              target_type: TargetType.Shortcuts,
-              extra: JSON.stringify({ source: shortcutSource }),
-            });
-          }}
-        />
-      ) : (
-        <Button
-          className={className}
-          variant={ButtonVariant.Tertiary}
-          icon={<PlusIcon />}
-          iconPosition={ButtonIconPosition.Right}
-          onClick={onOptionsOpen}
-        >
-          Add shortcuts
-        </Button>
-      )}
+      {isShortcutsV1 ? <ShortcutV1 /> : <ShortcutControl />}
       {showModal && (
         <MostVisitedSitesModal
           isOpen={showModal}
@@ -160,6 +335,11 @@ export default function ShortcutLinks({
           onShowTopSitesClick={onShowTopSites}
         />
       )}
+      <ShortcutOptionsMenu
+        isOpen={isOpen}
+        onHide={toggleShowTopSites}
+        onManage={onOptionsOpen}
+      />
     </>
   );
 }

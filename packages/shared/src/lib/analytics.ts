@@ -227,6 +227,8 @@ export enum NotificationPromptSource {
 export enum ShortcutsSourceType {
   Custom = 'custom',
   Browser = 'browser',
+  Placeholder = 'placeholder',
+  Button = 'button',
 }
 
 export enum UserAcquisitionEvent {
