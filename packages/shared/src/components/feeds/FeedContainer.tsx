@@ -187,7 +187,7 @@ export const FeedContainer = ({
                     </span>
                   )}
                 >
-                  {actionButtons}
+                  {actionButtons || null}
                 </ConditionalWrapper>
                 {child}
               </div>
