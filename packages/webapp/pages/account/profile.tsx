@@ -166,7 +166,7 @@ const AccountProfilePage = (): ReactElement => {
       </AccountContentSection>
       <AccountContentSection title="Account Information">
         <AccountTextField
-          label="Full Name"
+          label="Name"
           inputId="name"
           name="name"
           hint={hint.name}
