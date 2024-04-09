@@ -13,6 +13,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import { ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
+import styles from './Drawer.module.css';
 
 export type PopupEventType =
   | MouseEvent
@@ -100,11 +101,12 @@ function BaseDrawer({
       <div
         {...props}
         className={classNames(
-          'pb-[max(env(safe-area-inset-bottom,0.75rem), 0.75rem)] absolute flex w-full flex-col overflow-y-auto bg-background-default transition-transform duration-300 ease-in-out',
+          'absolute flex w-full flex-col overflow-y-auto bg-background-default transition-transform duration-300 ease-in-out',
           isFullScreen ? 'inset-0' : 'max-h-[calc(100%-5rem)]',
           !isFullScreen && drawerPositionToClassName[position],
           isAnimating && animatePositionClassName[position],
           !title && classes,
+          styles.drawerPadding,
         )}
         ref={(node) => {
           container.current = node;

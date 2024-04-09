@@ -1,0 +1,3 @@
+.drawerPadding {
+  padding-bottom: max(env(safe-area-inset-bottom, 0.75rem), 0.75rem);
+}
