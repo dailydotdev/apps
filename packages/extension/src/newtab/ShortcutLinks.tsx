@@ -143,8 +143,6 @@ export default function ShortcutLinks({
     shouldEvaluate: showTopSites,
     returnDefault: true,
   });
-  console.log('isShortcutsV1', isShortcutsV1);
-
   const { onMenuClick, isOpen } = useContextMenu({
     id: ContextMenu.ShortcutContext,
   });
