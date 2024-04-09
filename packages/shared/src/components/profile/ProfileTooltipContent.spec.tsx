@@ -36,7 +36,7 @@ describe('ProfileTooltipContent component', () => {
     await screen.findByText(`@${user.username}`);
   });
 
-  it('should show full name', async () => {
+  it('should show name', async () => {
     renderComponent();
     await screen.findByText(user.name);
   });
