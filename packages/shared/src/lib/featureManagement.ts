@@ -46,6 +46,7 @@ const feature = {
   readingReminder: new Feature('reading_reminder', false),
   trendingFlag: new Feature('trending_flag', TrendingFlag.Control),
   tagsOnCard: new Feature('tags_on_card', false),
+  onboardingMostVisited: new Feature('onboarding_most_visited', false),
 };
 
 export { feature };
