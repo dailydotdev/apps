@@ -109,7 +109,6 @@ export const FeedContainer = ({
   const { value: isShortcutsV1 } = useConditionalFeature({
     feature: feature.onboardingMostVisited,
     shouldEvaluate: !!shortcuts,
-    returnDefault: true,
   });
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();

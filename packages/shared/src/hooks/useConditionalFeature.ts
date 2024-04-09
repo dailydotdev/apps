@@ -17,11 +17,9 @@ interface UseConditionalFeature<T> {
 export const useConditionalFeature = <T extends JSONValue>({
   feature,
   shouldEvaluate,
-  returnDefault = false,
 }: {
   feature: Feature<T>;
   shouldEvaluate: boolean;
-  returnDefault?: boolean;
 }): UseConditionalFeature<T> => {
   const { user } = useContext(AuthContext);
   const { growthbook } = useGrowthBookContext();
@@ -50,10 +48,7 @@ export const useConditionalFeature = <T extends JSONValue>({
   );
 
   return {
-    value:
-      returnDefault && !featureValue
-        ? (feature.defaultValue as WidenPrimitives<T>)
-        : featureValue,
+    value: featureValue ?? (feature.defaultValue as WidenPrimitives<T>),
     isLoading,
   };
 };

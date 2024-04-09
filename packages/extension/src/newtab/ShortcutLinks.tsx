@@ -141,7 +141,6 @@ export default function ShortcutLinks({
   const { value: isShortcutsV1 } = useConditionalFeature({
     feature: feature.onboardingMostVisited,
     shouldEvaluate: showTopSites,
-    returnDefault: true,
   });
   const { onMenuClick, isOpen } = useContextMenu({
     id: ContextMenu.ShortcutContext,
@@ -223,31 +222,6 @@ export default function ShortcutLinks({
     });
   };
 
-  const ShortcutControl = () => {
-    return (
-      <>
-        {shortcutLinks?.length ? (
-          <CustomLinks
-            links={shortcutLinks}
-            className={className}
-            onOptions={onOptionsOpen}
-            onLinkClick={onLinkClick}
-          />
-        ) : (
-          <Button
-            className={className}
-            variant={ButtonVariant.Tertiary}
-            icon={<PlusIcon />}
-            iconPosition={ButtonIconPosition.Right}
-            onClick={onOptionsOpen}
-          >
-            Add shortcuts
-          </Button>
-        )}
-      </>
-    );
-  };
-
   const ShortcutV1 = () => {
     return (
       <div
@@ -291,7 +265,30 @@ export default function ShortcutLinks({
 
   return (
     <>
-      {isShortcutsV1 ? <ShortcutV1 /> : <ShortcutControl />}
+      {isShortcutsV1 ? (
+        <ShortcutV1 />
+      ) : (
+        <>
+          {shortcutLinks?.length ? (
+            <CustomLinks
+              links={shortcutLinks}
+              className={className}
+              onOptions={onOptionsOpen}
+              onLinkClick={onLinkClick}
+            />
+          ) : (
+            <Button
+              className={className}
+              variant={ButtonVariant.Tertiary}
+              icon={<PlusIcon />}
+              iconPosition={ButtonIconPosition.Right}
+              onClick={onOptionsOpen}
+            >
+              Add shortcuts
+            </Button>
+          )}
+        </>
+      )}
       {showModal && (
         <MostVisitedSitesModal
           isOpen={showModal}
