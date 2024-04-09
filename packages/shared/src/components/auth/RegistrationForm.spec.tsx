@@ -95,11 +95,11 @@ const renderRegistration = async (
     },
   });
   await waitFor(() => expect(screen.getByTestId('registration_form')));
-  const nameInput = screen.getByPlaceholderText('Full name');
+  const nameInput = screen.getByPlaceholderText('Name');
   fireEvent.input(screen.getByPlaceholderText('Enter a username'), {
     target: { value: username },
   });
-  fireEvent.input(screen.getByPlaceholderText('Full name'), {
+  fireEvent.input(screen.getByPlaceholderText('Name'), {
     target: { value: name },
   });
   simulateTextboxInput(nameInput as HTMLTextAreaElement, name);
