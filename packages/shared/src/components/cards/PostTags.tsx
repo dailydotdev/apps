@@ -13,12 +13,12 @@ export default function PostTags({ tags }: PostTagsProps): ReactElement {
   const tagList = useMemo(() => {
     let totalLength = 0;
     return tags.reduce((acc, tag) => {
-      if (totalLength >= 15) {
+      totalLength += tag.length;
+      if (totalLength >= 15 && acc.length > 0) {
         return acc;
       }
 
       acc.push(tag);
-      totalLength += tag.length;
       return acc;
     }, []);
   }, [tags]);
