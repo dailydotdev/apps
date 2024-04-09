@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
+import { useQueryClient } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import {
   UpvoteIcon,
@@ -9,14 +9,10 @@ import {
   EditIcon,
   ShareIcon,
   FlagIcon,
+  DownvoteIcon,
 } from '../icons';
-import {
-  CANCEL_COMMENT_UPVOTE_MUTATION,
-  Comment,
-  UPVOTE_COMMENT_MUTATION,
-} from '../../graphql/comments';
+import { Comment } from '../../graphql/comments';
 import { Roles } from '../../lib/user';
-import { graphqlUrl } from '../../lib/config';
 import {
   Button,
   ButtonColor,
@@ -25,22 +21,23 @@ import {
 } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import { postAnalyticsEvent } from '../../lib/feed';
-import { upvoteCommentEventName } from '../utilities';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Origin } from '../../lib/analytics';
-import { Post } from '../../graphql/posts';
+import { Post, UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
 import ContextMenu, { MenuItemProps } from '../fields/ContextMenu';
 import useContextMenu from '../../hooks/useContextMenu';
 import OptionsButton from '../buttons/OptionsButton';
 import { SourcePermissions } from '../../graphql/sources';
-import { RequestKey } from '../../lib/query';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { labels } from '../../lib';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import {
+  VoteEntityPayload,
+  useVoteComment,
+  voteMutationHandlers,
+} from '../../hooks';
+import { RequestKey } from '../../lib/query';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -70,83 +67,59 @@ export default function CommentActionButtons({
   onEdit,
   onShowUpvotes,
 }: Props): ReactElement {
+  const client = useQueryClient();
   const id = `comment-actions-menu-${comment.id}`;
   const { onMenuClick, isOpen, onHide } = useContextMenu({ id });
-  const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
-  const [upvoted, setUpvoted] = useState(comment.upvoted);
-  const [numUpvotes, setNumUpvotes] = useState(comment.numUpvotes);
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
-
-  const queryClient = useQueryClient();
+  const [voteState, setVoteState] = useState<VoteEntityPayload>(() => {
+    return {
+      id: comment.id,
+      numUpvotes: comment.numUpvotes,
+      userState: comment.userState,
+    };
+  });
 
   useEffect(() => {
-    setUpvoted(comment.upvoted);
-    setNumUpvotes(comment.numUpvotes);
-  }, [comment]);
+    setVoteState({
+      id: comment.id,
+      numUpvotes: comment.numUpvotes,
+      userState: comment.userState,
+    });
+  }, [comment.id, comment.numUpvotes, comment.userState]);
 
-  const { requestMethod } = useRequestProtocol();
-  const { mutateAsync: upvoteComment } = useMutation(
-    () =>
-      requestMethod(graphqlUrl, UPVOTE_COMMENT_MUTATION, {
-        id: comment.id,
-      }),
-    {
-      onMutate: async () => {
-        await queryClient.cancelQueries([RequestKey.PostComments]);
-        setUpvoted(true);
-        setNumUpvotes(numUpvotes + 1);
-        return () => {
-          setUpvoted(upvoted);
-          setNumUpvotes(numUpvotes);
-        };
-      },
-      onError: (err, _, rollback) => rollback(),
-    },
-  );
+  const { toggleUpvote, toggleDownvote } = useVoteComment({
+    onMutate: (voteProps) => {
+      client.cancelQueries([RequestKey.PostComments]);
 
-  const { mutateAsync: cancelCommentUpvote } = useMutation(
-    () =>
-      requestMethod(graphqlUrl, CANCEL_COMMENT_UPVOTE_MUTATION, {
-        id: comment.id,
-      }),
-    {
-      onMutate: async () => {
-        await queryClient.cancelQueries([RequestKey.PostComments]);
-        setUpvoted(false);
-        setNumUpvotes(numUpvotes - 1);
-        return () => {
-          setUpvoted(upvoted);
-          setNumUpvotes(numUpvotes);
-        };
-      },
-      onError: (err, _, rollback) => rollback(),
-    },
-  );
+      const mutationHandler = voteMutationHandlers[voteProps.vote];
 
-  const toggleUpvote = () => {
-    if (user) {
-      if (upvoted) {
-        trackEvent(
-          postAnalyticsEvent(upvoteCommentEventName(false), post, {
-            extra: { origin, commentId: comment.id },
-          }),
-        );
-        return cancelCommentUpvote();
+      if (!mutationHandler) {
+        return undefined;
       }
 
-      trackEvent(
-        postAnalyticsEvent(upvoteCommentEventName(true), post, {
-          extra: { origin, commentId: comment.id },
-        }),
-      );
-      return upvoteComment();
-    }
-    showLogin({ trigger: AuthTriggers.CommentUpvote });
-    return undefined;
-  };
+      const previousVote = voteState.userState?.vote || UserVote.None;
 
+      setVoteState((currentVoteState) => ({
+        ...currentVoteState,
+        ...mutationHandler(currentVoteState),
+      }));
+
+      return () => {
+        const rollbackMutationHandler = voteMutationHandlers[previousVote];
+
+        if (!rollbackMutationHandler) {
+          return;
+        }
+
+        setVoteState((currentVoteState) => ({
+          ...currentVoteState,
+          ...rollbackMutationHandler(currentVoteState),
+        }));
+      };
+    },
+  });
   const isAuthor = user?.id === comment.author.id;
   const canModifyComment =
     isAuthor ||
@@ -205,12 +178,45 @@ export default function CommentActionButtons({
         <Button
           id={`comment-${comment.id}-upvote-btn`}
           size={ButtonSize.Small}
-          pressed={upvoted}
-          onClick={toggleUpvote}
-          icon={<UpvoteIcon secondary={upvoted} />}
-          className="mr-3"
+          pressed={voteState.userState?.vote === UserVote.Up}
+          onClick={() => {
+            toggleUpvote({
+              payload: {
+                ...voteState,
+                post,
+              },
+              origin,
+            });
+          }}
+          icon={
+            <UpvoteIcon secondary={voteState.userState?.vote === UserVote.Up} />
+          }
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Avocado}
+        />
+      </SimpleTooltip>
+      <SimpleTooltip content="Downvote">
+        <Button
+          id={`comment-${comment.id}-downvote-btn`}
+          size={ButtonSize.Small}
+          pressed={voteState.userState?.vote === UserVote.Down}
+          onClick={() => {
+            toggleDownvote({
+              payload: {
+                ...voteState,
+                post,
+              },
+              origin,
+            });
+          }}
+          icon={
+            <DownvoteIcon
+              secondary={voteState.userState?.vote === UserVote.Down}
+            />
+          }
+          className="mr-3"
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.Ketchup}
         />
       </SimpleTooltip>
       <SimpleTooltip content="Reply">
@@ -236,13 +242,13 @@ export default function CommentActionButtons({
       {!!commentOptions && (
         <OptionsButton tooltipPlacement="top" onClick={onMenuClick} />
       )}
-      {numUpvotes > 0 && (
+      {voteState.numUpvotes > 0 && (
         <SimpleTooltip content="See who upvoted">
           <ClickableText
             className="ml-auto"
-            onClick={() => onShowUpvotes(comment.id, numUpvotes)}
+            onClick={() => onShowUpvotes(comment.id, voteState.numUpvotes)}
           >
-            {numUpvotes} upvote{numUpvotes === 1 ? '' : 's'}
+            {voteState.numUpvotes} upvote{voteState.numUpvotes === 1 ? '' : 's'}
           </ClickableText>
         </SimpleTooltip>
       )}

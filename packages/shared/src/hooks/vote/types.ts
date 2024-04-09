@@ -10,6 +10,7 @@ import { UseMutationMatcher } from '../mutationSubscription/types';
 
 export type VoteEntityPayload = {
   id: string;
+  numUpvotes?: number;
   userState?: {
     vote: UserVote;
   };
@@ -18,7 +19,6 @@ export type VoteEntityPayload = {
 export type ToggleVoteProps<T extends VoteEntityPayload = VoteEntityPayload> = {
   origin: Origin;
   payload: T;
-  entity: UserVoteEntity;
   opts?: PostAnalyticsEventFnOptions;
 };
 
@@ -26,16 +26,12 @@ export type VoteProps = {
   id: string;
 };
 
-export type UseVote = {
+export type UseVote<T extends VoteEntityPayload = VoteEntityPayload> = {
   upvote: (props: VoteProps) => Promise<void>;
   downvote: (props: VoteProps) => Promise<void>;
   cancelVote: (props: VoteProps) => Promise<void>;
-  toggleUpvote: (
-    props: ToggleVoteProps<PostEntity | ReadHistoryPost>,
-  ) => Promise<void>;
-  toggleDownvote: (
-    props: ToggleVoteProps<PostEntity | ReadHistoryPost>,
-  ) => Promise<void>;
+  toggleUpvote: (props: ToggleVoteProps<T>) => Promise<void>;
+  toggleDownvote: (props: ToggleVoteProps<T>) => Promise<void>;
 };
 
 export type UseVotePost = {
@@ -103,32 +99,32 @@ export const voteMutationMatcher: UseMutationMatcher<
 
 export const voteMutationHandlers: Record<
   UserVote,
-  (post: PostEntity | ReadHistoryPost) => Partial<PostEntity>
+  (payload: VoteEntityPayload) => Partial<VoteEntityPayload>
 > = {
-  [UserVote.Up]: (post) => ({
-    numUpvotes: post.numUpvotes + 1,
+  [UserVote.Up]: (payload) => ({
+    numUpvotes: payload.numUpvotes + 1,
     userState: {
-      ...post?.userState,
+      ...payload?.userState,
       vote: UserVote.Up,
     },
   }),
-  [UserVote.Down]: (post) => ({
+  [UserVote.Down]: (payload) => ({
     numUpvotes:
-      post?.userState?.vote === UserVote.Up
-        ? post.numUpvotes - 1
-        : post.numUpvotes,
+      payload?.userState?.vote === UserVote.Up
+        ? payload.numUpvotes - 1
+        : payload.numUpvotes,
     userState: {
-      ...post?.userState,
+      ...payload?.userState,
       vote: UserVote.Down,
     },
   }),
-  [UserVote.None]: (post) => ({
+  [UserVote.None]: (payload) => ({
     numUpvotes:
-      post.userState?.vote === UserVote.Up
-        ? post.numUpvotes - 1
-        : post.numUpvotes,
+      payload.userState?.vote === UserVote.Up
+        ? payload.numUpvotes - 1
+        : payload.numUpvotes,
     userState: {
-      ...post?.userState,
+      ...payload?.userState,
       vote: UserVote.None,
     },
   }),
