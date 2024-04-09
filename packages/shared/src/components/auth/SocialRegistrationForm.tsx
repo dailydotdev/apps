@@ -182,7 +182,7 @@ export const SocialRegistrationForm = ({
           leftIcon={<UserIcon size={IconSize.Small} />}
           name="name"
           inputId="name"
-          label="Full name"
+          label="Name"
           value={name}
           valid={!nameHint && !hints?.name}
           hint={hints?.name || nameHint}

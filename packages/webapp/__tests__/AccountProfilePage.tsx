@@ -55,7 +55,7 @@ it('should show profile image', async () => {
 
 it('should show account information', () => {
   renderComponent();
-  const name = screen.getByPlaceholderText('Full Name');
+  const name = screen.getByPlaceholderText('Name');
   expect(name).toBeInTheDocument();
   expect(name).toHaveValue(defaultLoggedUser.name);
   const username = screen.getByPlaceholderText('Username');
