@@ -1,6 +1,9 @@
 import browser from 'webextension-polyfill';
 import { contentScriptKey } from '@dailydotdev/shared/src/hooks';
-import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
+import {
+  companionPermissionGrantedLink,
+  isProduction,
+} from '@dailydotdev/shared/src/lib/constants';
 import { AnalyticsEvent as AnalyticsEventName } from '@dailydotdev/shared/src/lib/analytics';
 import { QueryClient } from '@tanstack/react-query';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/hooks/analytics/useAnalyticsQueue';
@@ -15,10 +18,9 @@ export type CreateRequestContentScripts = (
   trackEvent: (e: AnalyticsEvent) => void,
 ) => RequestContentScripts;
 
-export const HOST_PERMISSIONS = [
-  'https://daily.dev/*',
-  'https://*.daily.dev/*',
-];
+export const HOST_PERMISSIONS = isProduction
+  ? ['https://daily.dev/*', 'https://*.daily.dev/*']
+  : ['http://local.com/*', 'http://*.local.com/*'];
 
 let hasInjectedScripts = false;
 const companionScriptId = 'daily-companion-app';
