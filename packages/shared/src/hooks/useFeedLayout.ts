@@ -27,17 +27,17 @@ export const useFeedLayout = ({
   feedRelated = true,
 }: UseFeedLayoutProps = {}): UseFeedLayout => {
   const { feedName } = useActiveFeedNameContext();
-  const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const name = (feedNameProp ?? feedName) as SharedFeedPage;
   const isIncludedFeed = useMemo(
     () => checkShouldUseMobileFeedLayout(name),
     [name],
   );
 
-  const isMobileAndIncludedFeed = isMobile && isIncludedFeed;
+  const isNotLaptopAndIsIncludedFeed = !isLaptop && isIncludedFeed;
   const shouldUseMobileFeedLayout = feedRelated
-    ? isMobileAndIncludedFeed
-    : isMobile;
+    ? isNotLaptopAndIsIncludedFeed
+    : !isLaptop;
 
   return {
     shouldUseMobileFeedLayout,

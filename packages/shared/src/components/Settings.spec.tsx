@@ -86,7 +86,7 @@ const renderComponent = (
 
 it('should fetch remote settings on desktop', async () => {
   // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
+  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
 
   renderComponent();
 
@@ -179,7 +179,7 @@ const renderBootProvider = (
 
 it('should utilize front-end default settings for first time users on desktop', async () => {
   // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
+  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
 
   renderBootProvider();
 
@@ -194,7 +194,7 @@ it('should utilize front-end default settings for first time users on desktop', 
 
 it('should utilize local cache settings for anonymous users on desktop', async () => {
   // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
+  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
 
   const localBootData = {
     ...defaultBootData,
@@ -247,7 +247,7 @@ const testSettingsMutation = async (
 
 it('should mutate density setting', () => {
   // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
+  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
   return testSettingsMutation({ spaciness: 'cozy' }, async () => {
     const radio = await screen.findAllByRole('radio');
     // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries

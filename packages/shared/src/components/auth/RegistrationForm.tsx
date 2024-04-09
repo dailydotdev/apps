@@ -174,7 +174,7 @@ export const RegistrationForm = ({
           leftIcon={<UserIcon />}
           name="traits.name"
           inputId="traits.name"
-          label="Full name"
+          label="Name"
           hint={hints?.['traits.name']}
           value={name}
           onBlur={(e) => setName(e.target.value)}

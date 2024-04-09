@@ -64,13 +64,11 @@ const RawPageWidgets = classed(
 );
 
 interface PageWidgetsProps {
-  tablet?: boolean;
   laptop?: boolean;
   className?: string;
   children?: ReactNode;
 }
 export const PageWidgets = ({
-  tablet = true,
   laptop = true,
   className,
   children,
@@ -78,7 +76,6 @@ export const PageWidgets = ({
   <RawPageWidgets
     className={classNames(
       className,
-      tablet && 'tablet:w-[18.75rem] tablet:max-w-[18.75rem]',
       laptop && 'laptop:w-[21.25rem] laptop:max-w-[21.25rem]',
     )}
   >
@@ -106,7 +103,7 @@ export const FeedPage = classed(
 export const FeedPageLayoutMobile = classed(
   BasePageContainer,
   pageContainerClassNames,
-  'pt-10 tablet:px-6 !ml-auto !px-0',
+  'pt-10 tablet:px-6 !ml-auto !px-0 tablet:!max-w-none laptop:max-w-[42.5rem]',
   styles.feedPage,
 );
 
