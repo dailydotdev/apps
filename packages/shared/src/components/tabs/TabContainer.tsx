@@ -8,6 +8,7 @@ import React, {
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import TabList, { TabListProps } from './TabList';
+import { useRouterOnChange } from '../../hooks/router/useRouterOnChange';
 
 export interface TabProps<T extends string> {
   key?: number;
@@ -47,6 +48,7 @@ export interface TabContainerProps<T extends string> {
   controlledActive?: string;
   tabListProps?: Pick<TabListProps, 'className' | 'autoScrollActive'>;
   showBorder?: boolean;
+  shouldMatchUrl?: boolean;
 }
 
 export function TabContainer<T extends string = string>({
@@ -59,6 +61,7 @@ export function TabContainer<T extends string = string>({
   showBorder = true,
   controlledActive,
   tabListProps = {},
+  shouldMatchUrl = false,
 }: TabContainerProps<T>): ReactElement {
   const router = useRouter();
 
@@ -73,6 +76,15 @@ export function TabContainer<T extends string = string>({
     }
 
     return defaultLabel;
+  });
+
+  useRouterOnChange({
+    onChange: (url) => {
+      const match = children.find((c) => c.props.url === url);
+
+      setActive(match ? match.props.label : undefined);
+    },
+    enabled: shouldMatchUrl,
   });
 
   const currentActive = controlledActive ?? active;

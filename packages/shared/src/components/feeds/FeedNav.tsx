@@ -33,7 +33,8 @@ function FeedNav(): ReactElement {
   const { feedName } = useActiveFeedNameContext();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isSortableFeed } = useFeedName({ feedName });
-  const { home: shouldRenderNav, notifications } = useActiveNav(feedName);
+  const { home: shouldRenderNav } = useActiveNav(feedName);
+
   const isMobile = useViewSize(ViewSize.MobileL);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
@@ -54,7 +55,7 @@ function FeedNav(): ReactElement {
     >
       {isMobile && <MobileFeedActions />}
       <TabContainer
-        controlledActive={notifications ? 'notifications' : undefined}
+        shouldMatchUrl
         shouldMountInactive
         className={{
           header: classNames(
