@@ -223,67 +223,75 @@ export default function ShortcutLinks({
     });
   };
 
+  const ShortcutControl = () => {
+    return (
+      <>
+        {shortcutLinks?.length ? (
+          <CustomLinks
+            links={shortcutLinks}
+            className={className}
+            onOptions={onOptionsOpen}
+            onLinkClick={onLinkClick}
+          />
+        ) : (
+          <Button
+            className={className}
+            variant={ButtonVariant.Tertiary}
+            icon={<PlusIcon />}
+            iconPosition={ButtonIconPosition.Right}
+            onClick={onOptionsOpen}
+          >
+            Add shortcuts
+          </Button>
+        )}
+      </>
+    );
+  };
+
+  const ShortcutV1 = () => {
+    return (
+      <div
+        className={classNames(
+          'hidden tablet:flex',
+          shouldUseMobileFeedLayout ? 'mx-6 mb-3 mt-1' : '-mt-2 mb-5',
+        )}
+      >
+        {shortcutLinks?.length ? (
+          <>
+            {shortcutLinks.map((url) => (
+              <ShortcutV1Item key={url} url={url} onLinkClick={onLinkClick} />
+            ))}
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<MenuIcon className="rotate-90" secondary />}
+              onClick={onMenuClick}
+              className="mt-2"
+            />
+          </>
+        ) : (
+          <>
+            <ShortCutV1Placeholder initialItem onClick={onOptionsOpen} />
+            {Array.from({ length: 5 }).map((_, index) => (
+              /* eslint-disable-next-line react/no-array-index-key */
+              <ShortCutV1Placeholder key={index} onClick={onOptionsOpen} />
+            ))}
+            <Button
+              variant={ButtonVariant.Tertiary}
+              onClick={toggleShowTopSites}
+              size={ButtonSize.Small}
+              icon={<ClearIcon secondary />}
+              className="mt-2"
+            />
+          </>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
-      {isShortcutsV1 ? (
-        <div
-          className={classNames(
-            'hidden tablet:flex',
-            shouldUseMobileFeedLayout ? 'mx-6 mb-3 mt-1' : '-mt-2 mb-5',
-          )}
-        >
-          {shortcutLinks?.length ? (
-            <>
-              {shortcutLinks.map((url) => (
-                <ShortcutV1Item key={url} url={url} onLinkClick={onLinkClick} />
-              ))}
-              <Button
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-                icon={<MenuIcon className="rotate-90" secondary />}
-                onClick={onMenuClick}
-                className="mt-2"
-              />
-            </>
-          ) : (
-            <>
-              <ShortCutV1Placeholder initialItem onClick={onOptionsOpen} />
-              {Array.from({ length: 5 }).map((_, index) => (
-                /* eslint-disable-next-line react/no-array-index-key */
-                <ShortCutV1Placeholder key={index} onClick={onOptionsOpen} />
-              ))}
-              <Button
-                variant={ButtonVariant.Tertiary}
-                onClick={toggleShowTopSites}
-                size={ButtonSize.Small}
-                icon={<ClearIcon secondary />}
-                className="mt-2"
-              />
-            </>
-          )}
-        </div>
-      ) : (
-        <>
-          {shortcutLinks?.length ? (
-            <CustomLinks
-              links={shortcutLinks}
-              className={className}
-              onOptions={onOptionsOpen}
-              onLinkClick={onLinkClick}
-            />
-          ) : (
-            <Button
-              className={className}
-              variant={ButtonVariant.Tertiary}
-              icon={<PlusIcon />}
-              iconPosition={ButtonIconPosition.Right}
-              onClick={onOptionsOpen}
-            >
-              Add shortcuts
-            </Button>
-          )}
-        </>
-      )}
+      {isShortcutsV1 ? <ShortcutV1 /> : <ShortcutControl />}
       {showModal && (
         <MostVisitedSitesModal
           isOpen={showModal}
