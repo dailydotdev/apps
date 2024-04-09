@@ -100,7 +100,7 @@ function BaseDrawer({
       <div
         {...props}
         className={classNames(
-          'absolute flex w-full flex-col overflow-y-auto bg-background-default pb-[env(safe-area-inset-bottom,0.75rem)] transition-transform duration-300 ease-in-out',
+          'pb-[max(env(safe-area-inset-bottom,0.75rem), 0.75rem)] absolute flex w-full flex-col overflow-y-auto bg-background-default transition-transform duration-300 ease-in-out',
           isFullScreen ? 'inset-0' : 'max-h-[calc(100%-5rem)]',
           !isFullScreen && drawerPositionToClassName[position],
           isAnimating && animatePositionClassName[position],
