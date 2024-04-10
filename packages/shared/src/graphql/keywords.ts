@@ -2,11 +2,16 @@ import { gql } from 'graphql-request';
 
 export type KeywordStatus = 'pending' | 'allow' | 'deny' | 'synonym';
 
+export type KeywordFlags = {
+  description?: string;
+};
+
 export interface Keyword {
   __typename?: string;
   value: string;
   occurrences: number;
   status: KeywordStatus;
+  flags?: KeywordFlags;
 }
 
 export interface KeywordData {
@@ -62,6 +67,9 @@ export const KEYWORD_QUERY = gql`
       value
       occurrences
       status
+      flags {
+        description
+      }
     }
   }
 `;
