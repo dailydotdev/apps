@@ -1,22 +1,14 @@
-import React, { ReactElement, useState } from 'react';
-import {
-  HashtagIcon,
-  FilterIcon,
-  BlockIcon,
-  ArrowIcon,
-  AppIcon,
-} from '../icons';
+import React, { ReactElement } from 'react';
+import { HashtagIcon, FilterIcon, BlockIcon, AppIcon } from '../icons';
 import TagsFilter from './TagsFilter';
 import { TagCategoryLayout } from './TagCategoryDropdown';
 import AdvancedSettingsFilter from './AdvancedSettings';
 import BlockedFilter from './BlockedFilter';
-import { Button, ButtonSize } from '../buttons/Button';
 import { UnblockItem, unBlockPromptOptions } from './FilterMenu';
 import { Modal, ModalProps } from '../modals/common/Modal';
 import { usePrompt } from '../../hooks/usePrompt';
 import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
 import { ContentTypesFilter } from './ContentTypesFilter';
-import { useViewSize, ViewSize } from '../../hooks';
 
 enum FilterMenuTitle {
   Tags = 'Manage tags',
@@ -28,8 +20,6 @@ enum FilterMenuTitle {
 type FeedFiltersProps = ModalProps;
 
 export default function FeedFilters(props: FeedFiltersProps): ReactElement {
-  const isMobile = useViewSize(ViewSize.MobileL);
-  const [isNavOpen, setIsNavOpen] = useState(true);
   const { showPrompt } = usePrompt();
   const unBlockPrompt = async ({ action, source, tag }: UnblockItem) => {
     const description = tag ? (
@@ -59,6 +49,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
       options: { icon: <BlockIcon /> },
     },
   ];
+
   return (
     <Modal
       {...props}
@@ -68,22 +59,9 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
       tabs={tabs}
     >
       <Modal.Sidebar>
-        <Modal.Sidebar.List
-          className="w-74"
-          title="Feed filters"
-          isNavOpen={isNavOpen}
-          setIsNavOpen={setIsNavOpen}
-          onViewChange={() => setIsNavOpen(false)}
-        />
+        <Modal.Sidebar.List className="w-74" title="Feed filters" defaultOpen />
         <Modal.Sidebar.Inner>
-          <Modal.Header showCloseButton={!isMobile}>
-            <Button
-              size={ButtonSize.Small}
-              className="mr-2 flex -rotate-90 tablet:hidden"
-              icon={<ArrowIcon />}
-              onClick={() => setIsNavOpen(true)}
-            />
-          </Modal.Header>
+          <Modal.Header />
           <Modal.Body view={FilterMenuTitle.Tags}>
             <TagsFilter tagCategoryLayout={TagCategoryLayout.Settings} />
           </Modal.Body>
