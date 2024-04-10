@@ -59,10 +59,8 @@ import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   GtagTracking,
+  HotJarTracking,
   PixelTracking,
-  RedditTracking,
-  TiktokTracking,
-  TwitterTracking,
 } from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -396,9 +394,7 @@ export function OnboardPage(): ReactElement {
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <PixelTracking />
       <GtagTracking />
-      <TwitterTracking />
-      <RedditTracking />
-      <TiktokTracking />
+      <HotJarTracking />
       {getProgressBar()}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
