@@ -39,8 +39,15 @@ export function ModalHeader({
   title,
   showCloseButton = true,
 }: ModalHeaderProps): ReactElement {
-  const { activeView, onRequestClose, tabs, isDrawer, isForm } =
-    useContext(ModalPropsContext);
+  const {
+    activeView,
+    setActiveView,
+    onRequestClose,
+    tabs,
+    isDrawer,
+    isForm,
+    isMobile,
+  } = useContext(ModalPropsContext);
 
   if (isDrawer || isForm) {
     return null;
@@ -62,7 +69,13 @@ export function ModalHeader({
           size={ButtonSize.Small}
           className="mr-2 flex -rotate-90 tablet:hidden"
           icon={<ArrowIcon />}
-          onClick={onRequestClose}
+          onClick={(event) => {
+            if (isMobile && tabs) {
+              setActiveView(undefined);
+            } else {
+              onRequestClose(event);
+            }
+          }}
         />
       )}
       {children}
