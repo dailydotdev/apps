@@ -28,12 +28,21 @@ enum FeedNavTab {
   Discussions = 'Discussions',
 }
 
+const urlToTab: Record<string, FeedNavTab> = {
+  '/': FeedNavTab.ForYou,
+  '/popular': FeedNavTab.Popular,
+  '/upvoted': FeedNavTab.MostUpvoted,
+  '/discussed': FeedNavTab.Discussions,
+  '/bookmarks': FeedNavTab.Bookmarks,
+  '/history': FeedNavTab.History,
+};
+
 function FeedNav(): ReactElement {
   const router = useRouter();
   const { feedName } = useActiveFeedNameContext();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isSortableFeed } = useFeedName({ feedName });
-  const { home: shouldRenderNav, notifications } = useActiveNav(feedName);
+  const { home: shouldRenderNav } = useActiveNav(feedName);
   const isMobile = useViewSize(ViewSize.MobileL);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
@@ -54,7 +63,7 @@ function FeedNav(): ReactElement {
     >
       {isMobile && <MobileFeedActions />}
       <TabContainer
-        controlledActive={notifications ? 'notifications' : undefined}
+        controlledActive={urlToTab[router.asPath] ?? ''}
         shouldMountInactive
         className={{
           header: classNames(
@@ -67,12 +76,11 @@ function FeedNav(): ReactElement {
           autoScrollActive: true,
         }}
       >
-        <Tab label={FeedNavTab.ForYou} url="/" />
-        <Tab label={FeedNavTab.Popular} url="/popular" />
-        <Tab label={FeedNavTab.MostUpvoted} url="/upvoted" />
-        <Tab label={FeedNavTab.Discussions} url="/discussed" />
-        <Tab label={FeedNavTab.Bookmarks} url="/bookmarks" />
-        <Tab label={FeedNavTab.History} url="/history" />
+        {Object.entries(urlToTab).map(([url, label]) => (
+          // key is assigned automatically in the Tab component
+          // eslint-disable-next-line react/jsx-key
+          <Tab label={label} url={url} />
+        ))}
       </TabContainer>
       {isMobile && sortingEnabled && isSortableFeed && (
         <div className="sticky flex h-11 w-20 -translate-y-12 translate-x-[calc(100vw-100%)] items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4">
