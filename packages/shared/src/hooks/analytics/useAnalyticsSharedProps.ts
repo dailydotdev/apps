@@ -35,7 +35,23 @@ export default function useAnalyticsSharedProps(
       return;
     }
 
-    const queryStr = JSON.stringify(query);
+    const queryObject = { ...query };
+
+    const initialQuerySearchParams = new URLSearchParams(
+      window.location.search,
+    );
+
+    // initial useRouter.query can be empty on prerendered static pages
+    // so we add any missing initial query params to the query object
+    // that we pass to tracking
+    initialQuerySearchParams.forEach((value, key) => {
+      if (!queryObject[key]) {
+        queryObject[key] = value;
+      }
+    });
+
+    const queryStr = JSON.stringify(queryObject);
+
     (sharedPropsRef.current?.device_id
       ? Promise.resolve(sharedPropsRef.current.device_id)
       : Promise.resolve(deviceId)
