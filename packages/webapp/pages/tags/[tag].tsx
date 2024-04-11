@@ -28,6 +28,7 @@ import {
   FeedPage,
   PageInfoHeader,
 } from '@dailydotdev/shared/src/components/utilities';
+import { FeedPage } from '@dailydotdev/shared/src/components/utilities';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import {
@@ -41,6 +42,15 @@ import {
   Keyword,
 } from '@dailydotdev/shared/src/graphql/keywords';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
+import { useQuery } from '@tanstack/react-query';
+import request from 'graphql-request';
+import {
+  GET_RECOMMENDED_TAGS_QUERY,
+  TagsData,
+} from '@dailydotdev/shared/src/graphql/feedSettings';
+import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
 import { useQuery } from '@tanstack/react-query';
