@@ -47,5 +47,8 @@ export const useConditionalFeature = <T extends JSONValue>({
     },
   );
 
-  return { value: featureValue, isLoading };
+  return {
+    value: featureValue ?? (feature.defaultValue as WidenPrimitives<T>),
+    isLoading,
+  };
 };

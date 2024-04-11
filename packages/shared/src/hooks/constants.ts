@@ -6,4 +6,5 @@ export enum ContextMenu {
   SearchHistoryContext = 'search-history-context',
   SquadMemberContext = 'squad-member-menu-context',
   TagOptionsContext = 'tag-options-context',
+  ShortcutContext = 'shortcut-context',
 }
