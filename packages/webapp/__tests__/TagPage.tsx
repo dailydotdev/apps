@@ -30,6 +30,7 @@ import {
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import TagPage from '../pages/tags/[tag]';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
@@ -85,9 +86,16 @@ const createTagsSettingsMock = (
 
 let client: QueryClient;
 
+const initialDataObj: Keyword = {
+  value: 'react',
+  occurrences: 1,
+  status: 'allow',
+};
+
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock(), createTagsSettingsMock()],
   user: LoggedUser = defaultUser,
+  initialData: Keyword = initialDataObj,
 ): RenderResult => {
   client = new QueryClient();
 
@@ -130,7 +138,7 @@ const renderComponent = (
                 onShouldUpdateFilters: jest.fn(),
               }}
             >
-              <TagPage tag="react" />
+              <TagPage tag="react" initialData={initialData} />
             </OnboardingContext.Provider>
           </SettingsContext.Provider>
         </AlertContextProvider>
@@ -340,5 +348,24 @@ it('should unblock tag', async () => {
   await waitFor(async () => {
     const followButton = await screen.findByLabelText('Block');
     expect(followButton).toBeInTheDocument();
+  });
+});
+
+it('should load title and description for tag', async () => {
+  renderComponent([createFeedMock()], defaultUser, {
+    ...initialDataObj,
+    flags: {
+      title: 'React custom title',
+      description: 'React is an amazing framework',
+    },
+  });
+
+  await waitFor(async () => {
+    const titleElement = await screen.findByText('React custom title');
+    expect(titleElement).toBeInTheDocument();
+    const descriptionElement = await screen.findByText(
+      'React is an amazing framework',
+    );
+    expect(descriptionElement).toBeInTheDocument();
   });
 });

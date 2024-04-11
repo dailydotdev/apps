@@ -6,10 +6,10 @@ import {
 import { ParsedUrlQuery } from 'querystring';
 import React, { ReactElement, useContext, useMemo } from 'react';
 import {
-  HashtagIcon,
-  PlusIcon,
   BlockIcon,
+  HashtagIcon,
   MiniCloseIcon as XIcon,
+  PlusIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import { useRouter } from 'next/router';
@@ -24,27 +24,74 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  CustomFeedHeader,
-  customFeedIcon,
-  FeedPage,
-} from '@dailydotdev/shared/src/components/utilities';
-import classNames from 'classnames';
+import { FeedPage } from '@dailydotdev/shared/src/components/utilities';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
+import { OtherFeedPage, RequestKey } from '@dailydotdev/shared/src/lib/query';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
-import request from 'graphql-request';
 import {
   KEYWORD_QUERY,
   Keyword,
 } from '@dailydotdev/shared/src/graphql/keywords';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
-import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
+import { useQuery } from '@tanstack/react-query';
+import request from 'graphql-request';
+import {
+  GET_RECOMMENDED_TAGS_QUERY,
+  TagsData,
+} from '@dailydotdev/shared/src/graphql/feedSettings';
+import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { getLayout } from '../../components/layouts/FeedLayout';
+import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 type TagPageProps = { tag: string; initialData: Keyword };
+
+const RecommendedTags = ({ tag, blockedTags }): ReactElement => {
+  const { data: recommendedTags, isLoading } = useQuery(
+    [RequestKey.RecommendedTags, null, tag],
+    async () =>
+      await request<{
+        recommendedTags: TagsData;
+      }>(graphqlUrl, GET_RECOMMENDED_TAGS_QUERY, {
+        tags: [tag],
+        excludedTags: blockedTags || [],
+      }),
+    {
+      enabled: !!tag,
+    },
+  );
+
+  if (isLoading) {
+    return (
+      <div>
+        <ElementPlaceholder className="mb-3 h-4 w-1/5 rounded-12" />
+        <div className="flex gap-2">
+          <ElementPlaceholder className="h-6 w-12 rounded-8" />
+          <ElementPlaceholder className="h-6 w-12 rounded-8" />
+          <ElementPlaceholder className="h-6 w-12 rounded-8" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {recommendedTags?.recommendedTags?.tags.length > 0 && (
+        <div>
+          <p className="mb-3 text-text-tertiary typo-caption1">Related tags:</p>
+          <div className="flex gap-2">
+            {recommendedTags?.recommendedTags?.tags.map((relatedTag) => (
+              <TagLink key={relatedTag.name} tag={relatedTag.name} />
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
 
 const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   const { isFallback } = useRouter();
@@ -54,6 +101,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   const { feedSettings } = useFeedSettings();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
+  const title = initialData?.flags?.title || tag;
 
   const tagStatus = useMemo(() => {
     if (!feedSettings) {
@@ -80,7 +128,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   }
 
   const seo: NextSeoProps = {
-    title: `${initialData?.flags?.title || tag} posts on daily.dev`,
+    title: `${title} posts on daily.dev`,
     openGraph: { ...defaultOpenGraph },
     ...defaultSeo,
     description: initialData?.flags?.description || defaultSeo.description,
@@ -121,50 +169,38 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   return (
     <FeedPage>
       <NextSeo {...seo} />
-      <CustomFeedHeader>
-        <HashtagIcon className={customFeedIcon} />
-        <span className="mr-auto">{tag}</span>
-        {tagStatus !== 'followed' && (
-          <>
+      <div className="mb-10 flex w-full flex-col gap-5 rounded-16 border border-border-subtlest-tertiary p-4">
+        <div className="flex items-center font-bold">
+          <HashtagIcon size={IconSize.XXLarge} />
+          <h1 className="ml-2 typo-title2">{title}</h1>
+        </div>
+        <div className="flex flex-row gap-3">
+          {tagStatus !== 'blocked' && (
             <Button
-              className="laptop:hidden"
-              variant={ButtonVariant.Secondary}
-              {...blockButtonProps}
-              aria-label={tagStatus === 'blocked' ? 'Unblock' : 'Block'}
-            />
-            <Button
-              className="hidden laptop:flex"
-              variant={ButtonVariant.Secondary}
-              {...blockButtonProps}
-            >
-              {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
-            </Button>
-          </>
-        )}
-        {tagStatus !== 'blocked' && (
-          <>
-            <Button
-              className={classNames(
-                'laptop:hidden',
-                tagStatus !== 'followed' && 'ml-4',
-              )}
-              variant={ButtonVariant.Secondary}
+              variant={ButtonVariant.Primary}
               {...followButtonProps}
               aria-label={tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
-            />
-            <Button
-              className={classNames(
-                'hidden laptop:flex',
-                tagStatus !== 'followed' && 'ml-4',
-              )}
-              variant={ButtonVariant.Secondary}
-              {...followButtonProps}
             >
               {tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
             </Button>
-          </>
+          )}
+          {tagStatus !== 'followed' && (
+            <Button
+              variant={ButtonVariant.Float}
+              {...blockButtonProps}
+              aria-label={tagStatus === 'blocked' ? 'Unblock' : 'Block'}
+            >
+              {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
+            </Button>
+          )}
+        </div>
+        {initialData?.flags?.description && (
+          <p className="typo-body">{initialData?.flags?.description}</p>
         )}
-      </CustomFeedHeader>
+        {tag && (
+          <RecommendedTags tag={tag} blockedTags={feedSettings?.blockedTags} />
+        )}
+      </div>
       <Feed
         feedName={OtherFeedPage.Tag}
         feedQueryKey={[

@@ -101,6 +101,7 @@ export enum RequestKey {
   CommentFeed = 'comment_feed',
   Feature = 'feature',
   AccountNavigation = 'account_navigation',
+  RecommendedTags = 'recommended_tags',
 }
 
 export type HasConnection<
