@@ -79,7 +79,7 @@ export function FooterPlusButton(): ReactElement {
                 openModal({ type: LazyModal.SubmitArticle });
               }}
             >
-              Submit article
+              Community picks
             </ActionButton>
           </div>
         </Drawer>
