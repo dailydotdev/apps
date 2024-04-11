@@ -30,11 +30,7 @@ import {
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import {
-  Keyword,
-  KEYWORD_QUERY,
-  KeywordStatus,
-} from '@dailydotdev/shared/src/graphql/keywords';
+import { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import TagPage from '../pages/tags/[tag]';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 

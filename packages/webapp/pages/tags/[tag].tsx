@@ -243,7 +243,7 @@ export async function getStaticProps({
         value: params.tag,
       },
     );
-    console.log(result);
+
     if (result.keyword) {
       initialData = result.keyword;
     }
