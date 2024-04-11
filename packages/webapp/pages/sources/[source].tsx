@@ -25,7 +25,6 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  CustomFeedHeader,
   FeedPage,
   PageInfoHeader,
 } from '@dailydotdev/shared/src/components/utilities';
@@ -132,14 +131,6 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
           <p className="typo-body">{source?.description}</p>
         )}
       </PageInfoHeader>
-      <CustomFeedHeader>
-        <img
-          src={source.image}
-          alt={`${source.name} logo`}
-          className="mr-2 h-6 w-6 rounded-full"
-        />
-        <span className="mr-auto">{source.name}</span>
-      </CustomFeedHeader>
       <Feed
         feedName={OtherFeedPage.Squad}
         feedQueryKey={[
