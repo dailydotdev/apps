@@ -1,17 +1,18 @@
-import React, { PropsWithChildren, ReactElement } from 'react';
+import React, { PropsWithChildren, ReactElement, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import { WithClassNameProps } from '../utilities';
 import { isDevelopment } from '../../lib/constants';
+import Logo, { LogoPosition } from '../Logo';
 
 const checkSameSite = () => {
   const referrer = globalThis?.document?.referrer;
   const origin = globalThis?.window?.location.origin;
 
   if (!referrer) {
-    return true; // empty referrer means you are from the same site
+    return true; // empty referrer means you are from the same site or from blank tab or no-referrer header was used :/
   }
 
   return (
@@ -24,11 +25,16 @@ export function GoBackHeaderMobile({
   className,
 }: PropsWithChildren<WithClassNameProps>): ReactElement {
   const router = useRouter();
+  const goHome = useCallback(() => router.push('/'), [router]);
+  const logoButton = (
+    <Logo onLogoClick={goHome} position={LogoPosition.Initial} />
+  );
+
   const canGoBack =
-    !!globalThis?.history?.length && (checkSameSite() || isDevelopment);
+    globalThis?.history?.length > 1 && (checkSameSite() || isDevelopment);
 
   if (!canGoBack && !children) {
-    return null;
+    return logoButton;
   }
 
   return (
@@ -38,14 +44,15 @@ export function GoBackHeaderMobile({
         className,
       )}
     >
-      {canGoBack && (
+      {canGoBack ? (
         <Button
           icon={<ArrowIcon className="-rotate-90" />}
           size={ButtonSize.Small}
           variant={ButtonVariant.Tertiary}
           onClick={router.back}
-          className={!canGoBack && 'invisible'}
         />
+      ) : (
+        logoButton
       )}
       {children}
     </span>
