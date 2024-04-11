@@ -3,6 +3,7 @@ import { gql } from 'graphql-request';
 export type KeywordStatus = 'pending' | 'allow' | 'deny' | 'synonym';
 
 export type KeywordFlags = {
+  title?: string;
   description?: string;
 };
 
@@ -68,6 +69,7 @@ export const KEYWORD_QUERY = gql`
       occurrences
       status
       flags {
+        title
         description
       }
     }

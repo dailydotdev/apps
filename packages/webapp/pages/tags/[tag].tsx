@@ -44,7 +44,7 @@ import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
 
-type TagPageProps = { tag: string; initialData };
+type TagPageProps = { tag: string; initialData: Keyword };
 
 const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   const { isFallback } = useRouter();
@@ -80,7 +80,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   }
 
   const seo: NextSeoProps = {
-    title: `${tag} posts on daily.dev`,
+    title: `${initialData?.flags?.title || tag} posts on daily.dev`,
     openGraph: { ...defaultOpenGraph },
     ...defaultSeo,
     description: initialData?.flags?.description || defaultSeo.description,
