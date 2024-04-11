@@ -123,7 +123,10 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         </div>
         <div className="flex flex-row gap-3">
           {!unfollowingSource && <SourceSubscribeButton source={source} />}
-          <Button {...buttonProps}>
+          <Button
+            {...buttonProps}
+            aria-label={unfollowingSource ? 'Follow' : 'Block'}
+          >
             {unfollowingSource ? 'Follow' : 'Block'}
           </Button>
         </div>
