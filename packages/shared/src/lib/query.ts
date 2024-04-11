@@ -29,12 +29,14 @@ export enum OtherFeedPage {
 const ONE_MINUTE = 60 * 1000;
 const THIRTY_MINUTES = ONE_MINUTE * 30;
 const FIVE_MINUTES = ONE_MINUTE * 5;
+const ONE_HOUR = ONE_MINUTE * 60;
 export const STALE_TIME = 30 * 1000;
 
 export enum StaleTime {
   Default = FIVE_MINUTES,
   FeedSettings = ONE_MINUTE,
   Tooltip = THIRTY_MINUTES,
+  OneHour = ONE_HOUR,
   Base = STALE_TIME,
 }
 

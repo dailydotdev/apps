@@ -81,6 +81,7 @@ export interface Source {
   public: boolean;
   headerImage?: string;
   color?: string;
+  description?: string;
 }
 
 export type SourceData = { source: Source };
@@ -92,6 +93,7 @@ export const SOURCE_QUERY = gql`
       image
       name
       type
+      description
     }
   }
 `;
