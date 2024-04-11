@@ -15,9 +15,9 @@ import {
   ToastSubject,
   useToastNotification,
   useConditionalFeature,
+  FeedPagesWithMobileLayout,
 } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
 import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import { useReadingStreak } from '../../hooks/streaks';
@@ -87,12 +87,13 @@ const getStyle = (isList: boolean, space: Spaciness): CSSProperties => {
   return {};
 };
 
-const feedNameToHeading: Record<SharedFeedPage, string> = {
+const feedNameToHeading: Record<FeedPagesWithMobileLayout, string> = {
   search: 'Search',
   'my-feed': 'For you',
   popular: 'Popular',
   upvoted: 'Most upvoted',
   discussed: 'Best discussions',
+  bookmarks: 'Bookmarks',
 };
 
 export const FeedContainer = ({
