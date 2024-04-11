@@ -104,7 +104,7 @@ function BaseDrawer({
           isFullScreen ? 'inset-0' : 'max-h-[calc(100%-5rem)]',
           !isFullScreen && drawerPositionToClassName[position],
           isAnimating && animatePositionClassName[position],
-          !title && classes,
+          !title && 'px-4 pt-3',
         )}
         ref={(node) => {
           container.current = node;
