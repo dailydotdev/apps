@@ -8,6 +8,7 @@ import LogoIcon from '../svg/LogoIcon';
 export enum LogoPosition {
   Absolute = 'absolute',
   Relative = 'relative',
+  Initial = 'initial',
 }
 
 const logoPositionToClassName: Record<LogoPosition, string> = {
@@ -16,6 +17,7 @@ const logoPositionToClassName: Record<LogoPosition, string> = {
     'laptop:relative laptop:left-[unset] laptop:top-[unset] laptop:mt-0 laptop:translate-x-[unset]',
   ),
   [LogoPosition.Relative]: classNames('relative mt-0.5', 'laptop:mt-0'),
+  [LogoPosition.Initial]: '',
 };
 
 interface LogoProps {
