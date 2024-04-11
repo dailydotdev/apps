@@ -226,3 +226,8 @@ export const formatReadTime = (minutes: number): string => {
 };
 
 export const lazyCommentThreshold = 5;
+
+export const PageInfoHeader = classed(
+  'div',
+  'mb-10 flex w-full flex-col gap-5 rounded-16 border border-border-subtlest-tertiary p-4',
+);

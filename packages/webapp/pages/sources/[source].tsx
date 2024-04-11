@@ -25,8 +25,8 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  CustomFeedHeader,
   FeedPage,
+  PageInfoHeader,
 } from '@dailydotdev/shared/src/components/utilities';
 import { PlusIcon, BlockIcon } from '@dailydotdev/shared/src/components/icons';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
@@ -89,6 +89,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     title: `${source.name} posts on daily.dev`,
     openGraph: { ...defaultOpenGraph },
     ...defaultSeo,
+    description: source?.description || defaultSeo.description,
   };
 
   const buttonProps: ButtonProps<'button'> = {
@@ -111,25 +112,28 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   return (
     <FeedPage>
       <NextSeo {...seo} />
-      <CustomFeedHeader>
-        <img
-          src={source.image}
-          alt={`${source.name} logo`}
-          className="mr-2 h-6 w-6 rounded-full"
-        />
-        <span className="mr-auto">{source.name}</span>
-        <Button
-          className="laptop:hidden"
-          {...buttonProps}
-          aria-label={unfollowingSource ? 'Follow' : 'Block'}
-        />
-        {!unfollowingSource && (
-          <SourceSubscribeButton className="ml-3 laptop:mr-3" source={source} />
+      <PageInfoHeader>
+        <div className="flex items-center font-bold">
+          <img
+            src={source.image}
+            alt={`${source.name} logo`}
+            className="size-10 rounded-full"
+          />
+          <h1 className="ml-2 typo-title2">{source.name}</h1>
+        </div>
+        <div className="flex flex-row gap-3">
+          {!unfollowingSource && <SourceSubscribeButton source={source} />}
+          <Button
+            {...buttonProps}
+            aria-label={unfollowingSource ? 'Follow' : 'Block'}
+          >
+            {unfollowingSource ? 'Follow' : 'Block'}
+          </Button>
+        </div>
+        {source?.description && (
+          <p className="typo-body">{source?.description}</p>
         )}
-        <Button className="hidden laptop:flex" {...buttonProps}>
-          {unfollowingSource ? 'Follow' : 'Block'}
-        </Button>
-      </CustomFeedHeader>
+      </PageInfoHeader>
       <Feed
         feedName={OtherFeedPage.Squad}
         feedQueryKey={[
