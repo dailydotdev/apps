@@ -56,7 +56,9 @@ function MyFeedHeading({
       {forceRefresh && (
         <Button
           size={
-            shouldUseMobileFeedLayout ? ButtonSize.Small : ButtonSize.Medium
+            shouldUseMobileFeedLayout && !isNewMobileLayout
+              ? ButtonSize.Small
+              : ButtonSize.Medium
           }
           variant={
             isMobile && isNewMobileLayout
