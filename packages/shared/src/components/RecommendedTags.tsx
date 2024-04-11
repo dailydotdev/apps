@@ -24,18 +24,18 @@ export const RecommendedTags = ({
     );
   }
 
+  if (tags.length === 0) {
+    return null;
+  }
+
   return (
-    <>
-      {tags.length > 0 && (
-        <div>
-          <p className="mb-3 text-text-tertiary typo-caption1">Related tags:</p>
-          <div className="no-scrollbar flex gap-2 overflow-x-auto">
-            {tags.map((relatedTag) => (
-              <TagLink key={relatedTag.name} tag={relatedTag.name} />
-            ))}
-          </div>
-        </div>
-      )}
-    </>
+    <div>
+      <p className="mb-3 text-text-tertiary typo-caption1">Related tags:</p>
+      <div className="no-scrollbar flex gap-2 overflow-x-auto">
+        {tags.map((relatedTag) => (
+          <TagLink key={relatedTag.name} tag={relatedTag.name} />
+        ))}
+      </div>
+    </div>
   );
 };
