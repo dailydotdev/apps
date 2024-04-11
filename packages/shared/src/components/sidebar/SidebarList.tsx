@@ -1,7 +1,6 @@
 import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import SidebarListItem, { SidebarListItemProps } from './SidebarListItem';
-import CloseButton from '../CloseButton';
 import { Button, ButtonSize } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import { useModalContext } from '../modals/common/types';
@@ -14,7 +13,6 @@ interface SidebarListProps {
   items: SidebarListItemProps[];
   active: string;
   onItemClick?: (item: string) => void;
-  onClose?: () => void;
 }
 
 function SidebarList({
@@ -24,7 +22,6 @@ function SidebarList({
   isOpen,
   active,
   children,
-  onClose,
   onItemClick,
 }: SidebarListProps): ReactElement {
   const { onRequestClose } = useModalContext();
@@ -33,7 +30,7 @@ function SidebarList({
     <div
       className={classNames(
         'flex flex-col transition-transform ease-in-out tablet:translate-x-[unset] tablet:items-center tablet:px-6 tablet:pt-6',
-        'absolute h-full max-h-[100vh] w-full bg-inherit tablet:relative tablet:h-fit tablet:w-fit',
+        'absolute h-fit max-h-[100vh] w-full bg-inherit tablet:relative tablet:w-fit',
         isOpen ? 'translate-x-0' : ' -translate-x-full',
         className,
       )}
@@ -46,7 +43,6 @@ function SidebarList({
           onClick={onRequestClose}
         />
         <span className="ml-2 font-bold typo-title3">{title}</span>
-        <CloseButton className="hidden tablet:flex" onClick={onClose} />
       </span>
       <div className="px-4 tablet:px-0">
         {items.map((props) => (
