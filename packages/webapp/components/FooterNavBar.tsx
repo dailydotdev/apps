@@ -16,7 +16,6 @@ import useActiveNav, {
   UseActiveNav,
 } from '@dailydotdev/shared/src/hooks/useActiveNav';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
-import styles from './FooterNavBar.module.css';
 import { FooterTab } from './footer/common';
 import { FooterNavBarV1, mobileUxTabs } from './footer/FooterNavBarV1';
 import { FooterNavBarControl, tabs } from './footer/FooterNavBarControl';
@@ -73,10 +72,7 @@ export default function FooterNavBar({
       className={classNames(
         'fixed !bottom-0 left-0 z-2 w-full',
         isNewMobileLayout
-          ? classNames(
-              'bg-gradient-to-t from-blur-baseline via-blur-bg via-70% to-transparent p-2',
-              styles.footerNavBar,
-            )
+          ? 'footer-navbar bg-gradient-to-t from-blur-baseline via-blur-bg via-70% to-transparent p-2'
           : post && 'bg-blur-bg backdrop-blur-20',
       )}
     >
@@ -107,10 +103,7 @@ export default function FooterNavBar({
           !showNav && 'hidden',
           isNewMobileLayout
             ? classNames('rounded-16', !post && activeClasses)
-            : classNames(
-                'h-14 rounded-t-24 bg-background-default',
-                styles.footerNavBar,
-              ),
+            : 'footer-navbar h-14 rounded-t-24 bg-background-default',
           !post && 'border-t border-border-subtlest-tertiary',
         )}
       >

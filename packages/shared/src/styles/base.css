@@ -818,3 +818,13 @@ details.right-icon {
     border-radius: 14px;
   }
 }
+
+.drawer-padding {
+  padding-bottom: max(env(safe-area-inset-bottom, 0.75rem), 0.75rem);
+}
+
+.footer-navbar {
+  min-height: $navBarHeight;
+  grid-column-gap: 0.5rem;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
