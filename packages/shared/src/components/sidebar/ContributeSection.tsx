@@ -20,7 +20,7 @@ export function ContributeSection(props: SectionCommonProps): ReactElement {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <LinkIcon secondary={active} />} />
       ),
-      title: 'Submit article',
+      title: 'Community picks',
       action: openSubmitArticle,
       active: modal?.type === LazyModal.SubmitArticle,
     },
