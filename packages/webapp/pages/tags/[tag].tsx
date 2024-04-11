@@ -34,13 +34,19 @@ import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import request from 'graphql-request';
+import {
+  KEYWORD_QUERY,
+  Keyword,
+} from '@dailydotdev/shared/src/graphql/keywords';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
 
-type TagPageProps = { tag: string };
+type TagPageProps = { tag: string; initialData: Keyword };
 
-const TagPage = ({ tag }: TagPageProps): ReactElement => {
+const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   const { isFallback } = useRouter();
   const { user, showLogin } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
@@ -74,9 +80,10 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
   }
 
   const seo: NextSeoProps = {
-    title: `${tag} posts on daily.dev`,
+    title: `${initialData?.flags?.title || tag} posts on daily.dev`,
     openGraph: { ...defaultOpenGraph },
     ...defaultSeo,
+    description: initialData?.flags?.description || defaultSeo.description,
   };
 
   const followButtonProps: ButtonProps<'button'> = {
@@ -185,12 +192,34 @@ interface TagPageParams extends ParsedUrlQuery {
   tag: string;
 }
 
-export function getStaticProps({
+export async function getStaticProps({
   params,
-}: GetStaticPropsContext<TagPageParams>): GetStaticPropsResult<TagPageProps> {
+}: GetStaticPropsContext<TagPageParams>): Promise<
+  GetStaticPropsResult<TagPageProps>
+> {
+  let initialData: Keyword | null = null;
+
+  try {
+    const result = await request<{ keyword: Keyword }>(
+      graphqlUrl,
+      KEYWORD_QUERY,
+      {
+        value: params.tag,
+      },
+    );
+
+    if (result.keyword) {
+      initialData = result.keyword;
+    }
+  } catch (error) {
+    // keyword not found, ignoring for now
+  }
+
   return {
     props: {
       tag: params.tag,
+      initialData,
     },
+    revalidate: 3600,
   };
 }
