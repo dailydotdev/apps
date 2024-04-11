@@ -193,7 +193,10 @@ export const FeedContainer = ({
                 )}
               >
                 <ConditionalWrapper
-                  condition={!isNewMobileLayout}
+                  condition={
+                    !isNewMobileLayout &&
+                    (feedNameToHeading[feedName] || actionButtons)
+                  }
                   wrapper={(component) => (
                     <span className="flex w-full flex-row items-center justify-between px-6 py-4">
                       <strong className="typo-title3">

@@ -27,6 +27,7 @@ import {
 import {
   CustomFeedHeader,
   FeedPage,
+  FeedPageLayoutMobile,
 } from '@dailydotdev/shared/src/components/utilities';
 import { PlusIcon, BlockIcon } from '@dailydotdev/shared/src/components/icons';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
@@ -37,6 +38,7 @@ import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { SourceSubscribeButton } from '@dailydotdev/shared/src/components';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -60,7 +62,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     }),
     [source?.id],
   );
-
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { feedSettings } = useFeedSettings();
   const { onFollowSource, onUnfollowSource } = useTagAndSource({
     origin: Origin.SourcePage,
@@ -108,8 +110,12 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     variant: ButtonVariant.Float,
   };
 
+  const MobileOrDesktopLayout = shouldUseMobileFeedLayout
+    ? FeedPageLayoutMobile
+    : FeedPage;
+
   return (
-    <FeedPage>
+    <MobileOrDesktopLayout>
       <NextSeo {...seo} />
       <CustomFeedHeader>
         <img
@@ -140,7 +146,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         query={SOURCE_FEED_QUERY}
         variables={queryVariables}
       />
-    </FeedPage>
+    </MobileOrDesktopLayout>
   );
 };
 

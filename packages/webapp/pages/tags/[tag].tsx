@@ -24,7 +24,10 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { FeedPage } from '@dailydotdev/shared/src/components/utilities';
+import {
+  FeedPage,
+  FeedPageLayoutMobile,
+} from '@dailydotdev/shared/src/components/utilities';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { OtherFeedPage, RequestKey } from '@dailydotdev/shared/src/lib/query';
@@ -43,6 +46,7 @@ import {
   TagsData,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -99,6 +103,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
   const { feedSettings } = useFeedSettings();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
   const title = initialData?.flags?.title || tag;
@@ -166,8 +171,12 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
     },
   };
 
+  const MobileOrDesktopLayout = shouldUseMobileFeedLayout
+    ? FeedPageLayoutMobile
+    : FeedPage;
+
   return (
-    <FeedPage>
+    <MobileOrDesktopLayout>
       <NextSeo {...seo} />
       <div className="mb-10 flex w-full flex-col gap-5 rounded-16 border border-border-subtlest-tertiary p-4">
         <div className="flex items-center font-bold">
@@ -211,7 +220,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
         query={TAG_FEED_QUERY}
         variables={queryVariables}
       />
-    </FeedPage>
+    </MobileOrDesktopLayout>
   );
 };
 
