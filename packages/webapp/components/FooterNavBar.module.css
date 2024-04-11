@@ -1,5 +1,0 @@
-.footerNavBar {
-  min-height: $navBarHeight;
-  grid-column-gap: 0.5rem;
-  padding-bottom: env(safe-area-inset-bottom, 0);
-}

@@ -100,11 +100,11 @@ function BaseDrawer({
       <div
         {...props}
         className={classNames(
-          'absolute flex w-full flex-col overflow-y-auto bg-background-default pb-[env(safe-area-inset-bottom,0.75rem)] transition-transform duration-300 ease-in-out',
+          'drawer-padding absolute flex w-full flex-col overflow-y-auto bg-background-default transition-transform duration-300 ease-in-out',
           isFullScreen ? 'inset-0' : 'max-h-[calc(100%-5rem)]',
           !isFullScreen && drawerPositionToClassName[position],
           isAnimating && animatePositionClassName[position],
-          !title && classes,
+          !title && 'px-4 pt-3',
         )}
         ref={(node) => {
           container.current = node;
