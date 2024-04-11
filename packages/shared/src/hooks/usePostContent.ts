@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useSharePost } from './useSharePost';
@@ -78,10 +78,18 @@ const usePostContent = ({
     },
   );
 
+  const trackedPostEvent = useRef(null);
+
   useEffect(() => {
     if (!post) {
       return;
     }
+
+    if (trackedPostEvent.current === post.id) {
+      return;
+    }
+
+    trackedPostEvent.current = post.id;
 
     trackEvent(postAnalyticsEvent(`${origin} view`, post));
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
