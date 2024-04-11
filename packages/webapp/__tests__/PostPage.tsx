@@ -52,6 +52,7 @@ import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
 import { VOTE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import PostPage, { Props } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
@@ -89,6 +90,36 @@ beforeEach(() => {
   );
 });
 
+const defaultPost = {
+  id: '0e4005b2d3cf191f8c44c2718a457a1e',
+  title: 'Learn SQL',
+  type: PostType.Article,
+  permalink: 'http://localhost:4000/r/9CuRpr5NiEY5',
+  image:
+    'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
+  createdAt: '2019-05-16T15:16:05.000Z',
+  readTime: 8,
+  tags: ['development', 'data-science', 'sql'],
+  source: {
+    __typename: 'Source',
+    id: 's',
+    handle: 's',
+    permalink: 'permalink/s',
+    name: 'Towards Data Science',
+    type: SourceType.Machine,
+    image:
+      'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
+    public: false,
+  },
+  upvoted: false,
+  downvoted: false,
+  commented: false,
+  bookmarked: false,
+  commentsPermalink: 'https://localhost:5002/posts/9CuRpr5NiEY5',
+  numUpvotes: 0,
+  numComments: 0,
+};
+
 const createPostMock = (
   data: Partial<Post> = {},
 ): MockedGraphQLResponse<PostData> => ({
@@ -101,33 +132,7 @@ const createPostMock = (
   result: {
     data: {
       post: {
-        id: '0e4005b2d3cf191f8c44c2718a457a1e',
-        __typename: 'PostPage',
-        title: 'Learn SQL',
-        type: PostType.Article,
-        permalink: 'http://localhost:4000/r/9CuRpr5NiEY5',
-        image:
-          'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
-        createdAt: '2019-05-16T15:16:05.000Z',
-        readTime: 8,
-        tags: ['development', 'data-science', 'sql'],
-        source: {
-          __typename: 'Source',
-          id: 's',
-          handle: 's',
-          permalink: 'permalink/s',
-          name: 'Towards Data Science',
-          type: SourceType.Machine,
-          image:
-            'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
-        },
-        upvoted: false,
-        downvoted: false,
-        commented: false,
-        bookmarked: false,
-        commentsPermalink: 'https://localhost:5002/posts/9CuRpr5NiEY5',
-        numUpvotes: 0,
-        numComments: 0,
+        ...(defaultPost as Post),
         ...data,
       },
     },
@@ -159,6 +164,7 @@ const createCommentsMock = (): MockedGraphQLResponse<PostCommentsData> => ({
 });
 
 let client: QueryClient;
+const trackEvent = jest.fn();
 
 const renderPost = (
   props: Partial<Props> = {},
@@ -186,7 +192,16 @@ const renderPost = (
       }}
       settings={createTestSettings()}
     >
-      {getMainLayout(<PostPage {...defaultProps} {...props} />)}
+      <AnalyticsContext.Provider
+        value={{
+          trackEvent,
+          trackEventStart: jest.fn(),
+          trackEventEnd: jest.fn(),
+          sendBeacon: jest.fn(),
+        }}
+      >
+        {getMainLayout(<PostPage {...defaultProps} {...props} />)}
+      </AnalyticsContext.Provider>
     </TestBootProvider>,
   );
 };
@@ -870,7 +885,7 @@ describe('downvote flow', () => {
 describe('collection', () => {
   let viewPostMutationCalled = false;
 
-  it('should track page view', async () => {
+  it('should track post view', async () => {
     renderPost(
       {},
       [
@@ -904,5 +919,21 @@ describe('collection', () => {
     await waitFor(() => {
       expect(viewPostMutationCalled).toBe(true);
     });
+  });
+});
+
+describe('article', () => {
+  it('should track page view on initial load', async () => {
+    renderPost({
+      initialData: {
+        post: defaultPost as Post,
+      },
+    });
+    expect(trackEvent).toBeCalledTimes(1);
+    expect(trackEvent).toBeCalledWith(
+      expect.objectContaining({
+        event_name: 'article page view',
+      }),
+    );
   });
 });
