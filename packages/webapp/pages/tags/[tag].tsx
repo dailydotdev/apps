@@ -176,12 +176,20 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
         </div>
         <div className="flex flex-row gap-3">
           {tagStatus !== 'blocked' && (
-            <Button variant={ButtonVariant.Primary} {...followButtonProps}>
+            <Button
+              variant={ButtonVariant.Primary}
+              {...followButtonProps}
+              aria-label={tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
+            >
               {tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
             </Button>
           )}
           {tagStatus !== 'followed' && (
-            <Button variant={ButtonVariant.Float} {...blockButtonProps}>
+            <Button
+              variant={ButtonVariant.Float}
+              {...blockButtonProps}
+              aria-label={tagStatus === 'blocked' ? 'Unblock' : 'Block'}
+            >
               {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
             </Button>
           )}
@@ -235,7 +243,7 @@ export async function getStaticProps({
         value: params.tag,
       },
     );
-
+    console.log(result);
     if (result.keyword) {
       initialData = result.keyword;
     }
