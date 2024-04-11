@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import {
   BOOKMARKS_FEED_QUERY,
   SEARCH_BOOKMARKS_QUERY,
@@ -102,7 +103,9 @@ export default function BookmarkFeedLayout({
       <FeedPageHeader className="mb-5">
         <h3 className="font-bold typo-callout">Bookmarks</h3>
       </FeedPageHeader>
-      <CustomFeedHeader className="mb-6 flex px-4">
+      <CustomFeedHeader
+        className={classNames('mb-6 flex', shouldUseMobileFeedLayout && 'px-4')}
+      >
         {searchChildren}
         {shareBookmarksButton('hidden laptop:flex ml-4', 'Share bookmarks')}
         {shareBookmarksButton('flex laptop:hidden ml-4')}

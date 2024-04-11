@@ -47,6 +47,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import classNames from 'classnames';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -86,7 +87,7 @@ const RecommendedTags = ({ tag, blockedTags }): ReactElement => {
       {recommendedTags?.recommendedTags?.tags.length > 0 && (
         <div>
           <p className="mb-3 text-text-tertiary typo-caption1">Related tags:</p>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {recommendedTags?.recommendedTags?.tags.map((relatedTag) => (
               <TagLink key={relatedTag.name} tag={relatedTag.name} />
             ))}
@@ -178,7 +179,12 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   return (
     <MobileOrDesktopLayout>
       <NextSeo {...seo} />
-      <div className="mb-10 flex w-full flex-col gap-5 rounded-16 border border-border-subtlest-tertiary p-4">
+      <div
+        className={classNames(
+          'mb-10 flex flex-col gap-5 rounded-16 border border-border-subtlest-tertiary p-4',
+          shouldUseMobileFeedLayout ? 'mx-4 w-auto' : 'w-full',
+        )}
+      >
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
           <h1 className="ml-2 typo-title2">{title}</h1>

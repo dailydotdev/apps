@@ -117,7 +117,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   return (
     <MobileOrDesktopLayout>
       <NextSeo {...seo} />
-      <CustomFeedHeader>
+      <CustomFeedHeader className={shouldUseMobileFeedLayout && 'px-4'}>
         <img
           src={source.image}
           alt={`${source.name} logo`}
