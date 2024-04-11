@@ -10,12 +10,18 @@ import { Spaciness } from '../../graphql/settings';
 import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
 import styles from '../Feed.module.css';
-import { useFeedLayout, ToastSubject, useToastNotification } from '../../hooks';
+import {
+  useFeedLayout,
+  ToastSubject,
+  useToastNotification,
+  useConditionalFeature,
+} from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
 import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import { useReadingStreak } from '../../hooks/streaks';
+import { feature } from '../../lib/featureManagement';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -100,6 +106,10 @@ export const FeedContainer = ({
   shortcuts,
   actionButtons,
 }: FeedContainerProps): ReactElement => {
+  const { value: isShortcutsV1 } = useConditionalFeature({
+    feature: feature.onboardingMostVisited,
+    shouldEvaluate: !!shortcuts,
+  });
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
   const {
@@ -151,7 +161,12 @@ export const FeedContainer = ({
         >
           {inlineHeader && header}
           {isSearch && !shouldUseMobileFeedLayout && (
-            <span className="flex flex-1 flex-row items-center">
+            <span
+              className={classNames(
+                'flex flex-1 items-center',
+                isShortcutsV1 ? 'flex-col-reverse' : 'flex-row',
+              )}
+            >
               {!!actionButtons && (
                 <span
                   className={classNames(
@@ -165,7 +180,7 @@ export const FeedContainer = ({
               {shortcuts}
             </span>
           )}
-          {shouldUseMobileFeedLayout && shortcuts}
+          {shouldUseMobileFeedLayout && !isShortcutsV1 && shortcuts}
           <ConditionalWrapper
             condition={shouldUseMobileFeedLayout}
             wrapper={(child) => (
@@ -187,8 +202,9 @@ export const FeedContainer = ({
                     </span>
                   )}
                 >
-                  {actionButtons}
+                  {actionButtons || null}
                 </ConditionalWrapper>
+                {isShortcutsV1 && shortcuts}
                 {child}
               </div>
             )}

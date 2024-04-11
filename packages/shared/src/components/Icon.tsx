@@ -3,6 +3,7 @@ import classNames from 'classnames';
 
 export enum IconSize {
   XXSmall = 'xxsmall',
+  Size16 = 'size16',
   XSmall = 'xsmall',
   Small = 'small',
   Medium = 'medium',
@@ -14,6 +15,7 @@ export enum IconSize {
 
 export const iconSizeToClassName: Record<IconSize, string> = {
   [IconSize.XXSmall]: 'w-3 h-3',
+  [IconSize.Size16]: 'size-4',
   [IconSize.XSmall]: 'w-5 h-5',
   [IconSize.Small]: 'w-6 h-6',
   [IconSize.Medium]: 'w-7 h-7',

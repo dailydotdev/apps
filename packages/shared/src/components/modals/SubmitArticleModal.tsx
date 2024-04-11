@@ -38,6 +38,7 @@ import { Justify } from '../utilities';
 import { ReputationAlert } from './ReputationAlert';
 
 const defaultErrorMessage = 'Something went wrong, try again';
+const formTitle = 'Community picks';
 
 export default function SubmitArticleModal({
   onRequestClose,
@@ -189,7 +190,7 @@ export default function SubmitArticleModal({
   }
 
   const submitButtonProps = {
-    'aria-label': 'Submit article',
+    'aria-label': 'Submit',
     loading: isValidating,
     disabled: !enableSubmission || !isEnabled || !!existingArticle,
   };
@@ -202,11 +203,11 @@ export default function SubmitArticleModal({
       onRequestClose={onRequestClose}
       formProps={{
         form: 'submit-article',
-        title: FeedItemTitle.SubmitArticle,
+        title: formTitle,
         rightButtonProps: submitButtonProps,
       }}
     >
-      <Modal.Header title={FeedItemTitle.SubmitArticle} />
+      <Modal.Header title={formTitle} />
       <Modal.Body>
         <form
           ref={submitFormRef}
@@ -289,16 +290,14 @@ export default function SubmitArticleModal({
             type="submit"
             form="submit-article"
           >
-            <span className={isValidating ? 'invisible' : ''}>
-              Submit article
-            </span>
+            <span className={isValidating ? 'invisible' : ''}>Submit</span>
           </Button>
         )}
         {isSubmitted && (
           <Button
             className="max-w-[22.5rem] flex-1"
             variant={ButtonVariant.Primary}
-            aria-label="Close submit article modal"
+            aria-label="Close community picks modal"
             onClick={onRequestClose}
           >
             Close

@@ -14,10 +14,10 @@ export default function PostTags({ tags }: PostTagsProps): ReactElement {
     let totalLength = 0;
     return tags.reduce((acc, tag) => {
       totalLength += tag.length;
-      if (totalLength >= 15 && acc.length > 2) {
+      if (totalLength >= 12 && acc.length >= 2) {
         return acc;
       }
-      if (totalLength >= 20 && acc.length > 0) {
+      if (totalLength >= 18 && acc.length > 0) {
         return acc;
       }
 
