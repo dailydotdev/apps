@@ -153,7 +153,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   return (
     <MobileOrDesktopLayout>
       <NextSeo {...seo} />
-      <PageInfoHeader className={shouldUseMobileFeedLayout && 'px-4'}>
+      <PageInfoHeader className={shouldUseMobileFeedLayout && 'mx-4 !w-auto'}>
         <div className="flex items-center font-bold">
           <img
             src={source.image}

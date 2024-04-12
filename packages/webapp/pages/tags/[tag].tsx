@@ -49,9 +49,7 @@ import {
   GET_RECOMMENDED_TAGS_QUERY,
   TagsData,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
-import classNames from 'classnames';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -164,7 +162,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   return (
     <MobileOrDesktopLayout>
       <NextSeo {...seo} />
-      <PageInfoHeader className={shouldUseMobileFeedLayout ? 'mx-4 w-auto' : 'w-full'}>
+      <PageInfoHeader className={shouldUseMobileFeedLayout && 'mx-4 !w-auto'}>
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
           <h1 className="ml-2 typo-title2">{title}</h1>
