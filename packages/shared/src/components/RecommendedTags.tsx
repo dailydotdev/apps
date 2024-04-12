@@ -15,7 +15,7 @@ export const RecommendedTags = ({
     return (
       <div>
         <ElementPlaceholder className="mb-3 h-4 w-1/5 rounded-12" />
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-2">
           <ElementPlaceholder className="h-6 w-12 rounded-8" />
           <ElementPlaceholder className="h-6 w-12 rounded-8" />
           <ElementPlaceholder className="h-6 w-12 rounded-8" />
