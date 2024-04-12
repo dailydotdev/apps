@@ -104,6 +104,7 @@ export enum RequestKey {
   Feature = 'feature',
   AccountNavigation = 'account_navigation',
   RecommendedTags = 'recommended_tags',
+  SourceRelatedTags = 'source_related_tags',
 }
 
 export type HasConnection<

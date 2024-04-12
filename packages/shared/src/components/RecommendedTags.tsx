@@ -24,7 +24,7 @@ export const RecommendedTags = ({
     );
   }
 
-  if (tags.length === 0) {
+  if (!tags || tags.length === 0) {
     return null;
   }
 
