@@ -13,6 +13,8 @@ export enum FeedPagesWithMobileLayout {
   Upvoted = 'upvoted',
   Discussed = 'discussed',
   Bookmarks = 'bookmarks',
+  UserPosts = 'user-posts',
+  UserUpvoted = 'user-upvoted',
 }
 
 export const FeedLayoutMobileFeedPages = new Set(
@@ -22,11 +24,11 @@ export const FeedLayoutMobileFeedPages = new Set(
 export const useFeedLayout = (): UseFeedLayout => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
+  const isUserProfileFeed =
+    feedName === OtherFeedPage.UserPosts ||
+    feedName === OtherFeedPage.UserUpvoted;
 
   return {
-    shouldUseMobileFeedLayout:
-      !isLaptop ||
-      feedName === OtherFeedPage.UserPosts ||
-      feedName === OtherFeedPage.UserUpvoted,
+    shouldUseMobileFeedLayout: !isLaptop || isUserProfileFeed,
   };
 };
