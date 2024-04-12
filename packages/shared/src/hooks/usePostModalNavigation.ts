@@ -1,4 +1,5 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { Post, PostType } from '../graphql/posts';
 import { postAnalyticsEvent } from '../lib/feed';
@@ -31,6 +32,7 @@ export const usePostModalNavigation = (
   updatePost: UpdateFeedPost,
   canFetchMore: boolean,
 ): UsePostModalNavigation => {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState<string>();
   const isExtension = checkIsExtension();
   const [openedPostIndex, setOpenedPostIndex] = useState<number>(null);
@@ -87,11 +89,20 @@ export const usePostModalNavigation = (
   };
 
   useEffect(() => {
+    router.events.on('routeChangeStart', onCloseModal);
+
+    return () => {
+      router.events.off('routeChangeStart', onCloseModal);
+    };
+  }, [onCloseModal, router.events]);
+
+  useEffect(() => {
     if (isExtension) {
       return null;
     }
 
     const onPopState = () => {
+      console.log('popstate trigger');
       const url = new URL(window.location.href);
       if (url.pathname.indexOf('/posts/') !== 0) {
         onCloseModal(true);
