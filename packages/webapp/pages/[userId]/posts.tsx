@@ -6,8 +6,6 @@ import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { MyProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/MyProfileEmptyScreen';
 import { ProfileEmptyScreen } from '@dailydotdev/shared/src/components/profile/ProfileEmptyScreen';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
-import classNames from 'classnames';
 import {
   getLayout as getProfileLayout,
   getStaticPaths as getProfileStaticPaths,
@@ -21,7 +19,6 @@ export const getStaticPaths = getProfileStaticPaths;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePostsPage = ({ user }: ProfileLayoutProps): ReactElement => {
   const { user: loggedUser } = useContext(AuthContext);
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const isSameUser = loggedUser?.id === user.id;
 
   const userId = user?.id;
@@ -49,12 +46,7 @@ const ProfilePostsPage = ({ user }: ProfileLayoutProps): ReactElement => {
     ),
   };
 
-  return (
-    <Feed
-      {...feedProps}
-      className={classNames('py-6', !shouldUseMobileFeedLayout && 'px-4')}
-    />
-  );
+  return <Feed {...feedProps} className="px-4 py-6" />;
 };
 
 ProfilePostsPage.getLayout = getProfileLayout;

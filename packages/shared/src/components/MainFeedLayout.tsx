@@ -11,7 +11,12 @@ import classNames from 'classnames';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
-import { CommentFeedPage, SharedFeedPage } from './utilities';
+import {
+  CommentFeedPage,
+  FeedPage,
+  FeedPageLayoutMobile,
+  SharedFeedPage,
+} from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
@@ -140,8 +145,7 @@ export default function MainFeedLayout({
   const searchVersion = useFeature(feature.searchVersion);
   const hasCommentFeed = useFeature(feature.commentFeed);
   const { isUpvoted, isPopular, isSortableFeed } = useFeedName({ feedName });
-  const { shouldUseMobileFeedLayout, FeedPageLayoutComponent } =
-    useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);
   const [isPreviewFeedEnabled, setPreviewFeedEnabled] = useState(false);
   const shouldUseCommentFeedLayout =
@@ -281,9 +285,12 @@ export default function MainFeedLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
+  const MobileOrDesktopLayout = shouldUseMobileFeedLayout
+    ? FeedPageLayoutMobile
+    : FeedPage;
   const FeedPageComponent = shouldUseCommentFeedLayout
     ? CommentFeedPage
-    : FeedPageLayoutComponent;
+    : MobileOrDesktopLayout;
 
   const disableTopPadding =
     isFinder || shouldUseMobileFeedLayout || shouldUseCommentFeedLayout;
