@@ -100,7 +100,7 @@ export const usePostModalNavigation = (
     return () => {
       router.events.off('routeChangeStart', routeHandler);
     };
-  }, [router.events]);
+  }, [onCloseModal, router.events]);
 
   useEffect(() => {
     if (isExtension) {
