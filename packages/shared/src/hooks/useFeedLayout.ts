@@ -1,45 +1,43 @@
-import { useMemo } from 'react';
-import { SharedFeedPage } from '../components/utilities';
-import { AllFeedPages } from '../lib/query';
-import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import { useViewSize, ViewSize } from './useViewSize';
-
-interface UseFeedLayoutProps {
-  feedName?: AllFeedPages;
-  feedRelated?: boolean;
-}
+import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
+import { OtherFeedPage } from '../lib/query';
+import { FeedPage, FeedPageLayoutMobile } from '../components/utilities';
 
 interface UseFeedLayout {
   shouldUseMobileFeedLayout: boolean;
+  FeedPageLayoutComponent: React.ComponentType;
+}
+
+export enum FeedPagesWithMobileLayout {
+  MyFeed = 'my-feed',
+  Popular = 'popular',
+  Search = 'search',
+  Upvoted = 'upvoted',
+  Discussed = 'discussed',
+  Bookmarks = 'bookmarks',
+  UserPosts = 'user-posts',
+  UserUpvoted = 'user-upvoted',
 }
 
 export const FeedLayoutMobileFeedPages = new Set(
-  Object.values(SharedFeedPage).filter(
-    (feedPage) => feedPage !== SharedFeedPage.Search,
-  ),
+  Object.values(FeedPagesWithMobileLayout),
 );
 
-const checkShouldUseMobileFeedLayout = (feedName: SharedFeedPage): boolean =>
-  FeedLayoutMobileFeedPages.has(feedName) && feedName !== SharedFeedPage.Search;
-
-export const useFeedLayout = ({
-  feedName: feedNameProp,
-  feedRelated = true,
-}: UseFeedLayoutProps = {}): UseFeedLayout => {
-  const { feedName } = useActiveFeedNameContext();
+export const useFeedLayout = (): UseFeedLayout => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const name = (feedNameProp ?? feedName) as SharedFeedPage;
-  const isIncludedFeed = useMemo(
-    () => checkShouldUseMobileFeedLayout(name),
-    [name],
-  );
+  const { feedName } = useActiveFeedNameContext();
+  const isUserProfileFeed =
+    feedName === OtherFeedPage.UserPosts ||
+    feedName === OtherFeedPage.UserUpvoted;
 
-  const isNotLaptopAndIsIncludedFeed = !isLaptop && isIncludedFeed;
-  const shouldUseMobileFeedLayout = feedRelated
-    ? isNotLaptopAndIsIncludedFeed
-    : !isLaptop;
+  const shouldUseMobileFeedLayout = !isLaptop || isUserProfileFeed;
+
+  const FeedPageLayoutComponent = shouldUseMobileFeedLayout
+    ? FeedPageLayoutMobile
+    : FeedPage;
 
   return {
     shouldUseMobileFeedLayout,
+    FeedPageLayoutComponent,
   };
 };

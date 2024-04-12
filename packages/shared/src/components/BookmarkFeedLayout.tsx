@@ -6,19 +6,21 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import {
   BOOKMARKS_FEED_QUERY,
   SEARCH_BOOKMARKS_QUERY,
   supportedTypesForPrivateSources,
 } from '../graphql/feed';
 import AuthContext from '../contexts/AuthContext';
-import { CustomFeedHeader, FeedPage, FeedPageHeader } from './utilities';
+import { CustomFeedHeader, FeedPageHeader } from './utilities';
 import SearchEmptyScreen from './SearchEmptyScreen';
 import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button, ButtonVariant } from './buttons/Button';
 import { ShareIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
+import { useFeedLayout } from '../hooks';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -39,6 +41,8 @@ export default function BookmarkFeedLayout({
   searchChildren,
   children,
 }: BookmarkFeedLayoutProps): ReactElement {
+  const { shouldUseMobileFeedLayout, FeedPageLayoutComponent } =
+    useFeedLayout();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
@@ -86,12 +90,14 @@ export default function BookmarkFeedLayout({
   );
 
   return (
-    <FeedPage>
+    <FeedPageLayoutComponent>
       {children}
       <FeedPageHeader className="mb-5">
         <h3 className="font-bold typo-callout">Bookmarks</h3>
       </FeedPageHeader>
-      <CustomFeedHeader className="mb-6 flex">
+      <CustomFeedHeader
+        className={classNames('mb-6 flex', shouldUseMobileFeedLayout && 'px-4')}
+      >
         {searchChildren}
         {shareBookmarksButton('hidden laptop:flex ml-4', 'Share bookmarks')}
         {shareBookmarksButton('flex laptop:hidden ml-4')}
@@ -104,6 +110,6 @@ export default function BookmarkFeedLayout({
         />
       )}
       {tokenRefreshed && <Feed {...feedProps} />}
-    </FeedPage>
+    </FeedPageLayoutComponent>
   );
 }
