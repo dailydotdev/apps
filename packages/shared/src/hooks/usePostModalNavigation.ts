@@ -102,7 +102,6 @@ export const usePostModalNavigation = (
     }
 
     const onPopState = () => {
-      console.log('popstate trigger');
       const url = new URL(window.location.href);
       if (url.pathname.indexOf('/posts/') !== 0) {
         onCloseModal(true);
