@@ -107,3 +107,18 @@ export const SOURCE_RELATED_TAGS_QUERY = gql`
     }
   }
 `;
+
+export const SOURCES_BY_TAG_QUERY = gql`
+  query SourcesByTag($tag: String!, $first: Int) {
+    sourcesByTag(tag: $tag, first: $first) {
+      edges {
+        node {
+          id
+          name
+          image
+          permalink
+        }
+      }
+    }
+  }
+`;

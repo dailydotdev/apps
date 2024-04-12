@@ -22,6 +22,10 @@ import { waitForNock } from '../../../__tests__/helpers/utilities';
 
 const onRequestClose = jest.fn();
 
+jest.mock('../../hooks/useCopy', () => ({
+  useCopyLink: jest.fn(() => [false, jest.fn()]),
+}));
+
 beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
