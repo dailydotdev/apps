@@ -87,7 +87,8 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
   const { feedSettings } = useFeedSettings();
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseMobileFeedLayout, FeedPageLayoutComponent } =
+    useFeedLayout();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
   const title = initialData?.flags?.title || tag;
@@ -155,12 +156,8 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
     },
   };
 
-  const MobileOrDesktopLayout = shouldUseMobileFeedLayout
-    ? FeedPageLayoutMobile
-    : FeedPage;
-
   return (
-    <MobileOrDesktopLayout>
+    <FeedPageLayoutComponent>
       <NextSeo {...seo} />
       <PageInfoHeader className={shouldUseMobileFeedLayout && 'mx-4 !w-auto'}>
         <div className="flex items-center font-bold">
@@ -207,7 +204,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
         query={TAG_FEED_QUERY}
         variables={queryVariables}
       />
-    </MobileOrDesktopLayout>
+    </FeedPageLayoutComponent>
   );
 };
 

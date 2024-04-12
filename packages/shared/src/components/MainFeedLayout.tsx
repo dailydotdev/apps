@@ -145,7 +145,8 @@ export default function MainFeedLayout({
   const searchVersion = useFeature(feature.searchVersion);
   const hasCommentFeed = useFeature(feature.commentFeed);
   const { isUpvoted, isPopular, isSortableFeed } = useFeedName({ feedName });
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseMobileFeedLayout, FeedPageLayoutComponent } =
+    useFeedLayout();
   const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);
   const [isPreviewFeedEnabled, setPreviewFeedEnabled] = useState(false);
   const shouldUseCommentFeedLayout =
@@ -285,12 +286,9 @@ export default function MainFeedLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
-  const MobileOrDesktopLayout = shouldUseMobileFeedLayout
-    ? FeedPageLayoutMobile
-    : FeedPage;
   const FeedPageComponent = shouldUseCommentFeedLayout
     ? CommentFeedPage
-    : MobileOrDesktopLayout;
+    : FeedPageLayoutComponent;
 
   const disableTopPadding =
     isFinder || shouldUseMobileFeedLayout || shouldUseCommentFeedLayout;

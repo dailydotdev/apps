@@ -1,9 +1,11 @@
 import { useViewSize, ViewSize } from './useViewSize';
 import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import { OtherFeedPage } from '../lib/query';
+import { FeedPage, FeedPageLayoutMobile } from '../components/utilities';
 
 interface UseFeedLayout {
   shouldUseMobileFeedLayout: boolean;
+  FeedPageLayoutComponent: React.ComponentType;
 }
 
 export enum FeedPagesWithMobileLayout {
@@ -28,7 +30,14 @@ export const useFeedLayout = (): UseFeedLayout => {
     feedName === OtherFeedPage.UserPosts ||
     feedName === OtherFeedPage.UserUpvoted;
 
+  const shouldUseMobileFeedLayout = !isLaptop || isUserProfileFeed;
+
+  const FeedPageLayoutComponent = shouldUseMobileFeedLayout
+    ? FeedPageLayoutMobile
+    : FeedPage;
+
   return {
-    shouldUseMobileFeedLayout: !isLaptop || isUserProfileFeed,
+    shouldUseMobileFeedLayout,
+    FeedPageLayoutComponent,
   };
 };

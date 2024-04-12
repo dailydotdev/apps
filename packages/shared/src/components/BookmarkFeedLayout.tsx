@@ -46,7 +46,8 @@ export default function BookmarkFeedLayout({
   searchChildren,
   children,
 }: BookmarkFeedLayoutProps): ReactElement {
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseMobileFeedLayout, FeedPageLayoutComponent } =
+    useFeedLayout();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
@@ -93,12 +94,8 @@ export default function BookmarkFeedLayout({
     </Button>
   );
 
-  const MobileOrDesktopLayout = shouldUseMobileFeedLayout
-    ? FeedPageLayoutMobile
-    : FeedPage;
-
   return (
-    <MobileOrDesktopLayout>
+    <FeedPageLayoutComponent>
       {children}
       <FeedPageHeader className="mb-5">
         <h3 className="font-bold typo-callout">Bookmarks</h3>
@@ -118,6 +115,6 @@ export default function BookmarkFeedLayout({
         />
       )}
       {tokenRefreshed && <Feed {...feedProps} />}
-    </MobileOrDesktopLayout>
+    </FeedPageLayoutComponent>
   );
 }

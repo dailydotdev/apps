@@ -97,7 +97,8 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     }),
     [source?.id],
   );
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseMobileFeedLayout, FeedPageLayoutComponent } =
+    useFeedLayout();
   const { feedSettings } = useFeedSettings();
   const { onFollowSource, onUnfollowSource } = useTagAndSource({
     origin: Origin.SourcePage,
@@ -146,12 +147,8 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     variant: ButtonVariant.Float,
   };
 
-  const MobileOrDesktopLayout = shouldUseMobileFeedLayout
-    ? FeedPageLayoutMobile
-    : FeedPage;
-
   return (
-    <MobileOrDesktopLayout>
+    <FeedPageLayoutComponent>
       <NextSeo {...seo} />
       <PageInfoHeader className={shouldUseMobileFeedLayout && 'mx-4 !w-auto'}>
         <div className="flex items-center font-bold">
@@ -186,7 +183,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         query={SOURCE_FEED_QUERY}
         variables={queryVariables}
       />
-    </MobileOrDesktopLayout>
+    </FeedPageLayoutComponent>
   );
 };
 
