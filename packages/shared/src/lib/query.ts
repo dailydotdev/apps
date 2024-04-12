@@ -22,6 +22,7 @@ export enum OtherFeedPage {
   Preview = 'preview',
   Author = 'author',
   UserUpvoted = 'user-upvoted',
+  UserPosts = 'user-posts',
   History = 'history',
   Notifications = 'notifications',
 }
