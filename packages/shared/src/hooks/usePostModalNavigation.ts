@@ -14,6 +14,7 @@ import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { useKeyboardNavigation } from './useKeyboardNavigation';
 import { Origin } from '../lib/analytics';
 import { checkIsExtension } from '../lib/func';
+import { isTesting } from '../lib/constants';
 
 export enum PostPosition {
   First = 'first',
@@ -102,6 +103,9 @@ export const usePostModalNavigation = (
   );
 
   useEffect(() => {
+    if (isTesting) {
+      return;
+    }
     const routeHandler = (newRoute: string) => {
       if (newRoute.includes('/posts/')) {
         return;
