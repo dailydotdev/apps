@@ -89,6 +89,11 @@ const useMenuItems = (): NavItemProps[] => {
         isHeader: true,
       },
       {
+        label: 'Community picks',
+        icon: <DocsIcon />,
+        onClick: () => openModal({ type: LazyModal.SubmitArticle }),
+      },
+      {
         label: 'Suggest new source',
         icon: <EmbedIcon />,
         onClick: () => openModal({ type: LazyModal.NewSource }),
