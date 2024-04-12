@@ -81,6 +81,7 @@ export interface Source {
   public: boolean;
   headerImage?: string;
   color?: string;
+  description?: string;
 }
 
 export type SourceData = { source: Source };
@@ -92,6 +93,17 @@ export const SOURCE_QUERY = gql`
       image
       name
       type
+      description
+    }
+  }
+`;
+
+export const SOURCE_RELATED_TAGS_QUERY = gql`
+  query RelatedTags($sourceId: ID!) {
+    relatedTags(sourceId: $sourceId) {
+      tags: hits {
+        name
+      }
     }
   }
 `;

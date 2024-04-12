@@ -27,10 +27,15 @@ import {
 import {
   FeedPage,
   FeedPageLayoutMobile,
+  PageInfoHeader,
 } from '@dailydotdev/shared/src/components/utilities';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { OtherFeedPage, RequestKey } from '@dailydotdev/shared/src/lib/query';
+import {
+  OtherFeedPage,
+  RequestKey,
+  StaleTime,
+} from '@dailydotdev/shared/src/lib/query';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import {
   KEYWORD_QUERY,
@@ -38,7 +43,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/keywords';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
 import { useQuery } from '@tanstack/react-query';
 import request from 'graphql-request';
 import {
@@ -48,13 +52,14 @@ import {
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import classNames from 'classnames';
+import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 type TagPageProps = { tag: string; initialData: Keyword };
 
-const RecommendedTags = ({ tag, blockedTags }): ReactElement => {
+const TagRecommendedTags = ({ tag, blockedTags }): ReactElement => {
   const { data: recommendedTags, isLoading } = useQuery(
     [RequestKey.RecommendedTags, null, tag],
     async () =>
@@ -66,35 +71,15 @@ const RecommendedTags = ({ tag, blockedTags }): ReactElement => {
       }),
     {
       enabled: !!tag,
+      staleTime: StaleTime.OneHour,
     },
   );
 
-  if (isLoading) {
-    return (
-      <div>
-        <ElementPlaceholder className="mb-3 h-4 w-1/5 rounded-12" />
-        <div className="flex gap-2">
-          <ElementPlaceholder className="h-6 w-12 rounded-8" />
-          <ElementPlaceholder className="h-6 w-12 rounded-8" />
-          <ElementPlaceholder className="h-6 w-12 rounded-8" />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <>
-      {recommendedTags?.recommendedTags?.tags.length > 0 && (
-        <div>
-          <p className="mb-3 text-text-tertiary typo-caption1">Related tags:</p>
-          <div className="flex flex-wrap gap-2">
-            {recommendedTags?.recommendedTags?.tags.map((relatedTag) => (
-              <TagLink key={relatedTag.name} tag={relatedTag.name} />
-            ))}
-          </div>
-        </div>
-      )}
-    </>
+    <RecommendedTags
+      isLoading={isLoading}
+      tags={recommendedTags?.recommendedTags?.tags}
+    />
   );
 };
 
@@ -179,12 +164,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   return (
     <MobileOrDesktopLayout>
       <NextSeo {...seo} />
-      <div
-        className={classNames(
-          'mb-10 flex flex-col gap-5 rounded-16 border border-border-subtlest-tertiary p-4',
-          shouldUseMobileFeedLayout ? 'mx-4 w-auto' : 'w-full',
-        )}
-      >
+      <PageInfoHeader className={shouldUseMobileFeedLayout ? 'mx-4 w-auto' : 'w-full'}>
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
           <h1 className="ml-2 typo-title2">{title}</h1>
@@ -213,9 +193,12 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
           <p className="typo-body">{initialData?.flags?.description}</p>
         )}
         {tag && (
-          <RecommendedTags tag={tag} blockedTags={feedSettings?.blockedTags} />
+          <TagRecommendedTags
+            tag={tag}
+            blockedTags={feedSettings?.blockedTags}
+          />
         )}
-      </div>
+      </PageInfoHeader>
       <Feed
         feedName={OtherFeedPage.Tag}
         feedQueryKey={[

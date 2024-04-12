@@ -13,6 +13,7 @@ import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import {
   Source,
   SOURCE_QUERY,
+  SOURCE_RELATED_TAGS_QUERY,
   SourceData,
 } from '@dailydotdev/shared/src/graphql/sources';
 import request from 'graphql-request';
@@ -25,26 +26,60 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  CustomFeedHeader,
   FeedPage,
   FeedPageLayoutMobile,
+  PageInfoHeader,
 } from '@dailydotdev/shared/src/components/utilities';
 import { PlusIcon, BlockIcon } from '@dailydotdev/shared/src/components/icons';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
-import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
+import {
+  OtherFeedPage,
+  RequestKey,
+  StaleTime,
+} from '@dailydotdev/shared/src/lib/query';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { SourceSubscribeButton } from '@dailydotdev/shared/src/components';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import { useQuery } from '@tanstack/react-query';
+import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
+import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
 
 type SourcePageProps = { source: Source };
+
+const SourceRelatedTags = ({
+  sourceId,
+}: {
+  sourceId: string;
+}): ReactElement => {
+  const { data: relatedTags, isLoading } = useQuery(
+    [RequestKey.SourceRelatedTags, null, sourceId],
+    async () =>
+      await request<{
+        relatedTags: TagsData;
+      }>(graphqlUrl, SOURCE_RELATED_TAGS_QUERY, {
+        sourceId,
+      }),
+    {
+      enabled: !!sourceId,
+      staleTime: StaleTime.OneHour,
+    },
+  );
+
+  return (
+    <RecommendedTags
+      isLoading={isLoading}
+      tags={relatedTags?.relatedTags?.tags}
+    />
+  );
+};
 
 const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
@@ -91,6 +126,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     title: `${source.name} posts on daily.dev`,
     openGraph: { ...defaultOpenGraph },
     ...defaultSeo,
+    description: source?.description || defaultSeo.description,
   };
 
   const buttonProps: ButtonProps<'button'> = {
@@ -117,25 +153,29 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   return (
     <MobileOrDesktopLayout>
       <NextSeo {...seo} />
-      <CustomFeedHeader className={shouldUseMobileFeedLayout && 'px-4'}>
-        <img
-          src={source.image}
-          alt={`${source.name} logo`}
-          className="mr-2 h-6 w-6 rounded-full"
-        />
-        <span className="mr-auto">{source.name}</span>
-        <Button
-          className="laptop:hidden"
-          {...buttonProps}
-          aria-label={unfollowingSource ? 'Follow' : 'Block'}
-        />
-        {!unfollowingSource && (
-          <SourceSubscribeButton className="ml-3 laptop:mr-3" source={source} />
+      <PageInfoHeader className={shouldUseMobileFeedLayout && 'px-4'}>
+        <div className="flex items-center font-bold">
+          <img
+            src={source.image}
+            alt={`${source.name} logo`}
+            className="size-10 rounded-full"
+          />
+          <h1 className="ml-2 typo-title2">{source.name}</h1>
+        </div>
+        <div className="flex flex-row gap-3">
+          {!unfollowingSource && <SourceSubscribeButton source={source} />}
+          <Button
+            {...buttonProps}
+            aria-label={unfollowingSource ? 'Follow' : 'Block'}
+          >
+            {unfollowingSource ? 'Follow' : 'Block'}
+          </Button>
+        </div>
+        {source?.description && (
+          <p className="typo-body">{source?.description}</p>
         )}
-        <Button className="hidden laptop:flex" {...buttonProps}>
-          {unfollowingSource ? 'Follow' : 'Block'}
-        </Button>
-      </CustomFeedHeader>
+        <SourceRelatedTags sourceId={source.id} />
+      </PageInfoHeader>
       <Feed
         feedName={OtherFeedPage.Squad}
         feedQueryKey={[
