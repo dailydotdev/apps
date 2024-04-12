@@ -97,3 +97,13 @@ export const SOURCE_QUERY = gql`
     }
   }
 `;
+
+export const SOURCE_RELATED_TAGS_QUERY = gql`
+  query RelatedTags($sourceId: ID!) {
+    relatedTags(sourceId: $sourceId) {
+      tags: hits {
+        name
+      }
+    }
+  }
+`;

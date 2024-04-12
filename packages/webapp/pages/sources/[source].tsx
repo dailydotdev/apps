@@ -13,6 +13,7 @@ import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import {
   Source,
   SOURCE_QUERY,
+  SOURCE_RELATED_TAGS_QUERY,
   SourceData,
 } from '@dailydotdev/shared/src/graphql/sources';
 import request from 'graphql-request';
@@ -33,16 +34,50 @@ import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
-import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
+import {
+  OtherFeedPage,
+  RequestKey,
+  StaleTime,
+} from '@dailydotdev/shared/src/lib/query';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { SourceSubscribeButton } from '@dailydotdev/shared/src/components';
+import { useQuery } from '@tanstack/react-query';
+import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
+import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
 
 type SourcePageProps = { source: Source };
+
+const SourceRelatedTags = ({
+  sourceId,
+}: {
+  sourceId: string;
+}): ReactElement => {
+  const { data: relatedTags, isLoading } = useQuery(
+    [RequestKey.SourceRelatedTags, null, sourceId],
+    async () =>
+      await request<{
+        relatedTags: TagsData;
+      }>(graphqlUrl, SOURCE_RELATED_TAGS_QUERY, {
+        sourceId,
+      }),
+    {
+      enabled: !!sourceId,
+      staleTime: StaleTime.OneHour,
+    },
+  );
+
+  return (
+    <RecommendedTags
+      isLoading={isLoading}
+      tags={relatedTags?.relatedTags?.tags}
+    />
+  );
+};
 
 const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
@@ -133,6 +168,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         {source?.description && (
           <p className="typo-body">{source?.description}</p>
         )}
+        <SourceRelatedTags sourceId={source.id} />
       </PageInfoHeader>
       <Feed
         feedName={OtherFeedPage.Squad}
