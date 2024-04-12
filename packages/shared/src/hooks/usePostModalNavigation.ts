@@ -83,17 +83,20 @@ export const usePostModalNavigation = (
     onChangeSelected(index, fromPopState);
   };
 
-  const onCloseModal = useCallback((fromPopState = false) => {
-    setOpenedPostIndex(null);
-    setCurrentPage(undefined);
-    if (!fromPopState) {
-      window.scrollTo(0, scrollPositionOnFeed.current);
+  const onCloseModal = useCallback(
+    (fromPopState = false) => {
+      setOpenedPostIndex(null);
+      setCurrentPage(undefined);
+      if (!fromPopState) {
+        window.scrollTo(0, scrollPositionOnFeed.current);
 
-      changeHistory({}, `Feed`, currentPage);
-    }
+        changeHistory({}, `Feed`, currentPage);
+      }
 
-    scrollPositionOnFeed.current = 0;
-  }, []);
+      scrollPositionOnFeed.current = 0;
+    },
+    [changeHistory, currentPage],
+  );
 
   useEffect(() => {
     const routeHandler = (newRoute: string) => {
@@ -107,7 +110,7 @@ export const usePostModalNavigation = (
     return () => {
       router.events.off('routeChangeStart', routeHandler);
     };
-  }, [router.events]);
+  }, [onCloseModal, router.events]);
 
   useEffect(() => {
     if (isExtension) {
