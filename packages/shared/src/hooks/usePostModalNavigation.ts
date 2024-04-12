@@ -1,4 +1,11 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { Post, PostType } from '../graphql/posts';
@@ -76,7 +83,7 @@ export const usePostModalNavigation = (
     onChangeSelected(index, fromPopState);
   };
 
-  const onCloseModal = (fromPopState = false) => {
+  const onCloseModal = useCallback((fromPopState = false) => {
     setOpenedPostIndex(null);
     setCurrentPage(undefined);
     if (!fromPopState) {
@@ -86,7 +93,7 @@ export const usePostModalNavigation = (
     }
 
     scrollPositionOnFeed.current = 0;
-  };
+  }, []);
 
   useEffect(() => {
     const routeHandler = (newRoute: string) => {
@@ -100,7 +107,7 @@ export const usePostModalNavigation = (
     return () => {
       router.events.off('routeChangeStart', routeHandler);
     };
-  }, [onCloseModal, router.events]);
+  }, [router.events]);
 
   useEffect(() => {
     if (isExtension) {
