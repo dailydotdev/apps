@@ -54,6 +54,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/sources';
 import { Connection } from '@dailydotdev/shared/src/graphql/common';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
+import classNames from 'classnames';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -85,6 +86,7 @@ const TagRecommendedTags = ({ tag, blockedTags }): ReactElement => {
 };
 
 const TagTopSources = ({ tag }: { tag: string }) => {
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { data: topSources, isLoading } = useQuery(
     [RequestKey.SourceByTag, null, tag],
     async () =>
@@ -122,7 +124,12 @@ const TagTopSources = ({ tag }: { tag: string }) => {
   }
 
   return (
-    <div className="mb-10 w-full">
+    <div
+      className={classNames(
+        'mb-10 w-full',
+        shouldUseMobileFeedLayout && 'mx-4',
+      )}
+    >
       <p className="mb-3 h-10 font-bold typo-body">
         🔔 Top sources covering it
       </p>
