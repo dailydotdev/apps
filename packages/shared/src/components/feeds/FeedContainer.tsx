@@ -87,7 +87,13 @@ const getStyle = (isList: boolean, space: Spaciness): CSSProperties => {
   return {};
 };
 
-const feedNameToHeading: Record<FeedPagesWithMobileLayout, string> = {
+const feedNameToHeading: Record<
+  Exclude<
+    FeedPagesWithMobileLayout,
+    FeedPagesWithMobileLayout.UserUpvoted | FeedPagesWithMobileLayout.UserPosts
+  >,
+  string
+> = {
   search: 'Search',
   'my-feed': 'For you',
   popular: 'Popular',

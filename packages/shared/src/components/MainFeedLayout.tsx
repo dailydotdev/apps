@@ -11,12 +11,7 @@ import classNames from 'classnames';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
-import {
-  CommentFeedPage,
-  FeedPage,
-  FeedPageLayoutMobile,
-  SharedFeedPage,
-} from './utilities';
+import { CommentFeedPage, SharedFeedPage } from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,

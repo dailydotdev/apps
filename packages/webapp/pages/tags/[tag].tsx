@@ -24,11 +24,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  FeedPage,
-  FeedPageLayoutMobile,
-  PageInfoHeader,
-} from '@dailydotdev/shared/src/components/utilities';
+import { PageInfoHeader } from '@dailydotdev/shared/src/components/utilities';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import {

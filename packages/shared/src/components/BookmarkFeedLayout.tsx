@@ -13,12 +13,7 @@ import {
   supportedTypesForPrivateSources,
 } from '../graphql/feed';
 import AuthContext from '../contexts/AuthContext';
-import {
-  CustomFeedHeader,
-  FeedPage,
-  FeedPageHeader,
-  FeedPageLayoutMobile,
-} from './utilities';
+import { CustomFeedHeader, FeedPageHeader } from './utilities';
 import SearchEmptyScreen from './SearchEmptyScreen';
 import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
