@@ -17,6 +17,7 @@ interface LinkAsQuery {
 
 interface UseGetShortUrlResult {
   getShortUrl: (url: string, cid?: ReferralCampaignKey) => Promise<string>;
+  getTrackedUrl: (url: string, cid?: ReferralCampaignKey) => string;
   shareLink: string;
   isLoading: boolean;
 }
@@ -70,6 +71,14 @@ export const useGetShortUrl = ({
     [isAuthReady, user, getProps, queryClient],
   );
 
+  const getTrackedUrl = useCallback(
+    (url: string, cid?: ReferralCampaignKey) => {
+      const { trackedUrl } = getProps(url, cid);
+      return trackedUrl;
+    },
+    [getProps],
+  );
+
   const isEnabled = query?.enabled ?? true;
   const { queryKey, trackedUrl } = query
     ? getProps(query.url, query.cid)
@@ -84,5 +93,5 @@ export const useGetShortUrl = ({
     },
   );
 
-  return { getShortUrl, shareLink, isLoading };
+  return { getShortUrl, getTrackedUrl, shareLink, isLoading };
 };

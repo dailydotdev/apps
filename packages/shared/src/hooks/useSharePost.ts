@@ -21,7 +21,7 @@ export function useSharePost(origin: Origin): {
   const [, copyLink] = useCopyPostLink();
   const [sharePostFeedLocation, setSharePostFeedLocation] =
     useState<FeedItemPosition>({});
-  const { getShortUrl } = useGetShortUrl();
+  const { getShortUrl, getTrackedUrl } = useGetShortUrl();
 
   return useMemo(
     () => ({
@@ -54,11 +54,11 @@ export function useSharePost(origin: Origin): {
             extra: { provider: ShareProvider.CopyLink, origin },
           }),
         );
-        const shortLink = await getShortUrl(
+        const trackedLink = getTrackedUrl(
           post.commentsPermalink,
           ReferralCampaignKey.SharePost,
         );
-        copyLink({ link: shortLink });
+        copyLink({ link: trackedLink, shorten: true });
       },
       openNativeSharePost: async (
         post: Post,
