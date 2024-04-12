@@ -18,9 +18,9 @@ export const FeedLayoutMobileFeedPages = new Set(
 );
 
 export const useFeedLayout = (): UseFeedLayout => {
-  const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   return {
-    shouldUseMobileFeedLayout: isMobile,
+    shouldUseMobileFeedLayout: !isLaptop,
   };
 };
