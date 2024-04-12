@@ -104,8 +104,9 @@ export const usePostModalNavigation = (
 
   useEffect(() => {
     if (isTesting) {
-      return;
+      return null;
     }
+
     const routeHandler = (newRoute: string) => {
       if (newRoute.includes('/posts/')) {
         return;
