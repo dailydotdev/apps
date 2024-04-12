@@ -5,7 +5,7 @@ import { Post, PostType } from '../graphql/posts';
 import { postAnalyticsEvent } from '../lib/feed';
 import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { useKeyboardNavigation } from './useKeyboardNavigation';
-import { Origin } from '../lib/analytics';
+import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { checkIsExtension } from '../lib/func';
 
 export enum PostPosition {
@@ -89,10 +89,16 @@ export const usePostModalNavigation = (
   };
 
   useEffect(() => {
-    router.events.on('routeChangeStart', onCloseModal);
+    const routeHandler = (newRoute: string) => {
+      if (newRoute.includes('/posts/')) {
+        return;
+      }
+      onCloseModal();
+    };
+    router.events.on('routeChangeStart', routeHandler);
 
     return () => {
-      router.events.off('routeChangeStart', onCloseModal);
+      router.events.off('routeChangeStart', routeHandler);
     };
   }, [onCloseModal, router.events]);
 
