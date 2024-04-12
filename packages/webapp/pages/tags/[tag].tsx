@@ -95,6 +95,7 @@ const TagTopSources = ({ tag }: { tag: string }) => {
         SOURCES_BY_TAG_QUERY,
         {
           tag,
+          first: 6,
         },
       ),
     {
