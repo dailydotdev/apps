@@ -61,7 +61,7 @@ export default function Settings({
   ...props
 }: HTMLAttributes<HTMLDivElement>): ReactElement {
   const isExtension = checkIsExtension();
-  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { user, showLogin } = useContext(AuthContext);
   const {
     spaciness,
