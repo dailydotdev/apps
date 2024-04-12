@@ -46,7 +46,8 @@ export function useCopyLink(
           });
           await navigator.clipboard.write([clipBoardItem]);
         } catch (e) {
-          console.error('Error copying to clipboard', e);
+          // eslint-disable-next-line no-console
+          console.warn('Error copying to clipboard', e);
         }
       }
       displayToast(props.message || defaultLinkMessage, props);
