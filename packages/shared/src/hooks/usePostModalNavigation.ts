@@ -1,4 +1,12 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useRouter } from 'next/router';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { Post, PostType } from '../graphql/posts';
 import { postAnalyticsEvent } from '../lib/feed';
@@ -6,6 +14,7 @@ import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { useKeyboardNavigation } from './useKeyboardNavigation';
 import { Origin } from '../lib/analytics';
 import { checkIsExtension } from '../lib/func';
+import { isTesting } from '../lib/constants';
 
 export enum PostPosition {
   First = 'first',
@@ -31,6 +40,7 @@ export const usePostModalNavigation = (
   updatePost: UpdateFeedPost,
   canFetchMore: boolean,
 ): UsePostModalNavigation => {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState<string>();
   const isExtension = checkIsExtension();
   const [openedPostIndex, setOpenedPostIndex] = useState<number>(null);
@@ -38,11 +48,14 @@ export const usePostModalNavigation = (
   const { trackEvent } = useContext(AnalyticsContext);
   const scrollPositionOnFeed = useRef(0);
 
-  const changeHistory = (data: unknown, title: string, url: string) => {
-    if (!isExtension) {
-      window.history.pushState(data, title, url);
-    }
-  };
+  const changeHistory = useCallback(
+    (data: unknown, title: string, url: string) => {
+      if (!isExtension) {
+        window.history.pushState(data, title, url);
+      }
+    },
+    [isExtension],
+  );
 
   const getPostItem = (index: number) =>
     index !== null && items[index].type === 'post'
@@ -74,17 +87,38 @@ export const usePostModalNavigation = (
     onChangeSelected(index, fromPopState);
   };
 
-  const onCloseModal = (fromPopState = false) => {
-    setOpenedPostIndex(null);
-    setCurrentPage(undefined);
-    if (!fromPopState) {
-      window.scrollTo(0, scrollPositionOnFeed.current);
+  const onCloseModal = useCallback(
+    (fromPopState = false) => {
+      setOpenedPostIndex(null);
+      setCurrentPage(undefined);
+      if (!fromPopState) {
+        window.scrollTo(0, scrollPositionOnFeed.current);
 
-      changeHistory({}, `Feed`, currentPage);
+        changeHistory({}, `Feed`, currentPage);
+      }
+
+      scrollPositionOnFeed.current = 0;
+    },
+    [changeHistory, currentPage],
+  );
+
+  useEffect(() => {
+    if (isTesting) {
+      return null;
     }
 
-    scrollPositionOnFeed.current = 0;
-  };
+    const routeHandler = (newRoute: string) => {
+      if (newRoute.includes('/posts/')) {
+        return;
+      }
+      onCloseModal();
+    };
+    router.events.on('routeChangeStart', routeHandler);
+
+    return () => {
+      router.events.off('routeChangeStart', routeHandler);
+    };
+  }, [onCloseModal, router.events]);
 
   useEffect(() => {
     if (isExtension) {
