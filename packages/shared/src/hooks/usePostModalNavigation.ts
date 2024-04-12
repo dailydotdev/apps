@@ -47,11 +47,14 @@ export const usePostModalNavigation = (
   const { trackEvent } = useContext(AnalyticsContext);
   const scrollPositionOnFeed = useRef(0);
 
-  const changeHistory = (data: unknown, title: string, url: string) => {
-    if (!isExtension) {
-      window.history.pushState(data, title, url);
-    }
-  };
+  const changeHistory = useCallback(
+    (data: unknown, title: string, url: string) => {
+      if (!isExtension) {
+        window.history.pushState(data, title, url);
+      }
+    },
+    [isExtension],
+  );
 
   const getPostItem = (index: number) =>
     index !== null && items[index].type === 'post'
