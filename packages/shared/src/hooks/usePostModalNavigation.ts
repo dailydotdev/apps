@@ -5,7 +5,7 @@ import { Post, PostType } from '../graphql/posts';
 import { postAnalyticsEvent } from '../lib/feed';
 import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { useKeyboardNavigation } from './useKeyboardNavigation';
-import { AnalyticsEvent, Origin } from '../lib/analytics';
+import { Origin } from '../lib/analytics';
 import { checkIsExtension } from '../lib/func';
 
 export enum PostPosition {
@@ -100,7 +100,7 @@ export const usePostModalNavigation = (
     return () => {
       router.events.off('routeChangeStart', routeHandler);
     };
-  }, [onCloseModal, router.events]);
+  }, [router.events]);
 
   useEffect(() => {
     if (isExtension) {
