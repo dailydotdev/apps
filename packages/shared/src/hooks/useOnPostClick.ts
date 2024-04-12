@@ -98,7 +98,7 @@ export default function useOnPostClick({
   const { trackEvent } = useContext(AnalyticsContext);
   const { incrementReadingRank } = useIncrementReadingRank();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
 
   const { isLowImpsEnabled } = usePostFeedback();
 

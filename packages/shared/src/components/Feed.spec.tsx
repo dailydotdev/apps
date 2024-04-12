@@ -70,7 +70,6 @@ import { removeQueryParam } from '../lib/links';
 import { SharedFeedPage } from './utilities';
 import { AllFeedPages } from '../lib/query';
 import { UserVoteEntity } from '../hooks';
-import * as hooks from '../hooks/useViewSize';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -224,9 +223,6 @@ it('should add one placeholder when loading', async () => {
 });
 
 it('should replace placeholders with posts and ad', async () => {
-  // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
-
   renderComponent();
   await waitForNock();
   const elements = await screen.findAllByTestId('postItem');
@@ -249,9 +245,6 @@ it('should replace placeholders with posts and ad', async () => {
 });
 
 it('should render feed with sorting ranking by date', async () => {
-  // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
-
   variables = { ...defaultVariables, ranking: 'TIME' };
   renderComponent(
     [createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY)],
@@ -363,9 +356,6 @@ it('should open login modal on anonymous upvote', async () => {
 });
 
 it('should send add bookmark mutation', async () => {
-  // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
-
   let mutationCalled = false;
   renderComponent([
     createFeedMock({
@@ -396,9 +386,6 @@ it('should send add bookmark mutation', async () => {
 });
 
 it('should send remove bookmark mutation', async () => {
-  // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
-
   let mutationCalled = false;
   renderComponent([
     createFeedMock({
@@ -429,9 +416,6 @@ it('should send remove bookmark mutation', async () => {
 });
 
 it('should open login modal on anonymous bookmark', async () => {
-  // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
-
   renderComponent(
     [
       createFeedMock(
@@ -458,9 +442,6 @@ it('should open login modal on anonymous bookmark', async () => {
 });
 
 it('should increase reading rank progress', async () => {
-  // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
-
   renderComponent([
     createFeedMock({
       pageInfo: defaultFeedPage.pageInfo,
@@ -520,9 +501,6 @@ it('should not increase reading rank progress when read today', async () => {
 });
 
 it('should increase reading rank progress and rank', async () => {
-  // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
-
   renderComponent([
     createFeedMock({
       pageInfo: defaultFeedPage.pageInfo,
@@ -576,9 +554,6 @@ it('should not increase reading rank progress when reached final rank', async ()
 });
 
 it('should increase reading rank progress for anonymous users', async () => {
-  // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
-
   renderComponent(
     [
       createFeedMock(
@@ -624,9 +599,6 @@ it('should increase reading rank progress for anonymous users', async () => {
 });
 
 it('should update feed item on subscription message', async () => {
-  // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
-
   renderComponent([
     createFeedMock({
       pageInfo: defaultFeedPage.pageInfo,
@@ -935,9 +907,6 @@ it('should block a tag', async () => {
 });
 
 it('should open a modal to view post details', async () => {
-  // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
-
   renderComponent();
   await waitForNock();
   const [first] = await screen.findAllByLabelText('Comments');
@@ -990,9 +959,6 @@ const createPostMock = (
 });
 
 it('should be able to navigate through posts', async () => {
-  // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
-
   const [firstPost, secondPost] = defaultFeedPage.edges;
   renderComponent();
   await waitForNock();

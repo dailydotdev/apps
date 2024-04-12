@@ -24,7 +24,10 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { PageInfoHeader } from '@dailydotdev/shared/src/components/utilities';
+import {
+  FeedPage,
+  PageInfoHeader,
+} from '@dailydotdev/shared/src/components/utilities';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import {
@@ -45,7 +48,6 @@ import {
   GET_RECOMMENDED_TAGS_QUERY,
   TagsData,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import Link from 'next/link';
 import {
@@ -54,7 +56,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/sources';
 import { Connection } from '@dailydotdev/shared/src/graphql/common';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
-import classNames from 'classnames';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -86,7 +87,6 @@ const TagRecommendedTags = ({ tag, blockedTags }): ReactElement => {
 };
 
 const TagTopSources = ({ tag }: { tag: string }) => {
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { data: topSources, isLoading } = useQuery(
     [RequestKey.SourceByTag, null, tag],
     async () =>
@@ -124,12 +124,7 @@ const TagTopSources = ({ tag }: { tag: string }) => {
   }
 
   return (
-    <div
-      className={classNames(
-        'mb-10 w-full',
-        shouldUseMobileFeedLayout && 'mx-4',
-      )}
-    >
+    <div className="mb-10 w-full">
       <p className="mb-3 h-10 font-bold typo-body">
         🔔 Top sources covering it
       </p>
@@ -166,8 +161,6 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
   const { feedSettings } = useFeedSettings();
-  const { shouldUseMobileFeedLayout, FeedPageLayoutComponent } =
-    useFeedLayout();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
   const title = initialData?.flags?.title || tag;
@@ -236,9 +229,9 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   };
 
   return (
-    <FeedPageLayoutComponent>
+    <FeedPage>
       <NextSeo {...seo} />
-      <PageInfoHeader className={shouldUseMobileFeedLayout && 'mx-4 !w-auto'}>
+      <PageInfoHeader>
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
           <h1 className="ml-2 typo-title2">{title}</h1>
@@ -284,7 +277,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
         query={TAG_FEED_QUERY}
         variables={queryVariables}
       />
-    </FeedPageLayoutComponent>
+    </FeedPage>
   );
 };
 
