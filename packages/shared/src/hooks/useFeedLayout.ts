@@ -50,7 +50,6 @@ export const useFeedLayout = ({
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
-  console.log('feedName', feedName);
 
   const shouldUseMobileFeedLayout = feedRelated
     ? checkShouldUseMobileFeedLayout(isLaptop, feedName)
