@@ -90,7 +90,11 @@ const getStyle = (isList: boolean, space: Spaciness): CSSProperties => {
 const feedNameToHeading: Record<
   Exclude<
     FeedPagesWithMobileLayout,
-    FeedPagesWithMobileLayout.UserUpvoted | FeedPagesWithMobileLayout.UserPosts
+    | 'user-upvoted'
+    | 'user-posts'
+    | 'squads[handle]'
+    | 'tags[tag]'
+    | 'sources[source]'
   >,
   string
 > = {
