@@ -16,6 +16,7 @@ import { SharedFeedPage } from '../components/utilities';
 export enum OtherFeedPage {
   Tag = 'tag',
   Squad = 'squads',
+  SquadPage = 'squads[handle]',
   Source = 'source',
   Bookmarks = 'bookmarks',
   SearchBookmarks = 'search-bookmarks',
@@ -25,6 +26,8 @@ export enum OtherFeedPage {
   UserPosts = 'user-posts',
   History = 'history',
   Notifications = 'notifications',
+  TagPage = 'tags[tag]',
+  SourcePage = 'sources[source]',
 }
 
 const ONE_MINUTE = 60 * 1000;

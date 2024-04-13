@@ -241,7 +241,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
       <PageInfoHeader className={shouldUseMobileFeedLayout && 'mx-4 !w-auto'}>
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
-          <h1 className="ml-2 typo-title2">{title}</h1>
+          <h1 className="ml-2 w-fit typo-title2">{title}</h1>
         </div>
         <div className="flex flex-row gap-3">
           {tagStatus !== 'blocked' && (

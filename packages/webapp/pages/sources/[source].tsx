@@ -153,7 +153,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
             alt={`${source.name} logo`}
             className="size-10 rounded-full"
           />
-          <h1 className="ml-2 typo-title2">{source.name}</h1>
+          <h1 className="ml-2 w-fit typo-title2">{source.name}</h1>
         </div>
         <div className="flex flex-row gap-3">
           {!unfollowingSource && <SourceSubscribeButton source={source} />}
