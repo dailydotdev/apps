@@ -11,6 +11,7 @@ import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import {
+  SIMILAR_SOURCES_QUERY,
   Source,
   SOURCE_QUERY,
   SOURCE_RELATED_TAGS_QUERY,
@@ -33,7 +34,7 @@ import { PlusIcon, BlockIcon } from '@dailydotdev/shared/src/components/icons';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError, Connection } from '@dailydotdev/shared/src/graphql/common';
 import {
   OtherFeedPage,
   RequestKey,
@@ -45,6 +46,7 @@ import { SourceSubscribeButton } from '@dailydotdev/shared/src/components';
 import { useQuery } from '@tanstack/react-query';
 import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
+import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -75,6 +77,37 @@ const SourceRelatedTags = ({
     <RecommendedTags
       isLoading={isLoading}
       tags={relatedTags?.relatedTags?.tags}
+    />
+  );
+};
+
+const SimilarSources = ({ sourceId }: { sourceId: string }) => {
+  const { data: similarSources, isLoading } = useQuery(
+    [RequestKey.SimilarSources, null, sourceId],
+    async () =>
+      await request<{ similarSources: Connection<Source> }>(
+        graphqlUrl,
+        SIMILAR_SOURCES_QUERY,
+        {
+          sourceId,
+          first: 6,
+        },
+      ),
+    {
+      enabled: !!sourceId,
+      staleTime: StaleTime.OneHour,
+    },
+  );
+
+  const sources = similarSources?.similarSources?.edges?.map(
+    (edge) => edge.node,
+  );
+
+  return (
+    <RelatedSources
+      isLoading={isLoading}
+      sources={sources}
+      title="Similar sources"
     />
   );
 };
@@ -170,6 +203,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         )}
         <SourceRelatedTags sourceId={source.id} />
       </PageInfoHeader>
+      <SimilarSources sourceId={source.id} />
       <Feed
         feedName={OtherFeedPage.Squad}
         feedQueryKey={[
