@@ -61,6 +61,7 @@ import {
   GtagTracking,
   PixelTracking,
   TiktokTracking,
+  trackAnalyticsSignUp,
 } from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -178,6 +179,7 @@ export function OnboardPage(): ReactElement {
   };
 
   const onSuccessfulRegistration = () => {
+    trackAnalyticsSignUp();
     setActiveScreen(OnboardingStep.EditTag);
   };
 
