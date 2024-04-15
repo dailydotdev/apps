@@ -13,6 +13,7 @@ import { removeQueryParam } from '../../lib/links';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, UserAcquisitionEvent } from '../../lib/analytics';
 import { useFeedLayout } from '../../hooks';
+import { shuffle } from '../../lib/func';
 
 const options = [
   {
@@ -68,6 +69,8 @@ export function AcquisitionFormCard(): ReactElement {
       event_name: AnalyticsEvent.Impression,
       target_type: acquisitionKey,
     });
+
+    shuffle(options);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
