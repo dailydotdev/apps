@@ -42,7 +42,7 @@ export default function MigrateUserStreakModal({
           </p>
           <Image
             src={cloudinary.streak.migrate}
-            className="w-full object-cover"
+            className="w-full rounded-16 object-cover"
           />
           <Button
             tag="a"
