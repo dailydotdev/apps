@@ -21,9 +21,6 @@ export const useStreakMilestone = (): void => {
   const { openModal } = useLazyModal();
   const trackedImpression = useRef(false);
 
-  const modalType: LazyModal.FirstStreak | LazyModal.NewStreak =
-    streak?.total === 1 ? LazyModal.FirstStreak : LazyModal.NewStreak;
-
   // hide modal if settings are not loaded
   let shouldHideModal = !loadedSettings;
 
@@ -48,7 +45,7 @@ export const useStreakMilestone = (): void => {
     });
 
     openModal({
-      type: modalType,
+      type: LazyModal.NewStreak,
       props: {
         currentStreak: streak?.current,
         maxStreak: streak?.max,
@@ -70,7 +67,6 @@ export const useStreakMilestone = (): void => {
 
     trackedImpression.current = true;
   }, [
-    modalType,
     openModal,
     shouldHideModal,
     streak,
