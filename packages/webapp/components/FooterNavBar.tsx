@@ -59,7 +59,7 @@ export default function FooterNavBar({
     return active?.title;
   }, [activeNav, router?.pathname]);
 
-  const blurClasses = 'bg-blur-highlight backdrop-blur-[2.5rem]';
+  const blurClasses = 'bg-blur-baseline backdrop-blur-[2.5rem]';
   const activeClasses = classNames(
     blurClasses,
     'shadow-[0_4px_30px_rgba(0,0,0.1)]',
@@ -72,13 +72,10 @@ export default function FooterNavBar({
       className={classNames(
         'fixed !bottom-0 left-0 z-2 w-full',
         isNewMobileLayout
-          ? 'footer-navbar bg-gradient-to-t from-blur-baseline via-blur-bg via-70% to-transparent px-2 pt-2'
+          ? 'footer-navbar bg-gradient-to-t from-background-subtle via-background-subtle via-70% to-transparent px-2 pt-2'
           : post && 'bg-blur-bg backdrop-blur-20',
       )}
     >
-      {isNewMobileLayout && (
-        <div className="absolute bottom-0 left-0 right-0 h-[calc(100%-1.25rem)] backdrop-blur-[2.5rem]" />
-      )}
       {post ? (
         <div className="my-2 w-full px-2 tablet:hidden">
           <NewComment
