@@ -72,7 +72,7 @@ export default function FooterNavBar({
       className={classNames(
         'fixed !bottom-0 left-0 z-2 w-full',
         isNewMobileLayout
-          ? 'footer-navbar bg-gradient-to-t from-background-subtle via-background-subtle via-70% to-transparent px-2 pt-2'
+          ? 'footer-navbar bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2'
           : post && 'bg-blur-bg backdrop-blur-20',
       )}
     >
