@@ -60,6 +60,8 @@ import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   GtagTracking,
   PixelTracking,
+  TiktokTracking,
+  trackAnalyticsSignUp,
 } from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
@@ -177,6 +179,7 @@ export function OnboardPage(): ReactElement {
   };
 
   const onSuccessfulRegistration = () => {
+    trackAnalyticsSignUp();
     setActiveScreen(OnboardingStep.EditTag);
   };
 
@@ -393,6 +396,7 @@ export function OnboardPage(): ReactElement {
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <PixelTracking />
       <GtagTracking />
+      <TiktokTracking />
       {getProgressBar()}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}

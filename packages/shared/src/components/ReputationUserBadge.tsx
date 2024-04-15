@@ -32,7 +32,7 @@ export const ReputationUserBadge = ({
       content="Reputation"
       placement="bottom"
     >
-      <div>
+      <div className="flex items-center">
         <UserBadge
           {...rest}
           className={classNames(className, 'text-text-primary')}
