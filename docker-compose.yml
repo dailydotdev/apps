@@ -7,7 +7,7 @@ volumes:
 
 services:
   daily-redis:
-    image: redis:5.0.10
+    image: redis:6
     healthcheck:
       test: redis-cli ping
       interval: 1s
@@ -20,7 +20,7 @@ services:
       - "6379:6379"
 
   daily-postgres:
-    image: postgres:11.6-alpine
+    image: postgres:15.4-alpine
     healthcheck:
       test: pg_isready -U postgres -d $$POSTGRES_DB
       interval: 1s
