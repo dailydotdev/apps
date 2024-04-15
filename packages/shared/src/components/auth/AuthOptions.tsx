@@ -199,6 +199,7 @@ function AuthOptions({
       onSetActiveDisplay(AuthDisplay.EmailVerification);
     },
     onValidRegistration: async () => {
+      trackAnalyticsSignUp();
       setIsRegistration(true);
       const { data } = await refetchBoot();
 
@@ -249,7 +250,6 @@ function AuthOptions({
 
   const isReady = isTesting ? true : isLoginReady && isRegistrationReady;
   const onProviderClick = (provider: string, login = true) => {
-    trackAnalyticsSignUp();
     trackEvent({
       event_name: 'click',
       target_type: login
