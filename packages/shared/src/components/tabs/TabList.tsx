@@ -1,11 +1,22 @@
 import classNames from 'classnames';
-import React, { ReactElement, useCallback, useEffect, useRef } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
 interface ClassName {
   indicator?: string;
   item?: string;
 }
 
+interface DimensionProps {
+  activeTabRect?: DOMRect;
+  offset: number;
+  indicatorOffset: number;
+}
 export interface TabListProps {
   items: string[];
   active: string;
@@ -23,11 +34,13 @@ function TabList({
 }: TabListProps): ReactElement {
   const hasActive = items.includes(active);
   const currentActiveTab = useRef<HTMLButtonElement>(null);
-  const activeTabRect = currentActiveTab.current?.getBoundingClientRect();
-  const offset = activeTabRect ? currentActiveTab?.current.offsetLeft : 0;
-  const indicatorOffset = activeTabRect ? activeTabRect.width / 2 + offset : 0;
+  const [dimensions, setDimensions] = useState<DimensionProps>({
+    offset: 0,
+    indicatorOffset: 0,
+  });
 
   const scrollIfNotInView = useCallback(() => {
+    const { activeTabRect, offset } = dimensions;
     if (autoScrollActive && currentActiveTab.current) {
       if (!activeTabRect) {
         return;
@@ -47,11 +60,39 @@ function TabList({
         });
       }
     }
-  }, [autoScrollActive, activeTabRect, offset]);
+  }, [autoScrollActive, dimensions]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // get the active tab's rect and offset so that we can position the indicator
+    const activeTabRect = currentActiveTab.current?.getBoundingClientRect();
+    const offset = activeTabRect ? currentActiveTab?.current.offsetLeft : 0;
+    const indicatorOffset = activeTabRect
+      ? activeTabRect.width / 2 + offset
+      : 0;
+
+    setDimensions((current) => {
+      if (
+        current.activeTabRect === activeTabRect &&
+        current.offset === offset &&
+        current.indicatorOffset === indicatorOffset
+      ) {
+        return current;
+      }
+
+      return {
+        ...current,
+        activeTabRect,
+        offset,
+        indicatorOffset,
+      };
+    });
+  }, [active, setDimensions]);
+
+  useLayoutEffect(() => {
     scrollIfNotInView();
   }, [scrollIfNotInView]);
+
+  const { indicatorOffset } = dimensions;
 
   return (
     <ul className="relative flex flex-row">
