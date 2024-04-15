@@ -62,42 +62,49 @@ function FeedNav(): ReactElement {
       )}
     >
       {isMobile && <MobileFeedActions />}
-      <TabContainer
-        controlledActive={urlToTab[router.asPath] ?? ''}
-        shouldMountInactive
-        className={{
-          header: classNames(
-            'no-scrollbar overflow-x-auto px-2',
-            isSortableFeed && sortingEnabled && 'pr-28',
-          ),
-        }}
-        tabListProps={{
-          className: { indicator: '!w-6', item: 'px-1' },
-          autoScrollActive: true,
-        }}
-      >
-        {Object.entries(urlToTab).map(([url, label]) => (
-          // key is assigned automatically in the Tab component
-          // eslint-disable-next-line react/jsx-key
-          <Tab label={label} url={url} />
-        ))}
-      </TabContainer>
-      {isMobile && sortingEnabled && isSortableFeed && (
-        <div className="fixed flex h-11 w-20 -translate-y-12 translate-x-[calc(100vw-100%)] items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4">
-          <Dropdown
-            className={{ label: 'hidden', chevron: 'hidden', button: '!px-1' }}
-            dynamicMenuWidth
-            shouldIndicateSelected
-            buttonSize={ButtonSize.Small}
-            buttonVariant={ButtonVariant.Tertiary}
-            icon={<SortIcon size={IconSize.Medium} />}
-            selectedIndex={selectedAlgo}
-            options={algorithmsList}
-            onChange={(_, index) => setSelectedAlgo(index)}
-            drawerProps={{ displayCloseButton: true }}
-          />
-        </div>
-      )}
+      <div className="mb-4 h-11">
+        <TabContainer
+          controlledActive={urlToTab[router.asPath] ?? ''}
+          shouldMountInactive
+          className={{
+            header: classNames(
+              'no-scrollbar overflow-x-auto px-2',
+              isSortableFeed && sortingEnabled && 'pr-28',
+            ),
+          }}
+          tabListProps={{
+            className: { indicator: '!w-6', item: 'px-1' },
+            autoScrollActive: true,
+          }}
+        >
+          {Object.entries(urlToTab).map(([url, label]) => (
+            // key is assigned automatically in the Tab component
+            // eslint-disable-next-line react/jsx-key
+            <Tab label={label} url={url} />
+          ))}
+        </TabContainer>
+
+        {isMobile && sortingEnabled && isSortableFeed && (
+          <div className="sticky flex h-11 w-20 -translate-y-12 translate-x-[calc(100vw-100%)] items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4">
+            <Dropdown
+              className={{
+                label: 'hidden',
+                chevron: 'hidden',
+                button: '!px-1',
+              }}
+              dynamicMenuWidth
+              shouldIndicateSelected
+              buttonSize={ButtonSize.Small}
+              buttonVariant={ButtonVariant.Tertiary}
+              icon={<SortIcon size={IconSize.Medium} />}
+              selectedIndex={selectedAlgo}
+              options={algorithmsList}
+              onChange={(_, index) => setSelectedAlgo(index)}
+              drawerProps={{ displayCloseButton: true }}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
