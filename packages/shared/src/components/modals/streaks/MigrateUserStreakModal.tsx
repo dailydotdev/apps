@@ -36,7 +36,7 @@ export default function MigrateUserStreakModal({
             <br />
             Welcome reading streaks!
           </h1>
-          <p>
+          <p className="text-text-secondary typo-body">
             Unlock the magic of consistently learning with our new reading
             streaks system
           </p>
