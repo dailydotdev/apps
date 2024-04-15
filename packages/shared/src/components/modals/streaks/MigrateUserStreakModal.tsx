@@ -5,6 +5,7 @@ import { ModalClose } from '../common/ModalClose';
 import { Pill } from '../../Pill';
 import { Image } from '../../image/Image';
 import { cloudinary } from '../../../lib/image';
+import { migrateUserToStreaks } from '../../../lib/constants';
 
 export default function MigrateUserStreakModal({
   onRequestClose,
@@ -46,7 +47,7 @@ export default function MigrateUserStreakModal({
           />
           <Button
             tag="a"
-            // href={links} awaiting product decision
+            href={migrateUserToStreaks}
             className="w-full"
             variant={ButtonVariant.Primary}
             onClick={onRequestClose}
