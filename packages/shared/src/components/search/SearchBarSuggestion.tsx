@@ -80,7 +80,7 @@ export const SearchBarSuggestion = ({
       onClick={handleSuggestionsClick}
       {...props}
     >
-      <span className="w-fit tablet:!line-clamp-1">{children}</span>
+      <span className="line-clamp-1 w-fit">{children}</span>
     </Button>
   );
 };
