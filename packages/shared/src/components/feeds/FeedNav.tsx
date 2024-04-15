@@ -62,7 +62,7 @@ function FeedNav(): ReactElement {
       )}
     >
       {isMobile && <MobileFeedActions />}
-      <div className="mb-4 h-11">
+      <div className={classNames('h-11', isMobile && 'mb-4')}>
         <TabContainer
           controlledActive={urlToTab[router.asPath] ?? ''}
           shouldMountInactive
