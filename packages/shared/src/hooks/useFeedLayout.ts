@@ -1,77 +1,45 @@
-import { useViewSize, ViewSize } from './useViewSize';
+import { useMemo } from 'react';
+import { SharedFeedPage } from '../components/utilities';
+import { AllFeedPages } from '../lib/query';
 import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
-import {
-  FeedPage,
-  FeedPageLayoutMobile,
-  SharedFeedPage,
-} from '../components/utilities';
-import { AllFeedPages, OtherFeedPage } from '../lib/query';
-
-interface UseFeedLayoutReturn {
-  shouldUseMobileFeedLayout: boolean;
-  FeedPageLayoutComponent: React.ComponentType;
-}
+import { useViewSize, ViewSize } from './useViewSize';
 
 interface UseFeedLayoutProps {
+  feedName?: AllFeedPages;
   feedRelated?: boolean;
 }
 
-export type FeedPagesWithMobileLayoutType = Exclude<
-  AllFeedPages,
-  | 'notifications'
-  | 'history'
-  | 'preview'
-  | 'author'
-  | 'squads'
-  | 'source'
-  | 'tag'
->;
+interface UseFeedLayout {
+  shouldUseMobileFeedLayout: boolean;
+}
 
-export type UserProfileFeedType = Extract<
-  AllFeedPages,
-  'user-upvoted' | 'user-posts'
->;
+export const FeedLayoutMobileFeedPages = new Set(
+  Object.values(SharedFeedPage).filter(
+    (feedPage) => feedPage !== SharedFeedPage.Search,
+  ),
+);
 
-export const FeedLayoutMobileFeedPages = new Set([
-  ...Object.values(SharedFeedPage),
-  OtherFeedPage.TagPage,
-  OtherFeedPage.SourcePage,
-  OtherFeedPage.SquadPage,
-  OtherFeedPage.Bookmarks,
-  OtherFeedPage.SearchBookmarks,
-  OtherFeedPage.UserUpvoted,
-  OtherFeedPage.UserPosts,
-]);
-
-export const UserProfileFeedPages = new Set([
-  OtherFeedPage.UserUpvoted,
-  OtherFeedPage.UserPosts,
-]);
-
-const checkShouldUseMobileFeedLayout = (
-  isLaptop: boolean,
-  feedName: AllFeedPages | FeedPagesWithMobileLayoutType,
-): boolean =>
-  (!isLaptop &&
-    FeedLayoutMobileFeedPages.has(feedName as FeedPagesWithMobileLayoutType)) ||
-  UserProfileFeedPages.has(feedName as UserProfileFeedType);
+const checkShouldUseMobileFeedLayout = (feedName: SharedFeedPage): boolean =>
+  FeedLayoutMobileFeedPages.has(feedName) && feedName !== SharedFeedPage.Search;
 
 export const useFeedLayout = ({
+  feedName: feedNameProp,
   feedRelated = true,
-}: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
-  const isLaptop = useViewSize(ViewSize.Laptop);
+}: UseFeedLayoutProps = {}): UseFeedLayout => {
   const { feedName } = useActiveFeedNameContext();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const name = (feedNameProp ?? feedName) as SharedFeedPage;
+  const isIncludedFeed = useMemo(
+    () => checkShouldUseMobileFeedLayout(name),
+    [name],
+  );
 
+  const isNotLaptopAndIsIncludedFeed = !isLaptop && isIncludedFeed;
   const shouldUseMobileFeedLayout = feedRelated
-    ? checkShouldUseMobileFeedLayout(isLaptop, feedName)
+    ? isNotLaptopAndIsIncludedFeed
     : !isLaptop;
-
-  const FeedPageLayoutComponent = shouldUseMobileFeedLayout
-    ? FeedPageLayoutMobile
-    : FeedPage;
 
   return {
     shouldUseMobileFeedLayout,
-    FeedPageLayoutComponent,
   };
 };
