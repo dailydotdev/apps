@@ -15,7 +15,7 @@ import {
   ToastSubject,
   useToastNotification,
   useConditionalFeature,
-  FeedPagesWithMobileLayout,
+  FeedPagesWithMobileLayoutType,
 } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
@@ -89,12 +89,13 @@ const getStyle = (isList: boolean, space: Spaciness): CSSProperties => {
 
 const feedNameToHeading: Record<
   Exclude<
-    FeedPagesWithMobileLayout,
+    FeedPagesWithMobileLayoutType,
     | 'user-upvoted'
     | 'user-posts'
     | 'squads[handle]'
     | 'tags[tag]'
     | 'sources[source]'
+    | 'search-bookmarks'
   >,
   string
 > = {
