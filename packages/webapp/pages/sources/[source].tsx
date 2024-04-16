@@ -25,10 +25,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  FeedPage,
-  PageInfoHeader,
-} from '@dailydotdev/shared/src/components/utilities';
+import { PageInfoHeader } from '@dailydotdev/shared/src/components/utilities';
 import { PlusIcon, BlockIcon } from '@dailydotdev/shared/src/components/icons';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
@@ -42,6 +39,7 @@ import {
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { SourceSubscribeButton } from '@dailydotdev/shared/src/components';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { useQuery } from '@tanstack/react-query';
 import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
@@ -95,7 +93,8 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     }),
     [source?.id],
   );
-
+  const { shouldUseMobileFeedLayout, FeedPageLayoutComponent } =
+    useFeedLayout();
   const { feedSettings } = useFeedSettings();
   const { onFollowSource, onUnfollowSource } = useTagAndSource({
     origin: Origin.SourcePage,
@@ -145,16 +144,16 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   };
 
   return (
-    <FeedPage>
+    <FeedPageLayoutComponent>
       <NextSeo {...seo} />
-      <PageInfoHeader>
+      <PageInfoHeader className={shouldUseMobileFeedLayout && 'mx-4 !w-auto'}>
         <div className="flex items-center font-bold">
           <img
             src={source.image}
             alt={`${source.name} logo`}
             className="size-10 rounded-full"
           />
-          <h1 className="ml-2 typo-title2">{source.name}</h1>
+          <h1 className="ml-2 w-fit typo-title2">{source.name}</h1>
         </div>
         <div className="flex flex-row gap-3">
           {!unfollowingSource && <SourceSubscribeButton source={source} />}
@@ -180,7 +179,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         query={SOURCE_FEED_QUERY}
         variables={queryVariables}
       />
-    </FeedPage>
+    </FeedPageLayoutComponent>
   );
 };
 
