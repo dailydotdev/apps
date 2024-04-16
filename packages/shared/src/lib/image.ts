@@ -166,6 +166,8 @@ export const cloudinary = {
     splash:
       'https://daily-now-res.cloudinary.com/image/upload/v1705386465/Splash_v1lxjk.svg',
     fire: 'https://daily-now-res.cloudinary.com/image/upload/v1705386465/Hot_nrqvv5.svg',
+    migrate:
+      'https://daily-now-res.cloudinary.com/image/upload/s--ntYOqtL9--/f_auto/v1713196616/Goodbye_weekly_goals_Welcome_reading_streaks_yslqlp',
   },
   devcard: {
     defaultCoverImage:
