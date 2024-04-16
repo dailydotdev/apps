@@ -81,10 +81,10 @@ export const notificationIcon: Record<
 export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.DailyDev]: '',
   [NotificationIconType.CommunityPicks]: '',
-  [NotificationIconType.Comment]: 'text-theme-color-blueCheese',
-  [NotificationIconType.Upvote]: 'text-theme-color-avocado',
+  [NotificationIconType.Comment]: 'text-accent-blueCheese-default',
+  [NotificationIconType.Upvote]: 'text-accent-avocado-default',
   [NotificationIconType.Bell]: '',
-  [NotificationIconType.View]: 'text-theme-color-blueCheese',
+  [NotificationIconType.View]: 'text-accent-blueCheese-default',
   [NotificationIconType.Star]: '',
   [NotificationIconType.Block]: '',
   [NotificationIconType.User]: '',

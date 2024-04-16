@@ -318,7 +318,7 @@ export default function PostOptionsMenu({
         <MenuIcon
           secondary={post?.bookmarked}
           Icon={BookmarkIcon}
-          className={post?.bookmarked && 'text-theme-color-bun'}
+          className={post?.bookmarked && 'text-accent-bun-default'}
         />
       ),
       label: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
@@ -332,7 +332,7 @@ export default function PostOptionsMenu({
         <MenuIcon
           className={classNames(
             post?.userState?.vote === UserVote.Down &&
-              'text-theme-color-ketchup',
+              'text-accent-ketchup-default',
           )}
           Icon={DownvoteIcon}
           secondary={post?.userState?.vote === UserVote.Down}

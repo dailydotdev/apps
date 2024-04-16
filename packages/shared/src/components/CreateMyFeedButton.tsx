@@ -42,7 +42,7 @@ export default function CreateMyFeedButton({
 
   return (
     <div className="mb-4 flex w-full flex-col items-center">
-      <div className="flex flex-col items-center rounded-12 border border-theme-color-cabbage p-2 shadow-2-cabbage tablet:flex-row">
+      <div className="flex flex-col items-center rounded-12 border border-accent-cabbage-default p-2 shadow-2-cabbage tablet:flex-row">
         <p className="ml-2 text-center transition-all typo-footnote tablet:text-left">
           {explainerCopy}
         </p>

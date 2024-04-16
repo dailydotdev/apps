@@ -89,7 +89,7 @@ export default function CompanionContextMenu({
             className={classNames(
               'mr-2',
               postData?.userState?.vote === UserVote.Down &&
-                'text-theme-color-ketchup',
+                'text-accent-ketchup-default',
             )}
             secondary={postData?.userState?.vote === UserVote.Down}
           />{' '}
