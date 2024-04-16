@@ -106,6 +106,7 @@ export enum RequestKey {
   RecommendedTags = 'recommended_tags',
   SourceRelatedTags = 'source_related_tags',
   SourceByTag = 'source_by_tag',
+  SimilarSources = 'similar_sources',
 }
 
 export type HasConnection<

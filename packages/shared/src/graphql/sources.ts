@@ -122,3 +122,18 @@ export const SOURCES_BY_TAG_QUERY = gql`
     }
   }
 `;
+
+export const SIMILAR_SOURCES_QUERY = gql`
+  query SimilarSources($sourceId: ID!, $first: Int) {
+    similarSources(sourceId: $sourceId, first: $first) {
+      edges {
+        node {
+          id
+          name
+          image
+          permalink
+        }
+      }
+    }
+  }
+`;
