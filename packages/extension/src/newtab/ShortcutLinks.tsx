@@ -24,7 +24,10 @@ import {
   ShortcutsSourceType,
   TargetType,
 } from '@dailydotdev/shared/src/lib/analytics';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import {
+  useConditionalFeature,
+  useToastNotification,
+} from '@dailydotdev/shared/src/hooks';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
@@ -116,6 +119,7 @@ export default function ShortcutLinks({
   const { showTopSites, toggleShowTopSites } = useContext(SettingsContext);
   const [showModal, setShowModal] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const { displayToast } = useToastNotification();
   const { trackEvent } = useContext(AnalyticsContext);
   const {
     askTopSitesPermission,
@@ -222,6 +226,13 @@ export default function ShortcutLinks({
     });
   };
 
+  const onV1Hide = () => {
+    displayToast(
+      'Get your shortcuts back by turning it on from the customize options on the sidebar',
+    );
+    toggleShowTopSites();
+  };
+
   const ShortcutV1 = () => {
     return (
       <div
@@ -252,7 +263,7 @@ export default function ShortcutLinks({
             ))}
             <Button
               variant={ButtonVariant.Tertiary}
-              onClick={toggleShowTopSites}
+              onClick={onV1Hide}
               size={ButtonSize.Small}
               icon={<ClearIcon secondary />}
               className="mt-2"
@@ -324,7 +335,7 @@ export default function ShortcutLinks({
       )}
       <ShortcutOptionsMenu
         isOpen={isOpen}
-        onHide={toggleShowTopSites}
+        onHide={onV1Hide}
         onManage={onOptionsOpen}
       />
     </>
