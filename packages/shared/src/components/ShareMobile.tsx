@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { CopyIcon, LinkIcon, ShareIcon } from './icons';
+import { LinkIcon, ShareIcon } from './icons';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import {
   Button,

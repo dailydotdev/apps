@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext } from 'react';
 import { Post } from '../graphql/posts';
 import { postAnalyticsEvent } from '../lib/feed';
 import AnalyticsContext from '../contexts/AnalyticsContext';

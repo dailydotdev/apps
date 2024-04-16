@@ -39,11 +39,7 @@ beforeEach(async () => {
 
 const squads = [generateTestSquad()];
 
-const renderComponent = (
-  loggedIn = true,
-  hasSquads = true,
-  comment?,
-): RenderResult => {
+const renderComponent = (loggedIn = true, hasSquads = true): RenderResult => {
   return render(
     <TestBootProvider
       client={client}
