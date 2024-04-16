@@ -111,6 +111,13 @@ const UserSettingsModal = dynamic(
     import(/* webpackChunkName: "userSettingsModal" */ './UserSettingsModal'),
 );
 
+const MigrateUserStreakModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "migrateUserStreakModal" */ './streaks/MigrateUserStreakModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -131,6 +138,7 @@ export const modals = {
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.UserSettings]: UserSettingsModal,
+  [LazyModal.MigrateUserStreak]: MigrateUserStreakModal,
 };
 
 type GetComponentProps<T> = T extends
