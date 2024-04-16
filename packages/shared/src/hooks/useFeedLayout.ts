@@ -1,7 +1,11 @@
 import { useViewSize, ViewSize } from './useViewSize';
 import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
-import { FeedPage, FeedPageLayoutMobile } from '../components/utilities';
-import { AllFeedPages } from '../lib/query';
+import {
+  FeedPage,
+  FeedPageLayoutMobile,
+  SharedFeedPage,
+} from '../components/utilities';
+import { AllFeedPages, OtherFeedPage } from '../lib/query';
 
 interface UseFeedLayoutReturn {
   shouldUseMobileFeedLayout: boolean;
@@ -12,38 +16,45 @@ interface UseFeedLayoutProps {
   feedRelated?: boolean;
 }
 
-export enum FeedPagesWithMobileLayout {
-  MyFeed = 'my-feed',
-  Popular = 'popular',
-  Search = 'search',
-  Upvoted = 'upvoted',
-  Discussed = 'discussed',
-  Bookmarks = 'bookmarks',
-  UserPosts = 'user-posts',
-  UserUpvoted = 'user-upvoted',
-  SquadPage = 'squads[handle]',
-  TagPage = 'tags[tag]',
-  SourcePage = 'sources[source]',
-}
+export type FeedPagesWithMobileLayoutType = Exclude<
+  AllFeedPages,
+  | 'notifications'
+  | 'history'
+  | 'preview'
+  | 'author'
+  | 'squads'
+  | 'source'
+  | 'tag'
+>;
 
-export enum UserProfileFeed {
-  UserPosts = 'user-posts',
-  UserUpvoted = 'user-upvoted',
-}
+export type UserProfileFeedType = Extract<
+  AllFeedPages,
+  'user-upvoted' | 'user-posts'
+>;
 
-export const FeedLayoutMobileFeedPages = new Set(
-  Object.values(FeedPagesWithMobileLayout),
-);
+export const FeedLayoutMobileFeedPages = new Set([
+  ...Object.values(SharedFeedPage),
+  OtherFeedPage.TagPage,
+  OtherFeedPage.SourcePage,
+  OtherFeedPage.SquadPage,
+  OtherFeedPage.Bookmarks,
+  OtherFeedPage.SearchBookmarks,
+  OtherFeedPage.UserUpvoted,
+  OtherFeedPage.UserPosts,
+]);
 
-export const UserProfileFeedPages = new Set(Object.values(UserProfileFeed));
+export const UserProfileFeedPages = new Set([
+  OtherFeedPage.UserUpvoted,
+  OtherFeedPage.UserPosts,
+]);
 
 const checkShouldUseMobileFeedLayout = (
   isLaptop: boolean,
-  feedName: AllFeedPages | UserProfileFeed | FeedPagesWithMobileLayout,
+  feedName: AllFeedPages | FeedPagesWithMobileLayoutType,
 ): boolean =>
   (!isLaptop &&
-    FeedLayoutMobileFeedPages.has(feedName as FeedPagesWithMobileLayout)) ||
-  UserProfileFeedPages.has(feedName as UserProfileFeed);
+    FeedLayoutMobileFeedPages.has(feedName as FeedPagesWithMobileLayoutType)) ||
+  UserProfileFeedPages.has(feedName as UserProfileFeedType);
 
 export const useFeedLayout = ({
   feedRelated = true,
