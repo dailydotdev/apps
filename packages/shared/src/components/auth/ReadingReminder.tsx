@@ -141,7 +141,7 @@ export const ReadingReminder = ({
             />
           ) : (
             <ClickableText
-              className="ml-3 inline-flex !text-text-link"
+              className="ml-3 inline-flex"
               onClick={() => setIsEditingTimezone(true)}
             >
               edit timezone
