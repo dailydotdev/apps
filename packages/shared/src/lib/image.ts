@@ -167,7 +167,7 @@ export const cloudinary = {
       'https://daily-now-res.cloudinary.com/image/upload/v1705386465/Splash_v1lxjk.svg',
     fire: 'https://daily-now-res.cloudinary.com/image/upload/v1705386465/Hot_nrqvv5.svg',
     migrate:
-      'https://s3-alpha-sig.figma.com/img/731c/e6c6/6ec82bc2e65e3f3e79728a611d84c608?Expires=1714348800&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=QRQP6JMrkMwGfq6DMl9PCcUBGAI9QocNoFdrNgTnKTA98TogOi9aqAQcxWfwNIVJsE-IkhWJYalj4O~A85ep6TrbMjDVJCBhX9qd2goOtYriYs~TzgvTrsGTuh2b-Jo~~9-hloE1~bFlGgJuCMQqvCR~Zx1GU-trOH1z44CDVlds1wB-rqv1V~dsYSvRrMJxYERyNDTq2CM1pj1mxhHqkzw-slxzOdeHvS0Kcq9Yw3MJTOVBhRul9jocRJXp3KsStLKD6cuDA4wzlK68bRmB4ebhvLFcQh7~3vOIKEL4i10FRVcTxNptrFIxgRq2kA8vZfNs3jAwtUeaCrqhu0KgZw__',
+      'https://daily-now-res.cloudinary.com/image/upload/s--ntYOqtL9--/f_auto/v1713196616/Goodbye_weekly_goals_Welcome_reading_streaks_yslqlp',
   },
   devcard: {
     defaultCoverImage:
