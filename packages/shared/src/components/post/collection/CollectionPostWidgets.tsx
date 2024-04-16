@@ -9,8 +9,9 @@ import { PostRelationType } from '../../../graphql/posts';
 import { PostWidgetsProps } from '../PostWidgets';
 
 export const CollectionPostWidgets = ({
-  onShare,
+  onCopyPostLink,
   post,
+  origin,
   className,
   onClose,
 }: PostWidgetsProps): ReactElement => {
@@ -28,7 +29,12 @@ export const CollectionPostWidgets = ({
         relationType={PostRelationType.Collection}
       />
       <ShareBar post={post} />
-      <ShareMobile post={post} share={onShare} link={post.commentsPermalink} />
+      <ShareMobile
+        post={post}
+        origin={origin}
+        onCopyPostLink={onCopyPostLink}
+        link={post.commentsPermalink}
+      />
     </PageWidgets>
   );
 };

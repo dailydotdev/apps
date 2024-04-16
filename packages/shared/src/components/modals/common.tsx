@@ -111,6 +111,10 @@ const UserSettingsModal = dynamic(
     import(/* webpackChunkName: "userSettingsModal" */ './UserSettingsModal'),
 );
 
+const ShareModal = dynamic(
+  () => import(/* webpackChunkName: "shareModal" */ './ShareModal'),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -131,6 +135,7 @@ export const modals = {
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.UserSettings]: UserSettingsModal,
+  [LazyModal.Share]: ShareModal,
 };
 
 type GetComponentProps<T> = T extends

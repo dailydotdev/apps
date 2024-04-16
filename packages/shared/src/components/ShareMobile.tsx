@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { CopyIcon, ShareIcon } from './icons';
+import { CopyIcon, LinkIcon, ShareIcon } from './icons';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import {
   Button,
@@ -9,33 +9,41 @@ import {
 } from './buttons/Button';
 import { WidgetContainer } from './widgets/common';
 import { postAnalyticsEvent } from '../lib/feed';
-import { AnalyticsEvent } from '../lib/analytics';
+import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { Post } from '../graphql/posts';
 import { useAnalyticsContext } from '../contexts/AnalyticsContext';
+import { useSharePost } from '../hooks/useSharePost';
+import { UsePostContent } from '../hooks/usePostContent';
 
-export interface Props {
+export interface ShareMobileProps {
   post: Post;
   link: string;
-  share: () => void;
+  origin: Origin;
+  onCopyPostLink: UsePostContent['onCopyPostLink'];
 }
 
-export function ShareMobile({ post, share, link }: Props): ReactElement {
+export function ShareMobile({
+  onCopyPostLink,
+  post,
+  link,
+  origin,
+}: ShareMobileProps): ReactElement {
   const [copying] = useCopyPostLink(link);
-
+  const { openSharePost } = useSharePost(origin);
   const { trackEvent } = useAnalyticsContext();
 
   const onShare = () => {
     trackEvent(postAnalyticsEvent(AnalyticsEvent.StartShareToSquad, post));
-    share();
+    openSharePost({ post });
   };
 
   return (
     <WidgetContainer className="flex flex-col items-start gap-2 p-3 laptop:hidden">
       <Button
         size={ButtonSize.Small}
-        onClick={share}
+        onClick={onCopyPostLink}
         pressed={copying}
-        icon={<CopyIcon />}
+        icon={<LinkIcon />}
         variant={ButtonVariant.Tertiary}
         color={ButtonColor.Avocado}
       >

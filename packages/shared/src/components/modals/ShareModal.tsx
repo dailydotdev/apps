@@ -1,21 +1,11 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
 import { useSwipeable } from 'react-swipeable';
-import { Post } from '../../graphql/posts';
 import { SocialShare } from '../widgets/SocialShare';
-import { Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
-import { Comment } from '../../graphql/comments';
+import { postAnalyticsEvent } from '../../lib/feed';
 import { Modal, ModalProps } from './common/Modal';
 import { ExperimentWinner } from '../../lib/featureValues';
-import { useViewSize, ViewSize } from '../../hooks';
-
-type ShareModalProps = {
-  post: Post;
-  comment?: Comment;
-  origin: Origin;
-} & FeedItemPosition &
-  ModalProps;
+import { ShareModalProps } from './post/common';
 
 export default function ShareModal({
   post,
@@ -26,10 +16,9 @@ export default function ShareModal({
   row,
   onRequestClose,
   ...props
-}: ShareModalProps): ReactElement {
+}: ShareModalProps & ModalProps): ReactElement {
   const isComment = !!comment;
   const { trackEvent } = useContext(AnalyticsContext);
-  const isMobile = useViewSize(ViewSize.MobileL);
 
   const baseTrackingEvent = (
     eventName: string,
@@ -67,10 +56,11 @@ export default function ShareModal({
   return (
     <Modal
       size={Modal.Size.Small}
-      kind={isMobile ? Modal.Kind.FixedBottom : Modal.Kind.FlexibleCenter}
+      kind={Modal.Kind.FlexibleCenter}
       onRequestClose={onRequestClose}
       {...props}
       className="overflow-hidden"
+      isDrawerOnMobile
     >
       <Modal.Header title={isComment ? 'Share comment' : 'Share post'} />
       <Modal.Body {...handlers}>
@@ -81,7 +71,7 @@ export default function ShareModal({
           columns={columns}
           column={column}
           row={row}
-          onSquadShare={() => onRequestClose(null)}
+          onClose={() => onRequestClose(null)}
         />
       </Modal.Body>
     </Modal>

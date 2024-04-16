@@ -12,7 +12,7 @@ import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { useFeedLayout, useGetShortUrl } from '../hooks';
-import { ReferralCampaignKey } from '../lib/referral';
+import { ReferralCampaignKey } from '../lib';
 import { ContextMenu as ContextMenuIds } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 

@@ -9,10 +9,8 @@ import { QueryClient } from '@tanstack/react-query';
 import React from 'react';
 import nock from 'nock';
 import { useRouter } from 'next/router';
-import ShareModal from './ShareModal';
 import Post from '../../../__tests__/fixture/post';
 import { getFacebookShareLink } from '../../lib/share';
-import { Origin } from '../../lib/analytics';
 import Comment from '../../../__tests__/fixture/comment';
 import { getCommentHash } from '../../graphql/comments';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
@@ -24,7 +22,6 @@ import { LazyModal } from './common/types';
 
 const defaultPost = Post;
 const defaultComment = Comment;
-const onRequestClose = jest.fn();
 
 Object.assign(navigator, {
   clipboard: {
@@ -61,14 +58,6 @@ const renderComponent = (
       }}
     >
       <LazyModalElement />
-      <ShareModal
-        origin={Origin.Feed}
-        post={defaultPost}
-        comment={comment}
-        isOpen
-        onRequestClose={onRequestClose}
-        ariaHideApp={false}
-      />
     </TestBootProvider>,
   );
 };

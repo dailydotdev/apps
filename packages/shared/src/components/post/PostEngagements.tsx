@@ -31,10 +31,6 @@ const ShareNewCommentPopup = dynamic(
   { ssr: false },
 );
 
-const ShareModal = dynamic(
-  () => import(/* webpackChunkName: "shareModal" */ '../modals/ShareModal'),
-);
-
 interface PostEngagementsProps {
   post: Post;
   analyticsOrigin: PostOrigin;
@@ -59,13 +55,8 @@ function PostEngagements({
   const [joinNotificationCommentId, setJoinNotificationCommentId] =
     useState<string>();
   const { onShowUpvoted } = useUpvoteQuery();
-  const {
-    shareComment,
-    showShareNewComment,
-    openShareComment,
-    closeShareComment,
-    onShowShareNewComment,
-  } = useShareComment(analyticsOrigin, enableShowShareNewComment);
+  const { showShareNewComment, openShareComment, onShowShareNewComment } =
+    useShareComment(analyticsOrigin, enableShowShareNewComment);
   const [isJoinSquadBannerDismissed] = usePersistentContext(
     SQUAD_COMMENT_JOIN_BANNER_KEY,
     false,
@@ -137,15 +128,6 @@ function PostEngagements({
           post={post}
           commentId={showShareNewComment}
           onRequestClose={() => onShowShareNewComment(null)}
-        />
-      )}
-      {shareComment && (
-        <ShareModal
-          isOpen={!!shareComment}
-          post={post}
-          comment={shareComment}
-          origin={analyticsOrigin}
-          onRequestClose={closeShareComment}
         />
       )}
     </>

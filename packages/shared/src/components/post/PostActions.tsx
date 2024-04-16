@@ -7,6 +7,7 @@ import {
   BookmarkIcon,
   DownvoteIcon,
   LinkIcon,
+  ShareIcon,
 } from '../icons';
 import { Post, UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
@@ -24,6 +25,7 @@ import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
 } from '../../hooks/useBookmarkPost';
+import { useSharePost } from '../../hooks/useSharePost';
 
 interface PostActionsProps {
   post: Post;
@@ -45,6 +47,7 @@ export function PostActions({
   const { showTagsPanel } = data;
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const queryClient = useQueryClient();
+  const { openNativeSharePost, openSharePost } = useSharePost(origin);
 
   const { toggleUpvote, toggleDownvote } = useVotePost({
     variables: { feedName: feedQueryKey },
@@ -166,14 +169,25 @@ export function PostActions({
             Bookmark
           </QuaternaryButton>
           <QuaternaryButton
-            id="share-post-btn"
+            id="copy-post-btn"
             onClick={() => onCopyLinkClick(post)}
             icon={<LinkIcon />}
             responsiveLabelClass={actionsClassName}
-            className="btn-tertiary-cabbage"
+            className="btn-tertiary-cabbage hidden tablet:flex"
           >
             Copy
           </QuaternaryButton>
+          <QuaternaryButton
+            id="share-post-btn"
+            onClick={() =>
+              globalThis?.navigator?.share
+                ? openNativeSharePost(post)
+                : openSharePost({ post })
+            }
+            icon={<ShareIcon />}
+            responsiveLabelClass={actionsClassName}
+            className="btn-tertiary-cabbage flex tablet:hidden"
+          />
         </div>
       </div>
     </ConditionalWrapper>

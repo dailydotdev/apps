@@ -107,7 +107,7 @@ export interface Post {
   bookmarked?: boolean;
   trending?: number;
   description?: string;
-  summary: string;
+  summary?: string;
   toc?: Toc;
   impressionStatus?: number;
   isAuthor?: number;
@@ -117,7 +117,7 @@ export interface Post {
   private?: boolean;
   feedMeta?: string;
   downvoted?: boolean;
-  flags: PostFlags;
+  flags?: PostFlags;
   userState?: PostUserState;
   videoId?: string;
   updatedAt?: string;
@@ -161,11 +161,9 @@ export type ReadHistoryPost = Pick<
   | 'sharedPost'
   | 'type'
   | 'userState'
-> & { source?: Source } & {
-  author?: Pick<Author, 'id'>;
-} & {
-  scout?: Pick<Scout, 'id'>;
-};
+  | 'author'
+  | 'scout'
+> & { source?: Source };
 
 export interface PostItem {
   timestamp?: Date;

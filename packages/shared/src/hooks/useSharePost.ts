@@ -1,101 +1,80 @@
-import { useContext, useMemo, useState } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { Post } from '../graphql/posts';
-import { FeedItemPosition, postAnalyticsEvent } from '../lib/feed';
+import { postAnalyticsEvent } from '../lib/feed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { ShareProvider } from '../lib/share';
 import { Origin } from '../lib/analytics';
 import { useCopyPostLink } from './useCopyPostLink';
 import { useGetShortUrl } from './utils/useGetShortUrl';
-import { ReferralCampaignKey } from '../lib/referral';
+import { ReferralCampaignKey } from '../lib';
+import { useLazyModal } from './useLazyModal';
+import { LazyModal } from '../components/modals/common/types';
+import { ShareModalProps } from '../components/modals/post/common';
 
-export function useSharePost(origin: Origin): {
-  sharePost: Post;
-  sharePostFeedLocation?: FeedItemPosition;
-  openSharePost: (Post, columns?, column?, row?) => void;
-  copyLink: (Post, columns?, column?, row?) => void;
-  closeSharePost: () => void;
-  openNativeSharePost?: (Post, columns?, column?, row?) => void;
-} {
+type FuncProps = Omit<ShareModalProps, 'origin'>;
+
+interface UseSharePost {
+  openSharePost: (props: FuncProps) => void;
+  copyLink: (props: FuncProps) => void;
+  openNativeSharePost?: (post: Post) => void;
+}
+
+export function useSharePost(origin: Origin): UseSharePost {
   const { trackEvent } = useContext(AnalyticsContext);
-  const [shareModal, setShareModal] = useState<Post>();
   const [, copyLink] = useCopyPostLink();
-  const [sharePostFeedLocation, setSharePostFeedLocation] =
-    useState<FeedItemPosition>({});
   const { getShortUrl, getTrackedUrl } = useGetShortUrl();
+  const { openModal } = useLazyModal();
 
-  return useMemo(
-    () => ({
-      sharePost: shareModal,
-      sharePostFeedLocation,
-      openSharePost: async (
-        post: Post,
-        columns?: number,
-        column?: number,
-        row?: number,
-      ) => {
-        setSharePostFeedLocation({
+  const openSharePost = useCallback(
+    (props) => openModal({ type: LazyModal.Share, props }),
+    [openModal],
+  );
+
+  const copyLinkShare: UseSharePost['copyLink'] = useCallback(
+    ({ post, columns, column, row }) => {
+      trackEvent(
+        postAnalyticsEvent('share post', post, {
           columns,
           column,
           row,
-        });
-        setShareModal(post);
-      },
-      copyLink: async (
-        post: Post,
-        columns?: number,
-        column?: number,
-        row?: number,
-      ) => {
-        trackEvent(
-          postAnalyticsEvent('share post', post, {
-            columns,
-            column,
-            row,
-            extra: { provider: ShareProvider.CopyLink, origin },
-          }),
-        );
-        const trackedLink = getTrackedUrl(
+          extra: { provider: ShareProvider.CopyLink, origin },
+        }),
+      );
+      const trackedLink = getTrackedUrl(
+        post.commentsPermalink,
+        ReferralCampaignKey.SharePost,
+      );
+      copyLink({ link: trackedLink, shorten: true });
+    },
+    [trackEvent, origin, getTrackedUrl, copyLink],
+  );
+
+  const openNativeSharePost = useCallback(
+    async (post: Post) => {
+      try {
+        const shortLink = await getShortUrl(
           post.commentsPermalink,
           ReferralCampaignKey.SharePost,
         );
-        copyLink({ link: trackedLink, shorten: true });
-      },
-      openNativeSharePost: async (
-        post: Post,
-        columns?: number,
-        column?: number,
-        row?: number,
-      ) => {
-        setSharePostFeedLocation({
-          columns,
-          column,
-          row,
+        await navigator.share({
+          title: post.title,
+          url: shortLink,
         });
-        try {
-          const shortLink = await getShortUrl(
-            post.commentsPermalink,
-            ReferralCampaignKey.SharePost,
-          );
-          await navigator.share({
-            title: post.title,
-            url: shortLink,
-          });
-          trackEvent(
-            postAnalyticsEvent('share post', post, {
-              columns,
-              column,
-              row,
-              extra: { origin, provider: ShareProvider.Native },
-            }),
-          );
-        } catch (err) {
-          // Do nothing
-        }
-      },
-      closeSharePost: () => setShareModal(null),
-    }),
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [shareModal, sharePostFeedLocation],
+        trackEvent(
+          postAnalyticsEvent('share post', post, {
+            extra: { origin, provider: ShareProvider.Native },
+          }),
+        );
+      } catch (err) {
+        // Do nothing
+      }
+    },
+    [getShortUrl, origin, trackEvent],
   );
+
+  return {
+    openSharePost,
+    copyLink: copyLinkShare,
+    openNativeSharePost,
+  };
 }
