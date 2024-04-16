@@ -15,9 +15,9 @@ import {
   ToastSubject,
   useToastNotification,
   useConditionalFeature,
-  FeedPagesWithMobileLayoutType,
 } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { SharedFeedPage } from '../utilities';
 import { useActiveFeedNameContext } from '../../contexts';
 import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import { useReadingStreak } from '../../hooks/streaks';
@@ -87,24 +87,12 @@ const getStyle = (isList: boolean, space: Spaciness): CSSProperties => {
   return {};
 };
 
-const feedNameToHeading: Record<
-  Exclude<
-    FeedPagesWithMobileLayoutType,
-    | 'user-upvoted'
-    | 'user-posts'
-    | 'squads[handle]'
-    | 'tags[tag]'
-    | 'sources[source]'
-    | 'search-bookmarks'
-  >,
-  string
-> = {
+const feedNameToHeading: Record<SharedFeedPage, string> = {
   search: 'Search',
   'my-feed': 'For you',
   popular: 'Popular',
   upvoted: 'Most upvoted',
   discussed: 'Best discussions',
-  bookmarks: 'Bookmarks',
 };
 
 export const FeedContainer = ({
@@ -204,10 +192,7 @@ export const FeedContainer = ({
                 )}
               >
                 <ConditionalWrapper
-                  condition={
-                    !isNewMobileLayout &&
-                    (feedNameToHeading[feedName] || actionButtons)
-                  }
+                  condition={!isNewMobileLayout}
                   wrapper={(component) => (
                     <span className="flex w-full flex-row items-center justify-between px-6 py-4">
                       <strong className="typo-title3">

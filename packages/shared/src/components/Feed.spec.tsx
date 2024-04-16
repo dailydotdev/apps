@@ -70,7 +70,6 @@ import { removeQueryParam } from '../lib/links';
 import { SharedFeedPage } from './utilities';
 import { AllFeedPages } from '../lib/query';
 import { UserVoteEntity } from '../hooks';
-import * as hooks from '../hooks/useViewSize';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -106,8 +105,6 @@ const originalScrollTo = window.scrollTo;
 
 beforeAll(() => {
   window.scrollTo = jest.fn();
-  // is desktop
-  jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
 });
 
 afterAll(() => {
