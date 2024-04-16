@@ -55,7 +55,6 @@ import OnboardingRegistrationForm from './OnboardingRegistrationForm';
 import EmailCodeVerification from './EmailCodeVerification';
 import { trackAnalyticsSignUp } from './OnboardingAnalytics';
 import { ButtonProps } from '../buttons/Button';
-import { nextTick } from '../../lib/func';
 import { OnboardingRegistrationForm4d5 } from './OnboardingRegistrationForm4d5';
 
 export enum AuthDisplay {
@@ -76,6 +75,7 @@ export enum AuthDisplay {
 export interface AuthProps {
   isAuthenticating: boolean;
   isLoginFlow: boolean;
+  isLoading?: boolean;
   email?: string;
   defaultDisplay?: AuthDisplay;
 }
@@ -249,7 +249,11 @@ function AuthOptions({
   } = useProfileForm({ onSuccess: onProfileSuccess });
 
   const isReady = isTesting ? true : isLoginReady && isRegistrationReady;
-  const onProviderClick = (provider: string, login = true) => {
+  const onProviderClick = async (
+    provider: string,
+    login = true,
+    afterRegistration?: () => void,
+  ) => {
     trackEvent({
       event_name: 'click',
       target_type: login
@@ -260,7 +264,8 @@ function AuthOptions({
     });
     windowPopup.current = window.open();
     setChosenProvider(provider);
-    onSocialRegistration(provider);
+    await onSocialRegistration(provider);
+    afterRegistration?.();
   };
 
   const onForgotPasswordSubmit = (inputEmail: string, inputFlow: string) => {
@@ -439,11 +444,11 @@ function AuthOptions({
                 email: existingEmail,
               });
             }}
-            onProviderClick={async (provider, login) => {
-              onProviderClick(provider, login);
-              await nextTick();
-              onAuthStateUpdate({ isAuthenticating: true });
-            }}
+            onProviderClick={(provider, login) =>
+              onProviderClick(provider, login, () =>
+                onAuthStateUpdate({ isLoading: true }),
+              )
+            }
             trigger={trigger}
             isReady={isReady}
             simplified={simplified}
