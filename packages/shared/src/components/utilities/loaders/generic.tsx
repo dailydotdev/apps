@@ -1,7 +1,7 @@
-import { ReactElement } from 'react';
+import React, { ReactElement } from 'react';
+import classnames from 'classnames';
 import { LoaderIcon } from '../../icons';
 import { IconSize } from '../../Icon';
-import classnames from 'classnames';
 
 interface Props {
   className?: string;
@@ -13,13 +13,13 @@ export const GenericLoader = ({
   label = 'Preparing...',
 }: Props): ReactElement => {
   return (
-    <div className="fixed inset-0 bg-background-default z-modal flex justify-center items-center">
-      <div className="flex flex-col gap-5 items-center">
+    <div className="fixed inset-0 z-modal flex items-center justify-center bg-background-default">
+      <div className="flex flex-col items-center gap-5">
         <LoaderIcon
           size={IconSize.XLarge}
           className={classnames(
             className,
-            'flex-shrink-0 drop-shadow-[0_0_5px_#CE3DE3] animate-spin',
+            'flex-shrink-0 animate-spin drop-shadow-[0_0_5px_#CE3DE3]',
           )}
         />
         <div>{label}</div>
