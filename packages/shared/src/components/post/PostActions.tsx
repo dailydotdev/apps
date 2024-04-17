@@ -28,6 +28,7 @@ import {
 import { useSharePost } from '../../hooks/useSharePost';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
+import { ButtonColor, ButtonVariant } from '../buttons/Button';
 
 interface PostActionsProps {
   post: Post;
@@ -132,7 +133,8 @@ export function PostActions({
             }
             aria-label="Upvote"
             responsiveLabelClass={actionsClassName}
-            className="btn-tertiary-avocado"
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Avocado}
           />
           <QuaternaryButton
             id="downvote-post-btn"
@@ -145,7 +147,8 @@ export function PostActions({
             }
             aria-label="Downvote"
             responsiveLabelClass={actionsClassName}
-            className="btn-tertiary-ketchup"
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Ketchup}
           />
         </Card>
         <div className="flex flex-1 items-center justify-between px-4 py-2">
@@ -156,7 +159,8 @@ export function PostActions({
             icon={<CommentIcon secondary={post.commented} />}
             aria-label="Comment"
             responsiveLabelClass={actionsClassName}
-            className="btn-tertiary-blueCheese"
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.BlueCheese}
           >
             Comment
           </QuaternaryButton>
@@ -176,10 +180,9 @@ export function PostActions({
             onClick={() => onCopyLinkClick(post)}
             icon={<LinkIcon />}
             responsiveLabelClass={actionsClassName}
-            className={classNames(
-              'btn-tertiary-cabbage',
-              shareExperience && 'hidden tablet:flex',
-            )}
+            className={shareExperience && 'hidden tablet:flex'}
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Cabbage}
           >
             Copy
           </QuaternaryButton>
@@ -193,7 +196,9 @@ export function PostActions({
               }
               icon={<ShareIcon />}
               responsiveLabelClass={actionsClassName}
-              className="btn-tertiary-cabbage flex tablet:hidden"
+              className="flex tablet:hidden"
+              variant={ButtonVariant.Tertiary}
+              color={ButtonColor.Cabbage}
             />
           )}
         </div>
