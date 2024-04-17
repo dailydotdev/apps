@@ -35,6 +35,7 @@ const onSuccessfulLogin = jest.fn();
 const renderComponent = (
   props: AuthOptionsProps = {
     onSuccessfulLogin,
+    onAuthStateUpdate: jest.fn(),
     formRef: null,
     trigger: AuthTriggers.Verification,
   },
@@ -94,7 +95,7 @@ const renderRegistration = async (
       return { data: { generateUniqueUsername: username } };
     },
   });
-  await waitFor(() => expect(screen.getByTestId('registration_form')));
+  await screen.findByTestId('registration_form');
   const nameInput = screen.getByPlaceholderText('Name');
   fireEvent.input(screen.getByPlaceholderText('Enter a username'), {
     target: { value: username },
