@@ -32,7 +32,7 @@ import UpvotedPopupModal, {
 } from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
-import { ShareModalProps } from '@dailydotdev/shared/src/components/modals/post/common';
+import { ShareProps } from '@dailydotdev/shared/src/components/modals/post/common';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useCompanionActions from './useCompanionActions';
@@ -306,7 +306,7 @@ export default function CompanionMenu({
           isOpen
           parentSelector={getCompanionWrapper}
           onRequestClose={closeModal}
-          {...(modal.props as ShareModalProps)}
+          {...(modal.props as ShareProps)}
         />
       )}
       {modal?.type === LazyModal.UpvotedPopup && (
