@@ -30,7 +30,11 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
-import { useJoinReferral, useSquad } from '@dailydotdev/shared/src/hooks';
+import {
+  useFeedLayout,
+  useJoinReferral,
+  useSquad,
+} from '@dailydotdev/shared/src/hooks';
 import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
 import request, { ClientError } from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
@@ -89,6 +93,7 @@ const SquadPage = ({
   useJoinReferral();
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { user, isFetched: isBootFetched } = useContext(AuthContext);
   const [trackedImpression, setTrackedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
@@ -188,7 +193,10 @@ const SquadPage = ({
         />
         <SquadPageHeader squad={squad} members={squadMembers} />
         <Feed
-          className="px-6 pt-14 laptop:pt-10"
+          className={classNames(
+            'pt-14 laptop:pt-10',
+            shouldUseMobileFeedLayout ? 'px-0' : 'px-6',
+          )}
           feedName={OtherFeedPage.Squad}
           feedQueryKey={[
             'sourceFeed',

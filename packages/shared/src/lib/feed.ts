@@ -4,7 +4,7 @@ import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
 import { PostBootData } from './boot';
 import { Origin } from './analytics';
 import { SharedFeedPage } from '../components/utilities';
-import { AllFeedPages } from './query';
+import { AllFeedPages, OtherFeedPage } from './query';
 
 export function optimisticPostUpdateInFeed(
   items: FeedItem[],
@@ -175,9 +175,14 @@ export const getFeedName = (
   if (defaultFeedConditions.some((condition) => condition === feed)) {
     return getDefaultFeed(options);
   }
-
   if (feed.startsWith('search')) {
     return SharedFeedPage.Search;
+  }
+  if (feed === '[userId]upvoted') {
+    return OtherFeedPage.UserUpvoted;
+  }
+  if (feed === '[userId]posts') {
+    return OtherFeedPage.UserPosts;
   }
 
   const [page] = feed.split('?');
