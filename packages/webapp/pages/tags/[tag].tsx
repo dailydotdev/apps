@@ -24,10 +24,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  FeedPage,
-  PageInfoHeader,
-} from '@dailydotdev/shared/src/components/utilities';
+import { PageInfoHeader } from '@dailydotdev/shared/src/components/utilities';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import {
@@ -48,6 +45,7 @@ import {
   GET_RECOMMENDED_TAGS_QUERY,
   TagsData,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import {
   SOURCES_BY_TAG_QUERY,
@@ -86,6 +84,7 @@ const TagRecommendedTags = ({ tag, blockedTags }): ReactElement => {
 };
 
 const TagTopSources = ({ tag }: { tag: string }) => {
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { data: topSources, isLoading } = useQuery(
     [RequestKey.SourceByTag, null, tag],
     async () =>
@@ -113,6 +112,7 @@ const TagTopSources = ({ tag }: { tag: string }) => {
       isLoading={isLoading}
       sources={sources}
       title="🔔 Top sources covering it"
+      className={shouldUseMobileFeedLayout && 'mx-4'}
     />
   );
 };
@@ -123,6 +123,8 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
   const { feedSettings } = useFeedSettings();
+  const { shouldUseMobileFeedLayout, FeedPageLayoutComponent } =
+    useFeedLayout();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
   const title = initialData?.flags?.title || tag;
@@ -191,12 +193,12 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   };
 
   return (
-    <FeedPage>
+    <FeedPageLayoutComponent>
       <NextSeo {...seo} />
-      <PageInfoHeader>
+      <PageInfoHeader className={shouldUseMobileFeedLayout && 'mx-4 !w-auto'}>
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
-          <h1 className="ml-2 typo-title2">{title}</h1>
+          <h1 className="ml-2 w-fit typo-title2">{title}</h1>
         </div>
         <div className="flex flex-row gap-3">
           {tagStatus !== 'blocked' && (
@@ -239,7 +241,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
         query={TAG_FEED_QUERY}
         variables={queryVariables}
       />
-    </FeedPage>
+    </FeedPageLayoutComponent>
   );
 };
 
