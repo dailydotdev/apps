@@ -5,7 +5,7 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { Modal, ModalProps } from './common/Modal';
 import { ExperimentWinner } from '../../lib/featureValues';
-import { ShareModalProps } from './post/common';
+import { ShareProps } from './post/common';
 
 export default function ShareModal({
   post,
@@ -17,7 +17,7 @@ export default function ShareModal({
   parentSelector,
   onRequestClose,
   ...props
-}: ShareModalProps & ModalProps): ReactElement {
+}: ShareProps & ModalProps): ReactElement {
   const isComment = !!comment;
   const { trackEvent } = useContext(AnalyticsContext);
 

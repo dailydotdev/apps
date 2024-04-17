@@ -9,9 +9,9 @@ import { useGetShortUrl } from './utils/useGetShortUrl';
 import { ReferralCampaignKey } from '../lib';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
-import { ShareModalProps } from '../components/modals/post/common';
+import { ShareProps } from '../components/modals/post/common';
 
-type FuncProps = Omit<ShareModalProps, 'origin'>;
+type FuncProps = Omit<ShareProps, 'origin'>;
 
 interface UseSharePost {
   openSharePost: (props: FuncProps) => void;
