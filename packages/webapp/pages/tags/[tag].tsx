@@ -47,14 +47,12 @@ import {
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
-import Link from 'next/link';
 import {
   SOURCES_BY_TAG_QUERY,
   Source,
 } from '@dailydotdev/shared/src/graphql/sources';
 import { Connection } from '@dailydotdev/shared/src/graphql/common';
-import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
-import classNames from 'classnames';
+import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -104,59 +102,17 @@ const TagTopSources = ({ tag }: { tag: string }) => {
     },
   );
 
-  if (isLoading) {
-    return (
-      <div className="mb-10 w-full">
-        <ElementPlaceholder className="mb-3 h-10 w-1/5 rounded-12" />
-        <div className="flex gap-2">
-          <ElementPlaceholder className="w-24 rounded-16 px-4 py-3 text-center">
-            <ElementPlaceholder className="mx-auto size-10 rounded-full" />
-            <ElementPlaceholder className="mt-1.5 h-5 w-full rounded-8" />
-          </ElementPlaceholder>
-        </div>
-      </div>
-    );
-  }
-
   const sources = topSources?.sourcesByTag?.edges?.map((edge) => edge.node);
   if (!sources || sources.length === 0) {
     return null;
   }
 
   return (
-    <div
-      className={classNames(
-        'mb-10 w-full',
-        shouldUseMobileFeedLayout && 'mx-4',
-      )}
-    >
-      <p className="mb-3 h-10 font-bold typo-body">
-        🔔 Top sources covering it
-      </p>
-      <div className="no-scrollbar flex gap-2 overflow-x-auto">
-        {sources.map((source) => {
-          return (
-            <Link
-              href={source.permalink}
-              passHref
-              key={source.id}
-              prefetch={false}
-            >
-              <a className="flex w-24 flex-col rounded-16 border border-border-subtlest-tertiary px-4 py-3 text-center">
-                <img
-                  src={source.image}
-                  alt={`${source.name} logo`}
-                  className="mx-auto size-10 rounded-full"
-                />
-                <p className="mt-1.5 truncate font-bold typo-callout">
-                  {source.name}
-                </p>
-              </a>
-            </Link>
-          );
-        })}
-      </div>
-    </div>
+    <RelatedSources
+      isLoading={isLoading}
+      sources={sources}
+      title="🔔 Top sources covering it"
+    />
   );
 };
 

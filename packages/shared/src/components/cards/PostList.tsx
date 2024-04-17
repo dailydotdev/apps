@@ -15,9 +15,6 @@ import { PostTagsPanel } from '../post/block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { CollectionPillSources } from '../post/collection';
 import { isVideoPost, PostType } from '../../graphql/posts';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
-import { TrendingFlag } from '../../lib/featureValues';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -35,8 +32,6 @@ export const PostList = forwardRef(function PostList(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const trendingFlag = useFeature(feature.trendingFlag);
-  const isTrendingFlagV1 = trendingFlag === TrendingFlag.V1;
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const { pinnedAt, trending } = post;
@@ -63,7 +58,7 @@ export const PostList = forwardRef(function PostList(
       flagProps={{
         listMode: true,
         pinnedAt,
-        ...(!isTrendingFlagV1 && { trending }),
+        trending,
       }}
     >
       <CardButton title={post.title} onClick={onPostCardClick} />
@@ -103,7 +98,6 @@ export const PostList = forwardRef(function PostList(
           className="relative mt-1 self-stretch"
           onMenuClick={(event) => onMenuClick?.(event, post)}
           insaneMode
-          flagProps={{ ...(isTrendingFlagV1 && { trending }) }}
         />
       </ListCardMain>
       {children}

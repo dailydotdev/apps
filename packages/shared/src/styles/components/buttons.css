@@ -44,7 +44,7 @@
     color: var(--theme-text-primary);
   }
 
-  &.bg-theme-color-cabbage {
+  &.bg-accent-cabbage-default {
     color: #FFFFFF;
   }
 

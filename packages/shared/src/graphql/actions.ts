@@ -20,6 +20,7 @@ export enum ActionType {
   DevCardGenerate = 'dev_card_generate',
   AckRep250 = 'ack_rep_250',
   CommentFeed = 'comment_feed',
+  ExistingUserSeenStreaks = 'existing_user_seen_streaks',
 }
 
 export interface Action {

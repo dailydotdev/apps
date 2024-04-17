@@ -39,6 +39,7 @@ import {
   useFeedLayout,
   useScrollRestoration,
   useConditionalFeature,
+  useActions,
 } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
@@ -49,6 +50,10 @@ import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/analytics';
 import { OnboardingFeedHeader } from './onboarding/OnboardingFeedHeader';
+import { useLazyModal } from '../hooks/useLazyModal';
+import { LazyModal } from './modals/common/types';
+import { useStreakExperiment } from '../hooks/streaks';
+import { ActionType } from '../graphql/actions';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -287,6 +292,19 @@ export default function MainFeedLayout({
 
   const disableTopPadding =
     isFinder || shouldUseMobileFeedLayout || shouldUseCommentFeedLayout;
+
+  const { openModal } = useLazyModal();
+  const { shouldShowPopup } = useStreakExperiment();
+  const { completeAction } = useActions();
+
+  useEffect(() => {
+    if (!shouldShowPopup) {
+      return;
+    }
+
+    openModal({ type: LazyModal.MigrateUserStreak });
+    completeAction(ActionType.ExistingUserSeenStreaks);
+  }, [completeAction, openModal, shouldShowPopup]);
 
   return (
     <FeedPageComponent

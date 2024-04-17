@@ -21,7 +21,7 @@ export const CollectionsIntro = ({
   return (
     <span
       className={classNames(
-        'relative flex w-full flex-row rounded-10 border border-theme-color-cabbage p-3 pr-2',
+        'relative flex w-full flex-row rounded-10 border border-accent-cabbage-default p-3 pr-2',
         className,
       )}
     >

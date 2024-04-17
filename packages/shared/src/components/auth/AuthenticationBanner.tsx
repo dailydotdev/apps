@@ -24,7 +24,7 @@ export function AuthenticationBanner(): ReactElement {
   return (
     <BottomBannerContainer
       className={classNames(
-        'border-t border-theme-color-cabbage py-10 shadow-3 laptopL:gap-32',
+        'border-t border-accent-cabbage-default py-10 shadow-3 laptopL:gap-32',
         isPostPageOnboardingV5 ? 'gap-10' : 'gap-24',
         authGradientBg,
       )}

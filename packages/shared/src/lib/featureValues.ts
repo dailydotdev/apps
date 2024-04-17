@@ -9,6 +9,7 @@ export enum ExperimentWinner {
 export enum ReadingStreaksExperiment {
   Control = 'control',
   V1 = 'v1',
+  V2 = 'v2',
 }
 
 export enum PostPageOnboarding {
@@ -17,11 +18,6 @@ export enum PostPageOnboarding {
 }
 
 export enum OnboardingCopy {
-  Control = 'control',
-  V1 = 'v1',
-}
-
-export enum TrendingFlag {
   Control = 'control',
   V1 = 'v1',
 }

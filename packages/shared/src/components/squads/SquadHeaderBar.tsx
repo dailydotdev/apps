@@ -97,7 +97,7 @@ export function SquadHeaderBar({
           forceLoad={!isTesting}
           visible={isChecklistReady && completedStepsCount < totalStepsCount}
           container={{
-            className: '-mb-4 !bg-theme-color-onion !text-white',
+            className: '-mb-4 !bg-accent-onion-default !text-white',
           }}
           placement="top"
           content={checklistTooltipText}
