@@ -42,7 +42,7 @@ export const ReputationUserBadge = ({
             ...iconProps,
             className: classNames(
               iconProps?.className,
-              'text-theme-color-onion',
+              'text-accent-onion-default',
             ),
             size: iconProps?.size || IconSize.XSmall,
           }}

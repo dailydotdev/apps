@@ -425,7 +425,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                                 'h-10 w-10 rounded-full',
                                 isLocked && 'opacity-32',
                                 checkLowercaseEquality(theme, value) &&
-                                  'border-4 border-theme-color-cabbage',
+                                  'border-4 border-accent-cabbage-default',
                               )}
                               style={{
                                 background: themeToLinearGradient[value],

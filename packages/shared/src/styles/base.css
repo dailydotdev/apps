@@ -243,7 +243,6 @@ body {
   --theme-hover: theme('colors.raw.salt.90')1F;
 
   --accent-cabbage-default-invert: theme('colors.raw.cabbage.60');
-  --accent-cabbage-default: theme('colors.raw.cabbage.40');
 
   --theme-shadow2: theme('boxShadow.2-black');
   --theme-shadow3: theme('boxShadow.3-black');
@@ -307,20 +306,6 @@ body {
   --theme-highlight-blue: theme('colors.raw.water.20');
   --theme-highlight-purple: theme('colors.raw.onion.20');
   --theme-highlight-label: theme('colors.raw.salt.50');
-
-  --theme-color-burger: theme('colors.raw.burger.40');
-  --theme-color-blueCheese: theme('colors.raw.blueCheese.40');
-  --theme-color-avocado: theme('colors.raw.avocado.40');
-  --theme-color-lettuce: theme('colors.raw.lettuce.40');
-  --theme-color-cheese: theme('colors.raw.cheese.40');
-  --theme-color-bun: theme('colors.raw.bun.40');
-  --theme-color-ketchup: theme('colors.raw.ketchup.40');
-  --theme-color-bacon: theme('colors.raw.bacon.40');
-  --theme-color-cabbage: theme('colors.raw.cabbage.40');
-  --theme-color-onion: theme('colors.raw.onion.40');
-  --theme-color-water: theme('colors.raw.water.40');
-  --theme-color-salt: theme('colors.raw.salt.40');
-  --theme-color-pepper: theme('colors.raw.pepper.40');
 }
 
 @define-mixin light-mode {
@@ -525,7 +510,6 @@ body {
   /* stylelint-disable-next-line unit-no-unknown */
   --theme-hover: theme('colors.raw.pepper.10')1F;
 
-  --accent-cabbage-default: theme('colors.raw.cabbage.60');
   --accent-cabbage-default-invert: theme('colors.raw.cabbage.40');
 
   /*--theme-shadow2: theme('boxShadow.2-salt');*/
@@ -591,20 +575,6 @@ body {
   --theme-highlight-blue: theme('colors.raw.water.80');
   --theme-highlight-purple: theme('colors.raw.onion.80');
   --theme-highlight-label: theme('colors.raw.pepper.50');
-
-  --theme-color-burger: theme('colors.raw.burger.60');
-  --theme-color-blueCheese: theme('colors.raw.blueCheese.60');
-  --theme-color-avocado: theme('colors.raw.avocado.60');
-  --theme-color-lettuce: theme('colors.raw.lettuce.60');
-  --theme-color-cheese: theme('colors.raw.cheese.60');
-  --theme-color-bun: theme('colors.raw.bun.60');
-  --theme-color-ketchup: theme('colors.raw.ketchup.60');
-  --theme-color-bacon: theme('colors.raw.bacon.60');
-  --theme-color-cabbage: theme('colors.raw.cabbage.60');
-  --theme-color-onion: theme('colors.raw.onion.60');
-  --theme-color-water: theme('colors.raw.water.60');
-  --theme-color-salt: theme('colors.raw.pepper.40');
-  --theme-color-pepper: theme('colors.raw.pepper.60');
 }
 
 @media (prefers-color-scheme: light) {
@@ -807,7 +777,7 @@ details.right-icon {
   position: relative;
 
   &::before {
-    @apply border-theme-color-cabbage;
+    @apply border-accent-cabbage-default;
     content: '';
     z-index: -1;
     position: absolute;

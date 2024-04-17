@@ -128,7 +128,7 @@ it('should render the component with basic props', async () => {
 
   expect(screen.getByText('title')).toBeInTheDocument();
   expect(screen.getByText('icon')).toBeInTheDocument();
-  expect(element).toHaveClass('!border-theme-color-avocado');
+  expect(element).toHaveClass('!border-accent-avocado-default');
   expect(img).toHaveAttribute(
     'src',
     cloudinary.squads.directory.cardBannerDefault,
@@ -142,7 +142,7 @@ it('should render the component with basic props and custom border and banner', 
 
   expect(screen.getByText('title')).toBeInTheDocument();
   expect(screen.getByText('icon')).toBeInTheDocument();
-  expect(element).toHaveClass('!border-theme-color-onion');
+  expect(element).toHaveClass('!border-accent-onion-default');
   expect(img).toHaveAttribute('src', 'banner-image.jpg');
 });
 

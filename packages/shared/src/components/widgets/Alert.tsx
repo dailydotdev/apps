@@ -13,13 +13,13 @@ export enum AlertType {
 }
 
 const fontColor: AlertPropObject<string> = {
-  info: 'text-theme-color-bun',
+  info: 'text-accent-bun-default',
   error: 'text-status-error',
   success: 'text-status-success',
 };
 
 const borderColor: AlertPropObject<string> = {
-  info: 'border-l-theme-color-bun',
+  info: 'border-l-accent-bun-default',
   error: 'border-l-status-error',
   success: 'border-l-status-success',
 };

@@ -72,7 +72,7 @@ const getBookmarkIconAndMenuIcon = (bookmarked: boolean) => (
         {...props}
         className={classNames(
           props.className,
-          bookmarked && 'text-theme-color-bun',
+          bookmarked && 'text-accent-bun-default',
         )}
       />
     )}

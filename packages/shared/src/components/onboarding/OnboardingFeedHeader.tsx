@@ -94,7 +94,7 @@ export const OnboardingFeedHeader = ({
   return (
     <LayoutHeader className="flex-col overflow-x-visible">
       <div className="fixed z-1 flex w-full justify-center bg-gradient-to-b from-surface-invert via-surface-invert tablet:px-4 tablet:py-10">
-        <div className="flex h-44 w-full max-w-[40rem] flex-col items-center border-b-2 border-theme-color-cabbage bg-background-subtle p-6 tablet:h-auto tablet:flex-row tablet:rounded-16 tablet:border-b-0 tablet:border-l-2">
+        <div className="flex h-44 w-full max-w-[40rem] flex-col items-center border-b-2 border-accent-cabbage-default bg-background-subtle p-6 tablet:h-auto tablet:flex-row tablet:rounded-16 tablet:border-b-0 tablet:border-l-2">
           <div className="text-center tablet:text-left">
             <p className="font-bold typo-title3">
               Pick tags that are relevant to you

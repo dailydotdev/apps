@@ -59,7 +59,7 @@ export const SquadCommentJoinBanner = ({
   return (
     <div
       className={classNames(
-        'mx-3 mb-3 flex flex-1 flex-row items-start justify-between gap-4 rounded-16 border border-theme-color-cabbage p-4',
+        'mx-3 mb-3 flex flex-1 flex-row items-start justify-between gap-4 rounded-16 border border-accent-cabbage-default p-4',
         className,
       )}
     >

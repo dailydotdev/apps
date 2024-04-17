@@ -36,8 +36,8 @@ function CarouselIndicator({
           aria-label={`carousel item #${index + 1}`}
           onClick={() => onItemClick(index)}
           className={classNames(
-            'h-1.5 w-1.5 rounded-full border border-theme-color-salt',
-            active === index && 'bg-theme-color-salt',
+            'h-1.5 w-1.5 rounded-full border border-accent-salt-default',
+            active === index && 'bg-accent-salt-default',
             className.item,
           )}
         />

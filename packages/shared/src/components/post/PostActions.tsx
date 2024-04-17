@@ -110,9 +110,9 @@ export function PostActions({
           className={classNames(
             'flex !flex-row gap-2 hover:border-border-subtlest-tertiary',
             {
-              'border-theme-color-avocado hover:!border-theme-color-avocado bg-theme-overlay-float-avocado':
+              'border-accent-avocado-default hover:!border-accent-avocado-default bg-theme-overlay-float-avocado':
                 post?.userState?.vote === UserVote.Up,
-              'border-theme-color-ketchup hover:!border-theme-color-ketchup bg-theme-overlay-float-ketchup':
+              'border-accent-ketchup-default hover:!border-accent-ketchup-default bg-theme-overlay-float-ketchup':
                 post?.userState?.vote === UserVote.Down,
             },
           )}

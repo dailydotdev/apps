@@ -56,7 +56,7 @@ export default function NewStreakModal({
                 : 'A large fire icon'
             }
             className={classNames(
-              'h-[10rem] text-theme-color-bacon',
+              'h-[10rem] text-accent-bacon-default',
               shouldShowSplash ? 'ml-2 w-[15rem]' : 'w-[10rem] ',
             )}
           />

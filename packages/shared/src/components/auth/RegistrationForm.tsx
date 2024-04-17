@@ -165,7 +165,7 @@ export const RegistrationForm = ({
           type="email"
           value={email}
           readOnly
-          rightIcon={<VIcon className="text-theme-color-avocado" />}
+          rightIcon={<VIcon className="text-accent-avocado-default" />}
         />
         <TextField
           saveHintSpace
@@ -183,7 +183,7 @@ export const RegistrationForm = ({
             onUpdateHints({ ...hints, 'traits.name': '' })
           }
           rightIcon={
-            isNameValid && <VIcon className="text-theme-color-avocado" />
+            isNameValid && <VIcon className="text-accent-avocado-default" />
           }
         />
         <PasswordField
@@ -211,7 +211,7 @@ export const RegistrationForm = ({
             onUpdateHints({ ...hints, 'traits.username': '' })
           }
           rightIcon={
-            isUsernameValid && <VIcon className="text-theme-color-avocado" />
+            isUsernameValid && <VIcon className="text-accent-avocado-default" />
           }
         />
         {isAuthorOnboarding && (
