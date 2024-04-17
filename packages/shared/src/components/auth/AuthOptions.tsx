@@ -142,8 +142,10 @@ function AuthOptions({
 
   const onSetActiveDisplay = (display: AuthDisplay) => {
     onDisplayChange?.(display);
+    onAuthStateUpdate({ isLoading: false });
     setActiveDisplay(display);
   };
+
   const isVerified = loginState?.trigger === AuthTriggers.Verification;
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
