@@ -8,7 +8,7 @@ export enum AlertColor {
   BrightRed = 'bg-status-error',
   Fill = 'bg-status-info',
   Success = 'bg-status-success',
-  Cabbage = 'bg-theme-color-cabbage',
+  Cabbage = 'bg-accent-cabbage-default',
 }
 
 interface AlertDotProps {

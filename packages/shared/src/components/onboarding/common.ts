@@ -16,7 +16,7 @@ export const OnboardingTitle = classed(
 );
 
 export const OnboardingGradientClasses =
-  'font-bold text-transparent bg-clip-text bg-gradient-to-r from-theme-color-bacon to-theme-color-cabbage';
+  'font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent-bacon-default to-accent-cabbage-default';
 export const OnboardingTitleGradient = classed('h1', OnboardingGradientClasses);
 
 export interface OnboardingStepProps {

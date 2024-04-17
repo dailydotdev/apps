@@ -65,7 +65,7 @@ export default function CommentContainer({
       className={classNames(
         'flex flex-col rounded-24 p-4 hover:bg-theme-hover focus:outline',
         isCommentReferenced
-          ? 'border border-theme-color-cabbage'
+          ? 'border border-accent-cabbage-default'
           : 'border-border-subtlest-tertiary',
         className.container,
       )}
@@ -123,7 +123,7 @@ export default function CommentContainer({
             {comment.author.id === postScoutId && (
               <UserBadge
                 key="scout"
-                className="text-theme-color-bun"
+                className="text-accent-bun-default"
                 content="Scout"
                 Icon={ScoutIcon}
                 iconProps={{

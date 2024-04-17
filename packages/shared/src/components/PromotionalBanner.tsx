@@ -14,22 +14,22 @@ import CloseButton from './CloseButton';
 
 const classNamesByTheme: Record<BannerTheme, string[]> = {
   [BannerCustomTheme.CabbageOnion]: [
-    'from-theme-color-cabbage to-theme-color-onion bg-gradient-to-r',
+    'from-accent-cabbage-default to-accent-onion-default bg-gradient-to-r',
     'text-white',
   ],
   [BannerCustomTheme.WhitePepper]: [
     'bg-surface-primary',
     'text-surface-invert',
   ],
-  [Theme.Avocado]: ['bg-theme-color-avocado', 'text-raw-pepper-90'],
-  [Theme.Bacon]: ['bg-theme-color-bacon', 'text-white'],
-  [Theme.BlueCheese]: ['bg-theme-color-blueCheese', 'text-raw-pepper-90'],
-  [Theme.Bun]: ['bg-theme-color-bun', 'text-white'],
-  [Theme.Burger]: ['bg-theme-color-burger', 'text-white'],
-  [Theme.Cabbage]: ['bg-theme-color-cabbage', 'text-white'],
-  [Theme.Cheese]: ['bg-theme-color-cheese', 'text-raw-pepper-90'],
-  [Theme.Ketchup]: ['bg-theme-color-ketchup', 'text-white'],
-  [Theme.Lettuce]: ['bg-theme-color-lettuce', 'text-raw-pepper-90'],
+  [Theme.Avocado]: ['bg-accent-avocado-default', 'text-raw-pepper-90'],
+  [Theme.Bacon]: ['bg-accent-bacon-default', 'text-white'],
+  [Theme.BlueCheese]: ['bg-accent-blueCheese-default', 'text-raw-pepper-90'],
+  [Theme.Bun]: ['bg-accent-bun-default', 'text-white'],
+  [Theme.Burger]: ['bg-accent-burger-default', 'text-white'],
+  [Theme.Cabbage]: ['bg-accent-cabbage-default', 'text-white'],
+  [Theme.Cheese]: ['bg-accent-cheese-default', 'text-raw-pepper-90'],
+  [Theme.Ketchup]: ['bg-accent-ketchup-default', 'text-white'],
+  [Theme.Lettuce]: ['bg-accent-lettuce-default', 'text-raw-pepper-90'],
 };
 
 export default function PromotionalBanner(): ReactElement {

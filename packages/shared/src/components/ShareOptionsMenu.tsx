@@ -81,7 +81,7 @@ export default function ShareOptionsMenu({
         <MenuIcon
           secondary={post?.bookmarked}
           Icon={BookmarkIcon}
-          className={post?.bookmarked && 'text-theme-color-bun'}
+          className={post?.bookmarked && 'text-accent-bun-default'}
         />
       ),
       label: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,

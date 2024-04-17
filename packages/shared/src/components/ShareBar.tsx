@@ -79,7 +79,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
           pressed={copying}
           icon={
             <CopyIcon
-              className={copying && 'text-theme-color-avocado'}
+              className={copying && 'text-accent-avocado-default'}
               secondary={copying}
             />
           }

@@ -224,7 +224,7 @@ const SquadReferral = ({
           has invited you to <HighlightedText>{source.name}</HighlightedText>
         </BodyParagraph>
       </span>
-      <div className="my-8 flex w-full flex-col rounded-24 border border-theme-color-cabbage p-6">
+      <div className="my-8 flex w-full flex-col rounded-24 border border-accent-cabbage-default p-6">
         <span className="flex flex-col items-start tablet:flex-row tablet:items-center">
           <div className="flex flex-1 flex-row items-start">
             <SourceButton source={source} size="xxlarge" />
