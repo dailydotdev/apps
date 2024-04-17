@@ -50,12 +50,12 @@ export function SquadPageHeader({
       <div className="flex flex-col items-center laptopL:flex-row">
         <SquadImage className="h-16 w-16 tablet:h-24 tablet:w-24" {...squad} />
         <FlexCol className="mt-4 laptopL:ml-6 laptopL:mt-0">
-          <h3 className="text-center font-bold typo-title2 laptopL:text-left">
+          <h1 className="text-center font-bold typo-title2 laptopL:text-left">
             {squad.name}
-          </h3>
-          <h4 className="mt-1 text-center text-text-tertiary typo-body tablet:mt-2 laptopL:text-left">
+          </h1>
+          <h2 className="mt-1 text-center text-text-tertiary typo-body tablet:mt-2 laptopL:text-left">
             @{squad.handle}
-          </h4>
+          </h2>
         </FlexCol>
       </div>
       {squad.description && (

@@ -133,6 +133,11 @@ function CreatePost(): ReactElement {
     >
       <WritePageContainer>
         <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
+        <h1 className="hidden">
+          {display === WriteFormTab.NewPost
+            ? 'Create squad post'
+            : 'Share a link to squad'}
+        </h1>
         <TabContainer<WriteFormTab>
           onActiveChange={(active) => setDisplay(active)}
           controlledActive={display}

@@ -80,6 +80,7 @@ const SearchPage = (): ReactElement => {
       isInProgress={isLoading}
     >
       <NextSeo {...seo} />
+      <h1 className="hidden">{seo.title}</h1>
       {(!!content || !!data) && (
         <div className="flex flex-col justify-center">
           <SearchResult

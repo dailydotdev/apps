@@ -108,6 +108,7 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
               router.push(`/squads/${squad.handle}`);
             }}
           />
+          <h1 className="hidden">Edit squad settings of {squad.name}</h1>
           <h3 className="font-bold typo-title3">{pageTitle}</h3>
         </ManageSquadPageHeader>
         <SquadDetails

@@ -40,6 +40,7 @@ export function SearchHistory({
       <span className="font-bold text-text-quaternary typo-footnote">
         {title}
       </span>
+      <h1 className="hidden">Search History</h1>
       {nodes?.map(({ node: suggestion }) => (
         <SearchBarSuggestion
           origin={origin}
