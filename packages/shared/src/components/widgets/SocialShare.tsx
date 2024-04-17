@@ -96,7 +96,7 @@ export const SocialShare = ({
           emailTitle="I found this amazing post"
         />
       </SocialShareContainer>
-      {squadToShare && (
+      {squadToShare && ( // using lazy modal would result to dep-cycle since this whole component is used in the share modal
         <CreateSharedPostModal
           isOpen
           preview={post}
