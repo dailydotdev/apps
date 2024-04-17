@@ -25,15 +25,14 @@ import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboard
 import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import CreateSharedPostModal, {
-  CreateSharedPostModalProps,
-} from '@dailydotdev/shared/src/components/modals/post/CreateSharedPostModal';
 import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import { useVotePost } from '@dailydotdev/shared/src/hooks';
 import UpvotedPopupModal, {
   UpvotedPopupModalProps,
 } from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
+import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
+import { ShareModalProps } from '@dailydotdev/shared/src/components/modals/post/common';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useCompanionActions from './useCompanionActions';
@@ -302,12 +301,12 @@ export default function CompanionMenu({
         onDisableCompanion={optOut}
         onDownvote={onToggleDownvote}
       />
-      {modal?.type === LazyModal.CreateSharedPost && (
-        <CreateSharedPostModal
+      {modal?.type === LazyModal.Share && (
+        <ShareModal
           isOpen
           parentSelector={getCompanionWrapper}
           onRequestClose={closeModal}
-          {...(modal.props as CreateSharedPostModalProps)}
+          {...(modal.props as ShareModalProps)}
         />
       )}
       {modal?.type === LazyModal.UpvotedPopup && (
