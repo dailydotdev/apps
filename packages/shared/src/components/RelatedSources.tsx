@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
+import classNames from 'classnames';
 import { Source } from '../graphql/sources';
 import { ElementPlaceholder } from './ElementPlaceholder';
 
@@ -7,15 +8,17 @@ interface RelatedSourcesProps {
   title: string;
   isLoading: boolean;
   sources: Source[];
+  className?: string;
 }
 export const RelatedSources = ({
   title,
   isLoading,
   sources,
+  className,
 }: RelatedSourcesProps): ReactElement => {
   if (isLoading) {
     return (
-      <div className="mb-10 w-full">
+      <div className={classNames('mb-10 w-full', className)}>
         <ElementPlaceholder className="mb-3 h-10 w-1/5 rounded-12" />
         <div className="flex gap-2">
           <ElementPlaceholder className="w-24 rounded-16 px-4 py-3 text-center">
