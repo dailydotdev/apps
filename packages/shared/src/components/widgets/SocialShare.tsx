@@ -15,8 +15,9 @@ import { ReferralCampaignKey } from '../../lib';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Squad } from '../../graphql/sources';
 import { CreateSharedPostModal } from '../modals/post/CreateSharedPostModal';
+import { ModalProps } from '../modals/common/Modal';
 
-interface SocialShareProps {
+interface SocialShareProps extends Pick<ModalProps, 'parentSelector'> {
   origin: Origin;
   post: Post;
   comment?: Comment;
@@ -32,6 +33,7 @@ export const SocialShare = ({
   column,
   row,
   onClose,
+  parentSelector,
 }: SocialShareProps & FeedItemPosition): ReactElement => {
   const isComment = !!comment;
   const { user, isAuthReady } = useAuthContext();
@@ -100,6 +102,7 @@ export const SocialShare = ({
           preview={post}
           squad={squadToShare}
           onSharedSuccessfully={onSharedSuccessfully}
+          parentSelector={parentSelector}
         />
       )}
     </>

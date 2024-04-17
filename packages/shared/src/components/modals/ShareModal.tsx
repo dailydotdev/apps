@@ -14,6 +14,7 @@ export default function ShareModal({
   columns,
   column,
   row,
+  parentSelector,
   onRequestClose,
   ...props
 }: ShareModalProps & ModalProps): ReactElement {
@@ -59,6 +60,7 @@ export default function ShareModal({
       kind={Modal.Kind.FlexibleCenter}
       onRequestClose={onRequestClose}
       {...props}
+      parentSelector={parentSelector}
       className="overflow-hidden"
       isDrawerOnMobile
     >
@@ -72,6 +74,7 @@ export default function ShareModal({
           column={column}
           row={row}
           onClose={() => onRequestClose(null)}
+          parentSelector={parentSelector}
         />
       </Modal.Body>
     </Modal>
