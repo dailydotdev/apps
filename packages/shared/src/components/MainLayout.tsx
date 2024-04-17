@@ -94,7 +94,7 @@ function MainLayoutComponent({
   const { openModal } = useLazyModal<LazyModal.MarketingCta>();
 
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNewMobileLayout } = useMobileUxExperiment();
 
   const { isNotificationsReady, unreadCount } = useNotificationContext();
@@ -204,7 +204,7 @@ function MainLayoutComponent({
     return null;
   }
   const isScreenCentered =
-    isLaptopXL && shouldUseMobileFeedLayout ? true : screenCentered;
+    isLaptopXL && screenCenteredOnMobileLayout ? true : screenCentered;
 
   return (
     <div className="antialiased">
