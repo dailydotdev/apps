@@ -10,6 +10,7 @@ import { AllFeedPages, OtherFeedPage } from '../lib/query';
 interface UseFeedLayoutReturn {
   shouldUseMobileFeedLayout: boolean;
   FeedPageLayoutComponent: React.ComponentType;
+  screenCenteredOnMobileLayout?: boolean;
 }
 
 interface UseFeedLayoutProps {
@@ -76,5 +77,8 @@ export const useFeedLayout = ({
   return {
     shouldUseMobileFeedLayout,
     FeedPageLayoutComponent,
+    screenCenteredOnMobileLayout:
+      shouldUseMobileFeedLayout &&
+      !UserProfileFeedPages.has(feedName as UserProfileFeedType),
   };
 };
