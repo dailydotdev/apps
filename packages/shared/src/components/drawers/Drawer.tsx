@@ -91,7 +91,7 @@ function BaseDrawer({
   return (
     <div
       className={classNames(
-        'fixed inset-0 transition-opacity duration-300 ease-in-out',
+        'fixed inset-0 z-modal transition-opacity duration-300 ease-in-out',
         !isFullScreen && 'bg-overlay-quaternary-onion',
         className?.overlay,
         isAnimating && 'opacity-0',
