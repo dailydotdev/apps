@@ -103,7 +103,7 @@ export const FeedPage = classed(
 export const FeedPageLayoutMobile = classed(
   BasePageContainer,
   pageContainerClassNames,
-  'pt-10 tablet:px-6 !ml-auto !px-0 tablet:!max-w-none laptop:max-w-[42.5rem]',
+  'pt-10 !ml-auto !px-0 tablet:!max-w-full laptop:!w-full laptop:!px-16',
   styles.feedPage,
 );
 
