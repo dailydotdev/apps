@@ -112,6 +112,7 @@ const TagTopSources = ({ tag }: { tag: string }) => {
       isLoading={isLoading}
       sources={sources}
       title="🔔 Top sources covering it"
+      className={shouldUseMobileFeedLayout && 'mx-4'}
     />
   );
 };
