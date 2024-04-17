@@ -4,7 +4,7 @@
     background: transparent;
   }
   50% {
-    background: var(--theme-color-cabbage);
+    background: var(--theme-accent-cabbage-default);
   }
 }
 
@@ -17,5 +17,5 @@
   vertical-align: text-bottom;
   animation: caretBlink 400ms step-end infinite;
   margin-left: 2px;
-  background: var(--theme-color-cabbage);
+  background: var(--theme-accent-cabbage-default);
 }

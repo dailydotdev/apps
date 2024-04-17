@@ -48,19 +48,19 @@ export enum SourceCardBorderColor {
 }
 
 const borderColorToClassName: Record<SourceCardBorderColor, string> = {
-  [SourceCardBorderColor.Avocado]: '!border-theme-color-avocado',
-  [SourceCardBorderColor.Burger]: '!border-theme-color-burger',
-  [SourceCardBorderColor.BlueCheese]: '!border-theme-color-blueCheese',
-  [SourceCardBorderColor.Lettuce]: '!border-theme-color-lettuce',
-  [SourceCardBorderColor.Cheese]: '!border-theme-color-cheese',
-  [SourceCardBorderColor.Bun]: '!border-theme-color-bun',
-  [SourceCardBorderColor.Ketchup]: '!border-theme-color-ketchup',
-  [SourceCardBorderColor.Bacon]: '!border-theme-color-bacon',
-  [SourceCardBorderColor.Cabbage]: '!border-theme-color-cabbage',
-  [SourceCardBorderColor.Onion]: '!border-theme-color-onion',
-  [SourceCardBorderColor.Water]: '!border-theme-color-water',
-  [SourceCardBorderColor.Salt]: '!border-theme-color-salt',
-  [SourceCardBorderColor.Pepper]: '!border-theme-color-pepper',
+  [SourceCardBorderColor.Avocado]: '!border-accent-avocado-default',
+  [SourceCardBorderColor.Burger]: '!border-accent-burger-default',
+  [SourceCardBorderColor.BlueCheese]: '!border-accent-blueCheese-default',
+  [SourceCardBorderColor.Lettuce]: '!border-accent-lettuce-default',
+  [SourceCardBorderColor.Cheese]: '!border-accent-cheese-default',
+  [SourceCardBorderColor.Bun]: '!border-accent-bun-default',
+  [SourceCardBorderColor.Ketchup]: '!border-accent-ketchup-default',
+  [SourceCardBorderColor.Bacon]: '!border-accent-bacon-default',
+  [SourceCardBorderColor.Cabbage]: '!border-accent-cabbage-default',
+  [SourceCardBorderColor.Onion]: '!border-accent-onion-default',
+  [SourceCardBorderColor.Water]: '!border-accent-water-default',
+  [SourceCardBorderColor.Salt]: '!border-accent-salt-default',
+  [SourceCardBorderColor.Pepper]: '!border-accent-pepper-default',
 };
 
 export const SourceCard = ({

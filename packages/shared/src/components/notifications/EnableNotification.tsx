@@ -94,7 +94,7 @@ function EnableNotification({
     return (
       <span
         className={classNames(
-          'relative flex w-full flex-row items-center bg-gradient-to-r from-theme-color-water to-theme-color-onion p-3 font-bold typo-body',
+          'relative flex w-full flex-row items-center bg-gradient-to-r from-accent-water-default to-accent-onion-default p-3 font-bold typo-body',
           containerClassName[source],
         )}
       >
@@ -116,7 +116,7 @@ function EnableNotification({
   return (
     <div
       className={classNames(
-        'relative overflow-hidden border-theme-color-cabbage py-4 typo-callout',
+        'relative overflow-hidden border-accent-cabbage-default py-4 typo-callout',
         classes,
         className,
       )}

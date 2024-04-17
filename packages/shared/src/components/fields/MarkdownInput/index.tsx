@@ -145,7 +145,7 @@ function MarkdownInput(
     ) : (
       <Loader
         className="btn-loader"
-        innerClassName="before:border-t-theme-color-cabbage after:border-theme-color-cabbage"
+        innerClassName="before:border-t-accent-cabbage-default after:border-accent-cabbage-default"
       />
     );
 

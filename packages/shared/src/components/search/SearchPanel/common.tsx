@@ -20,7 +20,7 @@ export const providerToIconMap: Record<
     <MagicIcon
       className={classNames(
         className,
-        'bg-gradient-to-t from-theme-color-onion to-theme-color-cabbage text-white',
+        'bg-gradient-to-t from-accent-onion-default to-accent-cabbage-default text-white',
       )}
       secondary
       {...rest}

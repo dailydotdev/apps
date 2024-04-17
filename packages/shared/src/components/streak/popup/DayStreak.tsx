@@ -71,7 +71,7 @@ export function DayStreak({
       <div className="relative flex flex-col items-center gap-1">
         {shouldShowArrow && (
           <TriangleArrowIcon
-            className="absolute -top-4 text-theme-color-bacon"
+            className="absolute -top-4 text-accent-bacon-default"
             size={IconSize.XXSmall}
           />
         )}

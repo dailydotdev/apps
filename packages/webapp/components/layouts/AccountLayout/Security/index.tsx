@@ -230,7 +230,7 @@ function AccountSecurityDefault({
         description="Remove the connection between daily.dev and authorized login providers."
         providerAction={({ provider }) => unlinkProvider(provider)}
         providerActionType="unlink"
-        className={{ button: 'hover:bg-theme-color-ketchup' }}
+        className={{ button: 'hover:bg-accent-ketchup-default' }}
         buttonVariant={ButtonVariant.Secondary}
         providers={removeProviderList.filter(({ value }) =>
           userProviders?.result.includes(value),

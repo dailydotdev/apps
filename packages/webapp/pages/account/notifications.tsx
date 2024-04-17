@@ -163,7 +163,7 @@ const AccountNotificationsPage = (): ReactElement => {
         </div>
       )}
       {showAlert && (
-        <div className="relative mt-6 w-full rounded-16 border border-theme-color-cabbage">
+        <div className="relative mt-6 w-full rounded-16 border border-accent-cabbage-default">
           <Pointer
             className="absolute -top-5 right-8"
             color={PointerColor.Cabbage}
