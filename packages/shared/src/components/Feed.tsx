@@ -293,7 +293,7 @@ export default function Feed<T>({
     row: number,
     column: number,
   ) => {
-    copyLink({ post, columns: index, row, column });
+    copyLink({ post, columns: virtualizedNumCards, row, column });
   };
 
   const onShareOptionsHidden = () => {
