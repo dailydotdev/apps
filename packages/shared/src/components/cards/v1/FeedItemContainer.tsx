@@ -14,9 +14,6 @@ import { Card, CardLink } from './Card';
 import { RaisedLabel, RaisedLabelType } from './RaisedLabel';
 import { useFeedPreviewMode } from '../../../hooks';
 import { TypeLabel } from './TypeLabel';
-import { useFeature } from '../../GrowthBookProvider';
-import { feature } from '../../../lib/featureManagement';
-import { TrendingFlag } from '../../../lib/featureValues';
 
 interface FeedItemContainerProps {
   flagProps?: FlagProps;
@@ -34,15 +31,11 @@ function FeedItemContainer(
   ref?: Ref<HTMLElement>,
 ): ReactElement {
   const { adAttribution, pinnedAt, trending, type } = flagProps;
-  const trendingFlag = useFeature(feature.trendingFlag);
-  const isTrendingFlagV1 = trendingFlag === TrendingFlag.V1;
-  const HotType = isTrendingFlagV1
-    ? RaisedLabelType.HotV1
+  const raisedLabelType = pinnedAt
+    ? RaisedLabelType.Pinned
     : RaisedLabelType.Hot;
-  const raisedLabelType = pinnedAt ? RaisedLabelType.Pinned : HotType;
   const description =
-    [RaisedLabelType.Hot, RaisedLabelType.HotV1].includes(raisedLabelType) &&
-    trending > 0
+    [RaisedLabelType.Hot].includes(raisedLabelType) && trending > 0
       ? `${trending} devs read it last hour`
       : undefined;
   const isFeedPreview = useFeedPreviewMode();

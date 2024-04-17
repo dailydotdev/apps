@@ -22,7 +22,6 @@ import { isVideoPost } from '../../graphql/posts';
 import CardOverlay from './common/CardOverlay';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
-import { TrendingFlag } from '../../lib/featureValues';
 import PostTags from './PostTags';
 
 export const ArticlePostCard = forwardRef(function PostCard(
@@ -46,8 +45,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const tagsOnCard = useFeature(feature.tagsOnCard);
-  const trendingFlag = useFeature(feature.trendingFlag);
-  const isTrendingFlagV1 = trendingFlag === TrendingFlag.V1;
   const { className, style } = domProps;
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
@@ -78,7 +75,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
         ),
       }}
       ref={ref}
-      flagProps={{ pinnedAt, ...(!isTrendingFlagV1 && { trending }) }}
+      flagProps={{ pinnedAt, trending }}
     >
       <CardOverlay post={post} onPostCardClick={onPostCardClick} />
       {showFeedback && (
@@ -107,7 +104,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
             postLink={post.permalink}
             onMenuClick={(event) => onMenuClick?.(event, post)}
             onReadArticleClick={onReadArticleClick}
-            flagProps={{ ...(isTrendingFlagV1 && { trending }) }}
           />
           <CardTitle lineClamp={showFeedback ? 'line-clamp-2' : undefined}>
             {post.title}

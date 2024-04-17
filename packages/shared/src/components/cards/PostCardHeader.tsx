@@ -1,5 +1,4 @@
 import React, { ReactElement, ReactNode } from 'react';
-import classNames from 'classnames';
 import OptionsButton from '../buttons/OptionsButton';
 import { CardHeader } from './Card';
 import SourceButton from './SourceButton';
@@ -10,7 +9,6 @@ import { useFeedPreviewMode } from '../../hooks';
 import { getReadPostButtonText, Post } from '../../graphql/posts';
 import { ButtonVariant } from '../buttons/Button';
 import { FlagProps } from './FeedItemContainer';
-import { TrendingFlag } from './common/TrendingFlag';
 
 interface CardHeaderProps {
   post: Post;
@@ -35,16 +33,13 @@ export const PostCardHeader = ({
   source,
   postLink,
   openNewTab,
-  flagProps,
 }: CardHeaderProps): ReactElement => {
-  const { trending } = flagProps;
   const isFeedPreview = useFeedPreviewMode();
 
   return (
-    <CardHeader className={classNames(className, 'relative')}>
+    <CardHeader className={className}>
       <SourceButton source={source} />
       {children}
-      {trending && <TrendingFlag className={{ container: 'right-0' }} />}
       <Container
         className="ml-auto flex flex-row"
         data-testid="cardHeaderActions"
