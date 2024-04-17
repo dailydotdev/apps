@@ -50,7 +50,7 @@ export function PostActions({
   const { showTagsPanel } = data;
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const queryClient = useQueryClient();
-  const { openNativeSharePost, openSharePost } = useSharePost(origin);
+  const { openNativeShareOrPopup } = useSharePost(origin);
   const shareExperience = useFeature(feature.shareExperience);
 
   const { toggleUpvote, toggleDownvote } = useVotePost({
@@ -189,11 +189,7 @@ export function PostActions({
           {shareExperience && (
             <QuaternaryButton
               id="share-post-btn"
-              onClick={() =>
-                globalThis?.navigator?.share
-                  ? openNativeSharePost(post)
-                  : openSharePost({ post })
-              }
+              onClick={() => openNativeShareOrPopup({ post })}
               icon={<ShareIcon />}
               responsiveLabelClass={actionsClassName}
               className="flex tablet:hidden"
