@@ -4,13 +4,24 @@ import { Button, ButtonVariant } from '../../buttons/Button';
 import { ModalClose } from '../common/ModalClose';
 import { Pill } from '../../Pill';
 import { Image } from '../../image/Image';
-import { cloudinary } from '../../../lib/image';
-import { migrateUserToStreaks } from '../../../lib/constants';
 
-export default function MigrateUserStreakModal({
+export interface PromotionProps {
+  pill: { copy: string; className?: string };
+  title: string;
+  description: string;
+  image: string;
+  cta: { copy: string; link: string };
+}
+
+export function GenericPromotionalModal({
   onRequestClose,
+  pill,
+  title,
+  description,
+  image,
+  cta,
   ...props
-}: LazyModalCommonProps): ReactElement {
+}: PromotionProps & LazyModalCommonProps): ReactElement {
   return (
     <Modal
       {...props}
@@ -22,8 +33,11 @@ export default function MigrateUserStreakModal({
       <Modal.Body className="items-center !pt-4 tablet:items-start">
         <div className="flex w-full flex-row items-center justify-between">
           <Pill
-            label="New Release"
-            className="bg-theme-overlay-float-avocado text-status-success"
+            label={pill.copy}
+            className={
+              pill.className ??
+              'bg-theme-overlay-float-cabbage text-brand-default'
+            }
           />
           <ModalClose
             position="relative"
@@ -32,30 +46,22 @@ export default function MigrateUserStreakModal({
           />
         </div>
         <div className="mt-5 flex flex-col gap-6">
-          <h1 className="font-bold typo-large-title">
-            Goodbye weekly goals,
-            <br />
-            Welcome reading streaks!
-          </h1>
-          <p className="text-text-secondary typo-body">
-            Unlock the magic of consistently learning with our new reading
-            streaks system
-          </p>
-          <Image
-            src={cloudinary.streak.migrate}
-            className="w-full rounded-16 object-cover"
-          />
+          <h1 className="font-bold typo-large-title">{title}</h1>
+          <p className="text-text-secondary typo-body">{description}</p>
+          <Image src={image} className="w-full rounded-16 object-cover" />
           <Button
             tag="a"
-            href={migrateUserToStreaks}
+            href={cta.link}
             className="w-full"
             variant={ButtonVariant.Primary}
             onClick={onRequestClose}
           >
-            Tell me more
+            {cta.copy}
           </Button>
         </div>
       </Modal.Body>
     </Modal>
   );
 }
+
+export default GenericPromotionalModal;

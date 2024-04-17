@@ -36,7 +36,7 @@ import ShareOptionsMenu from './ShareOptionsMenu';
 import { SharedFeedPage } from './utilities';
 import { FeedContainer, FeedContainerProps } from './feeds';
 import { ActiveFeedContext } from '../contexts';
-import { useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
+import { useActions, useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
 import {
   AllFeedPages,
   OtherFeedPage,
@@ -51,6 +51,10 @@ import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { acquisitionKey } from './cards/AcquisitionFormCard';
 import { MarketingCtaVariant } from './cards/MarketingCta/common';
+import { useLazyModal } from '../hooks/useLazyModal';
+import { ActionType } from '../graphql/actions';
+import { LazyModal } from './modals/common/types';
+import { promotion } from './modals/generic';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'>,
@@ -152,6 +156,8 @@ export default function Feed<T>({
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Card);
   const showMarketingCta = !!marketingCta;
+  const { openModal } = useLazyModal();
+  const { completeAction, checkHasCompleted } = useActions();
 
   const {
     items,
@@ -344,8 +350,8 @@ export default function Feed<T>({
     );
   };
 
-  const onCardBookmark = (post: Post, row: number, column: number) =>
-    onBookmark({
+  const onCardBookmark = async (post: Post, row: number, column: number) => {
+    await onBookmark({
       post,
       origin,
       opts: {
@@ -355,6 +361,15 @@ export default function Feed<T>({
         ...feedAnalyticsExtra(feedName, ranking),
       },
     });
+
+    if (!checkHasCompleted(ActionType.BookmarkPromoteMobile)) {
+      completeAction(ActionType.BookmarkPromoteMobile);
+      openModal({
+        type: LazyModal.GenericPromotion,
+        props: promotion.bookmarkPromoteMobile,
+      });
+    }
+  };
 
   const onShareClick = (post: Post, row?: number, column?: number) =>
     openSharePost(post, virtualizedNumCards, column, row);
@@ -368,9 +383,6 @@ export default function Feed<T>({
         postMenuLocation.row,
         postMenuLocation.column,
       ),
-    onBookmark: () => {
-      onBookmark({ post, origin, opts: feedAnalyticsExtra(feedName, ranking) });
-    },
     post,
     prevPost: (items[postMenuIndex - 1] as PostItem)?.post,
     nextPost: (items[postMenuIndex + 1] as PostItem)?.post,
