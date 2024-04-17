@@ -251,11 +251,7 @@ function AuthOptions({
   } = useProfileForm({ onSuccess: onProfileSuccess });
 
   const isReady = isTesting ? true : isLoginReady && isRegistrationReady;
-  const onProviderClick = async (
-    provider: string,
-    login = true,
-    afterRegistration?: () => void,
-  ) => {
+  const onProviderClick = async (provider: string, login = true) => {
     trackEvent({
       event_name: 'click',
       target_type: login
@@ -267,7 +263,7 @@ function AuthOptions({
     windowPopup.current = window.open();
     setChosenProvider(provider);
     await onSocialRegistration(provider);
-    afterRegistration?.();
+    onAuthStateUpdate({ isLoading: true });
   };
 
   const onForgotPasswordSubmit = (inputEmail: string, inputFlow: string) => {
@@ -446,11 +442,7 @@ function AuthOptions({
                 email: existingEmail,
               });
             }}
-            onProviderClick={(provider, login) =>
-              onProviderClick(provider, login, () =>
-                onAuthStateUpdate({ isLoading: true }),
-              )
-            }
+            onProviderClick={onProviderClick}
             trigger={trigger}
             isReady={isReady}
             simplified={simplified}
