@@ -132,8 +132,8 @@ const UserHighlight = (props: SourceAuthorProps) => {
           className={classNames(
             'absolute left-10 top-10 h-5 w-5',
             userType === UserType.Author
-              ? 'text-theme-color-cheese'
-              : 'text-theme-color-bun',
+              ? 'text-accent-cheese-default'
+              : 'text-accent-bun-default',
           )}
         />
       )}

@@ -120,7 +120,10 @@ export function ReadingStreakButton({
               : ButtonVariant.Float
           }
           onClick={handleToggle}
-          className={classnames('gap-1', compact && 'text-theme-color-bacon')}
+          className={classnames(
+            'gap-1',
+            compact && 'text-accent-bacon-default',
+          )}
           size={
             (isLaptop || !compact) && !isMobile
               ? ButtonSize.Medium

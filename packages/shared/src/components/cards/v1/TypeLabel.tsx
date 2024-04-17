@@ -9,7 +9,7 @@ const typeToClassName: Record<
   string
 > = {
   [PostType.Collection]: 'text-brand-default',
-  [PostType.VideoYouTube]: 'text-theme-color-blueCheese',
+  [PostType.VideoYouTube]: 'text-accent-blueCheese-default',
 };
 
 const typeToLabel = {

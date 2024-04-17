@@ -87,7 +87,7 @@ function EmailCodeVerification({
         value={email}
         readOnly={!!flowId}
         valueChanged={setEmail}
-        rightIcon={<VIcon className="text-theme-color-avocado" />}
+        rightIcon={<VIcon className="text-accent-avocado-default" />}
       />
       <TextField
         className={{ container: 'w-full' }}
