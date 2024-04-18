@@ -111,6 +111,10 @@ const UserSettingsModal = dynamic(
     import(/* webpackChunkName: "userSettingsModal" */ './UserSettingsModal'),
 );
 
+const ShareModal = dynamic(
+  () => import(/* webpackChunkName: "shareModal" */ './ShareModal'),
+);
+
 const GenericPromotionalModal = dynamic(
   () =>
     import(
@@ -139,6 +143,7 @@ export const modals = {
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.UserSettings]: UserSettingsModal,
   [LazyModal.GenericPromotion]: GenericPromotionalModal,
+  [LazyModal.Share]: ShareModal,
 };
 
 type GetComponentProps<T> = T extends

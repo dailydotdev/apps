@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
 import { PostComments } from '@dailydotdev/shared/src/components/post/PostComments';
-import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { useShareComment } from '@dailydotdev/shared/src/hooks/useShareComment';
 import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
@@ -27,9 +26,7 @@ export function CompanionDiscussion({
   onShowUpvoted,
 }: CompanionDiscussionProps): ReactElement {
   const commentClasses = { tab: '!min-h-[14.5rem]' };
-  const { shareComment, openShareComment, closeShareComment } = useShareComment(
-    Origin.Companion,
-  );
+  const { openShareComment } = useShareComment(Origin.Companion);
   useBackgroundRequest(
     generateQueryKey(RequestKey.PostComments, null, post?.id),
   );
@@ -66,16 +63,6 @@ export function CompanionDiscussion({
           className={commentClasses}
         />
       </div>
-      {shareComment && (
-        <ShareModal
-          isOpen={!!shareComment}
-          post={post}
-          comment={shareComment}
-          origin={Origin.Companion}
-          onRequestClose={closeShareComment}
-          parentSelector={getCompanionWrapper}
-        />
-      )}
     </div>
   );
 }

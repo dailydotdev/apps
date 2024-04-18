@@ -6,7 +6,9 @@ import {
 } from '@dailydotdev/shared/src/graphql/users';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import AuthContext, {
+  useAuthContext,
+} from '@dailydotdev/shared/src/contexts/AuthContext';
 import { RanksWidget } from '@dailydotdev/shared/src/components/profile/RanksWidget';
 import { useActivityTimeFilter } from '@dailydotdev/shared/src/hooks/profile/useActivityTimeFilter';
 import { ReadingTagsWidget } from '@dailydotdev/shared/src/components/profile/ReadingTagsWidget';
@@ -33,6 +35,7 @@ const ProfilePage = ({
   useJoinReferral();
   const { tokenRefreshed } = useContext(AuthContext);
   const { shouldShowStreak } = useStreakExperiment();
+  const { user: loggedUser } = useAuthContext();
 
   const {
     selectedHistoryYear,
@@ -68,7 +71,7 @@ const ProfilePage = ({
       <Readme user={user} />
       {readingHistory?.userReadingRankHistory && (
         <>
-          {!shouldShowStreak && (
+          {!shouldShowStreak && !!loggedUser && (
             <RanksWidget
               rankHistory={readingHistory?.userReadingRankHistory}
               yearOptions={yearOptions}

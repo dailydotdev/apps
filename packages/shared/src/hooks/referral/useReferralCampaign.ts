@@ -8,8 +8,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { Feature } from '../../lib/featureManagement';
 import { useFeatureIsOn } from '../../components/GrowthBookProvider';
 import { isTesting } from '../../lib/constants';
-
-import { ReferralCampaignKey } from '../../lib/referral';
+import { ReferralCampaignKey } from '../../lib';
 
 export { ReferralCampaignKey };
 
