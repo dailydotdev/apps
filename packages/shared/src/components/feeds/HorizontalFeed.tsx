@@ -5,7 +5,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import classNames from 'classnames';
 import Feed from '../Feed';
 import { OtherFeedPage } from '../../lib/query';
 import { MOST_UPVOTED_FEED_QUERY } from '../../graphql/feed';
@@ -14,9 +13,16 @@ import SettingsContext from '../../contexts/SettingsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
-import { useFeedLayout } from '../../hooks';
 
-export const HorizontalFeed = ({ variables, title }): ReactElement => {
+interface HorizontalFeedProps {
+  // Todo define end expected type here
+  variables: never;
+  title: ReactElement;
+}
+export const HorizontalFeed = ({
+  variables,
+  title,
+}: HorizontalFeedProps): ReactElement => {
   const feedContainerRef = useRef<HTMLDivElement>(null);
   const [feedScrolledPosition, setFeedScrolledPosition] = useState(0);
   const currentSettings = useContext(FeedContext);
