@@ -22,6 +22,7 @@ import { useActiveFeedNameContext } from '../../contexts';
 import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import { useReadingStreak } from '../../hooks/streaks';
 import { feature } from '../../lib/featureManagement';
+import { AllFeedPages } from '../../lib/query';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -35,6 +36,7 @@ export interface FeedContainerProps {
   actionButtons?: ReactNode;
   isHorizontal?: boolean;
   feedContainerRef?: React.RefObject<HTMLDivElement>;
+  feedName?: AllFeedPages;
 }
 
 const listGaps = {
@@ -114,6 +116,7 @@ const feedNameToHeading: Record<
     | 'tags[tag]'
     | 'sources[source]'
     | 'search-bookmarks'
+    | 'sources[source]/most-upvoted'
   >,
   string
 > = {
@@ -137,6 +140,7 @@ export const FeedContainer = ({
   actionButtons,
   isHorizontal,
   feedContainerRef,
+  feedName: originFeedName,
 }: FeedContainerProps): ReactElement => {
   const { value: isShortcutsV1 } = useConditionalFeature({
     feature: feature.onboardingMostVisited,
@@ -149,7 +153,9 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout({
+    originFeedName,
+  });
   const { isNewMobileLayout } = useMobileUxExperiment();
   const { isEnabled: isStreaksEnabled } = useReadingStreak();
   const { feedName } = useActiveFeedNameContext();

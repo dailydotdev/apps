@@ -147,7 +147,9 @@ export default function Feed<T>({
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout({
+    originFeedName: feedName,
+  });
   const showAcquisitionForm =
     feedName === SharedFeedPage.MyFeed &&
     (router.query?.[acquisitionKey] as string)?.toLocaleLowerCase() ===
@@ -398,6 +400,7 @@ export default function Feed<T>({
         actionButtons={actionButtons}
         isHorizontal={isHorizontal}
         feedContainerRef={feedContainerRef}
+        feedName={feedName}
       >
         {items.map((_, index) => (
           <FeedItemComponent

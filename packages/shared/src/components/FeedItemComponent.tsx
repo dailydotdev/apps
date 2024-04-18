@@ -25,6 +25,7 @@ import { CollectionCard } from './cards/CollectionCard';
 import { CollectionCard as CollectionCardV1 } from './cards/v1/CollectionCard';
 import { AcquisitionFormCard } from './cards/AcquisitionFormCard';
 import { MarketingCtaCard, MarketingCtaList } from './cards';
+import { AllFeedPages } from '../lib/query';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -169,7 +170,9 @@ export default function FeedItemComponent({
     ranking,
   );
 
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout({
+    originFeedName: feedName as AllFeedPages,
+  });
   const { PostTag, AdTag, PlaceholderTag, MarketingCtaTag } = getTags(
     isList,
     shouldUseMobileFeedLayout,

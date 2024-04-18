@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import classNames from 'classnames';
 import Feed from '../Feed';
 import { OtherFeedPage } from '../../lib/query';
 import { MOST_UPVOTED_FEED_QUERY } from '../../graphql/feed';
@@ -13,8 +14,10 @@ import SettingsContext from '../../contexts/SettingsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
+import { useFeedLayout } from '../../hooks';
 
 export const HorizontalFeed = ({ variables, title }): ReactElement => {
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const feedContainerRef = useRef<HTMLDivElement>(null);
   const [feedScrolledPosition, setFeedScrolledPosition] = useState(0);
   const currentSettings = useContext(FeedContext);
@@ -41,7 +44,7 @@ export const HorizontalFeed = ({ variables, title }): ReactElement => {
 
   return (
     <>
-      <div className="mb-4 flex w-full items-center">
+      <div className="mx-4 mb-4 flex w-auto items-center laptop:mx-0 laptop:w-full">
         <p className="flex items-center font-bold typo-body">{title}</p>
         <div className="flex-1" />
         <div className="flex flex-col gap-3">
@@ -81,7 +84,7 @@ export const HorizontalFeed = ({ variables, title }): ReactElement => {
         />
       </div>
       <Feed
-        feedName={OtherFeedPage.Source}
+        feedName={OtherFeedPage.SourceMostUpvoted}
         feedQueryKey={[
           'sourceFeedUpvoted',
           user?.id ?? 'anonymous',
@@ -93,7 +96,7 @@ export const HorizontalFeed = ({ variables, title }): ReactElement => {
         allowFetchMore={false}
         forcedLimit={10}
         isHorizontal
-        className="mb-10"
+        className="mx-4 mb-10"
         feedContainerRef={feedContainerRef}
       />
     </>

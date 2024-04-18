@@ -15,6 +15,7 @@ interface UseFeedLayoutReturn {
 
 interface UseFeedLayoutProps {
   feedRelated?: boolean;
+  originFeedName?: AllFeedPages;
 }
 
 export type FeedPagesWithMobileLayoutType = Exclude<
@@ -59,12 +60,16 @@ const checkShouldUseMobileFeedLayout = (
 
 export const useFeedLayout = ({
   feedRelated = true,
+  originFeedName,
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
-
+  const evaluateFeedName =
+    originFeedName === OtherFeedPage.SourceMostUpvoted
+      ? originFeedName
+      : feedName;
   const shouldUseMobileFeedLayout = feedRelated
-    ? checkShouldUseMobileFeedLayout(isLaptop, feedName)
+    ? checkShouldUseMobileFeedLayout(isLaptop, evaluateFeedName)
     : !isLaptop;
 
   const FeedPageLayoutComponent = shouldUseMobileFeedLayout
@@ -76,6 +81,6 @@ export const useFeedLayout = ({
     FeedPageLayoutComponent,
     screenCenteredOnMobileLayout:
       shouldUseMobileFeedLayout &&
-      !UserProfileFeedPages.has(feedName as UserProfileFeedType),
+      !UserProfileFeedPages.has(evaluateFeedName as UserProfileFeedType),
   };
 };

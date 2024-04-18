@@ -15,7 +15,7 @@ import {
 import { Post, PostType } from '../graphql/posts';
 import { Origin } from '../lib/analytics';
 import { ActiveFeedContext } from '../contexts';
-import { updateCachedPagePost } from '../lib/query';
+import { AllFeedPages, updateCachedPagePost } from '../lib/query';
 import { usePostFeedback } from './usePostFeedback';
 import { FeedLayoutMobileFeedPages, useFeedLayout } from './useFeedLayout';
 import { FeedData } from '../graphql/feed';
@@ -98,7 +98,10 @@ export default function useOnPostClick({
   const { trackEvent } = useContext(AnalyticsContext);
   const { incrementReadingRank } = useIncrementReadingRank();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
-  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
+  const { shouldUseMobileFeedLayout } = useFeedLayout({
+    feedRelated: false,
+    originFeedName: feedName as AllFeedPages,
+  });
 
   const { isLowImpsEnabled } = usePostFeedback();
 

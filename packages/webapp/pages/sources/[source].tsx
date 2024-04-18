@@ -87,6 +87,7 @@ const SourceRelatedTags = ({
 };
 
 const SimilarSources = ({ sourceId }: { sourceId: string }) => {
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { data: similarSources, isLoading } = useQuery(
     [RequestKey.SimilarSources, null, sourceId],
     async () =>
@@ -113,6 +114,7 @@ const SimilarSources = ({ sourceId }: { sourceId: string }) => {
       isLoading={isLoading}
       sources={sources}
       title="Similar sources"
+      className={shouldUseMobileFeedLayout && 'mx-4'}
     />
   );
 };
@@ -228,7 +230,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
           </>
         }
       />
-      <div className="mb-5 flex w-full items-center">
+      <div className="mx-4 mb-5 flex w-auto items-center laptop:mx-0 laptop:w-full">
         <p className="flex items-center font-bold typo-body">
           All posts from {source.name}
         </p>
