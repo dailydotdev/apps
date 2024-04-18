@@ -9,7 +9,9 @@ import { AllFeedPages, OtherFeedPage } from '../lib/query';
 
 interface UseFeedLayoutReturn {
   shouldUseMobileFeedLayout: boolean;
-  FeedPageLayoutComponent: React.ComponentType;
+  FeedPageLayoutComponent: React.ComponentType<
+    React.HTMLAttributes<HTMLDivElement>
+  >;
   screenCenteredOnMobileLayout?: boolean;
 }
 

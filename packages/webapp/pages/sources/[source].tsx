@@ -186,7 +186,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   };
 
   return (
-    <FeedPageLayoutComponent>
+    <FeedPageLayoutComponent className="overflow-x-hidden">
       <NextSeo {...seo} />
       <PageInfoHeader className={shouldUseMobileFeedLayout && 'mx-4 !w-auto'}>
         <div className="flex items-center font-bold">
