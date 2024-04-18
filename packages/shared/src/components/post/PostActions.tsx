@@ -7,6 +7,7 @@ import {
   BookmarkIcon,
   DownvoteIcon,
   LinkIcon,
+  ShareIcon,
 } from '../icons';
 import { Post, UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
@@ -24,6 +25,10 @@ import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
 } from '../../hooks/useBookmarkPost';
+import { useSharePost } from '../../hooks/useSharePost';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { ButtonColor, ButtonVariant } from '../buttons/Button';
 
 interface PostActionsProps {
   post: Post;
@@ -45,6 +50,8 @@ export function PostActions({
   const { showTagsPanel } = data;
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const queryClient = useQueryClient();
+  const { openNativeShareOrPopup } = useSharePost(origin);
+  const shareExperience = useFeature(feature.shareExperience);
 
   const { toggleUpvote, toggleDownvote } = useVotePost({
     variables: { feedName: feedQueryKey },
@@ -126,7 +133,8 @@ export function PostActions({
             }
             aria-label="Upvote"
             responsiveLabelClass={actionsClassName}
-            className="btn-tertiary-avocado"
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Avocado}
           />
           <QuaternaryButton
             id="downvote-post-btn"
@@ -139,7 +147,8 @@ export function PostActions({
             }
             aria-label="Downvote"
             responsiveLabelClass={actionsClassName}
-            className="btn-tertiary-ketchup"
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Ketchup}
           />
         </Card>
         <div className="flex flex-1 items-center justify-between px-4 py-2">
@@ -150,7 +159,8 @@ export function PostActions({
             icon={<CommentIcon secondary={post.commented} />}
             aria-label="Comment"
             responsiveLabelClass={actionsClassName}
-            className="btn-tertiary-blueCheese"
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.BlueCheese}
           >
             Comment
           </QuaternaryButton>
@@ -166,14 +176,27 @@ export function PostActions({
             Bookmark
           </QuaternaryButton>
           <QuaternaryButton
-            id="share-post-btn"
+            id="copy-post-btn"
             onClick={() => onCopyLinkClick(post)}
             icon={<LinkIcon />}
             responsiveLabelClass={actionsClassName}
-            className="btn-tertiary-cabbage"
+            className={shareExperience && 'hidden tablet:flex'}
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Cabbage}
           >
             Copy
           </QuaternaryButton>
+          {shareExperience && (
+            <QuaternaryButton
+              id="share-post-btn"
+              onClick={() => openNativeShareOrPopup({ post })}
+              icon={<ShareIcon />}
+              responsiveLabelClass={actionsClassName}
+              className="flex tablet:hidden"
+              variant={ButtonVariant.Tertiary}
+              color={ButtonColor.Cabbage}
+            />
+          )}
         </div>
       </div>
     </ConditionalWrapper>

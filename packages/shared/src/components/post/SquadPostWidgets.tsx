@@ -62,8 +62,9 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
 };
 
 export function SquadPostWidgets({
-  onShare,
+  onCopyPostLink,
   post,
+  origin,
   className,
   onClose,
 }: PostWidgetsProps): ReactElement {
@@ -85,7 +86,8 @@ export function SquadPostWidgets({
           <ShareBar post={post} />
           <ShareMobile
             post={post}
-            share={onShare}
+            origin={origin}
+            onCopyPostLink={onCopyPostLink}
             link={post.commentsPermalink}
           />
         </>

@@ -23,18 +23,16 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
 import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
-import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import CreateSharedPostModal, {
-  CreateSharedPostModalProps,
-} from '@dailydotdev/shared/src/components/modals/post/CreateSharedPostModal';
 import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import { useVotePost } from '@dailydotdev/shared/src/hooks';
 import UpvotedPopupModal, {
   UpvotedPopupModalProps,
 } from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
+import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
+import { ShareProps } from '@dailydotdev/shared/src/components/modals/post/common';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useCompanionActions from './useCompanionActions';
@@ -84,10 +82,7 @@ export default function CompanionMenu({
   };
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
-
-  const { sharePost, openSharePost, closeSharePost } = useSharePost(
-    Origin.Companion,
-  );
+  const { openSharePost } = useSharePost(Origin.Companion);
   const {
     bookmark,
     removeBookmark,
@@ -133,7 +128,7 @@ export default function CompanionMenu({
     setCompanionState((state) => !state);
   };
 
-  const onShare = () => openSharePost(post);
+  const onShare = () => openSharePost({ post });
 
   const optOut = () => {
     disableCompanion({});
@@ -306,21 +301,12 @@ export default function CompanionMenu({
         onDisableCompanion={optOut}
         onDownvote={onToggleDownvote}
       />
-      {sharePost && (
+      {modal?.type === LazyModal.Share && (
         <ShareModal
-          isOpen={!!sharePost}
-          parentSelector={getCompanionWrapper}
-          post={sharePost}
-          origin={Origin.Companion}
-          onRequestClose={closeSharePost}
-        />
-      )}
-      {modal?.type === LazyModal.CreateSharedPost && (
-        <CreateSharedPostModal
           isOpen
           parentSelector={getCompanionWrapper}
           onRequestClose={closeModal}
-          {...(modal.props as CreateSharedPostModalProps)}
+          {...(modal.props as ShareProps)}
         />
       )}
       {modal?.type === LazyModal.UpvotedPopup && (

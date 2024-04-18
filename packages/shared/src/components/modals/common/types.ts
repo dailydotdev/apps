@@ -49,6 +49,7 @@ export enum LazyModal {
   ReputationPrivileges = 'reputationPrivileges',
   MarketingCta = 'marketingCta',
   UserSettings = 'userSettings',
+  Share = 'share',
   MigrateUserStreak = 'migrateUserStreak',
 }
 

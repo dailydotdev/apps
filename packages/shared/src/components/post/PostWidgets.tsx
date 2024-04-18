@@ -1,27 +1,23 @@
 import React, { ReactElement, useContext } from 'react';
 import { PageWidgets } from '../utilities';
-import { ShareMobile } from '../ShareMobile';
+import { ShareMobile, ShareMobileProps } from '../ShareMobile';
 import AuthContext from '../../contexts/AuthContext';
 import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
 import { PostUsersHighlights } from '../widgets/PostUsersHighlights';
 import { PostHeaderActions } from './PostHeaderActions';
-import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import { PostHeaderActionsProps } from './common';
-import { Post } from '../../graphql/posts';
 
-export interface PostWidgetsProps
-  extends Omit<PostHeaderActionsProps, 'contextMenuId'> {
-  origin?: PostOrigin;
-  onShare?: (post?: Post) => void;
-}
+export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
+  Omit<ShareMobileProps, 'link'>;
 
 export function PostWidgets({
-  onShare,
+  onCopyPostLink,
   onReadArticle,
   post,
   className,
   onClose,
+  origin,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
 
@@ -36,7 +32,12 @@ export function PostWidgets({
       />
       <PostUsersHighlights post={post} />
       <ShareBar post={post} />
-      <ShareMobile post={post} share={onShare} link={post.commentsPermalink} />
+      <ShareMobile
+        post={post}
+        origin={origin}
+        link={post.commentsPermalink}
+        onCopyPostLink={onCopyPostLink}
+      />
       {tokenRefreshed && <FurtherReading currentPost={post} />}
     </PageWidgets>
   );

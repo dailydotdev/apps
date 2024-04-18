@@ -7,10 +7,6 @@ import { BasePostContentProps } from './common';
 import { GoBackHeaderMobile } from './GoBackHeaderMobile';
 import { PostHeaderActions } from './PostHeaderActions';
 
-const ShareModal = dynamic(
-  () => import(/* webpackChunkName: "shareModal" */ '../modals/ShareModal'),
-);
-
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
 );
@@ -30,7 +26,7 @@ export function BasePostContent({
   isPostPage,
 }: BasePostContentProps): ReactElement {
   const { id } = post ?? {};
-  const { onCloseShare, sharePost, onCopyPostLink } = engagementProps;
+  const { onCopyPostLink } = engagementProps;
 
   if (!id && !isFallback) {
     return <Custom404 />;
@@ -58,14 +54,6 @@ export function BasePostContent({
         shouldOnboardAuthor={shouldOnboardAuthor}
         enableShowShareNewComment={enableShowShareNewComment}
       />
-      {sharePost && (
-        <ShareModal
-          isOpen={!!sharePost}
-          post={post}
-          origin={origin}
-          onRequestClose={onCloseShare}
-        />
-      )}
     </>
   );
 }
