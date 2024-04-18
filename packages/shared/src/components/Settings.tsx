@@ -19,6 +19,7 @@ import AuthContext from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import { checkIsExtension } from '../lib/func';
 import { useFeedLayout } from '../hooks';
+import { useStreakExperiment } from '../hooks/streaks';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -61,6 +62,7 @@ export default function Settings({
   ...props
 }: HTMLAttributes<HTMLDivElement>): ReactElement {
   const isExtension = checkIsExtension();
+  const { shouldShowStreak } = useStreakExperiment();
   const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
   const { user, showLogin } = useContext(AuthContext);
   const {
@@ -168,13 +170,15 @@ export default function Settings({
           >
             Show feed sorting menu
           </SettingsSwitch>
-          <SettingsSwitch
-            name="weekly-goal-widget"
-            checked={!optOutWeeklyGoal}
-            onToggle={() => onToggleForLoggedInUsers(toggleOptOutWeeklyGoal)}
-          >
-            Show Weekly Goal widget
-          </SettingsSwitch>
+          {!shouldShowStreak && (
+            <SettingsSwitch
+              name="weekly-goal-widget"
+              checked={!optOutWeeklyGoal}
+              onToggle={() => onToggleForLoggedInUsers(toggleOptOutWeeklyGoal)}
+            >
+              Show Weekly Goal widget
+            </SettingsSwitch>
+          )}
           <SettingsSwitch
             name="hide-companion"
             checked={!optOutCompanion}
