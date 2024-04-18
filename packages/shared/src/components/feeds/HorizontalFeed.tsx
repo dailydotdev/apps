@@ -13,10 +13,10 @@ import SettingsContext from '../../contexts/SettingsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
+import { PostType } from '../../graphql/posts';
 
 interface HorizontalFeedProps {
-  // Todo define end expected type here
-  variables: never;
+  variables: { source: string; ranking: string; supportedTypes: PostType[] };
   title: ReactElement;
 }
 export const HorizontalFeed = ({
