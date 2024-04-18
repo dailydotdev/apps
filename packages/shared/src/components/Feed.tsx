@@ -69,6 +69,10 @@ export interface FeedProps<T>
   showSearch?: boolean;
   actionButtons?: ReactNode;
   disableAds?: boolean;
+  allowFetchMore?: boolean;
+  forcedLimit?: number;
+  isHorizontal?: boolean;
+  feedContainerRef?: React.RefObject<HTMLDivElement>;
 }
 
 interface RankVariables {
@@ -123,6 +127,10 @@ export default function Feed<T>({
   shortcuts,
   actionButtons,
   disableAds,
+  allowFetchMore = true,
+  forcedLimit,
+  isHorizontal = false,
+  feedContainerRef,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { trackEvent } = useContext(AnalyticsContext);
@@ -155,13 +163,13 @@ export default function Feed<T>({
     updatePost,
     removePost,
     fetchPage,
-    canFetchMore,
+    canFetchMore: queryCanFetchMore,
     emptyFeed,
     isFetching,
     isInitialLoading,
   } = useFeed(
     feedQueryKey,
-    currentSettings.pageSize,
+    forcedLimit ?? currentSettings.pageSize,
     isSquadFeed || shouldUseMobileFeedLayout ? 2 : adSpot,
     numCards,
     {
@@ -176,6 +184,7 @@ export default function Feed<T>({
       },
     },
   );
+  const canFetchMore = allowFetchMore ?? queryCanFetchMore;
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
@@ -387,6 +396,8 @@ export default function Feed<T>({
         showSearch={showSearch && isValidFeed}
         shortcuts={shortcuts}
         actionButtons={actionButtons}
+        isHorizontal={isHorizontal}
+        feedContainerRef={feedContainerRef}
       >
         {items.map((_, index) => (
           <FeedItemComponent
@@ -419,7 +430,7 @@ export default function Feed<T>({
             onReadArticleClick={onReadArticleClick}
           />
         ))}
-        {!isFetching && !isInitialLoading && (
+        {!isFetching && !isInitialLoading && !isHorizontal && (
           <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
         )}
         <PostOptionsMenu

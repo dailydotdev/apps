@@ -27,7 +27,12 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { PageInfoHeader } from '@dailydotdev/shared/src/components/utilities';
-import { PlusIcon, BlockIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  BlockIcon,
+  DiscussIcon,
+  PlusIcon,
+  UpvoteIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
@@ -45,6 +50,8 @@ import { useQuery } from '@tanstack/react-query';
 import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
+import { HorizontalFeed } from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -203,6 +210,29 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         <SourceRelatedTags sourceId={source.id} />
       </PageInfoHeader>
       <SimilarSources sourceId={source.id} />
+      <HorizontalFeed
+        variables={queryVariables}
+        title={
+          <>
+            <UpvoteIcon size={IconSize.Medium} className="mr-1.5" /> Most
+            upvoted posts
+          </>
+        }
+      />
+      <HorizontalFeed
+        variables={queryVariables}
+        title={
+          <>
+            <DiscussIcon size={IconSize.Medium} className="mr-1.5" /> Best
+            discussed posts
+          </>
+        }
+      />
+      <div className="mb-5 flex w-full items-center">
+        <p className="flex items-center font-bold typo-body">
+          All posts from {source.name}
+        </p>
+      </div>
       <Feed
         feedName={OtherFeedPage.Squad}
         feedQueryKey={[

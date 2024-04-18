@@ -33,6 +33,8 @@ export interface FeedContainerProps {
   showSearch?: boolean;
   shortcuts?: ReactNode;
   actionButtons?: ReactNode;
+  isHorizontal?: boolean;
+  feedContainerRef?: React.RefObject<HTMLDivElement>;
 }
 
 const listGaps = {
@@ -64,19 +66,35 @@ export const getFeedGapPx = {
   'gap-14': 56,
 };
 
-export const gapClass = (
-  isList: boolean,
-  isFeedLayoutV1: boolean,
-  space: Spaciness,
-): string => {
+export const gapClass = ({
+  isList,
+  isFeedLayoutV1,
+  space,
+}: {
+  isList: boolean;
+  isFeedLayoutV1: boolean;
+  space: Spaciness;
+}): string => {
   if (isFeedLayoutV1) {
     return '';
   }
   return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
 };
 
-const cardClass = (isList: boolean, numberOfCards: number): string =>
-  isList ? 'grid-cols-1' : cardListClass[numberOfCards];
+const cardClass = ({
+  isList,
+  numberOfCards,
+  isHorizontal,
+}: {
+  isList: boolean;
+  numberOfCards: number;
+  isHorizontal: boolean;
+}): string => {
+  if (isHorizontal) {
+    return 'auto-cols-[calc((100%/var(--num-cards))-var(--feed-gap)-calc(var(--feed-gap)*-1)/var(--num-cards))]';
+  }
+  return isList ? 'grid-cols-1' : cardListClass[numberOfCards];
+};
 
 const getStyle = (isList: boolean, space: Spaciness): CSSProperties => {
   if (isList && space !== 'eco') {
@@ -117,6 +135,8 @@ export const FeedContainer = ({
   showSearch,
   shortcuts,
   actionButtons,
+  isHorizontal,
+  feedContainerRef,
 }: FeedContainerProps): ReactElement => {
   const { value: isShortcutsV1 } = useConditionalFeature({
     feature: feature.onboardingMostVisited,
@@ -138,7 +158,13 @@ export const FeedContainer = ({
   const insaneMode = !forceCardMode && listMode;
   const isList = (insaneMode && numCards > 1) || shouldUseMobileFeedLayout;
   const feedGapPx =
-    getFeedGapPx[gapClass(isList, shouldUseMobileFeedLayout, spaciness)];
+    getFeedGapPx[
+      gapClass({
+        isList,
+        isFeedLayoutV1: shouldUseMobileFeedLayout,
+        space: spaciness,
+      })
+    ];
   const style = {
     '--num-cards': numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
@@ -228,9 +254,16 @@ export const FeedContainer = ({
               className={classNames(
                 'grid',
                 isSearch && !shouldUseMobileFeedLayout && 'mt-8',
-                gapClass(isList, shouldUseMobileFeedLayout, spaciness),
-                cardClass(isList, numCards),
+                isHorizontal &&
+                  'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth',
+                gapClass({
+                  isList,
+                  isFeedLayoutV1: shouldUseMobileFeedLayout,
+                  space: spaciness,
+                }),
+                cardClass({ isList, numberOfCards: numCards, isHorizontal }),
               )}
+              ref={feedContainerRef}
             >
               {children}
             </div>

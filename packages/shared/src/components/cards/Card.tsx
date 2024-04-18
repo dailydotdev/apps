@@ -58,7 +58,7 @@ export const CardLink = classed('a', clickableCardClasses);
 export const Card = classed(
   'article',
   styles.card,
-  'relative max-h-cardLarge h-full flex flex-col p-2 rounded-16 bg-background-subtle border border-border-subtlest-tertiary hover:border-border-subtlest-secondary shadow-2',
+  'snap-start relative max-h-cardLarge h-full flex flex-col p-2 rounded-16 bg-background-subtle border border-border-subtlest-tertiary hover:border-border-subtlest-secondary shadow-2',
 );
 
 export const ChecklistCardComponent = classed(
