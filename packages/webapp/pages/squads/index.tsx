@@ -108,7 +108,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
           <ConditionalWrapper
             condition={isTabbedContainer}
             wrapper={(component) => (
-              <TabContainer className={{ container: 'w-full' }}>
+              <TabContainer className={{ container: 'w-full' }} showActiveAsH1>
                 <Tab
                   label="Your squads"
                   className="grid grid-cols-1 gap-4 px-4 py-5"

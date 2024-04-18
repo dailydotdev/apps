@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import TabLabel from './TabLabel';
 
 interface ClassName {
   indicator?: string;
@@ -23,6 +24,7 @@ export interface TabListProps {
   onClick?: (label: string) => unknown;
   className?: ClassName;
   autoScrollActive?: boolean;
+  showActiveAsH1?: boolean;
 }
 
 function TabList({
@@ -31,6 +33,7 @@ function TabList({
   onClick,
   className = {},
   autoScrollActive,
+  showActiveAsH1 = false,
 }: TabListProps): ReactElement {
   const hasActive = items.includes(active);
   const currentActiveTab = useRef<HTMLButtonElement>(null);
@@ -96,35 +99,36 @@ function TabList({
 
   return (
     <ul className="relative flex flex-row">
-      {items.map((tab) => (
-        <button
-          key={tab}
-          ref={(el) => {
-            if (!el || tab !== active) {
-              return;
-            }
+      {items.map((tab) => {
+        const isActive = tab === active;
 
-            currentActiveTab.current = el;
-          }}
-          className={classNames(
-            className.item,
-            'relative p-2 py-4 text-center font-bold typo-callout',
-            tab === active ? '' : 'text-text-tertiary',
-          )}
-          onClick={() => onClick(tab)}
-          type="button"
-          role="menuitem"
-        >
-          <span
+        return (
+          <button
+            key={tab}
+            ref={(el) => {
+              if (!el || !isActive) {
+                return;
+              }
+
+              currentActiveTab.current = el;
+            }}
             className={classNames(
-              'rounded-10 px-3 py-1.5',
-              tab === active && 'bg-theme-active',
+              className.item,
+              'relative p-2 py-4 text-center font-bold typo-callout',
+              isActive ? '' : 'text-text-tertiary',
             )}
+            onClick={() => onClick(tab)}
+            type="button"
+            role="menuitem"
           >
-            {tab}
-          </span>
-        </button>
-      ))}
+            <TabLabel
+              label={tab}
+              isActive={isActive}
+              showActiveAsH1={showActiveAsH1}
+            />
+          </button>
+        );
+      })}
       {!!indicatorOffset && hasActive && (
         <div
           className={classNames(

@@ -93,7 +93,7 @@ export default function BookmarkFeedLayout({
     <FeedPageLayoutComponent>
       {children}
       <FeedPageHeader className="mb-5">
-        <h3 className="font-bold typo-callout">Bookmarks</h3>
+        <h1 className="font-bold typo-callout">Bookmarks</h1>
       </FeedPageHeader>
       <CustomFeedHeader
         className={classNames('mb-6 flex', shouldUseMobileFeedLayout && 'px-4')}

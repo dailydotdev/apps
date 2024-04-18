@@ -17,7 +17,6 @@ const BookmarksPage = (): ReactElement => {
   return (
     <>
       <NextSeo {...seo} nofollow noindex />
-      <h1 className="hidden">Bookmarks</h1>
     </>
   );
 };

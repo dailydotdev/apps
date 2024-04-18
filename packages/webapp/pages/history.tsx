@@ -107,6 +107,7 @@ const History = (): ReactElement => {
           <TabContainer<HistoryType>
             controlledActive={page}
             onActiveChange={handleSetPage}
+            showActiveAsH1
             showBorder={isLaptop}
           >
             <Tab label={HistoryType.Reading}>

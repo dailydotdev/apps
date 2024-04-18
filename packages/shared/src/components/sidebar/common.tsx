@@ -47,6 +47,7 @@ export interface SidebarMenuItem {
     text?: string;
   };
   navItemRef?: MutableRefObject<HTMLElement>;
+  showH1WhenActive?: boolean;
 }
 
 interface ListIconProps {
@@ -138,11 +139,12 @@ export const ItemInner = ({
   active,
 }: ItemInnerProps): ReactElement => {
   const Icon = shouldShowLabel ? ItemInnerIcon : ItemInnerIconTooltip;
+  const Tag = item.showH1WhenActive && active ? 'h1' : 'span';
 
   return (
     <>
       <Icon {...item} active={active} />
-      <span
+      <Tag
         className={classNames(
           'flex-1 truncate text-left transition-opacity',
           shouldShowLabel ? 'opacity-100 delay-150' : 'opacity-0',
@@ -151,7 +153,7 @@ export const ItemInner = ({
         title={item.title}
       >
         {item.title}
-      </span>
+      </Tag>
       {item.rightIcon && (
         <ItemInnerIcon
           {...item}

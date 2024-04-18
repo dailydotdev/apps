@@ -73,6 +73,8 @@ function SidebarNav({
           const href = `/${basePath}${accountPage[key].href}`;
           const isActive = globalThis?.window?.location.pathname === href;
 
+          console.log('Page', accountPage[key].title);
+
           return (
             <SidebarNavItem
               key={key}

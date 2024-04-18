@@ -29,6 +29,7 @@ export function MyFeedButton({
       <AlertDot className="right-2.5 top-0" color={AlertColor.Success} />
     ),
     action: () => onNavTabClick?.('my-feed'),
+    showH1WhenActive: true,
   };
   const isActive = activePage === myFeedMenuItem.path;
 

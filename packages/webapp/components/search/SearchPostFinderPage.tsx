@@ -52,7 +52,6 @@ const Search = (): ReactElement => {
   return (
     <>
       <NextSeo {...seo} {...baseSeo} />
-      <h1 className="hidden">{seo.title}</h1>
       {!searchQuery && (
         <div
           className={classNames(

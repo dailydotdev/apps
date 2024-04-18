@@ -158,9 +158,6 @@ export const FeedContainer = ({
         className,
       )}
     >
-      {feedNameToHeading[feedName] && (
-        <h1 className="hidden">{feedNameToHeading[feedName]} posts feed</h1>
-      )}
       <div className="flex w-full flex-col laptopL:mx-auto" style={style}>
         {!inlineHeader && header}
         <div

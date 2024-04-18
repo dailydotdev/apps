@@ -58,7 +58,6 @@ export function ReadingHistory(): ReactElement {
       aria-busy={isLoading}
       data-testid="reading-history-container"
     >
-      <h1 className="hidden">Reading History</h1>
       <PostsSearch
         autoFocus={false}
         placeholder="Search reading history"
