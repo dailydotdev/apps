@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { ImageProps, ImageType } from '../../image/Image';
 import VideoImage, { VideoImageProps } from '../../image/VideoImage';
@@ -25,18 +25,15 @@ export function CardCover({
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const ImageComponent = shouldUseMobileFeedLayout ? CardImageV1 : CardImage;
   const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
-  const coverShare = useMemo(
-    () => (
-      <CardCoverShare
-        post={post}
-        onShare={() => {
-          onInteract();
-          onShare(post);
-        }}
-        onCopy={onInteract}
-      />
-    ),
-    [onInteract, onShare, post],
+  const coverShare = (
+    <CardCoverShare
+      post={post}
+      onShare={() => {
+        onInteract();
+        onShare(post);
+      }}
+      onCopy={onInteract}
+    />
   );
   const imageClasses = classNames(
     imageProps?.className,
