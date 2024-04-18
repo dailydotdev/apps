@@ -40,7 +40,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
     showImage = true,
     insaneMode,
     onReadArticleClick,
-    isVoting,
     domProps = {},
   }: PostCardProps,
   ref: Ref<HTMLElement>,
@@ -139,7 +138,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
             <ActionButtons
               openNewTab={openNewTab}
               post={post}
-              isVoting={isVoting}
               onUpvoteClick={onUpvoteClick}
               onCommentClick={onCommentClick}
               onCopyLinkClick={onCopyLinkClick}

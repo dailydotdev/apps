@@ -215,7 +215,7 @@ export default function Feed<T>({
     isSendingComment,
   } = useCommentPopup(feedName);
 
-  const { toggleUpvote, toggleDownvote, isVoting } = useFeedVotePost({
+  const { toggleUpvote, toggleDownvote } = useFeedVotePost({
     feedName,
     ranking,
     items,
@@ -417,7 +417,6 @@ export default function Feed<T>({
             onCommentClick={onCommentClick}
             onAdClick={onAdClick}
             onReadArticleClick={onReadArticleClick}
-            isVoting={isVoting}
           />
         ))}
         {!isFetching && !isInitialLoading && (

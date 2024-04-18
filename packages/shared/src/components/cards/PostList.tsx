@@ -29,7 +29,6 @@ export const PostList = forwardRef(function PostList(
     openNewTab,
     children,
     domProps = {},
-    isVoting,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -90,7 +89,6 @@ export const PostList = forwardRef(function PostList(
         </PostMetadata>
         <ActionButtons
           post={post}
-          isVoting={isVoting}
           openNewTab={openNewTab}
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}

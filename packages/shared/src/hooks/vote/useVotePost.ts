@@ -69,7 +69,6 @@ const useVotePost = ({
     upvote: upvotePost,
     downvote: downvotePost,
     cancelVote: cancelPostVote,
-    isVoting,
   } = useVote({
     onMutate: onMutate || defaultOnMutate,
     entity: UserVoteEntity.Post,
@@ -164,7 +163,6 @@ const useVotePost = ({
     cancelPostVote,
     toggleUpvote,
     toggleDownvote,
-    isVoting,
   };
 };
 

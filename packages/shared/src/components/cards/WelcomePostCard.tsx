@@ -27,7 +27,6 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     children,
     onReadArticleClick,
     enableSourceHeader = false,
-    isVoting,
     domProps = {},
   }: PostCardProps,
   ref: Ref<HTMLElement>,
@@ -89,7 +88,6 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
         <ActionButtons
           openNewTab={openNewTab}
           post={post}
-          isVoting={isVoting}
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
