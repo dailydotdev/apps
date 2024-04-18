@@ -76,7 +76,6 @@ function FeedNav(): ReactElement {
             className: { indicator: '!w-6', item: 'px-1' },
             autoScrollActive: true,
           }}
-          showActiveAsH1
         >
           {Object.entries(urlToTab).map(([url, label]) => (
             // key is assigned automatically in the Tab component

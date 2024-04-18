@@ -6,7 +6,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import TabLabel from './TabLabel';
 
 interface ClassName {
   indicator?: string;
@@ -24,7 +23,6 @@ export interface TabListProps {
   onClick?: (label: string) => unknown;
   className?: ClassName;
   autoScrollActive?: boolean;
-  showActiveAsH1?: boolean;
 }
 
 function TabList({
@@ -33,7 +31,6 @@ function TabList({
   onClick,
   className = {},
   autoScrollActive,
-  showActiveAsH1 = false,
 }: TabListProps): ReactElement {
   const hasActive = items.includes(active);
   const currentActiveTab = useRef<HTMLButtonElement>(null);
@@ -121,11 +118,14 @@ function TabList({
             type="button"
             role="menuitem"
           >
-            <TabLabel
-              label={tab}
-              isActive={isActive}
-              showActiveAsH1={showActiveAsH1}
-            />
+            <span
+              className={classNames(
+                'inline rounded-10 px-3 py-1.5',
+                isActive && 'bg-theme-active',
+              )}
+            >
+              {tab}
+            </span>
           </button>
         );
       })}

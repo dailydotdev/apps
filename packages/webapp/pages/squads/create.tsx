@@ -139,7 +139,6 @@ function CreatePost(): ReactElement {
           shouldMountInactive={false}
           className={{ header: 'px-1' }}
           showHeader={!isNewMobileLayout || isTablet}
-          showActiveAsH1
         >
           <Tab label={WriteFormTab.NewPost} className="px-5">
             {isNewMobileLayout && !isTablet && (

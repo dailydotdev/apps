@@ -47,7 +47,6 @@ export interface TabContainerProps<T extends string> {
   controlledActive?: string;
   tabListProps?: Pick<TabListProps, 'className' | 'autoScrollActive'>;
   showBorder?: boolean;
-  showActiveAsH1?: boolean;
 }
 
 export function TabContainer<T extends string = string>({
@@ -58,7 +57,6 @@ export function TabContainer<T extends string = string>({
   style,
   showHeader = true,
   showBorder = true,
-  showActiveAsH1 = false,
   controlledActive,
   tabListProps = {},
 }: TabContainerProps<T>): ReactElement {
@@ -142,7 +140,6 @@ export function TabContainer<T extends string = string>({
           active={currentActive}
           className={tabListProps?.className}
           autoScrollActive={tabListProps?.autoScrollActive}
-          showActiveAsH1={showActiveAsH1}
         />
       </header>
       {render}

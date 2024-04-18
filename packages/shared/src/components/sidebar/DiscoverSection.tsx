@@ -31,7 +31,6 @@ export function DiscoverSection({
       title: 'Popular',
       path: '/popular',
       action: () => onNavTabClick?.('popular'),
-      showActiveAsH1: true,
     },
     {
       icon: (active: boolean) => (
@@ -40,7 +39,6 @@ export function DiscoverSection({
       title: 'Most upvoted',
       path: '/upvoted',
       action: () => onNavTabClick?.('upvoted'),
-      showActiveAsH1: true,
     },
     {
       icon: (active: boolean) => (
@@ -69,7 +67,6 @@ export function DiscoverSection({
       path: '/discussed',
       onClick: completeCommentFeed,
       action: discussedAction,
-      showActiveAsH1: true,
       ...(!hasCompletedCommentFeed && {
         rightIcon: () => (
           <span className="flex h-4 items-center rounded-6 bg-brand-default px-1 font-bold text-white typo-caption2">
@@ -86,7 +83,6 @@ export function DiscoverSection({
       title: 'Best discussions',
       path: '/discussed',
       action: () => onNavTabClick?.('discussed'),
-      showActiveAsH1: true,
     });
   }
 
