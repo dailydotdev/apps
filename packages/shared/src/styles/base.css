@@ -226,6 +226,7 @@ body {
   --theme-shadow-shadow1: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 68%);
   --theme-shadow-shadow2: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 60%);
   --theme-shadow-shadow3: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 36%);
+  --theme-shadow-cabbage: theme('colors.raw.cabbage.40');
 
   /* Blur */
   --theme-blur-blur-highlight: color-mix(in srgb, theme('colors.raw.pepper.70'), transparent 12%);
@@ -487,6 +488,7 @@ body {
   --theme-shadow-shadow1: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 68%);
   --theme-shadow-shadow2: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 60%);
   --theme-shadow-shadow3: color-mix(in srgb, theme('colors.raw.salt.90'), transparent 36%);
+  --theme-shadow-cabbage: theme('colors.raw.cabbage.40');
 
   /* Blur */
   --theme-blur-blur-highlight: color-mix(in srgb, theme('colors.raw.salt.0'), transparent 12%);

@@ -42,7 +42,7 @@ interface UseRegistration {
   isLoading?: boolean;
   isReady: boolean;
   validateRegistration: (values: FormParams) => Promise<void>;
-  onSocialRegistration?: (provider: string) => void;
+  onSocialRegistration?: (provider: string) => Promise<void>;
   verificationFlowId?: string;
 }
 
@@ -185,10 +185,10 @@ const useRegistration = ({
       'traits.timezone': timezone,
     };
 
-    validate({ action, params: postData });
+    await validate({ action, params: postData });
   };
 
-  const onSocialRegistration = (provider: string) => {
+  const onSocialRegistration = async (provider: string) => {
     if (!registration?.ui) {
       trackEvent({
         event_name: AuthEventNames.RegistrationError,
@@ -220,7 +220,7 @@ const useRegistration = ({
       'traits.acceptedMarketing': false,
     };
 
-    onValidateRegistration(postData);
+    await onValidateRegistration(postData);
   };
 
   return useMemo<UseRegistration>(
