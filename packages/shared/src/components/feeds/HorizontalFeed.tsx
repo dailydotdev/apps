@@ -17,7 +17,6 @@ import { ArrowIcon } from '../icons';
 import { useFeedLayout } from '../../hooks';
 
 export const HorizontalFeed = ({ variables, title }): ReactElement => {
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const feedContainerRef = useRef<HTMLDivElement>(null);
   const [feedScrolledPosition, setFeedScrolledPosition] = useState(0);
   const currentSettings = useContext(FeedContext);
@@ -44,10 +43,9 @@ export const HorizontalFeed = ({ variables, title }): ReactElement => {
 
   return (
     <>
-      <div className="mx-4 mb-4 flex w-auto items-center laptop:mx-0 laptop:w-full">
+      <div className="mx-4 mb-4 flex w-auto items-center justify-between laptop:mx-0 laptop:w-full">
         <p className="flex items-center font-bold typo-body">{title}</p>
-        <div className="flex-1" />
-        <div className="flex flex-col gap-3">
+        <div className="hidden flex-row gap-3 tablet:flex">
           <Button
             variant={ButtonVariant.Tertiary}
             icon={<ArrowIcon className="-rotate-90" />}
@@ -65,23 +63,22 @@ export const HorizontalFeed = ({ variables, title }): ReactElement => {
             }}
             aria-label="Scroll left"
           />
+          <Button
+            variant={ButtonVariant.Tertiary}
+            icon={<ArrowIcon className="rotate-90" />}
+            disabled={feedScrolledPosition > (10 - numCards) * 320}
+            onClick={() => {
+              if (feedContainerRef.current) {
+                const currentPosition = feedContainerRef.current.scrollLeft;
+                feedContainerRef.current.scrollLeft = Math.max(
+                  0,
+                  currentPosition + numCards * 320,
+                );
+              }
+            }}
+            aria-label="Scroll right"
+          />
         </div>
-
-        <Button
-          variant={ButtonVariant.Tertiary}
-          icon={<ArrowIcon className="rotate-90" />}
-          disabled={feedScrolledPosition > (10 - numCards) * 320}
-          onClick={() => {
-            if (feedContainerRef.current) {
-              const currentPosition = feedContainerRef.current.scrollLeft;
-              feedContainerRef.current.scrollLeft = Math.max(
-                0,
-                currentPosition + numCards * 320,
-              );
-            }
-          }}
-          aria-label="Scroll right"
-        />
       </div>
       <Feed
         feedName={OtherFeedPage.SourceMostUpvoted}
