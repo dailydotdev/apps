@@ -178,19 +178,23 @@ export const AuthContextProvider = ({
       accessToken,
       squads,
     }),
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
-      user,
+      firstLoad,
+      endUser,
       loginState,
-      isFetched,
+      referral,
+      referralOrigin,
+      user,
+      updateUser,
       loadingUser,
       tokenRefreshed,
       loadedUserFromCache,
+      getRedirectUri,
       visit,
+      isFetched,
+      refetchBoot,
       accessToken,
       squads,
-      firstLoad,
     ],
   );
 
