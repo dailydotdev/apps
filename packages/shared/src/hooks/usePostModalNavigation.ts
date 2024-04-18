@@ -138,7 +138,7 @@ export const usePostModalNavigation = (
           return false;
         }
 
-        return item.post.id === postId;
+        return item.post.id === postId || item.post.slug === postId;
       });
 
       if (index === -1) {
