@@ -108,7 +108,7 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
               router.push(`/squads/${squad.handle}`);
             }}
           />
-          <h3 className="font-bold typo-title3">{pageTitle}</h3>
+          <h1 className="font-bold typo-title3">{pageTitle}</h1>
         </ManageSquadPageHeader>
         <SquadDetails
           className="p-8"
