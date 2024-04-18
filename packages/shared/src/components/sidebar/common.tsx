@@ -47,7 +47,7 @@ export interface SidebarMenuItem {
     text?: string;
   };
   navItemRef?: MutableRefObject<HTMLElement>;
-  showH1WhenActive?: boolean;
+  showActiveAsH1?: boolean;
 }
 
 interface ListIconProps {
@@ -139,7 +139,7 @@ export const ItemInner = ({
   active,
 }: ItemInnerProps): ReactElement => {
   const Icon = shouldShowLabel ? ItemInnerIcon : ItemInnerIconTooltip;
-  const Tag = item.showH1WhenActive && active ? 'h1' : 'span';
+  const Tag = item.showActiveAsH1 && active ? 'h1' : 'span';
 
   return (
     <>
