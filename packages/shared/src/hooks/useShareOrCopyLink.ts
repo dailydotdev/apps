@@ -4,7 +4,7 @@ import { CopyNotifyFunction, useCopyLink } from './useCopy';
 import { ShareProvider } from '../lib/share';
 import { AnalyticsEvent } from './analytics/useAnalyticsQueue';
 import { useGetShortUrl } from './utils/useGetShortUrl';
-import { ReferralCampaignKey } from '../lib/referral';
+import { ReferralCampaignKey } from '../lib';
 
 interface UseShareOrCopyLinkProps {
   link: string;

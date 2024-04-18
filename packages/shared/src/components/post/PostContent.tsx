@@ -46,7 +46,7 @@ export function PostContent({
     origin,
     post,
   });
-  const { onCopyPostLink: onShare, onReadArticle } = engagementActions;
+  const { onCopyPostLink, onReadArticle } = engagementActions;
   const onSendViewPost = useViewPost();
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
@@ -180,12 +180,12 @@ export function PostContent({
         </BasePostContent>
       </PostContainer>
       <PostWidgets
-        onShare={onShare}
         onReadArticle={onReadArticle}
         post={post}
         className="pb-8"
         onClose={onClose}
         origin={origin}
+        onCopyPostLink={onCopyPostLink}
       />
     </PostContentContainer>
   );

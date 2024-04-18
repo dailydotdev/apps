@@ -130,7 +130,7 @@ function SquadPostContent({
         </BasePostContent>
       </div>
       <SquadPostWidgets
-        onShare={onCopyPostLink}
+        onCopyPostLink={onCopyPostLink}
         onReadArticle={onReadArticle}
         post={post}
         className="mb-6 border-l border-border-subtlest-tertiary laptop:mb-0"

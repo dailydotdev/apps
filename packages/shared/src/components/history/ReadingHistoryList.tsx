@@ -1,5 +1,4 @@
 import React, { ReactElement, useCallback } from 'react';
-import dynamic from 'next/dynamic';
 import { HideReadHistory } from '../../hooks/useReadingHistory';
 import { isDateOnlyEqual, TimeFormatType } from '../../lib/dateFormat';
 import PostItemCard from '../post/PostItemCard';
@@ -21,10 +20,6 @@ const getDateGroup = (date: Date) => {
   );
 };
 
-const SharePostModal = dynamic(
-  () => import(/* webpackChunkName: "shareModal" */ '../modals/ShareModal'),
-);
-
 export interface ReadHistoryListProps {
   data: ReadHistoryInfiniteData;
   onHide: HideReadHistory;
@@ -43,8 +38,7 @@ export default function ReadHistoryList({
     queryIndexes,
   } = useReadingHistoryContextMenu();
   const analyticsOrigin = Origin.ReadingHistoryContextMenu;
-  const { sharePost, openSharePost, closeSharePost } =
-    useSharePost(analyticsOrigin);
+  const { openSharePost } = useSharePost(analyticsOrigin);
 
   const renderList = useCallback(() => {
     let currentDate: Date;
@@ -87,7 +81,7 @@ export default function ReadHistoryList({
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
       <PostOptionsReadingHistoryMenu
         post={readingHistoryContextItem?.post}
-        onShare={() => openSharePost(readingHistoryContextItem.post)}
+        onShare={() => openSharePost({ post: readingHistoryContextItem.post })}
         onHiddenMenu={() => setReadingHistoryContextItem(null)}
         onHideHistoryPost={(postId) =>
           onHide({
@@ -98,14 +92,6 @@ export default function ReadHistoryList({
         }
         indexes={queryIndexes}
       />
-      {sharePost && (
-        <SharePostModal
-          isOpen={!!sharePost}
-          post={sharePost}
-          origin={analyticsOrigin}
-          onRequestClose={closeSharePost}
-        />
-      )}
     </section>
   );
 }

@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import { ShareProvider, addTrackingQueryParams } from '../../lib/share';
 import { Post } from '../../graphql/posts';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
@@ -9,19 +9,19 @@ import { useSharePost } from '../../hooks/useSharePost';
 import { SocialShareContainer } from './SocialShareContainer';
 import { useCopyLink } from '../../hooks/useCopy';
 import { SquadsToShare } from '../squads/SquadsToShare';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
-import { Squad } from '../../graphql/sources';
 import { SocialShareList } from './SocialShareList';
 import { useGetShortUrl } from '../../hooks';
-import { ReferralCampaignKey } from '../../lib/referral';
+import { ReferralCampaignKey } from '../../lib';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { Squad } from '../../graphql/sources';
+import { CreateSharedPostModal } from '../modals/post/CreateSharedPostModal';
+import { ModalProps } from '../modals/common/Modal';
 
-interface SocialShareProps {
+interface SocialShareProps extends Pick<ModalProps, 'parentSelector'> {
   origin: Origin;
   post: Post;
   comment?: Comment;
-  onSquadShare?: () => void;
+  onClose?: () => void;
   commentary?: string;
 }
 
@@ -32,7 +32,8 @@ export const SocialShare = ({
   columns,
   column,
   row,
-  onSquadShare,
+  onClose,
+  parentSelector,
 }: SocialShareProps & FeedItemPosition): ReactElement => {
   const isComment = !!comment;
   const { user, isAuthReady } = useAuthContext();
@@ -50,9 +51,9 @@ export const SocialShare = ({
       : href;
   const { getShortUrl } = useGetShortUrl();
   const [copying, copyLink] = useCopyLink();
-  const { openModal } = useLazyModal();
   const { trackEvent } = useContext(AnalyticsContext);
   const { openNativeSharePost } = useSharePost(Origin.Share);
+  const [squadToShare, setSquadToShare] = useState<Squad>();
   const trackClick = (provider: ShareProvider) =>
     trackEvent(
       postAnalyticsEvent('share post', post, {
@@ -72,27 +73,16 @@ export const SocialShare = ({
   const onSharedSuccessfully = () => {
     trackEvent(postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post));
 
-    if (onSquadShare) {
-      onSquadShare();
+    if (onClose) {
+      onClose();
     }
-  };
-
-  const onSquadsShare = (squad: Squad) => {
-    openModal({
-      type: LazyModal.CreateSharedPost,
-      props: {
-        squad,
-        preview: post,
-        onSharedSuccessfully,
-      },
-    });
   };
 
   return (
     <>
       {!isComment && !post.private && (
         <SocialShareContainer title="Share with your squad" className="mb-4">
-          <SquadsToShare onClick={(_, squad) => onSquadsShare(squad)} />
+          <SquadsToShare onClick={(_, squad) => setSquadToShare(squad)} />
         </SocialShareContainer>
       )}
       <SocialShareContainer title="Share externally">
@@ -106,6 +96,15 @@ export const SocialShare = ({
           emailTitle="I found this amazing post"
         />
       </SocialShareContainer>
+      {squadToShare && ( // using lazy modal would result to dep-cycle since this whole component is used in the share modal
+        <CreateSharedPostModal
+          isOpen
+          preview={post}
+          squad={squadToShare}
+          onSharedSuccessfully={onSharedSuccessfully}
+          parentSelector={parentSelector}
+        />
+      )}
     </>
   );
 };
