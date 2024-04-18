@@ -20,6 +20,8 @@ const FURTHER_READING_FRAGMENT = gql`
     bookmarked @include(if: $loggedIn)
     image
     readTime
+    numComments
+    numUpvotes
     source {
       ...SourceShortInfo
     }
@@ -57,8 +59,6 @@ export const FURTHER_READING_QUERY = gql`
     ) {
       ...FurtherReading
       bookmarked @include(if: $loggedIn)
-      numComments
-      numUpvotes
       tags
     }
     discussedPosts: randomDiscussedPosts(post: $post, first: $discussedFirst)

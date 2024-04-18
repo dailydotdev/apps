@@ -111,6 +111,10 @@ const UserSettingsModal = dynamic(
     import(/* webpackChunkName: "userSettingsModal" */ './UserSettingsModal'),
 );
 
+const ShareModal = dynamic(
+  () => import(/* webpackChunkName: "shareModal" */ './ShareModal'),
+);
+
 const MigrateUserStreakModal = dynamic(
   () =>
     import(
@@ -138,6 +142,7 @@ export const modals = {
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.UserSettings]: UserSettingsModal,
+  [LazyModal.Share]: ShareModal,
   [LazyModal.MigrateUserStreak]: MigrateUserStreakModal,
 };
 

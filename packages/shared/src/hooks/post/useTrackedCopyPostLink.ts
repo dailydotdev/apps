@@ -5,7 +5,7 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { ShareProvider } from '../../lib/share';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { Origin } from '../../lib/analytics';
-import { ReferralCampaignKey } from '../../lib/referral';
+import { ReferralCampaignKey } from '../../lib';
 import { useGetShortUrl } from '../utils/useGetShortUrl';
 
 interface UseTrackedCopyPostLink {

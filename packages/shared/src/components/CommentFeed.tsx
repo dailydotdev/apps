@@ -1,5 +1,4 @@
 import React, { ReactElement, ReactNode } from 'react';
-import dynamic from 'next/dynamic';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import request from 'graphql-request';
 import classNames from 'classnames';
@@ -17,10 +16,6 @@ import { Connection } from '../graphql/common';
 import PlaceholderCommentList from './comments/PlaceholderCommentList';
 import { CommentClassName } from './comments/common';
 import { useMobileUxExperiment } from '../hooks/useMobileUxExperiment';
-
-const ShareModal = dynamic(
-  () => import(/* webpackChunkName: "shareModal" */ './modals/ShareModal'),
-);
 
 interface CommentFeedProps<T> {
   feedQueryKey: unknown[];
@@ -44,8 +39,7 @@ export default function CommentFeed<T>({
   commentClassName,
   isMainFeed,
 }: CommentFeedProps<T>): ReactElement {
-  const { shareComment, openShareComment, closeShareComment } =
-    useShareComment(analyticsOrigin);
+  const { openShareComment } = useShareComment(analyticsOrigin);
   const { onShowUpvoted } = useUpvoteQuery();
   const { deleteComment } = useDeleteComment();
   const { isNewMobileLayout } = useMobileUxExperiment();
@@ -127,15 +121,6 @@ export default function CommentFeed<T>({
           )),
         )}
       </InfiniteScrolling>
-      {shareComment && (
-        <ShareModal
-          isOpen={!!shareComment}
-          post={shareComment.post}
-          comment={shareComment}
-          origin={analyticsOrigin}
-          onRequestClose={closeShareComment}
-        />
-      )}
     </>
   );
 }

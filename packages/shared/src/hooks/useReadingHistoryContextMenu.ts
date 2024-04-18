@@ -1,15 +1,23 @@
-import React, { useState } from 'react';
+import React, { Dispatch, useCallback, useState } from 'react';
 import useContextMenu from './useContextMenu';
 import { PostItem } from '../graphql/posts';
 import { QueryIndexes } from './useReadingHistory';
 import { ContextMenu } from './constants';
 
-export default function useReadingHistoryContextMenu(): {
-  readingHistoryContextItem;
-  setReadingHistoryContextItem;
-  onReadingHistoryContextOptions;
-  queryIndexes;
-} {
+type ReadingOptionsFunc = (
+  event: React.MouseEvent,
+  readingHistory: PostItem,
+  indexes: QueryIndexes,
+) => void;
+
+interface UseReadingHistoryContextMenu {
+  readingHistoryContextItem: PostItem;
+  setReadingHistoryContextItem: Dispatch<PostItem>;
+  onReadingHistoryContextOptions: ReadingOptionsFunc;
+  queryIndexes: QueryIndexes;
+}
+
+export default function useReadingHistoryContextMenu(): UseReadingHistoryContextMenu {
   const [readingHistoryContextItem, setReadingHistoryContextItem] =
     useState<PostItem>();
   const [queryIndexes, setQueryIndexes] = useState<QueryIndexes>({
@@ -19,15 +27,14 @@ export default function useReadingHistoryContextMenu(): {
   const { onMenuClick: showTagOptionsMenu } = useContextMenu({
     id: ContextMenu.PostReadingHistoryContext,
   });
-  const onReadingHistoryContextOptions = (
-    event: React.MouseEvent,
-    readingHistory: PostItem,
-    indexes: QueryIndexes,
-  ): void => {
-    setReadingHistoryContextItem(readingHistory);
-    setQueryIndexes(indexes);
-    showTagOptionsMenu(event);
-  };
+  const onReadingHistoryContextOptions: ReadingOptionsFunc = useCallback(
+    (event, readingHistory, indexes): void => {
+      setReadingHistoryContextItem(readingHistory);
+      setQueryIndexes(indexes);
+      showTagOptionsMenu(event);
+    },
+    [showTagOptionsMenu],
+  );
 
   return {
     readingHistoryContextItem,

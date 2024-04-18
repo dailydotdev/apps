@@ -17,10 +17,7 @@ import Comment from '../../../__tests__/fixture/comment';
 import { getCommentHash } from '../../graphql/comments';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
-import { LazyModalElement } from './LazyModalElement';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
-import { MODAL_KEY } from '../../hooks/useLazyModal';
-import { LazyModal } from './common/types';
 
 const defaultPost = Post;
 const defaultComment = Comment;
@@ -60,7 +57,6 @@ const renderComponent = (
         squads: hasSquads ? squads : [],
       }}
     >
-      <LazyModalElement />
       <ShareModal
         origin={Origin.Feed}
         post={defaultPost}
@@ -86,9 +82,10 @@ describe('ShareModal Test Suite:', () => {
     mockWindowOpen.mockClear();
     window.open = origWindowOpen;
   });
+
   it('should render the component without logged in user', async () => {
     renderComponent(false, false);
-    expect(screen.getByText('Share post')).toBeInTheDocument();
+    expect(screen.getByText('Share with your squad')).toBeInTheDocument();
   });
 
   it('should render the component with logged user but no squads and open new squad page', async () => {
@@ -112,8 +109,7 @@ describe('ShareModal Test Suite:', () => {
     renderComponent(true, true);
     const btn = await screen.findByTestId(`social-share-@${squads[0].handle}`);
     btn.click();
-    const modal = client.getQueryData(MODAL_KEY);
-    expect(modal.type).toEqual(LazyModal.CreateSharedPost);
+    expect(screen.getByText('New post')).toBeInTheDocument();
   });
 
   it('should render the Facebook button and navigate to the correct link', async () => {

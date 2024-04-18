@@ -50,7 +50,7 @@ export const CollectionPostContent = ({
     post,
   });
   const { updatedAt, contentHtml, image } = post;
-  const { onCopyPostLink: onShare, onReadArticle } = engagementActions;
+  const { onCopyPostLink, onReadArticle } = engagementActions;
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
@@ -163,7 +163,7 @@ export const CollectionPostContent = ({
         </BasePostContent>
       </PostContainer>
       <CollectionPostWidgets
-        onShare={onShare}
+        onCopyPostLink={onCopyPostLink}
         post={post}
         className="pb-8"
         onClose={onClose}
