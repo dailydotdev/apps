@@ -99,7 +99,7 @@ export const HorizontalFeed = ({
         allowFetchMore={false}
         forcedLimit={10}
         isHorizontal
-        className="mx-4 mb-10"
+        className="mb-10 ml-4 !w-auto laptop:w-full"
         feedContainerRef={feedContainerRef}
       />
     </>
