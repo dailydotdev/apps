@@ -96,35 +96,39 @@ function TabList({
 
   return (
     <ul className="relative flex flex-row">
-      {items.map((tab) => (
-        <button
-          key={tab}
-          ref={(el) => {
-            if (!el || tab !== active) {
-              return;
-            }
+      {items.map((tab) => {
+        const isActive = tab === active;
 
-            currentActiveTab.current = el;
-          }}
-          className={classNames(
-            className.item,
-            'relative p-2 py-4 text-center font-bold typo-callout',
-            tab === active ? '' : 'text-text-tertiary',
-          )}
-          onClick={() => onClick(tab)}
-          type="button"
-          role="menuitem"
-        >
-          <span
+        return (
+          <button
+            key={tab}
+            ref={(el) => {
+              if (!el || !isActive) {
+                return;
+              }
+
+              currentActiveTab.current = el;
+            }}
             className={classNames(
-              'rounded-10 px-3 py-1.5',
-              tab === active && 'bg-theme-active',
+              className.item,
+              'relative p-2 py-4 text-center font-bold typo-callout',
+              isActive ? '' : 'text-text-tertiary',
             )}
+            onClick={() => onClick(tab)}
+            type="button"
+            role="menuitem"
           >
-            {tab}
-          </span>
-        </button>
-      ))}
+            <span
+              className={classNames(
+                'inline rounded-10 px-3 py-1.5',
+                isActive && 'bg-theme-active',
+              )}
+            >
+              {tab}
+            </span>
+          </button>
+        );
+      })}
       {!!indicatorOffset && hasActive && (
         <div
           className={classNames(
