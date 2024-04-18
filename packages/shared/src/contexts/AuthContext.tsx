@@ -1,8 +1,8 @@
 import React, {
   ReactElement,
   ReactNode,
+  useCallback,
   useContext,
-  useMemo,
   useState,
 } from 'react';
 import { QueryObserverResult } from '@tanstack/react-query';
@@ -143,62 +143,44 @@ export const AuthContextProvider = ({
     setLoginState({ trigger: AuthTriggers.LegacyLogout });
   }
 
-  const authContext: AuthContextData = useMemo(
-    () => ({
-      isAuthReady: !isNullOrUndefined(firstLoad),
-      user: endUser,
-      isLoggedIn: !!endUser?.id,
-      referral: loginState?.referral ?? referral,
-      referralOrigin: loginState?.referralOrigin ?? referralOrigin,
-      firstVisit: user?.firstVisit,
-      trackingId: user?.id,
-      shouldShowLogin: loginState !== null,
-      showLogin: ({ trigger, options = {} }) => {
-        const hasCompanion = !!isCompanionActivated();
-        if (hasCompanion) {
-          const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`;
-          window.open(signup);
-        } else {
-          setLoginState({ ...options, trigger });
-        }
-      },
-      closeLogin: () => setLoginState(null),
-      loginState,
-      updateUser,
-      logout,
-      loadingUser,
-      tokenRefreshed,
-      loadedUserFromCache,
-      getRedirectUri,
-      anonymous: user,
-      visit,
-      isFetched,
-      refetchBoot,
-      deleteAccount,
-      accessToken,
-      squads,
-    }),
-    [
-      firstLoad,
-      endUser,
-      loginState,
-      referral,
-      referralOrigin,
-      user,
-      updateUser,
-      loadingUser,
-      tokenRefreshed,
-      loadedUserFromCache,
-      getRedirectUri,
-      visit,
-      isFetched,
-      refetchBoot,
-      accessToken,
-      squads,
-    ],
-  );
-
   return (
-    <AuthContext.Provider value={authContext}>{children}</AuthContext.Provider>
+    <AuthContext.Provider
+      value={{
+        isAuthReady: !isNullOrUndefined(firstLoad),
+        user: endUser,
+        isLoggedIn: !!endUser?.id,
+        referral: loginState?.referral ?? referral,
+        referralOrigin: loginState?.referralOrigin ?? referralOrigin,
+        firstVisit: user?.firstVisit,
+        trackingId: user?.id,
+        shouldShowLogin: loginState !== null,
+        showLogin: useCallback(({ trigger, options = {} }) => {
+          const hasCompanion = !!isCompanionActivated();
+          if (hasCompanion) {
+            const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`;
+            window.open(signup);
+          } else {
+            setLoginState({ ...options, trigger });
+          }
+        }, []),
+        closeLogin: useCallback(() => setLoginState(null), []),
+        loginState,
+        updateUser,
+        logout,
+        loadingUser,
+        tokenRefreshed,
+        loadedUserFromCache,
+        getRedirectUri,
+        anonymous: user,
+        visit,
+        isFetched,
+        refetchBoot,
+        deleteAccount,
+        accessToken,
+        squads,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
   );
 };
