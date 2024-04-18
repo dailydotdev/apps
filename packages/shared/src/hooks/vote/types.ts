@@ -32,9 +32,11 @@ export type UseVote<T extends VoteEntityPayload = VoteEntityPayload> = {
   cancelVote: (props: VoteProps) => Promise<void>;
   toggleUpvote: (props: ToggleVoteProps<T>) => Promise<void>;
   toggleDownvote: (props: ToggleVoteProps<T>) => Promise<void>;
+  isVoting: boolean;
 };
 
 export type UseVotePost = {
+  isVoting: UseVote['isVoting'];
   upvotePost: UseVote['upvote'];
   downvotePost: UseVote['downvote'];
   cancelPostVote: UseVote['cancelVote'];

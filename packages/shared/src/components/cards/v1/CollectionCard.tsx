@@ -32,6 +32,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
     openNewTab,
     onReadArticleClick,
     onPostClick,
+    isVoting,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
@@ -106,6 +107,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
         <ActionButtons
           openNewTab={openNewTab}
           post={post}
+          isVoting={isVoting}
           onUpvoteClick={onUpvoteClick}
           onDownvoteClick={onDownvoteClick}
           onCommentClick={onCommentClick}

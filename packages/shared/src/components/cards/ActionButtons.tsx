@@ -43,6 +43,7 @@ export interface ActionButtonsProps {
   className?: string;
   insaneMode?: boolean;
   openNewTab?: boolean;
+  isVoting: boolean;
 }
 
 export default function ActionButtons({
@@ -56,10 +57,12 @@ export default function ActionButtons({
   onCopyLinkClick,
   className,
   insaneMode,
+  isVoting,
 }: ActionButtonsProps): ReactElement {
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
   const upvoteCommentProps: ButtonProps<'button'> = {
     size: ButtonSize.Small,
+    disabled: isVoting,
   };
   const isFeedPreview = useFeedPreviewMode();
 

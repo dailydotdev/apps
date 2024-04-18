@@ -77,7 +77,7 @@ export type FeedItemComponentProps = {
     column: number,
   ) => unknown;
   onAdClick: (ad: Ad, row: number, column: number) => void;
-} & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'>;
+} & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote' | 'isVoting'>;
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {
   const item = items[index];
@@ -157,6 +157,7 @@ export default function FeedItemComponent({
   onCommentClick,
   onAdClick,
   onReadArticleClick,
+  isVoting,
 }: FeedItemComponentProps): ReactElement {
   const item = items[index];
   const inViewRef = useTrackImpression(
@@ -225,6 +226,7 @@ export default function FeedItemComponent({
           onBookmarkClick={(post) => onBookmark(post, row, column)}
           openNewTab={openNewTab}
           enableMenu={!!user}
+          isVoting={isVoting}
           onMenuClick={(event) => onMenuClick(event, index, row, column)}
           onCopyLinkClick={(event, post) =>
             onCopyLinkClick(event, post, index, row, column)
