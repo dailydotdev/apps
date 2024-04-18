@@ -99,6 +99,7 @@ const feedNameToHeading: Record<
   >,
   string
 > = {
+  search: 'Search',
   'my-feed': 'For you',
   popular: 'Popular',
   upvoted: 'Most upvoted',
