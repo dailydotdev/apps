@@ -6,7 +6,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { GET_SHORT_URL_QUERY } from '../../graphql/urlShortener';
 import { addTrackingQueryParams } from '../../lib/share';
 import { RequestKey, generateQueryKey } from '../../lib/query';
-import { ReferralCampaignKey } from '../../lib/referral';
+import { ReferralCampaignKey } from '../../lib';
 import { disabledRefetch } from '../../lib/func';
 
 interface LinkAsQuery {

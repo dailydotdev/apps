@@ -14,7 +14,7 @@ import { SocialShareButton } from './widgets/SocialShareButton';
 import { SquadsToShare } from './squads/SquadsToShare';
 import { ButtonSize, ButtonVariant } from './buttons/common';
 import { useGetShortUrl } from '../hooks';
-import { ReferralCampaignKey } from '../lib/referral';
+import { ReferralCampaignKey } from '../lib';
 
 interface ShareBarProps {
   post: Post;

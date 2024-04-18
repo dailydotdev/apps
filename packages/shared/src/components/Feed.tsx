@@ -75,9 +75,6 @@ interface RankVariables {
   ranking?: string;
 }
 
-const ShareModal = dynamic(
-  () => import(/* webpackChunkName: "shareModal" */ './modals/ShareModal'),
-);
 const ArticlePostModal = dynamic(
   () =>
     import(
@@ -256,13 +253,7 @@ export default function Feed<T>({
   const { onMenuClick, postMenuIndex, postMenuLocation, setPostMenuIndex } =
     useFeedContextMenu();
 
-  const {
-    sharePost,
-    sharePostFeedLocation,
-    openSharePost,
-    copyLink,
-    closeSharePost,
-  } = useSharePost(origin);
+  const { openSharePost, copyLink } = useSharePost(origin);
 
   useEffect(() => {
     return () => {
@@ -302,7 +293,7 @@ export default function Feed<T>({
     row: number,
     column: number,
   ) => {
-    copyLink(post, index, row, column);
+    copyLink({ post, columns: virtualizedNumCards, row, column });
   };
 
   const onShareOptionsHidden = () => {
@@ -357,17 +348,17 @@ export default function Feed<T>({
     });
 
   const onShareClick = (post: Post, row?: number, column?: number) =>
-    openSharePost(post, virtualizedNumCards, column, row);
+    openSharePost({ post, columns: virtualizedNumCards, column, row });
 
   const post = (items[postMenuIndex] as PostItem)?.post;
   const commonMenuItems = {
     onShare: () =>
-      openSharePost(
+      openSharePost({
         post,
-        virtualizedNumCards,
-        postMenuLocation.row,
-        postMenuLocation.column,
-      ),
+        columns: virtualizedNumCards,
+        row: postMenuLocation.row,
+        column: postMenuLocation.column,
+      }),
     onBookmark: () => {
       onBookmark({ post, origin, opts: feedAnalyticsExtra(feedName, ranking) });
     },
@@ -454,15 +445,6 @@ export default function Feed<T>({
             postPosition={postPosition}
             post={selectedPost}
             onRemovePost={() => onRemovePost(selectedPostIndex)}
-          />
-        )}
-        {sharePost && (
-          <ShareModal
-            isOpen={!!sharePost}
-            post={sharePost}
-            origin={origin}
-            {...sharePostFeedLocation}
-            onRequestClose={closeSharePost}
           />
         )}
       </FeedContainer>
