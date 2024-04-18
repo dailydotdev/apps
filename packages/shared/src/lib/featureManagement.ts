@@ -46,6 +46,7 @@ const feature = {
   tagsOnCard: new Feature('tags_on_card', false),
   onboardingMostVisited: new Feature('onboarding_most_visited', false),
   shareExperience: new Feature('share_experience', false),
+  sidebarToggle: new Feature('sidebar_toggle', true),
 };
 
 export { feature };

@@ -28,7 +28,7 @@ import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import Logo, { LogoPosition } from '../Logo';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useActions, useViewSize, ViewSize } from '../../hooks';
 import {
   Button,
   ButtonIconPosition,
@@ -40,6 +40,9 @@ import { AiIcon, HomeIcon, SourceIcon, UserIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { CreatePostButton } from '../post/write';
 import useActiveNav from '../../hooks/useActiveNav';
+import { ActionType } from '../../graphql/actions';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -59,6 +62,7 @@ export default function Sidebar({
   const { alerts } = useContext(AlertContext);
   const {
     toggleSidebarExpanded,
+    onSidebarExpanded,
     sidebarExpanded,
     loadedSettings,
     optOutWeeklyGoal,
@@ -67,6 +71,19 @@ export default function Sidebar({
   const showSettings = modal?.type === LazyModal.UserSettings;
   const { isNewMobileLayout } = useMobileUxExperiment();
   const isTablet = useViewSize(ViewSize.Tablet);
+  const sidebarToggle = useFeature(feature.sidebarToggle);
+  const { completeAction, checkHasCompleted } = useActions();
+  const hasChangedToggle = checkHasCompleted(ActionType.SidebarToggle);
+  const sidebarToggleState = hasChangedToggle ? sidebarExpanded : sidebarToggle;
+
+  const onToggleSidebar = () => {
+    if (!sidebarToggle && !hasChangedToggle) {
+      completeAction(ActionType.SidebarToggle);
+      return onSidebarExpanded(true);
+    }
+
+    return toggleSidebarExpanded();
+  };
 
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
@@ -83,12 +100,12 @@ export default function Sidebar({
 
   const defaultRenderSectionProps = useMemo(
     () => ({
-      sidebarExpanded,
+      sidebarExpanded: sidebarToggleState,
       sidebarRendered,
-      shouldShowLabel: sidebarExpanded || sidebarRendered === false,
+      shouldShowLabel: sidebarToggleState || sidebarRendered === false,
       activePage,
     }),
-    [sidebarExpanded, sidebarRendered, activePage],
+    [sidebarToggleState, sidebarRendered, activePage],
   );
 
   if (!loadedSettings) {
@@ -194,7 +211,7 @@ export default function Sidebar({
         data-testid="sidebar-aside"
         className={classNames(
           'w-70',
-          sidebarExpanded ? 'laptop:w-60' : 'laptop:w-11',
+          sidebarToggleState ? 'laptop:w-60' : 'laptop:w-11',
           openMobileSidebar ? '-translate-x-0' : '-translate-x-70',
           promotionalBannerActive
             ? 'laptop:top-24 laptop:h-[calc(100vh-theme(space.24))]'
@@ -203,8 +220,8 @@ export default function Sidebar({
       >
         {sidebarRendered && (
           <MobileMenuIcon
-            sidebarExpanded={sidebarExpanded}
-            toggleSidebarExpanded={toggleSidebarExpanded}
+            sidebarExpanded={sidebarToggleState}
+            toggleSidebarExpanded={onToggleSidebar}
           />
         )}
         <SidebarScrollWrapper>

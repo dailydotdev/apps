@@ -43,6 +43,7 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleInsaneMode: () => Promise<void>;
   toggleShowTopSites: () => Promise<void>;
   toggleSidebarExpanded: () => Promise<void>;
+  onSidebarExpanded: (value: boolean) => Promise<void>;
   toggleSortingEnabled: () => Promise<void>;
   toggleOptOutWeeklyGoal: () => Promise<void>;
   toggleOptOutCompanion: () => Promise<void>;
@@ -197,6 +198,8 @@ export const SettingsContextProvider = ({
           ...settings,
           sidebarExpanded: !settings.sidebarExpanded,
         }),
+      onSidebarExpanded: (value: boolean) =>
+        setSettings({ ...settings, sidebarExpanded: value }),
       toggleSortingEnabled: () =>
         setSettings({ ...settings, sortingEnabled: !settings.sortingEnabled }),
       toggleOptOutWeeklyGoal: () =>
