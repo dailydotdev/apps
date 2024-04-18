@@ -356,8 +356,8 @@ export default function Feed<T>({
     if (bookmarkLoops && !checkHasCompleted(ActionType.BookmarkPromoteMobile)) {
       completeAction(ActionType.BookmarkPromoteMobile);
       openModal({
-        type: LazyModal.GenericPromotion,
-        props: promotion.bookmarkPromoteMobile,
+        type: LazyModal.MarketingCta,
+        props: { marketingCta: promotion.bookmarkPromoteMobile },
       });
     }
   };

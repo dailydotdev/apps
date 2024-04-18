@@ -115,13 +115,6 @@ const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ './ShareModal'),
 );
 
-const GenericPromotionalModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "genericPromotionalModal" */ './generic/GenericPromotionalModal'
-    ),
-);
-
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -142,7 +135,6 @@ export const modals = {
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.UserSettings]: UserSettingsModal,
-  [LazyModal.GenericPromotion]: GenericPromotionalModal,
   [LazyModal.Share]: ShareModal,
 };
 

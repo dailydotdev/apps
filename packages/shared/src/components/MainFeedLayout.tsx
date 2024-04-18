@@ -304,8 +304,8 @@ export default function MainFeedLayout({
     }
 
     openModal({
-      type: LazyModal.GenericPromotion,
-      props: promotion.migrateStreaks,
+      type: LazyModal.MarketingCta,
+      props: { marketingCta: promotion.migrateStreaks },
     });
     completeAction(ActionType.ExistingUserSeenStreaks);
   }, [completeAction, openModal, shouldShowPopup]);
