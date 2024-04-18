@@ -58,6 +58,7 @@ export * from './Layout';
 export * from './Line';
 export * from './Link';
 export * from './LinkedIn';
+export * from './Loader';
 export * from './Lock';
 export * from './Mail';
 export * from './Markdown';
