@@ -19,7 +19,7 @@ export const GenericLoader = ({
           size={IconSize.XLarge}
           className={classnames(
             className,
-            'flex-shrink-0 animate-spin drop-shadow-[0_0_5px_#CE3DE3]',
+            `flex-shrink-0 animate-spin drop-shadow-[0_0_5px_var(--theme-shadow-cabbage)]`,
           )}
         />
         <div>{label}</div>
