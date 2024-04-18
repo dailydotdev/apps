@@ -213,7 +213,7 @@ export default function Feed<T>({
 
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
-
+  const bookmarkLoops = useFeature(feature.bookmarkLoops);
   const {
     showCommentPopupId,
     setShowCommentPopupId,
@@ -353,7 +353,7 @@ export default function Feed<T>({
       },
     });
 
-    if (!checkHasCompleted(ActionType.BookmarkPromoteMobile)) {
+    if (bookmarkLoops && !checkHasCompleted(ActionType.BookmarkPromoteMobile)) {
       completeAction(ActionType.BookmarkPromoteMobile);
       openModal({
         type: LazyModal.GenericPromotion,
