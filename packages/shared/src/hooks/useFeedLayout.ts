@@ -26,7 +26,6 @@ export type FeedPagesWithMobileLayoutType = Exclude<
   | 'squads'
   | 'source'
   | 'tag'
-  | 'search'
 >;
 
 export type UserProfileFeedType = Extract<
@@ -35,9 +34,7 @@ export type UserProfileFeedType = Extract<
 >;
 
 export const FeedLayoutMobileFeedPages = new Set([
-  ...Object.values(SharedFeedPage).filter(
-    (page) => page !== SharedFeedPage.Search,
-  ),
+  ...Object.values(SharedFeedPage),
   OtherFeedPage.TagPage,
   OtherFeedPage.SourcePage,
   OtherFeedPage.SquadPage,
