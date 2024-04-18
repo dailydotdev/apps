@@ -157,7 +157,9 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
     title: `${title} posts on daily.dev`,
     openGraph: { ...defaultOpenGraph },
     ...defaultSeo,
-    description: initialData?.flags?.description || defaultSeo.description,
+    description:
+      initialData?.flags?.description ||
+      `Find all the recent posts, videos, updates and discussions about ${title}`,
   };
 
   const followButtonProps: ButtonProps<'button'> = {
