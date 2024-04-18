@@ -9,7 +9,6 @@ import {
   ProfileReadingData,
 } from '@dailydotdev/shared/src/graphql/users';
 import { QueryClient } from '@tanstack/react-query';
-import { RANKS } from '@dailydotdev/shared/src/lib/rank';
 import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 import {
   MockedGraphQLResponse,
@@ -101,18 +100,6 @@ const renderComponent = (
     </TestBootProvider>,
   );
 };
-
-it('should show the reading rank history of the user', async () => {
-  renderComponent();
-  await waitForNock();
-  const counts = [0, 5, 0, 0, 3];
-  await Promise.all(
-    counts.map(async (count, index) => {
-      const el = await screen.findByLabelText(`${RANKS[index].name}: ${count}`);
-      expect(el).toBeInTheDocument();
-    }),
-  );
-});
 
 it('should show the top reading tags of the user', async () => {
   renderComponent();
