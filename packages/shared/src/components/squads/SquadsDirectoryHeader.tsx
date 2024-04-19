@@ -31,9 +31,9 @@ export const SquadsDirectoryHeader = ({
           height="3rem"
           className="mb-4 translate-x-[1.125rem] text-white"
         />
-        <div className="mb-3 flex items-center justify-center font-bold text-white typo-large-title">
+        <h1 className="mb-3 flex items-center justify-center font-bold text-white typo-large-title">
           Public Squads
-        </div>
+        </h1>
         <div className="mb-4 max-w-[40rem] font-normal text-raw-salt-50 typo-title3">
           Unleashing the magic of developer communities with Squads. An
           opportunity to dive deep and go niche together with like-minded devs.

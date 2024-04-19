@@ -71,6 +71,7 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { ReadingReminder } from '@dailydotdev/shared/src/components/auth/ReadingReminder';
+import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -107,7 +108,13 @@ export function OnboardPage(): ReactElement {
       : AuthDisplay.OnboardingSignup,
     ...(anonymous?.email && { email: anonymous.email }),
   });
-  const { isAuthenticating, isLoginFlow, email, defaultDisplay } = auth;
+  const {
+    isAuthenticating,
+    isLoginFlow,
+    email,
+    defaultDisplay,
+    isLoading: isAuthLoading,
+  } = auth;
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
   type OnboardingVisual = {
@@ -387,6 +394,9 @@ export function OnboardPage(): ReactElement {
   const showOnboardingPage =
     !isAuthenticating && activeScreen === OnboardingStep.Intro && !shouldVerify;
 
+  const showGenerigLoader =
+    isAuthenticating && isAuthLoading && activeScreen === OnboardingStep.Intro;
+
   if (!isPageReady) {
     return null;
   }
@@ -398,6 +408,7 @@ export function OnboardPage(): ReactElement {
       <GtagTracking />
       <TiktokTracking />
       {getProgressBar()}
+      {showGenerigLoader && <GenericLoader />}
       <OnboardingHeader
         showOnboardingPage={showOnboardingPage}
         setAuth={setAuth}

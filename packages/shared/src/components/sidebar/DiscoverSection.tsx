@@ -48,6 +48,7 @@ export function DiscoverSection({
       hideOnMobile: true,
       path: '/search',
       action: enableSearch,
+      showActiveAsH1: true,
     },
   ];
 

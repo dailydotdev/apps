@@ -151,7 +151,6 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
         isFallback={isFallback}
         backToSquad={!!router?.query?.squad}
         shouldOnboardAuthor={!!router.query?.author}
-        enableShowShareNewComment={!!router?.query.new}
         origin={Origin.ArticlePage}
         isBannerVisible={shouldShowAuthBanner && !isLaptop}
         className={{
