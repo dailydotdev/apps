@@ -23,19 +23,10 @@ const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
 );
 
-const ShareNewCommentPopup = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "shareNewCommentPopup" */ '../ShareNewCommentPopup'
-    ),
-  { ssr: false },
-);
-
 interface PostEngagementsProps {
   post: Post;
   analyticsOrigin: PostOrigin;
   shouldOnboardAuthor?: boolean;
-  enableShowShareNewComment?: boolean;
   onCopyLinkClick?: (post?: Post) => void;
 }
 
@@ -44,7 +35,6 @@ function PostEngagements({
   onCopyLinkClick,
   analyticsOrigin,
   shouldOnboardAuthor,
-  enableShowShareNewComment,
 }: PostEngagementsProps): ReactElement {
   const postQueryKey = ['post', post.id];
   const { user, showLogin } = useAuthContext();
@@ -55,26 +45,25 @@ function PostEngagements({
   const [joinNotificationCommentId, setJoinNotificationCommentId] =
     useState<string>();
   const { onShowUpvoted } = useUpvoteQuery();
-  const { showShareNewComment, openShareComment, onShowShareNewComment } =
-    useShareComment(analyticsOrigin, enableShowShareNewComment);
+  const { openShareComment } = useShareComment(analyticsOrigin);
   const [isJoinSquadBannerDismissed] = usePersistentContext(
     SQUAD_COMMENT_JOIN_BANNER_KEY,
     false,
   );
 
   const onCommented = (comment: Comment, isNew: boolean) => {
-    if (isNew) {
-      setPermissionNotificationCommentId(comment.id);
+    if (!isNew) {
+      return;
+    }
 
-      if (
-        isSourcePublicSquad(post.source) &&
-        !post.source?.currentMember &&
-        !isJoinSquadBannerDismissed
-      ) {
-        setJoinNotificationCommentId(comment.id);
-      }
+    setPermissionNotificationCommentId(comment.id);
 
-      onShowShareNewComment(comment.id);
+    if (
+      isSourcePublicSquad(post.source) &&
+      !post.source?.currentMember &&
+      !isJoinSquadBannerDismissed
+    ) {
+      setJoinNotificationCommentId(comment.id);
     }
   };
 
@@ -121,13 +110,6 @@ function PostEngagements({
           onSignUp={
             !user && (() => showLogin({ trigger: AuthTriggers.Author }))
           }
-        />
-      )}
-      {showShareNewComment && (
-        <ShareNewCommentPopup
-          post={post}
-          commentId={showShareNewComment}
-          onRequestClose={() => onShowShareNewComment(null)}
         />
       )}
     </>
