@@ -19,8 +19,12 @@ const useVote = ({ onMutate, entity, variables }: UseVoteProps): UseVote => {
   const { user, showLogin } = useContext(AuthContext);
   const mutationKey = createVoteMutationKey({ entity, variables });
 
-  const { mutateAsync: voteEntity } = useMutation(
+  const { mutateAsync: voteEntity, isLoading } = useMutation(
     (mutationProps: UseVoteMutationProps) => {
+      if (isLoading) {
+        return Promise.resolve(null);
+      }
+
       return requestMethod(graphqlUrl, VOTE_MUTATION, mutationProps);
     },
     {
