@@ -42,7 +42,7 @@ const defaultProfile: PublicProfile = {
   permalink: 'https://daily.dev/dailydotdev',
 };
 
-const defaultCommentsPage: Connection<Comment> = {
+export const defaultCommentsPage: Connection<Comment> = {
   pageInfo: {
     hasNextPage: true,
     endCursor: '',
