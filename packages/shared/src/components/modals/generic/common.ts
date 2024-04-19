@@ -7,6 +7,8 @@ import {
 
 export const promotion: Record<string, MarketingCta> = {
   migrateStreaks: {
+    campaignId: 'bookmarks on mobile',
+    createdAt: new Date(2024, 3, 19),
     variant: MarketingCtaVariant.Popover,
     flags: {
       title: 'Goodbye weekly goals,\nWelcome reading streaks!',
@@ -20,6 +22,8 @@ export const promotion: Record<string, MarketingCta> = {
     },
   },
   bookmarkPromoteMobile: {
+    campaignId: 'streaks migration',
+    createdAt: new Date(2024, 3, 19),
     variant: MarketingCtaVariant.Popover,
     flags: {
       title: 'Get back to your bookmarks on the go',

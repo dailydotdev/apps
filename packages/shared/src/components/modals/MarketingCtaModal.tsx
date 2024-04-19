@@ -31,14 +31,12 @@ export const MarketingCtaModal = ({
     param: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<Element>,
     eventName: AnalyticsEvent,
   ) => {
-    if (campaignId) {
-      trackEvent({
-        event_name: eventName,
-        target_type: TargetType.MarketingCtaPopover,
-        target_id: campaignId,
-      });
-      clearMarketingCta(campaignId);
-    }
+    trackEvent({
+      event_name: eventName,
+      target_type: TargetType.MarketingCtaPopover,
+      target_id: campaignId,
+    });
+    clearMarketingCta(campaignId);
 
     onRequestClose(param);
   };
