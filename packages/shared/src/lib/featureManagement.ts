@@ -39,7 +39,6 @@ const feature = {
   feedAdSpot: new Feature('feed_ad_spot', 0),
   onboardingCopy: new Feature('onboarding_copy', OnboardingCopy.Control),
   searchVersion: new Feature('search_version', 1),
-  commentFeed: new Feature('comment_feed', false),
   forcedTagSelection: new Feature('forced_tag_selection', false),
   mobileUxLayout: new Feature('mobile_ux_layout', false),
   readingReminder: new Feature('reading_reminder', false),
