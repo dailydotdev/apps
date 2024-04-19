@@ -16,8 +16,6 @@ import { CollectionPillSources } from '../../post/collection';
 import { cloudinary } from '../../../lib/image';
 import { useTruncatedSummary } from '../../../hooks';
 import PostTags from '../PostTags';
-import { useFeature } from '../../GrowthBookProvider';
-import { feature } from '../../../lib/featureManagement';
 
 export const CollectionCard = forwardRef(function CollectionCard(
   {
@@ -35,7 +33,6 @@ export const CollectionCard = forwardRef(function CollectionCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
-  const tagsOnCard = useFeature(feature.tagsOnCard);
   const image = usePostImage(post);
   const { title } = useTruncatedSummary(post);
 
@@ -81,12 +78,10 @@ export const CollectionCard = forwardRef(function CollectionCard(
             >
               {title}
             </CardTitle>
-            {tagsOnCard && (
-              <>
-                <div className="flex flex-1" />
-                <PostTags tags={post.tags} />
-              </>
-            )}
+            <>
+              <div className="flex flex-1" />
+              <PostTags tags={post.tags} />
+            </>
           </div>
 
           {image && (
