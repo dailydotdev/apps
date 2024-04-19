@@ -22,7 +22,6 @@ export function BasePostContent({
   navigationProps,
   engagementProps,
   shouldOnboardAuthor,
-  enableShowShareNewComment,
   isPostPage,
 }: BasePostContentProps): ReactElement {
   const { id } = post ?? {};
@@ -52,7 +51,6 @@ export function BasePostContent({
         onCopyLinkClick={onCopyPostLink}
         analyticsOrigin={origin}
         shouldOnboardAuthor={shouldOnboardAuthor}
-        enableShowShareNewComment={enableShowShareNewComment}
       />
     </>
   );
