@@ -74,7 +74,6 @@ export interface PostHeaderActionsProps {
 export interface PostContentProps
   extends Pick<PostHeaderActionsProps, 'onClose' | 'inlineActions'>,
     PassedPostNavigationProps {
-  enableShowShareNewComment?: boolean;
   post?: Post;
   isFallback?: boolean;
   className?: PostContentClassName;
@@ -99,7 +98,6 @@ export interface BasePostContentProps extends UsePostContentProps {
   navigationProps?: PostNavigationProps;
   engagementProps: UsePostContent;
   shouldOnboardAuthor?: boolean;
-  enableShowShareNewComment?: boolean;
   loadingPlaceholder?: ReactNode;
   customNavigation?: ReactNode;
   isPostPage?: boolean;
