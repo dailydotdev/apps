@@ -22,8 +22,8 @@ export enum MarketingCtaVariant {
 }
 
 export interface MarketingCta {
-  campaignId: string;
-  createdAt: Date;
+  campaignId?: string;
+  createdAt?: Date;
   variant: MarketingCtaVariant;
   flags: MarketingCtaFlags;
 }

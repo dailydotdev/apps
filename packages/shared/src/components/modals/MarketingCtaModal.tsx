@@ -23,19 +23,23 @@ export const MarketingCtaModal = ({
 }: MarketingCtaModalProps): ReactElement => {
   const { clearMarketingCta } = useBoot();
   const { trackEvent } = useAnalyticsContext();
+  const { campaignId, flags } = marketingCta;
   const { tagColor, tagText, title, description, image, ctaUrl, ctaText } =
-    marketingCta.flags;
+    flags;
 
   const onModalClose = (
     param: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<Element>,
     eventName: AnalyticsEvent,
   ) => {
-    trackEvent({
-      event_name: eventName,
-      target_type: TargetType.MarketingCtaPopover,
-      target_id: marketingCta.campaignId,
-    });
-    clearMarketingCta(marketingCta.campaignId);
+    if (campaignId) {
+      trackEvent({
+        event_name: eventName,
+        target_type: TargetType.MarketingCtaPopover,
+        target_id: campaignId,
+      });
+      clearMarketingCta(campaignId);
+    }
+
     onRequestClose(param);
   };
 
