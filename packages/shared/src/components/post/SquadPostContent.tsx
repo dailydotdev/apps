@@ -26,7 +26,6 @@ function SquadPostContent({
   post,
   isFallback,
   shouldOnboardAuthor,
-  enableShowShareNewComment,
   origin,
   position,
   postPosition,
@@ -109,7 +108,6 @@ function SquadPostContent({
           isPostPage={isPostPage}
           isFallback={isFallback}
           customNavigation={customNavigation}
-          enableShowShareNewComment={enableShowShareNewComment}
           shouldOnboardAuthor={shouldOnboardAuthor}
           navigationProps={navigationProps}
           engagementProps={engagementActions}

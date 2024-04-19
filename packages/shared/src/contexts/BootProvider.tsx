@@ -179,13 +179,9 @@ export const BootDataProvider = ({
     [setBootData],
   );
 
-  const updateExperimentation = useCallback(
-    (exp: BootCacheData['exp']) => {
-      const updated = updateLocalBootData(cachedBootData, { exp });
-      setCachedBootData(updated);
-    },
-    [cachedBootData],
-  );
+  const updateExperimentation = useCallback((exp: BootCacheData['exp']) => {
+    setCachedBootData((cachedData) => updateLocalBootData(cachedData, { exp }));
+  }, []);
 
   return (
     <GrowthBookProvider

@@ -28,7 +28,6 @@ export const CollectionPostContent = ({
   post,
   className = {},
   shouldOnboardAuthor,
-  enableShowShareNewComment,
   origin,
   position,
   inlineActions,
@@ -113,7 +112,6 @@ export const CollectionPostContent = ({
           isPostPage={isPostPage}
           isFallback={isFallback}
           customNavigation={customNavigation}
-          enableShowShareNewComment={enableShowShareNewComment}
           shouldOnboardAuthor={shouldOnboardAuthor}
           navigationProps={navigationProps}
           engagementProps={engagementActions}

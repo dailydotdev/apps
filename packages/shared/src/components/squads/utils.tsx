@@ -2,7 +2,7 @@ import classed from '../../lib/classed';
 import { BasePageContainer, pageBorders } from '../utilities';
 
 export const SquadTitle = classed(
-  'h3',
+  'h1',
   'text-center typo-large-title font-bold',
 );
 export const SquadSubTitle = classed(
