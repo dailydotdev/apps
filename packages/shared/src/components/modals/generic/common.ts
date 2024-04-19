@@ -29,7 +29,7 @@ export const promotion: Record<string, MarketingCta> = {
       title: 'Get back to your bookmarks on the go',
       description:
         'Your saved posts are waiting for you on daily.dev mobile. Perfect for reading anytime, anywhere.',
-      image: cloudinary.streak.migrate, // TODO: Replace with mobile bookmark image once uploaded to cloudinary
+      image: cloudinary.promotions.bookmarkLoops,
       ctaText: 'Install the app',
       ctaUrl: rebrandly.bookmarkLoops,
       tagColor: 'cabbage',

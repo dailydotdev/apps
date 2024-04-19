@@ -177,6 +177,10 @@ export const cloudinary = {
     privilegesUnlocked:
       'https://daily-now-res.cloudinary.com/image/upload/s--6sO7fJKh--/v1709136797/image_epr7dz.svg',
   },
+  promotions: {
+    bookmarkLoops:
+      'https://res.cloudinary.com/daily-now/image/upload/s--n2t9TCqZ--/f_auto/v1713534539/public/daily',
+  },
 };
 
 export const smallPostImage = (url: string): string => {
