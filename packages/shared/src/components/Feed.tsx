@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useState,
 } from 'react';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
@@ -36,7 +37,13 @@ import ShareOptionsMenu from './ShareOptionsMenu';
 import { SharedFeedPage } from './utilities';
 import { FeedContainer, FeedContainerProps } from './feeds';
 import { ActiveFeedContext } from '../contexts';
-import { useActions, useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
+import {
+  useActions,
+  useBoot,
+  useConditionalFeature,
+  useFeedLayout,
+  useFeedVotePost,
+} from '../hooks';
 import {
   AllFeedPages,
   OtherFeedPage,
@@ -155,6 +162,25 @@ export default function Feed<T>({
   const showMarketingCta = !!marketingCta;
   const { openModal } = useLazyModal();
   const { completeAction, checkHasCompleted } = useActions();
+  const seenBookmarkPromotion = useMemo(
+    () => checkHasCompleted(ActionType.BookmarkPromoteMobile),
+    [checkHasCompleted],
+  );
+  const [justBookmarked, setJustBookmarked] = useState(false);
+  const shouldEvaluate = !!user && !seenBookmarkPromotion && justBookmarked;
+  useConditionalFeature({
+    feature: feature.bookmarkLoops,
+    shouldEvaluate,
+    onAfterEvaluation: (bookmarkLoops) => {
+      if (bookmarkLoops) {
+        completeAction(ActionType.BookmarkPromoteMobile);
+        openModal({
+          type: LazyModal.MarketingCta,
+          props: { marketingCta: promotion.bookmarkPromoteMobile },
+        });
+      }
+    },
+  });
 
   const {
     items,
@@ -213,7 +239,6 @@ export default function Feed<T>({
 
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
-  const bookmarkLoops = useFeature(feature.bookmarkLoops);
   const {
     showCommentPopupId,
     setShowCommentPopupId,
@@ -353,12 +378,8 @@ export default function Feed<T>({
       },
     });
 
-    if (bookmarkLoops && !checkHasCompleted(ActionType.BookmarkPromoteMobile)) {
-      completeAction(ActionType.BookmarkPromoteMobile);
-      openModal({
-        type: LazyModal.MarketingCta,
-        props: { marketingCta: promotion.bookmarkPromoteMobile },
-      });
+    if (!post.bookmarked && !seenBookmarkPromotion && !justBookmarked) {
+      setJustBookmarked(true);
     }
   };
 
