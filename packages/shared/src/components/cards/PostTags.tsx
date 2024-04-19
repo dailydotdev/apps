@@ -11,6 +11,10 @@ const Chip = Classed(
 
 export default function PostTags({ tags }: PostTagsProps): ReactElement {
   const tagList = useMemo(() => {
+    if (!tags) {
+      return [];
+    }
+
     let totalLength = 0;
     return tags.reduce((acc, tag) => {
       totalLength += tag.length;
@@ -26,7 +30,8 @@ export default function PostTags({ tags }: PostTagsProps): ReactElement {
     }, []);
   }, [tags]);
 
-  const remainingTags = tags.length - tagList.length;
+  const tagsCount = tags?.length || 0;
+  const remainingTags = tagsCount - tagList.length;
 
   return (
     <div className="flex items-center tablet:mx-2">
