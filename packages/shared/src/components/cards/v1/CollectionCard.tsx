@@ -78,10 +78,8 @@ export const CollectionCard = forwardRef(function CollectionCard(
             >
               {title}
             </CardTitle>
-            <>
-              <div className="flex flex-1" />
-              <PostTags tags={post.tags} />
-            </>
+            <div className="flex flex-1" />
+            <PostTags tags={post.tags} />
           </div>
 
           {image && (

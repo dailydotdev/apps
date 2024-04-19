@@ -114,10 +114,8 @@ export const ArticlePostCard = forwardRef(function PostCard(
                 >
                   {title}
                 </CardTitle>
-                <>
-                  <div className="flex flex-1" />
-                  <PostTags tags={post.tags} />
-                </>
+                <div className="flex flex-1" />
+                <PostTags tags={post.tags} />
               </div>
 
               <CardCover
