@@ -146,8 +146,8 @@ export default function MainFeedLayout({
   const { isUpvoted, isPopular, isSortableFeed } = useFeedName({ feedName });
   const {
     shouldUseMobileFeedLayout,
-    FeedPageLayoutComponent,
     shouldUseCommentFeedLayout,
+    FeedPageLayoutComponent,
   } = useFeedLayout();
   const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);
   const [isPreviewFeedEnabled, setPreviewFeedEnabled] = useState(false);
