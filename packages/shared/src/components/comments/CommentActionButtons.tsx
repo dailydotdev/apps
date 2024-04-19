@@ -38,6 +38,8 @@ import {
   voteMutationHandlers,
 } from '../../hooks';
 import { RequestKey } from '../../lib/query';
+import { useRequestProtocol } from '../../hooks/useRequestProtocol';
+import { getCompanionWrapper } from '../../lib/extension';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -67,6 +69,7 @@ export default function CommentActionButtons({
   onEdit,
   onShowUpvotes,
 }: Props): ReactElement {
+  const { isCompanion } = useRequestProtocol();
   const client = useQueryClient();
   const id = `comment-actions-menu-${comment.id}`;
   const { onMenuClick, isOpen, onHide } = useContextMenu({ id });
@@ -172,9 +175,11 @@ export default function CommentActionButtons({
     });
   }
 
+  const appendTo = isCompanion ? getCompanionWrapper : undefined;
+
   return (
     <div className={classNames('flex flex-row items-center', className)}>
-      <SimpleTooltip content="Upvote">
+      <SimpleTooltip content="Upvote" appendTo={appendTo}>
         <Button
           id={`comment-${comment.id}-upvote-btn`}
           size={ButtonSize.Small}
@@ -195,7 +200,7 @@ export default function CommentActionButtons({
           color={ButtonColor.Avocado}
         />
       </SimpleTooltip>
-      <SimpleTooltip content="Downvote">
+      <SimpleTooltip content="Downvote" appendTo={appendTo}>
         <Button
           id={`comment-${comment.id}-downvote-btn`}
           size={ButtonSize.Small}
@@ -219,7 +224,7 @@ export default function CommentActionButtons({
           color={ButtonColor.Ketchup}
         />
       </SimpleTooltip>
-      <SimpleTooltip content="Reply">
+      <SimpleTooltip content="Reply" appendTo={appendTo}>
         <Button
           size={ButtonSize.Small}
           onClick={() => onComment(comment, parentId)}
@@ -229,7 +234,7 @@ export default function CommentActionButtons({
           color={ButtonColor.BlueCheese}
         />
       </SimpleTooltip>
-      <SimpleTooltip content="Share comment">
+      <SimpleTooltip content="Share comment" appendTo={appendTo}>
         <Button
           size={ButtonSize.Small}
           onClick={() => onShare(comment)}
@@ -243,7 +248,7 @@ export default function CommentActionButtons({
         <OptionsButton tooltipPlacement="top" onClick={onMenuClick} />
       )}
       {voteState.numUpvotes > 0 && (
-        <SimpleTooltip content="See who upvoted">
+        <SimpleTooltip content="See who upvoted" appendTo={appendTo}>
           <ClickableText
             className="ml-auto"
             onClick={() => onShowUpvotes(comment.id, voteState.numUpvotes)}
