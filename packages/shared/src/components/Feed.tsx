@@ -161,10 +161,11 @@ export default function Feed<T>({
   const marketingCta = getMarketingCta(MarketingCtaVariant.Card);
   const showMarketingCta = !!marketingCta;
   const { openModal } = useLazyModal();
-  const { completeAction, checkHasCompleted } = useActions();
+  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const seenBookmarkPromotion = useMemo(
-    () => checkHasCompleted(ActionType.BookmarkPromoteMobile),
-    [checkHasCompleted],
+    () =>
+      isActionsFetched && checkHasCompleted(ActionType.BookmarkPromoteMobile),
+    [checkHasCompleted, isActionsFetched],
   );
   const [justBookmarked, setJustBookmarked] = useState(false);
   const shouldEvaluate = !!user && !seenBookmarkPromotion && justBookmarked;
