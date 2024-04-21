@@ -10,6 +10,7 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { useContentScriptStatus } from '@dailydotdev/shared/src/hooks';
 import { CompanionPermission } from './CompanionPermission';
+import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
 
 export const CompanionPopupButton = (): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
@@ -27,6 +28,10 @@ export const CompanionPopupButton = (): ReactElement => {
   const onButtonClick = () => {
     companionNotificationTracking('manual', !showCompanionPermission);
     setShowCompanionPermission(!showCompanionPermission);
+  };
+
+  const closeCompanionPopupButton = () => {
+    setShowCompanionPermission(false);
   };
 
   useEffect(() => {
@@ -47,6 +52,8 @@ export const CompanionPopupButton = (): ReactElement => {
     return null;
   }
 
+  useKeyboardNavigation(window, [['Escape', closeCompanionPopupButton]]);
+
   return (
     <SimpleTooltip
       content={<CompanionPermission />}
@@ -61,6 +68,7 @@ export const CompanionPopupButton = (): ReactElement => {
       }}
       interactive
       visible={showCompanionPermission}
+      onClickOutside={closeCompanionPopupButton}
     >
       <Button
         onClick={onButtonClick}
