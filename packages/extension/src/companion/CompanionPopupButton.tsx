@@ -9,8 +9,8 @@ import { AppIcon as CompanionIcon } from '@dailydotdev/shared/src/components/ico
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { useContentScriptStatus } from '@dailydotdev/shared/src/hooks';
-import { CompanionPermission } from './CompanionPermission';
 import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
+import { CompanionPermission } from './CompanionPermission';
 
 export const CompanionPopupButton = (): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
@@ -34,6 +34,8 @@ export const CompanionPopupButton = (): ReactElement => {
     setShowCompanionPermission(false);
   };
 
+  useKeyboardNavigation(window, [['Escape', closeCompanionPopupButton]]);
+
   useEffect(() => {
     if (contentScriptGranted || !isFetched) {
       return;
@@ -51,8 +53,6 @@ export const CompanionPopupButton = (): ReactElement => {
   if (contentScriptGranted || !isFetched) {
     return null;
   }
-
-  useKeyboardNavigation(window, [['Escape', closeCompanionPopupButton]]);
 
   return (
     <SimpleTooltip
