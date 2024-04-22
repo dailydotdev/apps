@@ -2,7 +2,6 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { ImageProps, ImageType } from '../../image/Image';
 import VideoImage, { VideoImageProps } from '../../image/VideoImage';
-import ConditionalWrapper from '../../ConditionalWrapper';
 import { CardImage } from '../Card';
 import { CardCoverShare } from './CardCoverShare';
 import { CommonCardCoverProps } from '../common';
@@ -52,20 +51,13 @@ export function CardCover({
   }
 
   return (
-    <ConditionalWrapper
-      condition={shouldShowOverlay}
-      wrapper={(component) => (
-        <div className="relative flex flex-1">
-          {coverShare}
-          {component}
-        </div>
-      )}
-    >
+    <div className="relative flex flex-1">
+      {shouldShowOverlay && coverShare}
       <CardImage
         {...imageProps}
         type={ImageType.Post}
         className={imageClasses}
       />
-    </ConditionalWrapper>
+    </div>
   );
 }

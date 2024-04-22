@@ -25,7 +25,6 @@ export function PostContent({
   post,
   className = {},
   shouldOnboardAuthor,
-  enableShowShareNewComment,
   origin,
   position,
   inlineActions,
@@ -110,7 +109,6 @@ export function PostContent({
           isPostPage={isPostPage}
           isFallback={isFallback}
           customNavigation={customNavigation}
-          enableShowShareNewComment={enableShowShareNewComment}
           shouldOnboardAuthor={shouldOnboardAuthor}
           navigationProps={navigationProps}
           engagementProps={engagementActions}

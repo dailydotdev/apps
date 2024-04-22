@@ -14,7 +14,7 @@ import {
 } from '../buttons/Button';
 import { AiIcon } from '../icons';
 import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
-import { SearchQuestion } from '../../graphql/search';
+import { SearchProviderEnum, SearchQuestion } from '../../graphql/search';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 export type SuggestionOrigin =
@@ -67,7 +67,7 @@ export const SearchBarSuggestion = ({
           : TargetType.SearchRecommendation,
         target_id: suggestionId,
         feed_item_title: prompt,
-        extra: JSON.stringify({ origin }),
+        extra: JSON.stringify({ origin, provider: SearchProviderEnum.Chat }),
       });
     }
   }, [origin, suggestionId, prompt, trackEvent, isHistory]);

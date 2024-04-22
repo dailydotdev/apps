@@ -252,3 +252,7 @@ export const COMMENT_BY_ID_QUERY = gql`
     }
   }
 `;
+
+export type CommentFeedData = {
+  page: Connection<Comment>;
+};

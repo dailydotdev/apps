@@ -17,8 +17,6 @@ import SourceButton from '../SourceButton';
 import { isVideoPost } from '../../../graphql/posts';
 import PostReadTime from './PostReadTime';
 import PostTags from '../PostTags';
-import { useFeature } from '../../GrowthBookProvider';
-import { feature } from '../../../lib/featureManagement';
 import { CardCoverV1 } from './CardCover';
 
 export const ArticlePostCard = forwardRef(function PostCard(
@@ -40,7 +38,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const tagsOnCard = useFeature(feature.tagsOnCard);
   const { className, style } = domProps;
   const { type, pinnedAt, trending } = post;
   const isVideoType = isVideoPost(post);
@@ -117,12 +114,8 @@ export const ArticlePostCard = forwardRef(function PostCard(
                 >
                   {title}
                 </CardTitle>
-                {tagsOnCard && (
-                  <>
-                    <div className="flex flex-1" />
-                    <PostTags tags={post.tags} />
-                  </>
-                )}
+                <div className="flex flex-1" />
+                <PostTags tags={post.tags} />
               </div>
 
               <CardCoverV1
