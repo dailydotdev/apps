@@ -1,9 +1,5 @@
 import { JSONValue } from '@growthbook/growthbook';
-import {
-  ReadingStreaksExperiment,
-  PostPageOnboarding,
-  OnboardingCopy,
-} from './featureValues';
+import { ReadingStreaksExperiment, PostPageOnboarding } from './featureValues';
 import { cloudinary } from './image';
 
 export class Feature<T extends JSONValue> {
@@ -37,7 +33,6 @@ const feature = {
   ),
   forceRefresh: new Feature('force_refresh', false),
   feedAdSpot: new Feature('feed_ad_spot', 0),
-  onboardingCopy: new Feature('onboarding_copy', OnboardingCopy.Control),
   searchVersion: new Feature('search_version', 1),
   forcedTagSelection: new Feature('forced_tag_selection', false),
   mobileUxLayout: new Feature('mobile_ux_layout', false),
