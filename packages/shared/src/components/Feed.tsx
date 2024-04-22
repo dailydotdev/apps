@@ -399,7 +399,6 @@ export default function Feed<T>({
         actionButtons={actionButtons}
         isHorizontal={isHorizontal}
         feedContainerRef={feedContainerRef}
-        feedName={feedName}
       >
         {items.map((_, index) => (
           <FeedItemComponent

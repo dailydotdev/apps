@@ -140,7 +140,6 @@ export const FeedContainer = ({
   actionButtons,
   isHorizontal,
   feedContainerRef,
-  feedName: originFeedName,
 }: FeedContainerProps): ReactElement => {
   const { value: isShortcutsV1 } = useConditionalFeature({
     feature: feature.onboardingMostVisited,
