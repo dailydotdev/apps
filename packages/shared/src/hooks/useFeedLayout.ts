@@ -1,4 +1,3 @@
-import { useContext } from 'react';
 import { useViewSize, ViewSize } from './useViewSize';
 import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import {
@@ -7,7 +6,6 @@ import {
   SharedFeedPage,
 } from '../components/utilities';
 import { AllFeedPages, OtherFeedPage } from '../lib/query';
-import { ActiveFeedContext } from '../contexts/ActiveFeedContext';
 
 interface UseFeedLayoutReturn {
   shouldUseMobileFeedLayout: boolean;
@@ -36,8 +34,6 @@ export type UserProfileFeedType = Extract<
   AllFeedPages,
   'user-upvoted' | 'user-posts'
 >;
-
-const ForceDesktopFeedType = new Set([OtherFeedPage.SourceMostUpvoted]);
 
 export const FeedLayoutMobileFeedPages = new Set([
   ...Object.values(SharedFeedPage),
@@ -68,14 +64,8 @@ export const useFeedLayout = ({
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
-  const { feedName: originFeedName } = useContext(ActiveFeedContext);
-  const evaluateFeedName = ForceDesktopFeedType.has(
-    originFeedName as OtherFeedPage,
-  )
-    ? originFeedName
-    : feedName;
   const shouldUseMobileFeedLayout = feedRelated
-    ? checkShouldUseMobileFeedLayout(isLaptop, evaluateFeedName)
+    ? checkShouldUseMobileFeedLayout(isLaptop, feedName)
     : !isLaptop;
 
   const FeedPageLayoutComponent = shouldUseMobileFeedLayout
@@ -87,6 +77,6 @@ export const useFeedLayout = ({
     FeedPageLayoutComponent,
     screenCenteredOnMobileLayout:
       shouldUseMobileFeedLayout &&
-      !UserProfileFeedPages.has(evaluateFeedName as UserProfileFeedType),
+      !UserProfileFeedPages.has(feedName as UserProfileFeedType),
   };
 };

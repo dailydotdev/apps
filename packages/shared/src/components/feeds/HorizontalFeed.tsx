@@ -14,6 +14,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import { PostType } from '../../graphql/posts';
+import { ActiveFeedNameContext } from '../../contexts/ActiveFeedNameContext';
 
 interface HorizontalFeedProps {
   variables: { source: string; ranking: string; supportedTypes: PostType[] };
@@ -86,22 +87,26 @@ export const HorizontalFeed = ({
           />
         </div>
       </div>
-      <Feed
-        feedName={OtherFeedPage.SourceMostUpvoted}
-        feedQueryKey={[
-          'sourceFeedUpvoted',
-          user?.id ?? 'anonymous',
-          Object.values(variables),
-        ]}
-        query={MOST_UPVOTED_FEED_QUERY}
-        variables={variables}
-        disableAds
-        allowFetchMore={false}
-        forcedLimit={10}
-        isHorizontal
-        className="mx-4 mb-10"
-        feedContainerRef={feedContainerRef}
-      />
+      <ActiveFeedNameContext.Provider
+        value={{ feedName: OtherFeedPage.SourceMostUpvoted }}
+      >
+        <Feed
+          feedName={OtherFeedPage.SourceMostUpvoted}
+          feedQueryKey={[
+            'sourceFeedUpvoted',
+            user?.id ?? 'anonymous',
+            Object.values(variables),
+          ]}
+          query={MOST_UPVOTED_FEED_QUERY}
+          variables={variables}
+          disableAds
+          allowFetchMore={false}
+          pageSize={10}
+          isHorizontal
+          className="mx-4 mb-10"
+          feedContainerRef={feedContainerRef}
+        />
+      </ActiveFeedNameContext.Provider>
     </>
   );
 };
