@@ -70,7 +70,7 @@ export interface FeedProps<T>
   actionButtons?: ReactNode;
   disableAds?: boolean;
   allowFetchMore?: boolean;
-  forcedLimit?: number;
+  pageSize?: number;
   isHorizontal?: boolean;
   feedContainerRef?: React.RefObject<HTMLDivElement>;
 }
@@ -128,7 +128,7 @@ export default function Feed<T>({
   actionButtons,
   disableAds,
   allowFetchMore = true,
-  forcedLimit,
+  pageSize,
   isHorizontal = false,
   feedContainerRef,
 }: FeedProps<T>): ReactElement {
@@ -147,9 +147,7 @@ export default function Feed<T>({
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
-  const { shouldUseMobileFeedLayout } = useFeedLayout({
-    originFeedName: feedName,
-  });
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const showAcquisitionForm =
     feedName === SharedFeedPage.MyFeed &&
     (router.query?.[acquisitionKey] as string)?.toLocaleLowerCase() ===
@@ -171,7 +169,7 @@ export default function Feed<T>({
     isInitialLoading,
   } = useFeed(
     feedQueryKey,
-    forcedLimit ?? currentSettings.pageSize,
+    pageSize ?? currentSettings.pageSize,
     isSquadFeed || shouldUseMobileFeedLayout ? 2 : adSpot,
     numCards,
     {
@@ -189,10 +187,11 @@ export default function Feed<T>({
   const canFetchMore = allowFetchMore ?? queryCanFetchMore;
   const feedContextValue = useMemo(() => {
     return {
+      feedName,
       queryKey: feedQueryKey,
       items,
     };
-  }, [feedQueryKey, items]);
+  }, [feedName, feedQueryKey, items]);
 
   const { ranking } = (variables as RankVariables) || {};
   const {

@@ -309,9 +309,7 @@ export default function PostOptionsMenu({
     },
   ];
 
-  const { shouldUseMobileFeedLayout } = useFeedLayout({
-    originFeedName: feedName,
-  });
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
 
   if (!bookmarkOnCard && !shouldUseMobileFeedLayout) {

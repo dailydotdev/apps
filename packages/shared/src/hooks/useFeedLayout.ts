@@ -1,3 +1,4 @@
+import { useContext } from 'react';
 import { useViewSize, ViewSize } from './useViewSize';
 import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import {
@@ -6,6 +7,7 @@ import {
   SharedFeedPage,
 } from '../components/utilities';
 import { AllFeedPages, OtherFeedPage } from '../lib/query';
+import { ActiveFeedContext } from '../contexts/ActiveFeedContext';
 
 interface UseFeedLayoutReturn {
   shouldUseMobileFeedLayout: boolean;
@@ -17,7 +19,6 @@ interface UseFeedLayoutReturn {
 
 interface UseFeedLayoutProps {
   feedRelated?: boolean;
-  originFeedName?: AllFeedPages;
 }
 
 export type FeedPagesWithMobileLayoutType = Exclude<
@@ -64,10 +65,10 @@ const checkShouldUseMobileFeedLayout = (
 
 export const useFeedLayout = ({
   feedRelated = true,
-  originFeedName,
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
+  const { feedName: originFeedName } = useContext(ActiveFeedContext);
   const evaluateFeedName = ForceDesktopFeedType.has(
     originFeedName as OtherFeedPage,
   )

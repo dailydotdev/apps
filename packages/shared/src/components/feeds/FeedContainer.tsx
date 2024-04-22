@@ -153,9 +153,7 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
-  const { shouldUseMobileFeedLayout } = useFeedLayout({
-    originFeedName,
-  });
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { isNewMobileLayout } = useMobileUxExperiment();
   const { isEnabled: isStreaksEnabled } = useReadingStreak();
   const { feedName } = useActiveFeedNameContext();

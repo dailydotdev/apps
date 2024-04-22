@@ -171,9 +171,7 @@ export default function FeedItemComponent({
     ranking,
   );
 
-  const { shouldUseMobileFeedLayout } = useFeedLayout({
-    originFeedName: feedName as AllFeedPages,
-  });
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { PostTag, AdTag, PlaceholderTag, MarketingCtaTag } = getTags(
     isList,
     shouldUseMobileFeedLayout,
