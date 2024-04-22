@@ -47,6 +47,24 @@ export const HorizontalFeed = ({
     };
   }, []);
 
+  const onClickNext = () => {
+    if (feedContainerRef.current) {
+      const currentPosition = feedContainerRef.current.scrollLeft;
+      feedContainerRef.current.scrollLeft = Math.max(
+        0,
+        currentPosition + numCards * 320,
+      );
+    }
+  };
+
+  const onClickPrevious = () => {
+    if (feedContainerRef.current) {
+      const currentPosition = feedContainerRef.current.scrollLeft;
+      const newPosition = Math.max(0, currentPosition - numCards * 320);
+      feedContainerRef.current.scrollLeft = newPosition < 150 ? 0 : newPosition;
+    }
+  };
+
   return (
     <>
       <div className="mx-4 mb-4 flex w-auto items-center justify-between laptop:mx-0 laptop:w-full">
@@ -56,32 +74,14 @@ export const HorizontalFeed = ({
             variant={ButtonVariant.Tertiary}
             icon={<ArrowIcon className="-rotate-90" />}
             disabled={feedScrolledPosition <= 0}
-            onClick={() => {
-              if (feedContainerRef.current) {
-                const currentPosition = feedContainerRef.current.scrollLeft;
-                const newPosition = Math.max(
-                  0,
-                  currentPosition - numCards * 320,
-                );
-                feedContainerRef.current.scrollLeft =
-                  newPosition < 150 ? 0 : newPosition;
-              }
-            }}
+            onClick={onClickPrevious}
             aria-label="Scroll left"
           />
           <Button
             variant={ButtonVariant.Tertiary}
             icon={<ArrowIcon className="rotate-90" />}
             disabled={feedScrolledPosition > (10 - numCards) * 320}
-            onClick={() => {
-              if (feedContainerRef.current) {
-                const currentPosition = feedContainerRef.current.scrollLeft;
-                feedContainerRef.current.scrollLeft = Math.max(
-                  0,
-                  currentPosition + numCards * 320,
-                );
-              }
-            }}
+            onClick={onClickNext}
             aria-label="Scroll right"
           />
         </div>

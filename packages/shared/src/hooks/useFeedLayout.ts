@@ -36,6 +36,8 @@ export type UserProfileFeedType = Extract<
   'user-upvoted' | 'user-posts'
 >;
 
+const ForceDesktopFeedType = new Set([OtherFeedPage.SourceMostUpvoted]);
+
 export const FeedLayoutMobileFeedPages = new Set([
   ...Object.values(SharedFeedPage),
   OtherFeedPage.TagPage,
@@ -66,10 +68,9 @@ export const useFeedLayout = ({
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
-  const evaluateFeedName =
-    originFeedName === OtherFeedPage.SourceMostUpvoted
-      ? originFeedName
-      : feedName;
+  const evaluateFeedName = ForceDesktopFeedType.has(feedName as OtherFeedPage)
+    ? originFeedName
+    : feedName;
   const shouldUseMobileFeedLayout = feedRelated
     ? checkShouldUseMobileFeedLayout(isLaptop, evaluateFeedName)
     : !isLaptop;

@@ -3,10 +3,10 @@ import classNames from 'classnames';
 import { ImageProps, ImageType } from '../../image/Image';
 import VideoImage, { VideoImageProps } from '../../image/VideoImage';
 import ConditionalWrapper from '../../ConditionalWrapper';
-import { CardImage } from '../Card';
-import { CardCoverShare } from './CardCoverShare';
+import { CardImage as CardImageV1 } from './Card';
 import { CommonCardCoverProps } from '../common';
 import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
+import { CardCoverShare } from '../common/CardCoverShare';
 
 interface CardCoverProps extends CommonCardCoverProps {
   imageProps: ImageProps;
@@ -14,7 +14,7 @@ interface CardCoverProps extends CommonCardCoverProps {
   isVideoType?: boolean;
 }
 
-export function CardCover({
+export function CardCoverV1({
   imageProps,
   videoProps,
   isVideoType,
@@ -41,7 +41,7 @@ export function CardCover({
     return (
       <VideoImage
         {...videoProps}
-        CardImageComponent={CardImage}
+        CardImageComponent={CardImageV1}
         overlay={shouldShowOverlay ? coverShare : undefined}
         imageProps={{
           ...imageProps,
@@ -61,7 +61,7 @@ export function CardCover({
         </div>
       )}
     >
-      <CardImage
+      <CardImageV1
         {...imageProps}
         type={ImageType.Post}
         className={imageClasses}

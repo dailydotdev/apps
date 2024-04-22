@@ -20,6 +20,7 @@ import { CardCover } from '../common/CardCover';
 import PostTags from '../PostTags';
 import { useFeature } from '../../GrowthBookProvider';
 import { feature } from '../../../lib/featureManagement';
+import { CardCoverV1 } from './CardCover';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -125,7 +126,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
                 )}
               </div>
 
-              <CardCover
+              <CardCoverV1
                 data-testid="postImage"
                 isVideoType={isVideoType}
                 onShare={onShare}

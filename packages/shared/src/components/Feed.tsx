@@ -447,6 +447,7 @@ export default function Feed<T>({
         />
         <ShareOptionsMenu
           {...commonMenuItems}
+          shouldUseMobileFeedLayout={shouldUseMobileFeedLayout}
           onHidden={onShareOptionsHidden}
         />
         {!shouldUseMobileFeedLayout && selectedPost && PostModal && (
