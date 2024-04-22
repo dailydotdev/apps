@@ -100,7 +100,6 @@ export default function useOnPostClick({
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const { shouldUseMobileFeedLayout } = useFeedLayout({
     feedRelated: false,
-    originFeedName: feedName as AllFeedPages,
   });
 
   const { isLowImpsEnabled } = usePostFeedback();
