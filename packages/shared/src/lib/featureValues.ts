@@ -11,8 +11,3 @@ export enum ReadingStreaksExperiment {
   V1 = 'v1',
   V2 = 'v2',
 }
-
-export enum PostPageOnboarding {
-  Control = 'control',
-  V5 = 'v5',
-}

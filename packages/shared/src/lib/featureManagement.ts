@@ -1,5 +1,5 @@
 import { JSONValue } from '@growthbook/growthbook';
-import { ReadingStreaksExperiment, PostPageOnboarding } from './featureValues';
+import { ReadingStreaksExperiment } from './featureValues';
 import { cloudinary } from './image';
 
 export class Feature<T extends JSONValue> {
@@ -27,10 +27,6 @@ const feature = {
     webm: cloudinary.onboarding.video.webm,
     mp4: cloudinary.onboarding.video.mp4,
   }),
-  postPageOnboarding: new Feature(
-    'post_page_onboarding',
-    PostPageOnboarding.Control,
-  ),
   forceRefresh: new Feature('force_refresh', false),
   feedAdSpot: new Feature('feed_ad_spot', 0),
   searchVersion: new Feature('search_version', 1),
