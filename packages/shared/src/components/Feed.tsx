@@ -187,11 +187,10 @@ export default function Feed<T>({
   const canFetchMore = allowFetchMore ?? queryCanFetchMore;
   const feedContextValue = useMemo(() => {
     return {
-      feedName,
       queryKey: feedQueryKey,
       items,
     };
-  }, [feedName, feedQueryKey, items]);
+  }, [feedQueryKey, items]);
 
   const { ranking } = (variables as RankVariables) || {};
   const {
