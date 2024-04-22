@@ -2,7 +2,6 @@ import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { Post } from '../../../graphql/posts';
 import { IconSize } from '../../Icon';
-import { CardCover } from '../common/CardCover';
 import { CommonCardCoverProps } from '../common';
 import { CardCoverV1 } from './CardCover';
 

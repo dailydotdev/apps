@@ -10,7 +10,6 @@ import { Post, UserVote } from '../../../graphql/posts';
 import { usePostFeedback } from '../../../hooks';
 import CloseButton from '../../CloseButton';
 import { CardContent } from './Card';
-import { CardCover } from '../common/CardCover';
 import { CardCoverV1 } from './CardCover';
 
 interface FeedbackCardProps {

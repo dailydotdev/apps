@@ -1,6 +1,4 @@
 import React, { ReactElement, useCallback, useEffect, useRef } from 'react';
-import { CardCover } from '../common/CardCover';
-
 import { Card as CardV1 } from './Card';
 import { useBoot } from '../../../hooks';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';

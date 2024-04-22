@@ -15,7 +15,7 @@ import {
 import { Post, PostType } from '../graphql/posts';
 import { Origin } from '../lib/analytics';
 import { ActiveFeedContext } from '../contexts';
-import { AllFeedPages, updateCachedPagePost } from '../lib/query';
+import { updateCachedPagePost } from '../lib/query';
 import { usePostFeedback } from './usePostFeedback';
 import { FeedLayoutMobileFeedPages, useFeedLayout } from './useFeedLayout';
 import { FeedData } from '../graphql/feed';
