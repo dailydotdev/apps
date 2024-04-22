@@ -68,7 +68,9 @@ export const useFeedLayout = ({
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
-  const evaluateFeedName = ForceDesktopFeedType.has(feedName as OtherFeedPage)
+  const evaluateFeedName = ForceDesktopFeedType.has(
+    originFeedName as OtherFeedPage,
+  )
     ? originFeedName
     : feedName;
   const shouldUseMobileFeedLayout = feedRelated
