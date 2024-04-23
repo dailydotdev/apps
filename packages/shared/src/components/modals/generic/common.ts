@@ -1,5 +1,5 @@
 import { cloudinary } from '../../../lib/image';
-import { rebrandly } from '../../../lib/constants';
+import { bookmarkLoops, migrateUserToStreaks } from '../../../lib/constants';
 import {
   MarketingCta,
   MarketingCtaVariant,
@@ -16,7 +16,7 @@ export const promotion: Record<string, MarketingCta> = {
         'Unlock the magic of consistently learning with our new reading streaks system',
       image: cloudinary.streak.migrate,
       ctaText: 'Install the app',
-      ctaUrl: rebrandly.migrateUserToStreaks,
+      ctaUrl: migrateUserToStreaks,
       tagColor: 'avocado',
       tagText: 'New Release',
     },
@@ -31,7 +31,7 @@ export const promotion: Record<string, MarketingCta> = {
         'Your saved posts are waiting for you on daily.dev mobile. Perfect for reading anytime, anywhere.',
       image: cloudinary.promotions.bookmarkLoops,
       ctaText: 'Install the app',
-      ctaUrl: rebrandly.bookmarkLoops,
+      ctaUrl: bookmarkLoops,
       tagColor: 'cabbage',
       tagText: 'Mobile version',
     },

@@ -63,7 +63,5 @@ export const heimdallUrl = isDevelopment
   ? process.env.NEXT_PUBLIC_HEIMDALL_URL || 'http://127.0.0.1:3000'
   : authUrl;
 
-export const rebrandly = {
-  bookmarkLoops: 'https://r.daily.dev/bookmarkloops',
-  migrateUserToStreaks: 'https://r.daily.dev/streaks',
-};
+export const bookmarkLoops = 'https://r.daily.dev/bookmarkloops';
+export const migrateUserToStreaks = 'https://r.daily.dev/streaks';
