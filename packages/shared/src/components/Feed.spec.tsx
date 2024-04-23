@@ -1022,7 +1022,10 @@ it('should report irrelevant tags', async () => {
 
   const irrelevantTagsBtn = await screen.findByText('The post is not about...');
   fireEvent.click(irrelevantTagsBtn);
-  const javascriptBtn = await screen.findByText('#javascript');
+  const javascriptElements = await screen.findAllByText('#javascript');
+  const javascriptBtn = javascriptElements.find(
+    (item) => item.tagName === 'BUTTON',
+  );
   fireEvent.click(javascriptBtn);
   const submitBtn = await screen.findByText('Submit report');
   fireEvent.click(submitBtn);

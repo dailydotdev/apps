@@ -18,10 +18,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  ExperimentWinner,
-  OnboardingCopy,
-} from '@dailydotdev/shared/src/lib/featureValues';
+import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useRouter } from 'next/router';
@@ -128,8 +125,6 @@ export function OnboardPage(): ReactElement {
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
   );
-  const isOnboardingCopyV1 =
-    useFeature(feature.onboardingCopy) === OnboardingCopy.V1;
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
@@ -230,10 +225,7 @@ export function OnboardPage(): ReactElement {
             isAuthenticating && 'h-full',
             !isAuthenticating && 'max-w-full',
           ),
-          onboardingSignup: classNames(
-            '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
-            isOnboardingCopyV1 && 'flex !flex-row *:grow',
-          ),
+          onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
         }}
         trigger={AuthTriggers.Onboarding}
         formRef={formRef}
@@ -249,9 +241,7 @@ export function OnboardPage(): ReactElement {
         }
         onboardingSignupButton={{
           size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
-          variant: isOnboardingCopyV1
-            ? ButtonVariant.Float
-            : ButtonVariant.Primary,
+          variant: ButtonVariant.Primary,
         }}
       />
     );
@@ -423,23 +413,12 @@ export function OnboardPage(): ReactElement {
         )}
       >
         {showOnboardingPage && (
-          <div
-            className={classNames(
-              'flex flex-1 flex-col laptop:mr-8 laptop:max-w-[27.5rem]',
-              `${isOnboardingCopyV1 ? 'mt-6' : 'mt-5'} tablet:mt-0`,
-            )}
-          >
+          <div className="mt-5 flex flex-1 flex-col tablet:mt-0 laptop:mr-8 laptop:max-w-[27.5rem]">
             <OnboardingHeadline
               className={{
-                title: classNames(
-                  'typo-large-title',
-                  isOnboardingCopyV1
-                    ? 'tablet:typo-mega2'
-                    : 'tablet:typo-mega-1',
-                ),
+                title: 'tablet:typo-mega-1 typo-large-title',
                 description: 'typo-body tablet:typo-title2',
               }}
-              isOnboardingCopyV1={isOnboardingCopyV1}
             />
             {getAuthOptions()}
           </div>

@@ -148,7 +148,7 @@ it('should show the my feed items if the user has filters', async () => {
 const sidebarItems = [
   ['Popular', '/popular'],
   ['Most upvoted', '/upvoted'],
-  ['Best discussions', '/discussed'],
+  ['Discussions', '/discussed'],
   ['Search', '/search'],
   ['Bookmarks', '/bookmarks'],
   ['History', '/history'],

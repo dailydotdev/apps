@@ -1,6 +1,7 @@
 import { useViewSize, ViewSize } from './useViewSize';
 import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import {
+  CommentFeedPage,
   FeedPage,
   FeedPageLayoutMobile,
   SharedFeedPage,
@@ -9,8 +10,9 @@ import { AllFeedPages, OtherFeedPage } from '../lib/query';
 
 interface UseFeedLayoutReturn {
   shouldUseMobileFeedLayout: boolean;
-  FeedPageLayoutComponent: React.ComponentType;
+  FeedPageLayoutComponent: React.ComponentType<{ className?: string }>;
   screenCenteredOnMobileLayout?: boolean;
+  shouldUseCommentFeedLayout: boolean;
 }
 
 interface UseFeedLayoutProps {
@@ -57,6 +59,24 @@ const checkShouldUseMobileFeedLayout = (
     FeedLayoutMobileFeedPages.has(feedName as FeedPagesWithMobileLayoutType)) ||
   UserProfileFeedPages.has(feedName as UserProfileFeedType);
 
+const getFeedPageLayoutComponent = ({
+  shouldUseMobileFeedLayout,
+  shouldUseCommentFeedLayout,
+}: Pick<
+  UseFeedLayoutReturn,
+  'shouldUseMobileFeedLayout' | 'shouldUseCommentFeedLayout'
+>): UseFeedLayoutReturn['FeedPageLayoutComponent'] => {
+  if (shouldUseCommentFeedLayout) {
+    return CommentFeedPage;
+  }
+
+  if (shouldUseMobileFeedLayout) {
+    return FeedPageLayoutMobile;
+  }
+
+  return FeedPage;
+};
+
 export const useFeedLayout = ({
   feedRelated = true,
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
@@ -66,13 +86,16 @@ export const useFeedLayout = ({
   const shouldUseMobileFeedLayout = feedRelated
     ? checkShouldUseMobileFeedLayout(isLaptop, feedName)
     : !isLaptop;
+  const shouldUseCommentFeedLayout = feedName === SharedFeedPage.Discussed;
 
-  const FeedPageLayoutComponent = shouldUseMobileFeedLayout
-    ? FeedPageLayoutMobile
-    : FeedPage;
+  const FeedPageLayoutComponent = getFeedPageLayoutComponent({
+    shouldUseMobileFeedLayout,
+    shouldUseCommentFeedLayout,
+  });
 
   return {
     shouldUseMobileFeedLayout,
+    shouldUseCommentFeedLayout,
     FeedPageLayoutComponent,
     screenCenteredOnMobileLayout:
       shouldUseMobileFeedLayout &&

@@ -24,7 +24,7 @@ const options = [
     label: 'Instagram or Facebook',
     value: AcquisitionChannel.InstagramFacebook,
   },
-  { label: 'X (Formerly Twitter)', value: AcquisitionChannel.X },
+  { label: 'YouTube', value: AcquisitionChannel.YouTube },
   { label: 'TikTok', value: AcquisitionChannel.TikTok },
   { label: 'Search engine', value: AcquisitionChannel.SearchEngine },
   {
