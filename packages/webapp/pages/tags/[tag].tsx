@@ -7,16 +7,22 @@ import { ParsedUrlQuery } from 'querystring';
 import React, { ReactElement, useContext, useMemo } from 'react';
 import {
   BlockIcon,
+  DiscussIcon,
   HashtagIcon,
   MiniCloseIcon as XIcon,
   PlusIcon,
+  UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
-import { TAG_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import {
+  MOST_DISCUSSED_FEED_QUERY,
+  MOST_UPVOTED_FEED_QUERY,
+  TAG_FEED_QUERY,
+} from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   Button,
@@ -53,6 +59,9 @@ import {
 } from '@dailydotdev/shared/src/graphql/sources';
 import { Connection } from '@dailydotdev/shared/src/graphql/common';
 import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
+import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts';
+import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
+import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -120,6 +129,24 @@ const TagTopSources = ({ tag }: { tag: string }) => {
 const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   const { isFallback } = useRouter();
   const { user, showLogin } = useContext(AuthContext);
+  const mostUpvotedQueryVariables = useMemo(
+    () => ({
+      tag,
+      supportedTypes: [
+        PostType.Article,
+        PostType.VideoYouTube,
+        PostType.Collection,
+      ],
+      period: 30,
+    }),
+    [tag],
+  );
+  const bestDiscussedQueryVariables = useMemo(
+    () => ({
+      tag,
+    }),
+    [tag],
+  );
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
   const { feedSettings } = useFeedSettings();
@@ -233,6 +260,53 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
         )}
       </PageInfoHeader>
       <TagTopSources tag={tag} />
+      <ActiveFeedNameContext.Provider
+        value={{ feedName: OtherFeedPage.TagsMostUpvoted }}
+      >
+        <HorizontalFeed
+          feedName={OtherFeedPage.TagsMostUpvoted}
+          feedQueryKey={[
+            'tagsMostUpvoted',
+            user?.id ?? 'anonymous',
+            Object.values(mostUpvotedQueryVariables),
+          ]}
+          query={MOST_UPVOTED_FEED_QUERY}
+          variables={mostUpvotedQueryVariables}
+          title={
+            <>
+              <UpvoteIcon size={IconSize.Medium} className="mr-1.5" /> Most
+              upvoted posts
+            </>
+          }
+          emptyScreen={<></>}
+        />
+      </ActiveFeedNameContext.Provider>
+      <ActiveFeedNameContext.Provider
+        value={{ feedName: OtherFeedPage.TagsBestDiscussed }}
+      >
+        <HorizontalFeed
+          feedName={OtherFeedPage.TagsBestDiscussed}
+          feedQueryKey={[
+            'tagsBestDiscussed',
+            user?.id ?? 'anonymous',
+            Object.values(bestDiscussedQueryVariables),
+          ]}
+          query={MOST_DISCUSSED_FEED_QUERY}
+          variables={bestDiscussedQueryVariables}
+          title={
+            <>
+              <DiscussIcon size={IconSize.Medium} className="mr-1.5" /> Best
+              discussed posts
+            </>
+          }
+          emptyScreen={<></>}
+        />
+      </ActiveFeedNameContext.Provider>
+      <div className="mx-4 mb-5 flex w-auto items-center laptop:mx-0 laptop:w-full">
+        <p className="flex items-center font-bold typo-body">
+          All posts about {tag}
+        </p>
+      </div>
       <Feed
         feedName={OtherFeedPage.Tag}
         feedQueryKey={[

@@ -117,6 +117,9 @@ const feedNameToHeading: Record<
     | 'sources[source]'
     | 'search-bookmarks'
     | 'sources[source]/most-upvoted'
+    | 'sources[source]/best-discussed'
+    | 'tags[tag]/most-upvoted'
+    | 'tags[tag]/best-discussed'
   >,
   string
 > = {

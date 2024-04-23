@@ -155,7 +155,6 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         PostType.VideoYouTube,
         PostType.Collection,
       ],
-      period: 30,
     }),
     [source?.id],
   );
