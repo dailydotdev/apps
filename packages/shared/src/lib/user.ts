@@ -65,7 +65,7 @@ export interface UserProfile {
   notificationEmail?: boolean;
   timezone?: string;
   cover?: string;
-  experienceLevel?: UserExperienceLevel;
+  experienceLevel?: keyof typeof UserExperienceLevel;
 }
 
 export interface UserShortProfile

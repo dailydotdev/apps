@@ -10,7 +10,7 @@ interface ClassName extends DropdownClassName {
   dropdown?: string;
 }
 
-export type UserExperienceLevelKey = keyof typeof UserExperienceLevel;
+type UserExperienceLevelKey = keyof typeof UserExperienceLevel;
 
 interface Props
   extends Pick<BaseFieldProps, 'name' | 'valid' | 'hint' | 'saveHintSpace'> {

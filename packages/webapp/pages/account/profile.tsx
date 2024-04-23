@@ -27,26 +27,16 @@ import useProfileForm, {
 import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
-import {
-  GET_USER_EXPERIENCE_LEVEL,
-  UserExperienceLevelData,
-  UPLOAD_COVER_MUTATION,
-} from '@dailydotdev/shared/src/graphql/users';
+import { UPLOAD_COVER_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import { ResponseError } from '@dailydotdev/shared/src/graphql/common';
 import { FormWrapper } from '@dailydotdev/shared/src/components/fields/form';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
-import ExperienceLevelDropdown, {
-  UserExperienceLevelKey,
-} from '@dailydotdev/shared/src/components/profile/ExperienceLevelDropdown';
-import {
-  RequestKey,
-  generateQueryKey,
-} from '@dailydotdev/shared/src/lib/query';
+import ExperienceLevelDropdown from '@dailydotdev/shared/src/components/profile/ExperienceLevelDropdown';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { AccountTextField } from '../../components/layouts/AccountLayout/common';
@@ -68,17 +58,6 @@ const AccountProfilePage = (): ReactElement => {
   const currentCoverImage = coverImage || user.cover;
   const isMobile = useViewSize(ViewSize.MobileL);
   const showExperienceLevel = useFeature(feature.experienceLevel);
-
-  // fetch user experience level
-  const { data } = useQuery<UserExperienceLevelData>(
-    generateQueryKey(RequestKey.UserExperienceLevel, user),
-    () =>
-      request(graphqlUrl, GET_USER_EXPERIENCE_LEVEL, {
-        id: user.id,
-      }),
-    { enabled: !!user && showExperienceLevel },
-  );
-  const experienceLevel = data?.user?.experienceLevel;
 
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -211,7 +190,7 @@ const AccountProfilePage = (): ReactElement => {
         />
         {showExperienceLevel && (
           <ExperienceLevelDropdown
-            defaultValue={experienceLevel as UserExperienceLevelKey}
+            defaultValue={user.experienceLevel}
             name="experienceLevel"
             className={{
               container: 'mt-6 max-w-sm',

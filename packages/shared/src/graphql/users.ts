@@ -539,17 +539,3 @@ export const VOTE_MUTATION = gql`
     }
   }
 `;
-
-export interface UserExperienceLevelData {
-  user: {
-    experienceLevel: string;
-  };
-}
-
-export const GET_USER_EXPERIENCE_LEVEL = gql`
-  query GetUserProfile($id: ID!) {
-    user(id: $id) {
-      experienceLevel
-    }
-  }
-`;
