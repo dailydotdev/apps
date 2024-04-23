@@ -37,7 +37,9 @@ export type FeaturesReadyContextValue = {
 
 export const FeaturesReadyContext = createContext<FeaturesReadyContextValue>({
   ready: false,
-  getFeatureValue: () => null,
+  getFeatureValue<T extends JSONValue>(feature) {
+    return feature.defaultValue as WidenPrimitives<T>;
+  },
 });
 
 export const useFeaturesReadyContext = (): FeaturesReadyContextValue =>
