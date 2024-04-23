@@ -16,8 +16,11 @@ export class Feature<T extends JSONValue> {
 const feature = {
   feedVersion: new Feature('feed_version', 15),
   lowImps: new Feature('feed_low_imps'),
-  bookmarkOnCard: new Feature('bookmark_on_card', true),
-  readingStreaks: new Feature('reading_streaks', ReadingStreaksExperiment.V2),
+  bookmarkOnCard: new Feature('bookmark_on_card', false),
+  readingStreaks: new Feature(
+    'reading_streaks',
+    ReadingStreaksExperiment.Control,
+  ),
   onboardingVisual: new Feature('onboarding_visual', {
     showCompanies: true,
     poster: cloudinary.onboarding.video.poster,
@@ -32,7 +35,7 @@ const feature = {
   readingReminder: new Feature('reading_reminder', false),
   onboardingMostVisited: new Feature('onboarding_most_visited', false),
   shareExperience: new Feature('share_experience', false),
-  bookmarkLoops: new Feature('bookmark_loops', true),
+  bookmarkLoops: new Feature('bookmark_loops', false),
 };
 
 export { feature };

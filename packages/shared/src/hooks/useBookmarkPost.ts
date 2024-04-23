@@ -174,7 +174,7 @@ const useBookmarkPost = ({
       await addBookmark({ id: post.id });
       displayToast('Post was added to your bookmarks');
 
-      if (!!user && !seenBookmarkPromotion) {
+      if (!seenBookmarkPromotion) {
         const bookmarkLoops = await getFeatureValue(feature.bookmarkLoops);
 
         if (bookmarkLoops) {
