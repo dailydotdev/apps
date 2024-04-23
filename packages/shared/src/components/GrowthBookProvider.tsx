@@ -6,7 +6,6 @@ import React, {
   useRef,
   useState,
   createContext,
-  useMemo,
   useCallback,
 } from 'react';
 import { useMutation } from '@tanstack/react-query';
@@ -27,11 +26,13 @@ import { useRequestProtocol } from '../hooks/useRequestProtocol';
 import { Feature } from '../lib/featureManagement';
 import { useViewSize, ViewSize } from '../hooks/useViewSize';
 
+type GetFeatureValue = <T extends JSONValue>(
+  feature: Feature<T>,
+) => WidenPrimitives<T>;
+
 export type FeaturesReadyContextValue = {
   ready: boolean;
-  getFeatureValue: <T extends JSONValue>(
-    feature: Feature<T>,
-  ) => WidenPrimitives<T>;
+  getFeatureValue: GetFeatureValue;
 };
 
 export const FeaturesReadyContext = createContext<FeaturesReadyContextValue>({
@@ -183,9 +184,8 @@ export const GrowthBookProvider = ({
 export const useFeatureIsOn = (feature?: Feature<JSONValue>): boolean =>
   feature ? gbUseFeatureIsOn(feature.id) : false;
 
-export const useFeature = <T extends JSONValue>(
-  feature: Feature<T>,
-): WidenPrimitives<T> => useFeatureValue(feature.id, feature.defaultValue);
+export const useFeature: GetFeatureValue = (feature) =>
+  useFeatureValue(feature.id, feature.defaultValue);
 
 export const useGrowthBookContext = (): GrowthBookContextValue =>
   useContext(GrowthBookContext);
