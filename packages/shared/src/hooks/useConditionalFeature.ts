@@ -10,25 +10,17 @@ import {
   useGrowthBookContext,
 } from '../components/GrowthBookProvider';
 
-interface UseConditionalFeatureProps<
-  T extends JSONValue,
-  V = WidenPrimitives<T>,
-> {
-  feature: Feature<T>;
-  shouldEvaluate: boolean;
-  onAfterEvaluation?: (value: V) => void;
-}
-
 interface UseConditionalFeature<T> {
   value: WidenPrimitives<T>;
   isLoading: boolean;
 }
-
 export const useConditionalFeature = <T extends JSONValue>({
   feature,
   shouldEvaluate,
-  onAfterEvaluation,
-}: UseConditionalFeatureProps<T>): UseConditionalFeature<T> => {
+}: {
+  feature: Feature<T>;
+  shouldEvaluate: boolean;
+}): UseConditionalFeature<T> => {
   const { user } = useContext(AuthContext);
   const { growthbook } = useGrowthBookContext();
   const { ready } = useFeaturesReadyContext();
@@ -41,20 +33,13 @@ export const useConditionalFeature = <T extends JSONValue>({
 
   const { data: featureValue, isLoading } = useQuery(
     queryKey,
-    async () => {
+    () => {
       if (!shouldEvaluate) {
         return feature.defaultValue as WidenPrimitives<T>;
       }
-
-      const value = await (growthbook
+      return growthbook
         ? growthbook.getFeatureValue(feature.id, feature.defaultValue)
-        : Promise.resolve(feature.defaultValue as WidenPrimitives<T>));
-
-      if (onAfterEvaluation) {
-        onAfterEvaluation(value);
-      }
-
-      return value;
+        : (feature.defaultValue as WidenPrimitives<T>);
     },
     {
       enabled: shouldEvaluate && ready,

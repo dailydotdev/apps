@@ -4,7 +4,6 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useState,
 } from 'react';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
@@ -37,13 +36,7 @@ import ShareOptionsMenu from './ShareOptionsMenu';
 import { SharedFeedPage } from './utilities';
 import { FeedContainer, FeedContainerProps } from './feeds';
 import { ActiveFeedContext } from '../contexts';
-import {
-  useActions,
-  useBoot,
-  useConditionalFeature,
-  useFeedLayout,
-  useFeedVotePost,
-} from '../hooks';
+import { useActions, useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
 import {
   AllFeedPages,
   OtherFeedPage,
@@ -54,7 +47,7 @@ import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
 } from '../hooks/useBookmarkPost';
-import { useFeature } from './GrowthBookProvider';
+import { useFeature, useGrowthBookContext } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { acquisitionKey } from './cards/AcquisitionFormCard';
 import { MarketingCtaVariant } from './cards/MarketingCta/common';
@@ -167,21 +160,7 @@ export default function Feed<T>({
       isActionsFetched && checkHasCompleted(ActionType.BookmarkPromoteMobile),
     [checkHasCompleted, isActionsFetched],
   );
-  const [justBookmarked, setJustBookmarked] = useState(false);
-  const shouldEvaluate = !!user && !seenBookmarkPromotion && justBookmarked;
-  useConditionalFeature({
-    feature: feature.bookmarkLoops,
-    shouldEvaluate,
-    onAfterEvaluation: (bookmarkLoops) => {
-      if (bookmarkLoops) {
-        completeAction(ActionType.BookmarkPromoteMobile);
-        openModal({
-          type: LazyModal.MarketingCta,
-          props: { marketingCta: promotion.bookmarkPromoteMobile },
-        });
-      }
-    },
-  });
+  const { growthbook } = useGrowthBookContext();
 
   const {
     items,
@@ -379,8 +358,19 @@ export default function Feed<T>({
       },
     });
 
-    if (!post.bookmarked && !seenBookmarkPromotion && !justBookmarked) {
-      setJustBookmarked(true);
+    if (!!user && !post.bookmarked && !seenBookmarkPromotion) {
+      const bookmarkLoops = await growthbook.getFeatureValue(
+        feature.bookmarkLoops.id,
+        feature.bookmarkLoops.defaultValue,
+      );
+
+      if (bookmarkLoops) {
+        completeAction(ActionType.BookmarkPromoteMobile);
+        openModal({
+          type: LazyModal.MarketingCta,
+          props: { marketingCta: promotion.bookmarkPromoteMobile },
+        });
+      }
     }
   };
 
