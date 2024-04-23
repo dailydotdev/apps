@@ -30,6 +30,9 @@ import { AuthFormProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
 import { onValidateHandles } from '../../hooks/useProfileForm';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 
 export interface RegistrationFormProps extends AuthFormProps {
   email: string;
@@ -63,6 +66,7 @@ export const RegistrationForm = ({
   const [name, setName] = useState('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
+  const showExperienceLevel = useFeature(feature.experienceLevel);
 
   useEffect(() => {
     trackEvent({
@@ -96,7 +100,11 @@ export const RegistrationForm = ({
       formRef?.current ?? form,
     );
 
-    if (!values['traits.name']?.length || !values['traits.username']?.length) {
+    if (
+      !values['traits.name']?.length ||
+      !values['traits.username']?.length ||
+      (showExperienceLevel && !values['traits.experienceLevel']?.length)
+    ) {
       const setHints = { ...hints };
 
       if (!values['traits.name']?.length) {
@@ -104,6 +112,9 @@ export const RegistrationForm = ({
       }
       if (!values['traits.username']?.length) {
         setHints['traits.username'] = 'Please provide username.';
+      }
+      if (!values['traits.experienceLevel']?.length) {
+        setHints['traits.experienceLevel'] = 'Please provide experience level.';
       }
 
       onUpdateHints(setHints);
@@ -141,6 +152,8 @@ export const RegistrationForm = ({
 
   const isNameValid = !hints?.['traits.name'] && isSubmitted;
   const isUsernameValid = !hints?.['traits.username'] && isSubmitted;
+  const isExperienceLevelValid =
+    !isSubmitted || !hints?.['traits.experienceLevel'];
 
   return (
     <>
@@ -224,6 +237,19 @@ export const RegistrationForm = ({
             label="X"
             type="text"
             required
+          />
+        )}
+        {showExperienceLevel && (
+          <ExperienceLevelDropdown
+            className={{ container: 'w-full' }}
+            name="traits.experienceLevel"
+            valid={isExperienceLevelValid}
+            hint={hints?.['traits.experienceLevel']}
+            onChange={() =>
+              hints?.['traits.experienceLevel'] &&
+              onUpdateHints({ ...hints, 'traits.experienceLevel': '' })
+            }
+            saveHintSpace
           />
         )}
         <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">

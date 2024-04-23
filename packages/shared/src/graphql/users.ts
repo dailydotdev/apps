@@ -326,6 +326,7 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       createdAt
       infoConfirmed
       timezone
+      experienceLevel
     }
   }
 `;
@@ -535,6 +536,20 @@ export const VOTE_MUTATION = gql`
   mutation Vote($id: ID!, $entity: UserVoteEntity!, $vote: Int!) {
     vote(id: $id, entity: $entity, vote: $vote) {
       _
+    }
+  }
+`;
+
+export interface UserExperienceLevelData {
+  user: {
+    experienceLevel: string;
+  };
+}
+
+export const GET_USER_EXPERIENCE_LEVEL = gql`
+  query GetUserProfile($id: ID!) {
+    user(id: $id) {
+      experienceLevel
     }
   }
 `;

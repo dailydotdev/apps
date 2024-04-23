@@ -27,15 +27,28 @@ import useProfileForm, {
 import Textarea from '@dailydotdev/shared/src/components/fields/Textarea';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
-import { UPLOAD_COVER_MUTATION } from '@dailydotdev/shared/src/graphql/users';
+import {
+  GET_USER_EXPERIENCE_LEVEL,
+  UserExperienceLevelData,
+  UPLOAD_COVER_MUTATION,
+} from '@dailydotdev/shared/src/graphql/users';
 import { ResponseError } from '@dailydotdev/shared/src/graphql/common';
 import { FormWrapper } from '@dailydotdev/shared/src/components/fields/form';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
+import ExperienceLevelDropdown, {
+  UserExperienceLevelKey,
+} from '@dailydotdev/shared/src/components/profile/ExperienceLevelDropdown';
+import {
+  RequestKey,
+  generateQueryKey,
+} from '@dailydotdev/shared/src/lib/query';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { AccountTextField } from '../../components/layouts/AccountLayout/common';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -54,6 +67,18 @@ const AccountProfilePage = (): ReactElement => {
   const [coverImage, setCoverImage] = useState<string>(user.cover);
   const currentCoverImage = coverImage || user.cover;
   const isMobile = useViewSize(ViewSize.MobileL);
+  const showExperienceLevel = useFeature(feature.experienceLevel);
+
+  // fetch user experience level
+  const { data } = useQuery<UserExperienceLevelData>(
+    generateQueryKey(RequestKey.UserExperienceLevel, user),
+    () =>
+      request(graphqlUrl, GET_USER_EXPERIENCE_LEVEL, {
+        id: user.id,
+      }),
+    { enabled: !!user && showExperienceLevel },
+  );
+  const experienceLevel = data?.user?.experienceLevel;
 
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -67,6 +92,7 @@ const AccountProfilePage = (): ReactElement => {
       twitter: values.twitter,
       github: values.github,
       portfolio: values.portfolio,
+      experienceLevel: values.experienceLevel,
     };
     updateUserProfile(params);
     router.push(`/${values.username}`);
@@ -183,6 +209,17 @@ const AccountProfilePage = (): ReactElement => {
           leftIcon={<AtIcon />}
           value={user.username}
         />
+        {showExperienceLevel && (
+          <ExperienceLevelDropdown
+            defaultValue={experienceLevel as UserExperienceLevelKey}
+            name="experienceLevel"
+            className={{
+              container: 'mt-6 max-w-sm',
+              button:
+                '!text-text-primary hover:shadow-[inset_0.125rem_0_0_var(--theme-text-primary)]',
+            }}
+          />
+        )}
       </AccountContentSection>
       <AccountContentSection title="About">
         <Textarea
