@@ -292,10 +292,10 @@ export default function MainFeedLayout({
 
   const { openModal } = useLazyModal();
   const { shouldShowPopup } = useStreakExperiment();
-  const { completeAction } = useActions();
+  const { completeAction, isActionsFetched } = useActions();
 
   useEffect(() => {
-    if (!shouldShowPopup) {
+    if (!shouldShowPopup || !isActionsFetched) {
       return;
     }
 
@@ -304,7 +304,7 @@ export default function MainFeedLayout({
       props: { marketingCta: promotion.migrateStreaks },
     });
     completeAction(ActionType.ExistingUserSeenStreaks);
-  }, [completeAction, openModal, shouldShowPopup]);
+  }, [completeAction, openModal, shouldShowPopup, isActionsFetched]);
 
   return (
     <FeedPageLayoutComponent
