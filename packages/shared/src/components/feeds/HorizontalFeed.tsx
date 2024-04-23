@@ -7,29 +7,29 @@ import React, {
 } from 'react';
 import Feed from '../Feed';
 import { OtherFeedPage } from '../../lib/query';
-import { MOST_UPVOTED_FEED_QUERY } from '../../graphql/feed';
 import FeedContext from '../../contexts/FeedContext';
 import SettingsContext from '../../contexts/SettingsContext';
-import AuthContext from '../../contexts/AuthContext';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
-import { PostType } from '../../graphql/posts';
-import { ActiveFeedNameContext } from '../../contexts/ActiveFeedNameContext';
 
-interface HorizontalFeedProps {
-  variables: { source: string; ranking: string; supportedTypes: PostType[] };
+interface HorizontalFeedProps<T> {
+  feedName: OtherFeedPage;
+  feedQueryKey: unknown[];
+  query: string;
+  variables: T;
   title: ReactElement;
+  emptyScreen: ReactElement;
 }
-export const HorizontalFeed = ({
-  variables,
+
+export default function HorizontalFeed<T>({
   title,
-}: HorizontalFeedProps): ReactElement => {
+  ...props
+}: HorizontalFeedProps<T>): ReactElement {
   const feedContainerRef = useRef<HTMLDivElement>(null);
   const [feedScrolledPosition, setFeedScrolledPosition] = useState(0);
   const currentSettings = useContext(FeedContext);
   const { spaciness } = useContext(SettingsContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
-  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     const element = feedContainerRef.current;
@@ -66,8 +66,8 @@ export const HorizontalFeed = ({
     }
   };
 
-  return (
-    <>
+  const Header = () => {
+    return (
       <div className="mx-4 mb-4 flex w-auto items-center justify-between laptop:mx-0 laptop:w-full">
         <p className="flex items-center font-bold typo-body">{title}</p>
         <div className="hidden flex-row gap-3 tablet:flex">
@@ -87,26 +87,19 @@ export const HorizontalFeed = ({
           />
         </div>
       </div>
-      <ActiveFeedNameContext.Provider
-        value={{ feedName: OtherFeedPage.SourceMostUpvoted }}
-      >
-        <Feed
-          feedName={OtherFeedPage.SourceMostUpvoted}
-          feedQueryKey={[
-            'sourceFeedUpvoted',
-            user?.id ?? 'anonymous',
-            Object.values(variables),
-          ]}
-          query={MOST_UPVOTED_FEED_QUERY}
-          variables={variables}
-          disableAds
-          allowFetchMore={false}
-          pageSize={10}
-          isHorizontal
-          className="mx-4 mb-10"
-          feedContainerRef={feedContainerRef}
-        />
-      </ActiveFeedNameContext.Provider>
-    </>
+    );
+  };
+
+  return (
+    <Feed
+      {...props}
+      header={<Header />}
+      disableAds
+      allowFetchMore={false}
+      pageSize={10}
+      isHorizontal
+      className="mx-4 mb-10"
+      feedContainerRef={feedContainerRef}
+    />
   );
-};
+}

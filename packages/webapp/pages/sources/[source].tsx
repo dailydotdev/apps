@@ -9,7 +9,11 @@ import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
-import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import {
+  MOST_DISCUSSED_FEED_QUERY,
+  MOST_UPVOTED_FEED_QUERY,
+  SOURCE_FEED_QUERY,
+} from '@dailydotdev/shared/src/graphql/feed';
 import {
   SIMILAR_SOURCES_QUERY,
   Source,
@@ -50,8 +54,9 @@ import { useQuery } from '@tanstack/react-query';
 import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
-import { HorizontalFeed } from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
+import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -122,6 +127,24 @@ const SimilarSources = ({ sourceId }: { sourceId: string }) => {
 const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
   const { user, showLogin } = useContext(AuthContext);
+  const mostUpvotedQueryVariables = useMemo(
+    () => ({
+      source: source?.id,
+      supportedTypes: [
+        PostType.Article,
+        PostType.VideoYouTube,
+        PostType.Collection,
+      ],
+      period: 30,
+    }),
+    [source?.id],
+  );
+  const bestDiscussedQueryVariables = useMemo(
+    () => ({
+      source: source?.id,
+    }),
+    [source?.id],
+  );
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(
     () => ({
@@ -132,6 +155,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         PostType.VideoYouTube,
         PostType.Collection,
       ],
+      period: 30,
     }),
     [source?.id],
   );
@@ -212,24 +236,48 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         <SourceRelatedTags sourceId={source.id} />
       </PageInfoHeader>
       <SimilarSources sourceId={source.id} />
-      <HorizontalFeed
-        variables={queryVariables}
-        title={
-          <>
-            <UpvoteIcon size={IconSize.Medium} className="mr-1.5" /> Most
-            upvoted posts
-          </>
-        }
-      />
-      <HorizontalFeed
-        variables={queryVariables}
-        title={
-          <>
-            <DiscussIcon size={IconSize.Medium} className="mr-1.5" /> Best
-            discussed posts
-          </>
-        }
-      />
+      <ActiveFeedNameContext.Provider
+        value={{ feedName: OtherFeedPage.SourceMostUpvoted }}
+      >
+        <HorizontalFeed
+          feedName={OtherFeedPage.SourceMostUpvoted}
+          feedQueryKey={[
+            'sourceMostUpvoted',
+            user?.id ?? 'anonymous',
+            Object.values(mostUpvotedQueryVariables),
+          ]}
+          query={MOST_UPVOTED_FEED_QUERY}
+          variables={mostUpvotedQueryVariables}
+          title={
+            <>
+              <UpvoteIcon size={IconSize.Medium} className="mr-1.5" /> Most
+              upvoted posts
+            </>
+          }
+          emptyScreen={<></>}
+        />
+      </ActiveFeedNameContext.Provider>
+      <ActiveFeedNameContext.Provider
+        value={{ feedName: OtherFeedPage.SourceBestDiscussed }}
+      >
+        <HorizontalFeed
+          feedName={OtherFeedPage.SourceBestDiscussed}
+          feedQueryKey={[
+            'sourceBestDiscussed',
+            user?.id ?? 'anonymous',
+            Object.values(bestDiscussedQueryVariables),
+          ]}
+          query={MOST_DISCUSSED_FEED_QUERY}
+          variables={bestDiscussedQueryVariables}
+          title={
+            <>
+              <DiscussIcon size={IconSize.Medium} className="mr-1.5" /> Best
+              discussed posts
+            </>
+          }
+          emptyScreen={<></>}
+        />
+      </ActiveFeedNameContext.Provider>
       <div className="mx-4 mb-5 flex w-auto items-center laptop:mx-0 laptop:w-full">
         <p className="flex items-center font-bold typo-body">
           All posts from {source.name}
