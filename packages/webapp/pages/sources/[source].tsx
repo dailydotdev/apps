@@ -40,11 +40,21 @@ import {
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { SourceSubscribeButton } from '@dailydotdev/shared/src/components';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import {
+  useFeedLayout,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { useQuery } from '@tanstack/react-query';
 import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
+import { TagSourceCustomAuthBannerExperiment } from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
+import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
+import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { TagSourceSocialProof } from '@dailydotdev/shared/src/lib/featureValues';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -112,6 +122,13 @@ const SimilarSources = ({ sourceId }: { sourceId: string }) => {
 
 const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const { shouldShowAuthBanner } = useOnboarding();
+  const tagSourceFeatureValue = useFeature(feature.tagSourceSocialProof);
+  const shouldShowTagSourceSocialProof =
+    shouldShowAuthBanner &&
+    tagSourceFeatureValue === TagSourceSocialProof.V1 &&
+    isLaptop;
   const { user, showLogin } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(
@@ -213,13 +230,16 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         query={SOURCE_FEED_QUERY}
         variables={queryVariables}
       />
+      {shouldShowTagSourceSocialProof && <AuthenticationBanner />}
     </FeedPageLayoutComponent>
   );
 };
 
 SourcePage.getLayout = getLayout;
-SourcePage.layoutProps = mainFeedLayoutProps;
-
+SourcePage.layoutProps = {
+  ...mainFeedLayoutProps,
+  customBanner: <TagSourceCustomAuthBannerExperiment />,
+};
 export default SourcePage;
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {

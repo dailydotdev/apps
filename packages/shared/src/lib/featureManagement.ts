@@ -1,5 +1,8 @@
 import { JSONValue } from '@growthbook/growthbook';
-import { ReadingStreaksExperiment } from './featureValues';
+import {
+  ReadingStreaksExperiment,
+  TagSourceSocialProof,
+} from './featureValues';
 import { cloudinary } from './image';
 
 export class Feature<T extends JSONValue> {
@@ -35,6 +38,10 @@ const feature = {
   readingReminder: new Feature('reading_reminder', false),
   onboardingMostVisited: new Feature('onboarding_most_visited', false),
   shareExperience: new Feature('share_experience', false),
+  tagSourceSocialProof: new Feature(
+    'tag_source_social_proof',
+    TagSourceSocialProof.Control,
+  ),
 };
 
 export { feature };
