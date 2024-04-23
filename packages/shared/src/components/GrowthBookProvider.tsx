@@ -37,7 +37,7 @@ export type FeaturesReadyContextValue = {
 
 export const FeaturesReadyContext = createContext<FeaturesReadyContextValue>({
   ready: false,
-  getFeatureValue: null,
+  getFeatureValue: () => null,
 });
 
 export const useFeaturesReadyContext = (): FeaturesReadyContextValue =>
