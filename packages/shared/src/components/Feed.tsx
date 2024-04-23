@@ -36,7 +36,7 @@ import ShareOptionsMenu from './ShareOptionsMenu';
 import { SharedFeedPage } from './utilities';
 import { FeedContainer, FeedContainerProps } from './feeds';
 import { ActiveFeedContext } from '../contexts';
-import { useActions, useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
+import { useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
 import {
   AllFeedPages,
   OtherFeedPage,
@@ -47,14 +47,10 @@ import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
 } from '../hooks/useBookmarkPost';
-import { useFeature, useFeaturesReadyContext } from './GrowthBookProvider';
+import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { acquisitionKey } from './cards/AcquisitionFormCard';
 import { MarketingCtaVariant } from './cards/MarketingCta/common';
-import { useLazyModal } from '../hooks/useLazyModal';
-import { ActionType } from '../graphql/actions';
-import { LazyModal } from './modals/common/types';
-import { promotion } from './modals/generic';
 
 export interface FeedProps<T>
   extends Pick<UseFeedOptionalParams<T>, 'options'>,
@@ -153,14 +149,6 @@ export default function Feed<T>({
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Card);
   const showMarketingCta = !!marketingCta;
-  const { openModal } = useLazyModal();
-  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
-  const seenBookmarkPromotion = useMemo(
-    () =>
-      isActionsFetched && checkHasCompleted(ActionType.BookmarkPromoteMobile),
-    [checkHasCompleted, isActionsFetched],
-  );
-  const { getFeatureValue } = useFeaturesReadyContext();
 
   const {
     items,
@@ -346,8 +334,8 @@ export default function Feed<T>({
     );
   };
 
-  const onCardBookmark = async (post: Post, row: number, column: number) => {
-    await onBookmark({
+  const onCardBookmark = (post: Post, row: number, column: number) =>
+    onBookmark({
       post,
       origin,
       opts: {
@@ -357,19 +345,6 @@ export default function Feed<T>({
         ...feedAnalyticsExtra(feedName, ranking),
       },
     });
-
-    if (!!user && !post.bookmarked && !seenBookmarkPromotion) {
-      const bookmarkLoops = await getFeatureValue(feature.bookmarkLoops);
-
-      if (bookmarkLoops) {
-        completeAction(ActionType.BookmarkPromoteMobile);
-        openModal({
-          type: LazyModal.MarketingCta,
-          props: { marketingCta: promotion.bookmarkPromoteMobile },
-        });
-      }
-    }
-  };
 
   const onShareClick = (post: Post, row?: number, column?: number) =>
     openSharePost({ post, columns: virtualizedNumCards, column, row });

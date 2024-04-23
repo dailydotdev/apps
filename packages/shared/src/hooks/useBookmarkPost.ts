@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import {
   MutationKey,
   useMutation,
@@ -24,6 +24,13 @@ import {
   postAnalyticsEvent,
 } from '../lib/feed';
 import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
+import { feature } from '../lib/featureManagement';
+import { ActionType } from '../graphql/actions';
+import { LazyModal } from '../components/modals/common/types';
+import { promotion } from '../components/modals/generic';
+import { useFeaturesReadyContext } from '../components/GrowthBookProvider';
+import { useLazyModal } from './useLazyModal';
+import { useActions } from './useActions';
 
 export type ToggleBookmarkProps = {
   origin: Origin;
@@ -77,6 +84,14 @@ const useBookmarkPost = ({
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
+  const { getFeatureValue } = useFeaturesReadyContext();
+  const { openModal } = useLazyModal();
+  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
+  const seenBookmarkPromotion = useMemo(
+    () =>
+      isActionsFetched && checkHasCompleted(ActionType.BookmarkPromoteMobile),
+    [checkHasCompleted, isActionsFetched],
+  );
 
   const defaultOnMutate = ({ id }) => {
     updatePostCache(client, id, (post) => ({ bookmarked: !post.bookmarked }));
@@ -158,6 +173,18 @@ const useBookmarkPost = ({
 
       await addBookmark({ id: post.id });
       displayToast('Post was added to your bookmarks');
+
+      if (!!user && !seenBookmarkPromotion) {
+        const bookmarkLoops = await getFeatureValue(feature.bookmarkLoops);
+
+        if (bookmarkLoops) {
+          completeAction(ActionType.BookmarkPromoteMobile);
+          openModal({
+            type: LazyModal.MarketingCta,
+            props: { marketingCta: promotion.bookmarkPromoteMobile },
+          });
+        }
+      }
     },
     [addBookmark, displayToast, removeBookmark, showLogin, trackEvent, user],
   );
