@@ -216,7 +216,7 @@ const AccountProfilePage = (): ReactElement => {
             className={{
               container: 'mt-6 max-w-sm',
               button:
-                '!text-text-primary hover:shadow-[inset_0.125rem_0_0_var(--theme-text-primary)]',
+                'hover:shadow-[inset_0.125rem_0_0_var(--theme-text-primary)]',
             }}
           />
         )}
