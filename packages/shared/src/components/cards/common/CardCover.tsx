@@ -55,7 +55,7 @@ export function CardCover({
   }
 
   return (
-    <div className="relative flex flex-1">
+    <div className="pointer-events-none relative flex flex-1">
       {shouldShowOverlay && coverShare}
       <ImageComponent
         {...imageProps}

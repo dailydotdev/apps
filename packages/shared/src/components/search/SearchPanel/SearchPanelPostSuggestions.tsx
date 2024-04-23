@@ -16,6 +16,8 @@ import { SearchPanelContext } from './SearchPanelContext';
 import { useDomPurify } from '../../../hooks/useDomPurify';
 import { useSearchPanelAction } from './useSearchPanelAction';
 import { webappUrl } from '../../../lib/constants';
+import { AnalyticsEvent, Origin, TargetType } from '../../../lib/analytics';
+import AnalyticsContext from '../../../contexts/AnalyticsContext';
 
 export type SearchPanelPostSuggestionsProps = {
   className?: string;
@@ -52,6 +54,7 @@ export const SearchPanelPostSuggestions = ({
   title,
 }: SearchPanelPostSuggestionsProps): ReactElement => {
   const router = useRouter();
+  const { trackEvent } = useContext(AnalyticsContext);
   const searchPanel = useContext(SearchPanelContext);
   const { search } = useSearchProvider();
 
@@ -61,13 +64,23 @@ export const SearchPanelPostSuggestions = ({
   });
 
   const onSuggestionClick = (suggestion: SearchSuggestion) => {
+    const searchQuery = suggestion.title.replace(sanitizeSearchTitleMatch, '');
+
     if (suggestion.id) {
+      trackEvent({
+        event_name: AnalyticsEvent.Click,
+        target_type: TargetType.SearchRecommendation,
+        target_id: suggestion.id,
+        feed_item_title: searchQuery,
+        extra: JSON.stringify({
+          origin: Origin.HomePage,
+          provider: SearchProviderEnum.Posts,
+        }),
+      });
       router.push(`${webappUrl}posts/${suggestion.id}`);
 
       return;
     }
-
-    const searchQuery = suggestion.title.replace(sanitizeSearchTitleMatch, '');
 
     search({ provider: SearchProviderEnum.Posts, query: searchQuery });
   };
