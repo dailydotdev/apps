@@ -9,7 +9,6 @@ import { AppIcon as CompanionIcon } from '@dailydotdev/shared/src/components/ico
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { useContentScriptStatus } from '@dailydotdev/shared/src/hooks';
-import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
 import { CompanionPermission } from './CompanionPermission';
 
 export const CompanionPopupButton = (): ReactElement => {
@@ -33,8 +32,6 @@ export const CompanionPopupButton = (): ReactElement => {
   const closeCompanionPopupButton = () => {
     setShowCompanionPermission(false);
   };
-
-  useKeyboardNavigation(window, [['Escape', closeCompanionPopupButton]]);
 
   useEffect(() => {
     if (contentScriptGranted || !isFetched) {
