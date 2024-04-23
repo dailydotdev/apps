@@ -47,7 +47,7 @@ import {
   mutateBookmarkFeedPost,
   useBookmarkPost,
 } from '../hooks/useBookmarkPost';
-import { useFeature, useGrowthBookContext } from './GrowthBookProvider';
+import { useFeature, useFeaturesReadyContext } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { acquisitionKey } from './cards/AcquisitionFormCard';
 import { MarketingCtaVariant } from './cards/MarketingCta/common';
@@ -160,7 +160,7 @@ export default function Feed<T>({
       isActionsFetched && checkHasCompleted(ActionType.BookmarkPromoteMobile),
     [checkHasCompleted, isActionsFetched],
   );
-  const { growthbook } = useGrowthBookContext();
+  const { getFeatureValue } = useFeaturesReadyContext();
 
   const {
     items,
@@ -359,10 +359,7 @@ export default function Feed<T>({
     });
 
     if (!!user && !post.bookmarked && !seenBookmarkPromotion) {
-      const bookmarkLoops = await growthbook.getFeatureValue(
-        feature.bookmarkLoops.id,
-        feature.bookmarkLoops.defaultValue,
-      );
+      const bookmarkLoops = await getFeatureValue(feature.bookmarkLoops);
 
       if (bookmarkLoops) {
         completeAction(ActionType.BookmarkPromoteMobile);

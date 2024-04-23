@@ -7,6 +7,7 @@ import React, {
   useState,
   createContext,
   useMemo,
+  useCallback,
 } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import {
@@ -28,10 +29,14 @@ import { useViewSize, ViewSize } from '../hooks/useViewSize';
 
 export type FeaturesReadyContextValue = {
   ready: boolean;
+  getFeatureValue: <T extends JSONValue>(
+    feature: Feature<T>,
+  ) => WidenPrimitives<T>;
 };
 
 export const FeaturesReadyContext = createContext<FeaturesReadyContextValue>({
   ready: false,
+  getFeatureValue: null,
 });
 
 export const useFeaturesReadyContext = (): FeaturesReadyContextValue =>
@@ -160,14 +165,16 @@ export const GrowthBookProvider = ({
     gb.setAttributes(atts);
   }, [app, user, deviceId, gb, version, experimentation?.a, isMobile]);
 
-  const featuresReadyContextValue = useMemo<FeaturesReadyContextValue>(() => {
-    return {
-      ready,
-    };
-  }, [ready]);
+  const featuresReadyContext: FeaturesReadyContextValue = {
+    ready,
+    getFeatureValue: useCallback(
+      (feature) => gb.getFeatureValue(feature.id, feature.defaultValue),
+      [gb],
+    ),
+  };
 
   return (
-    <FeaturesReadyContext.Provider value={featuresReadyContextValue}>
+    <FeaturesReadyContext.Provider value={featuresReadyContext}>
       <Provider growthbook={gb}>{children}</Provider>
     </FeaturesReadyContext.Provider>
   );
