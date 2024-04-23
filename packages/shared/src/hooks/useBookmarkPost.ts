@@ -186,7 +186,18 @@ const useBookmarkPost = ({
         }
       }
     },
-    [addBookmark, displayToast, removeBookmark, showLogin, trackEvent, user],
+    [
+      addBookmark,
+      completeAction,
+      displayToast,
+      getFeatureValue,
+      openModal,
+      removeBookmark,
+      seenBookmarkPromotion,
+      showLogin,
+      trackEvent,
+      user,
+    ],
   );
 
   return { toggleBookmark };
