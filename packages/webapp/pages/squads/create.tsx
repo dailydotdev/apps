@@ -21,7 +21,6 @@ import { SquadsDropdown } from '@dailydotdev/shared/src/components/post/write';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
-import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -47,7 +46,7 @@ function CreatePost(): ReactElement {
   const squad = activeSquads?.[selected];
   const [display, setDisplay] = useState(WriteFormTab.NewPost);
   const { displayToast } = useToastNotification();
-  const { isNewMobileLayout } = useMobileUxExperiment();
+  const isMobile = useViewSize(ViewSize.MobileL);
   const isTablet = useViewSize(ViewSize.Tablet);
   const {
     onAskConfirmation,
@@ -137,18 +136,17 @@ function CreatePost(): ReactElement {
           onActiveChange={(active) => setDisplay(active)}
           controlledActive={display}
           shouldMountInactive={false}
-          className={{ header: 'px-1' }}
-          showHeader={!isNewMobileLayout || isTablet}
+          showHeader={isTablet}
         >
           <Tab label={WriteFormTab.NewPost} className="px-5">
-            {isNewMobileLayout && !isTablet && (
+            {isMobile && (
               <h2 className="pt-2 font-bold typo-title3">New post</h2>
             )}
             <SquadsDropdown onSelect={setSelected} selected={selected} />
             <WriteFreeformContent className="mt-6" />
           </Tab>
           <Tab label={WriteFormTab.Share} className="px-5">
-            {isNewMobileLayout && !isTablet && (
+            {isMobile && (
               <h2 className="pt-2 font-bold typo-title3">Share a link</h2>
             )}
             <SquadsDropdown onSelect={setSelected} selected={selected} />

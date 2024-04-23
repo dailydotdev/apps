@@ -11,11 +11,11 @@ import { useRouter } from 'next/router';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
 import { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
-import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import useActiveNav, {
   UseActiveNav,
 } from '@dailydotdev/shared/src/hooks/useActiveNav';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { FooterTab } from './footer/common';
 import { FooterNavBarV1, mobileUxTabs } from './footer/FooterNavBarV1';
 import { FooterNavBarControl, tabs } from './footer/FooterNavBarControl';
@@ -44,7 +44,7 @@ export default function FooterNavBar({
 }: FooterNavBarProps): ReactElement {
   const router = useRouter();
   const { user } = useContext(AuthContext);
-  const { isNewMobileLayout } = useMobileUxExperiment();
+  const isMobileLayout = !useViewSize(ViewSize.Laptop);
   const feedName = getFeedName(router.pathname, { hasUser: !!user });
   const activeNav = useActiveNav(feedName);
   const activeTab = useMemo(() => {
@@ -65,13 +65,13 @@ export default function FooterNavBar({
     'shadow-[0_4px_30px_rgba(0,0,0.1)]',
   );
 
-  const Component = isNewMobileLayout ? FooterNavBarV1 : FooterNavBarControl;
+  const Component = isMobileLayout ? FooterNavBarV1 : FooterNavBarControl;
 
   return (
     <div
       className={classNames(
         'fixed !bottom-0 left-0 z-2 w-full',
-        isNewMobileLayout
+        isMobileLayout
           ? 'footer-navbar bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2'
           : post && 'bg-blur-bg backdrop-blur-20',
       )}
@@ -98,7 +98,7 @@ export default function FooterNavBar({
         className={classNames(
           'grid w-full grid-flow-col items-center justify-between px-3',
           !showNav && 'hidden',
-          isNewMobileLayout
+          isMobileLayout
             ? classNames('rounded-16', !post && activeClasses)
             : 'footer-navbar h-14 rounded-t-24 bg-background-default',
           !post && 'border-t border-border-subtlest-tertiary',

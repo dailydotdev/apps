@@ -16,7 +16,6 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { LogoPosition } from '../Logo';
-import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import NotificationsBell from '../notifications/NotificationsBell';
 import FeedNav from '../feeds/FeedNav';
 
@@ -50,7 +49,7 @@ function MainLayoutHeader({
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
-  const { isNewMobileLayout } = useMobileUxExperiment();
+  const isMobileLayout = !useViewSize(ViewSize.Laptop);
 
   const headerButton = (() => {
     if (!user) {
@@ -101,7 +100,7 @@ function MainLayoutHeader({
         className={{
           container: classNames(
             'mx-auto bg-background-default py-3 laptop:bg-transparent',
-            isNewMobileLayout
+            isMobileLayout
               ? 'left-0 top-0 z-header tablet:left-16'
               : 'left-0 top-14',
             isSearchPage
@@ -113,7 +112,7 @@ function MainLayoutHeader({
       />
     );
 
-  if (isNewMobileLayout) {
+  if (isMobileLayout) {
     return (
       <>
         <FeedNav />

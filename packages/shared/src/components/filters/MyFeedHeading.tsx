@@ -14,7 +14,6 @@ import { feature } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
 import { setShouldRefreshFeed } from '../../lib/refreshFeed';
 import { SharedFeedPage } from '../utilities';
-import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 
 export const filterAlertMessage = 'Edit your personal feed preferences here';
 
@@ -30,7 +29,7 @@ function MyFeedHeading({
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const queryClient = useQueryClient();
   const forceRefresh = useFeature(feature.forceRefresh);
-  const { isNewMobileLayout } = useMobileUxExperiment();
+  const isMobileLayout = !useViewSize(ViewSize.Laptop);
 
   const onClick = () => {
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
@@ -55,16 +54,8 @@ function MyFeedHeading({
     <>
       {forceRefresh && (
         <Button
-          size={
-            shouldUseMobileFeedLayout && !isNewMobileLayout
-              ? ButtonSize.Small
-              : ButtonSize.Medium
-          }
-          variant={
-            isMobile && isNewMobileLayout
-              ? ButtonVariant.Tertiary
-              : ButtonVariant.Float
-          }
+          size={ButtonSize.Medium}
+          variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
           className="mr-auto"
           onClick={onRefresh}
           icon={<RefreshIcon />}
@@ -73,18 +64,12 @@ function MyFeedHeading({
           }
           loading={isRefreshing}
         >
-          {!isMobile && !isNewMobileLayout ? 'Refresh feed' : null}
+          {!isMobileLayout ? 'Refresh feed' : null}
         </Button>
       )}
       <Button
-        size={
-          shouldUseMobileFeedLayout && !isNewMobileLayout
-            ? ButtonSize.Small
-            : ButtonSize.Medium
-        }
-        variant={
-          isNewMobileLayout ? ButtonVariant.Tertiary : ButtonVariant.Float
-        }
+        size={ButtonSize.Medium}
+        variant={isMobileLayout ? ButtonVariant.Tertiary : ButtonVariant.Float}
         className="mr-auto"
         onClick={onClick}
         icon={<FilterIcon />}

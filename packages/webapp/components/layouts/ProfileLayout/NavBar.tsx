@@ -8,7 +8,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import classNames from 'classnames';
-import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import styles from './NavBar.module.css';
 
 export type Tab = { path: string; title: string };
@@ -42,7 +42,7 @@ export default function NavBar({
   selectedTab,
   profile,
 }: NavBarProps): ReactElement {
-  const { isNewMobileLayout } = useMobileUxExperiment();
+  const isMobileLayout = !useViewSize(ViewSize.Laptop);
 
   const getTabHref = (tab: Tab) =>
     tab.path.replace('[userId]', profile.username || profile.id);
@@ -52,7 +52,7 @@ export default function NavBar({
       className={classNames(
         'sticky top-12 z-3 -mt-px flex justify-around bg-background-default tablet:top-14 tablet:justify-start',
         styles.nav,
-        isNewMobileLayout && 'tablet:!top-0',
+        isMobileLayout && 'tablet:!top-0',
       )}
     >
       {tabs.map((tab, index) => (

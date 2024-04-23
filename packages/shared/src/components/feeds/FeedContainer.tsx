@@ -16,10 +16,11 @@ import {
   useToastNotification,
   useConditionalFeature,
   FeedPagesWithMobileLayoutType,
+  useViewSize,
+  ViewSize,
 } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
-import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import { useReadingStreak } from '../../hooks/streaks';
 import { feature } from '../../lib/featureManagement';
 
@@ -130,7 +131,7 @@ export const FeedContainer = ({
     loadedSettings,
   } = useContext(SettingsContext);
   const { shouldUseMobileFeedLayout } = useFeedLayout();
-  const { isNewMobileLayout } = useMobileUxExperiment();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isEnabled: isStreaksEnabled } = useReadingStreak();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
@@ -183,7 +184,7 @@ export const FeedContainer = ({
                 <span
                   className={classNames(
                     'mr-auto flex flex-row gap-3 border-border-subtlest-tertiary pr-3',
-                    isNewMobileLayout && isStreaksEnabled && 'w-full',
+                    !isLaptop && isStreaksEnabled && 'w-full',
                   )}
                 >
                   {actionButtons}
@@ -200,13 +201,12 @@ export const FeedContainer = ({
                 className={classNames(
                   'flex flex-col rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
                   isSearch && 'mt-6',
-                  isNewMobileLayout && '!mt-2 border-0',
+                  !isLaptop && '!mt-2 border-0',
                 )}
               >
                 <ConditionalWrapper
                   condition={
-                    !isNewMobileLayout &&
-                    (feedNameToHeading[feedName] || actionButtons)
+                    isLaptop && (feedNameToHeading[feedName] || actionButtons)
                   }
                   wrapper={(component) => (
                     <span className="flex w-full flex-row items-center justify-between px-6 py-4">

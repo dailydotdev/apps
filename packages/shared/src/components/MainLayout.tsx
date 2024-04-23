@@ -41,7 +41,6 @@ import { ReputationPrivilegesModalTrigger } from './modals';
 import { MarketingCtaVariant } from './cards/MarketingCta/common';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
-import { useMobileUxExperiment } from '../hooks/useMobileUxExperiment';
 import { GoBackHeaderMobile } from './post/GoBackHeaderMobile';
 
 export interface MainLayoutProps
@@ -95,8 +94,7 @@ function MainLayoutComponent({
 
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
-  const { isNewMobileLayout } = useMobileUxExperiment();
-
+  const isMobileLayout = !useViewSize(ViewSize.Laptop);
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useAuthErrors();
   useAuthVerificationRecovery();
@@ -230,7 +228,7 @@ function MainLayoutComponent({
           !isScreenCentered && sidebarExpanded
             ? 'laptop:pl-60'
             : 'laptop:pl-11',
-          isNewMobileLayout && 'tablet:pl-16',
+          isMobileLayout && 'tablet:pl-16',
           isBannerAvailable && 'laptop:pt-8',
         )}
       >

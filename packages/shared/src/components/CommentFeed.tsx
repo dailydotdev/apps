@@ -13,8 +13,8 @@ import { useDeleteComment } from '../hooks/comments/useDeleteComment';
 import { graphqlUrl } from '../lib/config';
 import PlaceholderCommentList from './comments/PlaceholderCommentList';
 import { CommentClassName } from './comments/common';
-import { useMobileUxExperiment } from '../hooks/useMobileUxExperiment';
 import { CommentFeedData } from '../graphql/comments';
+import { useViewSize, ViewSize } from '../hooks';
 
 interface CommentFeedProps<T> {
   feedQueryKey: unknown[];
@@ -38,7 +38,7 @@ export default function CommentFeed<T>({
   const { openShareComment } = useShareComment(analyticsOrigin);
   const { onShowUpvoted } = useUpvoteQuery();
   const { deleteComment } = useDeleteComment();
-  const { isNewMobileLayout } = useMobileUxExperiment();
+  const isMobileLayout = !useViewSize(ViewSize.Laptop);
 
   const queryResult = useInfiniteQuery<CommentFeedData>(
     feedQueryKey,
@@ -91,7 +91,7 @@ export default function CommentFeed<T>({
                 container: classNames(
                   commentClassName.container,
                   index === 0 &&
-                    isNewMobileLayout &&
+                    isMobileLayout &&
                     isMainFeed &&
                     'rounded-t-24 border-t',
                 ),

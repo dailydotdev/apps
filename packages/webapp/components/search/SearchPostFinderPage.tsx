@@ -19,7 +19,7 @@ import styles from '@dailydotdev/shared/src/components/Feed.module.css';
 import FeedContext from '@dailydotdev/shared/src/contexts/FeedContext';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
-import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
@@ -36,7 +36,7 @@ const Search = (): ReactElement => {
   const { query } = router;
   const searchQuery = query?.q?.toString();
   const { sidebarExpanded } = useSettingsContext();
-  const { isNewMobileLayout } = useMobileUxExperiment();
+  const isMobileLayout = !useViewSize(ViewSize.Laptop);
 
   const seo = useMemo(() => {
     if ('q' in query) {
@@ -57,7 +57,7 @@ const Search = (): ReactElement => {
           className={classNames(
             'flex w-full max-w-[32rem] flex-col items-center gap-4  self-center px-6',
             sidebarExpanded ? '!-left-32' : '!-left-6',
-            isNewMobileLayout && 'mt-12 laptop:mt-0',
+            isMobileLayout && 'mt-12 laptop:mt-0',
           )}
         >
           <MagicIcon

@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import { SharedFeedPage } from '../components/utilities';
-import { useMobileUxExperiment } from './useMobileUxExperiment';
+import { useViewSize, ViewSize } from './useViewSize';
 
 export interface UseActiveNav {
   home: boolean;
@@ -15,7 +15,7 @@ export interface UseActiveNav {
 
 export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
   const router = useRouter();
-  const { isNewMobileLayout } = useMobileUxExperiment();
+  const isMobileLayout = !useViewSize(ViewSize.Laptop);
 
   const isHomeActive = useMemo(() => {
     const homePages = [
@@ -26,7 +26,7 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
       OtherFeedPage.History,
     ];
 
-    if (isNewMobileLayout) {
+    if (isMobileLayout) {
       homePages.push(OtherFeedPage.Bookmarks, OtherFeedPage.Notifications);
     }
 
@@ -35,7 +35,7 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
     }
 
     return router?.route?.startsWith('/posts/[id]'); // if post page the [id] was expected
-  }, [activeFeed, isNewMobileLayout, router?.route]);
+  }, [activeFeed, isMobileLayout, router?.route]);
 
   const isProfileActive = router.pathname?.includes('/[userId]');
   const isSearchActive = activeFeed === SharedFeedPage.Search;
