@@ -175,7 +175,7 @@ const useBookmarkPost = ({
       displayToast('Post was added to your bookmarks');
 
       if (!seenBookmarkPromotion) {
-        const bookmarkLoops = await getFeatureValue(feature.bookmarkLoops);
+        const bookmarkLoops = getFeatureValue(feature.bookmarkLoops);
 
         if (bookmarkLoops) {
           completeAction(ActionType.BookmarkPromoteMobile);
