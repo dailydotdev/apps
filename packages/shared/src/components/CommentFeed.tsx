@@ -10,12 +10,11 @@ import { Origin } from '../lib/analytics';
 import { useShareComment } from '../hooks/useShareComment';
 import { useUpvoteQuery } from '../hooks/useUpvoteQuery';
 import { useDeleteComment } from '../hooks/comments/useDeleteComment';
-import { Comment } from '../graphql/comments';
 import { graphqlUrl } from '../lib/config';
-import { Connection } from '../graphql/common';
 import PlaceholderCommentList from './comments/PlaceholderCommentList';
 import { CommentClassName } from './comments/common';
 import { useMobileUxExperiment } from '../hooks/useMobileUxExperiment';
+import { CommentFeedData } from '../graphql/comments';
 
 interface CommentFeedProps<T> {
   feedQueryKey: unknown[];
@@ -27,9 +26,6 @@ interface CommentFeedProps<T> {
   isMainFeed?: boolean;
 }
 
-interface CommentFeedData {
-  page: Connection<Comment>;
-}
 export default function CommentFeed<T>({
   feedQueryKey,
   query,

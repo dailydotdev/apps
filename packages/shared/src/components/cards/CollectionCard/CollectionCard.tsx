@@ -8,8 +8,6 @@ import { WelcomePostCardFooter } from '../WelcomePostCardFooter';
 import ActionButtons from '../ActionButtons';
 import PostMetadata from '../PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
-import { useFeature } from '../../GrowthBookProvider';
-import { feature } from '../../../lib/featureManagement';
 import CardOverlay from '../common/CardOverlay';
 import PostTags from '../PostTags';
 
@@ -29,7 +27,6 @@ export const CollectionCard = forwardRef(function CollectionCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
-  const tagsOnCard = useFeature(feature.tagsOnCard);
   const { pinnedAt, trending } = post;
   const image = usePostImage(post);
   const onPostCardClick = () => onPostClick(post);
@@ -61,7 +58,7 @@ export const CollectionCard = forwardRef(function CollectionCard(
       </FreeformCardTitle>
 
       {!!post.image && <CardSpace />}
-      {tagsOnCard && <PostTags tags={post.tags} />}
+      <PostTags tags={post.tags} />
       <PostMetadata
         createdAt={post.createdAt}
         readTime={post.readTime}

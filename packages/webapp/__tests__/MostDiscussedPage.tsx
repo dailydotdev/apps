@@ -15,7 +15,12 @@ import {
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
+import {
+  COMMENT_FEED_QUERY,
+  CommentFeedData,
+} from '@dailydotdev/shared/src/graphql/comments';
 import Discussed from '../pages/discussed';
+import { defaultCommentsPage } from './ProfileRepliesPage';
 
 beforeEach(() => {
   jest.restoreAllMocks();
@@ -51,6 +56,24 @@ const createFeedMock = (
   },
 });
 
+const createCommentFeedMock = (
+  page = defaultCommentsPage,
+  query: string = COMMENT_FEED_QUERY,
+  variables: unknown = {
+    first: 20,
+  },
+): MockedGraphQLResponse<CommentFeedData> => ({
+  request: {
+    query,
+    variables,
+  },
+  result: {
+    data: {
+      page,
+    },
+  },
+});
+
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user: LoggedUser = defaultUser,
@@ -67,32 +90,15 @@ const renderComponent = (
 };
 
 it('should request most discussed feed when logged-in', async () => {
-  renderComponent([
-    createFeedMock(defaultFeedPage, MOST_DISCUSSED_FEED_QUERY, {
-      first: 7,
-      loggedIn: true,
-      version: 15,
-    }),
-  ]);
+  renderComponent([createCommentFeedMock()]);
   await waitFor(async () => {
-    const elements = await screen.findAllByTestId('postItem');
+    const elements = await screen.findAllByTestId('comment');
     expect(elements.length).toBeTruthy();
   });
 });
 
-it('should request most discussed feed when not logged-in', async () => {
-  renderComponent(
-    [
-      createFeedMock(defaultFeedPage, MOST_DISCUSSED_FEED_QUERY, {
-        first: 7,
-        loggedIn: false,
-        version: 15,
-      }),
-    ],
-    null,
-  );
-  await waitFor(async () => {
-    const elements = await screen.findAllByTestId('postItem');
-    expect(elements.length).toBeTruthy();
-  });
+it('should not request most discussed feed when not logged-in', async () => {
+  renderComponent([createCommentFeedMock()], null);
+  const elements = screen.queryAllByTestId('comment');
+  expect(elements.length).toBeFalsy();
 });
