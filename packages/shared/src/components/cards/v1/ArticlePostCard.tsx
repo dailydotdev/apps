@@ -16,8 +16,8 @@ import { Origin } from '../../../lib/analytics';
 import SourceButton from '../SourceButton';
 import { isVideoPost } from '../../../graphql/posts';
 import PostReadTime from './PostReadTime';
-import { CardCover } from '../common/CardCover';
 import PostTags from '../PostTags';
+import { CardCoverV1 } from './CardCover';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -118,7 +118,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
                 <PostTags tags={post.tags} />
               </div>
 
-              <CardCover
+              <CardCoverV1
                 data-testid="postImage"
                 isVideoType={isVideoType}
                 onShare={onShare}

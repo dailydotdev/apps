@@ -11,7 +11,7 @@ import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
-import { useFeedLayout, useGetShortUrl } from '../hooks';
+import { useGetShortUrl } from '../hooks';
 import { ReferralCampaignKey } from '../lib';
 import { ContextMenu as ContextMenuIds } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
@@ -27,6 +27,7 @@ interface ShareOptionsMenuProps {
   onBookmark?: () => unknown;
   contextId?: string;
   onShare?: (post?: Post) => void;
+  shouldUseMobileFeedLayout: boolean;
 }
 
 type ShareOption = {
@@ -37,6 +38,7 @@ type ShareOption = {
 };
 
 export default function ShareOptionsMenu({
+  shouldUseMobileFeedLayout,
   onShare,
   onBookmark,
   post,
@@ -65,7 +67,6 @@ export default function ShareOptionsMenu({
   };
 
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
 
   const shareOptions: ShareOption[] = [
     {

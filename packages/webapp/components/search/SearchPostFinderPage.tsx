@@ -85,7 +85,8 @@ const AiSearchProviderButton = () => {
   const currentSettings = useContext(FeedContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isList = insaneMode && numCards > 1;
-  const feedGapPx = getFeedGapPx[gapClass(isList, false, spaciness)];
+  const feedGapPx =
+    getFeedGapPx[gapClass({ isList, isFeedLayoutV1: false, space: spaciness })];
   const style = {
     '--num-cards': !isList ? numCards : undefined,
     '--feed-gap': `${feedGapPx / 16}rem`,

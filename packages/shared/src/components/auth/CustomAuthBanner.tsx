@@ -5,6 +5,9 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useViewSize, ViewSize } from '../../hooks';
 import LoginButton from '../LoginButton';
 import { authGradientBg } from './AuthenticationBanner';
+import { withExperiment } from '../withExperiment';
+import { TagSourceSocialProof } from '../../lib/featureValues';
+import { feature } from '../../lib/featureManagement';
 
 const CustomAuthBanner = (): ReactElement => {
   const { shouldShowAuthBanner } = useOnboarding();
@@ -32,3 +35,11 @@ const CustomAuthBanner = (): ReactElement => {
 };
 
 export default CustomAuthBanner;
+
+export const TagSourceCustomAuthBannerExperiment = withExperiment(
+  CustomAuthBanner,
+  {
+    feature: feature.tagSourceSocialProof,
+    value: TagSourceSocialProof.V1,
+  },
+);

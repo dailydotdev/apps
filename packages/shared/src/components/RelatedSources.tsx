@@ -18,7 +18,7 @@ export const RelatedSources = ({
 }: RelatedSourcesProps): ReactElement => {
   if (isLoading) {
     return (
-      <div className={classNames('mb-10 w-full', className)}>
+      <div className={classNames('mb-10 w-auto', className)}>
         <ElementPlaceholder className="mb-3 h-10 w-1/5 rounded-12" />
         <div className="flex gap-2">
           <ElementPlaceholder className="w-24 rounded-16 px-4 py-3 text-center">
@@ -35,7 +35,7 @@ export const RelatedSources = ({
   }
 
   return (
-    <div className="mb-10 w-full">
+    <div className={classNames('mb-10 w-auto', className)}>
       <p className="mb-3 h-10 font-bold typo-body">{title}</p>
       <div className="no-scrollbar flex gap-2 overflow-x-auto">
         {sources.map((source) => {

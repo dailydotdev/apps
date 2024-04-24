@@ -10,7 +10,7 @@ import { Post, UserVote } from '../../../graphql/posts';
 import { usePostFeedback } from '../../../hooks';
 import CloseButton from '../../CloseButton';
 import { CardContent } from './Card';
-import { CardCover } from '../common/CardCover';
+import { CardCoverV1 } from './CardCover';
 
 interface FeedbackCardProps {
   post: Post;
@@ -71,7 +71,7 @@ export const FeedbackCard = ({
           <h2 className="mb-2 line-clamp-1 typo-body">{post.title}</h2>
         </div>
 
-        <CardCover
+        <CardCoverV1
           data-testid="postImage"
           isVideoType={isVideoType}
           imageProps={{
