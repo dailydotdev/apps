@@ -12,6 +12,7 @@ import {
 import { useBoot } from '../../hooks';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetType } from '../../lib/analytics';
+import { promotion } from './generic';
 
 export interface MarketingCtaModalProps extends ModalProps {
   marketingCta: MarketingCta;
@@ -23,8 +24,9 @@ export const MarketingCtaModal = ({
 }: MarketingCtaModalProps): ReactElement => {
   const { clearMarketingCta } = useBoot();
   const { trackEvent } = useAnalyticsContext();
+  const { campaignId, flags } = marketingCta;
   const { tagColor, tagText, title, description, image, ctaUrl, ctaText } =
-    marketingCta.flags;
+    flags;
 
   const onModalClose = (
     param: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<Element>,
@@ -33,9 +35,17 @@ export const MarketingCtaModal = ({
     trackEvent({
       event_name: eventName,
       target_type: TargetType.MarketingCtaPopover,
-      target_id: marketingCta.campaignId,
+      target_id: campaignId,
     });
-    clearMarketingCta(marketingCta.campaignId);
+
+    const isManualCampaign = Object.values(promotion).some(
+      (campaign) => campaign.campaignId === campaignId,
+    );
+
+    if (!isManualCampaign) {
+      clearMarketingCta(campaignId);
+    }
+
     onRequestClose(param);
   };
 

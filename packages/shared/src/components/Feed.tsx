@@ -216,7 +216,6 @@ export default function Feed<T>({
 
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
-
   const {
     showCommentPopupId,
     setShowCommentPopupId,
@@ -368,9 +367,6 @@ export default function Feed<T>({
         row: postMenuLocation.row,
         column: postMenuLocation.column,
       }),
-    onBookmark: () => {
-      onBookmark({ post, origin, opts: feedAnalyticsExtra(feedName, ranking) });
-    },
     post,
     prevPost: (items[postMenuIndex - 1] as PostItem)?.post,
     nextPost: (items[postMenuIndex + 1] as PostItem)?.post,

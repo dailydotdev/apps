@@ -54,6 +54,7 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { useStreakExperiment } from '../hooks/streaks';
 import { ActionType } from '../graphql/actions';
+import { promotion } from './modals/generic';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -291,16 +292,19 @@ export default function MainFeedLayout({
 
   const { openModal } = useLazyModal();
   const { shouldShowPopup } = useStreakExperiment();
-  const { completeAction } = useActions();
+  const { completeAction, isActionsFetched } = useActions();
 
   useEffect(() => {
-    if (!shouldShowPopup) {
+    if (!shouldShowPopup || !isActionsFetched) {
       return;
     }
 
-    openModal({ type: LazyModal.MigrateUserStreak });
+    openModal({
+      type: LazyModal.MarketingCta,
+      props: { marketingCta: promotion.migrateStreaks },
+    });
     completeAction(ActionType.ExistingUserSeenStreaks);
-  }, [completeAction, openModal, shouldShowPopup]);
+  }, [completeAction, openModal, shouldShowPopup, isActionsFetched]);
 
   return (
     <FeedPageLayoutComponent
