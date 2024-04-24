@@ -1,5 +1,6 @@
 import { JSONValue } from '@growthbook/growthbook';
 import {
+  ExperienceLevelExperiment,
   ReadingStreaksExperiment,
   TagSourceSocialProof,
 } from './featureValues';
@@ -43,6 +44,10 @@ const feature = {
   tagSourceSocialProof: new Feature(
     'tag_source_social_proof',
     TagSourceSocialProof.Control,
+  ),
+  experienceLevel: new Feature(
+    'experience_level',
+    ExperienceLevelExperiment.Control,
   ),
 };
 
