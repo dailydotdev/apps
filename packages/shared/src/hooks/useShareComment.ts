@@ -27,7 +27,7 @@ export function useShareComment(origin: Origin): UseShareComment {
             ReferralCampaignKey.ShareComment,
           );
           await navigator.share({
-            text: `${post.title}\n${shortUrl}$}`,
+            text: `${post.title}\n${shortUrl}`,
           });
           trackEvent(
             postAnalyticsEvent('share comment', post, {
