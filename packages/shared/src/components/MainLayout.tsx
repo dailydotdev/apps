@@ -94,7 +94,6 @@ function MainLayoutComponent({
 
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useAuthErrors();
   useAuthVerificationRecovery();
@@ -223,12 +222,9 @@ function MainLayoutComponent({
       />
       <main
         className={classNames(
-          'flex flex-col',
+          'flex flex-col tablet:pl-16 laptop:pl-11',
           className,
-          !isScreenCentered && sidebarExpanded
-            ? 'laptop:pl-60'
-            : 'laptop:pl-11',
-          !isLaptop && 'tablet:pl-16',
+          !isScreenCentered && sidebarExpanded && 'laptop:!pl-60',
           isBannerAvailable && 'laptop:pt-8',
         )}
       >
