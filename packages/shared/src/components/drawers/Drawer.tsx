@@ -13,6 +13,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import { ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
+import { RootPortal } from '../tooltips/Portal';
 
 export type PopupEventType =
   | MouseEvent
@@ -48,6 +49,7 @@ export interface DrawerProps
   title?: ReactNode;
   onClose: PopupCloseFunc;
   displayCloseButton?: boolean;
+  appendOnRoot?: boolean;
 }
 
 export interface DrawerOnMobileProps {
@@ -168,7 +170,7 @@ export interface DrawerRef {
 }
 
 function AnimatedDrawer(
-  { isOpen, onClose, ...props }: DrawerWrapperProps,
+  { isOpen, onClose, appendOnRoot, ...props }: DrawerWrapperProps,
   ref: MutableRefObject<DrawerRef>,
 ): ReactElement {
   const [isClosing, setIsClosing] = useState(false);
@@ -188,7 +190,14 @@ function AnimatedDrawer(
     return null;
   }
 
-  return <BaseDrawer {...props} isClosing={isClosing} onClose={onClosing} />;
+  return (
+    <ConditionalWrapper
+      condition={appendOnRoot}
+      wrapper={(component) => <RootPortal>{component}</RootPortal>}
+    >
+      <BaseDrawer {...props} isClosing={isClosing} onClose={onClosing} />
+    </ConditionalWrapper>
+  );
 }
 
 export const Drawer = React.forwardRef(AnimatedDrawer);
