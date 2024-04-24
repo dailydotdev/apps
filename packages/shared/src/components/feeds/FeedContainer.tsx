@@ -214,7 +214,7 @@ export const FeedContainer = ({
                 <span
                   className={classNames(
                     'mr-auto flex flex-row gap-3 border-border-subtlest-tertiary pr-3',
-                    !isLaptop && isStreaksEnabled && 'w-full',
+                    isStreaksEnabled && 'w-full laptop:w-auto',
                   )}
                 >
                   {actionButtons}

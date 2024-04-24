@@ -94,7 +94,7 @@ function MainLayoutComponent({
 
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
-  const isMobileLayout = !useViewSize(ViewSize.Laptop);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useAuthErrors();
   useAuthVerificationRecovery();
@@ -228,7 +228,7 @@ function MainLayoutComponent({
           !isScreenCentered && sidebarExpanded
             ? 'laptop:pl-60'
             : 'laptop:pl-11',
-          isMobileLayout && 'tablet:pl-16',
+          !isLaptop && 'tablet:pl-16',
           isBannerAvailable && 'laptop:pt-8',
         )}
       >

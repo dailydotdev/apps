@@ -59,7 +59,7 @@ export const SearchControlHeader = ({
   const { sortingEnabled } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const { shouldUseMobileFeedLayout } = useFeedLayout();
-  const isMobileLayout = !useViewSize(ViewSize.Laptop);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
 
@@ -78,9 +78,7 @@ export const SearchControlHeader = ({
       ? ButtonSize.Small
       : ButtonSize.Medium,
     iconOnly: true,
-    buttonVariant: isMobileLayout
-      ? ButtonVariant.Tertiary
-      : ButtonVariant.Float,
+    buttonVariant: isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary,
   };
   const actionButtons = [
     feedName === SharedFeedPage.MyFeed ? (
@@ -112,7 +110,7 @@ export const SearchControlHeader = ({
 
   return (
     <ConditionalWrapper
-      condition={isMobileLayout}
+      condition={!isLaptop}
       wrapper={(children) => (
         <div className="flex w-full items-center justify-between tablet:mb-2 tablet:p-4">
           <div className="flex-0">

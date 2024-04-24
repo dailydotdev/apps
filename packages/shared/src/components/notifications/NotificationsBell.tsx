@@ -17,7 +17,7 @@ function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
   const atNotificationsPage = router.pathname === notificationsUrl;
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
-  const isMobileLayout = !useViewSize(ViewSize.Laptop);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const hasNotification = !!unreadCount;
   const onNavigateNotifications = () => {
     trackEvent({
@@ -34,15 +34,10 @@ function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
       tooltip={{ placement: 'bottom', content: 'Notifications' }}
       href={`${webappUrl}notifications`}
     >
-      <div
-        className={classNames(
-          'relative laptop:flex',
-          !isMobileLayout && 'hidden',
-        )}
-      >
+      <div className="relative laptop:hidden">
         <Button
-          variant={isMobileLayout ? mobileVariant : ButtonVariant.Float}
-          className={classNames(isMobileLayout && 'justify-center')}
+          variant={isLaptop ? ButtonVariant.Float : mobileVariant}
+          className="justify-center laptop:justify-normal"
           onClick={onNavigateNotifications}
           icon={<BellIcon secondary={atNotificationsPage} />}
         />

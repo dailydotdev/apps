@@ -21,19 +21,19 @@ export default function FooterNavBarLayout({
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { sidebarRendered } = useSidebarRendered();
   const isTablet = useViewSize(ViewSize.Tablet);
-  const isMobileLayout = !useViewSize(ViewSize.Laptop);
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const showNav = useMemo(() => {
     if (!windowLoaded) {
       return false;
     }
 
-    if (isMobileLayout) {
+    if (!isLaptop) {
       return !isTablet;
     }
 
     return sidebarRendered === false;
-  }, [isMobileLayout, windowLoaded, isTablet, sidebarRendered]);
+  }, [isLaptop, windowLoaded, isTablet, sidebarRendered]);
 
   return (
     <>

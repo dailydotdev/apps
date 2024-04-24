@@ -44,7 +44,7 @@ export default function FooterNavBar({
 }: FooterNavBarProps): ReactElement {
   const router = useRouter();
   const { user } = useContext(AuthContext);
-  const isMobileLayout = !useViewSize(ViewSize.Laptop);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const feedName = getFeedName(router.pathname, { hasUser: !!user });
   const activeNav = useActiveNav(feedName);
   const activeTab = useMemo(() => {
@@ -65,15 +65,15 @@ export default function FooterNavBar({
     'shadow-[0_4px_30px_rgba(0,0,0.1)]',
   );
 
-  const Component = isMobileLayout ? FooterNavBarV1 : FooterNavBarControl;
+  const Component = isLaptop ? FooterNavBarControl : FooterNavBarV1;
 
   return (
     <div
       className={classNames(
         'fixed !bottom-0 left-0 z-2 w-full',
-        isMobileLayout
-          ? 'footer-navbar bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2'
-          : post && 'bg-blur-bg backdrop-blur-20',
+        post && 'laptop:bg-blur-bg laptop:backdrop-blur-20',
+        !isLaptop &&
+          'footer-navbar bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2',
       )}
     >
       {post ? (
@@ -96,11 +96,9 @@ export default function FooterNavBar({
         spring="veryGentle"
         element="nav"
         className={classNames(
-          'grid w-full grid-flow-col items-center justify-between px-3',
+          'laptop:footer-navbar grid w-full grid-flow-col items-center justify-between rounded-16 px-3 laptop:h-14 laptop:rounded-none laptop:rounded-t-24 laptop:bg-background-default',
           !showNav && 'hidden',
-          isMobileLayout
-            ? classNames('rounded-16', !post && activeClasses)
-            : 'footer-navbar h-14 rounded-t-24 bg-background-default',
+          !isLaptop && !post && activeClasses,
           !post && 'border-t border-border-subtlest-tertiary',
         )}
       >

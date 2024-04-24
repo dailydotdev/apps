@@ -49,7 +49,7 @@ function MainLayoutHeader({
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
-  const isMobileLayout = !useViewSize(ViewSize.Laptop);
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const headerButton = (() => {
     if (!user) {
@@ -99,10 +99,7 @@ function MainLayoutHeader({
       <SearchPanel
         className={{
           container: classNames(
-            'mx-auto bg-background-default py-3 laptop:bg-transparent',
-            isMobileLayout
-              ? 'left-0 top-0 z-header tablet:left-16'
-              : 'left-0 top-14',
+            'laptop:z-auto left-0 top-0 z-header mx-auto bg-background-default py-3 tablet:left-16 laptop:left-0 laptop:top-14 laptop:bg-transparent',
             isSearchPage
               ? 'absolute right-0 laptop:relative laptop:top-0'
               : 'hidden laptop:flex',
@@ -112,7 +109,7 @@ function MainLayoutHeader({
       />
     );
 
-  if (isMobileLayout) {
+  if (!isLaptop) {
     return (
       <>
         <FeedNav />

@@ -136,6 +136,7 @@ function CreatePost(): ReactElement {
           onActiveChange={(active) => setDisplay(active)}
           controlledActive={display}
           shouldMountInactive={false}
+          className={{ header: 'px-1' }}
           showHeader={isTablet}
         >
           <Tab label={WriteFormTab.NewPost} className="px-5">

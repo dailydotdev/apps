@@ -38,7 +38,7 @@ export default function CommentFeed<T>({
   const { openShareComment } = useShareComment(analyticsOrigin);
   const { onShowUpvoted } = useUpvoteQuery();
   const { deleteComment } = useDeleteComment();
-  const isMobileLayout = !useViewSize(ViewSize.Laptop);
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const queryResult = useInfiniteQuery<CommentFeedData>(
     feedQueryKey,
@@ -91,7 +91,7 @@ export default function CommentFeed<T>({
                 container: classNames(
                   commentClassName.container,
                   index === 0 &&
-                    isMobileLayout &&
+                    !isLaptop &&
                     isMainFeed &&
                     'rounded-t-24 border-t',
                 ),

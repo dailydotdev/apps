@@ -29,7 +29,7 @@ function MyFeedHeading({
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const queryClient = useQueryClient();
   const forceRefresh = useFeature(feature.forceRefresh);
-  const isMobileLayout = !useViewSize(ViewSize.Laptop);
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const onClick = () => {
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
@@ -64,12 +64,12 @@ function MyFeedHeading({
           }
           loading={isRefreshing}
         >
-          {!isMobileLayout ? 'Refresh feed' : null}
+          {isLaptop ? 'Refresh feed' : null}
         </Button>
       )}
       <Button
         size={ButtonSize.Medium}
-        variant={isMobileLayout ? ButtonVariant.Tertiary : ButtonVariant.Float}
+        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
         className="mr-auto"
         onClick={onClick}
         icon={<FilterIcon />}

@@ -39,7 +39,6 @@ const History = (): ReactElement => {
   const router = useRouter();
   const tabQuery = router.query?.t?.toString() as HistoryType;
   const [page, setPage] = useState(HistoryType.Reading);
-  const isMobileLayout = !isLaptop;
   const selectedFeedIdx = feedOptions.findIndex((f) => f.value === page);
 
   const handleSetPage = useCallback(
@@ -68,12 +67,12 @@ const History = (): ReactElement => {
 
   return (
     <ProtectedPage seo={seo}>
-      {!isMobileLayout && (
+      {isLaptop && (
         <div className="absolute left-0 top-[6.75rem] flex h-px w-full bg-border-subtlest-tertiary laptop:hidden" />
       )}
 
       <ResponsivePageContainer className="relative !p-0" role="main">
-        {isMobileLayout && (
+        {!isLaptop && (
           <>
             <Dropdown
               dynamicMenuWidth
@@ -103,7 +102,7 @@ const History = (): ReactElement => {
           </>
         )}
 
-        {!isMobileLayout && (
+        {isLaptop && (
           <TabContainer<HistoryType>
             controlledActive={page}
             onActiveChange={handleSetPage}
