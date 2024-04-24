@@ -42,7 +42,7 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement {
       className={className.modal}
       overlayClassName="!z-max"
       isDrawerOnMobile
-      drawerProps={{ displayCloseButton: false }}
+      drawerProps={{ displayCloseButton: false, appendOnRoot: true }}
       {...props}
     >
       <Modal.Body>

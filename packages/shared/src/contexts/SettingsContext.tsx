@@ -18,6 +18,8 @@ import AuthContext from './AuthContext';
 import { graphqlUrl } from '../lib/config';
 import { capitalize } from '../lib/strings';
 import { storageWrapper } from '../lib/storageWrapper';
+import { useFeaturesReadyContext } from '../components/GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
 
 export enum ThemeMode {
   Dark = 'dark',
@@ -120,6 +122,7 @@ export const SettingsContextProvider = ({
 }: SettingsContextProviderProps): ReactElement => {
   const { user } = useContext(AuthContext);
   const userId = user?.id;
+  const { getFeatureValue } = useFeaturesReadyContext();
 
   useEffect(() => {
     if (!loadedSettings) {
@@ -174,7 +177,17 @@ export const SettingsContextProvider = ({
   };
 
   const syncSettings = async (bootUserId?: string) => {
-    await updateRemoteSettingsFn(settings, bootUserId);
+    const updatedSettings = settings;
+
+    if (settings.sidebarExpanded) {
+      const sidebarClosed = getFeatureValue(feature.sidebarClosed);
+
+      if (sidebarClosed) {
+        updatedSettings.sidebarExpanded = false;
+      }
+    }
+
+    await updateRemoteSettingsFn(updatedSettings, bootUserId);
   };
 
   const contextData = useMemo<SettingsContextData>(

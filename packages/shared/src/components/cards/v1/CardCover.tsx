@@ -2,10 +2,11 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { ImageProps, ImageType } from '../../image/Image';
 import VideoImage, { VideoImageProps } from '../../image/VideoImage';
-import { CardImage } from '../Card';
-import { CardCoverShare } from './CardCoverShare';
+import ConditionalWrapper from '../../ConditionalWrapper';
+import { CardImage as CardImageV1 } from './Card';
 import { CommonCardCoverProps } from '../common';
 import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
+import { CardCoverShare } from '../common/CardCoverShare';
 
 interface CardCoverProps extends CommonCardCoverProps {
   imageProps: ImageProps;
@@ -13,7 +14,7 @@ interface CardCoverProps extends CommonCardCoverProps {
   isVideoType?: boolean;
 }
 
-export function CardCover({
+export function CardCoverV1({
   imageProps,
   videoProps,
   isVideoType,
@@ -40,7 +41,7 @@ export function CardCover({
     return (
       <VideoImage
         {...videoProps}
-        CardImageComponent={CardImage}
+        CardImageComponent={CardImageV1}
         overlay={shouldShowOverlay ? coverShare : undefined}
         imageProps={{
           ...imageProps,
@@ -51,13 +52,20 @@ export function CardCover({
   }
 
   return (
-    <div className="pointer-events-none relative flex flex-1">
-      {shouldShowOverlay && coverShare}
-      <CardImage
+    <ConditionalWrapper
+      condition={shouldShowOverlay}
+      wrapper={(component) => (
+        <div className="relative flex flex-1">
+          {coverShare}
+          {component}
+        </div>
+      )}
+    >
+      <CardImageV1
         {...imageProps}
         type={ImageType.Post}
         className={imageClasses}
       />
-    </div>
+    </ConditionalWrapper>
   );
 }

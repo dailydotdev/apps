@@ -69,6 +69,10 @@ export interface FeedProps<T>
   showSearch?: boolean;
   actionButtons?: ReactNode;
   disableAds?: boolean;
+  allowFetchMore?: boolean;
+  pageSize?: number;
+  isHorizontal?: boolean;
+  feedContainerRef?: React.RefObject<HTMLDivElement>;
 }
 
 interface RankVariables {
@@ -123,6 +127,10 @@ export default function Feed<T>({
   shortcuts,
   actionButtons,
   disableAds,
+  allowFetchMore = true,
+  pageSize,
+  isHorizontal = false,
+  feedContainerRef,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { trackEvent } = useContext(AnalyticsContext);
@@ -155,13 +163,13 @@ export default function Feed<T>({
     updatePost,
     removePost,
     fetchPage,
-    canFetchMore,
+    canFetchMore: queryCanFetchMore,
     emptyFeed,
     isFetching,
     isInitialLoading,
   } = useFeed(
     feedQueryKey,
-    currentSettings.pageSize,
+    pageSize ?? currentSettings.pageSize,
     isSquadFeed || shouldUseMobileFeedLayout ? 2 : adSpot,
     numCards,
     {
@@ -176,6 +184,7 @@ export default function Feed<T>({
       },
     },
   );
+  const canFetchMore = allowFetchMore ?? queryCanFetchMore;
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
@@ -207,7 +216,6 @@ export default function Feed<T>({
 
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
-
   const {
     showCommentPopupId,
     setShowCommentPopupId,
@@ -359,9 +367,6 @@ export default function Feed<T>({
         row: postMenuLocation.row,
         column: postMenuLocation.column,
       }),
-    onBookmark: () => {
-      onBookmark({ post, origin, opts: feedAnalyticsExtra(feedName, ranking) });
-    },
     post,
     prevPost: (items[postMenuIndex - 1] as PostItem)?.post,
     nextPost: (items[postMenuIndex + 1] as PostItem)?.post,
@@ -387,6 +392,8 @@ export default function Feed<T>({
         showSearch={showSearch && isValidFeed}
         shortcuts={shortcuts}
         actionButtons={actionButtons}
+        isHorizontal={isHorizontal}
+        feedContainerRef={feedContainerRef}
       >
         {items.map((_, index) => (
           <FeedItemComponent
@@ -419,7 +426,7 @@ export default function Feed<T>({
             onReadArticleClick={onReadArticleClick}
           />
         ))}
-        {!isFetching && !isInitialLoading && (
+        {!isFetching && !isInitialLoading && !isHorizontal && (
           <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
         )}
         <PostOptionsMenu
@@ -433,6 +440,7 @@ export default function Feed<T>({
         />
         <ShareOptionsMenu
           {...commonMenuItems}
+          shouldUseMobileFeedLayout={shouldUseMobileFeedLayout}
           onHidden={onShareOptionsHidden}
         />
         {!shouldUseMobileFeedLayout && selectedPost && PostModal && (

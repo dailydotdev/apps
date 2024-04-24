@@ -25,6 +25,7 @@ import { CollectionCard } from './cards/CollectionCard';
 import { CollectionCard as CollectionCardV1 } from './cards/v1/CollectionCard';
 import { AcquisitionFormCard } from './cards/AcquisitionFormCard';
 import { MarketingCtaCard, MarketingCtaList } from './cards';
+import { MarketingCtaCardV1 } from './cards/v1/MarketingCtaCard';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -119,7 +120,7 @@ const getTags = (
       PostTag: PostTypeToTagV1[postType] ?? ArticlePostCardV1,
       AdTag: AdCardV1,
       PlaceholderTag: PlaceholderCardV1,
-      MarketingCtaTag: MarketingCtaCard,
+      MarketingCtaTag: MarketingCtaCardV1,
     };
   }
   return {
