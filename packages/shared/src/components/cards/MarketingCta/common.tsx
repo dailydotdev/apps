@@ -34,6 +34,7 @@ type HeaderProps = Pick<MarketingCtaFlags, 'tagText' | 'tagColor'> & {
 };
 const tagColorMap: Record<string, string> = {
   avocado: 'bg-action-upvote-float text-action-upvote-default',
+  cabbage: 'bg-theme-overlay-float-cabbage text-brand-default',
 };
 export const Header = ({
   tagText,

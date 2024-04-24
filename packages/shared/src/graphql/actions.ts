@@ -21,6 +21,7 @@ export enum ActionType {
   AckRep250 = 'ack_rep_250',
   CommentFeed = 'comment_feed',
   ExistingUserSeenStreaks = 'existing_user_seen_streaks',
+  BookmarkPromoteMobile = 'bookmark_promote_mobile',
 }
 
 export interface Action {
