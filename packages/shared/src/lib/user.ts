@@ -40,6 +40,16 @@ export interface PublicProfile {
   readme?: string;
 }
 
+export enum UserExperienceLevel {
+  LESS_THAN_1_YEAR = 'Aspiring engineer (<1 year)',
+  MORE_THAN_1_YEAR = 'Entry-level (1 year)',
+  MORE_THAN_2_YEARS = 'Mid-level (2-3 years)',
+  MORE_THAN_4_YEARS = 'Experienced (4-5 years)',
+  MORE_THAN_6_YEARS = 'Highly experienced (6-10 years)',
+  MORE_THAN_10_YEARS = `I've suffered enough (10+ years)`,
+  NOT_ENGINEER = `I'm not an engineer`,
+}
+
 export interface UserProfile {
   name: string;
   email?: string;
@@ -55,6 +65,7 @@ export interface UserProfile {
   notificationEmail?: boolean;
   timezone?: string;
   cover?: string;
+  experienceLevel?: keyof typeof UserExperienceLevel;
 }
 
 export interface UserShortProfile

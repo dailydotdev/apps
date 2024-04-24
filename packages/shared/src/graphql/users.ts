@@ -326,6 +326,7 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       createdAt
       infoConfirmed
       timezone
+      experienceLevel
     }
   }
 `;
