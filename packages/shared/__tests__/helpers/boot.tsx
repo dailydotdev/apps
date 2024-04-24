@@ -3,6 +3,7 @@
 import React, { ReactElement, ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GrowthBook, GrowthBookProvider } from '@growthbook/growthbook-react';
+import { WidenPrimitives } from '@growthbook/growthbook';
 import AuthContext, { AuthContextData } from '../../src/contexts/AuthContext';
 import OnboardingContext from '../../src/contexts/OnboardingContext';
 import { OnboardingMode } from '../../src/graphql/feed';
@@ -69,7 +70,14 @@ export const TestBootProvider = ({
           }}
         >
           <GrowthBookProvider growthbook={gb}>
-            <FeaturesReadyContext.Provider value={{ ready: true }}>
+            <FeaturesReadyContext.Provider
+              value={{
+                ready: true,
+                getFeatureValue<T>(feature) {
+                  return feature.defaultValue as WidenPrimitives<T>;
+                },
+              }}
+            >
               <SettingsContext.Provider
                 value={{ ...settingsContext, ...settings }}
               >

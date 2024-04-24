@@ -512,7 +512,7 @@ export enum AcquisitionChannel {
 }
 
 export const USER_ACQUISITION_MUTATION = gql`
-  mutation AddUserAcquisitionChannel($acquisitionChannel: AcquisitionChannel!) {
+  mutation AddUserAcquisitionChannel($acquisitionChannel: String!) {
     addUserAcquisitionChannel(acquisitionChannel: $acquisitionChannel) {
       _
     }

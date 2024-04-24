@@ -28,6 +28,10 @@ export enum OtherFeedPage {
   Notifications = 'notifications',
   TagPage = 'tags[tag]',
   SourcePage = 'sources[source]',
+  SourceMostUpvoted = 'sources[source]/most-upvoted',
+  SourceBestDiscussed = 'sources[source]/best-discussed',
+  TagsMostUpvoted = 'tags[tag]/most-upvoted',
+  TagsBestDiscussed = 'tags[tag]/best-discussed',
 }
 
 const ONE_MINUTE = 60 * 1000;

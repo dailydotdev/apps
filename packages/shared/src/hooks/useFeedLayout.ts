@@ -10,7 +10,9 @@ import { AllFeedPages, OtherFeedPage } from '../lib/query';
 
 interface UseFeedLayoutReturn {
   shouldUseMobileFeedLayout: boolean;
-  FeedPageLayoutComponent: React.ComponentType<{ className?: string }>;
+  FeedPageLayoutComponent: React.ComponentType<
+    React.HTMLAttributes<HTMLDivElement>
+  >;
   screenCenteredOnMobileLayout?: boolean;
   shouldUseCommentFeedLayout: boolean;
 }
@@ -82,7 +84,6 @@ export const useFeedLayout = ({
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
-
   const shouldUseMobileFeedLayout = feedRelated
     ? checkShouldUseMobileFeedLayout(isLaptop, feedName)
     : !isLaptop;

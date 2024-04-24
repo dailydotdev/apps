@@ -74,7 +74,6 @@ export interface PostOptionsMenuProps {
   nextPost?: Post;
   feedName?: AllFeedPages;
   onHidden?: () => unknown;
-  onBookmark?: () => unknown;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowBanPost?: () => unknown;
   setShowPromotePost?: () => unknown;

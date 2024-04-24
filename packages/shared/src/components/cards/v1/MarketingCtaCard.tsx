@@ -1,12 +1,18 @@
 import React, { ReactElement, useCallback, useEffect, useRef } from 'react';
-import { Card } from '../Card';
-import { CardCover } from '../common/CardCover';
-import { CTAButton, Description, Header, MarketingCta, Title } from './common';
+import { Card as CardV1 } from './Card';
 import { useBoot } from '../../../hooks';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetType } from '../../../lib/analytics';
+import {
+  CTAButton,
+  Description,
+  Header,
+  MarketingCta,
+  Title,
+} from '../MarketingCta/common';
+import { CardCoverV1 } from './CardCover';
 
-export function MarketingCtaCard({
+export function MarketingCtaCardV1({
   marketingCta,
 }: {
   marketingCta: MarketingCta;
@@ -49,14 +55,14 @@ export function MarketingCtaCard({
   }, [clearMarketingCta, marketingCta.campaignId, trackEvent]);
 
   return (
-    <Card className="p-4">
+    <CardV1 className="p-4">
       {tagColor && tagText && (
         <Header tagColor={tagColor} tagText={tagText} onClose={onCtaDismiss} />
       )}
       <Title>{title}</Title>
       {description && <Description>{description}</Description>}
       {image && (
-        <CardCover
+        <CardCoverV1
           imageProps={{
             loading: 'lazy',
             alt: 'Post Cover',
@@ -68,6 +74,6 @@ export function MarketingCtaCard({
       {ctaUrl && ctaText && (
         <CTAButton onClick={onCtaClick} ctaUrl={ctaUrl} ctaText={ctaText} />
       )}
-    </Card>
+    </CardV1>
   );
 }
