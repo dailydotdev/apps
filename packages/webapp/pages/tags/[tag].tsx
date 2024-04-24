@@ -51,7 +51,11 @@ import {
   GET_RECOMMENDED_TAGS_QUERY,
   TagsData,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import {
+  useFeedLayout,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import {
   SOURCES_BY_TAG_QUERY,
@@ -62,6 +66,12 @@ import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSource
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts';
 import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
+import { TagSourceCustomAuthBannerExperiment } from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
+import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
+import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { TagSourceSocialProof } from '@dailydotdev/shared/src/lib/featureValues';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -128,6 +138,13 @@ const TagTopSources = ({ tag }: { tag: string }) => {
 
 const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   const { isFallback } = useRouter();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const { shouldShowAuthBanner } = useOnboarding();
+  const tagSourceFeatureValue = useFeature(feature.tagSourceSocialProof);
+  const shouldShowTagSourceSocialProof =
+    shouldShowAuthBanner &&
+    tagSourceFeatureValue === TagSourceSocialProof.V1 &&
+    isLaptop;
   const { user, showLogin } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
     () => ({
@@ -317,12 +334,16 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
         query={TAG_FEED_QUERY}
         variables={queryVariables}
       />
+      {shouldShowTagSourceSocialProof && <AuthenticationBanner />}
     </FeedPageLayoutComponent>
   );
 };
 
 TagPage.getLayout = getLayout;
-TagPage.layoutProps = mainFeedLayoutProps;
+TagPage.layoutProps = {
+  ...mainFeedLayoutProps,
+  customBanner: <TagSourceCustomAuthBannerExperiment />,
+};
 
 export default TagPage;
 
