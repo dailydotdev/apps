@@ -136,8 +136,10 @@ export const MOST_UPVOTED_FEED_QUERY = gql`
     $after: String
     $period: Int
     ${SUPPORTED_TYPES}
+    $source: ID
+    $tag: String
   ) {
-    page: mostUpvotedFeed(first: $first, after: $after, period: $period, supportedTypes: $supportedTypes) {
+    page: mostUpvotedFeed(first: $first, after: $after, period: $period, supportedTypes: $supportedTypes, source: $source, tag: $tag) {
       ...FeedPostConnection
     }
   }
@@ -150,8 +152,10 @@ export const MOST_DISCUSSED_FEED_QUERY = gql`
     $first: Int
     $after: String
     ${SUPPORTED_TYPES}
+    $source: ID
+    $tag: String
   ) {
-    page: mostDiscussedFeed(first: $first, after: $after, supportedTypes: $supportedTypes) {
+    page: mostDiscussedFeed(first: $first, after: $after, supportedTypes: $supportedTypes, source: $source, tag: $tag) {
       ...FeedPostConnection
     }
   }
