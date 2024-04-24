@@ -22,7 +22,6 @@ import { useActiveFeedNameContext } from '../../contexts';
 import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import { useReadingStreak } from '../../hooks/streaks';
 import { feature } from '../../lib/featureManagement';
-import { AllFeedPages } from '../../lib/query';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -36,7 +35,6 @@ export interface FeedContainerProps {
   actionButtons?: ReactNode;
   isHorizontal?: boolean;
   feedContainerRef?: React.RefObject<HTMLDivElement>;
-  feedName?: AllFeedPages;
 }
 
 const listGaps = {
