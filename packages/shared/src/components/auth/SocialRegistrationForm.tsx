@@ -33,6 +33,7 @@ import { SignBackProvider, useSignBack } from '../../hooks/auth/useSignBack';
 import { feature } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
+import { ExperienceLevelExperiment } from '../../lib/featureValues';
 
 export interface SocialRegistrationFormProps extends AuthFormProps {
   className?: string;
@@ -73,7 +74,9 @@ export const SocialRegistrationForm = ({
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
   const { onUpdateSignBack } = useSignBack();
-  const showExperienceLevel = useFeature(feature.experienceLevel);
+  const experienceLevelVersion = useFeature(feature.experienceLevel);
+  const showExperienceLevel =
+    experienceLevelVersion === ExperienceLevelExperiment.V1;
 
   useEffect(() => {
     trackEvent({

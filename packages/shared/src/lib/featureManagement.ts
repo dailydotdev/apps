@@ -1,5 +1,8 @@
 import { JSONValue } from '@growthbook/growthbook';
-import { ReadingStreaksExperiment } from './featureValues';
+import {
+  ExperienceLevelExperiment,
+  ReadingStreaksExperiment,
+} from './featureValues';
 import { cloudinary } from './image';
 
 export class Feature<T extends JSONValue> {
@@ -35,7 +38,10 @@ const feature = {
   readingReminder: new Feature('reading_reminder', false),
   onboardingMostVisited: new Feature('onboarding_most_visited', false),
   shareExperience: new Feature('share_experience', false),
-  experienceLevel: new Feature('experience_level', false),
+  experienceLevel: new Feature(
+    'experience_level',
+    ExperienceLevelExperiment.Control,
+  ),
 };
 
 export { feature };

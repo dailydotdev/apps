@@ -33,6 +33,7 @@ import { onValidateHandles } from '../../hooks/useProfileForm';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
+import { ExperienceLevelExperiment } from '../../lib/featureValues';
 
 export interface RegistrationFormProps extends AuthFormProps {
   email: string;
@@ -66,7 +67,9 @@ export const RegistrationForm = ({
   const [name, setName] = useState('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
-  const showExperienceLevel = useFeature(feature.experienceLevel);
+  const experienceLevelVersion = useFeature(feature.experienceLevel);
+  const showExperienceLevel =
+    experienceLevelVersion === ExperienceLevelExperiment.V1;
 
   useEffect(() => {
     trackEvent({

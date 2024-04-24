@@ -39,6 +39,7 @@ import { useRouter } from 'next/router';
 import ExperienceLevelDropdown from '@dailydotdev/shared/src/components/profile/ExperienceLevelDropdown';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { ExperienceLevelExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { AccountTextField } from '../../components/layouts/AccountLayout/common';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -57,7 +58,9 @@ const AccountProfilePage = (): ReactElement => {
   const [coverImage, setCoverImage] = useState<string>(user.cover);
   const currentCoverImage = coverImage || user.cover;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const showExperienceLevel = useFeature(feature.experienceLevel);
+  const experienceLevelVersion = useFeature(feature.experienceLevel);
+  const showExperienceLevel =
+    experienceLevelVersion === ExperienceLevelExperiment.V1;
 
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
