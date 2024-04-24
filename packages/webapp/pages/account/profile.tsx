@@ -264,7 +264,7 @@ const AccountProfilePage = (): ReactElement => {
   if (isMobile) {
     return (
       <FormWrapper
-        className="relative max-w-[100vw]"
+        className={{ container: 'relative max-w-[100vw]' }}
         title="Edit Profile"
         form="submit-profile"
         rightButtonProps={{ onClick: onSubmit, disabled: isLoading }}
