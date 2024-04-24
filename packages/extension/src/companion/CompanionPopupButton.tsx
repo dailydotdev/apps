@@ -29,6 +29,10 @@ export const CompanionPopupButton = (): ReactElement => {
     setShowCompanionPermission(!showCompanionPermission);
   };
 
+  const closeCompanionPopupButton = () => {
+    setShowCompanionPermission(false);
+  };
+
   useEffect(() => {
     if (contentScriptGranted || !isFetched) {
       return;
@@ -61,6 +65,7 @@ export const CompanionPopupButton = (): ReactElement => {
       }}
       interactive
       visible={showCompanionPermission}
+      onClickOutside={closeCompanionPopupButton}
     >
       <Button
         onClick={onButtonClick}
