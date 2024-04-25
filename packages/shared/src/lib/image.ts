@@ -175,7 +175,7 @@ export const cloudinary = {
   },
   promotions: {
     bookmarkLoops:
-      'https://res.cloudinary.com/daily-now/image/upload/s--n2t9TCqZ--/f_auto/v1713534539/public/daily',
+      'https://res.cloudinary.com/daily-now/image/upload/s--n2t9TCqZ--/f_auto/v1713991549/public/daily',
   },
 };
 

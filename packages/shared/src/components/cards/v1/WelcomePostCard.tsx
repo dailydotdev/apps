@@ -132,7 +132,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
           onBookmarkClick={onBookmarkClick}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
-          className="mt-auto"
+          className="mt-4 laptop:mt-auto"
         />
       </Container>
       {children}
