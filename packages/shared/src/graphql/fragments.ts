@@ -53,6 +53,7 @@ export const SOURCE_BASE_FRAGMENT = gql`
     description
     image
     membersCount
+    createdAt
     privilegedMembers {
       user {
         ...UserShortInfo

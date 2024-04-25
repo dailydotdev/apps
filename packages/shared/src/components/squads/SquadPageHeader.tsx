@@ -77,6 +77,13 @@ export function SquadPageHeader({
     return squad.public ? <EarthIcon /> : <LockIcon />;
   })();
 
+  const createdAt = squad?.createdAt
+    ? new Date(squad.createdAt).toLocaleString('en-us', {
+        month: 'short',
+        year: 'numeric',
+      })
+    : null;
+
   return (
     <FlexCol
       className={classNames(
@@ -95,7 +102,9 @@ export function SquadPageHeader({
               @{squad.handle}
             </h2>
             <Separator />
-            <span className="typo-caption2">Created Sep 2020</span>
+            {createdAt && (
+              <span className="typo-caption2">Created {createdAt}</span>
+            )}
           </div>
           <div className="mt-4 flex flex-row items-center gap-2">
             <Button
