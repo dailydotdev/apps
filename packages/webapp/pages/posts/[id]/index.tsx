@@ -45,6 +45,7 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { useEasterEggTheme } from '@dailydotdev/shared/src/hooks/utils/useEasterEggTheme';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -88,9 +89,11 @@ const PostPage = ({ id, initialData }: Props): ReactElement => {
     id,
     options: { initialData, retry: false },
   });
+  const easterEggTheme = useEasterEggTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-screen-laptop tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
     [PostType.Share, PostType.Welcome, PostType.Freeform].includes(post?.type),
+    easterEggTheme && 'bg-transparent',
   );
   const seoTitle = () => {
     if (post?.type === PostType.Share && post?.title === null) {

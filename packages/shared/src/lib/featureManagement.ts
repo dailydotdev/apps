@@ -17,6 +17,34 @@ export class Feature<T extends JSONValue> {
   }
 }
 
+// TODO: keeping this here temporarily, so that we can see how it works in preview
+const eTheme = {
+  version: 1,
+  light: {
+    logo: 'https://res.cloudinary.com/daily-now/image/upload/s--sPHXHbbd--/f_auto/v1714049911/public/sw-logo',
+    logoText:
+      'https://res.cloudinary.com/daily-now/image/upload/s--t70tDZFe--/f_auto/v1714049911/public/sw-logo-text',
+    body: {
+      background: `url('https://res.cloudinary.com/daily-now/image/upload/s--AyMCeVaQ--/f_auto/v1713647013/public/Star%20wars%20bg') 50% / contain, var(--theme-background-default)`,
+      'background-blend-mode': 'difference, normal',
+      '--theme-starwars-primary': 'var(--theme-surface-primary)',
+    },
+    navbarBorder: 'border-[var(--theme-starwars-primary)]',
+  },
+  dark: {
+    logo: 'https://daily-now-res.cloudinary.com/image/upload/v1714049911/public/sw-logo.svg',
+    logoText:
+      'https://daily-now-res.cloudinary.com/image/upload/v1714049911/public/sw-logo-text.svg',
+    body: {
+      background: `url('https://res.cloudinary.com/daily-now/image/upload/s--AyMCeVaQ--/f_auto/v1713647013/public/Star%20wars%20bg') 50% / contain, var(--theme-background-default)`,
+      '--theme-starwars-primary': '#fae610',
+    },
+    navbarBorder: 'border-[var(--theme-starwars-primary)]',
+  },
+  cursor:
+    'https://res.cloudinary.com/daily-now/image/upload/s--53WBJl29--/f_auto/v1714049911/public/cursor_optimized_crop',
+};
+
 const feature = {
   feedVersion: new Feature('feed_version', 15),
   lowImps: new Feature('feed_low_imps'),
@@ -49,6 +77,7 @@ const feature = {
     'experience_level',
     ExperienceLevelExperiment.Control,
   ),
+  easterEggTheme: new Feature('easter_egg_theme', eTheme),
 };
 
 export { feature };

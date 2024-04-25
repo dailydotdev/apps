@@ -6,6 +6,8 @@ import { ArrowIcon } from '../icons';
 import { WithClassNameProps } from '../utilities';
 import { isDevelopment } from '../../lib/constants';
 import Logo, { LogoPosition } from '../Logo';
+import { useEasterEggTheme } from '../../hooks/utils/useEasterEggTheme';
+import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 
 const checkSameSite = () => {
   const referrer = globalThis?.document?.referrer;
@@ -26,8 +28,18 @@ export function GoBackHeaderMobile({
 }: PropsWithChildren<WithClassNameProps>): ReactElement {
   const router = useRouter();
   const goHome = useCallback(() => router.push('/'), [router]);
+  const easterEggTheme = useEasterEggTheme();
+  const scrollClassName = useScrollTopClassName({
+    scrolledClassName: 'bg-transparent',
+    defaultClassName: 'bg-background-default',
+  });
+
   const logoButton = (
-    <Logo onLogoClick={goHome} position={LogoPosition.Initial} />
+    <Logo
+      onLogoClick={goHome}
+      position={LogoPosition.Initial}
+      easterEggTheme={easterEggTheme}
+    />
   );
 
   const canGoBack =
@@ -40,7 +52,8 @@ export function GoBackHeaderMobile({
   return (
     <span
       className={classNames(
-        'sticky top-0 z-postNavigation flex flex-row items-center border-b border-border-subtlest-tertiary bg-background-default px-4 py-2 laptop:hidden',
+        'sticky top-0 z-postNavigation flex flex-row items-center border-b border-border-subtlest-tertiary px-4 py-2 laptop:hidden',
+        scrollClassName,
         className,
       )}
     >
