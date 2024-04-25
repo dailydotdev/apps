@@ -61,20 +61,16 @@ export function SquadPageHeader({
   const isSquadMember = !!squad.currentMember;
   const isFeatured = squad?.flags?.featured;
 
-  const buttonCopy = (() => {
+  const props = (() => {
     if (isFeatured) {
-      return 'Featured';
+      return { icon: <SourceIcon secondary />, copy: 'Featured' };
     }
 
-    return squad.public ? 'Public' : 'Private';
-  })();
-
-  const buttonIcon = (() => {
-    if (isFeatured) {
-      return <SourceIcon secondary />;
+    if (squad?.public) {
+      return { icon: <EarthIcon />, copy: 'Public' };
     }
 
-    return squad.public ? <EarthIcon /> : <LockIcon />;
+    return { icon: <LockIcon />, copy: 'Private' };
   })();
 
   const createdAt = squad?.createdAt
@@ -108,7 +104,7 @@ export function SquadPageHeader({
           </div>
           <div className="mt-4 flex flex-row items-center gap-2">
             <Button
-              icon={buttonIcon}
+              icon={props.icon}
               size={ButtonSize.Small}
               variant={
                 isFeatured ? ButtonVariant.Secondary : ButtonVariant.Float
@@ -119,7 +115,7 @@ export function SquadPageHeader({
                   : ''
               }
             >
-              {buttonCopy} Squad
+              {props.copy} Squad
               {isFeatured && (
                 <>
                   <SparkleIcon className="absolute -top-2.5 right-0" />
