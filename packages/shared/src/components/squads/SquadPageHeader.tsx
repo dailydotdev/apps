@@ -139,7 +139,7 @@ export function SquadPageHeader({
         Moderated by
       </span>
       <div className="mt-2">
-        {squad?.privilegedMembers.map(({ user, role }) => (
+        {squad?.privilegedMembers?.map(({ user, role }) => (
           <div
             key={user.id}
             className="flex flex-row items-center rounded-10 border border-border-subtlest-tertiary p-2"
