@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../contexts/AuthContext';
 import {
@@ -22,7 +22,7 @@ export const useActions = (): UseActions => {
   const { user } = useAuthContext();
   const actionsKey = generateQueryKey(RequestKey.Actions, user);
 
-  const { data: actions, isSuccess } = useQuery(
+  const { data: actions, isLoading } = useQuery(
     actionsKey,
     async () => {
       const data = await getUserActions();
@@ -41,7 +41,7 @@ export const useActions = (): UseActions => {
     { enabled: !!user, ...disabledRefetch },
   );
 
-  const isActionsFetched = !!user && isSuccess;
+  const isActionsFetched = !isLoading;
 
   const { mutateAsync: completeAction } = useMutation(completeUserAction, {
     onMutate: (type) => {

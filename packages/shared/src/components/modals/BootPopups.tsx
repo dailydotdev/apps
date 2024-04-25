@@ -25,7 +25,6 @@ export const BootPopups = (): null => {
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { openModal } = useLazyModal();
   const { user } = useAuthContext();
-  const [shownModal, setShownModal] = useState(false);
   const { alerts, loadedAlerts, updateAlerts, updateLastBootPopup } =
     useContext(AlertContext);
   const [bootPopups, setBootPopups] = useState(() => new Map());
@@ -154,22 +153,16 @@ export const BootPopups = (): null => {
    * Actual rendering of the boot popup that's first in line
    */
   useEffect(() => {
-    if (
-      !loadedAlerts ||
-      !alerts?.bootPopup ||
-      bootPopups.size === 0 ||
-      shownModal
-    ) {
+    if (!loadedAlerts || !alerts?.bootPopup || bootPopups.size === 0) {
       return;
     }
     openModal(bootPopups.values().next().value);
     updateLastBootPopup();
-    setShownModal(true);
+    setBootPopups(new Map());
   }, [
     loadedAlerts,
     bootPopups,
     openModal,
-    shownModal,
     alerts?.bootPopup,
     updateLastBootPopup,
   ]);
