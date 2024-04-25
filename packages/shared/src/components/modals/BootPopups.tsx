@@ -67,7 +67,7 @@ export const BootPopups = (): null => {
         persistOnRouteChange: true,
       });
     }
-  }, [checkHasCompleted, isActionsFetched, openModal, user?.reputation]);
+  }, [checkHasCompleted, isActionsFetched, user?.reputation]);
 
   /**
    * Boot popup based on marketing CTA
@@ -88,7 +88,7 @@ export const BootPopups = (): null => {
         },
       });
     }
-  }, [marketingCta, openModal, trackEvent]);
+  }, [marketingCta, trackEvent]);
 
   /** *
    * Boot popup for generic referral campaign
@@ -120,7 +120,7 @@ export const BootPopups = (): null => {
         },
       },
     });
-  }, [openModal, shouldShowStreaksPopup, isActionsFetched, completeAction]);
+  }, [completeAction, isActionsFetched, shouldShowStreaksPopup]);
 
   /**
    * Boot popup for streaks milestone
@@ -140,14 +140,7 @@ export const BootPopups = (): null => {
         },
       },
     });
-  }, [
-    openModal,
-    shouldHideStreaksModal,
-    streak,
-    updateAlerts,
-    trackEvent,
-    user,
-  ]);
+  }, [shouldHideStreaksModal, streak, updateAlerts]);
 
   /**
    * Actual rendering of the boot popup that's first in line
@@ -160,10 +153,10 @@ export const BootPopups = (): null => {
     updateLastBootPopup();
     setBootPopups(new Map());
   }, [
-    loadedAlerts,
-    bootPopups,
-    openModal,
     alerts?.bootPopup,
+    bootPopups,
+    loadedAlerts,
+    openModal,
     updateLastBootPopup,
   ]);
 
