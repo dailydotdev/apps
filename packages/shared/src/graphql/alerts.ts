@@ -29,7 +29,6 @@ export const UPDATE_ALERTS = gql`
       lastChangelog
       lastBanner
       showStreakMilestone
-      lastBootPopup
     }
   }
 `;
