@@ -9,7 +9,6 @@ import SquadMemberShortList, {
 } from './SquadMemberShortList';
 import { IconSize } from '../Icon';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
-import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { Origin } from '../../lib/analytics';
 import { TourScreenIndex } from './SquadTour';
 import { useSquadTour } from '../../hooks/useSquadTour';
@@ -36,7 +35,6 @@ export function SquadHeaderBar({
   });
   const { openModal, modal } = useLazyModal();
   const { onMenuClick } = useContextMenu({ id: ContextMenu.SquadMenuContext });
-  const { sidebarRendered } = useSidebarRendered();
 
   const {
     steps,
@@ -55,29 +53,26 @@ export function SquadHeaderBar({
     <div
       {...props}
       className={classNames(
-        'flex h-fit w-full flex-row justify-center gap-4 tablet:w-auto',
+        'no-scrollbar flex h-fit w-full flex-row justify-center gap-4 overflow-x-auto pr-4 tablet:w-auto tablet:pr-0',
         className,
       )}
     >
-      <div className="relative">
-        {verifyPermission(squad, SourcePermissions.Invite) &&
-          !showJoinButton && (
-            <Button
-              variant={ButtonVariant.Secondary}
-              className={classNames(
-                tourIndex === TourScreenIndex.CopyInvitation &&
-                  'highlight-pulse',
-              )}
-              onClick={() => {
-                trackAndCopyLink();
-              }}
-              icon={<AddUserIcon />}
-              disabled={copying}
-            >
-              Invitation link
-            </Button>
+      {verifyPermission(squad, SourcePermissions.Invite) && !showJoinButton && (
+        <Button
+          variant={ButtonVariant.Secondary}
+          className={classNames(
+            'ml-14 tablet:ml-0',
+            tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
           )}
-      </div>
+          onClick={() => {
+            trackAndCopyLink();
+          }}
+          icon={<AddUserIcon />}
+          disabled={copying}
+        >
+          Invitation link
+        </Button>
+      )}
       {showJoinButton && (
         <SquadJoinButton
           className="flex w-full flex-1 tablet:ml-auto tablet:w-auto tablet:flex-initial"
@@ -85,13 +80,7 @@ export function SquadHeaderBar({
           origin={Origin.SquadPage}
         />
       )}
-      {sidebarRendered && (
-        <SquadMemberShortList
-          squad={squad}
-          members={members}
-          className="hidden laptopL:flex"
-        />
-      )}
+      <SquadMemberShortList squad={squad} members={members} />
       {!!squad.currentMember && (
         <SimpleTooltip
           forceLoad={!isTesting}
