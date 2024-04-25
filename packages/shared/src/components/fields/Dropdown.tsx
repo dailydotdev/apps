@@ -2,6 +2,7 @@ import React, {
   CSSProperties,
   ReactElement,
   ReactNode,
+  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -22,7 +23,7 @@ import { DrawerProps } from '../drawers';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { IconProps } from '../Icon';
 
-interface ClassName {
+export interface DropdownClassName {
   container?: string;
   menu?: string;
   label?: string;
@@ -36,7 +37,7 @@ export interface DropdownProps {
   icon?: ReactNode;
   shouldIndicateSelected?: boolean;
   dynamicMenuWidth?: boolean;
-  className?: ClassName;
+  className?: DropdownClassName;
   style?: CSSProperties;
   selectedIndex: number;
   options: string[];
@@ -49,6 +50,7 @@ export interface DropdownProps {
   iconOnly?: boolean;
   drawerProps?: Omit<DrawerProps, 'children' | 'onClose'>;
   openFullScreen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function Dropdown({
@@ -57,6 +59,7 @@ export function Dropdown({
   selectedIndex,
   options,
   onChange,
+  onOpenChange,
   dynamicMenuWidth,
   shouldIndicateSelected,
   buttonSize = ButtonSize.Large,
@@ -75,6 +78,10 @@ export function Dropdown({
   const [menuWidth, setMenuWidth] = useState<number>();
   const triggerRef = useRef<HTMLButtonElement>();
   const { show, hideAll } = useContextMenu({ id });
+
+  useEffect(() => {
+    onOpenChange?.(isVisible);
+  }, [isVisible, onOpenChange]);
 
   const showMenu = (event: TriggerEvent): void => {
     const { right, bottom, width } = triggerRef.current.getBoundingClientRect();

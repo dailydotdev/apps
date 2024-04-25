@@ -326,6 +326,7 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       createdAt
       infoConfirmed
       timezone
+      experienceLevel
     }
   }
 `;
@@ -511,7 +512,7 @@ export enum AcquisitionChannel {
 }
 
 export const USER_ACQUISITION_MUTATION = gql`
-  mutation AddUserAcquisitionChannel($acquisitionChannel: AcquisitionChannel!) {
+  mutation AddUserAcquisitionChannel($acquisitionChannel: String!) {
     addUserAcquisitionChannel(acquisitionChannel: $acquisitionChannel) {
       _
     }

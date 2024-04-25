@@ -30,6 +30,10 @@ import { useGenerateUsername } from '../../hooks';
 import AuthContainer from './AuthContainer';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { SignBackProvider, useSignBack } from '../../hooks/auth/useSignBack';
+import { feature } from '../../lib/featureManagement';
+import { useFeature } from '../GrowthBookProvider';
+import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
+import { ExperienceLevelExperiment } from '../../lib/featureValues';
 
 export interface SocialRegistrationFormProps extends AuthFormProps {
   className?: string;
@@ -65,10 +69,14 @@ export const SocialRegistrationForm = ({
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);
   const [twitterHint, setTwitterHint] = useState<string>(null);
+  const [experienceLevelHint, setExperienceLevelHint] = useState<string>(null);
   const [name, setName] = useState(user?.name);
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
   const { onUpdateSignBack } = useSignBack();
+  const experienceLevelVersion = useFeature(feature.experienceLevel);
+  const showExperienceLevel =
+    experienceLevelVersion === ExperienceLevelExperiment.V1;
 
   useEffect(() => {
     trackEvent({
@@ -114,6 +122,12 @@ export const SocialRegistrationForm = ({
     if (!values.username) {
       trackError('Username not provided');
       setUsernameHint('Please choose a username');
+      return;
+    }
+
+    if (!values.experienceLevel && showExperienceLevel) {
+      trackError('Experience level not provided');
+      setExperienceLevelHint('Please select your experience level');
       return;
     }
 
@@ -228,6 +242,20 @@ export const SocialRegistrationForm = ({
                 setTwitterHint('');
               }
             }}
+          />
+        )}
+        {showExperienceLevel && (
+          <ExperienceLevelDropdown
+            className={{ container: 'w-full' }}
+            name="experienceLevel"
+            onChange={() => {
+              if (experienceLevelHint) {
+                setExperienceLevelHint(null);
+              }
+            }}
+            valid={experienceLevelHint === null}
+            hint={experienceLevelHint}
+            saveHintSpace
           />
         )}
         <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">
