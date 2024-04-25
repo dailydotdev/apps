@@ -7,7 +7,7 @@ import {
 
 export const promotion: Record<string, MarketingCta> = {
   migrateStreaks: {
-    campaignId: 'bookmarks on mobile',
+    campaignId: 'streaks migration',
     createdAt: new Date(2024, 3, 19),
     variant: MarketingCtaVariant.Popover,
     flags: {
@@ -15,14 +15,14 @@ export const promotion: Record<string, MarketingCta> = {
       description:
         'Unlock the magic of consistently learning with our new reading streaks system',
       image: cloudinary.streak.migrate,
-      ctaText: 'Install the app',
+      ctaText: 'Tell me more',
       ctaUrl: migrateUserToStreaks,
       tagColor: 'avocado',
       tagText: 'New Release',
     },
   },
   bookmarkPromoteMobile: {
-    campaignId: 'streaks migration',
+    campaignId: 'bookmarks on mobile',
     createdAt: new Date(2024, 3, 19),
     variant: MarketingCtaVariant.Popover,
     flags: {
@@ -30,7 +30,7 @@ export const promotion: Record<string, MarketingCta> = {
       description:
         'Your saved posts are waiting for you on daily.dev mobile. Perfect for reading anytime, anywhere.',
       image: cloudinary.promotions.bookmarkLoops,
-      ctaText: 'Tell me more',
+      ctaText: 'Install the app',
       ctaUrl: bookmarkLoops,
       tagColor: 'cabbage',
       tagText: 'Mobile version',
