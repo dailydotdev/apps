@@ -24,8 +24,7 @@ import { link } from '../../lib/links';
 import SquadChecklistCard from '../checklist/SquadChecklistCard';
 import { Separator } from '../cards/common';
 import { EarthIcon, LockIcon, SourceIcon, SparkleIcon } from '../icons';
-import { ProfilePicture } from '../ProfilePicture';
-import SquadMemberBadge from './SquadMemberBadge';
+import { PrivilegedMemberItem } from './Members/PrivilegedMemberItem';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -144,19 +143,8 @@ export function SquadPageHeader({
         Moderated by
       </span>
       <div className="mt-2">
-        {squad?.privilegedMembers?.map(({ user, role }) => (
-          <div
-            key={user.id}
-            className="flex flex-row items-center rounded-10 border border-border-subtlest-tertiary p-2"
-          >
-            <ProfilePicture user={user} size="large" />
-            <div className="flex-col">
-              <span className="ml-2.5 text-text-tertiary typo-subhead">
-                {user.name}
-              </span>
-              <SquadMemberBadge role={role} />
-            </div>
-          </div>
+        {squad?.privilegedMembers?.map((member) => (
+          <PrivilegedMemberItem key={member.user.id} member={member} />
         ))}
       </div>
       <SquadHeaderBar
