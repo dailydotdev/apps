@@ -16,12 +16,10 @@ import useActiveNav, {
 } from '@dailydotdev/shared/src/hooks/useActiveNav';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import { FooterTab } from './footer/common';
-import {
-  FooterNavBar as FooterNavBarComponent,
-  mobileUxTabs,
-} from './footer/FooterNavBar';
+import { FooterNavBarTabs, mobileUxTabs } from './footer/FooterNavBarTabs';
 
 interface FooterNavBarProps {
+  showNav?: boolean;
   post?: Post;
 }
 
@@ -35,6 +33,7 @@ const selectedMapToTitle: Record<keyof UseActiveNav, string> = {
 };
 
 export default function FooterNavBar({
+  showNav = false,
   post,
 }: FooterNavBarProps): ReactElement {
   const router = useRouter();
@@ -62,7 +61,7 @@ export default function FooterNavBar({
   );
 
   return (
-    <div className="footer-navbar fixed !bottom-0 left-0 z-2 w-full bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2">
+    <div className="mobileL:footer-navbar fixed !bottom-0 left-0 z-2 w-full mobileL:bg-gradient-to-t mobileL:from-background-subtle mobileL:from-70% mobileL:to-transparent mobileL:px-2 mobileL:pt-2">
       {post ? (
         <div className="my-2 w-full px-2 tablet:hidden">
           <NewComment
@@ -85,10 +84,11 @@ export default function FooterNavBar({
         className={classNames(
           'grid w-full grid-flow-col items-center justify-between rounded-16 px-3',
           !post && activeClasses,
+          !showNav && 'hidden',
           !post && 'border-t border-border-subtlest-tertiary',
         )}
       >
-        <FooterNavBarComponent activeTab={activeTab} />
+        <FooterNavBarTabs activeTab={activeTab} />
       </Flipper>
     </div>
   );

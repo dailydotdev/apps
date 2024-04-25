@@ -82,7 +82,7 @@ const Tab = ({ tab, isActive }: TabProps) => {
   );
 };
 
-export function FooterNavBar({
+export function FooterNavBarTabs({
   activeTab,
 }: FooterNavBarContainerProps): ReactElement {
   return (
