@@ -104,11 +104,13 @@ export const AlertContextProvider = ({
         updateAlerts({
           ...alerts,
           lastBootPopup: new Date(),
+          bootPopup: false,
         }),
       onError: () => {
         updateAlerts({
           ...alerts,
           lastBootPopup: null,
+          bootPopup: true,
         });
       },
     },
