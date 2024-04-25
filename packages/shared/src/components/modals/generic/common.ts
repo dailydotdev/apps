@@ -30,7 +30,7 @@ export const promotion: Record<string, MarketingCta> = {
       description:
         'Your saved posts are waiting for you on daily.dev mobile. Perfect for reading anytime, anywhere.',
       image: cloudinary.promotions.bookmarkLoops,
-      ctaText: 'Install the app',
+      ctaText: 'Tell me more',
       ctaUrl: bookmarkLoops,
       tagColor: 'cabbage',
       tagText: 'Mobile version',
