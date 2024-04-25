@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect, useRef } from 'react';
 import classNames from 'classnames';
+import { useQueryClient } from '@tanstack/react-query';
 import { Modal } from '../common/Modal';
 import classed from '../../../lib/classed';
 import { Checkbox } from '../../fields/Checkbox';
@@ -8,7 +9,9 @@ import { cloudinary } from '../../../lib/image';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { StreakModalProps } from './common';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../../../lib/analytics';
+import { AnalyticsEvent, TargetType } from '../../../lib/analytics';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 const Paragraph = classed('p', 'text-center text-text-tertiary');
 
@@ -18,10 +21,33 @@ export default function NewStreakModal({
   onRequestClose,
   ...props
 }: StreakModalProps): ReactElement {
+  const queryClient = useQueryClient();
+  const { user } = useAuthContext();
   const { trackEvent } = useAnalyticsContext();
   const { toggleOptOutWeeklyGoal, optOutWeeklyGoal } = useSettingsContext();
   const shouldShowSplash = currentStreak >= maxStreak;
   const daysPlural = currentStreak === 1 ? 'day' : 'days';
+  const trackedImpression = useRef(false);
+
+  useEffect(() => {
+    if (trackedImpression.current) {
+      return;
+    }
+
+    // since the streaks query is cached and has a staleTime set
+    // this is a good time to invalidate that query
+    queryClient.invalidateQueries({
+      queryKey: generateQueryKey(RequestKey.UserStreak, user),
+    });
+
+    trackEvent({
+      event_name: AnalyticsEvent.Impression,
+      target_type: TargetType.StreaksMilestone,
+      target_id: currentStreak,
+    });
+
+    trackedImpression.current = true;
+  }, [currentStreak, trackEvent]);
 
   const handleOptOut = () => {
     if (!optOutWeeklyGoal) {

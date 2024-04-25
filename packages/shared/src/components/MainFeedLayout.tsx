@@ -290,22 +290,6 @@ export default function MainFeedLayout({
   const disableTopPadding =
     isFinder || shouldUseMobileFeedLayout || shouldUseCommentFeedLayout;
 
-  const { openModal } = useLazyModal();
-  const { shouldShowPopup } = useStreakExperiment();
-  const { completeAction, isActionsFetched } = useActions();
-
-  useEffect(() => {
-    if (!shouldShowPopup || !isActionsFetched) {
-      return;
-    }
-
-    openModal({
-      type: LazyModal.MarketingCta,
-      props: { marketingCta: promotion.migrateStreaks },
-    });
-    completeAction(ActionType.ExistingUserSeenStreaks);
-  }, [completeAction, openModal, shouldShowPopup, isActionsFetched]);
-
   return (
     <FeedPageLayoutComponent
       className={classNames(

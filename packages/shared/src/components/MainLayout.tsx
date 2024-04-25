@@ -21,11 +21,7 @@ import MainLayoutHeader, {
 } from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
-import {
-  AnalyticsEvent,
-  NotificationTarget,
-  TargetType,
-} from '../lib/analytics';
+import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -33,16 +29,11 @@ import { SharedFeedPage } from './utilities';
 import { isTesting, onboardingUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
-import { useReferralReminder } from '../hooks/referral/useReferralReminder';
 import { ActiveFeedNameContextProvider } from '../contexts';
-import { useBoot, useFeedLayout, useViewSize, ViewSize } from '../hooks';
-import { useStreakMilestone } from '../hooks/streaks';
-import { ReputationPrivilegesModalTrigger } from './modals';
-import { MarketingCtaVariant } from './cards/MarketingCta/common';
-import { useLazyModal } from '../hooks/useLazyModal';
-import { LazyModal } from './modals/common/types';
+import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { useMobileUxExperiment } from '../hooks/useMobileUxExperiment';
 import { GoBackHeaderMobile } from './post/GoBackHeaderMobile';
+import { useBootPopups } from './modals/useBootPopups';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -90,8 +81,6 @@ function MainLayoutComponent({
   const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
     useContext(SettingsContext);
   const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
-  const { getMarketingCta } = useBoot();
-  const { openModal } = useLazyModal<LazyModal.MarketingCta>();
 
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
@@ -101,28 +90,7 @@ function MainLayoutComponent({
   useAuthErrors();
   useAuthVerificationRecovery();
   useNotificationParams();
-  useReferralReminder();
-  useStreakMilestone();
-
-  const marketingCta = getMarketingCta(MarketingCtaVariant.Popover);
-
-  useEffect(() => {
-    if (marketingCta) {
-      openModal({
-        type: LazyModal.MarketingCta,
-        props: {
-          marketingCta,
-          onAfterOpen: () => {
-            trackEvent({
-              event_name: AnalyticsEvent.Impression,
-              target_type: TargetType.MarketingCtaPopover,
-              target_id: marketingCta.campaignId,
-            });
-          },
-        },
-      });
-    }
-  }, [marketingCta, openModal, trackEvent]);
+  useBootPopups();
 
   const onMobileSidebarToggle = (state: boolean) => {
     trackEvent({
@@ -214,7 +182,6 @@ function MainLayoutComponent({
       <InAppNotificationElement />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
-      <ReputationPrivilegesModalTrigger />
       <MainLayoutHeader
         hasBanner={isBannerAvailable}
         sidebarRendered={sidebarRendered}
