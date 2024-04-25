@@ -29,6 +29,8 @@ export * from './Docs';
 export * from './Downvote';
 export * from './DrawnArrow';
 export * from './Edit';
+export * from './Earth';
+export * from './Sparkle';
 export * from './Embed';
 export * from './Exit';
 export * from './Eye';

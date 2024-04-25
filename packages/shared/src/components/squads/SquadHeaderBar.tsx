@@ -105,7 +105,7 @@ export function SquadHeaderBar({
         >
           <Button
             data-testid="squad-checklist-button"
-            variant={ButtonVariant.Secondary}
+            variant={ButtonVariant.Float}
             icon={<ChecklistBIcon secondary size={IconSize.Small} />}
             onClick={() => {
               setChecklistVisible(!isChecklistVisible);
@@ -121,7 +121,7 @@ export function SquadHeaderBar({
         >
           <Button
             data-testid="squad-notification-button"
-            variant={ButtonVariant.Secondary}
+            variant={ButtonVariant.Float}
             icon={
               <BellIcon
                 secondary={modal?.type === LazyModal.SquadNotifications}
@@ -139,7 +139,7 @@ export function SquadHeaderBar({
       )}
       <SimpleTooltip placement="top" content="Squad options">
         <Button
-          variant={ButtonVariant.Secondary}
+          variant={ButtonVariant.Float}
           icon={<MenuIcon size={IconSize.Small} />}
           onClick={onMenuClick}
         />

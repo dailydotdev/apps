@@ -65,7 +65,11 @@ export interface Squad extends Source {
 }
 
 export interface SourcePrivilegedMembers extends Pick<SourceMember, 'role'> {
-  user: Pick<UserShortProfile, 'id'>;
+  user: UserShortProfile;
+}
+
+interface SourceFlags {
+  featured: boolean;
 }
 
 export interface Source {
@@ -82,6 +86,7 @@ export interface Source {
   headerImage?: string;
   color?: string;
   description?: string;
+  flags?: SourceFlags;
 }
 
 export type SourceData = { source: Source };
