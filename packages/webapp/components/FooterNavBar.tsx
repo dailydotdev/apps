@@ -15,10 +15,11 @@ import useActiveNav, {
   UseActiveNav,
 } from '@dailydotdev/shared/src/hooks/useActiveNav';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { FooterTab } from './footer/common';
-import { FooterNavBarV1, mobileUxTabs } from './footer/FooterNavBarV1';
-import { FooterNavBarControl, tabs } from './footer/FooterNavBarControl';
+import {
+  FooterNavBar as FooterNavBarComponent,
+  mobileUxTabs,
+} from './footer/FooterNavBar';
 
 interface FooterNavBarProps {
   showNav?: boolean;
@@ -34,17 +35,12 @@ const selectedMapToTitle: Record<keyof UseActiveNav, string> = {
   profile: 'Profile',
 };
 
-const combinedTabs = tabs.concat(
-  ...(mobileUxTabs.filter((tab) => !isValidElement(tab)) as FooterTab[]),
-);
-
 export default function FooterNavBar({
   showNav = false,
   post,
 }: FooterNavBarProps): ReactElement {
   const router = useRouter();
   const { user } = useContext(AuthContext);
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const feedName = getFeedName(router.pathname, { hasUser: !!user });
   const activeNav = useActiveNav(feedName);
   const activeTab = useMemo(() => {
@@ -54,7 +50,9 @@ export default function FooterNavBar({
       return selectedMapToTitle[activeKey];
     }
 
-    const active = combinedTabs.find((tab) => tab.path === router?.pathname);
+    const active = (
+      mobileUxTabs.filter((tab) => !isValidElement(tab)) as FooterTab[]
+    ).find((tab) => tab.path === router?.pathname);
 
     return active?.title;
   }, [activeNav, router?.pathname]);
@@ -65,17 +63,8 @@ export default function FooterNavBar({
     'shadow-[0_4px_30px_rgba(0,0,0.1)]',
   );
 
-  const Component = isLaptop ? FooterNavBarControl : FooterNavBarV1;
-
   return (
-    <div
-      className={classNames(
-        'fixed !bottom-0 left-0 z-2 w-full',
-        post && 'laptop:bg-blur-bg laptop:backdrop-blur-20',
-        !isLaptop &&
-          'footer-navbar bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2',
-      )}
-    >
+    <div className="footer-navbar fixed !bottom-0 left-0 z-2 w-full bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2">
       {post ? (
         <div className="my-2 w-full px-2 tablet:hidden">
           <NewComment
@@ -96,13 +85,13 @@ export default function FooterNavBar({
         spring="veryGentle"
         element="nav"
         className={classNames(
-          'laptop:footer-navbar grid w-full grid-flow-col items-center justify-between rounded-16 px-3 laptop:h-14 laptop:rounded-none laptop:rounded-t-24 laptop:bg-background-default',
+          'grid w-full grid-flow-col items-center justify-between rounded-16 px-3',
           !showNav && 'hidden',
-          !isLaptop && !post && activeClasses,
+          !post && activeClasses,
           !post && 'border-t border-border-subtlest-tertiary',
         )}
       >
-        <Component activeTab={activeTab} />
+        <FooterNavBarComponent activeTab={activeTab} />
       </Flipper>
     </div>
   );
