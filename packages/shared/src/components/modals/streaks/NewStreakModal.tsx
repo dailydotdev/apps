@@ -47,7 +47,7 @@ export default function NewStreakModal({
     });
 
     trackedImpression.current = true;
-  }, [currentStreak, trackEvent]);
+  }, [currentStreak, queryClient, trackEvent, user]);
 
   const handleOptOut = () => {
     if (!optOutWeeklyGoal) {
