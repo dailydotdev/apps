@@ -22,7 +22,6 @@ import {
 } from './footer/FooterNavBar';
 
 interface FooterNavBarProps {
-  showNav?: boolean;
   post?: Post;
 }
 
@@ -36,7 +35,6 @@ const selectedMapToTitle: Record<keyof UseActiveNav, string> = {
 };
 
 export default function FooterNavBar({
-  showNav = false,
   post,
 }: FooterNavBarProps): ReactElement {
   const router = useRouter();
@@ -86,7 +84,6 @@ export default function FooterNavBar({
         element="nav"
         className={classNames(
           'grid w-full grid-flow-col items-center justify-between rounded-16 px-3',
-          !showNav && 'hidden',
           !post && activeClasses,
           !post && 'border-t border-border-subtlest-tertiary',
         )}

@@ -53,7 +53,7 @@ const Search = (): ReactElement => {
       {!searchQuery && (
         <div
           className={classNames(
-            'mt-12 flex w-full max-w-[32rem] flex-col items-center  gap-4 self-center px-6 laptop:mt-0',
+            'mt-12 flex w-full max-w-[32rem] flex-col items-center gap-4 self-center px-6 laptop:mt-0',
             sidebarExpanded ? '!-left-32' : '!-left-6',
           )}
         >
