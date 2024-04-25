@@ -127,7 +127,7 @@ export default function Feed<T>({
   shortcuts,
   actionButtons,
   disableAds,
-  allowFetchMore = true,
+  allowFetchMore,
   pageSize,
   isHorizontal = false,
   feedContainerRef,
