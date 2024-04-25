@@ -20,6 +20,9 @@ export default function useTrackLifecycleEvents(
       if (event.detail.newState === 'active') {
         setEnabled(true);
         contextData.trackEventEnd('page inactive');
+        contextData.trackEvent({
+          event_name: 'page active',
+        });
         // Update events page state to active
         durationEventsQueue.current.forEach((value, key) => {
           if (
