@@ -90,7 +90,7 @@ export function SquadPageHeader({
           <h1 className="text-center font-bold typo-title2 laptopL:text-left">
             {squad.name}
           </h1>
-          <div className="mt-1 flex flex-row items-center text-text-quaternary tablet:mt-2">
+          <div className="mt-1 flex flex-row items-center justify-center text-text-quaternary tablet:mt-2 laptopL:justify-start">
             <h2 className="text-center text-text-tertiary typo-footnote laptopL:text-left">
               @{squad.handle}
             </h2>
