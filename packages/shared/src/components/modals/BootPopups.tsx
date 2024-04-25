@@ -20,14 +20,15 @@ const REP_TRESHOLD = 250;
  * These popups are removed when the users interact with page (clicks outside, closes, completes action).
  * @constructor
  */
-export const useBootPopups = (): void => {
+export const BootPopups = (): null => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { openModal } = useLazyModal();
   const { user } = useAuthContext();
   const [shownModal, setShownModal] = useState(false);
-  const { alerts, loadedAlerts, updateAlerts } = useContext(AlertContext);
-  const [bootPopups, setBootPopups] = useState(new Map());
+  const { alerts, loadedAlerts, updateAlerts, updateLastBootPopup } =
+    useContext(AlertContext);
+  const [bootPopups, setBootPopups] = useState(() => new Map());
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Popover);
   const { shouldShowPopup: shouldShowStreaksPopup } = useStreakExperiment();
@@ -162,17 +163,15 @@ export const useBootPopups = (): void => {
       return;
     }
     openModal(bootPopups.values().next().value);
-    updateAlerts({
-      lastBootPopup: new Date(),
-    });
+    updateLastBootPopup();
     setShownModal(true);
   }, [
     loadedAlerts,
     bootPopups,
     openModal,
     shownModal,
-    updateAlerts,
     alerts?.bootPopup,
+    updateLastBootPopup,
   ]);
 
   return null;

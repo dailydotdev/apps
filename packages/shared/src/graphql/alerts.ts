@@ -41,3 +41,11 @@ export const UPDATE_LAST_REFERRAL_REMINDER = gql`
     }
   }
 `;
+
+export const UPDATE_LAST_BOOT_POPUP = gql`
+  mutation UpdateLastBootPopup {
+    updateLastBootPopup {
+      _
+    }
+  }
+`;

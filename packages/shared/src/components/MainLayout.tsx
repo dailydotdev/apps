@@ -33,7 +33,7 @@ import { ActiveFeedNameContextProvider } from '../contexts';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { useMobileUxExperiment } from '../hooks/useMobileUxExperiment';
 import { GoBackHeaderMobile } from './post/GoBackHeaderMobile';
-import { useBootPopups } from './modals/useBootPopups';
+import { BootPopups } from './modals/BootPopups';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -90,7 +90,6 @@ function MainLayoutComponent({
   useAuthErrors();
   useAuthVerificationRecovery();
   useNotificationParams();
-  useBootPopups();
 
   const onMobileSidebarToggle = (state: boolean) => {
     trackEvent({
@@ -182,6 +181,7 @@ function MainLayoutComponent({
       <InAppNotificationElement />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
+      <BootPopups />
       <MainLayoutHeader
         hasBanner={isBannerAvailable}
         sidebarRendered={sidebarRendered}
