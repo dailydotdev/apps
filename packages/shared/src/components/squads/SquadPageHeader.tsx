@@ -123,7 +123,7 @@ export function SquadPageHeader({
                 </>
               )}
             </Button>
-            {/* As mentioned in the JIRA ticket, the value would be replaced in a different PR */}
+            {/* TODO: As mentioned in the JIRA ticket, the value would be replaced in a different PR */}
             <SquadStat count={1} label="Posts" />
             <SquadStat count={1} label="Views" />
             <SquadStat count={1} label="Upvotes" />
