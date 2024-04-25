@@ -130,7 +130,7 @@ export const BootPopups = (): null => {
       return;
     }
 
-    openModal({
+    addBootPopup({
       type: LazyModal.NewStreak,
       props: {
         currentStreak: streak?.current,
