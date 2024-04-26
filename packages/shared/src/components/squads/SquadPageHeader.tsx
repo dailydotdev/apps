@@ -109,9 +109,8 @@ export function SquadPageHeader({
                 isFeatured ? ButtonVariant.Secondary : ButtonVariant.Float
               }
               className={
-                isFeatured
-                  ? 'relative border-overlay-primary-cabbage bg-overlay-tertiary-cabbage'
-                  : ''
+                isFeatured &&
+                'relative border-overlay-primary-cabbage bg-overlay-tertiary-cabbage'
               }
             >
               {props.copy} Squad
