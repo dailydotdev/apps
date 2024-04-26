@@ -72,7 +72,6 @@ const NewSquad = (): ReactElement => {
       <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
       <ManageSquadPageMain>
         <SquadDetails
-          className="p-8 pt-0"
           form={{ public: false }}
           onRequestClose={handleClose}
           onSubmit={onCreate}

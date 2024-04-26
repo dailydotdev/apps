@@ -48,7 +48,7 @@ export function ReportModal({
         form: null,
         title: heading,
         rightButtonProps: submitButtonProps,
-        className: 'w-full',
+        className: { container: 'w-full' },
         copy: { right: 'Submit report' },
       }}
     >

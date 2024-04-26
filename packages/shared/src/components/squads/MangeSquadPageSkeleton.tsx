@@ -1,9 +1,5 @@
 import React, { ReactElement } from 'react';
-import {
-  ManageSquadPageMain,
-  ManageSquadPageFooter,
-  ManageSquadPageContainer,
-} from './utils';
+import { ManageSquadPageMain, ManageSquadPageContainer } from './utils';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
 export const MangeSquadPageSkeleton = (): ReactElement => {
@@ -16,7 +12,6 @@ export const MangeSquadPageSkeleton = (): ReactElement => {
           <ElementPlaceholder className="mx-8 mt-4 h-12 w-full rounded-12" />
         </div>
       </ManageSquadPageMain>
-      <ManageSquadPageFooter />
     </ManageSquadPageContainer>
   );
 };
