@@ -47,7 +47,7 @@ export const useActions = (): UseActions => {
   );
 
   const actions = data?.actions;
-  const isActionsFetched = !isLoading && data?.serverLoaded;
+  const isActionsFetched = !isLoading && !!data?.serverLoaded;
 
   const { mutateAsync: completeAction } = useMutation(completeUserAction, {
     onMutate: (type) => {
@@ -71,7 +71,7 @@ export const useActions = (): UseActions => {
       return () =>
         client.setQueryData<ActionQueryData>(actionsKey, {
           actions,
-          serverLoaded: data?.serverLoaded,
+          serverLoaded: !!data?.serverLoaded,
         });
     },
     onError: (_, __, rollback: () => void) => {
