@@ -25,6 +25,7 @@ import SquadChecklistCard from '../checklist/SquadChecklistCard';
 import { Separator } from '../cards/common';
 import { EarthIcon, LockIcon, SourceIcon, SparkleIcon } from '../icons';
 import { PrivilegedMemberItem } from './Members/PrivilegedMemberItem';
+import { formatMonthYearOnly } from '../../lib/dateFormat';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -73,10 +74,7 @@ export function SquadPageHeader({
   })();
 
   const createdAt = squad?.createdAt
-    ? new Date(squad.createdAt).toLocaleString('en-us', {
-        month: 'short',
-        year: 'numeric',
-      })
+    ? formatMonthYearOnly(squad.createdAt)
     : null;
 
   return (
