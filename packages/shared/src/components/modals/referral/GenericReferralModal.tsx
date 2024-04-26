@@ -1,4 +1,10 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Modal, ModalProps } from '../common/Modal';
 import { cloudinary } from '../../../lib/image';
 import { ModalSize } from '../common/types';
@@ -10,27 +16,31 @@ import ReferralSocialShareButtons from '../../widgets/ReferralSocialShareButtons
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 import { InviteLinkInput } from '../../referral/InviteLinkInput';
 import { ModalClose } from '../common/ModalClose';
+import AlertContext from '../../../contexts/AlertContext';
 
 function GenericReferralModal({
   onRequestClose,
   ...props
 }: ModalProps): ReactElement {
+  const { updateLastReferralReminder } = useContext(AlertContext);
   const [shareState, setShareState] = useState(false);
   const { url } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Generic,
   });
   const inviteLink = url || link.referral.defaultUrl;
   const { trackEvent } = useAnalyticsContext();
+  const isTracked = useRef(false);
 
   useEffect(() => {
-    trackEvent({
-      event_name: AnalyticsEvent.Impression,
-      target_type: TargetType.ReferralPopup,
-    });
-
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!isTracked.current) {
+      updateLastReferralReminder();
+      isTracked.current = true;
+      trackEvent({
+        event_name: AnalyticsEvent.Impression,
+        target_type: TargetType.ReferralPopup,
+      });
+    }
+  }, [trackEvent, updateLastReferralReminder]);
 
   return (
     <Modal {...props} onRequestClose={onRequestClose} size={ModalSize.Small}>

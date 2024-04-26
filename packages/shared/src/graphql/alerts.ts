@@ -12,6 +12,8 @@ export type Alerts = {
   lastBanner?: string;
   banner?: boolean;
   showStreakMilestone?: boolean;
+  lastBootPopup?: Date;
+  bootPopup?: boolean;
 };
 
 export type AlertsUpdate = Omit<Alerts, 'changelog' | 'banner'>;
@@ -34,6 +36,14 @@ export const UPDATE_ALERTS = gql`
 export const UPDATE_LAST_REFERRAL_REMINDER = gql`
   mutation UpdateLastReferralReminder {
     updateLastReferralReminder {
+      _
+    }
+  }
+`;
+
+export const UPDATE_LAST_BOOT_POPUP = gql`
+  mutation UpdateLastBootPopup {
+    updateLastBootPopup {
       _
     }
   }
