@@ -21,7 +21,7 @@ export interface FormWrapperProps {
   leftButtonProps?: ButtonProps<'button'>;
   rightButtonProps?: ButtonProps<'button'>;
   title?: string;
-  isCancelArrow?: boolean;
+  isHeaderTitle?: boolean;
   headerRef?: MutableRefObject<HTMLDivElement>;
 }
 
@@ -35,14 +35,14 @@ export function FormWrapper({
   leftButtonProps = {},
   rightButtonProps = {},
   title,
-  isCancelArrow,
+  isHeaderTitle,
   headerRef,
 }: FormWrapperProps): ReactElement {
   const { left = 'Cancel', right = 'Submit' } = copy;
   const titleElement = (
     <Title
       className={classNames(
-        !isCancelArrow && 'mt-5',
+        !isHeaderTitle && 'mt-5',
         className?.title ?? 'typo-body',
       )}
     >
@@ -59,14 +59,10 @@ export function FormWrapper({
         )}
         ref={headerRef}
       >
-        <Button
-          {...leftButtonProps}
-          icon={isCancelArrow ? <ArrowIcon className="-rotate-90" /> : null}
-          variant={ButtonVariant.Tertiary}
-        >
-          {isCancelArrow ? null : left}
+        <Button {...leftButtonProps} variant={ButtonVariant.Tertiary}>
+          {isHeaderTitle ? null : left}
         </Button>
-        {isCancelArrow && title && titleElement}
+        {isHeaderTitle && title && titleElement}
         <Button
           {...rightButtonProps}
           variant={ButtonVariant.Primary}
@@ -76,7 +72,7 @@ export function FormWrapper({
           {right}
         </Button>
       </div>
-      {!isCancelArrow && title && titleElement}
+      {!isHeaderTitle && title && titleElement}
       {children}
     </div>
   );

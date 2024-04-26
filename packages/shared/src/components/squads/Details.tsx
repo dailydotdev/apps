@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
-import { AtIcon, CameraIcon, SourceIcon, SquadIcon } from '../icons';
+import { ArrowIcon, AtIcon, CameraIcon, SourceIcon, SquadIcon } from '../icons';
 import Textarea from '../fields/Textarea';
 import ImageInput from '../fields/ImageInput';
 import { cloudinary } from '../../lib/image';
@@ -134,11 +134,12 @@ export function SquadDetails({
   return (
     <FormWrapper
       form="squad-form"
+      isHeaderTitle
       title={createMode ? undefined : 'Squad settings'}
-      isCancelArrow
       className={{ title: 'typo-title3' }}
       copy={{ right: createMode ? 'Create Squad' : 'Save', left: null }}
       leftButtonProps={{
+        icon: <ArrowIcon className="-rotate-90" />,
         onClick: () =>
           router.push(createMode ? '/squads' : `/squads/${handle}`),
       }}
