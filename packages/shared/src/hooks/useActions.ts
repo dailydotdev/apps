@@ -17,49 +17,62 @@ interface UseActions {
   isActionsFetched: boolean;
 }
 
+interface ActionQueryData {
+  actions: Action[];
+  serverLoaded: boolean;
+}
+
 export const useActions = (): UseActions => {
   const client = useQueryClient();
   const { user } = useAuthContext();
   const actionsKey = generateQueryKey(RequestKey.Actions, user);
 
-  const { data: actions, isLoading } = useQuery(
+  const { data, isLoading } = useQuery(
     actionsKey,
     async () => {
-      const data = await getUserActions();
-      const current = client.getQueryData<Action[]>(actionsKey);
+      const serverData = await getUserActions();
+      const current = client.getQueryData<ActionQueryData>(actionsKey);
 
       if (!current || !Array.isArray(current)) {
-        return data;
+        return { actions: serverData, serverLoaded: true };
       }
 
-      const filtered = data.filter(({ type }) =>
+      const filtered = serverData.filter(({ type }) =>
         current.every((action) => action.type !== type),
       );
 
-      return [...current, ...filtered];
+      return { actions: [...current, ...filtered], serverLoaded: true };
     },
     { enabled: !!user, ...disabledRefetch },
   );
 
-  const isActionsFetched = !isLoading;
+  const actions = data?.actions;
+  const isActionsFetched = !isLoading && data?.serverLoaded;
 
   const { mutateAsync: completeAction } = useMutation(completeUserAction, {
     onMutate: (type) => {
-      client.setQueryData<Action[]>(actionsKey, (data) => {
+      client.setQueryData<ActionQueryData>(actionsKey, (old) => {
         const optimisticAction = {
           userId: user.id,
           type,
           completedAt: new Date(),
         };
 
-        if (!Array.isArray(data)) {
-          return [optimisticAction];
+        if (!Array.isArray(old?.actions)) {
+          return { actions: [optimisticAction], serverLoaded: false };
         }
 
-        return [...data, optimisticAction];
+        return {
+          actions: [...old?.actions, optimisticAction],
+          serverLoaded: old?.serverLoaded,
+        };
       });
 
-      return () => client.setQueryData<Action[]>(actionsKey, actions);
+      return () =>
+        client.setQueryData<ActionQueryData>(actionsKey, {
+          actions,
+          serverLoaded: data?.serverLoaded,
+        });
     },
     onError: (_, __, rollback: () => void) => {
       if (rollback) {
