@@ -26,7 +26,6 @@ import {
 import { getFeedName } from '../../lib/feed';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import Logo, { LogoPosition } from '../Logo';
 import { useViewSize, ViewSize } from '../../hooks';
 import {
@@ -65,7 +64,7 @@ export default function Sidebar({
   } = useContext(SettingsContext);
   const { modal, openModal } = useLazyModal();
   const showSettings = modal?.type === LazyModal.UserSettings;
-  const { isNewMobileLayout } = useMobileUxExperiment();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
 
   const feedName = getFeedName(activePageProp, {
@@ -95,7 +94,7 @@ export default function Sidebar({
     return <></>;
   }
 
-  if (isNewMobileLayout && isTablet) {
+  if (!isLaptop && isTablet) {
     const buttonProps: ButtonProps<'a' | 'button'> = {
       variant: ButtonVariant.Tertiary,
       size: ButtonSize.Large,

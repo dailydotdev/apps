@@ -31,7 +31,6 @@ import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
 import { ActiveFeedNameContextProvider } from '../contexts';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
-import { useMobileUxExperiment } from '../hooks/useMobileUxExperiment';
 import { GoBackHeaderMobile } from './post/GoBackHeaderMobile';
 import { BootPopups } from './modals/BootPopups';
 
@@ -84,8 +83,6 @@ function MainLayoutComponent({
 
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
-  const { isNewMobileLayout } = useMobileUxExperiment();
-
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useAuthErrors();
   useAuthVerificationRecovery();
@@ -192,12 +189,9 @@ function MainLayoutComponent({
       />
       <main
         className={classNames(
-          'flex flex-col',
+          'flex flex-col tablet:pl-16 laptop:pl-11',
           className,
-          !isScreenCentered && sidebarExpanded
-            ? 'laptop:pl-60'
-            : 'laptop:pl-11',
-          isNewMobileLayout && 'tablet:pl-16',
+          !isScreenCentered && sidebarExpanded && 'laptop:!pl-60',
           isBannerAvailable && 'laptop:pt-8',
         )}
       >

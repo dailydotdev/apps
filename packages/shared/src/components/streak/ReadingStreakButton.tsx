@@ -14,7 +14,6 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { isTesting } from '../../lib/constants';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
-import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import { RootPortal } from '../tooltips/Portal';
 import { Drawer } from '../drawers';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -68,7 +67,6 @@ export function ReadingStreakButton({
   const { trackEvent } = useAnalyticsContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { isNewMobileLayout } = useMobileUxExperiment();
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
   const hasReadToday =
     new Date(streak?.lastViewAt).getDate() === new Date().getDate();
@@ -114,11 +112,7 @@ export function ReadingStreakButton({
           type="button"
           iconPosition={iconPosition}
           icon={<ReadingStreakIcon secondary={hasReadToday} />}
-          variant={
-            isNewMobileLayout && isMobile
-              ? ButtonVariant.Tertiary
-              : ButtonVariant.Float
-          }
+          variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
           onClick={handleToggle}
           className={classnames(
             'gap-1',

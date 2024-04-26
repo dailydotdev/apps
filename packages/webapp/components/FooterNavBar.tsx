@@ -11,14 +11,12 @@ import { useRouter } from 'next/router';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
 import { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
-import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import useActiveNav, {
   UseActiveNav,
 } from '@dailydotdev/shared/src/hooks/useActiveNav';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import { FooterTab } from './footer/common';
-import { FooterNavBarV1, mobileUxTabs } from './footer/FooterNavBarV1';
-import { FooterNavBarControl, tabs } from './footer/FooterNavBarControl';
+import { FooterNavBarTabs, mobileUxTabs } from './footer/FooterNavBarTabs';
 
 interface FooterNavBarProps {
   showNav?: boolean;
@@ -34,17 +32,12 @@ const selectedMapToTitle: Record<keyof UseActiveNav, string> = {
   profile: 'Profile',
 };
 
-const combinedTabs = tabs.concat(
-  ...(mobileUxTabs.filter((tab) => !isValidElement(tab)) as FooterTab[]),
-);
-
 export default function FooterNavBar({
   showNav = false,
   post,
 }: FooterNavBarProps): ReactElement {
   const router = useRouter();
   const { user } = useContext(AuthContext);
-  const { isNewMobileLayout } = useMobileUxExperiment();
   const feedName = getFeedName(router.pathname, { hasUser: !!user });
   const activeNav = useActiveNav(feedName);
   const activeTab = useMemo(() => {
@@ -54,7 +47,9 @@ export default function FooterNavBar({
       return selectedMapToTitle[activeKey];
     }
 
-    const active = combinedTabs.find((tab) => tab.path === router?.pathname);
+    const active = (
+      mobileUxTabs.filter((tab) => !isValidElement(tab)) as FooterTab[]
+    ).find((tab) => tab.path === router?.pathname);
 
     return active?.title;
   }, [activeNav, router?.pathname]);
@@ -65,17 +60,8 @@ export default function FooterNavBar({
     'shadow-[0_4px_30px_rgba(0,0,0.1)]',
   );
 
-  const Component = isNewMobileLayout ? FooterNavBarV1 : FooterNavBarControl;
-
   return (
-    <div
-      className={classNames(
-        'fixed !bottom-0 left-0 z-2 w-full',
-        isNewMobileLayout
-          ? 'footer-navbar bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2'
-          : post && 'bg-blur-bg backdrop-blur-20',
-      )}
-    >
+    <div className="mobileL:footer-navbar fixed !bottom-0 left-0 z-2 w-full mobileL:bg-gradient-to-t mobileL:from-background-subtle mobileL:from-70% mobileL:to-transparent mobileL:px-2 mobileL:pt-2">
       {post ? (
         <div className="my-2 w-full px-2 tablet:hidden">
           <NewComment
@@ -96,15 +82,13 @@ export default function FooterNavBar({
         spring="veryGentle"
         element="nav"
         className={classNames(
-          'grid w-full grid-flow-col items-center justify-between px-3',
+          'grid w-full grid-flow-col items-center justify-between rounded-16 px-3',
+          !post && activeClasses,
           !showNav && 'hidden',
-          isNewMobileLayout
-            ? classNames('rounded-16', !post && activeClasses)
-            : 'footer-navbar h-14 rounded-t-24 bg-background-default',
           !post && 'border-t border-border-subtlest-tertiary',
         )}
       >
-        <Component activeTab={activeTab} />
+        <FooterNavBarTabs activeTab={activeTab} />
       </Flipper>
     </div>
   );

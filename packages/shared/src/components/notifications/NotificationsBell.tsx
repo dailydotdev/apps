@@ -8,16 +8,16 @@ import { getUnreadText, notificationsUrl } from './utils';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { AnalyticsEvent, NotificationTarget } from '../../lib/analytics';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import { webappUrl } from '../../lib/constants';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
+import { useViewSize, ViewSize } from '../../hooks';
 
 function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
   const router = useRouter();
   const atNotificationsPage = router.pathname === notificationsUrl;
   const { trackEvent } = useAnalyticsContext();
   const { unreadCount } = useNotificationContext();
-  const { isNewMobileLayout } = useMobileUxExperiment();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const hasNotification = !!unreadCount;
   const onNavigateNotifications = () => {
     trackEvent({
@@ -34,15 +34,10 @@ function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
       tooltip={{ placement: 'bottom', content: 'Notifications' }}
       href={`${webappUrl}notifications`}
     >
-      <div
-        className={classNames(
-          'relative laptop:flex',
-          !isNewMobileLayout && 'hidden',
-        )}
-      >
+      <div className="relative laptop:hidden">
         <Button
-          variant={isNewMobileLayout ? mobileVariant : ButtonVariant.Float}
-          className={classNames(isNewMobileLayout && 'justify-center')}
+          variant={isLaptop ? ButtonVariant.Float : mobileVariant}
+          className="justify-center laptop:justify-normal"
           onClick={onNavigateNotifications}
           icon={<BellIcon secondary={atNotificationsPage} />}
         />

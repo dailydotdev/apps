@@ -18,7 +18,6 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useFeedLayout, useViewSize, ViewSize } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { AllFeedPages } from '../../lib/query';
@@ -60,11 +59,11 @@ export const SearchControlHeader = ({
   const { sortingEnabled } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const { shouldUseMobileFeedLayout } = useFeedLayout();
-  const { isNewMobileLayout } = useMobileUxExperiment();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
 
-  if (isMobile && isNewMobileLayout) {
+  if (isMobile) {
     return null;
   }
 
@@ -79,9 +78,7 @@ export const SearchControlHeader = ({
       ? ButtonSize.Small
       : ButtonSize.Medium,
     iconOnly: true,
-    buttonVariant: isNewMobileLayout
-      ? ButtonVariant.Tertiary
-      : ButtonVariant.Float,
+    buttonVariant: isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary,
   };
   const actionButtons = [
     feedName === SharedFeedPage.MyFeed ? (
@@ -113,7 +110,7 @@ export const SearchControlHeader = ({
 
   return (
     <ConditionalWrapper
-      condition={isNewMobileLayout}
+      condition={!isLaptop}
       wrapper={(children) => (
         <div className="flex w-full items-center justify-between tablet:mb-2 tablet:p-4">
           <div className="flex-0">
