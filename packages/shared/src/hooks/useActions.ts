@@ -64,7 +64,7 @@ export const useActions = (): UseActions => {
 
         return {
           actions: [...old?.actions, optimisticAction],
-          serverLoaded: old?.serverLoaded,
+          serverLoaded: !!old?.serverLoaded,
         };
       });
 
