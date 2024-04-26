@@ -6,6 +6,7 @@ import { ArrowIcon } from '../icons';
 import { WithClassNameProps } from '../utilities';
 import { isDevelopment } from '../../lib/constants';
 import Logo, { LogoPosition } from '../Logo';
+import { useViewSize, ViewSize } from '../../hooks';
 
 const checkSameSite = () => {
   const referrer = globalThis?.document?.referrer;
@@ -25,6 +26,7 @@ export function GoBackHeaderMobile({
   className,
 }: PropsWithChildren<WithClassNameProps>): ReactElement {
   const router = useRouter();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const goHome = useCallback(() => router.push('/'), [router]);
   const logoButton = (
     <Logo onLogoClick={goHome} position={LogoPosition.Initial} />
@@ -33,8 +35,8 @@ export function GoBackHeaderMobile({
   const canGoBack =
     globalThis?.history?.length > 1 && (checkSameSite() || isDevelopment);
 
-  if (!canGoBack && !children) {
-    return logoButton;
+  if (isLaptop || !router?.isReady || !globalThis?.history) {
+    return null;
   }
 
   return (
