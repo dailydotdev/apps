@@ -2,7 +2,6 @@ import React, { MutableRefObject, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonProps, ButtonVariant } from '../../buttons/Button';
 import classed from '../../../lib/classed';
-import { ArrowIcon } from '../../icons';
 
 interface Copy {
   left?: string;
