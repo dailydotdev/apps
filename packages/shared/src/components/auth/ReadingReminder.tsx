@@ -162,6 +162,7 @@ export const ReadingReminder = ({
           selectedIndex={customTimeIndex}
           options={ReadingReminderTimeOptions}
           onChange={(_, index) => setCustomTimeIndex(index)}
+          scrollable
         />
       )}
       <Alert
