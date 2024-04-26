@@ -2,6 +2,7 @@ import React, { MutableRefObject, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonProps, ButtonVariant } from '../../buttons/Button';
 import classed from '../../../lib/classed';
+import { ArrowIcon } from '../../icons';
 
 interface Copy {
   left?: string;
@@ -20,7 +21,7 @@ export interface FormWrapperProps {
   leftButtonProps?: ButtonProps<'button'>;
   rightButtonProps?: ButtonProps<'button'>;
   title?: string;
-  isTitleBesideCancel?: boolean;
+  isCancelArrow?: boolean;
   headerRef?: MutableRefObject<HTMLDivElement>;
 }
 
@@ -34,14 +35,14 @@ export function FormWrapper({
   leftButtonProps = {},
   rightButtonProps = {},
   title,
-  isTitleBesideCancel,
+  isCancelArrow,
   headerRef,
 }: FormWrapperProps): ReactElement {
   const { left = 'Cancel', right = 'Submit' } = copy;
   const titleElement = (
     <Title
       className={classNames(
-        !isTitleBesideCancel && 'mt-5',
+        !isCancelArrow && 'mt-5',
         className?.title ?? 'typo-body',
       )}
     >
@@ -58,10 +59,14 @@ export function FormWrapper({
         )}
         ref={headerRef}
       >
-        <Button {...leftButtonProps} variant={ButtonVariant.Tertiary}>
-          {left}
+        <Button
+          {...leftButtonProps}
+          icon={isCancelArrow ? <ArrowIcon className="-rotate-90" /> : null}
+          variant={ButtonVariant.Tertiary}
+        >
+          {isCancelArrow ? null : left}
         </Button>
-        {isTitleBesideCancel && title && titleElement}
+        {isCancelArrow && title && titleElement}
         <Button
           {...rightButtonProps}
           variant={ButtonVariant.Primary}
@@ -71,7 +76,7 @@ export function FormWrapper({
           {right}
         </Button>
       </div>
-      {!isTitleBesideCancel && title && titleElement}
+      {!isCancelArrow && title && titleElement}
       {children}
     </div>
   );
