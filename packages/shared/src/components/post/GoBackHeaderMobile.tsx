@@ -35,7 +35,7 @@ export function GoBackHeaderMobile({
   const canGoBack =
     globalThis?.history?.length > 1 && (checkSameSite() || isDevelopment);
 
-  if (isLaptop) {
+  if (isLaptop || !router?.isReady || !globalThis?.history) {
     return null;
   }
 
