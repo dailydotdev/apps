@@ -144,7 +144,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
       >
         <SearchPanelInput
           className={{
-            container: classNames('w-full laptop:w-[35rem]'),
+            container: classNames('w-full laptop:max-w-[35rem]'),
             field: className?.field,
           }}
           valueChanged={(newValue) => {

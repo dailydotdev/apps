@@ -31,7 +31,7 @@ export const useEasterEggTheme = (): UseEasterEggThemeResult | undefined => {
   const theme = isLight ? ThemeMode.Light : ThemeMode.Dark;
 
   useLayoutEffect(() => {
-    const elem = globalThis?.document?.getElementById('__next');
+    const elem = globalThis?.document?.body;
 
     // reset body styles
     if (elem?.style?.cssText) {

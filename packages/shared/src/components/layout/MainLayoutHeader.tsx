@@ -107,7 +107,7 @@ function MainLayoutHeader({
       <SearchPanel
         className={{
           container: classNames(
-            'mx-auto bg-background-default py-3 laptop:bg-transparent',
+            'mx-auto flex-1 items-center bg-background-default py-3 laptop:bg-transparent',
             isNewMobileLayout
               ? 'left-0 top-0 z-header tablet:left-16'
               : 'left-0 top-14',
