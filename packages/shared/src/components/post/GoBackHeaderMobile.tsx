@@ -29,7 +29,11 @@ export function GoBackHeaderMobile({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const goHome = useCallback(() => router.push('/'), [router]);
   const logoButton = (
-    <Logo onLogoClick={goHome} position={LogoPosition.Initial} />
+    <Logo
+      className="my-2"
+      onLogoClick={goHome}
+      position={LogoPosition.Initial}
+    />
   );
 
   const canGoBack =
