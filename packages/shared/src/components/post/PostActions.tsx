@@ -159,8 +159,7 @@ export function PostActions({
             icon={<CommentIcon secondary={post.commented} />}
             aria-label="Comment"
             responsiveLabelClass={actionsClassName}
-            variant={ButtonVariant.Tertiary}
-            color={ButtonColor.BlueCheese}
+            className="btn-tertiary-blueCheese"
           >
             Comment
           </QuaternaryButton>
@@ -180,9 +179,10 @@ export function PostActions({
             onClick={() => onCopyLinkClick(post)}
             icon={<LinkIcon />}
             responsiveLabelClass={actionsClassName}
-            className={shareExperience && 'hidden tablet:flex'}
-            variant={ButtonVariant.Tertiary}
-            color={ButtonColor.Cabbage}
+            className={classNames(
+              'btn-tertiary-cabbage',
+              shareExperience && 'hidden tablet:flex',
+            )}
           >
             Copy
           </QuaternaryButton>
@@ -192,9 +192,7 @@ export function PostActions({
               onClick={() => openNativeShareOrPopup({ post })}
               icon={<ShareIcon />}
               responsiveLabelClass={actionsClassName}
-              className="flex tablet:hidden"
-              variant={ButtonVariant.Tertiary}
-              color={ButtonColor.Cabbage}
+              className="btn-tertiary-cabbage flex tablet:hidden"
             />
           )}
         </div>
