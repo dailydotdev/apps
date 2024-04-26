@@ -140,7 +140,7 @@ function AuthOptions({
 
   const onSetActiveDisplay = (display: AuthDisplay) => {
     onDisplayChange?.(display);
-    onAuthStateUpdate({ isLoading: false });
+    onAuthStateUpdate?.({ isLoading: false });
     setActiveDisplay(display);
   };
 
@@ -261,7 +261,7 @@ function AuthOptions({
     windowPopup.current = window.open();
     setChosenProvider(provider);
     await onSocialRegistration(provider);
-    onAuthStateUpdate({ isLoading: true });
+    onAuthStateUpdate?.({ isLoading: true });
   };
 
   const onForgotPasswordSubmit = (inputEmail: string, inputFlow: string) => {

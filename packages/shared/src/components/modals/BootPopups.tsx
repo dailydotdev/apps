@@ -65,9 +65,19 @@ export const BootPopups = (): null => {
       addBootPopup({
         type: LazyModal.ReputationPrivileges,
         persistOnRouteChange: true,
+        props: {
+          onAfterClose: () => {
+            updateLastBootPopup();
+          },
+        },
       });
     }
-  }, [checkHasCompleted, isActionsFetched, user?.reputation]);
+  }, [
+    checkHasCompleted,
+    isActionsFetched,
+    user?.reputation,
+    updateLastBootPopup,
+  ]);
 
   /**
    * Boot popup based on marketing CTA
@@ -85,10 +95,13 @@ export const BootPopups = (): null => {
               target_id: marketingCta.campaignId,
             });
           },
+          onAfterClose: () => {
+            updateLastBootPopup();
+          },
         },
       });
     }
-  }, [marketingCta, trackEvent]);
+  }, [marketingCta, trackEvent, updateLastBootPopup]);
 
   /** *
    * Boot popup for generic referral campaign
@@ -100,8 +113,13 @@ export const BootPopups = (): null => {
 
     addBootPopup({
       type: LazyModal.GenericReferral,
+      props: {
+        onAfterOpen: () => {
+          updateLastBootPopup();
+        },
+      },
     });
-  }, [alerts?.showGenericReferral]);
+  }, [alerts?.showGenericReferral, updateLastBootPopup]);
 
   /**
    * Boot popup for migrate streaks
@@ -116,11 +134,17 @@ export const BootPopups = (): null => {
       props: {
         marketingCta: promotion.migrateStreaks,
         onAfterOpen: () => {
+          updateLastBootPopup();
           completeAction(ActionType.ExistingUserSeenStreaks);
         },
       },
     });
-  }, [completeAction, isActionsFetched, shouldShowStreaksPopup]);
+  }, [
+    completeAction,
+    isActionsFetched,
+    shouldShowStreaksPopup,
+    updateLastBootPopup,
+  ]);
 
   /**
    * Boot popup for streaks milestone
@@ -136,11 +160,12 @@ export const BootPopups = (): null => {
         currentStreak: streak?.current,
         maxStreak: streak?.max,
         onAfterClose: () => {
+          updateLastBootPopup();
           updateAlerts({ showStreakMilestone: false });
         },
       },
     });
-  }, [shouldHideStreaksModal, streak, updateAlerts]);
+  }, [shouldHideStreaksModal, streak, updateAlerts, updateLastBootPopup]);
 
   /**
    * Actual rendering of the boot popup that's first in line
@@ -150,15 +175,8 @@ export const BootPopups = (): null => {
       return;
     }
     openModal(bootPopups.values().next().value);
-    updateLastBootPopup();
     setBootPopups(new Map());
-  }, [
-    alerts?.bootPopup,
-    bootPopups,
-    loadedAlerts,
-    openModal,
-    updateLastBootPopup,
-  ]);
+  }, [alerts?.bootPopup, bootPopups, loadedAlerts, openModal]);
 
   return null;
 };
