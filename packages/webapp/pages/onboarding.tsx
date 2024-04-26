@@ -392,7 +392,7 @@ export function OnboardPage(): ReactElement {
   }
 
   return (
-    <div className="z-max flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden bg-[#0e1019]">
+    <div className="z-index flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden bg-[#0e1019]">
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <PixelTracking />
       <GtagTracking />
