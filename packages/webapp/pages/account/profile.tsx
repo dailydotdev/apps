@@ -196,9 +196,10 @@ const AccountProfilePage = (): ReactElement => {
             defaultValue={user.experienceLevel}
             name="experienceLevel"
             className={{
-              container: 'mt-6 max-w-sm',
+              container: 'mt-6 max-w-sm tablet:relative',
               button:
                 'hover:shadow-[inset_0.125rem_0_0_var(--theme-text-primary)]',
+              menu: 'absolute !left-0 !right-0 !top-[3.5rem] transform-none',
             }}
           />
         )}
