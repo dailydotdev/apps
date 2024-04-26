@@ -34,10 +34,10 @@ function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
       tooltip={{ placement: 'bottom', content: 'Notifications' }}
       href={`${webappUrl}notifications`}
     >
-      <div className="relative laptop:hidden">
+      <div className="relative laptop:flex">
         <Button
           variant={isLaptop ? ButtonVariant.Float : mobileVariant}
-          className="justify-center laptop:justify-normal"
+          className="justify-center"
           onClick={onNavigateNotifications}
           icon={<BellIcon secondary={atNotificationsPage} />}
         />
