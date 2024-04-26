@@ -41,7 +41,7 @@ interface SquadStatProps {
 
 const SquadStat = ({ count, label }: SquadStatProps) => (
   <span className="flex flex-row text-text-tertiary typo-footnote">
-    <sup className="mr-1 font-bold text-text-primary typo-subhead">{count}</sup>
+    <strong className="mr-1 text-text-primary typo-subhead">{count}</strong>
     {label}
   </span>
 );
