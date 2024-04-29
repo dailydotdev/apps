@@ -200,8 +200,22 @@ export const SQUAD_QUERY = gql`
     source(id: $handle) {
       ...SourceBaseInfo
       referralUrl
+      createdAt
+      flags {
+        featured
+        totalPosts
+        totalViews
+        totalUpvotes
+      }
+      privilegedMembers {
+        user {
+          ...UserShortInfo
+        }
+        role
+      }
     }
   }
+  ${USER_SHORT_INFO_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}
 `;
 
