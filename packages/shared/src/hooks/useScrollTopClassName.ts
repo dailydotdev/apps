@@ -2,23 +2,23 @@ import { useState } from 'react';
 import { useScrollTopOffset } from './useScrollTopOffset';
 
 interface UseScrollTopStyleProps {
-  scrolledClassName: string;
+  scrolledClassName?: string;
   defaultClassName?: string;
   scrollProperty?: 'scrollTop' | 'scrollY';
   offset?: number;
 }
 
 export const useScrollTopClassName = ({
-  scrolledClassName,
-  defaultClassName,
+  scrolledClassName = 'bg-background-default',
+  defaultClassName = 'bg-transparent',
   scrollProperty = 'scrollY',
   offset = 0,
-}: UseScrollTopStyleProps): string => {
+}: UseScrollTopStyleProps = {}): string => {
   const [isScrolled, setScrolled] = useState(true);
 
   useScrollTopOffset(() => globalThis?.window, {
-    onOverOffset: () => setScrolled(false),
-    onUnderOffset: () => setScrolled(true),
+    onOverOffset: () => setScrolled(true),
+    onUnderOffset: () => setScrolled(false),
     offset,
     scrollProperty,
   });

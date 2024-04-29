@@ -51,10 +51,7 @@ function FeedNav(): ReactElement {
     [0, 1],
     DEFAULT_ALGORITHM_INDEX,
   );
-  const scrollClassName = useScrollTopClassName({
-    scrolledClassName: 'bg-transparent',
-    defaultClassName: 'bg-background-default',
-  });
+  const scrollClassName = useScrollTopClassName();
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
