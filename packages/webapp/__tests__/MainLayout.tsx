@@ -3,6 +3,7 @@ import { render, RenderResult, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
+import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import MainLayout from '../components/layouts/MainLayout';
 
 describe('MainLayout', () => {
@@ -10,6 +11,7 @@ describe('MainLayout', () => {
 
   beforeEach(() => {
     showLogin.mockReset();
+    jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
   });
 
   const renderLayout = (user: LoggedUser = null): RenderResult => {
@@ -44,6 +46,6 @@ describe('MainLayout', () => {
     });
     const [el] = await screen.findAllByAltText(`idoshamun's profile`);
     expect(el).toHaveAttribute('src', 'https://daily.dev/ido.png');
-    expect(await screen.findAllByText('5')).toHaveLength(2);
+    expect(screen.getByText('5')).toBeInTheDocument();
   });
 });
