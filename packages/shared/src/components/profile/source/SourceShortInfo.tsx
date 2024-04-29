@@ -24,7 +24,7 @@ export function SourceShortInfo({
   return (
     <FlexRow className={className}>
       <SourceAvatar source={source} size={size} />
-      <span className="flex flex-col typo-callout">
+      <span className="flex flex-col items-start typo-callout">
         <h3 className="font-bold">{source.name}</h3>
         <p className="text-text-quaternary">@{source.handle}</p>
       </span>
