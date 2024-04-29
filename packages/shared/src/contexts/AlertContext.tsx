@@ -5,6 +5,7 @@ import {
   Alerts,
   AlertsUpdate,
   UPDATE_ALERTS,
+  UPDATE_LAST_BOOT_POPUP,
   UPDATE_LAST_REFERRAL_REMINDER,
 } from '../graphql/alerts';
 import { graphqlUrl } from '../lib/config';
@@ -16,6 +17,7 @@ export const ALERT_DEFAULTS: Alerts = {
   squadTour: true,
   showGenericReferral: false,
   showStreakMilestone: false,
+  lastBootPopup: null,
 };
 
 export interface AlertContextData {
@@ -29,6 +31,7 @@ export interface AlertContextData {
     () => Promise<void>
   >;
   updateLastReferralReminder?: UseMutateAsyncFunction;
+  updateLastBootPopup?: UseMutateAsyncFunction;
 }
 
 export const MAX_DATE = new Date(3021, 0, 1);
@@ -45,6 +48,7 @@ export interface AlertContextProviderProps {
   loadedAlerts?: boolean;
   updateAlerts?: (alerts: Alerts) => unknown;
   updateLastReferralReminder?: () => unknown;
+  updateLastBootPopup?: () => unknown;
 }
 
 export const AlertContextProvider = ({
@@ -93,6 +97,25 @@ export const AlertContextProvider = ({
     },
   );
 
+  const { mutateAsync: updateLastBootPopup } = useMutation(
+    () => request(graphqlUrl, UPDATE_LAST_BOOT_POPUP),
+    {
+      onMutate: () =>
+        updateAlerts({
+          ...alerts,
+          lastBootPopup: new Date(),
+          bootPopup: false,
+        }),
+      onError: () => {
+        updateAlerts({
+          ...alerts,
+          lastBootPopup: null,
+          bootPopup: true,
+        });
+      },
+    },
+  );
+
   const alertContextData = useMemo<AlertContextData>(
     () => ({
       alerts,
@@ -100,6 +123,7 @@ export const AlertContextProvider = ({
       loadedAlerts,
       updateAlerts: updateRemoteAlerts,
       updateLastReferralReminder,
+      updateLastBootPopup,
     }),
     [
       alerts,
@@ -107,6 +131,7 @@ export const AlertContextProvider = ({
       isFetched,
       updateRemoteAlerts,
       updateLastReferralReminder,
+      updateLastBootPopup,
     ],
   );
 

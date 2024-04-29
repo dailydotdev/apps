@@ -8,7 +8,6 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import classNames from 'classnames';
-import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import styles from './NavBar.module.css';
 
 export type Tab = { path: string; title: string };
@@ -42,17 +41,14 @@ export default function NavBar({
   selectedTab,
   profile,
 }: NavBarProps): ReactElement {
-  const { isNewMobileLayout } = useMobileUxExperiment();
-
   const getTabHref = (tab: Tab) =>
     tab.path.replace('[userId]', profile.username || profile.id);
 
   return (
     <div
       className={classNames(
-        'sticky top-12 z-3 -mt-px flex justify-around bg-background-default tablet:top-14 tablet:justify-start',
+        'sticky top-12 z-3 -mt-px flex justify-around bg-background-default tablet:top-0 tablet:justify-start laptop:top-14',
         styles.nav,
-        isNewMobileLayout && 'tablet:!top-0',
       )}
     >
       {tabs.map((tab, index) => (

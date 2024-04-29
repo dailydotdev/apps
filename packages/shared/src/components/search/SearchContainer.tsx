@@ -20,7 +20,7 @@ export function SearchContainer({
   chunk,
 }: SearchContainerProps): React.ReactElement {
   return (
-    <div className="m-auto grid w-full max-w-screen-laptopL grid-cols-1 gap-y-6 py-8 laptop:grid-cols-3">
+    <div className="m-auto mt-14 grid w-full max-w-screen-laptopL grid-cols-1 gap-y-6 py-8 laptop:mt-auto laptop:grid-cols-3">
       <main className="col-span-2 flex flex-col px-4 laptop:px-8">
         {isLoading ? (
           <>

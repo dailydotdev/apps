@@ -16,7 +16,6 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { LogoPosition } from '../Logo';
-import { useMobileUxExperiment } from '../../hooks/useMobileUxExperiment';
 import NotificationsBell from '../notifications/NotificationsBell';
 import FeedNav from '../feeds/FeedNav';
 import { useEasterEggTheme } from '../../hooks/utils/useEasterEggTheme';
@@ -52,12 +51,12 @@ function MainLayoutHeader({
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
-  const { isNewMobileLayout } = useMobileUxExperiment();
   const easterEggTheme = useEasterEggTheme();
   const scrollClassName = useScrollTopClassName({
     scrolledClassName: 'bg-transparent',
     defaultClassName: 'bg-background-default',
   });
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const headerButton = (() => {
     if (!user) {
@@ -107,10 +106,7 @@ function MainLayoutHeader({
       <SearchPanel
         className={{
           container: classNames(
-            'mx-auto flex-1 items-center bg-background-default py-3 laptop:bg-transparent',
-            isNewMobileLayout
-              ? 'left-0 top-0 z-header tablet:left-16'
-              : 'left-0 top-14',
+            'left-0 top-0 z-header mx-auto flex-1 items-center bg-background-default py-3 tablet:left-16 laptop:left-0 laptop:bg-transparent',
             isSearchPage
               ? 'absolute right-0 laptop:relative laptop:top-0'
               : 'hidden laptop:flex',
@@ -120,7 +116,7 @@ function MainLayoutHeader({
       />
     );
 
-  if (isNewMobileLayout) {
+  if (!isLaptop) {
     return (
       <>
         <FeedNav />

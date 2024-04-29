@@ -85,6 +85,7 @@ beforeEach(() => {
     () =>
       ({
         isFallback: false,
+        isReady: true,
         query: {},
       } as unknown as NextRouter),
   );
@@ -249,7 +250,7 @@ it('should display the "read post" link on mobile resolutions', async () => {
   Object.defineProperty(global, 'matchMedia', {
     writable: true,
     value: jest.fn().mockImplementation((query) => ({
-      matches: query.includes('1020'),
+      matches: query.includes('420'),
       addListener: jest.fn(),
       removeListener: jest.fn(),
     })),

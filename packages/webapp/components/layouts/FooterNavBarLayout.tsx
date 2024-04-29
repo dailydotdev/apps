@@ -1,9 +1,7 @@
-import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
+import React, { ReactElement, ReactNode, useContext } from 'react';
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { useMobileUxExperiment } from '@dailydotdev/shared/src/hooks/useMobileUxExperiment';
 import { Post } from '@dailydotdev/shared/src/graphql/posts';
 
 const FooterNavBar = dynamic(
@@ -20,21 +18,9 @@ export default function FooterNavBarLayout({
   post,
 }: FooterNavBarLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
-  const { sidebarRendered } = useSidebarRendered();
-  const { isNewMobileLayout } = useMobileUxExperiment();
-  const isTablet = useViewSize(ViewSize.Tablet);
+  const isMobile = useViewSize(ViewSize.MobileL);
 
-  const showNav = useMemo(() => {
-    if (!windowLoaded) {
-      return false;
-    }
-
-    if (isNewMobileLayout) {
-      return !isTablet;
-    }
-
-    return sidebarRendered === false;
-  }, [isNewMobileLayout, windowLoaded, isTablet, sidebarRendered]);
+  const showNav = windowLoaded && isMobile;
 
   return (
     <>
