@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import SVG from 'react-inlinesvg';
 import classNames from 'classnames';
 import { CSSTransition } from 'react-transition-group';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
@@ -32,7 +31,7 @@ const LogoSvgElem = ({
   fallback: FallbackElem,
 }: LogoSvgElemProps): ReactElement => {
   if (src) {
-    return <SVG src={src} className={className} />;
+    return <img src={src} className={className} />;
   }
   return <FallbackElem className={className} />;
 };

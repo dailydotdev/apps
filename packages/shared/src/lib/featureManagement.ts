@@ -21,28 +21,26 @@ export class Feature<T extends JSONValue> {
 const eTheme = {
   version: 1,
   light: {
-    logo: 'https://res.cloudinary.com/daily-now/image/upload/s--sPHXHbbd--/f_auto/v1714049911/public/sw-logo',
+    logo: 'https://daily-now-res.cloudinary.com/image/upload/s--7RocpMdi--/q_auto/v1714401089/feature-theme/sw-logo-light',
     logoText:
-      'https://res.cloudinary.com/daily-now/image/upload/s--t70tDZFe--/f_auto/v1714049911/public/sw-logo-text',
+      'https://daily-now-res.cloudinary.com/image/upload/s--KEtXuZmE--/q_auto/v1714401089/feature-theme/sw-logo-text-light',
     body: {
       background: `url('https://res.cloudinary.com/daily-now/image/upload/s--AyMCeVaQ--/f_auto/v1713647013/public/Star%20wars%20bg') 50% / contain, var(--theme-background-default)`,
       'background-blend-mode': 'difference, normal',
-      '--theme-starwars-primary': 'var(--theme-surface-primary)',
     },
-    navbar: '!border-[var(--theme-starwars-primary)]',
+    navbar: '!border-[var(--theme-surface-primary)]',
   },
   dark: {
-    logo: 'https://daily-now-res.cloudinary.com/image/upload/v1714049911/public/sw-logo.svg',
+    logo: 'https://daily-now-res.cloudinary.com/image/upload/s--M8Oh5ojp--/q_auto/v1714401089/feature-theme/sw-logo-dark',
     logoText:
-      'https://daily-now-res.cloudinary.com/image/upload/v1714049911/public/sw-logo-text.svg',
+      'https://daily-now-res.cloudinary.com/image/upload/s--ovb1rR2S--/q_auto/v1714401089/feature-theme/sw-logo-text-dark',
     body: {
       background: `url('https://res.cloudinary.com/daily-now/image/upload/s--AyMCeVaQ--/f_auto/v1713647013/public/Star%20wars%20bg') 50% / contain, var(--theme-background-default)`,
-      '--theme-starwars-primary': '#fae610',
     },
-    navbar: '!border-[var(--theme-starwars-primary)]',
+    navbar: '!border-[#fae610]',
   },
   cursor:
-    'https://res.cloudinary.com/daily-now/image/upload/s--53WBJl29--/f_auto/v1714049911/public/cursor_optimized_crop',
+    'https://daily-now-res.cloudinary.com/image/upload/s--HrncIFqV--/q_auto/v1714401157/feature-theme/cursor_purple',
 };
 
 const feature = {

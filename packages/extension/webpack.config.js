@@ -53,7 +53,6 @@ const baseConfig = {
     extensions: ['.svg', '.ts', '.tsx', '.js', '.json'],
     alias: {
       'react-onesignal': false,
-      'react/jsx-runtime': 'react/jsx-runtime.js',
     },
   },
 

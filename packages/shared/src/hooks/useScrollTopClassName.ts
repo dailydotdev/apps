@@ -14,7 +14,7 @@ export const useScrollTopClassName = ({
   scrollProperty = 'scrollY',
   offset = 0,
 }: UseScrollTopStyleProps = {}): string => {
-  const [isScrolled, setScrolled] = useState(true);
+  const [isScrolled, setScrolled] = useState(false);
 
   useScrollTopOffset(() => globalThis?.window, {
     onOverOffset: () => setScrolled(true),
