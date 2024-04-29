@@ -48,12 +48,13 @@ export function SquadHeaderBar({
   const totalStepsCount = steps.length;
   const checklistTooltipText = `${completedStepsCount}/${totalStepsCount}`;
   const showJoinButton = squad.public && !squad.currentMember;
+  const firstItemClasses = 'order-5 tablet:order-1';
 
   return (
     <div
       {...props}
       className={classNames(
-        'no-scrollbar flex h-fit w-full flex-row justify-center gap-4 overflow-x-auto pr-4 tablet:w-auto tablet:pr-0',
+        'flex h-fit w-full flex-row flex-wrap justify-center gap-4 tablet:w-auto',
         className,
       )}
     >
@@ -61,7 +62,7 @@ export function SquadHeaderBar({
         <Button
           variant={ButtonVariant.Secondary}
           className={classNames(
-            'ml-14 tablet:ml-0',
+            firstItemClasses,
             tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
           )}
           onClick={() => {
@@ -75,12 +76,19 @@ export function SquadHeaderBar({
       )}
       {showJoinButton && (
         <SquadJoinButton
-          className="flex w-full flex-1 tablet:ml-auto tablet:w-auto tablet:flex-initial"
+          className={classNames(
+            'flex w-full flex-1 tablet:ml-auto tablet:w-auto tablet:flex-initial',
+            firstItemClasses,
+          )}
           squad={squad}
           origin={Origin.SquadPage}
         />
       )}
-      <SquadMemberShortList squad={squad} members={members} />
+      <SquadMemberShortList
+        className="tablet:2 order-1"
+        squad={squad}
+        members={members}
+      />
       {!!squad.currentMember && (
         <SimpleTooltip
           forceLoad={!isTesting}
@@ -94,6 +102,7 @@ export function SquadHeaderBar({
         >
           <Button
             data-testid="squad-checklist-button"
+            className="tablet:3 order-2"
             variant={ButtonVariant.Float}
             icon={<ChecklistBIcon secondary size={IconSize.Small} />}
             onClick={() => {
@@ -110,6 +119,7 @@ export function SquadHeaderBar({
         >
           <Button
             data-testid="squad-notification-button"
+            className="tablet:4 order-3"
             variant={ButtonVariant.Float}
             icon={
               <BellIcon
@@ -128,6 +138,7 @@ export function SquadHeaderBar({
       )}
       <SimpleTooltip placement="top" content="Squad options">
         <Button
+          className="tablet:5 order-4"
           variant={ButtonVariant.Float}
           icon={<MenuIcon size={IconSize.Small} />}
           onClick={onMenuClick}
