@@ -18,7 +18,7 @@ import { useReadingStreak } from '../../hooks/streaks';
 import { LogoPosition } from '../Logo';
 import NotificationsBell from '../notifications/NotificationsBell';
 import FeedNav from '../feeds/FeedNav';
-import { useEasterEggTheme } from '../../hooks/utils/useEasterEggTheme';
+import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 
 export interface MainLayoutHeaderProps {
@@ -51,7 +51,7 @@ function MainLayoutHeader({
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
-  const easterEggTheme = useEasterEggTheme();
+  const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({
     scrolledClassName: 'bg-transparent',
     defaultClassName: 'bg-background-default',
@@ -131,7 +131,7 @@ function MainLayoutHeader({
         'sticky top-0 z-header flex h-14 flex-row items-center justify-between gap-3 border-b border-border-subtlest-tertiary px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:flex-row laptop:px-4',
         hasBanner && 'laptop:top-8',
         isSearchPage && 'mb-16 laptop:mb-0',
-        easterEggTheme && easterEggTheme.navbar,
+        featureTheme && featureTheme.navbar,
         scrollClassName,
       )}
     >

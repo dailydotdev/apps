@@ -2,7 +2,7 @@ import React, { ReactElement, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { LoggedUser } from '../../lib/user';
 import Logo, { LogoPosition } from '../Logo';
-import { useEasterEggTheme } from '../../hooks/utils/useEasterEggTheme';
+import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 
 const Greeting = dynamic(
   () => import(/* webpackChunkName: "greeting" */ '../Greeting'),
@@ -22,7 +22,7 @@ function HeaderLogo({
   position,
 }: HeaderLogoProps): ReactElement {
   const [showGreeting, setShowGreeting] = useState(false);
-  const easterEggTheme = useEasterEggTheme();
+  const featureTheme = useFeatureTheme();
 
   return (
     <>
@@ -30,7 +30,7 @@ function HeaderLogo({
         position={position}
         onLogoClick={onLogoClick}
         showGreeting={showGreeting}
-        easterEggTheme={easterEggTheme}
+        featureTheme={featureTheme}
       />
       {greeting && (
         <Greeting

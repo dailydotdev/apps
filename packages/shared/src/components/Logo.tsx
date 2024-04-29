@@ -45,7 +45,7 @@ interface LogoProps {
   hideTextMobile?: boolean;
   compact?: boolean;
   position?: LogoPosition;
-  easterEggTheme?: {
+  featureTheme?: {
     logo?: string;
     logoText?: string;
   };
@@ -59,7 +59,7 @@ export default function Logo({
   hideTextMobile = false,
   compact = false,
   position = LogoPosition.Absolute,
-  easterEggTheme,
+  featureTheme,
 }: LogoProps): ReactElement {
   return (
     <LinkWithTooltip
@@ -79,7 +79,7 @@ export default function Logo({
       >
         <LogoSvgElem
           className={logoClassName}
-          src={easterEggTheme?.logo}
+          src={featureTheme?.logo}
           fallback={LogoIcon}
         />
         {!compact && (
@@ -95,7 +95,7 @@ export default function Logo({
                 logoClassName,
                 hideTextMobile && 'hidden laptop:block',
               )}
-              src={easterEggTheme?.logoText}
+              src={featureTheme?.logoText}
               fallback={LogoText}
             />
           </CSSTransition>

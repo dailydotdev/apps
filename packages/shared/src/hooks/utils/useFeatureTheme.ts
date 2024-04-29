@@ -4,7 +4,7 @@ import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
 import { useFeature } from '../../components/GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 
-interface UseEasterEggThemeResult {
+interface UseFeatureThemeResult {
   version: number;
   logo?: string;
   logoText?: string;
@@ -13,12 +13,12 @@ interface UseEasterEggThemeResult {
   cursor?: string;
 }
 
-export const useEasterEggTheme = (): UseEasterEggThemeResult | undefined => {
+export const useFeatureTheme = (): UseFeatureThemeResult | undefined => {
   const { themeMode } = useSettingsContext();
-  const easterEggTheme = useFeature(feature.easterEggTheme);
+  const featureTheme = useFeature(feature.featureTheme);
   const router = useRouter();
   const isOnboarding = router?.pathname?.startsWith('/onboarding') ?? false;
-  const useTheme = !isOnboarding && !!easterEggTheme;
+  const useTheme = !isOnboarding && !!featureTheme;
 
   const isLight = useMemo(() => {
     if (themeMode === ThemeMode.Auto) {
@@ -42,22 +42,19 @@ export const useEasterEggTheme = (): UseEasterEggThemeResult | undefined => {
       return;
     }
 
-    if (easterEggTheme?.[theme]?.body) {
-      Object.entries(easterEggTheme[theme]?.body).forEach(([key, value]) => {
+    if (featureTheme?.[theme]?.body) {
+      Object.entries(featureTheme[theme]?.body).forEach(([key, value]) => {
         elem?.style?.setProperty(key, value);
       });
     }
 
-    if (easterEggTheme?.cursor) {
-      elem?.style?.setProperty(
-        'cursor',
-        `url('${easterEggTheme.cursor}'), auto`,
-      );
+    if (featureTheme?.cursor) {
+      elem?.style?.setProperty('cursor', `url('${featureTheme.cursor}'), auto`);
     }
-  }, [easterEggTheme, theme, useTheme]);
+  }, [featureTheme, theme, useTheme]);
 
   if (useTheme) {
-    const { light, dark, ...rest } = easterEggTheme;
+    const { light, dark, ...rest } = featureTheme;
     const themeProps = isLight ? light : dark;
 
     return { ...rest, ...themeProps };

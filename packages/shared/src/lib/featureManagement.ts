@@ -76,7 +76,7 @@ const feature = {
     'experience_level',
     ExperienceLevelExperiment.Control,
   ),
-  easterEggTheme: new Feature('easter_egg_theme', eTheme),
+  featureTheme: new Feature('feature_theme', eTheme),
 };
 
 export { feature };

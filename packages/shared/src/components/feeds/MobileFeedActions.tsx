@@ -9,13 +9,13 @@ import NotificationsBell from '../notifications/NotificationsBell';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useReadingStreak } from '../../hooks/streaks';
 import { ButtonIconPosition } from '../buttons/common';
-import { useEasterEggTheme } from '../../hooks/utils/useEasterEggTheme';
+import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 
 export function MobileFeedActions(): ReactElement {
   const router = useRouter();
   const { openModal } = useLazyModal();
   const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
-  const easterEggTheme = useEasterEggTheme();
+  const featureTheme = useFeatureTheme();
 
   return (
     <div className="flex flex-row justify-between px-4 py-1">
@@ -23,7 +23,7 @@ export function MobileFeedActions(): ReactElement {
         showGreeting={false}
         position={LogoPosition.Relative}
         onLogoClick={() => router.push('/')}
-        easterEggTheme={easterEggTheme}
+        featureTheme={featureTheme}
       />
       <span className="flex flex-row items-center gap-2">
         {isStreaksEnabled && (

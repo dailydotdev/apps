@@ -6,7 +6,7 @@ import { ArrowIcon } from '../icons';
 import { WithClassNameProps } from '../utilities';
 import { isDevelopment } from '../../lib/constants';
 import Logo, { LogoPosition } from '../Logo';
-import { useEasterEggTheme } from '../../hooks/utils/useEasterEggTheme';
+import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useViewSize, ViewSize } from '../../hooks';
 
@@ -30,7 +30,7 @@ export function GoBackHeaderMobile({
   const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const goHome = useCallback(() => router.push('/'), [router]);
-  const easterEggTheme = useEasterEggTheme();
+  const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({
     scrolledClassName: 'bg-transparent',
     defaultClassName: 'bg-background-default',
@@ -41,7 +41,7 @@ export function GoBackHeaderMobile({
       className="my-2"
       onLogoClick={goHome}
       position={LogoPosition.Initial}
-      easterEggTheme={easterEggTheme}
+      featureTheme={featureTheme}
     />
   );
 
