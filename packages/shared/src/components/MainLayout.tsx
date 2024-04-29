@@ -77,12 +77,8 @@ function MainLayoutComponent({
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
-  const {
-    sidebarExpanded,
-    optOutWeeklyGoal,
-    autoDismissNotifications,
-    loadedSettings,
-  } = useContext(SettingsContext);
+  const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
+    useContext(SettingsContext);
   const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
 
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
@@ -167,7 +163,7 @@ function MainLayoutComponent({
 
   if (
     (!isPageReady && isPageApplicableForOnboarding) ||
-    shouldRedirectOnboarding ||
+    shouldRedirectOnboarding
   ) {
     return null;
   }
@@ -195,9 +191,7 @@ function MainLayoutComponent({
         className={classNames(
           'flex flex-col tablet:pl-16 laptop:pl-11',
           className,
-            !isScreenCentered &&
-            sidebarExpanded &&
-            'laptop:!pl-60',
+          !isScreenCentered && sidebarExpanded && 'laptop:!pl-60',
           isBannerAvailable && 'laptop:pt-8',
         )}
       >
