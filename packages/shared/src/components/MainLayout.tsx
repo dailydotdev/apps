@@ -77,8 +77,12 @@ function MainLayoutComponent({
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
-  const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
-    useContext(SettingsContext);
+  const {
+    sidebarExpanded,
+    optOutWeeklyGoal,
+    autoDismissNotifications,
+    loadedSettings,
+  } = useContext(SettingsContext);
   const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
 
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
@@ -163,7 +167,8 @@ function MainLayoutComponent({
 
   if (
     (!isPageReady && isPageApplicableForOnboarding) ||
-    shouldRedirectOnboarding
+    shouldRedirectOnboarding ||
+    !loadedSettings
   ) {
     return null;
   }
