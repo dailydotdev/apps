@@ -191,10 +191,7 @@ function MainLayoutComponent({
         className={classNames(
           'flex flex-col tablet:pl-16 laptop:pl-11',
           className,
-          isAuthReady &&
-            !isScreenCentered &&
-            sidebarExpanded &&
-            'laptop:!pl-60',
+          !isScreenCentered && sidebarExpanded && 'laptop:!pl-60',
           isBannerAvailable && 'laptop:pt-8',
         )}
       >
