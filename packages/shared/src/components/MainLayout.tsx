@@ -110,7 +110,7 @@ function MainLayoutComponent({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNotificationsReady, unreadCount, hasTrackedImpression]);
 
-  const renderSidebar = () => {
+  const RenderSidebar = () => {
     if (sidebarRendered === null || (sidebarRendered && !showSidebar)) {
       return null;
     }
@@ -191,11 +191,14 @@ function MainLayoutComponent({
         className={classNames(
           'flex flex-col tablet:pl-16 laptop:pl-11',
           className,
-          !isScreenCentered && sidebarExpanded && 'laptop:!pl-60',
+          isAuthReady &&
+            !isScreenCentered &&
+            sidebarExpanded &&
+            'laptop:!pl-60',
           isBannerAvailable && 'laptop:pt-8',
         )}
       >
-        {renderSidebar()}
+        <RenderSidebar />
         {children}
       </main>
     </div>
