@@ -168,7 +168,6 @@ function MainLayoutComponent({
   if (
     (!isPageReady && isPageApplicableForOnboarding) ||
     shouldRedirectOnboarding ||
-    !loadedSettings
   ) {
     return null;
   }
@@ -196,7 +195,6 @@ function MainLayoutComponent({
         className={classNames(
           'flex flex-col tablet:pl-16 laptop:pl-11',
           className,
-          isAuthReady &&
             !isScreenCentered &&
             sidebarExpanded &&
             'laptop:!pl-60',
