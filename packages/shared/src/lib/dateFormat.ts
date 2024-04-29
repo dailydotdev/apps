@@ -203,3 +203,9 @@ export const formatDate = ({ value, type }: FormatDateProps): string => {
 
   return postDateFormat(date);
 };
+
+export const formatMonthYearOnly = (date: Date): string =>
+  new Date(date).toLocaleString('en-us', {
+    month: 'short',
+    year: 'numeric',
+  });

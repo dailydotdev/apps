@@ -5,7 +5,6 @@ import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
 import EnableNotification from '../notifications/EnableNotification';
 import { FlexCentered, FlexCol } from '../utilities';
-import SquadMemberShortList from './SquadMemberShortList';
 import SharePostBar from './SharePostBar';
 import { TourScreenIndex } from './SquadTour';
 import { useSquadTour } from '../../hooks/useSquadTour';
@@ -13,11 +12,20 @@ import { verifyPermission } from '../../graphql/squads';
 import { NotificationPromptSource } from '../../lib/analytics';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { ActionType } from '../../graphql/actions';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import classed from '../../lib/classed';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { link } from '../../lib/links';
 import SquadChecklistCard from '../checklist/SquadChecklistCard';
+import { Separator } from '../cards/common';
+import { EarthIcon, LockIcon, SourceIcon, SparkleIcon } from '../icons';
+import { PrivilegedMemberItem } from './Members/PrivilegedMemberItem';
+import { formatMonthYearOnly } from '../../lib/dateFormat';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -26,6 +34,18 @@ interface SquadPageHeaderProps {
 
 const MAX_WIDTH = 'laptopL:max-w-[38.5rem]';
 const Divider = classed('span', 'flex flex-1 h-px bg-border-subtlest-tertiary');
+
+interface SquadStatProps {
+  count: number;
+  label: string;
+}
+
+const SquadStat = ({ count, label }: SquadStatProps) => (
+  <span className="flex flex-row text-text-tertiary typo-footnote">
+    <strong className="mr-1 text-text-primary typo-subhead">{count}</strong>
+    {label}
+  </span>
+);
 
 export function SquadPageHeader({
   squad,
@@ -39,6 +59,23 @@ export function SquadPageHeader({
     tourIndex === TourScreenIndex.Post ||
     (isChecklistVisible && openStep === ActionType.SquadFirstPost);
   const isSquadMember = !!squad.currentMember;
+  const isFeatured = squad?.flags?.featured;
+
+  const props = (() => {
+    if (isFeatured) {
+      return { icon: <SourceIcon secondary />, copy: 'Featured' };
+    }
+
+    if (squad?.public) {
+      return { icon: <EarthIcon />, copy: 'Public' };
+    }
+
+    return { icon: <LockIcon />, copy: 'Private' };
+  })();
+
+  const createdAt = squad?.createdAt
+    ? formatMonthYearOnly(squad.createdAt)
+    : null;
 
   return (
     <FlexCol
@@ -53,9 +90,40 @@ export function SquadPageHeader({
           <h1 className="text-center font-bold typo-title2 laptopL:text-left">
             {squad.name}
           </h1>
-          <h2 className="mt-1 text-center text-text-tertiary typo-body tablet:mt-2 laptopL:text-left">
-            @{squad.handle}
-          </h2>
+          <div className="mt-1 flex flex-row items-center justify-center text-text-quaternary tablet:mt-2 laptopL:justify-start">
+            <h2 className="text-center text-text-tertiary typo-footnote laptopL:text-left">
+              @{squad.handle}
+            </h2>
+            <Separator />
+            {createdAt && (
+              <span className="typo-caption2">Created {createdAt}</span>
+            )}
+          </div>
+          <div className="mt-4 flex flex-row items-center gap-2">
+            <Button
+              icon={props.icon}
+              size={ButtonSize.Small}
+              variant={
+                isFeatured ? ButtonVariant.Secondary : ButtonVariant.Float
+              }
+              className={
+                isFeatured &&
+                'relative border-overlay-primary-cabbage bg-overlay-tertiary-cabbage'
+              }
+            >
+              {props.copy} Squad
+              {isFeatured && (
+                <>
+                  <SparkleIcon className="absolute -top-2.5 right-0" />
+                  <SparkleIcon className="absolute -bottom-2.5 left-0" />
+                </>
+              )}
+            </Button>
+            {/* TODO: As mentioned in the JIRA ticket, the value would be replaced in a different PR */}
+            <SquadStat count={1} label="Posts" />
+            <SquadStat count={1} label="Views" />
+            <SquadStat count={1} label="Upvotes" />
+          </div>
         </FlexCol>
       </div>
       {squad.description && (
@@ -68,15 +136,18 @@ export function SquadPageHeader({
           {squad.description}
         </p>
       )}
-      <SquadMemberShortList
-        squad={squad}
-        members={members}
-        className="my-6 laptopL:hidden"
-      />
+      <span className="mt-6 text-text-quaternary typo-footnote">
+        Moderated by
+      </span>
+      <div className="mt-2">
+        {squad?.privilegedMembers?.map((member) => (
+          <PrivilegedMemberItem key={member.user.id} member={member} />
+        ))}
+      </div>
       <SquadHeaderBar
         squad={squad}
         members={members}
-        className="laptopL:absolute laptopL:right-18 laptopL:top-0"
+        className="mt-8 laptopL:absolute laptopL:right-18 laptopL:top-0 laptopL:mt-0"
       />
       <EnableNotification
         contentName={squad.name}

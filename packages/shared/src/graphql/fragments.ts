@@ -55,7 +55,7 @@ export const SOURCE_BASE_FRAGMENT = gql`
     membersCount
     privilegedMembers {
       user {
-        id
+        ...UserShortInfo
       }
       role
     }
@@ -65,6 +65,7 @@ export const SOURCE_BASE_FRAGMENT = gql`
     memberPostingRole
     memberInviteRole
   }
+  ${USER_SHORT_INFO_FRAGMENT}
   ${CURRENT_MEMBER_FRAGMENT}
 `;
 
