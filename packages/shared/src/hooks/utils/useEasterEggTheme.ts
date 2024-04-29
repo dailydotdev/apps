@@ -17,7 +17,7 @@ export const useEasterEggTheme = (): UseEasterEggThemeResult | undefined => {
   const { themeMode } = useSettingsContext();
   const easterEggTheme = useFeature(feature.easterEggTheme);
   const router = useRouter();
-  const isOnboarding = router.pathname.startsWith('/onboarding');
+  const isOnboarding = router?.pathname?.startsWith('/onboarding') ?? false;
   const useTheme = !isOnboarding && !!easterEggTheme;
 
   const isLight = useMemo(() => {
