@@ -9,7 +9,7 @@ interface UseEasterEggThemeResult {
   logo?: string;
   logoText?: string;
   body?: Record<string, string>;
-  navbarBorder?: string;
+  navbar?: string;
   cursor?: string;
 }
 

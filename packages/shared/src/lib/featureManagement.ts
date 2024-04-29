@@ -29,7 +29,7 @@ const eTheme = {
       'background-blend-mode': 'difference, normal',
       '--theme-starwars-primary': 'var(--theme-surface-primary)',
     },
-    navbarBorder: 'border-[var(--theme-starwars-primary)]',
+    navbar: '!border-[var(--theme-starwars-primary)]',
   },
   dark: {
     logo: 'https://daily-now-res.cloudinary.com/image/upload/v1714049911/public/sw-logo.svg',
@@ -39,7 +39,7 @@ const eTheme = {
       background: `url('https://res.cloudinary.com/daily-now/image/upload/s--AyMCeVaQ--/f_auto/v1713647013/public/Star%20wars%20bg') 50% / contain, var(--theme-background-default)`,
       '--theme-starwars-primary': '#fae610',
     },
-    navbarBorder: 'border-[var(--theme-starwars-primary)]',
+    navbar: '!border-[var(--theme-starwars-primary)]',
   },
   cursor:
     'https://res.cloudinary.com/daily-now/image/upload/s--53WBJl29--/f_auto/v1714049911/public/cursor_optimized_crop',
@@ -49,10 +49,7 @@ const feature = {
   feedVersion: new Feature('feed_version', 15),
   lowImps: new Feature('feed_low_imps'),
   bookmarkOnCard: new Feature('bookmark_on_card', false),
-  readingStreaks: new Feature(
-    'reading_streaks',
-    ReadingStreaksExperiment.Control,
-  ),
+  readingStreaks: new Feature('reading_streaks', ReadingStreaksExperiment.V1),
   onboardingVisual: new Feature('onboarding_visual', {
     showCompanies: true,
     poster: cloudinary.onboarding.video.poster,
