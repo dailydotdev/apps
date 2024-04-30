@@ -10,6 +10,7 @@ import { useSearchProvider } from './useSearchProvider';
 import {
   SEARCH_POST_SUGGESTIONS,
   SearchProviderEnum,
+  defaultSearchSuggestionsLimit,
 } from '../../graphql/search';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 
@@ -123,6 +124,7 @@ describe('useSearchProvider hook', () => {
         variables: {
           query: 'apples',
           version: 1,
+          limit: defaultSearchSuggestionsLimit,
         },
       },
       result: () => {
