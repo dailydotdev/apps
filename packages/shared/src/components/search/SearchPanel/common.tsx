@@ -9,6 +9,7 @@ export const defaultSearchProvider = SearchProviderEnum.Posts;
 export const providerToLabelTextMap: Record<SearchProviderEnum, string> = {
   [SearchProviderEnum.Posts]: 'Search posts',
   [SearchProviderEnum.Chat]: 'Ask daily.dev AI',
+  [SearchProviderEnum.Tags]: 'Search tags',
 };
 
 export const providerToIconMap: Record<
@@ -26,4 +27,5 @@ export const providerToIconMap: Record<
       {...rest}
     />
   ),
+  [SearchProviderEnum.Tags]: SearchIcon,
 };
