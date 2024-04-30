@@ -9,6 +9,8 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import classNames from 'classnames';
 import styles from './NavBar.module.css';
+import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
+import { useScrollTopClassName } from '@dailydotdev/shared/src/hooks/useScrollTopClassName';
 
 export type Tab = { path: string; title: string };
 
@@ -43,11 +45,14 @@ export default function NavBar({
 }: NavBarProps): ReactElement {
   const getTabHref = (tab: Tab) =>
     tab.path.replace('[userId]', profile.username || profile.id);
+  const featureTheme = useFeatureTheme();
+  const scrollClassname = useScrollTopClassName({ enabled: !!featureTheme });
 
   return (
     <div
       className={classNames(
         'sticky top-12 z-3 -mt-px flex justify-around bg-background-default tablet:top-0 tablet:justify-start laptop:top-14',
+        scrollClassname,
         styles.nav,
       )}
     >

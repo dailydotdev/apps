@@ -1,4 +1,5 @@
 import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
+import classNames from 'classnames';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { NextSeoProps } from 'next-seo/lib/types';
@@ -15,6 +16,7 @@ import { useRouter } from 'next/router';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getTemplatedTitle } from '../utils';
 import SidebarNav from './SidebarNav';
+import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 
 export interface AccountLayoutProps {
   profile: PublicProfile;
@@ -36,6 +38,7 @@ export default function AccountLayout({
     key: navigationKey,
     defaultValue: false,
   });
+  const featureTheme = useFeatureTheme();
 
   useEffect(() => {
     const onClose = () => setIsOpen(false);
@@ -81,7 +84,10 @@ export default function AccountLayout({
           />
         ) : (
           <SidebarNav
-            className="absolute z-3 ml-auto h-full w-full border-l border-border-subtlest-tertiary bg-background-default tablet:relative tablet:w-[unset]"
+            className={classNames(
+              'absolute z-3 ml-auto h-full w-full border-l border-border-subtlest-tertiary bg-background-default tablet:relative tablet:w-[unset]',
+              featureTheme ? 'bg-transparent' : 'bg-background-default',
+            )}
             basePath="account"
           />
         )}
