@@ -28,6 +28,7 @@ import { useSearchProvider } from '../../../hooks/search';
 import { SearchPanelCustomAction } from './SearchPanelCustomAction';
 import { AnalyticsEvent } from '../../../lib/analytics';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
+import { SearchPanelTagSuggestions } from './SearchPanelTagSuggestions';
 
 export type SearchPanelProps = {
   className?: SearchPanelClassName;
@@ -176,6 +177,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
               <div className="flex flex-1 flex-col">
                 <SearchPanelAction provider={SearchProviderEnum.Posts} />
                 <SearchPanelAction provider={SearchProviderEnum.Chat} />
+                <SearchPanelTagSuggestions title="Tags" />
                 <SearchPanelPostSuggestions title="Posts on daily.dev" />
                 <SearchPanelCustomAction
                   provider={SearchProviderEnum.Posts}
