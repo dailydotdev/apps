@@ -19,6 +19,7 @@ import { SortIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
+import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -51,7 +52,8 @@ function FeedNav(): ReactElement {
     [0, 1],
     DEFAULT_ALGORITHM_INDEX,
   );
-  const scrollClassName = useScrollTopClassName();
+  const featureTheme = useFeatureTheme();
+  const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;

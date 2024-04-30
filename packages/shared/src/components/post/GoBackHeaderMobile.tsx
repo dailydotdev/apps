@@ -31,7 +31,7 @@ export function GoBackHeaderMobile({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const goHome = useCallback(() => router.push('/'), [router]);
   const featureTheme = useFeatureTheme();
-  const scrollClassName = useScrollTopClassName();
+  const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
 
   const logoButton = (
     <Logo

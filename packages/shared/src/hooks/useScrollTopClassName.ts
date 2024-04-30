@@ -6,6 +6,8 @@ interface UseScrollTopStyleProps {
   defaultClassName?: string;
   scrollProperty?: 'scrollTop' | 'scrollY';
   offset?: number;
+  enabled?: boolean;
+  fallbackClassName?: string;
 }
 
 export const useScrollTopClassName = ({
@@ -13,6 +15,8 @@ export const useScrollTopClassName = ({
   defaultClassName = 'bg-transparent',
   scrollProperty = 'scrollY',
   offset = 0,
+  enabled = true,
+  fallbackClassName = 'bg-background-default',
 }: UseScrollTopStyleProps = {}): string => {
   const [isScrolled, setScrolled] = useState(false);
 
@@ -22,6 +26,10 @@ export const useScrollTopClassName = ({
     offset,
     scrollProperty,
   });
+
+  if (!enabled) {
+    return fallbackClassName;
+  }
 
   return isScrolled ? scrolledClassName : defaultClassName;
 };

@@ -52,7 +52,7 @@ function MainLayoutHeader({
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
   const featureTheme = useFeatureTheme();
-  const scrollClassName = useScrollTopClassName();
+  const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const isLaptop = useViewSize(ViewSize.Laptop);
 
   const headerButton = (() => {
