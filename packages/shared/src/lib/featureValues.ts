@@ -26,7 +26,7 @@ export interface FeatureThemeVariant {
   logo?: string;
   logoText?: string;
   body?: Record<string, string>;
-  navbar?: string;
+  navbar?: Record<string, string>;
 }
 
 export interface FeatureTheme {
