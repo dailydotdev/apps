@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
 import { useFeature } from '../../components/GrowthBookProvider';
@@ -30,27 +30,34 @@ export const useFeatureTheme = (): UseFeatureThemeResult | undefined => {
   }, [themeMode]);
   const theme = isLight ? ThemeMode.Light : ThemeMode.Dark;
 
-  useLayoutEffect(() => {
-    const elem = globalThis?.document?.body;
+  useEffect(() => {
+    const id = 'feature-theme-styles';
+    const styleElement = document.createElement('style');
+    styleElement.setAttribute('id', id);
+    styleElement.setAttribute('type', 'text/css');
 
-    // reset body styles
-    if (elem?.style?.cssText) {
-      elem.style.cssText = '';
-    }
-
-    if (!useTheme) {
-      return;
-    }
-
+    const bodyStyles = [];
     if (featureTheme?.[theme]?.body) {
-      Object.entries(featureTheme[theme]?.body).forEach(([key, value]) => {
-        elem?.style?.setProperty(key, value);
-      });
+      Object.entries(featureTheme[theme]?.body).forEach(([key, value]) =>
+        bodyStyles.push(`${key}: ${value}`),
+      );
     }
 
     if (featureTheme?.cursor) {
-      elem?.style?.setProperty('cursor', `url('${featureTheme.cursor}'), auto`);
+      bodyStyles.push(`cursor: url('${featureTheme.cursor}'), auto; }`);
     }
+    const body = `body { ${bodyStyles.join('; ')} }`;
+
+    const oldStyleElem = document.getElementById(id);
+    if (oldStyleElem?.innerText === body) {
+      // nothing to do, styles were alreay applied
+      return;
+    }
+
+    styleElement.textContent = body;
+    oldStyleElem
+      ? document.head.replaceChild(styleElement, oldStyleElem)
+      : document.head.appendChild(styleElement);
   }, [featureTheme, theme, useTheme]);
 
   if (useTheme) {
