@@ -8,9 +8,9 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import classNames from 'classnames';
-import styles from './NavBar.module.css';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import { useScrollTopClassName } from '@dailydotdev/shared/src/hooks/useScrollTopClassName';
+import styles from './NavBar.module.css';
 
 export type Tab = { path: string; title: string };
 

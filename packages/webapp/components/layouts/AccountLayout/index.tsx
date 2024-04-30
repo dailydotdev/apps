@@ -13,10 +13,10 @@ import {
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import { useRouter } from 'next/router';
+import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getTemplatedTitle } from '../utils';
 import SidebarNav from './SidebarNav';
-import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 
 export interface AccountLayoutProps {
   profile: PublicProfile;
