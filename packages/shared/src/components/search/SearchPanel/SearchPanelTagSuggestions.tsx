@@ -87,7 +87,7 @@ export const SearchPanelTagSuggestions = ({
         </span>
         <hr className="flex-1 border-border-subtlest-tertiary" />
       </div>
-      <div className="flex-start flex gap-2 p-2">
+      <div className="flex-start flex flex-wrap gap-2 p-2">
         {suggestions?.hits?.map((suggestion) => {
           return (
             <PanelItem
