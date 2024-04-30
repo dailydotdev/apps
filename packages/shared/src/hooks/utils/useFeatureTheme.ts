@@ -18,7 +18,7 @@ export const useFeatureTheme = (): UseFeatureThemeResult | undefined => {
   const featureTheme = useFeature(feature.featureTheme);
   const router = useRouter();
   const isOnboarding = router?.pathname?.startsWith('/onboarding') ?? false;
-  const useTheme = !isOnboarding && !!featureTheme;
+  const useTheme = !isOnboarding && !!featureTheme?.version;
 
   const isLight = useMemo(() => {
     if (themeMode === ThemeMode.Auto) {
