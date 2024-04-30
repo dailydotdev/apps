@@ -3,19 +3,17 @@ import { useRouter } from 'next/router';
 import { ThemeMode, useSettingsContext } from '../../contexts/SettingsContext';
 import { useFeature } from '../../components/GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
+import { FeatureTheme, FeatureThemeVariant } from '../../lib/featureValues';
 
-interface UseFeatureThemeResult {
-  version: number;
-  logo?: string;
-  logoText?: string;
-  body?: Record<string, string>;
-  navbar?: string;
-  cursor?: string;
-}
+interface UseFeatureThemeResult
+  extends Pick<FeatureTheme, 'version' | 'cursor'>,
+    FeatureThemeVariant {}
 
 export const useFeatureTheme = (): UseFeatureThemeResult | undefined => {
   const { themeMode } = useSettingsContext();
-  const featureTheme = useFeature(feature.featureTheme);
+  const featureTheme = useFeature(feature.featureTheme) as
+    | FeatureTheme
+    | undefined;
   const router = useRouter();
   const isOnboarding = router?.pathname?.startsWith('/onboarding') ?? false;
   const useTheme = !isOnboarding && !!featureTheme?.version;
@@ -55,9 +53,12 @@ export const useFeatureTheme = (): UseFeatureThemeResult | undefined => {
     }
 
     styleElement.textContent = body;
-    oldStyleElem
-      ? document.head.replaceChild(styleElement, oldStyleElem)
-      : document.head.appendChild(styleElement);
+
+    if (oldStyleElem) {
+      document.head.replaceChild(styleElement, oldStyleElem);
+    } else {
+      document.head.appendChild(styleElement);
+    }
   }, [featureTheme, theme, useTheme]);
 
   if (useTheme) {

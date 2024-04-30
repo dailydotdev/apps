@@ -31,7 +31,7 @@ const LogoSvgElem = ({
   fallback: FallbackElem,
 }: LogoSvgElemProps): ReactElement => {
   if (src) {
-    return <img src={src} className={className} />;
+    return <img src={src} className={className} alt="daily.dev logo" />;
   }
   return <FallbackElem className={className} />;
 };

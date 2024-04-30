@@ -21,3 +21,18 @@ export enum ExperienceLevelExperiment {
   Control = 'control',
   V1 = 'v1',
 }
+
+export interface FeatureThemeVariant {
+  logo?: string;
+  logoText?: string;
+  body?: Record<string, string>;
+  navbar?: string;
+}
+
+export interface FeatureTheme {
+  version?: number;
+  light?: FeatureThemeVariant;
+  dark?: FeatureThemeVariant;
+  cursor?: string;
+  [key: string]: number | FeatureThemeVariant | string | undefined;
+}
