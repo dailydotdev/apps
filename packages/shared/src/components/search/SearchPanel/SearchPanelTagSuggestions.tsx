@@ -54,6 +54,7 @@ export const SearchPanelTagSuggestions = ({
   const { suggestions } = useSearchProviderSuggestions({
     provider: SearchProviderEnum.Tags,
     query: searchPanel.query,
+    limit: 5,
   });
 
   const onSuggestionClick = (suggestion: SearchSuggestion) => {
