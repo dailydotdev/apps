@@ -76,10 +76,7 @@ export function SquadHeaderBar({
       )}
       {showJoinButton && (
         <SquadJoinButton
-          className={classNames(
-            'flex w-full flex-1 tablet:ml-auto tablet:w-auto tablet:flex-initial',
-            firstItemClasses,
-          )}
+          className={{ wrapper: firstItemClasses }}
           squad={squad}
           origin={Origin.SquadPage}
         />
