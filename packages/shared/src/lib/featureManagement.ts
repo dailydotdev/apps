@@ -48,6 +48,7 @@ const feature = {
     'experience_level',
     ExperienceLevelExperiment.Control,
   ),
+  featureTheme: new Feature('feature_theme', {}),
 };
 
 export { feature };

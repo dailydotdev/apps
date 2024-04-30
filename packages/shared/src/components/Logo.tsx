@@ -19,6 +19,22 @@ const logoPositionToClassName: Record<LogoPosition, string> = {
   [LogoPosition.Relative]: classNames('relative mt-0.5', 'laptop:mt-0'),
   [LogoPosition.Initial]: '',
 };
+interface LogoSvgElemProps {
+  className?: string;
+  src?: string;
+  fallback: typeof LogoText | typeof LogoIcon;
+}
+
+const LogoSvgElem = ({
+  className,
+  src,
+  fallback: FallbackElem,
+}: LogoSvgElemProps): ReactElement => {
+  if (src) {
+    return <img src={src} className={className} alt="daily.dev logo" />;
+  }
+  return <FallbackElem className={className} />;
+};
 
 interface LogoProps {
   className?: string;
@@ -28,6 +44,10 @@ interface LogoProps {
   hideTextMobile?: boolean;
   compact?: boolean;
   position?: LogoPosition;
+  featureTheme?: {
+    logo?: string;
+    logoText?: string;
+  };
 }
 
 export default function Logo({
@@ -38,6 +58,7 @@ export default function Logo({
   hideTextMobile = false,
   compact = false,
   position = LogoPosition.Absolute,
+  featureTheme,
 }: LogoProps): ReactElement {
   return (
     <LinkWithTooltip
@@ -55,8 +76,11 @@ export default function Logo({
         )}
         onClick={onLogoClick}
       >
-        <LogoIcon className={logoClassName} />
-
+        <LogoSvgElem
+          className={logoClassName}
+          src={featureTheme?.logo}
+          fallback={LogoIcon}
+        />
         {!compact && (
           <CSSTransition
             in={!showGreeting}
@@ -64,12 +88,14 @@ export default function Logo({
             classNames="fade"
             unmountOnExit
           >
-            <LogoText
+            <LogoSvgElem
               className={classNames(
                 'ml-1',
                 logoClassName,
                 hideTextMobile && 'hidden laptop:block',
               )}
+              src={featureTheme?.logoText}
+              fallback={LogoText}
             />
           </CSSTransition>
         )}
