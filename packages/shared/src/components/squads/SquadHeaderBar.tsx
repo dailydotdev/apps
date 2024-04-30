@@ -82,7 +82,7 @@ export function SquadHeaderBar({
         />
       )}
       <SquadMemberShortList
-        className="tablet:2 order-1"
+        className="order-1 tablet:order-2"
         squad={squad}
         members={members}
       />
@@ -99,7 +99,7 @@ export function SquadHeaderBar({
         >
           <Button
             data-testid="squad-checklist-button"
-            className="tablet:3 order-2"
+            className="order-2 tablet:order-3"
             variant={ButtonVariant.Float}
             icon={<ChecklistBIcon secondary size={IconSize.Small} />}
             onClick={() => {
@@ -116,7 +116,7 @@ export function SquadHeaderBar({
         >
           <Button
             data-testid="squad-notification-button"
-            className="tablet:4 order-3"
+            className="order-3 tablet:order-4"
             variant={ButtonVariant.Float}
             icon={
               <BellIcon
@@ -135,7 +135,7 @@ export function SquadHeaderBar({
       )}
       <SimpleTooltip placement="top" content="Squad options">
         <Button
-          className="tablet:5 order-4"
+          className="order-4 tablet:order-5"
           variant={ButtonVariant.Float}
           icon={<MenuIcon size={IconSize.Small} />}
           onClick={onMenuClick}
