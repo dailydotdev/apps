@@ -6,6 +6,8 @@ import { ArrowIcon } from '../icons';
 import { WithClassNameProps } from '../utilities';
 import { isDevelopment } from '../../lib/constants';
 import Logo, { LogoPosition } from '../Logo';
+import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
+import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useViewSize, ViewSize } from '../../hooks';
 
 const checkSameSite = () => {
@@ -28,11 +30,15 @@ export function GoBackHeaderMobile({
   const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const goHome = useCallback(() => router.push('/'), [router]);
+  const featureTheme = useFeatureTheme();
+  const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
+
   const logoButton = (
     <Logo
       className="my-2"
       onLogoClick={goHome}
       position={LogoPosition.Initial}
+      featureTheme={featureTheme}
     />
   );
 
@@ -46,7 +52,8 @@ export function GoBackHeaderMobile({
   return (
     <span
       className={classNames(
-        'sticky top-0 z-postNavigation flex flex-row items-center border-b border-border-subtlest-tertiary bg-background-default px-4 py-2 laptop:hidden',
+        'sticky top-0 z-postNavigation flex flex-row items-center border-b border-border-subtlest-tertiary px-4 py-2 laptop:hidden',
+        scrollClassName,
         className,
       )}
     >

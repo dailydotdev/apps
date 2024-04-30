@@ -39,6 +39,7 @@ import { AiIcon, HomeIcon, SourceIcon, UserIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { CreatePostButton } from '../post/write';
 import useActiveNav from '../../hooks/useActiveNav';
+import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -66,6 +67,7 @@ export default function Sidebar({
   const showSettings = modal?.type === LazyModal.UserSettings;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
+  const featureTheme = useFeatureTheme();
 
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
@@ -105,13 +107,17 @@ export default function Sidebar({
     return (
       <SidebarAside
         data-testid="sidebar-aside"
-        className="w-16 items-center gap-4"
+        className={classNames(
+          'w-16 items-center gap-4',
+          featureTheme && 'bg-transparent',
+        )}
       >
         <Logo
           compact
           position={LogoPosition.Relative}
           onLogoClick={onLogoClick}
           className={classNames('h-10 pt-4')}
+          featureTheme={featureTheme}
         />
 
         <Link href="/" prefetch={false} passHref>
@@ -198,6 +204,7 @@ export default function Sidebar({
           promotionalBannerActive
             ? 'laptop:top-24 laptop:h-[calc(100vh-theme(space.24))]'
             : 'laptop:top-16 laptop:h-[calc(100vh-theme(space.16))]',
+          featureTheme && 'bg-transparent',
         )}
       >
         {sidebarRendered && (

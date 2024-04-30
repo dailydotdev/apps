@@ -18,6 +18,8 @@ import { Dropdown } from '../fields/Dropdown';
 import { SortIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
+import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
+import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -50,6 +52,8 @@ function FeedNav(): ReactElement {
     [0, 1],
     DEFAULT_ALGORITHM_INDEX,
   );
+  const featureTheme = useFeatureTheme();
+  const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
@@ -58,7 +62,8 @@ function FeedNav(): ReactElement {
   return (
     <div
       className={classNames(
-        'sticky top-0 z-header w-full bg-background-default tablet:pl-16',
+        'sticky top-0 z-header w-full tablet:pl-16',
+        scrollClassName,
       )}
     >
       {isMobile && <MobileFeedActions />}
