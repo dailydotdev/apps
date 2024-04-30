@@ -110,7 +110,7 @@ function MainLayoutComponent({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNotificationsReady, unreadCount, hasTrackedImpression]);
 
-  const renderSidebar = () => {
+  const RenderSidebar = () => {
     if (sidebarRendered === null || (sidebarRendered && !showSidebar)) {
       return null;
     }
@@ -195,7 +195,7 @@ function MainLayoutComponent({
           isBannerAvailable && 'laptop:pt-8',
         )}
       >
-        {renderSidebar()}
+        <RenderSidebar />
         {children}
       </main>
     </div>

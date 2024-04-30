@@ -45,7 +45,7 @@ function MainLayoutHeader({
   onLogoClick,
   onMobileSidebarToggle,
 }: MainLayoutHeaderProps): ReactElement {
-  const { user } = useContext(AuthContext);
+  const { user, isAuthReady } = useContext(AuthContext);
   const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
   const isMobile = useViewSize(ViewSize.MobileL);
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
@@ -113,7 +113,7 @@ function MainLayoutHeader({
       />
     );
 
-  if (!isLaptop) {
+  if (isAuthReady && !isLaptop) {
     return (
       <>
         <FeedNav />
