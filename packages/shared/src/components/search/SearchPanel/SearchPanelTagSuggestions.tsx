@@ -17,12 +17,11 @@ export type SearchPanelTagSuggestionsProps = {
   title: string;
 };
 
-const PanelItem = ({
-  suggestion,
-  onClick,
-}: Pick<ButtonProps<'a'>, 'onClick'> & {
+type PanelItemProps = Pick<ButtonProps<'a'>, 'onClick'> & {
   suggestion: SearchSuggestion;
-}) => {
+};
+
+const PanelItem = ({ suggestion, onClick }: PanelItemProps) => {
   const itemProps = useSearchPanelAction({
     provider: SearchProviderEnum.Tags,
     text: suggestion.title,
