@@ -11,6 +11,8 @@ import { SearchPanelItemContainer } from './SearchPanelInputContainer';
 import { TagLink } from '../../TagLinks';
 import { webappUrl } from '../../../lib/constants';
 import { ButtonProps } from '../../buttons/Button';
+import { useFeature } from '../../GrowthBookProvider';
+import { feature } from '../../../lib/featureManagement';
 
 export type SearchPanelTagSuggestionsProps = {
   className?: string;
@@ -49,10 +51,13 @@ export const SearchPanelTagSuggestions = ({
   const router = useRouter();
   const { trackEvent } = useContext(AnalyticsContext);
   const searchPanel = useContext(SearchPanelContext);
+  const isFeatureEnabled = useFeature(feature.searchTags);
 
   const { suggestions } = useSearchProviderSuggestions({
     provider: SearchProviderEnum.Tags,
-    query: searchPanel.query,
+    // do not pass query if feature is disabled
+    // so suggestions do not fetch or show
+    query: isFeatureEnabled ? searchPanel.query : '',
     limit: 5,
   });
 

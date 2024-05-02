@@ -49,6 +49,7 @@ const feature = {
     ExperienceLevelExperiment.Control,
   ),
   featureTheme: new Feature('feature_theme', {}),
+  searchTags: new Feature('search_tags', false),
 };
 
 export { feature };
