@@ -42,17 +42,21 @@ export const useFeatureTheme = (): UseFeatureThemeResult | undefined => {
     }
 
     if (featureTheme?.cursor) {
-      bodyStyles.push(`cursor: url('${featureTheme.cursor}'), auto; }`);
+      bodyStyles.push(`cursor: url('${featureTheme.cursor}'), auto`);
     }
-    const body = `body { ${bodyStyles.join('; ')} }`;
+    let css = `body { ${bodyStyles.join('; ')} }`;
+
+    if (featureTheme?.[theme]?.body?.background) {
+      css = `${css} .modal { background: ${featureTheme[theme].body.background}; }`;
+    }
 
     const oldStyleElem = document.getElementById(id);
-    if (oldStyleElem?.innerText === body) {
+    if (oldStyleElem?.innerText === css) {
       // nothing to do, styles were alreay applied
       return;
     }
 
-    styleElement.textContent = body;
+    styleElement.textContent = css;
 
     if (oldStyleElem) {
       document.head.replaceChild(styleElement, oldStyleElem);
