@@ -3,17 +3,15 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import { sendViewPost } from '../../graphql/posts';
+import { Post, sendViewPost } from '../../graphql/posts';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ReadingDay, UserStreak } from '../../graphql/users';
 import { getTodayTz } from '../../lib/dateFormat';
 
-export const useViewPost = (): UseMutateAsyncFunction<
-  unknown,
-  unknown,
-  string
-> => {
+export const useViewPost = (
+  post: Post,
+): UseMutateAsyncFunction<unknown, unknown, string> => {
   const client = useQueryClient();
   const { user } = useAuthContext();
   const streakKey = generateQueryKey(RequestKey.UserStreak, user);
@@ -21,22 +19,24 @@ export const useViewPost = (): UseMutateAsyncFunction<
   const { mutateAsync: onSendViewPost } = useMutation(sendViewPost, {
     onSuccess: async () => {
       await client.invalidateQueries(streakKey);
-      client.setQueryData<UserStreak>(streakKey, (data) => {
-        const streak = { ...data };
+      if (!post.read) {
+        client.setQueryData<UserStreak>(streakKey, (data) => {
+          const streak = { ...data };
 
-        if (
-          !streak?.lastViewAt ||
-          new Date(streak.lastViewAt).getDate() !== new Date().getDate()
-        ) {
-          streak.max += 1;
-          streak.total += 1;
-          streak.current += 1;
-        }
+          if (
+            !streak?.lastViewAt ||
+            new Date(streak.lastViewAt).getDate() !== new Date().getDate()
+          ) {
+            streak.max += 1;
+            streak.total += 1;
+            streak.current += 1;
+          }
 
-        streak.lastViewAt = new Date();
+          streak.lastViewAt = new Date();
 
-        return streak;
-      });
+          return streak;
+        });
+      }
 
       const reading = client.getQueryData<ReadingDay[]>(readKey);
 

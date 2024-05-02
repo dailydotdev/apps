@@ -68,7 +68,7 @@ export const CollectionPostContent = ({
     onRemovePost,
   };
 
-  const onSendViewPost = useViewPost();
+  const onSendViewPost = useViewPost(post);
 
   useEffect(() => {
     if (!post?.id || !user?.id) {
