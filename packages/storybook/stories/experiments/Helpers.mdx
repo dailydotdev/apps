@@ -113,3 +113,30 @@ export const SourceSubscribeButton = () => {
   return <button>Subscribe to source</button>;
 };
 ```
+
+## useConditionalFeature
+
+This hook is much like `useFeature` but it allows you to conditionally evaluate only when specific condition is met. This is useful when you want to load feature flag only when user is logged in or when some other condition is met.
+
+This helps to manage when user is enrolled much similarlly to `withExperiment` HOC but it allows you to do it on parent component level.
+
+While evaluation condition is not met, the hook will return default feature value defined in `featureManagement` file.
+
+```tsx
+import { useConditionalFeature } from './GrowthBookProvider';
+
+const MyComponent = () => {
+  const { value: feedVersion } = useConditionalFeature({
+    feature: feature.feedVersion,
+    shouldEvaluate: user.isLoggedIn,
+  });
+
+  const enabled = feedVersion === FeedVersion.V2;
+
+  if (enabled) {
+    return <div>{data}</div>;
+  }
+
+  return null;
+};
+```
