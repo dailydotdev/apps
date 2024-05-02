@@ -49,6 +49,7 @@ import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/analytics';
 import { OnboardingFeedHeader } from './onboarding/OnboardingFeedHeader';
+import { useRouter } from 'next/router';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -132,6 +133,8 @@ export default function MainFeedLayout({
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
+  const router = useRouter();
+  const isSearchPage = !!router.pathname?.startsWith('/search');
   const feedName = getFeedName(feedNameProp, {
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
@@ -186,7 +189,7 @@ export default function MainFeedLayout({
     feedName,
   };
   const search = (
-    <LayoutHeader>
+    <LayoutHeader className={isSearchPage && 'mt-16 laptop:mt-0'}>
       {navChildren}
       {isSearchOn && searchChildren ? searchChildren : undefined}
     </LayoutHeader>
