@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
@@ -49,7 +50,6 @@ import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/analytics';
 import { OnboardingFeedHeader } from './onboarding/OnboardingFeedHeader';
-import { useRouter } from 'next/router';
 
 const SearchEmptyScreen = dynamic(
   () =>
