@@ -102,7 +102,7 @@ const SourceRelatedTags = ({
 };
 
 const SimilarSources = ({ sourceId }: { sourceId: string }) => {
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseListFeedLayout } = useFeedLayout();
   const { data: similarSources, isLoading } = useQuery(
     [RequestKey.SimilarSources, null, sourceId],
     async () =>
@@ -129,7 +129,7 @@ const SimilarSources = ({ sourceId }: { sourceId: string }) => {
       isLoading={isLoading}
       sources={sources}
       title="Similar sources"
-      className={shouldUseMobileFeedLayout && 'mx-4'}
+      className={shouldUseListFeedLayout && 'mx-4'}
     />
   );
 };
@@ -175,8 +175,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     }),
     [source?.id],
   );
-  const { shouldUseMobileFeedLayout, FeedPageLayoutComponent } =
-    useFeedLayout();
+  const { shouldUseListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
   const { feedSettings } = useFeedSettings();
   const { onFollowSource, onUnfollowSource } = useTagAndSource({
     origin: Origin.SourcePage,
@@ -228,7 +227,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   return (
     <FeedPageLayoutComponent className="overflow-x-hidden">
       <NextSeo {...seo} />
-      <PageInfoHeader className={shouldUseMobileFeedLayout && 'mx-4 !w-auto'}>
+      <PageInfoHeader className={shouldUseListFeedLayout && 'mx-4 !w-auto'}>
         <div className="flex items-center font-bold">
           <img
             src={source.image}

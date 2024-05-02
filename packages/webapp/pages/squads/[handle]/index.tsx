@@ -93,7 +93,7 @@ const SquadPage = ({
   useJoinReferral();
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseListFeedLayout } = useFeedLayout();
   const { user, isFetched: isBootFetched } = useContext(AuthContext);
   const [trackedImpression, setTrackedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
@@ -195,7 +195,7 @@ const SquadPage = ({
         <Feed
           className={classNames(
             'pt-14 laptop:pt-10',
-            shouldUseMobileFeedLayout ? 'px-0' : 'px-6',
+            shouldUseListFeedLayout ? 'px-0' : 'px-6',
           )}
           feedName={OtherFeedPage.Squad}
           feedQueryKey={[

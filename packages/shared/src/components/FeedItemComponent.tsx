@@ -113,9 +113,10 @@ const PostTypeToTagV1: Record<PostType, FunctionComponent> = {
 const getTags = (
   isList: boolean,
   isFeedLayoutV1: boolean,
+  isFeedListLayoutEnabled: boolean,
   postType: PostType,
 ) => {
-  if (isFeedLayoutV1) {
+  if (isFeedLayoutV1 || isFeedListLayoutEnabled) {
     return {
       PostTag: PostTypeToTagV1[postType] ?? ArticlePostCardV1,
       AdTag: AdCardV1,
@@ -170,10 +171,11 @@ export default function FeedItemComponent({
     ranking,
   );
 
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseListFeedLayout, isFeedListLayoutEnabled } = useFeedLayout();
   const { PostTag, AdTag, PlaceholderTag, MarketingCtaTag } = getTags(
     isList,
-    shouldUseMobileFeedLayout,
+    isFeedListLayoutEnabled,
+    shouldUseListFeedLayout,
     (item as PostItem).post?.type,
   );
 
