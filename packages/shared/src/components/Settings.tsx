@@ -18,7 +18,6 @@ import { CustomSwitch } from './fields/CustomSwitch';
 import AuthContext from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import { checkIsExtension } from '../lib/func';
-import { useFeedLayout } from '../hooks';
 import { useStreakExperiment } from '../hooks/streaks';
 
 const densities = [
