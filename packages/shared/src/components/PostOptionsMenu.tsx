@@ -22,6 +22,7 @@ import {
   PinIcon,
   BellSubscribedIcon,
   BellIcon,
+  MagicIcon,
 } from './icons';
 
 import { ReportedCallback } from './modals';
@@ -59,6 +60,7 @@ import { feature } from '../lib/featureManagement';
 import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';
+import { webappUrl } from '../lib/constants';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -307,6 +309,17 @@ export default function PostOptionsMenu({
       action: onHidePost,
     },
   ];
+
+  const showSimilarPosts = useFeature(feature.similarPosts);
+  if (showSimilarPosts) {
+    postOptions.push({
+      icon: <MenuIcon Icon={MagicIcon} secondary />,
+      label: 'Show similar posts',
+      anchorProps: {
+        href: `${webappUrl}posts/${post?.id}/similar`,
+      },
+    });
+  }
 
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);

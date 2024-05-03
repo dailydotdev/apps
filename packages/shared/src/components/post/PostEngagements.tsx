@@ -13,11 +13,17 @@ import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import { Comment } from '../../graphql/comments';
 import { Origin } from '../../lib/analytics';
 import {
-  SQUAD_COMMENT_JOIN_BANNER_KEY,
   isSourcePublicSquad,
+  SQUAD_COMMENT_JOIN_BANNER_KEY,
 } from '../../graphql/squads';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { PostContentShare } from './common/PostContentShare';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ArrowIcon, MagicIcon } from '../icons';
+import { IconSize } from '../Icon';
+import { webappUrl } from '../../lib/constants';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -50,6 +56,7 @@ function PostEngagements({
     SQUAD_COMMENT_JOIN_BANNER_KEY,
     false,
   );
+  const showSimilarPosts = useFeature(feature.similarPosts);
 
   const onCommented = (comment: Comment, isNew: boolean) => {
     if (!isNew) {
@@ -90,6 +97,23 @@ function PostEngagements({
         origin={analyticsOrigin}
       />
       <PostContentShare post={post} />
+      {showSimilarPosts && (
+        <Button
+          tag="a"
+          href={`${webappUrl}posts/${post.id}/similar`}
+          size={ButtonSize.Large}
+          className="mt-6 border-border-subtlest-tertiary"
+          variant={ButtonVariant.Option}
+          icon={<MagicIcon secondary />}
+        >
+          Show similar posts <div className="flex-1" />
+          <ArrowIcon
+            secondary
+            className="-mr-3 rotate-90"
+            size={IconSize.Small}
+          />
+        </Button>
+      )}
       <NewComment
         className={{ container: 'mt-6 hidden tablet:flex' }}
         post={post}
