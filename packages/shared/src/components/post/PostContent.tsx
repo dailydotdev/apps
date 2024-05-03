@@ -46,7 +46,7 @@ export function PostContent({
     post,
   });
   const { onCopyPostLink, onReadArticle } = engagementActions;
-  const onSendViewPost = useViewPost();
+  const onSendViewPost = useViewPost(post);
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);

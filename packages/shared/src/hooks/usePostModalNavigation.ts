@@ -221,6 +221,11 @@ export const usePostModalNavigation = (
         }
 
         const current = items[openedPostIndex] as PostItem;
+
+        if (!current) {
+          return;
+        }
+
         setIsFetchingNextPage(false);
         trackEvent(
           postAnalyticsEvent('navigate next', current.post, {
