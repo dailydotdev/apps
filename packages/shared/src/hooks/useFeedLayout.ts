@@ -100,16 +100,22 @@ export const useFeedLayout = ({
   const shouldUseListFeedLayoutOnProfilePages = UserProfileFeedPages.has(
     feedName as UserProfileFeedType,
   );
+  const isFeedIncludedInListLayout = FeedLayoutMobileFeedPages.has(
+    feedName as FeedPagesWithMobileLayoutType,
+  );
   const shouldUseListFeedLayoutOnMobile =
-    (isFeedListLayoutEnabled || !isLaptop) &&
-    FeedLayoutMobileFeedPages.has(feedName as FeedPagesWithMobileLayoutType);
+    !isLaptop && isFeedIncludedInListLayout;
+  const shouldUseListFeedLayoutOnDesktop =
+    isFeedListLayoutEnabled && isLaptop && isFeedIncludedInListLayout;
   const shouldUseListFeedLayout = feedRelated
-    ? shouldUseListFeedLayoutOnMobile || shouldUseListFeedLayoutOnProfilePages
+    ? shouldUseListFeedLayoutOnMobile ||
+      shouldUseListFeedLayoutOnProfilePages ||
+      shouldUseListFeedLayoutOnDesktop
     : isFeedListLayoutEnabled || !isLaptop;
   const shouldUseCommentFeedLayout = feedName === SharedFeedPage.Discussed;
 
   const FeedPageLayoutComponent = getFeedPageLayoutComponent({
-    shouldUseListFeedLayoutMobile: !isLaptop && shouldUseListFeedLayout,
+    shouldUseListFeedLayoutMobile: shouldUseListFeedLayoutOnMobile,
     shouldUseListFeedLayout,
     shouldUseCommentFeedLayout,
   });
@@ -120,7 +126,7 @@ export const useFeedLayout = ({
     FeedPageLayoutComponent,
     isFeedListLayoutEnabled,
     screenCenteredOnMobileLayout:
-      shouldUseListFeedLayout &&
+      shouldUseListFeedLayoutOnMobile &&
       !UserProfileFeedPages.has(feedName as UserProfileFeedType),
   };
 };
