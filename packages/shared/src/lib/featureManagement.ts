@@ -50,7 +50,10 @@ const feature = {
     ExperienceLevelExperiment.Control,
   ),
   featureTheme: new Feature('feature_theme', {}),
-  feedListLayout: new Feature('feed_list_layout', FeedListLayoutExperiment.V1),
+  feedListLayout: new Feature(
+    'feed_list_layout',
+    FeedListLayoutExperiment.Control,
+  ),
 };
 
 export { feature };
