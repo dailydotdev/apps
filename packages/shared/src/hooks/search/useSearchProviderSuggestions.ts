@@ -7,7 +7,10 @@ import {
   UseSearchProviderProps,
   useSearchProvider,
 } from './useSearchProvider';
-import { minSearchQueryLength } from '../../graphql/search';
+import {
+  defaultSearchSuggestionsLimit,
+  minSearchQueryLength,
+} from '../../graphql/search';
 
 export type UseSearchProviderSuggestionsProps = {
   limit?: number;
@@ -21,7 +24,7 @@ export type UseSearchProviderSuggestions = {
 export const useSearchProviderSuggestions = ({
   provider,
   query,
-  limit = 3,
+  limit = defaultSearchSuggestionsLimit,
 }: UseSearchProviderSuggestionsProps): UseSearchProviderSuggestions => {
   const { user } = useAuthContext();
   const { getSuggestions } = useSearchProvider();
@@ -32,7 +35,7 @@ export const useSearchProviderSuggestions = ({
       query,
     }),
     async () => {
-      return getSuggestions({ provider, query });
+      return getSuggestions({ provider, query, limit });
     },
     {
       enabled: query?.length >= minSearchQueryLength,

@@ -9,6 +9,7 @@ import { labels } from '../lib';
 export enum SearchProviderEnum {
   Posts = 'posts',
   Chat = 'chat',
+  Tags = 'tags',
 }
 
 const searchPageUrl = `${webappUrl}search`;
@@ -144,6 +145,17 @@ export const SEARCH_FEEDBACK_MUTATION = gql`
   mutation SearchResultFeedback($chunkId: String!, $value: Int!) {
     searchResultFeedback(chunkId: $chunkId, value: $value) {
       _
+    }
+  }
+`;
+
+export const SEARCH_TAG_SUGGESTIONS = gql`
+  query SearchTagSuggestions($query: String!, $version: Int, $limit: Int) {
+    searchTagSuggestions(query: $query, version: $version, limit: $limit) {
+      hits {
+        id
+        title
+      }
     }
   }
 `;
@@ -307,3 +319,5 @@ export type SearchSuggestionResult = {
 export const minSearchQueryLength = 3;
 
 export const sanitizeSearchTitleMatch = /<(\/?)strong>/g;
+
+export const defaultSearchSuggestionsLimit = 3;

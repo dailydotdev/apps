@@ -18,6 +18,8 @@ import { useReadingStreak } from '../../hooks/streaks';
 import { LogoPosition } from '../Logo';
 import NotificationsBell from '../notifications/NotificationsBell';
 import FeedNav from '../feeds/FeedNav';
+import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
+import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -49,6 +51,8 @@ function MainLayoutHeader({
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
+  const featureTheme = useFeatureTheme();
+  const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const isLaptop = useViewSize(ViewSize.Laptop);
 
   const headerButton = (() => {
@@ -99,7 +103,7 @@ function MainLayoutHeader({
       <SearchPanel
         className={{
           container: classNames(
-            'left-0 top-0 z-header mx-auto bg-background-default py-3 tablet:left-16 laptop:left-0 laptop:bg-transparent',
+            'left-0 top-0 z-header mx-auto py-3 tablet:left-16 laptop:left-0',
             isSearchPage
               ? 'absolute right-0 laptop:relative laptop:top-0'
               : 'hidden laptop:flex',
@@ -121,10 +125,12 @@ function MainLayoutHeader({
   return (
     <header
       className={classNames(
-        'sticky top-0 z-header flex h-14 flex-row items-center justify-between gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:flex-row laptop:px-4',
+        'sticky top-0 z-header flex h-14 flex-row items-center justify-between gap-3 border-b border-border-subtlest-tertiary px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:flex-row laptop:px-4',
         hasBanner && 'laptop:top-8',
         isSearchPage && 'mb-16 laptop:mb-0',
+        scrollClassName,
       )}
+      style={featureTheme ? featureTheme.navbar : undefined}
     >
       {sidebarRendered !== undefined && (
         <>

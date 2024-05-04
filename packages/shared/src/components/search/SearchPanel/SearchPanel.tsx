@@ -20,7 +20,7 @@ import {
 import { SearchPanelAction } from './SearchPanelAction';
 import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
 import SettingsContext from '../../../contexts/SettingsContext';
-import { useEventListener } from '../../../hooks';
+import { useConditionalFeature, useEventListener } from '../../../hooks';
 import { defaultSearchProvider, providerToLabelTextMap } from './common';
 import { ArrowKeyEnum } from '../../../lib/func';
 import { ArrowIcon } from '../../icons';
@@ -28,6 +28,8 @@ import { useSearchProvider } from '../../../hooks/search';
 import { SearchPanelCustomAction } from './SearchPanelCustomAction';
 import { AnalyticsEvent } from '../../../lib/analytics';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
+import { SearchPanelTagSuggestions } from './SearchPanelTagSuggestions';
+import { feature } from '../../../lib/featureManagement';
 
 export type SearchPanelProps = {
   className?: SearchPanelClassName;
@@ -111,9 +113,11 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
     const keyToIndexModifier: Partial<Record<ArrowKeyEnum, number>> = {
       [ArrowKeyEnum.Up]: -1,
       [ArrowKeyEnum.Down]: 1,
+      [ArrowKeyEnum.Left]: -1,
+      [ArrowKeyEnum.Right]: 1,
     };
 
-    const supportedKeys = [ArrowKeyEnum.Up, ArrowKeyEnum.Down];
+    const supportedKeys = Object.keys(keyToIndexModifier);
 
     const pressedKey = supportedKeys.find((key) => key === event.key);
 
@@ -135,6 +139,11 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   const showDropdown =
     state.isActive && state.query.length >= minSearchQueryLength;
 
+  const { value: isTagsSearchEnabled } = useConditionalFeature({
+    feature: feature.searchTags,
+    shouldEvaluate: showDropdown,
+  });
+
   return (
     <SearchPanelContext.Provider value={searchPanel}>
       <div
@@ -144,7 +153,9 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
       >
         <SearchPanelInput
           className={{
-            container: classNames('w-full laptop:w-[35rem]'),
+            container: classNames(
+              'w-full laptop:w-[29.5rem] laptopL:w-[35rem]',
+            ),
             field: className?.field,
           }}
           valueChanged={(newValue) => {
@@ -176,6 +187,9 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
               <div className="flex flex-1 flex-col">
                 <SearchPanelAction provider={SearchProviderEnum.Posts} />
                 <SearchPanelAction provider={SearchProviderEnum.Chat} />
+                {isTagsSearchEnabled && (
+                  <SearchPanelTagSuggestions title="Tags" />
+                )}
                 <SearchPanelPostSuggestions title="Posts on daily.dev" />
                 <SearchPanelCustomAction
                   provider={SearchProviderEnum.Posts}

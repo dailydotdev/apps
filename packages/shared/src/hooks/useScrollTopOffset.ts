@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 interface UseScrollTopOffsetProps {
   onOverOffset: () => void;
   onUnderOffset: () => void;
-  offset: number;
+  offset?: number;
   scrollProperty?: 'scrollTop' | 'scrollY';
 }
 
@@ -12,7 +12,7 @@ export const useScrollTopOffset = (
   {
     onOverOffset,
     onUnderOffset,
-    offset,
+    offset = 0,
     scrollProperty = 'scrollTop',
   }: UseScrollTopOffsetProps,
 ): void => {
