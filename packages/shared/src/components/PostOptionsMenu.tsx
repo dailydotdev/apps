@@ -331,7 +331,7 @@ export default function PostOptionsMenu({
       label: 'Show similar posts',
       anchorProps: {
         onClick: onClickSimilarPosts,
-        href: `${webappUrl}posts/${post?.id}/similar`,
+        href: `${webappUrl}posts/${post?.slug}/similar`,
       },
     });
   }

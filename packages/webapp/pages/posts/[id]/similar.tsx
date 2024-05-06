@@ -76,7 +76,7 @@ const SimilarFeed = ({ id, initialData }: Props): ReactElement => {
           user?.id ?? 'anonymous',
           Object.values(queryVariables),
         ]}
-        query={SIMILAR_POSTS_FEED_QUERY}
+        query={id && SIMILAR_POSTS_FEED_QUERY}
         variables={queryVariables}
       />
     </FeedPageLayoutComponent>

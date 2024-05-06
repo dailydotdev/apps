@@ -121,7 +121,7 @@ function PostEngagements({
         <Button
           tag="a"
           onClick={onClickSimilarPosts}
-          href={`${webappUrl}posts/${post.id}/similar`}
+          href={`${webappUrl}posts/${post.slug}/similar`}
           size={ButtonSize.Large}
           className="mt-6 border-border-subtlest-tertiary"
           variant={ButtonVariant.Option}
