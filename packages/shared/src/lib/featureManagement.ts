@@ -39,6 +39,7 @@ const feature = {
   onboardingMostVisited: new Feature('onboarding_most_visited', false),
   shareExperience: new Feature('share_experience', false),
   bookmarkLoops: new Feature('bookmark_loops', false),
+  bookmarkPopup: new Feature('bookmark_popup', false),
   sidebarClosed: new Feature('sidebar_closed', false),
   tagSourceSocialProof: new Feature(
     'tag_source_social_proof',

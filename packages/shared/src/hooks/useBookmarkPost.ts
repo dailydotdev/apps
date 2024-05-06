@@ -28,7 +28,7 @@ import { feature } from '../lib/featureManagement';
 import { ActionType } from '../graphql/actions';
 import { LazyModal } from '../components/modals/common/types';
 import { promotion } from '../components/modals/generic';
-import { useFeaturesReadyContext } from '../components/GrowthBookProvider';
+import { useFeature } from '../components/GrowthBookProvider';
 import { useLazyModal } from './useLazyModal';
 import { useActions } from './useActions';
 
@@ -84,7 +84,7 @@ const useBookmarkPost = ({
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const { getFeatureValue } = useFeaturesReadyContext();
+  const bookmarkPopup = useFeature(feature.bookmarkPopup);
   const { openModal } = useLazyModal();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const seenBookmarkPromotion = useMemo(
@@ -174,23 +174,19 @@ const useBookmarkPost = ({
       await addBookmark({ id: post.id });
       displayToast('Post was added to your bookmarks');
 
-      if (!seenBookmarkPromotion) {
-        const bookmarkLoops = getFeatureValue(feature.bookmarkLoops);
-
-        if (bookmarkLoops) {
-          completeAction(ActionType.BookmarkPromoteMobile);
-          openModal({
-            type: LazyModal.MarketingCta,
-            props: { marketingCta: promotion.bookmarkPromoteMobile },
-          });
-        }
+      if (!seenBookmarkPromotion && bookmarkPopup) {
+        completeAction(ActionType.BookmarkPromoteMobile);
+        openModal({
+          type: LazyModal.MarketingCta,
+          props: { marketingCta: promotion.bookmarkPromoteMobile },
+        });
       }
     },
     [
       addBookmark,
+      bookmarkPopup,
       completeAction,
       displayToast,
-      getFeatureValue,
       openModal,
       removeBookmark,
       seenBookmarkPromotion,
