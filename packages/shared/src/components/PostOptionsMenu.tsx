@@ -32,6 +32,7 @@ import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import {
   ToastSubject,
+  useConditionalFeature,
   useFeedLayout,
   useSourceSubscription,
   useToastNotification,
@@ -310,7 +311,10 @@ export default function PostOptionsMenu({
     },
   ];
 
-  const showSimilarPosts = useFeature(feature.similarPosts);
+  const showSimilarPosts = useConditionalFeature({
+    feature: feature.similarPosts,
+    shouldEvaluate: !!post?.id,
+  });
   if (showSimilarPosts) {
     postOptions.push({
       icon: <MenuIcon Icon={MagicIcon} secondary />,

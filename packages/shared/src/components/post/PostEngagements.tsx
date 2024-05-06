@@ -24,6 +24,7 @@ import { IconSize } from '../Icon';
 import { webappUrl } from '../../lib/constants';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
+import { useConditionalFeature } from '../../hooks';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -56,7 +57,10 @@ function PostEngagements({
     SQUAD_COMMENT_JOIN_BANNER_KEY,
     false,
   );
-  const showSimilarPosts = useFeature(feature.similarPosts);
+  const showSimilarPosts = useConditionalFeature({
+    feature: feature.similarPosts,
+    shouldEvaluate: !!post?.id,
+  });
 
   const onCommented = (comment: Comment, isNew: boolean) => {
     if (!isNew) {
