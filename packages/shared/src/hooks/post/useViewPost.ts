@@ -7,7 +7,6 @@ import { Post, sendViewPost } from '../../graphql/posts';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ReadingDay, UserStreak } from '../../graphql/users';
-import { getTodayTz } from '../../lib/dateFormat';
 
 export const useViewPost = (
   post: Post,
@@ -41,17 +40,8 @@ export const useViewPost = (
       const reading = client.getQueryData<ReadingDay[]>(readKey);
 
       if (reading) {
-        const timezoned = getTodayTz(user?.timezone || 'UTC');
-        const date = timezoned.toISOString().split('T')[0];
-        const index = reading.findIndex((read) => read.date === date);
-
-        if (index === -1) {
-          return client.setQueryData(readKey, [...reading, { date, reads: 1 }]);
-        }
-
-        const updatedReading = [...reading];
-        updatedReading[index].reads += 1;
-        return client.setQueryData(readKey, updatedReading);
+        // just mark the query as stale
+        await client.invalidateQueries(readKey);
       }
 
       return null;

@@ -4,6 +4,7 @@ import {
   commentDateFormat,
   getReadHistoryDateFormat,
   isDateOnlyEqual,
+  getTodayTz,
 } from './dateFormat';
 
 const now = new Date(2020, 5, 1, 12, 0, 0);
@@ -121,5 +122,54 @@ describe('getReadHistoryDateFormat', () => {
     const date = new Date('2018-03-31 07:15:51.247');
     const actual = getReadHistoryDateFormat(date);
     expect(actual).toEqual(expected);
+  });
+});
+
+describe('getTodayTz', () => {
+  const mockDate = new Date('2024-01-01T00:00:00Z');
+
+  it('should return the current date in New York timezone', () => {
+    const date = getTodayTz('America/New_York', mockDate);
+    expect(date).toEqual(new Date('2023-12-31T19:00:00'));
+  });
+
+  it('should return the correct date in Berlin timezone', () => {
+    const date = getTodayTz('Europe/Berlin', mockDate);
+    expect(date).toEqual(new Date('2024-01-01T01:00:00'));
+  });
+
+  it('should return the correct date in India timezone', () => {
+    const date = getTodayTz('Asia/Kolkata', mockDate);
+    expect(date).toEqual(new Date('2024-01-01T05:30:00'));
+  });
+
+  it('should return the current date in UTC timezone', () => {
+    const date = getTodayTz('UTC', mockDate);
+    expect(date).toEqual(new Date('2024-01-01T00:00:00'));
+  });
+
+  it('should return the correct date in New York timezone during daylight saving time', () => {
+    const date = getTodayTz(
+      'America/New_York',
+      new Date('2024-03-11T00:00:00Z'),
+    );
+    expect(date).toEqual(new Date('2024-03-10T20:00:00'));
+  });
+
+  it('should return the correct date in Berlin timezone during daylight saving time', () => {
+    const date = getTodayTz('Europe/Berlin', new Date('2024-04-01T00:00:00Z'));
+    expect(date).toEqual(new Date('2024-04-01T02:00:00'));
+  });
+
+  it('should return same date as today if second argument is not supplied', () => {
+    const dateNow = new Date();
+    const date = getTodayTz('UTC');
+    expect(date.toISOString().slice(0, 10)).toEqual(
+      dateNow.toISOString().slice(0, 10),
+    );
+  });
+
+  it('should throw an error for invalid timezone', () => {
+    expect(() => getTodayTz('Invalid/Timezone')).toThrow();
   });
 });
