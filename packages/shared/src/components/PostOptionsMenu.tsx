@@ -323,7 +323,7 @@ export default function PostOptionsMenu({
     },
   ];
 
-  const showSimilarPosts = useConditionalFeature({
+  const { value: showSimilarPosts } = useConditionalFeature({
     feature: feature.similarPosts,
     shouldEvaluate: !!post?.id,
   });

@@ -67,7 +67,7 @@ function PostEngagements({
     SQUAD_COMMENT_JOIN_BANNER_KEY,
     false,
   );
-  const showSimilarPosts = useConditionalFeature({
+  const { value: showSimilarPosts } = useConditionalFeature({
     feature: feature.similarPosts,
     shouldEvaluate: !!post?.id,
   });
