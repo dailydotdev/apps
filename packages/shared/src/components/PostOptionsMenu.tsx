@@ -113,7 +113,11 @@ export default function PostOptionsMenu({
   const { hidePost, unhidePost } = useReportPost();
 
   const { openModal } = useLazyModal();
-  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
+  const {
+    queryKey: feedQueryKey,
+    items,
+    trackingOpts,
+  } = useContext(ActiveFeedContext);
   const {
     onFollowSource,
     onUnfollowSource,
@@ -154,7 +158,7 @@ export default function PostOptionsMenu({
   });
 
   const onToggleBookmark = async () => {
-    toggleBookmark({ post, origin });
+    toggleBookmark({ post, origin, opts: trackingOpts });
   };
 
   const showMessageAndRemovePost = async (
@@ -203,7 +207,7 @@ export default function PostOptionsMenu({
     onPostDeleted: ({ index, post: deletedPost }) => {
       trackEvent(
         postAnalyticsEvent(AnalyticsEvent.DeletePost, deletedPost, {
-          extra: { origin },
+          extra: { origin, ...trackingOpts },
         }),
       );
       return showMessageAndRemovePost('The post has been deleted', index, null);
@@ -283,6 +287,12 @@ export default function PostOptionsMenu({
     );
   };
 
+  const onClickSimilarPosts = () => {
+    trackEvent(
+      postAnalyticsEvent(AnalyticsEvent.ClickSimilarPosts, post, trackingOpts),
+    );
+  };
+
   const onHidePost = async (): Promise<void> => {
     const { successful } = await hidePost(post.id);
 
@@ -292,7 +302,7 @@ export default function PostOptionsMenu({
 
     trackEvent(
       postAnalyticsEvent('hide post', post, {
-        extra: { origin: Origin.PostContextMenu },
+        extra: { origin: Origin.PostContextMenu, ...trackingOpts },
       }),
     );
 
@@ -320,6 +330,7 @@ export default function PostOptionsMenu({
       icon: <MenuIcon Icon={MagicIcon} secondary />,
       label: 'Show similar posts',
       anchorProps: {
+        onClick: onClickSimilarPosts,
         href: `${webappUrl}posts/${post?.id}/similar`,
       },
     });
