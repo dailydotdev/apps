@@ -1,23 +1,43 @@
-import React, { ReactElement, useMemo, useState } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { addDays, isSameDay, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { StreakSection } from './StreakSection';
 import { DayStreak, Streak } from './DayStreak';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
-import { getReadingStreak30Days, UserStreak } from '../../../graphql/users';
+import {
+  getReadingStreak30Days,
+  ReadingDay,
+  UserStreak,
+} from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Weekends } from '../../../lib/dateFormat';
 
 const getStreak = ({
-  isCompleted,
-  isToday,
-  isFreezeDay,
+  value,
+  today,
+  dateToday,
+  history,
 }: {
-  isCompleted: boolean;
-  isToday: boolean;
-  isFreezeDay: boolean;
-}) => {
+  value: Date;
+  today: Date;
+  dateToday: number;
+  history?: ReadingDay[];
+}): Streak => {
+  const day = value.getDay();
+  const date = value.getDate();
+  const isFreezeDay = Weekends.includes(day);
+  const isToday = date === dateToday;
+  const isFuture = value > today;
+  const isCompleted =
+    !isFuture &&
+    history?.some(({ date: historyDate, reads }) => {
+      const dateToCompare = new Date(historyDate);
+      const sameDate = isSameDay(dateToCompare, value);
+
+      return sameDate && reads > 0;
+    });
+
   if (isCompleted) {
     return Streak.Completed;
   }
@@ -34,8 +54,7 @@ const getStreak = ({
 };
 
 const getStreakDays = (today: Date) => {
-  const dateToday = today.getDate();
-  const streakDays = [
+  return [
     subDays(today, 4),
     subDays(today, 3),
     subDays(today, 2),
@@ -46,8 +65,6 @@ const getStreakDays = (today: Date) => {
     addDays(today, 3),
     addDays(today, 4),
   ]; // these dates will then be compared to the user's post views
-
-  return { dateToday, streakDays };
 };
 
 interface ReadingStreakPopupProps {
@@ -60,52 +77,35 @@ export function ReadingStreakPopup({
   fullWidth,
 }: ReadingStreakPopupProps): ReactElement {
   const { user } = useAuthContext();
-  const [today, setToday] = useState(new Date());
-  const { data: history } = useQuery(
+  const { data: history } = useQuery<ReadingDay[]>(
     generateQueryKey(RequestKey.ReadingStreak30Days, user),
     () => getReadingStreak30Days(user.id),
     { staleTime: StaleTime.Default },
   );
 
-  // only change today and streakDays if the current day changed to the next one
-  if (!isSameDay(new Date(), today)) {
-    setToday(new Date());
-  }
-  const { dateToday, streakDays } = useMemo(
-    () => getStreakDays(today),
-    [today],
-  );
+  const today = new Date();
+  const dateToday = today.getDate();
 
-  const streaks = useMemo(
-    () =>
-      streakDays.map((value) => {
-        const day = value.getDay();
-        const date = value.getDate();
-        const isFreezeDay = Weekends.includes(day);
-        const isToday = date === dateToday;
-        const isFuture = value > today;
-        const isCompleted =
-          !isFuture &&
-          history?.some(({ date: historyDate, reads }) => {
-            const dateToCompare = new Date(historyDate);
-            const sameDate = isSameDay(dateToCompare, value);
+  const streaks = useMemo(() => {
+    const streakDays = getStreakDays(today);
 
-            return sameDate && reads > 0;
-          });
+    return streakDays.map((value) => {
+      const isToday = value.getDate() === dateToday;
+      const streakDef = getStreak({ value, today, dateToday, history });
 
-        const streakDef = getStreak({ isCompleted, isToday, isFreezeDay });
-
-        return (
-          <DayStreak
-            key={value.getTime()}
-            streak={streakDef}
-            day={day}
-            shouldShowArrow={date === dateToday}
-          />
-        );
-      }),
-    [history, today, dateToday, streakDays],
-  );
+      return (
+        <DayStreak
+          key={value.getTime()}
+          streak={streakDef}
+          day={value.getDay()}
+          shouldShowArrow={isToday}
+        />
+      );
+    });
+    // we cannot depend on today here, since that changes on every render
+    // we depend on dateToday instead, which only changes on day change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [history, dateToday]);
 
   return (
     <div className="flex flex-col">
