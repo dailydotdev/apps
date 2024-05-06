@@ -207,7 +207,8 @@ export default function PostOptionsMenu({
     onPostDeleted: ({ index, post: deletedPost }) => {
       trackEvent(
         postAnalyticsEvent(AnalyticsEvent.DeletePost, deletedPost, {
-          extra: { origin, ...trackingOpts },
+          extra: { origin },
+          ...trackingOpts,
         }),
       );
       return showMessageAndRemovePost('The post has been deleted', index, null);
@@ -302,7 +303,8 @@ export default function PostOptionsMenu({
 
     trackEvent(
       postAnalyticsEvent('hide post', post, {
-        extra: { origin: Origin.PostContextMenu, ...trackingOpts },
+        extra: { origin: Origin.PostContextMenu },
+        ...trackingOpts,
       }),
     );
 
