@@ -22,7 +22,6 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon, MagicIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { webappUrl } from '../../lib/constants';
-import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { useConditionalFeature } from '../../hooks';
 
