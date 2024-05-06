@@ -83,10 +83,10 @@ export function ReadingStreakPopup({
     { staleTime: StaleTime.Default },
   );
 
-  const today = new Date();
-  const dateToday = today.getDate();
+  const dateToday = new Date().getDate();
 
   const streaks = useMemo(() => {
+    const today = new Date();
     const streakDays = getStreakDays(today);
 
     return streakDays.map((value) => {
@@ -102,9 +102,6 @@ export function ReadingStreakPopup({
         />
       );
     });
-    // we cannot depend on today here, since that changes on every render
-    // we depend on dateToday instead, which only changes on day change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history, dateToday]);
 
   return (
