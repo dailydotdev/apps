@@ -32,6 +32,7 @@ export enum OtherFeedPage {
   SourceBestDiscussed = 'sources[source]/best-discussed',
   TagsMostUpvoted = 'tags[tag]/most-upvoted',
   TagsBestDiscussed = 'tags[tag]/best-discussed',
+  SimilarPosts = 'posts/[id]/similar',
 }
 
 const ONE_MINUTE = 60 * 1000;
