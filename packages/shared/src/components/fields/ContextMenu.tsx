@@ -96,7 +96,11 @@ export default function ContextMenu({
           <Item className="typo-callout" onClick={action}>
             <ConditionalWrapper
               condition={!!anchorProps}
-              wrapper={(children) => <a {...anchorProps}>{children}</a>}
+              wrapper={(children) => (
+                <a className="w-full" {...anchorProps}>
+                  {children}
+                </a>
+              )}
             >
               <span className="flex w-full items-center gap-2 typo-callout">
                 {icon} {label}
