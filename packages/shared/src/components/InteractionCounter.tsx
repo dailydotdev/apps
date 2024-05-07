@@ -1,6 +1,7 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import classNames from 'classnames';
+import { largeNumberFormat } from '../lib';
 
 export type InteractionCounterProps = {
   className?: string;
@@ -35,7 +36,7 @@ export default function InteractionCounter({
   if (shownValue === value) {
     return (
       <span className={elementClassName} {...props}>
-        {shownValue}
+        {largeNumberFormat(shownValue)}
       </span>
     );
   }
@@ -56,7 +57,7 @@ export default function InteractionCounter({
           animate ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100',
         )}
       >
-        {shownValue}
+        {largeNumberFormat(shownValue)}
       </span>
       <span
         className={classNames(
@@ -65,7 +66,7 @@ export default function InteractionCounter({
         )}
         onTransitionEnd={updateShownValue}
       >
-        {value}
+        {largeNumberFormat(value)}
       </span>
     </span>
   );

@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import { Post } from '../../graphql/posts';
 import { ClickableText } from '../buttons/ClickableText';
+import { largeNumberFormat } from '../../lib';
 
 interface PostUpvotesCommentsCountProps {
   post: Post;
@@ -23,15 +24,15 @@ export function PostUpvotesCommentsCount({
       className="mb-5 flex items-center gap-x-4 text-text-tertiary typo-callout"
       data-testid="statsBar"
     >
-      {post.views > 0 && <span>{post.views.toLocaleString()} Views</span>}
+      {post.views > 0 && <span>{largeNumberFormat(post.views)} Views</span>}
       {upvotes > 0 && (
         <ClickableText onClick={() => onUpvotesClick(upvotes)}>
-          {upvotes} Upvote{upvotes > 1 ? 's' : ''}
+          {largeNumberFormat(upvotes)} Upvote{upvotes > 1 ? 's' : ''}
         </ClickableText>
       )}
       {comments > 0 && (
         <span>
-          {comments.toLocaleString()}
+          {largeNumberFormat(comments)}
           {` Comment${comments === 1 ? '' : 's'}`}
         </span>
       )}

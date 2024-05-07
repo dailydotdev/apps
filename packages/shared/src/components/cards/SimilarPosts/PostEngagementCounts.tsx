@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { separatorCharacter } from '../common';
+import { largeNumberFormat } from '../../../lib';
 
 interface PostEngagementCountsProps {
   upvotes: number;
@@ -18,9 +19,9 @@ export function PostEngagementCounts({
       className={classNames('truncate typo-footnote', className)}
       data-testid="post-engagements-count"
     >
-      {upvotes ? `${upvotes} Upvotes` : ''}
+      {upvotes ? `${largeNumberFormat(upvotes)} Upvotes` : ''}
       {upvotes && comments ? <> {separatorCharacter} </> : ''}
-      {comments ? `${comments} Comments` : ''}
+      {comments ? `${largeNumberFormat(comments)} Comments` : ''}
     </p>
   );
 }
