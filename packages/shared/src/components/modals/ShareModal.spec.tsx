@@ -16,8 +16,17 @@ import { Origin } from '../../lib/analytics';
 import Comment from '../../../__tests__/fixture/comment';
 import { getCommentHash } from '../../graphql/comments';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
-import { generateTestSquad } from '../../../__tests__/fixture/squads';
+import {
+  generateSquadsResult,
+  generateTestSquad,
+} from '../../../__tests__/fixture/squads';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '../../../__tests__/helpers/graphql';
+import { MySourcesData } from '../../graphql/sources';
+import { MY_SQUADS_QUERY } from '../../graphql/squads';
 
 const defaultPost = Post;
 const defaultComment = Comment;
@@ -44,6 +53,11 @@ const renderComponent = (
   hasSquads = true,
   comment?,
 ): RenderResult => {
+  mockGraphQL({
+    request: { query: MY_SQUADS_QUERY },
+    result: { data: generateSquadsResult(squads) },
+  });
+
   return render(
     <TestBootProvider
       client={client}
@@ -54,7 +68,6 @@ const renderComponent = (
         getRedirectUri: jest.fn(),
         loadingUser: false,
         loadedUserFromCache: true,
-        squads: hasSquads ? squads : [],
       }}
     >
       <ShareModal

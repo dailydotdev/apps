@@ -64,7 +64,6 @@ const updateLocalBootData = (
     'notifications',
     'user',
     'lastModifier',
-    'squads',
     'exp',
   ]);
 
@@ -93,8 +92,7 @@ export const BootDataProvider = ({
     useState<Partial<BootCacheData>>();
   const [initialLoad, setInitialLoad] = useState<boolean>(null);
   const loadedFromCache = !!cachedBootData;
-  const { user, settings, alerts, notifications, squads } =
-    cachedBootData || {};
+  const { user, settings, alerts, notifications } = cachedBootData || {};
   const loggedUser = !!(user && 'providers' in user && user?.id);
   const {
     data: bootRemoteData,
@@ -205,7 +203,6 @@ export const BootDataProvider = ({
         isLegacyLogout={bootRemoteData?.isLegacyLogout}
         firstLoad={initialLoad}
         accessToken={bootRemoteData?.accessToken}
-        squads={squads}
       >
         <SettingsContextProvider
           settings={settings}

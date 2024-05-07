@@ -14,6 +14,7 @@ import {
 import { PlusIcon } from '../../icons';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { SimpleTooltip } from '../../tooltips';
+import { useSquads } from '../../../hooks/squads/useSquads';
 
 interface CreatePostButtonProps {
   className?: string;
@@ -30,7 +31,8 @@ export function CreatePostButton({
   footer,
   onClick,
 }: CreatePostButtonProps): ReactElement {
-  const { user, squads } = useAuthContext();
+  const { user } = useAuthContext();
+  const { squads } = useSquads();
   const { route, query } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const handle = route === '/squads/[handle]' ? (query.handle as string) : '';
