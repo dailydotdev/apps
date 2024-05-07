@@ -11,7 +11,10 @@ import {
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { SIMILAR_POSTS_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import Feed from '@dailydotdev/shared/src/components/Feed';
-import { FeedPageHeader } from '@dailydotdev/shared/src/components/utilities';
+import {
+  FeedPageHeader,
+  truncateTextClassNames,
+} from '@dailydotdev/shared/src/components/utilities';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -22,6 +25,8 @@ import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
 import SimilarEmptyScreen from '@dailydotdev/shared/src/components/feeds/SimilarEmptyScreen';
+import { GoBackHeaderMobile } from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
+import classNames from 'classnames';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
@@ -62,26 +67,37 @@ const SimilarFeed = ({ id, initialData }: Props): ReactElement => {
     return <Custom404 />;
   }
 
+  const Title = () => (
+    <h1
+      className={classNames('font-bold typo-callout', truncateTextClassNames)}
+    >
+      Posts similar to &quot;{post?.title}&quot;
+    </h1>
+  );
+
   return (
-    <FeedPageLayoutComponent className="overflow-x-hidden">
-      <NextSeo {...seo} />
-      <FeedPageHeader className="mb-5">
-        <h1 className="font-bold typo-callout">
-          Posts similar to &quot;{post?.title}&quot;
-        </h1>
-      </FeedPageHeader>
-      <Feed
-        feedName={OtherFeedPage.SimilarPosts}
-        feedQueryKey={[
-          'similarPostsFeed',
-          user?.id ?? 'anonymous',
-          Object.values(queryVariables),
-        ]}
-        query={id && SIMILAR_POSTS_FEED_QUERY}
-        emptyScreen={<SimilarEmptyScreen post={post} />}
-        variables={queryVariables}
-      />
-    </FeedPageLayoutComponent>
+    <>
+      <GoBackHeaderMobile>
+        <Title />
+      </GoBackHeaderMobile>
+      <FeedPageLayoutComponent className="overflow-x-hidden">
+        <NextSeo {...seo} />
+        <FeedPageHeader className="mb-5">
+          <Title />
+        </FeedPageHeader>
+        <Feed
+          feedName={OtherFeedPage.SimilarPosts}
+          feedQueryKey={[
+            'similarPostsFeed',
+            user?.id ?? 'anonymous',
+            Object.values(queryVariables),
+          ]}
+          query={id && SIMILAR_POSTS_FEED_QUERY}
+          emptyScreen={<SimilarEmptyScreen post={post} />}
+          variables={queryVariables}
+        />
+      </FeedPageLayoutComponent>
+    </>
   );
 };
 
