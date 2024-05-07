@@ -82,10 +82,12 @@ const SimilarFeed = ({ id, initialData }: Props): ReactElement => {
       </GoBackHeaderMobile>
       <FeedPageLayoutComponent className="overflow-x-hidden">
         <NextSeo {...seo} />
-        <FeedPageHeader className="mb-5">
-          <Title />
-        </FeedPageHeader>
         <Feed
+          header={
+            <FeedPageHeader className="mb-5">
+              <Title />
+            </FeedPageHeader>
+          }
           feedName={OtherFeedPage.SimilarPosts}
           feedQueryKey={[
             'similarPostsFeed',
