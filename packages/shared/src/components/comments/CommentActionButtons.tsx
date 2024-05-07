@@ -30,7 +30,7 @@ import OptionsButton from '../buttons/OptionsButton';
 import { SourcePermissions } from '../../graphql/sources';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { labels } from '../../lib';
+import { labels, largeNumberFormat } from '../../lib';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import {
   VoteEntityPayload,
@@ -253,7 +253,8 @@ export default function CommentActionButtons({
             className="ml-auto"
             onClick={() => onShowUpvotes(comment.id, voteState.numUpvotes)}
           >
-            {voteState.numUpvotes} upvote{voteState.numUpvotes === 1 ? '' : 's'}
+            {largeNumberFormat(voteState.numUpvotes)} upvote
+            {voteState.numUpvotes === 1 ? '' : 's'}
           </ClickableText>
         </SimpleTooltip>
       )}

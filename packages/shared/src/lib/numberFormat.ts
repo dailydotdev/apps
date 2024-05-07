@@ -1,4 +1,7 @@
 export function largeNumberFormat(value: number): string {
+  if (typeof value !== 'number') {
+    return null;
+  }
   let newValue = value;
   const suffixes = ['', 'K', 'M', 'B', 'T'];
   let suffixNum = 0;

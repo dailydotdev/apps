@@ -6,6 +6,7 @@ import { Post } from '../../graphql/posts';
 import { PlayIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { formatReadTime, TruncateText, DateFormat } from '../utilities';
+import { largeNumberFormat } from '../../lib';
 
 interface PostMetadataProps
   extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {
@@ -59,7 +60,7 @@ export default function PostMetadata({
       {(!!createdAt || showReadTime) && !!numUpvotes && <Separator />}
       {!!numUpvotes && (
         <span data-testid="numUpvotes">
-          {numUpvotes} upvote{numUpvotes > 1 ? 's' : ''}
+          {largeNumberFormat(numUpvotes)} upvote{numUpvotes > 1 ? 's' : ''}
         </span>
       )}
       {children}
