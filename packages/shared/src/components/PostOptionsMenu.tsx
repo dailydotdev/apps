@@ -329,7 +329,7 @@ export default function PostOptionsMenu({
   });
   if (showSimilarPosts) {
     postOptions.push({
-      icon: <MenuIcon Icon={MagicIcon} secondary />,
+      icon: <MenuIcon Icon={MagicIcon} />,
       label: 'Show similar posts',
       anchorProps: {
         onClick: onClickSimilarPosts,
