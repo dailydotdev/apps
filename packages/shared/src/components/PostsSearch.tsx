@@ -67,7 +67,7 @@ export default function PostsSearch({
   const [items, setItems] = useState<string[]>([]);
   const { value: searchVersion } = useConditionalFeature({
     feature: feature.searchVersion,
-    shouldEvaluate: !!query,
+    shouldEvaluate: !!query && suggestionType === 'searchPostSuggestions',
   });
   const SEARCH_URL = SEARCH_TYPES[suggestionType];
 
