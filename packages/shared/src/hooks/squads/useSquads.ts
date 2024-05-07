@@ -4,7 +4,6 @@ import { Squad } from '../../graphql/sources';
 import { getCurrentUserSquads } from '../../graphql/squads';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import { graphqlUrl } from '../../lib/config';
 import { useRequestProtocol } from '../useRequestProtocol';
 
 interface UseSquadsResult {

@@ -20,12 +20,8 @@ import {
 import { getFacebookShareLink } from '../lib/share';
 import { LazyModalElement } from './modals/LazyModalElement';
 import { NotificationsContextProvider } from '../contexts/NotificationsContext';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '../../__tests__/helpers/graphql';
-import { MY_SQUADS_QUERY, SquadEdgesData } from '../graphql/squads';
-import { MySourcesData } from '../graphql/sources';
+import { mockGraphQL } from '../../__tests__/helpers/graphql';
+import { MY_SQUADS_QUERY } from '../graphql/squads';
 
 const defaultPost = Post;
 Object.defineProperty(window, 'matchMedia', {
@@ -59,7 +55,7 @@ const renderComponent = (loggedIn = true, hasSquads = true): RenderResult => {
 
   mockGraphQL({
     request: { query: MY_SQUADS_QUERY },
-    result: { data: generateSquadsResult(squads) },
+    result: { data: generateSquadsResult(hasSquads ? squads : []) },
   });
 
   return render(

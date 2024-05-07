@@ -21,11 +21,7 @@ import {
   generateTestSquad,
 } from '../../../__tests__/fixture/squads';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '../../../__tests__/helpers/graphql';
-import { MySourcesData } from '../../graphql/sources';
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { MY_SQUADS_QUERY } from '../../graphql/squads';
 
 const defaultPost = Post;
@@ -55,7 +51,7 @@ const renderComponent = (
 ): RenderResult => {
   mockGraphQL({
     request: { query: MY_SQUADS_QUERY },
-    result: { data: generateSquadsResult(squads) },
+    result: { data: generateSquadsResult(hasSquads ? squads : []) },
   });
 
   return render(
