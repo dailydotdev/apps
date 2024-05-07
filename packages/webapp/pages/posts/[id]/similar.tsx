@@ -21,6 +21,7 @@ import request, { ClientError } from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import usePostById from '@dailydotdev/shared/src/hooks/usePostById';
+import SimilarEmptyScreen from '@dailydotdev/shared/src/components/feeds/SimilarEmptyScreen';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
@@ -77,6 +78,7 @@ const SimilarFeed = ({ id, initialData }: Props): ReactElement => {
           Object.values(queryVariables),
         ]}
         query={id && SIMILAR_POSTS_FEED_QUERY}
+        emptyScreen={<SimilarEmptyScreen post={post} />}
         variables={queryVariables}
       />
     </FeedPageLayoutComponent>
