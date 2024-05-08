@@ -167,7 +167,8 @@ function MainLayoutComponent({
   ) {
     return null;
   }
-  const isScreenCentered = screenCenteredOnMobileLayout ? true : screenCentered;
+  const isScreenCentered =
+    isLaptopXL && screenCenteredOnMobileLayout ? true : screenCentered;
 
   return (
     <div className="antialiased">
