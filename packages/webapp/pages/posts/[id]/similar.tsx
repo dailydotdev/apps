@@ -58,7 +58,7 @@ const SimilarFeed = ({ id, initialData }: Props): ReactElement => {
   );
 
   const seo: NextSeoProps = {
-    title: `similar posts to ${post?.title} on daily.dev`,
+    title: `Similar posts to ${post?.title} on daily.dev`,
     openGraph: { ...defaultOpenGraph },
     ...defaultSeo,
   };
