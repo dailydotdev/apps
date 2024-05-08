@@ -78,6 +78,7 @@ export type FeedItemComponentProps = {
     column: number,
   ) => unknown;
   onAdClick: (ad: Ad, row: number, column: number) => void;
+  isHorizontal: boolean;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'>;
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {
@@ -111,11 +112,13 @@ const PostTypeToTagV1: Record<PostType, FunctionComponent> = {
 };
 
 const getTags = (
+  isHorizontal: boolean,
   isList: boolean,
   isFeedLayoutV1: boolean,
   isFeedListLayoutEnabled: boolean,
   postType: PostType,
 ) => {
+  const useListCards = isList && !isHorizontal;
   if (isFeedLayoutV1 || isFeedListLayoutEnabled) {
     return {
       PostTag: PostTypeToTagV1[postType] ?? ArticlePostCardV1,
@@ -125,10 +128,12 @@ const getTags = (
     };
   }
   return {
-    PostTag: isList ? PostList : PostTypeToTag[postType] ?? ArticlePostCard,
-    AdTag: isList ? AdList : AdCard,
-    PlaceholderTag: isList ? PlaceholderList : PlaceholderCard,
-    MarketingCtaTag: isList ? MarketingCtaList : MarketingCtaCard,
+    PostTag: useListCards
+      ? PostList
+      : PostTypeToTag[postType] ?? ArticlePostCard,
+    AdTag: useListCards ? AdList : AdCard,
+    PlaceholderTag: useListCards ? PlaceholderList : PlaceholderCard,
+    MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
   };
 };
 
@@ -159,6 +164,7 @@ export default function FeedItemComponent({
   onCommentClick,
   onAdClick,
   onReadArticleClick,
+  isHorizontal,
 }: FeedItemComponentProps): ReactElement {
   const item = items[index];
   const inViewRef = useTrackImpression(
@@ -173,9 +179,10 @@ export default function FeedItemComponent({
 
   const { shouldUseListFeedLayout, isFeedListLayoutEnabled } = useFeedLayout();
   const { PostTag, AdTag, PlaceholderTag, MarketingCtaTag } = getTags(
+    isHorizontal,
     isList,
-    isFeedListLayoutEnabled,
     shouldUseListFeedLayout,
+    isFeedListLayoutEnabled,
     (item as PostItem).post?.type,
   );
 

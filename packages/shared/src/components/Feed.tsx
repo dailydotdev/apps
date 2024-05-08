@@ -397,6 +397,7 @@ export default function Feed<T>({
       >
         {items.map((_, index) => (
           <FeedItemComponent
+            isHorizontal={isHorizontal}
             items={items}
             index={index}
             row={calculateRow(index, virtualizedNumCards)}

@@ -37,6 +37,10 @@ export type FeedPagesWithMobileLayoutType = Exclude<
   | 'squads'
   | 'source'
   | 'tag'
+  | 'sources[source]/most-upvoted'
+  | 'sources[source]/best-discussed'
+  | 'tags[tag]/most-upvoted'
+  | 'tags[tag]/best-discussed'
 >;
 
 export type UserProfileFeedType = Extract<
@@ -124,7 +128,7 @@ export const useFeedLayout = ({
     shouldUseListFeedLayout,
     shouldUseCommentFeedLayout,
     FeedPageLayoutComponent,
-    isFeedListLayoutEnabled,
+    isFeedListLayoutEnabled: shouldUseListFeedLayoutOnDesktop,
     screenCenteredOnMobileLayout:
       shouldUseListFeedLayoutOnMobile &&
       !UserProfileFeedPages.has(feedName as UserProfileFeedType),
