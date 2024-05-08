@@ -12,7 +12,12 @@ import {
 import { Post, UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
-import { useVotePost } from '../../hooks';
+import {
+  useConditionalFeature,
+  useViewSize,
+  useVotePost,
+  ViewSize,
+} from '../../hooks';
 import { Origin } from '../../lib/analytics';
 import { Card } from '../cards/Card';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -26,7 +31,6 @@ import {
   useBookmarkPost,
 } from '../../hooks/useBookmarkPost';
 import { useSharePost } from '../../hooks/useSharePost';
-import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
 
@@ -51,7 +55,11 @@ export function PostActions({
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const queryClient = useQueryClient();
   const { openNativeShareOrPopup } = useSharePost(origin);
-  const shareExperience = useFeature(feature.shareExperience);
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const shareExperience = useConditionalFeature({
+    feature: feature.shareExperience,
+    shouldEvaluate: isMobile,
+  });
 
   const { toggleUpvote, toggleDownvote } = useVotePost({
     variables: { feedName: feedQueryKey },
