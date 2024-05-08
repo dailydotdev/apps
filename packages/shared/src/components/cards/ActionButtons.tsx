@@ -57,7 +57,9 @@ export default function ActionButtons({
   className,
   insaneMode,
 }: ActionButtonsProps): ReactElement {
+  const bookmarkLoops = useFeature(feature.bookmarkLoops);
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
+  const shouldShowBookmark = bookmarkLoops || bookmarkOnCard;
   const upvoteCommentProps: ButtonProps<'button'> = {
     size: ButtonSize.Small,
   };
@@ -69,7 +71,7 @@ export default function ActionButtons({
 
   const lastActions = (
     <>
-      {bookmarkOnCard && (
+      {shouldShowBookmark && (
         <SimpleTooltip
           content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
         >
@@ -99,7 +101,7 @@ export default function ActionButtons({
     <div
       className={classNames(
         'flex flex-row items-center justify-between',
-        !insaneMode && !bookmarkOnCard && 'mx-4',
+        !insaneMode && !shouldShowBookmark && 'mx-4',
         className,
       )}
     >
