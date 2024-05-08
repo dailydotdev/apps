@@ -84,7 +84,7 @@ const useBookmarkPost = ({
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const bookmarkPopup = useFeature(feature.bookmarkPopup);
+  const bookmarkLoops = useFeature(feature.bookmarkLoops);
   const { openModal } = useLazyModal();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const seenBookmarkPromotion = useMemo(
@@ -174,7 +174,7 @@ const useBookmarkPost = ({
       await addBookmark({ id: post.id });
       displayToast('Post was added to your bookmarks');
 
-      if (!seenBookmarkPromotion && bookmarkPopup) {
+      if (!seenBookmarkPromotion && bookmarkLoops) {
         completeAction(ActionType.BookmarkPromoteMobile);
         openModal({
           type: LazyModal.MarketingCta,
@@ -184,7 +184,7 @@ const useBookmarkPost = ({
     },
     [
       addBookmark,
-      bookmarkPopup,
+      bookmarkLoops,
       completeAction,
       displayToast,
       openModal,

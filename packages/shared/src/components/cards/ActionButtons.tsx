@@ -57,9 +57,9 @@ export default function ActionButtons({
   className,
   insaneMode,
 }: ActionButtonsProps): ReactElement {
-  const bookmarkPopup = useFeature(feature.bookmarkPopup);
+  const bookmarkLoops = useFeature(feature.bookmarkLoops);
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
-  const shouldShowBookmark = bookmarkPopup || bookmarkOnCard;
+  const shouldShowBookmark = bookmarkLoops || bookmarkOnCard;
   const upvoteCommentProps: ButtonProps<'button'> = {
     size: ButtonSize.Small,
   };
