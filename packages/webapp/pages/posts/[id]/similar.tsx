@@ -97,6 +97,7 @@ const SimilarFeed = ({ id, initialData }: Props): ReactElement => {
           query={id && SIMILAR_POSTS_FEED_QUERY}
           emptyScreen={<SimilarEmptyScreen post={post} />}
           variables={queryVariables}
+          pageSize={100}
         />
       </FeedPageLayoutComponent>
     </>
