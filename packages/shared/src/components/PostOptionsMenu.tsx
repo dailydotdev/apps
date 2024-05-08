@@ -309,9 +309,11 @@ export default function PostOptionsMenu({
   ];
 
   const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const bookmarkLoops = useFeature(feature.bookmarkLoops);
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
+  const shouldShowBookmark = bookmarkLoops || bookmarkOnCard;
 
-  if (!bookmarkOnCard && !shouldUseMobileFeedLayout) {
+  if (!shouldShowBookmark && !shouldUseMobileFeedLayout) {
     postOptions.push({
       icon: (
         <MenuIcon
