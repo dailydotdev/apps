@@ -16,7 +16,10 @@ import {
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
 import SquadFeedHeading from '@dailydotdev/shared/src/components/squads/SquadFeedHeading';
-import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
+import {
+  BaseFeedPage,
+  FeedPageLayoutList,
+} from '@dailydotdev/shared/src/components/utilities';
 import {
   getSquadMembers,
   SQUAD_STATIC_FIELDS_QUERY,
@@ -93,7 +96,8 @@ const SquadPage = ({
   useJoinReferral();
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
-  const { shouldUseListFeedLayout } = useFeedLayout();
+  const { shouldUseListFeedLayout, shouldUseListFeedLayoutOnDesktop } =
+    useFeedLayout();
   const { user, isFetched: isBootFetched } = useContext(AuthContext);
   const [trackedImpression, setTrackedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
@@ -177,6 +181,10 @@ const SquadPage = ({
     return <Custom404 />;
   }
 
+  const FeedPageComponent = shouldUseListFeedLayoutOnDesktop
+    ? FeedPageLayoutList
+    : BaseFeedPage;
+
   return (
     <PageComponent
       squad={squad}
@@ -184,14 +192,22 @@ const SquadPage = ({
       fallback={<></>}
       shouldFallback={!user}
     >
-      <BaseFeedPage className="relative mb-4 pt-2 laptop:pt-8">
+      <FeedPageComponent
+        className={classNames('relative mb-4 pt-2 laptop:pt-8')}
+      >
         <div
           className={classNames(
             'squad-background-fade absolute top-0 h-full w-full',
-            sidebarRendered && '-left-full translate-x-[60%]',
+            sidebarRendered &&
+              !shouldUseListFeedLayoutOnDesktop &&
+              '-left-full translate-x-[60%]',
           )}
         />
-        <SquadPageHeader squad={squad} members={squadMembers} />
+        <SquadPageHeader
+          squad={squad}
+          members={squadMembers}
+          shouldUseListFeedLayoutOnDesktop={shouldUseListFeedLayoutOnDesktop}
+        />
         <Feed
           className={classNames(
             'pt-14 laptop:pt-10',
@@ -213,7 +229,7 @@ const SquadPage = ({
           inlineHeader
           allowPin
         />
-      </BaseFeedPage>
+      </FeedPageComponent>
     </PageComponent>
   );
 };

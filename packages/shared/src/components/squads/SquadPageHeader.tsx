@@ -22,6 +22,7 @@ import SquadChecklistCard from '../checklist/SquadChecklistCard';
 interface SquadPageHeaderProps {
   squad: Squad;
   members: SourceMember[];
+  shouldUseListFeedLayoutOnDesktop: boolean;
 }
 
 const MAX_WIDTH = 'laptopL:max-w-[38.5rem]';
@@ -30,6 +31,7 @@ const Divider = classed('span', 'flex flex-1 h-px bg-border-subtlest-tertiary');
 export function SquadPageHeader({
   squad,
   members,
+  shouldUseListFeedLayoutOnDesktop,
 }: SquadPageHeaderProps): ReactElement {
   const { tourIndex } = useSquadTour();
 
@@ -43,17 +45,39 @@ export function SquadPageHeader({
   return (
     <FlexCol
       className={classNames(
-        'relative min-h-20 w-full items-center border-border-subtlest-tertiary px-6 tablet:mb-6 tablet:border-b tablet:pb-20 laptopL:items-start laptopL:px-18 laptopL:pb-14',
+        'relative min-h-20 w-full items-center border-border-subtlest-tertiary px-6 tablet:mb-6 tablet:border-b tablet:pb-20',
+        !shouldUseListFeedLayoutOnDesktop &&
+          'laptopL:items-start laptopL:px-18 laptopL:pb-14',
       )}
     >
       {isChecklistVisible && <SquadChecklistCard squad={squad} />}
-      <div className="flex flex-col items-center laptopL:flex-row">
+      <div
+        className={classNames(
+          !shouldUseListFeedLayoutOnDesktop && 'laptopL:flex-row',
+          'flex flex-col items-center ',
+        )}
+      >
         <SquadImage className="h-16 w-16 tablet:h-24 tablet:w-24" {...squad} />
-        <FlexCol className="mt-4 laptopL:ml-6 laptopL:mt-0">
-          <h1 className="text-center font-bold typo-title2 laptopL:text-left">
+        <FlexCol
+          className={classNames(
+            'mt-4',
+            !shouldUseListFeedLayoutOnDesktop && 'laptopL:ml-6 laptopL:mt-0',
+          )}
+        >
+          <h1
+            className={classNames(
+              'text-center font-bold typo-title2 laptopL:text-left',
+              !shouldUseListFeedLayoutOnDesktop && 'laptopL:text-left',
+            )}
+          >
             {squad.name}
           </h1>
-          <h2 className="mt-1 text-center text-text-tertiary typo-body tablet:mt-2 laptopL:text-left">
+          <h2
+            className={classNames(
+              'mt-1 text-center text-text-tertiary typo-body tablet:mt-2',
+              !shouldUseListFeedLayoutOnDesktop && 'laptopL:text-left',
+            )}
+          >
             @{squad.handle}
           </h2>
         </FlexCol>
@@ -61,8 +85,9 @@ export function SquadPageHeader({
       {squad.description && (
         <p
           className={classNames(
-            'mt-6 w-full text-center text-text-tertiary typo-body laptopL:text-left',
-            MAX_WIDTH,
+            'mt-6 w-full text-center text-text-tertiary typo-body',
+            !shouldUseListFeedLayoutOnDesktop && 'laptopL:text-left',
+            !shouldUseListFeedLayoutOnDesktop && MAX_WIDTH,
           )}
         >
           {squad.description}
@@ -71,25 +96,39 @@ export function SquadPageHeader({
       <SquadMemberShortList
         squad={squad}
         members={members}
-        className="my-6 laptopL:hidden"
+        className={classNames(
+          'my-6',
+          !shouldUseListFeedLayoutOnDesktop && 'laptopL:hidden',
+        )}
       />
       <SquadHeaderBar
         squad={squad}
         members={members}
-        className="laptopL:absolute laptopL:right-18 laptopL:top-0"
+        className={classNames(
+          !shouldUseListFeedLayoutOnDesktop &&
+            'laptopL:absolute laptopL:right-18 laptopL:top-0',
+        )}
       />
       <EnableNotification
         contentName={squad.name}
         source={NotificationPromptSource.SquadPage}
-        className={classNames('w-full', MAX_WIDTH)}
+        className={classNames(
+          'w-full',
+          !shouldUseListFeedLayoutOnDesktop && MAX_WIDTH,
+        )}
       />
       <div
         className={classNames(
-          'relative bottom-0 flex w-full flex-col bg-background-default pt-8 tablet:absolute tablet:translate-y-1/2 tablet:flex-row tablet:p-0 laptopL:px-0',
+          'relative bottom-0 flex w-full flex-col bg-background-default pt-8 tablet:absolute tablet:translate-y-1/2 tablet:flex-row tablet:p-0',
+          !shouldUseListFeedLayoutOnDesktop && 'laptopL:px-0',
           shouldShowHighlightPulse && 'highlight-pulse',
-          allowedToPost
-            ? 'items-center justify-center laptop:max-w-[41.5rem]'
-            : 'laptop:max-w-[38.25rem]',
+          allowedToPost && 'items-center justify-center',
+          allowedToPost &&
+            !shouldUseListFeedLayoutOnDesktop &&
+            'laptop:max-w-[41.5rem]',
+          !allowedToPost &&
+            !shouldUseListFeedLayoutOnDesktop &&
+            'laptop:max-w-[38.25rem]',
         )}
       >
         <ConditionalWrapper
