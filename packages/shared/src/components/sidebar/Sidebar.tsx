@@ -40,6 +40,7 @@ import { IconSize } from '../Icon';
 import { CreatePostButton } from '../post/write';
 import useActiveNav from '../../hooks/useActiveNav';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
+import { webappUrl } from '../../lib/constants';
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -120,7 +121,7 @@ export default function Sidebar({
           featureTheme={featureTheme}
         />
 
-        <Link href="/" prefetch={false} passHref>
+        <Link href={`${webappUrl}`} prefetch={false} passHref>
           <Button
             {...buttonProps}
             tag="a"
@@ -135,7 +136,7 @@ export default function Sidebar({
           </Button>
         </Link>
 
-        <Link href="/search" prefetch={false} passHref>
+        <Link href={`${webappUrl}search`} prefetch={false} passHref>
           <Button
             {...buttonProps}
             tag="a"
@@ -150,7 +151,7 @@ export default function Sidebar({
           </Button>
         </Link>
 
-        <Link href="/squads" prefetch={false} passHref>
+        <Link href={`${webappUrl}squads`} prefetch={false} passHref>
           <Button
             {...buttonProps}
             tag="a"
