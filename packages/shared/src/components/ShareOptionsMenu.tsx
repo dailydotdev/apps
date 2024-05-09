@@ -66,7 +66,9 @@ export default function ShareOptionsMenu({
     onClick(ShareProvider.CopyLink);
   };
 
+  const bookmarkLoops = useFeature(feature.bookmarkLoops);
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
+  const shouldShowBookmark = bookmarkLoops || bookmarkOnCard;
 
   const shareOptions: ShareOption[] = [
     {
@@ -76,7 +78,7 @@ export default function ShareOptionsMenu({
     },
   ];
 
-  if (!bookmarkOnCard && !shouldUseListFeedLayout) {
+  if (!shouldShowBookmark && !shouldUseListFeedLayout) {
     shareOptions.push({
       icon: (
         <MenuIcon

@@ -10,7 +10,7 @@ import {
 } from '../../graphql/search';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { graphqlUrl } from '../../lib/config';
-import { useFeature } from '../../components/GrowthBookProvider';
+import { useFeaturesReadyContext } from '../../components/GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 
 export type UseSearchProviderProps = {
@@ -46,7 +46,7 @@ const searchProviderExtractResultMap: Partial<
 export const useSearchProvider = (): UseSearchProvider => {
   const router = useRouter();
   const { requestMethod } = useRequestProtocol();
-  const searchVersion = useFeature(feature.searchVersion);
+  const { getFeatureValue } = useFeaturesReadyContext();
 
   return {
     search: useCallback(
@@ -66,6 +66,8 @@ export const useSearchProvider = (): UseSearchProvider => {
           };
         }
 
+        const searchVersion = getFeatureValue(feature.searchVersion);
+
         const result = await requestMethod(graphqlUrl, graphqlQuery, {
           query,
           version: searchVersion,
@@ -74,7 +76,7 @@ export const useSearchProvider = (): UseSearchProvider => {
 
         return resultExtractor(result);
       },
-      [requestMethod, searchVersion],
+      [getFeatureValue, requestMethod],
     ),
   };
 };

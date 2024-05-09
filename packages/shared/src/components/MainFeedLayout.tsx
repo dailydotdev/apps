@@ -140,7 +140,10 @@ export default function MainFeedLayout({
     hasUser: !!user,
   });
   const feedVersion = useFeature(feature.feedVersion);
-  const searchVersion = useFeature(feature.searchVersion);
+  const { value: searchVersion } = useConditionalFeature({
+    feature: feature.searchVersion,
+    shouldEvaluate: isSearchOn && !!searchQuery,
+  });
   const { isUpvoted, isPopular, isSortableFeed } = useFeedName({ feedName });
   const {
     shouldUseListFeedLayout,

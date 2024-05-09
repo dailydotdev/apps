@@ -185,12 +185,25 @@ export default function Feed<T>({
     },
   );
   const canFetchMore = allowFetchMore ?? queryCanFetchMore;
+  const { onMenuClick, postMenuIndex, postMenuLocation, setPostMenuIndex } =
+    useFeedContextMenu();
+  const useList = insaneMode && numCards > 1;
+  const virtualizedNumCards = useList ? 1 : numCards;
+  const trackingOpts = useMemo(() => {
+    return {
+      columns: virtualizedNumCards,
+      row: postMenuLocation?.row,
+      column: postMenuLocation?.column,
+    };
+  }, [postMenuLocation, virtualizedNumCards]);
+
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
       items,
+      trackingOpts,
     };
-  }, [feedQueryKey, items]);
+  }, [feedQueryKey, items, trackingOpts]);
 
   const { ranking } = (variables as RankVariables) || {};
   const {
@@ -214,8 +227,6 @@ export default function Feed<T>({
     canFetchMore: canFetchMore && feedQueryKey?.[0] !== RequestKey.FeedPreview,
   });
 
-  const useList = insaneMode && numCards > 1;
-  const virtualizedNumCards = useList ? 1 : numCards;
   const {
     showCommentPopupId,
     setShowCommentPopupId,
@@ -257,9 +268,6 @@ export default function Feed<T>({
     ranking,
     'go to link',
   );
-
-  const { onMenuClick, postMenuIndex, postMenuLocation, setPostMenuIndex } =
-    useFeedContextMenu();
 
   const { openSharePost, copyLink } = useSharePost(origin);
 
