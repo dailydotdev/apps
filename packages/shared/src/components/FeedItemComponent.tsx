@@ -115,11 +115,11 @@ const getTags = (
   isHorizontal: boolean,
   isList: boolean,
   isFeedLayoutV1: boolean,
-  isFeedListLayoutEnabled: boolean,
+  shouldUseListFeedLayoutOnDesktop: boolean,
   postType: PostType,
 ) => {
   const useListCards = isList && !isHorizontal;
-  if (isFeedLayoutV1 || isFeedListLayoutEnabled) {
+  if (isFeedLayoutV1 || shouldUseListFeedLayoutOnDesktop) {
     return {
       PostTag: PostTypeToTagV1[postType] ?? ArticlePostCardV1,
       AdTag: AdCardV1,
@@ -143,8 +143,8 @@ export default function FeedItemComponent({
   row,
   column,
   columns,
-  useList: isList,
-  insaneMode,
+  useList: isListProp,
+  insaneMode: insaneModeProp,
   openNewTab,
   postMenuIndex,
   showCommentPopupId,
@@ -177,14 +177,21 @@ export default function FeedItemComponent({
     ranking,
   );
 
-  const { shouldUseListFeedLayout, isFeedListLayoutEnabled } = useFeedLayout();
-  const { PostTag, AdTag, PlaceholderTag, MarketingCtaTag } = getTags(
-    isHorizontal,
-    isList,
+  const {
     shouldUseListFeedLayout,
     isFeedListLayoutEnabled,
+    shouldUseListFeedLayoutOnDesktop,
+  } = useFeedLayout();
+  const { PostTag, AdTag, PlaceholderTag, MarketingCtaTag } = getTags(
+    isHorizontal,
+    isListProp,
+    shouldUseListFeedLayout,
+    shouldUseListFeedLayoutOnDesktop,
     (item as PostItem).post?.type,
   );
+
+  const insaneMode = isFeedListLayoutEnabled ? false : insaneModeProp;
+  const isList = isFeedListLayoutEnabled ? false : isListProp;
 
   switch (item.type) {
     case 'post': {

@@ -22,6 +22,7 @@ interface UseFeedLayoutReturn {
   screenCenteredOnMobileLayout?: boolean;
   shouldUseCommentFeedLayout: boolean;
   isFeedListLayoutEnabled: boolean;
+  shouldUseListFeedLayoutOnDesktop: boolean;
 }
 
 interface UseFeedLayoutProps {
@@ -128,7 +129,8 @@ export const useFeedLayout = ({
     shouldUseListFeedLayout,
     shouldUseCommentFeedLayout,
     FeedPageLayoutComponent,
-    isFeedListLayoutEnabled: shouldUseListFeedLayoutOnDesktop,
+    isFeedListLayoutEnabled,
+    shouldUseListFeedLayoutOnDesktop,
     screenCenteredOnMobileLayout:
       shouldUseListFeedLayoutOnMobile &&
       !UserProfileFeedPages.has(feedName as UserProfileFeedType),

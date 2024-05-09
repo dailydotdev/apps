@@ -154,14 +154,17 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
-  const { shouldUseListFeedLayout } = useFeedLayout();
+  const { shouldUseListFeedLayout, isFeedListLayoutEnabled } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isEnabled: isStreaksEnabled } = useReadingStreak();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
-  const isList = (insaneMode && numCards > 1) || shouldUseListFeedLayout;
+  const isList =
+    isHorizontal && isFeedListLayoutEnabled
+      ? false
+      : (insaneMode && numCards > 1) || shouldUseListFeedLayout;
   const feedGapPx =
     getFeedGapPx[
       gapClass({
@@ -171,7 +174,8 @@ export const FeedContainer = ({
       })
     ];
   const style = {
-    '--num-cards': numCards,
+    '--num-cards':
+      isHorizontal && isFeedListLayoutEnabled && numCards >= 2 ? 2 : numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
