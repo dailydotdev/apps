@@ -6,10 +6,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/users';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
-import AuthContext, {
-  useAuthContext,
-} from '@dailydotdev/shared/src/contexts/AuthContext';
-import { RanksWidget } from '@dailydotdev/shared/src/components/profile/RanksWidget';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useActivityTimeFilter } from '@dailydotdev/shared/src/hooks/profile/useActivityTimeFilter';
 import { ReadingTagsWidget } from '@dailydotdev/shared/src/components/profile/ReadingTagsWidget';
 import { ReadingHeatmapWidget } from '@dailydotdev/shared/src/components/profile/ReadingHeatmapWidget';
@@ -19,7 +16,6 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { Readme } from '@dailydotdev/shared/src/components/profile/Readme';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
-import { useStreakExperiment } from '@dailydotdev/shared/src/hooks/streaks';
 import { useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import {
   getLayout as getProfileLayout,
@@ -34,17 +30,9 @@ const ProfilePage = ({
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
   const { tokenRefreshed } = useContext(AuthContext);
-  const { shouldShowStreak } = useStreakExperiment();
-  const { user: loggedUser } = useAuthContext();
 
-  const {
-    selectedHistoryYear,
-    setSelectedHistoryYear,
-    before,
-    after,
-    yearOptions,
-    fullHistory,
-  } = useActivityTimeFilter();
+  const { selectedHistoryYear, before, after, yearOptions, fullHistory } =
+    useActivityTimeFilter();
 
   const user = useProfile(initialUser);
 
@@ -71,14 +59,6 @@ const ProfilePage = ({
       <Readme user={user} />
       {readingHistory?.userReadingRankHistory && (
         <>
-          {!shouldShowStreak && !!loggedUser && (
-            <RanksWidget
-              rankHistory={readingHistory?.userReadingRankHistory}
-              yearOptions={yearOptions}
-              selectedHistoryYear={selectedHistoryYear}
-              setSelectedHistoryYear={setSelectedHistoryYear}
-            />
-          )}
           <ReadingTagsWidget mostReadTags={readingHistory?.userMostReadTags} />
           <ReadingHeatmapWidget
             fullHistory={fullHistory}

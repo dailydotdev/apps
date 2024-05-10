@@ -21,7 +21,6 @@ import {
 } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
-import { useReadingStreak } from '../../hooks/streaks';
 import { feature } from '../../lib/featureManagement';
 
 export interface FeedContainerProps {
@@ -157,7 +156,6 @@ export const FeedContainer = ({
   } = useContext(SettingsContext);
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { isEnabled: isStreaksEnabled } = useReadingStreak();
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
@@ -212,12 +210,7 @@ export const FeedContainer = ({
               )}
             >
               {!!actionButtons && (
-                <span
-                  className={classNames(
-                    'mr-auto flex flex-row gap-3 border-border-subtlest-tertiary pr-3',
-                    isStreaksEnabled && 'w-full laptop:w-auto',
-                  )}
-                >
+                <span className="mr-auto flex w-full flex-row gap-3 border-border-subtlest-tertiary pr-3 laptop:w-auto">
                   {actionButtons}
                 </span>
               )}
