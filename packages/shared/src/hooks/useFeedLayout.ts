@@ -21,8 +21,8 @@ interface UseFeedLayoutReturn {
   >;
   screenCenteredOnMobileLayout?: boolean;
   shouldUseCommentFeedLayout: boolean;
-  isFeedListLayoutEnabled: boolean;
-  shouldUseListFeedLayoutOnDesktop: boolean;
+  isListModeV1: boolean;
+  shouldUseListModeV1: boolean;
 }
 
 interface UseFeedLayoutProps {
@@ -100,27 +100,34 @@ export const useFeedLayout = ({
     feature: feature.feedListLayout,
     shouldEvaluate: listMode,
   });
-  const isFeedListLayoutEnabled =
+
+  const isListModeV1 =
     feedListLayoutExperiment === FeedListLayoutExperiment.V1 && listMode;
+
   const shouldUseListFeedLayoutOnProfilePages = UserProfileFeedPages.has(
     feedName as UserProfileFeedType,
   );
+
   const isFeedIncludedInListLayout = FeedLayoutMobileFeedPages.has(
     feedName as FeedPagesWithMobileLayoutType,
   );
-  const shouldUseListFeedLayoutOnMobile =
+
+  const shouldUseListFeedLayoutOnMobileTablet =
     !isLaptop && isFeedIncludedInListLayout;
-  const shouldUseListFeedLayoutOnDesktop =
-    isFeedListLayoutEnabled && isLaptop && isFeedIncludedInListLayout;
+
+  const shouldUseListModeV1 =
+    isListModeV1 && isLaptop && isFeedIncludedInListLayout;
+
   const shouldUseListFeedLayout = feedRelated
-    ? shouldUseListFeedLayoutOnMobile ||
+    ? shouldUseListFeedLayoutOnMobileTablet ||
       shouldUseListFeedLayoutOnProfilePages ||
-      shouldUseListFeedLayoutOnDesktop
-    : isFeedListLayoutEnabled || !isLaptop;
+      shouldUseListModeV1
+    : isListModeV1 || !isLaptop;
+
   const shouldUseCommentFeedLayout = feedName === SharedFeedPage.Discussed;
 
   const FeedPageLayoutComponent = getFeedPageLayoutComponent({
-    shouldUseListFeedLayoutMobile: shouldUseListFeedLayoutOnMobile,
+    shouldUseListFeedLayoutMobile: isListModeV1,
     shouldUseListFeedLayout,
     shouldUseCommentFeedLayout,
   });
@@ -129,10 +136,10 @@ export const useFeedLayout = ({
     shouldUseListFeedLayout,
     shouldUseCommentFeedLayout,
     FeedPageLayoutComponent,
-    isFeedListLayoutEnabled,
-    shouldUseListFeedLayoutOnDesktop,
+    isListModeV1,
+    shouldUseListModeV1,
     screenCenteredOnMobileLayout:
-      shouldUseListFeedLayoutOnMobile &&
+      shouldUseListFeedLayoutOnMobileTablet &&
       !UserProfileFeedPages.has(feedName as UserProfileFeedType),
   };
 };

@@ -115,11 +115,11 @@ const getTags = (
   isHorizontal: boolean,
   isList: boolean,
   isFeedLayoutV1: boolean,
-  shouldUseListFeedLayoutOnDesktop: boolean,
+  shouldUseListModeV1: boolean,
   postType: PostType,
 ) => {
   const useListCards = isList && !isHorizontal;
-  if (isFeedLayoutV1 || shouldUseListFeedLayoutOnDesktop) {
+  if (isFeedLayoutV1 || shouldUseListModeV1) {
     return {
       PostTag: PostTypeToTagV1[postType] ?? ArticlePostCardV1,
       AdTag: AdCardV1,
@@ -177,21 +177,18 @@ export default function FeedItemComponent({
     ranking,
   );
 
-  const {
-    shouldUseListFeedLayout,
-    isFeedListLayoutEnabled,
-    shouldUseListFeedLayoutOnDesktop,
-  } = useFeedLayout();
+  const { shouldUseListFeedLayout, isListModeV1, shouldUseListModeV1 } =
+    useFeedLayout();
   const { PostTag, AdTag, PlaceholderTag, MarketingCtaTag } = getTags(
     isHorizontal,
     isListProp,
     shouldUseListFeedLayout,
-    shouldUseListFeedLayoutOnDesktop,
+    shouldUseListModeV1,
     (item as PostItem).post?.type,
   );
 
-  const insaneMode = isFeedListLayoutEnabled ? false : insaneModeProp;
-  const isList = isFeedListLayoutEnabled ? false : isListProp;
+  const insaneMode = isListModeV1 ? false : insaneModeProp;
+  const isList = isListModeV1 ? false : isListProp;
 
   switch (item.type) {
     case 'post': {

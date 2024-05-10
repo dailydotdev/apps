@@ -96,8 +96,7 @@ const SquadPage = ({
   useJoinReferral();
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
-  const { shouldUseListFeedLayout, shouldUseListFeedLayoutOnDesktop } =
-    useFeedLayout();
+  const { shouldUseListFeedLayout, shouldUseListModeV1 } = useFeedLayout();
   const { user, isFetched: isBootFetched } = useContext(AuthContext);
   const [trackedImpression, setTrackedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
@@ -181,7 +180,7 @@ const SquadPage = ({
     return <Custom404 />;
   }
 
-  const FeedPageComponent = shouldUseListFeedLayoutOnDesktop
+  const FeedPageComponent = shouldUseListModeV1
     ? FeedPageLayoutList
     : BaseFeedPage;
 
@@ -199,14 +198,14 @@ const SquadPage = ({
           className={classNames(
             'squad-background-fade absolute top-0 h-full w-full',
             sidebarRendered &&
-              !shouldUseListFeedLayoutOnDesktop &&
+              !shouldUseListModeV1 &&
               '-left-full translate-x-[60%]',
           )}
         />
         <SquadPageHeader
           squad={squad}
           members={squadMembers}
-          shouldUseListFeedLayoutOnDesktop={shouldUseListFeedLayoutOnDesktop}
+          shouldUseListModeV1={shouldUseListModeV1}
         />
         <Feed
           className={classNames(
