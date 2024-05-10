@@ -68,23 +68,23 @@ export const UserProfileFeedPages = new Set([
 const getFeedPageLayoutComponent = ({
   shouldUseListFeedLayout,
   shouldUseCommentFeedLayout,
-  shouldUseListFeedLayoutMobile,
+  shouldUseListModeV1,
 }: Pick<
   UseFeedLayoutReturn,
-  'shouldUseListFeedLayout' | 'shouldUseCommentFeedLayout'
-> & {
-  shouldUseListFeedLayoutMobile: boolean;
-}): UseFeedLayoutReturn['FeedPageLayoutComponent'] => {
+  | 'shouldUseListFeedLayout'
+  | 'shouldUseCommentFeedLayout'
+  | 'shouldUseListModeV1'
+>): UseFeedLayoutReturn['FeedPageLayoutComponent'] => {
   if (shouldUseCommentFeedLayout) {
     return CommentFeedPage;
   }
 
-  if (shouldUseListFeedLayoutMobile) {
-    return FeedPageLayoutMobile;
+  if (shouldUseListModeV1) {
+    return FeedPageLayoutList;
   }
 
   if (shouldUseListFeedLayout) {
-    return FeedPageLayoutList;
+    return FeedPageLayoutMobile;
   }
 
   return FeedPage;
@@ -127,7 +127,7 @@ export const useFeedLayout = ({
   const shouldUseCommentFeedLayout = feedName === SharedFeedPage.Discussed;
 
   const FeedPageLayoutComponent = getFeedPageLayoutComponent({
-    shouldUseListFeedLayoutMobile: isListModeV1,
+    shouldUseListModeV1,
     shouldUseListFeedLayout,
     shouldUseCommentFeedLayout,
   });
