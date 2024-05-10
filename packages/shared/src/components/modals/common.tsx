@@ -136,6 +136,7 @@ export const modals = {
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.UserSettings]: UserSettingsModal,
   [LazyModal.Share]: ShareModal,
+  [LazyModal.PublicSquadSubmitForReview]: SquadTourModal, // TODO: placeholder, fix this when working on https://dailydotdev.atlassian.net/browse/MI-339
 };
 
 type GetComponentProps<T> = T extends
