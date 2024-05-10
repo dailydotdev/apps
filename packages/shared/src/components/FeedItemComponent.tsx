@@ -111,15 +111,23 @@ const PostTypeToTagV1: Record<PostType, FunctionComponent> = {
   [PostType.Collection]: CollectionCardV1,
 };
 
-const getTags = (
-  isHorizontal: boolean,
-  isList: boolean,
-  isFeedLayoutV1: boolean,
-  shouldUseListModeV1: boolean,
-  postType: PostType,
-) => {
+type GetTagsProps = {
+  isHorizontal: boolean;
+  isList: boolean;
+  isListFeedLayout: boolean;
+  shouldUseListModeV1: boolean;
+  postType: PostType;
+};
+
+const getTags = ({
+  isHorizontal,
+  isList,
+  isListFeedLayout,
+  shouldUseListModeV1,
+  postType,
+}: GetTagsProps) => {
   const useListCards = isList && !isHorizontal;
-  if (isFeedLayoutV1 || shouldUseListModeV1) {
+  if (isListFeedLayout || shouldUseListModeV1) {
     return {
       PostTag: PostTypeToTagV1[postType] ?? ArticlePostCardV1,
       AdTag: AdCardV1,
@@ -179,13 +187,13 @@ export default function FeedItemComponent({
 
   const { shouldUseListFeedLayout, isListModeV1, shouldUseListModeV1 } =
     useFeedLayout();
-  const { PostTag, AdTag, PlaceholderTag, MarketingCtaTag } = getTags(
+  const { PostTag, AdTag, PlaceholderTag, MarketingCtaTag } = getTags({
     isHorizontal,
-    isListProp,
-    shouldUseListFeedLayout,
+    isList: isListProp,
+    isListFeedLayout: shouldUseListFeedLayout,
     shouldUseListModeV1,
-    (item as PostItem).post?.type,
-  );
+    postType: (item as PostItem).post?.type,
+  });
 
   const insaneMode = isListModeV1 ? false : insaneModeProp;
   const isList = isListModeV1 ? false : isListProp;
