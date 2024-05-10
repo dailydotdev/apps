@@ -69,7 +69,7 @@ export default function ProfileMenu({
         title: 'Devcard',
         buttonProps: {
           tag: 'a',
-          icon: <DevCardIcon secondary />,
+          icon: <DevCardIcon />,
           href: `${webappUrl}devcard`,
         },
       },
