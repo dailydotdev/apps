@@ -19,8 +19,8 @@ import {
 } from '../graphql/search';
 import { SEARCH_BOOKMARKS_SUGGESTIONS } from '../graphql/feed';
 import { SEARCH_READING_HISTORY_SUGGESTIONS } from '../graphql/users';
-import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
+import { useConditionalFeature } from '../hooks';
 
 const AutoCompleteMenu = dynamic(
   () =>
@@ -57,7 +57,6 @@ export default function PostsSearch({
   onFocus,
 }: PostsSearchProps): ReactElement {
   const searchBoxRef = useRef<HTMLDivElement>();
-  const searchVersion = useFeature(feature.searchVersion);
   const [initialQuery, setInitialQuery] = useState<string>();
   const [query, setQuery] = useState<string>();
   const [menuPosition, setMenuPosition] = useState<{
@@ -66,6 +65,10 @@ export default function PostsSearch({
     width: number;
   }>(null);
   const [items, setItems] = useState<string[]>([]);
+  const { value: searchVersion } = useConditionalFeature({
+    feature: feature.searchVersion,
+    shouldEvaluate: !!query && suggestionType === 'searchPostSuggestions',
+  });
   const SEARCH_URL = SEARCH_TYPES[suggestionType];
 
   const { data: searchResults, isLoading } = useQuery<{

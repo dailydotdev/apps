@@ -4,11 +4,11 @@ import TagsFilter from './TagsFilter';
 import { TagCategoryLayout } from './TagCategoryDropdown';
 import AdvancedSettingsFilter from './AdvancedSettings';
 import BlockedFilter from './BlockedFilter';
-import { UnblockItem, unBlockPromptOptions } from './FilterMenu';
 import { Modal, ModalProps } from '../modals/common/Modal';
-import { usePrompt } from '../../hooks/usePrompt';
+import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
 import { ContentTypesFilter } from './ContentTypesFilter';
+import { Source } from '../../graphql/sources';
 
 enum FilterMenuTitle {
   Tags = 'Manage tags',
@@ -18,6 +18,18 @@ enum FilterMenuTitle {
 }
 
 type FeedFiltersProps = ModalProps;
+
+export interface UnblockItem {
+  tag?: string;
+  source?: Source;
+  action?: () => unknown;
+}
+const unBlockPromptOptions: PromptOptions = {
+  title: 'Are you sure?',
+  okButton: {
+    title: 'Yes, unblock',
+  },
+};
 
 export default function FeedFilters(props: FeedFiltersProps): ReactElement {
   const { showPrompt } = usePrompt();

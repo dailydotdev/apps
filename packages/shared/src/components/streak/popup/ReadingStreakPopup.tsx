@@ -5,23 +5,67 @@ import classNames from 'classnames';
 import { StreakSection } from './StreakSection';
 import { DayStreak, Streak } from './DayStreak';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
-import { getReadingStreak30Days, UserStreak } from '../../../graphql/users';
+import {
+  getReadingStreak30Days,
+  ReadingDay,
+  UserStreak,
+} from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Weekends } from '../../../lib/dateFormat';
 
-const today = new Date();
-const dateToday = today.getDate();
-const streakDays = [
-  subDays(today, 4),
-  subDays(today, 3),
-  subDays(today, 2),
-  subDays(today, 1),
+const getStreak = ({
+  value,
   today,
-  addDays(today, 1),
-  addDays(today, 2),
-  addDays(today, 3),
-  addDays(today, 4),
-]; // these dates will then be compared to the user's post views
+  dateToday,
+  history,
+}: {
+  value: Date;
+  today: Date;
+  dateToday: number;
+  history?: ReadingDay[];
+}): Streak => {
+  const day = value.getDay();
+  const date = value.getDate();
+  const isFreezeDay = Weekends.includes(day);
+  const isToday = date === dateToday;
+  const isFuture = value > today;
+  const isCompleted =
+    !isFuture &&
+    history?.some(({ date: historyDate, reads }) => {
+      const dateToCompare = new Date(historyDate);
+      const sameDate = isSameDay(dateToCompare, value);
+
+      return sameDate && reads > 0;
+    });
+
+  if (isCompleted) {
+    return Streak.Completed;
+  }
+
+  if (isFreezeDay) {
+    return Streak.Freeze;
+  }
+
+  if (isToday) {
+    return Streak.Pending;
+  }
+
+  return Streak.Upcoming;
+};
+
+const getStreakDays = (today: Date) => {
+  return [
+    subDays(today, 4),
+    subDays(today, 3),
+    subDays(today, 2),
+    subDays(today, 1),
+    today,
+    addDays(today, 1),
+    addDays(today, 2),
+    addDays(today, 3),
+    addDays(today, 4),
+  ]; // these dates will then be compared to the user's post views
+};
 
 interface ReadingStreakPopupProps {
   streak: UserStreak;
@@ -33,52 +77,32 @@ export function ReadingStreakPopup({
   fullWidth,
 }: ReadingStreakPopupProps): ReactElement {
   const { user } = useAuthContext();
-  const { data: history } = useQuery(
+  const { data: history } = useQuery<ReadingDay[]>(
     generateQueryKey(RequestKey.ReadingStreak30Days, user),
     () => getReadingStreak30Days(user.id),
     { staleTime: StaleTime.Default },
   );
 
+  const dateToday = new Date().getDate();
+
   const streaks = useMemo(() => {
+    const today = new Date();
+    const streakDays = getStreakDays(today);
+
     return streakDays.map((value) => {
-      const day = value.getDay();
-      const date = value.getDate();
-      const isFuture = value > today;
-      const isCompleted =
-        !isFuture &&
-        history?.some(({ date: historyDate, reads }) => {
-          const dateToCompare = new Date(historyDate);
-          const sameDate = isSameDay(dateToCompare, value);
-
-          return sameDate && reads > 0;
-        });
-
-      const getStreak = () => {
-        if (isCompleted) {
-          return Streak.Completed;
-        }
-
-        if (Weekends.includes(day)) {
-          return Streak.Freeze;
-        }
-
-        if (date === dateToday) {
-          return Streak.Pending;
-        }
-
-        return Streak.Upcoming;
-      };
+      const isToday = value.getDate() === dateToday;
+      const streakDef = getStreak({ value, today, dateToday, history });
 
       return (
         <DayStreak
           key={value.getTime()}
-          streak={getStreak()}
-          day={day}
-          shouldShowArrow={date === dateToday}
+          streak={streakDef}
+          day={value.getDay()}
+          shouldShowArrow={isToday}
         />
       );
     });
-  }, [history]);
+  }, [history, dateToday]);
 
   return (
     <div className="flex flex-col">

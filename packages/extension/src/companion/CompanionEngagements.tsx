@@ -3,6 +3,7 @@ import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRawBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
+import { largeNumberFormat } from '@dailydotdev/shared/src/lib';
 
 interface CompanionEngagementsProps {
   post: PostBootData;
@@ -42,12 +43,13 @@ export function CompanionEngagements({
       {post.numUpvotes <= 0 && <span>Be the first to upvote</span>}
       {post.numUpvotes > 0 && (
         <ClickableText onClick={onUpvotesClick}>
-          {post.numUpvotes} Upvote{post.numUpvotes > 1 ? 's' : ''}
+          {largeNumberFormat(post.numUpvotes)} Upvote
+          {post.numUpvotes > 1 ? 's' : ''}
         </ClickableText>
       )}
       {post.numComments > 0 && (
         <span>
-          {post.numComments.toLocaleString()}
+          {largeNumberFormat(post.numComments)}
           {` Comment${post.numComments === 1 ? '' : 's'}`}
         </span>
       )}

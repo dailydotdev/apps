@@ -22,6 +22,7 @@ import {
   PinIcon,
   BellSubscribedIcon,
   BellIcon,
+  MagicIcon,
 } from './icons';
 
 import { ReportedCallback } from './modals';
@@ -31,6 +32,7 @@ import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import {
   ToastSubject,
+  useConditionalFeature,
   useFeedLayout,
   useSourceSubscription,
   useToastNotification,
@@ -59,6 +61,7 @@ import { feature } from '../lib/featureManagement';
 import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';
+import { webappUrl } from '../lib/constants';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -110,7 +113,11 @@ export default function PostOptionsMenu({
   const { hidePost, unhidePost } = useReportPost();
 
   const { openModal } = useLazyModal();
-  const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
+  const {
+    queryKey: feedQueryKey,
+    items,
+    trackingOpts,
+  } = useContext(ActiveFeedContext);
   const {
     onFollowSource,
     onUnfollowSource,
@@ -151,7 +158,7 @@ export default function PostOptionsMenu({
   });
 
   const onToggleBookmark = async () => {
-    toggleBookmark({ post, origin });
+    toggleBookmark({ post, origin, opts: trackingOpts });
   };
 
   const showMessageAndRemovePost = async (
@@ -201,6 +208,7 @@ export default function PostOptionsMenu({
       trackEvent(
         postAnalyticsEvent(AnalyticsEvent.DeletePost, deletedPost, {
           extra: { origin },
+          ...trackingOpts,
         }),
       );
       return showMessageAndRemovePost('The post has been deleted', index, null);
@@ -280,6 +288,12 @@ export default function PostOptionsMenu({
     );
   };
 
+  const onClickSimilarPosts = () => {
+    trackEvent(
+      postAnalyticsEvent(AnalyticsEvent.ClickSimilarPosts, post, trackingOpts),
+    );
+  };
+
   const onHidePost = async (): Promise<void> => {
     const { successful } = await hidePost(post.id);
 
@@ -290,6 +304,7 @@ export default function PostOptionsMenu({
     trackEvent(
       postAnalyticsEvent('hide post', post, {
         extra: { origin: Origin.PostContextMenu },
+        ...trackingOpts,
       }),
     );
 
@@ -308,10 +323,27 @@ export default function PostOptionsMenu({
     },
   ];
 
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
-  const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
+  const { value: showSimilarPosts } = useConditionalFeature({
+    feature: feature.similarPosts,
+    shouldEvaluate: !!post?.id,
+  });
+  if (showSimilarPosts) {
+    postOptions.push({
+      icon: <MenuIcon Icon={MagicIcon} />,
+      label: 'Show similar posts',
+      anchorProps: {
+        onClick: onClickSimilarPosts,
+        href: `${webappUrl}posts/${post?.slug}/similar`,
+      },
+    });
+  }
 
-  if (!bookmarkOnCard && !shouldUseMobileFeedLayout) {
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const bookmarkLoops = useFeature(feature.bookmarkLoops);
+  const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
+  const shouldShowBookmark = bookmarkLoops || bookmarkOnCard;
+
+  if (!shouldShowBookmark && !shouldUseMobileFeedLayout) {
     postOptions.push({
       icon: (
         <MenuIcon

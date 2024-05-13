@@ -107,11 +107,8 @@ export const usePostModalNavigation = (
       return null;
     }
 
-    const routeHandler = (newRoute: string) => {
-      if (newRoute.includes('/posts/')) {
-        return;
-      }
-      onCloseModal();
+    const routeHandler = () => {
+      onCloseModal(true);
     };
     router.events.on('routeChangeStart', routeHandler);
 

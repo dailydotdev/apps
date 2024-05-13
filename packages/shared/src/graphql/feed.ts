@@ -178,6 +178,26 @@ export const TAG_FEED_QUERY = gql`
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
+export const SIMILAR_POSTS_FEED_QUERY = gql`
+  query SimilarPostsFeed(
+    $loggedIn: Boolean! = false
+    $postId: ID!
+    $first: Int
+    $after: String
+    $supportedTypes: [String!]
+  ) {
+    page: similarPostsFeed(
+      post_id: $postId
+      first: $first
+      after: $after
+      supportedTypes: $supportedTypes
+    ) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
 export const SOURCE_FEED_QUERY = gql`
   query SourceFeed(
     $source: ID!

@@ -50,6 +50,7 @@ const feature = {
   ),
   featureTheme: new Feature('feature_theme', {}),
   searchTags: new Feature('search_tags', false),
+  similarPosts: new Feature('similar_posts', false),
 };
 
 export { feature };
