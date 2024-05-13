@@ -75,7 +75,6 @@ export enum RequestKey {
   PostCommentsMutations = 'post_comments_mutations',
   Actions = 'actions',
   Squad = 'squad',
-  Squads = 'squads',
   SquadMembers = 'squad_members',
   Search = 'search',
   SearchHistory = 'searchHistory',

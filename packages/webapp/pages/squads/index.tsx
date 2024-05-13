@@ -43,7 +43,6 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
-import { useSquads } from '@dailydotdev/shared/src/hooks/squads/useSquads';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -62,8 +61,7 @@ const seo: NextSeoProps = {
 };
 
 const SquadsPage = ({ initialData }: Props): ReactElement => {
-  const { user } = useContext(AuthContext);
-  const { squads } = useSquads();
+  const { user, squads } = useContext(AuthContext);
   const { openNewSquad } = useSquadNavigation();
 
   const queryResult = useInfiniteQuery(

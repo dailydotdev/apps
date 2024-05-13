@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useLazyModal } from '../useLazyModal';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { LazyModal } from '../../components/modals/common/types';
-import { useSquads } from '../squads/useSquads';
 
 export const usePromotionModal = (): void => {
   const { query, replace } = useRouter();
-  const { squads } = useSquads();
+  const { squads } = useAuthContext();
   const { openModal } = useLazyModal();
 
   useEffect(() => {
