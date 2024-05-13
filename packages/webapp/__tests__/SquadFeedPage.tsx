@@ -137,7 +137,7 @@ const createSourceMembersMock = (
 const getSquadsMock = (
   result = generateSquadsResult([defaultSquad]),
 ): MockedGraphQLResponse<MySourcesData> => ({
-  request: { query: MY_SQUADS_QUERY },
+  request: { query: MY_SQUADS_QUERY, variables: { first: 100 } },
   result: { data: result },
 });
 
