@@ -31,14 +31,7 @@ const router = new CustomRouter();
 
 export type CompanionData = { url: string; deviceId: string } & Pick<
   Boot,
-  | 'postData'
-  | 'settings'
-  | 'alerts'
-  | 'user'
-  | 'visit'
-  | 'accessToken'
-  | 'squads'
-  | 'exp'
+  'postData' | 'settings' | 'alerts' | 'user' | 'visit' | 'accessToken' | 'exp'
 >;
 
 const app = BootApp.Companion;
@@ -52,7 +45,6 @@ export default function App({
   alerts,
   visit,
   accessToken,
-  squads,
   exp,
 }: CompanionData): ReactElement {
   useError();
@@ -102,7 +94,6 @@ export default function App({
               tokenRefreshed
               getRedirectUri={() => browser.runtime.getURL('index.html')}
               updateUser={() => null}
-              squads={squads}
             >
               <SettingsContextProvider settings={settings}>
                 <AlertContextProvider alerts={alerts}>

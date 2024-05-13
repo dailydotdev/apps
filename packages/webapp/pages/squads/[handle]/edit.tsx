@@ -5,7 +5,6 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { SquadDetails } from '@dailydotdev/shared/src/components/squads/Details';
 import { SquadForm, editSquad } from '@dailydotdev/shared/src/graphql/squads';
-import { useBoot } from '@dailydotdev/shared/src/hooks/useBoot';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import {
   ManageSquadPageContainer,
@@ -31,6 +30,7 @@ import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
+import { useSquads } from '@dailydotdev/shared/src/hooks/squads/useSquads';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -46,14 +46,15 @@ const seo: NextSeoProps = {
 
 const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
   const { isReady: isRouteReady } = useRouter();
-  const { squads, user, isAuthReady, isFetched } = useAuthContext();
+  const { user, isAuthReady, isFetched } = useAuthContext();
+  const { squads } = useSquads();
   const {
     squad,
     isLoading: isSquadLoading,
     isForbidden,
   } = useSquad({ handle });
   const queryClient = useQueryClient();
-  const { updateSquad } = useBoot();
+  const { updateSquad } = useSquads();
   const { displayToast } = useToastNotification();
 
   const onSubmit = async (e, form: SquadForm) => {
@@ -75,7 +76,7 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
         editedSquad.handle,
       );
       await queryClient.invalidateQueries(queryKey);
-      updateSquad(editedSquad);
+      await updateSquad(editedSquad);
       displayToast('The Squad has been updated');
     }
   };

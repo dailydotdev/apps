@@ -29,15 +29,18 @@ import {
   generateMembersList,
   generateMembersResult,
   generateNotFoundSquadResult,
+  generateSquadsResult,
   generateTestSquad,
 } from '@dailydotdev/shared/__tests__/fixture/squads';
 import {
+  MY_SQUADS_QUERY,
   SQUAD_MEMBERS_QUERY,
   SQUAD_QUERY,
   SquadData,
   SquadEdgesData,
 } from '@dailydotdev/shared/src/graphql/squads';
 import {
+  MySourcesData,
   SourceMemberRole,
   SourcePermissions,
   Squad,
@@ -131,6 +134,13 @@ const createSourceMembersMock = (
   result: { data: result },
 });
 
+const getSquadsMock = (
+  result = generateSquadsResult([defaultSquad]),
+): MockedGraphQLResponse<MySourcesData> => ({
+  request: { query: MY_SQUADS_QUERY, variables: { first: 100 } },
+  result: { data: result },
+});
+
 let client: QueryClient;
 
 const renderComponent = (
@@ -139,9 +149,9 @@ const renderComponent = (
     createSourceMock(handle),
     createSourceMembersMock(),
     createFeedMock(),
+    getSquadsMock(),
   ],
   user: LoggedUser = defaultUser,
-  squads = [defaultSquad],
 ): RenderResult => {
   client = new QueryClient();
 
@@ -151,7 +161,7 @@ const renderComponent = (
   return render(
     <TestBootProvider
       client={client}
-      auth={{ user, squads }}
+      auth={{ user }}
       notification={{
         app: BootApp.Webapp,
         isNotificationsReady: true,

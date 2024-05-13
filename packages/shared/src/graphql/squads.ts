@@ -1,8 +1,13 @@
 import request, { gql } from 'graphql-request';
-import { SOURCE_BASE_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
+import {
+  SOURCE_BASE_FRAGMENT,
+  SOURCE_SHORT_INFO_FRAGMENT,
+  USER_SHORT_INFO_FRAGMENT,
+} from './fragments';
 import { graphqlUrl } from '../lib/config';
 import { Connection } from './common';
 import {
+  MySourcesData,
   Source,
   SourceMember,
   SourceMemberRole,
@@ -205,6 +210,30 @@ export const SQUAD_QUERY = gql`
   ${SOURCE_BASE_FRAGMENT}
 `;
 
+export const MY_SQUADS_QUERY = gql`
+  query MySquads($first: Int!) {
+    mySourceMemberships(first: $first, type: squad) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          source {
+            ...SourceShortInfo
+            public
+            currentMember {
+              role
+              permissions
+            }
+          }
+        }
+      }
+    }
+  }
+  ${SOURCE_SHORT_INFO_FRAGMENT}
+`;
+
 export const SQUAD_STATIC_FIELDS_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
@@ -350,6 +379,20 @@ export async function getSquad(handle: string): Promise<Squad> {
   });
   return res.source;
 }
+
+export const getCurrentUserSquads =
+  (requestMethod: typeof request, queryKey: unknown[]) =>
+  async (): Promise<MySourcesData> => {
+    const res = await requestMethod<MySourcesData>(
+      graphqlUrl,
+      MY_SQUADS_QUERY,
+      {
+        first: 100,
+      },
+      { requestKey: JSON.stringify(queryKey) },
+    );
+    return res;
+  };
 
 export async function getSquadMembers(id: string): Promise<SourceMember[]> {
   const res = await request<SquadEdgesData>(graphqlUrl, SQUAD_MEMBERS_QUERY, {
