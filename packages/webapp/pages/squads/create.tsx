@@ -1,4 +1,10 @@
-import React, { FormEvent, ReactElement, useEffect, useState } from 'react';
+import React, {
+  FormEvent,
+  ReactElement,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import {
@@ -7,7 +13,10 @@ import {
   WritePageContainer,
 } from '@dailydotdev/shared/src/components/post/freeform';
 import { useMutation } from '@tanstack/react-query';
-import { createPost } from '@dailydotdev/shared/src/graphql/posts';
+import {
+  createPost,
+  CreatePostProps,
+} from '@dailydotdev/shared/src/graphql/posts';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -17,11 +26,17 @@ import TabContainer, {
   Tab,
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
 import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
-import { SquadsDropdown } from '@dailydotdev/shared/src/components/post/write';
+import {
+  generateDefaultSquad,
+  SquadsDropdown,
+} from '@dailydotdev/shared/src/components/post/write';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useSquadCreate } from '@dailydotdev/shared/src/hooks/squads/useSquadCreate';
+import { sortAlphabetically } from '@dailydotdev/shared/src/lib/strings';
+import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
@@ -40,9 +55,28 @@ function CreatePost(): ReactElement {
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
   const [selected, setSelected] = useState(-1);
-  const activeSquads = squads?.filter(
-    (squad) => squad?.active && verifyPermission(squad, SourcePermissions.Post),
-  );
+  const activeSquads = useMemo(() => {
+    const filtered = squads
+      ?.filter(
+        (squaitem) =>
+          squaitem?.active &&
+          verifyPermission(squaitem, SourcePermissions.Post),
+      )
+      .sort((a, b) => sortAlphabetically(a.name, b.name));
+
+    if (!user) {
+      return filtered;
+    }
+
+    return [
+      {
+        ...generateDefaultSquad(user.username),
+        name: 'Create new Squad',
+        handle: null,
+      },
+      ...filtered,
+    ];
+  }, [squads, user]);
   const squad = activeSquads?.[selected];
   const [display, setDisplay] = useState(WriteFormTab.NewPost);
   const { displayToast } = useToastNotification();
@@ -75,6 +109,13 @@ function CreatePost(): ReactElement {
       onAskConfirmation(true);
     },
   });
+  const { onCreateSquad, isLoading } = useSquadCreate({
+    onSuccess: (newSquad) => {
+      const form = formToJson<CreatePostProps>(formRef.current);
+
+      return onCreatePost({ ...form, sourceId: newSquad.id });
+    },
+  });
 
   const param = isRouteReady && activeSquads?.length && (query.sid as string);
   const shareParam = query.share as string;
@@ -98,8 +139,8 @@ function CreatePost(): ReactElement {
     setDisplay(WriteFormTab.Share);
   }, [shareParam]);
 
-  const onClickSubmit = (e: FormEvent<HTMLFormElement>, params) => {
-    if (isPosting || isSuccess) {
+  const onClickSubmit = async (e: FormEvent<HTMLFormElement>, params) => {
+    if (isPosting || isSuccess || isLoading) {
       return null;
     }
 
@@ -108,7 +149,13 @@ function CreatePost(): ReactElement {
       return null;
     }
 
-    return onCreatePost({ ...params, sourceId: squad.id });
+    if (squads.some(({ id }) => squad.id === id)) {
+      return onCreatePost({ ...params, sourceId: squad.id });
+    }
+
+    await onCreateSquad(generateDefaultSquad(user.username));
+
+    return null;
   };
 
   if (!isFetched || !isAuthReady || !isRouteReady) {
@@ -125,7 +172,7 @@ function CreatePost(): ReactElement {
       squad={squad}
       formRef={formRef}
       isUpdatingDraft={isUpdatingDraft}
-      isPosting={isPosting || isSuccess}
+      isPosting={isPosting || isSuccess || isLoading}
       updateDraft={updateDraft}
       onSubmitForm={onClickSubmit}
       enableUpload
@@ -143,14 +190,22 @@ function CreatePost(): ReactElement {
             {isMobile && (
               <h2 className="pt-2 font-bold typo-title3">New post</h2>
             )}
-            <SquadsDropdown onSelect={setSelected} selected={selected} />
+            <SquadsDropdown
+              list={activeSquads}
+              onSelect={setSelected}
+              selected={selected}
+            />
             <WriteFreeformContent className="mt-6" />
           </Tab>
           <Tab label={WriteFormTab.Share} className="px-5">
             {isMobile && (
               <h2 className="pt-2 font-bold typo-title3">Share a link</h2>
             )}
-            <SquadsDropdown onSelect={setSelected} selected={selected} />
+            <SquadsDropdown
+              list={activeSquads}
+              onSelect={setSelected}
+              selected={selected}
+            />
             <ShareLink
               squad={squad}
               className="mt-4"

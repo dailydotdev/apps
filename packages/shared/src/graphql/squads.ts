@@ -410,7 +410,9 @@ export const updateSquadPost =
   (data: PostToSquadProps): Promise<Post> =>
     requestMethod(graphqlUrl, UPDATE_SQUAD_POST_MUTATION, data);
 
-export async function createSquad(form: SquadForm): Promise<Squad> {
+export async function createSquad(
+  form: Omit<SquadForm, 'commentary'>,
+): Promise<Squad> {
   const inputData: CreateSquadInput = {
     description: form?.description,
     handle: form.handle,
