@@ -58,7 +58,7 @@ const SimilarFeed = ({ id, initialData }: Props): ReactElement => {
   );
 
   const seo: NextSeoProps = {
-    title: `similar posts to ${post?.title} on daily.dev`,
+    title: `Similar posts to ${post?.title} on daily.dev`,
     openGraph: { ...defaultOpenGraph },
     ...defaultSeo,
   };
@@ -97,6 +97,7 @@ const SimilarFeed = ({ id, initialData }: Props): ReactElement => {
           query={id && SIMILAR_POSTS_FEED_QUERY}
           emptyScreen={<SimilarEmptyScreen post={post} />}
           variables={queryVariables}
+          pageSize={100}
         />
       </FeedPageLayoutComponent>
     </>
