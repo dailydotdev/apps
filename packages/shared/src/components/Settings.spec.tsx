@@ -315,7 +315,6 @@ it('should mutate show weekly goals widget setting', () =>
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
       queryByText(el.parentElement, 'Show Weekly Goal widget'),
     ) as HTMLInputElement;
-    expect(checkbox).toBeDefined();
     fireEvent.click(checkbox);
   }));
 
