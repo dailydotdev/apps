@@ -6,6 +6,7 @@ import { EditIcon, EarthIcon, ImageIcon, MegaphoneIcon } from '../../icons';
 import { Checkbox } from '../../fields/Checkbox';
 import { IconSize } from '../../Icon';
 import classed from '../../../lib/classed';
+import { SimpleTooltip } from '../../tooltips';
 
 interface ChecklistItemProps {
   iconTag: React.ElementType;
@@ -107,9 +108,15 @@ const SubmitSquadForReviewModal = ({
         <Button variant={ButtonVariant.Tertiary} onClick={onRequestClose}>
           Close
         </Button>
-        <Button variant={ButtonVariant.Primary} disabled={!meets}>
-          Submit for review
-        </Button>
+        <SimpleTooltip
+          content={!meets && 'Check that the squad meets requirements'}
+        >
+          <div>
+            <Button variant={ButtonVariant.Primary} disabled={!meets}>
+              Submit for review
+            </Button>
+          </div>
+        </SimpleTooltip>
       </Modal.Footer>
     </Modal>
   );
