@@ -1,14 +1,14 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
 import { NewSquadIcon, DefaultSquadIcon, SourceIcon } from '../icons';
 import { Origin } from '../../lib/analytics';
 import { useSquadNavigation } from '../../hooks';
-import AuthContext from '../../contexts/AuthContext';
 import { SquadImage } from '../squads/SquadImage';
+import { useSquads } from '../../hooks/squads/useSquads';
 
 export function SquadSection(props: SectionCommonProps): ReactElement {
-  const { squads } = useContext(AuthContext);
+  const { squads } = useSquads();
   const { openNewSquad } = useSquadNavigation();
 
   const squadMenuItems: SidebarMenuItem[] = [
