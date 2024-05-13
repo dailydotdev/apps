@@ -81,6 +81,8 @@ const SubmitSquadForReviewModal = ({
             <a
               className="text-text-link underline hover:no-underline"
               href="https://docs.daily.dev/docs/for-content-creators/content-guidelines"
+              target="_blank"
+              rel="noopener"
             >
               content guidelines
             </a>
