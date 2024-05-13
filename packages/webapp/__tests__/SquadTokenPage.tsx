@@ -102,6 +102,7 @@ const renderComponent = (
           tokenRefreshed: true,
           getRedirectUri: jest.fn(),
           closeLogin: jest.fn(),
+          squads: [],
         }}
       >
         <SettingsContext.Provider value={defaultTestSettings}>

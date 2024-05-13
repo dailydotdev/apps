@@ -4,6 +4,7 @@ import { apiUrl } from './config';
 import { Alerts } from '../graphql/alerts';
 import { RemoteSettings } from '../graphql/settings';
 import { Post } from '../graphql/posts';
+import { Squad } from '../graphql/sources';
 import { decrypt } from '../components/crypto';
 import { MarketingCta } from '../components/cards/MarketingCta/common';
 
@@ -51,6 +52,7 @@ export type Boot = {
   visit: Visit;
   notifications: NotificationsBootData;
   settings: RemoteSettings;
+  squads: Squad[];
   postData?: PostBootData;
   isLegacyLogout?: boolean;
   exp?: {
@@ -64,7 +66,13 @@ export type Boot = {
 
 export type BootCacheData = Pick<
   Boot,
-  'user' | 'alerts' | 'settings' | 'postData' | 'notifications' | 'exp'
+  | 'user'
+  | 'alerts'
+  | 'settings'
+  | 'postData'
+  | 'notifications'
+  | 'squads'
+  | 'exp'
 > & { lastModifier?: string };
 
 export async function getBootData(app: string, url?: string): Promise<Boot> {
