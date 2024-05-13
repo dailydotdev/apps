@@ -3,12 +3,12 @@ import { verifyPermission } from '../../graphql/squads';
 import { SourcePermissions, Squad } from '../../graphql/sources';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
 import { SocialShareButton } from '../widgets/SocialShareButton';
-import { useAuthContext } from '../../contexts/AuthContext';
 import { Origin } from '../../lib/analytics';
 import { PlusIcon } from '../icons';
 import { useSquadNavigation } from '../../hooks';
 import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfileImageSize } from '../ProfilePicture';
+import { useSquads } from '../../hooks/squads/useSquads';
 
 interface SquadsToShareProps {
   isLoading?: boolean;
@@ -23,7 +23,7 @@ export function SquadsToShare({
   size = ButtonSize.Large,
   squadAvatarSize = 'xlarge',
 }: SquadsToShareProps): ReactElement {
-  const { squads } = useAuthContext();
+  const { squads } = useSquads();
   const { openNewSquad } = useSquadNavigation();
 
   const list = useMemo(

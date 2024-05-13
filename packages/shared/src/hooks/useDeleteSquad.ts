@@ -2,10 +2,10 @@ import { useContext, useMemo } from 'react';
 import { deleteSquad } from '../graphql/squads';
 import { Squad } from '../graphql/sources';
 import { PromptOptions, usePrompt } from './usePrompt';
-import { useBoot } from './useBoot';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../lib/analytics';
 import { ButtonColor } from '../components/buttons/Button';
+import { useSquads } from './squads/useSquads';
 
 interface UseDeleteSquadModal {
   onDeleteSquad: () => void;
@@ -22,7 +22,7 @@ export const useDeleteSquad = ({
 }: UseDeleteSquadProps): UseDeleteSquadModal => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { showPrompt } = usePrompt();
-  const { deleteSquad: deleteCachedSquad } = useBoot();
+  const { deleteSquad: deleteCachedSquad } = useSquads();
 
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -43,7 +43,7 @@ export const useDeleteSquad = ({
         extra: JSON.stringify({ squad: squad.id }),
       });
       await deleteSquad(squad.id);
-      deleteCachedSquad(squad.id);
+      await deleteCachedSquad(squad.id);
       await callback?.();
     }
   };

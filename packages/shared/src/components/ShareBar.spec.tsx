@@ -13,10 +13,15 @@ import ShareBar from './ShareBar';
 import Post from '../../__tests__/fixture/post';
 import { AuthContextProvider } from '../contexts/AuthContext';
 import loggedUser from '../../__tests__/fixture/loggedUser';
-import { generateTestSquad } from '../../__tests__/fixture/squads';
+import {
+  generateSquadsResult,
+  generateTestSquad,
+} from '../../__tests__/fixture/squads';
 import { getFacebookShareLink } from '../lib/share';
 import { LazyModalElement } from './modals/LazyModalElement';
 import { NotificationsContextProvider } from '../contexts/NotificationsContext';
+import { mockGraphQL } from '../../__tests__/helpers/graphql';
+import { MY_SQUADS_QUERY } from '../graphql/squads';
 
 const defaultPost = Post;
 Object.defineProperty(window, 'matchMedia', {
@@ -48,6 +53,11 @@ const squads = [generateTestSquad()];
 const renderComponent = (loggedIn = true, hasSquads = true): RenderResult => {
   const client = new QueryClient();
 
+  mockGraphQL({
+    request: { query: MY_SQUADS_QUERY, variables: { first: 100 } },
+    result: { data: generateSquadsResult(hasSquads ? squads : []) },
+  });
+
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
@@ -57,7 +67,6 @@ const renderComponent = (loggedIn = true, hasSquads = true): RenderResult => {
         getRedirectUri={jest.fn()}
         loadingUser={false}
         loadedUserFromCache
-        squads={hasSquads ? squads : []}
       >
         <NotificationsContextProvider>
           <LazyModalElement />
