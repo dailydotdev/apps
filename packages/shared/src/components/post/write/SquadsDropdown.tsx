@@ -2,11 +2,11 @@ import React, { ReactElement } from 'react';
 import { SourceAvatar, SourceShortInfo } from '../../profile/source';
 import { ArrowIcon, SquadIcon } from '../../icons';
 import { Dropdown } from '../../fields/Dropdown';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
 import { ButtonSize } from '../../buttons/common';
 import { useViewSize, ViewSize } from '../../../hooks';
+import { useSquads } from '../../../hooks/squads/useSquads';
 
 interface SquadsDropdownProps {
   onSelect: (index: number) => void;
@@ -17,7 +17,7 @@ export function SquadsDropdown({
   onSelect,
   selected,
 }: SquadsDropdownProps): ReactElement {
-  const { squads } = useAuthContext();
+  const { squads } = useSquads();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const activeSquads = squads?.filter(
     (squad) => squad?.active && verifyPermission(squad, SourcePermissions.Post),
