@@ -6,6 +6,7 @@ import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized
 import { SquadDetails } from '@dailydotdev/shared/src/components/squads/Details';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { SquadForm, createSquad } from '@dailydotdev/shared/src/graphql/squads';
+import { useBoot } from '@dailydotdev/shared/src/hooks/useBoot';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
 import {
@@ -15,7 +16,6 @@ import {
 import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
-import { useSquads } from '@dailydotdev/shared/src/hooks/squads/useSquads';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
@@ -32,7 +32,7 @@ const NewSquad = (): ReactElement => {
   const { user, isAuthReady, isFetched } = useAuthContext();
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
-  const { addSquad } = useSquads();
+  const { addSquad } = useBoot();
   const { completeAction } = useActions();
 
   const onCreate = async (e, newSquadForm: SquadForm) => {
@@ -46,7 +46,7 @@ const NewSquad = (): ReactElement => {
         event_name: AnalyticsEvent.CompleteSquadCreation,
       });
 
-      await addSquad(newSquad);
+      addSquad(newSquad);
       completeAction(ActionType.CreateSquad);
 
       await router.replace(newSquad.permalink);

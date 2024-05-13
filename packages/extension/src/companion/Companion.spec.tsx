@@ -77,6 +77,7 @@ const renderComponent = (postdata, settings): RenderResult => {
       user={defaultUser}
       deviceId="123"
       accessToken={{ token: '', expiresIn: '' }}
+      squads={[]}
     />,
   );
 };

@@ -1,7 +1,6 @@
 import { GraphQLResult } from '../helpers/graphql';
 import { Edge } from '../../src/graphql/common';
 import {
-  MySourcesData,
   SourceMember,
   SourceMemberRole,
   SourcePermissions,
@@ -416,19 +415,3 @@ export const generateMembersList = (
   },
   ...members,
 ];
-
-export const generateSquadsResult = (squads: Squad[]): MySourcesData => {
-  const edges: Edge<SourceMember>[] =
-    squads?.map((squad) => ({
-      node: {
-        source: squad,
-      },
-    })) ?? [];
-
-  return {
-    mySourceMemberships: {
-      edges,
-      pageInfo: { endCursor: 'dGltZToxNjc1MjYyMTM0NTY4', hasNextPage: false },
-    },
-  };
-};

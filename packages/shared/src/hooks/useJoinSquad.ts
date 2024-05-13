@@ -4,10 +4,10 @@ import { joinSquadInvitation, SquadInvitationProps } from '../graphql/squads';
 import { useAnalyticsContext } from '../contexts/AnalyticsContext';
 import { Squad } from '../graphql/sources';
 import { AnalyticsEvent } from '../lib/analytics';
+import { useBoot } from './useBoot';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { ActionType } from '../graphql/actions';
 import { useActions } from './useActions';
-import { useSquads } from './squads/useSquads';
 
 type UseJoinSquadProps = {
   squad: Pick<Squad, 'id' | 'handle'>;
@@ -21,7 +21,7 @@ export const useJoinSquad = ({
   referralToken,
 }: UseJoinSquadProps): UseJoinSquad => {
   const queryClient = useQueryClient();
-  const { addSquad } = useSquads();
+  const { addSquad } = useBoot();
   const { trackEvent } = useAnalyticsContext();
   const { completeAction } = useActions();
 
@@ -44,7 +44,7 @@ export const useJoinSquad = ({
       }),
     });
 
-    await addSquad(result);
+    addSquad(result);
 
     const queryKey = generateQueryKey(
       RequestKey.Squad,

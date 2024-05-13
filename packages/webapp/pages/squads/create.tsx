@@ -22,7 +22,6 @@ import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { useSquads } from '@dailydotdev/shared/src/hooks/squads/useSquads';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
@@ -39,8 +38,7 @@ enum WriteFormTab {
 
 function CreatePost(): ReactElement {
   const { push, isReady: isRouteReady, query } = useRouter();
-  const { user, isAuthReady, isFetched } = useAuthContext();
-  const { squads } = useSquads();
+  const { squads, user, isAuthReady, isFetched } = useAuthContext();
   const [selected, setSelected] = useState(-1);
   const activeSquads = squads?.filter(
     (squad) => squad?.active && verifyPermission(squad, SourcePermissions.Post),

@@ -32,10 +32,10 @@ export type SourceMemberFlag = Partial<{
 }>;
 
 export interface SourceMember {
-  role?: SourceMemberRole;
-  user?: UserShortProfile;
+  role: SourceMemberRole;
+  user: UserShortProfile;
   source: Squad;
-  referralToken?: string;
+  referralToken: string;
   permissions?: SourcePermissions[];
   flags?: SourceMemberFlag;
 }
@@ -85,10 +85,6 @@ export interface Source {
 }
 
 export type SourceData = { source: Source };
-
-export interface MySourcesData {
-  mySourceMemberships: Connection<SourceMember>;
-}
 
 export const SOURCE_QUERY = gql`
   query Source($id: ID!) {
