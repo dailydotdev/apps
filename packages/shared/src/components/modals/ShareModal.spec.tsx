@@ -50,7 +50,7 @@ const renderComponent = (
   comment?,
 ): RenderResult => {
   mockGraphQL({
-    request: { query: MY_SQUADS_QUERY },
+    request: { query: MY_SQUADS_QUERY, variables: { first: 100 } },
     result: { data: generateSquadsResult(hasSquads ? squads : []) },
   });
 

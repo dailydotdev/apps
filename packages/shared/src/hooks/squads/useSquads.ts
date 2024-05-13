@@ -40,10 +40,14 @@ export const useSquads = (): UseSquadsResult => {
   const { data, isLoading, isFetched, error } = useQuery<
     MySourcesData,
     ClientError
-  >(queryKey, getCurrentUserSquads(requestMethod, queryKey), {
-    enabled: !!user?.id,
-    staleTime: StaleTime.Default,
-  });
+  >(
+    queryKey,
+    getCurrentUserSquads(requestMethod, isCompanion ? queryKey : undefined),
+    {
+      enabled: !!user?.id,
+      staleTime: StaleTime.Default,
+    },
+  );
 
   const squads: Squad[] = useMemo(
     () =>

@@ -54,7 +54,7 @@ const renderComponent = (loggedIn = true, hasSquads = true): RenderResult => {
   const client = new QueryClient();
 
   mockGraphQL({
-    request: { query: MY_SQUADS_QUERY },
+    request: { query: MY_SQUADS_QUERY, variables: { first: 100 } },
     result: { data: generateSquadsResult(hasSquads ? squads : []) },
   });
 
