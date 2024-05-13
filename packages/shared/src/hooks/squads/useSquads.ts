@@ -42,7 +42,6 @@ export const useSquads = (): UseSquadsResult => {
     ClientError
   >(queryKey, getCurrentUserSquads(requestMethod, queryKey), {
     enabled: !!user?.id,
-    retry: false,
     staleTime: StaleTime.Default,
   });
 
