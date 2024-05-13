@@ -212,7 +212,7 @@ export const SQUAD_QUERY = gql`
 
 export const MY_SQUADS_QUERY = gql`
   query MySquads($first: Int!) {
-    mySourceMemberships(first: 100, type: squad) {
+    mySourceMemberships(first: $first, type: squad) {
       pageInfo {
         endCursor
         hasNextPage
