@@ -16,6 +16,7 @@ import {
 import { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import { AuthTriggers, AuthTriggersType } from '../lib/auth';
+import { Squad } from '../graphql/sources';
 import { checkIsExtension, isNullOrUndefined } from '../lib/func';
 
 export interface LoginState {
@@ -57,6 +58,7 @@ export interface AuthContextData {
   deleteAccount?: () => Promise<void>;
   refetchBoot?: () => Promise<QueryObserverResult<Boot>>;
   accessToken?: AccessToken;
+  squads?: Squad[];
   isAuthReady?: boolean;
 }
 const isExtension = checkIsExtension();
@@ -109,6 +111,7 @@ export type AuthContextProviderProps = {
   | 'loadedUserFromCache'
   | 'visit'
   | 'accessToken'
+  | 'squads'
 >;
 
 export const AuthContextProvider = ({
@@ -125,6 +128,7 @@ export const AuthContextProvider = ({
   isLegacyLogout,
   firstLoad,
   accessToken,
+  squads,
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
@@ -173,6 +177,7 @@ export const AuthContextProvider = ({
         refetchBoot,
         deleteAccount,
         accessToken,
+        squads,
       }}
     >
       {children}
