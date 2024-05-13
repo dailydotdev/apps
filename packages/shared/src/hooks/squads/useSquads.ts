@@ -1,10 +1,12 @@
 import { useQuery, useQueryClient, QueryKey } from '@tanstack/react-query';
 import { ClientError } from 'graphql-request';
-import { Squad } from '../../graphql/sources';
+import { useMemo } from 'react';
+import { MySourcesData, Squad } from '../../graphql/sources';
 import { getCurrentUserSquads } from '../../graphql/squads';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useRequestProtocol } from '../useRequestProtocol';
+import { useBackgroundRequest } from '../companion';
 
 interface UseSquadsResult {
   squads: Squad[];
@@ -31,22 +33,27 @@ const getCached = async (
 export const useSquads = (): UseSquadsResult => {
   const { user } = useAuthContext();
   const client = useQueryClient();
-  const { requestMethod } = useRequestProtocol();
+  const { requestMethod, isCompanion } = useRequestProtocol();
   const queryKey = generateQueryKey(RequestKey.Squads, user);
+  useBackgroundRequest(queryKey, { enabled: isCompanion });
 
-  const {
-    data: squads,
-    isLoading,
-    isFetched,
-    error,
-  } = useQuery<Squad[], ClientError>(
-    queryKey,
-    getCurrentUserSquads(requestMethod),
-    {
-      enabled: !!user?.id,
-      retry: false,
-      staleTime: StaleTime.Default,
-    },
+  const { data, isLoading, isFetched, error } = useQuery<
+    MySourcesData,
+    ClientError
+  >(queryKey, getCurrentUserSquads(requestMethod, queryKey), {
+    enabled: !!user?.id,
+    retry: false,
+    staleTime: StaleTime.Default,
+  });
+
+  const squads: Squad[] = useMemo(
+    () =>
+      data?.mySourceMemberships?.edges
+        ?.map((edge) => edge.node.source)
+        ?.sort((a, b) =>
+          a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase()),
+        ) ?? [],
+    [data],
   );
 
   const addSquad = async (squad: Squad) => {

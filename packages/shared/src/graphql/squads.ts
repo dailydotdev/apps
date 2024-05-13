@@ -381,15 +381,17 @@ export async function getSquad(handle: string): Promise<Squad> {
 }
 
 export const getCurrentUserSquads =
-  (requestMethod: typeof request) => async (): Promise<Squad[]> => {
-    const res = await requestMethod<MySourcesData>(graphqlUrl, MY_SQUADS_QUERY);
-    return (
-      res.mySourceMemberships.edges
-        ?.map((edge) => edge.node.source)
-        ?.sort((a, b) =>
-          a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase()),
-        ) ?? []
+  (requestMethod: typeof request, queryKey: unknown[]) =>
+  async (): Promise<MySourcesData> => {
+    const res = await requestMethod<MySourcesData>(
+      graphqlUrl,
+      MY_SQUADS_QUERY,
+      {
+        first: 100,
+      },
+      { requestKey: JSON.stringify(queryKey) },
     );
+    return res;
   };
 
 export async function getSquadMembers(id: string): Promise<SourceMember[]> {
