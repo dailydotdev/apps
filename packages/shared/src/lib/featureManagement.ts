@@ -52,7 +52,10 @@ const feature = {
   featureTheme: new Feature('feature_theme', {}),
   searchTags: new Feature('search_tags', false),
   similarPosts: new Feature('similar_posts', false),
-  feedListLayout: new Feature('feed_list_layout', FeedListLayoutExperiment.V1),
+  feedListLayout: new Feature(
+    'feed_list_layout',
+    FeedListLayoutExperiment.Control,
+  ),
 };
 
 export { feature };
