@@ -218,6 +218,7 @@ export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
   try {
     const initialData = await request(graphqlUrl, SQUAD_DIRECTORY_SOURCES, {
       filterOpenSquads: true,
+      featured: true,
       first: 100,
       after: undefined,
     });
