@@ -40,15 +40,6 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
     setChecklistVisible(false);
   };
 
-  const checklistElement = (
-    <ChecklistCard
-      title={isDone ? 'Good job! you nailed it. 🥳' : 'Get started with squads'}
-      description={`${totalStepsCount} simple steps to Squad greatness!`}
-      steps={steps}
-      className="max-w-full border-0"
-    />
-  );
-
   return (
     <InteractivePopup
       isDrawerOnMobile
@@ -60,7 +51,14 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
       className="flex w-full max-w-[21.5rem] justify-center rounded-none"
       onClose={onRequestClose}
     >
-      {checklistElement}
+      <ChecklistCard
+        title={
+          isDone ? 'Good job! you nailed it. 🥳' : 'Get started with squads'
+        }
+        description={`${totalStepsCount} simple steps to Squad greatness!`}
+        steps={steps}
+        className="max-w-full border-0"
+      />
     </InteractivePopup>
   );
 };

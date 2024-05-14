@@ -1,17 +1,16 @@
 import React, { ReactElement } from 'react';
-import { ChecklistStepProps } from '../../lib/checklist';
+import { ChecklistStepPropsWithSquad } from '../../lib/checklist';
 import { ChecklistStep } from './ChecklistStep';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { LinkIcon } from '../icons';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
-import { Squad } from '../../graphql/sources';
 import { Origin } from '../../lib/analytics';
 import { TextField } from '../fields/TextField';
 
 const InviteMemberChecklistStep = ({
   squad,
   ...props
-}: ChecklistStepProps & { squad: Squad }): ReactElement => {
+}: ChecklistStepPropsWithSquad): ReactElement => {
   const { invitation, trackAndCopyLink } = useSquadInvitation({
     squad,
     origin: Origin.SquadPage,

@@ -5,12 +5,14 @@ import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Card } from '../cards/Card';
 import { Card as CardV1 } from '../cards/v1/Card';
 import { EarthIcon, MiniCloseIcon, TimerIcon } from '../icons';
-import { ProgressBar } from '../fields/ProgressBar';
 import { ActionType } from '../../graphql/actions';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-
-const MIN_POSTS = 3;
+import { anchorDefaultRel } from '../../lib/strings';
+import {
+  SquadPostsProgressBar,
+  MIN_SQUAD_POSTS,
+} from './SquadPostsProgressBar';
 
 interface Props {
   postsCount: number;
@@ -45,9 +47,7 @@ const PublicSquadEligibilityCard = ({
     return null;
   }
 
-  const isEligible = postsCount >= MIN_POSTS;
-  const effectivePostsCount = isEligible ? MIN_POSTS : postsCount;
-
+  const isEligible = postsCount >= MIN_SQUAD_POSTS;
   const CardComponent = shouldUseMobileFeedLayout ? CardV1 : Card;
 
   return (
@@ -75,24 +75,15 @@ const PublicSquadEligibilityCard = ({
         With Public Squads your posts will organically appear on the daily.dev
         feed giving your content a lot more exposure
       </p>
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-center justify-between typo-footnote">
-          <span className="text-text-secondary">Posts</span>
-          <span className="font-bold">{effectivePostsCount}/3</span>
-        </div>
-        <div className="h-2.5 rounded-10 bg-background-subtle">
-          <ProgressBar
-            percentage={Math.ceil((effectivePostsCount / 3) * 100)}
-            className="!static h-2.5 rounded-10 align-top"
-          />
-        </div>
-      </div>
+      <SquadPostsProgressBar postsCount={postsCount} />
       <div className="flex items-center justify-between">
         <Button
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
           tag="a"
           href="https://r.daily.dev/public-squads-guide"
+          target="_blank"
+          rel={anchorDefaultRel}
         >
           Details
         </Button>

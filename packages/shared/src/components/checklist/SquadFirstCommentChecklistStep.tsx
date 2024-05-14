@@ -1,16 +1,15 @@
 import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import { ChecklistStepProps } from '../../lib/checklist';
+import { ChecklistStepPropsWithSquad } from '../../lib/checklist';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ChecklistStep } from './ChecklistStep';
-import { Squad } from '../../graphql/sources';
 import { useFindSquadWelcomePost } from '../../hooks/useFindSquadWelcomePost';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 const SquadFirstCommentChecklistStep = ({
   squad,
   ...props
-}: ChecklistStepProps & { squad: Squad }): ReactElement => {
+}: ChecklistStepPropsWithSquad): ReactElement => {
   const router = useRouter();
   const { user } = useAuthContext();
   const welcomePost = useFindSquadWelcomePost(squad);
