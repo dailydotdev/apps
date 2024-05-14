@@ -163,7 +163,7 @@ export const FeedContainer = ({
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
   const isList =
-    isHorizontal && isListModeV1
+    (isHorizontal || isListModeV1) && !shouldUseListFeedLayout
       ? false
       : (insaneMode && numCards > 1) || shouldUseListFeedLayout;
   const feedGapPx =
