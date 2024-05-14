@@ -105,6 +105,7 @@ export function SquadPageHeader({
           !shouldUseListModeV1 &&
             'laptopL:absolute laptopL:right-18 laptopL:top-0',
         )}
+        shouldUseListModeV1={shouldUseListModeV1}
       />
       <EnableNotification
         contentName={squad.name}
