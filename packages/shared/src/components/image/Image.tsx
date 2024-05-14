@@ -11,6 +11,7 @@ import { fallbackImages } from '../../lib/config';
 export enum ImageType {
   Post = 'post',
   Avatar = 'avatar',
+  Squad = 'squad',
 }
 
 export interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
@@ -21,6 +22,7 @@ export interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
 const fallbackSrcByType: Record<ImageType, string> = {
   post: cloudinary.post.imageCoverPlaceholder,
   avatar: fallbackImages.avatar,
+  squad: cloudinary.squads.imageFallback,
 };
 
 const ImageComponent = (
