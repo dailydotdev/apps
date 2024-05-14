@@ -13,19 +13,23 @@ interface SquadsDropdownProps {
   list: Squad[];
 }
 
-export const generateDefaultSquad = (username: string): Squad => ({
-  id: username,
-  handle: username,
-  name: `${username}'s private squad`,
+const defaultSquad = {
   image: cloudinary.squads.imageFallback,
   permalink: null,
   active: true,
   public: false,
-  type: SourceType.Squad,
   membersCount: 1,
   description: null,
   memberPostingRole: SourceMemberRole.Admin,
   memberInviteRole: SourceMemberRole.Admin,
+};
+
+export const generateDefaultSquad = (username: string): Squad => ({
+  ...defaultSquad,
+  id: username,
+  handle: username,
+  name: `${username}'s private squad`,
+  type: SourceType.Squad,
 });
 
 export function SquadsDropdown({
