@@ -26,15 +26,13 @@ export function MobileFeedActions(): ReactElement {
         featureTheme={featureTheme}
       />
       <span className="flex flex-row items-center gap-2">
-        <>
-          <ReadingStreakButton
-            isLoading={isLoading}
-            streak={streak}
-            compact
-            iconPosition={ButtonIconPosition.Right}
-          />
-          <Divider className="bg-border-subtlest-tertiary" vertical />
-        </>
+        <ReadingStreakButton
+          isLoading={isLoading}
+          streak={streak}
+          compact
+          iconPosition={ButtonIconPosition.Right}
+        />
+        <Divider className="bg-border-subtlest-tertiary" vertical />
         <MyFeedHeading
           onOpenFeedFilters={() =>
             openModal({
