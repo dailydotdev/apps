@@ -58,9 +58,9 @@ function CreatePost(): ReactElement {
   const activeSquads = useMemo(() => {
     const filtered = squads
       ?.filter(
-        (squaitem) =>
-          squaitem?.active &&
-          verifyPermission(squaitem, SourcePermissions.Post),
+        (squadItem) =>
+          squadItem?.active &&
+          verifyPermission(squadItem, SourcePermissions.Post),
       )
       .sort((a, b) => sortAlphabetically(a.name, b.name));
 
