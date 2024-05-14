@@ -41,7 +41,11 @@ export default function BookmarkFeedLayout({
   searchChildren,
   children,
 }: BookmarkFeedLayoutProps): ReactElement {
-  const { shouldUseListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
+  const {
+    shouldUseListFeedLayout,
+    FeedPageLayoutComponent,
+    shouldUseListModeV1,
+  } = useFeedLayout();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
@@ -95,7 +99,10 @@ export default function BookmarkFeedLayout({
         <h1 className="font-bold typo-callout">Bookmarks</h1>
       </FeedPageHeader>
       <CustomFeedHeader
-        className={classNames('mb-6 flex', shouldUseListFeedLayout && 'px-4')}
+        className={classNames(
+          'mb-6 flex',
+          shouldUseListFeedLayout && !shouldUseListModeV1 && 'px-4',
+        )}
       >
         {searchChildren}
         {shareBookmarksButton('hidden laptop:flex ml-4', 'Share bookmarks')}
