@@ -35,7 +35,6 @@ import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSquadCreate } from '@dailydotdev/shared/src/hooks/squads/useSquadCreate';
-import { sortAlphabetically } from '@dailydotdev/shared/src/lib/strings';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -56,13 +55,14 @@ function CreatePost(): ReactElement {
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
   const [selected, setSelected] = useState(-1);
   const activeSquads = useMemo(() => {
+    const collator = new Intl.Collator('en');
     const filtered = squads
       ?.filter(
         (squadItem) =>
           squadItem?.active &&
           verifyPermission(squadItem, SourcePermissions.Post),
       )
-      .sort((a, b) => sortAlphabetically(a.name, b.name));
+      .sort((a, b) => collator.compare(a.name, b.name));
 
     if (!user) {
       return filtered;
