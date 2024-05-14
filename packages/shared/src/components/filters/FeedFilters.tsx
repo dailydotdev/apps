@@ -12,7 +12,7 @@ import { Source } from '../../graphql/sources';
 
 enum FilterMenuTitle {
   Tags = 'Manage tags',
-  Advanced = 'Advanced',
+  ManageCategories = 'Manage categories',
   ContentTypes = 'Content types',
   Blocked = 'Blocked items',
 }
@@ -49,7 +49,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
       options: { icon: <HashtagIcon /> },
     },
     {
-      title: FilterMenuTitle.Advanced,
+      title: FilterMenuTitle.ManageCategories,
       options: { icon: <FilterIcon /> },
     },
     {
@@ -77,7 +77,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
           <Modal.Body view={FilterMenuTitle.Tags}>
             <TagsFilter tagCategoryLayout={TagCategoryLayout.Settings} />
           </Modal.Body>
-          <Modal.Body view={FilterMenuTitle.Advanced}>
+          <Modal.Body view={FilterMenuTitle.ManageCategories}>
             <AdvancedSettingsFilter />
           </Modal.Body>
           <Modal.Body view={FilterMenuTitle.ContentTypes}>
