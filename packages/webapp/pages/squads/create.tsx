@@ -115,6 +115,7 @@ function CreatePost(): ReactElement {
 
       return onCreatePost({ ...form, sourceId: newSquad.id });
     },
+    retryWithRandomizedHandle: true,
   });
 
   const param = isRouteReady && activeSquads?.length && (query.sid as string);

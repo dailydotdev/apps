@@ -11,9 +11,11 @@ import { useActions } from '../useActions';
 import { Squad } from '../../graphql/sources';
 import { ApiErrorResult } from '../../graphql/common';
 import { parseOrDefault } from '../../lib/func';
+import { getRandom4Digits } from '../../lib';
 
 interface UseSquadCreateProps {
   onSuccess?: (squad: Squad) => void;
+  retryWithRandomizedHandle?: boolean;
 }
 
 interface UseSquadCreate {
@@ -28,8 +30,12 @@ interface UseSquadCreate {
 type CustomHook = (props?: UseSquadCreateProps) => UseSquadCreate;
 
 const DEFAULT_ERROR = "Oops! That didn't seem to work. Let's try again!";
+const HANDLE_ERROR = 'handle is already used';
 
-export const useSquadCreate: CustomHook = ({ onSuccess } = {}) => {
+export const useSquadCreate: CustomHook = ({
+  onSuccess,
+  retryWithRandomizedHandle,
+} = {}) => {
   const { addSquad } = useBoot();
   const { trackEvent } = useContext(AnalyticsContext);
   const { displayToast } = useToastNotification();
@@ -50,10 +56,23 @@ export const useSquadCreate: CustomHook = ({ onSuccess } = {}) => {
         router.replace(squad.permalink);
       }
     },
-    onError: (error: ApiErrorResult) => {
+    onError: (error: ApiErrorResult, variables) => {
       const result = parseOrDefault<Record<string, string>>(
         error?.response?.errors?.[0]?.message,
       );
+
+      if (
+        retryWithRandomizedHandle &&
+        typeof result === 'object' &&
+        result.handle === HANDLE_ERROR
+      ) {
+        onCreateSquad({
+          ...variables,
+          handle: `${variables.handle}${getRandom4Digits()}`,
+        });
+        return;
+      }
+
       displayToast(typeof result === 'object' ? result.handle : DEFAULT_ERROR);
     },
   });

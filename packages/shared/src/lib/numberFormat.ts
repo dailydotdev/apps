@@ -18,3 +18,13 @@ export function largeNumberFormat(value: number): string | null {
   }
   return newValue.toString();
 }
+
+export const getRandom4Digits = (leftPad?: string): string => {
+  const random = Math.floor(1000 + Math.random() * 9000);
+
+  if (!leftPad) {
+    return random.toString();
+  }
+
+  return random.toString().padStart(4, leftPad);
+};
