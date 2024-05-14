@@ -195,8 +195,8 @@ export default function FeedItemComponent({
     postType: (item as PostItem).post?.type,
   });
 
-  const insaneMode = isListModeV1 ? false : insaneModeProp;
-  const isList = isListModeV1 ? false : isListProp;
+  const insaneMode = isListModeV1 || isHorizontal ? false : insaneModeProp;
+  const isList = isListModeV1 || isHorizontal ? false : isListProp;
 
   switch (item.type) {
     case 'post': {

@@ -98,7 +98,7 @@ export const useFeedLayout = ({
   const { insaneMode: listMode } = useContext(SettingsContext);
   const { value: feedListLayoutExperiment } = useConditionalFeature({
     feature: feature.feedListLayout,
-    shouldEvaluate: listMode,
+    shouldEvaluate: listMode && isLaptop,
   });
 
   const isListModeV1 =
