@@ -27,8 +27,8 @@ function AdvancedSettingsFilter(): ReactElement {
     [advancedSettings],
   );
 
-  const isBlocked = useCallback(
-    (source: Source) => {
+  const checkSourceBlocked = useCallback(
+    (source: Source): boolean => {
       const blockedSources = feedSettings?.excludeSources ?? [];
       return blockedSources.some(({ id }) => id === source.id);
     },
@@ -41,13 +41,13 @@ function AdvancedSettingsFilter(): ReactElement {
 
   const onToggleSource = useCallback(
     (source: Source) => {
-      if (isBlocked(source)) {
+      if (checkSourceBlocked(source)) {
         onFollowSource({ source });
       } else {
         onUnfollowSource({ source });
       }
     },
-    [isBlocked, onFollowSource, onUnfollowSource],
+    [checkSourceBlocked, onFollowSource, onUnfollowSource],
   );
 
   return (
@@ -58,7 +58,7 @@ function AdvancedSettingsFilter(): ReactElement {
           label={title}
           name={`${ADVANCED_SETTINGS_KEY}-${id}`}
           inputId={`${ADVANCED_SETTINGS_KEY}-${id}`}
-          checked={!isBlocked(options.source)}
+          checked={!checkSourceBlocked(options.source)}
           description={description}
           onToggle={() => onToggleSource(options.source)}
         />
