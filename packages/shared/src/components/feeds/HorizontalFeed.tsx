@@ -101,9 +101,8 @@ export default function HorizontalFeed<T>({
       allowFetchMore={false}
       pageSize={10}
       isHorizontal
-      className={classnames(
-        insaneMode && isListModeV1 ? 'mx-4 laptop:mx-auto' : 'mx-4',
-        'mb-10 ',
+      className={classnames('mx-4 mb-10',
+        insaneMode && isListModeV1 && 'laptop:mx-auto',
       )}
       feedContainerRef={feedContainerRef}
     />
