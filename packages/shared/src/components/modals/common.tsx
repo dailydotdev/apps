@@ -115,6 +115,13 @@ const ShareModal = dynamic(
   () => import(/* webpackChunkName: "shareModal" */ './ShareModal'),
 );
 
+const SubmitSquadForReviewModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "submitSquadForReviewModal" */ './squads/SubmitSquadForReviewModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -136,7 +143,7 @@ export const modals = {
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.UserSettings]: UserSettingsModal,
   [LazyModal.Share]: ShareModal,
-  [LazyModal.PublicSquadSubmitForReview]: SquadTourModal, // TODO: placeholder, fix this when working on https://dailydotdev.atlassian.net/browse/MI-339
+  [LazyModal.SubmitSquadForReview]: SubmitSquadForReviewModal,
 };
 
 type GetComponentProps<T> = T extends
