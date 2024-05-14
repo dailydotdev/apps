@@ -69,6 +69,7 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
     ({ pageParam }) =>
       request(graphqlUrl, SQUAD_DIRECTORY_SOURCES, {
         filterOpenSquads: true,
+        featured: true,
         first: 100,
         after: pageParam,
       }),
