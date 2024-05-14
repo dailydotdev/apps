@@ -1,22 +1,3 @@
-export const NO_RANK = 'No rank';
-export const FINAL_RANK = 'You made it 🎉';
-export const RANK_OFFSET = [
-  '37.5%',
-  '37.5%',
-  '12.5%',
-  '-12.5%',
-  '-37.5%',
-  '-62.5%',
-  '-87.5%',
-  '-112.5%',
-];
-
-export interface RankHistoryProps {
-  rank: number;
-  rankName: string;
-  count: number;
-}
-
 export interface Rank {
   name: string;
   steps: number;
@@ -85,25 +66,6 @@ export const RANKS: Rank[] = [
   },
 ];
 
-const colorOrDefault = (rank: number, color: string): string =>
-  rank > 0 ? color : 'var(--theme-text-tertiary)';
-
-export const rankToColor = (rank: number): string =>
-  colorOrDefault(rank, `var(--theme-rank-${rank}-color)`);
-export const rankToGradientStopBottom = (rank: number): string =>
-  colorOrDefault(rank, `var(--theme-rank-${rank}-color-bottom)`);
-export const rankToGradientStopTop = (rank: number): string =>
-  colorOrDefault(rank, `var(--theme-rank-${rank}-color-top)`);
-
-interface GetNextRankTextProps {
-  nextRank: number;
-  rank: number;
-  finalRank: boolean;
-  progress: number;
-  rankLastWeek?: number;
-  showNextLevel?: boolean;
-}
-
 export const getRank = (rank = 0): number => {
   const computedRank = rank ? Math.max(0, rank - 1) : 0;
 
@@ -112,44 +74,4 @@ export const getRank = (rank = 0): number => {
   }
 
   return computedRank;
-};
-
-export const getNextRankText = ({
-  nextRank,
-  rank = 0,
-  finalRank,
-  progress,
-  rankLastWeek,
-  showNextLevel = true,
-}: GetNextRankTextProps): string => {
-  const { steps } = RANKS[getRank(rank)];
-  if (finalRank && progress >= steps) {
-    return FINAL_RANK;
-  }
-  if (finalRank || (nextRank === rankLastWeek && progress < steps)) {
-    return `Re-earn: ${progress}/${steps} days`;
-  }
-  if (nextRank === 0) {
-    return `Earn: ${progress ?? 0}/1 days`;
-  }
-  if (showNextLevel) {
-    return `Next level: ${RANKS[rank].name}`;
-  }
-  return `Earn: ${progress ?? 0}/${RANKS[rank].steps} days`;
-};
-
-export const isFinalRank = (rank: number): boolean => rank === RANKS.length;
-export const isFinalRankCompleted = (rank: number, progress: number): boolean =>
-  isFinalRank(rank) && progress === RANKS[getRank(rank)].steps;
-
-export const isRankCompleted = (
-  currentRank: number,
-  checkRank: number,
-  progress: number,
-): boolean => {
-  return (
-    currentRank > checkRank ||
-    (currentRank === RANKS.length &&
-      progress === RANKS[getRank(currentRank)].steps)
-  );
 };
