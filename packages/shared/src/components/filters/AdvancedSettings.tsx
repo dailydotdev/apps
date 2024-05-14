@@ -1,24 +1,68 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, useCallback, useMemo } from 'react';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { FilterSwitch } from './FilterSwitch';
 import { AdvancedSettingsGroup } from '../../graphql/feedSettings';
 import { useAdvancedSettings } from '../../hooks/feed';
+import useTagAndSource from '../../hooks/useTagAndSource';
+import { Origin } from '../../lib/analytics';
+import { Source } from '../../graphql/sources';
 
 const ADVANCED_SETTINGS_KEY = 'advancedSettings';
 
 function AdvancedSettingsFilter(): ReactElement {
-  const { advancedSettings, isLoading } = useFeedSettings();
+  const { advancedSettings, isLoading, feedSettings } = useFeedSettings();
   const { selectedSettings, onToggleSettings } = useAdvancedSettings();
+  const sourceList = useMemo(
+    () =>
+      advancedSettings?.filter(
+        ({ group }) => group === AdvancedSettingsGroup.ContentSource,
+      ) ?? [],
+    [advancedSettings],
+  );
   const settingsList = useMemo(
     () =>
       advancedSettings?.filter(
-        ({ group }) => group === AdvancedSettingsGroup.Advanced,
+        ({ group }) => group === AdvancedSettingsGroup.ContentCuration,
       ) ?? [],
     [advancedSettings],
   );
 
+  const isBlocked = useCallback(
+    (source: Source) => {
+      const blockedSources = feedSettings?.excludeSources ?? [];
+      return blockedSources.some(({ id }) => id === source.id);
+    },
+    [feedSettings?.excludeSources],
+  );
+
+  const { onFollowSource, onUnfollowSource } = useTagAndSource({
+    origin: Origin.SourcePage,
+  });
+
+  const onToggleSource = useCallback(
+    (source: Source) => {
+      if (isBlocked(source)) {
+        onFollowSource({ source });
+      } else {
+        onUnfollowSource({ source });
+      }
+    },
+    [isBlocked, onFollowSource, onUnfollowSource],
+  );
+
   return (
     <section className="flex flex-col px-6" aria-busy={isLoading}>
+      {sourceList?.map(({ id, title, description, options }) => (
+        <FilterSwitch
+          key={id}
+          label={title}
+          name={`${ADVANCED_SETTINGS_KEY}-${id}`}
+          inputId={`${ADVANCED_SETTINGS_KEY}-${id}`}
+          checked={!isBlocked(options.source)}
+          description={description}
+          onToggle={() => onToggleSource(options.source)}
+        />
+      ))}
       {settingsList?.map(({ id, title, description, defaultEnabledState }) => (
         <FilterSwitch
           key={id}
