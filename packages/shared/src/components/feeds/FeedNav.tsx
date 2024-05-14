@@ -20,6 +20,7 @@ import { IconSize } from '../Icon';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
+import { webappUrl } from '../../lib/constants';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -31,12 +32,12 @@ enum FeedNavTab {
 }
 
 const urlToTab: Record<string, FeedNavTab> = {
-  '/': FeedNavTab.ForYou,
-  '/popular': FeedNavTab.Popular,
-  '/upvoted': FeedNavTab.MostUpvoted,
-  '/discussed': FeedNavTab.Discussions,
-  '/bookmarks': FeedNavTab.Bookmarks,
-  '/history': FeedNavTab.History,
+  [`${webappUrl}`]: FeedNavTab.ForYou,
+  [`${webappUrl}popular`]: FeedNavTab.Popular,
+  [`${webappUrl}upvoted`]: FeedNavTab.MostUpvoted,
+  [`${webappUrl}discussed`]: FeedNavTab.Discussions,
+  [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
+  [`${webappUrl}history`]: FeedNavTab.History,
 };
 
 function FeedNav(): ReactElement {
