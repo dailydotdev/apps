@@ -4,7 +4,7 @@ import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Card } from '../cards/Card';
 import { Card as CardV1 } from '../cards/v1/Card';
-import { ClockPendingIcon, GlobeIcon, MiniCloseIcon } from '../icons';
+import { EarthIcon, MiniCloseIcon, TimerIcon } from '../icons';
 import { ProgressBar } from '../fields/ProgressBar';
 import { ActionType } from '../../graphql/actions';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -15,11 +15,13 @@ const MIN_POSTS = 3;
 interface Props {
   postsCount: number;
   inReview: boolean;
+  squadId: string;
 }
 
 const PublicSquadEligibilityCard = ({
   postsCount,
   inReview,
+  squadId,
 }: Props): ReactElement => {
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
@@ -36,8 +38,8 @@ const PublicSquadEligibilityCard = ({
   }, [completeAction]);
 
   const onSubmit = useCallback(() => {
-    openModal({ type: LazyModal.PublicSquadSubmitForReview });
-  }, [openModal]);
+    openModal({ type: LazyModal.SubmitSquadForReview, props: { squadId } });
+  }, [openModal, squadId]);
 
   if (hideCard) {
     return null;
@@ -55,7 +57,7 @@ const PublicSquadEligibilityCard = ({
     >
       <div className="flex items-center justify-between">
         <div className="flex h-6 items-center gap-1 rounded-8 bg-surface-float pl-1 pr-2 text-text-tertiary typo-callout">
-          <GlobeIcon />
+          <EarthIcon />
           Public Squad
         </div>
         <Button
@@ -96,7 +98,7 @@ const PublicSquadEligibilityCard = ({
         </Button>
         {inReview ? (
           <div className="flex gap-1 pr-3 font-bold text-text-tertiary typo-callout">
-            <ClockPendingIcon />
+            <TimerIcon />
             In review
           </div>
         ) : (
