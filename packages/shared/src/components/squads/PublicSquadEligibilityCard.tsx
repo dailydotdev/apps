@@ -13,6 +13,7 @@ import {
   SquadPostsProgressBar,
   MIN_SQUAD_POSTS,
 } from './SquadPostsProgressBar';
+import { squadsPublicGuide } from '../../lib/constants';
 
 interface Props {
   postsCount: number;
@@ -81,7 +82,7 @@ const PublicSquadEligibilityCard = ({
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
           tag="a"
-          href="https://r.daily.dev/public-squads-guide"
+          href={squadsPublicGuide}
           target="_blank"
           rel={anchorDefaultRel}
         >

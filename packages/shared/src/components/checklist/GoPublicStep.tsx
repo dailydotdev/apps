@@ -5,6 +5,7 @@ import { ChecklistStep } from './ChecklistStep';
 import { TourIcon } from '../icons';
 import { anchorDefaultRel } from '../../lib/strings';
 import { SquadPostsProgressBar } from '../squads/SquadPostsProgressBar';
+import { squadsPublicGuide } from '../../lib/constants';
 
 export const GoPublicStep = ({
   squad,
@@ -20,13 +21,15 @@ export const GoPublicStep = ({
           className={{
             progressBackground: 'bg-border-subtlest-tertiary',
             progressBar: '!bg-border-subtlest-primary',
-            label: 'typo-caption2 *:!font-normal *:!text-text-primary',
+            label: 'typo-caption2',
+            labelHeader: 'text-text-primary',
+            labelContent: 'font-normal',
             container: 'flex-col-reverse gap-2',
           }}
         />
         <Button
           tag="a"
-          href="https://r.daily.dev/public-squads-guide"
+          href={squadsPublicGuide}
           target="_blank"
           rel={anchorDefaultRel}
           variant={ButtonVariant.Primary}

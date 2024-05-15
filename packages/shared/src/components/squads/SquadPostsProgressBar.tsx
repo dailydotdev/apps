@@ -7,6 +7,8 @@ export const MIN_SQUAD_POSTS = 3;
 interface ClassName {
   container?: string;
   label?: string;
+  labelHeader?: string;
+  labelContent?: string;
   progressBar?: string;
   progressBackground?: string;
 }
@@ -32,8 +34,14 @@ export const SquadPostsProgressBar = ({
           className?.label,
         )}
       >
-        <span className="text-text-secondary">Posts</span>
-        <span className="font-bold">
+        <span
+          className={classNames(
+            className?.labelHeader ?? 'text-text-secondary',
+          )}
+        >
+          Posts
+        </span>
+        <span className={classNames(className?.labelContent ?? 'font-bold')}>
           {effectivePostsCount} / {goal}
         </span>
       </div>

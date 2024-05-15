@@ -1,16 +1,13 @@
 import { Squad } from '../../graphql/sources';
 import { Action, ActionType } from '../../graphql/actions';
-
-// taken from DB default value
-const placeholderImage =
-  'https://daily-now-res.cloudinary.com/image/upload/s--LrHsyt2T--/f_auto/v1692632054/squad_placeholder_sfwkmj';
+import { cloudinary } from '../../lib/image';
 
 export const getEditActions = (squad: Squad): Action[] => {
   const isComplete =
     !!squad.name &&
     !!squad.description &&
     !!squad.image &&
-    squad.image !== placeholderImage;
+    squad.image !== cloudinary.squads.imageFallback;
   return isComplete
     ? [{ type: ActionType.EditSquad, completedAt: new Date() }]
     : [];

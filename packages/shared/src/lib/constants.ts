@@ -36,6 +36,7 @@ export const twitter = 'https://r.daily.dev/twitter';
 export const squadsPublicWaitlist = 'https://r.daily.dev/public-squad-waitlist';
 export const squadsPublicSuggestion =
   'https://r.daily.dev/public-squad-suggestion';
+export const squadsPublicGuide = 'https://r.daily.dev/public-squads-guide';
 export const searchFeedback = 'https://r.daily.dev/search-feedback';
 export const searchDocs = 'https://r.daily.dev/search-docs';
 export const isDevelopment = process.env.NODE_ENV === 'development';
