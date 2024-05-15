@@ -80,7 +80,7 @@ const SubmitSquadForReviewModal = ({
           <ChecklistItem iconTag={MegaphoneIcon}>
             The posts I shared meet the{' '}
             <a
-              className="text-text-link underline hover:no-underline"
+              className="link"
               href="https://docs.daily.dev/docs/for-content-creators/content-guidelines"
               target="_blank"
               rel="noopener"

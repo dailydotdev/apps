@@ -143,10 +143,7 @@ export function SquadNotificationsModal({
         )}
         <p className="text-text-tertiary typo-callout">
           For more options, go to your
-          <a
-            className="ml-1 text-text-link underline hover:no-underline"
-            href="/account/notifications"
-          >
+          <a className="link ml-1" href="/account/notifications">
             notifications settings
           </a>
         </p>

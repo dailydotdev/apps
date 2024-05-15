@@ -90,14 +90,7 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
   return (
     <ManageSquadPageContainer>
       <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
-      <ManageSquadPageMain>
-        <SquadDetails
-          className="pt-8"
-          form={squad}
-          onSubmit={onSubmit}
-          createMode={false}
-        />
-      </ManageSquadPageMain>
+      <SquadDetails form={squad} onSubmit={onSubmit} createMode={false} />
     </ManageSquadPageContainer>
   );
 };

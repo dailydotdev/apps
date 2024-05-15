@@ -1,17 +1,24 @@
 import React, { InputHTMLAttributes, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import styles from './RadioItem.module.css';
+import ConditionalWrapper from '../ConditionalWrapper';
 
-export type RadioItemProps = Omit<
-  InputHTMLAttributes<HTMLInputElement>,
-  'type'
-> & {
+interface ClassName {
+  wrapper?: string;
+  content?: string;
+}
+
+export interface RadioItemProps<T extends string = string>
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'className'> {
+  value: T;
+  label: ReactNode;
+  className?: ClassName;
   afterElement?: ReactNode;
-};
+}
 
 export function RadioItem({
   children,
-  className,
+  className = {},
   checked,
   disabled,
   afterElement,
@@ -19,7 +26,14 @@ export function RadioItem({
 }: RadioItemProps): ReactElement {
   const { id } = props;
   return (
-    <>
+    <ConditionalWrapper
+      condition={!!className?.wrapper}
+      wrapper={(component) => (
+        <div className={classNames('flex flex-col', className?.wrapper)}>
+          {component}
+        </div>
+      )}
+    >
       <label
         className={classNames(
           styles.item,
@@ -28,7 +42,7 @@ export function RadioItem({
             ? 'text-text-disabled'
             : 'pointer cursor-pointer text-text-tertiary focus-within:text-text-primary hover:text-text-primary',
           'relative flex select-none flex-row items-center pr-3 font-bold typo-footnote',
-          className,
+          className?.content,
         )}
         htmlFor={id}
       >
@@ -56,6 +70,6 @@ export function RadioItem({
         {children}
       </label>
       {afterElement}
-    </>
+    </ConditionalWrapper>
   );
 }

@@ -127,7 +127,10 @@ export function ModalHeaderSteps(props: ModalHeaderProps): ReactElement {
   }
   const stepperWidth = () => ((activeStepIndex + 1) / steps.length) * 100;
   const progress = activeStep.hideProgress ? null : (
-    <ProgressBar percentage={stepperWidth()} className="top-[3.3rem]" />
+    <ProgressBar
+      percentage={stepperWidth()}
+      className="absolute left-1 top-[3.3rem] h-1"
+    />
   );
   if (activeStep.title) {
     return (

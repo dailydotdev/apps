@@ -1,6 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
 import { ThemeMode } from '../../contexts/SettingsContext';
-import { RadioOption } from '../fields/Radio';
 import { RadioItem, RadioItemProps } from '../fields/RadioItem';
 import ThemeWidgetBackground, {
   DarkNode,
@@ -10,7 +9,7 @@ import ThemeWidgetBackground, {
 } from './ThemeWidgetBackground';
 
 interface ThemeWidgetProps extends Omit<RadioItemProps, 'onChange'> {
-  option: RadioOption<ThemeMode>;
+  option: RadioItemProps<ThemeMode>;
   onChange: (value: ThemeMode) => void;
 }
 
@@ -41,7 +40,7 @@ function ThemeWidget({
         id={option.value}
         value={option.value}
         onChange={() => onChange(option.value)}
-        className="my-0.5 truncate"
+        className={{ content: 'my-0.5 truncate' }}
       >
         {option.label}
       </RadioItem>

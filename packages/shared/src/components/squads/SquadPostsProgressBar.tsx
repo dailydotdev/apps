@@ -54,7 +54,7 @@ export const SquadPostsProgressBar = ({
         <ProgressBar
           percentage={Math.ceil((effectivePostsCount / goal) * 100)}
           className={classNames(
-            '!static h-2.5 rounded-10 align-top',
+            'static left-1 h-2.5 rounded-10 align-top',
             className?.progressBar,
           )}
         />

@@ -1,11 +1,11 @@
-import React, { FormEvent, ReactElement, useState } from 'react';
+import React, { FormEvent, ReactElement, ReactNode, useState } from 'react';
 import classNames from 'classnames';
 import { ClientError } from 'graphql-request';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
-import { ArrowIcon, AtIcon, CameraIcon, SourceIcon, SquadIcon } from '../icons';
+import { ArrowIcon, AtIcon, CameraIcon, SquadIcon } from '../icons';
 import Textarea from '../fields/Textarea';
 import ImageInput from '../fields/ImageInput';
 import { cloudinary } from '../../lib/image';
@@ -16,17 +16,22 @@ import { capitalize } from '../../lib/strings';
 import { IconSize } from '../Icon';
 import { SourceMemberRole } from '../../graphql/sources';
 import { Radio } from '../fields/Radio';
-import { SquadSubTitle, SquadTitle } from './utils';
 import { FormWrapper } from '../fields/form';
+import { SquadSettingsSection, SquadStatus } from './settings';
+import { useSquadPrivacyOptions } from '../../hooks/squads/useSquadPrivacyOptions';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import { disabledRefetch, isNullOrUndefined } from '../../lib/func';
+import { useAuthContext } from '../../contexts/AuthContext';
+import Alert, { AlertType } from '../widgets/Alert';
 
 const squadImageId = 'squad_image_file';
 
 interface SquadDetailsProps {
-  className?: string;
   onSubmit?: (e: FormEvent, formJson: SquadForm) => void;
   form: Partial<SquadForm>;
   createMode: boolean;
   onRequestClose?: () => void;
+  children?: ReactNode;
 }
 
 const getFormData = async (
@@ -59,7 +64,9 @@ export function SquadDetails({
   onSubmit,
   form,
   createMode = true,
+  children,
 }: SquadDetailsProps): ReactElement {
+  const { user } = useAuthContext();
   const {
     name,
     handle,
@@ -67,11 +74,34 @@ export function SquadDetails({
     memberPostingRole: initialMemberPostingRole,
     memberInviteRole: initialMemberInviteRole,
   } = form;
+  const isPublic = form?.public;
+  const { data: status } = useQuery<SquadStatus>(
+    generateQueryKey(RequestKey.SquadStatus, user),
+    () => {
+      // TODO: MI-344 we need to add a condition if they are already an approved public squad that went private to return approved
+      if (isPublic) {
+        return SquadStatus.Approved;
+      }
+
+      // TODO: MI-344 add another 2 if statement here to check if the squad is rejected/pending
+
+      return SquadStatus.InProgress;
+    },
+    {
+      ...disabledRefetch,
+      cacheTime: Infinity,
+      enabled: !isNullOrUndefined(form?.flags?.totalPosts) && !createMode,
+    },
+  );
   const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
   const [handleHint, setHandleHint] = useState<string>(null);
   const [canSubmit, setCanSubmit] = useState(!!name && !!activeHandle);
   const [isDescriptionOpen, setDescriptionOpen] = useState(!createMode);
+  const privacyOptions = useSquadPrivacyOptions({
+    totalPosts: form?.flags?.totalPosts,
+    status,
+  });
   const router = useRouter();
   const [memberPostingRole, setMemberPostingRole] = useState(
     () => initialMemberPostingRole || SourceMemberRole.Member,
@@ -79,6 +109,8 @@ export function SquadDetails({
   const [memberInviteRole, setMemberInviteRole] = useState(
     () => initialMemberInviteRole || SourceMemberRole.Member,
   );
+  const daysLeft = 14; // TODO: MI-344 this needs to be dynamic
+
   const { mutateAsync: onValidateHandle } = useMutation(checkExistingHandle, {
     onError: (err) => {
       const clientError = err as ClientError;
@@ -120,6 +152,7 @@ export function SquadDetails({
 
     return null;
   };
+
   const handleChange = (e: FormEvent<HTMLFormElement>) => {
     const formJson = formToJson<SquadForm>(e.currentTarget);
 
@@ -136,7 +169,7 @@ export function SquadDetails({
       form="squad-form"
       isHeaderTitle
       title={createMode ? undefined : 'Squad settings'}
-      className={{ title: 'typo-title3' }}
+      className={{ container: 'flex flex-1 flex-col', title: 'typo-title3' }}
       copy={{ right: createMode ? 'Create Squad' : 'Save', left: null }}
       leftButtonProps={{
         icon: <ArrowIcon className="-rotate-90" />,
@@ -149,21 +182,7 @@ export function SquadDetails({
         color: createMode ? ButtonColor.Cabbage : undefined,
       }}
     >
-      {createMode && (
-        <div
-          style={{
-            backgroundImage: `url(${cloudinary.squads.createSquad})`,
-          }}
-          className="mb-6 flex h-52 w-full flex-col items-center justify-center bg-cover bg-center"
-        >
-          <SourceIcon size={IconSize.XXXLarge} />
-          <SquadTitle className="mb-2">Create new Squad</SquadTitle>
-          <SquadSubTitle>
-            Create a group where you can learn and interact privately with other
-            developers around topics that matter to you
-          </SquadSubTitle>
-        </div>
-      )}
+      {children}
       <form
         className="flex w-full flex-col items-center justify-center gap-4 p-6 pt-0"
         onSubmit={handleSubmit}
@@ -236,12 +255,42 @@ export function SquadDetails({
             }}
           />
         )}
+        {!createMode && (
+          <SquadSettingsSection title="Status" className="w-full">
+            <Radio
+              name="status"
+              options={privacyOptions}
+              value={memberPostingRole}
+              className={{ container: 'gap-4' }}
+              onChange={(value) =>
+                setMemberPostingRole(value as SourceMemberRole)
+              }
+            />
+            {status === SquadStatus.Rejected && (
+              <Alert
+                type={AlertType.Error}
+                flexDirection="flex-row"
+                className="mt-2"
+              >
+                <p className="flex-1">
+                  You did not pass the review process. You can try again
+                  in&nbsp;{daysLeft}
+                  &nbsp;days. To increase your chances to pass in the next round
+                  you can contact us at &nbsp;
+                  <a href="mailto:support@daily.dev" className="link">
+                    support@daily.dev
+                  </a>
+                  .
+                </p>
+              </Alert>
+            )}
+          </SquadSettingsSection>
+        )}
         <div className="mt-2 flex flex-col gap-4 tablet:flex-row">
-          <div className="flex flex-1 flex-col">
-            <h4 className="mb-2 font-bold typo-body">Post permissions</h4>
-            <p className="mb-4 text-text-tertiary typo-callout">
-              Choose who is allowed to post new content in this Squad.
-            </p>
+          <SquadSettingsSection
+            title="Post permissions"
+            description="Choose who is allowed to post new content in this Squad."
+          >
             <Radio
               name="memberPostingRole"
               options={memberRoleOptions}
@@ -250,12 +299,11 @@ export function SquadDetails({
                 setMemberPostingRole(value as SourceMemberRole)
               }
             />
-          </div>
-          <div className="flex flex-1 flex-col">
-            <h4 className="mb-2 font-bold typo-body">Invitation permissions</h4>
-            <p className="mb-4 text-text-tertiary typo-callout">
-              Choose who is allowed to invite new members to this Squad.
-            </p>
+          </SquadSettingsSection>
+          <SquadSettingsSection
+            title="Invitation permissions"
+            description="Choose who is allowed to invite new members to this Squad."
+          >
             <Radio
               name="memberInviteRole"
               options={memberRoleOptions}
@@ -264,7 +312,7 @@ export function SquadDetails({
                 setMemberInviteRole(value as SourceMemberRole)
               }
             />
-          </div>
+          </SquadSettingsSection>
         </div>
       </form>
     </FormWrapper>
