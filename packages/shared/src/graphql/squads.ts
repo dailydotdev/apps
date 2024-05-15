@@ -199,9 +199,6 @@ export const SQUAD_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
       ...SourceBaseInfo
-      flags {
-        totalPosts
-      }
       referralUrl
       createdAt
       flags {
