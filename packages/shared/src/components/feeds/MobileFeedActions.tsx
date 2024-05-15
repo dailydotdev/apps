@@ -14,7 +14,7 @@ import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 export function MobileFeedActions(): ReactElement {
   const router = useRouter();
   const { openModal } = useLazyModal();
-  const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
+  const { streak, isLoading } = useReadingStreak();
   const featureTheme = useFeatureTheme();
 
   return (
@@ -26,17 +26,13 @@ export function MobileFeedActions(): ReactElement {
         featureTheme={featureTheme}
       />
       <span className="flex flex-row items-center gap-2">
-        {isStreaksEnabled && (
-          <>
-            <ReadingStreakButton
-              isLoading={isLoading}
-              streak={streak}
-              compact
-              iconPosition={ButtonIconPosition.Right}
-            />
-            <Divider className="bg-border-subtlest-tertiary" vertical />
-          </>
-        )}
+        <ReadingStreakButton
+          isLoading={isLoading}
+          streak={streak}
+          compact
+          iconPosition={ButtonIconPosition.Right}
+        />
+        <Divider className="bg-border-subtlest-tertiary" vertical />
         <MyFeedHeading
           onOpenFeedFilters={() =>
             openModal({

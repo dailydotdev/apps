@@ -7,8 +7,8 @@ import {
   LinkWithTooltipProps,
 } from '../tooltips/LinkWithTooltip';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { ProfileTooltipContentProps } from './ProfileTooltipContent';
 import { DevCard, DevCardType } from './devcard';
+import { UserTooltipContentData } from '../../hooks/useProfileTooltip';
 
 export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   children: ReactElement;
@@ -18,12 +18,12 @@ export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   scrollingContainer?: HTMLElement;
 }
 
-export const profileTooltipClasses = {
-  padding: 'p-6',
-  roundness: 'rounded-16',
-  classNames: 'w-72 shadow-2 border border-border-subtlest-secondary',
-  background: 'bg-background-default',
-};
+export interface ProfileTooltipContentProps {
+  user: Author;
+  data?: UserTooltipContentData;
+  onMouseEnter?: () => unknown;
+  onMouseLeave?: () => unknown;
+}
 
 export function ProfileTooltip({
   children,
