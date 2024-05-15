@@ -14,10 +14,10 @@ import { LoggedUser } from '../lib/user';
 import { disabledRefetch } from '../lib/func';
 import { StaleTime } from '../lib/query';
 
-export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
-  user?.id,
-  'feedSettings',
-];
+export const getFeedSettingsQueryKey = (
+  user?: LoggedUser,
+  feedId?: string,
+): string[] => [user?.id, 'feedSettings', feedId];
 
 export interface FeedSettingsReturnType {
   tagsCategories: TagCategory[];
@@ -36,16 +36,21 @@ export const getHasAnyFilter = (feedSettings: FeedSettings): boolean =>
 
 export interface UseFeedSettingsProps {
   enabled?: boolean;
+  feedId?: string;
 }
 
 export default function useFeedSettings({
   enabled = true,
+  feedId,
 }: UseFeedSettingsProps = {}): FeedSettingsReturnType {
   const { user } = useContext(AuthContext);
-  const filtersKey = getFeedSettingsQueryKey(user);
+  const filtersKey = getFeedSettingsQueryKey(user, feedId);
   const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>(
     filtersKey,
-    () => request(graphqlUrl, FEED_SETTINGS_QUERY),
+    () =>
+      request(graphqlUrl, FEED_SETTINGS_QUERY, {
+        feedId,
+      }),
     {
       ...disabledRefetch,
       enabled: enabled && !!user,

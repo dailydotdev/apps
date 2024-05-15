@@ -78,37 +78,39 @@ export const SEARCH_TAGS_QUERY = gql`
 `;
 
 export const FEED_SETTINGS_QUERY = gql`
-  query FeedPreferences {
-    tagsCategories {
-      id
-      title
-      tags
-      emoji
-    }
-    feedSettings {
-      includeTags
-      blockedTags
-      excludeSources {
+  query FeedPreferences($feedId: String) {
+    feedSettings(feedId: $feedId) {
+      tagsCategories {
         id
-        name
-        image
+        title
+        tags
+        emoji
+      }
+      feedSettings {
+        includeTags
+        blockedTags
+        excludeSources {
+          id
+          name
+          image
+        }
+        advancedSettings {
+          id
+          enabled
+        }
       }
       advancedSettings {
         id
-        enabled
-      }
-    }
-    advancedSettings {
-      id
-      title
-      description
-      defaultEnabledState
-      group
-      options {
-        source {
-          ...SourceShortInfo
+        title
+        description
+        defaultEnabledState
+        group
+        options {
+          source {
+            ...SourceShortInfo
+          }
+          type
         }
-        type
       }
     }
   }
