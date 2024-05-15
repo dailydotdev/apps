@@ -19,7 +19,7 @@ export const useReadingStreak = (): UserReadingStreak => {
   const { data: streak, isLoading } = useQuery(
     generateQueryKey(RequestKey.UserStreak, user),
     getReadingStreak,
-    { enabled: true, staleTime: StaleTime.Default },
+    { staleTime: StaleTime.Default },
   );
   const { checkHasCompleted } = useActions();
   const hasReadToday =
