@@ -27,7 +27,6 @@ export interface MainLayoutHeaderProps {
   optOutWeeklyGoal?: boolean;
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
-  onMobileSidebarToggle: (state: boolean) => unknown;
 }
 
 const SearchPanel = dynamic(
@@ -43,7 +42,6 @@ function MainLayoutHeader({
   optOutWeeklyGoal,
   additionalButtons,
   onLogoClick,
-  onMobileSidebarToggle,
 }: MainLayoutHeaderProps): ReactElement {
   const { user, isAuthReady } = useContext(AuthContext);
   const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
@@ -73,7 +71,7 @@ function MainLayoutHeader({
 
   const RenderButtons = () => {
     return (
-      <div className="flex gap-3">
+      <div className="flex justify-end gap-3">
         {isStreaksEnabled && (
           <ReadingStreakButton streak={streak} isLoading={isLoading} compact />
         )}
@@ -103,7 +101,7 @@ function MainLayoutHeader({
       <SearchPanel
         className={{
           container: classNames(
-            'left-0 top-0 z-header mx-auto py-3 tablet:left-16 laptop:left-0',
+            'left-0 top-0 z-header mr-auto items-center py-3 tablet:left-16 laptop:left-0 laptopL:mx-auto laptopL:w-full',
             isSearchPage
               ? 'absolute right-0 laptop:relative laptop:top-0'
               : 'hidden laptop:flex',
@@ -125,7 +123,7 @@ function MainLayoutHeader({
   return (
     <header
       className={classNames(
-        'sticky top-0 z-header flex h-14 flex-row items-center justify-between gap-3 border-b border-border-subtlest-tertiary px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:flex-row laptop:px-4',
+        'sticky top-0 z-header flex h-14 flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4 laptopL:grid laptopL:auto-cols-fr laptopL:grid-flow-col',
         hasBanner && 'laptop:top-8',
         isSearchPage && 'mb-16 laptop:mb-0',
         scrollClassName,
@@ -134,12 +132,6 @@ function MainLayoutHeader({
     >
       {sidebarRendered !== undefined && (
         <>
-          <Button
-            className="block laptop:hidden"
-            variant={ButtonVariant.Tertiary}
-            onClick={() => onMobileSidebarToggle(true)}
-            icon={<HamburgerIcon secondary />}
-          />
           <div
             className={classNames(
               'flex flex-1  laptop:flex-none laptop:justify-start',
