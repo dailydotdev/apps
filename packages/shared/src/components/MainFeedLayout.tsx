@@ -15,6 +15,7 @@ import { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
+  CUSTOM_FEED_QUERY,
   FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
@@ -83,6 +84,9 @@ const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
   },
   discussed: {
     query: MOST_DISCUSSED_FEED_QUERY,
+  },
+  'feeds[slug]': {
+    query: CUSTOM_FEED_QUERY,
   },
 };
 
@@ -161,7 +165,18 @@ export default function MainFeedLayout({
   const showForcedTagSelection =
     shouldEnrollInForcedTagSelection && showForcedTagSelectionFeature;
   let query: { query: string; variables?: Record<string, unknown> };
+
   if (feedName) {
+    const dynamicPropsByFeed: Partial<
+      Record<SharedFeedPage, Partial<FeedQueryProps>>
+    > = {
+      'feeds[slug]': {
+        variables: {
+          feedId: router.query.slug as string,
+        },
+      },
+    };
+
     query = {
       query: getQueryBasedOnLogin(
         tokenRefreshed,
@@ -171,6 +186,7 @@ export default function MainFeedLayout({
       ),
       variables: {
         ...propsByFeed[feedName].variables,
+        ...dynamicPropsByFeed[feedName]?.variables,
         version: isDevelopment ? 1 : feedVersion,
       },
     };

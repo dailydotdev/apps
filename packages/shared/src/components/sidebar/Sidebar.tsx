@@ -1,6 +1,9 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
+import request from 'graphql-request';
+import { useRouter } from 'next/router';
 import SettingsContext from '../../contexts/SettingsContext';
 import {
   Nav,
@@ -35,12 +38,16 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import { AiIcon, HomeIcon, SourceIcon, UserIcon } from '../icons';
+import { AiIcon, HomeIcon, SourceIcon, StarIcon, UserIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { CreatePostButton } from '../post/write';
 import useActiveNav from '../../hooks/useActiveNav';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
+import { RequestKey, StaleTime, generateQueryKey } from '../../lib/query';
+import { graphqlUrl } from '../../lib/config';
+import { FEED_LIST_QUERY, FeedList } from '../../graphql/feed';
+import { AlertColor, AlertDot } from '../AlertDot';
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -56,6 +63,7 @@ export default function Sidebar({
   onShowDndClick,
   onLogoClick,
 }: SidebarProps): ReactElement {
+  const router = useRouter();
   const { user, isLoggedIn } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const {
@@ -76,7 +84,7 @@ export default function Sidebar({
   });
 
   const activeNav = useActiveNav(feedName);
-  const activePage = `/${feedName}`;
+  const activePage = router.asPath || router.pathname;
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -91,6 +99,19 @@ export default function Sidebar({
       activePage,
     }),
     [sidebarExpanded, sidebarRendered, activePage],
+  );
+
+  const { data: userFeeds } = useQuery(
+    generateQueryKey(RequestKey.Feed, user),
+    async () => {
+      const result = await request<FeedList>(graphqlUrl, FEED_LIST_QUERY);
+
+      return result.feedList;
+    },
+    {
+      enabled: !!user,
+      staleTime: StaleTime.OneHour,
+    },
   );
 
   if (!loadedSettings) {
@@ -221,11 +242,34 @@ export default function Sidebar({
               <MyFeedButton
                 {...defaultRenderSectionProps}
                 isButton={isNavButtons}
-                alerts={alerts}
+                title="My feed"
+                path="/my-feed"
+                alert={
+                  (alerts.filter || alerts.myFeed) &&
+                  !sidebarExpanded && (
+                    <AlertDot
+                      className="right-2.5 top-0"
+                      color={AlertColor.Success}
+                    />
+                  )
+                }
                 onNavTabClick={onNavTabClick}
                 icon={<ProfilePicture size="xsmall" user={user} />}
               />
             )}
+            {userFeeds?.edges?.map((feed) => {
+              return (
+                <MyFeedButton
+                  {...defaultRenderSectionProps}
+                  key={feed.node.id}
+                  isButton={isNavButtons}
+                  title={feed.node.flags.name || `Feed ${feed.node.id}`}
+                  path={`/feeds/${feed.node.slug}`}
+                  onNavTabClick={onNavTabClick}
+                  icon={<StarIcon secondary />}
+                />
+              );
+            })}
             <SquadSection {...defaultRenderSectionProps} />
             <DiscoverSection
               {...defaultRenderSectionProps}

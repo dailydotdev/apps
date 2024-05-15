@@ -119,6 +119,7 @@ const feedNameToHeading: Record<
     | 'tags[tag]/most-upvoted'
     | 'tags[tag]/best-discussed'
     | 'posts/[id]/similar'
+    | 'feeds[slug]'
   >,
   string
 > = {

@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { SHARED_POST_INFO_FRAGMENT } from './fragments';
+import { CUSTOM_FEED_FRAGMENT, SHARED_POST_INFO_FRAGMENT } from './fragments';
 import { Post, PostType } from './posts';
 import { Connection } from './common';
 
@@ -33,6 +33,22 @@ export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["${joinedTypes}"]`
 export interface FeedData {
   page: Connection<Post>;
 }
+
+export type FeedFlags = {
+  name: string;
+};
+
+export type Feed = {
+  id: string;
+  userId: string;
+  flags?: FeedFlags;
+  slug: string;
+  createdAt: Date;
+};
+
+export type FeedList = {
+  feedList: Connection<Feed>;
+};
 
 export const FEED_POST_FRAGMENT = gql`
   fragment FeedPost on Post {
@@ -362,4 +378,50 @@ export const PREVIEW_FEED_QUERY = gql`
     }
   }
   ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
+export const FEED_LIST_QUERY = gql`
+  {
+    feedList {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          ...CustomFeed
+        }
+      }
+    }
+  }
+  ${CUSTOM_FEED_FRAGMENT}
+`;
+
+export const CUSTOM_FEED_QUERY = gql`
+  query CustomFeed(
+    $loggedIn: Boolean! = false
+    $feedId: ID!
+    $after: String
+    $first: Int
+    ${SUPPORTED_TYPES}
+  ) {
+    page: customFeed(
+      feedId: $feedId
+      after: $after
+      first: $first
+      supportedTypes: $supportedTypes
+    ) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
+export const GET_FEED_QUERY = gql`
+  query GetFeed($feedIdOrSlug: ID!) {
+    getFeed(feedIdOrSlug: $feedIdOrSlug) {
+      ...CustomFeed
+    }
+  }
+  ${CUSTOM_FEED_FRAGMENT}
 `;
