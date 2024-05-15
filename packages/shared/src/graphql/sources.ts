@@ -49,13 +49,6 @@ export enum SourceType {
   Squad = 'squad',
 }
 
-export interface SourceFlagsPublic {
-  featured?: boolean;
-  totalPosts?: number;
-  totalUpvotes?: number;
-  totalViews?: number;
-}
-
 export interface Squad extends Source {
   active: boolean;
   permalink: string;
@@ -69,11 +62,13 @@ export interface Squad extends Source {
   referralUrl?: string;
   banner?: string;
   borderColor?: string;
-  flags?: SourceFlagsPublic;
 }
 
 interface SourceFlags {
   featured: boolean;
+  totalPosts?: number;
+  totalUpvotes?: number;
+  totalViews?: number;
 }
 
 export interface Source {
