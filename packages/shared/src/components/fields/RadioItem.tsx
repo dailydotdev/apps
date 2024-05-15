@@ -10,8 +10,8 @@ interface ClassName {
 
 export interface RadioItemProps<T extends string = string>
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'className'> {
-  value: T;
-  label: ReactNode;
+  value?: T;
+  label?: ReactNode;
   className?: ClassName;
   afterElement?: ReactNode;
 }
