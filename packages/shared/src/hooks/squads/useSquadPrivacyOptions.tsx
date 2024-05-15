@@ -38,11 +38,11 @@ export enum PrivacyOption {
 export const useSquadPrivacyOptions = ({
   totalPosts,
   status,
-}: UseSquadPrivacyOptionsProps): RadioItemProps<PrivacyOption>[] => {
-  const isInProgress = status === SquadStatus.InProgress;
-  const isPending = status === SquadStatus.Pending;
+}: UseSquadPrivacyOptionsProps): RadioItemProps<PrivacyOption>[] =>
+  useMemo(() => {
+    const isInProgress = status === SquadStatus.InProgress;
+    const isPending = status === SquadStatus.Pending;
 
-  return useMemo(() => {
     if (isNullOrUndefined(totalPosts)) {
       return [];
     }
@@ -104,5 +104,4 @@ export const useSquadPrivacyOptions = ({
         ),
       },
     ];
-  }, [isInProgress, status, totalPosts]);
-};
+  }, [status, totalPosts]);
