@@ -5,7 +5,6 @@ import {
   QueryKey,
   useQueryClient,
 } from '@tanstack/react-query';
-import useIncrementReadingRank from './useIncrementReadingRank';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import {
   feedAnalyticsExtra,
@@ -19,6 +18,7 @@ import { updateCachedPagePost } from '../lib/query';
 import { usePostFeedback } from './usePostFeedback';
 import { FeedLayoutMobileFeedPages, useFeedLayout } from './useFeedLayout';
 import { FeedData } from '../graphql/feed';
+import { useReadingStreak } from './streaks';
 
 interface PostClickOptionalProps {
   skipPostUpdate?: boolean;
@@ -96,7 +96,7 @@ export default function useOnPostClick({
 }: UseOnPostClickProps): FeedPostClick {
   const client = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
-  const { incrementReadingRank } = useIncrementReadingRank();
+  const { checkReadingStreak } = useReadingStreak();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const { shouldUseMobileFeedLayout } = useFeedLayout({
     feedRelated: false,
@@ -132,7 +132,7 @@ export default function useOnPostClick({
         }
 
         if (!post.read) {
-          await incrementReadingRank();
+          await checkReadingStreak();
         }
 
         if (eventName === 'go to link') {
@@ -190,7 +190,7 @@ export default function useOnPostClick({
       eventName,
       feedName,
       feedQueryKey,
-      incrementReadingRank,
+      checkReadingStreak,
       shouldUseMobileFeedLayout,
       isLowImpsEnabled,
       items,

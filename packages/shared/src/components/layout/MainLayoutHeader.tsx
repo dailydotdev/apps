@@ -5,7 +5,6 @@ import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
 import { webappUrl } from '../../lib/constants';
 import LoginButton from '../LoginButton';
-import MobileHeaderRankProgress from '../MobileHeaderRankProgress';
 import ProfileButton from '../profile/ProfileButton';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import HeaderLogo from './HeaderLogo';
@@ -37,13 +36,11 @@ const SearchPanel = dynamic(
 function MainLayoutHeader({
   hasBanner,
   sidebarRendered,
-  optOutWeeklyGoal,
   additionalButtons,
   onLogoClick,
 }: MainLayoutHeaderProps): ReactElement {
   const { user, isAuthReady } = useContext(AuthContext);
-  const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
-  const isMobile = useViewSize(ViewSize.MobileL);
+  const { streak, isLoading } = useReadingStreak();
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
@@ -70,10 +67,8 @@ function MainLayoutHeader({
   const RenderButtons = () => {
     return (
       <div className="flex justify-end gap-3">
-        {isStreaksEnabled && (
-          <ReadingStreakButton streak={streak} isLoading={isLoading} compact />
-        )}
-        <CreatePostButton compact={isStreaksEnabled} />
+        <ReadingStreakButton streak={streak} isLoading={isLoading} compact />
+        <CreatePostButton compact />
         {!!user && (
           <>
             <LinkWithTooltip
@@ -86,10 +81,6 @@ function MainLayoutHeader({
         )}
         {additionalButtons}
         {headerButton}
-        {!isStreaksEnabled &&
-          !sidebarRendered &&
-          !optOutWeeklyGoal &&
-          !isMobile && <MobileHeaderRankProgress />}
       </div>
     );
   };
@@ -138,9 +129,7 @@ function MainLayoutHeader({
           >
             <HeaderLogo
               position={
-                isStreaksEnabled && isStreakLarge
-                  ? LogoPosition.Relative
-                  : LogoPosition.Absolute
+                isStreakLarge ? LogoPosition.Relative : LogoPosition.Absolute
               }
               user={user}
               onLogoClick={onLogoClick}

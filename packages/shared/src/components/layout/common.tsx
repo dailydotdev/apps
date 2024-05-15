@@ -61,7 +61,7 @@ export const SearchControlHeader = ({
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { streak, isEnabled: isStreaksEnabled, isLoading } = useReadingStreak();
+  const { streak, isLoading } = useReadingStreak();
 
   if (isMobile) {
     return null;
@@ -114,9 +114,7 @@ export const SearchControlHeader = ({
       wrapper={(children) => (
         <div className="flex w-full items-center justify-between tablet:mb-2 tablet:p-4">
           <div className="flex-0">
-            {isStreaksEnabled && (
-              <ReadingStreakButton streak={streak} isLoading={isLoading} />
-            )}
+            <ReadingStreakButton streak={streak} isLoading={isLoading} />
           </div>
 
           <div className="flex items-center gap-2">{children}</div>
