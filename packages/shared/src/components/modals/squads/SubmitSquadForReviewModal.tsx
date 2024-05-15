@@ -109,7 +109,10 @@ const SubmitSquadForReviewModal = ({
           Close
         </Button>
         <SimpleTooltip
-          content={!meets && 'Check that the squad meets requirements'}
+          content={
+            !meets &&
+            'Ensure the Squad meets the requirements and click the check box to submit'
+          }
         >
           <div>
             <Button variant={ButtonVariant.Primary} disabled={!meets}>
