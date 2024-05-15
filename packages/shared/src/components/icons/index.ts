@@ -42,7 +42,6 @@ export * from './Filter';
 export * from './Flag';
 export * from './GitHub';
 export * from './GitLab';
-export * from './Earth';
 export * from './Google';
 export * from './Hamburger';
 export * from './Hammer';
