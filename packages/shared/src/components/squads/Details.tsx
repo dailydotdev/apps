@@ -97,6 +97,7 @@ export function SquadDetails({
   );
   const [activeHandle, setActiveHandle] = useState(handle);
   const [privacy, setPrivacy] = useState(
+    // TODO: MI-344 once the API is updated to handle privacy change eligibility, we should hook this value to the mutation
     form.public ? PrivacyOption.Public : PrivacyOption.Private,
   );
   const [imageChanged, setImageChanged] = useState(false);
