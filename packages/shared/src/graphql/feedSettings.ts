@@ -1,9 +1,12 @@
 import { gql } from 'graphql-request';
 import { Source } from './sources';
+import { SOURCE_SHORT_INFO_FRAGMENT } from './fragments';
 
 export enum AdvancedSettingsGroup {
   Advanced = 'advanced',
   ContentTypes = 'content_types',
+  ContentCuration = 'content_curation',
+  ContentSource = 'content_source',
 }
 
 export interface AdvancedSettings {
@@ -12,6 +15,10 @@ export interface AdvancedSettings {
   description: string;
   defaultEnabledState: boolean;
   group: AdvancedSettingsGroup;
+  options?: {
+    source?: Source;
+    type?: string;
+  };
 }
 
 export interface FeedAdvancedSettings {
@@ -97,8 +104,15 @@ export const FEED_SETTINGS_QUERY = gql`
       description
       defaultEnabledState
       group
+      options {
+        source {
+          ...SourceShortInfo
+        }
+        type
+      }
     }
   }
+  ${SOURCE_SHORT_INFO_FRAGMENT}
 `;
 
 export const FEED_FILTERS_FROM_REGISTRATION = gql`
