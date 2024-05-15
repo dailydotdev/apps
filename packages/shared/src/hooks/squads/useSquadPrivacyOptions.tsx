@@ -30,10 +30,15 @@ const classes = {
 
 const PUBLIC_SQUAD_REQUIRED_POSTS = 3;
 
+export enum PrivacyOption {
+  Private = 'private',
+  Public = 'public',
+}
+
 export const useSquadPrivacyOptions = ({
   totalPosts,
   status,
-}: UseSquadPrivacyOptionsProps): RadioItemProps[] => {
+}: UseSquadPrivacyOptionsProps): RadioItemProps<PrivacyOption>[] => {
   const isInProgress = status === SquadStatus.InProgress;
   const isPending = status === SquadStatus.Pending;
 
@@ -45,7 +50,7 @@ export const useSquadPrivacyOptions = ({
     return [
       {
         label: 'Private',
-        value: 'private',
+        value: PrivacyOption.Private,
         className: classes,
         afterElement: (
           <StatusDescription className="ml-9">
@@ -55,7 +60,7 @@ export const useSquadPrivacyOptions = ({
       },
       {
         label: 'Public',
-        value: 'public',
+        value: PrivacyOption.Public,
         disabled: status !== SquadStatus.Approved,
         className: classes,
         afterElement: (

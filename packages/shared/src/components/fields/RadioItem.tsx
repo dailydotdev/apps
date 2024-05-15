@@ -8,7 +8,7 @@ interface ClassName {
   content?: string;
 }
 
-export interface RadioItemProps<T extends string = string>
+export interface RadioItemProps<T extends string>
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'className'> {
   value?: T;
   label?: ReactNode;
@@ -16,14 +16,14 @@ export interface RadioItemProps<T extends string = string>
   afterElement?: ReactNode;
 }
 
-export function RadioItem({
+export function RadioItem<T extends string>({
   children,
   className = {},
   checked,
   disabled,
   afterElement,
   ...props
-}: RadioItemProps): ReactElement {
+}: RadioItemProps<T>): ReactElement {
   const { id } = props;
   return (
     <ConditionalWrapper

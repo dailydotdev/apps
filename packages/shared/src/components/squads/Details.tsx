@@ -18,7 +18,10 @@ import { SourceMemberRole } from '../../graphql/sources';
 import { Radio } from '../fields/Radio';
 import { FormWrapper } from '../fields/form';
 import { SquadSettingsSection, SquadStatus } from './settings';
-import { useSquadPrivacyOptions } from '../../hooks/squads/useSquadPrivacyOptions';
+import {
+  PrivacyOption,
+  useSquadPrivacyOptions,
+} from '../../hooks/squads/useSquadPrivacyOptions';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { disabledRefetch, isNullOrUndefined } from '../../lib/func';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -74,12 +77,11 @@ export function SquadDetails({
     memberPostingRole: initialMemberPostingRole,
     memberInviteRole: initialMemberInviteRole,
   } = form;
-  const isPublic = form?.public;
   const { data: status } = useQuery<SquadStatus>(
     generateQueryKey(RequestKey.SquadStatus, user),
     () => {
       // TODO: MI-344 we need to add a condition if they are already an approved public squad that went private to return approved
-      if (isPublic) {
+      if (form.public) {
         return SquadStatus.Approved;
       }
 
@@ -94,6 +96,9 @@ export function SquadDetails({
     },
   );
   const [activeHandle, setActiveHandle] = useState(handle);
+  const [privacy, setPrivacy] = useState(
+    form.public ? PrivacyOption.Public : PrivacyOption.Private,
+  );
   const [imageChanged, setImageChanged] = useState(false);
   const [handleHint, setHandleHint] = useState<string>(null);
   const [canSubmit, setCanSubmit] = useState(!!name && !!activeHandle);
@@ -260,11 +265,9 @@ export function SquadDetails({
             <Radio
               name="status"
               options={privacyOptions}
-              value={memberPostingRole}
+              value={privacy}
               className={{ container: 'gap-4' }}
-              onChange={(value) =>
-                setMemberPostingRole(value as SourceMemberRole)
-              }
+              onChange={(value) => setPrivacy(value)}
             />
             {status === SquadStatus.Rejected && (
               <Alert
