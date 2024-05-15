@@ -66,6 +66,9 @@ export interface Squad extends Source {
 
 interface SourceFlags {
   featured: boolean;
+  totalPosts?: number;
+  totalUpvotes?: number;
+  totalViews?: number;
 }
 
 export interface Source {

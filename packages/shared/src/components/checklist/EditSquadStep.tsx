@@ -3,33 +3,23 @@ import { ChecklistStepPropsWithSquad } from '../../lib/checklist';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ChecklistStep } from './ChecklistStep';
 import { EditIcon } from '../icons';
-import { useFindSquadWelcomePost } from '../../hooks/useFindSquadWelcomePost';
-import usePostById from '../../hooks/usePostById';
 
-const SquadEditWelcomePostChecklistStep = ({
+export const EditSquadStep = ({
   squad,
   ...props
 }: ChecklistStepPropsWithSquad): ReactElement => {
-  const welcomePostId = useFindSquadWelcomePost(squad)?.id;
-  const { post: welcomePost } = usePostById({
-    id: welcomePostId,
-  });
-
   return (
     <ChecklistStep {...props}>
       <div className="flex">
         <Button
           tag="a"
           variant={ButtonVariant.Primary}
-          disabled={!welcomePost}
           icon={<EditIcon />}
-          href={`/posts/${welcomePost?.id}/edit`}
+          href={`/squads/${squad.handle}/edit`}
         >
-          Customize
+          Edit Squad
         </Button>
       </div>
     </ChecklistStep>
   );
 };
-
-export { SquadEditWelcomePostChecklistStep };
