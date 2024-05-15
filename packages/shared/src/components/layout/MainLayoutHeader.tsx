@@ -4,8 +4,6 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
 import { webappUrl } from '../../lib/constants';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { HamburgerIcon } from '../icons';
 import LoginButton from '../LoginButton';
 import MobileHeaderRankProgress from '../MobileHeaderRankProgress';
 import ProfileButton from '../profile/ProfileButton';
