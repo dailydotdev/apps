@@ -418,8 +418,8 @@ export const CUSTOM_FEED_QUERY = gql`
 `;
 
 export const GET_FEED_QUERY = gql`
-  query GetFeed($feedIdOrSlug: ID!) {
-    getFeed(feedIdOrSlug: $feedIdOrSlug) {
+  query GetFeed($feedId: ID!) {
+    getFeed(feedId: $feedId) {
       ...CustomFeed
     }
   }
