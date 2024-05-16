@@ -142,3 +142,18 @@ export const SIMILAR_SOURCES_QUERY = gql`
     }
   }
 `;
+
+export enum PublicSquadRequestStatus {
+  Pending = 'pending',
+  Approved = 'approved',
+  Rejected = 'rejected',
+}
+
+export interface PublicSquadRequest {
+  id?: string;
+  requestorId?: string;
+  sourceId?: string;
+  status?: PublicSquadRequestStatus;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
