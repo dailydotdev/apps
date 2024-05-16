@@ -2,6 +2,7 @@ import { JSONValue } from '@growthbook/growthbook';
 import {
   ExperienceLevelExperiment,
   TagSourceSocialProof,
+  FeedListLayoutExperiment,
 } from './featureValues';
 import { cloudinary } from './image';
 
@@ -46,6 +47,10 @@ const feature = {
   featureTheme: new Feature('feature_theme', {}),
   searchTags: new Feature('search_tags', false),
   similarPosts: new Feature('similar_posts', false),
+  feedListLayout: new Feature(
+    'feed_list_layout',
+    FeedListLayoutExperiment.Control,
+  ),
 };
 
 export { feature };

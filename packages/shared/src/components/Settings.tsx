@@ -16,7 +16,6 @@ import SettingsContext, {
 import { CardIcon, LineIcon } from './icons';
 import { CustomSwitch } from './fields/CustomSwitch';
 import { checkIsExtension } from '../lib/func';
-import { useFeedLayout } from '../hooks';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -59,7 +58,6 @@ export default function Settings({
   ...props
 }: HTMLAttributes<HTMLDivElement>): ReactElement {
   const isExtension = checkIsExtension();
-  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
   const {
     spaciness,
     setSpaciness,
@@ -92,21 +90,19 @@ export default function Settings({
 
   return (
     <div className={classNames('flex', 'flex-col', className)} {...props}>
-      {!shouldUseMobileFeedLayout && (
-        <Section className="!mt-0">
-          <SectionTitle>Layout</SectionTitle>
-          <CustomSwitch
-            inputId="layout-switch"
-            name="insaneMode"
-            leftContent={<CardIcon secondary={!insaneMode} />}
-            rightContent={<LineIcon secondary={insaneMode} />}
-            checked={insaneMode}
-            className="mx-1.5"
-            onToggle={toggleInsaneMode}
-          />
-        </Section>
-      )}
-      <Section className={shouldUseMobileFeedLayout && '!mt-0'}>
+      <Section className="!mt-0">
+        <SectionTitle>Layout</SectionTitle>
+        <CustomSwitch
+          inputId="layout-switch"
+          name="insaneMode"
+          leftContent={<CardIcon secondary={!insaneMode} />}
+          rightContent={<LineIcon secondary={insaneMode} />}
+          checked={insaneMode}
+          className="mx-1.5"
+          onToggle={toggleInsaneMode}
+        />
+      </Section>
+      <Section>
         <SectionTitle>Theme</SectionTitle>
         <Radio
           name="theme"
@@ -115,17 +111,15 @@ export default function Settings({
           onChange={setTheme}
         />
       </Section>
-      {!shouldUseMobileFeedLayout && (
-        <Section>
-          <SectionTitle>Density</SectionTitle>
-          <Radio
-            name="density"
-            options={densities}
-            value={spaciness}
-            onChange={setSpaciness}
-          />
-        </Section>
-      )}
+      <Section>
+        <SectionTitle>Density</SectionTitle>
+        <Radio
+          name="density"
+          options={densities}
+          value={spaciness}
+          onChange={setSpaciness}
+        />
+      </Section>
       <Section>
         <SectionTitle>Preferences</SectionTitle>
         <SectionContent>

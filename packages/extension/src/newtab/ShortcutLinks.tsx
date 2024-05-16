@@ -108,12 +108,12 @@ const ShortcutV1Item = ({
 };
 
 interface ShortcutLinksProps {
-  shouldUseMobileFeedLayout: boolean;
+  shouldUseListFeedLayout: boolean;
 }
 export default function ShortcutLinks({
-  shouldUseMobileFeedLayout,
+  shouldUseListFeedLayout,
 }: ShortcutLinksProps): ReactElement {
-  const className = !shouldUseMobileFeedLayout
+  const className = !shouldUseListFeedLayout
     ? 'ml-auto'
     : 'mt-4 w-fit [@media(width<=680px)]:mx-6';
   const { showTopSites, toggleShowTopSites } = useContext(SettingsContext);
@@ -238,7 +238,7 @@ export default function ShortcutLinks({
       <div
         className={classNames(
           'hidden tablet:flex',
-          shouldUseMobileFeedLayout ? 'mx-6 mb-3 mt-1' : '-mt-2 mb-5',
+          shouldUseListFeedLayout ? 'mx-6 mb-3 mt-1' : '-mt-2 mb-5',
         )}
       >
         {shortcutLinks?.length ? (

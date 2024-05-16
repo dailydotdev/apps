@@ -25,7 +25,7 @@ export function CustomLinks({
   className,
   onLinkClick = noop,
 }: CustomLinksProps): ReactElement {
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseListFeedLayout } = useFeedLayout();
   const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
   const iconSize = Math.round(32 * pixelRatio);
 
@@ -33,7 +33,7 @@ export function CustomLinks({
     <div
       className={classNames(
         'hidden h-fit flex-row gap-2 rounded-14 border p-2',
-        shouldUseMobileFeedLayout
+        shouldUseListFeedLayout
           ? 'border-border-subtlest-tertiary tablet:flex'
           : 'border-border-subtlest-secondary laptop:flex',
         className,
@@ -62,9 +62,7 @@ export function CustomLinks({
       <SimpleTooltip placement="left" content="Edit shortcuts">
         <Button
           variant={ButtonVariant.Tertiary}
-          icon={
-            <MenuIcon className={shouldUseMobileFeedLayout && 'rotate-90'} />
-          }
+          icon={<MenuIcon className={shouldUseListFeedLayout && 'rotate-90'} />}
           onClick={onOptions}
           size={ButtonSize.Small}
         />
