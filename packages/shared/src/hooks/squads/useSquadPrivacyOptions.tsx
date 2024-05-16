@@ -1,35 +1,21 @@
-import React, { ReactNode, useMemo } from 'react';
-import classNames from 'classnames';
+import React, { useMemo } from 'react';
 import { RadioItemProps } from '../../components/fields/RadioItem';
-import { BlockIcon, LockIcon, TimerIcon } from '../../components/icons';
-import { IconSize } from '../../components/Icon';
 import { isNullOrUndefined } from '../../lib/func';
-import { StatusDescription } from '../../components/squads/settings/common';
 import {
-  PublicStatusPanel,
+  StatusDescription,
   SquadStatus,
 } from '../../components/squads/settings';
-import { squadsPublicGuide } from '../../lib/constants';
-import { Anchor } from '../../components/text';
+import {
+  SettingsPublicSection,
+  SettingsPublicSectionProps,
+} from '../../components/squads/settings/SettingsPublicSection';
 
-interface UseSquadPrivacyOptionsProps {
-  totalPosts: number;
-  status: SquadStatus;
-}
-
-const badge: Record<SquadStatus, ReactNode> = {
-  [SquadStatus.InProgress]: <LockIcon size={IconSize.Small} />,
-  [SquadStatus.Pending]: <TimerIcon size={IconSize.Small} />,
-  [SquadStatus.Rejected]: <BlockIcon size={IconSize.Small} />,
-  [SquadStatus.Approved]: null,
-};
+type UseSquadPrivacyOptionsProps = SettingsPublicSectionProps;
 
 const classes = {
   wrapper: 'border border-border-subtlest-tertiary rounded-16 p-4 pt-1 w-full',
   content: 'w-fit',
 };
-
-const PUBLIC_SQUAD_REQUIRED_POSTS = 3;
 
 export enum PrivacyOption {
   Private = 'private',
@@ -41,9 +27,6 @@ export const useSquadPrivacyOptions = ({
   status,
 }: UseSquadPrivacyOptionsProps): RadioItemProps<PrivacyOption>[] =>
   useMemo(() => {
-    const isInProgress = status === SquadStatus.InProgress;
-    const isPending = status === SquadStatus.Pending;
-
     if (isNullOrUndefined(totalPosts)) {
       return [];
     }
@@ -65,43 +48,7 @@ export const useSquadPrivacyOptions = ({
         disabled: status !== SquadStatus.Approved,
         className: classes,
         afterElement: (
-          <div
-            className={classNames(
-              'relative grid w-full grid-cols-1 gap-5',
-              isInProgress && 'tablet:grid-cols-2',
-            )}
-          >
-            <span
-              className={classNames(
-                'absolute -top-1 right-0 flex -translate-y-full flex-row items-center',
-                isPending ? 'text-text-tertiary' : 'text-text-disabled',
-              )}
-            >
-              {badge[status]}
-              {isPending && (
-                <span className="ml-1 font-bold typo-callout">Pending</span>
-              )}
-            </span>
-            <StatusDescription className="ml-9 mt-2">
-              Everyone can see the content, and the posts may appear on the main
-              feed.
-              <Anchor
-                href={squadsPublicGuide}
-                rel="noopener noreferrer"
-                target="_blank"
-                className="mt-1 block"
-              >
-                Read more about Public Squads
-              </Anchor>
-            </StatusDescription>
-            {/* it seems to be a bit unusual to show 50/3, hence we max the count at 3 so the progress will always be 3/3 */}
-            {isInProgress && (
-              <PublicStatusPanel
-                count={Math.min(totalPosts, PUBLIC_SQUAD_REQUIRED_POSTS)}
-                required={PUBLIC_SQUAD_REQUIRED_POSTS}
-              />
-            )}
-          </div>
+          <SettingsPublicSection status={status} totalPosts={totalPosts} />
         ),
       },
     ];
