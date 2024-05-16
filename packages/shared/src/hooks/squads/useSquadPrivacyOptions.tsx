@@ -10,6 +10,7 @@ import {
   SquadStatus,
 } from '../../components/squads/settings';
 import { squadsPublicGuide } from '../../lib/constants';
+import { Anchor } from '../../components/text';
 
 interface UseSquadPrivacyOptionsProps {
   totalPosts: number;
@@ -84,14 +85,14 @@ export const useSquadPrivacyOptions = ({
             <StatusDescription className="ml-9 mt-2">
               Everyone can see the content, and the posts may appear on the main
               feed.
-              <a
+              <Anchor
                 href={squadsPublicGuide}
                 rel="noopener noreferrer"
                 target="_blank"
-                className="link mt-1 block"
+                className="mt-1 block"
               >
                 Read more about Public Squads
-              </a>
+              </Anchor>
             </StatusDescription>
             {/* it seems to be a bit unusual to show 50/3, hence we max the count at 3 so the progress will always be 3/3 */}
             {isInProgress && (

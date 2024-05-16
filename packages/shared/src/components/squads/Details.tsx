@@ -26,6 +26,7 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 import { disabledRefetch, isNullOrUndefined } from '../../lib/func';
 import { useAuthContext } from '../../contexts/AuthContext';
 import Alert, { AlertType } from '../widgets/Alert';
+import { Anchor } from '../text';
 
 const squadImageId = 'squad_image_file';
 
@@ -281,9 +282,9 @@ export function SquadDetails({
                   in&nbsp;{daysLeft}
                   &nbsp;days. To increase your chances to pass in the next round
                   you can contact us at{' '}
-                  <a href="mailto:support@daily.dev" className="link">
+                  <Anchor href="mailto:support@daily.dev">
                     support@daily.dev
-                  </a>
+                  </Anchor>
                   .
                 </p>
               </Alert>

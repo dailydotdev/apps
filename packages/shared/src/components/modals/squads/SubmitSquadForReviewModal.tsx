@@ -7,6 +7,7 @@ import { Checkbox } from '../../fields/Checkbox';
 import { IconSize } from '../../Icon';
 import classed from '../../../lib/classed';
 import { SimpleTooltip } from '../../tooltips';
+import { Anchor } from '../../text';
 
 interface ChecklistItemProps {
   iconTag: React.ElementType;
@@ -79,14 +80,13 @@ const SubmitSquadForReviewModal = ({
         <Checklist>
           <ChecklistItem iconTag={MegaphoneIcon}>
             The posts I shared meet the{' '}
-            <a
-              className="link"
+            <Anchor
               href="https://docs.daily.dev/docs/for-content-creators/content-guidelines"
               target="_blank"
               rel="noopener"
             >
               content guidelines
-            </a>
+            </Anchor>
           </ChecklistItem>
           <ChecklistItem iconTag={ImageIcon}>
             I uploaded a Squad image that matches the purpose of my Squad
