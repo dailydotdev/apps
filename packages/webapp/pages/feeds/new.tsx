@@ -20,9 +20,11 @@ import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
+const newFeedId = 'new';
+
 const NewFeedPage = (): ReactElement => {
   const { user } = useAuthContext();
-  const { feedSettings } = useFeedSettings({ feedId: 'new' });
+  const { feedSettings } = useFeedSettings({ feedId: newFeedId });
   const seo: NextSeoProps = {
     title: 'Create custom feed',
     openGraph: { ...defaultOpenGraph },
@@ -83,6 +85,8 @@ const NewFeedPage = (): ReactElement => {
             <FilterOnboardingV4
               className="mt-10 px-4 pt-6 tablet:px-10 tablet:pt-0"
               shouldUpdateAlerts={false}
+              shouldFilterLocally
+              feedId={newFeedId}
             />
             <div className="mt-10 flex items-center justify-center gap-10 text-text-quaternary typo-callout">
               <div className="h-px flex-1 bg-border-subtlest-tertiary" />

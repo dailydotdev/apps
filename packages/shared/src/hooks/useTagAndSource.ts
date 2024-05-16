@@ -28,6 +28,8 @@ interface UseTagAndSourceProps {
   postId?: string;
   shouldInvalidateQueries?: boolean;
   shouldUpdateAlerts?: boolean;
+  shouldFilterLocally?: boolean;
+  feedId?: string;
 }
 
 interface UseTagAndSource {
@@ -44,6 +46,8 @@ export default function useTagAndSource({
   postId,
   shouldInvalidateQueries = true,
   shouldUpdateAlerts = true,
+  feedId,
+  shouldFilterLocally = false,
 }: UseTagAndSourceProps): UseTagAndSource {
   const queryClient = useQueryClient();
   const { alerts, updateAlerts } = useContext(AlertContext);
@@ -61,7 +65,7 @@ export default function useTagAndSource({
     unblockTag,
     followSource,
     unfollowSource,
-  } = useMutateFilters(user);
+  } = useMutateFilters(user, feedId, shouldFilterLocally);
 
   const [invalidateQueries] = useDebounce(() => {
     if (!shouldInvalidateQueries) {

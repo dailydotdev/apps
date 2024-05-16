@@ -40,16 +40,20 @@ const placeholderTags = new Array(24)
 export function FilterOnboardingV4({
   shouldUpdateAlerts = true,
   className,
+  shouldFilterLocally,
+  feedId,
 }: FilterOnboardingProps): ReactElement {
   const queryClient = useQueryClient();
 
-  const { feedSettings } = useFeedSettings();
+  const { feedSettings } = useFeedSettings({ feedId });
   const selectedTags = useMemo(() => {
     return new Set(feedSettings?.includeTags || []);
   }, [feedSettings?.includeTags]);
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
     origin: Origin.Onboarding,
     shouldUpdateAlerts,
+    feedId,
+    shouldFilterLocally,
   });
 
   const [refetchFeed] = useDebounce(() => {
