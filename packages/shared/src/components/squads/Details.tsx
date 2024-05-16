@@ -280,7 +280,7 @@ export function SquadDetails({
                   You did not pass the review process. You can try again
                   in&nbsp;{daysLeft}
                   &nbsp;days. To increase your chances to pass in the next round
-                  you can contact us at &nbsp;
+                  you can contact us at{' '}
                   <a href="mailto:support@daily.dev" className="link">
                     support@daily.dev
                   </a>
