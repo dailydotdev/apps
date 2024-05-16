@@ -9,7 +9,7 @@ import {
   PublicStatusPanel,
   SquadStatus,
 } from '../../components/squads/settings';
-import { submitPublicSquads } from '../../lib/constants';
+import { squadsPublicGuide } from '../../lib/constants';
 
 interface UseSquadPrivacyOptionsProps {
   totalPosts: number;
@@ -85,7 +85,7 @@ export const useSquadPrivacyOptions = ({
               Everyone can see the content, and the posts may appear on the main
               feed.
               <a
-                href={submitPublicSquads}
+                href={squadsPublicGuide}
                 rel="noopener noreferrer"
                 target="_blank"
                 className="link mt-1 block"
