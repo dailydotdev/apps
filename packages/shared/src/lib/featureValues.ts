@@ -16,11 +16,6 @@ export enum ExperienceLevelExperiment {
   V1 = 'v1',
 }
 
-export enum FeedListLayoutExperiment {
-  Control = 'control',
-  V1 = 'v1',
-}
-
 export interface FeatureThemeVariant {
   logo?: string;
   logoText?: string;

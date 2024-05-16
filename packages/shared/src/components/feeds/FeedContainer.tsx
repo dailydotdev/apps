@@ -154,26 +154,23 @@ export const FeedContainer = ({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
-  const { shouldUseListFeedLayout, isListModeV1 } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const insaneMode = !forceCardMode && listMode;
-  const isList =
-    (isHorizontal || isListModeV1) && !shouldUseListFeedLayout
-      ? false
-      : (insaneMode && numCards > 1) || shouldUseListFeedLayout;
+  const isList = (insaneMode && numCards > 1) || shouldUseMobileFeedLayout;
   const feedGapPx =
     getFeedGapPx[
       gapClass({
         isList,
-        isFeedLayoutV1: shouldUseListFeedLayout,
+        isFeedLayoutV1: shouldUseMobileFeedLayout,
         space: spaciness,
       })
     ];
   const style = {
-    '--num-cards': isHorizontal && isListModeV1 && numCards >= 2 ? 2 : numCards,
+    '--num-cards': numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
@@ -205,7 +202,7 @@ export const FeedContainer = ({
           data-testid="posts-feed"
         >
           {inlineHeader && header}
-          {isSearch && !shouldUseListFeedLayout && (
+          {isSearch && !shouldUseMobileFeedLayout && (
             <span
               className={classNames(
                 'flex flex-1 items-center',
@@ -220,9 +217,9 @@ export const FeedContainer = ({
               {shortcuts}
             </span>
           )}
-          {shouldUseListFeedLayout && !isShortcutsV1 && shortcuts}
+          {shouldUseMobileFeedLayout && !isShortcutsV1 && shortcuts}
           <ConditionalWrapper
-            condition={shouldUseListFeedLayout}
+            condition={shouldUseMobileFeedLayout}
             wrapper={(child) => (
               <div
                 className={classNames(
@@ -254,12 +251,12 @@ export const FeedContainer = ({
             <div
               className={classNames(
                 'grid',
-                isSearch && !shouldUseListFeedLayout && 'mt-8',
+                isSearch && !shouldUseMobileFeedLayout && 'mt-8',
                 isHorizontal &&
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth',
                 gapClass({
                   isList,
-                  isFeedLayoutV1: shouldUseListFeedLayout,
+                  isFeedLayoutV1: shouldUseMobileFeedLayout,
                   space: spaciness,
                 }),
                 cardClass({ isList, numberOfCards: numCards, isHorizontal }),

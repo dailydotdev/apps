@@ -100,16 +100,11 @@ export const FeedPage = classed(
   'pt-10 px-6 laptop:px-16',
   styles.feedPage,
 );
-export const FeedPageLayoutList = classed(
+export const FeedPageLayoutMobile = classed(
   BasePageContainer,
   pageContainerClassNames,
-  'pt-10 !ml-auto !px-0 tablet:!max-w-full laptop:!w-full laptop:!max-w-[42.5rem]',
+  'pt-10 !ml-auto !px-0 tablet:!max-w-full laptop:!w-full laptop:!px-16',
   styles.feedPage,
-);
-
-export const FeedPageLayoutMobile = classed(
-  FeedPageLayoutList,
-  'laptop:!max-w-full',
 );
 
 export const CommentFeedPage = classed(BasePageContainer, '!px-0 !mx-auto');

@@ -27,7 +27,7 @@ interface ShareOptionsMenuProps {
   onBookmark?: () => unknown;
   contextId?: string;
   onShare?: (post?: Post) => void;
-  shouldUseListFeedLayout: boolean;
+  shouldUseMobileFeedLayout: boolean;
 }
 
 type ShareOption = {
@@ -38,7 +38,7 @@ type ShareOption = {
 };
 
 export default function ShareOptionsMenu({
-  shouldUseListFeedLayout,
+  shouldUseMobileFeedLayout,
   onShare,
   onBookmark,
   post,
@@ -78,7 +78,7 @@ export default function ShareOptionsMenu({
     },
   ];
 
-  if (!shouldShowBookmark && !shouldUseListFeedLayout) {
+  if (!shouldShowBookmark && !shouldUseMobileFeedLayout) {
     shareOptions.push({
       icon: (
         <MenuIcon
@@ -104,7 +104,7 @@ export default function ShareOptionsMenu({
       id={contextId}
       className={classNames(
         'menu-primary',
-        shouldUseListFeedLayout && 'left-0',
+        shouldUseMobileFeedLayout && 'left-0',
       )}
       animation="fade"
       onHidden={onHidden}

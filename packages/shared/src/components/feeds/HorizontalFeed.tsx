@@ -5,14 +5,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import classnames from 'classnames';
 import Feed from '../Feed';
 import { OtherFeedPage } from '../../lib/query';
 import FeedContext from '../../contexts/FeedContext';
 import SettingsContext from '../../contexts/SettingsContext';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
-import { useFeedLayout } from '../../hooks';
 
 interface HorizontalFeedProps<T> {
   feedName: OtherFeedPage;
@@ -30,9 +28,8 @@ export default function HorizontalFeed<T>({
   const feedContainerRef = useRef<HTMLDivElement>(null);
   const [feedScrolledPosition, setFeedScrolledPosition] = useState(0);
   const currentSettings = useContext(FeedContext);
-  const { spaciness, insaneMode } = useContext(SettingsContext);
+  const { spaciness } = useContext(SettingsContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
-  const { isListModeV1 } = useFeedLayout();
 
   useEffect(() => {
     const element = feedContainerRef.current;
@@ -101,10 +98,7 @@ export default function HorizontalFeed<T>({
       allowFetchMore={false}
       pageSize={10}
       isHorizontal
-      className={classnames(
-        'mx-4 mb-10',
-        insaneMode && isListModeV1 && 'laptop:mx-auto',
-      )}
+      className="mx-4 mb-10"
       feedContainerRef={feedContainerRef}
     />
   );
