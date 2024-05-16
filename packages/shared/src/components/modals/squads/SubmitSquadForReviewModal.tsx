@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useCallback, useState } from 'react';
 import { Modal, ModalProps } from '../common/Modal';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { useSquad } from '../../../hooks';
@@ -7,6 +7,7 @@ import { Checkbox } from '../../fields/Checkbox';
 import { IconSize } from '../../Icon';
 import classed from '../../../lib/classed';
 import { SimpleTooltip } from '../../tooltips';
+import { usePublicSquadRequests } from '../../../hooks/squads/usePublicSquadRequests';
 
 interface ChecklistItemProps {
   iconTag: React.ElementType;
@@ -51,8 +52,13 @@ const SubmitSquadForReviewModal = ({
   ...props
 }: Props): ReactElement => {
   const { squad, isFetched } = useSquad({ handle: squadId });
-
   const [meets, setMeets] = useState(false);
+
+  const { submitForReview, isSubmitLoading } = usePublicSquadRequests();
+
+  const onSubmit = useCallback(() => {
+    submitForReview(squadId);
+  }, [submitForReview, squadId]);
 
   if (!isFetched || !squad) {
     return null;
@@ -115,7 +121,12 @@ const SubmitSquadForReviewModal = ({
           }
         >
           <div>
-            <Button variant={ButtonVariant.Primary} disabled={!meets}>
+            <Button
+              variant={ButtonVariant.Primary}
+              disabled={!meets}
+              onClick={onSubmit}
+              loading={isSubmitLoading}
+            >
               Submit for review
             </Button>
           </div>
