@@ -25,7 +25,7 @@ import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
-import { useFeature } from './GrowthBookProvider';
+import { useFeature, useFeaturesReadyContext } from './GrowthBookProvider';
 import {
   algorithms,
   DEFAULT_ALGORITHM_INDEX,
@@ -132,6 +132,7 @@ export default function MainFeedLayout({
   useScrollRestoration();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
+  const { getFeatureValue } = useFeaturesReadyContext();
   const { alerts } = useContext(AlertContext);
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
@@ -140,10 +141,6 @@ export default function MainFeedLayout({
     hasUser: !!user,
   });
   const feedVersion = useFeature(feature.feedVersion);
-  const { value: searchVersion } = useConditionalFeature({
-    feature: feature.searchVersion,
-    shouldEvaluate: isSearchOn && !!searchQuery,
-  });
   const { isUpvoted, isPopular, isSortableFeed } = useFeedName({ feedName });
   const {
     shouldUseListFeedLayout,
@@ -218,6 +215,7 @@ export default function MainFeedLayout({
     }
 
     if (isSearchOn && searchQuery) {
+      const searchVersion = getFeatureValue(feature.searchVersion);
       return {
         feedName: SharedFeedPage.Search,
         feedQueryKey: generateQueryKey(

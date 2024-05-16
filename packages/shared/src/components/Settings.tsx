@@ -15,10 +15,7 @@ import SettingsContext, {
 } from '../contexts/SettingsContext';
 import { CardIcon, LineIcon } from './icons';
 import { CustomSwitch } from './fields/CustomSwitch';
-import AuthContext from '../contexts/AuthContext';
-import { AuthTriggers } from '../lib/auth';
 import { checkIsExtension } from '../lib/func';
-import { useStreakExperiment } from '../hooks/streaks';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -61,8 +58,6 @@ export default function Settings({
   ...props
 }: HTMLAttributes<HTMLDivElement>): ReactElement {
   const isExtension = checkIsExtension();
-  const { shouldShowStreak } = useStreakExperiment();
-  const { user, showLogin } = useContext(AuthContext);
   const {
     spaciness,
     setSpaciness,
@@ -76,25 +71,12 @@ export default function Settings({
     toggleShowTopSites,
     sortingEnabled,
     toggleSortingEnabled,
-    optOutWeeklyGoal,
-    toggleOptOutWeeklyGoal,
     optOutCompanion,
     toggleOptOutCompanion,
     autoDismissNotifications,
     toggleAutoDismissNotifications,
   } = useContext(SettingsContext);
   const [themes, setThemes] = useState(layoutThemes);
-
-  const onToggleForLoggedInUsers = (
-    onToggleFunc: () => Promise<void> | void,
-  ): Promise<void> | void => {
-    if (!user) {
-      showLogin({ trigger: AuthTriggers.Settings });
-      return undefined;
-    }
-
-    return onToggleFunc();
-  };
 
   useEffect(() => {
     // If browser does not supports color-scheme, remove auto theme option
@@ -164,15 +146,6 @@ export default function Settings({
           >
             Show feed sorting menu
           </SettingsSwitch>
-          {!shouldShowStreak && (
-            <SettingsSwitch
-              name="weekly-goal-widget"
-              checked={!optOutWeeklyGoal}
-              onToggle={() => onToggleForLoggedInUsers(toggleOptOutWeeklyGoal)}
-            >
-              Show Weekly Goal widget
-            </SettingsSwitch>
-          )}
           <SettingsSwitch
             name="hide-companion"
             checked={!optOutCompanion}

@@ -308,16 +308,6 @@ it('should mutate automatic dismissal of notifications setting', () =>
     fireEvent.click(checkbox);
   }));
 
-it('should mutate show weekly goals widget setting', () =>
-  testSettingsMutation({ optOutWeeklyGoal: false }, async () => {
-    const checkboxes = await screen.findAllByRole('checkbox');
-    const checkbox = checkboxes.find((el) =>
-      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-      queryByText(el.parentElement, 'Show Weekly Goal widget'),
-    ) as HTMLInputElement;
-    fireEvent.click(checkbox);
-  }));
-
 it('should not have the Show custom shortcuts switch in the webapp', async () => {
   renderComponent(null);
   const checkbox = screen.queryByText('Show custom shortcuts');

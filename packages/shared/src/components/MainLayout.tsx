@@ -185,7 +185,6 @@ function MainLayoutComponent({
         optOutWeeklyGoal={optOutWeeklyGoal}
         additionalButtons={additionalButtons}
         onLogoClick={onLogoClick}
-        onMobileSidebarToggle={onMobileSidebarToggle}
       />
       <main
         className={classNames(

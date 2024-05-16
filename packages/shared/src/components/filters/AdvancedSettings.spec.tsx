@@ -52,14 +52,14 @@ const createAdvancedSettingsAndFiltersMock = (
       title: 'Tech magazines',
       description: 'Description for Tech magazines',
       defaultEnabledState: true,
-      group: AdvancedSettingsGroup.Advanced,
+      group: AdvancedSettingsGroup.ContentCuration,
     },
     {
       id: 2,
       title: 'Newsletters',
       description: 'Description for Newsletters',
       defaultEnabledState: true,
-      group: AdvancedSettingsGroup.Advanced,
+      group: AdvancedSettingsGroup.ContentCuration,
     },
   ],
 ): MockedGraphQLResponse<AllTagCategoriesData> => ({
