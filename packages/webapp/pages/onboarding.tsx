@@ -380,7 +380,7 @@ export function OnboardPage(): ReactElement {
     const percentage = 50;
     return (
       <ProgressBar
-        className="absolute left-1 h-1"
+        className={{ bar: 'absolute left-1 h-1' }}
         percentage={isAuthenticating ? percentage : 0}
       />
     );
