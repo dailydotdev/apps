@@ -26,7 +26,7 @@ function MyFeedHeading({
 }: MyFeedHeadingProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { trackEvent } = useContext(AnalyticsContext);
-  const { shouldUseListFeedLayout } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const queryClient = useQueryClient();
   const forceRefresh = useFeature(feature.forceRefresh);
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -60,7 +60,7 @@ function MyFeedHeading({
           onClick={onRefresh}
           icon={<RefreshIcon />}
           iconPosition={
-            shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
+            shouldUseMobileFeedLayout ? ButtonIconPosition.Right : undefined
           }
           loading={isRefreshing}
         >
@@ -74,7 +74,7 @@ function MyFeedHeading({
         onClick={onClick}
         icon={<FilterIcon />}
         iconPosition={
-          shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
+          shouldUseMobileFeedLayout ? ButtonIconPosition.Right : undefined
         }
       >
         {!isMobile ? 'Feed settings' : null}

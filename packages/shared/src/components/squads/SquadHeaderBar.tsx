@@ -27,7 +27,6 @@ export function SquadHeaderBar({
   squad,
   members,
   className,
-  shouldUseListModeV1,
   ...props
 }: SquadMemberShortListProps & HTMLAttributes<HTMLDivElement>): ReactElement {
   const { tourIndex } = useSquadTour();
@@ -86,7 +85,7 @@ export function SquadHeaderBar({
           origin={Origin.SquadPage}
         />
       )}
-      {sidebarRendered && !shouldUseListModeV1 && (
+      {sidebarRendered && (
         <SquadMemberShortList
           squad={squad}
           members={members}

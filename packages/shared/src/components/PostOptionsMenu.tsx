@@ -338,12 +338,12 @@ export default function PostOptionsMenu({
     });
   }
 
-  const { shouldUseListFeedLayout } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
   const bookmarkLoops = useFeature(feature.bookmarkLoops);
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
   const shouldShowBookmark = bookmarkLoops || bookmarkOnCard;
 
-  if (!shouldShowBookmark && !shouldUseListFeedLayout) {
+  if (!shouldShowBookmark && !shouldUseMobileFeedLayout) {
     postOptions.push({
       icon: (
         <MenuIcon
@@ -357,7 +357,7 @@ export default function PostOptionsMenu({
     });
   }
 
-  if (!shouldUseListFeedLayout) {
+  if (!shouldUseMobileFeedLayout) {
     postOptions.push({
       icon: (
         <MenuIcon

@@ -20,7 +20,7 @@ export const getStaticPaths = getProfileStaticPaths;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfileUpvotedPage = ({ user }: ProfileLayoutProps): ReactElement => {
   const { user: loggedUser } = useContext(AuthContext);
-  const { shouldUseListFeedLayout } = useFeedLayout();
+  const { shouldUseMobileFeedLayout } = useFeedLayout();
 
   const isSameUser = loggedUser?.id === user.id;
 
@@ -52,7 +52,7 @@ const ProfileUpvotedPage = ({ user }: ProfileLayoutProps): ReactElement => {
   return (
     <Feed
       {...feedProps}
-      className={classNames('py-6', !shouldUseListFeedLayout && 'px-4')}
+      className={classNames('py-6', !shouldUseMobileFeedLayout && 'px-4')}
     />
   );
 };
