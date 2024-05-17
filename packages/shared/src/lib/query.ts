@@ -118,6 +118,7 @@ export enum RequestKey {
   SimilarSources = 'similar_sources',
   UserExperienceLevel = 'user_experience_level',
   SquadStatus = 'squad_status',
+  PublicSquadRequests = 'public_squad_requests',
 }
 
 export type HasConnection<

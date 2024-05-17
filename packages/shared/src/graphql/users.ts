@@ -483,6 +483,7 @@ export const DEV_CARD_QUERY = gql`
       id
       user {
         ...UserShortInfo
+        createdAt
         cover
       }
       createdAt
