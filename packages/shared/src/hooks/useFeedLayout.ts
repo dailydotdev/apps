@@ -80,6 +80,10 @@ const getFeedPageLayoutComponent = ({
   }
 
   if (shouldUseListModeV1) {
+    console.log(
+      'returning FeedPageLayoutList - shouldUseListModeV1 s',
+      shouldUseListModeV1,
+    );
     return FeedPageLayoutList;
   }
 
@@ -87,6 +91,10 @@ const getFeedPageLayoutComponent = ({
     return FeedPageLayoutMobile;
   }
 
+  console.log(
+    'returning FeedPage - shouldUseListModeV1 should be FALSE',
+    shouldUseListModeV1,
+  );
   return FeedPage;
 };
 
@@ -117,6 +125,13 @@ export const useFeedLayout = ({
 
   const shouldUseListModeV1 =
     isListModeV1 && isLaptop && isFeedIncludedInListLayout;
+  console.log('----------------- START -----------------');
+  console.log(
+    'shouldUseListModeV1 before deciding feed page',
+    shouldUseListModeV1,
+  );
+  console.log('listMode', listMode);
+  console.log('isListModeV1', isListModeV1);
 
   const shouldUseListFeedLayout = feedRelated
     ? shouldUseListFeedLayoutOnMobileTablet ||
