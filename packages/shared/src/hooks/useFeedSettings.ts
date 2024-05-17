@@ -12,12 +12,12 @@ import AuthContext from '../contexts/AuthContext';
 import { graphqlUrl } from '../lib/config';
 import { LoggedUser } from '../lib/user';
 import { disabledRefetch } from '../lib/func';
-import { StaleTime } from '../lib/query';
+import { RequestKey, StaleTime } from '../lib/query';
 
 export const getFeedSettingsQueryKey = (
   user?: LoggedUser,
   feedId?: string,
-): string[] => [user?.id, 'feedSettings', feedId];
+): string[] => [user?.id, RequestKey.FeedSettings, feedId];
 
 export interface FeedSettingsReturnType {
   tagsCategories: TagCategory[];

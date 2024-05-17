@@ -118,6 +118,7 @@ export enum RequestKey {
   SimilarSources = 'similar_sources',
   UserExperienceLevel = 'user_experience_level',
   Feeds = 'feeds',
+  FeedSettings = 'feedSettings',
 }
 
 export type HasConnection<

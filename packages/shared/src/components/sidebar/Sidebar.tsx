@@ -38,7 +38,14 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import { AiIcon, HomeIcon, SourceIcon, StarIcon, UserIcon } from '../icons';
+import {
+  AiIcon,
+  HomeIcon,
+  PlusIcon,
+  SourceIcon,
+  StarIcon,
+  UserIcon,
+} from '../icons';
 import { IconSize } from '../Icon';
 import { CreatePostButton } from '../post/write';
 import useActiveNav from '../../hooks/useActiveNav';
@@ -257,6 +264,23 @@ export default function Sidebar({
                 icon={<ProfilePicture size="xsmall" user={user} />}
               />
             )}
+            <MyFeedButton
+              {...defaultRenderSectionProps}
+              isButton={isNavButtons}
+              title="New feed"
+              path="/feeds/new"
+              onNavTabClick={onNavTabClick}
+              icon={
+                <div className="rounded-6 bg-background-subtle">
+                  <PlusIcon />
+                </div>
+              }
+              rightIcon={() => (
+                <span className="font-bold text-text-quaternary typo-caption1">
+                  beta
+                </span>
+              )}
+            />
             {userFeeds?.edges?.map((feed) => {
               return (
                 <MyFeedButton

@@ -23,7 +23,9 @@ import {
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import { FilterOnboardingV4 } from '@dailydotdev/shared/src/components/onboarding/FilterOnboardingV4';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
+import useFeedSettings, {
+  getFeedSettingsQueryKey,
+} from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import { useExitConfirmation } from '@dailydotdev/shared/src/hooks/useExitConfirmation';
 import { useRouter } from 'next/router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -34,6 +36,7 @@ import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { labels } from '@dailydotdev/shared/src/lib';
 import Feed from '@dailydotdev/shared/src/components/Feed';
+import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -92,10 +95,19 @@ const NewFeedPage = (): ReactElement => {
         },
       );
 
+      await request(graphqlUrl, ADD_FILTERS_TO_FEED_MUTATION, {
+        feedId: result.createFeed.id,
+        filters: {
+          includeTags: feedSettings?.includeTags || [],
+        },
+      });
+
       return result.createFeed;
     },
     {
       onSuccess: (data) => {
+        queryClient.removeQueries(getFeedSettingsQueryKey(user, newFeedId));
+
         queryClient.setQueryData<FeedList['feedList']>(
           generateQueryKey(RequestKey.Feeds, user),
           (current) => {
@@ -143,6 +155,7 @@ const NewFeedPage = (): ReactElement => {
               </div>
               <div className="flex gap-3">
                 <Button
+                  type="button"
                   size={ButtonSize.Large}
                   variant={ButtonVariant.Float}
                   onClick={() => {
@@ -162,7 +175,9 @@ const NewFeedPage = (): ReactElement => {
               </div>
             </div>
             <TextField
-              className={{ container: 'mx-auto mt-10 w-full max-w-96 px-4' }}
+              className={{
+                container: 'mx-auto mt-10 w-full px-4 tablet:max-w-96',
+              }}
               name="name"
               type="text"
               inputId="feedName"

@@ -11,6 +11,7 @@ interface MyFeedButtonProps extends SectionCommonProps {
   title: string;
   path: string;
   alert?: ReactElement;
+  rightIcon?: (active: boolean) => ReactElement;
 }
 
 export function MyFeedButton({
@@ -23,6 +24,7 @@ export function MyFeedButton({
   path,
   alert,
   onNavTabClick,
+  rightIcon,
 }: MyFeedButtonProps): ReactElement {
   const myFeedMenuItem: SidebarMenuItem = {
     icon,
@@ -30,6 +32,7 @@ export function MyFeedButton({
     path,
     alert,
     action: () => onNavTabClick?.(path),
+    rightIcon,
   };
   const isActive = activePage === myFeedMenuItem.path;
 
