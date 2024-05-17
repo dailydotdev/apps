@@ -1,7 +1,6 @@
 import { JSONValue } from '@growthbook/growthbook';
 import {
   ExperienceLevelExperiment,
-  ReadingStreaksExperiment,
   TagSourceSocialProof,
 } from './featureValues';
 import { cloudinary } from './image';
@@ -21,10 +20,6 @@ const feature = {
   feedVersion: new Feature('feed_version', 15),
   lowImps: new Feature('feed_low_imps'),
   bookmarkOnCard: new Feature('bookmark_on_card', false),
-  readingStreaks: new Feature(
-    'reading_streaks',
-    ReadingStreaksExperiment.Control,
-  ),
   onboardingVisual: new Feature('onboarding_visual', {
     showCompanies: true,
     poster: cloudinary.onboarding.video.poster,
