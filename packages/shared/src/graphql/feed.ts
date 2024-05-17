@@ -427,3 +427,29 @@ export const GET_FEED_QUERY = gql`
   }
   ${CUSTOM_FEED_FRAGMENT}
 `;
+
+export const CREATE_FEED_MUTATION = `
+  mutation CreateFeed($name: String!) {
+    createFeed(name: $name) {
+      ...CustomFeed
+    }
+  }
+  ${CUSTOM_FEED_FRAGMENT}
+`;
+
+export const UPDATE_FEED_MUTATION = `
+  mutation UpdateFeed($feedId: ID!, $name: String!) {
+    updateFeed(feedId: $feedId, name: $name) {
+      ...CustomFeed
+    }
+  }
+  ${CUSTOM_FEED_FRAGMENT}
+`;
+
+export const DELETE_FEED_MUTATION = `
+  mutation DeleteFeed($feedId: ID!) {
+    deleteFeed(feedId: $feedId) {
+      _
+    }
+}
+`;

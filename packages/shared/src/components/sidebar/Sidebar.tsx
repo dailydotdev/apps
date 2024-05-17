@@ -102,7 +102,7 @@ export default function Sidebar({
   );
 
   const { data: userFeeds } = useQuery(
-    generateQueryKey(RequestKey.Feed, user),
+    generateQueryKey(RequestKey.Feeds, user),
     async () => {
       const result = await request<FeedList>(graphqlUrl, FEED_LIST_QUERY);
 

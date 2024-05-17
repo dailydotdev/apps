@@ -117,7 +117,7 @@ export enum RequestKey {
   SourceByTag = 'source_by_tag',
   SimilarSources = 'similar_sources',
   UserExperienceLevel = 'user_experience_level',
-  Feed = 'feed',
+  Feeds = 'feeds',
 }
 
 export type HasConnection<
