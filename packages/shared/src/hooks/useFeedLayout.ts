@@ -80,20 +80,20 @@ const getFeedPageLayoutComponent = ({
   }
 
   if (shouldUseListModeV1) {
-    console.log(
-      'returning FeedPageLayoutList - shouldUseListModeV1 s',
-      shouldUseListModeV1,
-    );
     return FeedPageLayoutList;
   }
 
   if (shouldUseListFeedLayout) {
+    console.log(
+      'returning FeedPageLayoutMobile - shouldUseListFeedLayout',
+      shouldUseListFeedLayout,
+    );
     return FeedPageLayoutMobile;
   }
 
   console.log(
-    'returning FeedPage - shouldUseListModeV1 should be FALSE',
-    shouldUseListModeV1,
+    'returning FeedPage - shouldUseListFeedLayout should be FALSE',
+    shouldUseListFeedLayout,
   );
   return FeedPage;
 };
@@ -127,11 +127,14 @@ export const useFeedLayout = ({
     isListModeV1 && isLaptop && isFeedIncludedInListLayout;
   console.log('----------------- START -----------------');
   console.log(
-    'shouldUseListModeV1 before deciding feed page',
-    shouldUseListModeV1,
+    'shouldUseListFeedLayoutOnMobileTablet before deciding feed page',
+    shouldUseListFeedLayoutOnMobileTablet,
   );
-  console.log('listMode', listMode);
-  console.log('isListModeV1', isListModeV1);
+  console.log(
+    'shouldUseListFeedLayoutOnProfilePages',
+    shouldUseListFeedLayoutOnProfilePages,
+  );
+  console.log('shouldUseListModeV1', shouldUseListModeV1);
 
   const shouldUseListFeedLayout = feedRelated
     ? shouldUseListFeedLayoutOnMobileTablet ||
@@ -139,11 +142,13 @@ export const useFeedLayout = ({
       shouldUseListModeV1
     : isListModeV1 || !isLaptop;
 
+  console.log('shouldUseListFeedLayout', shouldUseListFeedLayout);
+
   const shouldUseCommentFeedLayout = feedName === SharedFeedPage.Discussed;
 
   const FeedPageLayoutComponent = getFeedPageLayoutComponent({
     shouldUseListModeV1,
-    shouldUseListFeedLayout,
+    shouldUseListFeedLayout: shouldUseListFeedLayoutOnMobileTablet,
     shouldUseCommentFeedLayout,
   });
 
