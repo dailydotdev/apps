@@ -36,6 +36,8 @@ const NewFeedPage = (): ReactElement => {
   const { shouldUseMobileFeedLayout, FeedPageLayoutComponent } =
     useFeedLayout();
 
+  const { advancedSettings, ...previewFilters } = feedSettings || {};
+
   const feedProps = {
     feedName: OtherFeedPage.Preview,
     feedQueryKey: [RequestKey.FeedPreview, user?.id],
@@ -43,6 +45,9 @@ const NewFeedPage = (): ReactElement => {
     forceCardMode: true,
     showSearch: false,
     options: { refetchOnMount: true },
+    variables: {
+      filters: previewFilters,
+    },
   };
 
   return (

@@ -370,9 +370,11 @@ export const PREVIEW_FEED_QUERY = gql`
   query FeedPreview(
     $loggedIn: Boolean! = false
     ${SUPPORTED_TYPES}
+    $filters: FiltersInput
   ) {
     page: feedPreview(
       supportedTypes: $supportedTypes
+      filters: $filters
     ) {
       ...FeedPostConnection
     }
