@@ -4,6 +4,7 @@ import React, {
   SetStateAction,
   useContext,
 } from 'react';
+import { useRouter } from 'next/router';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
@@ -55,6 +56,7 @@ export const SearchControlHeader = ({
   algoState: [selectedAlgo, setSelectedAlgo],
   periodState: [selectedPeriod, setSelectedPeriod],
 }: SearchControlHeaderProps): ReactElement => {
+  const router = useRouter();
   const { openModal } = useLazyModal();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
@@ -80,9 +82,23 @@ export const SearchControlHeader = ({
     iconOnly: true,
     buttonVariant: isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary,
   };
+
+  const feedsWithActions = [SharedFeedPage.MyFeed, SharedFeedPage.Custom];
+
   const actionButtons = [
-    feedName === SharedFeedPage.MyFeed ? (
-      <MyFeedHeading key="my-feed" onOpenFeedFilters={openFeedFilters} />
+    feedsWithActions.includes(feedName as SharedFeedPage) ? (
+      <MyFeedHeading
+        key="my-feed"
+        onOpenFeedFilters={() => {
+          if (feedName === SharedFeedPage.MyFeed) {
+            openFeedFilters();
+          }
+
+          if (feedName === SharedFeedPage.Custom) {
+            router.push(`/feeds/${router.query.slug}/edit`);
+          }
+        }}
+      />
     ) : null,
     isUpvoted ? (
       <Dropdown

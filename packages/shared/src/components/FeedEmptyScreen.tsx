@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useRouter } from 'next/router';
 import {
   EmptyScreenButton,
   EmptyScreenContainer,
@@ -7,13 +8,16 @@ import {
   EmptyScreenTitle,
 } from './EmptyScreen';
 import { FilterIcon } from './icons';
-import { PageContainer } from './utilities';
+import { PageContainer, SharedFeedPage } from './utilities';
 import { ButtonSize } from './buttons/common';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
+import { getFeedName } from '../lib/feed';
 
 function FeedEmptyScreen(): ReactElement {
   const { openModal } = useLazyModal();
+  const router = useRouter();
+  const feedName = getFeedName(router.pathname);
 
   return (
     <PageContainer className="mx-auto">
@@ -28,7 +32,13 @@ function FeedEmptyScreen(): ReactElement {
           adding more tags using the feed settings.
         </EmptyScreenDescription>
         <EmptyScreenButton
-          onClick={() => openModal({ type: LazyModal.FeedFilters })}
+          onClick={() => {
+            if (feedName === SharedFeedPage.Custom) {
+              router.replace(`/feeds/${router.query.slug}/edit`);
+            } else {
+              openModal({ type: LazyModal.FeedFilters });
+            }
+          }}
           size={ButtonSize.Large}
         >
           Feed filters

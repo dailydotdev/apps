@@ -37,12 +37,17 @@ const placeholderTags = new Array(24)
       index,
   );
 
+export type FilterOnboardingV4Props = {
+  onClickTag?: ({ tag }: OnSelectTagProps) => void;
+} & Omit<FilterOnboardingProps, 'onSelectedTopics'>;
+
 export function FilterOnboardingV4({
   shouldUpdateAlerts = true,
   className,
   shouldFilterLocally,
   feedId,
-}: FilterOnboardingProps): ReactElement {
+  onClickTag,
+}: FilterOnboardingV4Props): ReactElement {
   const queryClient = useQueryClient();
 
   const { feedSettings } = useFeedSettings({ feedId });
@@ -127,7 +132,7 @@ export function FilterOnboardingV4({
     },
   );
 
-  const onClickTag = async ({ tag }: OnSelectTagProps) => {
+  const handleClickTag = async ({ tag }: OnSelectTagProps) => {
     const isSearchMode = !!searchQuery;
 
     if (!selectedTags.has(tag.name)) {
@@ -152,6 +157,10 @@ export function FilterOnboardingV4({
       await onFollowTags({ tags: [tag.name] });
     } else {
       await onUnfollowTags({ tags: [tag.name] });
+    }
+
+    if (onClickTag) {
+      onClickTag({ tag });
     }
 
     refetchFeed();
@@ -194,7 +203,7 @@ export function FilterOnboardingV4({
                 }
                 color={isSelected ? ButtonColor.Cabbage : undefined}
                 onClick={() => {
-                  onClickTag({ tag });
+                  handleClickTag({ tag });
                 }}
               >
                 {tag.name}

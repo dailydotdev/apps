@@ -15,6 +15,7 @@ interface UseFeedName {
 const sortableFeeds: AllFeedPages[] = [
   SharedFeedPage.Popular,
   SharedFeedPage.MyFeed,
+  SharedFeedPage.Custom,
 ];
 
 export const useFeedName = ({ feedName }: UseFeedNameProps): UseFeedName => {
