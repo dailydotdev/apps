@@ -15,7 +15,9 @@ function SquadEmptyScreen({ post }: { post: Post }): ReactElement {
         className="text-text-disabled"
       />
       <p className="my-4 font-bold text-text-primary typo-title2">
-        We couldn&apos;t find posts similar to &quot;{post?.title}&quot;
+        {post?.title
+          ? `We couldn't find posts similar to "${post?.title}"`
+          : `We couldn't find any similar posts`}
       </p>
       {post?.tags?.length > 0 && (
         <>
