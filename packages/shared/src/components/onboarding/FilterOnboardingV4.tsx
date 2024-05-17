@@ -28,7 +28,7 @@ type OnSelectTagProps = {
 
 const tagsSelector = (data: TagsData) => data?.tags || [];
 
-const [minPlaceholder, maxPlaceholder] = [2, 10];
+const [minPlaceholder, maxPlaceholder] = [6, 12];
 const placeholderTags = new Array(24)
   .fill(null)
   .map(
@@ -170,7 +170,10 @@ export function FilterOnboardingV4({
       <div className="flex flex-row flex-wrap justify-center gap-4">
         {isLoading &&
           placeholderTags.map((item) => (
-            <ElementPlaceholder key={item} className="btn btn-tag h-10">
+            <ElementPlaceholder
+              key={item}
+              className="btn btn-tag h-10 rounded-12"
+            >
               <span className="invisible">{item}</span>
             </ElementPlaceholder>
           ))}
