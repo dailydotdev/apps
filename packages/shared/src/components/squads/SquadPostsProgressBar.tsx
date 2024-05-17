@@ -45,20 +45,19 @@ export const SquadPostsProgressBar = ({
           {effectivePostsCount} / {goal}
         </span>
       </div>
-      <div
-        className={classNames(
-          'h-2.5 rounded-10',
-          className?.progressBackground ?? 'bg-background-subtle',
-        )}
-      >
-        <ProgressBar
-          percentage={Math.ceil((effectivePostsCount / goal) * 100)}
-          className={classNames(
-            '!static h-2.5 rounded-10 align-top',
+      <ProgressBar
+        percentage={Math.ceil((effectivePostsCount / goal) * 100)}
+        className={{
+          bar: classNames(
+            'static left-1 h-2.5 rounded-10 align-top',
             className?.progressBar,
-          )}
-        />
-      </div>
+          ),
+          wrapper: classNames(
+            'rounded-10',
+            className?.progressBackground ?? 'bg-background-subtle',
+          ),
+        }}
+      />
     </div>
   );
 };

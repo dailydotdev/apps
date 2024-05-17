@@ -7,10 +7,7 @@ import { SquadDetails } from '@dailydotdev/shared/src/components/squads/Details'
 import { SquadForm, editSquad } from '@dailydotdev/shared/src/graphql/squads';
 import { useBoot } from '@dailydotdev/shared/src/hooks/useBoot';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import {
-  ManageSquadPageContainer,
-  ManageSquadPageMain,
-} from '@dailydotdev/shared/src/components/squads/utils';
+import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSquad } from '@dailydotdev/shared/src/hooks';
@@ -90,14 +87,7 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
   return (
     <ManageSquadPageContainer>
       <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
-      <ManageSquadPageMain>
-        <SquadDetails
-          className="pt-8"
-          form={squad}
-          onSubmit={onSubmit}
-          createMode={false}
-        />
-      </ManageSquadPageMain>
+      <SquadDetails form={squad} onSubmit={onSubmit} createMode={false} />
     </ManageSquadPageContainer>
   );
 };

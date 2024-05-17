@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode, useState } from 'react';
-import { Radio, RadioOption } from '../../fields/Radio';
+import { Radio, RadioItemProps } from '../../fields/Radio';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { Modal, ModalProps } from '../common/Modal';
 import { Justify } from '../../utilities';
@@ -13,7 +13,7 @@ interface Props extends ModalProps {
     reason: ReportReason | ReportCommentReason,
     text: string,
   ): void;
-  reasons: RadioOption[] | ((reason: string) => RadioOption[]);
+  reasons: RadioItemProps[] | ((reason: string) => RadioItemProps[]);
   heading: string;
   title?: string;
   footer?: ReactNode;

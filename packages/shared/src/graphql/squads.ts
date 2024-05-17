@@ -16,10 +16,8 @@ import { base64ToFile } from '../lib/base64';
 import { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
 
-export type SquadForm = Pick<
-  Squad,
-  'name' | 'handle' | 'description' | 'image'
-> & {
+export interface SquadForm
+  extends Pick<Squad, 'name' | 'handle' | 'description' | 'image' | 'flags'> {
   preview?: Partial<ExternalLinkPreview>;
   file?: string;
   commentary: string;
@@ -27,7 +25,7 @@ export type SquadForm = Pick<
   memberPostingRole?: SourceMemberRole;
   memberInviteRole?: SourceMemberRole;
   public?: boolean;
-};
+}
 
 type SharedSquadInput = {
   name: string;
