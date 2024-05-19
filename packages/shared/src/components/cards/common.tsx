@@ -69,3 +69,12 @@ export const generateTitleClamp = ({
 
   return hasHtmlContent ? 'line-clamp-4' : 'line-clamp-9';
 };
+
+export enum FeedItemType {
+  RegularPost = 'post',
+  RegularAd = 'ad',
+  Placeholder = 'placeholder',
+  UserAcquisition = 'userAcquisition',
+  PublicSquadEligibility = 'publicSquadEligibility',
+  MarketingCta = 'marketingCta',
+}

@@ -17,32 +17,39 @@ import AuthContext from '../contexts/AuthContext';
 import { apiUrl, graphqlUrl } from '../lib/config';
 import useSubscription from './useSubscription';
 import {
-  RequestKey,
   removeCachedPagePost,
+  RequestKey,
   updateCachedPagePost,
 } from '../lib/query';
 import { getShouldRefreshFeed } from '../lib/refreshFeed';
 import { MarketingCta } from '../components/cards/MarketingCta/common';
+import { FeedItemType } from '../components/cards/common';
 
-export type PostItem = {
-  type: 'post';
+interface FeedItemBase<T extends FeedItemType> {
+  type: T;
+}
+
+interface AdItem extends FeedItemBase<FeedItemType.RegularAd> {
+  ad: Ad;
+}
+
+interface MarketingCtaItem extends FeedItemBase<FeedItemType.MarketingCta> {
+  marketingCta: MarketingCta;
+}
+
+export interface PostItem extends FeedItemBase<FeedItemType.RegularPost> {
   post: Post;
   page: number;
   index: number;
-};
-export type AdItem = { type: 'ad'; ad: Ad };
-export type PlaceholderItem = { type: 'placeholder' };
-export type UserAcquisitionItem = { type: 'userAcquisition' };
-export type MarketingCtaItem = {
-  type: 'marketingCta';
-  marketingCta: MarketingCta;
-};
+}
+
 export type FeedItem =
   | PostItem
   | AdItem
-  | PlaceholderItem
-  | UserAcquisitionItem
-  | MarketingCtaItem;
+  | MarketingCtaItem
+  | FeedItemBase<FeedItemType.Placeholder>
+  | FeedItemBase<FeedItemType.UserAcquisition>
+  | FeedItemBase<FeedItemType.PublicSquadEligibility>;
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 
@@ -86,6 +93,7 @@ export interface UseFeedOptionalParams<T> {
   variables?: T;
   options?: UseInfiniteQueryOptions<FeedData>;
   settings?: UseFeedSettingParams;
+  showPublicSquadsEligibility?: boolean;
 }
 
 export default function useFeed<T>(
@@ -95,7 +103,13 @@ export default function useFeed<T>(
   placeholdersPerPage: number,
   params: UseFeedOptionalParams<T> = {},
 ): FeedReturnType {
-  const { query, variables, options = {}, settings } = params;
+  const {
+    query,
+    variables,
+    options = {},
+    settings,
+    showPublicSquadsEligibility,
+  } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
@@ -161,7 +175,7 @@ export default function useFeed<T>(
       newItems = feedQuery.data.pages.flatMap(
         ({ page }, pageIndex): FeedItem[] => {
           const posts: FeedItem[] = page.edges.map(({ node }, index) => ({
-            type: 'post',
+            type: FeedItemType.RegularPost,
             post: node,
             page: pageIndex,
             index,
@@ -169,21 +183,23 @@ export default function useFeed<T>(
 
           if (pageIndex === 0 && !!settings.marketingCta) {
             posts.splice(adSpot, 0, {
-              type: 'marketingCta',
+              type: FeedItemType.MarketingCta,
               marketingCta: settings.marketingCta,
             });
           } else if (pageIndex === 0 && settings.showAcquisitionForm) {
-            posts.splice(adSpot, 0, { type: 'userAcquisition' });
+            posts.splice(adSpot, 0, { type: FeedItemType.UserAcquisition });
+          } else if (showPublicSquadsEligibility) {
+            posts.splice(adSpot, 0, {
+              type: FeedItemType.PublicSquadEligibility,
+            });
           } else if (isAdsQueryEnabled) {
             if (adsQuery.data?.pages[pageIndex]) {
               posts.splice(adSpot, 0, {
-                type: 'ad',
+                type: FeedItemType.RegularAd,
                 ad: adsQuery.data?.pages[pageIndex],
               });
             } else {
-              posts.splice(adSpot, 0, {
-                type: 'placeholder',
-              });
+              posts.splice(adSpot, 0, { type: FeedItemType.Placeholder });
             }
           }
 

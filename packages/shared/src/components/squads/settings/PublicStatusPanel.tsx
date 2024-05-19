@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Button, ButtonVariant } from '../../buttons/Button';
-import { StatusDescription } from './common';
-import { ProgressBar } from '../../fields/ProgressBar';
+import { SquadPostsProgressBar } from '../SquadPostsProgressBar';
 
 interface PublicStatusPanelProps {
   count: number;
@@ -14,14 +13,10 @@ export function PublicStatusPanel({
 }: PublicStatusPanelProps): ReactElement {
   return (
     <div className="flex flex-col items-end gap-2">
-      <StatusDescription className="flex w-full">
-        <span className="mr-auto">Posts</span>
-        <strong>{count}/3</strong>
-      </StatusDescription>
-      <ProgressBar
-        className={{ bar: 'h-2.5 rounded-16', wrapper: 'rounded-16' }}
-        percentage={(count / required) * 100}
-        shouldShowBg
+      <SquadPostsProgressBar
+        postsCount={count}
+        goal={required}
+        className={{ container: 'w-full' }}
       />
       <Button
         variant={ButtonVariant.Secondary}

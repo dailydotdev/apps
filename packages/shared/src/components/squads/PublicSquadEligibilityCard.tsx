@@ -1,5 +1,11 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
-import { useActions, useFeedLayout } from '../../hooks';
+import React, { ReactElement, ReactNode, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/router';
+import {
+  useActions,
+  useFeedLayout,
+  useSquad,
+  usePublicSquadRequests,
+} from '../../hooks';
 import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Card } from '../cards/Card';
@@ -10,42 +16,47 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { anchorDefaultRel } from '../../lib/strings';
 import {
-  SquadPostsProgressBar,
   MIN_SQUAD_POSTS,
+  SquadPostsProgressBar,
 } from './SquadPostsProgressBar';
 import { squadsPublicGuide } from '../../lib/constants';
+import { getSquadStatus, SquadStatus } from './settings';
 
-interface Props {
-  postsCount: number;
-  inReview: boolean;
-  squadId: string;
+interface PublicSquadEligibilityCardProps {
+  placeholder: ReactNode;
 }
 
-const PublicSquadEligibilityCard = ({
-  postsCount,
-  inReview,
-  squadId,
-}: Props): ReactElement => {
+export function PublicSquadEligibilityCard({
+  placeholder,
+}: PublicSquadEligibilityCardProps): ReactElement {
+  const router = useRouter();
+  const { squad } = useSquad({ handle: router.query.handle as string });
+  const { latestRequest, isFetched } = usePublicSquadRequests({
+    sourceId: squad?.id,
+  });
+  const postsCount = squad?.flags.totalPosts;
+  const status = getSquadStatus(latestRequest);
   const { shouldUseMobileFeedLayout } = useFeedLayout();
-  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
+  const { completeAction } = useActions();
   const { openModal } = useLazyModal();
-  const hideCard = useMemo(
-    () =>
-      isActionsFetched &&
-      checkHasCompleted(ActionType.HidePublicSquadEligibilityCard),
-    [checkHasCompleted, isActionsFetched],
-  );
 
   const onDismiss = useCallback(() => {
     completeAction(ActionType.HidePublicSquadEligibilityCard);
   }, [completeAction]);
 
   const onSubmit = useCallback(() => {
-    openModal({ type: LazyModal.SubmitSquadForReview, props: { squadId } });
-  }, [openModal, squadId]);
+    if (!squad.id) {
+      return;
+    }
 
-  if (hideCard) {
-    return null;
+    openModal({
+      type: LazyModal.SubmitSquadForReview,
+      props: { squadId: squad.id },
+    });
+  }, [openModal, squad]);
+
+  if (!isFetched) {
+    return <>{placeholder}</>;
   }
 
   const isEligible = postsCount >= MIN_SQUAD_POSTS;
@@ -88,7 +99,7 @@ const PublicSquadEligibilityCard = ({
         >
           Details
         </Button>
-        {inReview ? (
+        {status === SquadStatus.Pending ? (
           <div className="flex gap-1 pr-3 font-bold text-text-tertiary typo-callout">
             <TimerIcon />
             In review
@@ -106,6 +117,4 @@ const PublicSquadEligibilityCard = ({
       </div>
     </CardComponent>
   );
-};
-
-export default PublicSquadEligibilityCard;
+}
