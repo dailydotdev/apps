@@ -55,6 +55,7 @@ import { RequestKey, StaleTime, generateQueryKey } from '../../lib/query';
 import { graphqlUrl } from '../../lib/config';
 import { FEED_LIST_QUERY, FeedList } from '../../graphql/feed';
 import { AlertColor, AlertDot } from '../AlertDot';
+import { cloudinary } from '../../lib/image';
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -276,9 +277,9 @@ export default function Sidebar({
                 </div>
               }
               rightIcon={() => (
-                <span className="font-bold text-text-quaternary typo-caption1">
-                  beta
-                </span>
+                <div className="absolute -right-3 -top-2 h-[16px] w-[41px]">
+                  <img src={cloudinary.feed.betaTag} alt="Beta" />
+                </div>
               )}
             />
             {userFeeds?.edges?.map((feed) => {
