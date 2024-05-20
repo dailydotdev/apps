@@ -89,7 +89,7 @@ export interface AuthOptionsProps {
   onClose?: CloseAuthModalFunc;
   onAuthStateUpdate?: (props: Partial<AuthProps>) => void;
   onSuccessfulLogin?: () => unknown;
-  onSuccessfulRegistration?: (data: unknown) => unknown;
+  onSuccessfulRegistration?: (data?: unknown | null) => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
   trigger: AuthTriggersType;
   defaultDisplay?: AuthDisplay;
