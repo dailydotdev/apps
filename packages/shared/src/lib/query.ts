@@ -92,6 +92,7 @@ export enum RequestKey {
   Changelog = 'changelog',
   Tags = 'tags',
   FeedPreview = 'feedPreview',
+  FeedPreviewCustom = 'feedPreviewCustom',
   ReferredUsers = 'referred',
   PostKey = 'post',
   Prompt = 'prompt',

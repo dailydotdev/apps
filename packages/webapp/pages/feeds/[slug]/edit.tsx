@@ -108,11 +108,15 @@ const EditFeedPage = (): ReactElement => {
 
   const feedProps = {
     feedName: OtherFeedPage.Preview,
-    feedQueryKey: [RequestKey.FeedPreview, user?.id],
+    feedQueryKey: [
+      RequestKey.FeedPreview,
+      user?.id,
+      RequestKey.FeedPreviewCustom,
+    ],
     query: PREVIEW_FEED_QUERY,
     forceCardMode: true,
     showSearch: false,
-    options: { refetchOnMount: true },
+    options: { refetchOnMount: true, cacheTime: 10 },
     variables: {
       filters: previewFilters,
     },

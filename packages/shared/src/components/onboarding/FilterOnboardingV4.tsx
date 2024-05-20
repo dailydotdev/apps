@@ -1,6 +1,11 @@
 import React, { ReactElement, useMemo } from 'react';
 import classNames from 'classnames';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  QueryFilters,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import request from 'graphql-request';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { RequestKey, generateQueryKey } from '../../lib/query';
@@ -63,8 +68,18 @@ export function FilterOnboardingV4({
 
   const [refetchFeed] = useDebounce(() => {
     const feedQueryKey = [RequestKey.FeedPreview];
-    queryClient.cancelQueries(feedQueryKey);
-    queryClient.invalidateQueries(feedQueryKey);
+    const feedQueryKeyPredicate: QueryFilters['predicate'] = (query) => {
+      return !query.queryKey.includes(RequestKey.FeedPreviewCustom);
+    };
+
+    queryClient.cancelQueries({
+      queryKey: feedQueryKey,
+      predicate: feedQueryKeyPredicate,
+    });
+    queryClient.invalidateQueries({
+      queryKey: feedQueryKey,
+      predicate: feedQueryKeyPredicate,
+    });
   }, 1000);
 
   const onboardingTagsQueryKey = generateQueryKey(
