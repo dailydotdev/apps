@@ -69,8 +69,7 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { ReadingReminder } from '@dailydotdev/shared/src/components/auth/ReadingReminder';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
-import { Boot } from '@dailydotdev/shared/src/lib/boot';
-import { AnonymousUser, LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
