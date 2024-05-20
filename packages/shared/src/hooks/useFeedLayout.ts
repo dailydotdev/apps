@@ -67,15 +67,15 @@ export const UserProfileFeedPages = new Set([
 ]);
 
 const getFeedPageLayoutComponent = ({
-  shouldUseListFeedLayout,
+  shouldUseListFeedLayoutOnMobileTablet,
   shouldUseCommentFeedLayout,
   shouldUseListModeV1,
 }: Pick<
   UseFeedLayoutReturn,
-  | 'shouldUseListFeedLayout'
-  | 'shouldUseCommentFeedLayout'
-  | 'shouldUseListModeV1'
->): UseFeedLayoutReturn['FeedPageLayoutComponent'] => {
+  'shouldUseCommentFeedLayout' | 'shouldUseListModeV1'
+> & {
+  shouldUseListFeedLayoutOnMobileTablet: boolean;
+}): UseFeedLayoutReturn['FeedPageLayoutComponent'] => {
   if (shouldUseCommentFeedLayout) {
     return CommentFeedPage;
   }
@@ -84,7 +84,7 @@ const getFeedPageLayoutComponent = ({
     return FeedPageLayoutList;
   }
 
-  if (shouldUseListFeedLayout) {
+  if (shouldUseListFeedLayoutOnMobileTablet) {
     return FeedPageLayoutMobile;
   }
 
@@ -129,7 +129,7 @@ export const useFeedLayout = ({
 
   const FeedPageLayoutComponent = getFeedPageLayoutComponent({
     shouldUseListModeV1,
-    shouldUseListFeedLayout: shouldUseListFeedLayoutOnMobileTablet,
+    shouldUseListFeedLayoutOnMobileTablet,
     shouldUseCommentFeedLayout,
   });
 
