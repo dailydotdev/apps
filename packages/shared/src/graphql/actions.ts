@@ -23,6 +23,7 @@ export enum ActionType {
   ExistingUserSeenStreaks = 'existing_user_seen_streaks',
   BookmarkPromoteMobile = 'bookmark_promote_mobile',
   HidePublicSquadEligibilityCard = 'hide_public_squad_eligibility_card',
+  CustomFeedBeta = 'custom_feed_beta',
 }
 
 export interface Action {

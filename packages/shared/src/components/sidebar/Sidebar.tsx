@@ -30,7 +30,7 @@ import { getFeedName } from '../../lib/feed';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import Logo, { LogoPosition } from '../Logo';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useActions, useViewSize, ViewSize } from '../../hooks';
 import {
   Button,
   ButtonIconPosition,
@@ -56,6 +56,7 @@ import { graphqlUrl } from '../../lib/config';
 import { FEED_LIST_QUERY, FeedList } from '../../graphql/feed';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { cloudinary } from '../../lib/image';
+import { ActionType } from '../../graphql/actions';
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -85,6 +86,7 @@ export default function Sidebar({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
   const featureTheme = useFeatureTheme();
+  const { checkHasCompleted, isActionsFetched } = useActions();
 
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
@@ -220,6 +222,9 @@ export default function Sidebar({
     );
   }
 
+  const showCustomFeedsBetaBadge =
+    isActionsFetched && !checkHasCompleted(ActionType.CustomFeedBeta);
+
   return (
     <>
       {openMobileSidebar && sidebarRendered === false && (
@@ -276,11 +281,13 @@ export default function Sidebar({
                   <PlusIcon />
                 </div>
               }
-              rightIcon={() => (
-                <div className="absolute -right-3 -top-2 h-[16px] w-[41px]">
-                  <img src={cloudinary.feed.betaTag} alt="Beta" />
-                </div>
-              )}
+              rightIcon={() =>
+                showCustomFeedsBetaBadge ? (
+                  <div className="absolute -right-3 -top-2 h-[16px] w-[41px]">
+                    <img src={cloudinary.feed.betaTag} alt="Beta" />
+                  </div>
+                ) : undefined
+              }
             />
             {userFeeds?.edges?.map((feed) => {
               return (

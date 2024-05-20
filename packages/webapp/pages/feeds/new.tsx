@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
 import classNames from 'classnames';
@@ -35,6 +35,7 @@ import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import {
+  useActions,
   useOnboardingAnimation,
   useToastNotification,
 } from '@dailydotdev/shared/src/hooks';
@@ -47,6 +48,7 @@ import {
   usePrompt,
 } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -70,6 +72,7 @@ const discardPrompt: PromptOptions = {
 const NewFeedPage = (): ReactElement => {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { completeAction } = useActions();
   const { user } = useAuthContext();
   const { showPrompt } = usePrompt();
   const { feedSettings } = useFeedSettings({ feedId: newFeedId });
@@ -178,6 +181,10 @@ const NewFeedPage = (): ReactElement => {
       router.push('/');
     }
   };
+
+  useEffect(() => {
+    completeAction(ActionType.CustomFeedBeta);
+  }, [completeAction]);
 
   if (finishedOnboarding) {
     return (
