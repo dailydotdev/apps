@@ -80,8 +80,12 @@ const NewFeedPage = (): ReactElement => {
   const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);
   const isPreviewFeedEnabled = feedSettings?.includeTags?.length >= 1;
 
-  const { finishedOnboarding, onFinishedOnboarding, postOnboardingRedirect } =
-    useOnboardingAnimation();
+  const {
+    finishedOnboarding,
+    onFinishedOnboarding,
+    postOnboardingRedirect,
+    isAnimating,
+  } = useOnboardingAnimation();
 
   const { shouldUseMobileFeedLayout, FeedPageLayoutComponent } =
     useFeedLayout();
@@ -174,6 +178,7 @@ const NewFeedPage = (): ReactElement => {
     return (
       <PreparingYourFeed
         text={`Preparing ${newFeed?.flags?.name || 'your custom feed'}...`}
+        isAnimating={isAnimating}
       />
     );
   }
