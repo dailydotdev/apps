@@ -199,7 +199,6 @@ function AuthOptions({
       onSetActiveDisplay(AuthDisplay.EmailVerification);
     },
     onValidRegistration: async () => {
-      trackAnalyticsSignUp();
       setIsRegistration(true);
       const { data } = await refetchBoot();
 

@@ -41,7 +41,7 @@ const feature = {
   ),
   experienceLevel: new Feature(
     'experience_level',
-    ExperienceLevelExperiment.Control,
+    ExperienceLevelExperiment.V1,
   ),
   featureTheme: new Feature('feature_theme', {}),
   searchTags: new Feature('search_tags', false),

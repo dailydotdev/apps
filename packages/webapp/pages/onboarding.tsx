@@ -181,7 +181,11 @@ export function OnboardPage(): ReactElement {
   };
 
   const onSuccessfulRegistration = () => {
-    trackAnalyticsSignUp();
+    console.log(
+      'user?.experienceLevel at successful registration: ',
+      user?.experienceLevel,
+    );
+    trackAnalyticsSignUp({ experienceLevel: user?.experienceLevel });
     setActiveScreen(OnboardingStep.EditTag);
   };
 
