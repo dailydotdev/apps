@@ -13,6 +13,7 @@ import { ButtonSize } from './buttons/common';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { getFeedName } from '../lib/feed';
+import { webappUrl } from '../lib/constants';
 
 function FeedEmptyScreen(): ReactElement {
   const { openModal } = useLazyModal();
@@ -35,7 +36,7 @@ function FeedEmptyScreen(): ReactElement {
             const feedName = getFeedName(router.pathname);
 
             if (feedName === SharedFeedPage.Custom && router.query.slug) {
-              router.replace(`/feeds/${router.query.slug}/edit`);
+              router.replace(`${webappUrl}feeds/${router.query.slug}/edit`);
             } else {
               openModal({ type: LazyModal.FeedFilters });
             }

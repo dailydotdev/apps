@@ -22,6 +22,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { AllFeedPages } from '../../lib/query';
+import { webappUrl } from '../../lib/constants';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -91,7 +92,7 @@ export const SearchControlHeader = ({
         key="my-feed"
         onOpenFeedFilters={() => {
           if (feedName === SharedFeedPage.Custom && router.query.slug) {
-            router.push(`/feeds/${router.query.slug}/edit`);
+            router.push(`${webappUrl}feeds/${router.query.slug}/edit`);
           } else {
             openFeedFilters();
           }

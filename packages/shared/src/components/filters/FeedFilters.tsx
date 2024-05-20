@@ -1,5 +1,7 @@
-import React, { ReactElement } from 'react';
-import { HashtagIcon, FilterIcon, BlockIcon, AppIcon } from '../icons';
+import React, { MouseEvent, ReactElement } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import request from 'graphql-request';
+import { FilterIcon, BlockIcon, AppIcon, HomeIcon, StarIcon } from '../icons';
 import TagsFilter from './TagsFilter';
 import { TagCategoryLayout } from './TagCategoryDropdown';
 import AdvancedSettingsFilter from './AdvancedSettings';
@@ -9,9 +11,15 @@ import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
 import { ContentTypesFilter } from './ContentTypesFilter';
 import { Source } from '../../graphql/sources';
+import { FeedList, FEED_LIST_QUERY } from '../../graphql/feed';
+import { graphqlUrl } from '../../lib/config';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { webappUrl } from '../../lib/constants';
+import { ViewSize, useViewSize } from '../../hooks';
 
 enum FilterMenuTitle {
-  Tags = 'Manage tags',
+  Tags = 'My feed',
   ManageCategories = 'Manage categories',
   ContentTypes = 'Content types',
   Blocked = 'Blocked items',
@@ -32,6 +40,7 @@ const unBlockPromptOptions: PromptOptions = {
 };
 
 export default function FeedFilters(props: FeedFiltersProps): ReactElement {
+  const { user } = useAuthContext();
   const { showPrompt } = usePrompt();
   const unBlockPrompt = async ({ action, source, tag }: UnblockItem) => {
     const description = tag ? (
@@ -43,24 +52,68 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
       action?.();
     }
   };
+  const isMobile = useViewSize(ViewSize.MobileL);
+
+  const { data: userFeeds } = useQuery(
+    generateQueryKey(RequestKey.Feeds, user),
+    async () => {
+      const result = await request<FeedList>(graphqlUrl, FEED_LIST_QUERY);
+
+      return result.feedList;
+    },
+    {
+      enabled: !!user && isMobile,
+      staleTime: StaleTime.OneHour,
+    },
+  );
+
   const tabs = [
     {
       title: FilterMenuTitle.Tags,
-      options: { icon: <HashtagIcon /> },
+      options: { icon: <HomeIcon />, group: 'Feeds' },
     },
+    ...(isMobile
+      ? userFeeds?.edges?.map(({ node: feed }) => {
+          return {
+            title: feed.flags?.name || `Feed ${feed.id}`,
+            options: {
+              icon: <StarIcon />,
+              href: `${webappUrl}feeds/${feed.slug}/edit`,
+              onClick: (event: MouseEvent<Element>) => {
+                const { onRequestClose } = props;
+
+                if (onRequestClose) {
+                  onRequestClose(event);
+                }
+              },
+              group: 'Feeds',
+            },
+          };
+        })
+      : []),
     {
       title: FilterMenuTitle.ManageCategories,
-      options: { icon: <FilterIcon /> },
+      options: { icon: <FilterIcon />, group: 'Preference' },
     },
     {
       title: FilterMenuTitle.ContentTypes,
-      options: { icon: <AppIcon /> },
+      options: { icon: <AppIcon />, group: 'Preference' },
     },
     {
       title: FilterMenuTitle.Blocked,
-      options: { icon: <BlockIcon /> },
+      options: { icon: <BlockIcon />, group: 'Preference' },
     },
-  ];
+  ].map((item) =>
+    isMobile
+      ? item
+      : {
+          ...item,
+          options: {
+            ...item.options,
+            group: undefined,
+          },
+        },
+  );
 
   return (
     <Modal
@@ -71,7 +124,11 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
       tabs={tabs}
     >
       <Modal.Sidebar>
-        <Modal.Sidebar.List className="w-74" title="Feed filters" defaultOpen />
+        <Modal.Sidebar.List
+          className="w-74"
+          title="Feed settings"
+          defaultOpen
+        />
         <Modal.Sidebar.Inner>
           <Modal.Header />
           <Modal.Body view={FilterMenuTitle.Tags}>

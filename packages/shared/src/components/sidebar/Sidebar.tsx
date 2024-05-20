@@ -289,7 +289,7 @@ export default function Sidebar({
                   key={feed.node.id}
                   isButton={isNavButtons}
                   title={feed.node.flags.name || `Feed ${feed.node.id}`}
-                  path={`/feeds/${feed.node.slug}`}
+                  path={`${webappUrl}feeds/${feed.node.slug}`}
                   onNavTabClick={onNavTabClick}
                   icon={<StarIcon secondary />}
                 />

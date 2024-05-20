@@ -46,6 +46,7 @@ import {
   PromptOptions,
   usePrompt,
 } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -159,7 +160,7 @@ const NewFeedPage = (): ReactElement => {
 
         onAskConfirmation(false);
         onFinishedOnboarding();
-        postOnboardingRedirect(`/feeds/${data.slug}`);
+        postOnboardingRedirect(`${webappUrl}feeds/${data.slug}`);
       },
       onError: () => {
         displayToast(labels.error.generic);

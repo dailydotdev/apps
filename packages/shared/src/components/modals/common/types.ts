@@ -56,6 +56,7 @@ export enum LazyModal {
 export type ModalTabItem = {
   title: string;
   options: Record<string, unknown>;
+  group?: string;
 };
 
 export type ModalStep = {

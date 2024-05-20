@@ -45,6 +45,7 @@ import {
   PromptOptions,
   usePrompt,
 } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
@@ -174,7 +175,7 @@ const EditFeedPage = (): ReactElement => {
         );
 
         onAskConfirmation(false);
-        router.replace(`/feeds/${data.slug}`);
+        router.replace(`${webappUrl}feeds/${data.slug}`);
       },
       onError: () => {
         displayToast(labels.error.generic);
@@ -270,16 +271,14 @@ const EditFeedPage = (): ReactElement => {
           >
             <div className="tablet:rounded-162 flex h-auto w-full flex-col items-center justify-between gap-4 border-b-2 border-accent-cabbage-default bg-background-subtle p-6 tablet:flex-row tablet:gap-0">
               <div className="text-center tablet:text-left">
-                <p className="font-bold typo-title3">
-                  Pick the tags you want to include
-                </p>
+                <p className="font-bold typo-title3">Feed settings</p>
               </div>
               <div className="flex items-center gap-3">
                 <Button
                   type="button"
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Small}
-                  icon={<TrashIcon secondary />}
+                  icon={<TrashIcon />}
                   onClick={() => {
                     onDelete();
                   }}
