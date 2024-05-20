@@ -183,10 +183,6 @@ export function OnboardPage(): ReactElement {
   };
 
   const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
-    console.log(
-      'user?.experienceLevel at succesful registration: ',
-      userRefetched,
-    );
     trackAnalyticsSignUp({ experienceLevel: userRefetched?.experienceLevel });
     setActiveScreen(OnboardingStep.EditTag);
   };
