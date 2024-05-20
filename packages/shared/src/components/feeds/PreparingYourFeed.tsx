@@ -1,8 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
-import LogoIcon from '../../svg/LogoIcon';
-import LogoText from '../../svg/LogoText';
 
 interface PreparingYourFeedProps {
   text: string;
@@ -20,10 +18,6 @@ export function PreparingYourFeed({
 }: PreparingYourFeedProps): ReactElement {
   return (
     <OnboardingContainer className="justify-center">
-      <span className="mb-10 flex flex-row gap-3">
-        <LogoIcon className="w-16" />
-        <LogoText className="w-32" />
-      </span>
       <span className="flex h-1.5 w-full max-w-[19.125rem] flex-row items-center rounded-12 bg-border-subtlest-tertiary px-0.5">
         <span
           className={classNames(
