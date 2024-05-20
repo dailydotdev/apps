@@ -49,11 +49,10 @@ import {
   SIGNIN_METHOD_KEY,
   useSignBack,
 } from '../../hooks/auth/useSignBack';
-import { LoggedUser } from '../../lib/user';
+import { AnonymousUser, LoggedUser } from '../../lib/user';
 import { labels } from '../../lib';
 import OnboardingRegistrationForm from './OnboardingRegistrationForm';
 import EmailCodeVerification from './EmailCodeVerification';
-import { trackAnalyticsSignUp } from './OnboardingAnalytics';
 import { ButtonProps } from '../buttons/Button';
 import { OnboardingRegistrationForm4d5 } from './OnboardingRegistrationForm4d5';
 
@@ -89,7 +88,7 @@ export interface AuthOptionsProps {
   onClose?: CloseAuthModalFunc;
   onAuthStateUpdate?: (props: Partial<AuthProps>) => void;
   onSuccessfulLogin?: () => unknown;
-  onSuccessfulRegistration?: (data?: unknown | null) => unknown;
+  onSuccessfulRegistration?: (user?: LoggedUser | AnonymousUser) => unknown;
   formRef: MutableRefObject<HTMLFormElement>;
   trigger: AuthTriggersType;
   defaultDisplay?: AuthDisplay;
@@ -206,14 +205,9 @@ function AuthOptions({
         const provider = chosenProvider || 'password';
         onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
       }
-
-      // trackAnalyticsSignUp({ experienceLevel: data?.user?.experienceLevel });
-
       await syncSettings(data?.user?.id);
-      console.log('user?.experienceLevel at valid registration: ', data, user);
-
       onSetActiveDisplay(AuthDisplay.EmailSent);
-      onSuccessfulRegistration?.(data);
+      onSuccessfulRegistration?.(data?.user);
     },
     onInvalidRegistration: setRegistrationHints,
     onRedirectFail: () => {
@@ -241,9 +235,7 @@ function AuthOptions({
   });
   const onProfileSuccess = async () => {
     const { data } = await refetchBoot();
-    console.log('user?.experienceLevel at profile success: ', data, user);
-
-    onSuccessfulRegistration?.();
+    onSuccessfulRegistration?.(data?.user);
     onClose?.(null, true);
   };
   const {

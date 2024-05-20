@@ -69,6 +69,8 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { ReadingReminder } from '@dailydotdev/shared/src/components/auth/ReadingReminder';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
+import { Boot } from '@dailydotdev/shared/src/lib/boot';
+import { AnonymousUser, LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -180,12 +182,12 @@ export function OnboardPage(): ReactElement {
     router.replace('/');
   };
 
-  const onSuccessfulRegistration = (data) => {
+  const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
     console.log(
       'user?.experienceLevel at succesful registration: ',
-      data,
-      user,
+      userRefetched,
     );
+    trackAnalyticsSignUp({ experienceLevel: userRefetched?.experienceLevel });
     setActiveScreen(OnboardingStep.EditTag);
   };
 
