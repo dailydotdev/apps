@@ -135,7 +135,9 @@ export const trackAnalyticsSignUp = ({
 
   if (typeof globalThis.fbq === 'function') {
     globalThis.fbq('track', 'signup');
-    globalThis.fbq('track', 'signup_experience_level', experienceLevel);
+    if (experienceLevel) {
+      globalThis.fbq('track', 'signup_experience_level', experienceLevel);
+    }
   }
 
   if (typeof globalThis.twq === 'function') {
