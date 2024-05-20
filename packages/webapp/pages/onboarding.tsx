@@ -181,7 +181,11 @@ export function OnboardPage(): ReactElement {
   };
 
   const onSuccessfulRegistration = (data) => {
-    console.log('user?.experienceLevel at valid registration: ', data, user);
+    console.log(
+      'user?.experienceLevel at succesful registration: ',
+      data,
+      user,
+    );
     setActiveScreen(OnboardingStep.EditTag);
   };
 

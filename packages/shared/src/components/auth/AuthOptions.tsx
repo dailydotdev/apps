@@ -210,6 +210,8 @@ function AuthOptions({
       // trackAnalyticsSignUp({ experienceLevel: data?.user?.experienceLevel });
 
       await syncSettings(data?.user?.id);
+      console.log('user?.experienceLevel at valid registration: ', data, user);
+
       onSetActiveDisplay(AuthDisplay.EmailSent);
       onSuccessfulRegistration?.(data);
     },
@@ -239,6 +241,8 @@ function AuthOptions({
   });
   const onProfileSuccess = async () => {
     await refetchBoot();
+    console.log('user?.experienceLevel at profile success: ', data, user);
+
     onSuccessfulRegistration?.();
     onClose?.(null, true);
   };
