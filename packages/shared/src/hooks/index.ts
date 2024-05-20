@@ -25,3 +25,4 @@ export * from './utils/useGetShortUrl';
 export * from './source';
 export * from './useBoot';
 export * from './useConditionalFeature';
+export * from './useOnboardingAnimation';

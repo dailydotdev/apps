@@ -33,10 +33,14 @@ import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import {
+  useOnboardingAnimation,
+  useToastNotification,
+} from '@dailydotdev/shared/src/hooks';
 import { labels } from '@dailydotdev/shared/src/lib';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
+import { PreparingYourFeed } from '@dailydotdev/shared/src/components';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -60,6 +64,9 @@ const NewFeedPage = (): ReactElement => {
   };
   const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);
   const isPreviewFeedEnabled = feedSettings?.includeTags?.length >= 1;
+
+  const { finishedOnboarding, onFinishedOnboarding, postOnboardingRedirect } =
+    useOnboardingAnimation();
 
   const { shouldUseMobileFeedLayout, FeedPageLayoutComponent } =
     useFeedLayout();
@@ -86,7 +93,7 @@ const NewFeedPage = (): ReactElement => {
     },
   });
 
-  const { mutateAsync: onSubmit } = useMutation(
+  const { mutateAsync: onSubmit, data: newFeed } = useMutation(
     async ({ name }: NewFeedFormProps): Promise<FeedType> => {
       const result = await request<{ createFeed: FeedType }>(
         graphqlUrl,
@@ -125,13 +132,22 @@ const NewFeedPage = (): ReactElement => {
         );
 
         onAskConfirmation(false);
-        router.push(`/feeds/${data.slug}`);
+        onFinishedOnboarding();
+        postOnboardingRedirect(`/feeds/${data.slug}`);
       },
       onError: () => {
         displayToast(labels.error.generic);
       },
     },
   );
+
+  if (finishedOnboarding) {
+    return (
+      <PreparingYourFeed
+        text={`Preparing ${newFeed?.flags?.name || 'your custom feed'}...`}
+      />
+    );
+  }
 
   return (
     <>
