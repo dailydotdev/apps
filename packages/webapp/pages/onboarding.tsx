@@ -180,7 +180,8 @@ export function OnboardPage(): ReactElement {
     router.replace('/');
   };
 
-  const onSuccessfulRegistration = () => {
+  const onSuccessfulRegistration = (data) => {
+    console.log('user?.experienceLevel at valid registration: ', data, user);
     setActiveScreen(OnboardingStep.EditTag);
   };
 
