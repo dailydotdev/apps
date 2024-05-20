@@ -45,10 +45,7 @@ import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import {
-  getSquadStatus,
-  SquadStatus,
-} from '@dailydotdev/shared/src/components/squads/settings';
+import { SquadStatus } from '@dailydotdev/shared/src/components/squads/settings';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage, {
@@ -173,12 +170,10 @@ const SquadPage = ({
   );
 
   const isRequestsEnabled = !!squadId && !!user;
-  const { latestRequest, isFetched: isRequestsFetched } =
-    usePublicSquadRequests({
-      sourceId: squadId,
-      isQueryEnabled: isRequestsEnabled,
-    });
-  const status = getSquadStatus(latestRequest);
+  const { isFetched: isRequestsFetched, status } = usePublicSquadRequests({
+    sourceId: squadId,
+    isQueryEnabled: isRequestsEnabled,
+  });
   const isRequestsLoading =
     isRequestsEnabled && (!isRequestsFetched || !isActionsFetched);
 

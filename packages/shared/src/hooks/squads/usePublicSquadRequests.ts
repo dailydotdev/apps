@@ -3,6 +3,7 @@ import {
   useInfiniteQuery,
   useMutation,
 } from '@tanstack/react-query';
+import { subDays } from 'date-fns';
 import { useToastNotification } from '../useToastNotification';
 import {
   getPublicSquadRequests,
@@ -10,9 +11,13 @@ import {
 } from '../../graphql/squads';
 import { ApiErrorResult, Connection } from '../../graphql/common';
 import { parseOrDefault } from '../../lib/func';
-import { PublicSquadRequest } from '../../graphql/sources';
+import {
+  PublicSquadRequest,
+  PublicSquadRequestStatus,
+} from '../../graphql/sources';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { SquadStatus } from '../../components/squads/settings';
 
 const DEFAULT_ERROR = "Oops! That didn't seem to work. Let's try again!";
 
@@ -22,12 +27,20 @@ interface UsePublicSquadRequestsResult {
   requests: InfiniteData<Connection<PublicSquadRequest>>;
   latestRequest: PublicSquadRequest;
   isFetched: boolean;
+  status: SquadStatus;
 }
 
 interface UsePublicSquadRequestsProps {
   isQueryEnabled?: boolean;
   sourceId: string;
+  status?: string;
 }
+
+const remoteStatusMap: Record<PublicSquadRequestStatus, SquadStatus> = {
+  [PublicSquadRequestStatus.Approved]: SquadStatus.Approved,
+  [PublicSquadRequestStatus.Rejected]: SquadStatus.Rejected,
+  [PublicSquadRequestStatus.Pending]: SquadStatus.Pending,
+};
 
 export const usePublicSquadRequests = ({
   isQueryEnabled,
@@ -66,6 +79,23 @@ export const usePublicSquadRequests = ({
       const edges = requests?.pages[requests?.pages?.length - 1]?.edges;
 
       return edges?.[edges?.length - 1]?.node;
+    },
+    get status() {
+      const request = this.latestRequest;
+
+      if (!request) {
+        return SquadStatus.InProgress;
+      }
+
+      if (request.status === PublicSquadRequestStatus.Rejected) {
+        const fourteenDaysAgo = subDays(new Date(), 14);
+        const requestDate = new Date(request.createdAt);
+        return fourteenDaysAgo < requestDate
+          ? SquadStatus.Rejected
+          : SquadStatus.InProgress;
+      }
+
+      return remoteStatusMap[request.status];
     },
   };
 };

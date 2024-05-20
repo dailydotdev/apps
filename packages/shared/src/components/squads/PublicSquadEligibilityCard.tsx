@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useCallback, useMemo } from 'react';
+import React, { ReactElement, ReactNode, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import {
   useActions,
@@ -20,7 +20,7 @@ import {
   SquadPostsProgressBar,
 } from './SquadPostsProgressBar';
 import { squadsPublicGuide } from '../../lib/constants';
-import { getSquadStatus, SquadStatus } from './settings';
+import { SquadStatus } from './settings';
 
 interface PublicSquadEligibilityCardProps {
   placeholder: ReactNode;
@@ -31,11 +31,10 @@ export function PublicSquadEligibilityCard({
 }: PublicSquadEligibilityCardProps): ReactElement {
   const router = useRouter();
   const { squad } = useSquad({ handle: router.query.handle as string });
-  const { latestRequest, isFetched } = usePublicSquadRequests({
+  const { isFetched, status } = usePublicSquadRequests({
     sourceId: squad?.id,
   });
   const postsCount = squad?.flags.totalPosts;
-  const status = getSquadStatus(latestRequest);
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { completeAction } = useActions();
   const { openModal } = useLazyModal();

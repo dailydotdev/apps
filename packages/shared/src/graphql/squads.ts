@@ -17,7 +17,10 @@ import { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
 
 export interface SquadForm
-  extends Pick<Squad, 'name' | 'handle' | 'description' | 'image' | 'flags'> {
+  extends Pick<
+    Squad,
+    'id' | 'name' | 'handle' | 'description' | 'image' | 'flags'
+  > {
   preview?: Partial<ExternalLinkPreview>;
   file?: string;
   commentary: string;

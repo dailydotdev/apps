@@ -20,7 +20,7 @@ export function PublicStatusPanel({
       />
       <Button
         variant={ButtonVariant.Secondary}
-        className="mt-5 w-fit"
+        className="mt-3 w-fit"
         disabled={count < required}
       >
         Submit for review
