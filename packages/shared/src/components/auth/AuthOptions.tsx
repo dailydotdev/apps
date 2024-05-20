@@ -208,7 +208,7 @@ function AuthOptions({
       }
 
       console.log('user?.experienceLevel at valid registration: ', data, user);
-      trackAnalyticsSignUp({ experienceLevel: data?.user?.experienceLevel });
+      // trackAnalyticsSignUp({ experienceLevel: data?.user?.experienceLevel });
 
       await syncSettings(data?.user?.id);
       onSetActiveDisplay(AuthDisplay.EmailSent);
