@@ -207,6 +207,9 @@ function AuthOptions({
         onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
       }
 
+      console.log('user?.experienceLevel at valid registration: ', data, user);
+      trackAnalyticsSignUp({ experienceLevel: data?.user?.experienceLevel });
+
       await syncSettings(data?.user?.id);
       onSetActiveDisplay(AuthDisplay.EmailSent);
       onSuccessfulRegistration?.();
