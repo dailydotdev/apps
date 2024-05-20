@@ -6,7 +6,7 @@ import { getSquad } from '../../graphql/squads';
 import { ApiError, ApiErrorResult, getApiError } from '../../graphql/common';
 import AuthContext from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 
 interface UseSquadProps {
   handle: string;
