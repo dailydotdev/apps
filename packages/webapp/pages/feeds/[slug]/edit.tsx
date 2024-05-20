@@ -19,6 +19,7 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import {
   Button,
+  ButtonColor,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
@@ -40,6 +41,10 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { labels } from '@dailydotdev/shared/src/lib';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
+import {
+  PromptOptions,
+  usePrompt,
+} from '@dailydotdev/shared/src/hooks/usePrompt';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
@@ -49,10 +54,20 @@ type EditFeedFormProps = {
   name: string;
 };
 
+const discardPrompt: PromptOptions = {
+  title: labels.feed.prompt.discard.title,
+  description: labels.feed.prompt.discard.description,
+  okButton: {
+    title: labels.feed.prompt.discard.okButton,
+    color: ButtonColor.Ketchup,
+  },
+};
+
 const EditFeedPage = (): ReactElement => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { user } = useAuthContext();
+  const { showPrompt } = usePrompt();
   const feedSlug = router.query.slug as string;
 
   const { data: userFeeds } = useQuery(
@@ -105,10 +120,13 @@ const EditFeedPage = (): ReactElement => {
 
   const { displayToast } = useToastNotification();
 
+  const onValidateAction = () => {
+    return !isDirty;
+  };
+
   const { onAskConfirmation } = useExitConfirmation({
-    onValidateAction: () => {
-      return !isDirty;
-    },
+    message: discardPrompt.description as string,
+    onValidateAction,
   });
 
   const { mutateAsync: onSubmit } = useMutation(
@@ -162,6 +180,19 @@ const EditFeedPage = (): ReactElement => {
 
   const { mutateAsync: onDelete, status: deleteStatus } = useMutation(
     async (): Promise<Pick<FeedType, 'id'>> => {
+      const shouldDelete = await showPrompt({
+        title: `Delete ${feed?.flags?.name || 'custom feed'}?`,
+        description: labels.feed.prompt.delete.description,
+        okButton: {
+          title: labels.feed.prompt.delete.okButton,
+          color: ButtonColor.Ketchup,
+        },
+      });
+
+      if (!shouldDelete) {
+        throw new Error('User cancelled deletion');
+      }
+
       await request(graphqlUrl, DELETE_FEED_MUTATION, {
         feedId,
       });
@@ -189,6 +220,17 @@ const EditFeedPage = (): ReactElement => {
       },
     },
   );
+
+  const onDiscard = async () => {
+    const shouldDiscard =
+      onValidateAction() || (await showPrompt(discardPrompt));
+
+    if (shouldDiscard) {
+      onAskConfirmation(false);
+
+      router.push('/');
+    }
+  };
 
   const shouldRedirectToNewFeed =
     userFeeds && feedSlug && deleteStatus === 'idle';
@@ -243,7 +285,7 @@ const EditFeedPage = (): ReactElement => {
                   size={ButtonSize.Large}
                   variant={ButtonVariant.Float}
                   onClick={() => {
-                    router.push(`/feeds/${feed.slug}`);
+                    onDiscard();
                   }}
                 >
                   Discard

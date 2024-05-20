@@ -16,6 +16,7 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import {
   Button,
+  ButtonColor,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
@@ -41,6 +42,10 @@ import { labels } from '@dailydotdev/shared/src/lib';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { PreparingYourFeed } from '@dailydotdev/shared/src/components';
+import {
+  PromptOptions,
+  usePrompt,
+} from '@dailydotdev/shared/src/hooks/usePrompt';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -52,10 +57,20 @@ type NewFeedFormProps = {
 
 const newFeedId = 'new';
 
+const discardPrompt: PromptOptions = {
+  title: labels.feed.prompt.discard.title,
+  description: labels.feed.prompt.discard.description,
+  okButton: {
+    title: labels.feed.prompt.discard.okButton,
+    color: ButtonColor.Ketchup,
+  },
+};
+
 const NewFeedPage = (): ReactElement => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { user } = useAuthContext();
+  const { showPrompt } = usePrompt();
   const { feedSettings } = useFeedSettings({ feedId: newFeedId });
   const seo: NextSeoProps = {
     title: 'Create custom feed',
@@ -87,10 +102,13 @@ const NewFeedPage = (): ReactElement => {
 
   const { displayToast } = useToastNotification();
 
+  const onValidateAction = () => {
+    return !isPreviewFeedEnabled;
+  };
+
   const { onAskConfirmation } = useExitConfirmation({
-    onValidateAction: () => {
-      return !isPreviewFeedEnabled;
-    },
+    message: discardPrompt.description as string,
+    onValidateAction,
   });
 
   const { mutateAsync: onSubmit, data: newFeed } = useMutation(
@@ -141,6 +159,17 @@ const NewFeedPage = (): ReactElement => {
     },
   );
 
+  const onDiscard = async () => {
+    const shouldDiscard =
+      onValidateAction() || (await showPrompt(discardPrompt));
+
+    if (shouldDiscard) {
+      onAskConfirmation(false);
+
+      router.push('/');
+    }
+  };
+
   if (finishedOnboarding) {
     return (
       <PreparingYourFeed
@@ -176,7 +205,7 @@ const NewFeedPage = (): ReactElement => {
                   size={ButtonSize.Large}
                   variant={ButtonVariant.Float}
                   onClick={() => {
-                    router.push('/');
+                    onDiscard();
                   }}
                 >
                   Discard
