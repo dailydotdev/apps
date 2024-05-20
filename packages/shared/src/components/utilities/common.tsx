@@ -165,7 +165,7 @@ export enum SharedFeedPage {
   Search = 'search',
   Upvoted = 'upvoted',
   Discussed = 'discussed',
-  Custom = 'feeds[slug]',
+  Custom = 'custom-feed',
 }
 
 export const FeedHeading = classed(

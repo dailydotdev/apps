@@ -90,12 +90,10 @@ export const SearchControlHeader = ({
       <MyFeedHeading
         key="my-feed"
         onOpenFeedFilters={() => {
-          if (feedName === SharedFeedPage.MyFeed) {
-            openFeedFilters();
-          }
-
-          if (feedName === SharedFeedPage.Custom) {
+          if (feedName === SharedFeedPage.Custom && router.query.slug) {
             router.push(`/feeds/${router.query.slug}/edit`);
+          } else {
+            openFeedFilters();
           }
         }}
       />

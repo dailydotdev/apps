@@ -1,6 +1,8 @@
 import classNames from 'classnames';
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useMemo } from 'react';
 import { useRouter } from 'next/router';
+import { useQuery } from '@tanstack/react-query';
+import request from 'graphql-request';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
@@ -15,12 +17,16 @@ import { MobileFeedActions } from './MobileFeedActions';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import SettingsContext from '../../contexts/SettingsContext';
 import { Dropdown } from '../fields/Dropdown';
-import { SortIcon } from '../icons';
+import { PlusIcon, SortIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
+import { FEED_LIST_QUERY, FeedList } from '../../graphql/feed';
+import { graphqlUrl } from '../../lib/config';
+import { RequestKey, StaleTime, generateQueryKey } from '../../lib/query';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -29,19 +35,12 @@ enum FeedNavTab {
   History = 'History',
   MostUpvoted = 'Most Upvoted',
   Discussions = 'Discussions',
+  NewFeed = 'New feed',
 }
-
-const urlToTab: Record<string, FeedNavTab> = {
-  [`${webappUrl}`]: FeedNavTab.ForYou,
-  [`${webappUrl}popular`]: FeedNavTab.Popular,
-  [`${webappUrl}upvoted`]: FeedNavTab.MostUpvoted,
-  [`${webappUrl}discussed`]: FeedNavTab.Discussions,
-  [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
-  [`${webappUrl}history`]: FeedNavTab.History,
-};
 
 function FeedNav(): ReactElement {
   const router = useRouter();
+  const { user } = useAuthContext();
   const { feedName } = useActiveFeedNameContext();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isSortableFeed } = useFeedName({ feedName });
@@ -55,6 +54,39 @@ function FeedNav(): ReactElement {
   );
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
+
+  const { data: userFeeds } = useQuery(
+    generateQueryKey(RequestKey.Feeds, user),
+    async () => {
+      const result = await request<FeedList>(graphqlUrl, FEED_LIST_QUERY);
+
+      return result.feedList;
+    },
+    {
+      enabled: !!user,
+      staleTime: StaleTime.OneHour,
+    },
+  );
+
+  const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
+    const customFeeds = userFeeds?.edges?.reduce((acc, { node: feed }) => {
+      acc[`${webappUrl}feeds/${feed.slug}`] =
+        feed.flags?.name || `Feed ${feed.id}`;
+
+      return acc;
+    }, {});
+
+    return {
+      [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
+      [`${webappUrl}`]: FeedNavTab.ForYou,
+      ...customFeeds,
+      [`${webappUrl}popular`]: FeedNavTab.Popular,
+      [`${webappUrl}upvoted`]: FeedNavTab.MostUpvoted,
+      [`${webappUrl}discussed`]: FeedNavTab.Discussions,
+      [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
+      [`${webappUrl}history`]: FeedNavTab.History,
+    };
+  }, [userFeeds]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
@@ -81,6 +113,17 @@ function FeedNav(): ReactElement {
           tabListProps={{
             className: { indicator: '!w-6', item: 'px-1' },
             autoScrollActive: true,
+          }}
+          renderTab={({ label }) => {
+            if (label === FeedNavTab.NewFeed) {
+              return (
+                <div className="flex size-6 items-center justify-center rounded-6 bg-background-subtle">
+                  <PlusIcon />
+                </div>
+              );
+            }
+
+            return null;
           }}
         >
           {Object.entries(urlToTab).map(([url, label]) => (

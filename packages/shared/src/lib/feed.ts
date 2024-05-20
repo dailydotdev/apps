@@ -184,6 +184,9 @@ export const getFeedName = (
   if (feed === '[userId]posts') {
     return OtherFeedPage.UserPosts;
   }
+  if (['feedsnew', 'feeds[slug]', 'feeds[slug]edit'].includes(feed)) {
+    return SharedFeedPage.Custom;
+  }
 
   const [page] = feed.split('?');
 

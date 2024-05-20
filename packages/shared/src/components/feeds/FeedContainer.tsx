@@ -22,6 +22,7 @@ import {
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
 import { feature } from '../../lib/featureManagement';
+import { SharedFeedPage } from '../utilities';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -119,7 +120,7 @@ const feedNameToHeading: Record<
     | 'tags[tag]/most-upvoted'
     | 'tags[tag]/best-discussed'
     | 'posts/[id]/similar'
-    | 'feeds[slug]'
+    | SharedFeedPage.Custom
   >,
   string
 > = {

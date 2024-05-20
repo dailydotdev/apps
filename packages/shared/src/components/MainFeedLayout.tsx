@@ -85,7 +85,7 @@ const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
   discussed: {
     query: MOST_DISCUSSED_FEED_QUERY,
   },
-  'feeds[slug]': {
+  [SharedFeedPage.Custom]: {
     query: CUSTOM_FEED_QUERY,
   },
 };
@@ -167,7 +167,7 @@ export default function MainFeedLayout({
     const dynamicPropsByFeed: Partial<
       Record<SharedFeedPage, Partial<FeedQueryProps>>
     > = {
-      'feeds[slug]': {
+      [SharedFeedPage.Custom]: {
         variables: {
           feedId: router.query.slug as string,
         },

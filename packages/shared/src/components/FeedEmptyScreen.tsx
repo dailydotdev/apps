@@ -17,7 +17,6 @@ import { getFeedName } from '../lib/feed';
 function FeedEmptyScreen(): ReactElement {
   const { openModal } = useLazyModal();
   const router = useRouter();
-  const feedName = getFeedName(router.pathname);
 
   return (
     <PageContainer className="mx-auto">
@@ -33,7 +32,9 @@ function FeedEmptyScreen(): ReactElement {
         </EmptyScreenDescription>
         <EmptyScreenButton
           onClick={() => {
-            if (feedName === SharedFeedPage.Custom) {
+            const feedName = getFeedName(router.pathname);
+
+            if (feedName === SharedFeedPage.Custom && router.query.slug) {
               router.replace(`/feeds/${router.query.slug}/edit`);
             } else {
               openModal({ type: LazyModal.FeedFilters });
