@@ -240,7 +240,7 @@ function AuthOptions({
     },
   });
   const onProfileSuccess = async () => {
-    await refetchBoot();
+    const { data } = await refetchBoot();
     console.log('user?.experienceLevel at profile success: ', data, user);
 
     onSuccessfulRegistration?.();
