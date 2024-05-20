@@ -70,8 +70,12 @@ function FeedNav(): ReactElement {
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
     const customFeeds = userFeeds?.edges?.reduce((acc, { node: feed }) => {
-      acc[`${webappUrl}feeds/${feed.slug}`] =
-        feed.flags?.name || `Feed ${feed.id}`;
+      const feedPath = `${webappUrl}feeds/${feed.slug}`;
+      const isEditingFeed =
+        router.query.slug === feed.slug && router.pathname.endsWith('/edit');
+      const urlPath = `${feedPath}${isEditingFeed ? '/edit' : ''}`;
+
+      acc[urlPath] = feed.flags?.name || `Feed ${feed.id}`;
 
       return acc;
     }, {});
@@ -86,7 +90,7 @@ function FeedNav(): ReactElement {
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
-  }, [userFeeds]);
+  }, [userFeeds, router.pathname, router.query.slug]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
