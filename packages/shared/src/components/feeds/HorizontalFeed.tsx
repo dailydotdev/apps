@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import classnames from 'classnames';
 import Feed from '../Feed';
 import { OtherFeedPage } from '../../lib/query';
