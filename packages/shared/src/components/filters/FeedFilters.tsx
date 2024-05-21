@@ -1,6 +1,4 @@
 import React, { MouseEvent, ReactElement } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import request from 'graphql-request';
 import { FilterIcon, BlockIcon, AppIcon, HomeIcon, StarIcon } from '../icons';
 import TagsFilter from './TagsFilter';
 import { TagCategoryLayout } from './TagCategoryDropdown';
@@ -11,12 +9,8 @@ import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
 import { ContentTypesFilter } from './ContentTypesFilter';
 import { Source } from '../../graphql/sources';
-import { FeedList, FEED_LIST_QUERY } from '../../graphql/feed';
-import { graphqlUrl } from '../../lib/config';
-import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
-import { useAuthContext } from '../../contexts/AuthContext';
 import { webappUrl } from '../../lib/constants';
-import { ViewSize, useViewSize } from '../../hooks';
+import { ViewSize, useFeeds, useViewSize } from '../../hooks';
 
 enum FilterMenuTitle {
   Tags = 'My feed',
@@ -40,7 +34,6 @@ const unBlockPromptOptions: PromptOptions = {
 };
 
 export default function FeedFilters(props: FeedFiltersProps): ReactElement {
-  const { user } = useAuthContext();
   const { showPrompt } = usePrompt();
   const unBlockPrompt = async ({ action, source, tag }: UnblockItem) => {
     const description = tag ? (
@@ -54,18 +47,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
   };
   const isMobile = useViewSize(ViewSize.MobileL);
 
-  const { data: userFeeds } = useQuery(
-    generateQueryKey(RequestKey.Feeds, user),
-    async () => {
-      const result = await request<FeedList>(graphqlUrl, FEED_LIST_QUERY);
-
-      return result.feedList;
-    },
-    {
-      enabled: !!user && isMobile,
-      staleTime: StaleTime.OneHour,
-    },
-  );
+  const { feeds } = useFeeds();
 
   const tabs = [
     {
@@ -73,7 +55,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
       options: { icon: <HomeIcon />, group: 'Feeds' },
     },
     ...(isMobile
-      ? userFeeds?.edges?.map(({ node: feed }) => {
+      ? feeds?.edges?.map(({ node: feed }) => {
           return {
             title: feed.flags?.name || `Feed ${feed.id}`,
             options: {

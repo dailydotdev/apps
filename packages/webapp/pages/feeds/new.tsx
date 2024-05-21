@@ -2,28 +2,10 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
 import classNames from 'classnames';
-import {
-  CREATE_FEED_MUTATION,
-  Feed as FeedType,
-  FeedList,
-  PREVIEW_FEED_QUERY,
-} from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import {
-  OtherFeedPage,
-  RequestKey,
-  generateQueryKey,
-} from '@dailydotdev/shared/src/lib/query';
-import {
-  Button,
-  ButtonColor,
-  ButtonIconPosition,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+import { ButtonColor } from '@dailydotdev/shared/src/components/buttons/Button';
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import { FilterOnboardingV4 } from '@dailydotdev/shared/src/components/onboarding/FilterOnboardingV4';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import useFeedSettings, {
   getFeedSettingsQueryKey,
 } from '@dailydotdev/shared/src/hooks/useFeedSettings';
@@ -36,13 +18,18 @@ import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import {
   useActions,
+  useFeeds,
   useOnboardingAnimation,
   useToastNotification,
 } from '@dailydotdev/shared/src/hooks';
 import { labels } from '@dailydotdev/shared/src/lib';
-import Feed from '@dailydotdev/shared/src/components/Feed';
 import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { PreparingYourFeed } from '@dailydotdev/shared/src/components';
+import {
+  FeedCustomActions,
+  FeedCustomPreview,
+  FeedCustomPreviewControls,
+  PreparingYourFeed,
+} from '@dailydotdev/shared/src/components';
 import {
   PromptOptions,
   usePrompt,
@@ -52,7 +39,6 @@ import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
-import FeedLayout from '../../components/layouts/FeedLayout';
 
 type NewFeedFormProps = {
   name: string;
@@ -73,14 +59,13 @@ const NewFeedPage = (): ReactElement => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { completeAction } = useActions();
-  const { user } = useAuthContext();
+  const { createFeed } = useFeeds();
+  const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
+  const { FeedPageLayoutComponent } = useFeedLayout();
+
+  const { user } = useAuthContext();
   const { feedSettings } = useFeedSettings({ feedId: newFeedId });
-  const seo: NextSeoProps = {
-    title: 'Create custom feed',
-    openGraph: { ...defaultOpenGraph },
-    ...defaultSeo,
-  };
   const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);
   const isPreviewFeedEnabled = feedSettings?.includeTags?.length >= 1;
 
@@ -91,29 +76,6 @@ const NewFeedPage = (): ReactElement => {
     isAnimating,
   } = useOnboardingAnimation();
 
-  const { FeedPageLayoutComponent } = useFeedLayout();
-
-  const { advancedSettings, ...previewFilters } = feedSettings || {};
-
-  const feedProps = {
-    feedName: OtherFeedPage.Preview,
-    feedQueryKey: [
-      RequestKey.FeedPreview,
-      user?.id,
-      RequestKey.FeedPreviewCustom,
-      previewFilters,
-    ],
-    query: PREVIEW_FEED_QUERY,
-    forceCardMode: true,
-    showSearch: false,
-    options: { refetchOnMount: true, cacheTime: 10, keepPreviousData: true },
-    variables: {
-      filters: previewFilters,
-    },
-  };
-
-  const { displayToast } = useToastNotification();
-
   const onValidateAction = () => {
     return !isPreviewFeedEnabled;
   };
@@ -123,43 +85,26 @@ const NewFeedPage = (): ReactElement => {
     onValidateAction,
   });
 
-  const { mutateAsync: onSubmit, data: newFeed } = useMutation(
-    async ({ name }: NewFeedFormProps): Promise<FeedType> => {
-      const result = await request<{ createFeed: FeedType }>(
-        graphqlUrl,
-        CREATE_FEED_MUTATION,
-        {
-          name,
-        },
-      );
+  const {
+    mutateAsync: onSubmit,
+    data: newFeed,
+    isLoading,
+  } = useMutation(
+    async ({ name }: NewFeedFormProps) => {
+      const result = await createFeed({ name });
 
       await request(graphqlUrl, ADD_FILTERS_TO_FEED_MUTATION, {
-        feedId: result.createFeed.id,
+        feedId: result.id,
         filters: {
           includeTags: feedSettings?.includeTags || [],
         },
       });
 
-      return result.createFeed;
+      return result;
     },
     {
       onSuccess: (data) => {
         queryClient.removeQueries(getFeedSettingsQueryKey(user, newFeedId));
-
-        queryClient.setQueryData<FeedList['feedList']>(
-          generateQueryKey(RequestKey.Feeds, user),
-          (current) => {
-            return {
-              ...current,
-              edges: [
-                ...(current?.edges || []),
-                {
-                  node: data,
-                },
-              ],
-            };
-          },
-        );
 
         onAskConfirmation(false);
         onFinishedOnboarding();
@@ -170,17 +115,6 @@ const NewFeedPage = (): ReactElement => {
       },
     },
   );
-
-  const onDiscard = async () => {
-    const shouldDiscard =
-      onValidateAction() || (await showPrompt(discardPrompt));
-
-    if (shouldDiscard) {
-      onAskConfirmation(false);
-
-      router.push('/');
-    }
-  };
 
   useEffect(() => {
     completeAction(ActionType.CustomFeedBeta);
@@ -194,6 +128,12 @@ const NewFeedPage = (): ReactElement => {
       />
     );
   }
+
+  const seo: NextSeoProps = {
+    title: 'Create custom feed',
+    openGraph: { ...defaultOpenGraph },
+    ...defaultSeo,
+  };
 
   return (
     <>
@@ -210,33 +150,24 @@ const NewFeedPage = (): ReactElement => {
               onSubmit({ name });
             }}
           >
-            <div className="tablet:rounded-162 flex h-auto w-full flex-col items-center justify-between gap-4 border-b-2 border-accent-cabbage-default bg-background-subtle p-6 tablet:flex-row tablet:gap-0">
-              <div className="text-center tablet:text-left">
-                <p className="font-bold typo-title3">
-                  Pick the tags you want to include
-                </p>
-              </div>
-              <div className="flex gap-3">
-                <Button
-                  type="button"
-                  size={ButtonSize.Large}
-                  variant={ButtonVariant.Float}
-                  onClick={() => {
-                    onDiscard();
-                  }}
-                >
-                  Discard
-                </Button>
-                <Button
-                  type="submit"
-                  size={ButtonSize.Large}
-                  variant={ButtonVariant.Primary}
-                  disabled={!isPreviewFeedEnabled}
-                >
-                  Save
-                </Button>
-              </div>
-            </div>
+            <FeedCustomActions
+              isDisabled={!isPreviewFeedEnabled}
+              isLoading={isLoading}
+              onDiscard={async () => {
+                const shouldDiscard =
+                  onValidateAction() || (await showPrompt(discardPrompt));
+
+                if (shouldDiscard) {
+                  onAskConfirmation(false);
+
+                  router.push('/');
+                }
+              }}
+            >
+              <p className="font-bold typo-title3">
+                Pick the tags you want to include
+              </p>
+            </FeedCustomActions>
             <TextField
               className={{
                 container: 'mx-auto mt-10 w-full px-4 tablet:max-w-96',
@@ -256,35 +187,15 @@ const NewFeedPage = (): ReactElement => {
               shouldFilterLocally
               feedId={newFeedId}
             />
-            <div className="mt-10 flex items-center justify-center gap-10 text-text-quaternary typo-callout">
-              <div className="h-px flex-1 bg-border-subtlest-tertiary" />
-              <Button
-                variant={ButtonVariant.Float}
-                disabled={!isPreviewFeedEnabled}
-                icon={
-                  <ArrowIcon
-                    className={classNames(
-                      !isPreviewFeedVisible && 'rotate-180',
-                    )}
-                  />
-                }
-                iconPosition={ButtonIconPosition.Right}
-                onClick={() => {
-                  setPreviewFeedVisible((current) => !current);
-                }}
-              >
-                {isPreviewFeedEnabled
-                  ? `${isPreviewFeedVisible ? 'Hide' : 'Show'} feed preview`
-                  : `Select tags to show feed preview`}
-              </Button>
-              <div className="h-px flex-1 bg-border-subtlest-tertiary" />
-            </div>
+            <FeedCustomPreviewControls
+              isOpen={isPreviewFeedVisible}
+              isDisabled={!isPreviewFeedEnabled}
+              onClick={setPreviewFeedVisible}
+            />
           </div>
         </LayoutHeader>
         {isPreviewFeedEnabled && isPreviewFeedVisible && (
-          <FeedLayout>
-            <Feed {...feedProps} />
-          </FeedLayout>
+          <FeedCustomPreview feedId={newFeedId} />
         )}
       </FeedPageLayoutComponent>
     </>

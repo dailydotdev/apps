@@ -1,8 +1,6 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
-import request from 'graphql-request';
 import { useRouter } from 'next/router';
 import SettingsContext from '../../contexts/SettingsContext';
 import {
@@ -30,7 +28,7 @@ import { getFeedName } from '../../lib/feed';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import Logo, { LogoPosition } from '../Logo';
-import { useActions, useViewSize, ViewSize } from '../../hooks';
+import { useActions, useFeeds, useViewSize, ViewSize } from '../../hooks';
 import {
   Button,
   ButtonIconPosition,
@@ -51,9 +49,6 @@ import { CreatePostButton } from '../post/write';
 import useActiveNav from '../../hooks/useActiveNav';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
-import { RequestKey, StaleTime, generateQueryKey } from '../../lib/query';
-import { graphqlUrl } from '../../lib/config';
-import { FEED_LIST_QUERY, FeedList } from '../../graphql/feed';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { cloudinary } from '../../lib/image';
 import { ActionType } from '../../graphql/actions';
@@ -111,18 +106,7 @@ export default function Sidebar({
     [sidebarExpanded, sidebarRendered, activePage],
   );
 
-  const { data: userFeeds } = useQuery(
-    generateQueryKey(RequestKey.Feeds, user),
-    async () => {
-      const result = await request<FeedList>(graphqlUrl, FEED_LIST_QUERY);
-
-      return result.feedList;
-    },
-    {
-      enabled: !!user,
-      staleTime: StaleTime.OneHour,
-    },
-  );
+  const { feeds } = useFeeds();
 
   if (!loadedSettings) {
     return <></>;
@@ -289,7 +273,7 @@ export default function Sidebar({
                 ) : undefined
               }
             />
-            {userFeeds?.edges?.map((feed) => {
+            {feeds?.edges?.map((feed) => {
               return (
                 <MyFeedButton
                   {...defaultRenderSectionProps}

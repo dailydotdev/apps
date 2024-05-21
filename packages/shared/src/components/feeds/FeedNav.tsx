@@ -1,12 +1,10 @@
 import classNames from 'classnames';
 import React, { ReactElement, useContext, useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { useQuery } from '@tanstack/react-query';
-import request from 'graphql-request';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useFeeds, useViewSize, ViewSize } from '../../hooks';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import {
   algorithmsList,
@@ -23,10 +21,6 @@ import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
-import { FEED_LIST_QUERY, FeedList } from '../../graphql/feed';
-import { graphqlUrl } from '../../lib/config';
-import { RequestKey, StaleTime, generateQueryKey } from '../../lib/query';
-import { useAuthContext } from '../../contexts/AuthContext';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -40,7 +34,6 @@ enum FeedNavTab {
 
 function FeedNav(): ReactElement {
   const router = useRouter();
-  const { user } = useAuthContext();
   const { feedName } = useActiveFeedNameContext();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isSortableFeed } = useFeedName({ feedName });
@@ -55,21 +48,10 @@ function FeedNav(): ReactElement {
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
 
-  const { data: userFeeds } = useQuery(
-    generateQueryKey(RequestKey.Feeds, user),
-    async () => {
-      const result = await request<FeedList>(graphqlUrl, FEED_LIST_QUERY);
-
-      return result.feedList;
-    },
-    {
-      enabled: !!user,
-      staleTime: StaleTime.OneHour,
-    },
-  );
+  const { feeds } = useFeeds();
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
-    const customFeeds = userFeeds?.edges?.reduce((acc, { node: feed }) => {
+    const customFeeds = feeds?.edges?.reduce((acc, { node: feed }) => {
       const feedPath = `${webappUrl}feeds/${feed.id}`;
       const isEditingFeed =
         router.query.slugOrId === feed.id && router.pathname.endsWith('/edit');
@@ -90,7 +72,7 @@ function FeedNav(): ReactElement {
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
-  }, [userFeeds, router.pathname, router.query.slugOrId]);
+  }, [feeds, router.pathname, router.query.slugOrId]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
