@@ -142,7 +142,7 @@ const EditFeedPage = (): ReactElement => {
     }
 
     if (!feed) {
-      router.push('/feeds/new');
+      router.push(`${webappUrl}feeds/new`);
     }
   }, [shouldRedirectToNewFeed, feed, router]);
 

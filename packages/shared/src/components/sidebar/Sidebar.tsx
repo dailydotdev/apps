@@ -240,7 +240,7 @@ export default function Sidebar({
                 {...defaultRenderSectionProps}
                 isButton={isNavButtons}
                 title="My feed"
-                path="/my-feed"
+                path="/"
                 alert={
                   (alerts.filter || alerts.myFeed) &&
                   !sidebarExpanded && (
@@ -256,10 +256,9 @@ export default function Sidebar({
             )}
             <MyFeedButton
               {...defaultRenderSectionProps}
-              isButton={isNavButtons}
+              isButton={false}
               title="New feed"
-              path="/feeds/new"
-              onNavTabClick={onNavTabClick}
+              path={`${webappUrl}feeds/new`}
               icon={
                 <div className="rounded-6 bg-background-subtle">
                   <PlusIcon />
@@ -278,10 +277,9 @@ export default function Sidebar({
                 <MyFeedButton
                   {...defaultRenderSectionProps}
                   key={feed.node.id}
-                  isButton={isNavButtons}
+                  isButton={false}
                   title={feed.node.flags.name || `Feed ${feed.node.id}`}
                   path={`${webappUrl}feeds/${feed.node.id}`}
-                  onNavTabClick={onNavTabClick}
                   icon={<StarIcon secondary />}
                 />
               );
