@@ -107,7 +107,7 @@ const NewFeedPage = (): ReactElement => {
     query: PREVIEW_FEED_QUERY,
     forceCardMode: true,
     showSearch: false,
-    options: { refetchOnMount: true, cacheTime: 10 },
+    options: { refetchOnMount: true, cacheTime: 10, keepPreviousData: true },
     variables: {
       filters: previewFilters,
     },
