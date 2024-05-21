@@ -48,9 +48,15 @@ export default function useFeedSettings({
   const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>(
     filtersKey,
     () =>
-      request(graphqlUrl, FEED_SETTINGS_QUERY, {
-        feedId,
-      }),
+      request(
+        graphqlUrl,
+        FEED_SETTINGS_QUERY,
+        feedId
+          ? {
+              feedId,
+            }
+          : undefined,
+      ),
     {
       ...disabledRefetch,
       enabled: enabled && !!user,
