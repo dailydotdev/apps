@@ -169,7 +169,7 @@ export default function MainFeedLayout({
     > = {
       [SharedFeedPage.Custom]: {
         variables: {
-          feedId: router.query.slug as string,
+          feedId: router.query.slugOrId as string,
         },
       },
     };

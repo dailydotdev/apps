@@ -164,7 +164,7 @@ const NewFeedPage = (): ReactElement => {
 
         onAskConfirmation(false);
         onFinishedOnboarding();
-        postOnboardingRedirect(`${webappUrl}feeds/${data.slug}`);
+        postOnboardingRedirect(`${webappUrl}feeds/${data.id}`);
       },
       onError: () => {
         displayToast(labels.error.generic);

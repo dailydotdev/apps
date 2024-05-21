@@ -184,7 +184,7 @@ export const getFeedName = (
   if (feed === '[userId]posts') {
     return OtherFeedPage.UserPosts;
   }
-  if (['feedsnew', 'feeds[slug]', 'feeds[slug]edit'].includes(feed)) {
+  if (feed.startsWith('feeds')) {
     return SharedFeedPage.Custom;
   }
 

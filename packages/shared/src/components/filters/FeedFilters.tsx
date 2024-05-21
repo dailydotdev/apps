@@ -78,7 +78,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
             title: feed.flags?.name || `Feed ${feed.id}`,
             options: {
               icon: <StarIcon />,
-              href: `${webappUrl}feeds/${feed.slug}/edit`,
+              href: `${webappUrl}feeds/${feed.id}/edit`,
               onClick: (event: MouseEvent<Element>) => {
                 const { onRequestClose } = props;
 

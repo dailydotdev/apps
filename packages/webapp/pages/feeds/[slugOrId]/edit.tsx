@@ -69,7 +69,7 @@ const EditFeedPage = (): ReactElement => {
   const router = useRouter();
   const { user } = useAuthContext();
   const { showPrompt } = usePrompt();
-  const feedSlug = router.query.slug as string;
+  const feedSlugOrId = router.query.slugOrId as string;
 
   const { data: userFeeds } = useQuery(
     generateQueryKey(RequestKey.Feeds, user),
@@ -84,8 +84,11 @@ const EditFeedPage = (): ReactElement => {
     },
   );
   const feed = useMemo(() => {
-    return userFeeds?.edges.find((edge) => edge.node.slug === feedSlug)?.node;
-  }, [userFeeds, feedSlug]);
+    return userFeeds?.edges.find(
+      (edge) =>
+        edge.node.slug === feedSlugOrId || edge.node.id === feedSlugOrId,
+    )?.node;
+  }, [userFeeds, feedSlugOrId]);
 
   const feedId = feed?.id;
 
@@ -176,7 +179,7 @@ const EditFeedPage = (): ReactElement => {
         );
 
         onAskConfirmation(false);
-        router.replace(`${webappUrl}feeds/${data.slug}`);
+        router.replace(`${webappUrl}feeds/${data.id}`);
       },
       onError: () => {
         displayToast(labels.error.generic);
@@ -239,7 +242,7 @@ const EditFeedPage = (): ReactElement => {
   };
 
   const shouldRedirectToNewFeed =
-    userFeeds && feedSlug && deleteStatus === 'idle';
+    userFeeds && feedSlugOrId && deleteStatus === 'idle';
 
   useEffect(() => {
     if (!shouldRedirectToNewFeed) {

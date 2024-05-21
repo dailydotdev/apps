@@ -35,8 +35,8 @@ function FeedEmptyScreen(): ReactElement {
           onClick={() => {
             const feedName = getFeedName(router.pathname);
 
-            if (feedName === SharedFeedPage.Custom && router.query.slug) {
-              router.replace(`${webappUrl}feeds/${router.query.slug}/edit`);
+            if (feedName === SharedFeedPage.Custom && router.query.slugOrId) {
+              router.replace(`${webappUrl}feeds/${router.query.slugOrId}/edit`);
             } else {
               openModal({ type: LazyModal.FeedFilters });
             }
