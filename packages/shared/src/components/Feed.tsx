@@ -72,7 +72,7 @@ export interface FeedProps<T>
   allowFetchMore?: boolean;
   pageSize?: number;
   isHorizontal?: boolean;
-  feedContainerRef?: React.RefObject<HTMLDivElement>;
+  feedContainerRef?: React.Ref<HTMLDivElement>;
 }
 
 interface RankVariables {
