@@ -113,6 +113,7 @@ const EditFeedPage = (): ReactElement => {
       RequestKey.FeedPreview,
       user?.id,
       RequestKey.FeedPreviewCustom,
+      previewFilters,
     ],
     query: PREVIEW_FEED_QUERY,
     forceCardMode: true,
