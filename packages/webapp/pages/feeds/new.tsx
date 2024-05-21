@@ -91,8 +91,7 @@ const NewFeedPage = (): ReactElement => {
     isAnimating,
   } = useOnboardingAnimation();
 
-  const { shouldUseMobileFeedLayout, FeedPageLayoutComponent } =
-    useFeedLayout();
+  const { FeedPageLayoutComponent } = useFeedLayout();
 
   const { advancedSettings, ...previewFilters } = feedSettings || {};
 
@@ -284,13 +283,7 @@ const NewFeedPage = (): ReactElement => {
         </LayoutHeader>
         {isPreviewFeedEnabled && isPreviewFeedVisible && (
           <FeedLayout>
-            <Feed
-              {...feedProps}
-              className={classNames(
-                shouldUseMobileFeedLayout && 'laptop:px-6',
-                'px-6 laptop:px-16',
-              )}
-            />
+            <Feed {...feedProps} />
           </FeedLayout>
         )}
       </FeedPageLayoutComponent>
