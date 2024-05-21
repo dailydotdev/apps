@@ -129,6 +129,7 @@ export default function AlertPointer({
             onClick={onClose}
             size={ButtonSize.XSmall}
             className="absolute right-2 top-2"
+            type="button"
           />
         </AlertPointerMessage>
       </AlertPointerContainer>
