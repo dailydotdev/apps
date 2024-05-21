@@ -22,9 +22,7 @@ const feature = {
   bookmarkOnCard: new Feature('bookmark_on_card', false),
   onboardingVisual: new Feature('onboarding_visual', {
     showCompanies: true,
-    poster: cloudinary.onboarding.video.poster,
-    webm: cloudinary.onboarding.video.webm,
-    mp4: cloudinary.onboarding.video.mp4,
+    image: cloudinary.onboarding.default,
   }),
   forceRefresh: new Feature('force_refresh', false),
   feedAdSpot: new Feature('feed_ad_spot', 0),
@@ -44,7 +42,6 @@ const feature = {
     ExperienceLevelExperiment.Control,
   ),
   featureTheme: new Feature('feature_theme', {}),
-  searchTags: new Feature('search_tags', false),
   similarPosts: new Feature('similar_posts', false),
 };
 
