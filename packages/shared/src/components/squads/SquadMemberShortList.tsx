@@ -12,6 +12,7 @@ export interface SquadMemberShortListProps {
   squad: Squad;
   members: SourceMember[];
   className?: string;
+  shouldUseListModeV1?: boolean;
 }
 
 function SquadMemberShortList({

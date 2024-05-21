@@ -92,6 +92,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   canSubmitArticle?: boolean;
   password?: string;
   acquisitionChannel?: string;
+  experienceLevel?: keyof typeof UserExperienceLevel;
 }
 
 interface BaseError {

@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import Script from 'next/script';
 import { isProduction } from '../../lib/constants';
+import { UserExperienceLevel } from '../../lib/user';
 
 export const FB_PIXEL_ID = '519268979315924';
 export const GA_TRACKING_ID = 'AW-619408403';
@@ -121,13 +122,22 @@ export const TiktokTracking = (): ReactElement => {
   );
 };
 
-export const trackAnalyticsSignUp = (): void => {
+interface TrackAnalyticsSignUpProps {
+  experienceLevel: keyof typeof UserExperienceLevel;
+}
+
+export const trackAnalyticsSignUp = ({
+  experienceLevel,
+}: TrackAnalyticsSignUpProps): void => {
   if (typeof globalThis.gtag === 'function') {
     globalThis.gtag('event', 'signup');
   }
 
   if (typeof globalThis.fbq === 'function') {
     globalThis.fbq('track', 'signup');
+    if (experienceLevel) {
+      globalThis.fbq('track', `signup_${experienceLevel}`);
+    }
   }
 
   if (typeof globalThis.twq === 'function') {

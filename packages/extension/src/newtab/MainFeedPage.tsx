@@ -46,7 +46,7 @@ export default function MainFeedPage({
   const [feedName, setFeedName] = useState<string>('default');
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
-  const { shouldUseMobileFeedLayout } = useFeedLayout({ feedRelated: false });
+  const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
   useCompanionSettings();
   const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
@@ -135,7 +135,7 @@ export default function MainFeedPage({
             }
             shortcuts={
               <ShortcutLinks
-                shouldUseMobileFeedLayout={shouldUseMobileFeedLayout}
+                shouldUseListFeedLayout={shouldUseListFeedLayout}
               />
             }
           />

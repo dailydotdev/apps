@@ -147,7 +147,7 @@ export default function MainFeedLayout({
   const feedVersion = useFeature(feature.feedVersion);
   const { isUpvoted, isPopular, isSortableFeed } = useFeedName({ feedName });
   const {
-    shouldUseMobileFeedLayout,
+    shouldUseListFeedLayout,
     shouldUseCommentFeedLayout,
     FeedPageLayoutComponent,
   } = useFeedLayout();
@@ -284,7 +284,7 @@ export default function MainFeedLayout({
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    shouldUseMobileFeedLayout,
+    shouldUseListFeedLayout,
     isSearchOn,
     searchQuery,
     query.query,
@@ -302,7 +302,7 @@ export default function MainFeedLayout({
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   const disableTopPadding =
-    isFinder || shouldUseMobileFeedLayout || shouldUseCommentFeedLayout;
+    isFinder || shouldUseListFeedLayout || shouldUseCommentFeedLayout;
 
   return (
     <FeedPageLayoutComponent
@@ -342,7 +342,7 @@ export default function MainFeedLayout({
           <Feed
             {...feedProps}
             className={classNames(
-              shouldUseMobileFeedLayout && !isFinder && 'laptop:px-6',
+              shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
               showForcedTagSelection && 'px-6 laptop:px-16',
             )}
           />

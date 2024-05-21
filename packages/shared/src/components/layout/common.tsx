@@ -61,7 +61,7 @@ export const SearchControlHeader = ({
   const { openModal } = useLazyModal();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseListFeedLayout } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading } = useReadingStreak();
@@ -77,9 +77,7 @@ export const SearchControlHeader = ({
     className: { label: 'hidden', chevron: 'hidden', button: '!px-1' },
     dynamicMenuWidth: true,
     shouldIndicateSelected: true,
-    buttonSize: shouldUseMobileFeedLayout
-      ? ButtonSize.Small
-      : ButtonSize.Medium,
+    buttonSize: shouldUseListFeedLayout ? ButtonSize.Small : ButtonSize.Medium,
     iconOnly: true,
     buttonVariant: isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary,
   };
