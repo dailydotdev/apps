@@ -44,7 +44,6 @@ const feature = {
     ExperienceLevelExperiment.Control,
   ),
   featureTheme: new Feature('feature_theme', {}),
-  searchTags: new Feature('search_tags', false),
   similarPosts: new Feature('similar_posts', false),
 };
 
