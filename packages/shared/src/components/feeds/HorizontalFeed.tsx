@@ -27,7 +27,9 @@ export default function HorizontalFeed<T>({
   title,
   ...props
 }: HorizontalFeedProps<T>): ReactElement {
-  const feedContainerRef = useRef<HTMLDivElement>(null);
+  const [feedContainerRef, setFeedContainerRef] =
+    useState<HTMLDivElement>(null);
+
   const [feedScrolledPosition, setFeedScrolledPosition] = useState(0);
   const currentSettings = useContext(FeedContext);
   const { spaciness, insaneMode } = useContext(SettingsContext);
@@ -35,7 +37,7 @@ export default function HorizontalFeed<T>({
   const { isListModeV1 } = useFeedLayout();
 
   useEffect(() => {
-    const element = feedContainerRef.current;
+    const element = feedContainerRef;
     if (!element) {
       return null;
     }
@@ -49,12 +51,12 @@ export default function HorizontalFeed<T>({
     return () => {
       element.removeEventListener('scrollend', onScroll);
     };
-  }, []);
+  }, [feedContainerRef]);
 
   const onClickNext = () => {
-    if (feedContainerRef.current) {
-      const currentPosition = feedContainerRef.current.scrollLeft;
-      feedContainerRef.current.scrollLeft = Math.max(
+    if (feedContainerRef) {
+      const currentPosition = feedContainerRef.scrollLeft;
+      feedContainerRef.scrollLeft = Math.max(
         0,
         currentPosition + numCards * 320,
       );
@@ -62,10 +64,10 @@ export default function HorizontalFeed<T>({
   };
 
   const onClickPrevious = () => {
-    if (feedContainerRef.current) {
-      const currentPosition = feedContainerRef.current.scrollLeft;
+    if (feedContainerRef) {
+      const currentPosition = feedContainerRef.scrollLeft;
       const newPosition = Math.max(0, currentPosition - numCards * 320);
-      feedContainerRef.current.scrollLeft = newPosition < 150 ? 0 : newPosition;
+      feedContainerRef.scrollLeft = newPosition < 150 ? 0 : newPosition;
     }
   };
 
@@ -105,7 +107,7 @@ export default function HorizontalFeed<T>({
         'mx-4 mb-10',
         insaneMode && isListModeV1 && 'laptop:mx-auto',
       )}
-      feedContainerRef={feedContainerRef}
+      feedContainerRef={(ref) => setFeedContainerRef(ref)}
     />
   );
 }

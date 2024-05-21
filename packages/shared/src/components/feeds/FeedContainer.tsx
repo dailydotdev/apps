@@ -34,7 +34,7 @@ export interface FeedContainerProps {
   shortcuts?: ReactNode;
   actionButtons?: ReactNode;
   isHorizontal?: boolean;
-  feedContainerRef?: React.RefObject<HTMLDivElement>;
+  feedContainerRef?: React.Ref<HTMLDivElement>;
 }
 
 const listGaps = {
