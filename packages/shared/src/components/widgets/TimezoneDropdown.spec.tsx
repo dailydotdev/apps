@@ -1,7 +1,4 @@
 import React from 'react';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { mockSettingsFlow } from '@dailydotdev/shared/__tests__/fixture/auth';
 import {
   act,
   fireEvent,
@@ -9,12 +6,14 @@ import {
   RenderResult,
   screen,
 } from '@testing-library/react';
-import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { UPDATE_USER_PROFILE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
-import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
-import { getTimeZoneOptions } from '@dailydotdev/shared/src/lib/timezones';
-import ProfileOthersPage from '../pages/account/others';
+import { TimezoneDropdown } from './TimezoneDropdown';
+import { LoggedUser } from '../../lib/user';
+import loggedUser from '../../../__tests__/fixture/loggedUser';
+import { AuthContextProvider } from '../../contexts/AuthContext';
+import { getTimeZoneOptions } from '../../lib/timezones';
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
+import { UPDATE_USER_PROFILE_MUTATION } from '../../graphql/users';
 
 jest.mock('next/router', () => ({
   useRouter() {
@@ -41,7 +40,6 @@ const updateUser = jest.fn();
 
 const renderComponent = (): RenderResult => {
   const client = new QueryClient();
-  mockSettingsFlow();
 
   return render(
     <QueryClientProvider client={client}>
@@ -51,7 +49,10 @@ const renderComponent = (): RenderResult => {
         getRedirectUri={jest.fn()}
         tokenRefreshed
       >
-        <ProfileOthersPage />
+        <TimezoneDropdown
+          userTimeZone="Europe/Amsterdam"
+          setUserTimeZone={jest.fn()}
+        />
       </AuthContextProvider>
     </QueryClientProvider>,
   );
@@ -76,27 +77,6 @@ it('should change user timezone', async () => {
     },
   });
   fireEvent.click(timezone);
-  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
-  expect(mutationCalled).toBeTruthy();
-});
-
-it('should change user email subscription', async () => {
-  let mutationCalled = false;
-  const acceptedMarketing = false;
-  mockGraphQL({
-    request: {
-      query: UPDATE_USER_PROFILE_MUTATION,
-      variables: { data: { acceptedMarketing } },
-    },
-    result: () => {
-      mutationCalled = true;
-      return { data: { id: '' } };
-    },
-  });
-  renderComponent();
-  const text = 'Subscribe to the Community Newsletter';
-  const subscription = await screen.findByText(text);
-  await subscription.click();
   await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
   expect(mutationCalled).toBeTruthy();
 });

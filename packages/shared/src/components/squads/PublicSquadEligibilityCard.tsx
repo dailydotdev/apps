@@ -1,7 +1,8 @@
 import React, { ReactElement, useCallback, useMemo } from 'react';
-import { useActions } from '../../hooks';
+import { useActions, useFeedLayout } from '../../hooks';
 import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
+import { Card } from '../cards/Card';
 import { Card as CardV1 } from '../cards/v1/Card';
 import { EarthIcon, MiniCloseIcon, TimerIcon } from '../icons';
 import { ProgressBar } from '../fields/ProgressBar';
@@ -22,6 +23,7 @@ const PublicSquadEligibilityCard = ({
   inReview,
   squadId,
 }: Props): ReactElement => {
+  const { shouldUseListFeedLayout } = useFeedLayout();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const { openModal } = useLazyModal();
   const hideCard = useMemo(
@@ -46,7 +48,7 @@ const PublicSquadEligibilityCard = ({
   const isEligible = postsCount >= MIN_POSTS;
   const effectivePostsCount = isEligible ? MIN_POSTS : postsCount;
 
-  const CardComponent = CardV1;
+  const CardComponent = shouldUseListFeedLayout ? CardV1 : Card;
 
   return (
     <CardComponent
