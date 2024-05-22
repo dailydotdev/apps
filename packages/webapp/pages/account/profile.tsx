@@ -40,6 +40,8 @@ import ExperienceLevelDropdown from '@dailydotdev/shared/src/components/profile/
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { ExperienceLevelExperiment } from '@dailydotdev/shared/src/lib/featureValues';
+import { TimezoneDropdown } from '@dailydotdev/shared/src/components/widgets/TimezoneDropdown';
+import { getUserInitialTimezone } from '@dailydotdev/shared/src/lib/timezones';
 import { AccountTextField } from '../../components/layouts/AccountLayout/common';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -61,6 +63,12 @@ const AccountProfilePage = (): ReactElement => {
   const experienceLevelVersion = useFeature(feature.experienceLevel);
   const showExperienceLevel =
     experienceLevelVersion === ExperienceLevelExperiment.V1;
+  const [userTimeZone, setUserTimeZone] = useState<string>(
+    getUserInitialTimezone({
+      userTimezone: user?.timezone,
+      update: true,
+    }),
+  );
 
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -224,6 +232,12 @@ const AccountProfilePage = (): ReactElement => {
           inputId="title"
           name="title"
           value={user.title}
+        />
+      </AccountContentSection>
+      <AccountContentSection title="Your timezone">
+        <TimezoneDropdown
+          userTimeZone={userTimeZone}
+          setUserTimeZone={setUserTimeZone}
         />
       </AccountContentSection>
       <AccountContentSection
