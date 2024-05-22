@@ -86,7 +86,9 @@ export function FilterOnboardingV4({
     RequestKey.Tags,
     undefined,
     'onboardingTags',
+    feedId,
   );
+
   const { data: onboardingTags, isLoading } = useQuery(
     onboardingTagsQueryKey,
     async () => {

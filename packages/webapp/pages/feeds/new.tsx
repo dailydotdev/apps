@@ -44,8 +44,6 @@ type NewFeedFormProps = {
   name: string;
 };
 
-const newFeedId = 'new';
-
 const discardPrompt: PromptOptions = {
   title: labels.feed.prompt.discard.title,
   description: labels.feed.prompt.discard.description,
@@ -56,6 +54,7 @@ const discardPrompt: PromptOptions = {
 };
 
 const NewFeedPage = (): ReactElement => {
+  const [newFeedId] = useState(() => Date.now().toString());
   const queryClient = useQueryClient();
   const router = useRouter();
   const { completeAction } = useActions();
