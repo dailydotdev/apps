@@ -23,7 +23,7 @@ const PublicSquadEligibilityCard = ({
   inReview,
   squadId,
 }: Props): ReactElement => {
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseListFeedLayout } = useFeedLayout();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const { openModal } = useLazyModal();
   const hideCard = useMemo(
@@ -48,7 +48,7 @@ const PublicSquadEligibilityCard = ({
   const isEligible = postsCount >= MIN_POSTS;
   const effectivePostsCount = isEligible ? MIN_POSTS : postsCount;
 
-  const CardComponent = shouldUseMobileFeedLayout ? CardV1 : Card;
+  const CardComponent = shouldUseListFeedLayout ? CardV1 : Card;
 
   return (
     <CardComponent
