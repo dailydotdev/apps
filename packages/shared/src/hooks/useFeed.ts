@@ -29,7 +29,7 @@ interface FeedItemBase<T extends FeedItemType> {
   type: T;
 }
 
-interface AdItem extends FeedItemBase<FeedItemType.RegularAd> {
+interface AdItem extends FeedItemBase<FeedItemType.Ad> {
   ad: Ad;
 }
 
@@ -37,7 +37,7 @@ interface MarketingCtaItem extends FeedItemBase<FeedItemType.MarketingCta> {
   marketingCta: MarketingCta;
 }
 
-export interface PostItem extends FeedItemBase<FeedItemType.RegularPost> {
+export interface PostItem extends FeedItemBase<FeedItemType.Post> {
   post: Post;
   page: number;
   index: number;
@@ -175,7 +175,7 @@ export default function useFeed<T>(
       newItems = feedQuery.data.pages.flatMap(
         ({ page }, pageIndex): FeedItem[] => {
           const posts: FeedItem[] = page.edges.map(({ node }, index) => ({
-            type: FeedItemType.RegularPost,
+            type: FeedItemType.Post,
             post: node,
             page: pageIndex,
             index,
@@ -195,7 +195,7 @@ export default function useFeed<T>(
           } else if (isAdsQueryEnabled) {
             if (adsQuery.data?.pages[pageIndex]) {
               posts.splice(adSpot, 0, {
-                type: FeedItemType.RegularAd,
+                type: FeedItemType.Ad,
                 ad: adsQuery.data?.pages[pageIndex],
               });
             } else {

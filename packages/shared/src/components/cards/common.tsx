@@ -71,8 +71,8 @@ export const generateTitleClamp = ({
 };
 
 export enum FeedItemType {
-  RegularPost = 'post',
-  RegularAd = 'ad',
+  'Post' = 'post',
+  'Ad' = 'ad',
   Placeholder = 'placeholder',
   UserAcquisition = 'userAcquisition',
   PublicSquadEligibility = 'publicSquadEligibility',

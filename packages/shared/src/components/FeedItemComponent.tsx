@@ -180,7 +180,7 @@ export default function FeedItemComponent({
   );
 
   switch (item.type) {
-    case FeedItemType.RegularPost: {
+    case FeedItemType.Post: {
       if (
         !!item.post.pinnedAt &&
         item.post.source?.currentMember?.flags?.collapsePinnedPosts
@@ -251,7 +251,7 @@ export default function FeedItemComponent({
         </PostTag>
       );
     }
-    case FeedItemType.RegularAd:
+    case FeedItemType.Ad:
       return (
         <AdTag
           ref={inViewRef}
