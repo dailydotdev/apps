@@ -145,7 +145,9 @@ export default function MainFeedLayout({
     hasUser: !!user,
   });
   const feedVersion = useFeature(feature.feedVersion);
-  const { isUpvoted, isPopular, isSortableFeed } = useFeedName({ feedName });
+  const { isUpvoted, isPopular, isSortableFeed, isCustomFeed } = useFeedName({
+    feedName,
+  });
   const {
     shouldUseListFeedLayout,
     shouldUseCommentFeedLayout,
@@ -212,7 +214,8 @@ export default function MainFeedLayout({
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
-    const feedWithActions = isUpvoted || isPopular || isSortableFeed;
+    const feedWithActions =
+      isUpvoted || isPopular || isSortableFeed || isCustomFeed;
     // in v1 search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
     if (isSearchOn && !searchQuery) {

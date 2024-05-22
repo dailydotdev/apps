@@ -9,13 +9,13 @@ interface UseFeedName {
   isUpvoted: boolean;
   isPopular: boolean;
   isDiscussed: boolean;
+  isCustomFeed: boolean;
   isSortableFeed: boolean;
 }
 
 const sortableFeeds: AllFeedPages[] = [
   SharedFeedPage.Popular,
   SharedFeedPage.MyFeed,
-  SharedFeedPage.Custom,
 ];
 
 export const useFeedName = ({ feedName }: UseFeedNameProps): UseFeedName => {
@@ -23,6 +23,7 @@ export const useFeedName = ({ feedName }: UseFeedNameProps): UseFeedName => {
     isUpvoted: feedName === SharedFeedPage.Upvoted,
     isPopular: feedName === SharedFeedPage.Popular,
     isDiscussed: feedName === SharedFeedPage.Discussed,
+    isCustomFeed: feedName === SharedFeedPage.Custom,
     isSortableFeed: sortableFeeds.includes(feedName),
   };
 };
