@@ -12,7 +12,7 @@ import useFeedSettings, {
 import { useExitConfirmation } from '@dailydotdev/shared/src/hooks/useExitConfirmation';
 import { useRouter } from 'next/router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import request from 'graphql-request';
+import request, { ClientError } from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
@@ -109,7 +109,17 @@ const NewFeedPage = (): ReactElement => {
         onFinishedOnboarding();
         postOnboardingRedirect(`${webappUrl}feeds/${data.id}`);
       },
-      onError: () => {
+      onError: (error) => {
+        if (
+          (error as ClientError)?.response?.errors?.some(
+            (item) => item.message === labels.feed.error.feedLimit.api,
+          )
+        ) {
+          displayToast(labels.feed.error.feedLimit.client);
+
+          return;
+        }
+
         displayToast(labels.error.generic);
       },
     },

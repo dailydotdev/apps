@@ -50,5 +50,11 @@ export const labels = {
         okButton: 'Yes, delete feed',
       },
     },
+    error: {
+      feedLimit: {
+        api: 'You have reached maximum number of feeds for your user',
+        client: "Too many feeds, don't you think?",
+      },
+    },
   },
 };
