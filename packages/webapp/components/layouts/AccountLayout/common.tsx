@@ -1,7 +1,6 @@
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import {
   LockIcon,
-  SettingsIcon,
   BellIcon,
   InviteIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -40,7 +39,6 @@ export enum AccountPage {
   Profile = 'profile',
   Security = 'security',
   Notifications = 'notifications',
-  OtherSettings = 'others',
   InviteFriends = 'invite',
 }
 
@@ -117,16 +115,6 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
     href: '/invite',
     getIcon: ({ isActive }) => (
       <InviteIcon
-        secondary={isActive}
-        className={!isActive && 'text-text-secondary'}
-      />
-    ),
-  },
-  others: {
-    title: 'Other settings',
-    href: '/others',
-    getIcon: ({ isActive }) => (
-      <SettingsIcon
         secondary={isActive}
         className={!isActive && 'text-text-secondary'}
       />
