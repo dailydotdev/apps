@@ -4,6 +4,7 @@ import {
   useMutation,
 } from '@tanstack/react-query';
 import { subDays } from 'date-fns';
+import { useMemo } from 'react';
 import { useToastNotification } from '../useToastNotification';
 import {
   getPublicSquadRequests,
@@ -70,32 +71,31 @@ export const usePublicSquadRequests = ({
       },
     });
 
+  const edges = requests?.pages[requests?.pages?.length - 1]?.edges;
+  const latestRequest = edges?.[edges?.length - 1]?.node;
+
+  const status = useMemo(() => {
+    if (!latestRequest) {
+      return SquadStatus.InProgress;
+    }
+
+    if (latestRequest.status === PublicSquadRequestStatus.Rejected) {
+      const fourteenDaysAgo = subDays(new Date(), 14);
+      const requestDate = new Date(latestRequest.createdAt);
+      return fourteenDaysAgo < requestDate
+        ? SquadStatus.Rejected
+        : SquadStatus.InProgress;
+    }
+
+    return remoteStatusMap[latestRequest.status];
+  }, [latestRequest]);
+
   return {
     submitForReview,
     isSubmitLoading,
     requests,
     isFetched: isFetched && !!requests,
-    get latestRequest() {
-      const edges = requests?.pages[requests?.pages?.length - 1]?.edges;
-
-      return edges?.[edges?.length - 1]?.node;
-    },
-    get status() {
-      const request = this.latestRequest;
-
-      if (!request) {
-        return SquadStatus.InProgress;
-      }
-
-      if (request.status === PublicSquadRequestStatus.Rejected) {
-        const fourteenDaysAgo = subDays(new Date(), 14);
-        const requestDate = new Date(request.createdAt);
-        return fourteenDaysAgo < requestDate
-          ? SquadStatus.Rejected
-          : SquadStatus.InProgress;
-      }
-
-      return remoteStatusMap[request.status];
-    },
+    latestRequest,
+    status,
   };
 };
