@@ -110,6 +110,7 @@ const getBootMock = (bootMock: BootCacheData): Boot => ({
   ...bootMock,
   accessToken: { token: '1', expiresIn: '1' },
   visit: { sessionId: '1', visitId: '1' },
+  feeds: [],
 });
 
 const trackEvent = jest.fn();
