@@ -166,9 +166,9 @@ const AccountNotificationsPage = (): ReactElement => {
 
     if (sendType === SendType.Off) {
       unsubscribePersonalizedDigest();
+    } else {
+      subscribePersonalizedDigest({ sendType });
     }
-
-    subscribePersonalizedDigest({ sendType });
   };
 
   const setCustomTime = (
