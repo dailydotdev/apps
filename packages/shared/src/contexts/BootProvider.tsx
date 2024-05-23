@@ -24,6 +24,7 @@ import { AnalyticsContextProvider } from './AnalyticsContext';
 import { GrowthBookProvider } from '../components/GrowthBookProvider';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
 import { checkIsExtension } from '../lib/func';
+import { FeedList } from '../graphql/feed';
 
 function filteredProps<T extends Record<string, unknown>>(
   obj: T,
@@ -101,11 +102,31 @@ export const BootDataProvider = ({
     refetch,
     isFetched,
     dataUpdatedAt,
-  } = useQuery(BOOT_QUERY_KEY, () => getBootData(app), {
-    refetchOnWindowFocus: loggedUser,
-    staleTime: STALE_TIME,
-    enabled: isExtension ? !!hostGranted : true,
-  });
+  } = useQuery(
+    BOOT_QUERY_KEY,
+    async () => {
+      const result = await getBootData(app);
+
+      if (result.feeds) {
+        queryClient.setQueryData<FeedList['feedList']>(
+          generateQueryKey(RequestKey.Feeds, result.user),
+          {
+            edges: result.feeds.map((item) => ({ node: item })),
+            pageInfo: {
+              hasNextPage: false,
+            },
+          },
+        );
+      }
+
+      return result;
+    },
+    {
+      refetchOnWindowFocus: loggedUser,
+      staleTime: STALE_TIME,
+      enabled: isExtension ? !!hostGranted : true,
+    },
+  );
 
   useEffect(() => {
     const boot = getLocalBootData();

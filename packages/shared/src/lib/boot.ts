@@ -7,6 +7,7 @@ import { Post } from '../graphql/posts';
 import { Squad } from '../graphql/sources';
 import { decrypt } from '../components/crypto';
 import { MarketingCta } from '../components/cards/MarketingCta/common';
+import { Feed } from '../graphql/feed';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -62,6 +63,7 @@ export type Boot = {
     features?: Record<string, FeatureDefinition>;
   };
   marketingCta?: MarketingCta | null;
+  feeds: Feed[];
 };
 
 export type BootCacheData = Pick<
