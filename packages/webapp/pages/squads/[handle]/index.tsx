@@ -21,7 +21,11 @@ import {
   getSquadMembers,
   SQUAD_STATIC_FIELDS_QUERY,
 } from '@dailydotdev/shared/src/graphql/squads';
-import { SourceMember, Squad } from '@dailydotdev/shared/src/graphql/sources';
+import {
+  SourceMember,
+  SourceMemberRole,
+  Squad,
+} from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading';
 import { useQuery } from '@tanstack/react-query';
@@ -34,8 +38,8 @@ import {
   useActions,
   useFeedLayout,
   useJoinReferral,
-  useSquad,
   usePublicSquadRequests,
+  useSquad,
 } from '@dailydotdev/shared/src/hooks';
 import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
 import request, { ClientError } from 'graphql-request';
@@ -169,7 +173,8 @@ const SquadPage = ({
     [checkHasCompleted, isActionsFetched],
   );
 
-  const isRequestsEnabled = !!squadId && !!user;
+  const isRequestsEnabled =
+    !!squadId && !!user && squad?.currentMember.role === SourceMemberRole.Admin;
   const { isFetched: isRequestsFetched, status } = usePublicSquadRequests({
     sourceId: squadId,
     isQueryEnabled: isRequestsEnabled,
