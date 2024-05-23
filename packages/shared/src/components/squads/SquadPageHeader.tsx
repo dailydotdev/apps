@@ -150,7 +150,7 @@ export function SquadPageHeader({
           .map((member) => (
             <PrivilegedMemberItem key={member.user.id} member={member} />
           ))}
-        {privilegedLength > 3 && (
+        {privilegedLength > MAX_PRIVILEGED_MEMBERS && (
           <PrivilegedMemberContainer className="h-fit font-bold text-text-tertiary typo-callout">
             +{privilegedLength - MAX_PRIVILEGED_MEMBERS}
           </PrivilegedMemberContainer>
