@@ -29,6 +29,7 @@ import {
   PrivilegedMemberItem,
 } from './Members/PrivilegedMemberItem';
 import { formatMonthYearOnly } from '../../lib/dateFormat';
+import { MAX_PRIVILEGED_MEMBERS } from '../../lib/config';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -49,8 +50,6 @@ const SquadStat = ({ count, label }: SquadStatProps) => (
     {label}
   </span>
 );
-
-const MAX_PRIVILEGED_MEMBERS = 3;
 
 export function SquadPageHeader({
   squad,
