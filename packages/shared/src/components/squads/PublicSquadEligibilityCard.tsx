@@ -59,7 +59,7 @@ export function PublicSquadEligibilityCard(): ReactElement {
   return (
     <CardComponent
       data-testid="publicSquadEligibilityCard"
-      className="justify-between !bg-transparent p-4"
+      className="min-h-[21.75rem] justify-between !bg-transparent p-4"
     >
       <div className="flex items-center justify-between">
         <div className="flex h-6 items-center gap-1 rounded-8 bg-surface-float pl-1 pr-2 text-text-tertiary typo-callout">
