@@ -64,7 +64,7 @@ export function SquadPageHeader({
     tourIndex === TourScreenIndex.Post ||
     (isChecklistVisible && openStep === ActionType.SquadFirstPost);
   const isSquadMember = !!squad.currentMember;
-  const isFeatured = squad.flags.featured;
+  const isFeatured = squad.flags?.featured;
 
   const props = (() => {
     if (isFeatured) {
@@ -125,9 +125,9 @@ export function SquadPageHeader({
                 </>
               )}
             </Button>
-            <SquadStat count={squad.flags.totalPosts} label="Posts" />
-            <SquadStat count={squad.flags.totalViews} label="Views" />
-            <SquadStat count={squad.flags.totalUpvotes} label="Upvotes" />
+            <SquadStat count={squad.flags?.totalPosts} label="Posts" />
+            <SquadStat count={squad.flags?.totalViews} label="Views" />
+            <SquadStat count={squad.flags?.totalUpvotes} label="Upvotes" />
           </div>
         </FlexCol>
       </div>
