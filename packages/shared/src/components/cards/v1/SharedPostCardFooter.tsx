@@ -38,7 +38,7 @@ export const SharedPostCardFooter = ({
           className:
             'w-full mobileXXL:!w-40 mobileXXL:!h-20 mobileXXL:!min-h-0',
         }}
-        videoProps={{ size: IconSize.XXXLarge }}
+        videoProps={{ size: IconSize.XXXLarge, className: '!w-auto' }}
       />
     </div>
   );
