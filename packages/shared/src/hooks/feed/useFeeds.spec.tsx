@@ -12,6 +12,9 @@ import {
   UPDATE_FEED_MUTATION,
 } from '../../graphql/feed';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
+import { CustomFeedsExperiment } from '../../lib/featureValues';
+import { BootApp } from '../../lib/boot';
+import { GrowthBookProvider } from '../../components/GrowthBookProvider';
 
 const client = new QueryClient();
 const noop = jest.fn();
@@ -27,7 +30,23 @@ const Wrapper = ({ children }) => {
         updateUser={noop}
         tokenRefreshed={false}
       >
-        {children}
+        <GrowthBookProvider
+          app={BootApp.Test}
+          user={defaultUser}
+          deviceId="123"
+          experimentation={{
+            f: '{}',
+            e: [],
+            a: [],
+            features: {
+              customFeeds: {
+                defaultValue: CustomFeedsExperiment.V1,
+              },
+            },
+          }}
+        >
+          {children}
+        </GrowthBookProvider>
       </AuthContextProvider>
     </QueryClientProvider>
   );
