@@ -202,12 +202,14 @@ export enum TargetId {
 export enum NotificationChannel {
   Email = 'email',
   Web = 'web',
+  Push = 'push',
 }
 
 export enum NotificationCategory {
   Marketing = 'marketing',
   Product = 'product',
   Digest = 'digest',
+  ReadingReminder = 'reading reminder',
 }
 
 export enum NotificationTarget {
