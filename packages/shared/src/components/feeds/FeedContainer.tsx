@@ -189,7 +189,7 @@ export const FeedContainer = ({
 
   const feedHeading = useMemo(() => {
     if (feedName === SharedFeedPage.Custom) {
-      const customFeed = feeds.edges.find(
+      const customFeed = feeds?.edges.find(
         ({ node: feed }) =>
           feed.id === router.query.slugOrId ||
           feed.slug === router.query.slugOrId,
