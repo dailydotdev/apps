@@ -26,7 +26,12 @@ function AccountContentSection({
 
   const content = (
     <>
-      <ContentHeading className={heading}>{title}</ContentHeading>
+      <ContentHeading
+        id={title.toLowerCase().replace(/\s/g, '')}
+        className={heading}
+      >
+        {title}
+      </ContentHeading>
       {description && <ContentText>{description}</ContentText>}
       {children}
     </>

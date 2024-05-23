@@ -1,5 +1,6 @@
 import request from 'graphql-request';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import {
   GET_PERSONALIZED_DIGEST_SETTINGS,
   SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
@@ -13,14 +14,23 @@ import { RequestKey, generateQueryKey } from '../lib/query';
 import { useAuthContext } from '../contexts/AuthContext';
 import { ApiError, getApiError } from '../graphql/common';
 
+export enum SendType {
+  Weekly = 'weekly',
+  Workdays = 'workdays',
+  Off = 'off',
+}
 export type UsePersonalizedDigest = {
   personalizedDigest: UserPersonalizedDigest | null;
+  readingReminder: UserPersonalizedDigest | null;
   isLoading: boolean;
   subscribePersonalizedDigest: (params?: {
     hour?: number;
     type?: UserPersonalizedDigestType;
+    sendType?: SendType;
   }) => Promise<UserPersonalizedDigest>;
-  unsubscribePersonalizedDigest: () => Promise<null>;
+  unsubscribePersonalizedDigest: (params?: {
+    type?: UserPersonalizedDigestType;
+  }) => Promise<null>;
 };
 
 export const usePersonalizedDigest = (): UsePersonalizedDigest => {
@@ -28,12 +38,12 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
   const queryClient = useQueryClient();
   const queryKey = generateQueryKey(RequestKey.PersonalizedDigest, user);
 
-  const { data: personalizedDigest, isLoading } = useQuery(
+  const { data, isLoading } = useQuery(
     queryKey,
     async () => {
       try {
         const result = await request<{
-          personalizedDigest: UserPersonalizedDigest;
+          personalizedDigest: UserPersonalizedDigest[];
         }>(graphqlUrl, GET_PERSONALIZED_DIGEST_SETTINGS, {});
 
         return result.personalizedDigest;
@@ -54,10 +64,36 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
     },
   );
 
+  const { personalizedDigest, readingReminder } = useMemo(() => {
+    return (
+      data?.reduce(
+        (acc, item) => {
+          if (item.type === UserPersonalizedDigestType.Digest) {
+            acc.personalizedDigest = item;
+          } else if (item.type === UserPersonalizedDigestType.ReadingReminder) {
+            acc.readingReminder = item;
+          }
+          return acc;
+        },
+        {
+          personalizedDigest: null,
+          readingReminder: null,
+        },
+      ) || { personalizedDigest: null, readingReminder: null }
+    );
+  }, [data]);
+
   const { mutateAsync: subscribePersonalizedDigest } = useMutation(
-    async (params: { hour?: number; type?: UserPersonalizedDigestType }) => {
-      const { hour = 8, type = UserPersonalizedDigestType.Digest } =
-        params || {};
+    async (params: {
+      hour?: number;
+      type?: UserPersonalizedDigestType;
+      sendType?: SendType;
+    }) => {
+      const {
+        hour = 8,
+        type = UserPersonalizedDigestType.Digest,
+        sendType,
+      } = params || {};
       const result = await request<
         {
           subscribePersonalizedDigest: UserPersonalizedDigest;
@@ -67,15 +103,23 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         day: 3,
         hour,
         type,
+        sendType,
       });
 
-      queryClient.setQueryData(queryKey, result.subscribePersonalizedDigest);
+      queryClient.setQueryData(
+        queryKey,
+        data?.length >= 0
+          ? data.map((item) =>
+              item.type === type ? result.subscribePersonalizedDigest : item,
+            )
+          : [result.subscribePersonalizedDigest],
+      );
 
       return result.subscribePersonalizedDigest;
     },
     {
       onMutate: () => {
-        queryClient.setQueryData(queryKey, {});
+        queryClient.setQueryData(queryKey, []);
 
         return () => {
           queryClient.setQueryData(queryKey, null);
@@ -88,8 +132,11 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
   );
 
   const { mutateAsync: unsubscribePersonalizedDigest } = useMutation(
-    async () => {
-      await request(graphqlUrl, UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, {});
+    async (params: { type?: UserPersonalizedDigestType }) => {
+      const { type = UserPersonalizedDigestType.Digest } = params || {};
+      await request(graphqlUrl, UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, {
+        type,
+      });
 
       return null;
     },
@@ -98,7 +145,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         queryClient.setQueryData(queryKey, null);
 
         return () => {
-          queryClient.setQueryData(queryKey, personalizedDigest);
+          queryClient.setQueryData(queryKey, data);
         };
       },
       onError: (_, __, rollback) => {
@@ -109,6 +156,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
 
   return {
     personalizedDigest,
+    readingReminder,
     isLoading,
     subscribePersonalizedDigest,
     unsubscribePersonalizedDigest,
