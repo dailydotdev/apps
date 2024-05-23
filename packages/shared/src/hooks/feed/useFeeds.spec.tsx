@@ -39,7 +39,7 @@ const Wrapper = ({ children }) => {
             e: [],
             a: [],
             features: {
-              customFeeds: {
+              custom_feeds: {
                 defaultValue: CustomFeedsExperiment.V1,
               },
             },
