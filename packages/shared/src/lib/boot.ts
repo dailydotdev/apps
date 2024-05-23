@@ -75,6 +75,7 @@ export type BootCacheData = Pick<
   | 'notifications'
   | 'squads'
   | 'exp'
+  | 'feeds'
 > & { lastModifier?: string };
 
 export async function getBootData(app: string, url?: string): Promise<Boot> {
