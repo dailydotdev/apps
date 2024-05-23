@@ -24,8 +24,12 @@ import { link } from '../../lib/links';
 import SquadChecklistCard from '../checklist/SquadChecklistCard';
 import { Separator } from '../cards/common';
 import { EarthIcon, LockIcon, SourceIcon, SparkleIcon } from '../icons';
-import { PrivilegedMemberItem } from './Members/PrivilegedMemberItem';
+import {
+  PrivilegedMemberContainer,
+  PrivilegedMemberItem,
+} from './Members/PrivilegedMemberItem';
 import { formatMonthYearOnly } from '../../lib/dateFormat';
+import { MAX_VISIBLE_PRIVILEGED_MEMBERS } from '../../lib/config';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -59,23 +63,24 @@ export function SquadPageHeader({
     tourIndex === TourScreenIndex.Post ||
     (isChecklistVisible && openStep === ActionType.SquadFirstPost);
   const isSquadMember = !!squad.currentMember;
-  const isFeatured = squad?.flags?.featured;
+  const isFeatured = squad.flags?.featured;
 
   const props = (() => {
     if (isFeatured) {
       return { icon: <SourceIcon secondary />, copy: 'Featured' };
     }
 
-    if (squad?.public) {
+    if (squad.public) {
       return { icon: <EarthIcon />, copy: 'Public' };
     }
 
     return { icon: <LockIcon />, copy: 'Private' };
   })();
 
-  const createdAt = squad?.createdAt
+  const createdAt = squad.createdAt
     ? formatMonthYearOnly(squad.createdAt)
     : null;
+  const privilegedLength = squad.privilegedMembers?.length || 0;
 
   return (
     <FlexCol
@@ -119,10 +124,9 @@ export function SquadPageHeader({
                 </>
               )}
             </Button>
-            {/* TODO: As mentioned in the JIRA ticket, the value would be replaced in a different PR */}
-            <SquadStat count={1} label="Posts" />
-            <SquadStat count={1} label="Views" />
-            <SquadStat count={1} label="Upvotes" />
+            <SquadStat count={squad.flags?.totalPosts} label="Posts" />
+            <SquadStat count={squad.flags?.totalViews} label="Views" />
+            <SquadStat count={squad.flags?.totalUpvotes} label="Upvotes" />
           </div>
         </FlexCol>
       </div>
@@ -139,10 +143,17 @@ export function SquadPageHeader({
       <span className="mt-6 text-text-quaternary typo-footnote">
         Moderated by
       </span>
-      <div className="mt-2">
-        {squad?.privilegedMembers?.map((member) => (
-          <PrivilegedMemberItem key={member.user.id} member={member} />
-        ))}
+      <div className="mt-2 flex flex-row items-center gap-3">
+        {squad.privilegedMembers
+          ?.slice(0, MAX_VISIBLE_PRIVILEGED_MEMBERS)
+          .map((member) => (
+            <PrivilegedMemberItem key={member.user.id} member={member} />
+          ))}
+        {privilegedLength > MAX_VISIBLE_PRIVILEGED_MEMBERS && (
+          <PrivilegedMemberContainer className="h-fit font-bold text-text-tertiary typo-callout">
+            +{privilegedLength - MAX_VISIBLE_PRIVILEGED_MEMBERS}
+          </PrivilegedMemberContainer>
+        )}
       </div>
       <SquadHeaderBar
         squad={squad}
@@ -175,7 +186,7 @@ export function SquadPageHeader({
               </FlexCentered>
               <Button
                 tag="a"
-                href={`${link.post.create}?sid=${squad?.handle}`}
+                href={`${link.post.create}?sid=${squad.handle}`}
                 variant={ButtonVariant.Primary}
                 color={ButtonColor.Cabbage}
                 className="w-full tablet:w-auto"
