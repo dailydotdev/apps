@@ -29,6 +29,7 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 
 type OnSelectTagProps = {
   tag: Tag;
+  action: 'follow' | 'unfollow';
 };
 
 const tagsSelector = (data: TagsData) => data?.tags || [];
@@ -43,7 +44,7 @@ const placeholderTags = new Array(24)
   );
 
 export type FilterOnboardingV4Props = {
-  onClickTag?: ({ tag }: OnSelectTagProps) => void;
+  onClickTag?: ({ tag, action }: OnSelectTagProps) => void;
 } & Omit<FilterOnboardingProps, 'onSelectedTopics'>;
 
 export function FilterOnboardingV4({
@@ -122,7 +123,7 @@ export function FilterOnboardingV4({
   const searchTags = searchResult?.searchTags.tags || [];
 
   const { mutate: recommendTags, data: recommendedTags } = useMutation(
-    async ({ tag }: OnSelectTagProps) => {
+    async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
       const result = await request<{
         recommendedTags: TagsData;
       }>(graphqlUrl, GET_RECOMMENDED_TAGS_QUERY, {
@@ -149,10 +150,11 @@ export function FilterOnboardingV4({
     },
   );
 
-  const handleClickTag = async ({ tag }: OnSelectTagProps) => {
+  const handleClickTag = async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
     const isSearchMode = !!searchQuery;
+    const isSelected = selectedTags.has(tag.name);
 
-    if (!selectedTags.has(tag.name)) {
+    if (!isSelected) {
       if (isSearchMode) {
         queryClient.setQueryData<TagsData>(
           onboardingTagsQueryKey,
@@ -177,7 +179,7 @@ export function FilterOnboardingV4({
     }
 
     if (onClickTag) {
-      onClickTag({ tag });
+      onClickTag({ tag, action: isSelected ? 'unfollow' : 'follow' });
     }
 
     refetchFeed();

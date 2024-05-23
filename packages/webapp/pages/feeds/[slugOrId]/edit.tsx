@@ -18,7 +18,10 @@ import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { useFeeds, useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { labels } from '@dailydotdev/shared/src/lib';
-import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
+import {
+  ADD_FILTERS_TO_FEED_MUTATION,
+  REMOVE_FILTERS_FROM_FEED_MUTATION,
+} from '@dailydotdev/shared/src/graphql/feedSettings';
 import {
   PromptOptions,
   usePrompt,
@@ -69,6 +72,9 @@ const EditFeedPage = (): ReactElement => {
   const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(true);
   const isPreviewFeedEnabled = feedSettings?.includeTags?.length >= 1;
   const [isDirty, setDirty] = useState(false);
+  const [tagsToRemove, setTagsToRemove] = useState<Record<string, true>>(
+    () => ({}),
+  );
 
   const onValidateAction = () => {
     return !isDirty;
@@ -82,13 +88,29 @@ const EditFeedPage = (): ReactElement => {
   const { mutateAsync: onSubmit, isLoading } = useMutation(
     async ({ name }: EditFeedFormProps) => {
       const result = await updateFeed({ feedId, name });
+      const tagPromises = [
+        request(graphqlUrl, ADD_FILTERS_TO_FEED_MUTATION, {
+          feedId: result.id,
+          filters: {
+            includeTags: feedSettings?.includeTags || [],
+          },
+        }),
+      ];
 
-      await request(graphqlUrl, ADD_FILTERS_TO_FEED_MUTATION, {
-        feedId: result.id,
-        filters: {
-          includeTags: feedSettings?.includeTags || [],
-        },
-      });
+      const removedTags = Object.keys(tagsToRemove);
+
+      if (removedTags.length > 0) {
+        tagPromises.push(
+          request(graphqlUrl, REMOVE_FILTERS_FROM_FEED_MUTATION, {
+            feedId: result.id,
+            filters: {
+              includeTags: removedTags,
+            },
+          }),
+        );
+      }
+
+      await Promise.all(tagPromises);
 
       return result;
     },
@@ -208,8 +230,21 @@ const EditFeedPage = (): ReactElement => {
               shouldUpdateAlerts={false}
               shouldFilterLocally
               feedId={feedId}
-              onClickTag={() => {
+              onClickTag={({ tag, action }) => {
                 setDirty(true);
+
+                if (action === 'follow') {
+                  setTagsToRemove((current) => {
+                    const newTags = { ...current };
+                    delete newTags[tag.name];
+
+                    return newTags;
+                  });
+                } else {
+                  setTagsToRemove((current) => {
+                    return { ...current, [tag.name]: true };
+                  });
+                }
               }}
             />
             <FeedPreviewControls
