@@ -29,7 +29,7 @@ import {
   PrivilegedMemberItem,
 } from './Members/PrivilegedMemberItem';
 import { formatMonthYearOnly } from '../../lib/dateFormat';
-import { MAX_PRIVILEGED_MEMBERS } from '../../lib/config';
+import { MAX_VISIBLE_PRIVILEGED_MEMBERS } from '../../lib/config';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -145,13 +145,13 @@ export function SquadPageHeader({
       </span>
       <div className="mt-2 flex flex-row items-center gap-3">
         {squad.privilegedMembers
-          ?.slice(0, MAX_PRIVILEGED_MEMBERS)
+          ?.slice(0, MAX_VISIBLE_PRIVILEGED_MEMBERS)
           .map((member) => (
             <PrivilegedMemberItem key={member.user.id} member={member} />
           ))}
-        {privilegedLength > MAX_PRIVILEGED_MEMBERS && (
+        {privilegedLength > MAX_VISIBLE_PRIVILEGED_MEMBERS && (
           <PrivilegedMemberContainer className="h-fit font-bold text-text-tertiary typo-callout">
-            +{privilegedLength - MAX_PRIVILEGED_MEMBERS}
+            +{privilegedLength - MAX_VISIBLE_PRIVILEGED_MEMBERS}
           </PrivilegedMemberContainer>
         )}
       </div>

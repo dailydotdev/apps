@@ -12,4 +12,4 @@ export const fallbackImages = {
     'https://daily-now-res.cloudinary.com/image/upload/f_auto/v1664367305/placeholders/placeholder3',
 };
 
-export const MAX_PRIVILEGED_MEMBERS = 3;
+export const MAX_VISIBLE_PRIVILEGED_MEMBERS = 3;
