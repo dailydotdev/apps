@@ -19,7 +19,7 @@ export const FeedCustomActions = ({
   children,
 }: FeedCustomActionsProps): ReactElement => {
   return (
-    <div className="tablet:rounded-162 flex h-auto w-full flex-col items-center justify-between gap-4 border-b-2 border-accent-cabbage-default bg-background-subtle p-6 tablet:flex-row tablet:gap-0">
+    <div className="flex h-auto w-full flex-col items-center justify-between gap-4 border-b-2 border-accent-cabbage-default bg-background-subtle p-6 tablet:flex-row tablet:gap-0">
       <div className="text-center tablet:text-left">{children}</div>
       <div className="flex items-center gap-3">
         {!!onDelete && (

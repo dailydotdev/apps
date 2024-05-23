@@ -207,7 +207,7 @@ export default function Sidebar({
   }
 
   const showCustomFeedsBetaBadge =
-    isActionsFetched && !checkHasCompleted(ActionType.CustomFeedBeta);
+    isActionsFetched && !checkHasCompleted(ActionType.CustomFeed);
 
   return (
     <>
@@ -266,21 +266,29 @@ export default function Sidebar({
               }
               rightIcon={() =>
                 showCustomFeedsBetaBadge ? (
-                  <div className="absolute -right-3 -top-2 h-[16px] w-[41px]">
+                  <div className="absolute -right-3 -top-2 h-4 w-10">
                     <img src={cloudinary.feed.betaTag} alt="Beta" />
                   </div>
                 ) : undefined
               }
             />
             {feeds?.edges?.map((feed) => {
+              const feedPath = `${webappUrl}feeds/${feed.node.id}`;
+
               return (
                 <MyFeedButton
                   {...defaultRenderSectionProps}
                   key={feed.node.id}
                   isButton={false}
                   title={feed.node.flags.name || `Feed ${feed.node.id}`}
-                  path={`${webappUrl}feeds/${feed.node.id}`}
-                  icon={<StarIcon secondary />}
+                  path={feedPath}
+                  icon={
+                    <StarIcon
+                      secondary={
+                        defaultRenderSectionProps.activePage === feedPath
+                      }
+                    />
+                  }
                 />
               );
             })}

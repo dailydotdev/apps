@@ -128,7 +128,7 @@ const EditFeedPage = (): ReactElement => {
         queryClient.removeQueries(getFeedSettingsQueryKey(user, feedId));
 
         onAskConfirmation(false);
-        router.replace('/');
+        router.replace(webappUrl);
       },
     },
   );
@@ -181,7 +181,7 @@ const EditFeedPage = (): ReactElement => {
                 if (shouldDiscard) {
                   onAskConfirmation(false);
 
-                  router.push('/');
+                  router.push(`${webappUrl}feeds/${feedId}`);
                 }
               }}
               onDelete={onDelete}
@@ -227,8 +227,6 @@ const EditFeedPage = (): ReactElement => {
 };
 
 EditFeedPage.getLayout = getLayout;
-EditFeedPage.layoutProps = {
-  ...mainFeedLayoutProps,
-};
+EditFeedPage.layoutProps = mainFeedLayoutProps;
 
 export default EditFeedPage;

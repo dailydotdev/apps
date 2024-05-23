@@ -126,7 +126,7 @@ const NewFeedPage = (): ReactElement => {
   );
 
   useEffect(() => {
-    completeAction(ActionType.CustomFeedBeta);
+    completeAction(ActionType.CustomFeed);
   }, [completeAction]);
 
   if (finishedOnboarding) {
@@ -212,8 +212,6 @@ const NewFeedPage = (): ReactElement => {
 };
 
 NewFeedPage.getLayout = getLayout;
-NewFeedPage.layoutProps = {
-  ...mainFeedLayoutProps,
-};
+NewFeedPage.layoutProps = mainFeedLayoutProps;
 
 export default NewFeedPage;
