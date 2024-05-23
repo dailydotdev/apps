@@ -53,7 +53,10 @@ import { acquisitionKey } from './cards/AcquisitionFormCard';
 import { MarketingCtaVariant } from './cards/MarketingCta/common';
 
 export interface FeedProps<T>
-  extends Pick<UseFeedOptionalParams<T>, 'options'>,
+  extends Pick<
+      UseFeedOptionalParams<T>,
+      'options' | 'showPublicSquadsEligibility'
+    >,
     Pick<FeedContainerProps, 'shortcuts'> {
   feedName: AllFeedPages;
   feedQueryKey: unknown[];
@@ -131,6 +134,7 @@ export default function Feed<T>({
   pageSize,
   isHorizontal = false,
   feedContainerRef,
+  showPublicSquadsEligibility,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { trackEvent } = useContext(AnalyticsContext);
@@ -176,6 +180,7 @@ export default function Feed<T>({
       query,
       variables,
       options,
+      showPublicSquadsEligibility,
       settings: {
         disableAds,
         adPostLength: isSquadFeed ? 2 : undefined,

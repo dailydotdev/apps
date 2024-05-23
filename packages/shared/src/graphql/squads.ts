@@ -17,7 +17,10 @@ import { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
 
 export interface SquadForm
-  extends Pick<Squad, 'name' | 'handle' | 'description' | 'image' | 'flags'> {
+  extends Pick<
+    Squad,
+    'id' | 'name' | 'handle' | 'description' | 'image' | 'flags'
+  > {
   preview?: Partial<ExternalLinkPreview>;
   file?: string;
   commentary: string;
@@ -221,6 +224,7 @@ export const SQUAD_QUERY = gql`
 export const SQUAD_STATIC_FIELDS_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
+      id
       name
       public
       description
@@ -290,6 +294,23 @@ export const SQUAD_INVITATION_QUERY = gql`
   }
   ${SOURCE_BASE_FRAGMENT}
   ${USER_SHORT_INFO_FRAGMENT}
+`;
+
+export const PUBLIC_SQUAD_REQUESTS = gql`
+  query PublicSquadRequests($sourceId: String!, $first: Int) {
+    requests: publicSquadRequests(sourceId: $sourceId, first: $first) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          requestorId
+          status
+        }
+      }
+    }
+  }
 `;
 
 export const SQUAD_JOIN_MUTATION = gql`
@@ -517,12 +538,29 @@ interface SubmitSquadForReviewOutput {
 }
 
 export async function submitSquadForReview(
-  squadId: string,
+  sourceId: string,
 ): Promise<PublicSquadRequest> {
   const data = await request<SubmitSquadForReviewOutput>(
     graphqlUrl,
     SUBMIT_SQUAD_FOR_REVIEW_MUTATION,
-    { sourceId: squadId },
+    { sourceId },
   );
   return data.submitSquadForReview;
 }
+
+interface GetPublicSquadRequestsProps {
+  sourceId: string;
+  first?: number;
+}
+
+export const getPublicSquadRequests = async (
+  params: GetPublicSquadRequestsProps,
+): Promise<Connection<PublicSquadRequest>> => {
+  const res = await request<{ requests: Connection<PublicSquadRequest> }>(
+    graphqlUrl,
+    PUBLIC_SQUAD_REQUESTS,
+    params,
+  );
+
+  return res.requests;
+};

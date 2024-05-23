@@ -42,7 +42,7 @@ export const SquadPostsProgressBar = ({
           Posts
         </span>
         <span className={classNames(className?.labelContent ?? 'font-bold')}>
-          {effectivePostsCount} / {goal}
+          {effectivePostsCount}/{goal}
         </span>
       </div>
       <ProgressBar

@@ -1,7 +1,7 @@
 import React, { FormEvent, ReactElement, ReactNode, useState } from 'react';
 import classNames from 'classnames';
 import { ClientError } from 'graphql-request';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
@@ -22,11 +22,9 @@ import {
   PrivacyOption,
   useSquadPrivacyOptions,
 } from '../../hooks/squads/useSquadPrivacyOptions';
-import { generateQueryKey, RequestKey } from '../../lib/query';
-import { disabledRefetch, isNullOrUndefined } from '../../lib/func';
-import { useAuthContext } from '../../contexts/AuthContext';
 import Alert, { AlertType } from '../widgets/Alert';
 import { Anchor } from '../text';
+import { usePublicSquadRequests } from '../../hooks';
 
 const squadImageId = 'squad_image_file';
 
@@ -70,7 +68,6 @@ export function SquadDetails({
   createMode = true,
   children,
 }: SquadDetailsProps): ReactElement {
-  const { user } = useAuthContext();
   const {
     name,
     handle,
@@ -78,24 +75,12 @@ export function SquadDetails({
     memberPostingRole: initialMemberPostingRole,
     memberInviteRole: initialMemberInviteRole,
   } = form;
-  const { data: status } = useQuery<SquadStatus>(
-    generateQueryKey(RequestKey.SquadStatus, user),
-    () => {
-      // TODO: MI-344 we need to add a condition if they are already an approved public squad that went private to return approved
-      if (form.public) {
-        return SquadStatus.Approved;
-      }
-
-      // TODO: MI-344 add another 2 if statement here to check if the squad is rejected/pending
-
-      return SquadStatus.InProgress;
-    },
-    {
-      ...disabledRefetch,
-      cacheTime: Infinity,
-      enabled: !isNullOrUndefined(form?.flags?.totalPosts) && !createMode,
-    },
-  );
+  const isRequestsEnabled =
+    !createMode && !form.public && !form.flags?.totalPosts && !!form?.id;
+  const { status } = usePublicSquadRequests({
+    isQueryEnabled: isRequestsEnabled,
+    sourceId: form?.id,
+  });
   const [activeHandle, setActiveHandle] = useState(handle);
   const [privacy, setPrivacy] = useState(
     // TODO: MI-344 once the API is updated to handle privacy change eligibility, we should hook this value to the mutation
