@@ -34,7 +34,7 @@ export function PublicSquadEligibilityCard({
   const { isFetched, status } = usePublicSquadRequests({
     sourceId: squad?.id,
   });
-  const postsCount = squad?.flags.totalPosts;
+  const postsCount = squad?.flags?.totalPosts;
   const { shouldUseMobileFeedLayout } = useFeedLayout();
   const { completeAction } = useActions();
   const { openModal } = useLazyModal();
