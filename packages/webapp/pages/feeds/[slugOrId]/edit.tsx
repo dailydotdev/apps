@@ -33,10 +33,11 @@ import {
   FeedPreviewControls,
   Redirect,
 } from '@dailydotdev/shared/src/components';
-import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { withExperiment } from '@dailydotdev/shared/src/components/withExperiment';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { CustomFeedsExperiment } from '@dailydotdev/shared/src/lib/featureValues';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
@@ -61,6 +62,7 @@ const EditFeedPage = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const { FeedPageLayoutComponent } = useFeedLayout();
+  const { trackEvent } = useAnalyticsContext();
 
   const feedSlugOrId = router.query.slugOrId as string;
   const feed = useMemo(() => {
@@ -120,6 +122,11 @@ const EditFeedPage = (): ReactElement => {
     },
     {
       onSuccess: (data) => {
+        trackEvent({
+          event_name: AnalyticsEvent.UpdateCustomFeed,
+          target_id: data.id,
+        });
+
         queryClient.removeQueries(getFeedSettingsQueryKey(user, feedId));
 
         onAskConfirmation(false);
@@ -151,7 +158,12 @@ const EditFeedPage = (): ReactElement => {
       return result;
     },
     {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        trackEvent({
+          event_name: AnalyticsEvent.DeleteCustomFeed,
+          target_id: data.id,
+        });
+
         queryClient.removeQueries(getFeedSettingsQueryKey(user, feedId));
 
         onAskConfirmation(false);
@@ -250,6 +262,8 @@ const EditFeedPage = (): ReactElement => {
                   });
                 }
               }}
+              origin={Origin.CustomFeed}
+              searchOrigin={Origin.CustomFeed}
             />
             <FeedPreviewControls
               isOpen={isPreviewFeedVisible}
