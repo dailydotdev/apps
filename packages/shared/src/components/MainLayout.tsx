@@ -29,7 +29,10 @@ import { SharedFeedPage } from './utilities';
 import { isTesting, onboardingUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
-import { ActiveFeedNameContextProvider } from '../contexts';
+import {
+  ActiveFeedNameContextProvider,
+  useActiveFeedNameContext,
+} from '../contexts';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { GoBackHeaderMobile } from './post/GoBackHeaderMobile';
 import { BootPopups } from './modals/BootPopups';
@@ -80,6 +83,7 @@ function MainLayoutComponent({
   const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
     useContext(SettingsContext);
   const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
+  const { feedName } = useActiveFeedNameContext();
 
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
@@ -136,7 +140,8 @@ function MainLayoutComponent({
   const page = router?.route?.substring(1).trim() as SharedFeedPage;
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-  const isPageApplicableForOnboarding = !page || feeds.includes(page);
+  const isPageApplicableForOnboarding =
+    !page || feeds.includes(page) || feedName === SharedFeedPage.Custom;
   const shouldRedirectOnboarding =
     !user && isPageReady && isPageApplicableForOnboarding && !isTesting;
 
