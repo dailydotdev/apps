@@ -27,8 +27,9 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   FeedCustomActions,
   FeedCustomPreview,
-  FeedCustomPreviewControls,
+  FeedPreviewControls,
 } from '@dailydotdev/shared/src/components';
+import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
@@ -211,9 +212,11 @@ const EditFeedPage = (): ReactElement => {
                 setDirty(true);
               }}
             />
-            <FeedCustomPreviewControls
+            <FeedPreviewControls
               isOpen={isPreviewFeedVisible}
               isDisabled={!isPreviewFeedEnabled}
+              textDisabled="Select tags to show feed preview"
+              origin={Origin.CustomFeed}
               onClick={setPreviewFeedVisible}
             />
           </div>

@@ -27,7 +27,7 @@ import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/fe
 import {
   FeedCustomActions,
   FeedCustomPreview,
-  FeedCustomPreviewControls,
+  FeedPreviewControls,
   PreparingYourFeed,
 } from '@dailydotdev/shared/src/components';
 import {
@@ -36,6 +36,7 @@ import {
 } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -192,9 +193,11 @@ const NewFeedPage = (): ReactElement => {
               shouldFilterLocally
               feedId={newFeedId}
             />
-            <FeedCustomPreviewControls
+            <FeedPreviewControls
               isOpen={isPreviewFeedVisible}
               isDisabled={!isPreviewFeedEnabled}
+              textDisabled="Select tags to show feed preview"
+              origin={Origin.CustomFeed}
               onClick={setPreviewFeedVisible}
             />
           </div>

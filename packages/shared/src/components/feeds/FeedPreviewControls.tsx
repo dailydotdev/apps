@@ -4,18 +4,26 @@ import { ReactElement } from 'react-markdown/lib/react-markdown';
 import { Button } from '../buttons/Button';
 import { ButtonVariant, ButtonIconPosition } from '../buttons/common';
 import { ArrowIcon } from '../icons';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
+import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 
-export type FeedCustomPreviewControlsProps = {
+export type FeedPreviewControlsControlsProps = {
   isOpen: boolean;
   isDisabled?: boolean;
+  textDisabled: string;
+  origin: Origin;
   onClick: (value: boolean) => void;
 };
 
-export const FeedCustomPreviewControls = ({
+export const FeedPreviewControls = ({
   isOpen,
   isDisabled = false,
+  textDisabled,
+  origin,
   onClick,
-}: FeedCustomPreviewControlsProps): ReactElement => {
+}: FeedPreviewControlsControlsProps): ReactElement => {
+  const { trackEvent } = useAnalyticsContext();
+
   return (
     <div className="mt-10 flex items-center justify-center gap-10 text-text-quaternary typo-callout">
       <div className="h-px flex-1 bg-border-subtlest-tertiary" />
@@ -25,12 +33,18 @@ export const FeedCustomPreviewControls = ({
         icon={<ArrowIcon className={classNames(!isOpen && 'rotate-180')} />}
         iconPosition={ButtonIconPosition.Right}
         onClick={() => {
-          onClick(!isOpen);
+          const newValue = !isOpen;
+
+          trackEvent({
+            event_name: AnalyticsEvent.ToggleFeedPreview,
+            target_id: newValue,
+            extra: JSON.stringify({ origin }),
+          });
+
+          onClick(newValue);
         }}
       >
-        {isDisabled
-          ? `Select tags to show feed preview`
-          : `${isOpen ? 'Hide' : 'Show'} feed preview`}
+        {isDisabled ? textDisabled : `${isOpen ? 'Hide' : 'Show'} feed preview`}
       </Button>
       <div className="h-px flex-1 bg-border-subtlest-tertiary" />
     </div>

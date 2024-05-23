@@ -6,6 +6,7 @@ export enum Origin {
   Companion = 'companion',
   Feed = 'feed',
   CommentFeed = 'comment feed',
+  CustomFeed = 'custom feed',
   PostContextMenu = 'post context menu',
   PostCommentContextMenu = 'post comment context menu',
   TagsFilter = 'tags filter',
