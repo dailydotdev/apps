@@ -36,6 +36,7 @@ import {
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { GoBackHeaderMobile } from './post/GoBackHeaderMobile';
 import { BootPopups } from './modals/BootPopups';
+import { useFeedName } from '../hooks/feed/useFeedName';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -84,6 +85,7 @@ function MainLayoutComponent({
     useContext(SettingsContext);
   const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
+  const { isCustomFeed } = useFeedName({ feedName });
 
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
@@ -141,7 +143,7 @@ function MainLayoutComponent({
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   const isPageApplicableForOnboarding =
-    !page || feeds.includes(page) || feedName === SharedFeedPage.Custom;
+    !page || feeds.includes(page) || isCustomFeed;
   const shouldRedirectOnboarding =
     !user && isPageReady && isPageApplicableForOnboarding && !isTesting;
 

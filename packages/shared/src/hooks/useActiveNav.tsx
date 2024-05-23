@@ -25,6 +25,7 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
       SharedFeedPage.Discussed,
       OtherFeedPage.History,
       SharedFeedPage.Custom,
+      SharedFeedPage.CustomForm,
     ];
 
     if (!isLaptop) {

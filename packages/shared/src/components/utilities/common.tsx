@@ -171,6 +171,7 @@ export enum SharedFeedPage {
   Upvoted = 'upvoted',
   Discussed = 'discussed',
   Custom = 'custom-feed',
+  CustomForm = 'custom-feed-form',
 }
 
 export const FeedHeading = classed(

@@ -16,6 +16,7 @@ import { useFeature } from '../GrowthBookProvider';
 import { setShouldRefreshFeed } from '../../lib/refreshFeed';
 import { SharedFeedPage } from '../utilities';
 import { getFeedName } from '../../lib/feed';
+import { useFeedName } from '../../hooks/feed/useFeedName';
 
 export const filterAlertMessage = 'Edit your personal feed preferences here';
 
@@ -33,6 +34,8 @@ function MyFeedHeading({
   const queryClient = useQueryClient();
   const forceRefresh = useFeature(feature.forceRefresh);
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const feedName = getFeedName(router.pathname);
+  const { isCustomFeed } = useFeedName({ feedName });
 
   const onClick = () => {
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
@@ -52,9 +55,7 @@ function MyFeedHeading({
     exact: false,
   });
   const isRefreshing = feedQueryState?.status === 'success' && isFetchingFeed;
-  const feedName = getFeedName(router.pathname);
-  const shouldShowFeedRefresh =
-    forceRefresh && feedName !== SharedFeedPage.Custom;
+  const shouldShowFeedRefresh = forceRefresh && !isCustomFeed;
 
   return (
     <>

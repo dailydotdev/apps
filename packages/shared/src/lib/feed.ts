@@ -185,7 +185,9 @@ export const getFeedName = (
     return OtherFeedPage.UserPosts;
   }
   if (feed.startsWith('feeds')) {
-    return SharedFeedPage.Custom;
+    const isForm = ['new', 'edit'].some((item) => feed.endsWith(item));
+
+    return isForm ? SharedFeedPage.CustomForm : SharedFeedPage.Custom;
   }
 
   const [page] = feed.split('?');

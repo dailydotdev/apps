@@ -18,12 +18,17 @@ const sortableFeeds: AllFeedPages[] = [
   SharedFeedPage.MyFeed,
 ];
 
+const customFeeds: string[] = [
+  SharedFeedPage.Custom,
+  SharedFeedPage.CustomForm,
+];
+
 export const useFeedName = ({ feedName }: UseFeedNameProps): UseFeedName => {
   return {
     isUpvoted: feedName === SharedFeedPage.Upvoted,
     isPopular: feedName === SharedFeedPage.Popular,
     isDiscussed: feedName === SharedFeedPage.Discussed,
-    isCustomFeed: feedName === SharedFeedPage.Custom,
+    isCustomFeed: customFeeds.includes(feedName),
     isSortableFeed: sortableFeeds.includes(feedName),
   };
 };

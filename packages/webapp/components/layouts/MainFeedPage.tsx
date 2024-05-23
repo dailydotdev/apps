@@ -11,10 +11,8 @@ import MainFeedLayout, {
   MainFeedLayoutProps,
 } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import {
-  SharedFeedPage,
-  getShouldRedirect,
-} from '@dailydotdev/shared/src/components/utilities';
+import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
+import { getFeedName as getFeedNameLib } from '@dailydotdev/shared/src/lib/feed';
 import { getLayout } from './FeedLayout';
 
 export type MainFeedPageProps = {
@@ -32,7 +30,7 @@ const getFeedName = (path: string): string => {
   }
 
   if (path.startsWith('/feeds/')) {
-    return SharedFeedPage.Custom;
+    return getFeedNameLib(path);
   }
 
   return path.replace(/^\/+/, '');

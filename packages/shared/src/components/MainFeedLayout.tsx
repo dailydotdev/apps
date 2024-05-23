@@ -88,6 +88,9 @@ const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
   [SharedFeedPage.Custom]: {
     query: CUSTOM_FEED_QUERY,
   },
+  [SharedFeedPage.CustomForm]: {
+    query: PREVIEW_FEED_QUERY,
+  },
 };
 
 export interface MainFeedLayoutProps
