@@ -3,38 +3,38 @@ import type Router from 'next/router';
 import { useRouter } from 'next/router';
 import useDebounce from './useDebounce';
 
-interface UseOnboardingAnimation {
+interface UseProgressAnimation {
   isAnimating: boolean;
-  postOnboardingRedirect: (param: Parameters<typeof Router.replace>[0]) => void;
-  finishedOnboarding: boolean;
-  onFinishedOnboarding: () => void;
+  delayedRedirect: (param: Parameters<typeof Router.replace>[0]) => void;
+  finished: boolean;
+  onFinished: () => void;
 }
 
-interface UseOnboardingAnimationProps {
+interface UseProgressAnimationProps {
   animationMs?: number;
 }
 
 const DEFAULT_ANIMATION_MS = 2750;
 
-export const useOnboardingAnimation = ({
+export const useProgressAnimation = ({
   animationMs = DEFAULT_ANIMATION_MS,
-}: UseOnboardingAnimationProps = {}): UseOnboardingAnimation => {
+}: UseProgressAnimationProps = {}): UseProgressAnimation => {
   const router = useRouter();
-  const [finishedOnboarding, setFinishedOnboarding] = useState(false);
+  const [finished, setFinished] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animate] = useDebounce(() => setIsAnimating(true), 1);
   const [delayedRedirect] = useDebounce(router.replace, animationMs);
 
-  const onFinishedOnboarding = useCallback(() => {
-    setFinishedOnboarding(true);
+  const onFinished = useCallback(() => {
+    setFinished(true);
 
     animate();
   }, [animate]);
 
   return {
-    postOnboardingRedirect: delayedRedirect,
+    delayedRedirect,
     isAnimating,
-    finishedOnboarding,
-    onFinishedOnboarding,
+    finished,
+    onFinished,
   };
 };

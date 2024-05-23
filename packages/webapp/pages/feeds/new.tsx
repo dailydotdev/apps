@@ -19,7 +19,7 @@ import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import {
   useActions,
   useFeeds,
-  useOnboardingAnimation,
+  useProgressAnimation,
   useToastNotification,
 } from '@dailydotdev/shared/src/hooks';
 import { labels } from '@dailydotdev/shared/src/lib';
@@ -68,12 +68,8 @@ const NewFeedPage = (): ReactElement => {
   const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);
   const isPreviewFeedEnabled = feedSettings?.includeTags?.length >= 1;
 
-  const {
-    finishedOnboarding,
-    onFinishedOnboarding,
-    postOnboardingRedirect,
-    isAnimating,
-  } = useOnboardingAnimation();
+  const { finished, onFinished, delayedRedirect, isAnimating } =
+    useProgressAnimation();
 
   const onValidateAction = () => {
     return !isPreviewFeedEnabled;
@@ -106,8 +102,8 @@ const NewFeedPage = (): ReactElement => {
         queryClient.removeQueries(getFeedSettingsQueryKey(user, newFeedId));
 
         onAskConfirmation(false);
-        onFinishedOnboarding();
-        postOnboardingRedirect(`${webappUrl}feeds/${data.id}`);
+        onFinished();
+        delayedRedirect(`${webappUrl}feeds/${data.id}`);
       },
       onError: (error) => {
         if (
@@ -129,7 +125,7 @@ const NewFeedPage = (): ReactElement => {
     completeAction(ActionType.CustomFeed);
   }, [completeAction]);
 
-  if (finishedOnboarding) {
+  if (finished) {
     return (
       <PreparingYourFeed
         text={`Preparing ${newFeed?.flags?.name || 'your custom feed'}...`}

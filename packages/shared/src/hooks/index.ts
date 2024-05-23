@@ -25,5 +25,5 @@ export * from './utils/useGetShortUrl';
 export * from './source';
 export * from './useBoot';
 export * from './useConditionalFeature';
-export * from './useOnboardingAnimation';
+export * from './useProgressAnimation';
 export * from './feed';
