@@ -69,6 +69,7 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { ReadingReminder } from '@dailydotdev/shared/src/components/auth/ReadingReminder';
 import { GenericLoader } from '@dailydotdev/shared/src/components/utilities/loaders';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
@@ -117,9 +118,6 @@ export function OnboardPage(): ReactElement {
   type OnboardingVisual = {
     showCompanies?: boolean;
     image?: string;
-    poster?: string;
-    webm?: string;
-    mp4?: string;
   };
   const isMobile = useViewSize(ViewSize.MobileL);
   const onboardingVisual: OnboardingVisual = useFeature(
@@ -180,8 +178,8 @@ export function OnboardPage(): ReactElement {
     router.replace('/');
   };
 
-  const onSuccessfulRegistration = () => {
-    trackAnalyticsSignUp();
+  const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
+    trackAnalyticsSignUp({ experienceLevel: userRefetched?.experienceLevel });
     setActiveScreen(OnboardingStep.EditTag);
   };
 
@@ -338,31 +336,14 @@ export function OnboardPage(): ReactElement {
                 'tablet:min-h-[800px]:pt-[100%] relative overflow-y-clip tablet:overflow-y-visible tablet:pt-[80%]',
               )}
             >
-              {onboardingVisual?.poster ? (
-                // eslint-disable-next-line jsx-a11y/media-has-caption
-                <video
-                  loop
-                  autoPlay
-                  muted
-                  className={classNames(
-                    'tablet:absolute tablet:left-0 tablet:top-0 tablet:-z-1',
-                    styles.video,
-                  )}
-                  poster={onboardingVisual.poster}
-                >
-                  <source src={onboardingVisual.webm} type="video/webm" />
-                  <source src={onboardingVisual.mp4} type="video/mp4" />
-                </video>
-              ) : (
-                <img
-                  src={onboardingVisual.image}
-                  alt="Onboarding cover"
-                  className={classNames(
-                    'relative tablet:absolute tablet:left-0 tablet:top-0 tablet:-z-1',
-                    styles.image,
-                  )}
-                />
-              )}
+              <img
+                src={onboardingVisual.image}
+                alt="Onboarding cover"
+                className={classNames(
+                  'relative tablet:absolute tablet:left-0 tablet:top-0 tablet:-z-1',
+                  styles.image,
+                )}
+              />
             </div>
             {onboardingVisual.showCompanies && (
               <TrustedCompanies className="hidden tablet:block" />
@@ -397,7 +378,7 @@ export function OnboardPage(): ReactElement {
   }
 
   return (
-    <div className="z-3 flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden bg-[#0e1019]">
+    <div className="z-3 flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden">
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <PixelTracking />
       <GtagTracking />

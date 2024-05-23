@@ -26,6 +26,7 @@ export function SquadHeaderBar({
   squad,
   members,
   className,
+  shouldUseListModeV1,
   ...props
 }: SquadMemberShortListProps & HTMLAttributes<HTMLDivElement>): ReactElement {
   const { tourIndex } = useSquadTour();
@@ -81,11 +82,13 @@ export function SquadHeaderBar({
           origin={Origin.SquadPage}
         />
       )}
-      <SquadMemberShortList
-        className="order-1 tablet:order-2"
-        squad={squad}
-        members={members}
-      />
+      {!shouldUseListModeV1 && (
+        <SquadMemberShortList
+          squad={squad}
+          members={members}
+          className="hidden laptopL:flex"
+        />
+      )}
       {!!squad.currentMember && (
         <SimpleTooltip
           forceLoad={!isTesting}

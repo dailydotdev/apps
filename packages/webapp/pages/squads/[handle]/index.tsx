@@ -16,7 +16,10 @@ import {
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
 import SquadFeedHeading from '@dailydotdev/shared/src/components/squads/SquadFeedHeading';
-import { BaseFeedPage } from '@dailydotdev/shared/src/components/utilities';
+import {
+  BaseFeedPage,
+  FeedPageLayoutList,
+} from '@dailydotdev/shared/src/components/utilities';
 import {
   getSquadMembers,
   SQUAD_STATIC_FIELDS_QUERY,
@@ -103,7 +106,7 @@ const SquadPage = ({
   useJoinReferral();
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseListFeedLayout, shouldUseListModeV1 } = useFeedLayout();
   const { user, isFetched: isBootFetched } = useContext(AuthContext);
   const [trackedImpression, setTrackedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
@@ -205,6 +208,10 @@ const SquadPage = ({
     return <Custom404 />;
   }
 
+  const FeedPageComponent = shouldUseListModeV1
+    ? FeedPageLayoutList
+    : BaseFeedPage;
+
   return (
     <PageComponent
       squad={squad}
@@ -212,18 +219,26 @@ const SquadPage = ({
       fallback={<></>}
       shouldFallback={!user}
     >
-      <BaseFeedPage className="relative mb-4 pt-2 laptop:pt-8">
+      <FeedPageComponent
+        className={classNames('relative mb-4 pt-2 laptop:pt-8')}
+      >
         <div
           className={classNames(
             'squad-background-fade absolute top-0 h-full w-full',
-            sidebarRendered && '-left-full translate-x-[60%]',
+            sidebarRendered &&
+              !shouldUseListModeV1 &&
+              '-left-full translate-x-[60%]',
           )}
         />
-        <SquadPageHeader squad={squad} members={squadMembers} />
+        <SquadPageHeader
+          squad={squad}
+          members={squadMembers}
+          shouldUseListModeV1={shouldUseListModeV1}
+        />
         <Feed
           className={classNames(
             'pt-14 laptop:pt-10',
-            shouldUseMobileFeedLayout ? 'px-0' : 'px-6',
+            shouldUseListFeedLayout ? 'px-0' : 'px-6',
           )}
           feedName={OtherFeedPage.Squad}
           feedQueryKey={[
@@ -245,7 +260,7 @@ const SquadPage = ({
           inlineHeader
           allowPin
         />
-      </BaseFeedPage>
+      </FeedPageComponent>
     </PageComponent>
   );
 };

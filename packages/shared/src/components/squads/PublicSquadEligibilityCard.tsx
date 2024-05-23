@@ -30,7 +30,7 @@ export function PublicSquadEligibilityCard(): ReactElement {
     sourceId: squad?.id,
   });
   const postsCount = squad?.flags?.totalPosts;
-  const { shouldUseMobileFeedLayout } = useFeedLayout();
+  const { shouldUseListFeedLayout } = useFeedLayout();
   const { completeAction } = useActions();
   const { openModal } = useLazyModal();
 
@@ -54,7 +54,7 @@ export function PublicSquadEligibilityCard(): ReactElement {
   }
 
   const isEligible = postsCount >= MIN_SQUAD_POSTS;
-  const CardComponent = shouldUseMobileFeedLayout ? CardV1 : Card;
+  const CardComponent = shouldUseListFeedLayout ? CardV1 : Card;
 
   return (
     <CardComponent

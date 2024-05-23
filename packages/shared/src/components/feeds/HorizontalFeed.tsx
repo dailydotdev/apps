@@ -1,16 +1,12 @@
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import classnames from 'classnames';
 import Feed from '../Feed';
 import { OtherFeedPage } from '../../lib/query';
 import FeedContext from '../../contexts/FeedContext';
 import SettingsContext from '../../contexts/SettingsContext';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
+import { useFeedLayout } from '../../hooks';
 
 interface HorizontalFeedProps<T> {
   feedName: OtherFeedPage;
@@ -25,14 +21,17 @@ export default function HorizontalFeed<T>({
   title,
   ...props
 }: HorizontalFeedProps<T>): ReactElement {
-  const feedContainerRef = useRef<HTMLDivElement>(null);
+  const [feedContainerRef, setFeedContainerRef] =
+    useState<HTMLDivElement>(null);
+
   const [feedScrolledPosition, setFeedScrolledPosition] = useState(0);
   const currentSettings = useContext(FeedContext);
-  const { spaciness } = useContext(SettingsContext);
+  const { spaciness, insaneMode } = useContext(SettingsContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
+  const { isListModeV1 } = useFeedLayout();
 
   useEffect(() => {
-    const element = feedContainerRef.current;
+    const element = feedContainerRef;
     if (!element) {
       return null;
     }
@@ -46,12 +45,12 @@ export default function HorizontalFeed<T>({
     return () => {
       element.removeEventListener('scrollend', onScroll);
     };
-  }, []);
+  }, [feedContainerRef]);
 
   const onClickNext = () => {
-    if (feedContainerRef.current) {
-      const currentPosition = feedContainerRef.current.scrollLeft;
-      feedContainerRef.current.scrollLeft = Math.max(
+    if (feedContainerRef) {
+      const currentPosition = feedContainerRef.scrollLeft;
+      feedContainerRef.scrollLeft = Math.max(
         0,
         currentPosition + numCards * 320,
       );
@@ -59,10 +58,10 @@ export default function HorizontalFeed<T>({
   };
 
   const onClickPrevious = () => {
-    if (feedContainerRef.current) {
-      const currentPosition = feedContainerRef.current.scrollLeft;
+    if (feedContainerRef) {
+      const currentPosition = feedContainerRef.scrollLeft;
       const newPosition = Math.max(0, currentPosition - numCards * 320);
-      feedContainerRef.current.scrollLeft = newPosition < 150 ? 0 : newPosition;
+      feedContainerRef.scrollLeft = newPosition < 150 ? 0 : newPosition;
     }
   };
 
@@ -98,8 +97,11 @@ export default function HorizontalFeed<T>({
       allowFetchMore={false}
       pageSize={10}
       isHorizontal
-      className="mx-4 mb-10"
-      feedContainerRef={feedContainerRef}
+      className={classnames(
+        'mx-4 mb-10',
+        insaneMode && isListModeV1 && 'laptop:mx-auto',
+      )}
+      feedContainerRef={(ref) => setFeedContainerRef(ref)}
     />
   );
 }
