@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useCallback } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import {
   useActions,
@@ -21,14 +21,9 @@ import {
 } from './SquadPostsProgressBar';
 import { squadsPublicGuide } from '../../lib/constants';
 import { SquadStatus } from './settings';
+import { PlaceholderCard } from '../cards/PlaceholderCard';
 
-interface PublicSquadEligibilityCardProps {
-  placeholder: ReactNode;
-}
-
-export function PublicSquadEligibilityCard({
-  placeholder,
-}: PublicSquadEligibilityCardProps): ReactElement {
+export function PublicSquadEligibilityCard(): ReactElement {
   const router = useRouter();
   const { squad } = useSquad({ handle: router.query.handle as string });
   const { isFetched, status } = usePublicSquadRequests({
@@ -55,7 +50,7 @@ export function PublicSquadEligibilityCard({
   }, [openModal, squad]);
 
   if (!isFetched) {
-    return <>{placeholder}</>;
+    return <PlaceholderCard />;
   }
 
   const isEligible = postsCount >= MIN_SQUAD_POSTS;

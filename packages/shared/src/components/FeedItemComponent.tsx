@@ -263,11 +263,7 @@ export default function FeedItemComponent({
     case FeedItemType.UserAcquisition:
       return <AcquisitionFormCard key="user-acquisition-card" />;
     case FeedItemType.PublicSquadEligibility:
-      return (
-        <PublicSquadEligibilityCard
-          placeholder={<PlaceholderTag showImage={!insaneMode} />}
-        />
-      );
+      return <PublicSquadEligibilityCard />;
     case FeedItemType.MarketingCta:
       return (
         <MarketingCtaTag
