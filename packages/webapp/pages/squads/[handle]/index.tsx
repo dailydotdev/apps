@@ -174,7 +174,9 @@ const SquadPage = ({
   );
 
   const isRequestsEnabled =
-    !!squadId && !!user && squad?.currentMember.role === SourceMemberRole.Admin;
+    !!squadId &&
+    !!user &&
+    squad?.currentMember?.role === SourceMemberRole.Admin;
   const { isFetched: isRequestsFetched, status } = usePublicSquadRequests({
     sourceId: squadId,
     isQueryEnabled: isRequestsEnabled,
