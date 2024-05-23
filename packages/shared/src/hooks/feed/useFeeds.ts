@@ -13,6 +13,9 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { labels } from '../../lib';
 import { useToastNotification } from '../useToastNotification';
+import { useFeature } from '../../components/GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { CustomFeedsExperiment } from '../../lib/featureValues';
 
 export type CreateFeedProps = {
   name: string;
@@ -34,6 +37,9 @@ export const useFeeds = (): UseFeeds => {
   const { displayToast } = useToastNotification();
   const { user } = useAuthContext();
   const queryKey = generateQueryKey(RequestKey.Feeds, user);
+  const customFeedsVersion = useFeature(feature.customFeeds);
+  const hasCustomFeedsEnabled =
+    customFeedsVersion !== CustomFeedsExperiment.Control;
 
   const { data: feeds } = useQuery(
     queryKey,
@@ -43,7 +49,7 @@ export const useFeeds = (): UseFeeds => {
       return result.feedList;
     },
     {
-      enabled: !!user,
+      enabled: !!user && hasCustomFeedsEnabled,
       staleTime: StaleTime.OneHour,
     },
   );

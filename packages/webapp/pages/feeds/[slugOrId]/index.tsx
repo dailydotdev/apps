@@ -1,11 +1,15 @@
 import React, { ReactElement } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
+import { withExperiment } from '@dailydotdev/shared/src/components/withExperiment';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { CustomFeedsExperiment } from '@dailydotdev/shared/src/lib/featureValues';
+import { Redirect } from '@dailydotdev/shared/src/components';
+import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../../../components/layouts/MainFeedPage';
-import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
 const seo: NextSeoProps = {
   title: 'Custom feed',
@@ -24,4 +28,8 @@ const FeedPage = (): ReactElement => {
 FeedPage.getLayout = getMainFeedLayout;
 FeedPage.layoutProps = mainFeedLayoutProps;
 
-export default FeedPage;
+export default withExperiment(FeedPage, {
+  feature: feature.customFeeds,
+  value: CustomFeedsExperiment.V1,
+  fallback: Redirect,
+});

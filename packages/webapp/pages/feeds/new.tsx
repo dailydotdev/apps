@@ -29,6 +29,7 @@ import {
   FeedCustomPreview,
   FeedPreviewControls,
   PreparingYourFeed,
+  Redirect,
 } from '@dailydotdev/shared/src/components';
 import {
   PromptOptions,
@@ -37,6 +38,9 @@ import {
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { withExperiment } from '@dailydotdev/shared/src/components/withExperiment';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { CustomFeedsExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -213,4 +217,8 @@ const NewFeedPage = (): ReactElement => {
 NewFeedPage.getLayout = getLayout;
 NewFeedPage.layoutProps = mainFeedLayoutProps;
 
-export default NewFeedPage;
+export default withExperiment(NewFeedPage, {
+  feature: feature.customFeeds,
+  value: CustomFeedsExperiment.V1,
+  fallback: Redirect,
+});

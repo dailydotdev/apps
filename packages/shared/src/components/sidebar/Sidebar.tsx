@@ -52,6 +52,9 @@ import { webappUrl } from '../../lib/constants';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { cloudinary } from '../../lib/image';
 import { ActionType } from '../../graphql/actions';
+import { useFeature } from '../GrowthBookProvider';
+import { CustomFeedsExperiment } from '../../lib/featureValues';
+import { feature } from '../../lib/featureManagement';
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -82,6 +85,9 @@ export default function Sidebar({
   const isTablet = useViewSize(ViewSize.Tablet);
   const featureTheme = useFeatureTheme();
   const { checkHasCompleted, isActionsFetched } = useActions();
+  const customFeedsVersion = useFeature(feature.customFeeds);
+  const hasCustomFeedsEnabled =
+    customFeedsVersion !== CustomFeedsExperiment.Control;
 
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
@@ -254,44 +260,47 @@ export default function Sidebar({
                 icon={<ProfilePicture size="xsmall" user={user} />}
               />
             )}
-            <MyFeedButton
-              {...defaultRenderSectionProps}
-              isButton={false}
-              title="New feed"
-              path={`${webappUrl}feeds/new`}
-              icon={
-                <div className="rounded-6 bg-background-subtle">
-                  <PlusIcon />
-                </div>
-              }
-              rightIcon={() =>
-                showCustomFeedsBetaBadge ? (
-                  <div className="absolute -right-3 -top-2 h-4 w-10">
-                    <img src={cloudinary.feed.betaTag} alt="Beta" />
+            {hasCustomFeedsEnabled && (
+              <MyFeedButton
+                {...defaultRenderSectionProps}
+                isButton={false}
+                title="New feed"
+                path={`${webappUrl}feeds/new`}
+                icon={
+                  <div className="rounded-6 bg-background-subtle">
+                    <PlusIcon />
                   </div>
-                ) : undefined
-              }
-            />
-            {feeds?.edges?.map((feed) => {
-              const feedPath = `${webappUrl}feeds/${feed.node.id}`;
+                }
+                rightIcon={() =>
+                  showCustomFeedsBetaBadge ? (
+                    <div className="absolute -right-3 -top-2 h-4 w-10">
+                      <img src={cloudinary.feed.betaTag} alt="Beta" />
+                    </div>
+                  ) : undefined
+                }
+              />
+            )}
+            {hasCustomFeedsEnabled &&
+              feeds?.edges?.map((feed) => {
+                const feedPath = `${webappUrl}feeds/${feed.node.id}`;
 
-              return (
-                <MyFeedButton
-                  {...defaultRenderSectionProps}
-                  key={feed.node.id}
-                  isButton={false}
-                  title={feed.node.flags.name || `Feed ${feed.node.id}`}
-                  path={feedPath}
-                  icon={
-                    <StarIcon
-                      secondary={
-                        defaultRenderSectionProps.activePage === feedPath
-                      }
-                    />
-                  }
-                />
-              );
-            })}
+                return (
+                  <MyFeedButton
+                    {...defaultRenderSectionProps}
+                    key={feed.node.id}
+                    isButton={false}
+                    title={feed.node.flags.name || `Feed ${feed.node.id}`}
+                    path={feedPath}
+                    icon={
+                      <StarIcon
+                        secondary={
+                          defaultRenderSectionProps.activePage === feedPath
+                        }
+                      />
+                    }
+                  />
+                );
+              })}
             <SquadSection {...defaultRenderSectionProps} />
             <DiscoverSection
               {...defaultRenderSectionProps}

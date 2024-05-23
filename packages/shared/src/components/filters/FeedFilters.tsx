@@ -11,9 +11,13 @@ import { ContentTypesFilter } from './ContentTypesFilter';
 import { Source } from '../../graphql/sources';
 import { webappUrl } from '../../lib/constants';
 import { ViewSize, useFeeds, useViewSize } from '../../hooks';
+import { feature } from '../../lib/featureManagement';
+import { CustomFeedsExperiment } from '../../lib/featureValues';
+import { useFeature } from '../GrowthBookProvider';
 
 enum FilterMenuTitle {
-  Tags = 'My feed',
+  MyFeed = 'My feed',
+  Tags = 'Manage tags',
   ManageCategories = 'Manage categories',
   ContentTypes = 'Content types',
   Blocked = 'Blocked items',
@@ -46,15 +50,20 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
     }
   };
   const isMobile = useViewSize(ViewSize.MobileL);
+  const customFeedsVersion = useFeature(feature.customFeeds);
+  const hasCustomFeedsEnabled =
+    customFeedsVersion !== CustomFeedsExperiment.Control;
 
   const { feeds } = useFeeds();
 
   const tabs = [
     {
-      title: FilterMenuTitle.Tags,
+      title: hasCustomFeedsEnabled
+        ? FilterMenuTitle.MyFeed
+        : FilterMenuTitle.Tags,
       options: { icon: <HomeIcon />, group: 'Feeds' },
     },
-    ...(isMobile
+    ...(isMobile && hasCustomFeedsEnabled
       ? feeds?.edges?.map(({ node: feed }) => {
           return {
             title: feed.flags?.name || `Feed ${feed.id}`,
@@ -86,7 +95,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
       options: { icon: <BlockIcon />, group: 'Preference' },
     },
   ].map((item) =>
-    isMobile
+    isMobile && hasCustomFeedsEnabled
       ? item
       : {
           ...item,

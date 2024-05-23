@@ -21,6 +21,11 @@ export enum FeedListLayoutExperiment {
   V1 = 'v1',
 }
 
+export enum CustomFeedsExperiment {
+  Control = 'control',
+  V1 = 'v1',
+}
+
 export interface FeatureThemeVariant {
   logo?: string;
   logoText?: string;

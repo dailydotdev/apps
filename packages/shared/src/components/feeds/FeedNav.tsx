@@ -21,6 +21,9 @@ import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { CustomFeedsExperiment } from '../../lib/featureValues';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -49,21 +52,31 @@ function FeedNav(): ReactElement {
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
 
   const { feeds } = useFeeds();
+  const customFeedsVersion = useFeature(feature.customFeeds);
+  const hasCustomFeedsEnabled =
+    customFeedsVersion !== CustomFeedsExperiment.Control;
 
   const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
-    const customFeeds = feeds?.edges?.reduce((acc, { node: feed }) => {
-      const feedPath = `${webappUrl}feeds/${feed.id}`;
-      const isEditingFeed =
-        router.query.slugOrId === feed.id && router.pathname.endsWith('/edit');
-      const urlPath = `${feedPath}${isEditingFeed ? '/edit' : ''}`;
+    const customFeeds = hasCustomFeedsEnabled
+      ? feeds?.edges?.reduce((acc, { node: feed }) => {
+          const feedPath = `${webappUrl}feeds/${feed.id}`;
+          const isEditingFeed =
+            router.query.slugOrId === feed.id &&
+            router.pathname.endsWith('/edit');
+          const urlPath = `${feedPath}${isEditingFeed ? '/edit' : ''}`;
 
-      acc[urlPath] = feed.flags?.name || `Feed ${feed.id}`;
+          acc[urlPath] = feed.flags?.name || `Feed ${feed.id}`;
 
-      return acc;
-    }, {});
+          return acc;
+        }, {})
+      : [];
 
     return {
-      [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
+      ...(hasCustomFeedsEnabled
+        ? {
+            [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
+          }
+        : undefined),
       [`${webappUrl}`]: FeedNavTab.ForYou,
       ...customFeeds,
       [`${webappUrl}popular`]: FeedNavTab.Popular,
@@ -72,7 +85,7 @@ function FeedNav(): ReactElement {
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}history`]: FeedNavTab.History,
     };
-  }, [feeds, router.pathname, router.query.slugOrId]);
+  }, [feeds, router.pathname, router.query.slugOrId, hasCustomFeedsEnabled]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
