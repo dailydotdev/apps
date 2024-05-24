@@ -20,7 +20,7 @@ export function PrivilegedMemberItem({
     <PrivilegedMemberContainer>
       <ProfilePicture user={user} size="large" />
       <div className="flex-col">
-        <span className="ml-2.5 text-text-tertiary typo-subhead">
+        <span className="ml-2.5 flex overflow-hidden text-ellipsis whitespace-nowrap text-text-tertiary typo-subhead">
           {user.name}
         </span>
         <SquadMemberBadge role={role} />

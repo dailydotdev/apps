@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Squad, SourceMember, SourcePermissions } from '../../graphql/sources';
+import { SourceMember, SourcePermissions, Squad } from '../../graphql/sources';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
 import EnableNotification from '../notifications/EnableNotification';
@@ -29,7 +29,12 @@ import {
   PrivilegedMemberItem,
 } from './Members/PrivilegedMemberItem';
 import { formatMonthYearOnly } from '../../lib/dateFormat';
-import { MAX_VISIBLE_PRIVILEGED_MEMBERS } from '../../lib/config';
+import {
+  MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP,
+  MAX_VISIBLE_PRIVILEGED_MEMBERS_MOBILE,
+} from '../../lib/config';
+import { useViewSize, ViewSize } from '../../hooks';
+import { largeNumberFormat } from '../../lib';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -47,7 +52,9 @@ interface SquadStatProps {
 
 const SquadStat = ({ count, label }: SquadStatProps) => (
   <span className="flex flex-row text-text-tertiary typo-footnote">
-    <strong className="mr-1 text-text-primary typo-subhead">{count}</strong>
+    <strong className="mr-1 text-text-primary typo-subhead">
+      {largeNumberFormat(count)}
+    </strong>
     {label}
   </span>
 );
@@ -83,6 +90,10 @@ export function SquadPageHeader({
     ? formatMonthYearOnly(squad.createdAt)
     : null;
   const privilegedLength = squad.privilegedMembers?.length || 0;
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const listMax = isMobile
+    ? MAX_VISIBLE_PRIVILEGED_MEMBERS_MOBILE
+    : MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP;
 
   return (
     <FlexCol
@@ -133,7 +144,7 @@ export function SquadPageHeader({
               <span className="typo-caption2">Created {createdAt}</span>
             )}
           </div>
-          <div className="mt-4 flex flex-row items-center gap-2">
+          <div className="mt-4 flex flex-col items-center gap-2 tablet:flex-row">
             <Button
               icon={props.icon}
               size={ButtonSize.Small}
@@ -153,9 +164,16 @@ export function SquadPageHeader({
                 </>
               )}
             </Button>
-            <SquadStat count={squad.flags?.totalPosts} label="Posts" />
-            <SquadStat count={squad.flags?.totalViews} label="Views" />
-            <SquadStat count={squad.flags?.totalUpvotes} label="Upvotes" />
+            <ConditionalWrapper
+              condition={isMobile}
+              wrapper={(component) => (
+                <div className="flex flex-row gap-2">{component}</div>
+              )}
+            >
+              <SquadStat count={squad.flags?.totalPosts} label="Posts" />
+              <SquadStat count={squad.flags?.totalViews} label="Views" />
+              <SquadStat count={squad.flags?.totalUpvotes} label="Upvotes" />
+            </ConditionalWrapper>
           </div>
         </FlexCol>
       </div>
@@ -174,14 +192,12 @@ export function SquadPageHeader({
         Moderated by
       </span>
       <div className="mt-2 flex flex-row items-center gap-3">
-        {squad.privilegedMembers
-          ?.slice(0, MAX_VISIBLE_PRIVILEGED_MEMBERS)
-          .map((member) => (
-            <PrivilegedMemberItem key={member.user.id} member={member} />
-          ))}
-        {privilegedLength > MAX_VISIBLE_PRIVILEGED_MEMBERS && (
+        {squad.privilegedMembers?.slice(0, listMax).map((member) => (
+          <PrivilegedMemberItem key={member.user.id} member={member} />
+        ))}
+        {privilegedLength > listMax && (
           <PrivilegedMemberContainer className="h-fit font-bold text-text-tertiary typo-callout">
-            +{privilegedLength - MAX_VISIBLE_PRIVILEGED_MEMBERS}
+            +{privilegedLength - listMax}
           </PrivilegedMemberContainer>
         )}
       </div>
