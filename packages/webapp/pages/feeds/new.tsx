@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
 import classNames from 'classnames';
@@ -37,10 +37,11 @@ import {
 } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { withExperiment } from '@dailydotdev/shared/src/components/withExperiment';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { CustomFeedsExperiment } from '@dailydotdev/shared/src/lib/featureValues';
+import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -68,6 +69,7 @@ const NewFeedPage = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const { FeedPageLayoutComponent } = useFeedLayout();
+  const { trackEvent } = useAnalyticsContext();
 
   const { user } = useAuthContext();
   const { feedSettings } = useFeedSettings({ feedId: newFeedId });
@@ -105,6 +107,11 @@ const NewFeedPage = (): ReactElement => {
     },
     {
       onSuccess: (data) => {
+        trackEvent({
+          event_name: AnalyticsEvent.CreateCustomFeed,
+          target_id: data.id,
+        });
+
         queryClient.removeQueries(getFeedSettingsQueryKey(user, newFeedId));
 
         onAskConfirmation(false);
@@ -130,6 +137,20 @@ const NewFeedPage = (): ReactElement => {
   useEffect(() => {
     completeAction(ActionType.CustomFeed);
   }, [completeAction]);
+
+  const trackedStartEventRef = useRef(false);
+
+  useEffect(() => {
+    if (trackedStartEventRef.current) {
+      return;
+    }
+
+    trackedStartEventRef.current = true;
+
+    trackEvent({
+      event_name: AnalyticsEvent.StartCustomFeed,
+    });
+  }, [trackEvent]);
 
   if (finished) {
     return (
@@ -197,6 +218,8 @@ const NewFeedPage = (): ReactElement => {
               shouldUpdateAlerts={false}
               shouldFilterLocally
               feedId={newFeedId}
+              origin={Origin.CustomFeed}
+              searchOrigin={Origin.CustomFeed}
             />
             <FeedPreviewControls
               isOpen={isPreviewFeedVisible}

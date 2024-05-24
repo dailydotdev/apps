@@ -45,6 +45,8 @@ const placeholderTags = new Array(24)
 
 export type FilterOnboardingV4Props = {
   onClickTag?: ({ tag, action }: OnSelectTagProps) => void;
+  origin?: Origin;
+  searchOrigin?: Origin;
 } & Omit<FilterOnboardingProps, 'onSelectedTopics'>;
 
 export function FilterOnboardingV4({
@@ -53,6 +55,8 @@ export function FilterOnboardingV4({
   shouldFilterLocally,
   feedId,
   onClickTag,
+  origin = Origin.Onboarding,
+  searchOrigin = Origin.EditTag,
 }: FilterOnboardingV4Props): ReactElement {
   const queryClient = useQueryClient();
 
@@ -61,7 +65,7 @@ export function FilterOnboardingV4({
     return new Set(feedSettings?.includeTags || []);
   }, [feedSettings?.includeTags]);
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
-    origin: Origin.Onboarding,
+    origin,
     shouldUpdateAlerts,
     feedId,
     shouldFilterLocally,
@@ -118,7 +122,7 @@ export function FilterOnboardingV4({
 
   const { data: searchResult, isLoading: isSearchLoading } = useTagSearch({
     value: searchQuery,
-    origin: Origin.EditTag,
+    origin: searchOrigin,
   });
   const searchTags = searchResult?.searchTags.tags || [];
 
