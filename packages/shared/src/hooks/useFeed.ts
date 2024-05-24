@@ -213,15 +213,16 @@ export default function useFeed<T>(
       );
     }
     return newItems;
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     feedQuery.data,
     feedQuery.isFetching,
-    adsQuery.data,
-    adsQuery.isFetching,
-    settings.showAcquisitionForm,
     settings.marketingCta,
+    settings.showAcquisitionForm,
+    showPublicSquadsEligibility,
+    isAdsQueryEnabled,
+    adSpot,
+    adsQuery.data?.pages,
+    placeholdersPerPage,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);

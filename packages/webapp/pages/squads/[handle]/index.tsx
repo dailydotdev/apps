@@ -248,7 +248,8 @@ const SquadPage = ({
           ]}
           showPublicSquadsEligibility={
             isRequestsEnabled &&
-            (!dismissedCard || !hiddenCardStatuses.includes(status))
+            !dismissedCard &&
+            !hiddenCardStatuses.includes(status)
           }
           query={SOURCE_FEED_QUERY}
           variables={queryVariables}
