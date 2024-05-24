@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { SocialShare } from '../widgets/SocialShare';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -6,6 +6,8 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import { Modal, ModalProps } from './common/Modal';
 import { ExperimentWinner } from '../../lib/featureValues';
 import { ShareProps } from './post/common';
+import { Squad } from '../../graphql/sources';
+import { useViewSize, ViewSize } from '../../hooks';
 
 export default function ShareModal({
   post,
@@ -19,6 +21,7 @@ export default function ShareModal({
   ...props
 }: ShareProps & ModalProps): ReactElement {
   const isComment = !!comment;
+  const isMobile = useViewSize(ViewSize.MobileL);
   const { trackEvent } = useContext(AnalyticsContext);
 
   const baseTrackingEvent = (
@@ -53,6 +56,7 @@ export default function ShareModal({
   };
 
   const handlers = useSwipeable({ onSwipedDown });
+  const squadState = useState<Squad>();
 
   return (
     <Modal
@@ -63,6 +67,7 @@ export default function ShareModal({
       parentSelector={parentSelector}
       className="overflow-hidden"
       isDrawerOnMobile
+      shouldCloseOnOverlayClick={!isMobile || !squadState[0]}
     >
       <Modal.Header title={isComment ? 'Share comment' : 'Share post'} />
       <Modal.Body {...handlers}>
@@ -75,6 +80,7 @@ export default function ShareModal({
           row={row}
           onClose={() => onRequestClose(null)}
           parentSelector={parentSelector}
+          shareToSquadState={squadState}
         />
       </Modal.Body>
     </Modal>
