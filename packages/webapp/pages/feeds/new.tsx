@@ -119,12 +119,24 @@ const NewFeedPage = (): ReactElement => {
         delayedRedirect(`${webappUrl}feeds/${data.id}`);
       },
       onError: (error) => {
+        const clientErrors = (error as ClientError)?.response?.errors || [];
+
         if (
-          (error as ClientError)?.response?.errors?.some(
+          clientErrors.some(
             (item) => item.message === labels.feed.error.feedLimit.api,
           )
         ) {
           displayToast(labels.feed.error.feedLimit.client);
+
+          return;
+        }
+
+        if (
+          clientErrors.some(
+            (item) => item.message === labels.feed.error.feedNameInvalid.api,
+          )
+        ) {
+          displayToast(labels.feed.error.feedNameInvalid.api);
 
           return;
         }

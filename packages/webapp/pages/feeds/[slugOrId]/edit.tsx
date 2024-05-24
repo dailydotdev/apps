@@ -12,7 +12,7 @@ import useFeedSettings, {
 import { useExitConfirmation } from '@dailydotdev/shared/src/hooks/useExitConfirmation';
 import { useRouter } from 'next/router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import request from 'graphql-request';
+import request, { ClientError } from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
@@ -133,7 +133,19 @@ const EditFeedPage = (): ReactElement => {
         onAskConfirmation(false);
         router.replace(`${webappUrl}feeds/${data.id}`);
       },
-      onError: () => {
+      onError: (error) => {
+        const clientErrors = (error as ClientError)?.response?.errors || [];
+
+        if (
+          clientErrors.some(
+            (item) => item.message === labels.feed.error.feedNameInvalid.api,
+          )
+        ) {
+          displayToast(labels.feed.error.feedNameInvalid.api);
+
+          return;
+        }
+
         displayToast(labels.error.generic);
       },
     },

@@ -55,6 +55,9 @@ export const labels = {
         api: 'You have reached maximum number of feeds for your user',
         client: "Too many feeds, don't you think?",
       },
+      feedNameInvalid: {
+        api: 'Feed name should not contain special characters',
+      },
     },
   },
 };
