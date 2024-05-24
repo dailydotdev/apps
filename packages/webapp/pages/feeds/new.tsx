@@ -221,6 +221,7 @@ const NewFeedPage = (): ReactElement => {
               inputId="feedName"
               label="Enter feed name"
               required
+              maxLength={50}
             />
           </form>
 
