@@ -21,6 +21,8 @@ import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
+import { PrivacyOption } from '@dailydotdev/shared/src/hooks/squads/useSquadPrivacyOptions';
+import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -56,6 +58,9 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
       file: form.file,
       memberPostingRole: form.memberPostingRole,
       memberInviteRole: form.memberInviteRole,
+      public: isNullOrUndefined(form.status)
+        ? undefined
+        : form.status === PrivacyOption.Public,
     };
     const editedSquad = await editSquad(squad.id, formJson);
     if (editedSquad) {

@@ -15,6 +15,7 @@ import { Post, ExternalLinkPreview } from './posts';
 import { base64ToFile } from '../lib/base64';
 import { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
+import { PrivacyOption } from '../hooks/squads/useSquadPrivacyOptions';
 
 export interface SquadForm
   extends Pick<
@@ -28,6 +29,7 @@ export interface SquadForm
   memberPostingRole?: SourceMemberRole;
   memberInviteRole?: SourceMemberRole;
   public?: boolean;
+  status?: PrivacyOption;
 }
 
 type SharedSquadInput = {
@@ -37,6 +39,7 @@ type SharedSquadInput = {
   image?: File;
   memberPostingRole?: SourceMemberRole;
   memberInviteRole?: SourceMemberRole;
+  isPrivate?: boolean;
 };
 
 type EditSquadInput = SharedSquadInput & {
@@ -165,6 +168,7 @@ export const EDIT_SQUAD_MUTATION = gql`
     $image: Upload
     $memberPostingRole: String
     $memberInviteRole: String
+    $isPrivate: Boolean
   ) {
     editSquad(
       sourceId: $sourceId
@@ -174,6 +178,7 @@ export const EDIT_SQUAD_MUTATION = gql`
       image: $image
       memberPostingRole: $memberPostingRole
       memberInviteRole: $memberInviteRole
+      isPrivate: $isPrivate
     ) {
       ...SourceBaseInfo
     }
@@ -465,7 +470,7 @@ export async function createSquad(
 
 type EditSquadForm = Pick<
   SquadForm,
-  'name' | 'description' | 'handle' | 'file'
+  'name' | 'description' | 'handle' | 'file' | 'public'
 > & {
   memberPostingRole?: SourceMemberRole;
   memberInviteRole?: SourceMemberRole;
@@ -483,6 +488,7 @@ export async function editSquad(
     image: form.file ? await base64ToFile(form.file, 'image.jpg') : undefined,
     memberPostingRole: form.memberPostingRole,
     memberInviteRole: form.memberInviteRole,
+    isPrivate: !form.public,
   };
   const data = await request<EditSquadOutput>(
     graphqlUrl,
