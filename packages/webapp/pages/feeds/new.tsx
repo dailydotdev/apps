@@ -44,6 +44,7 @@ import { CustomFeedsExperiment } from '@dailydotdev/shared/src/lib/featureValues
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { getTemplatedTitle } from '../../components/layouts/utils';
 
 type NewFeedFormProps = {
   name: string;
@@ -133,14 +134,14 @@ const NewFeedPage = (): ReactElement => {
   if (finished) {
     return (
       <PreparingYourFeed
-        text={`Preparing ${newFeed?.flags?.name || 'your custom feed'}...`}
+        text={`Preparing ${newFeed?.flags?.name || 'your feed'}...`}
         isAnimating={isAnimating}
       />
     );
   }
 
   const seo: NextSeoProps = {
-    title: 'Create custom feed',
+    title: getTemplatedTitle('Create feed'),
     openGraph: { ...defaultOpenGraph },
     ...defaultSeo,
   };

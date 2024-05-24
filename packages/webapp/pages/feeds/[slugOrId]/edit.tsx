@@ -40,6 +40,7 @@ import { CustomFeedsExperiment } from '@dailydotdev/shared/src/lib/featureValues
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
+import { getTemplatedTitle } from '../../../components/layouts/utils';
 
 type EditFeedFormProps = {
   name: string;
@@ -134,7 +135,7 @@ const EditFeedPage = (): ReactElement => {
   const { mutateAsync: onDelete, status: deleteStatus } = useMutation(
     async () => {
       const shouldDelete = await showPrompt({
-        title: `Delete ${feed?.flags?.name || 'custom feed'}?`,
+        title: `Delete ${feed?.flags?.name || 'feed'}?`,
         description: labels.feed.prompt.delete.description,
         okButton: {
           title: labels.feed.prompt.delete.okButton,
@@ -178,7 +179,7 @@ const EditFeedPage = (): ReactElement => {
   }
 
   const seo: NextSeoProps = {
-    title: 'Edit custom feed',
+    title: getTemplatedTitle('Edit feed'),
     openGraph: { ...defaultOpenGraph },
     ...defaultSeo,
   };
