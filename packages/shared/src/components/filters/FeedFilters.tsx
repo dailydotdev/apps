@@ -56,11 +56,13 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
 
   const { feeds } = useFeeds();
 
+  const filtersTab = hasCustomFeedsEnabled
+    ? FilterMenuTitle.MyFeed
+    : FilterMenuTitle.Tags;
+
   const tabs = [
     {
-      title: hasCustomFeedsEnabled
-        ? FilterMenuTitle.MyFeed
-        : FilterMenuTitle.Tags,
+      title: filtersTab,
       options: { icon: <HomeIcon />, group: 'Feeds' },
     },
     ...(isMobile && hasCustomFeedsEnabled
@@ -122,7 +124,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
         />
         <Modal.Sidebar.Inner>
           <Modal.Header />
-          <Modal.Body view={FilterMenuTitle.Tags}>
+          <Modal.Body view={filtersTab}>
             <TagsFilter tagCategoryLayout={TagCategoryLayout.Settings} />
           </Modal.Body>
           <Modal.Body view={FilterMenuTitle.ManageCategories}>
