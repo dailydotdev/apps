@@ -29,6 +29,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/users';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { SendType } from '@dailydotdev/shared/src/hooks';
 import ProfileNotificationsPage from '../pages/account/notifications';
 
 jest.mock('next/router', () => ({
@@ -205,6 +206,7 @@ it('should subscribe to personalized digest subscription', async () => {
         day: 3,
         hour: 8,
         type: UserPersonalizedDigestType.Digest,
+        sendType: SendType.Weekly,
       },
     },
     result: {
@@ -212,14 +214,16 @@ it('should subscribe to personalized digest subscription', async () => {
         subscribePersonalizedDigest: {
           preferredDay: 1,
           preferredHour: 9,
+          type: UserPersonalizedDigestType.Digest,
+          flags: {
+            sendType: SendType.Weekly,
+          },
         },
       },
     },
   });
 
-  const subscription = await screen.findByTestId('personalized-digest-switch');
-  await waitFor(() => expect(subscription).toBeEnabled());
-
+  const subscription = await screen.findByLabelText('Weekly');
   expect(subscription).not.toBeChecked();
 
   fireEvent.click(subscription);
@@ -233,10 +237,16 @@ it('should unsubscribe from personalized digest subscription', async () => {
     request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
     result: {
       data: {
-        personalizedDigest: {
-          preferredDay: 1,
-          preferredHour: 9,
-        },
+        personalizedDigest: [
+          {
+            preferredDay: 1,
+            preferredHour: 9,
+            type: UserPersonalizedDigestType.Digest,
+            flags: {
+              sendType: SendType.Weekly,
+            },
+          },
+        ],
       },
     },
   };
@@ -244,7 +254,10 @@ it('should unsubscribe from personalized digest subscription', async () => {
   renderComponent();
 
   mockGraphQL({
-    request: { query: UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, variables: {} },
+    request: {
+      query: UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+      variables: { type: UserPersonalizedDigestType.Digest },
+    },
     result: {
       data: {
         _: true,
@@ -252,12 +265,11 @@ it('should unsubscribe from personalized digest subscription', async () => {
     },
   });
 
-  const subscription = await screen.findByTestId('personalized-digest-switch');
-  await waitFor(() => expect(subscription).toBeEnabled());
+  const subscription = await screen.findByLabelText('Weekly');
+  await waitFor(() => expect(subscription).toBeChecked());
 
-  expect(subscription).toBeChecked();
-
-  fireEvent.click(subscription);
+  const unsubscribe = screen.getByText('Off');
+  fireEvent.click(unsubscribe);
   await waitForNock();
 
   expect(subscription).not.toBeChecked();

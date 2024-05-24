@@ -44,10 +44,13 @@ describe('usePersonalizedDigest hook', () => {
       request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
       result: {
         data: {
-          personalizedDigest: {
-            preferredDay: 1,
-            preferredHour: 9,
-          },
+          personalizedDigest: [
+            {
+              preferredDay: 1,
+              preferredHour: 9,
+              type: UserPersonalizedDigestType.Digest,
+            },
+          ],
         },
       },
     });
@@ -114,7 +117,7 @@ describe('usePersonalizedDigest hook', () => {
     mockGraphQL({
       request: {
         query: UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
-        variables: {},
+        variables: { type: UserPersonalizedDigestType.Digest },
       },
       result: () => {
         mutationCalled = true;
