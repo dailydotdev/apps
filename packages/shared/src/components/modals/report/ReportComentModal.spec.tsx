@@ -35,6 +35,9 @@ beforeEach(async () => {
 
 const squads = [generateTestSquad()];
 
+const onReport = jest.fn();
+const onRequestClose = jest.fn();
+
 const renderComponent = (
   loggedIn = true,
   hasSquads = true,
@@ -55,10 +58,10 @@ const renderComponent = (
       >
         <LazyModalElement />
         <ReportCommentModal
-          onReport={jest.fn()}
+          onReport={onReport}
           comment={comment || defaultComment}
           isOpen
-          onRequestClose={jest.fn()}
+          onRequestClose={onRequestClose}
           post={defaultPost}
         />
       </AuthContextProvider>
@@ -97,6 +100,8 @@ it('submit the report without text', async () => {
   submitButton.click();
   await waitForNock();
   await waitFor(() => expect(queryCalled).toBeTruthy());
+  await waitFor(() => expect(onReport).toHaveBeenCalled());
+  await waitFor(() => expect(onRequestClose).toHaveBeenCalled());
 });
 
 it('submit the report with text', async () => {
@@ -135,4 +140,6 @@ it('submit the report with text', async () => {
 
   await waitForNock();
   await waitFor(() => expect(queryCalled).toBeTruthy());
+  await waitFor(() => expect(onReport).toHaveBeenCalled());
+  await waitFor(() => expect(onRequestClose).toHaveBeenCalled());
 });
