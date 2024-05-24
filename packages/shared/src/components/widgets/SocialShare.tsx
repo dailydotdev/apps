@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { Dispatch, ReactElement, useContext } from 'react';
 import { ShareProvider, addTrackingQueryParams } from '../../lib/share';
 import { Post } from '../../graphql/posts';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
@@ -23,6 +23,7 @@ interface SocialShareProps extends Pick<ModalProps, 'parentSelector'> {
   comment?: Comment;
   onClose?: () => void;
   commentary?: string;
+  shareToSquadState: [Squad, Dispatch<Squad>];
 }
 
 export const SocialShare = ({
@@ -34,6 +35,7 @@ export const SocialShare = ({
   row,
   onClose,
   parentSelector,
+  shareToSquadState,
 }: SocialShareProps & FeedItemPosition): ReactElement => {
   const isComment = !!comment;
   const { user, isAuthReady } = useAuthContext();
@@ -53,7 +55,7 @@ export const SocialShare = ({
   const [copying, copyLink] = useCopyLink();
   const { trackEvent } = useContext(AnalyticsContext);
   const { openNativeSharePost } = useSharePost(Origin.Share);
-  const [squadToShare, setSquadToShare] = useState<Squad>();
+  const [squadToShare, setSquadToShare] = shareToSquadState;
   const trackClick = (provider: ShareProvider) =>
     trackEvent(
       postAnalyticsEvent('share post', post, {
@@ -103,6 +105,7 @@ export const SocialShare = ({
           squad={squadToShare}
           onSharedSuccessfully={onSharedSuccessfully}
           parentSelector={parentSelector}
+          onRequestClose={() => setSquadToShare(null)}
         />
       )}
     </>
