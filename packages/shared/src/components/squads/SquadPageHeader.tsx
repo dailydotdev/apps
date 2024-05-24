@@ -141,7 +141,7 @@ export function SquadPageHeader({
               <span className="typo-caption2">Created {createdAt}</span>
             )}
           </div>
-          <div className="mt-4 flex flex-row items-center gap-2">
+          <div className="mt-4 flex flex-col items-center gap-2 tablet:flex-row">
             <Button
               icon={props.icon}
               size={ButtonSize.Small}
@@ -161,9 +161,16 @@ export function SquadPageHeader({
                 </>
               )}
             </Button>
-            <SquadStat count={squad.flags?.totalPosts} label="Posts" />
-            <SquadStat count={squad.flags?.totalViews} label="Views" />
-            <SquadStat count={squad.flags?.totalUpvotes} label="Upvotes" />
+            <ConditionalWrapper
+              condition={isMobile}
+              wrapper={(component) => (
+                <div className="flex flex-row gap-2">{component}</div>
+              )}
+            >
+              <SquadStat count={squad.flags?.totalPosts} label="Posts" />
+              <SquadStat count={squad.flags?.totalViews} label="Views" />
+              <SquadStat count={squad.flags?.totalUpvotes} label="Upvotes" />
+            </ConditionalWrapper>
           </div>
         </FlexCol>
       </div>
