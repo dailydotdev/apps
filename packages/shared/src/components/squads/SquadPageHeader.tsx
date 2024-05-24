@@ -96,7 +96,7 @@ export function SquadPageHeader({
       <div
         className={classNames(
           !shouldUseListModeV1 && 'laptopL:flex-row',
-          'flex flex-col items-center ',
+          'flex flex-col items-center',
         )}
       >
         <SquadImage className="h-16 w-16 tablet:h-24 tablet:w-24" {...squad} />
@@ -108,7 +108,7 @@ export function SquadPageHeader({
         >
           <h1
             className={classNames(
-              'text-center font-bold typo-title2 laptopL:text-left',
+              'text-center font-bold typo-title2',
               !shouldUseListModeV1 && 'laptopL:text-left',
             )}
           >
@@ -117,7 +117,7 @@ export function SquadPageHeader({
           <div className="mt-1 flex flex-row items-center justify-center text-text-quaternary tablet:mt-2 laptopL:justify-start">
             <h2
               className={classNames(
-                'text-center text-text-tertiary typo-footnote laptopL:text-left',
+                'text-center text-text-tertiary typo-footnote',
                 !shouldUseListModeV1 && 'laptopL:text-left',
               )}
             >
