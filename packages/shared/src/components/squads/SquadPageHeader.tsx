@@ -34,6 +34,7 @@ import {
   MAX_VISIBLE_PRIVILEGED_MEMBERS_MOBILE,
 } from '../../lib/config';
 import { useViewSize, ViewSize } from '../../hooks';
+import { largeNumberFormat } from '../../lib';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -51,7 +52,9 @@ interface SquadStatProps {
 
 const SquadStat = ({ count, label }: SquadStatProps) => (
   <span className="flex flex-row text-text-tertiary typo-footnote">
-    <strong className="mr-1 text-text-primary typo-subhead">{count}</strong>
+    <strong className="mr-1 text-text-primary typo-subhead">
+      {largeNumberFormat(count)}
+    </strong>
     {label}
   </span>
 );
