@@ -12,13 +12,10 @@ import { RequestKey, generateQueryKey } from '../../lib/query';
 import {
   GET_ONBOARDING_TAGS_QUERY,
   GET_RECOMMENDED_TAGS_QUERY,
-  Tag,
   TagsData,
 } from '../../graphql/feedSettings';
 import { graphqlUrl } from '../../lib/config';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
-import { AlertColor, AlertDot } from '../AlertDot';
 import { SearchField } from '../fields/SearchField';
 import useDebounce from '../../hooks/useDebounce';
 import { useTagSearch } from '../../hooks';
@@ -26,11 +23,8 @@ import type { FilterOnboardingProps } from './FilterOnboarding';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { Origin } from '../../lib/analytics';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-
-type OnSelectTagProps = {
-  tag: Tag;
-  action: 'follow' | 'unfollow';
-};
+import { OnSelectTagProps } from './common';
+import { OnboardingTag } from './OnboardingTag';
 
 const tagsSelector = (data: TagsData) => data?.tags || [];
 
@@ -190,6 +184,7 @@ export function FilterOnboardingV4({
   };
 
   const tags = searchQuery && !isSearchLoading ? searchTags : onboardingTags;
+  const renderedTags = {};
 
   return (
     <div className={classNames(className, 'flex w-full flex-col items-center')}>
@@ -212,31 +207,33 @@ export function FilterOnboardingV4({
         {!isLoading &&
           tags?.map((tag) => {
             const isSelected = selectedTags.has(tag.name);
+            renderedTags[tag.name] = true;
+
             return (
-              <Button
+              <OnboardingTag
                 key={tag.name}
-                className={classNames(
-                  {
-                    'btn-tag': !isSelected,
-                  },
-                  'relative',
-                )}
-                variant={
-                  isSelected ? ButtonVariant.Primary : ButtonVariant.Float
-                }
-                color={isSelected ? ButtonColor.Cabbage : undefined}
-                onClick={() => {
-                  handleClickTag({ tag });
-                }}
-              >
-                {tag.name}
-                {!searchQuery && !!recommendedTags?.has(tag.name) && (
-                  <AlertDot
-                    className="absolute right-1 top-1"
-                    color={AlertColor.Cabbage}
-                  />
-                )}
-              </Button>
+                tag={tag}
+                onClick={handleClickTag}
+                isSelected={isSelected}
+                isHighlighted={!searchQuery && !!recommendedTags?.has(tag.name)}
+              />
+            );
+          })}
+        {/* render leftover tags not rendered in initial recommendations but selected */}
+        {!isLoading &&
+          !searchQuery &&
+          feedSettings?.includeTags?.map((tag) => {
+            if (renderedTags[tag]) {
+              return null;
+            }
+
+            return (
+              <OnboardingTag
+                key={tag}
+                tag={{ name: tag }}
+                onClick={handleClickTag}
+                isSelected
+              />
             );
           })}
       </div>

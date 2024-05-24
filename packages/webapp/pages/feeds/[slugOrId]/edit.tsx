@@ -1,4 +1,10 @@
-import React, { ReactElement, useEffect, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
 import classNames from 'classnames';
@@ -197,6 +203,18 @@ const EditFeedPage = (): ReactElement => {
       router.push(`${webappUrl}feeds/new`);
     }
   }, [shouldRedirectToNewFeed, feed, router]);
+
+  const cleanupRef = useRef<() => void>();
+  cleanupRef.current = () => {
+    queryClient.removeQueries(getFeedSettingsQueryKey(user, feedId));
+  };
+
+  useEffect(() => {
+    return () => {
+      // cleanup on discard or navigation without save
+      cleanupRef.current();
+    };
+  }, []);
 
   if (!feed) {
     return null;
