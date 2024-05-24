@@ -96,7 +96,7 @@ export function SquadPageHeader({
       <div
         className={classNames(
           !shouldUseListModeV1 && 'laptopL:flex-row',
-          'flex flex-col items-center ',
+          'flex flex-col items-center',
         )}
       >
         <SquadImage className="h-16 w-16 tablet:h-24 tablet:w-24" {...squad} />
@@ -108,16 +108,21 @@ export function SquadPageHeader({
         >
           <h1
             className={classNames(
-              'text-center font-bold typo-title2 laptopL:text-left',
+              'text-center font-bold typo-title2',
               !shouldUseListModeV1 && 'laptopL:text-left',
             )}
           >
             {squad.name}
           </h1>
-          <div className="mt-1 flex flex-row items-center justify-center text-text-quaternary tablet:mt-2 laptopL:justify-start">
+          <div
+            className={classNames(
+              'mt-1 flex flex-row items-center justify-center text-text-quaternary tablet:mt-2',
+              !shouldUseListModeV1 && 'laptopL:justify-start',
+            )}
+          >
             <h2
               className={classNames(
-                'text-center text-text-tertiary typo-footnote laptopL:text-left',
+                'text-center text-text-tertiary typo-footnote',
                 !shouldUseListModeV1 && 'laptopL:text-left',
               )}
             >
@@ -183,8 +188,11 @@ export function SquadPageHeader({
       <SquadHeaderBar
         squad={squad}
         members={members}
-        className="mt-8 laptopL:absolute laptopL:right-18 laptopL:top-0 laptopL:mt-0"
-        shouldUseListModeV1={shouldUseListModeV1}
+        className={classNames(
+          'mt-8',
+          !shouldUseListModeV1 &&
+            'laptopL:absolute laptopL:right-18 laptopL:top-0 laptopL:mt-0',
+        )}
       />
       <EnableNotification
         contentName={squad.name}
