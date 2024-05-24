@@ -93,7 +93,7 @@ export type PostAnalyticsEventFnOptions = FeedItemPosition & {
   extra?: Record<string, unknown>;
 };
 
-const feedPathWithIdMatcher = /\/feeds\/(?<feedId>[A-z0-9]{9})\/?/;
+const feedPathWithIdMatcher = /^\/feeds\/(?<feedId>[A-z0-9]{9})\/?$/;
 
 export function postAnalyticsEvent(
   eventName: string,
