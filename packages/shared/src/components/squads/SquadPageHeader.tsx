@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Squad, SourceMember, SourcePermissions } from '../../graphql/sources';
+import { SourceMember, SourcePermissions, Squad } from '../../graphql/sources';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
 import EnableNotification from '../notifications/EnableNotification';
@@ -29,7 +29,11 @@ import {
   PrivilegedMemberItem,
 } from './Members/PrivilegedMemberItem';
 import { formatMonthYearOnly } from '../../lib/dateFormat';
-import { MAX_VISIBLE_PRIVILEGED_MEMBERS } from '../../lib/config';
+import {
+  MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP,
+  MAX_VISIBLE_PRIVILEGED_MEMBERS_MOBILE,
+} from '../../lib/config';
+import { useViewSize, ViewSize } from '../../hooks';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -83,6 +87,10 @@ export function SquadPageHeader({
     ? formatMonthYearOnly(squad.createdAt)
     : null;
   const privilegedLength = squad.privilegedMembers?.length || 0;
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const listMax = isMobile
+    ? MAX_VISIBLE_PRIVILEGED_MEMBERS_MOBILE
+    : MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP;
 
   return (
     <FlexCol
@@ -174,14 +182,12 @@ export function SquadPageHeader({
         Moderated by
       </span>
       <div className="mt-2 flex flex-row items-center gap-3">
-        {squad.privilegedMembers
-          ?.slice(0, MAX_VISIBLE_PRIVILEGED_MEMBERS)
-          .map((member) => (
-            <PrivilegedMemberItem key={member.user.id} member={member} />
-          ))}
-        {privilegedLength > MAX_VISIBLE_PRIVILEGED_MEMBERS && (
+        {squad.privilegedMembers?.slice(0, listMax).map((member) => (
+          <PrivilegedMemberItem key={member.user.id} member={member} />
+        ))}
+        {privilegedLength > listMax && (
           <PrivilegedMemberContainer className="h-fit font-bold text-text-tertiary typo-callout">
-            +{privilegedLength - MAX_VISIBLE_PRIVILEGED_MEMBERS}
+            +{privilegedLength - listMax}
           </PrivilegedMemberContainer>
         )}
       </div>
