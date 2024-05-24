@@ -57,6 +57,9 @@ const SubmitSquadForReviewModal = ({
 
   const { submitForReview, isSubmitLoading } = usePublicSquadRequests({
     sourceId: squad?.id,
+    onSuccessfulSubmission: () => {
+      onRequestClose(null);
+    },
   });
 
   if (!isFetched || !squad) {

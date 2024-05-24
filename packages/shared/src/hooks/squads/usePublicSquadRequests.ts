@@ -2,6 +2,7 @@ import {
   InfiniteData,
   useInfiniteQuery,
   useMutation,
+  useQueryClient,
 } from '@tanstack/react-query';
 import { subDays } from 'date-fns';
 import { useMemo } from 'react';
@@ -35,6 +36,7 @@ interface UsePublicSquadRequestsProps {
   isQueryEnabled?: boolean;
   sourceId: string;
   status?: string;
+  onSuccessfulSubmission?: () => void;
 }
 
 const remoteStatusMap: Record<PublicSquadRequestStatus, SquadStatus> = {
@@ -46,11 +48,17 @@ const remoteStatusMap: Record<PublicSquadRequestStatus, SquadStatus> = {
 export const usePublicSquadRequests = ({
   isQueryEnabled,
   sourceId,
+  onSuccessfulSubmission,
 }: UsePublicSquadRequestsProps): UsePublicSquadRequestsResult => {
   const { displayToast } = useToastNotification();
   const { user } = useAuthContext();
+  const client = useQueryClient();
+  const key = useMemo(
+    () => generateQueryKey(RequestKey.PublicSquadRequests, user),
+    [user],
+  );
   const { data: requests, isFetched } = useInfiniteQuery(
-    generateQueryKey(RequestKey.PublicSquadRequests, user),
+    key,
     (params) => getPublicSquadRequests({ ...params, sourceId }),
     { enabled: isQueryEnabled && !!sourceId, staleTime: StaleTime.Default },
   );
@@ -61,6 +69,12 @@ export const usePublicSquadRequests = ({
         displayToast(
           `Your Squad's public access request is in review. You'll hear back from us shortly.`,
         );
+
+        client.invalidateQueries(key);
+
+        if (onSuccessfulSubmission) {
+          onSuccessfulSubmission();
+        }
       },
       onError: (error: ApiErrorResult) => {
         const result = parseOrDefault<Record<string, string>>(
