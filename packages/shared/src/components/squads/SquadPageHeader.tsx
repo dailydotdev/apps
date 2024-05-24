@@ -114,7 +114,12 @@ export function SquadPageHeader({
           >
             {squad.name}
           </h1>
-          <div className="mt-1 flex flex-row items-center justify-center text-text-quaternary tablet:mt-2 laptopL:justify-start">
+          <div
+            className={classNames(
+              'mt-1 flex flex-row items-center justify-center text-text-quaternary tablet:mt-2',
+              !shouldUseListModeV1 && 'laptopL:justify-start',
+            )}
+          >
             <h2
               className={classNames(
                 'text-center text-text-tertiary typo-footnote',
