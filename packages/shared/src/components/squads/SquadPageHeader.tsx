@@ -183,8 +183,11 @@ export function SquadPageHeader({
       <SquadHeaderBar
         squad={squad}
         members={members}
-        className="mt-8 laptopL:absolute laptopL:right-18 laptopL:top-0 laptopL:mt-0"
-        shouldUseListModeV1={shouldUseListModeV1}
+        className={classNames(
+          'mt-8',
+          !shouldUseListModeV1 &&
+            'laptopL:absolute laptopL:right-18 laptopL:top-0 laptopL:mt-0',
+        )}
       />
       <EnableNotification
         contentName={squad.name}
