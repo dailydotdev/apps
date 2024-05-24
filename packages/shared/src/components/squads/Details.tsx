@@ -77,13 +77,12 @@ export function SquadDetails({
   } = form;
   const isRequestsEnabled =
     !createMode && !form.public && !form.flags?.totalPosts && !!form?.id;
-  const { status } = usePublicSquadRequests({
+  const { status, daysLeft } = usePublicSquadRequests({
     isQueryEnabled: isRequestsEnabled,
     sourceId: form?.id,
   });
   const [activeHandle, setActiveHandle] = useState(handle);
   const [privacy, setPrivacy] = useState(
-    // TODO: MI-344 once the API is updated to handle privacy change eligibility, we should hook this value to the mutation
     form.public ? PrivacyOption.Public : PrivacyOption.Private,
   );
   const [imageChanged, setImageChanged] = useState(false);
@@ -101,7 +100,6 @@ export function SquadDetails({
   const [memberInviteRole, setMemberInviteRole] = useState(
     () => initialMemberInviteRole || SourceMemberRole.Member,
   );
-  const daysLeft = 14; // TODO: MI-344 this needs to be dynamic
 
   const { mutateAsync: onValidateHandle } = useMutation(checkExistingHandle, {
     onError: (err) => {

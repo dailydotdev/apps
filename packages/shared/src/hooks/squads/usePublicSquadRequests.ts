@@ -4,7 +4,7 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import { subDays } from 'date-fns';
+import { differenceInDays, subDays } from 'date-fns';
 import { useMemo } from 'react';
 import { useToastNotification } from '../useToastNotification';
 import {
@@ -20,6 +20,7 @@ import {
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { SquadStatus } from '../../components/squads/settings';
+import { PUBLIC_SQUAD_REQUEST_COOLDOWN } from '../../lib/config';
 
 const DEFAULT_ERROR = "Oops! That didn't seem to work. Let's try again!";
 
@@ -30,6 +31,7 @@ interface UsePublicSquadRequestsResult {
   latestRequest: PublicSquadRequest;
   isFetched: boolean;
   status: SquadStatus;
+  daysLeft: number;
 }
 
 interface UsePublicSquadRequestsProps {
@@ -94,14 +96,30 @@ export const usePublicSquadRequests = ({
     }
 
     if (latestRequest.status === PublicSquadRequestStatus.Rejected) {
-      const fourteenDaysAgo = subDays(new Date(), 14);
+      const withinCooldown = subDays(new Date(), PUBLIC_SQUAD_REQUEST_COOLDOWN);
       const requestDate = new Date(latestRequest.createdAt);
-      return fourteenDaysAgo < requestDate
+      return withinCooldown < requestDate
         ? SquadStatus.Rejected
         : SquadStatus.InProgress;
     }
 
     return remoteStatusMap[latestRequest.status];
+  }, [latestRequest]);
+
+  const daysLeft = useMemo(() => {
+    if (
+      !latestRequest ||
+      latestRequest.status !== PublicSquadRequestStatus.Rejected
+    ) {
+      return 0;
+    }
+
+    const difference = differenceInDays(
+      new Date(),
+      new Date(latestRequest.createdAt),
+    );
+
+    return Math.max(0, PUBLIC_SQUAD_REQUEST_COOLDOWN - difference);
   }, [latestRequest]);
 
   return {
@@ -111,5 +129,6 @@ export const usePublicSquadRequests = ({
     isFetched: isFetched && !!requests,
     latestRequest,
     status,
+    daysLeft,
   };
 };
