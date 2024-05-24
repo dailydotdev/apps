@@ -13,3 +13,4 @@ export const fallbackImages = {
 };
 
 export const MAX_VISIBLE_PRIVILEGED_MEMBERS = 3;
+export const PUBLIC_SQUAD_REQUEST_COOLDOWN = 14;
