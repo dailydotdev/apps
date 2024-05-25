@@ -21,6 +21,8 @@ import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
+import NotificationsBell from '../notifications/NotificationsBell';
+import classed from '../../lib/classed';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -40,12 +42,18 @@ const urlToTab: Record<string, FeedNavTab> = {
   [`${webappUrl}history`]: FeedNavTab.History,
 };
 
+const StickyNavIconWrapper = classed(
+  'div',
+  'sticky flex h-11 w-20 -translate-y-12 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4',
+);
+
 function FeedNav(): ReactElement {
   const router = useRouter();
   const { feedName } = useActiveFeedNameContext();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isSortableFeed } = useFeedName({ feedName });
   const { home: shouldRenderNav } = useActiveNav(feedName);
+  const isLaptop = useViewSize(ViewSize.LaptopL);
   const isMobile = useViewSize(ViewSize.MobileL);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
@@ -91,7 +99,7 @@ function FeedNav(): ReactElement {
         </TabContainer>
 
         {isMobile && sortingEnabled && isSortableFeed && (
-          <div className="sticky flex h-11 w-20 -translate-y-12 translate-x-[calc(100vw-100%)] items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4">
+          <StickyNavIconWrapper className="translate-x-[calc(100vw-100%)]">
             <Dropdown
               className={{
                 label: 'hidden',
@@ -108,7 +116,12 @@ function FeedNav(): ReactElement {
               onChange={(_, index) => setSelectedAlgo(index)}
               drawerProps={{ displayCloseButton: true }}
             />
-          </div>
+          </StickyNavIconWrapper>
+        )}
+        {!isMobile && !isLaptop && (
+          <StickyNavIconWrapper className="translate-x-[calc(100vw-180%)]">
+            <NotificationsBell compact />
+          </StickyNavIconWrapper>
         )}
       </div>
     </div>
