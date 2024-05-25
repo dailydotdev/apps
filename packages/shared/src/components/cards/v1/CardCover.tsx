@@ -12,6 +12,7 @@ interface CardCoverProps extends CommonCardCoverProps {
   imageProps: ImageProps;
   videoProps?: Omit<VideoImageProps, 'imageProps'>;
   isVideoType?: boolean;
+  className?: string;
 }
 
 export function CardCoverV1({
@@ -20,6 +21,7 @@ export function CardCoverV1({
   isVideoType,
   onShare,
   post,
+  className,
 }: CardCoverProps): ReactElement {
   const { shouldShowOverlay, onInteract } = usePostShareLoop(post);
   const coverShare = (
@@ -55,7 +57,7 @@ export function CardCoverV1({
     <ConditionalWrapper
       condition={shouldShowOverlay}
       wrapper={(component) => (
-        <div className="relative flex">
+        <div className={classNames('relative flex', className)}>
           {coverShare}
           {component}
         </div>
