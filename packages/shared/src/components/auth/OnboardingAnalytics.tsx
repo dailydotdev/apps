@@ -126,6 +126,19 @@ interface TrackAnalyticsSignUpProps {
   experienceLevel: keyof typeof UserExperienceLevel;
 }
 
+const EXPERIENCE_TO_SENIORITY: Record<
+  keyof typeof UserExperienceLevel,
+  string
+> = {
+  LESS_THAN_1_YEAR: 'junior',
+  MORE_THAN_1_YEAR: 'junior',
+  MORE_THAN_2_YEARS: 'mid',
+  MORE_THAN_4_YEARS: 'mid',
+  MORE_THAN_6_YEARS: 'senior',
+  MORE_THAN_10_YEARS: 'senior',
+  NOT_ENGINEER: 'not_engineer',
+};
+
 export const trackAnalyticsSignUp = ({
   experienceLevel,
 }: TrackAnalyticsSignUpProps): void => {
@@ -135,8 +148,9 @@ export const trackAnalyticsSignUp = ({
 
   if (typeof globalThis.fbq === 'function') {
     globalThis.fbq('track', 'signup');
-    if (experienceLevel) {
-      globalThis.fbq('track', `signup2_${experienceLevel}`);
+    const seniority = EXPERIENCE_TO_SENIORITY[experienceLevel];
+    if (seniority) {
+      globalThis.fbq('track', `signup3_${seniority}`);
     }
   }
 
