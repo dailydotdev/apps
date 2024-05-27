@@ -57,6 +57,12 @@ function MyFeedHeading({
   const isRefreshing = feedQueryState?.status === 'success' && isFetchingFeed;
   const shouldShowFeedRefresh = forceRefresh && !isCustomFeed;
 
+  let feedFiltersLabel = 'Feed settings';
+
+  if (isCustomFeed) {
+    feedFiltersLabel = 'Edit tags';
+  }
+
   return (
     <>
       {shouldShowFeedRefresh && (
@@ -84,7 +90,7 @@ function MyFeedHeading({
           shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
         }
       >
-        {!isMobile ? 'Feed settings' : null}
+        {!isMobile ? feedFiltersLabel : null}
       </Button>
     </>
   );
