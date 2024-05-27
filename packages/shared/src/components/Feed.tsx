@@ -34,7 +34,7 @@ import { useSharePost } from '../hooks/useSharePost';
 import { Origin } from '../lib/analytics';
 import ShareOptionsMenu from './ShareOptionsMenu';
 import { SharedFeedPage } from './utilities';
-import { FeedContainer, FeedContainerProps } from './feeds';
+import { FeedContainer, FeedContainerProps } from './feeds/FeedContainer';
 import { ActiveFeedContext } from '../contexts';
 import { useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
 import {

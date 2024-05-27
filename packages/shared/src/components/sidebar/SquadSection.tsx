@@ -19,11 +19,6 @@ export function SquadSection(props: SectionCommonProps): ReactElement {
       title: 'Public Squads',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}squads`,
       isForcedLink: true,
-      rightIcon: () => (
-        <span className="font-bold text-text-quaternary typo-caption1">
-          beta
-        </span>
-      ),
     },
     {
       icon: () => <NewSquadIcon />,

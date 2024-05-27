@@ -78,14 +78,14 @@ export const SEARCH_TAGS_QUERY = gql`
 `;
 
 export const FEED_SETTINGS_QUERY = gql`
-  query FeedPreferences {
+  query FeedPreferences($feedId: ID) {
     tagsCategories {
       id
       title
       tags
       emoji
     }
-    feedSettings {
+    feedSettings(feedId: $feedId) {
       includeTags
       blockedTags
       excludeSources {
@@ -134,16 +134,16 @@ export const FEED_FILTERS_FROM_REGISTRATION = gql`
 `;
 
 export const ADD_FILTERS_TO_FEED_MUTATION = gql`
-  mutation AddFiltersToFeed($filters: FiltersInput!) {
-    feedSettings: addFiltersToFeed(filters: $filters) {
+  mutation AddFiltersToFeed($feedId: ID, $filters: FiltersInput!) {
+    feedSettings: addFiltersToFeed(feedId: $feedId, filters: $filters) {
       id
     }
   }
 `;
 
 export const REMOVE_FILTERS_FROM_FEED_MUTATION = gql`
-  mutation RemoveFiltersFromFeed($filters: FiltersInput!) {
-    feedSettings: removeFiltersFromFeed(filters: $filters) {
+  mutation RemoveFiltersFromFeed($feedId: ID, $filters: FiltersInput!) {
+    feedSettings: removeFiltersFromFeed(feedId: $feedId, filters: $filters) {
       id
     }
   }

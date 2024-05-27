@@ -15,6 +15,7 @@ import { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
+  CUSTOM_FEED_QUERY,
   FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
@@ -84,6 +85,12 @@ const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
   discussed: {
     query: MOST_DISCUSSED_FEED_QUERY,
   },
+  [SharedFeedPage.Custom]: {
+    query: CUSTOM_FEED_QUERY,
+  },
+  [SharedFeedPage.CustomForm]: {
+    query: PREVIEW_FEED_QUERY,
+  },
 };
 
 export interface MainFeedLayoutProps
@@ -141,7 +148,9 @@ export default function MainFeedLayout({
     hasUser: !!user,
   });
   const feedVersion = useFeature(feature.feedVersion);
-  const { isUpvoted, isPopular, isSortableFeed } = useFeedName({ feedName });
+  const { isUpvoted, isPopular, isSortableFeed, isCustomFeed } = useFeedName({
+    feedName,
+  });
   const {
     shouldUseListFeedLayout,
     shouldUseCommentFeedLayout,
@@ -158,7 +167,18 @@ export default function MainFeedLayout({
   const showForcedTagSelection =
     shouldEnrollInForcedTagSelection && showForcedTagSelectionFeature;
   let query: { query: string; variables?: Record<string, unknown> };
+
   if (feedName) {
+    const dynamicPropsByFeed: Partial<
+      Record<SharedFeedPage, Partial<FeedQueryProps>>
+    > = {
+      [SharedFeedPage.Custom]: {
+        variables: {
+          feedId: router.query?.slugOrId as string,
+        },
+      },
+    };
+
     query = {
       query: getQueryBasedOnLogin(
         tokenRefreshed,
@@ -168,6 +188,7 @@ export default function MainFeedLayout({
       ),
       variables: {
         ...propsByFeed[feedName].variables,
+        ...dynamicPropsByFeed[feedName]?.variables,
         version: isDevelopment ? 1 : feedVersion,
       },
     };
@@ -196,7 +217,8 @@ export default function MainFeedLayout({
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
-    const feedWithActions = isUpvoted || isPopular || isSortableFeed;
+    const feedWithActions =
+      isUpvoted || isPopular || isSortableFeed || isCustomFeed;
     // in v1 search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
     if (isSearchOn && !searchQuery) {

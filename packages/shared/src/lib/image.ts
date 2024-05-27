@@ -10,6 +10,8 @@ export const cloudinary = {
       layoutV1:
         'https://daily-now-res.cloudinary.com/image/upload/s--zkEyMCOC--/f_auto/v1705675789/public/Search_Gradient',
     },
+    betaTag:
+      'https://daily-now-res.cloudinary.com/image/upload/v1713111099/beta-tag_uiqqxx.svg',
   },
   post: {
     imageCoverPlaceholder:

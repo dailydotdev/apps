@@ -37,4 +37,27 @@ export const labels = {
       emailTitle: 'Checkout my devcard from daily.dev!',
     },
   },
+  feed: {
+    prompt: {
+      discard: {
+        title: 'Discard changes',
+        description: 'You have unsaved changes that will be lost',
+        okButton: 'Yes, discard',
+      },
+      delete: {
+        description:
+          'Are you sure you want to delete your custom feed? This action cannot be undone.',
+        okButton: 'Yes, delete feed',
+      },
+    },
+    error: {
+      feedLimit: {
+        api: 'You have reached maximum number of feeds for your user',
+        client: "Too many feeds, don't you think?",
+      },
+      feedNameInvalid: {
+        api: 'Feed name should not contain special characters',
+      },
+    },
+  },
 };

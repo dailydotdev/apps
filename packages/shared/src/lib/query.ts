@@ -92,6 +92,7 @@ export enum RequestKey {
   Changelog = 'changelog',
   Tags = 'tags',
   FeedPreview = 'feedPreview',
+  FeedPreviewCustom = 'feedPreviewCustom',
   ReferredUsers = 'referred',
   PostKey = 'post',
   Prompt = 'prompt',
@@ -119,6 +120,8 @@ export enum RequestKey {
   UserExperienceLevel = 'user_experience_level',
   SquadStatus = 'squad_status',
   PublicSquadRequests = 'public_squad_requests',
+  Feeds = 'feeds',
+  FeedSettings = 'feedSettings',
 }
 
 export type HasConnection<

@@ -6,6 +6,7 @@ export enum Origin {
   Companion = 'companion',
   Feed = 'feed',
   CommentFeed = 'comment feed',
+  CustomFeed = 'custom feed',
   PostContextMenu = 'post context menu',
   PostCommentContextMenu = 'post comment context menu',
   TagsFilter = 'tags filter',
@@ -155,6 +156,12 @@ export enum AnalyticsEvent {
   SkipReadingReminder = 'skip reading reminder',
   // Similar Posts
   ClickSimilarPosts = 'click similar posts',
+  // custom feeds start
+  StartCustomFeed = 'start custom feed',
+  CreateCustomFeed = 'create custom feed',
+  UpdateCustomFeed = 'update custom feed',
+  DeleteCustomFeed = 'delete custom feed',
+  // custom feeds end
 }
 
 export enum FeedItemTitle {

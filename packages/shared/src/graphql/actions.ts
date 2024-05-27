@@ -25,6 +25,7 @@ export enum ActionType {
   BookmarkPromoteMobile = 'bookmark_promote_mobile',
   HidePublicSquadEligibilityCard = 'hide_public_squad_eligibility_card',
   MakeSquadPublic = 'make_squad_public',
+  CustomFeed = 'custom_feed',
 }
 
 export interface Action {

@@ -24,10 +24,10 @@ export function CardCoverShare({
 
   return (
     <span className="absolute inset-0 z-1 flex flex-col items-center justify-center">
-      <p className="font-bold typo-callout">
+      <p className="mt-5 text-center font-bold typo-callout laptopL:mt-0">
         Should anyone else see this post?
       </p>
-      <span className="mt-2 flex flex-row gap-3 p-2">
+      <span className="mt-2 flex flex-row flex-wrap justify-center gap-3 p-2">
         <Button
           variant={ButtonVariant.Secondary}
           onClick={onClick}
