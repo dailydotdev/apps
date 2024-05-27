@@ -24,10 +24,7 @@ import { link } from '../../lib/links';
 import SquadChecklistCard from '../checklist/SquadChecklistCard';
 import { Separator } from '../cards/common';
 import { EarthIcon, LockIcon, SourceIcon, SparkleIcon } from '../icons';
-import {
-  memberContainerClasses,
-  PrivilegedMemberItem,
-} from './Members/PrivilegedMemberItem';
+import { PrivilegedMemberItem } from './Members/PrivilegedMemberItem';
 import { formatMonthYearOnly } from '../../lib/dateFormat';
 import {
   MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP,
@@ -198,12 +195,9 @@ export function SquadPageHeader({
           <PrivilegedMemberItem key={member.user.id} member={member} />
         ))}
         {privilegedLength > listMax && (
-          <button
-            type="button"
-            className={classNames(
-              'h-fit font-bold text-text-tertiary typo-callout',
-              memberContainerClasses,
-            )}
+          <Button
+            variant={ButtonVariant.Tertiary}
+            className="aspect-square border border-border-subtlest-tertiary"
             onClick={() =>
               openModal({
                 type: LazyModal.PrivilegedMembers,
@@ -212,7 +206,7 @@ export function SquadPageHeader({
             }
           >
             +{privilegedLength - listMax}
-          </button>
+          </Button>
         )}
       </div>
       <SquadHeaderBar

@@ -9,15 +9,15 @@ interface PrivilegedMemberItemProps {
   member: SourceMember;
 }
 
-export const memberContainerClasses =
-  'flex flex-row items-center rounded-10 border border-border-subtlest-tertiary p-2';
-
 export function PrivilegedMemberItem({
   member: { user, role },
 }: PrivilegedMemberItemProps): ReactElement {
   return (
     <ProfileTooltip user={user} tooltip={{ placement: 'bottom' }}>
-      <ProfileLink href={user.permalink} className={memberContainerClasses}>
+      <ProfileLink
+        href={user.permalink}
+        className="flex flex-row items-center rounded-10 border border-border-subtlest-tertiary p-2"
+      >
         <ProfilePicture user={user} size="large" />
         <div className="flex-col">
           <span className="ml-2.5 flex overflow-hidden text-ellipsis whitespace-nowrap text-text-tertiary typo-subhead">
