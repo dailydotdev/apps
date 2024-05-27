@@ -38,10 +38,10 @@ import {
 } from '../buttons/Button';
 import {
   AiIcon,
+  HashtagIcon,
   HomeIcon,
   PlusIcon,
   SourceIcon,
-  StarIcon,
   UserIcon,
 } from '../icons';
 import { IconSize } from '../Icon';
@@ -292,7 +292,7 @@ export default function Sidebar({
                     title={feed.node.flags.name || `Feed ${feed.node.id}`}
                     path={feedPath}
                     icon={
-                      <StarIcon
+                      <HashtagIcon
                         secondary={
                           defaultRenderSectionProps.activePage === feedPath
                         }

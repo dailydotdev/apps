@@ -1,5 +1,11 @@
 import React, { MouseEvent, ReactElement } from 'react';
-import { FilterIcon, BlockIcon, AppIcon, HomeIcon, StarIcon } from '../icons';
+import {
+  FilterIcon,
+  BlockIcon,
+  AppIcon,
+  HomeIcon,
+  HashtagIcon,
+} from '../icons';
 import TagsFilter from './TagsFilter';
 import { TagCategoryLayout } from './TagCategoryDropdown';
 import AdvancedSettingsFilter from './AdvancedSettings';
@@ -70,7 +76,7 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
           return {
             title: feed.flags?.name || `Feed ${feed.id}`,
             options: {
-              icon: <StarIcon />,
+              icon: <HashtagIcon />,
               href: `${webappUrl}feeds/${feed.id}/edit`,
               onClick: (event: MouseEvent<Element>) => {
                 const { onRequestClose } = props;
