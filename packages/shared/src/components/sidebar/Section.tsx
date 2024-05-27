@@ -58,7 +58,11 @@ export function Section({
         </NavHeader>
       )}
       {items.filter(mobileItemsFilter).map((item) => (
-        <NavItem key={item.title} active={isActive(item)} ref={item.navItemRef}>
+        <NavItem
+          key={`${item.title}-${item.path}`}
+          active={isActive(item)}
+          ref={item.navItemRef}
+        >
           <ClickableNavItem
             item={item}
             showLogin={

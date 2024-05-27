@@ -64,7 +64,4 @@ export const Card = classed(
   `,
 );
 
-export const CardHeader = classed(
-  'div',
-  'flex flex-row items-center items-center mb-2',
-);
+export const CardHeader = classed('div', 'flex flex-row items-center mb-2');

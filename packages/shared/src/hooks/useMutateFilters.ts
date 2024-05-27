@@ -88,8 +88,9 @@ const onMutateAdvancedSettings = async (
   queryClient: QueryClient,
   manipulate: ManipulateAdvancedSettingsFunc,
   user: LoggedUser,
+  feedId: string | undefined,
 ): Promise<() => Promise<void>> => {
-  const queryKey = getFeedSettingsQueryKey(user);
+  const queryKey = getFeedSettingsQueryKey(user, feedId);
   const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
   const newData = manipulate(feedSettings.feedSettings, advancedSettings);
   const keys = [queryKey, queryKey];
@@ -109,11 +110,12 @@ const onMutateTagsSettings = async (
   queryClient: QueryClient,
   manipulate: ManipulateTagFunc,
   user: LoggedUser,
+  feedId: string | undefined,
 ): Promise<() => Promise<void>> => {
-  const queryKey = getFeedSettingsQueryKey(user);
+  const queryKey = getFeedSettingsQueryKey(user, feedId);
   const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
   const newData = manipulate(feedSettings.feedSettings, tags);
-  const keys = [queryKey, getFeedSettingsQueryKey(user)];
+  const keys = [queryKey, getFeedSettingsQueryKey(user, feedId)];
   await updateQueryData(queryClient, newData, keys);
   return async () => {
     await updateQueryData(queryClient, feedSettings.feedSettings, keys);
@@ -130,11 +132,12 @@ const onMutateSourcesSettings = async (
   queryClient: QueryClient,
   manipulate: ManipulateSourceFunc,
   user: LoggedUser,
+  feedId: string | undefined,
 ): Promise<() => Promise<void>> => {
-  const queryKey = getFeedSettingsQueryKey(user);
+  const queryKey = getFeedSettingsQueryKey(user, feedId);
   const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
   const newData = manipulate(feedSettings.feedSettings, source);
-  const keys = [queryKey, getFeedSettingsQueryKey(user)];
+  const keys = [queryKey, getFeedSettingsQueryKey(user, feedId)];
   await updateQueryData(queryClient, newData, keys);
   return async () => {
     await updateQueryData(queryClient, feedSettings.feedSettings, keys);
@@ -153,9 +156,13 @@ const clearNotificationPreference = async ({
   });
 };
 
-export default function useMutateFilters(user?: LoggedUser): ReturnType {
+export default function useMutateFilters(
+  user?: LoggedUser,
+  feedId?: string,
+  shouldFilterLocallyProp = false,
+): ReturnType {
   const queryClient = useQueryClient();
-  const shouldFilterLocally = !user;
+  const shouldFilterLocally = shouldFilterLocallyProp || !user;
 
   const updateFeedFilters = useCallback(
     ({ advancedSettings, ...filters }: FeedSettings) => {
@@ -195,8 +202,9 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
           return newData;
         },
         user,
+        feedId,
       ),
-    [user, queryClient],
+    [user, queryClient, feedId],
   );
 
   const { mutateAsync: updateAdvancedSettingsRemote } = useMutation<
@@ -226,8 +234,9 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
           return newData;
         },
         user,
+        feedId,
       ),
-    [user, queryClient],
+    [user, queryClient, feedId],
   );
 
   const { mutateAsync: followTagsRemote } = useMutation<
@@ -265,8 +274,9 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
           return newData;
         },
         user,
+        feedId,
       ),
-    [user, queryClient],
+    [user, queryClient, feedId],
   );
 
   const { mutateAsync: blockTagRemote } = useMutation<
@@ -300,8 +310,9 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
           return newData;
         },
         user,
+        feedId,
       ),
-    [user, queryClient],
+    [user, queryClient, feedId],
   );
 
   const { mutateAsync: unfollowTagsRemote } = useMutation<
@@ -335,8 +346,9 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
           return newData;
         },
         user,
+        feedId,
       ),
-    [user, queryClient],
+    [user, queryClient, feedId],
   );
 
   const { mutateAsync: unblockTagRemote } = useMutation<
@@ -373,8 +385,9 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
           return newData;
         },
         user,
+        feedId,
       ),
-    [user, queryClient],
+    [user, queryClient, feedId],
   );
 
   const { mutateAsync: followSourceRemote } = useMutation<
@@ -406,8 +419,9 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
           return newData;
         },
         user,
+        feedId,
       ),
-    [user, queryClient],
+    [user, queryClient, feedId],
   );
 
   const { mutateAsync: unfollowSourceRemote } = useMutation<

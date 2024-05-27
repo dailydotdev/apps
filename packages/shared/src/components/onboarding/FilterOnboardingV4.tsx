@@ -1,19 +1,21 @@
 import React, { ReactElement, useMemo } from 'react';
 import classNames from 'classnames';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  QueryFilters,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import request from 'graphql-request';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { RequestKey, generateQueryKey } from '../../lib/query';
 import {
   GET_ONBOARDING_TAGS_QUERY,
   GET_RECOMMENDED_TAGS_QUERY,
-  Tag,
   TagsData,
 } from '../../graphql/feedSettings';
 import { graphqlUrl } from '../../lib/config';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
-import { AlertColor, AlertDot } from '../AlertDot';
 import { SearchField } from '../fields/SearchField';
 import useDebounce from '../../hooks/useDebounce';
 import { useTagSearch } from '../../hooks';
@@ -21,14 +23,12 @@ import type { FilterOnboardingProps } from './FilterOnboarding';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { Origin } from '../../lib/analytics';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-
-type OnSelectTagProps = {
-  tag: Tag;
-};
+import { OnSelectTagProps } from './common';
+import { OnboardingTag } from './OnboardingTag';
 
 const tagsSelector = (data: TagsData) => data?.tags || [];
 
-const [minPlaceholder, maxPlaceholder] = [2, 10];
+const [minPlaceholder, maxPlaceholder] = [6, 12];
 const placeholderTags = new Array(24)
   .fill(null)
   .map(
@@ -37,32 +37,57 @@ const placeholderTags = new Array(24)
       index,
   );
 
+export type FilterOnboardingV4Props = {
+  onClickTag?: ({ tag, action }: OnSelectTagProps) => void;
+  origin?: Origin;
+  searchOrigin?: Origin;
+} & Omit<FilterOnboardingProps, 'onSelectedTopics'>;
+
 export function FilterOnboardingV4({
   shouldUpdateAlerts = true,
   className,
-}: FilterOnboardingProps): ReactElement {
+  shouldFilterLocally,
+  feedId,
+  onClickTag,
+  origin = Origin.Onboarding,
+  searchOrigin = Origin.EditTag,
+}: FilterOnboardingV4Props): ReactElement {
   const queryClient = useQueryClient();
 
-  const { feedSettings } = useFeedSettings();
+  const { feedSettings } = useFeedSettings({ feedId });
   const selectedTags = useMemo(() => {
     return new Set(feedSettings?.includeTags || []);
   }, [feedSettings?.includeTags]);
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
-    origin: Origin.Onboarding,
+    origin,
     shouldUpdateAlerts,
+    feedId,
+    shouldFilterLocally,
   });
 
   const [refetchFeed] = useDebounce(() => {
     const feedQueryKey = [RequestKey.FeedPreview];
-    queryClient.cancelQueries(feedQueryKey);
-    queryClient.invalidateQueries(feedQueryKey);
+    const feedQueryKeyPredicate: QueryFilters['predicate'] = (query) => {
+      return !query.queryKey.includes(RequestKey.FeedPreviewCustom);
+    };
+
+    queryClient.cancelQueries({
+      queryKey: feedQueryKey,
+      predicate: feedQueryKeyPredicate,
+    });
+    queryClient.invalidateQueries({
+      queryKey: feedQueryKey,
+      predicate: feedQueryKeyPredicate,
+    });
   }, 1000);
 
   const onboardingTagsQueryKey = generateQueryKey(
     RequestKey.Tags,
     undefined,
     'onboardingTags',
+    feedId,
   );
+
   const { data: onboardingTags, isLoading } = useQuery(
     onboardingTagsQueryKey,
     async () => {
@@ -91,12 +116,12 @@ export function FilterOnboardingV4({
 
   const { data: searchResult, isLoading: isSearchLoading } = useTagSearch({
     value: searchQuery,
-    origin: Origin.EditTag,
+    origin: searchOrigin,
   });
   const searchTags = searchResult?.searchTags.tags || [];
 
   const { mutate: recommendTags, data: recommendedTags } = useMutation(
-    async ({ tag }: OnSelectTagProps) => {
+    async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
       const result = await request<{
         recommendedTags: TagsData;
       }>(graphqlUrl, GET_RECOMMENDED_TAGS_QUERY, {
@@ -123,10 +148,11 @@ export function FilterOnboardingV4({
     },
   );
 
-  const onClickTag = async ({ tag }: OnSelectTagProps) => {
+  const handleClickTag = async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
     const isSearchMode = !!searchQuery;
+    const isSelected = selectedTags.has(tag.name);
 
-    if (!selectedTags.has(tag.name)) {
+    if (!isSelected) {
       if (isSearchMode) {
         queryClient.setQueryData<TagsData>(
           onboardingTagsQueryKey,
@@ -150,54 +176,64 @@ export function FilterOnboardingV4({
       await onUnfollowTags({ tags: [tag.name] });
     }
 
+    if (onClickTag) {
+      onClickTag({ tag, action: isSelected ? 'unfollow' : 'follow' });
+    }
+
     refetchFeed();
   };
 
   const tags = searchQuery && !isSearchLoading ? searchTags : onboardingTags;
+  const renderedTags = {};
 
   return (
     <div className={classNames(className, 'flex w-full flex-col items-center')}>
       <SearchField
         inputId="search-filters"
         placeholder="javascript, php, git, etc…"
-        className="mb-10 w-full max-w-xs"
+        className="mb-10 w-full tablet:max-w-xs"
         valueChanged={onSearch}
       />
       <div className="flex flex-row flex-wrap justify-center gap-4">
         {isLoading &&
           placeholderTags.map((item) => (
-            <ElementPlaceholder key={item} className="btn btn-tag h-10">
+            <ElementPlaceholder
+              key={item}
+              className="btn btn-tag h-10 rounded-12"
+            >
               <span className="invisible">{item}</span>
             </ElementPlaceholder>
           ))}
         {!isLoading &&
           tags?.map((tag) => {
             const isSelected = selectedTags.has(tag.name);
+            renderedTags[tag.name] = true;
+
             return (
-              <Button
+              <OnboardingTag
                 key={tag.name}
-                className={classNames(
-                  {
-                    'btn-tag': !isSelected,
-                  },
-                  'relative',
-                )}
-                variant={
-                  isSelected ? ButtonVariant.Primary : ButtonVariant.Float
-                }
-                color={isSelected ? ButtonColor.Cabbage : undefined}
-                onClick={() => {
-                  onClickTag({ tag });
-                }}
-              >
-                {tag.name}
-                {!searchQuery && !!recommendedTags?.has(tag.name) && (
-                  <AlertDot
-                    className="absolute right-1 top-1"
-                    color={AlertColor.Cabbage}
-                  />
-                )}
-              </Button>
+                tag={tag}
+                onClick={handleClickTag}
+                isSelected={isSelected}
+                isHighlighted={!searchQuery && !!recommendedTags?.has(tag.name)}
+              />
+            );
+          })}
+        {/* render leftover tags not rendered in initial recommendations but selected */}
+        {!isLoading &&
+          !searchQuery &&
+          feedSettings?.includeTags?.map((tag) => {
+            if (renderedTags[tag]) {
+              return null;
+            }
+
+            return (
+              <OnboardingTag
+                key={tag}
+                tag={{ name: tag }}
+                onClick={handleClickTag}
+                isSelected
+              />
             );
           })}
       </div>

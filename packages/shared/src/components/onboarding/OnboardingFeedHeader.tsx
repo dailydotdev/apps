@@ -1,23 +1,21 @@
 import React, { useCallback, useEffect } from 'react';
-import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { FilterOnboardingV4 } from './FilterOnboardingV4';
 import {
   Button,
   ButtonColor,
-  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
 import { REQUIRED_TAGS_THRESHOLD } from './common';
-import { ArrowIcon } from '../icons';
 import { LayoutHeader } from '../layout/common';
 import { usePrompt } from '../../hooks/usePrompt';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../../lib/analytics';
+import { AnalyticsEvent, Origin } from '../../lib/analytics';
 import useFeedSettings from '../../hooks/useFeedSettings';
+import { FeedPreviewControls } from '../feeds';
 
 const promptConfig = {
   title: 'Discard tag selection?',
@@ -120,27 +118,13 @@ export const OnboardingFeedHeader = ({
           className="mt-44 px-4 pt-6 tablet:px-10 tablet:pt-0"
           shouldUpdateAlerts={false}
         />
-        <div className="mt-10 flex items-center justify-center gap-10 text-text-quaternary typo-callout">
-          <div className="h-px flex-1 bg-border-subtlest-tertiary" />
-          <Button
-            variant={ButtonVariant.Float}
-            disabled={!isPreviewFeedEnabled}
-            icon={
-              <ArrowIcon
-                className={classNames(!isPreviewFeedVisible && 'rotate-180')}
-              />
-            }
-            iconPosition={ButtonIconPosition.Right}
-            onClick={() => {
-              setPreviewFeedVisible((current) => !current);
-            }}
-          >
-            {isPreviewFeedEnabled
-              ? `${isPreviewFeedVisible ? 'Hide' : 'Show'} feed preview`
-              : `${tagsCount}/${REQUIRED_TAGS_THRESHOLD} to show feed preview`}
-          </Button>
-          <div className="h-px flex-1 bg-border-subtlest-tertiary" />
-        </div>
+        <FeedPreviewControls
+          isOpen={isPreviewFeedVisible}
+          isDisabled={!isPreviewFeedEnabled}
+          textDisabled={`${tagsCount}/${REQUIRED_TAGS_THRESHOLD} to show feed preview`}
+          origin={Origin.Feed}
+          onClick={setPreviewFeedVisible}
+        />
       </div>
     </LayoutHeader>
   );

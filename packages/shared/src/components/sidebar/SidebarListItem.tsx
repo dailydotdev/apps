@@ -10,6 +10,7 @@ export interface SidebarListItemProps
   href?: string;
   isActive?: boolean;
   className?: string;
+  group?: string;
 }
 
 function SidebarListItem({

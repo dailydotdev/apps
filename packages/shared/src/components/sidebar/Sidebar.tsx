@@ -1,6 +1,7 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import SettingsContext from '../../contexts/SettingsContext';
 import {
   Nav,
@@ -27,7 +28,7 @@ import { getFeedName } from '../../lib/feed';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import Logo, { LogoPosition } from '../Logo';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useActions, useFeeds, useViewSize, ViewSize } from '../../hooks';
 import {
   Button,
   ButtonIconPosition,
@@ -35,12 +36,25 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import { AiIcon, HomeIcon, SourceIcon, UserIcon } from '../icons';
+import {
+  AiIcon,
+  HashtagIcon,
+  HomeIcon,
+  PlusIcon,
+  SourceIcon,
+  UserIcon,
+} from '../icons';
 import { IconSize } from '../Icon';
 import { CreatePostButton } from '../post/write';
 import useActiveNav from '../../hooks/useActiveNav';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
+import { AlertColor, AlertDot } from '../AlertDot';
+import { cloudinary } from '../../lib/image';
+import { ActionType } from '../../graphql/actions';
+import { useFeature } from '../GrowthBookProvider';
+import { CustomFeedsExperiment } from '../../lib/featureValues';
+import { feature } from '../../lib/featureManagement';
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -56,6 +70,7 @@ export default function Sidebar({
   onShowDndClick,
   onLogoClick,
 }: SidebarProps): ReactElement {
+  const router = useRouter();
   const { user, isLoggedIn } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const {
@@ -69,6 +84,10 @@ export default function Sidebar({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
   const featureTheme = useFeatureTheme();
+  const { checkHasCompleted, isActionsFetched } = useActions();
+  const customFeedsVersion = useFeature(feature.customFeeds);
+  const hasCustomFeedsEnabled =
+    customFeedsVersion !== CustomFeedsExperiment.Control;
 
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
@@ -76,7 +95,7 @@ export default function Sidebar({
   });
 
   const activeNav = useActiveNav(feedName);
-  const activePage = `/${feedName}`;
+  const activePage = router.asPath || router.pathname;
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -92,6 +111,8 @@ export default function Sidebar({
     }),
     [sidebarExpanded, sidebarRendered, activePage],
   );
+
+  const { feeds } = useFeeds();
 
   if (!loadedSettings) {
     return <></>;
@@ -191,6 +212,9 @@ export default function Sidebar({
     );
   }
 
+  const showCustomFeedsBetaBadge =
+    isActionsFetched && !checkHasCompleted(ActionType.CustomFeed);
+
   return (
     <>
       {openMobileSidebar && sidebarRendered === false && (
@@ -221,11 +245,62 @@ export default function Sidebar({
               <MyFeedButton
                 {...defaultRenderSectionProps}
                 isButton={isNavButtons}
-                alerts={alerts}
+                title="My feed"
+                path="/"
+                alert={
+                  (alerts.filter || alerts.myFeed) &&
+                  !sidebarExpanded && (
+                    <AlertDot
+                      className="right-2.5 top-0"
+                      color={AlertColor.Success}
+                    />
+                  )
+                }
                 onNavTabClick={onNavTabClick}
                 icon={<ProfilePicture size="xsmall" user={user} />}
               />
             )}
+            {hasCustomFeedsEnabled && (
+              <MyFeedButton
+                {...defaultRenderSectionProps}
+                isButton={false}
+                title="New feed"
+                path={`${webappUrl}feeds/new`}
+                icon={
+                  <div className="rounded-6 bg-background-subtle">
+                    <PlusIcon />
+                  </div>
+                }
+                rightIcon={() =>
+                  showCustomFeedsBetaBadge ? (
+                    <div className="absolute -right-3 -top-2 h-4 w-10">
+                      <img src={cloudinary.feed.betaTag} alt="Beta" />
+                    </div>
+                  ) : undefined
+                }
+              />
+            )}
+            {hasCustomFeedsEnabled &&
+              feeds?.edges?.map((feed) => {
+                const feedPath = `${webappUrl}feeds/${feed.node.id}`;
+
+                return (
+                  <MyFeedButton
+                    {...defaultRenderSectionProps}
+                    key={feed.node.id}
+                    isButton={false}
+                    title={feed.node.flags.name || `Feed ${feed.node.id}`}
+                    path={feedPath}
+                    icon={
+                      <HashtagIcon
+                        secondary={
+                          defaultRenderSectionProps.activePage === feedPath
+                        }
+                      />
+                    }
+                  />
+                );
+              })}
             <SquadSection {...defaultRenderSectionProps} />
             <DiscoverSection
               {...defaultRenderSectionProps}

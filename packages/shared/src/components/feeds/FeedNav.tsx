@@ -1,10 +1,10 @@
 import classNames from 'classnames';
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useFeeds, useViewSize, ViewSize } from '../../hooks';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import {
   algorithmsList,
@@ -15,12 +15,15 @@ import { MobileFeedActions } from './MobileFeedActions';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import SettingsContext from '../../contexts/SettingsContext';
 import { Dropdown } from '../fields/Dropdown';
-import { SortIcon } from '../icons';
+import { PlusIcon, SortIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { CustomFeedsExperiment } from '../../lib/featureValues';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
 
@@ -31,16 +34,8 @@ enum FeedNavTab {
   History = 'History',
   MostUpvoted = 'Most Upvoted',
   Discussions = 'Discussions',
+  NewFeed = 'New feed',
 }
-
-const urlToTab: Record<string, FeedNavTab> = {
-  [`${webappUrl}`]: FeedNavTab.ForYou,
-  [`${webappUrl}popular`]: FeedNavTab.Popular,
-  [`${webappUrl}upvoted`]: FeedNavTab.MostUpvoted,
-  [`${webappUrl}discussed`]: FeedNavTab.Discussions,
-  [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
-  [`${webappUrl}history`]: FeedNavTab.History,
-};
 
 const StickyNavIconWrapper = classed(
   'div',
@@ -53,7 +48,6 @@ function FeedNav(): ReactElement {
   const { sortingEnabled } = useContext(SettingsContext);
   const { isSortableFeed } = useFeedName({ feedName });
   const { home: shouldRenderNav } = useActiveNav(feedName);
-  const isLaptop = useViewSize(ViewSize.LaptopL);
   const isMobile = useViewSize(ViewSize.MobileL);
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
@@ -63,6 +57,42 @@ function FeedNav(): ReactElement {
   );
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
+
+  const { feeds } = useFeeds();
+  const customFeedsVersion = useFeature(feature.customFeeds);
+  const hasCustomFeedsEnabled =
+    customFeedsVersion !== CustomFeedsExperiment.Control;
+
+  const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
+    const customFeeds = hasCustomFeedsEnabled
+      ? feeds?.edges?.reduce((acc, { node: feed }) => {
+          const feedPath = `${webappUrl}feeds/${feed.id}`;
+          const isEditingFeed =
+            router.query.slugOrId === feed.id &&
+            router.pathname.endsWith('/edit');
+          const urlPath = `${feedPath}${isEditingFeed ? '/edit' : ''}`;
+
+          acc[urlPath] = feed.flags?.name || `Feed ${feed.id}`;
+
+          return acc;
+        }, {})
+      : [];
+
+    return {
+      ...(hasCustomFeedsEnabled
+        ? {
+            [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
+          }
+        : undefined),
+      [`${webappUrl}`]: FeedNavTab.ForYou,
+      ...customFeeds,
+      [`${webappUrl}popular`]: FeedNavTab.Popular,
+      [`${webappUrl}upvoted`]: FeedNavTab.MostUpvoted,
+      [`${webappUrl}discussed`]: FeedNavTab.Discussions,
+      [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
+      [`${webappUrl}history`]: FeedNavTab.History,
+    };
+  }, [feeds, router.pathname, router.query.slugOrId, hasCustomFeedsEnabled]);
 
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
@@ -89,6 +119,17 @@ function FeedNav(): ReactElement {
           tabListProps={{
             className: { indicator: '!w-6', item: 'px-1' },
             autoScrollActive: true,
+          }}
+          renderTab={({ label }) => {
+            if (label === FeedNavTab.NewFeed) {
+              return (
+                <div className="flex size-6 items-center justify-center rounded-6 bg-background-subtle">
+                  <PlusIcon />
+                </div>
+              );
+            }
+
+            return null;
           }}
         >
           {Object.entries(urlToTab).map(([url, label]) => (
