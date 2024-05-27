@@ -1,5 +1,11 @@
-import React, { ReactElement } from 'react';
-import { HashtagIcon, FilterIcon, BlockIcon, AppIcon } from '../icons';
+import React, { MouseEvent, ReactElement } from 'react';
+import {
+  FilterIcon,
+  BlockIcon,
+  AppIcon,
+  HomeIcon,
+  HashtagIcon,
+} from '../icons';
 import TagsFilter from './TagsFilter';
 import { TagCategoryLayout } from './TagCategoryDropdown';
 import AdvancedSettingsFilter from './AdvancedSettings';
@@ -9,8 +15,14 @@ import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
 import { UnblockSourceCopy, UnblockTagCopy } from './UnblockCopy';
 import { ContentTypesFilter } from './ContentTypesFilter';
 import { Source } from '../../graphql/sources';
+import { webappUrl } from '../../lib/constants';
+import { ViewSize, useFeeds, useViewSize } from '../../hooks';
+import { feature } from '../../lib/featureManagement';
+import { CustomFeedsExperiment } from '../../lib/featureValues';
+import { useFeature } from '../GrowthBookProvider';
 
 enum FilterMenuTitle {
+  MyFeed = 'My feed',
   Tags = 'Manage tags',
   ManageCategories = 'Manage categories',
   ContentTypes = 'Content types',
@@ -43,24 +55,64 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
       action?.();
     }
   };
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const customFeedsVersion = useFeature(feature.customFeeds);
+  const hasCustomFeedsEnabled =
+    customFeedsVersion !== CustomFeedsExperiment.Control;
+
+  const { feeds } = useFeeds();
+
+  const filtersTab = hasCustomFeedsEnabled
+    ? FilterMenuTitle.MyFeed
+    : FilterMenuTitle.Tags;
+
   const tabs = [
     {
-      title: FilterMenuTitle.Tags,
-      options: { icon: <HashtagIcon /> },
+      title: filtersTab,
+      options: { icon: <HomeIcon />, group: 'Feeds' },
     },
+    ...(isMobile && hasCustomFeedsEnabled
+      ? feeds?.edges?.map(({ node: feed }) => {
+          return {
+            title: feed.flags?.name || `Feed ${feed.id}`,
+            options: {
+              icon: <HashtagIcon />,
+              href: `${webappUrl}feeds/${feed.id}/edit`,
+              onClick: (event: MouseEvent<Element>) => {
+                const { onRequestClose } = props;
+
+                if (onRequestClose) {
+                  onRequestClose(event);
+                }
+              },
+              group: 'Feeds',
+            },
+          };
+        })
+      : []),
     {
       title: FilterMenuTitle.ManageCategories,
-      options: { icon: <FilterIcon /> },
+      options: { icon: <FilterIcon />, group: 'Preference' },
     },
     {
       title: FilterMenuTitle.ContentTypes,
-      options: { icon: <AppIcon /> },
+      options: { icon: <AppIcon />, group: 'Preference' },
     },
     {
       title: FilterMenuTitle.Blocked,
-      options: { icon: <BlockIcon /> },
+      options: { icon: <BlockIcon />, group: 'Preference' },
     },
-  ];
+  ].map((item) =>
+    isMobile && hasCustomFeedsEnabled
+      ? item
+      : {
+          ...item,
+          options: {
+            ...item.options,
+            group: undefined,
+          },
+        },
+  );
 
   return (
     <Modal
@@ -71,10 +123,14 @@ export default function FeedFilters(props: FeedFiltersProps): ReactElement {
       tabs={tabs}
     >
       <Modal.Sidebar>
-        <Modal.Sidebar.List className="w-74" title="Feed filters" defaultOpen />
+        <Modal.Sidebar.List
+          className="w-74"
+          title="Feed settings"
+          defaultOpen
+        />
         <Modal.Sidebar.Inner>
           <Modal.Header />
-          <Modal.Body view={FilterMenuTitle.Tags}>
+          <Modal.Body view={filtersTab}>
             <TagsFilter tagCategoryLayout={TagCategoryLayout.Settings} />
           </Modal.Body>
           <Modal.Body view={FilterMenuTitle.ManageCategories}>

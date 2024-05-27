@@ -3,6 +3,7 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
+  useMemo,
 } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
@@ -18,10 +19,12 @@ import {
   FeedPagesWithMobileLayoutType,
   useViewSize,
   ViewSize,
+  useFeeds,
 } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
 import { feature } from '../../lib/featureManagement';
+import { SharedFeedPage } from '../utilities';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -119,6 +122,8 @@ const feedNameToHeading: Record<
     | 'tags[tag]/most-upvoted'
     | 'tags[tag]/best-discussed'
     | 'posts/[id]/similar'
+    | SharedFeedPage.Custom
+    | SharedFeedPage.CustomForm
   >,
   string
 > = {
@@ -180,6 +185,24 @@ export const FeedContainer = ({
   const isFinder = router.pathname === '/search/posts';
   const isSearch = showSearch && !isFinder;
 
+  const { feeds } = useFeeds();
+
+  const feedHeading = useMemo(() => {
+    if (feedName === SharedFeedPage.Custom) {
+      const customFeed = feeds?.edges.find(
+        ({ node: feed }) =>
+          feed.id === router.query.slugOrId ||
+          feed.slug === router.query.slugOrId,
+      )?.node;
+
+      if (customFeed?.flags?.name) {
+        return customFeed.flags.name;
+      }
+    }
+
+    return feedNameToHeading[feedName] ?? '';
+  }, [feeds, feedName, router.query.slugOrId]);
+
   if (!loadedSettings) {
     return <></>;
   }
@@ -232,14 +255,10 @@ export const FeedContainer = ({
                 )}
               >
                 <ConditionalWrapper
-                  condition={
-                    isLaptop && (feedNameToHeading[feedName] || actionButtons)
-                  }
+                  condition={isLaptop && (feedHeading || actionButtons)}
                   wrapper={(component) => (
                     <span className="flex w-full flex-row items-center justify-between px-6 py-4">
-                      <strong className="typo-title3">
-                        {feedNameToHeading[feedName] ?? ''}
-                      </strong>
+                      <strong className="typo-title3">{feedHeading}</strong>
                       <span className="flex flex-row gap-3">{component}</span>
                     </span>
                   )}

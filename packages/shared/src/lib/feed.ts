@@ -93,11 +93,27 @@ export type PostAnalyticsEventFnOptions = FeedItemPosition & {
   extra?: Record<string, unknown>;
 };
 
+const feedPathWithIdMatcher = /^\/feeds\/(?<feedId>[A-z0-9]{9})\/?$/;
+
 export function postAnalyticsEvent(
   eventName: string,
   post: Post | ReadHistoryPost | PostBootData,
   opts?: PostAnalyticsEventFnOptions,
 ): PostItemAnalyticsEvent {
+  const extra = {
+    ...opts?.extra,
+  };
+
+  if (typeof window !== 'undefined') {
+    const currentUrl = new URL(window.location.href);
+
+    const feedPathMatch = currentUrl.pathname.match(feedPathWithIdMatcher);
+
+    if (feedPathMatch?.groups?.feedId) {
+      extra.feed_id = feedPathMatch.groups.feedId;
+    }
+  }
+
   return {
     event_name: eventName,
     feed_grid_columns: opts?.columns,
@@ -120,7 +136,7 @@ export function postAnalyticsEvent(
     target_type: 'post',
     post_type: post.type,
     post_source_type: post.source?.type,
-    extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
+    extra: Object.keys(extra).length > 0 ? JSON.stringify(extra) : undefined,
   };
 }
 
@@ -183,6 +199,11 @@ export const getFeedName = (
   }
   if (feed === '[userId]posts') {
     return OtherFeedPage.UserPosts;
+  }
+  if (feed.startsWith('feeds')) {
+    const isForm = ['new', 'edit'].some((item) => feed.endsWith(item));
+
+    return isForm ? SharedFeedPage.CustomForm : SharedFeedPage.Custom;
   }
 
   const [page] = feed.split('?');
