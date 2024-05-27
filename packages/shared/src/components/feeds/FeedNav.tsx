@@ -24,6 +24,8 @@ import { webappUrl } from '../../lib/constants';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { CustomFeedsExperiment } from '../../lib/featureValues';
+import NotificationsBell from '../notifications/NotificationsBell';
+import classed from '../../lib/classed';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -34,6 +36,11 @@ enum FeedNavTab {
   Discussions = 'Discussions',
   NewFeed = 'New feed',
 }
+
+const StickyNavIconWrapper = classed(
+  'div',
+  'sticky flex h-11 w-20 -translate-y-12 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4',
+);
 
 function FeedNav(): ReactElement {
   const router = useRouter();
@@ -133,7 +140,7 @@ function FeedNav(): ReactElement {
         </TabContainer>
 
         {isMobile && sortingEnabled && isSortableFeed && (
-          <div className="sticky flex h-11 w-20 -translate-y-12 translate-x-[calc(100vw-100%)] items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4">
+          <StickyNavIconWrapper className="translate-x-[calc(100vw-100%)]">
             <Dropdown
               className={{
                 label: 'hidden',
@@ -150,8 +157,11 @@ function FeedNav(): ReactElement {
               onChange={(_, index) => setSelectedAlgo(index)}
               drawerProps={{ displayCloseButton: true }}
             />
-          </div>
+          </StickyNavIconWrapper>
         )}
+        <StickyNavIconWrapper className="hidden translate-x-[calc(100vw-180%)] tablet:flex laptop:hidden">
+          <NotificationsBell compact />
+        </StickyNavIconWrapper>
       </div>
     </div>
   );
