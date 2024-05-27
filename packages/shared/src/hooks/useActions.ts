@@ -51,6 +51,10 @@ export const useActions = (): UseActions => {
 
   const { mutateAsync: completeAction } = useMutation(completeUserAction, {
     onMutate: (type) => {
+      if (!user?.id) {
+        return () => undefined;
+      }
+
       client.setQueryData<ActionQueryData>(actionsKey, (old) => {
         const optimisticAction = {
           userId: user.id,
