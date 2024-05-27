@@ -147,8 +147,12 @@ const NewFeedPage = (): ReactElement => {
   );
 
   useEffect(() => {
+    if (!user) {
+      return;
+    }
+
     completeAction(ActionType.CustomFeed);
-  }, [completeAction]);
+  }, [completeAction, user]);
 
   const trackedStartEventRef = useRef(false);
 
