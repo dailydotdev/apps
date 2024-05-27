@@ -24,10 +24,7 @@ import { link } from '../../lib/links';
 import SquadChecklistCard from '../checklist/SquadChecklistCard';
 import { Separator } from '../cards/common';
 import { EarthIcon, LockIcon, SourceIcon, SparkleIcon } from '../icons';
-import {
-  PrivilegedMemberContainer,
-  PrivilegedMemberItem,
-} from './Members/PrivilegedMemberItem';
+import { PrivilegedMemberItem } from './Members/PrivilegedMemberItem';
 import { formatMonthYearOnly } from '../../lib/dateFormat';
 import {
   MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP,
@@ -35,6 +32,8 @@ import {
 } from '../../lib/config';
 import { useViewSize, ViewSize } from '../../hooks';
 import { largeNumberFormat } from '../../lib';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -65,7 +64,7 @@ export function SquadPageHeader({
   shouldUseListModeV1,
 }: SquadPageHeaderProps): ReactElement {
   const { tourIndex } = useSquadTour();
-
+  const { openModal } = useLazyModal();
   const { openStep, isChecklistVisible } = useSquadChecklist({ squad });
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
   const shouldShowHighlightPulse =
@@ -196,9 +195,18 @@ export function SquadPageHeader({
           <PrivilegedMemberItem key={member.user.id} member={member} />
         ))}
         {privilegedLength > listMax && (
-          <PrivilegedMemberContainer className="h-fit font-bold text-text-tertiary typo-callout">
+          <Button
+            variant={ButtonVariant.Tertiary}
+            className="aspect-square border border-border-subtlest-tertiary"
+            onClick={() =>
+              openModal({
+                type: LazyModal.PrivilegedMembers,
+                props: { members: squad.privilegedMembers },
+              })
+            }
+          >
             +{privilegedLength - listMax}
-          </PrivilegedMemberContainer>
+          </Button>
         )}
       </div>
       <SquadHeaderBar
