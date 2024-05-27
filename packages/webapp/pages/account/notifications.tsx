@@ -178,7 +178,6 @@ const AccountNotificationsPage = (): ReactElement => {
     );
 
     if (value) {
-      console.log('v', readingTimeIndex);
       trackEvent({
         event_name: AnalyticsEvent.ScheduleReadingReminder,
         extra: JSON.stringify({
