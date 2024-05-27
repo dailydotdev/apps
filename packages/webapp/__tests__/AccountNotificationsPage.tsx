@@ -212,7 +212,6 @@ it('should unsubscribe from all email campaigns', async () => {
 
   await waitFor(() => {
     expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
-    // expect(personalizedDigestMutationCalled).toBe(true);
   });
 
   expect(trackEvent).toHaveBeenCalledTimes(1);
