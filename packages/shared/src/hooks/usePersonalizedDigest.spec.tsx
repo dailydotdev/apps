@@ -44,10 +44,13 @@ describe('usePersonalizedDigest hook', () => {
       request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
       result: {
         data: {
-          personalizedDigest: {
-            preferredDay: 1,
-            preferredHour: 9,
-          },
+          personalizedDigest: [
+            {
+              preferredDay: 1,
+              preferredHour: 9,
+              type: UserPersonalizedDigestType.Digest,
+            },
+          ],
         },
       },
     });
@@ -61,7 +64,9 @@ describe('usePersonalizedDigest hook', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     await waitForNock();
 
-    expect(result.current.personalizedDigest).toMatchObject({
+    expect(
+      result.current.getPersonalizedDigest(UserPersonalizedDigestType.Digest),
+    ).toMatchObject({
       preferredDay: 1,
       preferredHour: 9,
     });
@@ -114,7 +119,7 @@ describe('usePersonalizedDigest hook', () => {
     mockGraphQL({
       request: {
         query: UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
-        variables: {},
+        variables: { type: UserPersonalizedDigestType.Digest },
       },
       result: () => {
         mutationCalled = true;
@@ -157,6 +162,8 @@ describe('usePersonalizedDigest hook', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     await waitForNock();
 
-    expect(result.current.personalizedDigest).toBeNull();
+    expect(
+      result.current.getPersonalizedDigest(UserPersonalizedDigestType.Digest),
+    ).toBeNull();
   });
 });

@@ -70,7 +70,9 @@ export enum AnalyticsEvent {
   ClickNotification = 'click notification',
   ClickEnableNotification = 'click enable notification',
   ClickNotificationDismiss = 'click notification dismiss',
+  EnableNotification = 'enable notification',
   DisableNotification = 'disable notification',
+  ScheduleDigest = 'schedule digest',
   // notifications - end
   // squads - start
   ViewSquadInvitation = 'view squad invitation',
@@ -215,6 +217,7 @@ export enum NotificationCategory {
   Marketing = 'marketing',
   Product = 'product',
   Digest = 'digest',
+  ReadingReminder = 'reading reminder',
 }
 
 export enum NotificationTarget {
