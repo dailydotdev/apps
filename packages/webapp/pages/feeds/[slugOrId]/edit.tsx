@@ -256,7 +256,7 @@ const EditFeedPage = (): ReactElement => {
               }}
               onDelete={onDelete}
             >
-              <p className="font-bold typo-title3">Feed settings</p>
+              <p className="font-bold typo-title3">Edit tags</p>
             </FeedCustomActions>
             <TextField
               className={{
