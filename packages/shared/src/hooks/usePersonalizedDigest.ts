@@ -1,6 +1,6 @@
 import request from 'graphql-request';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useCallback } from 'react';
 import {
   GET_PERSONALIZED_DIGEST_SETTINGS,
   SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
@@ -20,8 +20,9 @@ export enum SendType {
   Off = 'off',
 }
 export type UsePersonalizedDigest = {
-  personalizedDigest: UserPersonalizedDigest | null;
-  readingReminder: UserPersonalizedDigest | null;
+  getPersonalizedDigest: (
+    type: UserPersonalizedDigestType,
+  ) => UserPersonalizedDigest | null;
   isLoading: boolean;
   subscribePersonalizedDigest: (params?: {
     hour?: number;
@@ -64,24 +65,16 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
     },
   );
 
-  const { personalizedDigest, readingReminder } = useMemo(() => {
-    return (
-      data?.reduce(
-        (acc, item) => {
-          if (item.type === UserPersonalizedDigestType.Digest) {
-            acc.personalizedDigest = item;
-          } else if (item.type === UserPersonalizedDigestType.ReadingReminder) {
-            acc.readingReminder = item;
-          }
-          return acc;
-        },
-        {
-          personalizedDigest: null,
-          readingReminder: null,
-        },
-      ) || { personalizedDigest: null, readingReminder: null }
-    );
-  }, [data]);
+  const getPersonalizedDigest = useCallback(
+    (type: UserPersonalizedDigestType): null | UserPersonalizedDigest => {
+      if (!type || !data) {
+        return null;
+      }
+
+      return data.find((item) => item.type === type);
+    },
+    [data],
+  );
 
   const { mutateAsync: subscribePersonalizedDigest } = useMutation(
     async (params: {
@@ -109,9 +102,10 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
       queryClient.setQueryData(
         queryKey,
         data?.length >= 0
-          ? data.map((item) =>
-              item.type === type ? result.subscribePersonalizedDigest : item,
-            )
+          ? [
+              ...data.filter((item) => item.type !== type),
+              result.subscribePersonalizedDigest,
+            ]
           : [result.subscribePersonalizedDigest],
       );
 
@@ -138,6 +132,10 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         type,
       });
 
+      queryClient.setQueryData(
+        queryKey,
+        data.filter((item) => item.type !== type),
+      );
       return null;
     },
     {
@@ -155,8 +153,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
   );
 
   return {
-    personalizedDigest,
-    readingReminder,
+    getPersonalizedDigest,
     isLoading,
     subscribePersonalizedDigest,
     unsubscribePersonalizedDigest,

@@ -48,18 +48,25 @@ const AccountNotificationsPage = (): ReactElement => {
   const { trackEvent } = useAnalyticsContext();
   const { user } = useContext(AuthContext);
   const {
-    personalizedDigest,
-    readingReminder,
+    getPersonalizedDigest,
     subscribePersonalizedDigest,
     unsubscribePersonalizedDigest,
   } = usePersonalizedDigest();
   const [digestTimeIndex, setDigestTimeIndex] = useState(8);
-  if (personalizedDigest?.preferredHour !== digestTimeIndex) {
-    setDigestTimeIndex(personalizedDigest?.preferredHour);
-  }
+
+  const readingReminder = getPersonalizedDigest(
+    UserPersonalizedDigestType.ReadingReminder,
+  );
+  const personalizedDigest = getPersonalizedDigest(
+    UserPersonalizedDigestType.Digest,
+  );
+
   const [readingTimeIndex, setReadingTimeIndex] = useState(
     readingReminder?.preferredHour || 8,
   );
+  if (personalizedDigest?.preferredHour !== digestTimeIndex) {
+    setDigestTimeIndex(personalizedDigest?.preferredHour);
+  }
   if (readingReminder?.preferredHour !== readingTimeIndex) {
     setReadingTimeIndex(readingReminder?.preferredHour);
   }
