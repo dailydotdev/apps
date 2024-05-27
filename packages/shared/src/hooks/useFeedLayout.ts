@@ -51,7 +51,9 @@ export type UserProfileFeedType = Extract<
 >;
 
 export const FeedLayoutMobileFeedPages = new Set([
-  ...Object.values(SharedFeedPage),
+  ...Object.values(SharedFeedPage).filter(
+    (item) => item !== SharedFeedPage.CustomForm,
+  ),
   OtherFeedPage.TagPage,
   OtherFeedPage.SourcePage,
   OtherFeedPage.SquadPage,

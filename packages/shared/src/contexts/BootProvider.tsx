@@ -3,6 +3,7 @@ import React, {
   ReactNode,
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -24,6 +25,7 @@ import { AnalyticsContextProvider } from './AnalyticsContext';
 import { GrowthBookProvider } from '../components/GrowthBookProvider';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
 import { checkIsExtension } from '../lib/func';
+import { Feed, FeedList } from '../graphql/feed';
 
 function filteredProps<T extends Record<string, unknown>>(
   obj: T,
@@ -66,12 +68,21 @@ const updateLocalBootData = (
     'lastModifier',
     'squads',
     'exp',
+    'feeds',
   ]);
 
   storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));
 
   return result;
 };
+
+export type PreloadFeeds = ({
+  feeds,
+  user,
+}: {
+  feeds?: Feed[];
+  user?: Pick<LoggedUser, 'id'>;
+}) => void;
 
 export const BootDataProvider = ({
   children,
@@ -87,6 +98,23 @@ export const BootDataProvider = ({
 
   const queryClient = useQueryClient();
 
+  const preloadFeedsRef = useRef<PreloadFeeds>();
+  preloadFeedsRef.current = ({ feeds, user }) => {
+    if (!feeds || !user) {
+      return;
+    }
+
+    queryClient.setQueryData<FeedList['feedList']>(
+      generateQueryKey(RequestKey.Feeds, user),
+      {
+        edges: feeds.map((item) => ({ node: item })),
+        pageInfo: {
+          hasNextPage: false,
+        },
+      },
+    );
+  };
+
   const [cachedBootData, setCachedBootData] =
     useState<Partial<BootCacheData>>(localBootData);
   const [lastAppliedChange, setLastAppliedChange] =
@@ -101,11 +129,21 @@ export const BootDataProvider = ({
     refetch,
     isFetched,
     dataUpdatedAt,
-  } = useQuery(BOOT_QUERY_KEY, () => getBootData(app), {
-    refetchOnWindowFocus: loggedUser,
-    staleTime: STALE_TIME,
-    enabled: isExtension ? !!hostGranted : true,
-  });
+  } = useQuery(
+    BOOT_QUERY_KEY,
+    async () => {
+      const result = await getBootData(app);
+
+      preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
+
+      return result;
+    },
+    {
+      refetchOnWindowFocus: loggedUser,
+      staleTime: STALE_TIME,
+      enabled: isExtension ? !!hostGranted : true,
+    },
+  );
 
   useEffect(() => {
     const boot = getLocalBootData();
@@ -113,6 +151,8 @@ export const BootDataProvider = ({
       if (boot?.settings?.theme) {
         applyTheme(themeModes[boot.settings.theme]);
       }
+
+      preloadFeedsRef.current({ feeds: boot.feeds, user: boot.user });
 
       setCachedBootData(boot);
     }

@@ -12,6 +12,7 @@ import MainFeedLayout, {
 } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
+import { getFeedName as getFeedNameLib } from '@dailydotdev/shared/src/lib/feed';
 import { getLayout } from './FeedLayout';
 
 export type MainFeedPageProps = {
@@ -26,6 +27,10 @@ const getFeedName = (path: string): string => {
 
   if (path.startsWith('/search')) {
     return 'search';
+  }
+
+  if (path.startsWith('/feeds/')) {
+    return getFeedNameLib(path);
   }
 
   return path.replace(/^\/+/, '');

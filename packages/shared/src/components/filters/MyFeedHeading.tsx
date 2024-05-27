@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { FilterIcon, RefreshIcon } from '../icons';
 import {
   Button,
@@ -14,6 +15,8 @@ import { feature } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
 import { setShouldRefreshFeed } from '../../lib/refreshFeed';
 import { SharedFeedPage } from '../utilities';
+import { getFeedName } from '../../lib/feed';
+import { useFeedName } from '../../hooks/feed/useFeedName';
 
 export const filterAlertMessage = 'Edit your personal feed preferences here';
 
@@ -24,12 +27,15 @@ interface MyFeedHeadingProps {
 function MyFeedHeading({
   onOpenFeedFilters,
 }: MyFeedHeadingProps): ReactElement {
+  const router = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { trackEvent } = useContext(AnalyticsContext);
   const { shouldUseListFeedLayout } = useFeedLayout();
   const queryClient = useQueryClient();
   const forceRefresh = useFeature(feature.forceRefresh);
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const feedName = getFeedName(router.pathname);
+  const { isCustomFeed } = useFeedName({ feedName });
 
   const onClick = () => {
     trackEvent({ event_name: AnalyticsEvent.ManageTags });
@@ -49,10 +55,17 @@ function MyFeedHeading({
     exact: false,
   });
   const isRefreshing = feedQueryState?.status === 'success' && isFetchingFeed;
+  const shouldShowFeedRefresh = forceRefresh && !isCustomFeed;
+
+  let feedFiltersLabel = 'Feed settings';
+
+  if (isCustomFeed) {
+    feedFiltersLabel = 'Edit tags';
+  }
 
   return (
     <>
-      {forceRefresh && (
+      {shouldShowFeedRefresh && (
         <Button
           size={ButtonSize.Medium}
           variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
@@ -77,7 +90,7 @@ function MyFeedHeading({
           shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
         }
       >
-        {!isMobile ? 'Feed settings' : null}
+        {!isMobile ? feedFiltersLabel : null}
       </Button>
     </>
   );

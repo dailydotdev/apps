@@ -147,3 +147,15 @@ export const RELATED_POST_FRAGMENT = gql`
     }
   }
 `;
+
+export const CUSTOM_FEED_FRAGMENT = gql`
+  fragment CustomFeed on Feed {
+    id
+    userId
+    flags {
+      name
+    }
+    slug
+    createdAt
+  }
+`;

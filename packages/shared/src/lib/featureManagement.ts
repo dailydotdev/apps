@@ -3,6 +3,7 @@ import {
   ExperienceLevelExperiment,
   TagSourceSocialProof,
   FeedListLayoutExperiment,
+  CustomFeedsExperiment,
 } from './featureValues';
 import { cloudinary } from './image';
 
@@ -48,6 +49,7 @@ const feature = {
     'feed_list_layout',
     FeedListLayoutExperiment.Control,
   ),
+  customFeeds: new Feature('custom_feeds', CustomFeedsExperiment.Control),
 };
 
 export { feature };

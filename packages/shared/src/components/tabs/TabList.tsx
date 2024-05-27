@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { RenderTab } from './common';
 
 interface ClassName {
   indicator?: string;
@@ -23,6 +24,7 @@ export interface TabListProps {
   onClick?: (label: string) => unknown;
   className?: ClassName;
   autoScrollActive?: boolean;
+  renderTab?: RenderTab;
 }
 
 function TabList({
@@ -31,6 +33,7 @@ function TabList({
   onClick,
   className = {},
   autoScrollActive,
+  renderTab,
 }: TabListProps): ReactElement {
   const hasActive = items.includes(active);
   const currentActiveTab = useRef<HTMLButtonElement>(null);
@@ -98,6 +101,16 @@ function TabList({
     <ul className="relative flex flex-row">
       {items.map((tab) => {
         const isActive = tab === active;
+        const renderedTab = renderTab?.({ label: tab, isActive }) ?? (
+          <span
+            className={classNames(
+              'inline rounded-10 px-3 py-1.5',
+              isActive && 'bg-theme-active',
+            )}
+          >
+            {tab}
+          </span>
+        );
 
         return (
           <button
@@ -118,14 +131,7 @@ function TabList({
             type="button"
             role="menuitem"
           >
-            <span
-              className={classNames(
-                'inline rounded-10 px-3 py-1.5',
-                isActive && 'bg-theme-active',
-              )}
-            >
-              {tab}
-            </span>
+            {renderedTab}
           </button>
         );
       })}

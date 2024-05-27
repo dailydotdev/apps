@@ -13,8 +13,6 @@ import {
   OnboardingHeader,
 } from '@dailydotdev/shared/src/components/onboarding';
 import {
-  Button,
-  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -48,12 +46,14 @@ import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanie
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
-import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
+import {
+  FeedPreviewControls,
+  withFeaturesBoundary,
+} from '@dailydotdev/shared/src/components';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { OtherFeedPage, RequestKey } from '@dailydotdev/shared/src/lib/query';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   GtagTracking,
   PixelTracking,
@@ -273,38 +273,13 @@ export function OnboardPage(): ReactElement {
               Pick tags that are relevant to you
             </Title>
             <FilterOnboardingV4 className="mt-10 max-w-4xl" />
-            <Button
-              className="mt-10"
-              variant={
-                isPreviewVisible
-                  ? ButtonVariant.Primary
-                  : ButtonVariant.Secondary
-              }
-              disabled={!isPreviewEnabled}
-              icon={
-                <ArrowIcon
-                  className={classNames(!isPreviewVisible && 'rotate-180')}
-                />
-              }
-              iconPosition={ButtonIconPosition.Right}
-              onClick={() => {
-                setPreviewVisible((current) => {
-                  const newValue = !current;
-
-                  trackEvent({
-                    event_name: AnalyticsEvent.ToggleFeedPreview,
-                    target_id: newValue,
-                    extra: JSON.stringify({ origin: Origin.EditTag }),
-                  });
-
-                  return newValue;
-                });
-              }}
-            >
-              {isPreviewEnabled
-                ? `${isPreviewVisible ? 'Hide' : 'Show'} feed preview`
-                : `${tagsCount}/${REQUIRED_TAGS_THRESHOLD} to show feed preview`}
-            </Button>
+            <FeedPreviewControls
+              isOpen={isPreviewVisible}
+              isDisabled={!isPreviewEnabled}
+              textDisabled={`${tagsCount}/${REQUIRED_TAGS_THRESHOLD} to show feed preview`}
+              origin={Origin.EditTag}
+              onClick={setPreviewVisible}
+            />
             {isPreviewEnabled && isPreviewVisible && (
               <FeedLayout>
                 <p className="-mb-4 mt-6 text-center text-text-secondary typo-body">

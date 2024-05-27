@@ -92,6 +92,7 @@ export enum RequestKey {
   Changelog = 'changelog',
   Tags = 'tags',
   FeedPreview = 'feedPreview',
+  FeedPreviewCustom = 'feedPreviewCustom',
   ReferredUsers = 'referred',
   PostKey = 'post',
   Prompt = 'prompt',
@@ -117,6 +118,8 @@ export enum RequestKey {
   SourceByTag = 'source_by_tag',
   SimilarSources = 'similar_sources',
   UserExperienceLevel = 'user_experience_level',
+  Feeds = 'feeds',
+  FeedSettings = 'feedSettings',
 }
 
 export type HasConnection<

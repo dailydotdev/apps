@@ -8,6 +8,7 @@ import React, {
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import TabList, { TabListProps } from './TabList';
+import { RenderTab } from './common';
 
 export interface TabProps<T extends string> {
   key?: number;
@@ -47,6 +48,7 @@ export interface TabContainerProps<T extends string> {
   controlledActive?: string;
   tabListProps?: Pick<TabListProps, 'className' | 'autoScrollActive'>;
   showBorder?: boolean;
+  renderTab?: RenderTab;
 }
 
 export function TabContainer<T extends string = string>({
@@ -59,6 +61,7 @@ export function TabContainer<T extends string = string>({
   showBorder = true,
   controlledActive,
   tabListProps = {},
+  renderTab,
 }: TabContainerProps<T>): ReactElement {
   const router = useRouter();
 
@@ -136,6 +139,7 @@ export function TabContainer<T extends string = string>({
       >
         <TabList
           items={children.map((child) => child.props.label)}
+          renderTab={renderTab}
           onClick={onClick}
           active={currentActive}
           className={tabListProps?.className}
