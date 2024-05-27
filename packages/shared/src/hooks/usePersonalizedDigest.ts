@@ -134,7 +134,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
 
       queryClient.setQueryData(
         queryKey,
-        data.filter((item) => item.type !== type),
+        data?.filter((item) => item.type !== type),
       );
       return null;
     },

@@ -64,7 +64,9 @@ describe('usePersonalizedDigest hook', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     await waitForNock();
 
-    expect(result.current.personalizedDigest).toMatchObject({
+    expect(
+      result.current.getPersonalizedDigest(UserPersonalizedDigestType.Digest),
+    ).toMatchObject({
       preferredDay: 1,
       preferredHour: 9,
     });
@@ -160,6 +162,8 @@ describe('usePersonalizedDigest hook', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     await waitForNock();
 
-    expect(result.current.personalizedDigest).toBeNull();
+    expect(
+      result.current.getPersonalizedDigest(UserPersonalizedDigestType.Digest),
+    ).toBeNull();
   });
 });
