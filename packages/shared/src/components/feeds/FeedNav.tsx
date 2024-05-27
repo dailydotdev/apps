@@ -118,11 +118,9 @@ function FeedNav(): ReactElement {
             />
           </StickyNavIconWrapper>
         )}
-        {!isMobile && !isLaptop && (
-          <StickyNavIconWrapper className="translate-x-[calc(100vw-180%)]">
-            <NotificationsBell compact />
-          </StickyNavIconWrapper>
-        )}
+        <StickyNavIconWrapper className="hidden translate-x-[calc(100vw-180%)] tablet:flex laptop:hidden">
+          <NotificationsBell compact />
+        </StickyNavIconWrapper>
       </div>
     </div>
   );
