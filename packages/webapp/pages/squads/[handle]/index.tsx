@@ -176,14 +176,16 @@ const SquadPage = ({
     [checkHasCompleted, isActionsFetched],
   );
 
-  const isRequestsEnabled =
+  const isQueryEnabled =
     !!squadId &&
     !!user &&
+    !squad?.public &&
     squad?.currentMember?.role === SourceMemberRole.Admin;
   const { isFetched: isRequestsFetched, status } = usePublicSquadRequests({
     sourceId: squadId,
-    isQueryEnabled: isRequestsEnabled,
+    isQueryEnabled,
   });
+  const isRequestsEnabled = isQueryEnabled && status !== SquadStatus.Approved;
   const isRequestsLoading =
     isRequestsEnabled && (!isRequestsFetched || !isActionsFetched);
 
