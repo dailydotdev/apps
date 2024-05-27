@@ -40,6 +40,7 @@ export const HourDropdown = ({
 }): ReactElement => {
   return (
     <Dropdown
+      data-testid="hour-dropdown"
       className={{ container: className }}
       selectedIndex={hourIndex}
       options={HourOptions}

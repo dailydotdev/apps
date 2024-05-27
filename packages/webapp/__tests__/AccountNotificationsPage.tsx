@@ -170,9 +170,62 @@ it('should change user all email subscription', async () => {
     expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
     expect(personalizedDigestMutationCalled).toBe(true);
   });
+
+  expect(trackEvent).toHaveBeenCalledTimes(1);
+  expect(trackEvent).toHaveBeenCalledWith({
+    event_name: 'enable notification',
+    extra: JSON.stringify({
+      channel: 'email',
+      category: ['product', 'marketing', 'digest'],
+    }),
+  });
 });
 
-it('should change user email marketing subscription', async () => {
+it('should unsubscribe from all email campaigns', async () => {
+  renderComponent({
+    ...defaultLoggedUser,
+    acceptedMarketing: true,
+    notificationEmail: true,
+  });
+
+  const data: UpdateProfileParameters = {
+    acceptedMarketing: false,
+    notificationEmail: false,
+  };
+  mockGraphQL(updateProfileMock(data));
+
+  const subscription = await screen.findByTestId('email_notification-switch');
+  expect(subscription).toBeChecked();
+  fireEvent.click(subscription);
+
+  mockGraphQL({
+    request: {
+      query: UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+      variables: { type: UserPersonalizedDigestType.Digest },
+    },
+    result: {
+      data: {
+        _: true,
+      },
+    },
+  });
+
+  await waitFor(() => {
+    expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
+    // expect(personalizedDigestMutationCalled).toBe(true);
+  });
+
+  expect(trackEvent).toHaveBeenCalledTimes(1);
+  expect(trackEvent).toHaveBeenCalledWith({
+    event_name: 'disable notification',
+    extra: JSON.stringify({
+      channel: 'email',
+      category: ['product', 'marketing', 'digest'],
+    }),
+  });
+});
+
+it('should subscribe to user email marketing subscription', async () => {
   renderComponent();
   const data = { acceptedMarketing: true };
   mockGraphQL(updateProfileMock(data));
@@ -182,6 +235,36 @@ it('should change user email marketing subscription', async () => {
   await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
   await waitForNock();
   expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
+
+  expect(trackEvent).toHaveBeenCalledTimes(1);
+  expect(trackEvent).toHaveBeenCalledWith({
+    event_name: 'enable notification',
+    extra: JSON.stringify({
+      channel: 'email',
+      category: 'marketing',
+    }),
+  });
+});
+
+it('should unsubscribe to user email marketing subscription', async () => {
+  renderComponent({ ...defaultLoggedUser, acceptedMarketing: true });
+  const data = { acceptedMarketing: false };
+  mockGraphQL(updateProfileMock(data));
+  const subscription = await screen.findByTestId('marketing-switch');
+  expect(subscription).toBeChecked();
+  subscription.click();
+  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  await waitForNock();
+  expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
+
+  expect(trackEvent).toHaveBeenCalledTimes(1);
+  expect(trackEvent).toHaveBeenCalledWith({
+    event_name: 'disable notification',
+    extra: JSON.stringify({
+      channel: 'email',
+      category: 'marketing',
+    }),
+  });
 });
 
 it('should change user notification email subscription', async () => {
@@ -230,6 +313,19 @@ it('should subscribe to personalized digest subscription', async () => {
   await waitForNock();
 
   expect(subscription).toBeChecked();
+
+  expect(trackEvent).toHaveBeenCalledTimes(2);
+  expect(trackEvent).toHaveBeenCalledWith({
+    event_name: 'enable notification',
+    extra: JSON.stringify({
+      channel: 'email',
+      category: 'digest',
+    }),
+  });
+  expect(trackEvent).toHaveBeenCalledWith({
+    event_name: 'schedule digest',
+    extra: JSON.stringify({ hour: 8, frequency: 'weekly' }),
+  });
 });
 
 it('should unsubscribe from personalized digest subscription', async () => {
@@ -277,5 +373,64 @@ it('should unsubscribe from personalized digest subscription', async () => {
   expect(trackEvent).toHaveBeenCalledWith({
     event_name: 'disable notification',
     extra: JSON.stringify({ channel: 'email', category: 'digest' }),
+  });
+});
+
+it('should change hour for personalized digest subscription', async () => {
+  personalizedDigestMock = {
+    request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
+    result: {
+      data: {
+        personalizedDigest: [
+          {
+            preferredDay: 1,
+            preferredHour: 9,
+            type: UserPersonalizedDigestType.Digest,
+            flags: {
+              sendType: SendType.Weekly,
+            },
+          },
+        ],
+      },
+    },
+  };
+
+  renderComponent();
+
+  const subscription = await screen.findByLabelText('Weekly');
+  await waitFor(() => expect(subscription).toBeChecked());
+
+  mockGraphQL({
+    request: {
+      query: SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+      variables: {
+        day: 3,
+        hour: 0,
+        type: UserPersonalizedDigestType.Digest,
+      },
+    },
+    result: {
+      data: {
+        subscribePersonalizedDigest: {
+          preferredDay: 1,
+          preferredHour: 0,
+          type: UserPersonalizedDigestType.Digest,
+          flags: {
+            sendType: SendType.Weekly,
+          },
+        },
+      },
+    },
+  });
+
+  const { firstChild } = await screen.findByTestId('hour-dropdown');
+  fireEvent.click(firstChild);
+  const selectedHour = await screen.findByText('00:00');
+  fireEvent.click(selectedHour);
+
+  expect(trackEvent).toHaveBeenCalledTimes(1);
+  expect(trackEvent).toHaveBeenCalledWith({
+    event_name: 'schedule digest',
+    extra: JSON.stringify({ hour: 0, frequency: 'weekly' }),
   });
 });

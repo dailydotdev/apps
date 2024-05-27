@@ -69,7 +69,9 @@ export enum AnalyticsEvent {
   ClickNotification = 'click notification',
   ClickEnableNotification = 'click enable notification',
   ClickNotificationDismiss = 'click notification dismiss',
+  EnableNotification = 'enable notification',
   DisableNotification = 'disable notification',
+  ScheduleDigest = 'schedule digest',
   // notifications - end
   // squads - start
   ViewSquadInvitation = 'view squad invitation',
@@ -202,7 +204,6 @@ export enum TargetId {
 export enum NotificationChannel {
   Email = 'email',
   Web = 'web',
-  Push = 'push',
 }
 
 export enum NotificationCategory {

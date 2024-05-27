@@ -30,6 +30,7 @@ import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import { HourDropdown } from '@dailydotdev/shared/src/components/fields/HourDropdown';
 import { UserPersonalizedDigestType } from '@dailydotdev/shared/src/graphql/users';
+import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -53,6 +54,7 @@ const AccountNotificationsPage = (): ReactElement => {
     unsubscribePersonalizedDigest,
   } = usePersonalizedDigest();
   const [digestTimeIndex, setDigestTimeIndex] = useState(8);
+  const [readingTimeIndex, setReadingTimeIndex] = useState(8);
 
   const readingReminder = getPersonalizedDigest(
     UserPersonalizedDigestType.ReadingReminder,
@@ -61,13 +63,16 @@ const AccountNotificationsPage = (): ReactElement => {
     UserPersonalizedDigestType.Digest,
   );
 
-  const [readingTimeIndex, setReadingTimeIndex] = useState(
-    readingReminder?.preferredHour || 8,
-  );
-  if (personalizedDigest?.preferredHour !== digestTimeIndex) {
+  if (
+    !isNullOrUndefined(personalizedDigest) &&
+    personalizedDigest?.preferredHour !== digestTimeIndex
+  ) {
     setDigestTimeIndex(personalizedDigest?.preferredHour);
   }
-  if (readingReminder?.preferredHour !== readingTimeIndex) {
+  if (
+    !isNullOrUndefined(readingReminder) &&
+    readingReminder?.preferredHour !== readingTimeIndex
+  ) {
     setReadingTimeIndex(readingReminder?.preferredHour);
   }
   const personalizedDigestType = personalizedDigest?.flags?.sendType || 'off';
@@ -79,13 +84,26 @@ const AccountNotificationsPage = (): ReactElement => {
   const onToggleEmailSettings = () => {
     const value = !emailNotification;
 
-    if (!value) {
+    const defaultTrackingProps = {
+      extra: JSON.stringify({
+        channel: NotificationChannel.Email,
+        category: [
+          NotificationCategory.Product,
+          NotificationCategory.Marketing,
+          NotificationCategory.Digest,
+        ],
+      }),
+    };
+
+    if (value) {
+      trackEvent({
+        event_name: AnalyticsEvent.EnableNotification,
+        ...defaultTrackingProps,
+      });
+    } else {
       trackEvent({
         event_name: AnalyticsEvent.DisableNotification,
-        extra: JSON.stringify({
-          channel: NotificationChannel.Email,
-          category: Object.values(NotificationCategory),
-        }),
+        ...defaultTrackingProps,
       });
     }
 
@@ -106,14 +124,20 @@ const AccountNotificationsPage = (): ReactElement => {
     channel: NotificationChannel,
     category: NotificationCategory,
   ) => {
-    if (isEnabled) {
-      return;
-    }
-
-    trackEvent({
-      event_name: AnalyticsEvent.DisableNotification,
+    const baseTrackingProps = {
       extra: JSON.stringify({ channel, category }),
-    });
+    };
+    if (isEnabled) {
+      trackEvent({
+        event_name: AnalyticsEvent.EnableNotification,
+        ...baseTrackingProps,
+      });
+    } else {
+      trackEvent({
+        event_name: AnalyticsEvent.DisableNotification,
+        ...baseTrackingProps,
+      });
+    }
   };
 
   const onTogglePush = async () => {
@@ -149,11 +173,19 @@ const AccountNotificationsPage = (): ReactElement => {
     const value = !readingReminder;
     onTrackToggle(
       value,
-      NotificationChannel.Push,
+      NotificationChannel.Web,
       NotificationCategory.ReadingReminder,
     );
 
     if (value) {
+      console.log('v', readingTimeIndex);
+      trackEvent({
+        event_name: AnalyticsEvent.ScheduleReadingReminder,
+        extra: JSON.stringify({
+          hour: readingTimeIndex,
+          timezone: user?.timezone,
+        }),
+      });
       subscribePersonalizedDigest({
         type: UserPersonalizedDigestType.ReadingReminder,
       });
@@ -174,6 +206,14 @@ const AccountNotificationsPage = (): ReactElement => {
     if (sendType === SendType.Off) {
       unsubscribePersonalizedDigest();
     } else {
+      trackEvent({
+        event_name: AnalyticsEvent.ScheduleDigest,
+        extra: JSON.stringify({
+          hour: digestTimeIndex,
+          timezone: user?.timezone,
+          frequency: sendType,
+        }),
+      });
       subscribePersonalizedDigest({ sendType });
     }
   };
@@ -183,6 +223,25 @@ const AccountNotificationsPage = (): ReactElement => {
     preferredHour: number,
     setHour: React.Dispatch<SetStateAction<number>>,
   ): void => {
+    if (type === UserPersonalizedDigestType.ReadingReminder) {
+      trackEvent({
+        event_name: AnalyticsEvent.ScheduleReadingReminder,
+        extra: JSON.stringify({
+          hour: preferredHour,
+          timezone: user?.timezone,
+        }),
+      });
+    } else if (type === UserPersonalizedDigestType.Digest) {
+      trackEvent({
+        event_name: AnalyticsEvent.ScheduleDigest,
+        extra: JSON.stringify({
+          hour: preferredHour,
+          timezone: user?.timezone,
+          frequency: personalizedDigestType,
+        }),
+      });
+    }
+
     subscribePersonalizedDigest({ type, hour: preferredHour });
     setHour(preferredHour);
   };
@@ -337,8 +396,8 @@ const AccountNotificationsPage = (): ReactElement => {
               Activity (mentions, replies, upvotes, etc.)
             </Checkbox>
             <Checkbox
-              name="marketing"
-              data-testid="marketing-switch"
+              name="readingReminder"
+              data-testid="reading-reminder-switch"
               checked={!!readingReminder}
               onToggle={onToggleReadingReminder}
             >
