@@ -30,8 +30,13 @@ import {
 } from '@dailydotdev/shared/src/lib/analytics';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
-import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral/InviteLinkInput';
+import {
+  InviteLinkInput,
+  HypeCampaign,
+} from '@dailydotdev/shared/src/components/referral';
 import { TruncateText } from '@dailydotdev/shared/src/components/utilities';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
@@ -77,6 +82,8 @@ const AccountInvitePage = (): ReactElement => {
     return list;
   }, [usersResult]);
 
+  const hypeCampaign = useFeature(feature.hypeCampaign);
+
   const onTrackShare = (provider: ShareProvider) => {
     trackEvent({
       event_name: AnalyticsEvent.InviteReferral,
@@ -87,6 +94,8 @@ const AccountInvitePage = (): ReactElement => {
 
   return (
     <AccountPageContainer title="Invite friends">
+      {hypeCampaign && <HypeCampaign />}
+
       <InviteLinkInput
         link={inviteLink}
         trackingProps={{
