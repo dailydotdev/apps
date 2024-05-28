@@ -8,6 +8,7 @@ import type { PublicProfile } from '../lib/user';
 import { Connection } from './common';
 import { SourceMember } from './sources';
 import { graphqlUrl } from '../lib/config';
+import type { SendType } from '../hooks';
 
 type PostStats = {
   numPosts: number;
@@ -378,12 +379,17 @@ export enum UserPersonalizedDigestType {
 export type UserPersonalizedDigest = {
   preferredDay: number;
   preferredHour: number;
+  type?: UserPersonalizedDigestType;
+  flags: {
+    sendType?: string;
+  };
 };
 
 export type UserPersonalizedDigestSubscribe = {
   day?: number;
   hour?: number;
   type?: UserPersonalizedDigestType;
+  sendType?: SendType;
 };
 
 export const GET_PERSONALIZED_DIGEST_SETTINGS = gql`
@@ -391,6 +397,10 @@ export const GET_PERSONALIZED_DIGEST_SETTINGS = gql`
     personalizedDigest {
       preferredDay
       preferredHour
+      type
+      flags {
+        sendType
+      }
     }
   }
 `;
@@ -417,18 +427,27 @@ export const SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION = gql`
     $hour: Int
     $day: Int
     $type: DigestType
+    $sendType: UserPersonalizedDigestSendType
   ) {
-    subscribePersonalizedDigest(hour: $hour, day: $day, type: $type) {
+    subscribePersonalizedDigest(
+      hour: $hour
+      day: $day
+      type: $type
+      sendType: $sendType
+    ) {
       preferredDay
       preferredHour
       type
+      flags {
+        sendType
+      }
     }
   }
 `;
 
 export const UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION = gql`
-  mutation UnsubscribePersonalizedDigest {
-    unsubscribePersonalizedDigest {
+  mutation UnsubscribePersonalizedDigest($type: DigestType) {
+    unsubscribePersonalizedDigest(type: $type) {
       _
     }
   }
