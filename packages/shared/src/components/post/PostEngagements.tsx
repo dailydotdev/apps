@@ -24,12 +24,6 @@ import {
 } from '../../graphql/squads';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { PostContentShare } from './common/PostContentShare';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { ArrowIcon, MagicIcon } from '../icons';
-import { IconSize } from '../Icon';
-import { webappUrl } from '../../lib/constants';
-import { feature } from '../../lib/featureManagement';
-import { useConditionalFeature } from '../../hooks';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { ActiveFeedContext } from '../../contexts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -67,10 +61,6 @@ function PostEngagements({
     SQUAD_COMMENT_JOIN_BANNER_KEY,
     false,
   );
-  const { value: showSimilarPosts } = useConditionalFeature({
-    feature: feature.similarPosts,
-    shouldEvaluate: !!post?.id,
-  });
 
   const onClickSimilarPosts = () => {
     trackEvent(
@@ -117,24 +107,6 @@ function PostEngagements({
         origin={analyticsOrigin}
       />
       <PostContentShare post={post} />
-      {showSimilarPosts && (
-        <Button
-          tag="a"
-          onClick={onClickSimilarPosts}
-          href={`${webappUrl}posts/${post.slug}/similar`}
-          size={ButtonSize.Large}
-          className="mt-6 border-border-subtlest-tertiary"
-          variant={ButtonVariant.Option}
-          icon={<MagicIcon secondary />}
-        >
-          Show similar posts <div className="flex-1" />
-          <ArrowIcon
-            secondary
-            className="-mr-3 rotate-90"
-            size={IconSize.Small}
-          />
-        </Button>
-      )}
       <NewComment
         className={{ container: 'mt-6 hidden tablet:flex' }}
         post={post}

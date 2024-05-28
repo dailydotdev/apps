@@ -32,7 +32,6 @@ import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import {
   ToastSubject,
-  useConditionalFeature,
   useFeedLayout,
   useSourceSubscription,
   useToastNotification,
@@ -61,7 +60,6 @@ import { feature } from '../lib/featureManagement';
 import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';
-import { webappUrl } from '../lib/constants';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -322,21 +320,6 @@ export default function PostOptionsMenu({
       action: onHidePost,
     },
   ];
-
-  const { value: showSimilarPosts } = useConditionalFeature({
-    feature: feature.similarPosts,
-    shouldEvaluate: !!post?.id,
-  });
-  if (showSimilarPosts) {
-    postOptions.push({
-      icon: <MenuIcon Icon={MagicIcon} />,
-      label: 'Show similar posts',
-      anchorProps: {
-        onClick: onClickSimilarPosts,
-        href: `${webappUrl}posts/${post?.slug}/similar`,
-      },
-    });
-  }
 
   const { shouldUseListFeedLayout } = useFeedLayout();
   const bookmarkLoops = useFeature(feature.bookmarkLoops);

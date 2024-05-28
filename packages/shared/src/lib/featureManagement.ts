@@ -44,7 +44,6 @@ const feature = {
     ExperienceLevelExperiment.Control,
   ),
   featureTheme: new Feature('feature_theme', {}),
-  similarPosts: new Feature('similar_posts', false),
   feedListLayout: new Feature(
     'feed_list_layout',
     FeedListLayoutExperiment.Control,
