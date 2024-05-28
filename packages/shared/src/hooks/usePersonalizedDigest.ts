@@ -99,21 +99,29 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         sendType,
       });
 
-      queryClient.setQueryData(
-        queryKey,
-        data?.length >= 0
-          ? [
-              ...data.filter((item) => item.type !== type),
-              result.subscribePersonalizedDigest,
-            ]
-          : [result.subscribePersonalizedDigest],
-      );
-
       return result.subscribePersonalizedDigest;
     },
     {
-      onMutate: () => {
-        queryClient.setQueryData(queryKey, []);
+      onMutate: async (params) => {
+        const {
+          hour = 8,
+          type = UserPersonalizedDigestType.Digest,
+          sendType,
+        } = params || {};
+        await queryClient.cancelQueries({ queryKey });
+        const existingData = data?.find((item) => item.type === type);
+        const newValues = {
+          ...existingData,
+          preferredHour: hour,
+          type,
+          flags: { sendType },
+        };
+        queryClient.setQueryData(
+          queryKey,
+          data?.length >= 0
+            ? [...data.filter((item) => item.type !== type), newValues]
+            : [newValues],
+        );
 
         return () => {
           queryClient.setQueryData(queryKey, null);
@@ -132,15 +140,16 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         type,
       });
 
-      queryClient.setQueryData(
-        queryKey,
-        data?.filter((item) => item.type !== type),
-      );
       return null;
     },
     {
-      onMutate: () => {
-        queryClient.setQueryData(queryKey, null);
+      onMutate: async (params) => {
+        await queryClient.cancelQueries({ queryKey });
+        const { type = UserPersonalizedDigestType.Digest } = params || {};
+        queryClient.setQueryData(
+          queryKey,
+          data?.filter((item) => item.type !== type),
+        );
 
         return () => {
           queryClient.setQueryData(queryKey, data);

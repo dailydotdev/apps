@@ -50,6 +50,7 @@ const AccountNotificationsPage = (): ReactElement => {
   const { user } = useContext(AuthContext);
   const {
     getPersonalizedDigest,
+    isLoading,
     subscribePersonalizedDigest,
     unsubscribePersonalizedDigest,
   } = usePersonalizedDigest();
@@ -75,7 +76,8 @@ const AccountNotificationsPage = (): ReactElement => {
   ) {
     setReadingTimeIndex(readingReminder?.preferredHour);
   }
-  const personalizedDigestType = personalizedDigest?.flags?.sendType || 'off';
+  const personalizedDigestType =
+    personalizedDigest?.flags?.sendType || (!isLoading ? 'off' : null);
 
   const { acceptedMarketing, notificationEmail } = user ?? {};
   const emailNotification =
@@ -113,7 +115,7 @@ const AccountNotificationsPage = (): ReactElement => {
     });
 
     if (value) {
-      subscribePersonalizedDigest();
+      subscribePersonalizedDigest({ sendType: SendType.Weekly });
     } else {
       unsubscribePersonalizedDigest();
     }
@@ -140,37 +142,8 @@ const AccountNotificationsPage = (): ReactElement => {
     }
   };
 
-  const onTogglePush = async () => {
-    onTrackToggle(
-      !isSubscribed,
-      NotificationChannel.Web,
-      NotificationCategory.Product,
-    );
-    return onTogglePermission(NotificationPromptSource.NotificationsPage);
-  };
-
-  const onToggleEmailNotification = () => {
-    const value = !notificationEmail;
-    onTrackToggle(
-      value,
-      NotificationChannel.Email,
-      NotificationCategory.Product,
-    );
-    updateUserProfile({ notificationEmail: value });
-  };
-
-  const onToggleEmailMarketing = () => {
-    const value = !acceptedMarketing;
-    onTrackToggle(
-      value,
-      NotificationChannel.Email,
-      NotificationCategory.Marketing,
-    );
-    updateUserProfile({ acceptedMarketing: value });
-  };
-
-  const onToggleReadingReminder = () => {
-    const value = !readingReminder;
+  const onToggleReadingReminder = (forceValue?: boolean) => {
+    const value = forceValue || !readingReminder;
     onTrackToggle(
       value,
       NotificationChannel.Web,
@@ -193,6 +166,38 @@ const AccountNotificationsPage = (): ReactElement => {
         type: UserPersonalizedDigestType.ReadingReminder,
       });
     }
+  };
+
+  const onTogglePush = async () => {
+    onTrackToggle(
+      !isSubscribed,
+      NotificationChannel.Web,
+      NotificationCategory.Product,
+    );
+
+    onToggleReadingReminder(!isSubscribed);
+
+    return onTogglePermission(NotificationPromptSource.NotificationsPage);
+  };
+
+  const onToggleEmailNotification = () => {
+    const value = !notificationEmail;
+    onTrackToggle(
+      value,
+      NotificationChannel.Email,
+      NotificationCategory.Product,
+    );
+    updateUserProfile({ notificationEmail: value });
+  };
+
+  const onToggleEmailMarketing = () => {
+    const value = !acceptedMarketing;
+    onTrackToggle(
+      value,
+      NotificationChannel.Email,
+      NotificationCategory.Marketing,
+    );
+    updateUserProfile({ acceptedMarketing: value });
   };
 
   const setPersonalizedDigestType = (sendType: SendType): void => {
@@ -328,6 +333,7 @@ const AccountNotificationsPage = (): ReactElement => {
               </h3>
             </div>
             <HourDropdown
+              className={{ container: 'w-40' }}
               hourIndex={digestTimeIndex}
               setHourIndex={(hour) =>
                 setCustomTime(
@@ -422,6 +428,10 @@ const AccountNotificationsPage = (): ReactElement => {
                       setReadingTimeIndex,
                     )
                   }
+                  className={{
+                    container: 'w-40',
+                    menu: '-translate-y-[19rem]',
+                  }}
                 />
               </>
             )}
