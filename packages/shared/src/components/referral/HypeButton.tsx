@@ -1,7 +1,7 @@
 import * as React from 'react';
 import classNames from 'classnames';
-import { hypeLink } from './HypeCampaign';
 import { DevCardTheme, themeToLinearGradient } from '../profile/devcard';
+import { link } from '../../lib/links';
 
 export const HypeButton = ({
   className,
@@ -10,7 +10,7 @@ export const HypeButton = ({
 }): JSX.Element => {
   return (
     <a
-      href={hypeLink}
+      href={link.referral.hypeLink}
       className={classNames('rounded-12 p-1', className)}
       style={{
         backgroundImage: themeToLinearGradient[DevCardTheme.Diamond],

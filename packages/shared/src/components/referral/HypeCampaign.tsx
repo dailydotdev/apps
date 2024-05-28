@@ -5,8 +5,7 @@ import { anchorDefaultRel } from '../../lib/strings';
 import { Button, ButtonSize } from '../buttons/Button';
 import { LazyImage } from '../LazyImage';
 import { cloudinary } from '../../lib/image';
-
-export const hypeLink = 'https://r.daily.dev/kawaii ';
+import { link } from '../../lib/links';
 
 export const HypeCampaign = (): JSX.Element => {
   return (
@@ -18,7 +17,7 @@ export const HypeCampaign = (): JSX.Element => {
     >
       <div className="flex max-w-full flex-col rounded-12 bg-background-default p-4 pt-5 laptop:flex-row">
         <div className="mb-5 flex-1 laptop:mb-0">
-          <Link href={hypeLink}>
+          <Link href={link.referral.hypeLink}>
             <a
               className="mb-4 mt-0 flex flex-wrap bg-clip-text font-bold text-transparent typo-title2"
               target="_blank"
@@ -45,13 +44,13 @@ export const HypeCampaign = (): JSX.Element => {
             tag="a"
             target="_blank"
             rel={anchorDefaultRel}
-            href={hypeLink}
+            href={link.referral.hypeLink}
           >
             I want that shirt!
           </Button>
         </div>
 
-        <Link href={hypeLink}>
+        <Link href={link.referral.hypeLink}>
           <a
             className="block h-fit cursor-pointer overflow-hidden rounded-10 laptop:ml-3 laptop:w-[244px]"
             target="_blank"
