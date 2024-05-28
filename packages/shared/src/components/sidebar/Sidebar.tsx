@@ -55,6 +55,7 @@ import { ActionType } from '../../graphql/actions';
 import { useFeature } from '../GrowthBookProvider';
 import { CustomFeedsExperiment } from '../../lib/featureValues';
 import { feature } from '../../lib/featureManagement';
+import { HypeButton } from '../referral';
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -86,6 +87,7 @@ export default function Sidebar({
   const featureTheme = useFeatureTheme();
   const { checkHasCompleted, isActionsFetched } = useActions();
   const customFeedsVersion = useFeature(feature.customFeeds);
+  const hypeCampaign = useFeature(feature.hypeCampaign);
   const hasCustomFeedsEnabled =
     customFeedsVersion !== CustomFeedsExperiment.Control;
 
@@ -141,6 +143,8 @@ export default function Sidebar({
           className={classNames('h-10 pt-4')}
           featureTheme={featureTheme}
         />
+
+        {hypeCampaign && <HypeButton />}
 
         <Link href={`${webappUrl}`} prefetch={false} passHref>
           <Button
