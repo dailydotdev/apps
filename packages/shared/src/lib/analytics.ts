@@ -156,8 +156,6 @@ export enum AnalyticsEvent {
   // Reading reminder
   ScheduleReadingReminder = 'schedule reading reminder',
   SkipReadingReminder = 'skip reading reminder',
-  // Similar Posts
-  ClickSimilarPosts = 'click similar posts',
   // custom feeds start
   StartCustomFeed = 'start custom feed',
   CreateCustomFeed = 'create custom feed',
