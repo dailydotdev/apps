@@ -109,7 +109,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
           sendType,
         } = params || {};
         await queryClient.cancelQueries({ queryKey });
-        const existingData = data.find((item) => item.type === type);
+        const existingData = data?.find((item) => item.type === type);
         const newValues = {
           ...existingData,
           preferredHour: hour,
