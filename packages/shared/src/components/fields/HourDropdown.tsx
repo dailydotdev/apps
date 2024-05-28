@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Dropdown } from './Dropdown';
+import { Dropdown, DropdownClassName } from './Dropdown';
 
 export const Hours = [
   { value: 0, label: '00:00' },
@@ -36,12 +36,12 @@ export const HourDropdown = ({
 }: {
   hourIndex: number;
   setHourIndex: (index: number) => void;
-  className?: string;
+  className?: DropdownClassName;
 }): ReactElement => {
   return (
     <Dropdown
       data-testid="hour-dropdown"
-      className={{ container: className }}
+      className={className}
       selectedIndex={hourIndex}
       options={HourOptions}
       onChange={(_, index) => setHourIndex(index)}
