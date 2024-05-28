@@ -1,11 +1,5 @@
 import dynamic from 'next/dynamic';
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Post } from '../../graphql/posts';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
@@ -17,16 +11,13 @@ import { PostActions } from './PostActions';
 import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import { Comment } from '../../graphql/comments';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/analytics';
 import {
   isSourcePublicSquad,
   SQUAD_COMMENT_JOIN_BANNER_KEY,
 } from '../../graphql/squads';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { PostContentShare } from './common/PostContentShare';
-import { postAnalyticsEvent } from '../../lib/feed';
-import { ActiveFeedContext } from '../../contexts';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -46,8 +37,6 @@ function PostEngagements({
   shouldOnboardAuthor,
 }: PostEngagementsProps): ReactElement {
   const postQueryKey = ['post', post.id];
-  const { trackEvent } = useContext(AnalyticsContext);
-  const { trackingOpts } = useContext(ActiveFeedContext);
   const { user, showLogin } = useAuthContext();
   const commentRef = useRef<NewCommentRef>();
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
@@ -61,12 +50,6 @@ function PostEngagements({
     SQUAD_COMMENT_JOIN_BANNER_KEY,
     false,
   );
-
-  const onClickSimilarPosts = () => {
-    trackEvent(
-      postAnalyticsEvent(AnalyticsEvent.ClickSimilarPosts, post, trackingOpts),
-    );
-  };
 
   const onCommented = (comment: Comment, isNew: boolean) => {
     if (!isNew) {

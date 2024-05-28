@@ -22,9 +22,7 @@ import {
   PinIcon,
   BellSubscribedIcon,
   BellIcon,
-  MagicIcon,
 } from './icons';
-
 import { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -283,12 +281,6 @@ export default function PostOptionsMenu({
       `${icon} Video content ${label}`,
       postIndex,
       () => onUpdateSettings(video.id, isEnabled),
-    );
-  };
-
-  const onClickSimilarPosts = () => {
-    trackEvent(
-      postAnalyticsEvent(AnalyticsEvent.ClickSimilarPosts, post, trackingOpts),
     );
   };
 
