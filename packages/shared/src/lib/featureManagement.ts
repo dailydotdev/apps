@@ -49,6 +49,7 @@ const feature = {
     FeedListLayoutExperiment.Control,
   ),
   customFeeds: new Feature('custom_feeds', CustomFeedsExperiment.Control),
+  hypeCampaign: new Feature('hype_campaign', false),
 };
 
 export { feature };

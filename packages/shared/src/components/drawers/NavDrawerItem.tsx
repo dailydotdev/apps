@@ -8,6 +8,7 @@ export type NavItemProps = ButtonProps<'a'> & {
   label: string;
   isHeader?: boolean;
   drawerRef?: MutableRefObject<DrawerRef>;
+  rightEmoji?: string;
 };
 
 const NavDrawerHeaderItem = ({ label }: { label: string }): ReactElement => (
@@ -21,6 +22,7 @@ export function NavDrawerItem({
   href,
   label,
   drawerRef,
+  rightEmoji,
   ...rest
 }: NavItemProps): ReactElement {
   if (isHeader) {
@@ -41,6 +43,7 @@ export function NavDrawerItem({
         {...rest}
       >
         {label}
+        {rightEmoji && <span className="ml-auto">{rightEmoji}</span>}
       </Button>
     </ConditionalWrapper>
   );
