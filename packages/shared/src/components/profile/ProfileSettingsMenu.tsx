@@ -140,7 +140,7 @@ const useMenuItems = (): NavItemProps[] => {
         rel: anchorDefaultRel,
       },
     ],
-    [onLogout, openModal],
+    [hypeCampaign, onLogout, openModal],
   );
 };
 
