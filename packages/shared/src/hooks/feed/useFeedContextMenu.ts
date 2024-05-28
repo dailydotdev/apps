@@ -29,10 +29,16 @@ type FeedContextMenu = {
   setPostMenuIndex: (value: PostMenuLocation | undefined) => void;
 };
 
-export default function useFeedContextMenu(): FeedContextMenu {
+type FeedContextMenuProps = {
+  contextId: string;
+};
+
+export default function useFeedContextMenu({
+  contextId,
+}: FeedContextMenuProps): FeedContextMenu {
   const [postMenuLocation, setPostMenuLocation] = useState<PostMenuLocation>();
   const postMenuIndex = postMenuLocation?.index;
-  const { showReportMenu } = useReportPostMenu(ContextMenu.PostContext);
+  const { showReportMenu } = useReportPostMenu(contextId);
   const { onMenuClick: showShareMenu } = useContextMenu({
     id: ContextMenu.ShareContext,
   });
