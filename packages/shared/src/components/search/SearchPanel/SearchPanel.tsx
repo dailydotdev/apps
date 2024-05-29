@@ -20,7 +20,7 @@ import {
 import { SearchPanelAction } from './SearchPanelAction';
 import { SearchPanelPostSuggestions } from './SearchPanelPostSuggestions';
 import SettingsContext from '../../../contexts/SettingsContext';
-import { useEventListener } from '../../../hooks';
+import { useConditionalFeature, useEventListener } from '../../../hooks';
 import { defaultSearchProvider, providerToLabelTextMap } from './common';
 import { ArrowKeyEnum } from '../../../lib/func';
 import { ArrowIcon } from '../../icons';
@@ -29,6 +29,7 @@ import { SearchPanelCustomAction } from './SearchPanelCustomAction';
 import { AnalyticsEvent } from '../../../lib/analytics';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 import { SearchPanelTagSuggestions } from './SearchPanelTagSuggestions';
+import { feature } from '../../../lib/featureManagement';
 
 export type SearchPanelProps = {
   className?: SearchPanelClassName;
@@ -138,6 +139,11 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   const showDropdown =
     state.isActive && state.query.length >= minSearchQueryLength;
 
+  const { value: isGoogleSearchEnabled } = useConditionalFeature({
+    feature: feature.searchGoogle,
+    shouldEvaluate: showDropdown,
+  });
+
   return (
     <SearchPanelContext.Provider value={searchPanel}>
       <div
@@ -181,6 +187,9 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
               <div className="flex flex-1 flex-col">
                 <SearchPanelAction provider={SearchProviderEnum.Posts} />
                 <SearchPanelAction provider={SearchProviderEnum.Chat} />
+                {isGoogleSearchEnabled && (
+                  <SearchPanelAction provider={SearchProviderEnum.Google} />
+                )}
                 <SearchPanelTagSuggestions title="Tags" />
                 <SearchPanelPostSuggestions title="Posts on daily.dev" />
                 <SearchPanelCustomAction
