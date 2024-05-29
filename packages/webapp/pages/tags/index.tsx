@@ -7,7 +7,13 @@ import { RequestKey, StaleTime } from '@dailydotdev/shared/src/lib/query';
 import request from 'graphql-request';
 import { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
-import { Keyword, TAGS_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
+import {
+  Keyword,
+  POPULAR_TAGS_QUERY,
+  Tag,
+  TAGS_QUERY,
+  TRENDING_TAGS_QUERY,
+} from '@dailydotdev/shared/src/graphql/keywords';
 import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import classed from '@dailydotdev/shared/src/lib/classed';
@@ -15,7 +21,10 @@ import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { HomeIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  HashtagIcon,
+  HomeIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 
@@ -48,9 +57,10 @@ const TopList = ({
   className,
 }: {
   title: string;
-  items: Keyword[] | Source[];
+  items: Keyword[] | Source[] | Tag[];
   className?: string;
 }): ReactElement => {
+  console.log(items);
   const isMobile = useViewSize(ViewSize.MobileL);
   const MobileDiv = classed(
     'div',
@@ -86,6 +96,22 @@ const TagsPage = (): ReactElement => {
     },
   );
 
+  const { data: trendingTags } = useQuery(
+    [RequestKey.Tags, null, 'trending'],
+    async () => await request<{ tags: Tag[] }>(graphqlUrl, TRENDING_TAGS_QUERY),
+    {
+      staleTime: StaleTime.OneHour,
+    },
+  );
+
+  const { data: popularTags } = useQuery(
+    [RequestKey.Tags, null, 'popular'],
+    async () => await request<{ tags: Tag[] }>(graphqlUrl, POPULAR_TAGS_QUERY),
+    {
+      staleTime: StaleTime.OneHour,
+    },
+  );
+
   const recentlyAddedTags = useMemo(() => {
     return data?.tags
       ?.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
@@ -93,7 +119,7 @@ const TagsPage = (): ReactElement => {
   }, [data]);
 
   const tagsByFirstLetter = useMemo(() => {
-    return data?.tags?.reduce((acc, cur) => {
+    const tags = data?.tags?.reduce((acc, cur) => {
       const rawLetter = cur.value[0].toLowerCase();
       const firstLetter = new RegExp(/^[a-zA-Z]+$/).test(rawLetter)
         ? rawLetter
@@ -101,6 +127,17 @@ const TagsPage = (): ReactElement => {
       acc[firstLetter] = (acc[firstLetter] || []).concat([cur]);
       return acc;
     }, []);
+
+    if (!tags) {
+      return null;
+    }
+
+    return Object.keys(tags)
+      .sort()
+      .reduce((acc, cur) => {
+        acc[cur] = tags[cur];
+        return acc;
+      }, []);
   }, [data]);
 
   return (
@@ -113,13 +150,17 @@ const TagsPage = (): ReactElement => {
           href={process.env.NEXT_PUBLIC_WEBAPP_URL}
         />
         /
-        <Button variant={ButtonVariant.Tertiary} icon={<HomeIcon />} disabled>
-          Sources
+        <Button
+          variant={ButtonVariant.Tertiary}
+          icon={<HashtagIcon />}
+          disabled
+        >
+          Tags
         </Button>
       </div>
       <div className="grid grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
-        <TopList title="Trending tags" items={recentlyAddedTags} />
-        <TopList title="Popular tags" items={recentlyAddedTags} />
+        <TopList title="Trending tags" items={trendingTags?.tags} />
+        <TopList title="Popular tags" items={popularTags?.tags} />
         <TopList
           className="col-span-1 tablet:col-span-2 laptopL:col-span-1"
           title="Recently added tags"
