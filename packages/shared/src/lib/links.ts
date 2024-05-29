@@ -35,5 +35,6 @@ export const link = {
   },
   referral: {
     defaultUrl: 'https://daily.dev',
+    hypeLink: 'https://r.daily.dev/kawaii',
   },
 };

@@ -23,10 +23,13 @@ import { UserMetadata } from './profile/UserMetadata';
 import { HeroImage } from './profile/HeroImage';
 import { anchorDefaultRel } from '../lib/strings';
 import { LogoutReason } from '../lib/user';
+import { useFeature } from './GrowthBookProvider';
+import { feature } from '../lib/featureManagement';
 
 interface ListItem {
   title: string;
   buttonProps?: ButtonProps<AllowedTags>;
+  rightEmoji?: string;
 }
 
 interface ProfileMenuProps {
@@ -37,6 +40,8 @@ export default function ProfileMenu({
   onClose,
 }: ProfileMenuProps): ReactElement {
   const { user, logout } = useContext(AuthContext);
+  const hypeCampaign = useFeature(feature.hypeCampaign);
+
   const items: ListItem[] = useMemo(() => {
     const list: ListItem[] = [
       {
@@ -80,6 +85,7 @@ export default function ProfileMenu({
           icon: <InviteIcon />,
           href: `${webappUrl}account/invite`,
         },
+        rightEmoji: hypeCampaign && '👕',
       },
       {
         title: 'Logout',
@@ -91,7 +97,7 @@ export default function ProfileMenu({
     ];
 
     return list;
-  }, [logout, user]);
+  }, [hypeCampaign, logout, user.permalink]);
 
   if (!user) {
     return <></>;
@@ -127,13 +133,15 @@ export default function ProfileMenu({
         className="gap-3 p-4"
       />
       <div className="flex flex-col border-t border-border-subtlest-tertiary py-2">
-        {items.map(({ title, buttonProps }) => (
+        {items.map(({ title, buttonProps, rightEmoji }) => (
           <Button
             key={title}
             {...buttonProps}
             className="btn-tertiary w-full !justify-start !px-5 font-normal"
           >
             {title}
+
+            {rightEmoji && <span className="ml-auto">{rightEmoji}</span>}
           </Button>
         ))}
       </div>

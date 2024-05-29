@@ -13,6 +13,7 @@ export interface Keyword {
   occurrences: number;
   status: KeywordStatus;
   flags?: KeywordFlags;
+  createdAt?: Date;
 }
 
 export interface KeywordData {
@@ -68,6 +69,21 @@ export const KEYWORD_QUERY = gql`
       value
       occurrences
       status
+      flags {
+        title
+        description
+      }
+    }
+  }
+`;
+
+export const TAGS_QUERY = gql`
+  query Tags {
+    tags {
+      value
+      occurrences
+      status
+      createdAt
       flags {
         title
         description
