@@ -22,7 +22,7 @@ interface PostAuthorProps {
   post: Post;
 }
 
-enum UserType {
+export enum UserType {
   Source = 'source',
   Author = 'author',
   Featured = 'featured',

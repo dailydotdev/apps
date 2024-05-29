@@ -1,13 +1,13 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { Card } from '@dailydotdev/shared/src/components/cards/Card';
 import Link from 'next/link';
 import {
   SourceAuthorProps,
   UserHighlight,
+  UserType,
 } from '@dailydotdev/shared/src/components/widgets/PostUsersHighlights';
 import {
   Button,
-  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -20,8 +20,19 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import classed from '@dailydotdev/shared/src/lib/classed';
-import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
+import { useQuery } from '@tanstack/react-query';
+import { RequestKey, StaleTime } from '@dailydotdev/shared/src/lib/query';
+import request from 'graphql-request';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
+import {
+  POPULAR_SOURCES_QUERY,
+  Source,
+  SOURCES_QUERY,
+  TOP_VIDEO_SOURCES_QUERY,
+  TRENDING_SOURCES_QUERY,
+} from '@dailydotdev/shared/src/graphql/sources';
 import { getLayout } from '../../components/layouts/MainLayout';
+import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 
 const ListItem = ({
   index,
@@ -60,11 +71,17 @@ const mockProps: SourceAuthorProps = {
   currentMember: null,
   memberPostingRole: 'member',
   memberInviteRole: 'member',
-  userType: 'source',
+  userType: UserType.Source,
   allowSubscribe: false,
 };
 
-const TopList = ({ title }: { title: string }): ReactElement => {
+const TopList = ({
+  title,
+  items = [],
+}: {
+  title: string;
+  items: Source[];
+}): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const MobileDiv = classed(
     'div',
@@ -76,10 +93,10 @@ const TopList = ({ title }: { title: string }): ReactElement => {
     <Wrapper>
       <h3 className="mb-2 font-bold typo-title3">{title}</h3>
       <ol className="typo-body">
-        {[...new Array(10)].map((_, i) => (
-          <ListItem key={i} index={i + 1} href={mockProps.permalink}>
+        {items.map((item, i) => (
+          <ListItem key={item.id} index={i + 1} href={item.permalink}>
             <UserHighlight
-              {...mockProps}
+              {...item}
               className={{
                 wrapper: '!p-2',
                 image: '!h-8 !w-8',
@@ -98,6 +115,47 @@ const TopList = ({ title }: { title: string }): ReactElement => {
 const SourcesPage = (): ReactElement => {
   const { openModal } = useLazyModal();
   const isLaptop = useViewSize(ViewSize.Laptop);
+
+  const { data } = useQuery(
+    [RequestKey.Sources, null, 'all'],
+    async () => await request<{ sources: Source[] }>(graphqlUrl, SOURCES_QUERY),
+    {
+      staleTime: StaleTime.OneHour,
+    },
+  );
+
+  const { data: trendingSources } = useQuery(
+    [RequestKey.TrendingSources, null, 'trending'],
+    async () =>
+      await request<{ sources: Source[] }>(graphqlUrl, TRENDING_SOURCES_QUERY),
+    {
+      staleTime: StaleTime.OneHour,
+    },
+  );
+
+  const { data: popularSources } = useQuery(
+    [RequestKey.PopularSources, null, 'popular'],
+    async () =>
+      await request<{ sources: Source[] }>(graphqlUrl, POPULAR_SOURCES_QUERY),
+    {
+      staleTime: StaleTime.OneHour,
+    },
+  );
+
+  const recentlyAddedSources = useMemo(() => {
+    return data?.sources
+      ?.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+      .slice(0, 10);
+  }, [data]);
+
+  const { data: topVideoSources } = useQuery(
+    [RequestKey.TopVideoSources, null, 'popular'],
+    async () =>
+      await request<{ sources: Source[] }>(graphqlUrl, TOP_VIDEO_SOURCES_QUERY),
+    {
+      staleTime: StaleTime.OneHour,
+    },
+  );
 
   return (
     <main className="py-6 tablet:px-4 laptop:px-10">
@@ -129,10 +187,10 @@ const SourcesPage = (): ReactElement => {
         </Button>
       </div>
       <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-4">
-        <TopList title="Trending sources" />
-        <TopList title="Popular sources" />
-        <TopList title="Recently added sources" />
-        <TopList title="Top video sources" />
+        <TopList title="Trending sources" items={trendingSources?.sources} />
+        <TopList title="Popular sources" items={popularSources?.sources} />
+        <TopList title="Recently added sources" items={recentlyAddedSources} />
+        <TopList title="Top video sources" items={topVideoSources?.sources} />
       </div>
     </main>
   );
