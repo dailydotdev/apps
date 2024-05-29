@@ -32,16 +32,16 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { BreadCrumbsWrapper, ListItem } from '../../components/common';
 
 // TODO: REMOVE WHEN I HAVE SOME DATA
-const mockProps: Source = {
-  id: 'daily_updates',
-  handle: 'daily_updates',
-  name: 'daily.dev changelog',
-  permalink: 'http://webapp.local.com:5002/sources/daily_updates',
-  image:
-    'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/172d19bda1bd403f9497a9d29a3ed99b',
-  type: SourceType.Squad,
-  public: true,
-};
+// const mockProps: Source = {
+//   id: 'daily_updates',
+//   handle: 'daily_updates',
+//   name: 'daily.dev changelog',
+//   permalink: 'http://webapp.local.com:5002/sources/daily_updates',
+//   image:
+//     'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/172d19bda1bd403f9497a9d29a3ed99b',
+//   type: SourceType.Squad,
+//   public: true,
+// };
 
 const TopList = ({
   title,

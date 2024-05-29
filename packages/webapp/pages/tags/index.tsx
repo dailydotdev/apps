@@ -1,7 +1,6 @@
 import React, { ReactElement, useMemo } from 'react';
 import { Card } from '@dailydotdev/shared/src/components/cards/Card';
 import { getTagPageLink } from '@dailydotdev/shared/src/lib/links';
-import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { RequestKey, StaleTime } from '@dailydotdev/shared/src/lib/query';
 import request from 'graphql-request';

@@ -103,7 +103,7 @@ const Image = (props: ImageProps) => {
   );
 };
 
-export const UserHighlight = (props: UserHighlightProps) => {
+export const UserHighlight = (props: UserHighlightProps): ReactElement => {
   const {
     id,
     handle,
