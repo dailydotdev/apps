@@ -7,7 +7,13 @@ import { RequestKey, StaleTime } from '@dailydotdev/shared/src/lib/query';
 import request from 'graphql-request';
 import { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
-import { Keyword, TAGS_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
+import {
+  Keyword,
+  POPULAR_TAGS_QUERY,
+  Tag,
+  TAGS_QUERY,
+  TRENDING_TAGS_QUERY,
+} from '@dailydotdev/shared/src/graphql/keywords';
 import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import classed from '@dailydotdev/shared/src/lib/classed';
@@ -51,9 +57,10 @@ const TopList = ({
   className,
 }: {
   title: string;
-  items: Keyword[] | Source[];
+  items: Keyword[] | Source[] | Tag[];
   className?: string;
 }): ReactElement => {
+  console.log(items);
   const isMobile = useViewSize(ViewSize.MobileL);
   const MobileDiv = classed(
     'div',
@@ -84,6 +91,22 @@ const TagsPage = (): ReactElement => {
   const { data } = useQuery(
     [RequestKey.Tags, null, 'all'],
     async () => await request<{ tags: Keyword[] }>(graphqlUrl, TAGS_QUERY),
+    {
+      staleTime: StaleTime.OneHour,
+    },
+  );
+
+  const { data: trendingTags } = useQuery(
+    [RequestKey.Tags, null, 'trending'],
+    async () => await request<{ tags: Tag[] }>(graphqlUrl, TRENDING_TAGS_QUERY),
+    {
+      staleTime: StaleTime.OneHour,
+    },
+  );
+
+  const { data: popularTags } = useQuery(
+    [RequestKey.Tags, null, 'popular'],
+    async () => await request<{ tags: Tag[] }>(graphqlUrl, POPULAR_TAGS_QUERY),
     {
       staleTime: StaleTime.OneHour,
     },
@@ -136,8 +159,8 @@ const TagsPage = (): ReactElement => {
         </Button>
       </div>
       <div className="grid grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
-        <TopList title="Trending tags" items={recentlyAddedTags} />
-        <TopList title="Popular tags" items={recentlyAddedTags} />
+        <TopList title="Trending tags" items={trendingTags?.tags} />
+        <TopList title="Popular tags" items={popularTags?.tags} />
         <TopList
           className="col-span-1 tablet:col-span-2 laptopL:col-span-1"
           title="Recently added tags"

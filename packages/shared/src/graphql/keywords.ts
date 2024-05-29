@@ -16,6 +16,10 @@ export interface Keyword {
   createdAt?: Date;
 }
 
+export interface Tag {
+  name: string;
+}
+
 export interface KeywordData {
   keyword?: Keyword;
 }
@@ -73,6 +77,22 @@ export const KEYWORD_QUERY = gql`
         title
         description
       }
+    }
+  }
+`;
+
+export const TRENDING_TAGS_QUERY = gql`
+  query TrendingTags {
+    tags: trendingTags {
+      value: name
+    }
+  }
+`;
+
+export const POPULAR_TAGS_QUERY = gql`
+  query PopularTags {
+    tags: popularTags {
+      value: name
     }
   }
 `;
