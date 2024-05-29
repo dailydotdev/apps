@@ -15,7 +15,10 @@ import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { HomeIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  HashtagIcon,
+  HomeIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 
@@ -93,7 +96,7 @@ const TagsPage = (): ReactElement => {
   }, [data]);
 
   const tagsByFirstLetter = useMemo(() => {
-    return data?.tags?.reduce((acc, cur) => {
+    const tags = data?.tags?.reduce((acc, cur) => {
       const rawLetter = cur.value[0].toLowerCase();
       const firstLetter = new RegExp(/^[a-zA-Z]+$/).test(rawLetter)
         ? rawLetter
@@ -101,6 +104,17 @@ const TagsPage = (): ReactElement => {
       acc[firstLetter] = (acc[firstLetter] || []).concat([cur]);
       return acc;
     }, []);
+
+    if (!tags) {
+      return null;
+    }
+
+    return Object.keys(tags)
+      .sort()
+      .reduce((acc, cur) => {
+        acc[cur] = tags[cur];
+        return acc;
+      }, []);
   }, [data]);
 
   return (
@@ -113,8 +127,12 @@ const TagsPage = (): ReactElement => {
           href={process.env.NEXT_PUBLIC_WEBAPP_URL}
         />
         /
-        <Button variant={ButtonVariant.Tertiary} icon={<HomeIcon />} disabled>
-          Sources
+        <Button
+          variant={ButtonVariant.Tertiary}
+          icon={<HashtagIcon />}
+          disabled
+        >
+          Tags
         </Button>
       </div>
       <div className="grid grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
