@@ -38,6 +38,7 @@ interface UsePublicSquadRequestsProps {
   isQueryEnabled?: boolean;
   sourceId: string;
   status?: string;
+  isPublic?: boolean;
   onSuccessfulSubmission?: () => void;
 }
 
@@ -49,6 +50,7 @@ const remoteStatusMap: Record<PublicSquadRequestStatus, SquadStatus> = {
 
 export const usePublicSquadRequests = ({
   isQueryEnabled,
+  isPublic,
   sourceId,
   onSuccessfulSubmission,
 }: UsePublicSquadRequestsProps): UsePublicSquadRequestsResult => {
@@ -62,7 +64,10 @@ export const usePublicSquadRequests = ({
   const { data: requests, isFetched } = useInfiniteQuery(
     key,
     (params) => getPublicSquadRequests({ ...params, sourceId }),
-    { enabled: isQueryEnabled && !!sourceId, staleTime: StaleTime.Default },
+    {
+      enabled: isQueryEnabled && !!sourceId && !isPublic,
+      staleTime: StaleTime.Default,
+    },
   );
 
   const { mutateAsync: submitForReview, isLoading: isSubmitLoading } =
@@ -91,6 +96,10 @@ export const usePublicSquadRequests = ({
   const latestRequest = edges?.[edges?.length - 1]?.node;
 
   const status = useMemo(() => {
+    if (isPublic) {
+      return SquadStatus.Approved;
+    }
+
     if (!latestRequest) {
       return SquadStatus.InProgress;
     }
@@ -104,7 +113,7 @@ export const usePublicSquadRequests = ({
     }
 
     return remoteStatusMap[latestRequest.status];
-  }, [latestRequest]);
+  }, [latestRequest, isPublic]);
 
   const daysLeft = useMemo(() => {
     if (
