@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 import classNames from 'classnames';
 import { SearchProviderEnum } from '../../../graphql/search';
 import { IconProps } from '../../Icon';
-import { MagicIcon, SearchIcon } from '../../icons';
+import { GoogleIcon, MagicIcon, SearchIcon } from '../../icons';
 
 export const defaultSearchProvider = SearchProviderEnum.Posts;
 
@@ -10,6 +10,7 @@ export const providerToLabelTextMap: Record<SearchProviderEnum, string> = {
   [SearchProviderEnum.Posts]: 'Search posts',
   [SearchProviderEnum.Chat]: 'Ask daily.dev AI',
   [SearchProviderEnum.Tags]: 'Search tags',
+  [SearchProviderEnum.Google]: 'Search on Google',
 };
 
 export const providerToIconMap: Record<
@@ -28,4 +29,11 @@ export const providerToIconMap: Record<
     />
   ),
   [SearchProviderEnum.Tags]: SearchIcon,
+  [SearchProviderEnum.Google]: ({ className, ...rest }: IconProps) => (
+    <GoogleIcon
+      className={classNames(className, 'bg-white')}
+      secondary
+      {...rest}
+    />
+  ),
 };

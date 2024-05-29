@@ -50,6 +50,8 @@ const feature = {
   ),
   customFeeds: new Feature('custom_feeds', CustomFeedsExperiment.Control),
   hypeCampaign: new Feature('hype_campaign', false),
+  searchGoogle: new Feature('search_google', false),
+  onboardingFlip: new Feature('onboarding_flip', false),
 };
 
 export { feature };
