@@ -112,9 +112,9 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         const existingData = data?.find((item) => item.type === type);
         const newValues = {
           ...existingData,
-          preferredHour: hour,
-          type,
-          flags: { sendType },
+          ...(hour && { preferredHour: hour }),
+          ...(type && { type }),
+          ...(sendType && { flags: { sendType } }),
         };
         queryClient.setQueryData(
           queryKey,
