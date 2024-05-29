@@ -16,10 +16,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  ExperimentWinner,
-  OnboardingFlip,
-} from '@dailydotdev/shared/src/lib/featureValues';
+import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useRouter } from 'next/router';
@@ -127,8 +124,6 @@ export function OnboardPage(): ReactElement {
     feature.onboardingVisual,
   );
   const onboardingFlip = useFeature(feature.onboardingFlip);
-
-  const flipOnboarding = onboardingFlip === OnboardingFlip.V1;
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
@@ -268,7 +263,7 @@ export function OnboardPage(): ReactElement {
           activeScreen === OnboardingStep.Intro
             ? 'laptop:max-w-[37.5rem]'
             : 'mb-10 ml-0 flex w-full flex-col items-center justify-start',
-          activeScreen === OnboardingStep.Intro && flipOnboarding
+          activeScreen === OnboardingStep.Intro && onboardingFlip
             ? 'tablet:mr-auto'
             : 'tablet:ml-auto',
         )}
@@ -374,7 +369,7 @@ export function OnboardPage(): ReactElement {
         className={classNames(
           'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:gap-10 tablet:px-6',
           activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
-          activeScreen === OnboardingStep.Intro && flipOnboarding
+          activeScreen === OnboardingStep.Intro && onboardingFlip
             ? 'tablet:flex-row-reverse'
             : 'tablet:flex-row',
           !isAuthenticating && 'mt-7.5 flex-1 content-center',
@@ -402,7 +397,7 @@ export function OnboardPage(): ReactElement {
             'flex h-full max-h-[10rem] w-full px-4 tablet:px-6',
             wrapperMaxWidth,
             activeScreen === OnboardingStep.Intro &&
-              flipOnboarding &&
+              onboardingFlip &&
               'flex-row-reverse',
           )}
         >

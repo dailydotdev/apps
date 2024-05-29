@@ -4,7 +4,6 @@ import {
   TagSourceSocialProof,
   FeedListLayoutExperiment,
   CustomFeedsExperiment,
-  OnboardingFlip,
 } from './featureValues';
 import { cloudinary } from './image';
 
@@ -52,7 +51,7 @@ const feature = {
   customFeeds: new Feature('custom_feeds', CustomFeedsExperiment.Control),
   hypeCampaign: new Feature('hype_campaign', false),
   searchGoogle: new Feature('search_google', false),
-  onboardingFlip: new Feature('onboarding_flip', OnboardingFlip.Control),
+  onboardingFlip: new Feature('onboarding_flip', false),
 };
 
 export { feature };
