@@ -64,7 +64,11 @@ const TopList = ({
       <h3 className="mb-2 font-bold typo-title3">{title}</h3>
       <ol className="typo-body">
         {items?.map((tag, i) => (
-          <ListItem key={i} index={i + 1} href={getTagPageLink(tag.value)}>
+          <ListItem
+            key={tag.value}
+            index={i + 1}
+            href={getTagPageLink(tag.value)}
+          >
             <p>{tag.value}</p>
           </ListItem>
         ))}
