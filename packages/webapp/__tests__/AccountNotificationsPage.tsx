@@ -148,6 +148,7 @@ it('should change user all email subscription', async () => {
         day: 3,
         hour: 8,
         type: UserPersonalizedDigestType.Digest,
+        sendType: SendType.Weekly,
       },
     },
     result: () => {

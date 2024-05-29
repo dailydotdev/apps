@@ -190,8 +190,9 @@ export default function Feed<T>({
     },
   );
   const canFetchMore = allowFetchMore ?? queryCanFetchMore;
+  const contextId = `post-context-${feedName}`;
   const { onMenuClick, postMenuIndex, postMenuLocation, setPostMenuIndex } =
-    useFeedContextMenu();
+    useFeedContextMenu({ contextId });
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
   const trackingOpts = useMemo(() => {
@@ -451,6 +452,7 @@ export default function Feed<T>({
           onRemovePost={onRemovePost}
           origin={origin}
           allowPin={allowPin}
+          contextId={contextId}
         />
         <ShareOptionsMenu
           {...commonMenuItems}

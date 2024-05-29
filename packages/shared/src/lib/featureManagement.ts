@@ -44,12 +44,12 @@ const feature = {
     ExperienceLevelExperiment.Control,
   ),
   featureTheme: new Feature('feature_theme', {}),
-  similarPosts: new Feature('similar_posts', false),
   feedListLayout: new Feature(
     'feed_list_layout',
     FeedListLayoutExperiment.Control,
   ),
   customFeeds: new Feature('custom_feeds', CustomFeedsExperiment.Control),
+  hypeCampaign: new Feature('hype_campaign', false),
 };
 
 export { feature };

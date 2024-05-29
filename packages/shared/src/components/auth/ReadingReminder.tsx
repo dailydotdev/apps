@@ -128,7 +128,7 @@ export const ReadingReminder = ({
         <HourDropdown
           hourIndex={customTimeIndex}
           setHourIndex={setCustomTimeIndex}
-          className="mt-3"
+          className={{ container: 'mt-3' }}
         />
       )}
       <Alert
