@@ -51,6 +51,9 @@ export const SharePostCard = forwardRef(function SharePostCard(
   const isVideoType = isVideoPost(post);
   const improvedSharedPostCard = useFeature(feature.improvedSharedPostCard);
 
+  // Just for this experiment, we are modifying the post object to use set the
+  // image from the shared post, this is just to avoid modifying the `PostCardFooter`
+  // component to handle this case just for this experiment.
   if (improvedSharedPostCard) {
     // eslint-disable-next-line no-param-reassign
     post.image = post.sharedPost.image;
