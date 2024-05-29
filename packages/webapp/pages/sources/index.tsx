@@ -7,11 +7,19 @@ import {
 } from '@dailydotdev/shared/src/components/widgets/PostUsersHighlights';
 import {
   Button,
+  ButtonColor,
+  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  HomeIcon,
+  PlusIcon,
+  SitesIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import classed from '@dailydotdev/shared/src/lib/classed';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 
@@ -57,8 +65,15 @@ const mockProps: SourceAuthorProps = {
 };
 
 const TopList = ({ title }: { title: string }): ReactElement => {
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const MobileDiv = classed(
+    'div',
+    'flex flex-col border-b border-b-border-subtlest-tertiary p-4',
+  );
+  const CardElement = classed(Card, '!max-h-none !p-4');
+  const Wrapper = isMobile ? MobileDiv : CardElement;
   return (
-    <Card className="!max-h-none !p-4">
+    <Wrapper>
       <h3 className="mb-2 font-bold typo-title3">{title}</h3>
       <ol className="typo-body">
         {[...new Array(10)].map((_, i) => (
@@ -76,27 +91,44 @@ const TopList = ({ title }: { title: string }): ReactElement => {
           </ListItem>
         ))}
       </ol>
-    </Card>
+    </Wrapper>
   );
 };
 
 const SourcesPage = (): ReactElement => {
   const { openModal } = useLazyModal();
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   return (
-    <main className="px-4 py-6 laptop:px-10">
-      <div className="mb-6 inline-block h-10 content-center items-center">
-        Breadcrumbs
+    <main className="py-6 tablet:px-4 laptop:px-10">
+      <div className="flex justify-between">
+        <div className="hidden h-10 items-center p-1.5 text-border-subtlest-tertiary laptop:flex">
+          <Button
+            variant={ButtonVariant.Tertiary}
+            icon={<HomeIcon secondary />}
+            tag="a"
+            href={process.env.NEXT_PUBLIC_WEBAPP_URL}
+            size={ButtonSize.XSmall}
+          />
+          /
+          <Button
+            variant={ButtonVariant.Tertiary}
+            icon={<SitesIcon secondary />}
+            disabled
+          >
+            Sources
+          </Button>
+        </div>
+        <Button
+          icon={<PlusIcon />}
+          variant={isLaptop ? ButtonVariant.Secondary : ButtonVariant.Float}
+          className="mb-6 ml-4 tablet:ml-0 laptop:float-right"
+          onClick={() => openModal({ type: LazyModal.NewSource })}
+        >
+          Suggest new source
+        </Button>
       </div>
-      <Button
-        icon={<PlusIcon />}
-        variant={ButtonVariant.Secondary}
-        className="float-right mb-6"
-        onClick={() => openModal({ type: LazyModal.NewSource })}
-      >
-        Suggest new source
-      </Button>
-      <div className="grid grid-cols-2 gap-6 laptopXL:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-4">
         <TopList title="Trending sources" />
         <TopList title="Popular sources" />
         <TopList title="Recently added sources" />
