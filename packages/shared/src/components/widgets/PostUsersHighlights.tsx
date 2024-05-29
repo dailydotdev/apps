@@ -22,7 +22,7 @@ interface PostAuthorProps {
   post: Post;
 }
 
-export enum UserType {
+enum UserType {
   Source = 'source',
   Author = 'author',
   Featured = 'featured',
@@ -31,7 +31,7 @@ export enum UserType {
 
 const StyledImage = classed(LazyImage, 'w-10 h-10');
 
-export interface SourceAuthorProps {
+interface SourceAuthorProps {
   id?: string;
   handle?: string;
   image: string;
