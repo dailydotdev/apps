@@ -16,7 +16,10 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
+import {
+  ExperimentWinner,
+  OnboardingFlip,
+} from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useRouter } from 'next/router';
@@ -123,6 +126,9 @@ export function OnboardPage(): ReactElement {
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
   );
+  const onboardingFlip = useFeature(feature.onboardingFlip);
+
+  const flipOnboarding = onboardingFlip === OnboardingFlip.V1;
   const targetId: string = ExperimentWinner.OnboardingV4;
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
@@ -260,8 +266,11 @@ export function OnboardPage(): ReactElement {
         className={classNames(
           'flex tablet:flex-1',
           activeScreen === OnboardingStep.Intro
-            ? 'tablet:ml-auto laptop:max-w-[37.5rem]'
+            ? 'laptop:max-w-[37.5rem]'
             : 'mb-10 ml-0 flex w-full flex-col items-center justify-start',
+          activeScreen === OnboardingStep.Intro && flipOnboarding
+            ? 'tablet:mr-auto'
+            : 'tablet:ml-auto',
         )}
       >
         {activeScreen === OnboardingStep.ReadingReminder && (
@@ -363,8 +372,11 @@ export function OnboardPage(): ReactElement {
       />
       <div
         className={classNames(
-          'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6',
+          'flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:gap-10 tablet:px-6',
           activeScreen === OnboardingStep.Intro && wrapperMaxWidth,
+          activeScreen === OnboardingStep.Intro && flipOnboarding
+            ? 'tablet:flex-row-reverse'
+            : 'tablet:flex-row',
           !isAuthenticating && 'mt-7.5 flex-1 content-center',
         )}
       >
@@ -389,6 +401,9 @@ export function OnboardPage(): ReactElement {
           className={classNames(
             'flex h-full max-h-[10rem] w-full px-4 tablet:px-6',
             wrapperMaxWidth,
+            activeScreen === OnboardingStep.Intro &&
+              flipOnboarding &&
+              'flex-row-reverse',
           )}
         >
           <div className="relative flex flex-1 flex-col gap-6 pb-6 tablet:mt-auto laptop:mr-8 laptop:max-w-[27.5rem]">
