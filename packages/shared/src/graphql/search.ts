@@ -10,6 +10,7 @@ export enum SearchProviderEnum {
   Posts = 'posts',
   Chat = 'chat',
   Tags = 'tags',
+  Google = 'google',
 }
 
 const searchPageUrl = `${webappUrl}search`;
@@ -268,6 +269,14 @@ interface SearchUrlParams {
   provider: SearchProviderEnum;
 }
 
+const externalSearchProviders: Partial<
+  Record<SearchProviderEnum, { url: URL }>
+> = {
+  [SearchProviderEnum.Google]: {
+    url: new URL('https://www.google.com/search'),
+  },
+};
+
 export const getSearchUrl = (params: SearchUrlParams): string => {
   const { id, query, provider = SearchProviderEnum.Posts } = params;
   const searchParams = new URLSearchParams();
@@ -276,7 +285,9 @@ export const getSearchUrl = (params: SearchUrlParams): string => {
     throw new Error('provider is required');
   }
 
-  if (provider !== SearchProviderEnum.Posts) {
+  const externalSearchProvider = externalSearchProviders[provider];
+
+  if (provider !== SearchProviderEnum.Posts && !externalSearchProvider) {
     searchParams.append('provider', provider);
   }
 
@@ -286,11 +297,10 @@ export const getSearchUrl = (params: SearchUrlParams): string => {
     searchParams.append('q', query);
   }
 
+  const searchUrl = externalSearchProvider?.url || searchPageUrl;
   const searchParamsString = searchParams.toString();
 
-  return `${searchPageUrl}${
-    searchParamsString ? `?${searchParamsString}` : ''
-  }`;
+  return `${searchUrl}${searchParamsString ? `?${searchParamsString}` : ''}`;
 };
 
 export const searchQueryUrl = `${apiUrl}/search/query`;
