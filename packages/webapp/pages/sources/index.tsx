@@ -1,11 +1,6 @@
 import React, { ReactElement, useMemo } from 'react';
 import { Card } from '@dailydotdev/shared/src/components/cards/Card';
-import Link from 'next/link';
-import {
-  SourceAuthorProps,
-  UserHighlight,
-  UserType,
-} from '@dailydotdev/shared/src/components/widgets/PostUsersHighlights';
+import { UserHighlight } from '@dailydotdev/shared/src/components/widgets/PostUsersHighlights';
 import {
   Button,
   ButtonSize,
@@ -28,56 +23,29 @@ import {
   POPULAR_SOURCES_QUERY,
   Source,
   SOURCES_QUERY,
+  SourceType,
   TOP_VIDEO_SOURCES_QUERY,
   TRENDING_SOURCES_QUERY,
 } from '@dailydotdev/shared/src/graphql/sources';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
+import { BreadCrumbsWrapper, ListItem } from '../../components/common';
 
-const ListItem = ({
-  index,
-  href,
-  children,
-}: {
-  index: number;
-  href: string;
-  children: ReactElement;
-}): ReactElement => {
-  return (
-    <li>
-      <Link href={href} passHref key={href} prefetch={false}>
-        <a className="flex w-full flex-row items-center">
-          <span className="inline-flex w-4 text-text-quaternary">{index}</span>
-          {children}
-        </a>
-      </Link>
-    </li>
-  );
-};
-
-const mockProps: SourceAuthorProps = {
+// TODO: REMOVE WHEN I HAVE SOME DATA
+const mockProps: Source = {
   id: 'daily_updates',
-  active: true,
   handle: 'daily_updates',
   name: 'daily.dev changelog',
   permalink: 'http://webapp.local.com:5002/sources/daily_updates',
-  public: true,
-  type: 'machine',
-  description: null,
   image:
     'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/172d19bda1bd403f9497a9d29a3ed99b',
-  membersCount: 0,
-  privilegedMembers: [],
-  currentMember: null,
-  memberPostingRole: 'member',
-  memberInviteRole: 'member',
-  userType: UserType.Source,
-  allowSubscribe: false,
+  type: SourceType.Squad,
+  public: true,
 };
 
 const TopList = ({
   title,
-  items = [],
+  items,
 }: {
   title: string;
   items: Source[];
@@ -93,7 +61,7 @@ const TopList = ({
     <Wrapper>
       <h3 className="mb-2 font-bold typo-title3">{title}</h3>
       <ol className="typo-body">
-        {items.map((item, i) => (
+        {items?.map((item, i) => (
           <ListItem key={item.id} index={i + 1} href={item.permalink}>
             <UserHighlight
               {...item}
@@ -104,6 +72,7 @@ const TopList = ({
                 name: '!typo-caption1',
                 handle: '!typo-caption2',
               }}
+              allowSubscribe={false}
             />
           </ListItem>
         ))}
@@ -160,7 +129,7 @@ const SourcesPage = (): ReactElement => {
   return (
     <main className="py-6 tablet:px-4 laptop:px-10">
       <div className="flex justify-between">
-        <div className="hidden h-10 items-center p-1.5 text-border-subtlest-tertiary laptop:flex">
+        <BreadCrumbsWrapper>
           <Button
             variant={ButtonVariant.Tertiary}
             icon={<HomeIcon secondary />}
@@ -176,7 +145,7 @@ const SourcesPage = (): ReactElement => {
           >
             Sources
           </Button>
-        </div>
+        </BreadCrumbsWrapper>
         <Button
           icon={<PlusIcon />}
           variant={isLaptop ? ButtonVariant.Secondary : ButtonVariant.Float}
