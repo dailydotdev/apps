@@ -76,10 +76,11 @@ export function SquadDetails({
     memberInviteRole: initialMemberInviteRole,
   } = form;
   const isRequestsEnabled =
-    !createMode && !form.public && !form.flags?.totalPosts && !!form?.id;
+    !createMode && !form.flags?.totalPosts && !!form?.id;
   const { status, daysLeft } = usePublicSquadRequests({
     isQueryEnabled: isRequestsEnabled,
     sourceId: form?.id,
+    isPublic: form?.public,
   });
   const [activeHandle, setActiveHandle] = useState(handle);
   const [privacy, setPrivacy] = useState(
