@@ -115,6 +115,11 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
       [ArrowKeyEnum.Down]: 1,
     };
 
+    if (activeElementIndex !== 0) {
+      keyToIndexModifier[ArrowKeyEnum.Left] = -1;
+      keyToIndexModifier[ArrowKeyEnum.Right] = 1;
+    }
+
     const supportedKeys = Object.keys(keyToIndexModifier);
 
     const pressedKey = supportedKeys.find((key) => key === event.key);
