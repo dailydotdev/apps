@@ -3,6 +3,7 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { LockIcon } from '../icons';
 import { PageContainerCentered } from '../utilities';
 import { IconSize } from '../Icon';
+import { webappUrl } from '../../lib/constants';
 
 interface UnauthorizedProps {
   children?: ReactNode;
@@ -34,6 +35,8 @@ function Unauthorized({
         className="mt-6 w-fit"
         variant={ButtonVariant.Primary}
         size={ButtonSize.Large}
+        tag="a"
+        href={webappUrl}
       >
         Back home
       </Button>
