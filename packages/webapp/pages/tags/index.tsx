@@ -1,21 +1,20 @@
 import React, { ReactElement, useMemo } from 'react';
 import { getTagPageLink } from '@dailydotdev/shared/src/lib/links';
-import { useQuery } from '@tanstack/react-query';
-import { RequestKey, StaleTime } from '@dailydotdev/shared/src/lib/query';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   Keyword,
-  POPULAR_TAGS_QUERY,
   Tag,
-  TAGS_QUERY,
-  TRENDING_TAGS_QUERY,
+  TAG_DIRECTORY_QUERY,
 } from '@dailydotdev/shared/src/graphql/keywords';
 import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { GetStaticPropsResult } from 'next';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { useRouter } from 'next/router';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { BreadCrumbs, ListItem, TopList } from '../../components/common';
@@ -55,39 +54,27 @@ const TagTopList = ({
   );
 };
 
-const TagsPage = (): ReactElement => {
-  const { data, isLoading } = useQuery(
-    [RequestKey.Tags, null, 'all'],
-    async () => await request<{ tags: Keyword[] }>(graphqlUrl, TAGS_QUERY),
-    {
-      staleTime: StaleTime.OneHour,
-    },
-  );
+interface TagsPageProps {
+  tags: Keyword[];
+  trendingTags: Keyword[];
+  popularTags: Keyword[];
+}
 
-  const { data: trendingTags, isLoading: trendingLoading } = useQuery(
-    [RequestKey.Tags, null, 'trending'],
-    async () => await request<{ tags: Tag[] }>(graphqlUrl, TRENDING_TAGS_QUERY),
-    {
-      staleTime: StaleTime.OneHour,
-    },
-  );
-
-  const { data: popularTags, isLoading: popularLoading } = useQuery(
-    [RequestKey.Tags, null, 'popular'],
-    async () => await request<{ tags: Tag[] }>(graphqlUrl, POPULAR_TAGS_QUERY),
-    {
-      staleTime: StaleTime.OneHour,
-    },
-  );
+const TagsPage = ({
+  tags,
+  trendingTags,
+  popularTags,
+}: TagsPageProps): ReactElement => {
+  const { isFallback: isLoading } = useRouter();
 
   const recentlyAddedTags = useMemo(() => {
-    return data?.tags
+    return tags
       ?.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
       .slice(0, 10);
-  }, [data]);
+  }, [tags]);
 
   const tagsByFirstLetter = useMemo(() => {
-    const tags = data?.tags?.reduce((acc, cur) => {
+    const filteredTags = tags?.reduce((acc, cur) => {
       const rawLetter = cur.value[0].toLowerCase();
       const firstLetter = new RegExp(/^[a-zA-Z]+$/).test(rawLetter)
         ? rawLetter
@@ -96,17 +83,21 @@ const TagsPage = (): ReactElement => {
       return acc;
     }, []);
 
-    if (!tags) {
+    if (!filteredTags) {
       return null;
     }
 
-    return Object.keys(tags)
+    return Object.keys(filteredTags)
       .sort()
       .reduce((acc, cur) => {
-        acc[cur] = tags[cur];
+        acc[cur] = filteredTags[cur];
         return acc;
       }, []);
-  }, [data]);
+  }, [tags]);
+
+  if (isLoading) {
+    return <></>;
+  }
 
   return (
     <main className="flex flex-col gap-4 p-0 tablet:px-10 tablet:py-6">
@@ -118,13 +109,13 @@ const TagsPage = (): ReactElement => {
       <div className="grid grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
         <TagTopList
           title="Trending tags"
-          items={trendingTags?.tags}
-          isLoading={trendingLoading}
+          items={trendingTags}
+          isLoading={isLoading}
         />
         <TagTopList
           title="Popular tags"
-          items={popularTags?.tags}
-          isLoading={popularLoading}
+          items={popularTags}
+          isLoading={isLoading}
         />
         <TagTopList
           title="Recently added tags"
@@ -170,3 +161,35 @@ TagsPage.layoutProps = {
   screenCentered: false,
 };
 export default TagsPage;
+
+export async function getStaticProps(): Promise<
+  GetStaticPropsResult<TagsPageProps>
+> {
+  try {
+    const res = await request<TagsPageProps>(graphqlUrl, TAG_DIRECTORY_QUERY);
+    return {
+      props: {
+        tags: res.tags,
+        trendingTags: res.trendingTags,
+        popularTags: res.popularTags,
+      },
+      revalidate: 60,
+    };
+  } catch (err) {
+    if (
+      [ApiError.NotFound, ApiError.Forbidden].includes(
+        err?.response?.errors?.[0]?.extensions?.code,
+      )
+    ) {
+      return {
+        props: {
+          tags: null,
+          trendingTags: null,
+          popularTags: null,
+        },
+        revalidate: 60,
+      };
+    }
+    throw err;
+  }
+}

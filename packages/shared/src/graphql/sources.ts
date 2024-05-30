@@ -96,18 +96,18 @@ export const SOURCE_QUERY = gql`
   ${SOURCE_DIRECTORY_INFO_FRAGMENT}
 `;
 
-export const TRENDING_SOURCES_QUERY = gql`
-  query TrendingSources {
-    sources: trendingSources {
+export const SOURCE_DIRECTORY_QUERY = gql`
+  query SourceDirectory {
+    trendingSources {
       ...SourceDirectoryInfo
     }
-  }
-  ${SOURCE_DIRECTORY_INFO_FRAGMENT}
-`;
-
-export const POPULAR_SOURCES_QUERY = gql`
-  query PopularSources {
-    sources: popularSources {
+    popularSources {
+      ...SourceDirectoryInfo
+    }
+    mostRecentSources {
+      ...SourceDirectoryInfo
+    }
+    topVideoSources {
       ...SourceDirectoryInfo
     }
   }
@@ -117,15 +117,6 @@ export const POPULAR_SOURCES_QUERY = gql`
 export const MOST_RECENT_SOURCES_QUERY = gql`
   query MostRecentSources {
     sources: mostRecentSources {
-      ...SourceDirectoryInfo
-    }
-  }
-  ${SOURCE_DIRECTORY_INFO_FRAGMENT}
-`;
-
-export const TOP_VIDEO_SOURCES_QUERY = gql`
-  query TopVideoSources {
-    sources: topVideoSources {
       ...SourceDirectoryInfo
     }
   }
