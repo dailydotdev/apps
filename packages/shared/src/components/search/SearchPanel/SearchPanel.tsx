@@ -113,8 +113,6 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
     const keyToIndexModifier: Partial<Record<ArrowKeyEnum, number>> = {
       [ArrowKeyEnum.Up]: -1,
       [ArrowKeyEnum.Down]: 1,
-      [ArrowKeyEnum.Left]: -1,
-      [ArrowKeyEnum.Right]: 1,
     };
 
     const supportedKeys = Object.keys(keyToIndexModifier);
