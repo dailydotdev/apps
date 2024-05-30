@@ -42,6 +42,21 @@ interface SourceAuthorProps {
   reputation?: number;
 }
 
+interface UserHighlightProps extends SourceAuthorProps {
+  allowSubscribe?: boolean;
+  className?: {
+    wrapper?: string;
+    image?: string;
+    textWrapper?: string;
+    name?: string;
+    handle?: string;
+  };
+}
+
+interface ImageProps extends SourceAuthorProps {
+  className?: string;
+}
+
 const getUserIcon = (userType: UserType) => {
   if (userType === UserType.Source) {
     return null;
@@ -50,8 +65,8 @@ const getUserIcon = (userType: UserType) => {
   return userType === UserType.Author ? FeatherIcon : ScoutIcon;
 };
 
-const Image = (props: SourceAuthorProps) => {
-  const { userType, name, permalink, image } = props;
+const Image = (props: ImageProps) => {
+  const { userType, name, permalink, image, className } = props;
 
   if (userType === UserType.Source) {
     return (
@@ -65,7 +80,7 @@ const Image = (props: SourceAuthorProps) => {
         }}
       >
         <StyledImage
-          className="cursor-pointer rounded-full"
+          className={classNames('cursor-pointer rounded-full', className)}
           imgSrc={image}
           imgAlt={name}
           background="var(--theme-background-subtle)"
@@ -88,7 +103,7 @@ const Image = (props: SourceAuthorProps) => {
   );
 };
 
-const UserHighlight = (props: SourceAuthorProps) => {
+export const UserHighlight = (props: UserHighlightProps): ReactElement => {
   const {
     id,
     handle,
@@ -97,6 +112,8 @@ const UserHighlight = (props: SourceAuthorProps) => {
     permalink,
     userType = UserType.Source,
     reputation,
+    allowSubscribe = true,
+    className,
   } = props;
   const Icon = getUserIcon(userType);
   const isUserTypeSource = userType === UserType.Source;
@@ -113,7 +130,12 @@ const UserHighlight = (props: SourceAuthorProps) => {
   }, [isUserTypeSource, feedSettings?.excludeSources, id]);
 
   return (
-    <div className="relative flex flex-row items-center p-3">
+    <div
+      className={classNames(
+        'relative flex flex-row items-center p-3',
+        className?.wrapper,
+      )}
+    >
       <ConditionalWrapper
         condition={!isUserTypeSource}
         wrapper={(children) => (
@@ -123,7 +145,7 @@ const UserHighlight = (props: SourceAuthorProps) => {
         )}
       >
         <ProfileLink href={permalink}>
-          <Image {...props} />
+          <Image {...props} className={className?.image} />
         </ProfileLink>
       </ConditionalWrapper>
       {Icon && (
@@ -145,7 +167,12 @@ const UserHighlight = (props: SourceAuthorProps) => {
           </ProfileTooltip>
         )}
       >
-        <div className="ml-4 flex min-w-0 flex-1 flex-col">
+        <div
+          className={classNames(
+            'ml-4 flex min-w-0 flex-1 flex-col',
+            className?.textWrapper,
+          )}
+        >
           {isUserTypeSource && (
             <ProfileLink
               className={classNames('!block truncate font-bold typo-callout')}
@@ -156,7 +183,13 @@ const UserHighlight = (props: SourceAuthorProps) => {
           )}
           {!isUserTypeSource && (
             <div className="flex">
-              <ProfileLink className="font-bold typo-callout" href={permalink}>
+              <ProfileLink
+                className={classNames(
+                  'font-bold typo-callout',
+                  className?.name,
+                )}
+                href={permalink}
+              >
                 {name}
               </ProfileLink>
               <ReputationUserBadge user={{ reputation }} />
@@ -164,7 +197,10 @@ const UserHighlight = (props: SourceAuthorProps) => {
           )}
           {(handle || username || id) && (
             <ProfileLink
-              className="mt-0.5 !block truncate text-text-tertiary typo-footnote"
+              className={classNames(
+                'mt-0.5 !block truncate text-text-tertiary typo-footnote',
+                className?.handle,
+              )}
               href={permalink}
             >
               @{handle || username || id}
@@ -172,7 +208,7 @@ const UserHighlight = (props: SourceAuthorProps) => {
           )}
         </div>
       </ConditionalWrapper>
-      {!isSourceBlocked && isUserTypeSource && (
+      {!isSourceBlocked && isUserTypeSource && allowSubscribe && (
         <SourceSubscribeButton
           className="ml-2"
           variant={ButtonVariant.Secondary}
