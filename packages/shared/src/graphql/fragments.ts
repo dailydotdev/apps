@@ -28,6 +28,16 @@ export const USER_SHORT_INFO_FRAGMENT = gql`
   }
 `;
 
+export const SOURCE_DIRECTORY_INFO_FRAGMENT = gql`
+  fragment SourceDirectoryInfo on Source {
+    id
+    name
+    handle
+    image
+    permalink
+  }
+`;
+
 export const SOURCE_SHORT_INFO_FRAGMENT = gql`
   fragment SourceShortInfo on Source {
     id
