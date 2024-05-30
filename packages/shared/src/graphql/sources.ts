@@ -83,7 +83,6 @@ export interface Source {
   headerImage?: string;
   color?: string;
   description?: string;
-  createdAt?: Date;
 }
 
 export type SourceData = { source: Source };

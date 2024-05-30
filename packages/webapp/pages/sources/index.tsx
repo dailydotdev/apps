@@ -69,8 +69,8 @@ const SourcesPage = (): ReactElement => {
   const { openModal } = useLazyModal();
   const isLaptop = useViewSize(ViewSize.Laptop);
 
-  const { data, isLoading: recentLoading } = useQuery(
-    [RequestKey.Sources, null, 'recent'],
+  const { data: recentlyAddedSources, isLoading: recentLoading } = useQuery(
+    [RequestKey.MostRecentSources, null, 'recent'],
     async () =>
       await request<{ sources: Source[] }>(
         graphqlUrl,
@@ -98,12 +98,6 @@ const SourcesPage = (): ReactElement => {
       staleTime: StaleTime.OneHour,
     },
   );
-
-  const recentlyAddedSources = useMemo(() => {
-    return data?.sources
-      ?.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
-      .slice(0, 10);
-  }, [data]);
 
   const { data: topVideoSources, isLoading: topVideoLoading } = useQuery(
     [RequestKey.TopVideoSources, null, 'popular'],
@@ -148,7 +142,7 @@ const SourcesPage = (): ReactElement => {
         />
         <SourceTopList
           title="Recently added sources"
-          items={recentlyAddedSources}
+          items={recentlyAddedSources?.sources}
           isLoading={recentLoading}
         />
         <SourceTopList

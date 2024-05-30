@@ -116,7 +116,7 @@ export enum RequestKey {
   SourceRelatedTags = 'source_related_tags',
   SourceByTag = 'source_by_tag',
   SimilarSources = 'similar_sources',
-  Sources = 'sources',
+  MostRecentSources = 'most_recent_sources',
   PopularSources = 'popular_sources',
   TrendingSources = 'trending_sources',
   TopVideoSources = 'top_video_sources',
