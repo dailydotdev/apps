@@ -11,7 +11,7 @@ export const GoPublicStep = ({
   squad,
   ...props
 }: ChecklistStepPropsWithSquad): ReactElement => {
-  const postsCount = (squad?.flags?.totalPosts ?? 0) - 1; // -1 for the welcome post
+  const postsCount = squad?.flags?.totalPosts ?? 0;
 
   return (
     <ChecklistStep {...props}>
