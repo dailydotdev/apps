@@ -2,15 +2,9 @@ import React, { ReactElement } from 'react';
 import { UserHighlight } from '@dailydotdev/shared/src/components/widgets/PostUsersHighlights';
 import {
   Button,
-  ButtonIconPosition,
-  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  HashtagIcon,
-  PlusIcon,
-  SitesIcon,
-} from '@dailydotdev/shared/src/components/icons';
+import { PlusIcon, SitesIcon } from '@dailydotdev/shared/src/components/icons';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';

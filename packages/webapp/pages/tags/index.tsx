@@ -13,12 +13,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/keywords';
 import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
 import classed from '@dailydotdev/shared/src/lib/classed';
-import {
-  Button,
-  ButtonIconPosition,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
