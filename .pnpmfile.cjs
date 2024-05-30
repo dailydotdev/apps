@@ -6,7 +6,7 @@ function switchDependency(pkg, dep, newDep) {
 
 function readPackage(pkg) {
   if (pkg.dependencies) {
-    switchDependency(pkg, '@growthbook/growthbook', 'https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?a0d1a3add257acdbf5353dfd690547feebbada92');
+    switchDependency(pkg, '@growthbook/growthbook', 'https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?b8f31f9e80879fe2bcc42b275087b50e1357f1cb');
   }
   return pkg
 }

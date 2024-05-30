@@ -106,7 +106,7 @@
     "typescript": "4.9.5"
   },
   "dependencies": {
-    "@growthbook/growthbook": "https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?a0d1a3add257acdbf5353dfd690547feebbada92",
+    "@growthbook/growthbook": "https://gitpkg.now.sh/dailydotdev/growthbook/packages/sdk-js?b8f31f9e80879fe2bcc42b275087b50e1357f1cb",
     "@growthbook/growthbook-react": "^0.17.0",
     "@tippyjs/react": "^4.2.5",
     "balloon-css": "^1.2.0",
