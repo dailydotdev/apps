@@ -52,6 +52,7 @@ const feature = {
   hypeCampaign: new Feature('hype_campaign', false),
   searchGoogle: new Feature('search_google', false),
   onboardingFlip: new Feature('onboarding_flip', false),
+  improvedSharedPostCard: new Feature('improved_shared_post_card', false),
 };
 
 export { feature };
