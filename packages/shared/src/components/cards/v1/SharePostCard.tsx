@@ -1,5 +1,6 @@
 import React, { forwardRef, ReactElement, Ref, useRef } from 'react';
 import Link from 'next/link';
+import classNames from 'classnames';
 import ActionButtons from './ActionButtons';
 import { SharedPostText } from '../SharedPostText';
 import { SharedPostCardFooter } from './SharedPostCardFooter';
@@ -9,6 +10,12 @@ import { useFeedPreviewMode, useTruncatedSummary } from '../../../hooks';
 import { isVideoPost } from '../../../graphql/posts';
 import { PostCardHeader } from './PostCardHeader';
 import SquadHeaderPicture from '../common/SquadHeaderPicture';
+import { feature } from '../../../lib/featureManagement';
+import { useFeature } from '../../GrowthBookProvider';
+import { CardCoverV1 } from './CardCover';
+import { CardContent, CardTitle } from './Card';
+import PostTags from '../PostTags';
+import SourceButton from '../SourceButton';
 
 export const SharePostCard = forwardRef(function SharePostCard(
   {
@@ -34,7 +41,12 @@ export const SharePostCard = forwardRef(function SharePostCard(
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
   const isVideoType = isVideoPost(post);
-  const { title } = useTruncatedSummary(post);
+  const improvedSharedPostCard = useFeature(feature.improvedSharedPostCard);
+  const { title } = useTruncatedSummary({
+    ...post,
+    ...(improvedSharedPostCard &&
+      !post.title && { title: post.sharedPost.title }),
+  });
 
   return (
     <FeedItemContainer
@@ -53,7 +65,10 @@ export const SharePostCard = forwardRef(function SharePostCard(
       }
     >
       <PostCardHeader
-        post={post}
+        post={{
+          ...post,
+          ...(improvedSharedPostCard && { type: post.sharedPost.type }),
+        }}
         onMenuClick={(event) => onMenuClick?.(event, post)}
         metadata={{
           topLabel: enableSourceHeader ? (
@@ -69,25 +84,77 @@ export const SharePostCard = forwardRef(function SharePostCard(
             ? post.author.name
             : `@${post.sharedPost?.source.handle}`,
         }}
+        {...(improvedSharedPostCard && {
+          postLink: post.sharedPost.permalink,
+        })}
       >
-        <SquadHeaderPicture
-          author={post.author}
-          source={post.source}
-          reverse={!enableSourceHeader}
-        />
+        {improvedSharedPostCard ? (
+          <SourceButton
+            size="large"
+            source={post.source}
+            className="relative"
+          />
+        ) : (
+          <SquadHeaderPicture
+            author={post.author}
+            source={post.source}
+            reverse={!enableSourceHeader}
+          />
+        )}
       </PostCardHeader>
-      <SharedPostText title={title} />
+      {improvedSharedPostCard ? (
+        <CardContent>
+          <div className="mr-4 flex flex-1 flex-col">
+            <CardTitle
+              lineClamp={undefined}
+              className={!!post.read && 'text-text-tertiary'}
+            >
+              {title}
+            </CardTitle>
+            <div className="flex flex-1" />
+            <PostTags tags={post.sharedPost.tags} />
+          </div>
+
+          <CardCoverV1
+            data-testid="postImage"
+            isVideoType={isVideoType}
+            onShare={onShare}
+            post={post}
+            imageProps={{
+              loading: 'lazy',
+              alt: 'Post Cover image',
+              src: post.sharedPost.image,
+              className: classNames(
+                'mobileXXL:self-start',
+                !isVideoType && 'mt-4',
+              ),
+            }}
+            videoProps={{
+              className: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',
+            }}
+          />
+        </CardContent>
+      ) : (
+        <SharedPostText title={title} />
+      )}
+
       <Container
         ref={containerRef}
-        className="pointer-events-none min-h-0 justify-end"
+        className={classNames(
+          'pointer-events-none',
+          !improvedSharedPostCard && 'min-h-0 justify-end',
+        )}
       >
-        <SharedPostCardFooter
-          sharedPost={post.sharedPost}
-          isVideoType={isVideoType}
-          onShare={onShare}
-          post={post}
-        />
+        {!improvedSharedPostCard && (
+          <SharedPostCardFooter
+            sharedPost={post.sharedPost}
+            isVideoType={isVideoType}
+            onShare={onShare}
+            post={post}
+          />
+        )}
         <ActionButtons
+          className={improvedSharedPostCard && 'mt-4'}
           openNewTab={openNewTab}
           post={post}
           onUpvoteClick={onUpvoteClick}
