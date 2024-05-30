@@ -386,12 +386,16 @@ export const CUSTOM_FEED_QUERY = gql`
     $after: String
     $first: Int
     ${SUPPORTED_TYPES}
+    $version: Int
+    $ranking: Ranking
   ) {
     page: customFeed(
       feedId: $feedId
       after: $after
       first: $first
       supportedTypes: $supportedTypes
+      version: $version
+      ranking: $ranking
     ) {
       ...FeedPostConnection
     }
