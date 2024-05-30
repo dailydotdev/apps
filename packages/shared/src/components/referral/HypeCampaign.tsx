@@ -31,9 +31,9 @@ export const HypeCampaign = (): JSX.Element => {
           </Link>
 
           <p className="mb-4 typo-callout">
-            <strong>Welcome to the daily.dev June ambassador program!</strong>{' '}
-            For the entire month of June, every 24 hours, we&apos;re giving away
-            a free, limited-edition t-shirt.
+            <strong>Win a limited-edition Kawaii t-shirt!</strong> We&apos;re
+            blowing up! Spread the word, win a t-shirt. We&apos;re giving one
+            away every 24 hours until the end of June.
           </p>
 
           <Button
@@ -46,7 +46,7 @@ export const HypeCampaign = (): JSX.Element => {
             rel={anchorDefaultRel}
             href={link.referral.hypeLink}
           >
-            I want that shirt!
+            I want in
           </Button>
         </div>
 

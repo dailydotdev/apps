@@ -150,22 +150,13 @@ const AccountNotificationsPage = (): ReactElement => {
       NotificationCategory.ReadingReminder,
     );
 
-    if (value) {
-      trackEvent({
-        event_name: AnalyticsEvent.ScheduleReadingReminder,
-        extra: JSON.stringify({
-          hour: readingTimeIndex,
-          timezone: user?.timezone,
-        }),
-      });
-      subscribePersonalizedDigest({
-        type: UserPersonalizedDigestType.ReadingReminder,
-      });
-    } else {
-      unsubscribePersonalizedDigest({
-        type: UserPersonalizedDigestType.ReadingReminder,
-      });
-    }
+    trackEvent({
+      event_name: AnalyticsEvent.ScheduleReadingReminder,
+      extra: JSON.stringify({
+        hour: readingTimeIndex,
+        timezone: user?.timezone,
+      }),
+    });
   };
 
   const onTogglePush = async () => {

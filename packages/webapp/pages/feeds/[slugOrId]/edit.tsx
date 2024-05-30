@@ -44,6 +44,8 @@ import { withExperiment } from '@dailydotdev/shared/src/components/withExperimen
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { CustomFeedsExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { generateQueryKey } from '@dailydotdev/shared/src/lib/query';
+import { SharedFeedPage } from '@dailydotdev/shared/src/components/utilities';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
@@ -135,6 +137,9 @@ const EditFeedPage = (): ReactElement => {
         });
 
         queryClient.removeQueries(getFeedSettingsQueryKey(user, feedId));
+        queryClient.removeQueries(
+          generateQueryKey(SharedFeedPage.Custom, user),
+        );
 
         onAskConfirmation(false);
         router.replace(`${webappUrl}feeds/${data.id}`);
