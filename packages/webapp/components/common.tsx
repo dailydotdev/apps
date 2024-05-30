@@ -35,7 +35,7 @@ export const ListItem = ({
 
 const BreadCrumbsWrapper = classed(
   'div',
-  'hidden h-10 items-center p-1.5 text-border-subtlest-tertiary laptop:flex',
+  'hidden h-10 gap-0.5 items-center p-1.5 text-border-subtlest-tertiary laptop:flex',
 );
 
 export const BreadCrumbs = ({
@@ -52,7 +52,10 @@ export const BreadCrumbs = ({
         href={process.env.NEXT_PUBLIC_WEBAPP_URL}
         size={ButtonSize.XSmall}
       />
-      /{children}
+      <span>/</span>
+      <div className="flex flex-row items-center gap-1 px-2 font-bold text-text-primary typo-callout">
+        {children}
+      </div>
     </BreadCrumbsWrapper>
   );
 };

@@ -15,13 +15,16 @@ import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import {
   Button,
+  ButtonIconPosition,
+  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
-import { ListItem, BreadCrumbs, TopList } from '../../components/common';
+import { BreadCrumbs, ListItem, TopList } from '../../components/common';
 
 const PlaceholderList = classed(
   ElementPlaceholder,
@@ -114,13 +117,9 @@ const TagsPage = (): ReactElement => {
   return (
     <main className="flex flex-col gap-4 p-0 tablet:px-10 tablet:py-6">
       <BreadCrumbs>
-        <Button
-          variant={ButtonVariant.Tertiary}
-          icon={<HashtagIcon secondary />}
-          disabled
-        >
-          Tags
-        </Button>
+        <>
+          <HashtagIcon size={IconSize.XSmall} secondary /> Tags
+        </>
       </BreadCrumbs>
       <div className="grid grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
         <TagTopList
