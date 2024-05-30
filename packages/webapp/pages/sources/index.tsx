@@ -2,9 +2,15 @@ import React, { ReactElement } from 'react';
 import { UserHighlight } from '@dailydotdev/shared/src/components/widgets/PostUsersHighlights';
 import {
   Button,
+  ButtonIconPosition,
+  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { PlusIcon, SitesIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  HashtagIcon,
+  PlusIcon,
+  SitesIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
@@ -21,6 +27,7 @@ import {
   TRENDING_SOURCES_QUERY,
 } from '@dailydotdev/shared/src/graphql/sources';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { BreadCrumbs, ListItem, TopList } from '../../components/common';
@@ -112,13 +119,9 @@ const SourcesPage = (): ReactElement => {
     <main className="py-6 tablet:px-4 laptop:px-10">
       <div className="flex justify-between">
         <BreadCrumbs>
-          <Button
-            variant={ButtonVariant.Tertiary}
-            icon={<SitesIcon secondary />}
-            disabled
-          >
-            Sources
-          </Button>
+          <>
+            <SitesIcon size={IconSize.XSmall} secondary /> Sources
+          </>
         </BreadCrumbs>
         <Button
           icon={<PlusIcon />}
