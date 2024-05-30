@@ -81,24 +81,8 @@ export const KEYWORD_QUERY = gql`
   }
 `;
 
-export const TRENDING_TAGS_QUERY = gql`
-  query TrendingTags {
-    tags: trendingTags {
-      value: name
-    }
-  }
-`;
-
-export const POPULAR_TAGS_QUERY = gql`
-  query PopularTags {
-    tags: popularTags {
-      value: name
-    }
-  }
-`;
-
-export const TAGS_QUERY = gql`
-  query Tags {
+export const TAG_DIRECTORY_QUERY = gql`
+  query TagDirectory {
     tags {
       value
       occurrences
@@ -108,6 +92,12 @@ export const TAGS_QUERY = gql`
         title
         description
       }
+    }
+    trendingTags {
+      value: name
+    }
+    popularTags {
+      value: name
     }
   }
 `;

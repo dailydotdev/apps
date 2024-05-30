@@ -9,19 +9,17 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import classed from '@dailydotdev/shared/src/lib/classed';
-import { useQuery } from '@tanstack/react-query';
-import { RequestKey, StaleTime } from '@dailydotdev/shared/src/lib/query';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import {
-  MOST_RECENT_SOURCES_QUERY,
-  POPULAR_SOURCES_QUERY,
   Source,
-  TOP_VIDEO_SOURCES_QUERY,
-  TRENDING_SOURCES_QUERY,
+  SOURCE_DIRECTORY_QUERY,
 } from '@dailydotdev/shared/src/graphql/sources';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { GetStaticPropsResult } from 'next';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { useRouter } from 'next/router';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { BreadCrumbs, ListItem, TopList } from '../../components/common';
@@ -66,48 +64,27 @@ const SourceTopList = ({
   );
 };
 
-const SourcesPage = (): ReactElement => {
+interface SourcesPageProps {
+  mostRecentSources: Source[];
+  trendingSources: Source[];
+  popularSources: Source[];
+  topVideoSources: Source[];
+}
+
+const SourcesPage = ({
+  mostRecentSources,
+  trendingSources,
+  popularSources,
+  topVideoSources,
+}: SourcesPageProps): ReactElement => {
+  const { isFallback: isLoading } = useRouter();
+
   const { openModal } = useLazyModal();
   const isLaptop = useViewSize(ViewSize.Laptop);
 
-  const { data: recentlyAddedSources, isLoading: recentLoading } = useQuery(
-    [RequestKey.MostRecentSources, null, 'recent'],
-    async () =>
-      await request<{ sources: Source[] }>(
-        graphqlUrl,
-        MOST_RECENT_SOURCES_QUERY,
-      ),
-    {
-      staleTime: StaleTime.OneHour,
-    },
-  );
-
-  const { data: trendingSources, isLoading: trendingLoading } = useQuery(
-    [RequestKey.TrendingSources, null, 'trending'],
-    async () =>
-      await request<{ sources: Source[] }>(graphqlUrl, TRENDING_SOURCES_QUERY),
-    {
-      staleTime: StaleTime.OneHour,
-    },
-  );
-
-  const { data: popularSources, isLoading: popularLoading } = useQuery(
-    [RequestKey.PopularSources, null, 'popular'],
-    async () =>
-      await request<{ sources: Source[] }>(graphqlUrl, POPULAR_SOURCES_QUERY),
-    {
-      staleTime: StaleTime.OneHour,
-    },
-  );
-
-  const { data: topVideoSources, isLoading: topVideoLoading } = useQuery(
-    [RequestKey.TopVideoSources, null, 'popular'],
-    async () =>
-      await request<{ sources: Source[] }>(graphqlUrl, TOP_VIDEO_SOURCES_QUERY),
-    {
-      staleTime: StaleTime.OneHour,
-    },
-  );
+  if (isLoading) {
+    return <></>;
+  }
 
   return (
     <main className="py-6 tablet:px-4 laptop:px-10">
@@ -129,23 +106,23 @@ const SourcesPage = (): ReactElement => {
       <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-4">
         <SourceTopList
           title="Trending sources"
-          items={trendingSources?.sources}
-          isLoading={trendingLoading}
+          items={trendingSources}
+          isLoading={isLoading}
         />
         <SourceTopList
           title="Popular sources"
-          items={popularSources?.sources}
-          isLoading={popularLoading}
+          items={popularSources}
+          isLoading={isLoading}
         />
         <SourceTopList
           title="Recently added sources"
-          items={recentlyAddedSources?.sources}
-          isLoading={recentLoading}
+          items={mostRecentSources}
+          isLoading={isLoading}
         />
         <SourceTopList
           title="Top video sources"
-          items={topVideoSources?.sources}
-          isLoading={topVideoLoading}
+          items={topVideoSources}
+          isLoading={isLoading}
         />
       </div>
     </main>
@@ -160,3 +137,41 @@ SourcesPage.layoutProps = {
   screenCentered: false,
 };
 export default SourcesPage;
+
+export async function getStaticProps(): Promise<
+  GetStaticPropsResult<SourcesPageProps>
+> {
+  try {
+    const res = await request<SourcesPageProps>(
+      graphqlUrl,
+      SOURCE_DIRECTORY_QUERY,
+    );
+
+    return {
+      props: {
+        mostRecentSources: res.mostRecentSources,
+        trendingSources: res.trendingSources,
+        popularSources: res.popularSources,
+        topVideoSources: res.topVideoSources,
+      },
+      revalidate: 60,
+    };
+  } catch (err) {
+    if (
+      [ApiError.NotFound, ApiError.Forbidden].includes(
+        err?.response?.errors?.[0]?.extensions?.code,
+      )
+    ) {
+      return {
+        props: {
+          mostRecentSources: null,
+          trendingSources: null,
+          popularSources: null,
+          topVideoSources: null,
+        },
+        revalidate: 60,
+      };
+    }
+    throw err;
+  }
+}
