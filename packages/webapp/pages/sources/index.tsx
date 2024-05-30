@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement } from 'react';
 import { UserHighlight } from '@dailydotdev/shared/src/components/widgets/PostUsersHighlights';
 import {
   Button,
