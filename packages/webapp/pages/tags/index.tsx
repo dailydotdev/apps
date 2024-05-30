@@ -1,7 +1,6 @@
 import React, { ReactElement, useMemo } from 'react';
 import { Card } from '@dailydotdev/shared/src/components/cards/Card';
 import { getTagPageLink } from '@dailydotdev/shared/src/lib/links';
-import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { RequestKey, StaleTime } from '@dailydotdev/shared/src/lib/query';
 import request from 'graphql-request';
@@ -27,29 +26,7 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
-
-const ListItem = ({
-  index,
-  href,
-  children,
-}: {
-  index: number;
-  href: string;
-  children: ReactElement;
-}): ReactElement => {
-  return (
-    <li className="py-1.5 pr-2">
-      <Link href={href} passHref key={href} prefetch={false}>
-        <a className="flex w-full flex-row items-center">
-          <span className="inline-flex w-6 pr-2 text-text-quaternary">
-            {index}
-          </span>
-          {children}
-        </a>
-      </Link>
-    </li>
-  );
-};
+import { ListItem, BreadCrumbsWrapper } from '../../components/common';
 
 const TopList = ({
   title,
@@ -60,7 +37,6 @@ const TopList = ({
   items: Keyword[] | Source[] | Tag[];
   className?: string;
 }): ReactElement => {
-  console.log(items);
   const isMobile = useViewSize(ViewSize.MobileL);
   const MobileDiv = classed(
     'div',
@@ -73,13 +49,14 @@ const TopList = ({
     <Wrapper>
       <h3 className="mb-2 font-bold typo-title3">{title}</h3>
       <ol className="typo-body">
-        {items?.map((tag, i) => (
+        {items?.map((item, i) => (
           <ListItem
-            key={tag.value}
+            key={item.value}
             index={i + 1}
-            href={getTagPageLink(tag.value)}
+            href={getTagPageLink(item.value)}
+            className="py-1.5 pr-2"
           >
-            <p>{tag.value}</p>
+            <p className="pl-4">{item.value}</p>
           </ListItem>
         ))}
       </ol>
@@ -142,7 +119,7 @@ const TagsPage = (): ReactElement => {
 
   return (
     <main className="flex flex-col gap-4 p-0 tablet:px-10 tablet:py-6">
-      <div className="hidden h-10 items-center p-1.5 text-border-subtlest-tertiary laptop:flex">
+      <BreadCrumbsWrapper>
         <Button
           variant={ButtonVariant.Tertiary}
           icon={<HomeIcon />}
@@ -157,7 +134,7 @@ const TagsPage = (): ReactElement => {
         >
           Tags
         </Button>
-      </div>
+      </BreadCrumbsWrapper>
       <div className="grid grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
         <TopList title="Trending tags" items={trendingTags?.tags} />
         <TopList title="Popular tags" items={popularTags?.tags} />

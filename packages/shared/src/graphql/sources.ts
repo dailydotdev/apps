@@ -82,6 +82,7 @@ export interface Source {
   headerImage?: string;
   color?: string;
   description?: string;
+  createdAt?: Date;
 }
 
 export type SourceData = { source: Source };
@@ -94,6 +95,55 @@ export const SOURCE_QUERY = gql`
       name
       type
       description
+    }
+  }
+`;
+
+export const TRENDING_SOURCES_QUERY = gql`
+  query TrendingSources {
+    sources: trendingSources {
+      id
+      name
+      handle
+      image
+      permalink
+    }
+  }
+`;
+
+export const POPULAR_SOURCES_QUERY = gql`
+  query PopularSources {
+    sources: popularSources {
+      id
+      name
+      handle
+      image
+      permalink
+    }
+  }
+`;
+
+export const SOURCES_QUERY = gql`
+  query Sources {
+    sources: Sources {
+      id
+      name
+      handle
+      image
+      permalink
+      createdAt
+    }
+  }
+`;
+
+export const TOP_VIDEO_SOURCES_QUERY = gql`
+  query TopVideoSources {
+    sources: topVideoSources {
+      id
+      name
+      handle
+      image
+      permalink
     }
   }
 `;
