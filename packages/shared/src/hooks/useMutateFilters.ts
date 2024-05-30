@@ -250,6 +250,7 @@ export default function useMutateFilters(
         filters: {
           includeTags: tags,
         },
+        feedId,
       }),
     {
       onMutate: onFollowTags,
@@ -290,6 +291,7 @@ export default function useMutateFilters(
         filters: {
           blockedTags: tags,
         },
+        feedId,
       }),
     {
       onMutate: onBlockTags,
@@ -435,6 +437,7 @@ export default function useMutateFilters(
         filters: {
           excludeSources: [source.id],
         },
+        feedId,
       }),
     {
       onMutate: onUnfollowSource,
