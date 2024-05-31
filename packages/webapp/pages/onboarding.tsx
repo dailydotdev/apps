@@ -44,7 +44,6 @@ import {
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanies';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
 import {
   FeedPreviewControls,
@@ -419,7 +418,7 @@ export function OnboardPage(): ReactElement {
           <div className="hidden flex-1 tablet:block" />
         </footer>
       )}
-      <FooterLinks className="mx-auto" />
+      <FooterLinks className="mx-auto pb-6" />
     </div>
   );
 }
