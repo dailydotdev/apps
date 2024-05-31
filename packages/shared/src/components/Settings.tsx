@@ -16,6 +16,8 @@ import SettingsContext, {
 import { CardIcon, LineIcon } from './icons';
 import { CustomSwitch } from './fields/CustomSwitch';
 import { checkIsExtension } from '../lib/func';
+import AuthContext from '../contexts/AuthContext';
+import { AuthTriggers } from '../lib/auth';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -58,6 +60,8 @@ export default function Settings({
   ...props
 }: HTMLAttributes<HTMLDivElement>): ReactElement {
   const isExtension = checkIsExtension();
+  const { user, showLogin } = useContext(AuthContext);
+
   const {
     spaciness,
     setSpaciness,
@@ -75,8 +79,21 @@ export default function Settings({
     toggleOptOutCompanion,
     autoDismissNotifications,
     toggleAutoDismissNotifications,
+    optOutWeeklyGoal,
+    toggleOptOutWeeklyGoal,
   } = useContext(SettingsContext);
   const [themes, setThemes] = useState(layoutThemes);
+
+  const onToggleForLoggedInUsers = (
+    onToggleFunc: () => Promise<void> | void,
+  ): Promise<void> | void => {
+    if (!user) {
+      showLogin({ trigger: AuthTriggers.Settings });
+      return undefined;
+    }
+
+    return onToggleFunc();
+  };
 
   useEffect(() => {
     // If browser does not supports color-scheme, remove auto theme option
@@ -123,6 +140,13 @@ export default function Settings({
       <Section>
         <SectionTitle>Preferences</SectionTitle>
         <SectionContent>
+          <SettingsSwitch
+            name="reading-streaks"
+            checked={!optOutWeeklyGoal}
+            onToggle={() => onToggleForLoggedInUsers(toggleOptOutWeeklyGoal)}
+          >
+            Show reading streaks
+          </SettingsSwitch>
           <SettingsSwitch
             name="new-tab"
             checked={openNewTab}
