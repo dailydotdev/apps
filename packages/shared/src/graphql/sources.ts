@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
 import type { UserShortProfile } from '../lib/user';
 import type { Connection } from './common';
+import { SOURCE_DIRECTORY_INFO_FRAGMENT } from './fragments';
 
 export enum SourceMemberRole {
   Member = 'member',
@@ -94,13 +95,37 @@ export type SourceData = { source: Source };
 export const SOURCE_QUERY = gql`
   query Source($id: ID!) {
     source(id: $id) {
-      id
-      image
-      name
-      type
-      description
+      ...SourceDirectoryInfo
     }
   }
+  ${SOURCE_DIRECTORY_INFO_FRAGMENT}
+`;
+
+export const SOURCE_DIRECTORY_QUERY = gql`
+  query SourceDirectory {
+    trendingSources {
+      ...SourceDirectoryInfo
+    }
+    popularSources {
+      ...SourceDirectoryInfo
+    }
+    mostRecentSources {
+      ...SourceDirectoryInfo
+    }
+    topVideoSources {
+      ...SourceDirectoryInfo
+    }
+  }
+  ${SOURCE_DIRECTORY_INFO_FRAGMENT}
+`;
+
+export const MOST_RECENT_SOURCES_QUERY = gql`
+  query MostRecentSources {
+    sources: mostRecentSources {
+      ...SourceDirectoryInfo
+    }
+  }
+  ${SOURCE_DIRECTORY_INFO_FRAGMENT}
 `;
 
 export const SOURCE_RELATED_TAGS_QUERY = gql`
@@ -118,14 +143,12 @@ export const SOURCES_BY_TAG_QUERY = gql`
     sourcesByTag(tag: $tag, first: $first) {
       edges {
         node {
-          id
-          name
-          image
-          permalink
+          ...SourceDirectoryInfo
         }
       }
     }
   }
+  ${SOURCE_DIRECTORY_INFO_FRAGMENT}
 `;
 
 export const SIMILAR_SOURCES_QUERY = gql`
@@ -133,14 +156,12 @@ export const SIMILAR_SOURCES_QUERY = gql`
     similarSources(sourceId: $sourceId, first: $first) {
       edges {
         node {
-          id
-          name
-          image
-          permalink
+          ...SourceDirectoryInfo
         }
       }
     }
   }
+  ${SOURCE_DIRECTORY_INFO_FRAGMENT}
 `;
 
 export enum PublicSquadRequestStatus {

@@ -13,6 +13,11 @@ export interface Keyword {
   occurrences: number;
   status: KeywordStatus;
   flags?: KeywordFlags;
+  createdAt?: Date;
+}
+
+export interface Tag {
+  name: string;
 }
 
 export interface KeywordData {
@@ -72,6 +77,27 @@ export const KEYWORD_QUERY = gql`
         title
         description
       }
+    }
+  }
+`;
+
+export const TAG_DIRECTORY_QUERY = gql`
+  query TagDirectory {
+    tags {
+      value
+      occurrences
+      status
+      createdAt
+      flags {
+        title
+        description
+      }
+    }
+    trendingTags {
+      value: name
+    }
+    popularTags {
+      value: name
     }
   }
 `;
