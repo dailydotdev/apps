@@ -19,6 +19,13 @@ import { verifyPermission } from '../graphql/squads';
 import OnboardingContext from '../contexts/OnboardingContext';
 import { SquadEditWelcomePostChecklistStep } from '../components/checklist/SquadEditWelcomePostChecklistStep';
 import { usePushNotificationContext } from '../contexts/PushNotificationContext';
+import { EditSquadStep } from '../components/checklist/EditSquadStep';
+import { GoPublicStep } from '../components/checklist/GoPublicStep';
+import { MIN_SQUAD_POSTS } from '../components/squads/SquadPostsProgressBar';
+import {
+  getEditActions,
+  getPublicActions,
+} from '../components/checklist/actionUtils';
 
 type UseSquadChecklistProps = {
   squad: Squad;
@@ -121,6 +128,25 @@ const useSquadChecklist = ({
           component: InstallExtensionChecklistStep,
         },
         actions,
+      }),
+      [ActionType.EditSquad]: createChecklistStep({
+        type: ActionType.EditSquad,
+        step: {
+          title: 'Edit Squad details',
+          description:
+            'Make your Squad shine by customizing the name, description and image',
+          component: (props) => <EditSquadStep {...props} squad={squad} />,
+        },
+        actions: getEditActions(squad),
+      }),
+      [ActionType.MakeSquadPublic]: createChecklistStep({
+        type: ActionType.MakeSquadPublic,
+        step: {
+          title: 'Get more traffic by going public',
+          description: `To get your Squad posts exposed in the daily.dev feed, create at least ${MIN_SQUAD_POSTS} posts and apply for a public Squad status`,
+          component: (props) => <GoPublicStep {...props} squad={squad} />,
+        },
+        actions: getPublicActions(squad),
       }),
     };
 

@@ -51,6 +51,7 @@ export enum LazyModal {
   UserSettings = 'userSettings',
   Share = 'share',
   SubmitSquadForReview = 'submitSquadForReview',
+  PrivilegedMembers = 'privilegedMembers',
 }
 
 export type ModalTabItem = {

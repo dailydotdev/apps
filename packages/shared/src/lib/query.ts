@@ -117,6 +117,8 @@ export enum RequestKey {
   SourceByTag = 'source_by_tag',
   SimilarSources = 'similar_sources',
   UserExperienceLevel = 'user_experience_level',
+  SquadStatus = 'squad_status',
+  PublicSquadRequests = 'public_squad_requests',
   Feeds = 'feeds',
   FeedSettings = 'feedSettings',
 }

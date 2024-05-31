@@ -48,7 +48,7 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
         </p>
       )}
       <SquadJoinButton
-        className="mt-3 w-full"
+        className={{ button: 'mt-3 w-full' }}
         squad={squad}
         origin={Origin.ArticleModal}
       />

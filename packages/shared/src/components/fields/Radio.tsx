@@ -1,23 +1,17 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { RadioItem } from './RadioItem';
-
-export interface RadioOption<T = string> {
-  label: ReactNode;
-  value: T;
-  id?: string;
-  afterElement?: ReactNode;
-  disabled?: boolean;
-}
+import { RadioItem, RadioItemProps } from './RadioItem';
 
 interface ClassName {
   container?: string;
   content?: string;
 }
 
+export type { RadioItemProps };
+
 export interface RadioProps<T extends string = string> {
   name: string;
-  options: RadioOption<T>[];
+  options: RadioItemProps<T>[];
   value?: T;
   onChange: (value: T) => unknown;
   className?: ClassName;
@@ -39,6 +33,7 @@ export function Radio<T extends string = string>({
     >
       {options.map((option) => (
         <RadioItem
+          {...option}
           key={option.value}
           name={name}
           id={`${name}-${option.id || option.value}`}
@@ -46,7 +41,14 @@ export function Radio<T extends string = string>({
           disabled={option.disabled}
           checked={value === option.value}
           onChange={() => onChange(option.value)}
-          className={classNames('truncate', className.content)}
+          className={{
+            content: classNames(
+              'truncate',
+              className.content,
+              option?.className?.content,
+            ),
+            wrapper: option.className?.wrapper,
+          }}
           afterElement={option.afterElement}
         >
           {option.label}

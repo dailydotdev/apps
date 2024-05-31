@@ -456,7 +456,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     onChange={() =>
                       onUpdatePreference({ isProfileCover: false })
                     }
-                    className="my-1.5 truncate"
+                    className={{ content: 'my-1.5 truncate' }}
                   >
                     Default
                   </RadioItem>
@@ -468,7 +468,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     onChange={() =>
                       onUpdatePreference({ isProfileCover: true })
                     }
-                    className="my-1.5 truncate"
+                    className={{ content: 'my-1.5 truncate' }}
                   >
                     Use profile cover
                   </RadioItem>

@@ -211,6 +211,16 @@ export default {
       blur: {
         20: '1.25rem',
       },
+      keyframes: {
+        'scale-down-pulse': {
+          '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+          '50%': { transform: 'scale(0.7)', opacity: '0.5' },
+        },
+      },
+      animation: {
+        'scale-down-pulse':
+          'scale-down-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
     },
     lineClamp: {
       1: '1',

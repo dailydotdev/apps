@@ -1,17 +1,13 @@
 import React, { ReactElement } from 'react';
 import { NextSeo, NextSeoProps } from 'next-seo';
-import router, { useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { SquadDetails } from '@dailydotdev/shared/src/components/squads/Details';
 import { SquadForm, editSquad } from '@dailydotdev/shared/src/graphql/squads';
 import { useBoot } from '@dailydotdev/shared/src/hooks/useBoot';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import {
-  ManageSquadPageContainer,
-  ManageSquadPageMain,
-  ManageSquadPageHeader,
-} from '@dailydotdev/shared/src/components/squads/utils';
+import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import { MangeSquadPageSkeleton } from '@dailydotdev/shared/src/components/squads/MangeSquadPageSkeleton';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSquad } from '@dailydotdev/shared/src/hooks';
@@ -22,15 +18,11 @@ import {
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
+import { PrivacyOption } from '@dailydotdev/shared/src/hooks/squads/useSquadPrivacyOptions';
+import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 
@@ -66,6 +58,9 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
       file: form.file,
       memberPostingRole: form.memberPostingRole,
       memberInviteRole: form.memberInviteRole,
+      public: isNullOrUndefined(form.status)
+        ? undefined
+        : form.status === PrivacyOption.Public,
     };
     const editedSquad = await editSquad(squad.id, formJson);
     if (editedSquad) {
@@ -97,26 +92,7 @@ const EditSquad = ({ handle }: EditSquadPageProps): ReactElement => {
   return (
     <ManageSquadPageContainer>
       <NextSeo {...seo} titleTemplate="%s | daily.dev" noindex nofollow />
-      <ManageSquadPageMain>
-        <ManageSquadPageHeader className="hidden tablet:flex">
-          <Button
-            className="mr-2"
-            variant={ButtonVariant.Tertiary}
-            icon={<ArrowIcon className="-rotate-90" />}
-            size={ButtonSize.XSmall}
-            onClick={() => {
-              router.push(`/squads/${squad.handle}`);
-            }}
-          />
-          <h1 className="font-bold typo-title3">{pageTitle}</h1>
-        </ManageSquadPageHeader>
-        <SquadDetails
-          className="p-8"
-          form={squad}
-          onSubmit={onSubmit}
-          createMode={false}
-        />
-      </ManageSquadPageMain>
+      <SquadDetails form={squad} onSubmit={onSubmit} createMode={false} />
     </ManageSquadPageContainer>
   );
 };

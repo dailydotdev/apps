@@ -7,7 +7,7 @@ import React, {
   Dispatch,
   useCallback,
 } from 'react';
-import { RadioOption } from '../../fields/Radio';
+import { RadioItemProps } from '../../fields/Radio';
 import { Post, ReadHistoryPost, ReportReason } from '../../../graphql/posts';
 import { Checkbox } from '../../fields/Checkbox';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
@@ -122,7 +122,7 @@ export function ReportPostModal({
                   setSelectedTags={setSelectedTags}
                 />
               ),
-            } as RadioOption;
+            } as RadioItemProps;
           }
 
           return reportReason;
