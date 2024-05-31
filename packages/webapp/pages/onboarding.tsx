@@ -411,8 +411,8 @@ export function OnboardPage(): ReactElement {
         {showOnboardingPage && (
           <div
             className={classNames(
-              'mt-5 flex flex-col tablet:mt-0 laptop:mr-8 laptop:max-w-[27.5rem]',
-              !onboardingVisual.fullBackground && 'flex-1',
+              'mt-5 flex flex-1 flex-col tablet:mt-0 laptop:mr-8 laptop:max-w-[27.5rem]',
+              onboardingVisual.fullBackground && 'flex-grow-0 tablet:flex-grow',
             )}
           >
             <OnboardingHeadline
