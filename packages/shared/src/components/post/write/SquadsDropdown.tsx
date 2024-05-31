@@ -59,10 +59,7 @@ export function SquadsDropdown({
     <Dropdown
       icon={
         selected !== -1 ? (
-          <SourceAvatar
-            source={list[selected]}
-            size={ProfileImageSize.Small}
-          />
+          <SourceAvatar source={list[selected]} size={ProfileImageSize.Small} />
         ) : (
           <SquadIcon className="mr-2" />
         )
