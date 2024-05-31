@@ -7,6 +7,7 @@ import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
 import { ButtonSize } from '../../buttons/common';
 import { useViewSize, ViewSize } from '../../../hooks';
+import { ProfileImageSize } from '../../ProfilePicture';
 
 interface SquadsDropdownProps {
   onSelect: (index: number) => void;
@@ -30,7 +31,7 @@ export function SquadsDropdown({
     return (
       <SourceShortInfo
         source={source}
-        size={!isLaptop ? 'xxlarge' : undefined}
+        size={!isLaptop ? ProfileImageSize.XXLarge : undefined}
         className="w-full items-center pl-1 tablet:w-auto tablet:py-3"
       >
         <ArrowIcon className="ml-auto rotate-90" secondary />
@@ -42,7 +43,10 @@ export function SquadsDropdown({
     <Dropdown
       icon={
         selected !== -1 ? (
-          <SourceAvatar source={activeSquads[selected]} size="small" />
+          <SourceAvatar
+            source={activeSquads[selected]}
+            size={ProfileImageSize.Small}
+          />
         ) : (
           <SquadIcon className="mr-2" />
         )

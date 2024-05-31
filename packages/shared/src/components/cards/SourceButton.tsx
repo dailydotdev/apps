@@ -17,7 +17,7 @@ interface SourceButtonProps {
 export default function SourceButton({
   source,
   tooltipPosition = 'bottom',
-  size = 'medium',
+  size = ProfileImageSize.Medium,
   className,
   ...props
 }: SourceButtonProps): ReactElement {

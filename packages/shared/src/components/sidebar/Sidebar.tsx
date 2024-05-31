@@ -13,7 +13,7 @@ import {
 import AlertContext from '../../contexts/AlertContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import AuthContext from '../../contexts/AuthContext';
-import { ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import {
   ContributeSection,
   DiscoverSection,
@@ -261,7 +261,9 @@ export default function Sidebar({
                   )
                 }
                 onNavTabClick={onNavTabClick}
-                icon={<ProfilePicture size="xsmall" user={user} />}
+                icon={
+                  <ProfilePicture size={ProfileImageSize.XSmall} user={user} />
+                }
               />
             )}
             {hasCustomFeedsEnabled && (

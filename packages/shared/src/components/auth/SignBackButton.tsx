@@ -1,5 +1,5 @@
 import React, { MouseEventHandler, ReactElement } from 'react';
-import { ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { SignBackProvider, SignedInUser } from '../../hooks/auth/useSignBack';
 import { providerMap } from './common';
 
@@ -22,7 +22,7 @@ export function SignBackButton({
       type="button"
       onClick={onClick}
     >
-      <ProfilePicture user={signBack} size="large" />
+      <ProfilePicture user={signBack} size={ProfileImageSize.Large} />
       <div className="ml-2 flex flex-col items-start text-surface-invert">
         {!!signBack.name && (
           <span className="font-bold typo-callout">

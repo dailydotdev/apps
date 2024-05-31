@@ -4,7 +4,7 @@ import { PublicProfile } from '../../lib/user';
 import { ShareIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
-import { ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { largeNumberFormat, ReferralCampaignKey } from '../../lib';
 import { ProfileSettingsMenu } from './ProfileSettingsMenu';
 import { RootPortal } from '../tooltips/Portal';
@@ -39,7 +39,11 @@ export function Header({
     >
       {sticky ? (
         <>
-          <ProfilePicture user={user} nativeLazyLoading size="medium" />
+          <ProfilePicture
+            user={user}
+            nativeLazyLoading
+            size={ProfileImageSize.Medium}
+          />
           <div className="ml-2 flex flex-col typo-footnote">
             <p className="font-bold">{user.name}</p>
             <p className="text-text-tertiary">

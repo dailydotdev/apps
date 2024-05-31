@@ -3,7 +3,7 @@ import React, { ReactElement } from 'react';
 import { SourceMember, Squad } from '../../graphql/sources';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { largeNumberFormat } from '../../lib';
@@ -50,7 +50,7 @@ function SquadMemberShortList({
         {members?.slice(0, sidebarRendered ? 5 : 3).map(({ user }) => (
           <ProfilePicture
             className="-ml-2"
-            size="medium"
+            size={ProfileImageSize.Medium}
             key={user.username}
             user={user}
           />

@@ -16,6 +16,7 @@ import { CardCoverV1 } from './CardCover';
 import { CardContent, CardTitle } from './Card';
 import PostTags from '../PostTags';
 import SourceButton from '../SourceButton';
+import { ProfileImageSize } from '../../ProfilePicture';
 
 export const SharePostCard = forwardRef(function SharePostCard(
   {
@@ -90,7 +91,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
       >
         {improvedSharedPostCard ? (
           <SourceButton
-            size="large"
+            size={ProfileImageSize.Large}
             source={post.source}
             className="relative"
           />

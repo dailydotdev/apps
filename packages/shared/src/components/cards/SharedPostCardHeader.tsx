@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Post } from '../../graphql/posts';
-import { ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import SourceButton from './SourceButton';
 import PostMetadata from './PostMetadata';
 
@@ -20,14 +20,22 @@ export const SharedPostCardHeader = ({
       <div className="relative">
         <ProfilePicture
           user={author}
-          size={enableSourceHeader ? 'xsmall' : 'xlarge'}
+          size={
+            enableSourceHeader
+              ? ProfileImageSize.XSmall
+              : ProfileImageSize.XLarge
+          }
           className={enableSourceHeader && '-right-2.5 top-7'}
           absolute={enableSourceHeader}
         />
         <SourceButton
           source={source}
           className={!enableSourceHeader && 'absolute -bottom-2 -right-2'}
-          size={enableSourceHeader ? 'large' : 'xsmall'}
+          size={
+            enableSourceHeader
+              ? ProfileImageSize.Large
+              : ProfileImageSize.XSmall
+          }
         />
       </div>
       <div className="ml-2 mr-6 flex flex-1 flex-grow flex-col typo-footnote">

@@ -34,7 +34,7 @@ import { TabContainer, Tab } from '../../tabs/TabContainer';
 import MarkdownPreview from '../MarkdownPreview';
 import { isNullOrUndefined } from '../../../lib/func';
 import { SavingLabel } from './SavingLabel';
-import { ProfilePicture } from '../../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Loader } from '../../Loader';
 import { Divider } from '../../utilities';
@@ -222,7 +222,7 @@ function MarkdownInput(
             wrapper={(component) => (
               <span className="flex w-full flex-row">
                 <ProfilePicture
-                  size="large"
+                  size={ProfileImageSize.Large}
                   className={classNames('ml-3 mt-3', className?.profile)}
                   user={user}
                   nativeLazyLoading
