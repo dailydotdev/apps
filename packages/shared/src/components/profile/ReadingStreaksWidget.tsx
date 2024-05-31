@@ -29,12 +29,12 @@ export function ReadingStreaksWidget(): ReactElement {
       <ActivitySectionHeader title="Reading streaks" Icon={ReadingStreakIcon} />
       <div className="flex gap-5">
         <StreakTag
-          streak={streak.max}
+          streak={streak?.max}
           title="Longest streak 🏆"
           isLoading={isLoading}
         />
         <StreakTag
-          streak={streak.total}
+          streak={streak?.total}
           title="Total reading days"
           isLoading={isLoading}
         />
