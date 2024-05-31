@@ -7,6 +7,9 @@ import { Checkbox } from '../../fields/Checkbox';
 import { IconSize } from '../../Icon';
 import classed from '../../../lib/classed';
 import { SimpleTooltip } from '../../tooltips';
+import { Anchor } from '../../text';
+import { usePublicSquadRequests } from '../../../hooks/squads';
+import { contentGuidelines } from '../../../lib/constants';
 
 interface ChecklistItemProps {
   iconTag: React.ElementType;
@@ -51,8 +54,14 @@ const SubmitSquadForReviewModal = ({
   ...props
 }: Props): ReactElement => {
   const { squad, isFetched } = useSquad({ handle: squadId });
-
   const [meets, setMeets] = useState(false);
+
+  const { submitForReview, isSubmitLoading } = usePublicSquadRequests({
+    sourceId: squad?.id,
+    onSuccessfulSubmission: () => {
+      onRequestClose(null);
+    },
+  });
 
   if (!isFetched || !squad) {
     return null;
@@ -79,14 +88,9 @@ const SubmitSquadForReviewModal = ({
         <Checklist>
           <ChecklistItem iconTag={MegaphoneIcon}>
             The posts I shared meet the{' '}
-            <a
-              className="text-text-link underline hover:no-underline"
-              href="https://docs.daily.dev/docs/for-content-creators/content-guidelines"
-              target="_blank"
-              rel="noopener"
-            >
+            <Anchor href={contentGuidelines} target="_blank" rel="noopener">
               content guidelines
-            </a>
+            </Anchor>
           </ChecklistItem>
           <ChecklistItem iconTag={ImageIcon}>
             I uploaded a Squad image that matches the purpose of my Squad
@@ -109,10 +113,18 @@ const SubmitSquadForReviewModal = ({
           Close
         </Button>
         <SimpleTooltip
-          content={!meets && 'Check that the squad meets requirements'}
+          content={
+            !meets &&
+            'Ensure the Squad meets the requirements and click the check box to submit'
+          }
         >
           <div>
-            <Button variant={ButtonVariant.Primary} disabled={!meets}>
+            <Button
+              variant={ButtonVariant.Primary}
+              disabled={!meets}
+              onClick={submitForReview}
+              loading={isSubmitLoading}
+            >
               Submit for review
             </Button>
           </div>

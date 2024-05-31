@@ -122,6 +122,13 @@ const SubmitSquadForReviewModal = dynamic(
     ),
 );
 
+const PrivilegedMemberModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "privilegedMembersModal" */ './squads/PrivilegedMembersModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -144,6 +151,7 @@ export const modals = {
   [LazyModal.UserSettings]: UserSettingsModal,
   [LazyModal.Share]: ShareModal,
   [LazyModal.SubmitSquadForReview]: SubmitSquadForReviewModal,
+  [LazyModal.PrivilegedMembers]: PrivilegedMemberModal,
 };
 
 type GetComponentProps<T> = T extends

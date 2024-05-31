@@ -20,12 +20,14 @@ import { SharePostCard as SharePostCardV1 } from './cards/v1/SharePostCard';
 import { WelcomePostCard } from './cards/WelcomePostCard';
 import { WelcomePostCard as WelcomePostCardV1 } from './cards/v1/WelcomePostCard';
 import { Origin } from '../lib/analytics';
-import { UseVotePost, useFeedLayout } from '../hooks';
+import { useFeedLayout, UseVotePost } from '../hooks';
 import { CollectionCard } from './cards/CollectionCard';
 import { CollectionCard as CollectionCardV1 } from './cards/v1/CollectionCard';
 import { AcquisitionFormCard } from './cards/AcquisitionFormCard';
 import { MarketingCtaCard, MarketingCtaList } from './cards';
 import { MarketingCtaCardV1 } from './cards/v1/MarketingCtaCard';
+import { FeedItemType } from './cards/common';
+import { PublicSquadEligibilityCard } from './squads/PublicSquadEligibilityCard';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -199,7 +201,7 @@ export default function FeedItemComponent({
   const isList = isListModeV1 || isHorizontal ? false : isListProp;
 
   switch (item.type) {
-    case 'post': {
+    case FeedItemType.Post: {
       if (
         !!item.post.pinnedAt &&
         item.post.source?.currentMember?.flags?.collapsePinnedPosts
@@ -270,7 +272,7 @@ export default function FeedItemComponent({
         </PostTag>
       );
     }
-    case 'ad':
+    case FeedItemType.Ad:
       return (
         <AdTag
           ref={inViewRef}
@@ -279,17 +281,17 @@ export default function FeedItemComponent({
           showImage={!insaneMode}
         />
       );
-    case 'userAcquisition': {
+    case FeedItemType.UserAcquisition:
       return <AcquisitionFormCard key="user-acquisition-card" />;
-    }
-    case 'marketingCta': {
+    case FeedItemType.PublicSquadEligibility:
+      return <PublicSquadEligibilityCard />;
+    case FeedItemType.MarketingCta:
       return (
         <MarketingCtaTag
           key="marketing-cta-card"
           marketingCta={item.marketingCta}
         />
       );
-    }
     default:
       return <PlaceholderTag showImage={!insaneMode} />;
   }

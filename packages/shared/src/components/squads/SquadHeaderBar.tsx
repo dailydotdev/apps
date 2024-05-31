@@ -9,7 +9,6 @@ import SquadMemberShortList, {
 } from './SquadMemberShortList';
 import { IconSize } from '../Icon';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
-import useSidebarRendered from '../../hooks/useSidebarRendered';
 import { Origin } from '../../lib/analytics';
 import { TourScreenIndex } from './SquadTour';
 import { useSquadTour } from '../../hooks/useSquadTour';
@@ -27,7 +26,6 @@ export function SquadHeaderBar({
   squad,
   members,
   className,
-  shouldUseListModeV1,
   ...props
 }: SquadMemberShortListProps & HTMLAttributes<HTMLDivElement>): ReactElement {
   const { tourIndex } = useSquadTour();
@@ -37,7 +35,6 @@ export function SquadHeaderBar({
   });
   const { openModal, modal } = useLazyModal();
   const { onMenuClick } = useContextMenu({ id: ContextMenu.SquadMenuContext });
-  const { sidebarRendered } = useSidebarRendered();
 
   const {
     steps,
@@ -51,48 +48,44 @@ export function SquadHeaderBar({
   const totalStepsCount = steps.length;
   const checklistTooltipText = `${completedStepsCount}/${totalStepsCount}`;
   const showJoinButton = squad.public && !squad.currentMember;
+  const firstItemClasses = 'order-5 tablet:order-1';
 
   return (
     <div
       {...props}
       className={classNames(
-        'flex h-fit w-full flex-row justify-center gap-4 tablet:w-auto',
+        'flex h-fit w-full flex-row flex-wrap justify-center gap-4 tablet:w-auto',
         className,
       )}
     >
-      <div className="relative">
-        {verifyPermission(squad, SourcePermissions.Invite) &&
-          !showJoinButton && (
-            <Button
-              variant={ButtonVariant.Secondary}
-              className={classNames(
-                tourIndex === TourScreenIndex.CopyInvitation &&
-                  'highlight-pulse',
-              )}
-              onClick={() => {
-                trackAndCopyLink();
-              }}
-              icon={<AddUserIcon />}
-              disabled={copying}
-            >
-              Invitation link
-            </Button>
+      {verifyPermission(squad, SourcePermissions.Invite) && !showJoinButton && (
+        <Button
+          variant={ButtonVariant.Secondary}
+          className={classNames(
+            firstItemClasses,
+            tourIndex === TourScreenIndex.CopyInvitation && 'highlight-pulse',
           )}
-      </div>
+          onClick={() => {
+            trackAndCopyLink();
+          }}
+          icon={<AddUserIcon />}
+          disabled={copying}
+        >
+          Invitation link
+        </Button>
+      )}
       {showJoinButton && (
         <SquadJoinButton
-          className="flex w-full flex-1 tablet:ml-auto tablet:w-auto tablet:flex-initial"
+          className={{ wrapper: firstItemClasses }}
           squad={squad}
           origin={Origin.SquadPage}
         />
       )}
-      {sidebarRendered && !shouldUseListModeV1 && (
-        <SquadMemberShortList
-          squad={squad}
-          members={members}
-          className="hidden laptopL:flex"
-        />
-      )}
+      <SquadMemberShortList
+        className="order-1 tablet:order-2"
+        squad={squad}
+        members={members}
+      />
       {!!squad.currentMember && (
         <SimpleTooltip
           forceLoad={!isTesting}
@@ -106,7 +99,8 @@ export function SquadHeaderBar({
         >
           <Button
             data-testid="squad-checklist-button"
-            variant={ButtonVariant.Secondary}
+            className="order-2 tablet:order-3"
+            variant={ButtonVariant.Float}
             icon={<ChecklistBIcon secondary size={IconSize.Small} />}
             onClick={() => {
               setChecklistVisible(!isChecklistVisible);
@@ -122,7 +116,8 @@ export function SquadHeaderBar({
         >
           <Button
             data-testid="squad-notification-button"
-            variant={ButtonVariant.Secondary}
+            className="order-3 tablet:order-4"
+            variant={ButtonVariant.Float}
             icon={
               <BellIcon
                 secondary={modal?.type === LazyModal.SquadNotifications}
@@ -140,7 +135,8 @@ export function SquadHeaderBar({
       )}
       <SimpleTooltip placement="top" content="Squad options">
         <Button
-          variant={ButtonVariant.Secondary}
+          className="order-4 tablet:order-5"
+          variant={ButtonVariant.Float}
           icon={<MenuIcon size={IconSize.Small} />}
           onClick={onMenuClick}
         />

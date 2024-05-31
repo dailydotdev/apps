@@ -24,7 +24,11 @@ import {
   getSquadMembers,
   SQUAD_STATIC_FIELDS_QUERY,
 } from '@dailydotdev/shared/src/graphql/squads';
-import { SourceMember, Squad } from '@dailydotdev/shared/src/graphql/sources';
+import {
+  SourceMember,
+  SourceMemberRole,
+  Squad,
+} from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading';
 import { useQuery } from '@tanstack/react-query';
@@ -34,8 +38,10 @@ import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
 import {
+  useActions,
   useFeedLayout,
   useJoinReferral,
+  usePublicSquadRequests,
   useSquad,
 } from '@dailydotdev/shared/src/hooks';
 import { oneHour } from '@dailydotdev/shared/src/lib/dateFormat';
@@ -45,6 +51,8 @@ import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { SquadStatus } from '@dailydotdev/shared/src/components/squads/settings';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import ProtectedPage, {
@@ -65,9 +73,11 @@ const SquadEmptyScreen = dynamic(
 
 type SourcePageProps = {
   handle: string;
-  initialData?: Pick<Squad, 'name' | 'public' | 'description' | 'image'>;
+  initialData?: Pick<Squad, 'id' | 'name' | 'public' | 'description' | 'image'>;
   referringUser?: Pick<PublicProfile, 'id' | 'name' | 'image'>;
 };
+
+const hiddenCardStatuses = [SquadStatus.Approved, SquadStatus.Rejected];
 
 const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
   const { squad, seo, children, ...restProtectedPageProps } = props;
@@ -100,7 +110,7 @@ const SquadPage = ({
   const { user, isFetched: isBootFetched } = useContext(AuthContext);
   const [trackedImpression, setTrackedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
-
+  const { isActionsFetched, checkHasCompleted } = useActions();
   const squadId = squad?.id;
 
   useEffect(() => {
@@ -159,7 +169,27 @@ const SquadPage = ({
     />
   );
 
-  if (isLoading && !isFetched) {
+  const dismissedCard = useMemo(
+    () =>
+      isActionsFetched &&
+      checkHasCompleted(ActionType.HidePublicSquadEligibilityCard),
+    [checkHasCompleted, isActionsFetched],
+  );
+
+  const isQueryEnabled =
+    !!squadId &&
+    !!user &&
+    !squad?.public &&
+    squad?.currentMember?.role === SourceMemberRole.Admin;
+  const { isFetched: isRequestsFetched, status } = usePublicSquadRequests({
+    sourceId: squadId,
+    isQueryEnabled,
+  });
+  const isRequestsEnabled = isQueryEnabled && status !== SquadStatus.Approved;
+  const isRequestsLoading =
+    isRequestsEnabled && (!isRequestsFetched || !isActionsFetched);
+
+  if (isLoading && (!isFetched || isRequestsLoading)) {
     return (
       <>
         {seo}
@@ -218,6 +248,11 @@ const SquadPage = ({
             user?.id ?? 'anonymous',
             Object.values(queryVariables),
           ]}
+          showPublicSquadsEligibility={
+            isRequestsEnabled &&
+            !dismissedCard &&
+            !hiddenCardStatuses.includes(status)
+          }
           query={SOURCE_FEED_QUERY}
           variables={queryVariables}
           forceCardMode

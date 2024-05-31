@@ -14,8 +14,13 @@ import { UserShortProfile } from '../../lib/user';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { AuthTriggers } from '../../lib/auth';
 
-type SquadJoinProps = {
-  className?: string;
+interface ClassName {
+  wrapper?: string;
+  button?: string;
+}
+
+interface SquadJoinProps {
+  className?: ClassName;
   squad: Squad;
   joinText?: string;
   leaveText?: string;
@@ -23,7 +28,7 @@ type SquadJoinProps = {
   origin: Origin;
   inviterMember?: Pick<UserShortProfile, 'id'>;
   onSuccess?: () => void;
-};
+}
 
 export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
   className,
@@ -74,7 +79,7 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
 };
 
 export const SquadJoinButton = ({
-  className,
+  className = {},
   squad,
   joinText = 'Join Squad',
   leaveText = 'Leave Squad',
@@ -157,13 +162,13 @@ export const SquadJoinButton = ({
       disabled={!isMemberBlocked}
       content={blockedTooltipText}
     >
-      <div>
+      <div className={className?.wrapper}>
         <SimpleSquadJoinButton
           {...rest}
           variant={
             isCurrentMember ? ButtonVariant.Secondary : ButtonVariant.Primary
           }
-          className={className}
+          className={className?.button}
           squad={squad}
           disabled={isMemberBlocked || isLoading}
           onClick={onLeaveSquad}

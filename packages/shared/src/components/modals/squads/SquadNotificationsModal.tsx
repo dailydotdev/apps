@@ -11,6 +11,8 @@ import { NotificationType } from '../../notifications/utils';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { NotificationPreferenceStatus } from '../../../graphql/notifications';
+import { Anchor } from '../../text';
+import { webappUrl } from '../../../lib/constants';
 
 interface SquadNotificationsModalProps extends ModalProps {
   squad: Squad;
@@ -143,12 +145,9 @@ export function SquadNotificationsModal({
         )}
         <p className="text-text-tertiary typo-callout">
           For more options, go to your
-          <a
-            className="ml-1 text-text-link underline hover:no-underline"
-            href="/account/notifications"
-          >
+          <Anchor className="ml-1" href={`${webappUrl}account/notifications`}>
             notifications settings
-          </a>
+          </Anchor>
         </p>
       </Modal.Body>
     </Modal>

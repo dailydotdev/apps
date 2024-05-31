@@ -1,5 +1,5 @@
 import { ReactElement, ReactNode } from 'react';
-import { SourceMemberRole } from '../graphql/sources';
+import { SourceMemberRole, Squad } from '../graphql/sources';
 import { Action, ActionType } from '../graphql/actions';
 import { StorageTopic, generateStorageKey } from './storage';
 
@@ -17,7 +17,7 @@ export type ChecklistStepType = {
   component?: (props: ChecklistStepProps) => ReactElement;
 };
 
-export type ChecklistStepProps = {
+export interface ChecklistStepProps {
   className?: Partial<{
     container: string;
     checkmark: string;
@@ -29,17 +29,21 @@ export type ChecklistStepProps = {
   isActive: boolean;
   onToggle: (action: Action) => void;
   children?: ReactNode;
-};
+}
+
+export interface ChecklistStepPropsWithSquad extends ChecklistStepProps {
+  squad: Squad;
+}
 
 export const actionsPerRoleMap: Partial<
   Record<SourceMemberRole, ActionType[]>
 > = {
   [SourceMemberRole.Admin]: [
-    ActionType.CreateSquad,
-    ActionType.EditWelcomePost,
     ActionType.SquadFirstPost,
+    ActionType.EditSquad,
+    ActionType.EditWelcomePost,
     ActionType.SquadInvite,
-    ActionType.EnableNotification,
+    ActionType.MakeSquadPublic,
   ],
   [SourceMemberRole.Member]: [
     ActionType.JoinSquad,

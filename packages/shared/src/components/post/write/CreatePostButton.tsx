@@ -36,11 +36,11 @@ export function CreatePostButton({
   const handle = route === '/squads/[handle]' ? (query.handle as string) : '';
   const { squad } = useSquad({ handle });
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
-  const hasAccess = squads?.some((item) =>
-    verifyPermission(item, SourcePermissions.Post),
-  );
+  const hasAccess =
+    !handle ||
+    squads?.some((item) => verifyPermission(item, SourcePermissions.Post));
 
-  if (!footer && (!user || !squads?.length)) {
+  if (!footer && !user) {
     return null;
   }
 

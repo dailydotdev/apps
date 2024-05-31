@@ -65,8 +65,11 @@ export interface Squad extends Source {
   borderColor?: string;
 }
 
-export interface SourcePrivilegedMembers extends Pick<SourceMember, 'role'> {
-  user: Pick<UserShortProfile, 'id'>;
+interface SourceFlags {
+  featured: boolean;
+  totalPosts: number;
+  totalViews: number;
+  totalUpvotes: number;
 }
 
 export interface Source {
@@ -78,11 +81,13 @@ export interface Source {
   type: SourceType;
   permalink: string;
   currentMember?: SourceMember;
-  privilegedMembers?: SourcePrivilegedMembers[];
+  privilegedMembers?: SourceMember[];
   public: boolean;
   headerImage?: string;
   color?: string;
   description?: string;
+  flags?: SourceFlags;
+  createdAt?: Date;
 }
 
 export type SourceData = { source: Source };
@@ -158,3 +163,18 @@ export const SIMILAR_SOURCES_QUERY = gql`
   }
   ${SOURCE_DIRECTORY_INFO_FRAGMENT}
 `;
+
+export enum PublicSquadRequestStatus {
+  Pending = 'pending',
+  Approved = 'approved',
+  Rejected = 'rejected',
+}
+
+export interface PublicSquadRequest {
+  id?: string;
+  requestorId?: string;
+  sourceId?: string;
+  status?: PublicSquadRequestStatus;
+  createdAt?: Date;
+  updatedAt?: Date;
+}

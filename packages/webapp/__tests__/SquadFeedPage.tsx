@@ -241,17 +241,13 @@ describe('squad header bar', () => {
     });
     const members = generateMembersResult().sourceMembers.edges.slice(0, 5);
     renderComponent();
-    const lists = await screen.findAllByLabelText('Members list');
-    const list = lists.find(
-      (item) => !item.className.includes('laptopL:hidden'),
-    );
-    expect(list).toBeInTheDocument();
+    const list = await screen.findByLabelText('Members list');
     const result = await Promise.all(
       members.map(async ({ node: { user } }) => {
         const elements = await screen.findAllByAltText(
           `${user.username}'s profile`,
         );
-        return expect(elements.length).toEqual(2);
+        return expect(elements.length).toEqual(1);
       }),
     );
     const COUNTER_ELEMENT = 1;
