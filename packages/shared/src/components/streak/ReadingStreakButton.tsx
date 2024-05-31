@@ -17,6 +17,7 @@ import { AnalyticsEvent } from '../../lib/analytics';
 import { RootPortal } from '../tooltips/Portal';
 import { Drawer } from '../drawers';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -31,6 +32,7 @@ interface CustomStreaksTooltipProps {
   children?: ReactElement;
   shouldShowStreaks?: boolean;
   setShouldShowStreaks?: (value: boolean) => void;
+  placement: TooltipPosition;
 }
 
 function CustomStreaksTooltip({
@@ -38,11 +40,13 @@ function CustomStreaksTooltip({
   children,
   shouldShowStreaks,
   setShouldShowStreaks,
+  placement,
 }: CustomStreaksTooltipProps): ReactElement {
   return (
     <SimpleTooltip
       interactive
       showArrow={false}
+      placement={placement}
       visible={shouldShowStreaks}
       forceLoad={!isTesting}
       container={{
@@ -105,6 +109,7 @@ export function ReadingStreakButton({
             streak={streak}
             shouldShowStreaks={shouldShowStreaks}
             setShouldShowStreaks={setShouldShowStreaks}
+            placement={!isMobile && !isLaptop ? 'bottom-start' : 'bottom'}
           >
             {children}
           </Tooltip>

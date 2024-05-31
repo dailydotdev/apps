@@ -47,7 +47,7 @@ export default function ProfileButton({
               className="pl-4"
             />
           )}
-          <SimpleTooltip placement="left" content="Profile settings">
+          <SimpleTooltip placement="bottom" content="Profile settings">
             <button
               type="button"
               className={classNames(
