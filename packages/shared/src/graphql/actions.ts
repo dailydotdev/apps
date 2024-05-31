@@ -26,6 +26,7 @@ export enum ActionType {
   HidePublicSquadEligibilityCard = 'hide_public_squad_eligibility_card',
   MakeSquadPublic = 'make_squad_public',
   CustomFeed = 'custom_feed',
+  DisableReadingStreakMilestone = 'disable_reading_streak_milestone',
 }
 
 export interface Action {

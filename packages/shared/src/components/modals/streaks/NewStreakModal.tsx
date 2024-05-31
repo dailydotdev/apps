@@ -6,12 +6,13 @@ import classed from '../../../lib/classed';
 import { Checkbox } from '../../fields/Checkbox';
 import { ModalClose } from '../common/ModalClose';
 import { cloudinary } from '../../../lib/image';
-import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { StreakModalProps } from './common';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetType } from '../../../lib/analytics';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useActions } from '../../../hooks';
+import { ActionType } from '../../../graphql/actions';
 
 const Paragraph = classed('p', 'text-center text-text-tertiary');
 
@@ -24,7 +25,10 @@ export default function NewStreakModal({
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
   const { trackEvent } = useAnalyticsContext();
-  const { toggleOptOutWeeklyGoal, optOutWeeklyGoal } = useSettingsContext();
+  const { completeAction, checkHasCompleted } = useActions();
+  const isStreakModalDisabled = checkHasCompleted(
+    ActionType.DisableReadingStreakMilestone,
+  );
   const shouldShowSplash = currentStreak >= maxStreak;
   const daysPlural = currentStreak === 1 ? 'day' : 'days';
   const trackedImpression = useRef(false);
@@ -50,13 +54,13 @@ export default function NewStreakModal({
   }, [currentStreak, queryClient, trackEvent, user]);
 
   const handleOptOut = () => {
-    if (!optOutWeeklyGoal) {
+    if (!isStreakModalDisabled) {
       trackEvent({
         event_name: AnalyticsEvent.DismissStreaksMilestone,
       });
     }
 
-    toggleOptOutWeeklyGoal();
+    completeAction(ActionType.DisableReadingStreakMilestone);
   };
 
   return (
@@ -114,7 +118,7 @@ export default function NewStreakModal({
         <Checkbox
           name="show_streaks"
           className="mt-10"
-          checked={optOutWeeklyGoal}
+          checked={isStreakModalDisabled}
           onToggle={handleOptOut}
         >
           Never show this again

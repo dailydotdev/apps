@@ -1,21 +1,24 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRef } from 'react';
+import { useContext, useRef } from 'react';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { getReadingStreak, UserStreak } from '../../graphql/users';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
 import useDebounce from '../useDebounce';
+import SettingsContext from '../../contexts/SettingsContext';
 
 interface UserReadingStreak {
   streak: UserStreak;
   isLoading: boolean;
   shouldShowPopup: boolean;
   checkReadingStreak: () => Promise<void>;
+  isStreaksEnabled: boolean;
 }
 
 export const useReadingStreak = (): UserReadingStreak => {
   const { user } = useAuthContext();
+  const { optOutReadingStreak, loadedSettings } = useContext(SettingsContext);
   const { data: streak, isLoading } = useQuery(
     generateQueryKey(RequestKey.UserStreak, user),
     getReadingStreak,
@@ -33,9 +36,12 @@ export const useReadingStreak = (): UserReadingStreak => {
     }
   }, 100);
 
+  const isStreaksEnabled = loadedSettings && !optOutReadingStreak;
+
   return {
     streak,
     isLoading,
+    isStreaksEnabled,
     checkReadingStreak: async () => {
       const userStreakQueryKey = generateQueryKey(RequestKey.UserStreak, user);
       userStreakQueryKeyRef.current = userStreakQueryKey;
@@ -43,6 +49,7 @@ export const useReadingStreak = (): UserReadingStreak => {
       clearQueries(hasReadToday ?? true);
     },
     shouldShowPopup:
+      isStreaksEnabled &&
       user?.createdAt < '2024-03-14T00:00:00.000Z' &&
       !checkHasCompleted(ActionType.ExistingUserSeenStreaks),
   };
