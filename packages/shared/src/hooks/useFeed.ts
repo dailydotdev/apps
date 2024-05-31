@@ -181,14 +181,19 @@ export default function useFeed<T>(
             index,
           }));
 
-          if (pageIndex === 0 && !!settings.marketingCta) {
+          const withFirstIndex = (condition: boolean) =>
+            pageIndex === 0 && condition;
+
+          if (withFirstIndex(!!settings.marketingCta)) {
             posts.splice(adSpot, 0, {
               type: FeedItemType.MarketingCta,
               marketingCta: settings.marketingCta,
             });
-          } else if (pageIndex === 0 && settings.showAcquisitionForm) {
+          } else if (withFirstIndex(settings.showAcquisitionForm)) {
             posts.splice(adSpot, 0, { type: FeedItemType.UserAcquisition });
-          } else if (showPublicSquadsEligibility) {
+          } else if (withFirstIndex(settings.showAcquisitionForm)) {
+            posts.splice(adSpot, 0, { type: FeedItemType.UserAcquisition });
+          } else if (withFirstIndex(showPublicSquadsEligibility)) {
             posts.splice(adSpot, 0, {
               type: FeedItemType.PublicSquadEligibility,
             });
