@@ -70,7 +70,8 @@ function MainLayoutHeader({
   const RenderButtons = () => {
     return (
       <div className="flex justify-end gap-3">
-        <CreatePostButton compact />
+        <CreatePostButton />
+        {additionalButtons}
         {!!user && (
           <>
             <LinkWithTooltip
@@ -81,7 +82,6 @@ function MainLayoutHeader({
             </LinkWithTooltip>
           </>
         )}
-        {additionalButtons}
         {headerButton}
       </div>
     );
