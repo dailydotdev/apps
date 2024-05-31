@@ -74,7 +74,7 @@ export const CompanionPopupButton = (): ReactElement => {
           <CompanionIcon
             secondary={showCompanionPermission}
             className={
-              showCompanionPermission ? 'h-7 w-7 text-text-primary' : 'h-6 w-6'
+              showCompanionPermission ? 'size-7 text-text-primary' : 'size-6'
             }
           />
         }
