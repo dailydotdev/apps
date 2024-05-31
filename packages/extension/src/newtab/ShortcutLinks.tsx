@@ -1,6 +1,7 @@
 import React, {
   FormEvent,
   ReactElement,
+  ReactNode,
   useContext,
   useEffect,
   useRef,
@@ -25,6 +26,7 @@ import {
   TargetType,
 } from '@dailydotdev/shared/src/lib/analytics';
 import {
+  useActions,
   useConditionalFeature,
   useToastNotification,
 } from '@dailydotdev/shared/src/hooks';
@@ -34,6 +36,9 @@ import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
 import { ContextMenu } from '@dailydotdev/shared/src/hooks/constants';
 import classNames from 'classnames';
 import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { ShortcutsUIExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import CustomLinksModal from './ShortcutLinksModal';
 import MostVisitedSitesModal from './MostVisitedSitesModal';
 import { CustomLinks } from './CustomLinks';
@@ -107,6 +112,17 @@ const ShortcutV1Item = ({
   );
 };
 
+const ShortcutUIItemPlaceholder = ({ children }: { children: ReactNode }) => {
+  return (
+    <div className="group flex flex-col items-center">
+      <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
+        {children}
+      </div>
+      <span className="h-2 w-10 rounded-10 bg-surface-float" />
+    </div>
+  );
+};
+
 interface ShortcutLinksProps {
   shouldUseListFeedLayout: boolean;
 }
@@ -116,6 +132,9 @@ export default function ShortcutLinks({
   const className = !shouldUseListFeedLayout
     ? 'ml-auto'
     : 'mt-4 w-fit [@media(width<=680px)]:mx-6';
+  const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
+  const shortcutsUIFeature = useFeature(feature.shortcutsUI);
+  const isShortcutsUIV1 = shortcutsUIFeature === ShortcutsUIExperiment.V1;
   const { showTopSites, toggleShowTopSites } = useContext(SettingsContext);
   const [showModal, setShowModal] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
@@ -187,6 +206,88 @@ export default function ShortcutLinks({
     isShortcutsV1,
   ]);
 
+  const onOptionsOpen = () => {
+    setShowOptions(true);
+
+    trackEvent({
+      event_name: AnalyticsEvent.OpenShortcutConfig,
+      target_type: TargetType.Shortcuts,
+    });
+  };
+
+  const onV1Hide = () => {
+    if (!isShortcutsUIV1) {
+      displayToast(
+        'Get your shortcuts back by turning it on from the customize options on the sidebar',
+      );
+    }
+
+    toggleShowTopSites();
+  };
+
+  if (
+    showTopSites &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.FirstShortcutsSession) &&
+    isShortcutsUIV1
+  ) {
+    const placeholderShortcutLinks = [
+      'https://gmail.com',
+      'https://github.com',
+      'https://reddit.com',
+      'https://openai.com',
+      'https://stackoverflow.com',
+    ];
+
+    return (
+      <div className="mb-6 flex flex-col gap-6 px-4 laptop:items-center">
+        <h4 className="font-bold text-text-primary typo-title3">
+          Choose your most visited sites.
+        </h4>
+        <div className="flex gap-4">
+          {placeholderShortcutLinks.map((url) => (
+            <ShortcutUIItemPlaceholder key={url}>
+              <img
+                src={`https://api.daily.dev/icon?url=${encodeURIComponent(
+                  url,
+                )}&size=${iconSize}`}
+                alt={url}
+                className="size-6"
+              />
+            </ShortcutUIItemPlaceholder>
+          ))}
+          <ShortcutUIItemPlaceholder>
+            <PlusIcon />
+          </ShortcutUIItemPlaceholder>
+        </div>
+        <div className="flex gap-4">
+          <Button
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Medium}
+            onClick={() => {
+              toggleShowTopSites();
+
+              completeAction(ActionType.FirstShortcutsSession);
+            }}
+          >
+            Skip for now
+          </Button>
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Medium}
+            onClick={() => {
+              onOptionsOpen();
+
+              completeAction(ActionType.FirstShortcutsSession);
+            }}
+          >
+            Add shortcuts
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (!showTopSites) {
     return <></>;
   }
@@ -209,28 +310,12 @@ export default function ShortcutLinks({
     setShowOptions(false);
   };
 
-  const onOptionsOpen = () => {
-    setShowOptions(true);
-
-    trackEvent({
-      event_name: AnalyticsEvent.OpenShortcutConfig,
-      target_type: TargetType.Shortcuts,
-    });
-  };
-
   const onLinkClick = () => {
     trackEvent({
       event_name: AnalyticsEvent.Click,
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: shortcutSource }),
     });
-  };
-
-  const onV1Hide = () => {
-    displayToast(
-      'Get your shortcuts back by turning it on from the customize options on the sidebar',
-    );
-    toggleShowTopSites();
   };
 
   const ShortcutV1 = () => {

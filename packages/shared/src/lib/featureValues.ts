@@ -26,6 +26,11 @@ export enum CustomFeedsExperiment {
   V1 = 'v1',
 }
 
+export enum ShortcutsUIExperiment {
+  Control = 'control',
+  V1 = 'v1',
+}
+
 export interface FeatureThemeVariant {
   logo?: string;
   logoText?: string;
