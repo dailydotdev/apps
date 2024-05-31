@@ -10,7 +10,6 @@ import { AnalyticsEvent, TargetType } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { promotion } from './generic';
 import { useReadingStreak } from '../../hooks/streaks';
-import { useSettingsContext } from '../../contexts/SettingsContext';
 
 const REP_TRESHOLD = 250;
 
@@ -30,14 +29,14 @@ export const BootPopups = (): null => {
   const [bootPopups, setBootPopups] = useState(() => new Map());
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Popover);
-  const { streak, shouldShowPopup: shouldShowStreaksPopup } =
-    useReadingStreak();
-  const { loadedSettings, optOutWeeklyGoal } = useSettingsContext();
+  const {
+    streak,
+    shouldShowPopup: shouldShowStreaksPopup,
+    isStreaksEnabled,
+  } = useReadingStreak();
 
-  // hide modal if settings are not loaded
-  let shouldHideStreaksModal = !loadedSettings;
-  // hide modal if feature is not enabled or user opted out
-  shouldHideStreaksModal = shouldHideStreaksModal || optOutWeeklyGoal;
+  // hide modal if feature is not enabled
+  let shouldHideStreaksModal = !isStreaksEnabled;
   // hide modal if user already closed it
   shouldHideStreaksModal =
     shouldHideStreaksModal || alerts?.showStreakMilestone !== true;
