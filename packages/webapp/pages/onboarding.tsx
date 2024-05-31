@@ -73,6 +73,17 @@ import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import styles from '../components/layouts/Onboarding/index.module.css';
 
+type OnboardingVisual = {
+  showCompanies?: boolean;
+  fullBackground?:
+    | {
+        mobile?: string;
+        desktop?: string;
+      }
+    | false;
+  image?: string;
+};
+
 const Title = classed('h2', 'font-bold');
 
 const maxAuthWidth = 'tablet:max-w-[30rem]';
@@ -115,10 +126,6 @@ export function OnboardPage(): ReactElement {
   } = auth;
   const isPageReady = growthbook?.ready && isAuthReady;
   const { feedSettings } = useFeedSettings();
-  type OnboardingVisual = {
-    showCompanies?: boolean;
-    image?: string;
-  };
   const isMobile = useViewSize(ViewSize.MobileL);
   const onboardingVisual: OnboardingVisual = useFeature(
     feature.onboardingVisual,
@@ -266,6 +273,9 @@ export function OnboardPage(): ReactElement {
           activeScreen === OnboardingStep.Intro && onboardingFlip
             ? 'tablet:mr-auto'
             : 'tablet:ml-auto',
+          activeScreen === OnboardingStep.Intro &&
+            onboardingVisual.fullBackground &&
+            'flex-1',
         )}
       >
         {activeScreen === OnboardingStep.ReadingReminder && (
@@ -308,27 +318,28 @@ export function OnboardPage(): ReactElement {
             )}
           </>
         )}
-        {activeScreen === OnboardingStep.Intro && (
-          <div className="block flex-1">
-            <div
-              className={classNames(
-                'tablet:min-h-[800px]:pt-[100%] relative overflow-y-clip tablet:overflow-y-visible tablet:pt-[80%]',
-              )}
-            >
-              <img
-                src={onboardingVisual.image}
-                alt="Onboarding cover"
+        {activeScreen === OnboardingStep.Intro &&
+          !onboardingVisual.fullBackground && (
+            <div className="block flex-1">
+              <div
                 className={classNames(
-                  'relative tablet:absolute tablet:left-0 tablet:top-0 tablet:-z-1',
-                  styles.image,
+                  'tablet:min-h-[800px]:pt-[100%] relative overflow-y-clip tablet:overflow-y-visible tablet:pt-[80%]',
                 )}
-              />
+              >
+                <img
+                  src={onboardingVisual.image}
+                  alt="Onboarding cover"
+                  className={classNames(
+                    'relative tablet:absolute tablet:left-0 tablet:top-0 tablet:-z-1',
+                    styles.image,
+                  )}
+                />
+              </div>
+              {onboardingVisual.showCompanies && (
+                <TrustedCompanies className="hidden tablet:block" />
+              )}
             </div>
-            {onboardingVisual.showCompanies && (
-              <TrustedCompanies className="hidden tablet:block" />
-            )}
-          </div>
-        )}
+          )}
       </div>
     );
   };
@@ -357,7 +368,24 @@ export function OnboardPage(): ReactElement {
   }
 
   return (
-    <div className="z-3 flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden">
+    <div
+      className={classNames(
+        'z-3 flex h-full max-h-screen min-h-screen w-full flex-1 flex-col items-center overflow-x-hidden',
+        showOnboardingPage &&
+          onboardingVisual.fullBackground &&
+          'bg-cover tablet:bg-center',
+      )}
+      style={{
+        ...(showOnboardingPage &&
+          onboardingVisual.fullBackground && {
+            backgroundImage: `url(${
+              isMobile
+                ? onboardingVisual.fullBackground.mobile
+                : onboardingVisual.fullBackground.desktop
+            })`,
+          }),
+      }}
+    >
       <NextSeo {...seo} titleTemplate="%s | daily.dev" />
       <PixelTracking />
       <GtagTracking />
@@ -381,7 +409,12 @@ export function OnboardPage(): ReactElement {
         )}
       >
         {showOnboardingPage && (
-          <div className="mt-5 flex flex-1 flex-col tablet:mt-0 laptop:mr-8 laptop:max-w-[27.5rem]">
+          <div
+            className={classNames(
+              'mt-5 flex flex-col tablet:mt-0 laptop:mr-8 laptop:max-w-[27.5rem]',
+              !onboardingVisual.fullBackground && 'flex-1',
+            )}
+          >
             <OnboardingHeadline
               className={{
                 title: 'tablet:typo-mega-1 typo-large-title',

@@ -24,6 +24,10 @@ const feature = {
   bookmarkOnCard: new Feature('bookmark_on_card', false),
   onboardingVisual: new Feature('onboarding_visual', {
     showCompanies: true,
+    fullBackground: {
+      mobile: cloudinary.onboarding.fullBackground.mobile,
+      desktop: cloudinary.onboarding.fullBackground.desktop,
+    },
     image: cloudinary.onboarding.default,
   }),
   forceRefresh: new Feature('force_refresh', false),
