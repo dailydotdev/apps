@@ -23,6 +23,7 @@ interface ReadingStreakButtonProps {
   isLoading: boolean;
   compact?: boolean;
   iconPosition?: ButtonIconPosition;
+  className?: string;
 }
 
 interface CustomStreaksTooltipProps {
@@ -63,6 +64,7 @@ export function ReadingStreakButton({
   isLoading,
   compact,
   iconPosition,
+  className,
 }: ReadingStreakButtonProps): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -112,17 +114,16 @@ export function ReadingStreakButton({
           type="button"
           iconPosition={iconPosition}
           icon={<ReadingStreakIcon secondary={hasReadToday} />}
-          variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
+          variant={
+            isLaptop || isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float
+          }
           onClick={handleToggle}
           className={classnames(
             'gap-1',
             compact && 'text-accent-bacon-default',
+            className,
           )}
-          size={
-            (isLaptop || !compact) && !isMobile
-              ? ButtonSize.Medium
-              : ButtonSize.Small
-          }
+          size={!compact && !isMobile ? ButtonSize.Medium : ButtonSize.Small}
         >
           {streak?.current}
           {!compact && ' reading days'}

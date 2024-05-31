@@ -10,7 +10,6 @@ import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import HeaderLogo from './HeaderLogo';
 import { CreatePostButton } from '../post/write';
 import { useViewSize, ViewSize } from '../../hooks';
-import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { LogoPosition } from '../Logo';
 import NotificationsBell from '../notifications/NotificationsBell';
@@ -43,7 +42,7 @@ function MainLayoutHeader({
   onLogoClick,
 }: MainLayoutHeaderProps): ReactElement {
   const { user, isAuthReady } = useContext(AuthContext);
-  const { streak, isLoading } = useReadingStreak();
+  const { streak } = useReadingStreak();
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
@@ -71,7 +70,6 @@ function MainLayoutHeader({
   const RenderButtons = () => {
     return (
       <div className="flex justify-end gap-3">
-        <ReadingStreakButton streak={streak} isLoading={isLoading} compact />
         <CreatePostButton compact />
         {!!user && (
           <>
