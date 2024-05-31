@@ -9,6 +9,7 @@ import classed from '../../../lib/classed';
 import { SimpleTooltip } from '../../tooltips';
 import { Anchor } from '../../text';
 import { usePublicSquadRequests } from '../../../hooks/squads';
+import { contentGuidelines } from '../../../lib/constants';
 
 interface ChecklistItemProps {
   iconTag: React.ElementType;
@@ -87,11 +88,7 @@ const SubmitSquadForReviewModal = ({
         <Checklist>
           <ChecklistItem iconTag={MegaphoneIcon}>
             The posts I shared meet the{' '}
-            <Anchor
-              href="https://docs.daily.dev/docs/for-content-creators/content-guidelines"
-              target="_blank"
-              rel="noopener"
-            >
+            <Anchor href={contentGuidelines} target="_blank" rel="noopener">
               content guidelines
             </Anchor>
           </ChecklistItem>

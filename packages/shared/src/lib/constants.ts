@@ -17,7 +17,6 @@ export const companionExplainerVideo = 'https://r.daily.dev/companion-overview';
 export const companionPermissionGrantedLink =
   'https://r.daily.dev/try-the-companion';
 export const initialDataKey = 'initial';
-export const contentGuidelinesLink = 'https://r.daily.dev/content-guidelines';
 export const install = 'https://r.daily.dev/install';
 export const uninstall = 'https://r.daily.dev/uninstall';
 export const weeklyGoal = 'https://r.daily.dev/weekly-goal';
