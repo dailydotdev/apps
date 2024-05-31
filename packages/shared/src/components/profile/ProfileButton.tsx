@@ -27,7 +27,7 @@ export default function ProfileButton({
 }: ProfileButtonProps): ReactElement {
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
   const { user } = useContext(AuthContext);
-  const { streak, isLoading } = useReadingStreak();
+  const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
 
   return (
     <>
@@ -39,12 +39,14 @@ export default function ProfileButton({
         />
       ) : (
         <div className="flex h-10 items-center rounded-12 bg-surface-float px-1">
-          <ReadingStreakButton
-            streak={streak}
-            isLoading={isLoading}
-            compact
-            className="pl-4"
-          />
+          {isStreaksEnabled && (
+            <ReadingStreakButton
+              streak={streak}
+              isLoading={isLoading}
+              compact
+              className="pl-4"
+            />
+          )}
           <SimpleTooltip placement="left" content="Profile settings">
             <button
               type="button"

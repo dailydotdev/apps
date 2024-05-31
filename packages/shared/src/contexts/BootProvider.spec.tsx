@@ -57,7 +57,7 @@ const defaultSettings: RemoteSettings = {
   sidebarExpanded: true,
   companionExpanded: false,
   sortingEnabled: false,
-  optOutWeeklyGoal: true,
+  optOutReadingStreak: true,
   autoDismissNotifications: true,
   optOutCompanion: false,
 };
@@ -123,8 +123,8 @@ const SettingsMock = ({ toTheme, toSpaciness }: SettingsMockProps) => {
     showTopSites,
     toggleSortingEnabled,
     sortingEnabled,
-    optOutWeeklyGoal,
-    toggleOptOutWeeklyGoal,
+    optOutReadingStreak,
+    toggleOptOutReadingStreak,
     autoDismissNotifications,
     toggleAutoDismissNotifications,
   } = useContext(SettingsContext);
@@ -146,9 +146,9 @@ const SettingsMock = ({ toTheme, toSpaciness }: SettingsMockProps) => {
         Theme
       </button>
       <button
-        onClick={toggleOptOutWeeklyGoal}
+        onClick={toggleOptOutReadingStreak}
         type="button"
-        data-test-value={optOutWeeklyGoal}
+        data-test-value={optOutReadingStreak}
       >
         Show Weekly Goal widget
       </button>

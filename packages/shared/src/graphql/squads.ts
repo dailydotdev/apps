@@ -3,6 +3,7 @@ import { SOURCE_BASE_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { graphqlUrl } from '../lib/config';
 import { Connection } from './common';
 import {
+  PublicSquadRequest,
   Source,
   SourceMember,
   SourceMemberRole,
@@ -14,11 +15,13 @@ import { Post, ExternalLinkPreview } from './posts';
 import { base64ToFile } from '../lib/base64';
 import { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
+import { PrivacyOption } from '../hooks/squads/useSquadPrivacyOptions';
 
-export type SquadForm = Pick<
-  Squad,
-  'name' | 'handle' | 'description' | 'image'
-> & {
+export interface SquadForm
+  extends Pick<
+    Squad,
+    'id' | 'name' | 'handle' | 'description' | 'image' | 'flags'
+  > {
   preview?: Partial<ExternalLinkPreview>;
   file?: string;
   commentary: string;
@@ -26,7 +29,8 @@ export type SquadForm = Pick<
   memberPostingRole?: SourceMemberRole;
   memberInviteRole?: SourceMemberRole;
   public?: boolean;
-};
+  status?: PrivacyOption;
+}
 
 type SharedSquadInput = {
   name: string;
@@ -35,6 +39,7 @@ type SharedSquadInput = {
   image?: File;
   memberPostingRole?: SourceMemberRole;
   memberInviteRole?: SourceMemberRole;
+  isPrivate?: boolean;
 };
 
 type EditSquadInput = SharedSquadInput & {
@@ -163,6 +168,7 @@ export const EDIT_SQUAD_MUTATION = gql`
     $image: Upload
     $memberPostingRole: String
     $memberInviteRole: String
+    $isPrivate: Boolean
   ) {
     editSquad(
       sourceId: $sourceId
@@ -172,6 +178,7 @@ export const EDIT_SQUAD_MUTATION = gql`
       image: $image
       memberPostingRole: $memberPostingRole
       memberInviteRole: $memberInviteRole
+      isPrivate: $isPrivate
     ) {
       ...SourceBaseInfo
     }
@@ -200,14 +207,29 @@ export const SQUAD_QUERY = gql`
     source(id: $handle) {
       ...SourceBaseInfo
       referralUrl
+      createdAt
+      flags {
+        featured
+        totalPosts
+        totalViews
+        totalUpvotes
+      }
+      privilegedMembers {
+        user {
+          ...UserShortInfo
+        }
+        role
+      }
     }
   }
+  ${USER_SHORT_INFO_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}
 `;
 
 export const SQUAD_STATIC_FIELDS_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
+      id
       name
       public
       description
@@ -277,6 +299,23 @@ export const SQUAD_INVITATION_QUERY = gql`
   }
   ${SOURCE_BASE_FRAGMENT}
   ${USER_SHORT_INFO_FRAGMENT}
+`;
+
+export const PUBLIC_SQUAD_REQUESTS = gql`
+  query PublicSquadRequests($sourceId: String!, $first: Int) {
+    requests: publicSquadRequests(sourceId: $sourceId, first: $first) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          requestorId
+          status
+        }
+      }
+    }
+  }
 `;
 
 export const SQUAD_JOIN_MUTATION = gql`
@@ -410,7 +449,9 @@ export const updateSquadPost =
   (data: PostToSquadProps): Promise<Post> =>
     requestMethod(graphqlUrl, UPDATE_SQUAD_POST_MUTATION, data);
 
-export async function createSquad(form: SquadForm): Promise<Squad> {
+export async function createSquad(
+  form: Omit<SquadForm, 'commentary'>,
+): Promise<Squad> {
   const inputData: CreateSquadInput = {
     description: form?.description,
     handle: form.handle,
@@ -429,7 +470,7 @@ export async function createSquad(form: SquadForm): Promise<Squad> {
 
 type EditSquadForm = Pick<
   SquadForm,
-  'name' | 'description' | 'handle' | 'file'
+  'name' | 'description' | 'handle' | 'file' | 'public'
 > & {
   memberPostingRole?: SourceMemberRole;
   memberInviteRole?: SourceMemberRole;
@@ -447,6 +488,7 @@ export async function editSquad(
     image: form.file ? await base64ToFile(form.file, 'image.jpg') : undefined,
     memberPostingRole: form.memberPostingRole,
     memberInviteRole: form.memberInviteRole,
+    isPrivate: !form.public,
   };
   const data = await request<EditSquadOutput>(
     graphqlUrl,
@@ -488,3 +530,43 @@ export const SQUAD_COMMENT_JOIN_BANNER_KEY = generateStorageKey(
   StorageTopic.Squad,
   'comment_join_banner',
 );
+
+export const SUBMIT_SQUAD_FOR_REVIEW_MUTATION = gql`
+  mutation SubmitSquadForReview($sourceId: ID!) {
+    submitSquadForReview(sourceId: $sourceId) {
+      status
+    }
+  }
+`;
+
+interface SubmitSquadForReviewOutput {
+  submitSquadForReview: PublicSquadRequest;
+}
+
+export async function submitSquadForReview(
+  sourceId: string,
+): Promise<PublicSquadRequest> {
+  const data = await request<SubmitSquadForReviewOutput>(
+    graphqlUrl,
+    SUBMIT_SQUAD_FOR_REVIEW_MUTATION,
+    { sourceId },
+  );
+  return data.submitSquadForReview;
+}
+
+interface GetPublicSquadRequestsProps {
+  sourceId: string;
+  first?: number;
+}
+
+export const getPublicSquadRequests = async (
+  params: GetPublicSquadRequestsProps,
+): Promise<Connection<PublicSquadRequest>> => {
+  const res = await request<{ requests: Connection<PublicSquadRequest> }>(
+    graphqlUrl,
+    PUBLIC_SQUAD_REQUESTS,
+    params,
+  );
+
+  return res.requests;
+};

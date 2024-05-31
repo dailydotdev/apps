@@ -3,6 +3,7 @@ import { graphqlUrl } from '../lib/config';
 
 export enum ActionType {
   CreateSquad = 'create_squad',
+  EditSquad = 'edit_squad',
   JoinSquad = 'join_squad',
   EditWelcomePost = 'edit_welcome_post',
   SquadFirstComment = 'squad_first_comment',
@@ -23,7 +24,9 @@ export enum ActionType {
   ExistingUserSeenStreaks = 'existing_user_seen_streaks',
   BookmarkPromoteMobile = 'bookmark_promote_mobile',
   HidePublicSquadEligibilityCard = 'hide_public_squad_eligibility_card',
+  MakeSquadPublic = 'make_squad_public',
   CustomFeed = 'custom_feed',
+  DisableReadingStreakMilestone = 'disable_reading_streak_milestone',
 }
 
 export interface Action {

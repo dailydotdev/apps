@@ -86,7 +86,7 @@ const defaultSettings: RemoteSettings = {
   sidebarExpanded: true,
   companionExpanded: false,
   sortingEnabled: false,
-  optOutWeeklyGoal: true,
+  optOutReadingStreak: true,
   optOutCompanion: true,
   autoDismissNotifications: true,
   customLinks: [

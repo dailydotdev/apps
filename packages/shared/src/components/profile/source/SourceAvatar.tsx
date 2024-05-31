@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Image } from '../../image/Image';
+import { Image, ImageType } from '../../image/Image';
 import { Source } from '../../../graphql/sources';
 import { ProfileImageSize, sizeClasses } from '../../ProfilePicture';
 
@@ -28,6 +28,7 @@ export function SourceAvatar({
       )}
       src={source.image}
       alt={`Avatar of ${source.handle}`}
+      type={ImageType.Squad}
     />
   );
 }

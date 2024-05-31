@@ -53,7 +53,6 @@ describe('SidebarBottomSection component', () => {
               loadedAlerts
             >
               <SidebarBottomSection
-                optOutWeeklyGoal
                 showSettings={false}
                 sidebarExpanded={false}
                 sidebarRendered

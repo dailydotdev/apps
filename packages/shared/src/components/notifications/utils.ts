@@ -47,6 +47,7 @@ export enum NotificationType {
   SquadSubscribeNotification = 'squad_subscribe_to_notification',
   CollectionUpdated = 'collection_updated',
   SourcePostAdded = 'source_post_added',
+  SquadPublicApproved = 'squad_public_approved',
 }
 
 export enum NotificationIconType {
@@ -103,6 +104,7 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.SquadSubscribeNotification]: 'text-brand-default',
     [NotificationType.CollectionUpdated]: 'text-brand-default',
     [NotificationType.SourcePostAdded]: 'text-brand-default',
+    [NotificationType.SquadPublicApproved]: 'text-brand-default',
   };
 
 export const notificationsUrl = `/notifications`;

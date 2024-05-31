@@ -17,32 +17,39 @@ import AuthContext from '../contexts/AuthContext';
 import { apiUrl, graphqlUrl } from '../lib/config';
 import useSubscription from './useSubscription';
 import {
-  RequestKey,
   removeCachedPagePost,
+  RequestKey,
   updateCachedPagePost,
 } from '../lib/query';
 import { getShouldRefreshFeed } from '../lib/refreshFeed';
 import { MarketingCta } from '../components/cards/MarketingCta/common';
+import { FeedItemType } from '../components/cards/common';
 
-export type PostItem = {
-  type: 'post';
+interface FeedItemBase<T extends FeedItemType> {
+  type: T;
+}
+
+interface AdItem extends FeedItemBase<FeedItemType.Ad> {
+  ad: Ad;
+}
+
+interface MarketingCtaItem extends FeedItemBase<FeedItemType.MarketingCta> {
+  marketingCta: MarketingCta;
+}
+
+export interface PostItem extends FeedItemBase<FeedItemType.Post> {
   post: Post;
   page: number;
   index: number;
-};
-export type AdItem = { type: 'ad'; ad: Ad };
-export type PlaceholderItem = { type: 'placeholder' };
-export type UserAcquisitionItem = { type: 'userAcquisition' };
-export type MarketingCtaItem = {
-  type: 'marketingCta';
-  marketingCta: MarketingCta;
-};
+}
+
 export type FeedItem =
   | PostItem
   | AdItem
-  | PlaceholderItem
-  | UserAcquisitionItem
-  | MarketingCtaItem;
+  | MarketingCtaItem
+  | FeedItemBase<FeedItemType.Placeholder>
+  | FeedItemBase<FeedItemType.UserAcquisition>
+  | FeedItemBase<FeedItemType.PublicSquadEligibility>;
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 
@@ -86,6 +93,7 @@ export interface UseFeedOptionalParams<T> {
   variables?: T;
   options?: UseInfiniteQueryOptions<FeedData>;
   settings?: UseFeedSettingParams;
+  showPublicSquadsEligibility?: boolean;
 }
 
 export default function useFeed<T>(
@@ -95,7 +103,13 @@ export default function useFeed<T>(
   placeholdersPerPage: number,
   params: UseFeedOptionalParams<T> = {},
 ): FeedReturnType {
-  const { query, variables, options = {}, settings } = params;
+  const {
+    query,
+    variables,
+    options = {},
+    settings,
+    showPublicSquadsEligibility,
+  } = params;
   const { user, tokenRefreshed } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
@@ -161,29 +175,34 @@ export default function useFeed<T>(
       newItems = feedQuery.data.pages.flatMap(
         ({ page }, pageIndex): FeedItem[] => {
           const posts: FeedItem[] = page.edges.map(({ node }, index) => ({
-            type: 'post',
+            type: FeedItemType.Post,
             post: node,
             page: pageIndex,
             index,
           }));
 
-          if (pageIndex === 0 && !!settings.marketingCta) {
+          const withFirstIndex = (condition: boolean) =>
+            pageIndex === 0 && condition;
+
+          if (withFirstIndex(!!settings.marketingCta)) {
             posts.splice(adSpot, 0, {
-              type: 'marketingCta',
+              type: FeedItemType.MarketingCta,
               marketingCta: settings.marketingCta,
             });
-          } else if (pageIndex === 0 && settings.showAcquisitionForm) {
-            posts.splice(adSpot, 0, { type: 'userAcquisition' });
+          } else if (withFirstIndex(settings.showAcquisitionForm)) {
+            posts.splice(adSpot, 0, { type: FeedItemType.UserAcquisition });
+          } else if (withFirstIndex(showPublicSquadsEligibility)) {
+            posts.splice(adSpot, 0, {
+              type: FeedItemType.PublicSquadEligibility,
+            });
           } else if (isAdsQueryEnabled) {
             if (adsQuery.data?.pages[pageIndex]) {
               posts.splice(adSpot, 0, {
-                type: 'ad',
+                type: FeedItemType.Ad,
                 ad: adsQuery.data?.pages[pageIndex],
               });
             } else {
-              posts.splice(adSpot, 0, {
-                type: 'placeholder',
-              });
+              posts.splice(adSpot, 0, { type: FeedItemType.Placeholder });
             }
           }
 
@@ -197,15 +216,16 @@ export default function useFeed<T>(
       );
     }
     return newItems;
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     feedQuery.data,
     feedQuery.isFetching,
-    adsQuery.data,
-    adsQuery.isFetching,
-    settings.showAcquisitionForm,
     settings.marketingCta,
+    settings.showAcquisitionForm,
+    showPublicSquadsEligibility,
+    isAdsQueryEnabled,
+    adSpot,
+    adsQuery.data?.pages,
+    placeholdersPerPage,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);

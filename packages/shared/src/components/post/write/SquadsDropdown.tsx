@@ -2,31 +2,47 @@ import React, { ReactElement } from 'react';
 import { SourceAvatar, SourceShortInfo } from '../../profile/source';
 import { ArrowIcon, SquadIcon } from '../../icons';
 import { Dropdown } from '../../fields/Dropdown';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { verifyPermission } from '../../../graphql/squads';
-import { SourcePermissions } from '../../../graphql/sources';
+import { SourceMemberRole, SourceType, Squad } from '../../../graphql/sources';
 import { ButtonSize } from '../../buttons/common';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { ProfileImageSize } from '../../ProfilePicture';
+import { cloudinary } from '../../../lib/image';
 
 interface SquadsDropdownProps {
   onSelect: (index: number) => void;
   selected: number;
+  list: Squad[];
 }
+
+const defaultSquad = {
+  image: cloudinary.squads.imageFallback,
+  permalink: null,
+  active: true,
+  public: false,
+  membersCount: 1,
+  description: null,
+  memberPostingRole: SourceMemberRole.Admin,
+  memberInviteRole: SourceMemberRole.Admin,
+};
+
+export const generateDefaultSquad = (username: string): Squad => ({
+  ...defaultSquad,
+  id: username,
+  handle: username,
+  name: `${username}'s private squad`,
+  type: SourceType.Squad,
+});
 
 export function SquadsDropdown({
   onSelect,
   selected,
+  list,
 }: SquadsDropdownProps): ReactElement {
-  const { squads } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const activeSquads = squads?.filter(
-    (squad) => squad?.active && verifyPermission(squad, SourcePermissions.Post),
-  );
-  const squadsList = activeSquads?.map((squad) => squad.name) ?? [];
+  const names = list?.map((squad) => squad.name) ?? [];
 
   const renderDropdownItem = (value: string, index: number) => {
-    const source = activeSquads[index];
+    const source = list[index];
 
     return (
       <SourceShortInfo
@@ -44,7 +60,7 @@ export function SquadsDropdown({
       icon={
         selected !== -1 ? (
           <SourceAvatar
-            source={activeSquads[selected]}
+            source={list[selected]}
             size={ProfileImageSize.Small}
           />
         ) : (
@@ -61,7 +77,7 @@ export function SquadsDropdown({
       shouldIndicateSelected={false}
       selectedIndex={selected}
       onChange={(_, index) => onSelect(index)}
-      options={squadsList}
+      options={names}
       scrollable
       data-testid="timezone_dropdown"
       renderItem={renderDropdownItem}

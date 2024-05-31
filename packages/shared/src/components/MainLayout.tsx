@@ -81,7 +81,7 @@ function MainLayoutComponent({
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
-  const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
+  const { sidebarExpanded, autoDismissNotifications } =
     useContext(SettingsContext);
   const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
@@ -189,7 +189,6 @@ function MainLayoutComponent({
       <MainLayoutHeader
         hasBanner={isBannerAvailable}
         sidebarRendered={sidebarRendered}
-        optOutWeeklyGoal={optOutWeeklyGoal}
         additionalButtons={additionalButtons}
         onLogoClick={onLogoClick}
       />
