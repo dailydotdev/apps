@@ -24,7 +24,6 @@ import { HypeButton } from '../referral';
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
   sidebarRendered?: boolean;
-  optOutWeeklyGoal?: boolean;
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
 }

@@ -79,8 +79,8 @@ export default function Settings({
     toggleOptOutCompanion,
     autoDismissNotifications,
     toggleAutoDismissNotifications,
-    optOutWeeklyGoal,
-    toggleOptOutWeeklyGoal,
+    optOutReadingStreak,
+    toggleOptOutReadingStreak,
   } = useContext(SettingsContext);
   const [themes, setThemes] = useState(layoutThemes);
 
@@ -142,8 +142,8 @@ export default function Settings({
         <SectionContent>
           <SettingsSwitch
             name="reading-streaks"
-            checked={!optOutWeeklyGoal}
-            onToggle={() => onToggleForLoggedInUsers(toggleOptOutWeeklyGoal)}
+            checked={!optOutReadingStreak}
+            onToggle={() => onToggleForLoggedInUsers(toggleOptOutReadingStreak)}
           >
             Show reading streaks
           </SettingsSwitch>

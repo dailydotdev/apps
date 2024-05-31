@@ -18,7 +18,7 @@ interface UserReadingStreak {
 
 export const useReadingStreak = (): UserReadingStreak => {
   const { user } = useAuthContext();
-  const { optOutWeeklyGoal, loadedSettings } = useContext(SettingsContext);
+  const { optOutReadingStreak, loadedSettings } = useContext(SettingsContext);
   const { data: streak, isLoading } = useQuery(
     generateQueryKey(RequestKey.UserStreak, user),
     getReadingStreak,
@@ -36,7 +36,7 @@ export const useReadingStreak = (): UserReadingStreak => {
     }
   }, 100);
 
-  const isStreaksEnabled = loadedSettings && !optOutWeeklyGoal;
+  const isStreaksEnabled = loadedSettings && !optOutReadingStreak;
 
   return {
     streak,
