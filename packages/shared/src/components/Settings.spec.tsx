@@ -42,7 +42,7 @@ const defaultSettings: RemoteSettings = {
   sidebarExpanded: true,
   companionExpanded: false,
   sortingEnabled: false,
-  optOutWeeklyGoal: true,
+  optOutReadingStreak: true,
   autoDismissNotifications: true,
   optOutCompanion: false,
 };
