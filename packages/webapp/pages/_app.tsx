@@ -24,7 +24,6 @@ import '@dailydotdev/shared/src/styles/globals.css';
 import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
-import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
@@ -183,7 +182,6 @@ export default function App(props: AppProps): ReactElement {
     () => new QueryClient(defaultQueryClientConfig),
   );
   const version = useWebappVersion();
-  const deviceId = useDeviceId();
   useError();
   useManualScrollRestoration();
 
@@ -195,7 +193,6 @@ export default function App(props: AppProps): ReactElement {
           getRedirectUri={getRedirectUri}
           getPage={getPage}
           version={version}
-          deviceId={deviceId}
         >
           <PushNotificationContextProvider>
             <SubscriptionContextProvider>

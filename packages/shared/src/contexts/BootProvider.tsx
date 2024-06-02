@@ -26,6 +26,7 @@ import { GrowthBookProvider } from '../components/GrowthBookProvider';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
 import { checkIsExtension } from '../lib/func';
 import { Feed, FeedList } from '../graphql/feed';
+import useDeviceId from '../hooks/analytics/useDeviceId';
 
 function filteredProps<T extends Record<string, unknown>>(
   obj: T,
@@ -40,7 +41,6 @@ export type BootDataProviderProps = {
   children?: ReactNode;
   app: BootApp;
   version: string;
-  deviceId: string;
   localBootData?: BootCacheData;
   getPage: () => string;
   getRedirectUri: () => string;
@@ -88,11 +88,11 @@ export const BootDataProvider = ({
   children,
   app,
   version,
-  deviceId,
   localBootData,
   getRedirectUri,
   getPage,
 }: BootDataProviderProps): ReactElement => {
+  const deviceId = useDeviceId();
   const { hostGranted } = useHostStatus();
   const isExtension = checkIsExtension();
 
