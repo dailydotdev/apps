@@ -133,6 +133,7 @@ export default function App({
   localBootData,
 }: Pick<BootDataProviderProps, 'localBootData'>): ReactElement {
   const [currentPage, setCurrentPage] = useState<string>('/');
+  const deviceId = useDeviceId();
 
   return (
     <RouterContext.Provider value={router}>
@@ -148,6 +149,7 @@ export default function App({
               localBootData={localBootData}
               version={version}
               getPage={() => currentPage}
+              deviceId={deviceId}
             >
               <SubscriptionContextProvider>
                 <OnboardingContextProvider>
