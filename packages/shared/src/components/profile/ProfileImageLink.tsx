@@ -1,6 +1,10 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import { ProfileLink, ProfileLinkProps } from './ProfileLink';
-import { ProfilePicture, ProfilePictureProps } from '../ProfilePicture';
+import {
+  ProfileImageSize,
+  ProfilePicture,
+  ProfilePictureProps,
+} from '../ProfilePicture';
 import { Author } from '../../graphql/comments';
 
 interface ProfileImageLinkProps extends ProfileLinkProps {
@@ -10,7 +14,11 @@ interface ProfileImageLinkProps extends ProfileLinkProps {
 }
 
 function ProfileImageLinkComponent(
-  { picture = { size: 'large' }, user, ...props }: ProfileImageLinkProps,
+  {
+    picture = { size: ProfileImageSize.Large },
+    user,
+    ...props
+  }: ProfileImageLinkProps,
   ref?: Ref<HTMLAnchorElement>,
 ): ReactElement {
   return (

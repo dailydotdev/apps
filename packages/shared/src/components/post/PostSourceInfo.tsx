@@ -15,7 +15,7 @@ interface SourceInfoProps {
 function PostSourceInfo({
   date,
   source,
-  size = 'medium',
+  size = ProfileImageSize.Medium,
   className,
 }: SourceInfoProps): ReactElement {
   const isUnknown = source.id === 'unknown';

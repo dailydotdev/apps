@@ -9,7 +9,7 @@ import classed from '../../lib/classed';
 import { Source, SourceMemberRole } from '../../graphql/sources';
 import { StarIcon, UserIcon } from '../icons';
 import { capitalize } from '../../lib/strings';
-import { ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { IconSize } from '../Icon';
 import SourceButton from '../cards/SourceButton';
@@ -73,11 +73,11 @@ function PromotionTour({ onClose, source }: PromotionTourProps): ReactElement {
       >
         <FlexCentered className="absolute left-1/2 top-20 -translate-x-1/2 justify-center gap-1">
           <span className="relative">
-            <ProfilePicture user={user} size="xxxxlarge" />
+            <ProfilePicture user={user} size={ProfileImageSize.XXXXLarge} />
             <SourceButton
               className="absolute -bottom-4 -right-4"
               source={source}
-              size="xlarge"
+              size={ProfileImageSize.XLarge}
             />
           </span>
           <Icon size={IconSize.XLarge} className="ml-3" secondary />

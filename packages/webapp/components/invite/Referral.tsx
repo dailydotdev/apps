@@ -17,6 +17,7 @@ import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import router from 'next/router';
+import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { DailyDevLogo, JoinPageProps } from './common';
 
 export function Referral({
@@ -53,7 +54,11 @@ export function Referral({
         <span className="mb-7 flex flex-col items-center gap-3 tablet:mb-8 laptop:flex-row laptop:items-start laptopL:gap-6">
           <ProfileImageLink
             user={referringUser}
-            picture={{ size: isLaptopL ? 'xxxlarge' : 'xlarge' }}
+            picture={{
+              size: isLaptopL
+                ? ProfileImageSize.XXXLarge
+                : ProfileImageSize.XLarge,
+            }}
           />
           <p className="my-auto text-center typo-body laptop:text-left laptop:typo-title3 laptopL:typo-title2">
             <span className="block laptop:inline">{referringUser.name}</span>
