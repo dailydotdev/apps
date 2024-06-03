@@ -90,9 +90,7 @@ export function ReadingStreakButton({
   const Tooltip = shouldShowStreaks ? CustomStreaksTooltip : SimpleTooltip;
 
   if (isLoading) {
-    return (
-      <div className="h-8 w-14 rounded-12 bg-surface-float laptop:h-10 laptop:w-20" />
-    );
+    return <div className="h-8 w-14 rounded-12 bg-surface-float" />;
   }
 
   if (!streak) {

@@ -90,14 +90,7 @@ function MainLayoutHeader({
         {headerButton}
       </div>
     );
-  }, [
-    additionalButtons,
-    headerButton,
-    isLoading,
-    isStreaksEnabled,
-    streak,
-    user,
-  ]);
+  }, [additionalButtons, headerButton, user]);
 
   const RenderSearchPanel = useCallback(
     () =>
