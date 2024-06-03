@@ -158,7 +158,7 @@ export default function Feed<T>({
   const { value: shouldShowSurvey } = useConditionalFeature({
     feature: feature.feedSettingsFeedback,
     shouldEvaluate:
-      user &&
+      !!user &&
       isFetched &&
       alerts.shouldShowFeedFeedback &&
       feedName === SharedFeedPage.MyFeed,
