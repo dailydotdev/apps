@@ -44,6 +44,10 @@ export function FeedSurveyCard({
     });
 
   const onStarClick = (value) => {
+    if (score > 0) {
+      return;
+    }
+
     setScore(value);
     updateFeedFeedbackReminder();
     trackSurveyEvent(AnalyticsEvent.Click, { value });
@@ -56,7 +60,7 @@ export function FeedSurveyCard({
 
   useEffect(() => {
     trackSurveyEvent(AnalyticsEvent.Impression);
-    // trackEvent is unstable and we only need to track once
+    // trackEvent is unstable, and we only need to track once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -114,6 +118,7 @@ export function FeedSurveyCard({
         size={ButtonSize.Small}
         className="mb-2 mt-auto"
         onClick={onHide}
+        disabled={score > 0}
       >
         Hide
       </Button>
