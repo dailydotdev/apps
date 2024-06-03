@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import { ProfileLink } from '../profile/ProfileLink';
-import { ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import AuthContext from '../../contexts/AuthContext';
 import { SidebarUserButtonProps } from './common';
 import LoginButton from '../LoginButton';
@@ -24,7 +24,7 @@ export function SidebarUserButton({
                   href={user.permalink}
                   className="focus-outline flex h-10 cursor-pointer items-center rounded-12 border-none bg-background-subtle p-0 font-bold text-text-primary no-underline typo-callout"
                 >
-                  <ProfilePicture user={user} size="large" />
+                  <ProfilePicture user={user} size={ProfileImageSize.Large} />
                   <ReputationUserBadge
                     className="ml-2 mr-3 !typo-callout"
                     user={user}

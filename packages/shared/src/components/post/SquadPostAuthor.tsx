@@ -49,7 +49,7 @@ function SquadPostAuthor({
   className,
   author,
   role,
-  size = 'xxxlarge',
+  size = ProfileImageSize.XXXLarge,
   date,
 }: SquadPostAuthorProps): ReactElement {
   if (!author) {

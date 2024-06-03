@@ -15,6 +15,7 @@ import { TextPlaceholder } from '../widgets/common';
 import SquadPostAuthor from '../post/SquadPostAuthor';
 import { CardLink } from '../cards/Card';
 import { combinedClicks } from '../../lib/click';
+import { ProfileImageSize } from '../ProfilePicture';
 
 type PostProps = {
   post: Post;
@@ -48,7 +49,7 @@ export const SquadPostListItem = ({
               details: 'flex-1 pr-8',
             }}
             author={post.author}
-            size="large"
+            size={ProfileImageSize.Large}
             date={post.createdAt}
           />
         )}

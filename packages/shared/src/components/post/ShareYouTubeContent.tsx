@@ -9,6 +9,7 @@ import { formatReadTime, SelectableLink } from '../utilities';
 import { combinedClicks } from '../../lib/click';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { ProfileImageSize } from '../ProfilePicture';
 
 interface ShareYouTubeContentProps {
   post: Post;
@@ -60,7 +61,7 @@ function ShareYouTubeContent({
               }
               source={post.sharedPost.source}
               className="mx-4 mb-4"
-              size="small"
+              size={ProfileImageSize.Small}
             />
             {children}
           </ConditionalWrapper>

@@ -1,7 +1,11 @@
 import React, { forwardRef, ReactElement, ReactNode, Ref } from 'react';
 import classNames from 'classnames';
 import { Image } from '../image/Image';
-import { ProfilePicture, ProfilePictureProps } from '../ProfilePicture';
+import {
+  ProfileImageSize,
+  ProfilePicture,
+  ProfilePictureProps,
+} from '../ProfilePicture';
 
 export type HeroImageProps = ProfilePictureProps['user'] & {
   cover: string;
@@ -44,7 +48,7 @@ function HeroImageComponent(
         user={profile}
         nativeLazyLoading
         eager
-        size="xxxxlarge"
+        size={ProfileImageSize.XXXXLarge}
         className={classNames(
           'border-4 border-background-default',
           className?.profile,

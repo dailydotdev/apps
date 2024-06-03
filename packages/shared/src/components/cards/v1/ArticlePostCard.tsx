@@ -18,6 +18,7 @@ import { isVideoPost } from '../../../graphql/posts';
 import PostReadTime from './PostReadTime';
 import PostTags from '../PostTags';
 import { CardCoverV1 } from './CardCover';
+import { ProfileImageSize } from '../../ProfilePicture';
 
 export const ArticlePostCard = forwardRef(function PostCard(
   {
@@ -100,7 +101,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
               }}
             >
               <SourceButton
-                size="large"
+                size={ProfileImageSize.Large}
                 source={post.source}
                 className="relative"
               />
