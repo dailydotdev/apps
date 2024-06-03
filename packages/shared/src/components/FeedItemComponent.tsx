@@ -28,7 +28,7 @@ import { MarketingCtaCard, MarketingCtaList } from './cards';
 import { MarketingCtaCardV1 } from './cards/v1/MarketingCtaCard';
 import { FeedItemType } from './cards/common';
 import { PublicSquadEligibilityCard } from './squads/PublicSquadEligibilityCard';
-import { FeedSurveyCard } from './cards/FeedSurveyCard';
+import { FeedSurveyCard } from './cards/survey';
 import { FeedSettingsButton } from './feeds/FeedSettingsButton';
 
 const CommentPopup = dynamic(

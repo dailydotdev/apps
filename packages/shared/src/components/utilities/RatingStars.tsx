@@ -20,7 +20,7 @@ export function RatingStars({
   const [justClicked, setJustClicked] = useState(false);
   const highlighted = hovered || score;
 
-  const onClick = (value) => {
+  const onClick = (value: number) => {
     setScore(value);
     setJustClicked(true);
 
@@ -44,7 +44,7 @@ export function RatingStars({
             <button
               key={key}
               type="button"
-              onClick={onClick}
+              onClick={() => onClick(i + 1)}
               onMouseOver={() => setHovered(i + 1)}
               onFocus={() => setHovered(i + 1)}
               onMouseOut={onOut}
@@ -59,6 +59,7 @@ export function RatingStars({
             secondary={i < highlighted}
             className={classNames(
               'mx-0.5',
+              i === 0 && 'ml-0',
               i < highlighted
                 ? 'text-accent-cheese-default'
                 : 'text-text-secondary',

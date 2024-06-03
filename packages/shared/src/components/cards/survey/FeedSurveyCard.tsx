@@ -1,64 +1,22 @@
 import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
-import { Card as CardV1 } from './v1/Card';
-import { Card } from './Card';
-import { useFeedLayout } from '../../hooks';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent, TargetId, TargetType } from '../../lib/analytics';
-import { updateFeedFeedbackReminder } from '../../graphql/alerts';
-import { RatingStars } from '../utilities/RatingStars';
-
-interface FeedSurveyCardProps {
-  title: string;
-  postFeedbackMessage?: string;
-  max: number;
-  lowScore: {
-    value: number;
-    message: string;
-    cta: ReactNode;
-  };
-}
+import { Card as CardV1 } from '../v1/Card';
+import { Card } from '../Card';
+import { useFeedLayout } from '../../../hooks';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { RatingStars } from '../../utilities/RatingStars';
+import { useFeedSurvey } from '../../../hooks/feed/useFeedSurvey';
+import { FeedSurveyProps } from './common';
 
 export function FeedSurveyCard({
   max,
   title,
   lowScore,
   postFeedbackMessage = 'Thank you for your feedback!',
-}: FeedSurveyCardProps): ReactElement {
+}: FeedSurveyProps): ReactElement {
   const [score, setScore] = useState(0);
-  const [submitted, setSubmitted] = useState(false);
+  const { submitted, onSubmit, onHide } = useFeedSurvey({ score });
   const { shouldUseListFeedLayout } = useFeedLayout();
   const CardComponent = shouldUseListFeedLayout ? CardV1 : Card;
-  const { trackEvent } = useAnalyticsContext();
-
-  const trackSurveyEvent = (event_name: AnalyticsEvent, extra?) =>
-    trackEvent({
-      target_type: TargetType.PromotionCard,
-      target_id: TargetId.FeedSurvey,
-      event_name,
-      extra,
-    });
-
-  const onSubmit = () => {
-    if (submitted) {
-      return;
-    }
-
-    setSubmitted(true);
-    updateFeedFeedbackReminder();
-    trackSurveyEvent(AnalyticsEvent.Click, { value: score });
-  };
-
-  const onHide = () => {
-    updateFeedFeedbackReminder();
-    trackSurveyEvent(AnalyticsEvent.DismissPromotion);
-  };
-
-  useEffect(() => {
-    trackSurveyEvent(AnalyticsEvent.Impression);
-    // trackEvent is unstable, and we only need to track once
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <CardComponent

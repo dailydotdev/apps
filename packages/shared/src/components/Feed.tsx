@@ -41,6 +41,8 @@ import {
   useConditionalFeature,
   useFeedLayout,
   useFeedVotePost,
+  useViewSize,
+  ViewSize,
 } from '../hooks';
 import {
   AllFeedPages,
@@ -163,6 +165,7 @@ export default function Feed<T>({
       alerts.shouldShowFeedFeedback &&
       feedName === SharedFeedPage.MyFeed,
   });
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
@@ -196,7 +199,7 @@ export default function Feed<T>({
       variables,
       options,
       showPublicSquadsEligibility,
-      shouldShowSurvey,
+      shouldShowSurvey: shouldShowSurvey && isLaptop,
       settings: {
         disableAds,
         adPostLength: isSquadFeed ? 2 : undefined,
@@ -424,6 +427,7 @@ export default function Feed<T>({
         actionButtons={actionButtons}
         isHorizontal={isHorizontal}
         feedContainerRef={feedContainerRef}
+        shouldShowSurvey={shouldShowSurvey && !isLaptop}
       >
         {items.map((_, index) => (
           <FeedItemComponent
