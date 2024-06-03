@@ -150,6 +150,12 @@ export const cloudinary = {
     glow: 'https://daily-now-res.cloudinary.com/image/upload/v1694596741/Glow_o9ehvn.svg',
     default:
       'https://daily-now-res.cloudinary.com/image/upload/s--eQyhCzPZ--/f_auto/v1715169755/Master_image_mzjgot',
+    fullBackground: {
+      mobile:
+        'https://daily-now-res.cloudinary.com/image/upload/s--EwsBTBt6--/f_auto/v1716969841/dailydev_where_developers_suffer_together_mobile_shkn1w',
+      desktop:
+        'https://daily-now-res.cloudinary.com/image/upload/s--r2ffZPB4--/f_auto/v1716969841/dailydev_where_developers_suffer_together_sfvfog',
+    },
   },
   generic: {
     notFound: {

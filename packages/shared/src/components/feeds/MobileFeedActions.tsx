@@ -17,7 +17,7 @@ import { HypeButton } from '../referral';
 export function MobileFeedActions(): ReactElement {
   const router = useRouter();
   const { openModal } = useLazyModal();
-  const { streak, isLoading } = useReadingStreak();
+  const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const featureTheme = useFeatureTheme();
   const hypeCampaign = useFeature(feature.hypeCampaign);
 
@@ -31,12 +31,14 @@ export function MobileFeedActions(): ReactElement {
       />
       {hypeCampaign && <HypeButton />}
       <span className="flex flex-row items-center gap-2">
-        <ReadingStreakButton
-          isLoading={isLoading}
-          streak={streak}
-          compact
-          iconPosition={ButtonIconPosition.Right}
-        />
+        {isStreaksEnabled && (
+          <ReadingStreakButton
+            isLoading={isLoading}
+            streak={streak}
+            compact
+            iconPosition={ButtonIconPosition.Right}
+          />
+        )}
         <Divider className="bg-border-subtlest-tertiary" vertical />
         <MyFeedHeading
           onOpenFeedFilters={() =>

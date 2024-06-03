@@ -24,6 +24,7 @@ const feature = {
   bookmarkOnCard: new Feature('bookmark_on_card', false),
   onboardingVisual: new Feature('onboarding_visual', {
     showCompanies: true,
+    fullBackground: false,
     image: cloudinary.onboarding.default,
   }),
   forceRefresh: new Feature('force_refresh', false),

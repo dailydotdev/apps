@@ -24,7 +24,6 @@ import { HypeButton } from '../referral';
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
   sidebarRendered?: boolean;
-  optOutWeeklyGoal?: boolean;
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
 }
@@ -43,7 +42,7 @@ function MainLayoutHeader({
   onLogoClick,
 }: MainLayoutHeaderProps): ReactElement {
   const { user, isAuthReady } = useContext(AuthContext);
-  const { streak, isLoading } = useReadingStreak();
+  const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
@@ -71,7 +70,9 @@ function MainLayoutHeader({
   const RenderButtons = () => {
     return (
       <div className="flex justify-end gap-3">
-        <ReadingStreakButton streak={streak} isLoading={isLoading} compact />
+        {isStreaksEnabled && (
+          <ReadingStreakButton streak={streak} isLoading={isLoading} compact />
+        )}
         <CreatePostButton compact />
         {!!user && (
           <>
@@ -128,12 +129,16 @@ function MainLayoutHeader({
           <div
             className={classNames(
               'flex flex-1  laptop:flex-none laptop:justify-start',
-              isStreakLarge ? 'justify-start' : 'justify-center',
+              isStreaksEnabled && isStreakLarge
+                ? 'justify-start'
+                : 'justify-center',
             )}
           >
             <HeaderLogo
               position={
-                isStreakLarge ? LogoPosition.Relative : LogoPosition.Absolute
+                isStreaksEnabled && isStreakLarge
+                  ? LogoPosition.Relative
+                  : LogoPosition.Absolute
               }
               user={user}
               onLogoClick={onLogoClick}

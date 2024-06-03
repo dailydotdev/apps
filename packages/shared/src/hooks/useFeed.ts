@@ -194,7 +194,7 @@ export default function useFeed<T>(
             });
           } else if (withFirstIndex(settings.showAcquisitionForm)) {
             posts.splice(adSpot, 0, { type: FeedItemType.UserAcquisition });
-          } else if (shouldShowSurvey) {
+          } else if (withFirstIndex(shouldShowSurvey)) {
             posts.splice(adSpot, 0, { type: FeedItemType.FeedSurvey });
           } else if (withFirstIndex(showPublicSquadsEligibility)) {
             posts.splice(adSpot, 0, {
