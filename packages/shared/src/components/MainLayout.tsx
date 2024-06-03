@@ -116,29 +116,6 @@ function MainLayoutComponent({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNotificationsReady, unreadCount, hasTrackedImpression]);
 
-  const RenderSidebar = () => {
-    if (sidebarRendered === null || (sidebarRendered && !showSidebar)) {
-      return null;
-    }
-
-    return (
-      <Sidebar
-        promotionalBannerActive={isBannerAvailable}
-        sidebarRendered={sidebarRendered}
-        openMobileSidebar={openMobileSidebar}
-        onNavTabClick={onNavTabClick}
-        enableSearch={enableSearch}
-        activePage={activePage}
-        showDnd={showDnd}
-        dndActive={dndActive}
-        isNavButtons={isNavItemsButton}
-        onShowDndClick={onShowDndClick}
-        onLogoClick={onLogoClick}
-        setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
-      />
-    );
-  };
-
   const page = router?.route?.substring(1).trim() as SharedFeedPage;
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
@@ -200,7 +177,22 @@ function MainLayoutComponent({
           isBannerAvailable && 'laptop:pt-8',
         )}
       >
-        <RenderSidebar />
+        {showSidebar && (
+          <Sidebar
+            promotionalBannerActive={isBannerAvailable}
+            sidebarRendered={sidebarRendered}
+            openMobileSidebar={openMobileSidebar}
+            onNavTabClick={onNavTabClick}
+            enableSearch={enableSearch}
+            activePage={activePage}
+            showDnd={showDnd}
+            dndActive={dndActive}
+            isNavButtons={isNavItemsButton}
+            onShowDndClick={onShowDndClick}
+            onLogoClick={onLogoClick}
+            setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
+          />
+        )}
         {children}
       </main>
     </div>

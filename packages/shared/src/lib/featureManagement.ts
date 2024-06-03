@@ -55,6 +55,7 @@ const feature = {
   searchGoogle: new Feature('search_google', false),
   onboardingFlip: new Feature('onboarding_flip', false),
   improvedSharedPostCard: new Feature('improved_shared_post_card', false),
+  onboardingLinks: new Feature('onboarding_links', false),
   shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
 };
 
