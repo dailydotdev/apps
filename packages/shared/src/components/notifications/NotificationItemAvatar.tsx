@@ -6,6 +6,7 @@ import {
 import SourceButton from '../cards/SourceButton';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
+import { ProfileImageSize } from '../ProfilePicture';
 
 function NotificationItemAvatar({
   type,
@@ -35,7 +36,7 @@ function NotificationItemAvatar({
       <ProfileTooltip link={{ href: targetUrl }} user={{ id: referenceId }}>
         <ProfileImageLink
           className={className}
-          picture={{ size: 'medium' }}
+          picture={{ size: ProfileImageSize.Medium }}
           user={{
             id: referenceId,
             username: referenceId,

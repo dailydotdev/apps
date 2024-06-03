@@ -11,6 +11,7 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
+import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 
 interface CompanionDiscussionProps {
   post: PostBootData;
@@ -47,7 +48,7 @@ export function CompanionDiscussion({
       <div className="mt-5 flex-1 overflow-y-auto overflow-x-hidden border-t border-border-subtlest-tertiary px-4">
         <h3 className="mb-6 ml-2 mt-4 font-bold typo-callout">Discussion</h3>
         <NewComment
-          size="medium"
+          size={ProfileImageSize.Medium}
           post={post}
           className={{
             ...commentClasses,

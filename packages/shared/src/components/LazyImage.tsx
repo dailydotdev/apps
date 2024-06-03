@@ -22,7 +22,7 @@ export interface LazyImageProps extends HTMLAttributes<HTMLImageElement> {
   ref?: Ref<HTMLImageElement>;
 }
 
-const asyncImageSupport = false;
+const asyncImageSupport = true;
 
 function LazyImageComponent(
   {

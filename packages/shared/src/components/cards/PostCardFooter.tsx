@@ -2,8 +2,8 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { FeatherIcon } from '../icons';
 import PostAuthor from './PostAuthor';
-import { ProfilePicture } from '../ProfilePicture';
-import { Post, isVideoPost } from '../../graphql/posts';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { isVideoPost, Post } from '../../graphql/posts';
 import { CommonCardCoverProps, visibleOnGroupHover } from './common';
 import { CardCover } from './common/CardCover';
 
@@ -62,7 +62,7 @@ export const PostCardFooter = ({
             visibleOnGroupHover,
           )}
         >
-          <ProfilePicture size="small" user={post.author} />
+          <ProfilePicture size={ProfileImageSize.Small} user={post.author} />
           <span className="mx-3 flex-1 truncate">{post.author.name}</span>
           <FeatherIcon secondary className="text-2xl text-status-help" />
         </div>

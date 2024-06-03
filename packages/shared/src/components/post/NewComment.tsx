@@ -40,7 +40,13 @@ export interface NewCommentRef {
 }
 
 function NewCommentComponent(
-  { className, size = 'large', onCommented, post, ...props }: NewCommentProps,
+  {
+    className,
+    size = ProfileImageSize.Large,
+    onCommented,
+    post,
+    ...props
+  }: NewCommentProps,
   ref: MutableRefObject<NewCommentRef>,
 ): ReactElement {
   const router = useRouter();
@@ -131,7 +137,7 @@ function NewCommentComponent(
           alt="Placeholder image for anonymous user"
           className={classNames(
             pictureClasses,
-            getProfilePictureClasses('large'),
+            getProfilePictureClasses(ProfileImageSize.Large),
           )}
         />
       )}

@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import { CopyIcon, WhatsappIcon, TwitterIcon, FacebookIcon } from './icons';
+import { CopyIcon, FacebookIcon, TwitterIcon, WhatsappIcon } from './icons';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { getShareLink, ShareProvider } from '../lib/share';
@@ -15,6 +15,7 @@ import { SquadsToShare } from './squads/SquadsToShare';
 import { ButtonSize, ButtonVariant } from './buttons/common';
 import { useGetShortUrl } from '../hooks';
 import { ReferralCampaignKey } from '../lib';
+import { ProfileImageSize } from './ProfilePicture';
 
 interface ShareBarProps {
   post: Post;
@@ -109,7 +110,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
         />
         <SquadsToShare
           size={ButtonSize.Medium}
-          squadAvatarSize="large"
+          squadAvatarSize={ProfileImageSize.Large}
           onClick={(_, squad) => onShareToSquad(squad)}
         />
       </div>

@@ -7,6 +7,7 @@ import Logo, { LogoPosition } from '../../Logo';
 import { DevCardTheme, DevCardType } from './common';
 import { Source } from '../../../graphql/sources';
 import { checkLowercaseEquality } from '../../../lib/strings';
+import { ProfileImageSize } from '../../ProfilePicture';
 
 export interface DevCardFooterProps {
   tags: string[];
@@ -53,7 +54,11 @@ export function DevCardFooter({
         )}
       >
         {sources?.map((source) => (
-          <SourceButton key={source.name} source={source} size="small" />
+          <SourceButton
+            key={source.name}
+            source={source}
+            size={ProfileImageSize.Small}
+          />
         ))}
       </div>
       {shouldShowLogo && (

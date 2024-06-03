@@ -10,7 +10,7 @@ import NotificationItemAvatar from './NotificationItemAvatar';
 import { NotificationType, notificationTypeTheme } from './utils';
 import OptionsButton from '../buttons/OptionsButton';
 import { KeyboardCommand } from '../../lib/element';
-import { ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { ProfilePictureGroup } from '../ProfilePictureGroup';
 
 export interface NotificationItemProps
@@ -64,12 +64,15 @@ function NotificationItem({
 
   const avatarComponents =
     type === NotificationType.CollectionUpdated ? (
-      <ProfilePictureGroup total={numTotalAvatars} size="medium">
+      <ProfilePictureGroup
+        total={numTotalAvatars}
+        size={ProfileImageSize.Medium}
+      >
         {filteredAvatars.map((avatar) => (
           <ProfilePicture
             key={avatar.referenceId}
             rounded="full"
-            size="medium"
+            size={ProfileImageSize.Medium}
             user={{ image: avatar.image }}
           />
         ))}
