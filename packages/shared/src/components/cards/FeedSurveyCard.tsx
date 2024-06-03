@@ -30,6 +30,8 @@ export function FeedSurveyCard({
 }: FeedSurveyCardProps): ReactElement {
   const [score, setScore] = useState(0);
   const [hovered, setHovered] = useState(0);
+  const [submitted, setSubmitted] = useState(false);
+  const [justClicked, setJustClicked] = useState(false);
   const { shouldUseListFeedLayout } = useFeedLayout();
   const highlighted = hovered || score;
   const CardComponent = shouldUseListFeedLayout ? CardV1 : Card;
@@ -43,14 +45,22 @@ export function FeedSurveyCard({
       extra,
     });
 
+  const onSubmit = () => {
+    if (submitted) {
+      return;
+    }
+
+    setSubmitted(true);
+    updateFeedFeedbackReminder();
+    trackSurveyEvent(AnalyticsEvent.Click, { value: score });
+  };
+
   const onStarClick = (value) => {
-    if (score > 0) {
+    if (submitted) {
       return;
     }
 
     setScore(value);
-    updateFeedFeedbackReminder();
-    trackSurveyEvent(AnalyticsEvent.Click, { value });
   };
 
   const onHide = () => {
@@ -64,29 +74,37 @@ export function FeedSurveyCard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const onOut = () => {
+    setHovered(0);
+    setJustClicked(false);
+  };
+
   return (
     <CardComponent
-      className="relative items-center overflow-hidden pt-20"
+      className="relative items-center gap-4 overflow-hidden pt-20"
       style={{
         background:
           'linear-gradient(180deg, rgba(255, 233, 35, 0.08) 0%, rgba(252, 83, 141, 0.08) 50%, rgba(113, 71, 237, 0.08) 100%)',
       }}
     >
       <h3 className="font-bold typo-title3">{title}</h3>
-      <span className="mt-4 flex flex-row">
+      <span className="flex flex-row">
         {Object.keys([...Array(max)]).map((key, i) => (
           <ConditionalWrapper
             key={key}
-            condition={score === 0}
+            condition={!submitted}
             wrapper={(component) => (
               <button
                 key={key}
                 type="button"
-                onClick={() => onStarClick(i + 1)}
+                onClick={() => {
+                  onStarClick(i + 1);
+                  setJustClicked(true);
+                }}
                 onMouseOver={() => setHovered(i + 1)}
-                onMouseOut={() => setHovered(0)}
                 onFocus={() => setHovered(i + 1)}
-                onBlur={() => setHovered(0)}
+                onMouseOut={onOut}
+                onBlur={onOut}
               >
                 {component}
               </button>
@@ -100,28 +118,38 @@ export function FeedSurveyCard({
                 i < highlighted
                   ? 'text-accent-cheese-default'
                   : 'text-text-secondary',
-                i < highlighted && highlighted > score && 'opacity-[0.8]',
+                i < highlighted && hovered && !justClicked && 'opacity-[0.8]',
               )}
             />
           </ConditionalWrapper>
         ))}
       </span>
-      {score > 0 && (
-        <p className="mt-6 text-center text-text-secondary typo-body">
+      {submitted && (
+        <p className="mt-2 text-center text-text-secondary typo-body">
           <span className="font-bold">{postFeedbackMessage}</span>
           {score <= lowScore.value && <p>{lowScore.message}</p>}
           {score <= lowScore.value && lowScore.cta}
         </p>
       )}
-      <Button
-        variant={ButtonVariant.Float}
-        size={ButtonSize.Small}
-        className="mb-2 mt-auto"
-        onClick={onHide}
-        disabled={score > 0}
-      >
-        Hide
-      </Button>
+      {score > 0 && !submitted && (
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
+          onClick={onSubmit}
+        >
+          Submit
+        </Button>
+      )}
+      {score === 0 && (
+        <Button
+          variant={ButtonVariant.Float}
+          size={ButtonSize.Small}
+          className="mb-2 mt-auto"
+          onClick={onHide}
+        >
+          Hide
+        </Button>
+      )}
     </CardComponent>
   );
 }
