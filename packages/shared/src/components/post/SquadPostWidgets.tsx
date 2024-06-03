@@ -15,6 +15,7 @@ import { getSquadMembers, isSourcePublicSquad } from '../../graphql/squads';
 import SquadMemberShortList from '../squads/SquadMemberShortList';
 import { PostWidgetsProps } from './PostWidgets';
 import { ProfileImageSize } from '../ProfilePicture';
+import { FooterLinks } from '../footer';
 
 const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
   const { isFetched } = useAuthContext();
@@ -94,6 +95,7 @@ export function SquadPostWidgets({
         </>
       )}
       {tokenRefreshed && <FurtherReading currentPost={post} />}
+      <FooterLinks />
     </PageWidgets>
   );
 }
