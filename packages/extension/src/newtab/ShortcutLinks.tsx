@@ -240,7 +240,7 @@ export default function ShortcutLinks({
     ];
 
     return (
-      <div className="mb-6 flex flex-col gap-6 px-4 laptop:items-center">
+      <div className="mb-6 hidden flex-col gap-6 px-4 tablet:flex laptop:items-center">
         <h4 className="font-bold text-text-primary typo-title3">
           Choose your most visited sites.
         </h4>
