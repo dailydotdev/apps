@@ -150,10 +150,11 @@ export function SquadPageHeader({
               variant={
                 isFeatured ? ButtonVariant.Secondary : ButtonVariant.Float
               }
-              className={
+              className={classNames(
+                'pointer-events-none',
                 isFeatured &&
-                'relative border-overlay-primary-cabbage bg-overlay-tertiary-cabbage'
-              }
+                  'relative border-overlay-primary-cabbage bg-overlay-tertiary-cabbage',
+              )}
             >
               {props.copy} Squad
               {isFeatured && (
