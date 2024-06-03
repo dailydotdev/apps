@@ -10,7 +10,13 @@ import {
 } from '../buttons/Button';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
-import { useActions, useFeedLayout, useViewSize, ViewSize } from '../../hooks';
+import {
+  useActions,
+  useConditionalFeature,
+  useFeedLayout,
+  useViewSize,
+  ViewSize,
+} from '../../hooks';
 import { feature } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
 import { setShouldRefreshFeed } from '../../lib/refreshFeed';
@@ -31,6 +37,7 @@ interface MyFeedHeadingProps {
 function MyFeedHeading({
   onOpenFeedFilters,
 }: MyFeedHeadingProps): ReactElement {
+  const isExtension = checkIsExtension();
   const router = useRouter();
   const { checkHasCompleted } = useActions();
   const { showTopSites, toggleShowTopSites } = useSettingsContext();
@@ -42,7 +49,10 @@ function MyFeedHeading({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedName = getFeedName(router.pathname);
   const { isCustomFeed } = useFeedName({ feedName });
-  const shortcutsUIFeature = useFeature(feature.shortcutsUI);
+  const { value: shortcutsUIFeature } = useConditionalFeature({
+    feature: feature.shortcutsUI,
+    shouldEvaluate: isExtension,
+  });
   const isShortcutsUIV1 = shortcutsUIFeature === ShortcutsUIExperiment.V1;
 
   const onClick = () => {
@@ -100,7 +110,7 @@ function MyFeedHeading({
       >
         {!isMobile ? feedFiltersLabel : null}
       </Button>
-      {checkIsExtension() &&
+      {isExtension &&
         checkHasCompleted(ActionType.FirstShortcutsSession) &&
         !showTopSites &&
         isShortcutsUIV1 && (
