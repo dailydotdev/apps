@@ -28,6 +28,8 @@ import { MarketingCtaCard, MarketingCtaList } from './cards';
 import { MarketingCtaCardV1 } from './cards/v1/MarketingCtaCard';
 import { FeedItemType } from './cards/common';
 import { PublicSquadEligibilityCard } from './squads/PublicSquadEligibilityCard';
+import { FeedSurveyCard } from './cards/FeedSurveyCard';
+import { FeedSettingsButton } from './feeds/FeedSettingsButton';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -279,6 +281,18 @@ export default function FeedItemComponent({
           ad={item.ad}
           onLinkClick={(ad) => onAdClick(ad, row, column)}
           showImage={!insaneMode}
+        />
+      );
+    case FeedItemType.FeedSurvey:
+      return (
+        <FeedSurveyCard
+          title="Rate your feed quality"
+          max={5}
+          lowScore={{
+            value: 4,
+            message: 'Improve your feed by adjusting your settings.',
+            cta: <FeedSettingsButton className="mt-4" />,
+          }}
         />
       );
     case FeedItemType.UserAcquisition:

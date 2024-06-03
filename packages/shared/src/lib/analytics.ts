@@ -51,6 +51,7 @@ export enum Origin {
 }
 
 export enum AnalyticsEvent {
+  DismissPromotion = 'dismiss promotion',
   Click = 'click',
   CommentPost = 'comment post',
   StartSubmitArticle = 'start submit article',
@@ -169,6 +170,7 @@ export enum FeedItemTitle {
 }
 
 export enum TargetType {
+  PromotionCard = 'promotion_card',
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
   EnableNotifications = 'enable notifications',
@@ -196,6 +198,7 @@ export enum TargetType {
 }
 
 export enum TargetId {
+  FeedSurvey = 'feed survey',
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
   InviteProfileMenu = 'invite in profile menu',

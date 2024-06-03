@@ -36,7 +36,12 @@ import ShareOptionsMenu from './ShareOptionsMenu';
 import { SharedFeedPage } from './utilities';
 import { FeedContainer, FeedContainerProps } from './feeds/FeedContainer';
 import { ActiveFeedContext } from '../contexts';
-import { useBoot, useFeedLayout, useFeedVotePost } from '../hooks';
+import {
+  useBoot,
+  useConditionalFeature,
+  useFeedLayout,
+  useFeedVotePost,
+} from '../hooks';
 import {
   AllFeedPages,
   OtherFeedPage,
@@ -51,6 +56,7 @@ import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { acquisitionKey } from './cards/AcquisitionFormCard';
 import { MarketingCtaVariant } from './cards/MarketingCta/common';
+import { useAlertsContext } from '../contexts/AlertContext';
 
 export interface FeedProps<T>
   extends Pick<
@@ -148,6 +154,15 @@ export default function Feed<T>({
     insaneMode: listMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const { isFetched, alerts } = useAlertsContext();
+  const { value: shouldShowSurvey } = useConditionalFeature({
+    feature: feature.feedSettingsFeedback,
+    shouldEvaluate:
+      user &&
+      isFetched &&
+      alerts.shouldShowFeedFeedback &&
+      feedName === SharedFeedPage.MyFeed,
+  });
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
@@ -181,6 +196,7 @@ export default function Feed<T>({
       variables,
       options,
       showPublicSquadsEligibility,
+      shouldShowSurvey,
       settings: {
         disableAds,
         adPostLength: isSquadFeed ? 2 : undefined,

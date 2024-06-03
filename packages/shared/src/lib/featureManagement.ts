@@ -53,6 +53,7 @@ const feature = {
   searchGoogle: new Feature('search_google', false),
   onboardingFlip: new Feature('onboarding_flip', false),
   improvedSharedPostCard: new Feature('improved_shared_post_card', false),
+  feedSettingsFeedback: new Feature('feed_settings_feedback', false),
 };
 
 export { feature };
