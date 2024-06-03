@@ -15,12 +15,19 @@ export function FeedSurveyBanner({
 
   return (
     <div
-      className="mb-4 flex flex-col px-4 py-6 tablet:px-6"
+      className="relative mb-4 flex flex-col px-4 py-6 tablet:px-6"
       style={{
         background:
           'linear-gradient(90deg, rgba(255, 233, 35, 0.08) 0%, rgba(252, 64, 121, 0.08) 50%, rgba(113, 71, 237, 0.08) 100%)',
       }}
     >
+      <div
+        className="absolute left-0 right-0 top-0 h-px"
+        style={{
+          background:
+            'linear-gradient(90deg, rgba(255, 233, 35, 1) 0%, rgba(252, 64, 121, 1) 50%, rgba(113, 71, 237, 1) 100%)',
+        }}
+      />
       <div className="flex flex-row items-start tablet:items-center">
         <div className="flex flex-1 flex-col items-start justify-between tablet:flex-row tablet:items-center">
           <h3 className="font-bold typo-title3">{title}</h3>
