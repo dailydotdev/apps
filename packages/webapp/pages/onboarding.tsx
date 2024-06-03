@@ -44,10 +44,10 @@ import {
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import TrustedCompanies from '@dailydotdev/shared/src/components/TrustedCompanies';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
 import {
   FeedPreviewControls,
+  FooterLinks,
   withFeaturesBoundary,
 } from '@dailydotdev/shared/src/components';
 import Feed from '@dailydotdev/shared/src/components/Feed';
@@ -447,16 +447,11 @@ export function OnboardPage(): ReactElement {
               reverse
               className=" mt-5 block tablet:hidden"
             />
-
-            <img
-              className="absolute bottom-0 left-0 -z-1 w-full max-w-[58.75rem]"
-              src={cloudinary.onboarding.glow}
-              alt="Gradient background"
-            />
           </div>
           <div className="hidden flex-1 tablet:block" />
         </footer>
       )}
+      <FooterLinks className="mx-auto pb-6" />
     </div>
   );
 }

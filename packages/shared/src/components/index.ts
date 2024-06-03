@@ -8,3 +8,4 @@ export * from './withFeaturesBoundary';
 export * from './KeyboardShortcutLabel';
 export * from './ReputationUserBadge';
 export * from './Redirect';
+export * from './footer';

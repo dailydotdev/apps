@@ -7,6 +7,7 @@ import FurtherReading from '../widgets/FurtherReading';
 import { PostUsersHighlights } from '../widgets/PostUsersHighlights';
 import { PostHeaderActions } from './PostHeaderActions';
 import { PostHeaderActionsProps } from './common';
+import { FooterLinks } from '../footer';
 
 export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
   Omit<ShareMobileProps, 'link'>;
@@ -39,6 +40,7 @@ export function PostWidgets({
         onCopyPostLink={onCopyPostLink}
       />
       {tokenRefreshed && <FurtherReading currentPost={post} />}
+      <FooterLinks />
     </PageWidgets>
   );
 }
