@@ -1,4 +1,5 @@
 import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
+import classNames from 'classnames';
 import { Card as CardV1 } from '../v1/Card';
 import { Card } from '../Card';
 import { useFeedLayout } from '../../../hooks';
@@ -28,7 +29,10 @@ export function FeedSurveyCard({
     >
       <div className="absolute inset-px rounded-16 bg-background-default" />
       <CardComponent
-        className="relative items-center gap-4 overflow-hidden pt-20"
+        className={classNames(
+          'relative items-center gap-4 overflow-hidden',
+          shouldUseListFeedLayout ? '!py-10' : 'pt-20',
+        )}
         style={{
           background:
             'linear-gradient(180deg, rgba(255, 233, 35, 0.08) 0%, rgba(252, 83, 141, 0.08) 50%, rgba(113, 71, 237, 0.08) 100%)',
