@@ -1,5 +1,11 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useCallback,
+  useContext,
+  useMemo,
+} from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import AuthContext from '../../contexts/AuthContext';
@@ -51,7 +57,7 @@ function MainLayoutHeader({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const hypeCampaign = useFeature(feature.hypeCampaign);
 
-  const headerButton = (() => {
+  const headerButton = useMemo(() => {
     if (!user) {
       return null;
     }
@@ -65,9 +71,9 @@ function MainLayoutHeader({
         className={{ container: 'gap-4', button: 'hidden laptop:block' }}
       />
     );
-  })();
+  }, [user]);
 
-  const RenderButtons = () => {
+  const RenderButtons = useCallback(() => {
     return (
       <div className="flex justify-end gap-3">
         {isStreaksEnabled && (
@@ -88,22 +94,32 @@ function MainLayoutHeader({
         {headerButton}
       </div>
     );
-  };
+  }, [
+    additionalButtons,
+    headerButton,
+    isLoading,
+    isStreaksEnabled,
+    streak,
+    user,
+  ]);
 
-  const RenderSearchPanel = () =>
-    !!user && (
-      <SearchPanel
-        className={{
-          container: classNames(
-            'left-0 top-0 z-header mr-auto items-center py-3 tablet:left-16 laptop:left-0 laptopL:mx-auto laptopL:w-full',
-            isSearchPage
-              ? 'absolute right-0 laptop:relative laptop:top-0'
-              : 'hidden laptop:flex',
-          ),
-          field: 'mx-2 laptop:mx-auto',
-        }}
-      />
-    );
+  const RenderSearchPanel = useCallback(
+    () =>
+      !!user && (
+        <SearchPanel
+          className={{
+            container: classNames(
+              'left-0 top-0 z-header mr-auto items-center py-3 tablet:left-16 laptop:left-0 laptopL:mx-auto laptopL:w-full',
+              isSearchPage
+                ? 'absolute right-0 laptop:relative laptop:top-0'
+                : 'hidden laptop:flex',
+            ),
+            field: 'mx-2 laptop:mx-auto',
+          }}
+        />
+      ),
+    [isSearchPage, user],
+  );
 
   if (isAuthReady && !isLaptop) {
     return (

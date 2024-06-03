@@ -60,6 +60,12 @@ export const BreadCrumbs = ({
   );
 };
 
+const TopListCardElement = classed(Card, '!p-4 !max-h-none');
+const TopListMobileDiv = classed(
+  'div',
+  'flex flex-col border-b border-b-border-subtlest-tertiary p-4',
+);
+
 export const TopList = ({
   title,
   children,
@@ -70,15 +76,9 @@ export const TopList = ({
   className?: string;
 }): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const MobileDiv = classed(
-    'div',
-    'flex flex-col border-b border-b-border-subtlest-tertiary p-4',
-    className,
-  );
-  const CardElement = classed(Card, '!p-4 !max-h-none', className);
-  const Wrapper = isMobile ? MobileDiv : CardElement;
+  const Wrapper = isMobile ? TopListMobileDiv : TopListCardElement;
   return (
-    <Wrapper>
+    <Wrapper className={className}>
       <h3 className="mb-2 font-bold typo-title3">{title}</h3>
       <ol className="typo-body">{children}</ol>
     </Wrapper>
