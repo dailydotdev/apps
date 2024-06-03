@@ -23,6 +23,7 @@ export const USER_SHORT_INFO_FRAGMENT = gql`
     permalink
     username
     bio
+    createdAt
     reputation
   }
 `;
@@ -50,6 +51,8 @@ export const SOURCE_SHORT_INFO_FRAGMENT = gql`
   }
 `;
 
+// this query should use UserShortInfo fragment once the createdAt issue is fixed.
+// for the mean time, we should not include the said property on privilegedMembers.
 export const SOURCE_BASE_FRAGMENT = gql`
   fragment SourceBaseInfo on Source {
     id

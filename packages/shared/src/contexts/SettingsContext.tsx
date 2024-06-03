@@ -46,7 +46,7 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleShowTopSites: () => Promise<void>;
   toggleSidebarExpanded: () => Promise<void>;
   toggleSortingEnabled: () => Promise<void>;
-  toggleOptOutWeeklyGoal: () => Promise<void>;
+  toggleOptOutReadingStreak: () => Promise<void>;
   toggleOptOutCompanion: () => Promise<void>;
   toggleAutoDismissNotifications: () => Promise<void>;
   loadedSettings: boolean;
@@ -107,7 +107,7 @@ const defaultSettings: RemoteSettings = {
   sidebarExpanded: true,
   companionExpanded: false,
   sortingEnabled: false,
-  optOutWeeklyGoal: false,
+  optOutReadingStreak: false,
   optOutCompanion: false,
   autoDismissNotifications: true,
   theme: remoteThemes[ThemeMode.Dark],
@@ -212,10 +212,10 @@ export const SettingsContextProvider = ({
         }),
       toggleSortingEnabled: () =>
         setSettings({ ...settings, sortingEnabled: !settings.sortingEnabled }),
-      toggleOptOutWeeklyGoal: () =>
+      toggleOptOutReadingStreak: () =>
         setSettings({
           ...settings,
-          optOutWeeklyGoal: !settings.optOutWeeklyGoal,
+          optOutReadingStreak: !settings.optOutReadingStreak,
         }),
       toggleOptOutCompanion: () =>
         setSettings({

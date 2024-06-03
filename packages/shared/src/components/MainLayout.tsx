@@ -81,7 +81,7 @@ function MainLayoutComponent({
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
-  const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
+  const { sidebarExpanded, autoDismissNotifications } =
     useContext(SettingsContext);
   const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
@@ -115,29 +115,6 @@ function MainLayoutComponent({
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNotificationsReady, unreadCount, hasTrackedImpression]);
-
-  const RenderSidebar = () => {
-    if (sidebarRendered === null || (sidebarRendered && !showSidebar)) {
-      return null;
-    }
-
-    return (
-      <Sidebar
-        promotionalBannerActive={isBannerAvailable}
-        sidebarRendered={sidebarRendered}
-        openMobileSidebar={openMobileSidebar}
-        onNavTabClick={onNavTabClick}
-        enableSearch={enableSearch}
-        activePage={activePage}
-        showDnd={showDnd}
-        dndActive={dndActive}
-        isNavButtons={isNavItemsButton}
-        onShowDndClick={onShowDndClick}
-        onLogoClick={onLogoClick}
-        setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
-      />
-    );
-  };
 
   const page = router?.route?.substring(1).trim() as SharedFeedPage;
   const isPageReady =
@@ -189,7 +166,6 @@ function MainLayoutComponent({
       <MainLayoutHeader
         hasBanner={isBannerAvailable}
         sidebarRendered={sidebarRendered}
-        optOutWeeklyGoal={optOutWeeklyGoal}
         additionalButtons={additionalButtons}
         onLogoClick={onLogoClick}
       />
@@ -201,7 +177,22 @@ function MainLayoutComponent({
           isBannerAvailable && 'laptop:pt-8',
         )}
       >
-        <RenderSidebar />
+        {showSidebar && (
+          <Sidebar
+            promotionalBannerActive={isBannerAvailable}
+            sidebarRendered={sidebarRendered}
+            openMobileSidebar={openMobileSidebar}
+            onNavTabClick={onNavTabClick}
+            enableSearch={enableSearch}
+            activePage={activePage}
+            showDnd={showDnd}
+            dndActive={dndActive}
+            isNavButtons={isNavItemsButton}
+            onShowDndClick={onShowDndClick}
+            onLogoClick={onLogoClick}
+            setOpenMobileSidebar={() => onMobileSidebarToggle(false)}
+          />
+        )}
         {children}
       </main>
     </div>

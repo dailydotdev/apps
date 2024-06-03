@@ -74,12 +74,8 @@ export default function Sidebar({
   const router = useRouter();
   const { user, isLoggedIn } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
-  const {
-    toggleSidebarExpanded,
-    sidebarExpanded,
-    loadedSettings,
-    optOutWeeklyGoal,
-  } = useContext(SettingsContext);
+  const { toggleSidebarExpanded, sidebarExpanded, loadedSettings } =
+    useContext(SettingsContext);
   const { modal, openModal } = useLazyModal();
   const showSettings = modal?.type === LazyModal.UserSettings;
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -325,7 +321,6 @@ export default function Sidebar({
           <div className="flex-1" />
           <SidebarBottomSection
             {...defaultRenderSectionProps}
-            optOutWeeklyGoal={optOutWeeklyGoal}
             showSettings={showSettings}
           />
         </SidebarScrollWrapper>

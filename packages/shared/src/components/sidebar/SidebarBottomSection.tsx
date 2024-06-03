@@ -15,12 +15,10 @@ const ChangelogTooltip = dynamic(
 );
 
 interface SidebarBottomSectionProps extends SectionCommonProps {
-  optOutWeeklyGoal: boolean;
   showSettings: boolean;
 }
 
 export function SidebarBottomSection({
-  optOutWeeklyGoal,
   showSettings,
   ...props
 }: SidebarBottomSectionProps): ReactElement {
