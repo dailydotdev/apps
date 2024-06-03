@@ -202,6 +202,8 @@ export const UPDATE_SQUAD_POST_MUTATION = gql`
   }
 `;
 
+// this query should use UserShortInfo fragment once the createdAt issue is fixed.
+// for the mean time, we should not include the said property on privilegedMembers.
 export const SQUAD_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
@@ -216,13 +218,18 @@ export const SQUAD_QUERY = gql`
       }
       privilegedMembers {
         user {
-          ...UserShortInfo
+          id
+          name
+          image
+          permalink
+          username
+          bio
+          reputation
         }
         role
       }
     }
   }
-  ${USER_SHORT_INFO_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}
 `;
 
