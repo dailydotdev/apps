@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { Card as CardV1 } from '../v1/Card';
 import { Card } from '../Card';
