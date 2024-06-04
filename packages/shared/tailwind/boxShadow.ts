@@ -32,6 +32,7 @@ const boxShadows = Object.keys(baseShadows).reduce(
 
 export default {
   ...boxShadows,
+  none: 'none',
   2: 'var(--theme-shadow2)',
   3: 'var(--theme-shadow3)',
 };
