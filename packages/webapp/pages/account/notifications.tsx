@@ -435,7 +435,17 @@ const AccountNotificationsPage = (): ReactElement => {
               checked={!!readingStreakReminder}
               onToggle={onToggleReadingStreakReminder}
             >
-              Notify me before my streak expires
+              <SimpleTooltip
+                placement="top"
+                content={
+                  <div className="w-60 typo-subhead">
+                    Get a notification at 20:00 if your streak is about to
+                    expire.
+                  </div>
+                }
+              >
+                <span>Notify me before my streak expires</span>
+              </SimpleTooltip>
             </Checkbox>
             <Checkbox
               name="readingReminder"
