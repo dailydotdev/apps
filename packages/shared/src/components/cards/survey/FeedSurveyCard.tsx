@@ -22,13 +22,12 @@ export function FeedSurveyCard({
 
   return (
     <div
-      className="relative rounded-16 p-px"
+      className="relative rounded-16 p-0.5"
       style={{ backgroundImage: feedSurveyBorder }}
     >
-      <div className="absolute inset-px rounded-16 bg-background-default" />
       <CardComponent
         className={classNames(
-          'relative items-center gap-4 overflow-hidden',
+          'relative items-center gap-4 overflow-hidden !rounded-14 border-0 shadow-none',
           shouldUseListFeedLayout ? '!py-10' : 'pt-20',
         )}
         style={{ background: feedSurveyBg }}

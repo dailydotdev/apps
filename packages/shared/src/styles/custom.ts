@@ -3,7 +3,7 @@
 // we should eventually convert the custom colors to be part of the guideline once it is deemed to be used frequently
 
 export const feedSurveyBg =
-  'linear-gradient(180deg, rgba(255, 233, 35, 0.08) 0%, rgba(252, 83, 141, 0.08) 50%, rgba(113, 71, 237, 0.08) 100%)';
+  'color-mix(in srgb, var(--theme-background-default), transparent 8%)';
 
 export const feedSurveyBorder =
-  'linear-gradient(180deg, rgba(255, 233, 35, 1) 0%, rgba(252, 83, 141, 1) 50%, rgba(113, 71, 237, 1) 100%)';
+  'linear-gradient(180deg, var(--theme-accent-cheese-default) 0%, var(--theme-accent-bacon-default) 50%, var(--theme-accent-onion-default) 100%)';
