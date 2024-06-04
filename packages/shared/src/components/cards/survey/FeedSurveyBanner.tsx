@@ -3,6 +3,7 @@ import { RatingStars } from '../../utilities/RatingStars';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { useFeedSurvey } from '../../../hooks/feed/useFeedSurvey';
 import { FeedSurveyProps } from './common';
+import { feedSurveyBg, feedSurveyBorder } from '../../../styles/custom';
 
 export function FeedSurveyBanner({
   max,
@@ -16,17 +17,11 @@ export function FeedSurveyBanner({
   return (
     <div
       className="relative mb-4 flex flex-col px-4 py-6 tablet:px-6"
-      style={{
-        background:
-          'linear-gradient(90deg, rgba(255, 233, 35, 0.08) 0%, rgba(252, 64, 121, 0.08) 50%, rgba(113, 71, 237, 0.08) 100%)',
-      }}
+      style={{ background: feedSurveyBg }}
     >
       <div
         className="absolute left-0 right-0 top-0 h-px"
-        style={{
-          background:
-            'linear-gradient(90deg, rgba(255, 233, 35, 1) 0%, rgba(252, 64, 121, 1) 50%, rgba(113, 71, 237, 1) 100%)',
-        }}
+        style={{ background: feedSurveyBorder }}
       />
       <div className="flex flex-row items-start tablet:items-center">
         <div className="flex flex-1 flex-col items-start justify-between tablet:flex-row tablet:items-center">
