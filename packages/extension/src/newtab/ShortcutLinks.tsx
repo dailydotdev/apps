@@ -131,7 +131,7 @@ export default function ShortcutLinks({
 }: ShortcutLinksProps): ReactElement {
   const className = !shouldUseListFeedLayout
     ? 'ml-auto'
-    : 'mt-4 w-fit [@media(width<=680px)]:mx-6';
+    : 'mt-4 w-fit mx-4 laptop:mx-0';
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const shortcutsUIFeature = useFeature(feature.shortcutsUI);
   const isShortcutsUIV1 = shortcutsUIFeature === ShortcutsUIExperiment.V1;
