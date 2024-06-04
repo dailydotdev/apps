@@ -30,10 +30,7 @@ export function FeedSurveyCard({
           'shadow-none relative items-center gap-4 overflow-hidden !rounded-14 border-0',
           shouldUseListFeedLayout ? '!py-10' : 'pt-20',
         )}
-        style={{
-          background:
-            'color-mix(in srgb, var(--theme-background-default), transparent 8%)',
-        }}
+        style={{ background: feedSurveyBg }}
       >
         <h3 className="font-bold typo-title3">{title}</h3>
         <RatingStars max={max} isDisabled={submitted} onStarClick={setScore} />
