@@ -17,12 +17,12 @@ interface UserReadingStreak {
 }
 
 export const useReadingStreak = (): UserReadingStreak => {
-  const { user } = useAuthContext();
+  const { user, isLoggedIn } = useAuthContext();
   const { optOutReadingStreak, loadedSettings } = useContext(SettingsContext);
   const { data: streak, isLoading } = useQuery(
     generateQueryKey(RequestKey.UserStreak, user),
     getReadingStreak,
-    { staleTime: StaleTime.Default },
+    { staleTime: StaleTime.Default, enabled: isLoggedIn },
   );
   const { checkHasCompleted } = useActions();
   const hasReadToday =
