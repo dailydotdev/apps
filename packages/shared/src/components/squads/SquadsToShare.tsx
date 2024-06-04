@@ -21,7 +21,7 @@ export function SquadsToShare({
   isLoading,
   onClick,
   size = ButtonSize.Large,
-  squadAvatarSize = 'xlarge',
+  squadAvatarSize = ProfileImageSize.XLarge,
 }: SquadsToShareProps): ReactElement {
   const { squads } = useAuthContext();
   const { openNewSquad } = useSquadNavigation();

@@ -37,6 +37,7 @@ import { usePushNotificationContext } from '../../contexts/PushNotificationConte
 import { TextField } from '../fields/TextField';
 import { ReputationAlert } from './ReputationAlert';
 import { RequestKey } from '../../lib/query';
+import { ProfileImageSize } from '../ProfilePicture';
 
 interface RSS {
   url: string;
@@ -310,7 +311,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
                 <SourceProfilePicture
                   className="ml-auto"
                   source={existingSource}
-                  size="small"
+                  size={ProfileImageSize.Small}
                 />
               </>
             }

@@ -53,6 +53,11 @@ function SquadLoading({
           <Actions className="hidden laptop:flex laptopL:ml-auto" />
           <Actions className="mt-8 flex laptop:hidden" />
         </div>
+        <FlexRow className="mt-6 gap-3">
+          <RectangleElement className="h-12 w-32" />
+          <RectangleElement className="h-12 w-12 tablet:w-32" />
+          <RectangleElement className="hidden h-12 w-32 tablet:flex" />
+        </FlexRow>
         <RectangleElement className="relative bottom-0 mt-8 flex h-16 w-full max-w-[30.25rem] flex-col  pt-8 tablet:absolute tablet:translate-y-1/2 tablet:flex-row tablet:p-0 laptop:mt-6 laptop:max-w-[38.25rem] laptopL:px-0" />
       </FlexCol>
       <ColumnContainer className="relative max-h-page w-full overflow-hidden px-16 pt-7">

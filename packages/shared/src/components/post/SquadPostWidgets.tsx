@@ -14,6 +14,7 @@ import { useSquad } from '../../hooks';
 import { getSquadMembers, isSourcePublicSquad } from '../../graphql/squads';
 import SquadMemberShortList from '../squads/SquadMemberShortList';
 import { PostWidgetsProps } from './PostWidgets';
+import { ProfileImageSize } from '../ProfilePicture';
 import { FooterLinks } from '../footer';
 
 const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
@@ -34,7 +35,7 @@ const SquadCard = ({ squadSource }: { squadSource: Squad }) => {
   return (
     <div className="rounded-16 border border-border-subtlest-tertiary p-4">
       <div className="flex flex-row justify-between">
-        <SourceButton source={squad} size="xxxlarge" />
+        <SourceButton source={squad} size={ProfileImageSize.XXXLarge} />
         <SquadMemberShortList
           squad={squad}
           members={squadMembers}
