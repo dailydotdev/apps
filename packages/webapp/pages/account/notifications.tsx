@@ -60,6 +60,9 @@ const AccountNotificationsPage = (): ReactElement => {
   const readingReminder = getPersonalizedDigest(
     UserPersonalizedDigestType.ReadingReminder,
   );
+  const readingStreakReminder = getPersonalizedDigest(
+    UserPersonalizedDigestType.ReadingStreakReminder,
+  );
   const personalizedDigest = getPersonalizedDigest(
     UserPersonalizedDigestType.Digest,
   );
@@ -164,6 +167,34 @@ const AccountNotificationsPage = (): ReactElement => {
     } else {
       unsubscribePersonalizedDigest({
         type: UserPersonalizedDigestType.ReadingReminder,
+      });
+    }
+  };
+
+  const onToggleReadingStreakReminder = (forceValue?: boolean) => {
+    const value = forceValue || !readingStreakReminder;
+    onTrackToggle(
+      value,
+      NotificationChannel.Web,
+      NotificationCategory.ReadingStreakReminder,
+    );
+
+    if (value) {
+      trackEvent({
+        event_name: AnalyticsEvent.ScheduleReadingStreakReminder,
+        extra: JSON.stringify({
+          hour: readingTimeIndex,
+          timezone: user?.timezone,
+        }),
+      });
+      subscribePersonalizedDigest({
+        hour: 20,
+        sendType: SendType.Workdays,
+        type: UserPersonalizedDigestType.ReadingStreakReminder,
+      });
+    } else {
+      unsubscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.ReadingStreakReminder,
       });
     }
   };
@@ -397,6 +428,14 @@ const AccountNotificationsPage = (): ReactElement => {
           <div className="mt-6 grid grid-cols-1 gap-2">
             <Checkbox name="newsletter" checked disabled>
               Activity (mentions, replies, upvotes, etc.)
+            </Checkbox>
+            <Checkbox
+              name="readingStreakReminder"
+              data-testid="reading-streak-reminder-switch"
+              checked={!!readingStreakReminder}
+              onToggle={onToggleReadingStreakReminder}
+            >
+              Notify me before my streak expires
             </Checkbox>
             <Checkbox
               name="readingReminder"
