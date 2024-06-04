@@ -147,6 +147,12 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           href="/favicon-16x16.png"
         />
         <link rel="manifest" href="/manifest.json" />
+        <link
+          rel="sitemap"
+          type="application/xml"
+          title="Sitemap"
+          href="/sitemap.xml"
+        />
 
         <script
           dangerouslySetInnerHTML={{
