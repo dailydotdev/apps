@@ -2,7 +2,6 @@ import { JSONValue } from '@growthbook/growthbook';
 import {
   ExperienceLevelExperiment,
   TagSourceSocialProof,
-  FeedListLayoutExperiment,
   CustomFeedsExperiment,
 } from './featureValues';
 import { cloudinary } from './image';
@@ -45,10 +44,6 @@ const feature = {
     ExperienceLevelExperiment.Control,
   ),
   featureTheme: new Feature('feature_theme', {}),
-  feedListLayout: new Feature(
-    'feed_list_layout',
-    FeedListLayoutExperiment.Control,
-  ),
   customFeeds: new Feature('custom_feeds', CustomFeedsExperiment.Control),
   hypeCampaign: new Feature('hype_campaign', false),
   searchGoogle: new Feature('search_google', false),

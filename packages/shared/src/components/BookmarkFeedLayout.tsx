@@ -44,7 +44,7 @@ export default function BookmarkFeedLayout({
   const {
     shouldUseListFeedLayout,
     FeedPageLayoutComponent,
-    shouldUseListModeV1,
+    shouldUseListMode,
   } = useFeedLayout();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
@@ -101,7 +101,7 @@ export default function BookmarkFeedLayout({
       <CustomFeedHeader
         className={classNames(
           'mb-6 flex',
-          shouldUseListFeedLayout && !shouldUseListModeV1 && 'px-4',
+          shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
         )}
       >
         {searchChildren}

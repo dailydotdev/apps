@@ -1,13 +1,10 @@
 import React, { FunctionComponent, ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import { FeedItem } from '../hooks/useFeed';
-import { PostList } from './cards/PostList';
 import { ArticlePostCard } from './cards/ArticlePostCard';
 import { ArticlePostCard as ArticlePostCardV1 } from './cards/v1/ArticlePostCard';
-import { AdList } from './cards/AdList';
 import { AdCard } from './cards/AdCard';
 import { AdCard as AdCardV1 } from './cards/v1/AdCard';
-import { PlaceholderList } from './cards/PlaceholderList';
 import { PlaceholderCard } from './cards/PlaceholderCard';
 import { PlaceholderCard as PlaceholderCardV1 } from './cards/v1/PlaceholderCard';
 import { Ad, Post, PostItem, PostType } from '../graphql/posts';
@@ -24,7 +21,7 @@ import { useFeedLayout, UseVotePost } from '../hooks';
 import { CollectionCard } from './cards/CollectionCard';
 import { CollectionCard as CollectionCardV1 } from './cards/v1/CollectionCard';
 import { AcquisitionFormCard } from './cards/AcquisitionFormCard';
-import { MarketingCtaCard, MarketingCtaList } from './cards';
+import { MarketingCtaCard } from './cards';
 import { MarketingCtaCardV1 } from './cards/v1/MarketingCtaCard';
 import { FeedItemType } from './cards/common';
 import { PublicSquadEligibilityCard } from './squads/PublicSquadEligibilityCard';
@@ -114,36 +111,24 @@ const PostTypeToTagV1: Record<PostType, FunctionComponent> = {
 };
 
 type GetTagsProps = {
-  isHorizontal: boolean;
-  isList: boolean;
   isListFeedLayout: boolean;
-  shouldUseListModeV1: boolean;
+  shouldUseListMode: boolean;
   postType: PostType;
 };
 
 const getTags = ({
-  isHorizontal,
-  isList,
   isListFeedLayout,
-  shouldUseListModeV1,
+  shouldUseListMode,
   postType,
 }: GetTagsProps) => {
-  const useListCards = isList && !isHorizontal;
-  if (isListFeedLayout || shouldUseListModeV1) {
-    return {
-      PostTag: PostTypeToTagV1[postType] ?? ArticlePostCardV1,
-      AdTag: AdCardV1,
-      PlaceholderTag: PlaceholderCardV1,
-      MarketingCtaTag: MarketingCtaCardV1,
-    };
-  }
+  const useListCards = isListFeedLayout || shouldUseListMode;
   return {
     PostTag: useListCards
-      ? PostList
+      ? PostTypeToTagV1[postType] ?? ArticlePostCardV1
       : PostTypeToTag[postType] ?? ArticlePostCard,
-    AdTag: useListCards ? AdList : AdCard,
-    PlaceholderTag: useListCards ? PlaceholderList : PlaceholderCard,
-    MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
+    AdTag: useListCards ? AdCardV1 : AdCard,
+    PlaceholderTag: useListCards ? PlaceholderCardV1 : PlaceholderCard,
+    MarketingCtaTag: useListCards ? MarketingCtaCardV1 : MarketingCtaCard,
   };
 };
 
@@ -187,18 +172,16 @@ export default function FeedItemComponent({
     ranking,
   );
 
-  const { shouldUseListFeedLayout, isListModeV1, shouldUseListModeV1 } =
+  const { shouldUseListFeedLayout, isListMode, shouldUseListMode } =
     useFeedLayout();
   const { PostTag, AdTag, PlaceholderTag, MarketingCtaTag } = getTags({
-    isHorizontal,
-    isList: isListProp,
     isListFeedLayout: shouldUseListFeedLayout,
-    shouldUseListModeV1,
+    shouldUseListMode,
     postType: (item as PostItem).post?.type,
   });
 
-  const insaneMode = isListModeV1 || isHorizontal ? false : insaneModeProp;
-  const isList = isListModeV1 || isHorizontal ? false : isListProp;
+  const insaneMode = isListMode || isHorizontal ? false : insaneModeProp;
+  const isList = isListMode || isHorizontal ? false : isListProp;
 
   switch (item.type) {
     case FeedItemType.Post: {

@@ -28,7 +28,7 @@ export default function HorizontalFeed<T>({
   const currentSettings = useContext(FeedContext);
   const { spaciness, insaneMode } = useContext(SettingsContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
-  const { isListModeV1 } = useFeedLayout();
+  const { isListMode } = useFeedLayout();
 
   useEffect(() => {
     const element = feedContainerRef;
@@ -99,7 +99,7 @@ export default function HorizontalFeed<T>({
       isHorizontal
       className={classnames(
         'mx-4 mb-10',
-        insaneMode && isListModeV1 && 'laptop:mx-auto',
+        insaneMode && isListMode && 'laptop:mx-auto',
       )}
       feedContainerRef={(ref) => setFeedContainerRef(ref)}
     />
