@@ -149,9 +149,9 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         <link rel="manifest" href="/manifest.json" />
         <link
           rel="sitemap"
-          type="application/xml"
+          type="text/plain"
           title="Sitemap"
-          href="/sitemap.xml"
+          href="/sitemap.txt"
         />
 
         <script
