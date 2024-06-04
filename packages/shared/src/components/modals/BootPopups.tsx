@@ -37,6 +37,10 @@ export const BootPopups = (): null => {
 
   // hide modal if feature is not enabled
   let shouldHideStreaksModal = !isStreaksEnabled;
+  // hide modal if user already opted out of the milestone
+  shouldHideStreaksModal =
+    shouldHideStreaksModal ||
+    checkHasCompleted(ActionType.DisableReadingStreakMilestone);
   // hide modal if user already closed it
   shouldHideStreaksModal =
     shouldHideStreaksModal || alerts?.showStreakMilestone !== true;
