@@ -1,5 +1,5 @@
 import React, { ReactElement, useCallback, useEffect, useRef } from 'react';
-import { Card as CardV1 } from './Card';
+import { ListCard } from './ListCard';
 import { useBoot } from '../../../hooks';
 import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetType } from '../../../lib/analytics';
@@ -12,7 +12,7 @@ import {
 } from '../MarketingCta/common';
 import { CardCoverV1 } from './CardCover';
 
-export function MarketingCtaCardV1({
+export function MarketingCtaList({
   marketingCta,
 }: {
   marketingCta: MarketingCta;
@@ -55,7 +55,7 @@ export function MarketingCtaCardV1({
   }, [clearMarketingCta, marketingCta.campaignId, trackEvent]);
 
   return (
-    <CardV1 className="p-4">
+    <ListCard className="p-4">
       {tagColor && tagText && (
         <Header tagColor={tagColor} tagText={tagText} onClose={onCtaDismiss} />
       )}
@@ -74,6 +74,6 @@ export function MarketingCtaCardV1({
       {ctaUrl && ctaText && (
         <CTAButton onClick={onCtaClick} ctaUrl={ctaUrl} ctaText={ctaText} />
       )}
-    </CardV1>
+    </ListCard>
   );
 }

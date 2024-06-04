@@ -144,7 +144,6 @@ const SquadsPage = ({ initialData }: Props): ReactElement => {
                 }
                 className="mt-5 px-6"
                 inlineHeader
-                forceCardMode
               >
                 {queryResult?.data?.pages?.length > 0 && (
                   <>

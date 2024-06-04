@@ -12,7 +12,6 @@ interface PostCardFooterClassName {
 }
 
 interface PostCardFooterProps extends CommonCardCoverProps {
-  insaneMode: boolean;
   openNewTab: boolean;
   showImage: boolean;
   post: Post;

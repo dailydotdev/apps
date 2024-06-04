@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import classed from '../../lib/classed';
 import styles from './utilities.module.css';
 import { ArrowIcon } from '../icons';
-import { Post, PostType, isSharedPostSquadPost } from '../../graphql/posts';
 
 export enum Theme {
   Avocado = 'avocado',
@@ -135,8 +134,6 @@ export const FeedPageHeader = classed(
   'overflow-x-auto self-stretch mb-6 no-scrollbar hidden laptop:flex',
 );
 
-export const customFeedIcon = 'text-2xl text-text-tertiary mr-2';
-
 export const Summary = classed('summary', 'cursor-pointer focus-outline');
 
 export const SummaryArrow = classed(ArrowIcon, 'icon arrow ml-auto text-xl');
@@ -174,11 +171,6 @@ export enum SharedFeedPage {
   CustomForm = 'custom-form',
 }
 
-export const FeedHeading = classed(
-  'h3',
-  'flex flex-row flex-1 items-center typo-body font-bold',
-);
-
 export const getShouldRedirect = (
   isOnMyFeed: boolean,
   isLoggedIn: boolean,
@@ -187,42 +179,16 @@ export const getShouldRedirect = (
     return false;
   }
 
-  if (!isLoggedIn) {
-    return true;
-  }
-
-  return false;
+  return !isLoggedIn;
 };
 
 export const FlexRow = classed('span', 'flex flex-row');
 export const FlexCol = classed('div', 'flex flex-col');
 export const FlexCentered = classed('div', 'flex justify-center items-center');
 
-interface ContextPosition {
-  x: number;
-  y: number;
-}
-
-export const getContextBottomPosition = (
-  e: React.MouseEvent,
-): ContextPosition => {
-  const { right, bottom } = e.currentTarget.getBoundingClientRect();
-
-  return { x: right, y: bottom + 4 };
-};
-
 export interface WithClassNameProps {
   className?: string;
 }
-
-export const getReadArticleLink = (post: Post): string => {
-  if (post.type === PostType.Share) {
-    return isSharedPostSquadPost(post)
-      ? post.sharedPost.commentsPermalink
-      : post.sharedPost.permalink;
-  }
-  return post.permalink;
-};
 
 export const formatReadTime = (minutes: number): string => {
   const hours = Math.floor(minutes / 60);

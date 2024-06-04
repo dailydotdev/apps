@@ -28,7 +28,6 @@ import { SharedFeedPage } from '../utilities';
 
 export interface FeedContainerProps {
   children: ReactNode;
-  forceCardMode?: boolean;
   header?: ReactNode;
   footer?: ReactNode;
   className?: string;
@@ -136,7 +135,6 @@ const feedNameToHeading: Record<
 
 export const FeedContainer = ({
   children,
-  forceCardMode,
   header,
   footer,
   className,
@@ -153,21 +151,16 @@ export const FeedContainer = ({
   });
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
-  const {
-    spaciness,
-    insaneMode: listMode,
-    loadedSettings,
-  } = useContext(SettingsContext);
+  const { spaciness, loadedSettings } = useContext(SettingsContext);
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
-  const insaneMode = !forceCardMode && listMode;
   const isList =
     (isHorizontal || isListMode) && !shouldUseListFeedLayout
       ? false
-      : (insaneMode && numCards > 1) || shouldUseListFeedLayout;
+      : (isListMode && numCards > 1) || shouldUseListFeedLayout;
   const feedGapPx =
     getFeedGapPx[
       gapClass({

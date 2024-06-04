@@ -43,7 +43,7 @@ const getFeedQueryKeys = (client: QueryClient): QueryKey[] => {
     .findAll()
     .reduce((queryKeys, query) => {
       const key = query.queryKey;
-      // filter only query keys for supported feed layout v1 feeds
+      // filter only query keys for supported feed layout list feeds
       if (
         Array.isArray(key) &&
         key.length > 0 &&

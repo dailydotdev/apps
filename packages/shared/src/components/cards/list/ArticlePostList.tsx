@@ -1,7 +1,7 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { CardContainer, CardContent, CardTitle } from './Card';
+import { CardContainer, CardContent, CardTitle } from './ListCard';
 import ActionButtons from './ActionButtons';
 import { PostCardHeader } from './PostCardHeader';
 import { Container, PostCardProps } from '../common';
@@ -11,7 +11,7 @@ import {
   usePostFeedback,
   useTruncatedSummary,
 } from '../../../hooks';
-import { FeedbackCard } from './FeedbackCard';
+import { FeedbackList } from './FeedbackList';
 import { Origin } from '../../../lib/analytics';
 import SourceButton from '../SourceButton';
 import { isVideoPost } from '../../../graphql/posts';
@@ -20,7 +20,7 @@ import PostTags from '../PostTags';
 import { CardCoverV1 } from './CardCover';
 import { ProfileImageSize } from '../../ProfilePicture';
 
-export const ArticlePostCard = forwardRef(function PostCard(
+export const ArticlePostList = forwardRef(function PostCard(
   {
     post,
     onPostClick,
@@ -68,7 +68,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
       }
     >
       {showFeedback ? (
-        <FeedbackCard
+        <FeedbackList
           post={post}
           onUpvoteClick={() => onUpvoteClick(post, Origin.FeedbackCard)}
           onDownvoteClick={() => onDownvoteClick(post, Origin.FeedbackCard)}
@@ -142,15 +142,12 @@ export const ArticlePostCard = forwardRef(function PostCard(
           <Container className="pointer-events-none">
             <ActionButtons
               className="mt-4"
-              openNewTab={openNewTab}
               post={post}
               onUpvoteClick={onUpvoteClick}
               onDownvoteClick={onDownvoteClick}
               onCommentClick={onCommentClick}
               onCopyLinkClick={onCopyLinkClick}
               onBookmarkClick={onBookmarkClick}
-              onMenuClick={(event) => onMenuClick?.(event, post)}
-              onReadArticleClick={onReadArticleClick}
             />
           </Container>
           {children}

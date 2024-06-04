@@ -9,7 +9,7 @@ import { DownvoteIcon, UpvoteIcon } from '../../icons';
 import { Post, UserVote } from '../../../graphql/posts';
 import { usePostFeedback } from '../../../hooks';
 import CloseButton from '../../CloseButton';
-import { CardContent } from './Card';
+import { CardContent } from './ListCard';
 import { CardCoverV1 } from './CardCover';
 
 interface FeedbackCardProps {
@@ -20,7 +20,7 @@ interface FeedbackCardProps {
   isVideoType?: boolean;
 }
 
-export const FeedbackCard = ({
+export const FeedbackList = ({
   post,
   onUpvoteClick,
   onDownvoteClick,

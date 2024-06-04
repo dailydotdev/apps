@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import OptionsButton from '../../buttons/OptionsButton';
-import { CardHeader } from './Card';
+import { CardHeader } from './ListCard';
 import { ReadArticleButton } from '../ReadArticleButton';
 import { getGroupedHoverContainer } from '../common';
 import { useFeedPreviewMode } from '../../../hooks';

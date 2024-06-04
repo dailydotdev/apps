@@ -85,6 +85,7 @@ const renderComponent = (
       <AlertContext.Provider value={alertsData}>
         <AuthContext.Provider
           value={{
+            isLoggedIn: !!loggedUser,
             user: loggedUser,
             shouldShowLogin: false,
             showLogin,

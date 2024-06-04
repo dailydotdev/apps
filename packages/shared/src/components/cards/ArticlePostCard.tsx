@@ -36,7 +36,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
     openNewTab,
     children,
     showImage = true,
-    insaneMode,
     onReadArticleClick,
     domProps = {},
   }: PostCardProps,
@@ -115,13 +114,11 @@ export const ArticlePostCard = forwardRef(function PostCard(
               readTime={post.readTime}
               isVideoType={isVideoType}
               className="mx-4"
-              insaneMode={insaneMode}
             />
           </Container>
         )}
         <Container>
           <PostCardFooter
-            insaneMode={insaneMode}
             openNewTab={openNewTab}
             post={post}
             showImage={showImage}
@@ -133,14 +130,11 @@ export const ArticlePostCard = forwardRef(function PostCard(
 
           {!showFeedback && (
             <ActionButtons
-              openNewTab={openNewTab}
               post={post}
               onUpvoteClick={onUpvoteClick}
               onCommentClick={onCommentClick}
               onCopyLinkClick={onCopyLinkClick}
               onBookmarkClick={onBookmarkClick}
-              onMenuClick={(event) => onMenuClick?.(event, post)}
-              onReadArticleClick={onReadArticleClick}
               className={!showImage && 'my-4 laptop:mb-0'}
             />
           )}

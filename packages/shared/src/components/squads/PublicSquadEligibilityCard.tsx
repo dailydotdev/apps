@@ -9,7 +9,7 @@ import {
 import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Card } from '../cards/Card';
-import { Card as CardV1 } from '../cards/v1/Card';
+import { ListCard as CardV1 } from '../cards/list/ListCard';
 import { EarthIcon, MiniCloseIcon, TimerIcon } from '../icons';
 import { ActionType } from '../../graphql/actions';
 import { useLazyModal } from '../../hooks/useLazyModal';

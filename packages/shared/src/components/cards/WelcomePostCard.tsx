@@ -23,9 +23,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     onMenuClick,
     onCopyLinkClick,
     onBookmarkClick,
-    openNewTab,
     children,
-    onReadArticleClick,
     enableSourceHeader = false,
     domProps = {},
   }: PostCardProps,
@@ -86,14 +84,11 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
       <Container ref={containerRef}>
         <WelcomePostCardFooter image={image} contentHtml={post.contentHtml} />
         <ActionButtons
-          openNewTab={openNewTab}
           post={post}
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
           onBookmarkClick={onBookmarkClick}
-          onMenuClick={(event) => onMenuClick?.(event, post)}
-          onReadArticleClick={onReadArticleClick}
           className="mt-auto"
         />
       </Container>

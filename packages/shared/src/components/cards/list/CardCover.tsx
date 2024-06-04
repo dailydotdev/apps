@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { ImageProps, ImageType } from '../../image/Image';
 import VideoImage, { VideoImageProps } from '../../image/VideoImage';
 import ConditionalWrapper from '../../ConditionalWrapper';
-import { CardImage as CardImageV1 } from './Card';
+import { CardImage as CardImageV1 } from './ListCard';
 import { CommonCardCoverProps } from '../common';
 import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
 import { CardCoverShare } from '../common/CardCoverShare';

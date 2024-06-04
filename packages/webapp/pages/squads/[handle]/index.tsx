@@ -255,7 +255,6 @@ const SquadPage = ({
           }
           query={SOURCE_FEED_QUERY}
           variables={queryVariables}
-          forceCardMode
           showSearch={false}
           emptyScreen={<SquadEmptyScreen />}
           options={{ refetchOnMount: true }}

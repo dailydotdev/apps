@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import shuffle from 'lodash.shuffle';
 import { Card } from './Card';
-import { Card as CardV1 } from './v1/Card';
+import { ListCard as CardV1 } from './list/ListCard';
 import { Radio } from '../fields/Radio';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { AcquisitionChannel, updateUserAcquisition } from '../../graphql/users';

@@ -1,21 +1,19 @@
 import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
-import { Card, CardSpace, CardTextContainer } from './Card';
+import { ListCard, CardSpace, CardTextContainer } from './ListCard';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
 import classed from '../../../lib/classed';
 
 const Text = classed(ElementPlaceholder, 'rounded-12');
 
-export type PlaceholderCardProps = {
-  showImage?: boolean;
-} & HTMLAttributes<HTMLDivElement>;
+export type PlaceholderCardProps = HTMLAttributes<HTMLDivElement>;
 
-export const PlaceholderCard = forwardRef(function PlaceholderCard(
-  { className, showImage, ...props }: PlaceholderCardProps,
+export const PlaceholderList = forwardRef(function PlaceholderCard(
+  { className, ...props }: PlaceholderCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   return (
-    <Card aria-busy className={classNames(className)} {...props} ref={ref}>
+    <ListCard aria-busy className={classNames(className)} {...props} ref={ref}>
       <CardTextContainer>
         <CardSpace className="mb-2 flex flex-row">
           <ElementPlaceholder className="size-10 rounded-full" />
@@ -30,6 +28,6 @@ export const PlaceholderCard = forwardRef(function PlaceholderCard(
         <Text className="mt-2 h-4 w-1/2" />
       </CardSpace>
       <ElementPlaceholder className="h-50 rounded-16" />
-    </Card>
+    </ListCard>
   );
 });

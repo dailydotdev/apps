@@ -18,8 +18,6 @@ import { SharedFeedPage } from '../utilities';
 import { getFeedName } from '../../lib/feed';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 
-export const filterAlertMessage = 'Edit your personal feed preferences here';
-
 interface MyFeedHeadingProps {
   onOpenFeedFilters: () => void;
 }
