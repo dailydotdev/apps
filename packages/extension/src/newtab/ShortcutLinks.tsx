@@ -39,6 +39,8 @@ import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { ShortcutsUIExperiment } from '@dailydotdev/shared/src/lib/featureValues';
+import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import CustomLinksModal from './ShortcutLinksModal';
 import MostVisitedSitesModal from './MostVisitedSitesModal';
 import { CustomLinks } from './CustomLinks';
@@ -225,6 +227,8 @@ export default function ShortcutLinks({
     toggleShowTopSites();
   };
 
+  const { githubShortcut } = useThemedAsset();
+
   if (
     showTopSites &&
     isActionsFetched &&
@@ -232,28 +236,22 @@ export default function ShortcutLinks({
     isShortcutsUIV1
   ) {
     const placeholderShortcutLinks = [
-      'https://gmail.com',
-      'https://github.com',
-      'https://reddit.com',
-      'https://openai.com',
-      'https://stackoverflow.com',
+      cloudinary.shortcuts.icons.gmail,
+      githubShortcut,
+      cloudinary.shortcuts.icons.reddit,
+      cloudinary.shortcuts.icons.openai,
+      cloudinary.shortcuts.icons.stackoverflow,
     ];
 
     return (
       <div className="mb-6 hidden flex-col gap-6 px-4 tablet:flex laptop:items-center">
         <h4 className="font-bold text-text-primary typo-title3">
-          Choose your most visited sites.
+          Choose your most visited sites
         </h4>
         <div className="flex gap-4">
           {placeholderShortcutLinks.map((url) => (
             <ShortcutUIItemPlaceholder key={url}>
-              <img
-                src={`https://api.daily.dev/icon?url=${encodeURIComponent(
-                  url,
-                )}&size=${iconSize}`}
-                alt={url}
-                className="size-6"
-              />
+              <img src={url} alt={url} className="size-6 object-contain" />
             </ShortcutUIItemPlaceholder>
           ))}
           <ShortcutUIItemPlaceholder>
