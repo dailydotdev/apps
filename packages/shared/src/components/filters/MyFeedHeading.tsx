@@ -17,6 +17,7 @@ import { setShouldRefreshFeed } from '../../lib/refreshFeed';
 import { SharedFeedPage } from '../utilities';
 import { getFeedName } from '../../lib/feed';
 import { useFeedName } from '../../hooks/feed/useFeedName';
+import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
 
 export const filterAlertMessage = 'Edit your personal feed preferences here';
 
@@ -36,12 +37,6 @@ function MyFeedHeading({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedName = getFeedName(router.pathname);
   const { isCustomFeed } = useFeedName({ feedName });
-
-  const onClick = () => {
-    trackEvent({ event_name: AnalyticsEvent.ManageTags });
-    onOpenFeedFilters();
-  };
-
   const onRefresh = async () => {
     trackEvent({ event_name: AnalyticsEvent.RefreshFeed });
     setShouldRefreshFeed(true);
@@ -80,18 +75,18 @@ function MyFeedHeading({
           {isLaptop ? 'Refresh feed' : null}
         </Button>
       )}
-      <Button
+      <FeedSettingsButton
+        onClick={onOpenFeedFilters}
+        className="mr-auto"
         size={ButtonSize.Medium}
         variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-        className="mr-auto"
-        onClick={onClick}
         icon={<FilterIcon />}
         iconPosition={
           shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
         }
       >
         {!isMobile ? feedFiltersLabel : null}
-      </Button>
+      </FeedSettingsButton>
     </>
   );
 }
