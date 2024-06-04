@@ -1,14 +1,8 @@
 import classNames from 'classnames';
-import React, {
-  ReactElement,
-  ReactNode,
-  useCallback,
-  useContext,
-  useMemo,
-} from 'react';
+import React, { ReactElement, ReactNode, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import AuthContext from '../../contexts/AuthContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { webappUrl } from '../../lib/constants';
 import LoginButton from '../LoginButton';
 import ProfileButton from '../profile/ProfileButton';
@@ -25,6 +19,7 @@ import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { feature } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
 import { HypeButton } from '../referral';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -46,7 +41,8 @@ function MainLayoutHeader({
   additionalButtons,
   onLogoClick,
 }: MainLayoutHeaderProps): ReactElement {
-  const { user, isAuthReady } = useContext(AuthContext);
+  const { user, isAuthReady, isLoggedIn } = useAuthContext();
+  const { loadedSettings } = useSettingsContext();
   const { streak, isStreaksEnabled } = useReadingStreak();
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();
@@ -56,45 +52,41 @@ function MainLayoutHeader({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const hypeCampaign = useFeature(feature.hypeCampaign);
 
-  const headerButton = useMemo(() => {
-    if (!user) {
-      return null;
-    }
-
-    if (user && user?.infoConfirmed) {
-      return <ProfileButton className="hidden laptop:flex" />;
-    }
-
-    return (
-      <LoginButton
-        className={{ container: 'gap-4', button: 'hidden laptop:block' }}
-      />
-    );
-  }, [user]);
-
   const RenderButtons = useCallback(() => {
     return (
-      <div className="flex justify-end gap-3">
-        <CreatePostButton />
-        {additionalButtons}
-        {!!user && (
+      <div className="ml-auto flex justify-end gap-3">
+        {loadedSettings && (
           <>
-            <LinkWithTooltip
-              tooltip={{ placement: 'bottom', content: 'Notifications' }}
-              href={`${webappUrl}notifications`}
-            >
-              <NotificationsBell />
-            </LinkWithTooltip>
+            <CreatePostButton />
+            {additionalButtons}
+            {isLoggedIn ? (
+              <>
+                <LinkWithTooltip
+                  tooltip={{ placement: 'bottom', content: 'Notifications' }}
+                  href={`${webappUrl}notifications`}
+                >
+                  <NotificationsBell />
+                </LinkWithTooltip>
+                <ProfileButton className="hidden laptop:flex" />
+              </>
+            ) : (
+              <LoginButton
+                className={{
+                  container: 'gap-4',
+                  button: 'hidden laptop:block',
+                }}
+              />
+            )}
           </>
         )}
-        {headerButton}
       </div>
     );
-  }, [additionalButtons, headerButton, user]);
+  }, [additionalButtons, isLoggedIn, loadedSettings]);
 
   const RenderSearchPanel = useCallback(
     () =>
-      !!user && (
+      loadedSettings &&
+      isLoggedIn && (
         <SearchPanel
           className={{
             container: classNames(
@@ -107,7 +99,7 @@ function MainLayoutHeader({
           }}
         />
       ),
-    [isSearchPage, user],
+    [isLoggedIn, loadedSettings, isSearchPage],
   );
 
   if (isAuthReady && !isLaptop) {
