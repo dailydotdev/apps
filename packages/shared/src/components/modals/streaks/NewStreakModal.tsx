@@ -58,9 +58,8 @@ export default function NewStreakModal({
       trackEvent({
         event_name: AnalyticsEvent.DismissStreaksMilestone,
       });
+      completeAction(ActionType.DisableReadingStreakMilestone);
     }
-
-    completeAction(ActionType.DisableReadingStreakMilestone);
   };
 
   return (
