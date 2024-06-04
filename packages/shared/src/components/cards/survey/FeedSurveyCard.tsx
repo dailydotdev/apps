@@ -27,7 +27,7 @@ export function FeedSurveyCard({
     >
       <CardComponent
         className={classNames(
-          'shadow-none relative items-center gap-4 overflow-hidden !rounded-14 border-0',
+          'relative items-center gap-4 overflow-hidden !rounded-14 border-0 shadow-none',
           shouldUseListFeedLayout ? '!py-10' : 'pt-20',
         )}
         style={{ background: feedSurveyBg }}
