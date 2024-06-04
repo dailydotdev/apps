@@ -41,7 +41,7 @@ function MainLayoutHeader({
   additionalButtons,
   onLogoClick,
 }: MainLayoutHeaderProps): ReactElement {
-  const { user, isAuthReady, isLoggedIn } = useAuthContext();
+  const { user, isLoggedIn } = useAuthContext();
   const { loadedSettings } = useSettingsContext();
   const { streak, isStreaksEnabled } = useReadingStreak();
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
@@ -102,7 +102,7 @@ function MainLayoutHeader({
     [isLoggedIn, loadedSettings, isSearchPage],
   );
 
-  if (isAuthReady && !isLaptop) {
+  if (loadedSettings && !isLaptop) {
     return (
       <>
         <FeedNav />
