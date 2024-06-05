@@ -219,7 +219,7 @@ export default function MainFeedLayout({
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     const feedWithActions =
       isUpvoted || isPopular || isSortableFeed || isCustomFeed;
-    // in v1 search by default we do not show any results but empty state
+    // in list search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
     if (isSearchOn && !searchQuery) {
       return null;
@@ -230,7 +230,6 @@ export default function MainFeedLayout({
         feedName: OtherFeedPage.Preview,
         feedQueryKey: [RequestKey.FeedPreview, user?.id],
         query: PREVIEW_FEED_QUERY,
-        forceCardMode: true,
         showSearch: false,
         options: { refetchOnMount: true },
       };

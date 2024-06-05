@@ -1,7 +1,7 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { CardContainer, CardContent, CardTitle } from './Card';
+import { CardContainer, CardContent, CardTitle } from './ListCard';
 import ActionButtons from './ActionButtons';
 import { PostCardHeader } from './PostCardHeader';
 import { Container, PostCardProps } from '../common';
@@ -11,16 +11,16 @@ import {
   usePostFeedback,
   useTruncatedSummary,
 } from '../../../hooks';
-import { FeedbackCard } from './FeedbackCard';
+import { FeedbackList } from './FeedbackList';
 import { Origin } from '../../../lib/analytics';
 import SourceButton from '../SourceButton';
 import { isVideoPost } from '../../../graphql/posts';
 import PostReadTime from './PostReadTime';
 import PostTags from '../PostTags';
-import { CardCoverV1 } from './CardCover';
+import { CardCoverList } from './CardCover';
 import { ProfileImageSize } from '../../ProfilePicture';
 
-export const ArticlePostCard = forwardRef(function PostCard(
+export const ArticlePostList = forwardRef(function PostCard(
   {
     post,
     onPostClick,
@@ -32,7 +32,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
     onCopyLinkClick,
     openNewTab,
     children,
-    showImage = true,
     onReadArticleClick,
     domProps = {},
     onShare,
@@ -45,7 +44,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
 
   const onPostCardClick = () => onPostClick?.(post);
 
-  const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useTruncatedSummary(post);
@@ -54,7 +52,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
     <FeedItemContainer
       domProps={{
         ...domProps,
-        style: { ...style, ...customStyle },
+        style,
         className,
       }}
       ref={ref}
@@ -68,11 +66,10 @@ export const ArticlePostCard = forwardRef(function PostCard(
       }
     >
       {showFeedback ? (
-        <FeedbackCard
+        <FeedbackList
           post={post}
           onUpvoteClick={() => onUpvoteClick(post, Origin.FeedbackCard)}
           onDownvoteClick={() => onDownvoteClick(post, Origin.FeedbackCard)}
-          showImage={showImage}
           isVideoType={isVideoType}
         />
       ) : (
@@ -119,7 +116,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
                 <PostTags tags={post.tags} />
               </div>
 
-              <CardCoverV1
+              <CardCoverList
                 data-testid="postImage"
                 isVideoType={isVideoType}
                 onShare={onShare}
@@ -142,15 +139,12 @@ export const ArticlePostCard = forwardRef(function PostCard(
           <Container className="pointer-events-none">
             <ActionButtons
               className="mt-4"
-              openNewTab={openNewTab}
               post={post}
               onUpvoteClick={onUpvoteClick}
               onDownvoteClick={onDownvoteClick}
               onCommentClick={onCommentClick}
               onCopyLinkClick={onCopyLinkClick}
               onBookmarkClick={onBookmarkClick}
-              onMenuClick={(event) => onMenuClick?.(event, post)}
-              onReadArticleClick={onReadArticleClick}
             />
           </Container>
           {children}

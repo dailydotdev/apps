@@ -8,7 +8,7 @@ import {
   CardSpace,
   CardContainer,
   CardContent,
-} from './Card';
+} from './ListCard';
 import ActionButtons from './ActionButtons';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { PostCardHeader } from './PostCardHeader';
@@ -17,7 +17,7 @@ import { cloudinary } from '../../../lib/image';
 import { useTruncatedSummary } from '../../../hooks';
 import PostTags from '../PostTags';
 
-export const CollectionCard = forwardRef(function CollectionCard(
+export const CollectionList = forwardRef(function CollectionCard(
   {
     children,
     post,
@@ -27,8 +27,6 @@ export const CollectionCard = forwardRef(function CollectionCard(
     onCommentClick,
     onMenuClick,
     onCopyLinkClick,
-    openNewTab,
-    onReadArticleClick,
     onPostClick,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
@@ -97,14 +95,11 @@ export const CollectionCard = forwardRef(function CollectionCard(
       {!!post.image && <CardSpace />}
       <Container className="pointer-events-none mt-2">
         <ActionButtons
-          openNewTab={openNewTab}
           post={post}
           onUpvoteClick={onUpvoteClick}
           onDownvoteClick={onDownvoteClick}
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
-          onMenuClick={(event) => onMenuClick?.(event, post)}
-          onReadArticleClick={onReadArticleClick}
         />
       </Container>
       {children}

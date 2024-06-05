@@ -12,16 +12,12 @@ export type CommentPopupProps = {
   onClose?: () => unknown;
   onSubmit?: (comment: string) => unknown;
   loading?: boolean;
-  listMode?: boolean;
-  compactCard?: boolean;
 };
 
 export default function CommentPopup({
   onClose,
   onSubmit,
   loading,
-  listMode,
-  compactCard,
 }: CommentPopupProps): ReactElement {
   const [show, setShow] = useState(false);
   const [comment, setComment] = useState<string>();
@@ -46,14 +42,6 @@ export default function CommentPopup({
     }
   };
 
-  let layoutModeClass: string;
-  if (listMode) {
-    layoutModeClass = 'h-full ml-14 justify-between';
-  } else if (compactCard) {
-    layoutModeClass = 'h-full';
-  } else {
-    layoutModeClass = 'h-3/4';
-  }
   return (
     <div
       className={classNames(
@@ -67,30 +55,17 @@ export default function CommentPopup({
         willChange: 'opacity',
       }}
     >
-      <div
-        className={classNames(
-          'invert relative flex flex-col rounded-16 bg-background-default p-4',
-          layoutModeClass,
-        )}
-      >
+      <div className="invert relative flex h-3/4 flex-col rounded-16 bg-background-default p-4">
         <ModalClose onClick={onClose} top="2" />
         <h3 className="ml-2 mr-11 font-bold text-text-primary typo-callout">
           {text.title}
         </h3>
-        <div
-          className={classNames(
-            'flex',
-            listMode ? 'items-center' : 'flex-1 flex-col',
-          )}
-        >
+        <div className="flex flex-1 flex-col">
           <textarea
             placeholder={text.placeholder}
             onChange={(event) => setComment(event.target.value)}
             onKeyDown={onKeyDown}
-            className={classNames(
-              'focus-outline flex-1 resize-none bg-theme-float px-3 text-text-primary placeholder-text-tertiary caret-text-link typo-callout',
-              listMode ? 'mr-4 h-10 py-2.5' : 'my-4 py-3',
-            )}
+            className="focus-outline my-4 flex-1 resize-none bg-theme-float px-3 py-3 text-text-primary placeholder-text-tertiary caret-text-link typo-callout"
             style={{
               borderRadius: '0.875rem',
             }}

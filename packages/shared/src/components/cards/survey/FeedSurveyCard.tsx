@@ -1,6 +1,5 @@
 import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
-import { Card as CardV1 } from '../v1/Card';
 import { Card } from '../Card';
 import { useFeedLayout } from '../../../hooks';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
@@ -8,6 +7,7 @@ import { RatingStars } from '../../utilities/RatingStars';
 import { useFeedSurvey } from '../../../hooks/feed/useFeedSurvey';
 import { FeedSurveyProps } from './common';
 import { feedSurveyBg, feedSurveyBorder } from '../../../styles/custom';
+import { ListCard } from '../list/ListCard';
 
 export function FeedSurveyCard({
   max,
@@ -18,7 +18,7 @@ export function FeedSurveyCard({
   const [score, setScore] = useState(0);
   const { submitted, onSubmit, onHide } = useFeedSurvey({ score });
   const { shouldUseListFeedLayout } = useFeedLayout();
-  const CardComponent = shouldUseListFeedLayout ? CardV1 : Card;
+  const CardComponent = shouldUseListFeedLayout ? ListCard : Card;
 
   return (
     <div

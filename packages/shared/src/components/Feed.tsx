@@ -75,7 +75,6 @@ export interface FeedProps<T>
   emptyScreen?: ReactNode;
   header?: ReactNode;
   inlineHeader?: boolean;
-  forceCardMode?: boolean;
   allowPin?: boolean;
   showSearch?: boolean;
   actionButtons?: ReactNode;
@@ -131,7 +130,6 @@ export default function Feed<T>({
   inlineHeader,
   onEmptyFeed,
   emptyScreen,
-  forceCardMode,
   options,
   allowPin,
   showSearch = true,
@@ -150,12 +148,8 @@ export default function Feed<T>({
   const { user } = useContext(AuthContext);
   const router = useRouter();
   const queryClient = useQueryClient();
-  const {
-    openNewTab,
-    spaciness,
-    insaneMode: listMode,
-    loadedSettings,
-  } = useContext(SettingsContext);
+  const { openNewTab, spaciness, loadedSettings } = useContext(SettingsContext);
+  const { isListMode } = useFeedLayout();
   const { isFetched, alerts } = useAlertsContext();
   const shouldEvaluateSurvey =
     !!user &&
@@ -168,7 +162,6 @@ export default function Feed<T>({
   });
   const shouldShowSurvey = shouldEvaluateSurvey && feedSurvey;
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
   const { shouldUseListFeedLayout } = useFeedLayout();
@@ -214,7 +207,7 @@ export default function Feed<T>({
   const contextId = `post-context-${feedName}`;
   const { onMenuClick, postMenuIndex, postMenuLocation, setPostMenuIndex } =
     useFeedContextMenu({ contextId });
-  const useList = insaneMode && numCards > 1;
+  const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
   const trackingOpts = useMemo(() => {
     return {
@@ -420,7 +413,6 @@ export default function Feed<T>({
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
       <FeedContainer
-        forceCardMode={forceCardMode}
         header={header}
         inlineHeader={inlineHeader}
         className={className}
@@ -433,16 +425,13 @@ export default function Feed<T>({
       >
         {items.map((_, index) => (
           <FeedItemComponent
-            isHorizontal={isHorizontal}
             items={items}
             index={index}
             row={calculateRow(index, virtualizedNumCards)}
             column={calculateColumn(index, virtualizedNumCards)}
             columns={virtualizedNumCards}
             key={getFeedItemKey(items, index)}
-            useList={useList}
             openNewTab={openNewTab}
-            insaneMode={insaneMode}
             postMenuIndex={postMenuIndex}
             showCommentPopupId={showCommentPopupId}
             setShowCommentPopupId={setShowCommentPopupId}

@@ -1,7 +1,7 @@
 import React, { forwardRef, ReactElement, Ref, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { sanitize } from 'dompurify';
-import { CardContainer, CardContent, CardTitle, CardImage } from './Card';
+import { CardContainer, CardContent, CardTitle, CardImage } from './ListCard';
 import ActionButtons from './ActionButtons';
 import { Container, generateTitleClamp, PostCardProps } from '../common';
 import { useSquadChecklist } from '../../../hooks/useSquadChecklist';
@@ -15,7 +15,7 @@ import { usePostImage } from '../../../hooks/post/usePostImage';
 import SquadHeaderPicture from '../common/SquadHeaderPicture';
 import { cloudinary } from '../../../lib/image';
 
-export const WelcomePostCard = forwardRef(function SharePostCard(
+export const WelcomePostList = forwardRef(function SharePostCard(
   {
     post,
     onPostClick,
@@ -25,9 +25,7 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
     onMenuClick,
     onCopyLinkClick,
     onBookmarkClick,
-    openNewTab,
     children,
-    onReadArticleClick,
     enableSourceHeader = false,
     domProps = {},
   }: PostCardProps,
@@ -123,15 +121,12 @@ export const WelcomePostCard = forwardRef(function SharePostCard(
 
       <Container ref={containerRef} className="pointer-events-none">
         <ActionButtons
-          openNewTab={openNewTab}
           post={post}
           onUpvoteClick={onUpvoteClick}
           onDownvoteClick={onDownvoteClick}
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
           onBookmarkClick={onBookmarkClick}
-          onMenuClick={(event) => onMenuClick?.(event, post)}
-          onReadArticleClick={onReadArticleClick}
           className="mt-4 laptop:mt-auto"
         />
       </Container>

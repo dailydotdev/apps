@@ -78,7 +78,6 @@ const SourcesPage = ({
   topVideoSources,
 }: SourcesPageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
-
   const { openModal } = useLazyModal();
   const isLaptop = useViewSize(ViewSize.Laptop);
 

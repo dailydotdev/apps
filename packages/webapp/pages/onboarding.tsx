@@ -305,7 +305,6 @@ export function OnboardPage(): ReactElement {
                   feedName={OtherFeedPage.Preview}
                   feedQueryKey={[RequestKey.FeedPreview, user?.id]}
                   query={PREVIEW_FEED_QUERY}
-                  forceCardMode
                   showSearch={false}
                   options={{ refetchOnMount: true }}
                   allowPin

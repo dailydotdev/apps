@@ -20,8 +20,6 @@ export const CollectionCard = forwardRef(function CollectionCard(
     onCommentClick,
     onMenuClick,
     onCopyLinkClick,
-    openNewTab,
-    onReadArticleClick,
     onPostClick,
     onBookmarkClick,
   }: PostCardProps,
@@ -68,13 +66,10 @@ export const CollectionCard = forwardRef(function CollectionCard(
       <Container>
         <WelcomePostCardFooter image={image} contentHtml={post.contentHtml} />
         <ActionButtons
-          openNewTab={openNewTab}
           post={post}
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
-          onMenuClick={(event) => onMenuClick?.(event, post)}
-          onReadArticleClick={onReadArticleClick}
           className={classNames('mx-4 mt-auto justify-between')}
           onBookmarkClick={onBookmarkClick}
         />

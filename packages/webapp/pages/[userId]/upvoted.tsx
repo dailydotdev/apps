@@ -32,7 +32,6 @@ const ProfileUpvotedPage = ({ user }: ProfileLayoutProps): ReactElement => {
     variables: {
       userId,
     },
-    forceCardMode: true,
     disableAds: true,
     emptyScreen: isSameUser ? (
       <MyProfileEmptyScreen

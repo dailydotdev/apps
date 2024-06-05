@@ -18,12 +18,11 @@ type Callback = (ad: Ad) => unknown;
 export interface AdCardProps {
   ad: Ad;
   onLinkClick?: Callback;
-  showImage?: boolean;
   domProps?: HTMLAttributes<HTMLDivElement>;
 }
 
 export const AdCard = forwardRef(function AdCard(
-  { ad, onLinkClick, showImage = true, domProps }: AdCardProps,
+  { ad, onLinkClick, domProps }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const showBlurredImage = ad.source === 'Carbon' || ad.source === 'EthicalAds';
@@ -37,28 +36,26 @@ export const AdCard = forwardRef(function AdCard(
         </CardTitle>
       </CardTextContainer>
       <CardSpace />
-      {showImage && (
-        <div className="relative overflow-hidden rounded-12">
+      <div className="relative overflow-hidden rounded-12">
+        <CardImage
+          alt="Ad image"
+          src={ad.image}
+          className={classNames(
+            'z-1 w-full',
+            showBlurredImage && 'absolute inset-0 m-auto',
+          )}
+          style={{ objectFit: showBlurredImage ? 'contain' : 'cover' }}
+          fallbackSrc={cloudinary.post.imageCoverPlaceholder}
+        />
+        {showBlurredImage && (
           <CardImage
-            alt="Ad image"
+            alt="Ad image background"
             src={ad.image}
-            className={classNames(
-              'z-1 w-full',
-              showBlurredImage && 'absolute inset-0 m-auto',
-            )}
-            style={{ objectFit: showBlurredImage ? 'contain' : 'cover' }}
+            className={classNames('-z-1 w-full', styles.blur)}
             fallbackSrc={cloudinary.post.imageCoverPlaceholder}
           />
-          {showBlurredImage && (
-            <CardImage
-              alt="Ad image background"
-              src={ad.image}
-              className={classNames('-z-1 w-full', styles.blur)}
-              fallbackSrc={cloudinary.post.imageCoverPlaceholder}
-            />
-          )}
-        </div>
-      )}
+        )}
+      </div>
       <CardTextContainer>
         <AdAttribution ad={ad} className={{ main: 'mb-2 mt-4' }} />
       </CardTextContainer>

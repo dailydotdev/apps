@@ -29,8 +29,6 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import { ShortcutsUIExperiment } from '../../lib/featureValues';
 import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
 
-export const filterAlertMessage = 'Edit your personal feed preferences here';
-
 interface MyFeedHeadingProps {
   onOpenFeedFilters: () => void;
 }

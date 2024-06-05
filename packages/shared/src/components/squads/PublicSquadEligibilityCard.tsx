@@ -9,7 +9,7 @@ import {
 import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Card } from '../cards/Card';
-import { Card as CardV1 } from '../cards/v1/Card';
+import { ListCard } from '../cards/list/ListCard';
 import { EarthIcon, MiniCloseIcon, TimerIcon } from '../icons';
 import { ActionType } from '../../graphql/actions';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -52,7 +52,7 @@ export function PublicSquadEligibilityCard(): ReactElement {
   }
 
   const isEligible = postsCount >= PUBLIC_SQUAD_REQUEST_REQUIREMENT;
-  const CardComponent = shouldUseListFeedLayout ? CardV1 : Card;
+  const CardComponent = shouldUseListFeedLayout ? ListCard : Card;
 
   return (
     <CardComponent

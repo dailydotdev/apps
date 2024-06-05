@@ -8,8 +8,6 @@ export type UseSearchPanelActionProps = {
   text?: string;
 };
 
-export type SearchPanelActionEventHandler = (event: Event) => void;
-
 export type UseSearchPanelAction = {
   onMouseEnter: HTMLAttributes<HTMLElement>['onMouseEnter'];
   onMouseLeave: HTMLAttributes<HTMLElement>['onMouseLeave'];

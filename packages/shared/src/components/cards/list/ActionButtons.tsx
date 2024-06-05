@@ -20,7 +20,7 @@ import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { IconSize } from '../../Icon';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 
-interface ActionButtonsPropsV1 extends ActionButtonsProps {
+interface ActionButtonsPropsList extends ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
 }
 
@@ -32,7 +32,7 @@ export default function ActionButtons({
   onBookmarkClick,
   onCopyLinkClick,
   className,
-}: ActionButtonsPropsV1): ReactElement {
+}: ActionButtonsPropsList): ReactElement {
   const isFeedPreview = useFeedPreviewMode();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;

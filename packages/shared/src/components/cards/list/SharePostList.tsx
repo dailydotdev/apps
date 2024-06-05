@@ -12,13 +12,13 @@ import { PostCardHeader } from './PostCardHeader';
 import SquadHeaderPicture from '../common/SquadHeaderPicture';
 import { feature } from '../../../lib/featureManagement';
 import { useFeature } from '../../GrowthBookProvider';
-import { CardCoverV1 } from './CardCover';
-import { CardContent, CardTitle } from './Card';
+import { CardCoverList } from './CardCover';
+import { CardContent, CardTitle } from './ListCard';
 import PostTags from '../PostTags';
 import SourceButton from '../SourceButton';
 import { ProfileImageSize } from '../../ProfilePicture';
 
-export const SharePostCard = forwardRef(function SharePostCard(
+export const SharePostList = forwardRef(function SharePostCard(
   {
     post,
     onPostClick,
@@ -29,9 +29,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
     onCopyLinkClick,
     onShare,
     onBookmarkClick,
-    openNewTab,
     children,
-    onReadArticleClick,
     enableSourceHeader = false,
     domProps = {},
   }: PostCardProps,
@@ -116,7 +114,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
             <PostTags tags={post.sharedPost.tags} />
           </div>
 
-          <CardCoverV1
+          <CardCoverList
             data-testid="postImage"
             isVideoType={isVideoType}
             onShare={onShare}
@@ -156,15 +154,12 @@ export const SharePostCard = forwardRef(function SharePostCard(
         )}
         <ActionButtons
           className={improvedSharedPostCard && 'mt-4'}
-          openNewTab={openNewTab}
           post={post}
           onUpvoteClick={onUpvoteClick}
           onDownvoteClick={onDownvoteClick}
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
           onBookmarkClick={onBookmarkClick}
-          onMenuClick={(event) => onMenuClick?.(event, post)}
-          onReadArticleClick={onReadArticleClick}
         />
       </Container>
       {children}

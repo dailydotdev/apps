@@ -1,11 +1,21 @@
 import React, { ReactElement } from 'react';
-import { PlaceholderList } from '../cards/PlaceholderList';
+import { ElementPlaceholder } from '../ElementPlaceholder';
 
 export interface UserShortInfoPlaceholderProps {
   placeholderAmount: number;
 }
 
 const MAX_DISPLAY = 5;
+
+const Placeholder = () => (
+  <div className="flex flex-row px-6 py-3">
+    <ElementPlaceholder className="size-12 rounded-14" />
+    <div className="ml-4 flex max-w-full flex-1 flex-col">
+      <ElementPlaceholder className="mb-2 h-5 w-1/3 rounded-14" />
+      <ElementPlaceholder className="h-5 w-1/2 rounded-14" />
+    </div>
+  </div>
+);
 
 export function UserShortInfoPlaceholder({
   placeholderAmount,
@@ -19,7 +29,7 @@ export function UserShortInfoPlaceholder({
         .fill(0)
         .map((_, i) => (
           // eslint-disable-next-line react/no-array-index-key
-          <PlaceholderList key={i} />
+          <Placeholder key={i} />
         ))}
     </div>
   );
