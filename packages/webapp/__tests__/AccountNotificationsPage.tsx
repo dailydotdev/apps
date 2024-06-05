@@ -30,6 +30,8 @@ import {
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { SendType } from '@dailydotdev/shared/src/hooks';
+import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
 import ProfileNotificationsPage from '../pages/account/notifications';
 
 jest.mock('next/router', () => ({
@@ -124,9 +126,11 @@ const renderComponent = (user = defaultLoggedUser): RenderResult => {
             sendBeacon: jest.fn(),
           }}
         >
-          <NotificationsContextProvider app={BootApp.Webapp}>
-            <ProfileNotificationsPage />
-          </NotificationsContextProvider>
+          <SettingsContext.Provider value={settingsContext}>
+            <NotificationsContextProvider app={BootApp.Webapp}>
+              <ProfileNotificationsPage />
+            </NotificationsContextProvider>
+          </SettingsContext.Provider>
         </AnalyticsContext.Provider>
       </AuthContextProvider>
     </QueryClientProvider>,

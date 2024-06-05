@@ -32,6 +32,7 @@ import { HourDropdown } from '@dailydotdev/shared/src/components/fields/HourDrop
 import { UserPersonalizedDigestType } from '@dailydotdev/shared/src/graphql/users';
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
+import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -55,6 +56,7 @@ const AccountNotificationsPage = (): ReactElement => {
     subscribePersonalizedDigest,
     unsubscribePersonalizedDigest,
   } = usePersonalizedDigest();
+  const { isStreaksEnabled } = useReadingStreak();
   const [digestTimeIndex, setDigestTimeIndex] = useState(8);
   const [readingTimeIndex, setReadingTimeIndex] = useState(8);
 
@@ -433,15 +435,25 @@ const AccountNotificationsPage = (): ReactElement => {
             <Checkbox
               name="streakReminder"
               data-testid="reading-streak-reminder-switch"
-              checked={!!streakReminder}
+              checked={isStreaksEnabled && !!streakReminder}
               onToggle={onToggleStreakReminder}
+              disabled={!isStreaksEnabled}
             >
               <SimpleTooltip
                 placement="top"
                 content={
-                  <div className="w-60 typo-subhead">
-                    Get a notification at 20:00 (local time) if your streak is
-                    about to expire.
+                  <div className="w-64 typo-subhead">
+                    {isStreaksEnabled ? (
+                      <>
+                        Get a notification at 20:00 (local time) if your streak
+                        is about to expire.
+                      </>
+                    ) : (
+                      <>
+                        To get a streak reminder notification, you must enable
+                        reading streaks.
+                      </>
+                    )}
                   </div>
                 }
               >
