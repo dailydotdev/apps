@@ -170,7 +170,6 @@ export enum FeedItemTitle {
 }
 
 export enum TargetType {
-  PromotionCard = 'promotion_card',
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
   EnableNotifications = 'enable notifications',
@@ -191,7 +190,7 @@ export enum TargetType {
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
   StreaksMilestone = 'streaks milestone',
-  MarketingCtaCard = 'promotion_card',
+  PromotionCard = 'promotion_card',
   MarketingCtaPopover = 'promotion_popover',
   Comment = 'comment',
   ReadingReminder = 'reading reminder',

@@ -30,7 +30,7 @@ export function MarketingCtaCardV1({
 
     trackEvent({
       event_name: AnalyticsEvent.Impression,
-      target_type: TargetType.MarketingCtaCard,
+      target_type: TargetType.PromotionCard,
       target_id: marketingCta.campaignId,
     });
     isImpressionTracked.current = true;
@@ -39,7 +39,7 @@ export function MarketingCtaCardV1({
   const onCtaClick = useCallback(() => {
     trackEvent({
       event_name: AnalyticsEvent.Click,
-      target_type: TargetType.MarketingCtaCard,
+      target_type: TargetType.PromotionCard,
       target_id: marketingCta.campaignId,
     });
     clearMarketingCta(marketingCta.campaignId);
@@ -48,7 +48,7 @@ export function MarketingCtaCardV1({
   const onCtaDismiss = useCallback(() => {
     trackEvent({
       event_name: AnalyticsEvent.MarketingCtaDismiss,
-      target_type: TargetType.MarketingCtaCard,
+      target_type: TargetType.PromotionCard,
       target_id: marketingCta.campaignId,
     });
     clearMarketingCta(marketingCta.campaignId);
