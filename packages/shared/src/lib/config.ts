@@ -15,3 +15,4 @@ export const fallbackImages = {
 export const MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP = 3;
 export const MAX_VISIBLE_PRIVILEGED_MEMBERS_MOBILE = 1;
 export const PUBLIC_SQUAD_REQUEST_COOLDOWN = 14;
+export const PUBLIC_SQUAD_REQUEST_REQUIREMENT = 5;
