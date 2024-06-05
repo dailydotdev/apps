@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { FilterIcon, RefreshIcon } from '../icons';
+import { FilterIcon, PlusIcon, RefreshIcon } from '../icons';
 import {
   Button,
   ButtonIconPosition,
@@ -10,13 +10,24 @@ import {
 } from '../buttons/Button';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../lib/analytics';
-import { useFeedLayout, useViewSize, ViewSize } from '../../hooks';
+import {
+  useActions,
+  useConditionalFeature,
+  useFeedLayout,
+  useViewSize,
+  ViewSize,
+} from '../../hooks';
 import { feature } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
 import { setShouldRefreshFeed } from '../../lib/refreshFeed';
 import { SharedFeedPage } from '../utilities';
 import { getFeedName } from '../../lib/feed';
 import { useFeedName } from '../../hooks/feed/useFeedName';
+import { checkIsExtension } from '../../lib/func';
+import { ActionType } from '../../graphql/actions';
+import { useSettingsContext } from '../../contexts/SettingsContext';
+import { ShortcutsUIExperiment } from '../../lib/featureValues';
+import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
 
 interface MyFeedHeadingProps {
   onOpenFeedFilters: () => void;
@@ -25,7 +36,10 @@ interface MyFeedHeadingProps {
 function MyFeedHeading({
   onOpenFeedFilters,
 }: MyFeedHeadingProps): ReactElement {
+  const isExtension = checkIsExtension();
   const router = useRouter();
+  const { checkHasCompleted } = useActions();
+  const { showTopSites, toggleShowTopSites } = useSettingsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { trackEvent } = useContext(AnalyticsContext);
   const { shouldUseListFeedLayout } = useFeedLayout();
@@ -34,11 +48,11 @@ function MyFeedHeading({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedName = getFeedName(router.pathname);
   const { isCustomFeed } = useFeedName({ feedName });
-
-  const onClick = () => {
-    trackEvent({ event_name: AnalyticsEvent.ManageTags });
-    onOpenFeedFilters();
-  };
+  const { value: shortcutsUIFeature } = useConditionalFeature({
+    feature: feature.shortcutsUI,
+    shouldEvaluate: isExtension,
+  });
+  const isShortcutsUIV1 = shortcutsUIFeature === ShortcutsUIExperiment.V1;
 
   const onRefresh = async () => {
     trackEvent({ event_name: AnalyticsEvent.RefreshFeed });
@@ -78,18 +92,37 @@ function MyFeedHeading({
           {isLaptop ? 'Refresh feed' : null}
         </Button>
       )}
-      <Button
+      <FeedSettingsButton
+        onClick={onOpenFeedFilters}
+        className="mr-auto"
         size={ButtonSize.Medium}
         variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-        className="mr-auto"
-        onClick={onClick}
         icon={<FilterIcon />}
         iconPosition={
           shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
         }
       >
         {!isMobile ? feedFiltersLabel : null}
-      </Button>
+      </FeedSettingsButton>
+      {isExtension &&
+        checkHasCompleted(ActionType.FirstShortcutsSession) &&
+        !showTopSites &&
+        isShortcutsUIV1 && (
+          <Button
+            size={ButtonSize.Medium}
+            variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+            className="mr-auto"
+            onClick={() => {
+              toggleShowTopSites();
+            }}
+            icon={<PlusIcon />}
+            iconPosition={
+              shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
+            }
+          >
+            Shortcuts
+          </Button>
+        )}
     </>
   );
 }

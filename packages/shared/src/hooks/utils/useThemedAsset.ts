@@ -8,6 +8,7 @@ interface UseAsset {
   scrollBlock: string;
   notFound: string;
   themeColor: string;
+  githubShortcut: string;
 }
 
 export const useThemedAsset = (): UseAsset => {
@@ -32,5 +33,8 @@ export const useThemedAsset = (): UseAsset => {
       ? cloudinary.generic.notFound.light
       : cloudinary.generic.notFound.dark,
     themeColor: isLight ? colors.salt['0'] : colors.pepper['90'],
+    githubShortcut: isLight
+      ? cloudinary.shortcuts.icons.github.light
+      : cloudinary.shortcuts.icons.github.dark,
   };
 };

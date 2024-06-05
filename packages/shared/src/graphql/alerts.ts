@@ -1,4 +1,6 @@
-import { gql } from 'graphql-request';
+import request, { gql } from 'graphql-request';
+import { graphqlUrl } from '../lib/config';
+import { EmptyResponse } from './emptyResponse';
 
 export type Alerts = {
   filter?: boolean;
@@ -12,6 +14,7 @@ export type Alerts = {
   lastBanner?: string;
   banner?: boolean;
   showStreakMilestone?: boolean;
+  shouldShowFeedFeedback?: boolean;
   lastBootPopup?: Date;
   bootPopup?: boolean;
 };
@@ -48,3 +51,14 @@ export const UPDATE_LAST_BOOT_POPUP = gql`
     }
   }
 `;
+
+const UPDATE_FEED_FEEDBACK_REMINDER = `
+  mutation UpdateFeedFeedbackReminder {
+    updateFeedFeedbackReminder {
+      _
+    }
+  }
+`;
+
+export const updateFeedFeedbackReminder = (): Promise<EmptyResponse> =>
+  request(graphqlUrl, UPDATE_FEED_FEEDBACK_REMINDER);
