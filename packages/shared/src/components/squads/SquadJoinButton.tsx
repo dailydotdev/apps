@@ -1,6 +1,7 @@
 import React, { ReactElement, useEffect } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
 import { SourceMemberRole, Squad } from '../../graphql/sources';
 import { Button, ButtonProps, ButtonVariant } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -91,6 +92,7 @@ export const SquadJoinButton = ({
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useAuthContext();
+  const router = useRouter();
   const isMemberBlocked =
     squad.currentMember?.role === SourceMemberRole.Blocked;
   const isCurrentMember = !!squad.currentMember && !isMemberBlocked;
@@ -102,7 +104,7 @@ export const SquadJoinButton = ({
         console.log('at on error');
         displayToast(labels.error.generic);
       },
-      onSuccess,
+      onSuccess: () => router.push(squad?.permalink),
     },
   );
 
