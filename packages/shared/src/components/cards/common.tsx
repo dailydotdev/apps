@@ -77,4 +77,5 @@ export enum FeedItemType {
   UserAcquisition = 'userAcquisition',
   PublicSquadEligibility = 'publicSquadEligibility',
   MarketingCta = 'marketingCta',
+  FeedSurvey = 'feedSurvey',
 }

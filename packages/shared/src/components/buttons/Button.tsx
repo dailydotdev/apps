@@ -89,8 +89,8 @@ function ButtonComponent<TagName extends AllowedTags>(
       aria-pressed={pressed}
       ref={ref}
       className={classNames(
-        `btn shadow-none focus-outline inline-flex cursor-pointer select-none
-        flex-row items-center border no-underline transition
+        `btn focus-outline inline-flex cursor-pointer select-none flex-row
+        items-center border no-underline shadow-none transition
         duration-200 ease-in-out typo-callout`,
         variant !== ButtonVariant.Option && 'justify-center font-bold',
         { iconOnly },
