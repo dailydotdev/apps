@@ -5,6 +5,7 @@ import React, {
   useContext,
 } from 'react';
 import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
@@ -17,12 +18,20 @@ import { IconSize } from '../Icon';
 import { RankingAlgorithm } from '../../graphql/feed';
 import SettingsContext from '../../contexts/SettingsContext';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import { useFeedLayout, useViewSize, ViewSize } from '../../hooks';
+import {
+  useConditionalFeature,
+  useFeedLayout,
+  useViewSize,
+  ViewSize,
+} from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { AllFeedPages } from '../../lib/query';
 import { webappUrl } from '../../lib/constants';
+import { feature } from '../../lib/featureManagement';
+import { checkIsExtension } from '../../lib/func';
+import { ShortcutsUIExperiment } from '../../lib/featureValues';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -57,6 +66,7 @@ export const SearchControlHeader = ({
   algoState: [selectedAlgo, setSelectedAlgo],
   periodState: [selectedPeriod, setSelectedPeriod],
 }: SearchControlHeaderProps): ReactElement => {
+  const isExtension = checkIsExtension();
   const router = useRouter();
   const { openModal } = useLazyModal();
   const { sortingEnabled } = useContext(SettingsContext);
@@ -65,6 +75,11 @@ export const SearchControlHeader = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
+  const { value: shortcutsUIFeature } = useConditionalFeature({
+    feature: feature.shortcutsUI,
+    shouldEvaluate: isExtension,
+  });
+  const isShortcutsUIV1 = shortcutsUIFeature === ShortcutsUIExperiment.V1;
 
   if (isMobile) {
     return null;
@@ -124,17 +139,29 @@ export const SearchControlHeader = ({
   return (
     <ConditionalWrapper
       condition={!isLaptop}
-      wrapper={(children) => (
-        <div className="flex w-full items-center justify-between tablet:mb-2 tablet:p-4">
-          <div className="flex-0">
-            {isStreaksEnabled && (
-              <ReadingStreakButton streak={streak} isLoading={isLoading} />
-            )}
-          </div>
-
+      wrapper={(children) => {
+        const wrapperChildren = (
           <div className="flex items-center gap-2">{children}</div>
-        </div>
-      )}
+        );
+
+        return (
+          <div
+            className={classNames(
+              'flex w-full items-center justify-between tablet:mb-2 tablet:p-4',
+            )}
+          >
+            {isShortcutsUIV1 && wrapperChildren}
+
+            <div className="flex-0">
+              {isStreaksEnabled && (
+                <ReadingStreakButton streak={streak} isLoading={isLoading} />
+              )}
+            </div>
+
+            {!isShortcutsUIV1 && wrapperChildren}
+          </div>
+        );
+      }}
     >
       {actions}
     </ConditionalWrapper>
