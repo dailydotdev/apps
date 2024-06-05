@@ -150,13 +150,22 @@ const AccountNotificationsPage = (): ReactElement => {
       NotificationCategory.ReadingReminder,
     );
 
-    trackEvent({
-      event_name: AnalyticsEvent.ScheduleReadingReminder,
-      extra: JSON.stringify({
-        hour: readingTimeIndex,
-        timezone: user?.timezone,
-      }),
-    });
+    if (value) {
+      trackEvent({
+        event_name: AnalyticsEvent.ScheduleReadingReminder,
+        extra: JSON.stringify({
+          hour: readingTimeIndex,
+          timezone: user?.timezone,
+        }),
+      });
+      subscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.ReadingReminder,
+      });
+    } else {
+      unsubscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.ReadingReminder,
+      });
+    }
   };
 
   const onTogglePush = async () => {
@@ -165,8 +174,6 @@ const AccountNotificationsPage = (): ReactElement => {
       NotificationChannel.Web,
       NotificationCategory.Product,
     );
-
-    onToggleReadingReminder(!isSubscribed);
 
     return onTogglePermission(NotificationPromptSource.NotificationsPage);
   };
