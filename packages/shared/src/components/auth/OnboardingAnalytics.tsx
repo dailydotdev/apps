@@ -163,6 +163,6 @@ export const trackAnalyticsSignUp = ({
   }
 
   if (typeof globalThis.ttq?.track === 'function') {
-    globalThis.ttq.track('signup');
+    globalThis.ttq.track('Complete Registration');
   }
 };
