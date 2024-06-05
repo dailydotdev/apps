@@ -4,13 +4,12 @@ import { badge, SquadStatus, StatusDescription } from './common';
 import { Anchor } from '../../text';
 import { squadsPublicGuide } from '../../../lib/constants';
 import { PublicStatusPanel } from './PublicStatusPanel';
+import { PUBLIC_SQUAD_REQUEST_REQUIREMENT } from '../../../lib/config';
 
 export interface SettingsPublicSectionProps {
   totalPosts: number;
   status: string;
 }
-
-const PUBLIC_SQUAD_REQUIRED_POSTS = 3;
 
 export function SettingsPublicSection({
   status,
@@ -51,8 +50,8 @@ export function SettingsPublicSection({
       {/* it seems to be a bit unusual to show 50/3, hence we max the count at 3 so the progress will always be 3/3 */}
       {isInProgress && (
         <PublicStatusPanel
-          count={Math.min(totalPosts, PUBLIC_SQUAD_REQUIRED_POSTS)}
-          required={PUBLIC_SQUAD_REQUIRED_POSTS}
+          count={Math.min(totalPosts, PUBLIC_SQUAD_REQUEST_REQUIREMENT)}
+          required={PUBLIC_SQUAD_REQUEST_REQUIREMENT}
         />
       )}
     </div>
