@@ -17,7 +17,7 @@ import SourceButton from '../SourceButton';
 import { isVideoPost } from '../../../graphql/posts';
 import PostReadTime from './PostReadTime';
 import PostTags from '../PostTags';
-import { CardCoverV1 } from './CardCover';
+import { CardCoverList } from './CardCover';
 import { ProfileImageSize } from '../../ProfilePicture';
 
 export const ArticlePostList = forwardRef(function PostCard(
@@ -32,7 +32,6 @@ export const ArticlePostList = forwardRef(function PostCard(
     onCopyLinkClick,
     openNewTab,
     children,
-    showImage = true,
     onReadArticleClick,
     domProps = {},
     onShare,
@@ -45,7 +44,6 @@ export const ArticlePostList = forwardRef(function PostCard(
 
   const onPostCardClick = () => onPostClick?.(post);
 
-  const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useTruncatedSummary(post);
@@ -54,7 +52,7 @@ export const ArticlePostList = forwardRef(function PostCard(
     <FeedItemContainer
       domProps={{
         ...domProps,
-        style: { ...style, ...customStyle },
+        style,
         className,
       }}
       ref={ref}
@@ -72,7 +70,6 @@ export const ArticlePostList = forwardRef(function PostCard(
           post={post}
           onUpvoteClick={() => onUpvoteClick(post, Origin.FeedbackCard)}
           onDownvoteClick={() => onDownvoteClick(post, Origin.FeedbackCard)}
-          showImage={showImage}
           isVideoType={isVideoType}
         />
       ) : (
@@ -119,7 +116,7 @@ export const ArticlePostList = forwardRef(function PostCard(
                 <PostTags tags={post.tags} />
               </div>
 
-              <CardCoverV1
+              <CardCoverList
                 data-testid="postImage"
                 isVideoType={isVideoType}
                 onShare={onShare}

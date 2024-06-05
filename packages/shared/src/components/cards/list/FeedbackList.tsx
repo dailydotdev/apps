@@ -10,13 +10,12 @@ import { Post, UserVote } from '../../../graphql/posts';
 import { usePostFeedback } from '../../../hooks';
 import CloseButton from '../../CloseButton';
 import { CardContent } from './ListCard';
-import { CardCoverV1 } from './CardCover';
+import { CardCoverList } from './CardCover';
 
 interface FeedbackCardProps {
   post: Post;
   onUpvoteClick: MouseEventHandler;
   onDownvoteClick: MouseEventHandler;
-  showImage?: boolean;
   isVideoType?: boolean;
 }
 
@@ -71,7 +70,7 @@ export const FeedbackList = ({
           <h2 className="mb-2 line-clamp-1 typo-body">{post.title}</h2>
         </div>
 
-        <CardCoverV1
+        <CardCoverList
           data-testid="postImage"
           isVideoType={isVideoType}
           imageProps={{

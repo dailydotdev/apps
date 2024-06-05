@@ -13,48 +13,35 @@ interface PostCardFooterClassName {
 
 interface PostCardFooterProps extends CommonCardCoverProps {
   openNewTab: boolean;
-  showImage: boolean;
   post: Post;
   className: PostCardFooterClassName;
 }
 
 export const PostCardFooter = ({
   post,
-  showImage,
   className,
   onShare,
 }: PostCardFooterProps): ReactElement => {
   const isVideoType = isVideoPost(post);
   return (
     <>
-      {!showImage && post.author && (
-        <PostAuthor
-          author={post.author}
-          className={classNames(
-            'mx-4 mt-2 hidden tablet:flex laptop:hidden',
-            visibleOnGroupHover,
-          )}
-        />
-      )}
-      {showImage && (
-        <CardCover
-          isVideoType={isVideoType}
-          onShare={onShare}
-          post={post}
-          imageProps={{
-            loading: 'lazy',
-            alt: 'Post Cover image',
-            src: post.image,
-            className: classNames(
-              'w-full',
-              className.image,
-              !isVideoType && 'my-2',
-            ),
-          }}
-          videoProps={{ className: 'my-2' }}
-        />
-      )}
-      {showImage && post.author && (
+      <CardCover
+        isVideoType={isVideoType}
+        onShare={onShare}
+        post={post}
+        imageProps={{
+          loading: 'lazy',
+          alt: 'Post Cover image',
+          src: post.image,
+          className: classNames(
+            'w-full',
+            className.image,
+            !isVideoType && 'my-2',
+          ),
+        }}
+        videoProps={{ className: 'my-2' }}
+      />
+      {post.author && (
         <div
           className={classNames(
             'absolute z-1 mt-2 flex w-full items-center rounded-t-12 bg-background-default px-3 py-2 font-bold text-text-secondary typo-callout',

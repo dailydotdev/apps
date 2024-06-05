@@ -73,14 +73,14 @@ export const getFeedGapPx = {
 
 export const gapClass = ({
   isList,
-  isFeedLayoutV1,
+  isFeedLayoutList,
   space,
 }: {
   isList: boolean;
-  isFeedLayoutV1: boolean;
+  isFeedLayoutList: boolean;
   space: Spaciness;
 }): string => {
-  if (isFeedLayoutV1) {
+  if (isFeedLayoutList) {
     return '';
   }
   return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
@@ -169,7 +169,7 @@ export const FeedContainer = ({
     getFeedGapPx[
       gapClass({
         isList,
-        isFeedLayoutV1: shouldUseListFeedLayout,
+        isFeedLayoutList: shouldUseListFeedLayout,
         space: spaciness,
       })
     ];
@@ -285,7 +285,7 @@ export const FeedContainer = ({
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth',
                 gapClass({
                   isList,
-                  isFeedLayoutV1: shouldUseListFeedLayout,
+                  isFeedLayoutList: shouldUseListFeedLayout,
                   space: spaciness,
                 }),
                 cardClass({ isList, numberOfCards: numCards, isHorizontal }),

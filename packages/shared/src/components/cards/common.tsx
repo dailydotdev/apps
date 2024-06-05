@@ -47,7 +47,6 @@ export interface PostCardProps extends CommonCardCoverProps {
   openNewTab?: boolean;
   enableMenu?: boolean;
   menuOpened?: boolean;
-  showImage?: boolean;
   enableSourceHeader?: boolean;
   children?: ReactNode;
   domProps?: HTMLAttributes<HTMLDivElement>;

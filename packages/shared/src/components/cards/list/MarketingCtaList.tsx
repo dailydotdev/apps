@@ -10,7 +10,7 @@ import {
   MarketingCta,
   Title,
 } from '../MarketingCta/common';
-import { CardCoverV1 } from './CardCover';
+import { CardCoverList } from './CardCover';
 
 export function MarketingCtaList({
   marketingCta,
@@ -62,7 +62,7 @@ export function MarketingCtaList({
       <Title>{title}</Title>
       {description && <Description>{description}</Description>}
       {image && (
-        <CardCoverV1
+        <CardCoverList
           imageProps={{
             loading: 'lazy',
             alt: 'Post Cover',

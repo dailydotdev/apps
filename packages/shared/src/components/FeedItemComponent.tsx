@@ -2,14 +2,11 @@ import React, { FunctionComponent, ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import { FeedItem } from '../hooks/useFeed';
 import { ArticlePostCard } from './cards/ArticlePostCard';
-import {
-  ArticlePostList,
-  ArticlePostList as ArticlePostCardV1,
-} from './cards/list/ArticlePostList';
+import { ArticlePostList } from './cards/list/ArticlePostList';
 import { AdCard } from './cards/AdCard';
-import { AdList as AdCardV1 } from './cards/list/AdList';
+import { AdList } from './cards/list/AdList';
 import { PlaceholderCard } from './cards/PlaceholderCard';
-import { PlaceholderList as PlaceholderCardV1 } from './cards/list/PlaceholderList';
+import { PlaceholderList } from './cards/list/PlaceholderList';
 import { Ad, Post, PostItem, PostType } from '../graphql/posts';
 import { LoggedUser } from '../lib/user';
 import { CommentOnData } from '../graphql/comments';
@@ -126,10 +123,10 @@ const getTags = ({
   const useListCards = isListFeedLayout || shouldUseListMode;
   return {
     PostTag: useListCards
-      ? PostTypeToTagList[postType] ?? ArticlePostCardV1
+      ? PostTypeToTagList[postType] ?? ArticlePostList
       : PostTypeToTagCard[postType] ?? ArticlePostCard,
-    AdTag: useListCards ? AdCardV1 : AdCard,
-    PlaceholderTag: useListCards ? PlaceholderCardV1 : PlaceholderCard,
+    AdTag: useListCards ? AdList : AdCard,
+    PlaceholderTag: useListCards ? PlaceholderList : PlaceholderCard,
     MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
   };
 };
@@ -232,7 +229,6 @@ export default function FeedItemComponent({
             onCopyLinkClick(event, post, index, row, column)
           }
           menuOpened={postMenuIndex === index}
-          showImage
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
         >
           {showCommentPopupId === item.post.id && (

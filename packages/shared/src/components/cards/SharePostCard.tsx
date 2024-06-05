@@ -122,12 +122,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
         className={!improvedSharedPostCard && 'min-h-0 justify-end'}
       >
         {improvedSharedPostCard ? (
-          <PostCardFooter
-            openNewTab={openNewTab}
-            post={post}
-            showImage
-            className={{}}
-          />
+          <PostCardFooter openNewTab={openNewTab} post={post} className={{}} />
         ) : (
           <SharedPostCardFooter
             sharedPost={post.sharedPost}

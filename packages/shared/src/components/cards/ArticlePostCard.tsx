@@ -35,7 +35,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
     onCopyLinkClick,
     openNewTab,
     children,
-    showImage = true,
     onReadArticleClick,
     domProps = {},
   }: PostCardProps,
@@ -45,7 +44,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const { pinnedAt, trending } = post;
-  const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const { showFeedback } = usePostFeedback({ post });
   const isVideoType = isVideoPost(post);
 
@@ -63,7 +61,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
     <FeedItemContainer
       domProps={{
         ...domProps,
-        style: { ...style, ...customStyle },
+        style,
         className: getPostClassNames(
           post,
           classNames(className, showFeedback && '!p-0'),
@@ -121,7 +119,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
           <PostCardFooter
             openNewTab={openNewTab}
             post={post}
-            showImage={showImage}
             onShare={onShare}
             className={{
               image: classNames(showFeedback && 'mb-0'),
@@ -135,7 +132,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
               onCommentClick={onCommentClick}
               onCopyLinkClick={onCopyLinkClick}
               onBookmarkClick={onBookmarkClick}
-              className={!showImage && 'my-4 laptop:mb-0'}
             />
           )}
         </Container>

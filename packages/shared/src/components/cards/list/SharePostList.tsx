@@ -12,7 +12,7 @@ import { PostCardHeader } from './PostCardHeader';
 import SquadHeaderPicture from '../common/SquadHeaderPicture';
 import { feature } from '../../../lib/featureManagement';
 import { useFeature } from '../../GrowthBookProvider';
-import { CardCoverV1 } from './CardCover';
+import { CardCoverList } from './CardCover';
 import { CardContent, CardTitle } from './ListCard';
 import PostTags from '../PostTags';
 import SourceButton from '../SourceButton';
@@ -114,7 +114,7 @@ export const SharePostList = forwardRef(function SharePostCard(
             <PostTags tags={post.sharedPost.tags} />
           </div>
 
-          <CardCoverV1
+          <CardCoverList
             data-testid="postImage"
             isVideoType={isVideoType}
             onShare={onShare}
