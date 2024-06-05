@@ -157,14 +157,16 @@ export default function Feed<T>({
     loadedSettings,
   } = useContext(SettingsContext);
   const { isFetched, alerts } = useAlertsContext();
-  const { value: shouldShowSurvey } = useConditionalFeature({
+  const shouldEvaluateSurvey =
+    !!user &&
+    isFetched &&
+    alerts.shouldShowFeedFeedback &&
+    feedName === SharedFeedPage.MyFeed;
+  const { value: feedSurvey } = useConditionalFeature({
     feature: feature.feedSettingsFeedback,
-    shouldEvaluate:
-      !!user &&
-      isFetched &&
-      alerts.shouldShowFeedFeedback &&
-      feedName === SharedFeedPage.MyFeed,
+    shouldEvaluate: shouldEvaluateSurvey,
   });
+  const shouldShowSurvey = shouldEvaluateSurvey && feedSurvey;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const insaneMode = !forceCardMode && listMode;
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];

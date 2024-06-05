@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetId, TargetType } from '../../lib/analytics';
 import { updateFeedFeedbackReminder } from '../../graphql/alerts';
+import { useAlertsContext } from '../../contexts/AlertContext';
 
 interface UseFeedSurvey {
   submitted: boolean;
@@ -16,6 +17,7 @@ interface UseFeedSurveyProps {
 export const useFeedSurvey = ({ score }: UseFeedSurveyProps): UseFeedSurvey => {
   const [submitted, setSubmitted] = useState(false);
   const { trackEvent } = useAnalyticsContext();
+  const { updateLocalBoot } = useAlertsContext();
 
   const trackSurveyEvent = (event_name: AnalyticsEvent, extra?) =>
     trackEvent({
@@ -38,6 +40,7 @@ export const useFeedSurvey = ({ score }: UseFeedSurveyProps): UseFeedSurvey => {
   const onHide = () => {
     updateFeedFeedbackReminder();
     trackSurveyEvent(AnalyticsEvent.DismissPromotion);
+    updateLocalBoot({ shouldShowFeedFeedback: false });
   };
 
   useEffect(() => {
