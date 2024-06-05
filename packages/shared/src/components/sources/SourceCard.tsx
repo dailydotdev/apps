@@ -144,7 +144,11 @@ export const SourceCard = ({
               className={{ button: '!btn-secondary w-full' }}
               squad={source}
               origin={Origin.SquadDirectory}
-              onSuccess={() => router.push(source?.permalink)}
+              onSuccess={() => {
+                console.log('at on Success');
+
+                return router.push(source?.permalink);
+              }}
               joinText={action?.text}
               data-testid="squad-action"
             />

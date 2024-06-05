@@ -59,6 +59,8 @@ export const useJoinSquad = ({
     queryClient.invalidateQueries(['squadMembersInitial', squad.handle]);
     completeAction(ActionType.JoinSquad);
 
+    console.log('before returning result');
+
     return result;
   }, [
     squad.id,

@@ -38,6 +38,8 @@ export const useBoot = (): UseBoot => {
 
     const squads = sortByName([...currentSquads, squad]);
     client.setQueryData<Boot>(BOOT_QUERY_KEY, { ...bootData, squads });
+
+    console.log('at add squad boot');
   };
 
   const deleteSquad = (squadId: string) => {

@@ -99,6 +99,7 @@ export const SquadJoinButton = ({
     useJoinSquad({ squad }),
     {
       onError: () => {
+        console.log('at on error');
         displayToast(labels.error.generic);
       },
       onSuccess,
