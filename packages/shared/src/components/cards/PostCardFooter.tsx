@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { FeatherIcon } from '../icons';
-import PostAuthor from './PostAuthor';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { isVideoPost, Post } from '../../graphql/posts';
 import { CommonCardCoverProps, visibleOnGroupHover } from './common';
