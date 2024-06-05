@@ -7,3 +7,6 @@ export const feedSurveyBg =
 
 export const feedSurveyBorder =
   'linear-gradient(180deg, var(--theme-accent-cheese-default) 0%, var(--theme-accent-bacon-default) 50%, var(--theme-accent-onion-default) 100%)';
+
+export const feedSurveyTopBorder =
+  'linear-gradient(90deg, var(--theme-accent-cheese-default) 0%, var(--theme-accent-bacon-default) 50%, var(--theme-accent-onion-default) 100%)';
