@@ -80,6 +80,33 @@ export const SOURCE_BASE_FRAGMENT = gql`
   ${CURRENT_MEMBER_FRAGMENT}
 `;
 
+export const SQUAD_BASE_FRAGMENT = `
+  fragment SquadBaseInfo on Source {
+    ...SourceBaseInfo
+    referralUrl
+    createdAt
+    flags {
+      featured
+      totalPosts
+      totalViews
+      totalUpvotes
+    }
+    privilegedMembers {
+      user {
+        id
+        name
+        image
+        permalink
+        username
+        bio
+        reputation
+      }
+      role
+    }
+  }
+  ${SOURCE_BASE_FRAGMENT}
+`;
+
 export const SHARED_POST_INFO_FRAGMENT = gql`
   fragment SharedPostInfo on Post {
     id
