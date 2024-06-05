@@ -42,8 +42,6 @@ export default function CommentPopup({
     }
   };
 
-  const layoutModeClass = 'h-3/4';
-
   return (
     <div
       className={classNames(
@@ -57,12 +55,7 @@ export default function CommentPopup({
         willChange: 'opacity',
       }}
     >
-      <div
-        className={classNames(
-          'invert relative flex flex-col rounded-16 bg-background-default p-4',
-          layoutModeClass,
-        )}
-      >
+      <div className="invert relative flex h-3/4 flex-col rounded-16 bg-background-default p-4">
         <ModalClose onClick={onClose} top="2" />
         <h3 className="ml-2 mr-11 font-bold text-text-primary typo-callout">
           {text.title}

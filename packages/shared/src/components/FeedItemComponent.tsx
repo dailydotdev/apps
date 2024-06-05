@@ -2,7 +2,10 @@ import React, { FunctionComponent, ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import { FeedItem } from '../hooks/useFeed';
 import { ArticlePostCard } from './cards/ArticlePostCard';
-import { ArticlePostList as ArticlePostCardV1 } from './cards/list/ArticlePostList';
+import {
+  ArticlePostList,
+  ArticlePostList as ArticlePostCardV1,
+} from './cards/list/ArticlePostList';
 import { AdCard } from './cards/AdCard';
 import { AdList as AdCardV1 } from './cards/list/AdList';
 import { PlaceholderCard } from './cards/PlaceholderCard';
@@ -13,13 +16,22 @@ import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { SharePostCard } from './cards/SharePostCard';
-import { SharePostList as SharePostCardV1 } from './cards/list/SharePostList';
+import {
+  SharePostList,
+  SharePostList as SharePostCardV1,
+} from './cards/list/SharePostList';
 import { WelcomePostCard } from './cards/WelcomePostCard';
-import { WelcomePostList as WelcomePostCardV1 } from './cards/list/WelcomePostList';
+import {
+  WelcomePostList,
+  WelcomePostList as WelcomePostCardV1,
+} from './cards/list/WelcomePostList';
 import { Origin } from '../lib/analytics';
 import { useFeedLayout, UseVotePost } from '../hooks';
 import { CollectionCard } from './cards/CollectionCard';
-import { CollectionList as CollectionCardV1 } from './cards/list/CollectionList';
+import {
+  CollectionList,
+  CollectionList as CollectionCardV1,
+} from './cards/list/CollectionList';
 import { AcquisitionFormCard } from './cards/AcquisitionFormCard';
 import { MarketingCtaCard } from './cards';
 import { MarketingCtaList } from './cards/list/MarketingCtaList';
@@ -89,7 +101,7 @@ export function getFeedItemKey(items: FeedItem[], index: number): string {
   }
 }
 
-const PostTypeToTag: Record<PostType, FunctionComponent> = {
+const PostTypeToTagCard: Record<PostType, FunctionComponent> = {
   [PostType.Article]: ArticlePostCard,
   [PostType.Share]: SharePostCard,
   [PostType.Welcome]: WelcomePostCard,
@@ -98,13 +110,13 @@ const PostTypeToTag: Record<PostType, FunctionComponent> = {
   [PostType.Collection]: CollectionCard,
 };
 
-const PostTypeToTagV1: Record<PostType, FunctionComponent> = {
-  [PostType.Article]: ArticlePostCardV1,
-  [PostType.Share]: SharePostCardV1,
-  [PostType.Welcome]: WelcomePostCardV1,
-  [PostType.Freeform]: WelcomePostCardV1,
-  [PostType.VideoYouTube]: ArticlePostCardV1,
-  [PostType.Collection]: CollectionCardV1,
+const PostTypeToTagList: Record<PostType, FunctionComponent> = {
+  [PostType.Article]: ArticlePostList,
+  [PostType.Share]: SharePostList,
+  [PostType.Welcome]: WelcomePostList,
+  [PostType.Freeform]: WelcomePostList,
+  [PostType.VideoYouTube]: ArticlePostList,
+  [PostType.Collection]: CollectionList,
 };
 
 type GetTagsProps = {
@@ -121,8 +133,8 @@ const getTags = ({
   const useListCards = isListFeedLayout || shouldUseListMode;
   return {
     PostTag: useListCards
-      ? PostTypeToTagV1[postType] ?? ArticlePostCardV1
-      : PostTypeToTag[postType] ?? ArticlePostCard,
+      ? PostTypeToTagList[postType] ?? ArticlePostCardV1
+      : PostTypeToTagCard[postType] ?? ArticlePostCard,
     AdTag: useListCards ? AdCardV1 : AdCard,
     PlaceholderTag: useListCards ? PlaceholderCardV1 : PlaceholderCard,
     MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,

@@ -1,11 +1,11 @@
 import React, { ReactNode } from 'react';
 import classNames from 'classnames';
 import { SearchFeedback } from './SearchFeedback';
-import { SearchBarInputProps } from './SearchBarInput';
 import { Pill } from '../utilities/loaders';
 import { PageWidgets } from '../utilities';
 import { SearchSourceList } from './SearchSourceList';
 import { SearchBar } from './SearchBar';
+import { SearchBarInputProps } from './common';
 
 interface SearchContainerProps extends Pick<SearchBarInputProps, 'chunk'> {
   children: ReactNode;

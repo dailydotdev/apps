@@ -44,7 +44,7 @@ const feature = {
     ExperienceLevelExperiment.Control,
   ),
   featureTheme: new Feature('feature_theme', {}),
-  customFeeds: new Feature('custom_feeds', CustomFeedsExperiment.V1),
+  customFeeds: new Feature('custom_feeds', CustomFeedsExperiment.Control),
   hypeCampaign: new Feature('hype_campaign', false),
   searchGoogle: new Feature('search_google', false),
   onboardingFlip: new Feature('onboarding_flip', false),
