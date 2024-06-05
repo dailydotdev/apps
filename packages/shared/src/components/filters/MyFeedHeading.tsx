@@ -27,6 +27,7 @@ import { checkIsExtension } from '../../lib/func';
 import { ActionType } from '../../graphql/actions';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { ShortcutsUIExperiment } from '../../lib/featureValues';
+import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
 
 export const filterAlertMessage = 'Edit your personal feed preferences here';
 
@@ -54,11 +55,6 @@ function MyFeedHeading({
     shouldEvaluate: isExtension,
   });
   const isShortcutsUIV1 = shortcutsUIFeature === ShortcutsUIExperiment.V1;
-
-  const onClick = () => {
-    trackEvent({ event_name: AnalyticsEvent.ManageTags });
-    onOpenFeedFilters();
-  };
 
   const onRefresh = async () => {
     trackEvent({ event_name: AnalyticsEvent.RefreshFeed });
@@ -98,18 +94,18 @@ function MyFeedHeading({
           {isLaptop ? 'Refresh feed' : null}
         </Button>
       )}
-      <Button
+      <FeedSettingsButton
+        onClick={onOpenFeedFilters}
+        className="mr-auto"
         size={ButtonSize.Medium}
         variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-        className="mr-auto"
-        onClick={onClick}
         icon={<FilterIcon />}
         iconPosition={
           shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
         }
       >
         {!isMobile ? feedFiltersLabel : null}
-      </Button>
+      </FeedSettingsButton>
       {isExtension &&
         checkHasCompleted(ActionType.FirstShortcutsSession) &&
         !showTopSites &&

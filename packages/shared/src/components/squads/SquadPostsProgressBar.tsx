@@ -1,8 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { ProgressBar } from '../fields/ProgressBar';
-
-export const MIN_SQUAD_POSTS = 3;
+import { PUBLIC_SQUAD_REQUEST_REQUIREMENT } from '../../lib/config';
 
 interface ClassName {
   container?: string;
@@ -21,7 +20,7 @@ interface Props {
 
 export const SquadPostsProgressBar = ({
   className,
-  goal = MIN_SQUAD_POSTS,
+  goal = PUBLIC_SQUAD_REQUEST_REQUIREMENT,
   postsCount = 0,
 }: Props): ReactElement => {
   const effectivePostsCount = Math.min(postsCount, goal);
