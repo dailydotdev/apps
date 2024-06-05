@@ -1,5 +1,9 @@
 import request, { gql } from 'graphql-request';
-import { SOURCE_BASE_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
+import {
+  SOURCE_BASE_FRAGMENT,
+  SQUAD_BASE_FRAGMENT,
+  USER_SHORT_INFO_FRAGMENT,
+} from './fragments';
 import { graphqlUrl } from '../lib/config';
 import { Connection } from './common';
 import {
@@ -207,30 +211,10 @@ export const UPDATE_SQUAD_POST_MUTATION = gql`
 export const SQUAD_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
-      ...SourceBaseInfo
-      referralUrl
-      createdAt
-      flags {
-        featured
-        totalPosts
-        totalViews
-        totalUpvotes
-      }
-      privilegedMembers {
-        user {
-          id
-          name
-          image
-          permalink
-          username
-          bio
-          reputation
-        }
-        role
-      }
+      ...SquadBaseInfo
     }
   }
-  ${SOURCE_BASE_FRAGMENT}
+  ${SQUAD_BASE_FRAGMENT}
 `;
 
 export const SQUAD_STATIC_FIELDS_QUERY = gql`
@@ -328,11 +312,10 @@ export const PUBLIC_SQUAD_REQUESTS = gql`
 export const SQUAD_JOIN_MUTATION = gql`
   mutation JoinSquad($sourceId: ID!, $token: String) {
     source: joinSource(sourceId: $sourceId, token: $token) {
-      ...SourceBaseInfo
-      referralUrl
+      ...SquadBaseInfo
     }
   }
-  ${SOURCE_BASE_FRAGMENT}
+  ${SQUAD_BASE_FRAGMENT}
 `;
 
 export const COLLAPSE_PINNED_POSTS_MUTATION = gql`
