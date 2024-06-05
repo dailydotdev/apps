@@ -183,6 +183,23 @@ export const cloudinary = {
     bookmarkLoops:
       'https://res.cloudinary.com/daily-now/image/upload/s--n2t9TCqZ--/f_auto/v1713991549/public/daily',
   },
+  shortcuts: {
+    icons: {
+      gmail:
+        'https://res.cloudinary.com/daily-now/image/upload/s--QYLzNTIV--/f_auto/v1717506847/public/Gmail%20Shortcut',
+      github: {
+        light:
+          'https://res.cloudinary.com/daily-now/image/upload/s--M5XOonZ3--/f_auto/v1717513011/public/GitHub%20Shortcut%20-%20Light%20mode',
+        dark: 'https://res.cloudinary.com/daily-now/image/upload/s--qyAG2NPK--/f_auto/v1717513011/public/GitHub%20Shortcut%20-%20Dark%20mode',
+      },
+      reddit:
+        'https://res.cloudinary.com/daily-now/image/upload/s--9UfrZdCc--/f_auto/v1717506847/public/Reddit%20Shortcut',
+      openai:
+        'https://res.cloudinary.com/daily-now/image/upload/s--D__WRZ3a--/f_auto/v1717506847/public/ChatGPT%20Shortcut',
+      stackoverflow:
+        'https://res.cloudinary.com/daily-now/image/upload/s--B_87VDub--/f_auto/v1717506847/public/Stackoverflow%20Shortcut',
+    },
+  },
 };
 
 export const smallPostImage = (url: string): string => {
