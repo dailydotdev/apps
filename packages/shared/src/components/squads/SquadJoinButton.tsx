@@ -151,6 +151,7 @@ export const SquadJoinButton = ({
     if (isCurrentMember) {
       leaveSquad();
     } else {
+      console.log('line 145 - joining squad');
       joinSquad();
     }
   };

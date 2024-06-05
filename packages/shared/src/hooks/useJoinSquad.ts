@@ -26,6 +26,8 @@ export const useJoinSquad = ({
   const { completeAction } = useActions();
 
   const joinSquad = useCallback(async () => {
+    console.log('line 29 - at join squad');
+
     const payload: SquadInvitationProps = {
       sourceId: squad.id,
     };
@@ -35,6 +37,8 @@ export const useJoinSquad = ({
     }
 
     const result = await joinSquadInvitation(payload);
+
+    console.log('line 41 - at join squad result', result);
 
     trackEvent({
       event_name: AnalyticsEvent.CompleteJoiningSquad,
