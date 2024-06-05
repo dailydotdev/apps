@@ -440,8 +440,8 @@ const AccountNotificationsPage = (): ReactElement => {
                 placement="top"
                 content={
                   <div className="w-60 typo-subhead">
-                    Get a notification at 20:00 if your streak is about to
-                    expire.
+                    Get a notification at 20:00 (local time) if your streak is
+                    about to expire.
                   </div>
                 }
               >
