@@ -21,11 +21,11 @@ import { SquadEditWelcomePostChecklistStep } from '../components/checklist/Squad
 import { usePushNotificationContext } from '../contexts/PushNotificationContext';
 import { EditSquadStep } from '../components/checklist/EditSquadStep';
 import { GoPublicStep } from '../components/checklist/GoPublicStep';
-import { MIN_SQUAD_POSTS } from '../components/squads/SquadPostsProgressBar';
 import {
   getEditActions,
   getPublicActions,
 } from '../components/checklist/actionUtils';
+import { PUBLIC_SQUAD_REQUEST_REQUIREMENT } from '../lib/config';
 
 type UseSquadChecklistProps = {
   squad: Squad;
@@ -143,7 +143,7 @@ const useSquadChecklist = ({
         type: ActionType.MakeSquadPublic,
         step: {
           title: 'Get more traffic by going public',
-          description: `To get your Squad posts exposed in the daily.dev feed, create at least ${MIN_SQUAD_POSTS} posts and apply for a public Squad status`,
+          description: `To get your Squad posts exposed in the daily.dev feed, create at least ${PUBLIC_SQUAD_REQUEST_REQUIREMENT} posts and apply for a public Squad status`,
           component: (props) => <GoPublicStep {...props} squad={squad} />,
         },
         actions: getPublicActions(squad),
