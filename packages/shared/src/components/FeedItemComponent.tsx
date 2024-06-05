@@ -16,22 +16,13 @@ import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { SharePostCard } from './cards/SharePostCard';
-import {
-  SharePostList,
-  SharePostList as SharePostCardV1,
-} from './cards/list/SharePostList';
+import { SharePostList } from './cards/list/SharePostList';
 import { WelcomePostCard } from './cards/WelcomePostCard';
-import {
-  WelcomePostList,
-  WelcomePostList as WelcomePostCardV1,
-} from './cards/list/WelcomePostList';
+import { WelcomePostList } from './cards/list/WelcomePostList';
 import { Origin } from '../lib/analytics';
 import { useFeedLayout, UseVotePost } from '../hooks';
 import { CollectionCard } from './cards/CollectionCard';
-import {
-  CollectionList,
-  CollectionList as CollectionCardV1,
-} from './cards/list/CollectionList';
+import { CollectionList } from './cards/list/CollectionList';
 import { AcquisitionFormCard } from './cards/AcquisitionFormCard';
 import { MarketingCtaCard } from './cards';
 import { MarketingCtaList } from './cards/list/MarketingCtaList';
