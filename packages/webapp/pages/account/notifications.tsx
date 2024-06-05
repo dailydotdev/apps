@@ -61,8 +61,8 @@ const AccountNotificationsPage = (): ReactElement => {
   const readingReminder = getPersonalizedDigest(
     UserPersonalizedDigestType.ReadingReminder,
   );
-  const readingStreakReminder = getPersonalizedDigest(
-    UserPersonalizedDigestType.ReadingStreakReminder,
+  const streakReminder = getPersonalizedDigest(
+    UserPersonalizedDigestType.StreakReminder,
   );
   const personalizedDigest = getPersonalizedDigest(
     UserPersonalizedDigestType.Digest,
@@ -172,17 +172,17 @@ const AccountNotificationsPage = (): ReactElement => {
     }
   };
 
-  const onToggleReadingStreakReminder = (forceValue?: boolean) => {
-    const value = forceValue || !readingStreakReminder;
+  const onToggleStreakReminder = (forceValue?: boolean) => {
+    const value = forceValue || !streakReminder;
     onTrackToggle(
       value,
       NotificationChannel.Web,
-      NotificationCategory.ReadingStreakReminder,
+      NotificationCategory.StreakReminder,
     );
 
     if (value) {
       trackEvent({
-        event_name: AnalyticsEvent.ScheduleReadingStreakReminder,
+        event_name: AnalyticsEvent.ScheduleStreakReminder,
         extra: JSON.stringify({
           hour: readingTimeIndex,
           timezone: user?.timezone,
@@ -191,11 +191,11 @@ const AccountNotificationsPage = (): ReactElement => {
       subscribePersonalizedDigest({
         hour: 20,
         sendType: SendType.Workdays,
-        type: UserPersonalizedDigestType.ReadingStreakReminder,
+        type: UserPersonalizedDigestType.StreakReminder,
       });
     } else {
       unsubscribePersonalizedDigest({
-        type: UserPersonalizedDigestType.ReadingStreakReminder,
+        type: UserPersonalizedDigestType.StreakReminder,
       });
     }
   };
@@ -431,10 +431,10 @@ const AccountNotificationsPage = (): ReactElement => {
               Activity (mentions, replies, upvotes, etc.)
             </Checkbox>
             <Checkbox
-              name="readingStreakReminder"
+              name="streakReminder"
               data-testid="reading-streak-reminder-switch"
-              checked={!!readingStreakReminder}
-              onToggle={onToggleReadingStreakReminder}
+              checked={!!streakReminder}
+              onToggle={onToggleStreakReminder}
             >
               <SimpleTooltip
                 placement="top"

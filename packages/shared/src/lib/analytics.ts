@@ -145,7 +145,7 @@ export enum AnalyticsEvent {
   // Reading Streaks
   OpenStreaks = 'open streaks',
   DismissStreaksMilestone = 'dismiss streaks milestone',
-  ScheduleReadingStreakReminder = 'schedule reading streak reminder',
+  ScheduleStreakReminder = 'schedule streak reminder',
   // 404 page
   View404Page = '404 page',
   // Refresh feed
@@ -219,7 +219,7 @@ export enum NotificationCategory {
   Product = 'product',
   Digest = 'digest',
   ReadingReminder = 'reading reminder',
-  ReadingStreakReminder = 'reading streak reminder',
+  StreakReminder = 'streak reminder',
 }
 
 export enum NotificationTarget {
