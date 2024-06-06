@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -14,6 +20,11 @@ import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import { useRouter } from 'next/router';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import AuthOptions, {
+  AuthDisplay,
+} from '@dailydotdev/shared/src/components/auth/AuthOptions';
+import useAuthForms from '@dailydotdev/shared/src/hooks/useAuthForms';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getTemplatedTitle } from '../utils';
 import SidebarNav from './SidebarNav';
@@ -50,7 +61,21 @@ export default function AccountLayout({
     };
   }, [router.events, setIsOpen]);
 
-  if (!profile || !Object.keys(profile).length || (isFetched && !profile)) {
+  const { formRef } = useAuthForms();
+
+  if (isFetched && !profile) {
+    return (
+      <div className="flex w-full items-center justify-center pt-10">
+        <AuthOptions
+          simplified
+          formRef={formRef}
+          trigger={AuthTriggers.AccountPage}
+        />
+      </div>
+    );
+  }
+
+  if (!profile || !Object.keys(profile).length) {
     return null;
   }
 
