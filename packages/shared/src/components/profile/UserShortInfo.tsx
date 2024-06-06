@@ -34,7 +34,7 @@ export interface UserShortInfoProps<
 }
 
 const defaultClassName = {
-  container: 'py-3 px-6 hover:bg-theme-hover',
+  container: 'py-3 px-6 hover:bg-surface-hover',
   textWrapper: 'flex-1',
 };
 

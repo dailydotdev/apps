@@ -86,7 +86,7 @@ function SharePostBar({
       onSubmit={onSubmit}
       className={classNames(
         'flex flex-col items-center overflow-hidden rounded-16 border typo-callout tablet:flex-row',
-        'border-border-subtlest-tertiary bg-theme-float focus-within:border-border-subtlest-primary hover:border-border-subtlest-primary',
+        'border-border-subtlest-tertiary bg-surface-float focus-within:border-border-subtlest-primary hover:border-border-subtlest-primary',
         className,
       )}
     >

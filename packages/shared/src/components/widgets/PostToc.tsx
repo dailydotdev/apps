@@ -44,7 +44,7 @@ export default function PostToc({
           rel="noopener"
           title={item.text}
           onClick={onLinkClick}
-          className="flex-1 truncate px-4 py-2 typo-callout hover:bg-theme-hover"
+          className="flex-1 truncate px-4 py-2 typo-callout hover:bg-surface-hover"
         >
           {item.text}
         </a>
@@ -63,7 +63,7 @@ export default function PostToc({
           className,
         )}
       >
-        <Summary className="hover:bg-theme-hover">
+        <Summary className="hover:bg-surface-hover">
           <div className={titleClass}>
             <TocIcon className="mr-2 text-2xl" />
             Table of contents

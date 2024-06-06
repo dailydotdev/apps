@@ -158,7 +158,7 @@ const variations = {
   }),
   tertiaryFloat: (color) => {
     const states = variations.tertiary(color);
-    states.darkStates.default.background = 'var(--theme-float)';
+    states.darkStates.default.background = 'var(--theme-surface-float)';
     return states;
   },
   subtle: (color) => {

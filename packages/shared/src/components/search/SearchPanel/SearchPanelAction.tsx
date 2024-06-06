@@ -40,7 +40,7 @@ export const SearchPanelAction = ({
 
         search({ provider, query: searchPanel.query });
       }}
-      className={classNames(isDefaultActive && 'bg-theme-float')}
+      className={classNames(isDefaultActive && 'bg-surface-float')}
       data-search-panel-item={!isDefaultProvider}
       tabIndex={isDefaultProvider ? -1 : undefined}
       {...itemProps}

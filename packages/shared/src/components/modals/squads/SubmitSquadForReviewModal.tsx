@@ -34,7 +34,7 @@ const ChecklistItem = ({
 
 const Checklist = classed(
   'ul',
-  'flex flex-col gap-5 p-5 my-3 rounded-16 bg-theme-float typo-callout',
+  'flex flex-col gap-5 p-5 my-3 rounded-16 bg-surface-float typo-callout',
 );
 
 const Header = classed('div', 'flex flex-col items-center gap-4');

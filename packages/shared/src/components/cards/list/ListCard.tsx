@@ -51,7 +51,7 @@ export const CardLink = classed('a', clickableCardClasses);
 export const ListCard = classed(
   'article',
   `group relative w-full flex flex-col py-6 px-4 border-t border-border-subtlest-tertiary rounded-16
-   hover:bg-theme-float
+   hover:bg-surface-float
   `,
 );
 

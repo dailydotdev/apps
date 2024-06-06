@@ -93,8 +93,8 @@ function NotificationItem({
   return (
     <div
       className={classNames(
-        'group relative flex flex-row border-y border-background-default py-4 pl-6 pr-4 hover:bg-theme-hover focus:bg-theme-active',
-        isUnread && 'bg-theme-float',
+        'group relative flex flex-row border-y border-background-default py-4 pl-6 pr-4 hover:bg-surface-hover focus:bg-theme-active',
+        isUnread && 'bg-surface-float',
       )}
     >
       {onClick && (

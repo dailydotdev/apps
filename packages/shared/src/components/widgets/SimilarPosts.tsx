@@ -55,7 +55,7 @@ const DefaultListItem = ({
 }: PostProps): ReactElement => (
   <article
     className={classNames(
-      'group relative flex items-start py-2 pl-4 pr-2 hover:bg-theme-hover',
+      'group relative flex items-start py-2 pl-4 pr-2 hover:bg-surface-hover',
       styles.card,
     )}
   >

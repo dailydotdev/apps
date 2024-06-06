@@ -240,7 +240,7 @@ export const SearchPanelInput = ({
               />
             )}
             {searchPanel.isActive && (
-              <div className="flex h-full items-center border-l border-theme-float laptop:hidden">
+              <div className="flex h-full items-center border-l border-surface-float laptop:hidden">
                 <Button
                   type="button"
                   onClick={() => {

@@ -356,7 +356,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     </ClickableText>
                   </p>
 
-                  <p className="white-space-pre-wrap mt-4 break-words rounded-10 bg-theme-float px-4 py-2 text-text-tertiary">
+                  <p className="white-space-pre-wrap mt-4 break-words rounded-10 bg-surface-float px-4 py-2 text-text-tertiary">
                     {embedCode}
                   </p>
                   <Button
