@@ -9,19 +9,17 @@ import {
 import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { Card } from '../cards/Card';
-import { Card as CardV1 } from '../cards/v1/Card';
+import { ListCard } from '../cards/list/ListCard';
 import { EarthIcon, MiniCloseIcon, TimerIcon } from '../icons';
 import { ActionType } from '../../graphql/actions';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { anchorDefaultRel } from '../../lib/strings';
-import {
-  MIN_SQUAD_POSTS,
-  SquadPostsProgressBar,
-} from './SquadPostsProgressBar';
+import { SquadPostsProgressBar } from './SquadPostsProgressBar';
 import { squadsPublicGuide } from '../../lib/constants';
 import { SquadStatus } from './settings';
 import { PlaceholderCard } from '../cards/PlaceholderCard';
+import { PUBLIC_SQUAD_REQUEST_REQUIREMENT } from '../../lib/config';
 
 export function PublicSquadEligibilityCard(): ReactElement {
   const router = useRouter();
@@ -53,8 +51,8 @@ export function PublicSquadEligibilityCard(): ReactElement {
     return <PlaceholderCard />;
   }
 
-  const isEligible = postsCount >= MIN_SQUAD_POSTS;
-  const CardComponent = shouldUseListFeedLayout ? CardV1 : Card;
+  const isEligible = postsCount >= PUBLIC_SQUAD_REQUEST_REQUIREMENT;
+  const CardComponent = shouldUseListFeedLayout ? ListCard : Card;
 
   return (
     <CardComponent

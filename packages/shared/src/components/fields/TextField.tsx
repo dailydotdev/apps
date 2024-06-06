@@ -18,7 +18,7 @@ import BaseFieldContainer, {
 import { ButtonProps } from '../buttons/Button';
 import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
 
-export interface TextFieldProps extends BaseFieldProps<HTMLInputElement> {
+export interface TextFieldProps extends BaseFieldProps {
   progress?: string;
   leftIcon?: ReactNode;
   rightIcon?: React.ReactElement<IconProps>;

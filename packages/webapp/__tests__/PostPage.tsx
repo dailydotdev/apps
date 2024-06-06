@@ -211,7 +211,7 @@ it('should show source image', async () => {
   renderPost();
   const el = await screen.findByAltText('Towards Data Science');
   expect(el).toHaveAttribute(
-    'data-src',
+    'src',
     'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
   );
 });

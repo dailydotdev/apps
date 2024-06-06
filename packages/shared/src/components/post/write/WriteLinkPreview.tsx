@@ -10,6 +10,7 @@ import {
 } from './common';
 import { ExternalLinkPreview } from '../../../graphql/posts';
 import { Button, ButtonVariant } from '../../buttons/Button';
+import { ProfileImageSize } from '../../ProfilePicture';
 
 interface WriteLinkPreviewProps {
   link: string;
@@ -50,13 +51,16 @@ export function WriteLinkPreview({
             {preview.source?.id !== 'unknown' &&
               (isMinimized ? (
                 <SourceAvatar
-                  size="small"
+                  size={ProfileImageSize.Small}
                   source={preview.source}
                   className="absolute right-24 mr-4 mt-1"
                 />
               ) : (
                 <span className="mt-1 flex flex-row items-center">
-                  <SourceAvatar size="small" source={preview.source} />
+                  <SourceAvatar
+                    size={ProfileImageSize.Small}
+                    source={preview.source}
+                  />
                   <span className="text-text-tertiary">
                     {preview.source?.name}
                   </span>

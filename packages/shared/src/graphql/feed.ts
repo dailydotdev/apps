@@ -403,15 +403,6 @@ export const CUSTOM_FEED_QUERY = gql`
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
-export const GET_FEED_QUERY = gql`
-  query GetFeed($feedId: ID!) {
-    getFeed(feedId: $feedId) {
-      ...CustomFeed
-    }
-  }
-  ${CUSTOM_FEED_FRAGMENT}
-`;
-
 export const CREATE_FEED_MUTATION = `
   mutation CreateFeed($name: String!) {
     createFeed(name: $name) {

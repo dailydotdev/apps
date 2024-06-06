@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import shuffle from 'lodash.shuffle';
 import { Card } from './Card';
-import { Card as CardV1 } from './v1/Card';
+import { ListCard } from './list/ListCard';
 import { Radio } from '../fields/Radio';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { AcquisitionChannel, updateUserAcquisition } from '../../graphql/users';
@@ -82,7 +82,7 @@ export function AcquisitionFormCard(): ReactElement {
     return null;
   }
 
-  const CardComponent = shouldUseListFeedLayout ? CardV1 : Card;
+  const CardComponent = shouldUseListFeedLayout ? ListCard : Card;
 
   return (
     <CardComponent data-testid="acquisitionFormCard" className="p-4">

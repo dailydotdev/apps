@@ -22,6 +22,7 @@ import {
   PinIcon,
   BellSubscribedIcon,
   BellIcon,
+  ShareIcon,
 } from './icons';
 import { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
@@ -30,6 +31,7 @@ import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import {
   ToastSubject,
+  useConditionalFeature,
   useFeedLayout,
   useSourceSubscription,
   useToastNotification,
@@ -58,6 +60,8 @@ import { feature } from '../lib/featureManagement';
 import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
 import { SourceType } from '../graphql/sources';
+import { isNullOrUndefined } from '../lib/func';
+import { useSharePost } from '../hooks/useSharePost';
 
 const ContextMenu = dynamic(
   () => import(/* webpackChunkName: "contextMenu" */ './fields/ContextMenu'),
@@ -107,6 +111,7 @@ export default function PostOptionsMenu({
   const { onUpdateSettings } = useAdvancedSettings({ enabled: false });
   const { trackEvent } = useContext(AnalyticsContext);
   const { hidePost, unhidePost } = useReportPost();
+  const { openSharePost } = useSharePost(origin);
 
   const { openModal } = useLazyModal();
   const {
@@ -317,6 +322,23 @@ export default function PostOptionsMenu({
   const bookmarkLoops = useFeature(feature.bookmarkLoops);
   const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
   const shouldShowBookmark = bookmarkLoops || bookmarkOnCard;
+
+  const { value: shareVia } = useConditionalFeature({
+    feature: feature.shareVia,
+    shouldEvaluate: !isNullOrUndefined(post),
+  });
+
+  if (shareVia) {
+    postOptions.unshift({
+      icon: <MenuIcon Icon={ShareIcon} />,
+      label: 'Share via',
+      action: () =>
+        openSharePost({
+          post,
+          ...trackingOpts,
+        }),
+    });
+  }
 
   if (!shouldShowBookmark && !shouldUseListFeedLayout) {
     postOptions.push({

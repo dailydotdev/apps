@@ -4,7 +4,7 @@ import { Post } from '../../graphql/posts';
 import { ContextMenu } from '../constants';
 import useReportPostMenu from '../useReportPostMenu';
 
-type PostMenuLocation = {
+export type PostLocation = {
   index: number;
   row: number;
   column: number;
@@ -25,8 +25,8 @@ type FeedContextMenu = {
     column: number,
   ) => void;
   postMenuIndex: number;
-  postMenuLocation: PostMenuLocation;
-  setPostMenuIndex: (value: PostMenuLocation | undefined) => void;
+  postMenuLocation: PostLocation;
+  setPostMenuIndex: (value: PostLocation | undefined) => void;
 };
 
 type FeedContextMenuProps = {
@@ -36,7 +36,7 @@ type FeedContextMenuProps = {
 export default function useFeedContextMenu({
   contextId,
 }: FeedContextMenuProps): FeedContextMenu {
-  const [postMenuLocation, setPostMenuLocation] = useState<PostMenuLocation>();
+  const [postMenuLocation, setPostMenuLocation] = useState<PostLocation>();
   const postMenuIndex = postMenuLocation?.index;
   const { showReportMenu } = useReportPostMenu(contextId);
   const { onMenuClick: showShareMenu } = useContextMenu({

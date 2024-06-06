@@ -38,7 +38,7 @@ import { LazyModal } from '../modals/common/types';
 interface SquadPageHeaderProps {
   squad: Squad;
   members: SourceMember[];
-  shouldUseListModeV1: boolean;
+  shouldUseListMode: boolean;
 }
 
 const MAX_WIDTH = 'laptopL:max-w-[38.5rem]';
@@ -61,7 +61,7 @@ const SquadStat = ({ count, label }: SquadStatProps) => (
 export function SquadPageHeader({
   squad,
   members,
-  shouldUseListModeV1,
+  shouldUseListMode,
 }: SquadPageHeaderProps): ReactElement {
   const { tourIndex } = useSquadTour();
   const { openModal } = useLazyModal();
@@ -98,14 +98,13 @@ export function SquadPageHeader({
     <FlexCol
       className={classNames(
         'relative min-h-20 w-full items-center border-border-subtlest-tertiary px-6 tablet:mb-6 tablet:border-b tablet:pb-20',
-        !shouldUseListModeV1 &&
-          'laptopL:items-start laptopL:px-18 laptopL:pb-14',
+        !shouldUseListMode && 'laptopL:items-start laptopL:px-18 laptopL:pb-14',
       )}
     >
       {isChecklistVisible && <SquadChecklistCard squad={squad} />}
       <div
         className={classNames(
-          !shouldUseListModeV1 && 'laptopL:flex-row',
+          !shouldUseListMode && 'laptopL:flex-row',
           'flex flex-col items-center',
         )}
       >
@@ -113,13 +112,13 @@ export function SquadPageHeader({
         <FlexCol
           className={classNames(
             'mt-4',
-            !shouldUseListModeV1 && 'laptopL:ml-6 laptopL:mt-0',
+            !shouldUseListMode && 'laptopL:ml-6 laptopL:mt-0',
           )}
         >
           <h1
             className={classNames(
               'text-center font-bold typo-title2',
-              !shouldUseListModeV1 && 'laptopL:text-left',
+              !shouldUseListMode && 'laptopL:text-left',
             )}
           >
             {squad.name}
@@ -127,13 +126,13 @@ export function SquadPageHeader({
           <div
             className={classNames(
               'mt-1 flex flex-row items-center justify-center text-text-quaternary tablet:mt-2',
-              !shouldUseListModeV1 && 'laptopL:justify-start',
+              !shouldUseListMode && 'laptopL:justify-start',
             )}
           >
             <h2
               className={classNames(
                 'text-center text-text-tertiary typo-footnote',
-                !shouldUseListModeV1 && 'laptopL:text-left',
+                !shouldUseListMode && 'laptopL:text-left',
               )}
             >
               @{squad.handle}
@@ -150,10 +149,11 @@ export function SquadPageHeader({
               variant={
                 isFeatured ? ButtonVariant.Secondary : ButtonVariant.Float
               }
-              className={
+              className={classNames(
+                'pointer-events-none',
                 isFeatured &&
-                'relative border-overlay-primary-cabbage bg-overlay-tertiary-cabbage'
-              }
+                  'relative border-overlay-primary-cabbage bg-overlay-tertiary-cabbage',
+              )}
             >
               {props.copy} Squad
               {isFeatured && (
@@ -180,8 +180,8 @@ export function SquadPageHeader({
         <p
           className={classNames(
             'mt-6 w-full text-center text-text-tertiary typo-body',
-            !shouldUseListModeV1 && 'laptopL:text-left',
-            !shouldUseListModeV1 && MAX_WIDTH,
+            !shouldUseListMode && 'laptopL:text-left',
+            !shouldUseListMode && MAX_WIDTH,
           )}
         >
           {squad.description}
@@ -214,23 +214,23 @@ export function SquadPageHeader({
         members={members}
         className={classNames(
           'mt-8',
-          !shouldUseListModeV1 &&
+          !shouldUseListMode &&
             'laptopL:absolute laptopL:right-18 laptopL:top-0 laptopL:mt-0',
         )}
       />
       <EnableNotification
         contentName={squad.name}
         source={NotificationPromptSource.SquadPage}
-        className={classNames('w-full', !shouldUseListModeV1 && MAX_WIDTH)}
+        className={classNames('w-full', !shouldUseListMode && MAX_WIDTH)}
       />
       <div
         className={classNames(
           'relative bottom-0 flex w-full flex-col bg-background-default pt-8 tablet:absolute tablet:translate-y-1/2 tablet:flex-row tablet:p-0',
-          !shouldUseListModeV1 && 'laptopL:px-0',
+          !shouldUseListMode && 'laptopL:px-0',
           shouldShowHighlightPulse && 'highlight-pulse',
           allowedToPost && 'items-center justify-center',
-          allowedToPost && !shouldUseListModeV1 && 'laptop:max-w-[41.5rem]',
-          !allowedToPost && !shouldUseListModeV1 && 'laptop:max-w-[38.25rem]',
+          allowedToPost && !shouldUseListMode && 'laptop:max-w-[41.5rem]',
+          !allowedToPost && !shouldUseListMode && 'laptop:max-w-[38.25rem]',
         )}
       >
         <ConditionalWrapper

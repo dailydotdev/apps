@@ -16,12 +16,12 @@ export enum ExperienceLevelExperiment {
   V1 = 'v1',
 }
 
-export enum FeedListLayoutExperiment {
+export enum CustomFeedsExperiment {
   Control = 'control',
   V1 = 'v1',
 }
 
-export enum CustomFeedsExperiment {
+export enum ShortcutsUIExperiment {
   Control = 'control',
   V1 = 'v1',
 }

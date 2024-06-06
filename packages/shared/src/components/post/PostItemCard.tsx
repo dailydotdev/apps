@@ -11,7 +11,7 @@ import {
 } from '../icons';
 import classed from '../../lib/classed';
 import PostMetadata from '../cards/PostMetadata';
-import { ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { Image } from '../image/Image';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { cloudinary } from '../../lib/image';
@@ -89,7 +89,7 @@ export default function PostItemCard({
           />
           <SourceShadow className={showVoteActions && 'top-8'} />
           <ProfilePicture
-            size="small"
+            size={ProfileImageSize.Small}
             rounded="full"
             className={classNames(
               'absolute left-6',

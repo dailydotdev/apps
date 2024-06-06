@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { Pill } from '../../Pill';
 import { SourceAvatar, SourceAvatarProps } from '../../profile/source';
 import { ProfilePictureGroup } from '../../ProfilePictureGroup';
+import { ProfileImageSize } from '../../ProfilePicture';
 
 interface CollectionPillSourcesProps {
   className?: {
@@ -34,7 +35,7 @@ export const CollectionPillSources = ({
             'hidden group-hover:flex': !alwaysShowSources,
           })}
           total={totalSources}
-          size="medium"
+          size={ProfileImageSize.Medium}
         >
           {sources.map((source) => (
             <SourceAvatar
@@ -44,7 +45,7 @@ export const CollectionPillSources = ({
               )}
               key={source.handle}
               source={source}
-              size="medium"
+              size={ProfileImageSize.Medium}
             />
           ))}
         </ProfilePictureGroup>

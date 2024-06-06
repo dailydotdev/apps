@@ -1,6 +1,6 @@
 import React, { FormEvent, ReactElement, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { LockIcon } from '../icons';
@@ -94,7 +94,7 @@ function SharePostBar({
         <ProfilePicture
           className="m-3"
           user={user}
-          size="large"
+          size={ProfileImageSize.Large}
           nativeLazyLoading
         />
         <input

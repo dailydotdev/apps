@@ -10,16 +10,6 @@ import { SourceMember } from './sources';
 import { graphqlUrl } from '../lib/config';
 import type { SendType } from '../hooks';
 
-type PostStats = {
-  numPosts: number;
-  numPostViews: number;
-  numPostUpvotes: number;
-};
-type CommentStats = { numComments: number; numCommentUpvotes: number };
-
-export type UserStats = PostStats & CommentStats;
-export type UserStatsData = { userStats: UserStats };
-
 export const USER_BY_ID_STATIC_FIELDS_QUERY = `
   query User($id: ID!) {
     user(id: $id) {
@@ -54,18 +44,6 @@ export const UPDATE_README_MUTATION = `
   mutation UpdateReadme($content: String!) {
     updateReadme(content: $content) {
       readmeHtml
-    }
-  }
-`;
-
-export const USER_STATS_QUERY = gql`
-  query UserStats($id: ID!) {
-    userStats(id: $id) {
-      numCommentUpvotes
-      numComments
-      numPostUpvotes
-      numPostViews
-      numPosts
     }
   }
 `;
@@ -113,21 +91,12 @@ export type ProfileV2 = {
 };
 
 export type UserReadingRank = { currentRank: number };
-export type UserReadingRankData = { userReadingRank: UserReadingRank };
 export type MostReadTag = {
   value: string;
   count: number;
   percentage?: number;
   total?: number;
 };
-
-export const USER_READING_RANK_QUERY = gql`
-  query UserReadingRank($id: ID!, $version: Int) {
-    userReadingRank(id: $id, version: $version) {
-      currentRank
-    }
-  }
-`;
 
 export const USER_TOOLTIP_CONTENT_QUERY = gql`
   query UserTooltipContent(
@@ -153,34 +122,6 @@ export type Tag = {
   readingDays: number;
   percentage?: number;
 };
-export type TopTags = Tag[];
-export interface MyRankData {
-  rank: {
-    rankLastWeek: number;
-    currentRank: number;
-    progressThisWeek: number;
-    tags: TopTags;
-    readToday: boolean;
-    lastReadTime?: Date;
-  };
-}
-
-export const MY_READING_RANK_QUERY = gql`
-  query UserReadingRank($id: ID!, $version: Int) {
-    rank: userReadingRank(id: $id, version: $version) {
-      rankLastWeek
-      currentRank
-      progressThisWeek
-      readToday
-      lastReadTime
-      tags {
-        tag
-        readingDays
-        percentage
-      }
-    }
-  }
-`;
 
 export type ProfileReadingData = UserReadingRankHistoryData &
   UserReadHistoryData &

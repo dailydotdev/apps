@@ -3,7 +3,7 @@ import React, { ReactElement } from 'react';
 import { Post } from '../../../graphql/posts';
 import { IconSize } from '../../Icon';
 import { CommonCardCoverProps } from '../common';
-import { CardCoverV1 } from './CardCover';
+import { CardCoverList } from './CardCover';
 
 interface SharedPostCardFooterProps
   extends Pick<Post, 'sharedPost'>,
@@ -26,7 +26,7 @@ export const SharedPostCardFooter = ({
       <div className={classNames('flex flex-col mobileXL:flex-1')}>
         <span className="line-clamp-1">{sharedPost.title}</span>
       </div>
-      <CardCoverV1
+      <CardCoverList
         data-testid="sharedPostImage"
         isVideoType={isVideoType}
         onShare={onShare}

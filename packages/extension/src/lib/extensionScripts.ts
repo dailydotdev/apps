@@ -120,13 +120,3 @@ export const getHostPermission = (): Promise<boolean> =>
   browser.permissions.contains({
     origins: HOST_PERMISSIONS,
   });
-
-export const getHostPermissionAndRegister = async (): Promise<boolean> => {
-  const permission = await getHostPermission();
-
-  if (!permission) {
-    return await browser.permissions.request({ origins: HOST_PERMISSIONS });
-  }
-
-  return permission;
-};

@@ -1,8 +1,8 @@
 import classNames from 'classnames';
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import React, { ReactElement, ReactNode, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import AuthContext from '../../contexts/AuthContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { webappUrl } from '../../lib/constants';
 import LoginButton from '../LoginButton';
 import ProfileButton from '../profile/ProfileButton';
@@ -10,7 +10,6 @@ import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import HeaderLogo from './HeaderLogo';
 import { CreatePostButton } from '../post/write';
 import { useViewSize, ViewSize } from '../../hooks';
-import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import { LogoPosition } from '../Logo';
 import NotificationsBell from '../notifications/NotificationsBell';
@@ -20,6 +19,7 @@ import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { feature } from '../../lib/featureManagement';
 import { useFeature } from '../GrowthBookProvider';
 import { HypeButton } from '../referral';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -41,8 +41,9 @@ function MainLayoutHeader({
   additionalButtons,
   onLogoClick,
 }: MainLayoutHeaderProps): ReactElement {
-  const { user, isAuthReady } = useContext(AuthContext);
-  const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
+  const { user, isLoggedIn } = useAuthContext();
+  const { loadedSettings } = useSettingsContext();
+  const { streak, isStreaksEnabled } = useReadingStreak();
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const router = useRouter();
   const isSearchPage = !!router.pathname?.startsWith('/search');
@@ -51,61 +52,57 @@ function MainLayoutHeader({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const hypeCampaign = useFeature(feature.hypeCampaign);
 
-  const headerButton = (() => {
-    if (!user) {
-      return null;
-    }
-
-    if (user && user?.infoConfirmed) {
-      return <ProfileButton className="hidden laptop:flex" />;
-    }
-
+  const RenderButtons = useCallback(() => {
     return (
-      <LoginButton
-        className={{ container: 'gap-4', button: 'hidden laptop:block' }}
-      />
-    );
-  })();
-
-  const RenderButtons = () => {
-    return (
-      <div className="flex justify-end gap-3">
-        {isStreaksEnabled && (
-          <ReadingStreakButton streak={streak} isLoading={isLoading} compact />
-        )}
-        <CreatePostButton compact />
-        {!!user && (
+      <div className="ml-auto flex justify-end gap-3">
+        {loadedSettings && (
           <>
-            <LinkWithTooltip
-              tooltip={{ placement: 'bottom', content: 'Notifications' }}
-              href={`${webappUrl}notifications`}
-            >
-              <NotificationsBell />
-            </LinkWithTooltip>
+            <CreatePostButton />
+            {additionalButtons}
+            {isLoggedIn ? (
+              <>
+                <LinkWithTooltip
+                  tooltip={{ placement: 'bottom', content: 'Notifications' }}
+                  href={`${webappUrl}notifications`}
+                >
+                  <NotificationsBell />
+                </LinkWithTooltip>
+                <ProfileButton className="hidden laptop:flex" />
+              </>
+            ) : (
+              <LoginButton
+                className={{
+                  container: 'gap-4',
+                  button: 'hidden laptop:block',
+                }}
+              />
+            )}
           </>
         )}
-        {additionalButtons}
-        {headerButton}
       </div>
     );
-  };
+  }, [additionalButtons, isLoggedIn, loadedSettings]);
 
-  const RenderSearchPanel = () =>
-    !!user && (
-      <SearchPanel
-        className={{
-          container: classNames(
-            'left-0 top-0 z-header mr-auto items-center py-3 tablet:left-16 laptop:left-0 laptopL:mx-auto laptopL:w-full',
-            isSearchPage
-              ? 'absolute right-0 laptop:relative laptop:top-0'
-              : 'hidden laptop:flex',
-          ),
-          field: 'mx-2 laptop:mx-auto',
-        }}
-      />
-    );
+  const RenderSearchPanel = useCallback(
+    () =>
+      loadedSettings &&
+      isLoggedIn && (
+        <SearchPanel
+          className={{
+            container: classNames(
+              'left-0 top-0 z-header mr-auto items-center py-3 tablet:left-16 laptop:left-0 laptopL:mx-auto laptopL:w-full',
+              isSearchPage
+                ? 'absolute right-0 laptop:relative laptop:top-0'
+                : 'hidden laptop:flex',
+            ),
+            field: 'mx-2 laptop:mx-auto',
+          }}
+        />
+      ),
+    [isLoggedIn, loadedSettings, isSearchPage],
+  );
 
-  if (isAuthReady && !isLaptop) {
+  if (loadedSettings && !isLaptop) {
     return (
       <>
         <FeedNav />

@@ -21,7 +21,7 @@ const prepareVoteCommentAnalyticsOptions = ({
   payload,
   origin,
   opts,
-}: ToggleVoteProps<VoteEntityPayload>): PostAnalyticsEventFnOptions => {
+}: ToggleVoteProps): PostAnalyticsEventFnOptions => {
   const { extra, ...restOpts } = opts || {};
 
   const analyticsOptions: PostAnalyticsEventFnOptions = {

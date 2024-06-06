@@ -4,7 +4,10 @@ import {
   BellIcon,
   InviteIcon,
 } from '@dailydotdev/shared/src/components/icons';
-import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
+import {
+  ProfileImageSize,
+  ProfilePicture,
+} from '@dailydotdev/shared/src/components/ProfilePicture';
 import { pageBorders } from '@dailydotdev/shared/src/components/utilities';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
@@ -88,7 +91,13 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
     title: 'Profile',
     href: '/profile',
     getIcon: ({ user }) =>
-      user && <ProfilePicture user={user} size="xsmall" rounded="full" />,
+      user && (
+        <ProfilePicture
+          user={user}
+          size={ProfileImageSize.XSmall}
+          rounded="full"
+        />
+      ),
   },
   security: {
     title: 'Security',

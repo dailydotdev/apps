@@ -7,7 +7,6 @@ export * from './SearchResult';
 export * from './SearchSourceList';
 export * from './SearchSourceItem';
 export * from './SearchMessage';
-export * from './SearchBarInput';
 export * from './SearchBarSuggestionList';
 export * from './SearchHistory';
 export * from './SearchSkeleton';

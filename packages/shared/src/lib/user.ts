@@ -123,30 +123,6 @@ export async function deleteAccount(): Promise<void> {
   });
 }
 
-export async function updateProfile(
-  profile: UserProfile,
-): Promise<LoggedUser | APIError> {
-  const res = await fetch(`${apiUrl}/v1/users/me`, {
-    method: 'PUT',
-    credentials: 'include',
-    headers: {
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify(profile),
-  });
-  const data = await res.json();
-  if (res.status === 200) {
-    return data;
-  }
-  if (res.status === 400) {
-    return {
-      error: true,
-      ...data,
-    };
-  }
-  throw new Error('Unexpected response');
-}
-
 const getProfileRequest = async (method = fetch, id: string) => {
   const userRes = await method(graphqlUrl, {
     method: 'POST',

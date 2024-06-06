@@ -20,7 +20,7 @@ export const ProfilePictureGroup = ({
   className,
   total,
   limit = 3,
-  size = 'large',
+  size = ProfileImageSize.Large,
   children,
 }: ProfilePictureGroupProps): ReactElement => {
   const childrenMap = React.Children.toArray(children).slice(0, limit);

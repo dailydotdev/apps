@@ -34,6 +34,7 @@ const settings: SettingsContextData = {
   setSpaciness: jest.fn(),
   toggleOpenNewTab: jest.fn(),
   toggleShowTopSites: jest.fn(),
+  toggleSidebarExpanded: jest.fn(),
 };
 
 const AnalyticsContextTester = ({

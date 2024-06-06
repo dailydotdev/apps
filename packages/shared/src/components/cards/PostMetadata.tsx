@@ -3,8 +3,6 @@ import classNames from 'classnames';
 import { TimeFormatType } from '../../lib/dateFormat';
 import { Separator } from './common';
 import { Post } from '../../graphql/posts';
-import { PlayIcon } from '../icons';
-import { IconSize } from '../Icon';
 import { formatReadTime, TruncateText, DateFormat } from '../utilities';
 import { largeNumberFormat } from '../../lib';
 
@@ -14,7 +12,6 @@ interface PostMetadataProps
   description?: string;
   children?: ReactNode;
   isVideoType?: boolean;
-  insaneMode?: boolean;
 }
 
 export default function PostMetadata({
@@ -25,7 +22,6 @@ export default function PostMetadata({
   children,
   description,
   isVideoType,
-  insaneMode,
 }: PostMetadataProps): ReactElement {
   const timeActionContent = isVideoType ? 'watch' : 'read';
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
@@ -37,13 +33,6 @@ export default function PostMetadata({
         className,
       )}
     >
-      {isVideoType && insaneMode && (
-        <PlayIcon
-          secondary
-          size={IconSize.XXSmall}
-          className="my-auto mr-1 text-text-primary"
-        />
-      )}
       {!!description && (
         <TruncateText title={description}>{description}</TruncateText>
       )}

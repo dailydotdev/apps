@@ -51,6 +51,7 @@ export enum Origin {
 }
 
 export enum AnalyticsEvent {
+  DismissPromotion = 'dismiss promotion',
   Click = 'click',
   CommentPost = 'comment post',
   StartSubmitArticle = 'start submit article',
@@ -189,13 +190,14 @@ export enum TargetType {
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
   StreaksMilestone = 'streaks milestone',
-  MarketingCtaCard = 'promotion_card',
+  PromotionCard = 'promotion_card',
   MarketingCtaPopover = 'promotion_popover',
   Comment = 'comment',
   ReadingReminder = 'reading reminder',
 }
 
 export enum TargetId {
+  FeedSurvey = 'feed survey',
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
   InviteProfileMenu = 'invite in profile menu',

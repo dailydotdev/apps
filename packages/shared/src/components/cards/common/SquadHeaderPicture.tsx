@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { ProfilePicture } from '../../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import SourceButton from '../SourceButton';
 import { Author } from '../../../graphql/comments';
 import { Source } from '../../../graphql/sources';
@@ -18,9 +18,11 @@ export default function SquadHeaderPicture({
   if (reverse) {
     return (
       <div className="relative">
-        {!!author && <ProfilePicture user={author} size="large" />}
+        {!!author && (
+          <ProfilePicture user={author} size={ProfileImageSize.Large} />
+        )}
         <SourceButton
-          size="xsmall"
+          size={ProfileImageSize.XSmall}
           source={source}
           className="absolute -bottom-2.5 -right-2.5"
         />
@@ -29,11 +31,11 @@ export default function SquadHeaderPicture({
   }
   return (
     <div className="relative">
-      <SourceButton size="large" source={source} />
+      <SourceButton size={ProfileImageSize.Large} source={source} />
       {!!author && (
         <ProfilePicture
           user={author}
-          size="xsmall"
+          size={ProfileImageSize.XSmall}
           className="-bottom-2.5 -right-2.5"
           absolute
         />

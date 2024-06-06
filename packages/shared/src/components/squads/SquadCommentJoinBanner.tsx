@@ -12,6 +12,7 @@ import { useToastNotification } from '../../hooks/useToastNotification';
 import SourceButton from '../cards/SourceButton';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { Post } from '../../graphql/posts';
+import { ProfileImageSize } from '../ProfilePicture';
 
 export type SquadCommentJoinBannerProps = {
   className?: string;
@@ -91,7 +92,10 @@ export const SquadCommentJoinBanner = ({
           </Button>
         </div>
       </div>
-      <SourceButton source={squad} size={isMobile ? 'large' : 'xxxxlarge'} />
+      <SourceButton
+        source={squad}
+        size={isMobile ? ProfileImageSize.Large : ProfileImageSize.XXXXLarge}
+      />
     </div>
   );
 };

@@ -95,7 +95,6 @@ export const SharePostCard = forwardRef(function SharePostCard(
               readTime={post.sharedPost.readTime}
               isVideoType={isVideoType}
               className="mx-4"
-              insaneMode={false}
             />
           </Container>
         </>
@@ -123,13 +122,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
         className={!improvedSharedPostCard && 'min-h-0 justify-end'}
       >
         {improvedSharedPostCard ? (
-          <PostCardFooter
-            insaneMode={false}
-            openNewTab={openNewTab}
-            post={post}
-            showImage
-            className={{}}
-          />
+          <PostCardFooter openNewTab={openNewTab} post={post} className={{}} />
         ) : (
           <SharedPostCardFooter
             sharedPost={post.sharedPost}
@@ -139,14 +132,11 @@ export const SharePostCard = forwardRef(function SharePostCard(
           />
         )}
         <ActionButtons
-          openNewTab={openNewTab}
           post={post}
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
           onBookmarkClick={onBookmarkClick}
-          onMenuClick={(event) => onMenuClick?.(event, post)}
-          onReadArticleClick={onReadArticleClick}
         />
       </Container>
       {children}
