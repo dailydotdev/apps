@@ -68,6 +68,7 @@ export default function AccountLayout({
       <div className="flex w-full items-center justify-center pt-10">
         <AuthOptions
           simplified
+          isLoginFlow
           formRef={formRef}
           trigger={AuthTriggers.AccountPage}
         />
