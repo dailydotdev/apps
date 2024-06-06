@@ -100,7 +100,7 @@ function MainLayoutHeader({
           }}
         />
       ),
-    [isLoggedIn, loadedSettings, isSearchPage],
+    [isLoggedIn, loadedSettings, isSearchPage, hasBanner],
   );
 
   if (loadedSettings && !isLaptop) {
