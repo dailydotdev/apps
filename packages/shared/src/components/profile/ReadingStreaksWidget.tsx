@@ -1,11 +1,16 @@
 import React, { ReactElement } from 'react';
 import { ActivityContainer, ActivitySectionHeader } from './ActivitySection';
 import { ReadingStreakIcon } from '../icons';
-import { useReadingStreak } from '../../hooks/streaks';
+import { UserStreak } from '../../graphql/users';
 
 interface StreakTagProps {
   streak: number;
   title: string;
+  isLoading: boolean;
+}
+
+interface ReadingStreaksWidgetProps {
+  streak: UserStreak;
   isLoading: boolean;
 }
 const StreakTag = ({ streak, title, isLoading }: StreakTagProps) => {
@@ -21,9 +26,10 @@ const StreakTag = ({ streak, title, isLoading }: StreakTagProps) => {
   );
 };
 
-export function ReadingStreaksWidget(): ReactElement {
-  const { streak, isLoading } = useReadingStreak();
-
+export function ReadingStreaksWidget({
+  streak,
+  isLoading,
+}: ReadingStreaksWidgetProps): ReactElement {
   return (
     <ActivityContainer>
       <ActivitySectionHeader title="Reading streaks" Icon={ReadingStreakIcon} />

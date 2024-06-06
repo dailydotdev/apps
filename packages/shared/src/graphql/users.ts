@@ -184,7 +184,8 @@ export const MY_READING_RANK_QUERY = gql`
 
 export type ProfileReadingData = UserReadingRankHistoryData &
   UserReadHistoryData &
-  UserReadingTopTagsData;
+  UserReadingTopTagsData &
+  UserStreakData;
 
 export type UserReadingRankHistory = { rank: number; count: number };
 export interface UserReadingRankHistoryData {
@@ -197,6 +198,10 @@ export interface UserReadHistoryData {
 }
 export interface UserReadingTopTagsData {
   userMostReadTags: MostReadTag[];
+}
+
+export interface UserStreakData {
+  userStreak: UserStreak;
 }
 
 export const USER_READING_HISTORY_QUERY = gql`
@@ -225,6 +230,10 @@ export const USER_READING_HISTORY_QUERY = gql`
       count
       total
       percentage
+    }
+    userStreak(id: $id) {
+      max
+      total
     }
   }
 `;

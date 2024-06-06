@@ -39,7 +39,7 @@ const ProfilePage = ({
 
   const user = useProfile(initialUser);
 
-  const { data: readingHistory } = useQuery<ProfileReadingData>(
+  const { data: readingHistory, isLoading } = useQuery<ProfileReadingData>(
     generateQueryKey(RequestKey.ReadingStats, user, selectedHistoryYear),
     () =>
       request(graphqlUrl, USER_READING_HISTORY_QUERY, {
@@ -60,7 +60,12 @@ const ProfilePage = ({
   return (
     <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
       <Readme user={user} />
-      {isStreaksEnabled && <ReadingStreaksWidget />}
+      {isStreaksEnabled && readingHistory?.userStreak && (
+        <ReadingStreaksWidget
+          streak={readingHistory?.userStreak}
+          isLoading={isLoading}
+        />
+      )}
       {readingHistory?.userReadingRankHistory && (
         <>
           <ReadingTagsWidget mostReadTags={readingHistory?.userMostReadTags} />
