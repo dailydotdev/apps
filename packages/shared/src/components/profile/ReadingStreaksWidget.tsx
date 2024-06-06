@@ -15,7 +15,7 @@ interface ReadingStreaksWidgetProps {
 }
 const StreakTag = ({ streak, title, isLoading }: StreakTagProps) => {
   return (
-    <div className="relative flex h-[4.25rem] w-[10.125rem] flex-col rounded-10 border border-background-subtle p-3">
+    <div className="relative flex w-40 flex-col rounded-10 border border-background-subtle p-3">
       {!isLoading && (
         <>
           <strong className="typo-title3">{streak}</strong>
