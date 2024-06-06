@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useState,
 } from 'react';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
@@ -18,6 +19,7 @@ import useFeedOnPostClick, {
   FeedPostClick,
 } from '../hooks/feed/useFeedOnPostClick';
 import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
+import type { PostLocation } from '../hooks/feed/useFeedContextMenu';
 import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
@@ -59,6 +61,7 @@ import { feature } from '../lib/featureManagement';
 import { acquisitionKey } from './cards/AcquisitionFormCard';
 import { MarketingCtaVariant } from './cards/MarketingCta/common';
 import { useAlertsContext } from '../contexts/AlertContext';
+import { isNullOrUndefined } from '../lib/func';
 
 export interface FeedProps<T>
   extends Pick<
@@ -205,6 +208,8 @@ export default function Feed<T>({
   );
   const canFetchMore = allowFetchMore ?? queryCanFetchMore;
   const contextId = `post-context-${feedName}`;
+
+  const [postModalIndex, setPostModalIndex] = useState<PostLocation>(null);
   const { onMenuClick, postMenuIndex, postMenuLocation, setPostMenuIndex } =
     useFeedContextMenu({ contextId });
   const useList = isListMode && numCards > 1;
@@ -212,10 +217,14 @@ export default function Feed<T>({
   const trackingOpts = useMemo(() => {
     return {
       columns: virtualizedNumCards,
-      row: postMenuLocation?.row,
-      column: postMenuLocation?.column,
+      row: !isNullOrUndefined(postModalIndex?.row)
+        ? postModalIndex.row
+        : postMenuLocation?.row,
+      column: !isNullOrUndefined(postModalIndex?.column)
+        ? postModalIndex.column
+        : postMenuLocation?.column,
     };
-  }, [postMenuLocation, virtualizedNumCards]);
+  }, [postMenuLocation, virtualizedNumCards, postModalIndex]);
 
   const feedContextValue = useMemo(() => {
     return {
@@ -307,10 +316,26 @@ export default function Feed<T>({
     return <></>;
   }
 
-  const onPostModalOpen = (index: number, callback?: () => unknown) => {
+  const onPostModalOpen = ({
+    index,
+    callback,
+    row,
+    column,
+  }: {
+    index: number;
+    callback?: () => unknown;
+    row?: number;
+    column?: number;
+  }) => {
     document.body.classList.add('hidden-scrollbar');
     callback?.();
+    setPostModalIndex({ index, row, column });
     onOpenModal(index);
+  };
+
+  const onPostModalClose = () => {
+    setPostModalIndex(null);
+    onCloseModal(false);
   };
 
   const onPostCardClick: FeedPostClick = async (post, index, row, column) => {
@@ -318,7 +343,7 @@ export default function Feed<T>({
       skipPostUpdate: true,
     });
     if (!shouldUseListFeedLayout) {
-      onPostModalOpen(index);
+      onPostModalOpen({ index, row, column });
     }
   };
 
@@ -356,7 +381,7 @@ export default function Feed<T>({
       }),
     );
     if (!shouldUseListFeedLayout) {
-      onPostModalOpen(index);
+      onPostModalOpen({ index, row, column });
     }
   };
 
@@ -474,7 +499,7 @@ export default function Feed<T>({
           <PostModal
             isOpen={!!selectedPost}
             id={selectedPost.id}
-            onRequestClose={() => onCloseModal(false)}
+            onRequestClose={onPostModalClose}
             onPreviousPost={onPrevious}
             onNextPost={onNext}
             postPosition={postPosition}

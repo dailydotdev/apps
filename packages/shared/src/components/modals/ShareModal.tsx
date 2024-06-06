@@ -36,6 +36,9 @@ export default function ShareModal({
           variant: ExperimentWinner.PostCardShareVersion,
           ...(comment && { commentId: comment.id }),
         },
+        columns,
+        column,
+        row,
       }),
     );
 
