@@ -60,9 +60,9 @@ const ProfilePage = ({
   return (
     <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
       <Readme user={user} />
-      {isStreaksEnabled && readingHistory?.userStreak && (
+      {isStreaksEnabled && readingHistory?.userStreakProfile && (
         <ReadingStreaksWidget
-          streak={readingHistory?.userStreak}
+          streak={readingHistory?.userStreakProfile}
           isLoading={isLoading}
         />
       )}

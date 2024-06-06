@@ -201,7 +201,7 @@ export interface UserReadingTopTagsData {
 }
 
 export interface UserStreakData {
-  userStreak: UserStreak;
+  userStreakProfile: UserStreak;
 }
 
 export const USER_READING_HISTORY_QUERY = gql`
@@ -231,7 +231,7 @@ export const USER_READING_HISTORY_QUERY = gql`
       total
       percentage
     }
-    userStreak(id: $id) {
+    userStreakProfile(id: $id) {
       max
       total
     }
