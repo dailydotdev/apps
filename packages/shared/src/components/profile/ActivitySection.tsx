@@ -3,6 +3,7 @@ import { InfiniteQueryObserverBaseResult } from '@tanstack/react-query';
 import { Connection } from '../../graphql/common';
 import classed from '../../lib/classed';
 import { ClickableText } from '../buttons/ClickableText';
+import { IconSize } from '../Icon';
 
 export const ActivityContainer = classed('section', 'flex flex-col');
 
@@ -23,10 +24,11 @@ export const ActivitySectionTitleStat = classed(
 
 interface ActivitySectionHeaderProps {
   title: string;
-  subtitle: string;
-  clickableTitle: string;
-  link: string;
+  subtitle?: string;
+  clickableTitle?: string;
+  link?: string;
   children?: ReactNode;
+  Icon?: React.ElementType;
 }
 
 export const ActivitySectionHeader = ({
@@ -35,17 +37,30 @@ export const ActivitySectionHeader = ({
   clickableTitle,
   link,
   children,
+  Icon,
 }: ActivitySectionHeaderProps): ReactElement => {
   return (
     <ActivitySectionTitle>
       <span className="flex flex-col">
-        {title}
-        <ActivitySectionSubTitle>
-          {subtitle}
-          <ClickableText tag="a" target="_blank" className="ml-1" href={link}>
-            {clickableTitle}
-          </ClickableText>
-        </ActivitySectionSubTitle>
+        <span className="flex align-middle">
+          {Icon && <Icon size={IconSize.Small} secondary className="mr-2" />}
+          {title}
+        </span>
+        {subtitle && (
+          <ActivitySectionSubTitle>
+            {subtitle}
+            {clickableTitle && (
+              <ClickableText
+                tag="a"
+                target="_blank"
+                className="ml-1"
+                href={link}
+              >
+                {clickableTitle}
+              </ClickableText>
+            )}
+          </ActivitySectionSubTitle>
+        )}
       </span>
       {children}
     </ActivitySectionTitle>
