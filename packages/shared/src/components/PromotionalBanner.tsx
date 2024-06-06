@@ -51,7 +51,7 @@ export default function PromotionalBanner(): ReactElement {
   return (
     <div
       className={classNames(
-        'relative z-3 flex w-full flex-col items-start py-3 pl-3 pr-12 typo-footnote laptop:fixed laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:p-0',
+        'relative z-3 flex w-full flex-col items-start py-3 pl-3 pr-12 typo-footnote tablet:pl-20 laptop:fixed laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:p-0',
         container,
         text,
       )}
