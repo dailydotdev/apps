@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import { ActivityContainer, ActivitySectionHeader } from './ActivitySection';
 import { ReadingStreakIcon } from '../icons';
 import { UserStreak } from '../../graphql/users';
+import { largeNumberFormat } from '../../lib';
 
 interface StreakTagProps {
   streak: number;
@@ -18,7 +19,7 @@ const StreakTag = ({ streak, title, isLoading }: StreakTagProps) => {
     <div className="relative flex w-40 flex-col rounded-10 border border-background-subtle p-3">
       {!isLoading && (
         <>
-          <strong className="typo-title3">{streak}</strong>
+          <strong className="typo-title3">{largeNumberFormat(streak)}</strong>
           <p className="text-text-quaternary typo-subhead">{title}</p>
         </>
       )}

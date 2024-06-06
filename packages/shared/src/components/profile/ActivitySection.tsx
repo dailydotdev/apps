@@ -46,12 +46,21 @@ export const ActivitySectionHeader = ({
           {Icon && <Icon size={IconSize.Small} secondary className="mr-2" />}
           {title}
         </span>
-        <ActivitySectionSubTitle>
-          {subtitle}
-          <ClickableText tag="a" target="_blank" className="ml-1" href={link}>
-            {clickableTitle}
-          </ClickableText>
-        </ActivitySectionSubTitle>
+        {subtitle && (
+          <ActivitySectionSubTitle>
+            {subtitle}
+            {clickableTitle && (
+              <ClickableText
+                tag="a"
+                target="_blank"
+                className="ml-1"
+                href={link}
+              >
+                {clickableTitle}
+              </ClickableText>
+            )}
+          </ActivitySectionSubTitle>
+        )}
       </span>
       {children}
     </ActivitySectionTitle>
