@@ -18,6 +18,7 @@ import { formToJson } from '../../../lib/form';
 import { useDebouncedUrl } from '../../../hooks/input';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import { Switch } from '../../fields/Switch';
+import { ProfileImageSize } from '../../ProfilePicture';
 
 export interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;
@@ -80,7 +81,7 @@ export function CreateSharedPostModal({
         onClick={markdownRef?.current?.onMentionCommand}
       />
       <Divider vertical />
-      <SourceButton source={squad} size="small" />
+      <SourceButton source={squad} size={ProfileImageSize.Small} />
       <span className="-ml-1 flex-1">
         <strong>{squad.name}</strong>
         <span className="ml-1 text-text-tertiary">@{squad.handle}</span>

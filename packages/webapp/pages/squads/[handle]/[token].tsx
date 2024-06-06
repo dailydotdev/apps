@@ -42,6 +42,7 @@ import { useJoinSquad } from '@dailydotdev/shared/src/hooks';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { SimpleSquadJoinButton } from '@dailydotdev/shared/src/components/squads/SquadJoinButton';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { getSquadOpenGraph } from '../../../next-seo';
 
@@ -227,7 +228,7 @@ const SquadReferral = ({
       <div className="my-8 flex w-full flex-col rounded-24 border border-accent-cabbage-default p-6">
         <span className="flex flex-col items-start tablet:flex-row tablet:items-center">
           <div className="flex flex-1 flex-row items-start">
-            <SourceButton source={source} size="xxlarge" />
+            <SourceButton source={source} size={ProfileImageSize.XXLarge} />
             <div className="ml-4 mr-0 flex flex-1 flex-col tablet:mr-4">
               <h2 className="flex flex-col font-bold typo-body">
                 {source.name}

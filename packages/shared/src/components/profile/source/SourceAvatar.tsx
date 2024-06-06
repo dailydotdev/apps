@@ -12,7 +12,7 @@ export type SourceAvatarProps = {
 
 export function SourceAvatar({
   source,
-  size = 'large',
+  size = ProfileImageSize.Large,
   className,
 }: SourceAvatarProps): ReactElement {
   if (!source) {

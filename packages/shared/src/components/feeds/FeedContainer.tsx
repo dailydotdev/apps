@@ -25,10 +25,11 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
 import { feature } from '../../lib/featureManagement';
 import { SharedFeedPage } from '../utilities';
+import { FeedSurveyBanner } from '../cards/survey';
+import { FeedSettingsButton } from './FeedSettingsButton';
 
 export interface FeedContainerProps {
   children: ReactNode;
-  forceCardMode?: boolean;
   header?: ReactNode;
   footer?: ReactNode;
   className?: string;
@@ -37,6 +38,7 @@ export interface FeedContainerProps {
   shortcuts?: ReactNode;
   actionButtons?: ReactNode;
   isHorizontal?: boolean;
+  shouldShowSurvey?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
 }
 
@@ -71,14 +73,14 @@ export const getFeedGapPx = {
 
 export const gapClass = ({
   isList,
-  isFeedLayoutV1,
+  isFeedLayoutList,
   space,
 }: {
   isList: boolean;
-  isFeedLayoutV1: boolean;
+  isFeedLayoutList: boolean;
   space: Spaciness;
 }): string => {
-  if (isFeedLayoutV1) {
+  if (isFeedLayoutList) {
     return '';
   }
   return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
@@ -136,7 +138,6 @@ const feedNameToHeading: Record<
 
 export const FeedContainer = ({
   children,
-  forceCardMode,
   header,
   footer,
   className,
@@ -145,6 +146,7 @@ export const FeedContainer = ({
   shortcuts,
   actionButtons,
   isHorizontal,
+  shouldShowSurvey,
   feedContainerRef,
 }: FeedContainerProps): ReactElement => {
   const { value: isShortcutsV1 } = useConditionalFeature({
@@ -153,31 +155,26 @@ export const FeedContainer = ({
   });
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
-  const {
-    spaciness,
-    insaneMode: listMode,
-    loadedSettings,
-  } = useContext(SettingsContext);
-  const { shouldUseListFeedLayout, isListModeV1 } = useFeedLayout();
+  const { spaciness, loadedSettings } = useContext(SettingsContext);
+  const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
   const router = useRouter();
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
-  const insaneMode = !forceCardMode && listMode;
   const isList =
-    (isHorizontal || isListModeV1) && !shouldUseListFeedLayout
+    (isHorizontal || isListMode) && !shouldUseListFeedLayout
       ? false
-      : (insaneMode && numCards > 1) || shouldUseListFeedLayout;
+      : (isListMode && numCards > 1) || shouldUseListFeedLayout;
   const feedGapPx =
     getFeedGapPx[
       gapClass({
         isList,
-        isFeedLayoutV1: shouldUseListFeedLayout,
+        isFeedLayoutList: shouldUseListFeedLayout,
         space: spaciness,
       })
     ];
   const style = {
-    '--num-cards': isHorizontal && isListModeV1 && numCards >= 2 ? 2 : numCards,
+    '--num-cards': isHorizontal && isListMode && numCards >= 2 ? 2 : numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
   const cardContainerStyle = { ...getStyle(isList, spaciness) };
@@ -269,6 +266,17 @@ export const FeedContainer = ({
               </div>
             )}
           >
+            {shouldShowSurvey && (
+              <FeedSurveyBanner
+                title="Rate your feed quality"
+                max={5}
+                lowScore={{
+                  value: 4,
+                  message: 'Improve your feed by adjusting your settings.',
+                  cta: <FeedSettingsButton className="mt-4 w-fit" />,
+                }}
+              />
+            )}
             <div
               className={classNames(
                 'grid',
@@ -277,7 +285,7 @@ export const FeedContainer = ({
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth',
                 gapClass({
                   isList,
-                  isFeedLayoutV1: shouldUseListFeedLayout,
+                  isFeedLayoutList: shouldUseListFeedLayout,
                   space: spaciness,
                 }),
                 cardClass({ isList, numberOfCards: numCards, isHorizontal }),

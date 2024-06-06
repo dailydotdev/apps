@@ -50,6 +50,7 @@ export const All: Story = {
   render: ({ children , Tag}) => {
     return (
       <table>
+        <tbody>
         <tr className="border">
           <th className="border text-left w-1/6">Classname</th>
           <th className="text-left">Example</th>
@@ -61,6 +62,7 @@ export const All: Story = {
             <td><Tag className={className}>{children}</Tag></td>
           </tr>
           ))}
+        </tbody>
       </table>
     )
   },

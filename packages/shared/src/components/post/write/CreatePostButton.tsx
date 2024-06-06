@@ -33,6 +33,7 @@ export function CreatePostButton({
   const { user, squads } = useAuthContext();
   const { route, query } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isLaptopL = useViewSize(ViewSize.LaptopL);
   const handle = route === '/squads/[handle]' ? (query.handle as string) : '';
   const { squad } = useSquad({ handle });
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
@@ -65,9 +66,11 @@ export function CreatePostButton({
     onClick?: () => void;
   } = onClick ? { onClick } : { tag: 'a', href };
 
+  const shouldShowAsCompact = (isLaptop && !isLaptopL) || compact;
+
   return (
     <ConditionalWrapper
-      condition={compact}
+      condition={shouldShowAsCompact}
       wrapper={(component: ReactElement) => (
         <SimpleTooltip placement="bottom" content="New Post">
           {component}
@@ -77,16 +80,16 @@ export function CreatePostButton({
       <Button
         {...buttonProps}
         variant={
-          sidebar || footer ? ButtonVariant.Float : ButtonVariant.Secondary
+          sidebar || footer ? ButtonVariant.Float : ButtonVariant.Primary
         }
         className={className}
         disabled={getIsDisabled()}
-        icon={compact && <PlusIcon />}
+        icon={shouldShowAsCompact && <PlusIcon />}
         size={
           isLaptop || sidebar || footer ? ButtonSize.Medium : ButtonSize.Small
         }
       >
-        {!compact ? 'New post' : null}
+        {!shouldShowAsCompact ? 'New post' : null}
       </Button>
     </ConditionalWrapper>
   );

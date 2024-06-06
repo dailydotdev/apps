@@ -2,8 +2,8 @@ import { JSONValue } from '@growthbook/growthbook';
 import {
   ExperienceLevelExperiment,
   TagSourceSocialProof,
-  FeedListLayoutExperiment,
   CustomFeedsExperiment,
+  ShortcutsUIExperiment,
 } from './featureValues';
 import { cloudinary } from './image';
 
@@ -45,15 +45,15 @@ const feature = {
     ExperienceLevelExperiment.Control,
   ),
   featureTheme: new Feature('feature_theme', {}),
-  feedListLayout: new Feature(
-    'feed_list_layout',
-    FeedListLayoutExperiment.Control,
-  ),
   customFeeds: new Feature('custom_feeds', CustomFeedsExperiment.Control),
   hypeCampaign: new Feature('hype_campaign', false),
   searchGoogle: new Feature('search_google', false),
   onboardingFlip: new Feature('onboarding_flip', false),
   improvedSharedPostCard: new Feature('improved_shared_post_card', false),
+  feedSettingsFeedback: new Feature('feed_settings_feedback', false),
+  onboardingLinks: new Feature('onboarding_links', false),
+  shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
+  shareVia: new Feature('share_via', false),
 };
 
 export { feature };

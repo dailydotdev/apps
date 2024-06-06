@@ -9,7 +9,7 @@ import { AuthFormProps, providerMap } from './common';
 import AuthModalFooter from './AuthModalFooter';
 import AuthContainer from './AuthContainer';
 import { useSignBack } from '../../hooks/auth/useSignBack';
-import { ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { SignBackButton } from './SignBackButton';
 import LoginForm, { LoginFormProps } from './LoginForm';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -81,7 +81,7 @@ export const AuthSignBack = ({
             </div>
           )}
         >
-          <ProfilePicture user={signBack} size="xxxxlarge" />
+          <ProfilePicture user={signBack} size={ProfileImageSize.XXXXLarge} />
         </ConditionalWrapper>
         <span className="typo-center mb-5 mt-1 font-bold">
           {signBack.email}

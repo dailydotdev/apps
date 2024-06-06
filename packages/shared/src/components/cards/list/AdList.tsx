@@ -1,6 +1,6 @@
 import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
-import { CardContent, CardImage, CardSpace, CardTitle } from './Card';
+import { CardContent, CardImage, CardSpace, CardTitle } from './ListCard';
 import { Ad } from '../../../graphql/posts';
 import AdAttribution from '../AdAttribution';
 import FeedItemContainer from './FeedItemContainer';
@@ -11,12 +11,11 @@ type Callback = (ad: Ad) => unknown;
 export interface AdCardProps {
   ad: Ad;
   onLinkClick?: Callback;
-  showImage?: boolean;
   domProps?: HTMLAttributes<HTMLDivElement>;
 }
 
-export const AdCard = forwardRef(function AdCard(
-  { ad, onLinkClick, showImage = true, domProps }: AdCardProps,
+export const AdList = forwardRef(function AdCard(
+  { ad, onLinkClick, domProps }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const showBlurredImage = ad.source === 'Carbon' || ad.source === 'EthicalAds';
@@ -39,26 +38,24 @@ export const AdCard = forwardRef(function AdCard(
           {ad.description}
         </CardTitle>
 
-        {showImage && (
-          <div className="pointer-events-none relative mt-4 overflow-hidden rounded-12">
-            <CardImage
-              alt="Ad image"
-              src={ad.image}
-              className={classNames(
-                'z-1 w-full',
-                showBlurredImage && 'absolute inset-0 m-auto',
-              )}
-              style={{ objectFit: showBlurredImage ? 'contain' : 'cover' }}
-            />
-            {showBlurredImage && (
-              <CardImage
-                alt="Ad image background"
-                src={ad.image}
-                className="-z-1 w-full blur-20"
-              />
+        <div className="pointer-events-none relative mt-4 overflow-hidden rounded-12">
+          <CardImage
+            alt="Ad image"
+            src={ad.image}
+            className={classNames(
+              'z-1 w-full',
+              showBlurredImage && 'absolute inset-0 m-auto',
             )}
-          </div>
-        )}
+            style={{ objectFit: showBlurredImage ? 'contain' : 'cover' }}
+          />
+          {showBlurredImage && (
+            <CardImage
+              alt="Ad image background"
+              src={ad.image}
+              className="-z-1 w-full blur-20"
+            />
+          )}
+        </div>
       </CardContent>
 
       <CardSpace />

@@ -39,8 +39,6 @@ export const FreeformCardTitle = classed(
 
 export const CardTitle = classed(Title, 'mt-2 break-words');
 
-export const ListCardTitle = classed(Title, 'mr-2');
-
 export const CardTextContainer = classed('div', 'flex flex-col mx-2');
 
 export const CardImage = classed(Image, 'rounded-12 h-40 object-cover');
@@ -77,11 +75,6 @@ export const ListCard = classed(
   'article',
   styles.card,
   'relative flex items-stretch pt-4 pb-3 pr-4 rounded-16 bg-background-subtle border border-border-subtlest-tertiary hover:border-border-subtlest-secondary shadow-2',
-);
-
-export const ListCardMain = classed(
-  'div',
-  'flex-1 flex flex-col items-start ml-4',
 );
 
 export const ListCardDivider = classed(

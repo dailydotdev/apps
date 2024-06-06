@@ -16,6 +16,7 @@ import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
 import { ButtonVariant } from '../buttons/Button';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { ProfileImageSize } from '../ProfilePicture';
 
 interface SharePostContentProps {
   post: Post;
@@ -77,7 +78,7 @@ function SharePostContent({
                   : undefined
               }
               source={post.sharedPost.source}
-              size="small"
+              size={ProfileImageSize.Small}
             />
             <ReadArticleButton
               content={getReadPostButtonText(post)}

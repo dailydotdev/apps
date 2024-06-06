@@ -7,6 +7,7 @@ import { CollectionsIntro } from '../widgets';
 import { RelatedPostsWidget } from '../RelatedPostsWidget';
 import { PostRelationType } from '../../../graphql/posts';
 import { PostWidgetsProps } from '../PostWidgets';
+import { FooterLinks } from '../../footer';
 
 export const CollectionPostWidgets = ({
   onCopyPostLink,
@@ -35,6 +36,7 @@ export const CollectionPostWidgets = ({
         onCopyPostLink={onCopyPostLink}
         link={post.commentsPermalink}
       />
+      <FooterLinks />
     </PageWidgets>
   );
 };

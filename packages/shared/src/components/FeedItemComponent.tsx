@@ -1,33 +1,32 @@
 import React, { FunctionComponent, ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import { FeedItem } from '../hooks/useFeed';
-import { PostList } from './cards/PostList';
 import { ArticlePostCard } from './cards/ArticlePostCard';
-import { ArticlePostCard as ArticlePostCardV1 } from './cards/v1/ArticlePostCard';
-import { AdList } from './cards/AdList';
+import { ArticlePostList } from './cards/list/ArticlePostList';
 import { AdCard } from './cards/AdCard';
-import { AdCard as AdCardV1 } from './cards/v1/AdCard';
-import { PlaceholderList } from './cards/PlaceholderList';
+import { AdList } from './cards/list/AdList';
 import { PlaceholderCard } from './cards/PlaceholderCard';
-import { PlaceholderCard as PlaceholderCardV1 } from './cards/v1/PlaceholderCard';
+import { PlaceholderList } from './cards/list/PlaceholderList';
 import { Ad, Post, PostItem, PostType } from '../graphql/posts';
 import { LoggedUser } from '../lib/user';
 import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { SharePostCard } from './cards/SharePostCard';
-import { SharePostCard as SharePostCardV1 } from './cards/v1/SharePostCard';
+import { SharePostList } from './cards/list/SharePostList';
 import { WelcomePostCard } from './cards/WelcomePostCard';
-import { WelcomePostCard as WelcomePostCardV1 } from './cards/v1/WelcomePostCard';
+import { WelcomePostList } from './cards/list/WelcomePostList';
 import { Origin } from '../lib/analytics';
 import { useFeedLayout, UseVotePost } from '../hooks';
 import { CollectionCard } from './cards/CollectionCard';
-import { CollectionCard as CollectionCardV1 } from './cards/v1/CollectionCard';
+import { CollectionList } from './cards/list/CollectionList';
 import { AcquisitionFormCard } from './cards/AcquisitionFormCard';
-import { MarketingCtaCard, MarketingCtaList } from './cards';
-import { MarketingCtaCardV1 } from './cards/v1/MarketingCtaCard';
+import { MarketingCtaCard } from './cards';
+import { MarketingCtaList } from './cards/list/MarketingCtaList';
 import { FeedItemType } from './cards/common';
 import { PublicSquadEligibilityCard } from './squads/PublicSquadEligibilityCard';
+import { FeedSurveyCard } from './cards/survey';
+import { FeedSettingsButton } from './feeds/FeedSettingsButton';
 
 const CommentPopup = dynamic(
   () => import(/* webpackChunkName: "commentPopup" */ './cards/CommentPopup'),
@@ -39,9 +38,7 @@ export type FeedItemComponentProps = {
   row: number;
   column: number;
   columns: number;
-  useList: boolean;
   openNewTab: boolean;
-  insaneMode: boolean;
   postMenuIndex: number | undefined;
   showCommentPopupId: string | undefined;
   setShowCommentPopupId: (value: string | undefined) => void;
@@ -80,7 +77,6 @@ export type FeedItemComponentProps = {
     column: number,
   ) => unknown;
   onAdClick: (ad: Ad, row: number, column: number) => void;
-  isHorizontal: boolean;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'>;
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {
@@ -95,7 +91,7 @@ export function getFeedItemKey(items: FeedItem[], index: number): string {
   }
 }
 
-const PostTypeToTag: Record<PostType, FunctionComponent> = {
+const PostTypeToTagCard: Record<PostType, FunctionComponent> = {
   [PostType.Article]: ArticlePostCard,
   [PostType.Share]: SharePostCard,
   [PostType.Welcome]: WelcomePostCard,
@@ -104,43 +100,31 @@ const PostTypeToTag: Record<PostType, FunctionComponent> = {
   [PostType.Collection]: CollectionCard,
 };
 
-const PostTypeToTagV1: Record<PostType, FunctionComponent> = {
-  [PostType.Article]: ArticlePostCardV1,
-  [PostType.Share]: SharePostCardV1,
-  [PostType.Welcome]: WelcomePostCardV1,
-  [PostType.Freeform]: WelcomePostCardV1,
-  [PostType.VideoYouTube]: ArticlePostCardV1,
-  [PostType.Collection]: CollectionCardV1,
+const PostTypeToTagList: Record<PostType, FunctionComponent> = {
+  [PostType.Article]: ArticlePostList,
+  [PostType.Share]: SharePostList,
+  [PostType.Welcome]: WelcomePostList,
+  [PostType.Freeform]: WelcomePostList,
+  [PostType.VideoYouTube]: ArticlePostList,
+  [PostType.Collection]: CollectionList,
 };
 
 type GetTagsProps = {
-  isHorizontal: boolean;
-  isList: boolean;
   isListFeedLayout: boolean;
-  shouldUseListModeV1: boolean;
+  shouldUseListMode: boolean;
   postType: PostType;
 };
 
 const getTags = ({
-  isHorizontal,
-  isList,
   isListFeedLayout,
-  shouldUseListModeV1,
+  shouldUseListMode,
   postType,
 }: GetTagsProps) => {
-  const useListCards = isList && !isHorizontal;
-  if (isListFeedLayout || shouldUseListModeV1) {
-    return {
-      PostTag: PostTypeToTagV1[postType] ?? ArticlePostCardV1,
-      AdTag: AdCardV1,
-      PlaceholderTag: PlaceholderCardV1,
-      MarketingCtaTag: MarketingCtaCardV1,
-    };
-  }
+  const useListCards = isListFeedLayout || shouldUseListMode;
   return {
     PostTag: useListCards
-      ? PostList
-      : PostTypeToTag[postType] ?? ArticlePostCard,
+      ? PostTypeToTagList[postType] ?? ArticlePostList
+      : PostTypeToTagCard[postType] ?? ArticlePostCard,
     AdTag: useListCards ? AdList : AdCard,
     PlaceholderTag: useListCards ? PlaceholderList : PlaceholderCard,
     MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
@@ -153,8 +137,6 @@ export default function FeedItemComponent({
   row,
   column,
   columns,
-  useList: isListProp,
-  insaneMode: insaneModeProp,
   openNewTab,
   postMenuIndex,
   showCommentPopupId,
@@ -174,7 +156,6 @@ export default function FeedItemComponent({
   onCommentClick,
   onAdClick,
   onReadArticleClick,
-  isHorizontal,
 }: FeedItemComponentProps): ReactElement {
   const item = items[index];
   const inViewRef = useTrackImpression(
@@ -187,18 +168,12 @@ export default function FeedItemComponent({
     ranking,
   );
 
-  const { shouldUseListFeedLayout, isListModeV1, shouldUseListModeV1 } =
-    useFeedLayout();
+  const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
   const { PostTag, AdTag, PlaceholderTag, MarketingCtaTag } = getTags({
-    isHorizontal,
-    isList: isListProp,
     isListFeedLayout: shouldUseListFeedLayout,
-    shouldUseListModeV1,
+    shouldUseListMode,
     postType: (item as PostItem).post?.type,
   });
-
-  const insaneMode = isListModeV1 || isHorizontal ? false : insaneModeProp;
-  const isList = isListModeV1 || isHorizontal ? false : isListProp;
 
   switch (item.type) {
     case FeedItemType.Post: {
@@ -254,9 +229,7 @@ export default function FeedItemComponent({
             onCopyLinkClick(event, post, index, row, column)
           }
           menuOpened={postMenuIndex === index}
-          showImage={!insaneMode}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
-          insaneMode={insaneMode}
         >
           {showCommentPopupId === item.post.id && (
             <CommentPopup
@@ -265,8 +238,6 @@ export default function FeedItemComponent({
                 comment({ post: item.post, content, row, column, columns })
               }
               loading={isSendingComment}
-              compactCard={!isList && insaneMode}
-              listMode={isList}
             />
           )}
         </PostTag>
@@ -278,7 +249,18 @@ export default function FeedItemComponent({
           ref={inViewRef}
           ad={item.ad}
           onLinkClick={(ad) => onAdClick(ad, row, column)}
-          showImage={!insaneMode}
+        />
+      );
+    case FeedItemType.FeedSurvey:
+      return (
+        <FeedSurveyCard
+          title="Rate your feed quality"
+          max={5}
+          lowScore={{
+            value: 4,
+            message: 'Improve your feed by adjusting your settings.',
+            cta: <FeedSettingsButton className="mt-4" />,
+          }}
         />
       );
     case FeedItemType.UserAcquisition:
@@ -293,6 +275,6 @@ export default function FeedItemComponent({
         />
       );
     default:
-      return <PlaceholderTag showImage={!insaneMode} />;
+      return <PlaceholderTag />;
   }
 }

@@ -12,6 +12,7 @@ import { SourceAvatar } from '../profile/source';
 import PostMetadata from '../cards/PostMetadata';
 import { CardLink } from '../cards/Card';
 import { useRelatedPosts } from '../../hooks/post';
+import { ProfileImageSize } from '../ProfilePicture';
 
 export type RelatedPostsWidgetProps = {
   className?: string;
@@ -88,7 +89,10 @@ export const RelatedPostsWidget = ({
                   title={relatedPost.title}
                 />
                 <div className="flex overflow-hidden">
-                  <SourceAvatar source={relatedPost.source} size="small" />
+                  <SourceAvatar
+                    source={relatedPost.source}
+                    size={ProfileImageSize.Small}
+                  />
                   <PostMetadata
                     description={relatedPost.source.name}
                     createdAt={relatedPost.createdAt}

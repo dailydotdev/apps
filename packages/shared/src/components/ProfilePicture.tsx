@@ -6,15 +6,16 @@ import { fallbackImages } from '../lib/config';
 import { Image, ImageType } from './image/Image';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
 
-export type ProfileImageSize =
-  | 'xsmall'
-  | 'small'
-  | 'medium'
-  | 'large'
-  | 'xlarge'
-  | 'xxlarge'
-  | 'xxxlarge'
-  | 'xxxxlarge';
+export enum ProfileImageSize {
+  XXXXLarge = 'xxxxlarge',
+  XXXLarge = 'xxxlarge',
+  XXLarge = 'xxlarge',
+  XLarge = 'xlarge',
+  Large = 'large',
+  Medium = 'medium',
+  Small = 'small',
+  XSmall = 'xsmall',
+}
 
 type ProfileImageRoundSize = ProfileImageSize | 'full';
 type UserImageProps = Pick<PublicProfile, 'image'> &
@@ -76,7 +77,7 @@ export function setOnError(
 function ProfilePictureComponent(
   {
     user,
-    size = 'xlarge',
+    size = ProfileImageSize.XLarge,
     rounded = size,
     className,
     nativeLazyLoading,

@@ -119,15 +119,6 @@ export const SOURCE_DIRECTORY_QUERY = gql`
   ${SOURCE_DIRECTORY_INFO_FRAGMENT}
 `;
 
-export const MOST_RECENT_SOURCES_QUERY = gql`
-  query MostRecentSources {
-    sources: mostRecentSources {
-      ...SourceDirectoryInfo
-    }
-  }
-  ${SOURCE_DIRECTORY_INFO_FRAGMENT}
-`;
-
 export const SOURCE_RELATED_TAGS_QUERY = gql`
   query RelatedTags($sourceId: ID!) {
     relatedTags(sourceId: $sourceId) {

@@ -6,12 +6,10 @@ import classed from '../../lib/classed';
 
 const Text = classed(ElementPlaceholder, 'h-3 rounded-12 my-2');
 
-export type PlaceholderCardProps = {
-  showImage?: boolean;
-} & HTMLAttributes<HTMLDivElement>;
+export type PlaceholderCardProps = HTMLAttributes<HTMLDivElement>;
 
 export const PlaceholderCard = forwardRef(function PlaceholderCard(
-  { className, showImage, ...props }: PlaceholderCardProps,
+  { className, ...props }: PlaceholderCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   return (
@@ -31,8 +29,8 @@ export const PlaceholderCard = forwardRef(function PlaceholderCard(
         <Text style={{ width: '100%' }} />
         <Text style={{ width: '80%' }} />
       </CardTextContainer>
-      <CardSpace className={showImage ? 'my-2' : 'my-6'} />
-      {showImage && <ElementPlaceholder className="my-2 h-40 rounded-12" />}
+      <CardSpace className="my-2" />
+      <ElementPlaceholder className="my-2 h-40 rounded-12" />
       <CardTextContainer>
         <Text style={{ width: '32%' }} />
       </CardTextContainer>

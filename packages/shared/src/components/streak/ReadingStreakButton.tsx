@@ -17,12 +17,14 @@ import { AnalyticsEvent } from '../../lib/analytics';
 import { RootPortal } from '../tooltips/Portal';
 import { Drawer } from '../drawers';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
   isLoading: boolean;
   compact?: boolean;
   iconPosition?: ButtonIconPosition;
+  className?: string;
 }
 
 interface CustomStreaksTooltipProps {
@@ -30,6 +32,7 @@ interface CustomStreaksTooltipProps {
   children?: ReactElement;
   shouldShowStreaks?: boolean;
   setShouldShowStreaks?: (value: boolean) => void;
+  placement: TooltipPosition;
 }
 
 function CustomStreaksTooltip({
@@ -37,11 +40,13 @@ function CustomStreaksTooltip({
   children,
   shouldShowStreaks,
   setShouldShowStreaks,
+  placement,
 }: CustomStreaksTooltipProps): ReactElement {
   return (
     <SimpleTooltip
       interactive
       showArrow={false}
+      placement={placement}
       visible={shouldShowStreaks}
       forceLoad={!isTesting}
       container={{
@@ -63,6 +68,7 @@ export function ReadingStreakButton({
   isLoading,
   compact,
   iconPosition,
+  className,
 }: ReadingStreakButtonProps): ReactElement {
   const { trackEvent } = useAnalyticsContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -84,9 +90,7 @@ export function ReadingStreakButton({
   const Tooltip = shouldShowStreaks ? CustomStreaksTooltip : SimpleTooltip;
 
   if (isLoading) {
-    return (
-      <div className="h-8 w-14 rounded-12 bg-surface-float laptop:h-10 laptop:w-20" />
-    );
+    return <div className="h-8 w-14 rounded-12 bg-surface-float" />;
   }
 
   if (!streak) {
@@ -103,6 +107,7 @@ export function ReadingStreakButton({
             streak={streak}
             shouldShowStreaks={shouldShowStreaks}
             setShouldShowStreaks={setShouldShowStreaks}
+            placement={!isMobile && !isLaptop ? 'bottom-start' : 'bottom'}
           >
             {children}
           </Tooltip>
@@ -112,17 +117,16 @@ export function ReadingStreakButton({
           type="button"
           iconPosition={iconPosition}
           icon={<ReadingStreakIcon secondary={hasReadToday} />}
-          variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
+          variant={
+            isLaptop || isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float
+          }
           onClick={handleToggle}
           className={classnames(
             'gap-1',
             compact && 'text-accent-bacon-default',
+            className,
           )}
-          size={
-            (isLaptop || !compact) && !isMobile
-              ? ButtonSize.Medium
-              : ButtonSize.Small
-          }
+          size={!compact && !isMobile ? ButtonSize.Medium : ButtonSize.Small}
         >
           {streak?.current}
           {!compact && ' reading days'}

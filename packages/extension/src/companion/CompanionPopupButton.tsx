@@ -1,7 +1,6 @@
 import React, { useState, ReactElement, useContext, useEffect } from 'react';
 import {
   Button,
-  ButtonColor,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
@@ -69,20 +68,13 @@ export const CompanionPopupButton = (): ReactElement => {
     >
       <Button
         onClick={onButtonClick}
-        variant={
-          showCompanionPermission
-            ? ButtonVariant.Primary
-            : ButtonVariant.Secondary
-        }
-        color={ButtonColor.Cabbage}
-        className="hidden border-accent-cabbage-default laptop:flex"
+        variant={ButtonVariant.Float}
+        className="hidden laptop:flex"
         icon={
           <CompanionIcon
             secondary={showCompanionPermission}
             className={
-              showCompanionPermission
-                ? 'h-7 w-7 text-text-primary'
-                : 'h-6 w-6 text-accent-cabbage-default'
+              showCompanionPermission ? 'size-7 text-text-primary' : 'size-6'
             }
           />
         }

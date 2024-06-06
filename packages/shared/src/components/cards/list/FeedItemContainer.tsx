@@ -10,7 +10,7 @@ import React, {
 import Link from 'next/link';
 import classNames from 'classnames';
 import { Post } from '../../../graphql/posts';
-import { Card, CardLink } from './Card';
+import { ListCard, CardLink } from './ListCard';
 import { RaisedLabel, RaisedLabelType } from './RaisedLabel';
 import { useFeedPreviewMode } from '../../../hooks';
 import { TypeLabel } from './TypeLabel';
@@ -44,7 +44,7 @@ function FeedItemContainer(
   const [focus, setFocus] = useState(false);
 
   return (
-    <Card
+    <ListCard
       {...domProps}
       data-testid="postItem"
       ref={ref}
@@ -76,7 +76,7 @@ function FeedItemContainer(
         )}
       </fieldset>
       {children}
-    </Card>
+    </ListCard>
   );
 }
 

@@ -35,8 +35,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
     onCopyLinkClick,
     openNewTab,
     children,
-    showImage = true,
-    insaneMode,
     onReadArticleClick,
     domProps = {},
   }: PostCardProps,
@@ -46,7 +44,6 @@ export const ArticlePostCard = forwardRef(function PostCard(
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const { pinnedAt, trending } = post;
-  const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const { showFeedback } = usePostFeedback({ post });
   const isVideoType = isVideoPost(post);
 
@@ -64,7 +61,7 @@ export const ArticlePostCard = forwardRef(function PostCard(
     <FeedItemContainer
       domProps={{
         ...domProps,
-        style: { ...style, ...customStyle },
+        style,
         className: getPostClassNames(
           post,
           classNames(className, showFeedback && '!p-0'),
@@ -115,16 +112,13 @@ export const ArticlePostCard = forwardRef(function PostCard(
               readTime={post.readTime}
               isVideoType={isVideoType}
               className="mx-4"
-              insaneMode={insaneMode}
             />
           </Container>
         )}
         <Container>
           <PostCardFooter
-            insaneMode={insaneMode}
             openNewTab={openNewTab}
             post={post}
-            showImage={showImage}
             onShare={onShare}
             className={{
               image: classNames(showFeedback && 'mb-0'),
@@ -133,15 +127,11 @@ export const ArticlePostCard = forwardRef(function PostCard(
 
           {!showFeedback && (
             <ActionButtons
-              openNewTab={openNewTab}
               post={post}
               onUpvoteClick={onUpvoteClick}
               onCommentClick={onCommentClick}
               onCopyLinkClick={onCopyLinkClick}
               onBookmarkClick={onBookmarkClick}
-              onMenuClick={(event) => onMenuClick?.(event, post)}
-              onReadArticleClick={onReadArticleClick}
-              className={!showImage && 'my-4 laptop:mb-0'}
             />
           )}
         </Container>

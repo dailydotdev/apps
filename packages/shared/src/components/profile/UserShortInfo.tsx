@@ -40,7 +40,7 @@ const defaultClassName = {
 
 const UserShortInfoComponent = <Tag extends React.ElementType>(
   {
-    imageSize = 'xlarge',
+    imageSize = ProfileImageSize.XLarge,
     tag,
     user,
     className = {},

@@ -82,16 +82,16 @@ export function PostComments({
     }
   }, [commentsCount, scrollToComment]);
 
+  if (isLoadingComments || isNullOrUndefined(comments)) {
+    return <PlaceholderCommentList placeholderAmount={post.numComments} />;
+  }
+
   if (commentsCount === 0) {
     return (
       <div className="mb-12 mt-8 text-center text-text-quaternary typo-subhead">
         Be the first to comment.
       </div>
     );
-  }
-
-  if (isLoadingComments || isNullOrUndefined(comments)) {
-    return <PlaceholderCommentList placeholderAmount={post.numComments} />;
   }
 
   return (
