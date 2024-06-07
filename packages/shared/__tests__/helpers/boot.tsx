@@ -32,7 +32,7 @@ interface TestBootProviderProps {
   gb?: GrowthBook;
 }
 
-const settingsContext: Partial<SettingsContextData> = {
+export const settingsContext: Partial<SettingsContextData> = {
   spaciness: 'eco',
   openNewTab: true,
   setTheme: jest.fn(),

@@ -18,10 +18,6 @@
 }
 
 .label {
-  &:global(.disabled) {
-    pointer-events: none;
-  }
-
   &:global(.disabled), &:global(.checked.disabled) {
     color: var(--theme-text-disabled);
   }
@@ -36,8 +32,9 @@
     }
   }
 
-  &:hover,
-  &:focus-within {
+  /* &:hover, */
+  &:hover:not(:global(.disabled)),
+  &:focus-within:not(:global(.disabled)) {
     & .checkmark {
       border-color: var(--theme-text-primary);
 
@@ -66,8 +63,8 @@
       }
     }
 
-    &:hover,
-    &:focus-within {
+    &:hover:not(:global(.disabled)),
+    &:focus-within:not(:global(.disabled)) {
       & .checkmark {
         background: theme('colors.raw.cabbage.20');
 

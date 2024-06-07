@@ -20,6 +20,8 @@ import { capitalize } from '../lib/strings';
 import { storageWrapper } from '../lib/storageWrapper';
 import { useFeaturesReadyContext } from '../components/GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
+import { usePersonalizedDigest } from '../hooks/usePersonalizedDigest';
+import { UserPersonalizedDigestType } from '../graphql/users';
 
 export enum ThemeMode {
   Dark = 'dark',
@@ -123,6 +125,7 @@ export const SettingsContextProvider = ({
   const { user } = useContext(AuthContext);
   const userId = user?.id;
   const { getFeatureValue } = useFeaturesReadyContext();
+  const { unsubscribePersonalizedDigest } = usePersonalizedDigest();
 
   useEffect(() => {
     if (!loadedSettings) {
@@ -212,11 +215,15 @@ export const SettingsContextProvider = ({
         }),
       toggleSortingEnabled: () =>
         setSettings({ ...settings, sortingEnabled: !settings.sortingEnabled }),
-      toggleOptOutReadingStreak: () =>
-        setSettings({
+      toggleOptOutReadingStreak: () => {
+        unsubscribePersonalizedDigest({
+          type: UserPersonalizedDigestType.StreakReminder,
+        });
+        return setSettings({
           ...settings,
           optOutReadingStreak: !settings.optOutReadingStreak,
-        }),
+        });
+      },
       toggleOptOutCompanion: () =>
         setSettings({
           ...settings,
