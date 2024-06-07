@@ -33,6 +33,7 @@ import {
 import { useSharePost } from '../../hooks/useSharePost';
 import { feature } from '../../lib/featureManagement';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 interface PostActionsProps {
   post: Post;
@@ -176,7 +177,7 @@ export function PostActions({
             pressed={post.bookmarked}
             onClick={onToggleBookmark}
             icon={<BookmarkIcon secondary={post.bookmarked} />}
-            aria-label="Bookmark"
+            aria-label={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
             responsiveLabelClass={actionsClassName}
             className="btn-tertiary-bun"
           >
