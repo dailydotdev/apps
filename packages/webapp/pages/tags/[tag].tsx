@@ -10,6 +10,7 @@ import {
   DiscussIcon,
   HashtagIcon,
   MiniCloseIcon as XIcon,
+  OpenLinkIcon,
   PlusIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -72,6 +73,9 @@ import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { TagSourceSocialProof } from '@dailydotdev/shared/src/lib/featureValues';
+import { cloudinary } from '@dailydotdev/shared/src/lib/image';
+import Link from 'next/link';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -141,6 +145,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { shouldShowAuthBanner } = useOnboarding();
   const tagSourceFeatureValue = useFeature(feature.tagSourceSocialProof);
+  const showRoadmap = useFeature(feature.showRoadmap);
   const shouldShowTagSourceSocialProof =
     shouldShowAuthBanner &&
     tagSourceFeatureValue === TagSourceSocialProof.V1 &&
@@ -273,6 +278,34 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
             tag={tag}
             blockedTags={feedSettings?.blockedTags}
           />
+        )}
+        {showRoadmap && initialData?.flags?.roadmap && (
+          <Link href={initialData.flags.roadmap} passHref prefetch={false}>
+            <a
+              target="_blank"
+              rel={anchorDefaultRel}
+              className="mr-auto flex w-auto cursor-pointer items-center rounded-12 border border-border-subtlest-tertiary p-4"
+            >
+              <img
+                src={cloudinary.source.roadmap}
+                alt="roadmap.sh logo"
+                className="size-10 rounded-full"
+              />
+              <div className="mx-3 flex-1">
+                <p className="font-bold typo-callout">
+                  Comprehensive roadmap for {tag}
+                </p>
+                <p className="text-text-tertiary typo-footnote">
+                  By roadmap.sh
+                </p>
+              </div>
+              <Button
+                icon={<OpenLinkIcon />}
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+              />
+            </a>
+          </Link>
         )}
       </PageInfoHeader>
       <TagTopSources tag={tag} />
