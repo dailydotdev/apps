@@ -2,7 +2,7 @@
   --field-placeholder-color: var(--theme-text-tertiary);
 
   &:hover {
-    background: var(--theme-hover);
+    background: var(--theme-surface-hover);
     --field-placeholder-color: var(--theme-text-primary);
   }
 

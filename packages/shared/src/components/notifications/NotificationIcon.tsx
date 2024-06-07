@@ -40,7 +40,7 @@ function NotificationItemIcon({
   const theme = iconTheme ?? notificationIconTypeTheme[icon];
 
   return (
-    <span className="h-fit overflow-hidden rounded-8 bg-theme-float p-1 typo-callout">
+    <span className="h-fit overflow-hidden rounded-8 bg-surface-float p-1 typo-callout">
       <Icon
         size={IconSize.Small}
         secondary

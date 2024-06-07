@@ -31,7 +31,7 @@ export const SquadPostListItem = ({
   return (
     <article
       className={classNames(
-        'group relative flex items-start px-4 py-2 hover:bg-theme-hover',
+        'group relative flex items-start px-4 py-2 hover:bg-surface-hover',
         styles.card,
       )}
     >

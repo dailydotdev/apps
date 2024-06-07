@@ -134,7 +134,7 @@ export function Dropdown({
         variant={buttonVariant}
         size={buttonSize}
         className={classNames(
-          'group flex w-full items-center px-3 font-normal text-text-tertiary typo-body hover:bg-theme-hover hover:text-text-primary',
+          'group flex w-full items-center px-3 font-normal text-text-tertiary typo-body hover:bg-surface-hover hover:text-text-primary',
           className?.button,
           iconOnly && 'items-center justify-center',
         )}

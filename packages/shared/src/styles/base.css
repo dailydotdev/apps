@@ -236,12 +236,6 @@ body {
   * Current old colors, these should all be changed to one of the above matching ones.
  */
   --theme-active: theme('colors.raw.salt.90')33;
-  --theme-focus: theme('colors.raw.blueCheese.40');
-  --theme-float: theme('colors.raw.salt.90')14;
-  /* stylelint-disable-next-line unit-no-unknown */
-  --theme-hover: theme('colors.raw.salt.90')1F;
-
-  --accent-cabbage-default-invert: theme('colors.raw.cabbage.60');
 
   --theme-shadow2: theme('boxShadow.2-black');
   --theme-shadow3: theme('boxShadow.3-black');
@@ -505,16 +499,6 @@ body {
     * Current old colors, these should all be changed to one of the above matching ones.
    */
   --theme-active: theme('colors.raw.pepper.10')33;
-  --theme-focus: theme('colors.raw.blueCheese.60');
-  --theme-float: theme('colors.raw.pepper.10')14;
-  /* stylelint-disable-next-line unit-no-unknown */
-  --theme-hover: theme('colors.raw.pepper.10')1F;
-
-  --accent-cabbage-default-invert: theme('colors.raw.cabbage.40');
-
-  /*--theme-shadow2: theme('boxShadow.2-salt');*/
-  /*--theme-shadow3: theme('boxShadow.3-salt');*/
-
   --theme-post-disabled: #ffffff66;
 
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.pepper');

@@ -9,7 +9,7 @@
 }
 
 .item:hover .checkmark, input:focus-visible ~ .checkmark {
-  @apply bg-theme-hover;
+  @apply bg-surface-hover;
 
   & .innerRing {
     @apply border-4 border-text-primary;

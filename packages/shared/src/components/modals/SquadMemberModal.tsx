@@ -47,12 +47,12 @@ const InitialItem = ({ squad }: { squad: Squad }) => {
     <button
       type="button"
       disabled={copying}
-      className="flex items-center justify-start px-6 py-3 hover:bg-theme-hover"
+      className="flex items-center justify-start px-6 py-3 hover:bg-surface-hover"
       onClick={() => {
         trackAndCopyLink();
       }}
     >
-      <FlexCentered className="mr-4 h-12 w-12 rounded-10 bg-theme-float">
+      <FlexCentered className="mr-4 h-12 w-12 rounded-10 bg-surface-float">
         <LinkIcon size={IconSize.Large} className="text-raw-salt-90" />
       </FlexCentered>
       <p className="text-raw-salt-90 typo-callout">Copy invitation link</p>

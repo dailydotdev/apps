@@ -39,7 +39,7 @@
       border-color: var(--theme-text-primary);
 
       &:before {
-        background: var(--theme-hover);
+        background: var(--theme-surface-hover);
         opacity: 1;
       }
     }

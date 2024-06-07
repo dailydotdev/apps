@@ -65,7 +65,7 @@ export default function CommentPopup({
             placeholder={text.placeholder}
             onChange={(event) => setComment(event.target.value)}
             onKeyDown={onKeyDown}
-            className="focus-outline my-4 flex-1 resize-none bg-theme-float px-3 py-3 text-text-primary placeholder-text-tertiary caret-text-link typo-callout"
+            className="focus-outline my-4 flex-1 resize-none bg-surface-float px-3 py-3 text-text-primary placeholder-text-tertiary caret-text-link typo-callout"
             style={{
               borderRadius: '0.875rem',
             }}

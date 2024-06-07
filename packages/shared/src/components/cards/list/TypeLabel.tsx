@@ -51,8 +51,8 @@ export function TypeLabel({
     >
       <div
         className={classNames(
-          'rounded-4 px-2 group-hover:bg-theme-float group-focus:bg-theme-float',
-          focus && 'bg-theme-float',
+          'rounded-4 px-2 group-hover:bg-surface-float group-focus:bg-surface-float',
+          focus && 'bg-surface-float',
         )}
       >
         {typeToLabel[type as PostType] ?? type}

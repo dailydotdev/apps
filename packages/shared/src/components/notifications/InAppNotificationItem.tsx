@@ -9,7 +9,7 @@ import { NewNotification } from '../../graphql/notifications';
 
 const NotificationLink = classed(
   'a',
-  'flex flex-row p-3 pr-10 hover:bg-theme-hover focus:bg-theme-active rounded-16 w-full h-full overflow-hidden',
+  'flex flex-row p-3 pr-10 hover:bg-surface-hover focus:bg-theme-active rounded-16 w-full h-full overflow-hidden',
 );
 const NotificationAvatar = classed(
   'span',
