@@ -37,6 +37,8 @@ export const BootPopups = (): null => {
 
   // hide modal if feature is not enabled
   let shouldHideStreaksModal = !isStreaksEnabled;
+  // hide modal if actions are not fetched
+  shouldHideStreaksModal = shouldHideStreaksModal || !isActionsFetched;
   // hide modal if user already opted out of the milestone
   shouldHideStreaksModal =
     shouldHideStreaksModal ||
