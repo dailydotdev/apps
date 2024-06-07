@@ -6,11 +6,6 @@ export enum ExperimentWinner {
   OnboardingV4 = 'v4',
 }
 
-export enum TagSourceSocialProof {
-  Control = 'control',
-  V1 = 'v1',
-}
-
 export enum ExperienceLevelExperiment {
   Control = 'control',
   V1 = 'v1',
