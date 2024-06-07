@@ -29,6 +29,7 @@ import AlertContext from '../contexts/AlertContext';
 import { useFeature, useFeaturesReadyContext } from './GrowthBookProvider';
 import {
   algorithms,
+  algorithmsList,
   DEFAULT_ALGORITHM_INDEX,
   DEFAULT_ALGORITHM_KEY,
   LayoutHeader,
@@ -53,10 +54,8 @@ import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/analytics';
 import { OnboardingFeedHeader } from './onboarding/OnboardingFeedHeader';
-import { BreadCrumbs } from './header/BreadCrumbs';
-import { HotIcon } from './icons';
-import { IconSize } from './Icon';
-import TabList from './tabs/TabList';
+import { FeedExploreHeader } from './header';
+import { Dropdown } from './fields/Dropdown';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -107,7 +106,6 @@ export interface MainFeedLayoutProps
   children?: ReactNode;
   searchChildren?: ReactNode;
   navChildren?: ReactNode;
-  shouldShowHeader?: boolean;
   isFinder?: boolean;
 }
 
@@ -147,12 +145,8 @@ export default function MainFeedLayout({
   shortcuts,
   navChildren,
   isFinder,
-  shouldShowHeader = true,
 }: MainFeedLayoutProps): ReactElement {
   useScrollRestoration();
-  const seoExplorePage = useFeature(feature.seoExplorePage);
-  const isLaptop = useViewSize(ViewSize.Laptop);
-  const showExploreHeader = seoExplorePage && shouldShowHeader && isLaptop;
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { getFeatureValue } = useFeaturesReadyContext();
@@ -164,10 +158,16 @@ export default function MainFeedLayout({
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const feedVersion = useFeature(feature.feedVersion);
   const { isUpvoted, isPopular, isSortableFeed, isCustomFeed } = useFeedName({
     feedName,
   });
+  const { value: seoExplorePage } = useConditionalFeature({
+    feature: feature.seoExplorePage,
+    shouldEvaluate: isPopular,
+  });
+  const shouldShowExploreHeader = seoExplorePage && isPopular;
   const {
     shouldUseListFeedLayout,
     shouldUseCommentFeedLayout,
@@ -266,19 +266,33 @@ export default function MainFeedLayout({
         emptyScreen: <SearchEmptyScreen />,
       };
     }
+
     if (!query.query) {
       return null;
     }
+
+    const seoHeader = isLaptop ? (
+      <FeedExploreHeader tab={tab} setTab={setTab} />
+    ) : (
+      <Dropdown
+        className={{ container: 'mx-4 my-3 w-56' }}
+        selectedIndex={selectedAlgo}
+        options={algorithmsList}
+        onChange={(_, index) => setSelectedAlgo(index)}
+      />
+    );
 
     const getVariables = () => {
       if (isUpvoted) {
         return { ...query.variables, period: periods[selectedPeriod].value };
       }
 
-      if (showExploreHeader) {
+      if (seoExplorePage) {
+        const laptopValue = tab === ExploreTabs.ByDate ? 1 : 0;
+        const finalAlgo = isLaptop ? laptopValue : selectedAlgo;
         return {
           ...query.variables,
-          ranking: algorithms[tab === ExploreTabs.ByDate ? 1 : 0].value,
+          ranking: algorithms[finalAlgo].value,
         };
       }
 
@@ -304,21 +318,8 @@ export default function MainFeedLayout({
       query: query.query,
       variables,
       emptyScreen: <FeedEmptyScreen />,
-      header: showExploreHeader && (
-        <div className="flex flex-col">
-          <BreadCrumbs className="px-2">
-            <HotIcon size={IconSize.XSmall} secondary /> Explore
-          </BreadCrumbs>
-          <div className="my-4 flex flex-row items-center">
-            <TabList<ExploreTabs>
-              items={Object.values(ExploreTabs)}
-              active={tab}
-              onClick={setTab}
-            />
-          </div>
-        </div>
-      ),
-      actionButtons: !showExploreHeader && feedWithActions && (
+      header: shouldShowExploreHeader && isPopular && seoHeader,
+      actionButtons: !shouldShowExploreHeader && feedWithActions && (
         <SearchControlHeader {...searchProps} />
       ),
       shortcuts,

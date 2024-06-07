@@ -11,10 +11,7 @@ import MainFeedLayout, {
   MainFeedLayoutProps,
 } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import {
-  getShouldRedirect,
-  SharedFeedPage,
-} from '@dailydotdev/shared/src/components/utilities';
+import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import { getFeedName as getFeedNameLib } from '@dailydotdev/shared/src/lib/feed';
 import { getLayout } from './FeedLayout';
 
@@ -38,8 +35,6 @@ const getFeedName = (path: string): string => {
 
   return path.replace(/^\/+/, '');
 };
-
-const seoFeedPages = [SharedFeedPage.Popular, SharedFeedPage.Latest];
 
 export default function MainFeedPage({
   children,
@@ -79,7 +74,6 @@ export default function MainFeedPage({
 
   return (
     <MainFeedLayout
-      shouldShowHeader={seoFeedPages.includes(feedName as SharedFeedPage)}
       feedName={feedName}
       isSearchOn={isSearchOn}
       searchQuery={router.query?.q?.toString()}
