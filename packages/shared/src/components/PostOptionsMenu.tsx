@@ -12,7 +12,6 @@ import {
   EyeIcon,
   BlockIcon,
   FlagIcon,
-  BookmarkIcon,
   PlusIcon,
   EditIcon,
   UpvoteIcon,
@@ -55,7 +54,6 @@ import {
 } from '../hooks/useBookmarkPost';
 import { ActiveFeedContext } from '../contexts';
 import { useAdvancedSettings } from '../hooks/feed';
-import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
 import { ContextMenu as ContextMenuTypes } from '../hooks/constants';
 import useContextMenu from '../hooks/useContextMenu';
@@ -319,9 +317,6 @@ export default function PostOptionsMenu({
   ];
 
   const { shouldUseListFeedLayout } = useFeedLayout();
-  const bookmarkLoops = useFeature(feature.bookmarkLoops);
-  const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
-  const shouldShowBookmark = bookmarkLoops || bookmarkOnCard;
 
   const { value: shareVia } = useConditionalFeature({
     feature: feature.shareVia,
@@ -337,20 +332,6 @@ export default function PostOptionsMenu({
           post,
           ...trackingOpts,
         }),
-    });
-  }
-
-  if (!shouldShowBookmark && !shouldUseListFeedLayout) {
-    postOptions.push({
-      icon: (
-        <MenuIcon
-          secondary={post?.bookmarked}
-          Icon={BookmarkIcon}
-          className={post?.bookmarked && 'text-accent-bun-default'}
-        />
-      ),
-      label: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
-      action: onToggleBookmark,
     });
   }
 

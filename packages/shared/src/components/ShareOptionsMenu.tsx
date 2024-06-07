@@ -2,15 +2,13 @@ import React, { ReactElement, useContext } from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { Post } from '../graphql/posts';
-import { ShareIcon, BookmarkIcon, LinkIcon } from './icons';
+import { ShareIcon, LinkIcon } from './icons';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import { Origin } from '../lib/analytics';
 import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
-import { useFeature } from './GrowthBookProvider';
-import { feature } from '../lib/featureManagement';
 import { useGetShortUrl } from '../hooks';
 import { ReferralCampaignKey } from '../lib';
 import { ContextMenu as ContextMenuIds } from '../hooks/constants';
@@ -24,7 +22,6 @@ const ContextMenu = dynamic(
 interface ShareOptionsMenuProps {
   post: Post;
   onHidden?: () => unknown;
-  onBookmark?: () => unknown;
   contextId?: string;
   onShare?: (post?: Post) => void;
   shouldUseListFeedLayout: boolean;
@@ -40,7 +37,6 @@ type ShareOption = {
 export default function ShareOptionsMenu({
   shouldUseListFeedLayout,
   onShare,
-  onBookmark,
   post,
   onHidden,
   contextId = ContextMenuIds.ShareContext,
@@ -66,10 +62,6 @@ export default function ShareOptionsMenu({
     onClick(ShareProvider.CopyLink);
   };
 
-  const bookmarkLoops = useFeature(feature.bookmarkLoops);
-  const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
-  const shouldShowBookmark = bookmarkLoops || bookmarkOnCard;
-
   const shareOptions: ShareOption[] = [
     {
       icon: <MenuIcon Icon={ShareIcon} />,
@@ -77,20 +69,6 @@ export default function ShareOptionsMenu({
       action: () => onShare(post),
     },
   ];
-
-  if (!shouldShowBookmark && !shouldUseListFeedLayout) {
-    shareOptions.push({
-      icon: (
-        <MenuIcon
-          secondary={post?.bookmarked}
-          Icon={BookmarkIcon}
-          className={post?.bookmarked && 'text-accent-bun-default'}
-        />
-      ),
-      label: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
-      action: onBookmark,
-    });
-  }
 
   shareOptions.push({
     icon: <MenuIcon Icon={LinkIcon} />,
