@@ -17,12 +17,14 @@ import {
 import { Readme } from '@dailydotdev/shared/src/components/profile/Readme';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { useJoinReferral } from '@dailydotdev/shared/src/hooks';
+import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
 import {
   getLayout as getProfileLayout,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
   ProfileLayoutProps,
 } from '../../components/layouts/ProfileLayout';
+import { ReadingStreaksWidget } from '../../../shared/src/components/profile/ReadingStreaksWidget';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({
@@ -30,13 +32,14 @@ const ProfilePage = ({
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
   const { tokenRefreshed } = useContext(AuthContext);
+  const { isStreaksEnabled } = useReadingStreak();
 
   const { selectedHistoryYear, before, after, yearOptions, fullHistory } =
     useActivityTimeFilter();
 
   const user = useProfile(initialUser);
 
-  const { data: readingHistory } = useQuery<ProfileReadingData>(
+  const { data: readingHistory, isLoading } = useQuery<ProfileReadingData>(
     generateQueryKey(RequestKey.ReadingStats, user, selectedHistoryYear),
     () =>
       request(graphqlUrl, USER_READING_HISTORY_QUERY, {
@@ -57,6 +60,12 @@ const ProfilePage = ({
   return (
     <div className="flex flex-col gap-6 px-4 py-6 tablet:px-6">
       <Readme user={user} />
+      {isStreaksEnabled && readingHistory?.userStreakProfile && (
+        <ReadingStreaksWidget
+          streak={readingHistory?.userStreakProfile}
+          isLoading={isLoading}
+        />
+      )}
       {readingHistory?.userReadingRankHistory && (
         <>
           <ReadingTagsWidget mostReadTags={readingHistory?.userMostReadTags} />

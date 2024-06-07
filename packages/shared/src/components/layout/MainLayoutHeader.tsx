@@ -94,12 +94,13 @@ function MainLayoutHeader({
               isSearchPage
                 ? 'absolute right-0 laptop:relative laptop:top-0'
                 : 'hidden laptop:flex',
+              hasBanner && 'tablet:top-18',
             ),
             field: 'mx-2 laptop:mx-auto',
           }}
         />
       ),
-    [isLoggedIn, loadedSettings, isSearchPage],
+    [isLoggedIn, loadedSettings, isSearchPage, hasBanner],
   );
 
   if (loadedSettings && !isLaptop) {

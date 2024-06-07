@@ -14,6 +14,9 @@ import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import { useRouter } from 'next/router';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
+import useAuthForms from '@dailydotdev/shared/src/hooks/useAuthForms';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getTemplatedTitle } from '../utils';
 import SidebarNav from './SidebarNav';
@@ -50,7 +53,22 @@ export default function AccountLayout({
     };
   }, [router.events, setIsOpen]);
 
-  if (!profile || !Object.keys(profile).length || (isFetched && !profile)) {
+  const { formRef } = useAuthForms();
+
+  if (isFetched && !profile) {
+    return (
+      <div className="flex w-full items-center justify-center pt-10">
+        <AuthOptions
+          simplified
+          isLoginFlow
+          formRef={formRef}
+          trigger={AuthTriggers.AccountPage}
+        />
+      </div>
+    );
+  }
+
+  if (!profile || !Object.keys(profile).length) {
     return null;
   }
 

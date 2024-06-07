@@ -51,6 +51,7 @@ export enum AuthTriggers {
   ReportComment = 'report comment',
   SearchReferral = 'search referral',
   CreateFeedFilters = 'create feed filters',
+  AccountPage = 'account page',
   NewComment = 'new comment',
   SearchInput = 'search input',
   SearchSuggestion = 'search suggestion',
