@@ -2,7 +2,10 @@ import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
-import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
+import {
+  getShouldRedirect,
+  SharedFeedPage,
+} from '@dailydotdev/shared/src/components/utilities';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -112,6 +115,7 @@ export default function MainFeedPage({
       >
         <FeedLayout>
           <MainFeedLayout
+            shouldShowHeader={feedName === SharedFeedPage.Popular}
             feedName={feedName}
             isSearchOn={isSearchOn}
             searchQuery={searchQuery}

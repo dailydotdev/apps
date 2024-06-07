@@ -280,7 +280,7 @@ export const FeedContainer = ({
             <div
               className={classNames(
                 'grid',
-                isSearch && !shouldUseListFeedLayout && 'mt-8',
+                isSearch && !shouldUseListFeedLayout && !header && 'mt-8',
                 isHorizontal &&
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth',
                 gapClass({

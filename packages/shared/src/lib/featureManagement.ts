@@ -54,6 +54,7 @@ const feature = {
   onboardingLinks: new Feature('onboarding_links', false),
   shortcutsUI: new Feature('shortcuts_ui', ShortcutsUIExperiment.Control),
   shareVia: new Feature('share_via', false),
+  seoExplorePage: new Feature('seo_explore', false),
 };
 
 export { feature };

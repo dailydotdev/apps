@@ -51,6 +51,10 @@ import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/analytics';
 import { OnboardingFeedHeader } from './onboarding/OnboardingFeedHeader';
+import { BreadCrumbs } from './header/BreadCrumbs';
+import { HotIcon } from './icons';
+import { IconSize } from './Icon';
+import TabList from './tabs/TabList';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -101,7 +105,13 @@ export interface MainFeedLayoutProps
   children?: ReactNode;
   searchChildren?: ReactNode;
   navChildren?: ReactNode;
+  shouldShowHeader?: boolean;
   isFinder?: boolean;
+}
+
+enum ExploreTabs {
+  Popular = 'Popular',
+  ByDate = 'By date',
 }
 
 const getQueryBasedOnLogin = (
@@ -135,13 +145,17 @@ export default function MainFeedLayout({
   shortcuts,
   navChildren,
   isFinder,
+  shouldShowHeader = true,
 }: MainFeedLayoutProps): ReactElement {
   useScrollRestoration();
+  const seoExplorePage = useFeature(feature.seoExplorePage);
+  const showExploreHeader = seoExplorePage && shouldShowHeader;
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { getFeatureValue } = useFeaturesReadyContext();
   const { alerts } = useContext(AlertContext);
   const router = useRouter();
+  const [tab, setTab] = useState(ExploreTabs.Popular);
   const isSearchPage = !!router.pathname?.startsWith('/search');
   const feedName = getFeedName(feedNameProp, {
     hasFiltered: !alerts?.filter,
@@ -258,6 +272,13 @@ export default function MainFeedLayout({
         return { ...query.variables, period: periods[selectedPeriod].value };
       }
 
+      if (showExploreHeader) {
+        return {
+          ...query.variables,
+          ranking: algorithms[tab === ExploreTabs.ByDate ? 1 : 0].value,
+        };
+      }
+
       if (isSortableFeed) {
         return {
           ...query.variables,
@@ -280,8 +301,21 @@ export default function MainFeedLayout({
       query: query.query,
       variables,
       emptyScreen: <FeedEmptyScreen />,
-      header: null,
-      actionButtons: feedWithActions && (
+      header: showExploreHeader && (
+        <div className="flex flex-col">
+          <BreadCrumbs className="px-2">
+            <HotIcon size={IconSize.XSmall} secondary /> Explore
+          </BreadCrumbs>
+          <div className="my-4 flex flex-row items-center">
+            <TabList<ExploreTabs>
+              items={Object.values(ExploreTabs)}
+              active={tab}
+              onClick={setTab}
+            />
+          </div>
+        </div>
+      ),
+      actionButtons: !showExploreHeader && feedWithActions && (
         <SearchControlHeader {...searchProps} />
       ),
       shortcuts,

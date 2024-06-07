@@ -38,14 +38,14 @@ interface ClassName {
   header?: string;
 }
 
-export interface TabContainerProps<T extends string> {
+export interface TabContainerProps<T extends string = string> {
   children?: ReactElement<TabProps<T>>[];
   shouldMountInactive?: boolean;
   onActiveChange?: (active: T) => unknown;
   className?: ClassName;
   style?: CSSProperties;
   showHeader?: boolean;
-  controlledActive?: string;
+  controlledActive?: T;
   tabListProps?: Pick<TabListProps, 'className' | 'autoScrollActive'>;
   showBorder?: boolean;
   renderTab?: RenderTab;
@@ -137,7 +137,7 @@ export function TabContainer<T extends string = string>({
           showBorder && 'border-b border-border-subtlest-tertiary',
         )}
       >
-        <TabList
+        <TabList<T>
           items={children.map((child) => child.props.label)}
           renderTab={renderTab}
           onClick={onClick}

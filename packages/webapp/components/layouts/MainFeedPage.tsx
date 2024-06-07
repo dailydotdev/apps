@@ -11,7 +11,10 @@ import MainFeedLayout, {
   MainFeedLayoutProps,
 } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
+import {
+  getShouldRedirect,
+  SharedFeedPage,
+} from '@dailydotdev/shared/src/components/utilities';
 import { getFeedName as getFeedNameLib } from '@dailydotdev/shared/src/lib/feed';
 import { getLayout } from './FeedLayout';
 
@@ -74,6 +77,7 @@ export default function MainFeedPage({
 
   return (
     <MainFeedLayout
+      shouldShowHeader={feedName === SharedFeedPage.Popular}
       feedName={feedName}
       isSearchOn={isSearchOn}
       searchQuery={router.query?.q?.toString()}
