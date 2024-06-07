@@ -75,7 +75,7 @@ function SquadItem({
 
   return (
     <div
-      className="relative flex w-40 items-center rounded-16 bg-theme-float p-2 first:ml-4 hover:bg-theme-hover tablet:w-auto tablet:first:ml-0"
+      className="relative flex w-40 items-center rounded-16 bg-surface-float p-2 first:ml-4 hover:bg-surface-hover tablet:w-auto tablet:first:ml-0"
       data-testid={squad.id}
     >
       <Link href={squad.permalink} prefetch={false} passHref>

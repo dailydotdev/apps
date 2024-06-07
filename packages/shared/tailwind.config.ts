@@ -47,9 +47,6 @@ export default {
       // Old stuff
       theme: {
         active: 'var(--theme-active)',
-        focus: 'var(--theme-focus)',
-        float: 'var(--theme-float)',
-        hover: 'var(--theme-hover)',
         rank: 'var(--rank-color)',
         overlay: {
           quaternary: 'var(--theme-overlay-quaternary)',

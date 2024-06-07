@@ -62,7 +62,7 @@ export default function ActionButtons({
       )}
     >
       <div className={classNames('flex flex-row items-center', className)}>
-        <div className="flex flex-row items-center rounded-12 bg-theme-float">
+        <div className="flex flex-row items-center rounded-12 bg-surface-float">
           <SimpleTooltip
             content={
               post?.userState?.vote === UserVote.Up ? 'Remove upvote' : 'Upvote'
@@ -91,7 +91,7 @@ export default function ActionButtons({
               ) : null}
             </Button>
           </SimpleTooltip>
-          <div className="box-border border border-theme-float py-2.5" />
+          <div className="box-border border border-surface-float py-2.5" />
           <SimpleTooltip
             content={
               post?.userState?.vote === UserVote.Down

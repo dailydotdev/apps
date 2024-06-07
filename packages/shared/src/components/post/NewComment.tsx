@@ -119,7 +119,7 @@ function NewCommentComponent(
     <button
       type="button"
       className={classNames(
-        'flex w-full items-center gap-4 rounded-16 border-t border-border-subtlest-tertiary bg-blur-highlight p-3 typo-callout hover:border-border-subtlest-primary hover:bg-theme-hover tablet:border tablet:bg-theme-float',
+        'flex w-full items-center gap-4 rounded-16 border-t border-border-subtlest-tertiary bg-blur-highlight p-3 typo-callout hover:border-border-subtlest-primary hover:bg-surface-hover tablet:border tablet:bg-surface-float',
         className?.container,
       )}
       onClick={() => onCommentClick(Origin.StartDiscussion)}

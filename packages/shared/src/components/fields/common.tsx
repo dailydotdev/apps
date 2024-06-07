@@ -10,7 +10,7 @@ export const FieldInput = classed(
 
 export const BaseField = classed(
   'div',
-  'flex px-4 overflow-hidden bg-theme-float border border-transparent cursor-text',
+  'flex px-4 overflow-hidden bg-surface-float border border-transparent cursor-text',
   styles.field,
 );
 

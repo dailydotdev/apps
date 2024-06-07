@@ -69,7 +69,7 @@ export function ReportModal({
         </p>
         <textarea
           onInput={(event) => setNote(event.currentTarget.value)}
-          className="mb-1 h-20 w-full resize-none self-stretch rounded-10 bg-theme-float p-2 typo-body"
+          className="mb-1 h-20 w-full resize-none self-stretch rounded-10 bg-surface-float p-2 typo-body"
           data-testid="report_comment"
         />
         {isMobile ? footer : null}

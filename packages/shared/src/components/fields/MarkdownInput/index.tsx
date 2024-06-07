@@ -168,7 +168,7 @@ function MarkdownInput(
   return (
     <div
       className={classNames(
-        'relative flex flex-col rounded-16 bg-theme-float',
+        'relative flex flex-col rounded-16 bg-surface-float',
         className?.container,
       )}
     >

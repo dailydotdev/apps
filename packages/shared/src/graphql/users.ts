@@ -324,6 +324,7 @@ export const GET_REFERRING_USER_QUERY = gql`
 export enum UserPersonalizedDigestType {
   Digest = 'digest',
   ReadingReminder = 'reading_reminder',
+  StreakReminder = 'streak_reminder',
 }
 
 export type UserPersonalizedDigest = {

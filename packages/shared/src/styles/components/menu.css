@@ -47,13 +47,13 @@
 
     &:not(.react-contexify__item--disabled):hover
       > .react-contexify__item__content {
-      @apply bg-theme-hover;
+      @apply bg-surface-hover;
     }
 
     &:not(.react-contexify__item--disabled):focus,
     &:not(.react-contexify__item--disabled).focus
       > .react-contexify__item__content {
-      @apply bg-theme-float;
+      @apply bg-surface-float;
     }
 
     &:not(.react-contexify__item--disabled):active

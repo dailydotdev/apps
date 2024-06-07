@@ -31,6 +31,8 @@ import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import { HourDropdown } from '@dailydotdev/shared/src/components/fields/HourDropdown';
 import { UserPersonalizedDigestType } from '@dailydotdev/shared/src/graphql/users';
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
+import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
+import { useReadingStreak } from '@dailydotdev/shared/src/hooks/streaks';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
@@ -54,11 +56,15 @@ const AccountNotificationsPage = (): ReactElement => {
     subscribePersonalizedDigest,
     unsubscribePersonalizedDigest,
   } = usePersonalizedDigest();
+  const { isStreaksEnabled } = useReadingStreak();
   const [digestTimeIndex, setDigestTimeIndex] = useState(8);
   const [readingTimeIndex, setReadingTimeIndex] = useState(8);
 
   const readingReminder = getPersonalizedDigest(
     UserPersonalizedDigestType.ReadingReminder,
+  );
+  const streakReminder = getPersonalizedDigest(
+    UserPersonalizedDigestType.StreakReminder,
   );
   const personalizedDigest = getPersonalizedDigest(
     UserPersonalizedDigestType.Digest,
@@ -164,6 +170,34 @@ const AccountNotificationsPage = (): ReactElement => {
     } else {
       unsubscribePersonalizedDigest({
         type: UserPersonalizedDigestType.ReadingReminder,
+      });
+    }
+  };
+
+  const onToggleStreakReminder = (forceValue?: boolean) => {
+    const value = forceValue || !streakReminder;
+    onTrackToggle(
+      value,
+      NotificationChannel.Web,
+      NotificationCategory.StreakReminder,
+    );
+
+    if (value) {
+      trackEvent({
+        event_name: AnalyticsEvent.ScheduleStreakReminder,
+        extra: JSON.stringify({
+          hour: readingTimeIndex,
+          timezone: user?.timezone,
+        }),
+      });
+      subscribePersonalizedDigest({
+        hour: 20,
+        sendType: SendType.Workdays,
+        type: UserPersonalizedDigestType.StreakReminder,
+      });
+    } else {
+      unsubscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.StreakReminder,
       });
     }
   };
@@ -397,6 +431,34 @@ const AccountNotificationsPage = (): ReactElement => {
           <div className="mt-6 grid grid-cols-1 gap-2">
             <Checkbox name="newsletter" checked disabled>
               Activity (mentions, replies, upvotes, etc.)
+            </Checkbox>
+            <Checkbox
+              name="streakReminder"
+              data-testid="reading-streak-reminder-switch"
+              checked={isStreaksEnabled && !!streakReminder}
+              onToggle={onToggleStreakReminder}
+              disabled={!isStreaksEnabled}
+            >
+              <SimpleTooltip
+                placement="top"
+                content={
+                  <div className="w-64 typo-subhead">
+                    {isStreaksEnabled ? (
+                      <>
+                        Get a notification at 20:00 (local time) if your streak
+                        is about to expire.
+                      </>
+                    ) : (
+                      <>
+                        To get a streak reminder notification, you must enable
+                        reading streaks.
+                      </>
+                    )}
+                  </div>
+                }
+              >
+                <span>Notify me before my streak expires</span>
+              </SimpleTooltip>
             </Checkbox>
             <Checkbox
               name="readingReminder"

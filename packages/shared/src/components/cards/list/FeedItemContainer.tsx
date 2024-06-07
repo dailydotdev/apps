@@ -48,7 +48,7 @@ function FeedItemContainer(
       {...domProps}
       data-testid="postItem"
       ref={ref}
-      className={classNames(domProps?.className, focus && 'bg-theme-float')}
+      className={classNames(domProps?.className, focus && 'bg-surface-float')}
     >
       {linkProps && (
         <Link href={linkProps.href}>
