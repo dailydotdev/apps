@@ -183,11 +183,7 @@ export const SettingsContextProvider = ({
     const updatedSettings = settings;
 
     if (settings.sidebarExpanded) {
-      const sidebarClosed = getFeatureValue(feature.sidebarClosed);
-
-      if (sidebarClosed) {
-        updatedSettings.sidebarExpanded = false;
-      }
+      updatedSettings.sidebarExpanded = false;
     }
 
     await updateRemoteSettingsFn(updatedSettings, bootUserId);
