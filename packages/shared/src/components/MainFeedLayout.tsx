@@ -81,9 +81,6 @@ const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
   popular: {
     query: ANONYMOUS_FEED_QUERY,
   },
-  latest: {
-    query: ANONYMOUS_FEED_QUERY,
-  },
   search: {
     query: ANONYMOUS_FEED_QUERY,
     queryIfLogged: FEED_QUERY,
@@ -155,7 +152,7 @@ export default function MainFeedLayout({
   useScrollRestoration();
   const seoExplorePage = useFeature(feature.seoExplorePage);
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const showExploreHeader = seoExplorePage && shouldShowHeader;
+  const showExploreHeader = seoExplorePage && shouldShowHeader && isLaptop;
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { getFeatureValue } = useFeaturesReadyContext();
@@ -279,11 +276,9 @@ export default function MainFeedLayout({
       }
 
       if (showExploreHeader) {
-        const isLatest =
-          tab === ExploreTabs.ByDate || feedNameProp === 'latest';
         return {
           ...query.variables,
-          ranking: algorithms[isLatest ? 1 : 0].value,
+          ranking: algorithms[tab === ExploreTabs.ByDate ? 1 : 0].value,
         };
       }
 
@@ -309,7 +304,7 @@ export default function MainFeedLayout({
       query: query.query,
       variables,
       emptyScreen: <FeedEmptyScreen />,
-      header: showExploreHeader && isLaptop && (
+      header: showExploreHeader && (
         <div className="flex flex-col">
           <BreadCrumbs className="px-2">
             <HotIcon size={IconSize.XSmall} secondary /> Explore

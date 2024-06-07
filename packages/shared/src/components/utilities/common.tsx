@@ -164,7 +164,6 @@ export type HTMLElementComponent<T = HTMLElement> = React.FC<HTMLAttributes<T>>;
 export enum SharedFeedPage {
   MyFeed = 'my-feed',
   Popular = 'popular',
-  Latest = 'latest',
   Search = 'search',
   Upvoted = 'upvoted',
   Discussed = 'discussed',

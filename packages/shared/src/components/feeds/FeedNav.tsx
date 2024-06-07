@@ -30,7 +30,6 @@ import classed from '../../lib/classed';
 enum FeedNavTab {
   ForYou = 'For you',
   Popular = 'Popular',
-  Latest = 'By date',
   Bookmarks = 'Bookmarks',
   History = 'History',
   MostUpvoted = 'Most Upvoted',
@@ -44,7 +43,6 @@ const StickyNavIconWrapper = classed(
 );
 
 function FeedNav(): ReactElement {
-  const seoExplorePage = useFeature(feature.seoExplorePage);
   const router = useRouter();
   const { feedName } = useActiveFeedNameContext();
   const { sortingEnabled } = useContext(SettingsContext);
@@ -80,7 +78,7 @@ function FeedNav(): ReactElement {
         }, {})
       : [];
 
-    const urls = {
+    return {
       ...(hasCustomFeedsEnabled
         ? {
             [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
@@ -89,14 +87,6 @@ function FeedNav(): ReactElement {
       [`${webappUrl}`]: FeedNavTab.ForYou,
       ...customFeeds,
       [`${webappUrl}popular`]: FeedNavTab.Popular,
-    };
-
-    if (seoExplorePage) {
-      urls[`${webappUrl}latest`] = FeedNavTab.Latest;
-    }
-
-    return {
-      ...urls,
       [`${webappUrl}upvoted`]: FeedNavTab.MostUpvoted,
       [`${webappUrl}discussed`]: FeedNavTab.Discussions,
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
