@@ -18,8 +18,6 @@ import AuthContext from './AuthContext';
 import { graphqlUrl } from '../lib/config';
 import { capitalize } from '../lib/strings';
 import { storageWrapper } from '../lib/storageWrapper';
-import { useFeaturesReadyContext } from '../components/GrowthBookProvider';
-import { feature } from '../lib/featureManagement';
 import { usePersonalizedDigest } from '../hooks/usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../graphql/users';
 
@@ -124,7 +122,6 @@ export const SettingsContextProvider = ({
 }: SettingsContextProviderProps): ReactElement => {
   const { user } = useContext(AuthContext);
   const userId = user?.id;
-  const { getFeatureValue } = useFeaturesReadyContext();
   const { unsubscribePersonalizedDigest } = usePersonalizedDigest();
 
   useEffect(() => {
