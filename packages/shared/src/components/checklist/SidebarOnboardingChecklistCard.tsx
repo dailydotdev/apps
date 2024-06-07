@@ -1,12 +1,14 @@
 import dynamic from 'next/dynamic';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { StorageTopic, generateStorageKey } from '../../lib/storage';
 import { useAuthContext } from '../../contexts/AuthContext';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { ChecklistViewState } from '../../lib/checklist';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { ArrowIcon } from '../icons';
+import { ArrowIcon, EyeCancelIcon, MenuIcon } from '../icons';
+import ContextMenu from '../fields/ContextMenu';
+import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 
 const OnboardingChecklistCard = dynamic(() =>
   import(
@@ -26,6 +28,7 @@ export const SidebarOnboardingChecklistCard = ({
     generateStorageKey(StorageTopic.Onboarding, 'sidebarCard', user?.id),
     ChecklistViewState.Open,
   );
+  const [isOptionsOpen, setOptionsOpen] = useState(false);
 
   if (open === ChecklistViewState.Hidden) {
     return null;
@@ -43,14 +46,43 @@ export const SidebarOnboardingChecklistCard = ({
     >
       <div className="relative">
         <OnboardingChecklistCard isOpen={isOpen} />
-        <div className="">
+        <div className="absolute right-2 top-2 flex">
+          {isOpen && (
+            <>
+              <Button
+                icon={<MenuIcon className="text-text-primary" />}
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.XSmall}
+                onClick={() => {
+                  setOptionsOpen((current) => !current);
+                }}
+              />
+              <ContextMenu
+                id={ContextMenuIds.SidebarOnboardingChecklistCard}
+                className="menu-primary typo-callout"
+                animation="fade"
+                options={[
+                  {
+                    icon: <EyeCancelIcon />,
+                    label: 'Hide forever',
+                    action: () => {
+                      setOpen(ChecklistViewState.Hidden);
+                    },
+                  },
+                ]}
+                onHidden={() => {
+                  setOptionsOpen(false);
+                }}
+                isOpen={isOptionsOpen}
+              />
+            </>
+          )}
           <Button
-            className="absolute right-2 top-2"
             icon={
               <ArrowIcon
                 className={classNames(
                   'text-text-primary',
-                  !isOpen && 'rotate-180',
+                  isOpen && 'rotate-180',
                 )}
               />
             }
