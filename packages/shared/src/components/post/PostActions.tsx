@@ -33,7 +33,6 @@ import {
 import { useSharePost } from '../../hooks/useSharePost';
 import { feature } from '../../lib/featureManagement';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 interface PostActionsProps {
   post: Post;
