@@ -54,6 +54,7 @@ export const SidebarOnboardingChecklistCard = ({
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.XSmall}
                 onClick={() => {
+                  // TODO AS-356 see why this does not open
                   setOptionsOpen((current) => !current);
                 }}
               />
