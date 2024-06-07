@@ -39,6 +39,8 @@ const getFeedName = (path: string): string => {
   return path.replace(/^\/+/, '');
 };
 
+const seoFeedPages = [SharedFeedPage.Popular, SharedFeedPage.Latest];
+
 export default function MainFeedPage({
   children,
   isFinder,
@@ -77,7 +79,7 @@ export default function MainFeedPage({
 
   return (
     <MainFeedLayout
-      shouldShowHeader={feedName === SharedFeedPage.Popular}
+      shouldShowHeader={seoFeedPages.includes(feedName as SharedFeedPage)}
       feedName={feedName}
       isSearchOn={isSearchOn}
       searchQuery={router.query?.q?.toString()}

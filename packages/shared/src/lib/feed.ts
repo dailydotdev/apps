@@ -205,6 +205,9 @@ export const getFeedName = (
 
     return isForm ? SharedFeedPage.CustomForm : SharedFeedPage.Custom;
   }
+  if (feed === 'latest') {
+    return SharedFeedPage.Popular;
+  }
 
   const [page] = feed.split('?');
 

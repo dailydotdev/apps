@@ -38,9 +38,11 @@ import {
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import {
+  useConditionalFeature,
   useFeedLayout,
   useScrollRestoration,
-  useConditionalFeature,
+  useViewSize,
+  ViewSize,
 } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
@@ -77,6 +79,9 @@ const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
     queryIfLogged: FEED_QUERY,
   },
   popular: {
+    query: ANONYMOUS_FEED_QUERY,
+  },
+  latest: {
     query: ANONYMOUS_FEED_QUERY,
   },
   search: {
@@ -149,6 +154,7 @@ export default function MainFeedLayout({
 }: MainFeedLayoutProps): ReactElement {
   useScrollRestoration();
   const seoExplorePage = useFeature(feature.seoExplorePage);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const showExploreHeader = seoExplorePage && shouldShowHeader;
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
@@ -273,9 +279,11 @@ export default function MainFeedLayout({
       }
 
       if (showExploreHeader) {
+        const isLatest =
+          tab === ExploreTabs.ByDate || feedNameProp === 'latest';
         return {
           ...query.variables,
-          ranking: algorithms[tab === ExploreTabs.ByDate ? 1 : 0].value,
+          ranking: algorithms[isLatest ? 1 : 0].value,
         };
       }
 
@@ -301,7 +309,7 @@ export default function MainFeedLayout({
       query: query.query,
       variables,
       emptyScreen: <FeedEmptyScreen />,
-      header: showExploreHeader && (
+      header: showExploreHeader && isLaptop && (
         <div className="flex flex-col">
           <BreadCrumbs className="px-2">
             <HotIcon size={IconSize.XSmall} secondary /> Explore
