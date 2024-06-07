@@ -2,7 +2,31 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { IconSize } from '../Icon';
 import { ArrowIcon, ChecklistAIcon } from '../icons';
-import { ChecklistStepProps } from '../../lib/checklist';
+import {
+  ChecklistCardVariant,
+  ChecklistStepProps,
+  ChecklistVariantClassNameMap,
+} from '../../lib/checklist';
+
+const iconToClassNameMap: ChecklistVariantClassNameMap = {
+  [ChecklistCardVariant.Default]: 'w-10 h-10',
+  [ChecklistCardVariant.Small]: 'w-10 h-6',
+};
+
+const arrowSizeMap: ChecklistVariantClassNameMap<IconSize> = {
+  [ChecklistCardVariant.Default]: IconSize.Small,
+  [ChecklistCardVariant.Small]: IconSize.XSmall,
+};
+
+const titleSizeToClassNameMap: ChecklistVariantClassNameMap = {
+  [ChecklistCardVariant.Default]: 'typo-callout',
+  [ChecklistCardVariant.Small]: 'typo-footnote',
+};
+
+const descriptionSizeToClassNameMap: ChecklistVariantClassNameMap = {
+  [ChecklistCardVariant.Default]: 'typo-callout',
+  [ChecklistCardVariant.Small]: 'typo-footnote',
+};
 
 const ChecklistStep = ({
   className = {},
@@ -11,6 +35,7 @@ const ChecklistStep = ({
   isActive = false,
   onToggle,
   children,
+  variant,
 }: ChecklistStepProps): ReactElement => {
   const isCompleted = !!step.action.completedAt;
 
@@ -29,7 +54,8 @@ const ChecklistStep = ({
         <div className="flex-start flex flex-1 items-center gap-1">
           <div
             className={classNames(
-              '-ml-2 flex h-10 w-10 items-center justify-center text-text-tertiary',
+              '-ml-2 flex items-center justify-center text-text-tertiary',
+              iconToClassNameMap[variant],
               isCompleted && 'text-text-quaternary',
             )}
             id={step.action.type}
@@ -55,9 +81,10 @@ const ChecklistStep = ({
           </div>
           <p
             className={classNames(
-              'flex-1 text-left typo-callout',
+              'flex-1 text-left',
               isActive ? 'font-bold text-text-primary' : 'font-normal',
               isCompleted ? 'text-text-quaternary' : 'text-text-tertiary',
+              titleSizeToClassNameMap[variant],
               className.title,
             )}
           >
@@ -71,14 +98,15 @@ const ChecklistStep = ({
             isCompleted && 'opacity-32',
           )}
           data-testid={`checklist-step-${isOpen ? 'open' : 'closed'}`}
-          size={IconSize.Small}
+          size={arrowSizeMap[variant]}
         />
       </button>
       {isOpen && (
         <div className="my-2 ml-9">
           <p
             className={classNames(
-              'text-text-tertiary typo-callout',
+              'text-text-tertiary',
+              descriptionSizeToClassNameMap[variant],
               className.description,
             )}
           >

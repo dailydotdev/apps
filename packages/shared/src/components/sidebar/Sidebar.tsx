@@ -56,6 +56,7 @@ import { useFeature } from '../GrowthBookProvider';
 import { CustomFeedsExperiment } from '../../lib/featureValues';
 import { feature } from '../../lib/featureManagement';
 import { HypeButton } from '../referral';
+import { SidebarOnboardingChecklistCard } from '../checklist/SidebarOnboardingChecklistCard';
 
 export default function Sidebar({
   promotionalBannerActive = false,
@@ -325,6 +326,7 @@ export default function Sidebar({
             {...defaultRenderSectionProps}
             showSettings={showSettings}
           />
+          <SidebarOnboardingChecklistCard />
         </SidebarScrollWrapper>
       </SidebarAside>
     </>
