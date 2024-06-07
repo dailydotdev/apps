@@ -35,11 +35,7 @@ import {
   useSourceSubscription,
   useToastNotification,
 } from '../hooks';
-import {
-  AllFeedPages,
-  generateQueryKey,
-  updateCachedPagePost,
-} from '../lib/query';
+import { AllFeedPages, generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { AnalyticsEvent, Origin } from '../lib/analytics';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
@@ -48,10 +44,6 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import { LazyModal } from './modals/common/types';
 import { labels } from '../lib';
 import { MenuItemProps } from './fields/ContextMenu';
-import {
-  mutateBookmarkFeedPost,
-  useBookmarkPost,
-} from '../hooks/useBookmarkPost';
 import { ActiveFeedContext } from '../contexts';
 import { useAdvancedSettings } from '../hooks/feed';
 import { feature } from '../lib/featureManagement';
@@ -112,11 +104,8 @@ export default function PostOptionsMenu({
   const { openSharePost } = useSharePost(origin);
 
   const { openModal } = useLazyModal();
-  const {
-    queryKey: feedQueryKey,
-    items,
-    trackingOpts,
-  } = useContext(ActiveFeedContext);
+  const { queryKey: feedQueryKey, trackingOpts } =
+    useContext(ActiveFeedContext);
   const {
     onFollowSource,
     onUnfollowSource,
@@ -141,24 +130,6 @@ export default function PostOptionsMenu({
   const sourceSubscribe = useSourceSubscription({
     source: shouldShowSubscribe ? post?.source : undefined,
   });
-
-  const { toggleBookmark } = useBookmarkPost({
-    mutationKey: feedQueryKey,
-    onMutate: feedQueryKey
-      ? ({ id }) => {
-          const updatePost = updateCachedPagePost(
-            feedQueryKey as unknown[],
-            client,
-          );
-
-          return mutateBookmarkFeedPost({ id, items, updatePost });
-        }
-      : undefined,
-  });
-
-  const onToggleBookmark = async () => {
-    toggleBookmark({ post, origin, opts: trackingOpts });
-  };
 
   const showMessageAndRemovePost = async (
     message: string,

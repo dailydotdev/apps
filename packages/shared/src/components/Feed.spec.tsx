@@ -69,6 +69,7 @@ import { SharedFeedPage } from './utilities';
 import { AllFeedPages } from '../lib/query';
 import { UserVoteEntity } from '../hooks';
 import * as hooks from '../hooks/useViewSize';
+import { COMPLETE_ACTION_MUTATION } from '../graphql/actions';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -126,6 +127,17 @@ const createTagsSettingsMock = (
     },
   },
 });
+
+const mockCompleteAction = () =>
+  mockGraphQL({
+    request: {
+      query: COMPLETE_ACTION_MUTATION,
+      variables: { type: 'bookmark_promote_mobile' },
+    },
+    result: () => {
+      return { data: {} };
+    },
+  });
 
 const createFeedMock = (
   page = defaultFeedPage,
@@ -358,6 +370,7 @@ it('should open login modal on anonymous upvote', async () => {
 
 it('should send add bookmark mutation', async () => {
   let mutationCalled = false;
+  mockCompleteAction();
   renderComponent([
     createFeedMock({
       pageInfo: defaultFeedPage.pageInfo,
@@ -379,15 +392,14 @@ it('should send add bookmark mutation', async () => {
       },
     },
   ]);
-  const [menuBtn] = await screen.findAllByLabelText('Options');
-  fireEvent.click(menuBtn);
-  const el = await screen.findByText('Save to bookmarks');
+  const [el] = await screen.findAllByLabelText('Bookmark');
   el.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
 
 it('should send remove bookmark mutation', async () => {
   let mutationCalled = false;
+  mockCompleteAction();
   renderComponent([
     createFeedMock({
       pageInfo: defaultFeedPage.pageInfo,
@@ -409,9 +421,7 @@ it('should send remove bookmark mutation', async () => {
       },
     },
   ]);
-  const [menuBtn] = await screen.findAllByLabelText('Options');
-  fireEvent.click(menuBtn);
-  const el = await screen.findByText('Remove from bookmarks');
+  const [el] = await screen.findAllByLabelText('Remove bookmark');
   el.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
@@ -433,9 +443,7 @@ it('should open login modal on anonymous bookmark', async () => {
     ],
     null,
   );
-  const [menuBtn] = await screen.findAllByLabelText('Options');
-  fireEvent.click(menuBtn);
-  const el = await screen.findByText('Save to bookmarks');
+  const [el] = await screen.findAllByLabelText('Bookmark');
   el.click();
   await waitFor(() =>
     expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Bookmark }),
