@@ -7,18 +7,21 @@ import { ActionType } from '../../graphql/actions';
 import { useActions } from '../../hooks';
 import { ChecklistCardVariant, createChecklistStep } from '../../lib/checklist';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useChecklist } from '../../hooks/useChecklist';
 
 export type OnboardingChecklistCardProps = {
   className?: string;
+  isOpen: boolean;
 };
 
 export const OnboardingChecklistCard = ({
   className,
+  isOpen,
 }: OnboardingChecklistCardProps): ReactElement => {
   const { isLoggedIn } = useAuthContext();
   const { trackEvent } = useContext(AnalyticsContext);
   const { actions, isActionsFetched } = useActions();
-  const steps = useMemo(() => {
+  const checklistSteps = useMemo(() => {
     return [
       createChecklistStep({
         type: ActionType.CreateSquad,
@@ -53,17 +56,22 @@ export const OnboardingChecklistCard = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!isLoggedIn || !isActionsFetched) {
+  const { steps, completedSteps } = useChecklist({ steps: checklistSteps });
+
+  if (!isLoggedIn || !isActionsFetched || !steps.length) {
     return null;
   }
 
+  const firstStep = steps[0];
+
   return (
     <ChecklistCard
-      className={classNames(className, 'max-w-full border-0')}
+      className={classNames(className, 'max-w-full', !isOpen && '!border-0')}
       title="Get started like a pro"
-      description={`${5} simple steps to daily.dev!`}
+      description={`${completedSteps.length}/${steps.length} 👉 ${firstStep?.title}`}
       steps={steps}
       variant={ChecklistCardVariant.Small}
+      isOpen={isOpen}
     />
   );
 };

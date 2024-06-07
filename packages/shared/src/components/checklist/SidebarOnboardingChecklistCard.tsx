@@ -37,12 +37,12 @@ export const SidebarOnboardingChecklistCard = ({
     <div
       className={classNames(
         className,
-        'bottom-0 left-0 z-popup !h-auto',
+        'bottom-0 left-0 z-popup !h-auto px-2 pb-2',
         isOpen && 'sticky',
       )}
     >
       <div className="relative">
-        {isOpen && <OnboardingChecklistCard />}
+        <OnboardingChecklistCard isOpen={isOpen} />
         <div className="">
           <Button
             className="absolute right-2 top-2"

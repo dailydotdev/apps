@@ -14,6 +14,7 @@ export type ChecklistCardProps = {
   description: string;
   steps: ChecklistStepType[];
   variant?: ChecklistCardVariant;
+  isOpen?: boolean;
 };
 
 export type ChecklistStepType = {

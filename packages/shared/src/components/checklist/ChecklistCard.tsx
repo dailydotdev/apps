@@ -15,6 +15,11 @@ const headerClassNameMap: ChecklistVariantClassNameMap = {
   [ChecklistCardVariant.Small]: 'p-2 rounded-t-8',
 };
 
+const headerClassNameClosedMap: ChecklistVariantClassNameMap = {
+  [ChecklistCardVariant.Default]: 'p-4 rounded-12',
+  [ChecklistCardVariant.Small]: 'p-2 rounded-8',
+};
+
 const titleSizeToClassNameMap: ChecklistVariantClassNameMap = {
   [ChecklistCardVariant.Default]: 'typo-body',
   [ChecklistCardVariant.Small]: 'typo-footnote',
@@ -36,6 +41,7 @@ const ChecklistCard = ({
   description,
   steps,
   variant = ChecklistCardVariant.Default,
+  isOpen = true,
 }: ChecklistCardProps): ReactElement => {
   const { isDone, openStep, onToggleStep, activeStep } = useChecklist({
     steps,
@@ -46,7 +52,9 @@ const ChecklistCard = ({
       <div
         className={classNames(
           'relative overflow-hidden bg-gradient-to-t from-raw-cabbage-90 to-raw-cabbage-50',
-          headerClassNameMap[variant],
+          isOpen
+            ? headerClassNameMap[variant]
+            : headerClassNameClosedMap[variant],
         )}
       >
         {isDone && (
@@ -89,30 +97,32 @@ const ChecklistCard = ({
           </div>
         )}
       </div>
-      <div
-        className={classNames(
-          'flex flex-col gap-2',
-          stepsContainerClassNameMap[variant],
-        )}
-      >
-        {steps.map((step) => {
-          const StepComponent = step.component || ChecklistStep;
+      {isOpen && (
+        <div
+          className={classNames(
+            'flex flex-col gap-2',
+            stepsContainerClassNameMap[variant],
+          )}
+        >
+          {steps.map((step) => {
+            const StepComponent = step.component || ChecklistStep;
 
-          return (
-            <StepComponent
-              key={step.action.type}
-              step={step}
-              isOpen={openStep === step.action.type}
-              isActive={activeStep === step.action.type}
-              onToggle={onToggleStep}
-              className={{
-                checkmark: isDone && 'text-brand-default',
-              }}
-              variant={variant}
-            />
-          );
-        })}
-      </div>
+            return (
+              <StepComponent
+                key={step.action.type}
+                step={step}
+                isOpen={openStep === step.action.type}
+                isActive={activeStep === step.action.type}
+                onToggle={onToggleStep}
+                className={{
+                  checkmark: isDone && 'text-brand-default',
+                }}
+                variant={variant}
+              />
+            );
+          })}
+        </div>
+      )}
     </ChecklistCardComponent>
   );
 };
