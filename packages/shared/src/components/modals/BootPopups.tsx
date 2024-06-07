@@ -152,7 +152,7 @@ export const BootPopups = (): null => {
    * Boot popup for streaks milestone
    */
   useEffect(() => {
-    if (shouldHideStreaksModal) {
+    if (shouldHideStreaksModal || !isActionsFetched) {
       return;
     }
 
