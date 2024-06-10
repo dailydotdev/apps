@@ -26,7 +26,7 @@ type UseOnboardingChecklist = UseChecklist & {
 
 export const useOnboardingChecklist = (): UseOnboardingChecklist => {
   const { isLoggedIn, user } = useAuthContext();
-  const { actions, isActionsFetched } = useActions();
+  const { actions, isActionsFetched, completeAction } = useActions();
   const { openModal } = useLazyModal();
   const isChecklistReady = isActionsFetched && isLoggedIn;
 
@@ -96,6 +96,9 @@ export const useOnboardingChecklist = (): UseOnboardingChecklist => {
                     variant={ButtonVariant.Primary}
                     size={ButtonSize.XSmall}
                     href={`${webappUrl}account/notifications`}
+                    onClick={() => {
+                      completeAction(ActionType.DigestConfig);
+                    }}
                   >
                     Set up now
                   </Button>
@@ -139,7 +142,7 @@ export const useOnboardingChecklist = (): UseOnboardingChecklist => {
         actions,
       }),
     ];
-  }, [isChecklistReady, actions, openModal]);
+  }, [isChecklistReady, actions, openModal, completeAction]);
 
   const checklist = useChecklist({ steps });
 
