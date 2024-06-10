@@ -22,6 +22,7 @@ import { RootPortal } from '../tooltips/Portal';
 import { DrawerProps } from '../drawers';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { IconProps } from '../Icon';
+import ConditionalWrapper from '../ConditionalWrapper';
 
 export interface DropdownClassName {
   container?: string;
@@ -124,9 +125,16 @@ export function Dropdown({
   const fullScreen = openFullScreen ?? isMobile;
 
   return (
-    <div
-      className={classNames(styles.dropdown, className.container)}
-      {...props}
+    <ConditionalWrapper
+      condition={!!className?.container}
+      wrapper={(component) => (
+        <div
+          {...props}
+          className={classNames(styles.dropdown, className.container)}
+        >
+          {component}
+        </div>
+      )}
     >
       <Button
         type="button"
@@ -143,25 +151,34 @@ export function Dropdown({
         tabIndex={0}
         aria-haspopup="true"
         aria-expanded={isVisible}
-      >
-        {icon &&
+        icon={
+          icon &&
           React.cloneElement(icon as ReactElement<IconProps>, {
             secondary:
               (icon as ReactElement<IconProps>).props.secondary ?? isVisible,
-          })}
-        <span
-          className={classNames('mr-1 flex flex-1 truncate', className.label)}
-        >
-          {selectedIndex >= 0 ? options[selectedIndex] : placeholder}
-        </span>
-        <ArrowIcon
-          className={classNames(
-            'ml-auto text-xl transition-transform group-hover:text-text-tertiary',
-            isVisible ? 'rotate-0' : 'rotate-180',
-            styles.chevron,
-            className.chevron,
-          )}
-        />
+          })
+        }
+      >
+        {iconOnly ? null : (
+          <>
+            <span
+              className={classNames(
+                'mr-1 flex flex-1 truncate',
+                className.label,
+              )}
+            >
+              {selectedIndex >= 0 ? options[selectedIndex] : placeholder}
+            </span>
+            <ArrowIcon
+              className={classNames(
+                'ml-auto text-xl transition-transform group-hover:text-text-tertiary',
+                isVisible ? 'rotate-0' : 'rotate-180',
+                styles.chevron,
+                className.chevron,
+              )}
+            />
+          </>
+        )}
       </Button>
       {fullScreen ? (
         <RootPortal>
@@ -218,6 +235,6 @@ export function Dropdown({
           ))}
         </Menu>
       )}
-    </div>
+    </ConditionalWrapper>
   );
 }

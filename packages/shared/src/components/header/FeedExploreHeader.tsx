@@ -1,13 +1,16 @@
 import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from './BreadCrumbs';
-import { HotIcon } from '../icons';
+import { CalendarIcon, HotIcon } from '../icons';
 import { IconSize } from '../Icon';
 import TabList from '../tabs/TabList';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { checkIsExtension } from '../../lib/func';
 import { SharedFeedPage } from '../utilities';
 import { getFeedName } from '../../lib/feed';
+import { Dropdown } from '../fields/Dropdown';
+import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
+import { periodTexts } from '../layout/common';
 
 export enum ExploreTabs {
   Popular = 'Popular',
@@ -35,15 +38,25 @@ interface FeedExploreHeaderProps {
   setTab: (tab: ExploreTabs) => void;
 }
 
+const withDateRange = [
+  SharedFeedPage.ExploreUpvoted,
+  SharedFeedPage.ExploreDiscussed,
+];
+
 export function FeedExploreHeader({
   tab,
   setTab,
 }: FeedExploreHeaderProps): ReactElement {
   const isExtension = checkIsExtension();
   const router = useRouter();
+  const path = getFeedName(router.pathname);
+  const [period, setPeriod] = useQueryState({
+    key: [QueryStateKeys.FeedPeriod],
+    defaultValue: 0,
+  });
 
   return (
-    <div className="flex flex-col">
+    <div className="flex w-full flex-col">
       <BreadCrumbs className="px-2">
         <HotIcon size={IconSize.XSmall} secondary /> Explore
       </BreadCrumbs>
@@ -56,7 +69,7 @@ export function FeedExploreHeader({
           />
         ) : (
           <TabContainer
-            controlledActive={tabsToFeedMap[getFeedName(router.pathname)]}
+            controlledActive={tabsToFeedMap[path]}
             className={{ header: 'border-b-0' }}
             shouldMountInactive
           >
@@ -65,6 +78,19 @@ export function FeedExploreHeader({
             ))}
           </TabContainer>
         )}
+        <span className="ml-auto">
+          {withDateRange.includes(path as SharedFeedPage) && (
+            <Dropdown
+              iconOnly
+              dynamicMenuWidth
+              shouldIndicateSelected
+              icon={<CalendarIcon size={IconSize.Medium} />}
+              selectedIndex={period}
+              options={periodTexts}
+              onChange={(_, index) => setPeriod(index)}
+            />
+          )}
+        </span>
       </div>
     </div>
   );

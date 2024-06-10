@@ -11,7 +11,6 @@ import TabList, { TabListProps } from './TabList';
 import { RenderTab } from './common';
 
 export interface TabProps<T extends string> {
-  key?: number | string;
   children?: ReactNode;
   label: T;
   className?: string;
@@ -114,7 +113,7 @@ export function TabContainer<T extends string = string>({
     : children.map((child, i) =>
         createElement<TabProps<T>>(child.type, {
           ...child.props,
-          key: child.props.key || i,
+          key: child.props.label || i,
           style: isTabActive(child)
             ? child.props.style
             : { ...child.props.style, display: 'none' },

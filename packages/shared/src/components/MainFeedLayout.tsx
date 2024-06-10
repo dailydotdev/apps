@@ -54,6 +54,7 @@ import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/analytics';
 import { ExploreTabs, FeedExploreHeader } from './header';
 import { Dropdown } from './fields/Dropdown';
+import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -170,10 +171,16 @@ export default function MainFeedLayout({
   });
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedVersion = useFeature(feature.feedVersion);
-  const { isUpvoted, isPopular, isExplore, isSortableFeed, isCustomFeed } =
-    useFeedName({
-      feedName,
-    });
+  const {
+    isUpvoted,
+    isPopular,
+    isExplore,
+    isExploreLatest,
+    isSortableFeed,
+    isCustomFeed,
+  } = useFeedName({
+    feedName,
+  });
   const {
     shouldUseListFeedLayout,
     shouldUseCommentFeedLayout,
@@ -216,11 +223,12 @@ export default function MainFeedLayout({
     [0, 1],
     DEFAULT_ALGORITHM_INDEX,
   );
-  const periodState = useState(0);
-  const [selectedPeriod] = periodState;
+  const [selectedPeriod] = useQueryState({
+    key: [QueryStateKeys.FeedPeriod],
+    defaultValue: 0,
+  });
   const searchProps: SearchControlHeaderProps = {
     algoState: [selectedAlgo, setSelectedAlgo],
-    periodState,
     feedName,
   };
   const search = (
@@ -228,17 +236,6 @@ export default function MainFeedLayout({
       {navChildren}
       {isSearchOn && searchChildren ? searchChildren : undefined}
     </LayoutHeader>
-  );
-
-  const seoHeader = isLaptop ? (
-    <FeedExploreHeader tab={tab} setTab={setTab} />
-  ) : (
-    <Dropdown
-      className={{ container: 'mx-4 my-3 w-56' }}
-      selectedIndex={selectedAlgo}
-      options={algorithmsList}
-      onChange={(_, index) => setSelectedAlgo(index)}
-    />
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
@@ -275,7 +272,8 @@ export default function MainFeedLayout({
       }
 
       if (isExplore) {
-        const laptopValue = tab === ExploreTabs.ByDate ? 1 : 0;
+        const laptopValue =
+          tab === ExploreTabs.ByDate || isExploreLatest ? 1 : 0;
         const finalAlgo = isLaptop ? laptopValue : selectedAlgo;
         return {
           ...config.variables,
@@ -333,11 +331,22 @@ export default function MainFeedLayout({
   const disableTopPadding =
     isFinder || shouldUseListFeedLayout || shouldUseCommentFeedLayout;
 
+  const seoHeader = isLaptop ? (
+    <FeedExploreHeader tab={tab} setTab={setTab} />
+  ) : (
+    <Dropdown
+      className={{ button: 'mx-4 my-3 w-56' }}
+      selectedIndex={selectedAlgo}
+      options={algorithmsList}
+      onChange={(_, index) => setSelectedAlgo(index)}
+    />
+  );
+
   return (
     <FeedPageLayoutComponent
       className={classNames('relative', disableTopPadding && '!pt-0')}
     >
-      {isExplore && seoHeader}
+      {isExplore ? seoHeader : null}
       {isSearchOn && search}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed

@@ -18,6 +18,10 @@ interface UseQueryStateProps<T> {
   defaultValue: T;
 }
 
+export enum QueryStateKeys {
+  FeedPeriod = 'feedPeriod',
+}
+
 export const useQueryState = <T>({
   key,
   defaultValue,
