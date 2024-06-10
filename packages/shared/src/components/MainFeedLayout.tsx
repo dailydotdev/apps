@@ -338,6 +338,7 @@ export default function MainFeedLayout({
       className={{ button: 'mx-4 my-3 w-56' }}
       selectedIndex={selectedAlgo}
       options={algorithmsList}
+      withWrapper={false}
       onChange={(_, index) => setSelectedAlgo(index)}
     />
   );

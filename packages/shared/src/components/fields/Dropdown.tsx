@@ -51,6 +51,7 @@ export interface DropdownProps {
   iconOnly?: boolean;
   drawerProps?: Omit<DrawerProps, 'children' | 'onClose'>;
   openFullScreen?: boolean;
+  withWrapper?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
 
@@ -70,6 +71,7 @@ export function Dropdown({
   placeholder = '',
   iconOnly,
   drawerProps,
+  withWrapper = true,
   openFullScreen,
   ...props
 }: DropdownProps): ReactElement {
@@ -126,7 +128,7 @@ export function Dropdown({
 
   return (
     <ConditionalWrapper
-      condition={!!className?.container}
+      condition={withWrapper}
       wrapper={(component) => (
         <div
           {...props}

@@ -27,6 +27,7 @@ import { feature } from '../../lib/featureManagement';
 import { SharedFeedPage } from '../utilities';
 import { FeedSurveyBanner } from '../cards/survey';
 import { FeedSettingsButton } from './FeedSettingsButton';
+import { useFeedName } from '../../hooks/feed/useFeedName';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -163,6 +164,7 @@ export const FeedContainer = ({
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
+  const { isExplore } = useFeedName({ feedName });
   const router = useRouter();
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const isList =
@@ -284,6 +286,7 @@ export const FeedContainer = ({
             <div
               className={classNames(
                 'grid',
+                isSearch && !shouldUseListFeedLayout && !isExplore && 'mt-8',
                 isHorizontal &&
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth',
                 gapClass({
