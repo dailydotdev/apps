@@ -11,11 +11,6 @@ export enum TagSourceSocialProof {
   V1 = 'v1',
 }
 
-export enum ExperienceLevelExperiment {
-  Control = 'control',
-  V1 = 'v1',
-}
-
 export enum CustomFeedsExperiment {
   Control = 'control',
   V1 = 'v1',

@@ -1,6 +1,5 @@
 import { JSONValue } from '@growthbook/growthbook';
 import {
-  ExperienceLevelExperiment,
   TagSourceSocialProof,
   CustomFeedsExperiment,
   ShortcutsUIExperiment,
@@ -37,10 +36,6 @@ const feature = {
   tagSourceSocialProof: new Feature(
     'tag_source_social_proof',
     TagSourceSocialProof.Control,
-  ),
-  experienceLevel: new Feature(
-    'experience_level',
-    ExperienceLevelExperiment.Control,
   ),
   featureTheme: new Feature('feature_theme', {}),
   customFeeds: new Feature('custom_feeds', CustomFeedsExperiment.Control),
