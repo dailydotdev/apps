@@ -22,7 +22,7 @@ import {
   PREVIEW_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
-import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
+import { generateQueryKey, RequestKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
@@ -37,11 +37,7 @@ import {
   SearchControlHeaderProps,
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
-import {
-  useFeedLayout,
-  useScrollRestoration,
-  useConditionalFeature,
-} from '../hooks';
+import { useFeedLayout, useScrollRestoration } from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
 import { FeedContainerProps } from './feeds';
@@ -50,7 +46,6 @@ import CommentFeed from './CommentFeed';
 import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/analytics';
-import { OnboardingFeedHeader } from './onboarding/OnboardingFeedHeader';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -156,16 +151,6 @@ export default function MainFeedLayout({
     shouldUseCommentFeedLayout,
     FeedPageLayoutComponent,
   } = useFeedLayout();
-  const [isPreviewFeedVisible, setPreviewFeedVisible] = useState(false);
-  const [isPreviewFeedEnabled, setPreviewFeedEnabled] = useState(false);
-  const shouldEnrollInForcedTagSelection =
-    alerts?.filter && feedName === SharedFeedPage.MyFeed;
-  const { value: showForcedTagSelectionFeature } = useConditionalFeature({
-    feature: feature.forcedTagSelection,
-    shouldEvaluate: shouldEnrollInForcedTagSelection,
-  });
-  const showForcedTagSelection =
-    shouldEnrollInForcedTagSelection && showForcedTagSelectionFeature;
   let query: { query: string; variables?: Record<string, unknown> };
 
   if (feedName) {
@@ -223,16 +208,6 @@ export default function MainFeedLayout({
     // so returning false so feed does not do any requests
     if (isSearchOn && !searchQuery) {
       return null;
-    }
-
-    if (showForcedTagSelection) {
-      return {
-        feedName: OtherFeedPage.Preview,
-        feedQueryKey: [RequestKey.FeedPreview, user?.id],
-        query: PREVIEW_FEED_QUERY,
-        showSearch: false,
-        options: { refetchOnMount: true },
-      };
     }
 
     if (isSearchOn && searchQuery) {
@@ -311,20 +286,8 @@ export default function MainFeedLayout({
 
   return (
     <FeedPageLayoutComponent
-      className={classNames(
-        'relative',
-        disableTopPadding && '!pt-0',
-        showForcedTagSelection && '!p-0',
-      )}
+      className={classNames('relative', disableTopPadding && '!pt-0')}
     >
-      {showForcedTagSelection && (
-        <OnboardingFeedHeader
-          isPreviewFeedVisible={isPreviewFeedVisible}
-          setPreviewFeedVisible={setPreviewFeedVisible}
-          isPreviewFeedEnabled={isPreviewFeedEnabled}
-          setPreviewFeedEnabled={setPreviewFeedEnabled}
-        />
-      )}
       {isSearchOn && search}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
@@ -341,14 +304,11 @@ export default function MainFeedLayout({
           commentClassName={commentClassName}
         />
       ) : (
-        (showForcedTagSelection
-          ? isPreviewFeedEnabled && isPreviewFeedVisible
-          : feedProps) && (
+        feedProps && (
           <Feed
             {...feedProps}
             className={classNames(
               shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
-              showForcedTagSelection && 'px-6 laptop:px-16',
             )}
           />
         )
