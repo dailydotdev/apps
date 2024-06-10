@@ -175,6 +175,7 @@ export default function MainFeedLayout({
     isUpvoted,
     isPopular,
     isExplore,
+    isExplorePopular,
     isExploreLatest,
     isSortableFeed,
     isCustomFeed,
@@ -302,6 +303,15 @@ export default function MainFeedLayout({
       ),
       query: config.query,
       variables,
+      header: !isLaptop && (isExplorePopular || isExploreLatest) && (
+        <Dropdown
+          className={{ container: 'mx-4 w-56' }}
+          selectedIndex={selectedAlgo}
+          options={algorithmsList}
+          withWrapper={false}
+          onChange={(_, index) => setSelectedAlgo(index)}
+        />
+      ),
       emptyScreen: (
         <FeedEmptyScreen
           className={{ wrapper: '!min-h-0', emptyScreen: 'mt-8 h-auto' }}
@@ -335,23 +345,11 @@ export default function MainFeedLayout({
   const disableTopPadding =
     isFinder || shouldUseListFeedLayout || shouldUseCommentFeedLayout;
 
-  const seoHeader = isLaptop ? (
-    <FeedExploreHeader tab={tab} setTab={setTab} />
-  ) : (
-    <Dropdown
-      className={{ container: 'mx-4 my-3 w-56' }}
-      selectedIndex={selectedAlgo}
-      options={algorithmsList}
-      withWrapper={false}
-      onChange={(_, index) => setSelectedAlgo(index)}
-    />
-  );
-
   return (
     <FeedPageLayoutComponent
       className={classNames('relative', disableTopPadding && '!pt-0')}
     >
-      {isExplore ? seoHeader : null}
+      {isExplore && isLaptop && <FeedExploreHeader tab={tab} setTab={setTab} />}
       {isSearchOn && search}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
