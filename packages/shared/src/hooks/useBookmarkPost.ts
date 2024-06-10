@@ -24,11 +24,9 @@ import {
   postAnalyticsEvent,
 } from '../lib/feed';
 import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
-import { feature } from '../lib/featureManagement';
 import { ActionType } from '../graphql/actions';
 import { LazyModal } from '../components/modals/common/types';
 import { promotion } from '../components/modals/generic';
-import { useFeature } from '../components/GrowthBookProvider';
 import { useLazyModal } from './useLazyModal';
 import { useActions } from './useActions';
 
@@ -84,7 +82,6 @@ const useBookmarkPost = ({
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const bookmarkLoops = useFeature(feature.bookmarkLoops);
   const { openModal } = useLazyModal();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const seenBookmarkPromotion = useMemo(
@@ -174,7 +171,7 @@ const useBookmarkPost = ({
       await addBookmark({ id: post.id });
       displayToast('Post was added to your bookmarks');
 
-      if (!seenBookmarkPromotion && bookmarkLoops) {
+      if (!seenBookmarkPromotion) {
         completeAction(ActionType.BookmarkPromoteMobile);
         openModal({
           type: LazyModal.MarketingCta,
@@ -184,7 +181,6 @@ const useBookmarkPost = ({
     },
     [
       addBookmark,
-      bookmarkLoops,
       completeAction,
       displayToast,
       openModal,

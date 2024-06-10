@@ -15,7 +15,6 @@ export class Feature<T extends JSONValue> {
 
 const feature = {
   feedVersion: new Feature('feed_version', 15),
-  bookmarkOnCard: new Feature('bookmark_on_card', false),
   onboardingVisual: new Feature('onboarding_visual', {
     showCompanies: true,
     fullBackground: false,
@@ -27,7 +26,6 @@ const feature = {
   readingReminder: new Feature('reading_reminder', false),
   onboardingMostVisited: new Feature('onboarding_most_visited', false),
   shareExperience: new Feature('share_experience', false),
-  bookmarkLoops: new Feature('bookmark_loops', false),
   sidebarClosed: new Feature('sidebar_closed', false),
   featureTheme: new Feature('feature_theme', {}),
   customFeeds: new Feature('custom_feeds', CustomFeedsExperiment.Control),

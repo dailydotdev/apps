@@ -18,8 +18,6 @@ import {
 } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useFeedPreviewMode } from '../../hooks';
-import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -38,9 +36,6 @@ export default function ActionButtons({
   onCopyLinkClick,
   className,
 }: ActionButtonsProps): ReactElement {
-  const bookmarkLoops = useFeature(feature.bookmarkLoops);
-  const bookmarkOnCard = useFeature(feature.bookmarkOnCard);
-  const shouldShowBookmark = bookmarkLoops || bookmarkOnCard;
   const upvoteCommentProps: ButtonProps<'button'> = {
     size: ButtonSize.Small,
   };
@@ -52,20 +47,16 @@ export default function ActionButtons({
 
   const lastActions = (
     <>
-      {shouldShowBookmark && (
-        <SimpleTooltip
-          content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
-        >
-          <QuaternaryButton
-            id={`post-${post.id}-bookmark-btn`}
-            icon={<BookmarkIcon secondary={post.bookmarked} />}
-            onClick={() => onBookmarkClick(post)}
-            className="btn-tertiary-bun !min-w-[4.625rem]"
-            pressed={post.bookmarked}
-            {...upvoteCommentProps}
-          />
-        </SimpleTooltip>
-      )}
+      <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
+        <QuaternaryButton
+          id={`post-${post.id}-bookmark-btn`}
+          icon={<BookmarkIcon secondary={post.bookmarked} />}
+          onClick={() => onBookmarkClick(post)}
+          className="btn-tertiary-bun !min-w-[4.625rem]"
+          pressed={post.bookmarked}
+          {...upvoteCommentProps}
+        />
+      </SimpleTooltip>
       <SimpleTooltip content="Copy link">
         <Button
           size={ButtonSize.Small}
@@ -82,7 +73,6 @@ export default function ActionButtons({
     <div
       className={classNames(
         'flex flex-row items-center justify-between',
-        !shouldShowBookmark && 'mx-4',
         className,
       )}
     >
