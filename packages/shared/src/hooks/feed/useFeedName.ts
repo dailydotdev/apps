@@ -31,7 +31,7 @@ export const useFeedName = ({ feedName }: UseFeedNameProps): UseFeedName => {
   return {
     isUpvoted: feedName === SharedFeedPage.Upvoted,
     isPopular: feedName === SharedFeedPage.Popular,
-    isExplore: feedName.startsWith(SharedFeedPage.Explore),
+    isExplore: feedName?.startsWith(SharedFeedPage.Explore),
     isExploreLatest: feedName === SharedFeedPage.ExploreLatest,
     isExploreUpvoted: feedName === SharedFeedPage.ExploreUpvoted,
     isExploreDiscussed: feedName === SharedFeedPage.ExploreDiscussed,
