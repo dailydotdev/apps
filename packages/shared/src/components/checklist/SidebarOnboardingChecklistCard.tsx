@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic';
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { StorageTopic, generateStorageKey } from '../../lib/storage';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -9,6 +9,7 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon, EyeCancelIcon, MenuIcon } from '../icons';
 import ContextMenu from '../fields/ContextMenu';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
+import useContextMenu from '../../hooks/useContextMenu';
 
 const OnboardingChecklistCard = dynamic(() =>
   import(
@@ -28,7 +29,10 @@ export const SidebarOnboardingChecklistCard = ({
     generateStorageKey(StorageTopic.Onboarding, 'sidebarCard', user?.id),
     ChecklistViewState.Open,
   );
-  const [isOptionsOpen, setOptionsOpen] = useState(false);
+  const { onMenuClick: showOptionsMenu, isOpen: isOptionsOpen } =
+    useContextMenu({
+      id: ContextMenuIds.SidebarOnboardingChecklistCard,
+    });
 
   if (open === ChecklistViewState.Hidden) {
     return null;
@@ -53,10 +57,7 @@ export const SidebarOnboardingChecklistCard = ({
                 icon={<MenuIcon className="text-text-primary" />}
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.XSmall}
-                onClick={() => {
-                  // TODO AS-356 see why this does not open
-                  setOptionsOpen((current) => !current);
-                }}
+                onClick={showOptionsMenu}
               />
               <ContextMenu
                 id={ContextMenuIds.SidebarOnboardingChecklistCard}
@@ -71,9 +72,6 @@ export const SidebarOnboardingChecklistCard = ({
                     },
                   },
                 ]}
-                onHidden={() => {
-                  setOptionsOpen(false);
-                }}
                 isOpen={isOptionsOpen}
               />
             </>
