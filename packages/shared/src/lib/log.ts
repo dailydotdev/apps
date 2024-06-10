@@ -207,6 +207,8 @@ export enum TargetId {
   GenericReferralPopup = 'generic referral popup',
   ProfilePage = 'profile page',
   InviteFriendsPage = 'invite friends page',
+  Squad = 'squad',
+  General = 'general',
 }
 
 export enum NotificationChannel {

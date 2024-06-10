@@ -7,7 +7,7 @@ import InteractivePopup, {
 } from '../tooltips/InteractivePopup';
 import { useChecklist } from '../../hooks/useChecklist';
 import LogContext from '../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../lib/log';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
 
 const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   const { steps, isChecklistVisible, setChecklistVisible, isChecklistReady } =
@@ -22,6 +22,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
     logEvent({
       event_name: LogEvent.Impression,
       target_type: TargetType.OnboardingChecklist,
+      target_id: TargetId.Squad,
       extra: JSON.stringify({ squad: squad.id }),
     });
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
