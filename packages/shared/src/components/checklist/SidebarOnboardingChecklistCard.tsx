@@ -1,15 +1,13 @@
 import dynamic from 'next/dynamic';
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { StorageTopic, generateStorageKey } from '../../lib/storage';
-import { useAuthContext } from '../../contexts/AuthContext';
-import usePersistentContext from '../../hooks/usePersistentContext';
 import { ChecklistViewState } from '../../lib/checklist';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon, EyeCancelIcon, MenuIcon } from '../icons';
 import ContextMenu from '../fields/ContextMenu';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import useContextMenu from '../../hooks/useContextMenu';
+import { useOnboardingChecklist } from '../../hooks';
 
 const OnboardingChecklistCard = dynamic(() =>
   import(
@@ -24,21 +22,17 @@ export type SidebarOnboardingChecklistCardProps = {
 export const SidebarOnboardingChecklistCard = ({
   className,
 }: SidebarOnboardingChecklistCardProps): ReactElement => {
-  const { user } = useAuthContext();
-  const [open, setOpen] = usePersistentContext<ChecklistViewState>(
-    generateStorageKey(StorageTopic.Onboarding, 'sidebarCard', user?.id),
-    ChecklistViewState.Open,
-  );
+  const { checklistView, setChecklistView } = useOnboardingChecklist();
   const { onMenuClick: showOptionsMenu, isOpen: isOptionsOpen } =
     useContextMenu({
       id: ContextMenuIds.SidebarOnboardingChecklistCard,
     });
 
-  if (open === ChecklistViewState.Hidden) {
+  if (checklistView === ChecklistViewState.Hidden) {
     return null;
   }
 
-  const isOpen = open === ChecklistViewState.Open;
+  const isOpen = checklistView === ChecklistViewState.Open;
 
   return (
     <div
@@ -68,7 +62,7 @@ export const SidebarOnboardingChecklistCard = ({
                     icon: <EyeCancelIcon />,
                     label: 'Hide forever',
                     action: () => {
-                      setOpen(ChecklistViewState.Hidden);
+                      setChecklistView(ChecklistViewState.Hidden);
                     },
                   },
                 ]}
@@ -88,7 +82,7 @@ export const SidebarOnboardingChecklistCard = ({
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.XSmall}
             onClick={() => {
-              setOpen(
+              setChecklistView(
                 isOpen ? ChecklistViewState.Closed : ChecklistViewState.Open,
               );
             }}

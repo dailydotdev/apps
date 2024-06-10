@@ -10,22 +10,27 @@ import {
 
 const iconToClassNameMap: ChecklistVariantClassNameMap = {
   [ChecklistCardVariant.Default]: 'w-10 h-10',
-  [ChecklistCardVariant.Small]: 'w-10 h-6',
+  [ChecklistCardVariant.Small]: 'w-8 h-6',
 };
 
-const arrowSizeMap: ChecklistVariantClassNameMap<IconSize> = {
+const iconSizeMap: ChecklistVariantClassNameMap<IconSize> = {
   [ChecklistCardVariant.Default]: IconSize.Small,
   [ChecklistCardVariant.Small]: IconSize.XSmall,
 };
 
 const titleSizeToClassNameMap: ChecklistVariantClassNameMap = {
   [ChecklistCardVariant.Default]: 'typo-callout',
-  [ChecklistCardVariant.Small]: 'typo-footnote',
+  [ChecklistCardVariant.Small]: 'typo-footnote pr-1',
 };
 
 const descriptionSizeToClassNameMap: ChecklistVariantClassNameMap = {
   [ChecklistCardVariant.Default]: 'typo-callout',
   [ChecklistCardVariant.Small]: 'typo-footnote',
+};
+
+const childrenContainerClassNameMap: ChecklistVariantClassNameMap = {
+  [ChecklistCardVariant.Default]: 'ml-9',
+  [ChecklistCardVariant.Small]: 'ml-7 pr-1',
 };
 
 const ChecklistStep = ({
@@ -74,7 +79,7 @@ const ChecklistStep = ({
                 data-testid={`checklist-step-${
                   isCompleted ? 'completed' : 'incomplete'
                 }`}
-                size={IconSize.Small}
+                size={iconSizeMap[variant]}
                 secondary={!isCompleted}
               />
             </div>
@@ -98,11 +103,13 @@ const ChecklistStep = ({
             isCompleted && 'opacity-32',
           )}
           data-testid={`checklist-step-${isOpen ? 'open' : 'closed'}`}
-          size={arrowSizeMap[variant]}
+          size={iconSizeMap[variant]}
         />
       </button>
       {isOpen && (
-        <div className="my-2 ml-9">
+        <div
+          className={classNames('my-2', childrenContainerClassNameMap[variant])}
+        >
           <p
             className={classNames(
               'text-text-tertiary',

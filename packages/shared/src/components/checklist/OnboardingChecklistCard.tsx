@@ -1,13 +1,10 @@
-import React, { ReactElement, useContext, useEffect, useMemo } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { ChecklistCard } from './ChecklistCard';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetType } from '../../lib/analytics';
-import { ActionType } from '../../graphql/actions';
-import { useActions } from '../../hooks';
-import { ChecklistCardVariant, createChecklistStep } from '../../lib/checklist';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useChecklist } from '../../hooks/useChecklist';
+import { useOnboardingChecklist } from '../../hooks';
+import { ChecklistCardVariant } from '../../lib/checklist';
 
 export type OnboardingChecklistCardProps = {
   className?: string;
@@ -18,31 +15,8 @@ export const OnboardingChecklistCard = ({
   className,
   isOpen,
 }: OnboardingChecklistCardProps): ReactElement => {
-  const { isLoggedIn } = useAuthContext();
   const { trackEvent } = useContext(AnalyticsContext);
-  const { actions, isActionsFetched } = useActions();
-  const checklistSteps = useMemo(() => {
-    return [
-      createChecklistStep({
-        type: ActionType.CreateSquad,
-        step: {
-          title: 'Create a Squad',
-          description:
-            'Create your first Squad and start sharing posts with other members.',
-        },
-        actions,
-      }),
-      createChecklistStep({
-        type: ActionType.JoinSquad,
-        step: {
-          title: 'Join a Squad',
-          description:
-            'Join your first Squad and start sharing posts with other members.',
-        },
-        actions,
-      }),
-    ];
-  }, [actions]);
+  const { steps, completedSteps, nextStep } = useOnboardingChecklist();
 
   useEffect(() => {
     trackEvent({
@@ -56,19 +30,15 @@ export const OnboardingChecklistCard = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { steps, completedSteps } = useChecklist({ steps: checklistSteps });
-
-  if (!isLoggedIn || !isActionsFetched || !steps.length) {
+  if (!steps.length) {
     return null;
   }
-
-  const firstStep = steps[0];
 
   return (
     <ChecklistCard
       className={classNames(className, 'max-w-full', !isOpen && '!border-0')}
       title="Get started like a pro"
-      description={`${completedSteps.length}/${steps.length} 👉 ${firstStep?.title}`}
+      description={`${completedSteps.length}/${steps.length} 👉 ${nextStep?.title}`}
       steps={steps}
       variant={ChecklistCardVariant.Small}
       isOpen={isOpen}
