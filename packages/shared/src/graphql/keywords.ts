@@ -5,6 +5,7 @@ export type KeywordStatus = 'pending' | 'allow' | 'deny' | 'synonym';
 export type KeywordFlags = {
   title?: string;
   description?: string;
+  roadmap?: string;
 };
 
 export interface Keyword {
@@ -76,6 +77,7 @@ export const KEYWORD_QUERY = gql`
       flags {
         title
         description
+        roadmap
       }
     }
   }
