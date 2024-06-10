@@ -39,7 +39,6 @@ import {
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import {
-  useConditionalFeature,
   useFeedLayout,
   useScrollRestoration,
   useViewSize,
@@ -53,8 +52,7 @@ import CommentFeed from './CommentFeed';
 import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/analytics';
-import { OnboardingFeedHeader } from './onboarding/OnboardingFeedHeader';
-import { FeedExploreHeader } from './header';
+import { ExploreTabs, FeedExploreHeader } from './header';
 import { Dropdown } from './fields/Dropdown';
 
 const SearchEmptyScreen = dynamic(
@@ -80,6 +78,9 @@ const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
   popular: {
     query: ANONYMOUS_FEED_QUERY,
   },
+  explore: {
+    query: ANONYMOUS_FEED_QUERY,
+  },
   search: {
     query: ANONYMOUS_FEED_QUERY,
     queryIfLogged: FEED_QUERY,
@@ -88,6 +89,15 @@ const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
     query: MOST_UPVOTED_FEED_QUERY,
   },
   discussed: {
+    query: MOST_DISCUSSED_FEED_QUERY,
+  },
+  [SharedFeedPage.ExploreLatest]: {
+    query: ANONYMOUS_FEED_QUERY,
+  },
+  [SharedFeedPage.ExploreUpvoted]: {
+    query: MOST_UPVOTED_FEED_QUERY,
+  },
+  [SharedFeedPage.ExploreDiscussed]: {
     query: MOST_DISCUSSED_FEED_QUERY,
   },
   [SharedFeedPage.Custom]: {
@@ -107,11 +117,6 @@ export interface MainFeedLayoutProps
   searchChildren?: ReactNode;
   navChildren?: ReactNode;
   isFinder?: boolean;
-}
-
-enum ExploreTabs {
-  Popular = 'Popular',
-  ByDate = 'By date',
 }
 
 const getQueryBasedOnLogin = (
@@ -135,6 +140,11 @@ const commentClassName = {
     container: 'relative border-0 rounded-none',
   },
 };
+
+const feedWithDateRange = [
+  ExploreTabs.MostUpvoted,
+  ExploreTabs.BestDiscussions,
+];
 
 export default function MainFeedLayout({
   feedName: feedNameProp,
@@ -160,22 +170,21 @@ export default function MainFeedLayout({
   });
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedVersion = useFeature(feature.feedVersion);
-  const { isUpvoted, isPopular, isSortableFeed, isCustomFeed } = useFeedName({
-    feedName,
-  });
-  const { value: seoExplorePage } = useConditionalFeature({
-    feature: feature.seoExplorePage,
-    shouldEvaluate: isPopular,
-  });
-  const shouldShowExploreHeader = seoExplorePage && isPopular;
+  const { isUpvoted, isPopular, isExplore, isSortableFeed, isCustomFeed } =
+    useFeedName({
+      feedName,
+    });
   const {
     shouldUseListFeedLayout,
     shouldUseCommentFeedLayout,
     FeedPageLayoutComponent,
   } = useFeedLayout();
-  let query: { query: string; variables?: Record<string, unknown> };
 
-  if (feedName) {
+  const config = useMemo(() => {
+    if (!feedName) {
+      return { query: null };
+    }
+
     const dynamicPropsByFeed: Partial<
       Record<SharedFeedPage, Partial<FeedQueryProps>>
     > = {
@@ -186,7 +195,7 @@ export default function MainFeedLayout({
       },
     };
 
-    query = {
+    return {
       query: getQueryBasedOnLogin(
         tokenRefreshed,
         user,
@@ -199,9 +208,7 @@ export default function MainFeedLayout({
         version: isDevelopment ? 1 : feedVersion,
       },
     };
-  } else {
-    query = { query: null };
-  }
+  }, [feedName, feedVersion, router.query?.slugOrId, tokenRefreshed, user]);
 
   const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
@@ -221,6 +228,17 @@ export default function MainFeedLayout({
       {navChildren}
       {isSearchOn && searchChildren ? searchChildren : undefined}
     </LayoutHeader>
+  );
+
+  const seoHeader = isLaptop ? (
+    <FeedExploreHeader tab={tab} setTab={setTab} />
+  ) : (
+    <Dropdown
+      className={{ container: 'mx-4 my-3 w-56' }}
+      selectedIndex={selectedAlgo}
+      options={algorithmsList}
+      onChange={(_, index) => setSelectedAlgo(index)}
+    />
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
@@ -247,43 +265,32 @@ export default function MainFeedLayout({
       };
     }
 
-    if (!query.query) {
+    if (!config.query) {
       return null;
     }
 
-    const seoHeader = isLaptop ? (
-      <FeedExploreHeader tab={tab} setTab={setTab} />
-    ) : (
-      <Dropdown
-        className={{ container: 'mx-4 my-3 w-56' }}
-        selectedIndex={selectedAlgo}
-        options={algorithmsList}
-        onChange={(_, index) => setSelectedAlgo(index)}
-      />
-    );
-
     const getVariables = () => {
-      if (isUpvoted) {
-        return { ...query.variables, period: periods[selectedPeriod].value };
+      if (isUpvoted || feedWithDateRange.includes(tab)) {
+        return { ...config.variables, period: periods[selectedPeriod].value };
       }
 
-      if (seoExplorePage) {
+      if (isExplore) {
         const laptopValue = tab === ExploreTabs.ByDate ? 1 : 0;
         const finalAlgo = isLaptop ? laptopValue : selectedAlgo;
         return {
-          ...query.variables,
+          ...config.variables,
           ranking: algorithms[finalAlgo].value,
         };
       }
 
       if (isSortableFeed) {
         return {
-          ...query.variables,
+          ...config.variables,
           ranking: algorithms[selectedAlgo].value,
         };
       }
 
-      return query.variables;
+      return config.variables;
     };
 
     const variables = getVariables();
@@ -295,11 +302,10 @@ export default function MainFeedLayout({
         user,
         ...Object.values(variables ?? {}),
       ),
-      query: query.query,
+      query: config.query,
       variables,
       emptyScreen: <FeedEmptyScreen />,
-      header: shouldShowExploreHeader && isPopular && seoHeader,
-      actionButtons: !shouldShowExploreHeader && feedWithActions && (
+      actionButtons: !isExplore && feedWithActions && (
         <SearchControlHeader {...searchProps} />
       ),
       shortcuts,
@@ -310,8 +316,8 @@ export default function MainFeedLayout({
     shouldUseListFeedLayout,
     isSearchOn,
     searchQuery,
-    query.query,
-    query.variables,
+    config.query,
+    config.variables,
     isUpvoted,
     selectedPeriod,
   ]);
@@ -331,6 +337,7 @@ export default function MainFeedLayout({
     <FeedPageLayoutComponent
       className={classNames('relative', disableTopPadding && '!pt-0')}
     >
+      {isExplore && seoHeader}
       {isSearchOn && search}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed

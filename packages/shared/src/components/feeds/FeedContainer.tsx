@@ -125,6 +125,10 @@ const feedNameToHeading: Record<
     | 'tags[tag]/best-discussed'
     | SharedFeedPage.Custom
     | SharedFeedPage.CustomForm
+    | SharedFeedPage.Explore
+    | SharedFeedPage.ExploreLatest
+    | SharedFeedPage.ExploreUpvoted
+    | SharedFeedPage.ExploreDiscussed
   >,
   string
 > = {
@@ -280,7 +284,6 @@ export const FeedContainer = ({
             <div
               className={classNames(
                 'grid',
-                isSearch && !shouldUseListFeedLayout && !header && 'mt-8',
                 isHorizontal &&
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth',
                 gapClass({

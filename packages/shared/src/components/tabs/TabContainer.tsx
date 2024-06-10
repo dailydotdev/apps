@@ -11,7 +11,7 @@ import TabList, { TabListProps } from './TabList';
 import { RenderTab } from './common';
 
 export interface TabProps<T extends string> {
-  key?: number;
+  key?: number | string;
   children?: ReactNode;
   label: T;
   className?: string;
