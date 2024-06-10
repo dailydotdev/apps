@@ -15,7 +15,6 @@ import { Post, PostType } from '../graphql/posts';
 import { Origin } from '../lib/analytics';
 import { ActiveFeedContext } from '../contexts';
 import { updateCachedPagePost } from '../lib/query';
-import { usePostFeedback } from './usePostFeedback';
 import { FeedLayoutMobileFeedPages, useFeedLayout } from './useFeedLayout';
 import { FeedData } from '../graphql/feed';
 import { useReadingStreak } from './streaks';
@@ -102,8 +101,6 @@ export default function useOnPostClick({
     feedRelated: false,
   });
 
-  const { isLowImpsEnabled } = usePostFeedback();
-
   return useMemo(
     () =>
       async ({ post, row, column, optional }): Promise<void> => {
@@ -122,7 +119,6 @@ export default function useOnPostClick({
                 optional?.parent_id,
               ).extra,
               feedback: post.type === PostType.Article ? true : undefined,
-              low_imps: isLowImpsEnabled ? true : undefined,
             },
           }),
         );
@@ -192,7 +188,6 @@ export default function useOnPostClick({
       feedQueryKey,
       checkReadingStreak,
       shouldUseListFeedLayout,
-      isLowImpsEnabled,
       items,
       ranking,
       origin,

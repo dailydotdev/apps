@@ -23,6 +23,7 @@ import {
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import post from '../../../__tests__/fixture/post';
 import { AuthTriggers } from '../../lib/auth';
+import { COMPLETE_ACTION_MUTATION } from '../../graphql/actions';
 
 const showLogin = jest.fn();
 
@@ -137,6 +138,15 @@ it('should show number of upvotes and comments', async () => {
 
 it('should send add bookmark mutation', async () => {
   let mutationCalled = false;
+  mockGraphQL({
+    request: {
+      query: COMPLETE_ACTION_MUTATION,
+      variables: { type: 'bookmark_promote_mobile' },
+    },
+    result: () => {
+      return { data: {} };
+    },
+  });
   renderComponent([
     createFeedMock(),
     {

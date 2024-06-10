@@ -200,6 +200,10 @@ export const cloudinary = {
         'https://res.cloudinary.com/daily-now/image/upload/s--B_87VDub--/f_auto/v1717506847/public/Stackoverflow%20Shortcut',
     },
   },
+  source: {
+    roadmap:
+      'https://daily-now-res.cloudinary.com/image/upload/s--91LSaHRW--/f_auto,q_auto/v1717766368/roadmap_iambav',
+  },
 };
 
 export const smallPostImage = (url: string): string => {
