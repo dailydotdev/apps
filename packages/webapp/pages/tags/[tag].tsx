@@ -67,15 +67,14 @@ import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSource
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts';
 import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import { TagSourceCustomAuthBannerExperiment } from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
 import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { TagSourceSocialProof } from '@dailydotdev/shared/src/lib/featureValues';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import Link from 'next/link';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
+import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -144,12 +143,8 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   const { isFallback } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { shouldShowAuthBanner } = useOnboarding();
-  const tagSourceFeatureValue = useFeature(feature.tagSourceSocialProof);
   const showRoadmap = useFeature(feature.showRoadmap);
-  const shouldShowTagSourceSocialProof =
-    shouldShowAuthBanner &&
-    tagSourceFeatureValue === TagSourceSocialProof.V1 &&
-    isLaptop;
+  const shouldShowTagSourceSocialProof = shouldShowAuthBanner && isLaptop;
   const { user, showLogin } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
     () => ({
@@ -374,7 +369,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
 TagPage.getLayout = getLayout;
 TagPage.layoutProps = {
   ...mainFeedLayoutProps,
-  customBanner: <TagSourceCustomAuthBannerExperiment />,
+  customBanner: <CustomAuthBanner />,
 };
 
 export default TagPage;

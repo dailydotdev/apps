@@ -176,7 +176,7 @@ export function PostActions({
             pressed={post.bookmarked}
             onClick={onToggleBookmark}
             icon={<BookmarkIcon secondary={post.bookmarked} />}
-            aria-label="Bookmark"
+            aria-label={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
             responsiveLabelClass={actionsClassName}
             className="btn-tertiary-bun"
           >

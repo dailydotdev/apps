@@ -536,7 +536,7 @@ it('should not update post on subscription message when id is not the same', asy
 });
  */
 
-it('should send bookmark mutation from options on desktop', async () => {
+it('should send bookmark mutation from bookmark action', async () => {
   // is desktop
   jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
 
@@ -558,18 +558,24 @@ it('should send bookmark mutation from options on desktop', async () => {
 
   await new Promise((resolve) => setTimeout(resolve, 100));
 
-  const [menuBtn] = await screen.findAllByLabelText('Options');
-  fireEvent.click(menuBtn);
-
-  const el = await screen.findByText('Save to bookmarks');
+  const [el] = await screen.findAllByLabelText('Bookmark');
   fireEvent.click(el);
 
   await waitFor(() => mutationCalled);
 });
 
-it('should send remove bookmark mutation from options on desktop', async () => {
+it('should send remove bookmark mutation from remove bookmark action', async () => {
   // is desktop
   jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
+  mockGraphQL({
+    request: {
+      query: COMPLETE_ACTION_MUTATION,
+      variables: { type: 'bookmark_promote_mobile' },
+    },
+    result: () => {
+      return { data: {} };
+    },
+  });
 
   let mutationCalled = false;
   renderPost({}, [
@@ -588,10 +594,7 @@ it('should send remove bookmark mutation from options on desktop', async () => {
   ]);
   await new Promise((resolve) => setTimeout(resolve, 100));
 
-  const [menuBtn] = await screen.findAllByLabelText('Options');
-  fireEvent.click(menuBtn);
-
-  const el = await screen.findByText('Remove from bookmarks');
+  const [el] = await screen.findAllByLabelText('Remove bookmark');
   fireEvent.click(el);
 
   await waitFor(() => mutationCalled);

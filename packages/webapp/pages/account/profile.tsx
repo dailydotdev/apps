@@ -37,9 +37,6 @@ import { FormWrapper } from '@dailydotdev/shared/src/components/fields/form';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
 import ExperienceLevelDropdown from '@dailydotdev/shared/src/components/profile/ExperienceLevelDropdown';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { ExperienceLevelExperiment } from '@dailydotdev/shared/src/lib/featureValues';
 import { TimezoneDropdown } from '@dailydotdev/shared/src/components/widgets/TimezoneDropdown';
 import { getUserInitialTimezone } from '@dailydotdev/shared/src/lib/timezones';
 import { AccountTextField } from '../../components/layouts/AccountLayout/common';
@@ -60,9 +57,6 @@ const AccountProfilePage = (): ReactElement => {
   const [coverImage, setCoverImage] = useState<string>(user.cover);
   const currentCoverImage = coverImage || user.cover;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const experienceLevelVersion = useFeature(feature.experienceLevel);
-  const showExperienceLevel =
-    experienceLevelVersion === ExperienceLevelExperiment.V1;
   const [userTimeZone, setUserTimeZone] = useState<string>(
     getUserInitialTimezone({
       userTimezone: user?.timezone,
@@ -199,18 +193,16 @@ const AccountProfilePage = (): ReactElement => {
           leftIcon={<AtIcon />}
           value={user.username}
         />
-        {showExperienceLevel && (
-          <ExperienceLevelDropdown
-            defaultValue={user.experienceLevel}
-            name="experienceLevel"
-            className={{
-              container: 'mt-6 max-w-sm tablet:relative',
-              button:
-                'hover:shadow-[inset_0.125rem_0_0_var(--theme-text-primary)]',
-              menu: 'absolute !left-0 !right-0 !top-[3.5rem] transform-none',
-            }}
-          />
-        )}
+        <ExperienceLevelDropdown
+          defaultValue={user.experienceLevel}
+          name="experienceLevel"
+          className={{
+            container: 'mt-6 max-w-sm tablet:relative',
+            button:
+              'hover:shadow-[inset_0.125rem_0_0_var(--theme-text-primary)]',
+            menu: 'absolute !left-0 !right-0 !top-[3.5rem] transform-none',
+          }}
+        />
       </AccountContentSection>
       <AccountContentSection title="About">
         <Textarea
