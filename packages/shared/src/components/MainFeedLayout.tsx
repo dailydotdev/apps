@@ -302,7 +302,11 @@ export default function MainFeedLayout({
       ),
       query: config.query,
       variables,
-      emptyScreen: <FeedEmptyScreen />,
+      emptyScreen: (
+        <FeedEmptyScreen
+          className={{ wrapper: '!min-h-0', emptyScreen: 'mt-8 h-auto' }}
+        />
+      ),
       actionButtons: !isExplore && feedWithActions && (
         <SearchControlHeader {...searchProps} />
       ),
@@ -338,7 +342,7 @@ export default function MainFeedLayout({
       className={{ container: 'mx-4 my-3 w-56' }}
       selectedIndex={selectedAlgo}
       options={algorithmsList}
-      withWrapper={!isLaptop}
+      withWrapper={false}
       onChange={(_, index) => setSelectedAlgo(index)}
     />
   );
