@@ -177,13 +177,7 @@ export const SettingsContextProvider = ({
   };
 
   const syncSettings = async (bootUserId?: string) => {
-    const updatedSettings = settings;
-
-    if (settings.sidebarExpanded) {
-      updatedSettings.sidebarExpanded = false;
-    }
-
-    await updateRemoteSettingsFn(updatedSettings, bootUserId);
+    await updateRemoteSettingsFn(settings, bootUserId);
   };
 
   const contextData = useMemo<SettingsContextData>(
