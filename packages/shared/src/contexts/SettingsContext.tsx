@@ -104,7 +104,7 @@ const defaultSettings: RemoteSettings = {
   openNewTab: true,
   insaneMode: false,
   showTopSites: true,
-  sidebarExpanded: true,
+  sidebarExpanded: false,
   companionExpanded: false,
   sortingEnabled: false,
   optOutReadingStreak: false,
