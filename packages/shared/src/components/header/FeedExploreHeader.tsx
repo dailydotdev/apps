@@ -14,8 +14,8 @@ import { periodTexts } from '../layout/common';
 
 export enum ExploreTabs {
   Popular = 'Popular',
-  MostUpvoted = 'Most upvoted',
-  BestDiscussions = 'Best discussions',
+  MostUpvoted = 'By upvotes',
+  BestDiscussions = 'By comments',
   ByDate = 'By date',
 }
 
