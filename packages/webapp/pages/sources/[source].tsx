@@ -58,15 +58,12 @@ import { useQuery } from '@tanstack/react-query';
 import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
-import { TagSourceCustomAuthBannerExperiment } from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
 import { useOnboarding } from '@dailydotdev/shared/src/hooks/auth';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { TagSourceSocialProof } from '@dailydotdev/shared/src/lib/featureValues';
 import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
+import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -138,11 +135,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { shouldShowAuthBanner } = useOnboarding();
-  const tagSourceFeatureValue = useFeature(feature.tagSourceSocialProof);
-  const shouldShowTagSourceSocialProof =
-    shouldShowAuthBanner &&
-    tagSourceFeatureValue === TagSourceSocialProof.V1 &&
-    isLaptop;
+  const shouldShowTagSourceSocialProof = shouldShowAuthBanner && isLaptop;
   const { user, showLogin } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
     () => ({
@@ -316,7 +309,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
 SourcePage.getLayout = getLayout;
 SourcePage.layoutProps = {
   ...mainFeedLayoutProps,
-  customBanner: <TagSourceCustomAuthBannerExperiment />,
+  customBanner: <CustomAuthBanner />,
 };
 export default SourcePage;
 

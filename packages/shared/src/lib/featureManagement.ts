@@ -1,9 +1,5 @@
 import { JSONValue } from '@growthbook/growthbook';
-import {
-  TagSourceSocialProof,
-  CustomFeedsExperiment,
-  ShortcutsUIExperiment,
-} from './featureValues';
+import { CustomFeedsExperiment, ShortcutsUIExperiment } from './featureValues';
 import { cloudinary } from './image';
 
 export class Feature<T extends JSONValue> {
@@ -33,10 +29,6 @@ const feature = {
   shareExperience: new Feature('share_experience', false),
   bookmarkLoops: new Feature('bookmark_loops', false),
   sidebarClosed: new Feature('sidebar_closed', false),
-  tagSourceSocialProof: new Feature(
-    'tag_source_social_proof',
-    TagSourceSocialProof.Control,
-  ),
   featureTheme: new Feature('feature_theme', {}),
   customFeeds: new Feature('custom_feeds', CustomFeedsExperiment.Control),
   hypeCampaign: new Feature('hype_campaign', false),
