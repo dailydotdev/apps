@@ -335,10 +335,10 @@ export default function MainFeedLayout({
     <FeedExploreHeader tab={tab} setTab={setTab} />
   ) : (
     <Dropdown
-      className={{ button: 'mx-4 my-3 w-56' }}
+      className={{ container: 'mx-4 my-3 w-56' }}
       selectedIndex={selectedAlgo}
       options={algorithmsList}
-      withWrapper={false}
+      withWrapper={!isLaptop}
       onChange={(_, index) => setSelectedAlgo(index)}
     />
   );
