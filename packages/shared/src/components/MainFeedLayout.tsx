@@ -292,6 +292,22 @@ export default function MainFeedLayout({
       wrapper: '!min-h-0',
       emptyScreen: 'mt-8 h-auto',
     };
+    const mobileExploreActions = !isLaptop &&
+      (isExplorePopular || isExploreLatest) && (
+        <Dropdown
+          className={{ container: 'mx-4 w-56' }}
+          selectedIndex={selectedAlgo}
+          options={algorithmsList}
+          withWrapper={false}
+          onChange={(_, index) => setSelectedAlgo(index)}
+        />
+      );
+    const controlFeedActions = feedWithActions && (
+      <SearchControlHeader
+        algoState={[selectedAlgo, setSelectedAlgo]}
+        feedName={feedName}
+      />
+    );
 
     return {
       feedName,
@@ -302,22 +318,8 @@ export default function MainFeedLayout({
       ),
       query: config.query,
       variables,
-      header: !isLaptop && (isExplorePopular || isExploreLatest) && (
-        <Dropdown
-          className={{ container: 'mx-4 w-56' }}
-          selectedIndex={selectedAlgo}
-          options={algorithmsList}
-          withWrapper={false}
-          onChange={(_, index) => setSelectedAlgo(index)}
-        />
-      ),
       emptyScreen: <FeedEmptyScreen className={classes} />,
-      actionButtons: !isAnyExplore && feedWithActions && (
-        <SearchControlHeader
-          algoState={[selectedAlgo, setSelectedAlgo]}
-          feedName={feedName}
-        />
-      ),
+      actionButtons: isAnyExplore ? mobileExploreActions : controlFeedActions,
     };
   }, [
     isUpvoted,
