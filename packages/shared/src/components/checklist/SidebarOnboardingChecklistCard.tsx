@@ -8,6 +8,7 @@ import ContextMenu from '../fields/ContextMenu';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import useContextMenu from '../../hooks/useContextMenu';
 import { useOnboardingChecklist } from '../../hooks';
+import { RankConfetti } from '../../svg/RankConfetti';
 
 const OnboardingChecklistCard = dynamic(() =>
   import(
@@ -22,7 +23,7 @@ export type SidebarOnboardingChecklistCardProps = {
 export const SidebarOnboardingChecklistCard = ({
   className,
 }: SidebarOnboardingChecklistCardProps): ReactElement => {
-  const { checklistView, setChecklistView } = useOnboardingChecklist();
+  const { checklistView, setChecklistView, isDone } = useOnboardingChecklist();
   const { onMenuClick: showOptionsMenu, isOpen: isOptionsOpen } =
     useContextMenu({
       id: ContextMenuIds.SidebarOnboardingChecklistCard,
@@ -33,6 +34,36 @@ export const SidebarOnboardingChecklistCard = ({
   }
 
   const isOpen = checklistView === ChecklistViewState.Open;
+
+  if (isDone) {
+    return (
+      <div
+        className={classNames(
+          'relative m-2 mt-0 flex flex-col items-center gap-2 overflow-hidden rounded-8 bg-gradient-to-t from-raw-cabbage-90 to-raw-cabbage-50 p-2',
+        )}
+      >
+        <RankConfetti className="pointer-events-none absolute bottom-0 left-0 right-0 top-0 opacity-40" />
+        <p
+          className={classNames(
+            'mb-1 text-center font-bold text-white typo-footnote',
+          )}
+        >
+          Get started like a pro
+          <br />
+          Perfectly done!
+        </p>
+        <Button
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.XSmall}
+          onClick={() => {
+            setChecklistView(ChecklistViewState.Hidden);
+          }}
+        >
+          Dismiss
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div
