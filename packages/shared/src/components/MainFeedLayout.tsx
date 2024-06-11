@@ -35,7 +35,6 @@ import {
   LayoutHeader,
   periods,
   SearchControlHeader,
-  SearchControlHeaderProps,
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import {
@@ -174,7 +173,7 @@ export default function MainFeedLayout({
   const {
     isUpvoted,
     isPopular,
-    isExplore,
+    isAnyExplore,
     isExplorePopular,
     isExploreLatest,
     isSortableFeed,
@@ -228,10 +227,6 @@ export default function MainFeedLayout({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
   });
-  const searchProps: SearchControlHeaderProps = {
-    algoState: [selectedAlgo, setSelectedAlgo],
-    feedName,
-  };
   const search = (
     <LayoutHeader className={isSearchPage && 'mt-16 laptop:mt-0'}>
       {navChildren}
@@ -272,7 +267,7 @@ export default function MainFeedLayout({
         return { ...config.variables, period: periods[selectedPeriod].value };
       }
 
-      if (isExplore) {
+      if (isAnyExplore) {
         const laptopValue =
           tab === ExploreTabs.ByDate || isExploreLatest ? 1 : 0;
         const finalAlgo = isLaptop ? laptopValue : selectedAlgo;
@@ -293,10 +288,21 @@ export default function MainFeedLayout({
     };
 
     const variables = getVariables();
-    const classes = isExplore && {
-      wrapper: '!min-h-0',
-      emptyScreen: 'mt-8 h-auto',
-    };
+    const mobileExploreActions = !isLaptop &&
+      (isExplorePopular || isExploreLatest) && (
+        <Dropdown
+          className={{ container: 'mx-4 mb-2 !w-56' }}
+          selectedIndex={selectedAlgo}
+          options={algorithmsList}
+          onChange={(_, index) => setSelectedAlgo(index)}
+        />
+      );
+    const controlFeedActions = feedWithActions && (
+      <SearchControlHeader
+        algoState={[selectedAlgo, setSelectedAlgo]}
+        feedName={feedName}
+      />
+    );
 
     return {
       feedName,
@@ -307,19 +313,8 @@ export default function MainFeedLayout({
       ),
       query: config.query,
       variables,
-      header: !isLaptop && (isExplorePopular || isExploreLatest) && (
-        <Dropdown
-          className={{ container: 'mx-4 w-56' }}
-          selectedIndex={selectedAlgo}
-          options={algorithmsList}
-          withWrapper={false}
-          onChange={(_, index) => setSelectedAlgo(index)}
-        />
-      ),
-      emptyScreen: <FeedEmptyScreen className={classes} />,
-      actionButtons: !isExplore && feedWithActions && (
-        <SearchControlHeader {...searchProps} />
-      ),
+      emptyScreen: <FeedEmptyScreen />,
+      actionButtons: isAnyExplore ? mobileExploreActions : controlFeedActions,
     };
   }, [
     isUpvoted,
@@ -330,14 +325,13 @@ export default function MainFeedLayout({
     searchQuery,
     config.query,
     config.variables,
-    isExplore,
+    isAnyExplore,
     feedName,
     user,
     isLaptop,
     isExplorePopular,
     isExploreLatest,
     selectedAlgo,
-    searchProps,
     getFeatureValue,
     tab,
     selectedPeriod,
@@ -359,7 +353,9 @@ export default function MainFeedLayout({
     <FeedPageLayoutComponent
       className={classNames('relative', disableTopPadding && '!pt-0')}
     >
-      {isExplore && isLaptop && <FeedExploreHeader tab={tab} setTab={setTab} />}
+      {isAnyExplore && isLaptop && (
+        <FeedExploreHeader tab={tab} setTab={setTab} />
+      )}
       {isSearchOn && search}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed

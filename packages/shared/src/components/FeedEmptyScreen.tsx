@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import classNames from 'classnames';
 import {
   EmptyScreenButton,
   EmptyScreenContainer,
@@ -16,20 +15,13 @@ import { LazyModal } from './modals/common/types';
 import { getFeedName } from '../lib/feed';
 import { webappUrl } from '../lib/constants';
 
-interface FeedEmptyScreenProps {
-  className?: {
-    wrapper?: string;
-    emptyScreen?: string;
-  };
-}
-
-function FeedEmptyScreen({ className }: FeedEmptyScreenProps): ReactElement {
+function FeedEmptyScreen(): ReactElement {
   const { openModal } = useLazyModal();
   const router = useRouter();
 
   return (
-    <PageContainer className={classNames('mx-auto', className?.wrapper)}>
-      <EmptyScreenContainer className={className?.emptyScreen}>
+    <PageContainer className="mx-auto">
+      <EmptyScreenContainer>
         <FilterIcon
           className={EmptyScreenIcon.className}
           style={EmptyScreenIcon.style}
