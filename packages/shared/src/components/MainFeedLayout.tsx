@@ -295,10 +295,9 @@ export default function MainFeedLayout({
     const mobileExploreActions = !isLaptop &&
       (isExplorePopular || isExploreLatest) && (
         <Dropdown
-          className={{ container: 'mx-4 w-56' }}
+          className={{ container: 'mx-4 mb-2 !w-56' }}
           selectedIndex={selectedAlgo}
           options={algorithmsList}
-          withWrapper={false}
           onChange={(_, index) => setSelectedAlgo(index)}
         />
       );
