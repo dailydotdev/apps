@@ -228,10 +228,6 @@ export default function MainFeedLayout({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
   });
-  const searchProps: SearchControlHeaderProps = {
-    algoState: [selectedAlgo, setSelectedAlgo],
-    feedName,
-  };
   const search = (
     <LayoutHeader className={isSearchPage && 'mt-16 laptop:mt-0'}>
       {navChildren}
@@ -318,7 +314,10 @@ export default function MainFeedLayout({
       ),
       emptyScreen: <FeedEmptyScreen className={classes} />,
       actionButtons: !isExplore && feedWithActions && (
-        <SearchControlHeader {...searchProps} />
+        <SearchControlHeader
+          algoState={[selectedAlgo, setSelectedAlgo]}
+          feedName={feedName}
+        />
       ),
     };
   }, [
@@ -337,7 +336,6 @@ export default function MainFeedLayout({
     isExplorePopular,
     isExploreLatest,
     selectedAlgo,
-    searchProps,
     getFeatureValue,
     tab,
     selectedPeriod,
