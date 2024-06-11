@@ -4,16 +4,17 @@ import { ChecklistCard } from './ChecklistCard';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetId, TargetType } from '../../lib/analytics';
 import { useOnboardingChecklist } from '../../hooks';
-import { ChecklistCardVariant } from '../../lib/checklist';
+import { ChecklistCardProps, ChecklistCardVariant } from '../../lib/checklist';
 
-export type OnboardingChecklistCardProps = {
-  className?: string;
-  isOpen: boolean;
-};
+export type OnboardingChecklistCardProps = Pick<
+  ChecklistCardProps,
+  'className' | 'isOpen' | 'variant'
+>;
 
 export const OnboardingChecklistCard = ({
   className,
-  isOpen,
+  isOpen = true,
+  variant = ChecklistCardVariant.Default,
 }: OnboardingChecklistCardProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { steps, completedSteps, nextStep } = useOnboardingChecklist();
@@ -40,7 +41,7 @@ export const OnboardingChecklistCard = ({
         nextStep ? ` 👉 ${nextStep?.title}` : ''
       }`}
       steps={steps}
-      variant={ChecklistCardVariant.Small}
+      variant={variant}
       isOpen={isOpen}
     />
   );

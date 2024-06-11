@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { ChecklistViewState } from '../../lib/checklist';
+import { ChecklistCardVariant, ChecklistViewState } from '../../lib/checklist';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon, EyeCancelIcon, MenuIcon } from '../icons';
 import ContextMenu from '../fields/ContextMenu';
@@ -74,7 +74,10 @@ export const SidebarOnboardingChecklistCard = ({
       )}
     >
       <div className="relative">
-        <OnboardingChecklistCard isOpen={isOpen} />
+        <OnboardingChecklistCard
+          isOpen={isOpen}
+          variant={ChecklistCardVariant.Small}
+        />
         <div className="absolute right-2 top-2 flex">
           {isOpen && (
             <>

@@ -26,6 +26,7 @@ import { feature } from '../../lib/featureManagement';
 import { CustomFeedsExperiment } from '../../lib/featureValues';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
+import { OnboardingChecklistBar } from '../checklist/OnboardingChecklistBar';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -98,6 +99,8 @@ function FeedNav(): ReactElement {
     return null;
   }
 
+  const checklistBarElement = <OnboardingChecklistBar />;
+
   return (
     <div
       className={classNames(
@@ -105,7 +108,13 @@ function FeedNav(): ReactElement {
         scrollClassName,
       )}
     >
-      {isMobile && <MobileFeedActions />}
+      {!isMobile && checklistBarElement}
+      {isMobile && (
+        <>
+          <MobileFeedActions />
+          {checklistBarElement}
+        </>
+      )}
       <div className="mb-4 h-[3.25rem] tablet:mb-0">
         <TabContainer
           controlledActive={urlToTab[router.asPath] ?? ''}

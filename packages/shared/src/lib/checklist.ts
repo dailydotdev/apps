@@ -100,3 +100,8 @@ export enum ChecklistViewState {
   Closed = 'closed',
   Hidden = 'hidden',
 }
+
+export type ChecklistBarProps = Pick<
+  ChecklistCardProps,
+  'className' | 'title' | 'steps'
+>;

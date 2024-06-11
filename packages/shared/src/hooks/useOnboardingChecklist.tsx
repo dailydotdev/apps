@@ -1,10 +1,6 @@
 import React, { useMemo } from 'react';
 import { ActionType } from '../graphql/actions';
-import {
-  ChecklistStepType,
-  ChecklistViewState,
-  createChecklistStep,
-} from '../lib/checklist';
+import { ChecklistViewState, createChecklistStep } from '../lib/checklist';
 import { useActions } from './useActions';
 import { UseChecklist, useChecklist } from './useChecklist';
 import usePersistentContext from './usePersistentContext';
@@ -21,7 +17,6 @@ type UseOnboardingChecklist = UseChecklist & {
   checklistView: ChecklistViewState;
   setChecklistView: (value: ChecklistViewState) => void;
   isChecklistReady: boolean;
-  nextStep: ChecklistStepType | undefined;
 };
 
 export const useOnboardingChecklist = (): UseOnboardingChecklist => {
@@ -152,20 +147,10 @@ export const useOnboardingChecklist = (): UseOnboardingChecklist => {
       ChecklistViewState.Open,
     );
 
-  const nextStep = useMemo(() => {
-    return steps?.find(
-      (step) =>
-        !checklist.completedSteps.some(
-          (completedStep) => completedStep.action === step.action,
-        ),
-    );
-  }, [steps, checklist.completedSteps]);
-
   return {
     ...checklist,
     checklistView,
     setChecklistView,
     isChecklistReady,
-    nextStep,
   };
 };
