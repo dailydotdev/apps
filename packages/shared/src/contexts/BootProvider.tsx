@@ -21,7 +21,7 @@ import { storageWrapper as storage } from '../lib/storageWrapper';
 import { useRefreshToken } from '../hooks/useRefreshToken';
 import { NotificationsContextProvider } from './NotificationsContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
-import { AnalyticsContextProvider } from './AnalyticsContext';
+import { LogContextProvider } from './LogContext';
 import { GrowthBookProvider } from '../components/GrowthBookProvider';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
 import { checkIsExtension } from '../lib/func';
@@ -258,7 +258,7 @@ export const BootDataProvider = ({
             updateAlerts={updateAlerts}
             loadedAlerts={loadedFromCache}
           >
-            <AnalyticsContextProvider
+            <LogContextProvider
               app={app}
               version={version}
               getPage={getPage}
@@ -270,7 +270,7 @@ export const BootDataProvider = ({
               >
                 {children}
               </NotificationsContextProvider>
-            </AnalyticsContextProvider>
+            </LogContextProvider>
           </AlertContextProvider>
         </SettingsContextProvider>
       </AuthContextProvider>

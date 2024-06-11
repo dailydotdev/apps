@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
 import { PostComments } from '@dailydotdev/shared/src/components/post/PostComments';
-import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { useShareComment } from '@dailydotdev/shared/src/hooks/useShareComment';
 import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
 import {

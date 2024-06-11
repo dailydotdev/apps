@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 import { NotificationType } from '../../components/notifications/utils';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Source } from '../../graphql/sources';
-import { AnalyticsEvent } from '../../lib/analytics';
+import { LogEvent } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
 import { useNotificationPreferenceToggle } from '../notifications';
 import { useToastNotification } from '../useToastNotification';
@@ -21,7 +21,7 @@ export type UseSourceSubscription = {
 export const useSourceSubscription = ({
   source,
 }: UseSourceSubscriptionProps): UseSourceSubscription => {
-  const { trackEvent } = useAnalyticsContext();
+  const { logEvent } = useLogContext();
   const { isLoggedIn, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { isSubscribed, isReady, onToggle } = useNotificationPreferenceToggle({
@@ -46,10 +46,10 @@ export const useSourceSubscription = ({
 
     const result = await onToggle();
 
-    trackEvent({
+    logEvent({
       event_name: result.isSubscribed
-        ? AnalyticsEvent.SubscribeSource
-        : AnalyticsEvent.UnsubscribeSource,
+        ? LogEvent.SubscribeSource
+        : LogEvent.UnsubscribeSource,
       target_id: source.id,
     });
 
@@ -58,7 +58,7 @@ export const useSourceSubscription = ({
         ? '✅ You are now subscribed'
         : '⛔️ You are now unsubscribed',
     );
-  }, [isLoggedIn, onToggle, showLogin, source?.id, trackEvent, displayToast]);
+  }, [isLoggedIn, onToggle, showLogin, source?.id, logEvent, displayToast]);
 
   return {
     isSubscribed,

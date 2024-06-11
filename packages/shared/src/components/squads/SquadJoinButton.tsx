@@ -7,8 +7,8 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useJoinSquad, useLeaveSquad } from '../../hooks';
 import { labels } from '../../lib';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { UserShortProfile } from '../../lib/user';
 import { generateQueryKey, RequestKey } from '../../lib/query';
@@ -39,11 +39,11 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
   inviterMember,
   ...buttonProps
 }: SquadJoinProps & ButtonProps<T>): ReactElement => {
-  const { trackEvent } = useAnalyticsContext();
+  const { logEvent } = useLogContext();
 
   useEffect(() => {
-    trackEvent({
-      event_name: AnalyticsEvent.Impression,
+    logEvent({
+      event_name: LogEvent.Impression,
       target_type: TargetType.SquadJoinButton,
       extra: JSON.stringify({
         squad: squad.id,
@@ -61,8 +61,8 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
       className={classNames(className)}
       onClick={(event) => {
         if (!squad.currentMember) {
-          trackEvent({
-            event_name: AnalyticsEvent.ClickJoinSquad,
+          logEvent({
+            event_name: LogEvent.ClickJoinSquad,
             extra: JSON.stringify({
               inviter: inviterMember?.id,
               squad: squad.id,

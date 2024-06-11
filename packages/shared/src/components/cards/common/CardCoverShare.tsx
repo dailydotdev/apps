@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { ShareIcon } from '../../icons';
-import { useTrackedCopyPostLink } from '../../../hooks/post';
+import { useLoggedCopyPostLink } from '../../../hooks/post';
 import { Post } from '../../../graphql/posts';
 import { ShareProvider } from '../../../lib/share';
 
@@ -16,7 +16,7 @@ export function CardCoverShare({
   onCopy,
   onShare,
 }: CardCoverShareProps): ReactElement {
-  const { onCopyLink, isLoading } = useTrackedCopyPostLink(post);
+  const { onCopyLink, isLoading } = useLoggedCopyPostLink(post);
   const onClick = () => {
     onCopyLink(ShareProvider.CopyLink);
     onCopy();

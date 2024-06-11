@@ -11,11 +11,7 @@ import EnableNotification from '../notifications/EnableNotification';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import SubComment from './SubComment';
 import AuthContext from '../../contexts/AuthContext';
-import {
-  AnalyticsEvent,
-  NotificationPromptSource,
-  TargetType,
-} from '../../lib/analytics';
+import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
 import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
 import { SquadCommentJoinBanner } from '../squads/SquadCommentJoinBanner';
@@ -24,7 +20,7 @@ import { Comment } from '../../graphql/comments';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import CommentInputOrModal from './CommentInputOrModal';
 
 type ClassName = {
@@ -39,8 +35,8 @@ export interface MainCommentProps
   onCommented: CommentMarkdownInputProps['onCommented'];
   className?: ClassName;
   lazy?: boolean;
-  trackImpression?: boolean;
-  trackClick?: boolean;
+  logImpression?: boolean;
+  logClick?: boolean;
 }
 
 const shouldShowBannerOnComment = (
@@ -58,13 +54,13 @@ export default function MainComment({
   joinNotificationCommentId,
   onCommented,
   lazy = false,
-  trackImpression,
-  trackClick,
+  logImpression,
+  logClick,
   ...props
 }: MainCommentProps): ReactElement {
   const { user } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
-  const isTrackedImpression = useRef(false);
+  const { logEvent } = useContext(LogContext);
+  const isLoggedImpression = useRef(false);
   const showNotificationPermissionBanner = useMemo(
     () => shouldShowBannerOnComment(permissionNotificationCommentId, comment),
     [permissionNotificationCommentId, comment],
@@ -96,31 +92,31 @@ export default function MainComment({
   });
 
   useEffect(() => {
-    if (trackImpression && !isTrackedImpression.current && inView) {
-      isTrackedImpression.current = true;
-      trackEvent({
-        event_name: AnalyticsEvent.Impression,
+    if (logImpression && !isLoggedImpression.current && inView) {
+      isLoggedImpression.current = true;
+      logEvent({
+        event_name: LogEvent.Impression,
         target_type: TargetType.Comment,
         target_id: comment.id,
         extra: JSON.stringify({ origin: props.origin }),
       });
     }
   }, [
-    isTrackedImpression,
+    isLoggedImpression,
     props.origin,
-    trackEvent,
-    trackImpression,
+    logEvent,
+    logImpression,
     inView,
     comment.id,
   ]);
 
   const onClick = () => {
-    if (!trackClick && !props.linkToComment) {
+    if (!logClick && !props.linkToComment) {
       return;
     }
 
-    trackEvent({
-      event_name: AnalyticsEvent.Click,
+    logEvent({
+      event_name: LogEvent.Click,
       target_type: TargetType.Comment,
       target_id: comment.id,
       extra: JSON.stringify({ origin: props.origin }),
@@ -140,7 +136,7 @@ export default function MainComment({
         contentVisibility: initialInView ? 'visible' : 'auto',
       }}
     >
-      {!editProps && (trackImpression || inView) && (
+      {!editProps && (logImpression || inView) && (
         <CommentBox
           {...props}
           comment={comment}
@@ -204,7 +200,7 @@ export default function MainComment({
         <SquadCommentJoinBanner
           className={!comment.children?.edges?.length && 'mt-3'}
           squad={props.post?.source as Squad}
-          analyticsOrigin={props.origin}
+          logOrigin={props.origin}
           post={props.post}
         />
       )}

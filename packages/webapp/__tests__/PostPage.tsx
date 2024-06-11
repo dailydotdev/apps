@@ -52,7 +52,7 @@ import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
 import { VOTE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import PostPage, { Props } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
@@ -165,7 +165,7 @@ const createCommentsMock = (): MockedGraphQLResponse<PostCommentsData> => ({
 });
 
 let client: QueryClient;
-const trackEvent = jest.fn();
+const logEvent = jest.fn();
 
 const renderPost = (
   props: Partial<Props> = {},
@@ -193,16 +193,16 @@ const renderPost = (
       }}
       settings={createTestSettings()}
     >
-      <AnalyticsContext.Provider
+      <LogContext.Provider
         value={{
-          trackEvent,
-          trackEventStart: jest.fn(),
-          trackEventEnd: jest.fn(),
+          logEvent,
+          logEventStart: jest.fn(),
+          logEventEnd: jest.fn(),
           sendBeacon: jest.fn(),
         }}
       >
         {getMainLayout(<PostPage {...defaultProps} {...props} />)}
-      </AnalyticsContext.Provider>
+      </LogContext.Provider>
     </TestBootProvider>,
   );
 };
@@ -889,7 +889,7 @@ describe('downvote flow', () => {
 describe('collection', () => {
   let viewPostMutationCalled = false;
 
-  it('should track post view', async () => {
+  it('should log post view', async () => {
     renderPost(
       {},
       [
@@ -927,14 +927,14 @@ describe('collection', () => {
 });
 
 describe('article', () => {
-  it('should track page view on initial load', async () => {
+  it('should log page view on initial load', async () => {
     renderPost({
       initialData: {
         post: defaultPost as Post,
       },
     });
-    expect(trackEvent).toBeCalledTimes(1);
-    expect(trackEvent).toBeCalledWith(
+    expect(logEvent).toBeCalledTimes(1);
+    expect(logEvent).toBeCalledWith(
       expect.objectContaining({
         event_name: 'article page view',
       }),

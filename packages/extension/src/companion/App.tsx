@@ -6,7 +6,7 @@ import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContex
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useRefreshToken } from '@dailydotdev/shared/src/hooks/useRefreshToken';
 import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
-import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { LogContextProvider } from '@dailydotdev/shared/src/contexts/LogContext';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
@@ -106,7 +106,7 @@ export default function App({
             >
               <SettingsContextProvider settings={settings}>
                 <AlertContextProvider alerts={alerts}>
-                  <AnalyticsContextProvider
+                  <LogContextProvider
                     app={app}
                     version={version}
                     fetchMethod={companionFetch}
@@ -132,7 +132,7 @@ export default function App({
                         settings?.autoDismissNotifications
                       }
                     />
-                  </AnalyticsContextProvider>
+                  </LogContextProvider>
                 </AlertContextProvider>
               </SettingsContextProvider>
             </AuthContextProvider>

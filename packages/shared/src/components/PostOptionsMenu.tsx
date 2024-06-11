@@ -25,8 +25,8 @@ import {
 } from './icons';
 import { ReportedCallback } from './modals';
 import useTagAndSource from '../hooks/useTagAndSource';
-import AnalyticsContext from '../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../lib/feed';
+import LogContext from '../contexts/LogContext';
+import { postLogEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import {
   ToastSubject,
@@ -37,7 +37,7 @@ import {
 } from '../hooks';
 import { AllFeedPages, generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
-import { AnalyticsEvent, Origin } from '../lib/analytics';
+import { LogEvent, Origin } from '../lib/log';
 import { usePostMenuActions } from '../hooks/usePostMenuActions';
 import { getPostByIdKey } from '../hooks/usePostById';
 import { useLazyModal } from '../hooks/useLazyModal';
@@ -99,13 +99,12 @@ export default function PostOptionsMenu({
   const { feedSettings, advancedSettings, checkSettingsEnabledState } =
     useFeedSettings({ enabled: isPostOptionsOpen });
   const { onUpdateSettings } = useAdvancedSettings({ enabled: false });
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const { hidePost, unhidePost } = useReportPost();
   const { openSharePost } = useSharePost(origin);
 
   const { openModal } = useLazyModal();
-  const { queryKey: feedQueryKey, trackingOpts } =
-    useContext(ActiveFeedContext);
+  const { queryKey: feedQueryKey, logOpts } = useContext(ActiveFeedContext);
   const {
     onFollowSource,
     onUnfollowSource,
@@ -175,10 +174,10 @@ export default function PostOptionsMenu({
       await client.invalidateQueries(feedQueryKey);
     },
     onPostDeleted: ({ index, post: deletedPost }) => {
-      trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.DeletePost, deletedPost, {
+      logEvent(
+        postLogEvent(LogEvent.DeletePost, deletedPost, {
           extra: { origin },
-          ...trackingOpts,
+          ...logOpts,
         }),
       );
       return showMessageAndRemovePost('The post has been deleted', index, null);
@@ -265,10 +264,10 @@ export default function PostOptionsMenu({
       return;
     }
 
-    trackEvent(
-      postAnalyticsEvent('hide post', post, {
+    logEvent(
+      postLogEvent('hide post', post, {
         extra: { origin: Origin.PostContextMenu },
-        ...trackingOpts,
+        ...logOpts,
       }),
     );
 
@@ -301,7 +300,7 @@ export default function PostOptionsMenu({
       action: () =>
         openSharePost({
           post,
-          ...trackingOpts,
+          ...logOpts,
         }),
     });
   }

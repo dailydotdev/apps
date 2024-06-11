@@ -12,8 +12,8 @@ import { SimpleTooltip } from '../tooltips';
 import { UserStreak } from '../../graphql/users';
 import { useViewSize, ViewSize } from '../../hooks';
 import { isTesting } from '../../lib/constants';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../../lib/analytics';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent } from '../../lib/log';
 import { RootPortal } from '../tooltips/Portal';
 import { Drawer } from '../drawers';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -70,7 +70,7 @@ export function ReadingStreakButton({
   iconPosition,
   className,
 }: ReadingStreakButtonProps): ReactElement {
-  const { trackEvent } = useAnalyticsContext();
+  const { logEvent } = useLogContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
@@ -81,11 +81,11 @@ export function ReadingStreakButton({
     setShouldShowStreaks((state) => !state);
 
     if (!shouldShowStreaks) {
-      trackEvent({
-        event_name: AnalyticsEvent.OpenStreaks,
+      logEvent({
+        event_name: LogEvent.OpenStreaks,
       });
     }
-  }, [shouldShowStreaks, trackEvent]);
+  }, [shouldShowStreaks, logEvent]);
 
   const Tooltip = shouldShowStreaks ? CustomStreaksTooltip : SimpleTooltip;
 

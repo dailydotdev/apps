@@ -7,7 +7,7 @@ import MainComment, { MainCommentProps } from './MainComment';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import comment from '../../../__tests__/fixture/comment';
 import post from '../../../__tests__/fixture/post';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/log';
 import { useViewSize } from '../../hooks';
 
 const onDelete = jest.fn();

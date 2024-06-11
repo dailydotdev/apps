@@ -39,7 +39,7 @@ import {
   RequestKey,
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
-import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
 import {
   KEYWORD_QUERY,
   Keyword,

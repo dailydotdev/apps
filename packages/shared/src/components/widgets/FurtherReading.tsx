@@ -16,7 +16,7 @@ import { Post, PostType } from '../../graphql/posts';
 import SimilarPosts from './SimilarPosts';
 import BestDiscussions from './BestDiscussions';
 import PostToc from './PostToc';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/log';
 import { FeedData, SOURCE_FEED_QUERY } from '../../graphql/feed';
 import { isSourcePublicSquad } from '../../graphql/squads';
 import { SquadPostListItem } from '../squads/SquadPostListItem';

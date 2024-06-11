@@ -10,15 +10,11 @@ import { Radio } from '../fields/Radio';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { usePushNotificationMutation } from '../../hooks/notifications';
-import {
-  AnalyticsEvent,
-  NotificationPromptSource,
-  TargetType,
-} from '../../lib/analytics';
+import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
 import { usePersonalizedDigest } from '../../hooks';
 import { UserPersonalizedDigestType } from '../../graphql/users';
 import { TimezoneDropdown } from '../widgets/TimezoneDropdown';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getUserInitialTimezone } from '../../lib/timezones';
 import { HourDropdown } from '../fields/HourDropdown';
@@ -37,7 +33,7 @@ export const ReadingReminder = ({
   onClickNext,
 }: ReadingReminderProps): ReactElement => {
   const { user } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const [loading, setLoading] = useState(false);
   const [userTimeZone, setUserTimeZone] = useState<string>(
     getUserInitialTimezone({
@@ -48,23 +44,23 @@ export const ReadingReminder = ({
   const [timeOption, setTimeOption] = useState('9');
   const [customTimeIndex, setCustomTimeIndex] = useState(8);
   const [isEditingTimezone, setIsEditingTimezone] = useState(false);
-  const isTracked = useRef(false);
+  const isLogged = useRef(false);
   const { onEnablePush } = usePushNotificationMutation();
   const { subscribePersonalizedDigest } = usePersonalizedDigest();
 
   useEffect(() => {
-    if (!isTracked.current) {
-      isTracked.current = true;
-      trackEvent({
-        event_name: AnalyticsEvent.Impression,
+    if (!isLogged.current) {
+      isLogged.current = true;
+      logEvent({
+        event_name: LogEvent.Impression,
         target_type: TargetType.ReadingReminder,
       });
     }
-  }, [trackEvent]);
+  }, [logEvent]);
 
   const onSkip = () => {
-    trackEvent({
-      event_name: AnalyticsEvent.SkipReadingReminder,
+    logEvent({
+      event_name: LogEvent.SkipReadingReminder,
     });
     onClickNext();
   };
@@ -76,8 +72,8 @@ export const ReadingReminder = ({
     setLoading(true);
     const selectedHour =
       timeOption === 'custom' ? customTimeIndex : parseInt(timeOption, 10);
-    trackEvent({
-      event_name: AnalyticsEvent.ScheduleReadingReminder,
+    logEvent({
+      event_name: LogEvent.ScheduleReadingReminder,
       extra: JSON.stringify({
         hour: selectedHour,
         timezone: userTimeZone,

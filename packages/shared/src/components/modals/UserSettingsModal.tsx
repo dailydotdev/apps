@@ -1,13 +1,13 @@
 import React, { ReactElement } from 'react';
 import { Modal, ModalProps } from './common/Modal';
 import Settings from '../Settings';
-import { useTrackModal } from '../../hooks/useTrackModal';
+import { useLogModal } from '../../hooks/useLogModal';
 
 export function UserSettingsModal({
   onRequestClose,
   ...modalProps
 }: ModalProps): ReactElement {
-  useTrackModal({ isOpen: modalProps.isOpen, title: 'feed settings' });
+  useLogModal({ isOpen: modalProps.isOpen, title: 'feed settings' });
   return (
     <Modal
       kind={Modal.Kind.FlexibleCenter}

@@ -5,14 +5,14 @@ import {
   QueryKey,
   useQueryClient,
 } from '@tanstack/react-query';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import LogContext from '../contexts/LogContext';
 import {
-  feedAnalyticsExtra,
+  feedLogExtra,
   optimisticPostUpdateInFeed,
-  postAnalyticsEvent,
+  postLogEvent,
 } from '../lib/feed';
 import { Post, PostType } from '../graphql/posts';
-import { Origin } from '../lib/analytics';
+import { Origin } from '../lib/log';
 import { ActiveFeedContext } from '../contexts';
 import { updateCachedPagePost } from '../lib/query';
 import { FeedLayoutMobileFeedPages, useFeedLayout } from './useFeedLayout';
@@ -94,7 +94,7 @@ export default function useOnPostClick({
   origin,
 }: UseOnPostClickProps): FeedPostClick {
   const client = useQueryClient();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const { checkReadingStreak } = useReadingStreak();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
   const { shouldUseListFeedLayout } = useFeedLayout({
@@ -104,13 +104,13 @@ export default function useOnPostClick({
   return useMemo(
     () =>
       async ({ post, row, column, optional }): Promise<void> => {
-        trackEvent(
-          postAnalyticsEvent(eventName, post, {
+        logEvent(
+          postLogEvent(eventName, post, {
             columns,
             column,
             row,
             extra: {
-              ...feedAnalyticsExtra(
+              ...feedLogExtra(
                 feedName,
                 ranking,
                 null,
@@ -191,7 +191,7 @@ export default function useOnPostClick({
       items,
       ranking,
       origin,
-      trackEvent,
+      logEvent,
     ],
   );
 }
