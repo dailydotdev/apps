@@ -26,7 +26,7 @@ const tabsToFeedMap: Partial<Record<SharedFeedPage, ExploreTabs>> = {
   [SharedFeedPage.ExploreLatest]: ExploreTabs.ByDate,
 };
 
-const urlToTab: Record<string, ExploreTabs> = {
+export const urlToTab: Record<string, ExploreTabs> = {
   '/explore': ExploreTabs.Popular,
   '/explore/upvoted': ExploreTabs.MostUpvoted,
   '/explore/discussed': ExploreTabs.BestDiscussions,
