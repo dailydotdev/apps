@@ -9,7 +9,7 @@ import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
 import { SquadsDirectoryHeader } from '.';
 import { LazyModalElement } from '../modals/LazyModalElement';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/log';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { COMPLETED_USER_ACTIONS } from '../../graphql/actions';
 

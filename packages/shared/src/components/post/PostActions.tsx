@@ -11,14 +11,14 @@ import {
 } from '../icons';
 import { Post, UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
-import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
+import { PostOrigin } from '../../hooks/log/useLogContextData';
 import {
   useConditionalFeature,
   useViewSize,
   useVotePost,
   ViewSize,
 } from '../../hooks';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/log';
 import { Card } from '../cards/Card';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PostTagsPanel } from './block/PostTagsPanel';

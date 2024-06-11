@@ -6,7 +6,7 @@ import { Card } from '../cards/Card';
 import { SourceType, Squad } from '../../graphql/sources';
 import { Image } from '../image/Image';
 import { SquadJoinButton } from '../squads/SquadJoinButton';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/log';
 import { cloudinary } from '../../lib/image';
 import { Button, ButtonVariant } from '../buttons/Button';
 

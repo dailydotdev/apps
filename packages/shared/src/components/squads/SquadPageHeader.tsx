@@ -9,7 +9,7 @@ import SharePostBar from './SharePostBar';
 import { TourScreenIndex } from './SquadTour';
 import { useSquadTour } from '../../hooks/useSquadTour';
 import { verifyPermission } from '../../graphql/squads';
-import { NotificationPromptSource } from '../../lib/analytics';
+import { NotificationPromptSource } from '../../lib/log';
 import { useSquadChecklist } from '../../hooks/useSquadChecklist';
 import { ActionType } from '../../graphql/actions';
 import {

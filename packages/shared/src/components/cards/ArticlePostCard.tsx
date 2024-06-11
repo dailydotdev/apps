@@ -17,7 +17,7 @@ import { PostTagsPanel } from '../post/block/PostTagsPanel';
 import { usePostFeedback } from '../../hooks';
 import styles from './Card.module.css';
 import { FeedbackCard } from './FeedbackCard';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/log';
 import { isVideoPost } from '../../graphql/posts';
 import CardOverlay from './common/CardOverlay';
 import PostTags from './PostTags';

@@ -28,7 +28,7 @@ import {
   UserPersonalizedDigestType,
 } from '@dailydotdev/shared/src/graphql/users';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { SendType } from '@dailydotdev/shared/src/hooks';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
@@ -44,7 +44,7 @@ jest.mock('next/router', () => ({
 
 let client: QueryClient;
 let personalizedDigestMock: MockedGraphQLResponse;
-const trackEvent = jest.fn();
+const logEvent = jest.fn();
 
 beforeEach(() => {
   jest.restoreAllMocks();
@@ -118,11 +118,11 @@ const renderComponent = (user = defaultLoggedUser): RenderResult => {
         visit={defaultVisit}
         tokenRefreshed
       >
-        <AnalyticsContext.Provider
+        <LogContext.Provider
           value={{
-            trackEvent,
-            trackEventStart: jest.fn(),
-            trackEventEnd: jest.fn(),
+            logEvent,
+            logEventStart: jest.fn(),
+            logEventEnd: jest.fn(),
             sendBeacon: jest.fn(),
           }}
         >
@@ -131,7 +131,7 @@ const renderComponent = (user = defaultLoggedUser): RenderResult => {
               <ProfileNotificationsPage />
             </NotificationsContextProvider>
           </SettingsContext.Provider>
-        </AnalyticsContext.Provider>
+        </LogContext.Provider>
       </AuthContextProvider>
     </QueryClientProvider>,
   );
@@ -176,8 +176,8 @@ it('should change user all email subscription', async () => {
     expect(personalizedDigestMutationCalled).toBe(true);
   });
 
-  expect(trackEvent).toHaveBeenCalledTimes(1);
-  expect(trackEvent).toHaveBeenCalledWith({
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
     event_name: 'enable notification',
     extra: JSON.stringify({
       channel: 'email',
@@ -219,8 +219,8 @@ it('should unsubscribe from all email campaigns', async () => {
     expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
   });
 
-  expect(trackEvent).toHaveBeenCalledTimes(1);
-  expect(trackEvent).toHaveBeenCalledWith({
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
     event_name: 'disable notification',
     extra: JSON.stringify({
       channel: 'email',
@@ -240,8 +240,8 @@ it('should subscribe to user email marketing subscription', async () => {
   await waitForNock();
   expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
 
-  expect(trackEvent).toHaveBeenCalledTimes(1);
-  expect(trackEvent).toHaveBeenCalledWith({
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
     event_name: 'enable notification',
     extra: JSON.stringify({
       channel: 'email',
@@ -261,8 +261,8 @@ it('should unsubscribe to user email marketing subscription', async () => {
   await waitForNock();
   expect(updateUser).toBeCalledWith({ ...defaultLoggedUser, ...data });
 
-  expect(trackEvent).toHaveBeenCalledTimes(1);
-  expect(trackEvent).toHaveBeenCalledWith({
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
     event_name: 'disable notification',
     extra: JSON.stringify({
       channel: 'email',
@@ -318,15 +318,15 @@ it('should subscribe to personalized digest subscription', async () => {
 
   expect(subscription).toBeChecked();
 
-  expect(trackEvent).toHaveBeenCalledTimes(2);
-  expect(trackEvent).toHaveBeenCalledWith({
+  expect(logEvent).toHaveBeenCalledTimes(2);
+  expect(logEvent).toHaveBeenCalledWith({
     event_name: 'enable notification',
     extra: JSON.stringify({
       channel: 'email',
       category: 'digest',
     }),
   });
-  expect(trackEvent).toHaveBeenCalledWith({
+  expect(logEvent).toHaveBeenCalledWith({
     event_name: 'schedule digest',
     extra: JSON.stringify({ hour: 8, frequency: 'weekly' }),
   });
@@ -373,8 +373,8 @@ it('should unsubscribe from personalized digest subscription', async () => {
   await waitForNock();
 
   expect(subscription).not.toBeChecked();
-  expect(trackEvent).toHaveBeenCalledTimes(1);
-  expect(trackEvent).toHaveBeenCalledWith({
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
     event_name: 'disable notification',
     extra: JSON.stringify({ channel: 'email', category: 'digest' }),
   });
@@ -432,8 +432,8 @@ it('should change hour for personalized digest subscription', async () => {
   const selectedHour = await screen.findByText('00:00');
   fireEvent.click(selectedHour);
 
-  expect(trackEvent).toHaveBeenCalledTimes(1);
-  expect(trackEvent).toHaveBeenCalledWith({
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
     event_name: 'schedule digest',
     extra: JSON.stringify({ hour: 0, frequency: 'weekly' }),
   });

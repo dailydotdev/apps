@@ -24,7 +24,7 @@ import {
 import { squadFeedback } from '../../lib/constants';
 import { MenuItemProps } from '../fields/ContextMenu';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import useContextMenu from '../../hooks/useContextMenu';
@@ -44,7 +44,7 @@ export default function SquadHeaderMenu({
   squad,
 }: SquadHeaderMenuProps): ReactElement {
   const { isLoggedIn } = useAuthContext();
-  const { trackAndCopyLink } = useSquadInvitation({
+  const { logAndCopyLink } = useSquadInvitation({
     squad,
     origin: Origin.SquadPage,
   });
@@ -85,7 +85,7 @@ export default function SquadHeaderMenu({
     if (!squad.currentMember && squad.public && isLoggedIn) {
       list.push({
         icon: <ContextMenuIcon Icon={LinkIcon} />,
-        action: () => trackAndCopyLink(),
+        action: () => logAndCopyLink(),
         label: 'Invitation link',
       });
     }
@@ -132,7 +132,7 @@ export default function SquadHeaderMenu({
   }, [
     editSquad,
     onDeleteSquad,
-    trackAndCopyLink,
+    logAndCopyLink,
     onLeaveSquad,
     openModal,
     squad,

@@ -10,7 +10,7 @@ import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
 import useContextMenu from '../../hooks/useContextMenu';
 import SquadMemberMenu from '../squads/SquadMemberMenu';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/log';
 import { IconSize } from '../Icon';
 import { LinkIcon } from '../icons';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
@@ -34,7 +34,7 @@ export interface SquadMemberModalProps extends ModalProps {
 }
 
 const InitialItem = ({ squad }: { squad: Squad }) => {
-  const { copying, trackAndCopyLink } = useSquadInvitation({
+  const { copying, logAndCopyLink } = useSquadInvitation({
     squad,
     origin: Origin.SquadMembersList,
   });
@@ -49,7 +49,7 @@ const InitialItem = ({ squad }: { squad: Squad }) => {
       disabled={copying}
       className="flex items-center justify-start px-6 py-3 hover:bg-surface-hover"
       onClick={() => {
-        trackAndCopyLink();
+        logAndCopyLink();
       }}
     >
       <FlexCentered className="mr-4 h-12 w-12 rounded-10 bg-surface-float">

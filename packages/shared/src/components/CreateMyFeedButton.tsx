@@ -6,17 +6,14 @@ import {
   ButtonSize,
   ButtonVariant,
 } from './buttons/Button';
-import AnalyticsContext from '../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
+import LogContext from '../contexts/LogContext';
+import { LogEvent } from '../hooks/log/useLogQueue';
 
 interface CreateMyFeedButtonProps {
   action: () => unknown;
 }
 
-const getAnalyticsEvent = (
-  eventName: string,
-  copy: string,
-): AnalyticsEvent => ({
+const getLogEvent = (eventName: string, copy: string): LogEvent => ({
   event_name: eventName,
   target_type: 'my feed button',
   target_id: 'feed_top',
@@ -26,16 +23,16 @@ const getAnalyticsEvent = (
 export default function CreateMyFeedButton({
   action,
 }: CreateMyFeedButtonProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const buttonCopy = 'Choose tags';
   const explainerCopy = 'Get the content you need by creating a personal feed';
   const onClick = () => {
-    trackEvent(getAnalyticsEvent('click', buttonCopy));
+    logEvent(getLogEvent('click', buttonCopy));
     action();
   };
 
   useEffect(() => {
-    trackEvent(getAnalyticsEvent('impression', buttonCopy));
+    logEvent(getLogEvent('impression', buttonCopy));
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buttonCopy]);

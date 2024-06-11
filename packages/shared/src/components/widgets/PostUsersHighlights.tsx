@@ -15,7 +15,7 @@ import { SourceSubscribeButton } from '../sources';
 import { ButtonVariant } from '../buttons/common';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import EnableNotification from '../notifications/EnableNotification';
-import { NotificationPromptSource } from '../../lib/analytics';
+import { NotificationPromptSource } from '../../lib/log';
 import { useSourceSubscription } from '../../hooks';
 
 interface PostAuthorProps {

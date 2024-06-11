@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { cloudinary } from '../../lib/image';
 import { Button, ButtonVariant } from '../buttons/Button';
 import SourceBetaIcon from '../../../icons/source_beta.svg';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/log';
 import { useSquadNavigation } from '../../hooks';
 
 interface SquadsDirectoryHeaderProps {

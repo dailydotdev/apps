@@ -45,7 +45,7 @@ import { getFeedName } from '../lib/feed';
 import CommentFeed from './CommentFeed';
 import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
-import { Origin } from '../lib/analytics';
+import { Origin } from '../lib/log';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -294,7 +294,7 @@ export default function MainFeedLayout({
           isMainFeed
           feedQueryKey={generateQueryKey(RequestKey.CommentFeed, null)}
           query={COMMENT_FEED_QUERY}
-          analyticsOrigin={Origin.CommentFeed}
+          logOrigin={Origin.CommentFeed}
           emptyScreen={
             <ProfileEmptyScreen
               title="Nobody has replied to any post yet"

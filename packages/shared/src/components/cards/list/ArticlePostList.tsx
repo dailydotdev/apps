@@ -12,7 +12,7 @@ import {
   useTruncatedSummary,
 } from '../../../hooks';
 import { FeedbackList } from './FeedbackList';
-import { Origin } from '../../../lib/analytics';
+import { Origin } from '../../../lib/log';
 import SourceButton from '../SourceButton';
 import { isVideoPost } from '../../../graphql/posts';
 import PostReadTime from './PostReadTime';

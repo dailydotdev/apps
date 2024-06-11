@@ -23,7 +23,7 @@ import AuthHeader from './AuthHeader';
 import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import { Checkbox } from '../fields/Checkbox';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import { Modal } from '../modals/common/Modal';
 import { useGenerateUsername } from '../../hooks';
 import { AuthFormProps } from './common';
@@ -59,14 +59,14 @@ export const RegistrationForm = ({
   onUpdateHints,
   simplified,
 }: RegistrationFormProps): ReactElement => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;
   const { username, setUsername } = useGenerateUsername(name);
 
   useEffect(() => {
-    trackEvent({
+    logEvent({
       event_name: AuthEventNames.StartSignUpForm,
     });
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
@@ -75,7 +75,7 @@ export const RegistrationForm = ({
 
   useEffect(() => {
     if (Object.keys(hints).length) {
-      trackEvent({
+      logEvent({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({ error: hints }),
       });
@@ -87,7 +87,7 @@ export const RegistrationForm = ({
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    trackEvent({
+    logEvent({
       event_name: AuthEventNames.SubmitSignUpForm,
     });
 
