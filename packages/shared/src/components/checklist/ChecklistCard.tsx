@@ -35,6 +35,16 @@ const stepsContainerClassNameMap: ChecklistVariantClassNameMap = {
   [ChecklistCardVariant.Small]: 'p-2',
 };
 
+const progressClassNameMap: ChecklistVariantClassNameMap = {
+  [ChecklistCardVariant.Default]: 'mt-6 gap-2',
+  [ChecklistCardVariant.Small]: 'absolute left-0 right-0 top-0 z-3',
+};
+
+const progressItemClassNameMap: ChecklistVariantClassNameMap = {
+  [ChecklistCardVariant.Default]: 'h-3 rounded-6 bg-white',
+  [ChecklistCardVariant.Small]: 'h-0.5 bg-white',
+};
+
 const ChecklistCard = ({
   className,
   title,
@@ -76,26 +86,25 @@ const ChecklistCard = ({
         >
           {description}
         </p>
-        {variant !== ChecklistCardVariant.Small && (
-          <div className="mt-6 flex gap-2">
-            {steps.map((step) => {
-              return (
-                <div
-                  key={step.action.type}
-                  className={classNames(
-                    'h-3 w-12 rounded-6 bg-white',
-                    !step.action.completedAt && 'opacity-24',
-                  )}
-                  data-testid={
-                    step.action.completedAt
-                      ? 'checklist-card-progress'
-                      : undefined
-                  }
-                />
-              );
-            })}
-          </div>
-        )}
+        <div className={classNames('flex', progressClassNameMap[variant])}>
+          {steps.map((step) => {
+            return (
+              <div
+                key={step.action.type}
+                className={classNames(
+                  'flex-1',
+                  !step.action.completedAt && 'opacity-24',
+                  progressItemClassNameMap[variant],
+                )}
+                data-testid={
+                  step.action.completedAt
+                    ? 'checklist-card-progress'
+                    : undefined
+                }
+              />
+            );
+          })}
+        </div>
       </div>
       {isOpen && (
         <div

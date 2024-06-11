@@ -36,7 +36,9 @@ export const OnboardingChecklistCard = ({
     <ChecklistCard
       className={classNames(className, 'max-w-full', !isOpen && '!border-0')}
       title="Get started like a pro"
-      description={`${completedSteps.length}/${steps.length} 👉 ${nextStep?.title}`}
+      description={`${completedSteps.length}/${steps.length}${
+        nextStep ? ` 👉 ${nextStep?.title}` : ''
+      }`}
       steps={steps}
       variant={ChecklistCardVariant.Small}
       isOpen={isOpen}
