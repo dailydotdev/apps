@@ -5,13 +5,15 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent, TargetId, TargetType } from '../../lib/analytics';
 import { useOnboardingChecklist } from '../../hooks';
 import { ChecklistCardProps, ChecklistCardVariant } from '../../lib/checklist';
+import { feature } from '../../lib/featureManagement';
+import { withExperiment } from '../withExperiment';
 
 export type OnboardingChecklistCardProps = Pick<
   ChecklistCardProps,
   'className' | 'isOpen' | 'variant'
 >;
 
-export const OnboardingChecklistCard = ({
+export const OnboardingChecklistCardComponent = ({
   className,
   isOpen = true,
   variant = ChecklistCardVariant.Default,
@@ -46,3 +48,11 @@ export const OnboardingChecklistCard = ({
     />
   );
 };
+
+export const OnboardingChecklistCard = withExperiment(
+  OnboardingChecklistCardComponent,
+  {
+    feature: feature.onboardingChecklist,
+    value: true,
+  },
+);

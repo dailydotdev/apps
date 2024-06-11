@@ -27,6 +27,7 @@ import { CustomFeedsExperiment } from '../../lib/featureValues';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
 import { OnboardingChecklistBar } from '../checklist/OnboardingChecklistBar';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -45,6 +46,7 @@ const StickyNavIconWrapper = classed(
 
 function FeedNav(): ReactElement {
   const router = useRouter();
+  const { isLoggedIn } = useAuthContext();
   const { feedName } = useActiveFeedNameContext();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isSortableFeed } = useFeedName({ feedName });
@@ -99,7 +101,7 @@ function FeedNav(): ReactElement {
     return null;
   }
 
-  const checklistBarElement = <OnboardingChecklistBar />;
+  const checklistBarElement = isLoggedIn ? <OnboardingChecklistBar /> : null;
 
   return (
     <div

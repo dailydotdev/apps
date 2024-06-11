@@ -9,6 +9,8 @@ import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import useContextMenu from '../../hooks/useContextMenu';
 import { useOnboardingChecklist } from '../../hooks';
 import { RankConfetti } from '../../svg/RankConfetti';
+import { withExperiment } from '../withExperiment';
+import { feature } from '../../lib/featureManagement';
 
 const OnboardingChecklistCard = dynamic(() =>
   import(
@@ -20,7 +22,7 @@ export type SidebarOnboardingChecklistCardProps = {
   className?: string;
 };
 
-export const SidebarOnboardingChecklistCard = ({
+const SidebarOnboardingChecklistCardComponent = ({
   className,
 }: SidebarOnboardingChecklistCardProps): ReactElement => {
   const { checklistView, setChecklistView, isDone } = useOnboardingChecklist();
@@ -126,3 +128,11 @@ export const SidebarOnboardingChecklistCard = ({
     </div>
   );
 };
+
+export const SidebarOnboardingChecklistCard = withExperiment(
+  SidebarOnboardingChecklistCardComponent,
+  {
+    feature: feature.onboardingChecklist,
+    value: true,
+  },
+);

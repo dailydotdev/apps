@@ -38,6 +38,7 @@ const feature = {
   shareVia: new Feature('share_via', false),
   showRoadmap: new Feature('show_roadmap', false),
   searchSources: new Feature('search_sources', false),
+  onboardingChecklist: new Feature('onboarding_checklist', false),
 };
 
 export { feature };

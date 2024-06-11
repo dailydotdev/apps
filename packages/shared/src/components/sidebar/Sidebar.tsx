@@ -332,7 +332,7 @@ export default function Sidebar({
             {...defaultRenderSectionProps}
             showSettings={showSettings}
           />
-          {sidebarExpanded && <SidebarOnboardingChecklistCard />}
+          {isLoggedIn && sidebarExpanded && <SidebarOnboardingChecklistCard />}
         </SidebarScrollWrapper>
       </SidebarAside>
     </>

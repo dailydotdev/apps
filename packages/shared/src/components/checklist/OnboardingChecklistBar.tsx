@@ -13,10 +13,12 @@ import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
 import { OnboardingChecklistCard } from './OnboardingChecklistCard';
+import { withExperiment } from '../withExperiment';
+import { feature } from '../../lib/featureManagement';
 
 export type OnboardingChecklistBarProps = Pick<ChecklistBarProps, 'className'>;
 
-export const OnboardingChecklistBar = ({
+const OnboardingChecklistBarComponent = ({
   className,
 }: OnboardingChecklistBarProps): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
@@ -107,3 +109,11 @@ export const OnboardingChecklistBar = ({
     </>
   );
 };
+
+export const OnboardingChecklistBar = withExperiment(
+  OnboardingChecklistBarComponent,
+  {
+    feature: feature.onboardingChecklist,
+    value: true,
+  },
+);
