@@ -154,9 +154,9 @@ export const BootPopups = (): null => {
    * Boot popup for streaks milestone
    */
   useEffect(() => {
-    if (shouldHideStreaksModal) {
-      return;
-    }
+    // if (shouldHideStreaksModal) {
+    //   return;
+    // }
 
     addBootPopup({
       type: LazyModal.NewStreak,
@@ -164,8 +164,8 @@ export const BootPopups = (): null => {
         currentStreak: streak?.current,
         maxStreak: streak?.max,
         onAfterClose: () => {
-          updateLastBootPopup();
-          updateAlerts({ showStreakMilestone: false });
+          // updateLastBootPopup();
+          // updateAlerts({ showStreakMilestone: false });
         },
       },
     });

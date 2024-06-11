@@ -13,6 +13,8 @@ import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
+import { ModalHeaderKind } from '../common/types';
+import { Switch } from '../../fields/Switch';
 
 const Paragraph = classed('p', 'text-center text-text-tertiary');
 
@@ -70,7 +72,20 @@ export default function NewStreakModal({
       onRequestClose={onRequestClose}
       isDrawerOnMobile
     >
-      <ModalClose onClick={onRequestClose} className="right-2 top-2" />
+      <Modal.Header className="!border-0">
+        <Switch
+          data-testid="email_notification-switch"
+          inputId="email_notification-switch"
+          name="email_notification"
+          defaultTypo
+          labelClassName="font-bold"
+          compact={false}
+        >
+          Streak reminder
+        </Switch>
+        <ModalClose onClick={onRequestClose} className="right-2 top-2" />
+      </Modal.Header>
+
       <Modal.Body className="items-center overflow-hidden">
         <span className="relative flex flex-col items-center justify-center">
           <img
