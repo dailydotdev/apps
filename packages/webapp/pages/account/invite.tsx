@@ -22,12 +22,12 @@ import { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { format } from 'date-fns';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import {
-  AnalyticsEvent,
+  LogEvent,
   TargetId,
   TargetType,
-} from '@dailydotdev/shared/src/lib/analytics';
+} from '@dailydotdev/shared/src/lib/log';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import {
@@ -49,13 +49,13 @@ const AccountInvitePage = (): ReactElement => {
   const { url, referredUsersCount } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Generic,
   });
-  const { trackEvent } = useAnalyticsContext();
+  const { logEvent } = useLogContext();
   const inviteLink = url || link.referral.defaultUrl;
   const [, onShareOrCopyLink] = useShareOrCopyLink({
     text: labels.referral.generic.inviteText,
     link: inviteLink,
-    trackObject: () => ({
-      event_name: AnalyticsEvent.CopyReferralLink,
+    logObject: () => ({
+      event_name: LogEvent.CopyReferralLink,
       target_id: TargetId.InviteFriendsPage,
     }),
   });
@@ -84,9 +84,9 @@ const AccountInvitePage = (): ReactElement => {
 
   const hypeCampaign = useFeature(feature.hypeCampaign);
 
-  const onTrackShare = (provider: ShareProvider) => {
-    trackEvent({
-      event_name: AnalyticsEvent.InviteReferral,
+  const onLogShare = (provider: ShareProvider) => {
+    logEvent({
+      event_name: LogEvent.InviteReferral,
       target_id: provider,
       target_type: TargetType.InviteFriendsPage,
     });
@@ -98,8 +98,8 @@ const AccountInvitePage = (): ReactElement => {
 
       <InviteLinkInput
         link={inviteLink}
-        trackingProps={{
-          event_name: AnalyticsEvent.CopyReferralLink,
+        logProps={{
+          event_name: LogEvent.CopyReferralLink,
           target_id: TargetId.InviteFriendsPage,
         }}
       />
@@ -111,7 +111,7 @@ const AccountInvitePage = (): ReactElement => {
           link={inviteLink}
           description={labels.referral.generic.inviteText}
           onNativeShare={onShareOrCopyLink}
-          onClickSocial={onTrackShare}
+          onClickSocial={onLogShare}
           shortenUrl={false}
         />
       </div>

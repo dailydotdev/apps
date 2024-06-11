@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import classed from '../../../lib/classed';
-import { Origin } from '../../../lib/analytics';
+import { Origin } from '../../../lib/log';
 import { PostHeaderActionsProps } from '../common';
 import { PostMenuOptions } from '../PostMenuOptions';
 import { CollectionSubscribeButton } from './CollectionSubscribeButton';

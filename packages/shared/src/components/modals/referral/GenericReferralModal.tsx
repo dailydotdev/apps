@@ -10,10 +10,10 @@ import { cloudinary } from '../../../lib/image';
 import { ModalSize } from '../common/types';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { link } from '../../../lib/links';
-import { AnalyticsEvent, TargetId, TargetType } from '../../../lib/analytics';
+import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import { ReferralCampaignKey, useReferralCampaign } from '../../../hooks';
 import ReferralSocialShareButtons from '../../widgets/ReferralSocialShareButtons';
-import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
+import { useLogContext } from '../../../contexts/LogContext';
 import { InviteLinkInput } from '../../referral/InviteLinkInput';
 import { ModalClose } from '../common/ModalClose';
 import AlertContext from '../../../contexts/AlertContext';
@@ -28,19 +28,19 @@ function GenericReferralModal({
     campaignKey: ReferralCampaignKey.Generic,
   });
   const inviteLink = url || link.referral.defaultUrl;
-  const { trackEvent } = useAnalyticsContext();
-  const isTracked = useRef(false);
+  const { logEvent } = useLogContext();
+  const isLogged = useRef(false);
 
   useEffect(() => {
-    if (!isTracked.current) {
+    if (!isLogged.current) {
       updateLastReferralReminder();
-      isTracked.current = true;
-      trackEvent({
-        event_name: AnalyticsEvent.Impression,
+      isLogged.current = true;
+      logEvent({
+        event_name: LogEvent.Impression,
         target_type: TargetType.ReferralPopup,
       });
     }
-  }, [trackEvent, updateLastReferralReminder]);
+  }, [logEvent, updateLastReferralReminder]);
 
   return (
     <Modal {...props} onRequestClose={onRequestClose} size={ModalSize.Small}>
@@ -67,8 +67,8 @@ function GenericReferralModal({
           className="absolute left-0 top-0 z-0 aspect-square w-full object-cover"
         />
         <InviteLinkInput
-          trackingProps={{
-            event_name: AnalyticsEvent.CopyReferralLink,
+          logProps={{
+            event_name: LogEvent.CopyReferralLink,
             target_id: TargetId.GenericReferralPopup,
           }}
           link={inviteLink}

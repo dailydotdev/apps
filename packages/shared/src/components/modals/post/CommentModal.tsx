@@ -19,7 +19,7 @@ import { useVisualViewport } from '../../../hooks/utils/useVisualViewport';
 import { RequestKey, generateQueryKey } from '../../../lib/query';
 import { Comment, PostCommentsData } from '../../../graphql/comments';
 import { useNotificationToggle } from '../../../hooks/notifications';
-import { NotificationPromptSource } from '../../../lib/analytics';
+import { NotificationPromptSource } from '../../../lib/log';
 import { Switch } from '../../fields/Switch';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import CommentContainer from '../../comments/CommentContainer';

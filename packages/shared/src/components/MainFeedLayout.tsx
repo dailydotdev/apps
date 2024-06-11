@@ -50,8 +50,8 @@ import { getFeedName } from '../lib/feed';
 import CommentFeed from './CommentFeed';
 import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
-import { Origin } from '../lib/analytics';
-import { ExploreTabs, FeedExploreHeader } from './header';
+import { Origin } from '../lib/log';
+import { ExploreTabs, FeedExploreHeader, urlToTab } from './header';
 import { Dropdown } from './fields/Dropdown';
 import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 
@@ -223,10 +223,12 @@ export default function MainFeedLayout({
     [0, 1],
     DEFAULT_ALGORITHM_INDEX,
   );
+
   const [selectedPeriod] = useQueryState({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
   });
+
   const search = (
     <LayoutHeader className={isSearchPage && 'mt-16 laptop:mt-0'}>
       {navChildren}
@@ -263,7 +265,11 @@ export default function MainFeedLayout({
     }
 
     const getVariables = () => {
-      if (isUpvoted || feedWithDateRange.includes(tab)) {
+      if (
+        isUpvoted ||
+        feedWithDateRange.includes(tab) ||
+        feedWithDateRange.includes(urlToTab[router.pathname])
+      ) {
         return { ...config.variables, period: periods[selectedPeriod].value };
       }
 
@@ -336,6 +342,7 @@ export default function MainFeedLayout({
     tab,
     selectedPeriod,
     setSelectedAlgo,
+    router.pathname,
   ]);
 
   useEffect(() => {
@@ -362,7 +369,7 @@ export default function MainFeedLayout({
           isMainFeed
           feedQueryKey={generateQueryKey(RequestKey.CommentFeed, null)}
           query={COMMENT_FEED_QUERY}
-          analyticsOrigin={Origin.CommentFeed}
+          logOrigin={Origin.CommentFeed}
           emptyScreen={
             <ProfileEmptyScreen
               title="Nobody has replied to any post yet"

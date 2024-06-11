@@ -20,12 +20,8 @@ import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useRouter } from 'next/router';
-import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import {
-  AnalyticsEvent,
-  Origin,
-  TargetType,
-} from '@dailydotdev/shared/src/lib/analytics';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import {
   OnboardingStep,
   REQUIRED_TAGS_THRESHOLD,
@@ -58,8 +54,8 @@ import {
   GtagTracking,
   PixelTracking,
   TiktokTracking,
-  trackAnalyticsSignUp,
-} from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
+  logSignUp,
+} from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
@@ -96,12 +92,12 @@ const seo: NextSeoProps = {
 
 export function OnboardPage(): ReactElement {
   const router = useRouter();
-  const isTracked = useRef(false);
+  const isLogged = useRef(false);
   const { user, isAuthReady, anonymous } = useAuthContext();
   const shouldVerify = anonymous?.shouldVerify;
   const { onShouldUpdateFilters } = useOnboardingContext();
   const { growthbook } = useGrowthBookContext();
-  const { trackEvent } = useAnalyticsContext();
+  const { logEvent } = useLogContext();
   const [hasSelectTopics, setHasSelectTopics] = useState(false);
   const [shouldEnrollInReadingReminder, setShouldEnrollInReadingReminder] =
     useState(false);
@@ -135,8 +131,8 @@ export function OnboardPage(): ReactElement {
   const formRef = useRef<HTMLFormElement>();
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const onClickNext = () => {
-    trackEvent({
-      event_name: AnalyticsEvent.ClickOnboardingNext,
+    logEvent({
+      event_name: LogEvent.ClickOnboardingNext,
       extra: JSON.stringify({ screen_value: activeScreen }),
     });
 
@@ -149,14 +145,14 @@ export function OnboardPage(): ReactElement {
     }
 
     if (!hasSelectTopics) {
-      trackEvent({
-        event_name: AnalyticsEvent.OnboardingSkip,
+      logEvent({
+        event_name: LogEvent.OnboardingSkip,
       });
 
       onShouldUpdateFilters(true);
     } else {
-      trackEvent({
-        event_name: AnalyticsEvent.CreateFeed,
+      logEvent({
+        event_name: LogEvent.CreateFeed,
       });
     }
 
@@ -187,12 +183,12 @@ export function OnboardPage(): ReactElement {
   };
 
   const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
-    trackAnalyticsSignUp({ experienceLevel: userRefetched?.experienceLevel });
+    logSignUp({ experienceLevel: userRefetched?.experienceLevel });
     setActiveScreen(OnboardingStep.EditTag);
   };
 
   useEffect(() => {
-    if (!isPageReady || isTracked.current) {
+    if (!isPageReady || isLogged.current) {
       return;
     }
 
@@ -201,8 +197,8 @@ export function OnboardPage(): ReactElement {
       return;
     }
 
-    trackEvent({
-      event_name: AnalyticsEvent.Impression,
+    logEvent({
+      event_name: LogEvent.Impression,
       target_type: TargetType.MyFeedModal,
       target_id: targetId,
       extra: JSON.stringify({
@@ -211,10 +207,10 @@ export function OnboardPage(): ReactElement {
         mandating_categories: 0,
       }),
     });
-    isTracked.current = true;
+    isLogged.current = true;
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trackEvent, isPageReady, user, targetId]);
+  }, [logEvent, isPageReady, user, targetId]);
 
   useEffect(() => {
     setHasSelectTopics(!!feedSettings?.includeTags?.length);

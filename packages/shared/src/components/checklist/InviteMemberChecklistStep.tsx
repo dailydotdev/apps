@@ -4,14 +4,14 @@ import { ChecklistStep } from './ChecklistStep';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { LinkIcon } from '../icons';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/log';
 import { TextField } from '../fields/TextField';
 
 const InviteMemberChecklistStep = ({
   squad,
   ...props
 }: ChecklistStepPropsWithSquad): ReactElement => {
-  const { invitation, trackAndCopyLink } = useSquadInvitation({
+  const { invitation, logAndCopyLink } = useSquadInvitation({
     squad,
     origin: Origin.SquadPage,
   });
@@ -31,7 +31,7 @@ const InviteMemberChecklistStep = ({
         icon={<LinkIcon />}
         variant={ButtonVariant.Primary}
         onClick={() => {
-          trackAndCopyLink();
+          logAndCopyLink();
         }}
       >
         Invitation link

@@ -21,8 +21,8 @@ import {
 } from '../lib/kratos';
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
-import AnalyticsContext from '../contexts/AnalyticsContext';
-import { Origin } from '../lib/analytics';
+import LogContext from '../contexts/LogContext';
+import { Origin } from '../lib/log';
 import { LogoutReason } from '../lib/user';
 
 type ParamKeys = keyof RegistrationParameters;
@@ -58,7 +58,7 @@ const useRegistration = ({
   onInvalidRegistration,
   onInitializeVerification,
 }: UseRegistrationProps): UseRegistration => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const { displayToast } = useToastNotification();
   const [verificationId, setVerificationId] = useState<string>();
   const { trackingId, referral, referralOrigin, logout } =
@@ -73,7 +73,7 @@ const useRegistration = ({
   });
 
   if (registration?.error) {
-    trackEvent({
+    logEvent({
       event_name: AuthEventNames.RegistrationInitializationError,
       extra: JSON.stringify({
         error: JSON.stringify(registration.error),
@@ -96,7 +96,7 @@ const useRegistration = ({
         registrationError,
         Object.getOwnPropertyNames(registrationError),
       );
-      trackEvent({
+      logEvent({
         event_name: AuthEventNames.RegistrationInitializationError,
         extra: JSON.stringify({
           error: serializedError,
@@ -146,7 +146,7 @@ const useRegistration = ({
 
         // probably csrf token issue and definitely not related to forms data
         if (!error.ui) {
-          trackEvent({
+          logEvent({
             event_name: AuthEventNames.RegistrationError,
             extra: JSON.stringify({
               error: {
@@ -190,7 +190,7 @@ const useRegistration = ({
 
   const onSocialRegistration = async (provider: string) => {
     if (!registration?.ui) {
-      trackEvent({
+      logEvent({
         event_name: AuthEventNames.RegistrationError,
         extra: JSON.stringify({
           error: {

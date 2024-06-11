@@ -1,15 +1,15 @@
 import { useContext, useEffect } from 'react';
-import AnalyticsContext from '../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../lib/analytics';
+import LogContext from '../contexts/LogContext';
+import { LogEvent } from '../lib/log';
 
 export function useError(): void {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
 
   useEffect(() => {
-    if (trackEvent) {
+    if (logEvent) {
       window.onerror = (msg, url, line, col, error) => {
-        trackEvent({
-          event_name: AnalyticsEvent.GlobalError,
+        logEvent({
+          event_name: LogEvent.GlobalError,
           extra: JSON.stringify({
             msg,
             url,
@@ -20,5 +20,5 @@ export function useError(): void {
         });
       };
     }
-  }, [trackEvent]);
+  }, [logEvent]);
 }

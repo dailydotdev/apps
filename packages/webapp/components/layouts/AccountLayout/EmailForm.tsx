@@ -22,11 +22,8 @@ import useAccountEmailFlow from '@dailydotdev/shared/src/hooks/useAccountEmailFl
 import { AuthFlow } from '@dailydotdev/shared/src/lib/kratos';
 import useTimer from '@dailydotdev/shared/src/hooks/useTimer';
 import { AuthEventNames } from '@dailydotdev/shared/src/lib/auth';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import {
-  AnalyticsEvent,
-  TargetType,
-} from '@dailydotdev/shared/src/lib/analytics';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { CommonTextField } from './common';
 
 export interface EmailFormProps {
@@ -50,7 +47,7 @@ function EmailForm({
   passwordProps,
   verificationId,
 }: EmailFormProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const [code, setCode] = useState<string>();
   const [email, setEmail] = useState<string>();
   const { timer, setTimer, runTimer } = useTimer(null, 0);
@@ -59,7 +56,7 @@ function EmailForm({
     flowId: verificationId,
     onError: setHint,
     onVerifyCodeSuccess: () => {
-      trackEvent({
+      logEvent({
         event_name: AuthEventNames.VerifiedSuccessfully,
       });
       onVerifySuccess();
@@ -68,8 +65,8 @@ function EmailForm({
 
   const onCodeVerification = async (e) => {
     e.preventDefault();
-    trackEvent({
-      event_name: AnalyticsEvent.Click,
+    logEvent({
+      event_name: LogEvent.Click,
       target_type: TargetType.VerifyEmail,
     });
     setHint('');
@@ -77,8 +74,8 @@ function EmailForm({
   };
 
   const onSubmitEmail = () => {
-    trackEvent({
-      event_name: AnalyticsEvent.Click,
+    logEvent({
+      event_name: LogEvent.Click,
       target_type: TargetType.ResendVerificationCode,
     });
     onSubmit(email);

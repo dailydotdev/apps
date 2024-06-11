@@ -15,9 +15,9 @@ import { PostBootData } from '../../../lib/boot';
 import { ModalProps } from '../common/Modal';
 import { FlexRow } from '../../utilities';
 import useReportPost from '../../../hooks/useReportPost';
-import { postAnalyticsEvent } from '../../../lib/feed';
-import { Origin } from '../../../lib/analytics';
-import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
+import { postLogEvent } from '../../../lib/feed';
+import { Origin } from '../../../lib/log';
+import { useLogContext } from '../../../contexts/LogContext';
 import { ReportModal } from './ReportModal';
 
 interface OptionalProps {
@@ -95,7 +95,7 @@ export function ReportPostModal({
   onReported,
   ...props
 }: Props): ReactElement {
-  const { trackEvent } = useAnalyticsContext();
+  const { logEvent } = useLogContext();
   const inputRef = useRef<HTMLInputElement>();
   const [selectedTags, setSelectedTags] = useState<string[]>(() => []);
   const reportOptionsForActiveReason = useCallback(
@@ -148,7 +148,7 @@ export function ReportPostModal({
       return;
     }
 
-    trackEvent(postAnalyticsEvent('report post', post, { extra: { origin } }));
+    logEvent(postLogEvent('report post', post, { extra: { origin } }));
 
     if (typeof onReported === 'function') {
       onReported(post, { index, shouldBlockSource: inputRef.current?.checked });

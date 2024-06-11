@@ -12,7 +12,7 @@ import { SourcePermissions, SourceType } from '../graphql/sources';
 import { Roles } from '../lib/user';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useVotePost } from './vote/useVotePost';
-import { Origin } from '../lib/analytics';
+import { Origin } from '../lib/log';
 import { useBlockPostPanel } from './post/useBlockPostPanel';
 import { ButtonColor, ButtonVariant } from '../components/buttons/Button';
 

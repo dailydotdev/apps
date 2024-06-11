@@ -5,26 +5,26 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { AppIcon as CompanionIcon } from '@dailydotdev/shared/src/components/icons';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { useContentScriptStatus } from '@dailydotdev/shared/src/hooks';
 import { CompanionPermission } from './CompanionPermission';
 
 export const CompanionPopupButton = (): ReactElement => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const { contentScriptGranted, isFetched } = useContentScriptStatus();
   const [showCompanionPermission, setShowCompanionPermission] = useState(false);
 
-  const companionNotificationTracking = (extra: string, value: boolean) => {
+  const companionNotificationLog = (extra: string, value: boolean) => {
     const state = value ? 'open' : 'close';
-    trackEvent({
+    logEvent({
       event_name: `${state} companion permission popup`,
       extra: JSON.stringify({ origin: extra }),
     });
   };
 
   const onButtonClick = () => {
-    companionNotificationTracking('manual', !showCompanionPermission);
+    companionNotificationLog('manual', !showCompanionPermission);
     setShowCompanionPermission(!showCompanionPermission);
   };
 
@@ -37,7 +37,7 @@ export const CompanionPopupButton = (): ReactElement => {
       return;
     }
 
-    trackEvent({
+    logEvent({
       event_name: 'impression',
       target_type: 'companion permission',
       target_id: ExperimentWinner.CompanionPermissionPlacement,

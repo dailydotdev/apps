@@ -1,7 +1,7 @@
 import { useCallback, useContext } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import LogContext from '../contexts/LogContext';
 import useMutateFilters from './useMutateFilters';
 import { Source } from '../graphql/sources';
 import AlertContext from '../contexts/AlertContext';
@@ -9,7 +9,7 @@ import { BooleanPromise } from '../components/filters/common';
 import { generateQueryKey } from '../lib/query';
 import useDebounce from './useDebounce';
 import { SharedFeedPage } from '../components/utilities';
-import { Origin } from '../lib/analytics';
+import { Origin } from '../lib/log';
 import { AuthTriggersType } from '../lib/auth';
 
 export interface TagActionArguments {
@@ -52,7 +52,7 @@ export default function useTagAndSource({
   const queryClient = useQueryClient();
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { user, showLogin } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const shouldShowLogin = useCallback(
     (requireLogin?: boolean) => (user ? false : requireLogin),
     [user],
@@ -83,7 +83,7 @@ export default function useTagAndSource({
         showLogin({ trigger: origin as AuthTriggersType });
         return { successful: false };
       }
-      trackEvent({
+      logEvent({
         event_name: `follow${category ? ' all' : ''}`,
         target_type: 'tag',
         target_id: category || tags[0],
@@ -99,7 +99,7 @@ export default function useTagAndSource({
       return { successful: true };
     },
     [
-      trackEvent,
+      logEvent,
       shouldShowLogin,
       origin,
       updateAlerts,
@@ -118,7 +118,7 @@ export default function useTagAndSource({
         showLogin({ trigger: origin as AuthTriggersType });
         return { successful: false };
       }
-      trackEvent({
+      logEvent({
         event_name: `unfollow${category ? ' all' : ''}`,
         target_type: 'tag',
         target_id: category || tags[0],
@@ -131,7 +131,7 @@ export default function useTagAndSource({
       return { successful: true };
     },
     [
-      trackEvent,
+      logEvent,
       shouldShowLogin,
       origin,
       showLogin,
@@ -147,7 +147,7 @@ export default function useTagAndSource({
         return { successful: false };
       }
 
-      trackEvent({
+      logEvent({
         event_name: 'block',
         target_type: 'tag',
         target_id: tags[0],
@@ -160,7 +160,7 @@ export default function useTagAndSource({
       return { successful: true };
     },
     [
-      trackEvent,
+      logEvent,
       shouldShowLogin,
       origin,
       showLogin,
@@ -176,7 +176,7 @@ export default function useTagAndSource({
         showLogin({ trigger: origin as AuthTriggersType });
         return { successful: false };
       }
-      trackEvent({
+      logEvent({
         event_name: 'unblock',
         target_type: 'tag',
         target_id: tags[0],
@@ -189,7 +189,7 @@ export default function useTagAndSource({
       return { successful: true };
     },
     [
-      trackEvent,
+      logEvent,
       shouldShowLogin,
       origin,
       showLogin,
@@ -205,7 +205,7 @@ export default function useTagAndSource({
         showLogin({ trigger: origin as AuthTriggersType });
         return { successful: false };
       }
-      trackEvent({
+      logEvent({
         event_name: 'follow',
         target_type: 'source',
         target_id: source?.id,
@@ -218,7 +218,7 @@ export default function useTagAndSource({
       return { successful: true };
     },
     [
-      trackEvent,
+      logEvent,
       shouldShowLogin,
       origin,
       showLogin,
@@ -234,7 +234,7 @@ export default function useTagAndSource({
         showLogin({ trigger: origin as AuthTriggersType });
         return { successful: false };
       }
-      trackEvent({
+      logEvent({
         event_name: 'unfollow',
         target_type: 'source',
         target_id: source?.id,
@@ -247,7 +247,7 @@ export default function useTagAndSource({
       return { successful: true };
     },
     [
-      trackEvent,
+      logEvent,
       shouldShowLogin,
       origin,
       showLogin,

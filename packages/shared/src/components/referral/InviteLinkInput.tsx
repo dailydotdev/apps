@@ -2,9 +2,9 @@ import React, { ReactElement } from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { useCopyLink } from '../../hooks/useCopy';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { FieldClassName } from '../fields/BaseFieldContainer';
-import { AnalyticsEvent } from '../../hooks/analytics/useAnalyticsQueue';
+import { LogEvent } from '../../hooks/log/useLogQueue';
 
 interface Text {
   copied?: string;
@@ -16,7 +16,7 @@ interface InviteLinkInputProps {
   text?: Text;
   onCopy?: () => void;
   className?: FieldClassName;
-  trackingProps: AnalyticsEvent;
+  logProps: LogEvent;
 }
 
 export function InviteLinkInput({
@@ -24,13 +24,13 @@ export function InviteLinkInput({
   text = {},
   onCopy,
   className,
-  trackingProps,
+  logProps,
 }: InviteLinkInputProps): ReactElement {
   const [copied, onCopyLink] = useCopyLink(() => link);
-  const { trackEvent } = useAnalyticsContext();
+  const { logEvent } = useLogContext();
   const onCopyClick = () => {
     onCopyLink();
-    trackEvent(trackingProps);
+    logEvent(logProps);
 
     if (onCopy) {
       onCopy();
