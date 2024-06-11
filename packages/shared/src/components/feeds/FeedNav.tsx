@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { ReactElement, useContext, useMemo } from 'react';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
@@ -26,8 +27,13 @@ import { feature } from '../../lib/featureManagement';
 import { CustomFeedsExperiment } from '../../lib/featureValues';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
-import { OnboardingChecklistBar } from '../checklist/OnboardingChecklistBar';
 import { useAuthContext } from '../../contexts/AuthContext';
+
+const OnboardingChecklistBar = dynamic(() =>
+  import(
+    /* webpackChunkName: "onboardingChecklistBar" */ '../checklist/OnboardingChecklistBar'
+  ).then((mod) => mod.OnboardingChecklistBar),
+);
 
 enum FeedNavTab {
   ForYou = 'For you',
