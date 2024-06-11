@@ -22,7 +22,6 @@ import { RootPortal } from '../tooltips/Portal';
 import { DrawerProps } from '../drawers';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { IconProps } from '../Icon';
-import ConditionalWrapper from '../ConditionalWrapper';
 
 export interface DropdownClassName {
   container?: string;
