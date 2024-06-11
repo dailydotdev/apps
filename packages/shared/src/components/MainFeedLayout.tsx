@@ -35,7 +35,6 @@ import {
   LayoutHeader,
   periods,
   SearchControlHeader,
-  SearchControlHeaderProps,
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import {
