@@ -6,7 +6,7 @@ import { WithClassNameProps } from '../utilities';
 
 const BreadCrumbsWrapper = classed(
   'div',
-  'hidden h-10 gap-0.5 items-center p-1.5 text-border-subtlest-tertiary laptop:flex',
+  'hidden h-10 gap-0.5 items-center p-1.5 text-surface-secondary laptop:flex',
 );
 
 export const BreadCrumbs = ({
