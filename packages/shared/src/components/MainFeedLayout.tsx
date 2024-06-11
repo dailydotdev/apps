@@ -293,6 +293,10 @@ export default function MainFeedLayout({
     };
 
     const variables = getVariables();
+    const classes = isExplore && {
+      wrapper: '!min-h-0',
+      emptyScreen: 'mt-8 h-auto',
+    };
 
     return {
       feedName,
@@ -312,11 +316,7 @@ export default function MainFeedLayout({
           onChange={(_, index) => setSelectedAlgo(index)}
         />
       ),
-      emptyScreen: (
-        <FeedEmptyScreen
-          className={{ wrapper: '!min-h-0', emptyScreen: 'mt-8 h-auto' }}
-        />
-      ),
+      emptyScreen: <FeedEmptyScreen className={classes} />,
       actionButtons: !isExplore && feedWithActions && (
         <SearchControlHeader {...searchProps} />
       ),
