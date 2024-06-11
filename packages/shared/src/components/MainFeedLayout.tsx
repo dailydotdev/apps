@@ -320,18 +320,28 @@ export default function MainFeedLayout({
       actionButtons: !isExplore && feedWithActions && (
         <SearchControlHeader {...searchProps} />
       ),
-      shortcuts,
     };
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    shouldUseListFeedLayout,
+    isUpvoted,
+    isPopular,
+    isSortableFeed,
+    isCustomFeed,
     isSearchOn,
     searchQuery,
     config.query,
     config.variables,
-    isUpvoted,
+    isExplore,
+    feedName,
+    user,
+    isLaptop,
+    isExplorePopular,
+    isExploreLatest,
+    selectedAlgo,
+    searchProps,
+    getFeatureValue,
+    tab,
     selectedPeriod,
+    setSelectedAlgo,
   ]);
 
   useEffect(() => {
@@ -369,6 +379,7 @@ export default function MainFeedLayout({
         feedProps && (
           <Feed
             {...feedProps}
+            shortcuts={shortcuts}
             className={classNames(
               shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
             )}
