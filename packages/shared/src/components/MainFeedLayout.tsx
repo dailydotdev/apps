@@ -288,10 +288,6 @@ export default function MainFeedLayout({
     };
 
     const variables = getVariables();
-    const classes = isAnyExplore && {
-      wrapper: '!min-h-0',
-      emptyScreen: 'mt-8 h-auto',
-    };
     const mobileExploreActions = !isLaptop &&
       (isExplorePopular || isExploreLatest) && (
         <Dropdown
@@ -317,7 +313,7 @@ export default function MainFeedLayout({
       ),
       query: config.query,
       variables,
-      emptyScreen: <FeedEmptyScreen className={classes} />,
+      emptyScreen: <FeedEmptyScreen />,
       actionButtons: isAnyExplore ? mobileExploreActions : controlFeedActions,
     };
   }, [
