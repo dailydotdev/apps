@@ -39,7 +39,7 @@ export function RadioItem<T extends string>({
           styles.item,
           { [styles.checked]: checked },
           disabled
-            ? 'text-text-disabled'
+            ? '!text-text-disabled'
             : 'pointer cursor-pointer text-text-tertiary focus-within:text-text-primary hover:text-text-primary',
           'relative flex select-none flex-row items-center pr-3 font-bold typo-footnote',
           className?.content,
@@ -62,7 +62,9 @@ export function RadioItem<T extends string>({
           <span
             className={classNames(
               'flex h-full w-full rounded-full border-2 ',
-              !disabled && 'border-text-tertiary',
+              !disabled
+                ? 'border-text-tertiary'
+                : '!border-surface-disabled !bg-surface-disabled',
               styles.innerRing,
             )}
           />

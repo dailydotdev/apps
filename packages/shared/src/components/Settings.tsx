@@ -4,6 +4,7 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -18,6 +19,7 @@ import { CustomSwitch } from './fields/CustomSwitch';
 import { checkIsExtension } from '../lib/func';
 import AuthContext from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
+import { useViewSize, ViewSize } from '../hooks';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -61,6 +63,7 @@ export default function Settings({
 }: HTMLAttributes<HTMLDivElement>): ReactElement {
   const isExtension = checkIsExtension();
   const { user, showLogin } = useContext(AuthContext);
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const {
     spaciness,
@@ -105,6 +108,18 @@ export default function Settings({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const showDensityTooltip = insaneMode || !isLaptop;
+
+  const getDensityTooltipContent = () => {
+    if (insaneMode) {
+      return 'Density will be fixed for the list mode layout';
+    }
+    if (!isLaptop) {
+      return 'Density will be fixed for mobile and tablet';
+    }
+    return null;
+  };
+
   return (
     <div className={classNames('flex', 'flex-col', className)} {...props}>
       <Section className="!mt-0">
@@ -117,6 +132,13 @@ export default function Settings({
           checked={insaneMode}
           className="mx-1.5"
           onToggle={toggleInsaneMode}
+          disabled={!isLaptop}
+          tooltip={
+            !isLaptop && {
+              content: 'Layout will be fixed for mobile and tablet',
+              placement: 'top-start',
+            }
+          }
         />
       </Section>
       <Section>
@@ -135,6 +157,13 @@ export default function Settings({
           options={densities}
           value={spaciness}
           onChange={setSpaciness}
+          tooltip={
+            showDensityTooltip && {
+              content: getDensityTooltipContent(),
+              placement: 'top-start',
+            }
+          }
+          disabled={showDensityTooltip}
         />
       </Section>
       <Section>
