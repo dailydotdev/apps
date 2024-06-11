@@ -31,7 +31,7 @@ import {
   LogEvent,
   ShortcutsSourceType,
   TargetType,
-} from 'packages/shared/src/lib/log';
+} from '@dailydotdev/shared/src/lib/log';
 import ShortcutLinks from './ShortcutLinks';
 
 jest.mock('@dailydotdev/shared/src/lib/boot', () => ({

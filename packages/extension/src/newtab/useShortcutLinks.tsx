@@ -14,7 +14,7 @@ import {
   LogEvent,
   ShortcutsSourceType,
   TargetType,
-} from 'packages/shared/src/lib/log';
+} from '@dailydotdev/shared/src/lib/log';
 import useTopSites from './useTopSites';
 
 interface UseShortcutLinks {

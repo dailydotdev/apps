@@ -12,7 +12,7 @@ import {
   SearchProviderEnum,
   getSearchUrl,
 } from '@dailydotdev/shared/src/graphql/search';
-import { LogEvent } from 'packages/shared/src/lib/log';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import ShortcutLinks from './ShortcutLinks';

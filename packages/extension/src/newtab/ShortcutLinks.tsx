@@ -24,7 +24,7 @@ import {
   LogEvent,
   ShortcutsSourceType,
   TargetType,
-} from 'packages/shared/src/lib/log';
+} from '@dailydotdev/shared/src/lib/log';
 import {
   useActions,
   useConditionalFeature,

@@ -17,7 +17,7 @@ import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import { useUpvoteQuery } from '@dailydotdev/shared/src/hooks/useUpvoteQuery';
 import { postLogEvent } from '@dailydotdev/shared/src/lib/feed';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
-import { Origin } from 'packages/shared/src/lib/log';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { CompanionEngagements } from './CompanionEngagements';
 import { CompanionDiscussion } from './CompanionDiscussion';

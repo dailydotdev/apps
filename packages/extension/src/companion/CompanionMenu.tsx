@@ -16,7 +16,7 @@ import Modal from 'react-modal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
-import { LogEvent, Origin } from 'packages/shared/src/lib/log';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
