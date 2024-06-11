@@ -164,7 +164,7 @@ export const FeedContainer = ({
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
-  const { isExplore, isExplorePopular, isExploreLatest } = useFeedName({
+  const { isAnyExplore, isExplorePopular, isExploreLatest } = useFeedName({
     feedName,
   });
   const router = useRouter();
@@ -289,7 +289,7 @@ export const FeedContainer = ({
               className={classNames(
                 'grid',
                 !isLaptop && (isExplorePopular || isExploreLatest) && 'mt-4',
-                isSearch && !shouldUseListFeedLayout && !isExplore && 'mt-8',
+                isSearch && !shouldUseListFeedLayout && !isAnyExplore && 'mt-8',
                 isHorizontal &&
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth',
                 gapClass({
