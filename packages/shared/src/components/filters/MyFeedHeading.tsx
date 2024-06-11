@@ -8,8 +8,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../../lib/analytics';
+import LogContext from '../../contexts/LogContext';
+import { LogsEvent } from '../../lib/logs';
 import {
   useActions,
   useConditionalFeature,
@@ -41,7 +41,7 @@ function MyFeedHeading({
   const { checkHasCompleted } = useActions();
   const { showTopSites, toggleShowTopSites } = useSettingsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { shouldUseListFeedLayout } = useFeedLayout();
   const queryClient = useQueryClient();
   const forceRefresh = useFeature(feature.forceRefresh);
@@ -55,7 +55,7 @@ function MyFeedHeading({
   const isShortcutsUIV1 = shortcutsUIFeature === ShortcutsUIExperiment.V1;
 
   const onRefresh = async () => {
-    trackEvent({ event_name: AnalyticsEvent.RefreshFeed });
+    trackEvent({ event_name: LogsEvent.RefreshFeed });
     setShouldRefreshFeed(true);
     await queryClient.refetchQueries({ queryKey: [SharedFeedPage.MyFeed] });
     setShouldRefreshFeed(false);

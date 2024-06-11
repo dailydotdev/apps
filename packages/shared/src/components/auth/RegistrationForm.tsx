@@ -23,7 +23,7 @@ import AuthHeader from './AuthHeader';
 import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import { Checkbox } from '../fields/Checkbox';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import { Modal } from '../modals/common/Modal';
 import { useGenerateUsername } from '../../hooks';
 import { AuthFormProps } from './common';
@@ -59,7 +59,7 @@ export const RegistrationForm = ({
   onUpdateHints,
   simplified,
 }: RegistrationFormProps): ReactElement => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
   const isAuthorOnboarding = trigger === AuthTriggers.Author;

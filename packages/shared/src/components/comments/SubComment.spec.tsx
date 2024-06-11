@@ -6,7 +6,7 @@ import { LoggedUser } from '../../lib/user';
 import SubComment, { SubCommentProps } from './SubComment';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import comment from '../../../__tests__/fixture/comment';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/logs';
 import post from '../../../__tests__/fixture/post';
 import { useViewSize } from '../../hooks';
 

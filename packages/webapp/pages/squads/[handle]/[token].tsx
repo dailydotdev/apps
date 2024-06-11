@@ -33,8 +33,8 @@ import {
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { NextSeo } from 'next-seo';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogsEvent, Origin } from '@dailydotdev/shared/src/lib/logs';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
@@ -76,7 +76,7 @@ const SquadReferral = ({
 }: SquadReferralProps): ReactElement => {
   const router = useRouter();
   const { isFallback } = router;
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { displayToast } = useToastNotification();
   const { showLogin, user: loggedUser } = useAuthContext();
   const [trackedImpression, setTrackedImpression] = useState(false);
@@ -118,7 +118,7 @@ const SquadReferral = ({
     },
   );
 
-  const joinSquadAnalyticsExtra = () => {
+  const joinSquadLogsExtra = () => {
     return JSON.stringify({
       inviter: member.user.id,
       squad: member.source.id,
@@ -131,8 +131,8 @@ const SquadReferral = ({
     }
 
     trackEvent({
-      event_name: AnalyticsEvent.ViewSquadInvitation,
-      extra: joinSquadAnalyticsExtra(),
+      event_name: LogsEvent.ViewSquadInvitation,
+      extra: joinSquadLogsExtra(),
     });
 
     setTrackedImpression(true);

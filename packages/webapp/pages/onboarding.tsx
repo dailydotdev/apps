@@ -20,12 +20,12 @@ import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useRouter } from 'next/router';
-import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import {
-  AnalyticsEvent,
+  LogsEvent,
   Origin,
   TargetType,
-} from '@dailydotdev/shared/src/lib/analytics';
+} from '@dailydotdev/shared/src/lib/logs';
 import {
   OnboardingStep,
   REQUIRED_TAGS_THRESHOLD,
@@ -58,8 +58,8 @@ import {
   GtagTracking,
   PixelTracking,
   TiktokTracking,
-  trackAnalyticsSignUp,
-} from '@dailydotdev/shared/src/components/auth/OnboardingAnalytics';
+  trackLogsSignUp,
+} from '@dailydotdev/shared/src/components/auth/OnboardingLogs';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth';
 import {
@@ -101,7 +101,7 @@ export function OnboardPage(): ReactElement {
   const shouldVerify = anonymous?.shouldVerify;
   const { onShouldUpdateFilters } = useOnboardingContext();
   const { growthbook } = useGrowthBookContext();
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
   const [hasSelectTopics, setHasSelectTopics] = useState(false);
   const [shouldEnrollInReadingReminder, setShouldEnrollInReadingReminder] =
     useState(false);
@@ -136,7 +136,7 @@ export function OnboardPage(): ReactElement {
   const [activeScreen, setActiveScreen] = useState(OnboardingStep.Intro);
   const onClickNext = () => {
     trackEvent({
-      event_name: AnalyticsEvent.ClickOnboardingNext,
+      event_name: LogsEvent.ClickOnboardingNext,
       extra: JSON.stringify({ screen_value: activeScreen }),
     });
 
@@ -150,13 +150,13 @@ export function OnboardPage(): ReactElement {
 
     if (!hasSelectTopics) {
       trackEvent({
-        event_name: AnalyticsEvent.OnboardingSkip,
+        event_name: LogsEvent.OnboardingSkip,
       });
 
       onShouldUpdateFilters(true);
     } else {
       trackEvent({
-        event_name: AnalyticsEvent.CreateFeed,
+        event_name: LogsEvent.CreateFeed,
       });
     }
 
@@ -187,7 +187,7 @@ export function OnboardPage(): ReactElement {
   };
 
   const onSuccessfulRegistration = (userRefetched: LoggedUser) => {
-    trackAnalyticsSignUp({ experienceLevel: userRefetched?.experienceLevel });
+    trackLogsSignUp({ experienceLevel: userRefetched?.experienceLevel });
     setActiveScreen(OnboardingStep.EditTag);
   };
 
@@ -202,7 +202,7 @@ export function OnboardPage(): ReactElement {
     }
 
     trackEvent({
-      event_name: AnalyticsEvent.Impression,
+      event_name: LogsEvent.Impression,
       target_type: TargetType.MyFeedModal,
       target_id: targetId,
       extra: JSON.stringify({

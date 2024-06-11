@@ -24,16 +24,12 @@ import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
-import AnalyticsContext from '../contexts/AnalyticsContext';
-import {
-  adAnalyticsEvent,
-  feedAnalyticsExtra,
-  postAnalyticsEvent,
-} from '../lib/feed';
+import LogContext from '../contexts/LogContext';
+import { adLogsEvent, feedLogsExtra, postLogsEvent } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
-import { Origin } from '../lib/analytics';
+import { Origin } from '../lib/logs';
 import ShareOptionsMenu from './ShareOptionsMenu';
 import { SharedFeedPage } from './utilities';
 import { FeedContainer, FeedContainerProps } from './feeds/FeedContainer';
@@ -146,7 +142,7 @@ export default function Feed<T>({
   showPublicSquadsEligibility,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
   const router = useRouter();
@@ -373,11 +369,11 @@ export default function Feed<T>({
     column: number,
   ): void => {
     trackEvent(
-      postAnalyticsEvent('comments click', post, {
+      postLogsEvent('comments click', post, {
         columns: virtualizedNumCards,
         column,
         row,
-        ...feedAnalyticsExtra(feedName, ranking),
+        ...feedLogsExtra(feedName, ranking),
       }),
     );
     if (!shouldUseListFeedLayout) {
@@ -387,11 +383,11 @@ export default function Feed<T>({
 
   const onAdClick = (ad: Ad, row: number, column: number) => {
     trackEvent(
-      adAnalyticsEvent('click', ad, {
+      adLogsEvent('click', ad, {
         columns: virtualizedNumCards,
         column,
         row,
-        ...feedAnalyticsExtra(feedName, ranking),
+        ...feedLogsExtra(feedName, ranking),
       }),
     );
   };
@@ -404,7 +400,7 @@ export default function Feed<T>({
         row,
         column,
         columns: virtualizedNumCards,
-        ...feedAnalyticsExtra(feedName, ranking),
+        ...feedLogsExtra(feedName, ranking),
       },
     });
 

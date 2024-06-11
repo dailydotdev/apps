@@ -4,9 +4,9 @@ import {
   companionPermissionGrantedLink,
   isProduction,
 } from '@dailydotdev/shared/src/lib/constants';
-import { AnalyticsEvent as AnalyticsEventName } from '@dailydotdev/shared/src/lib/analytics';
+import { LogsEvent as LogsEventName } from '@dailydotdev/shared/src/lib/logs';
 import { QueryClient } from '@tanstack/react-query';
-import { AnalyticsEvent } from '@dailydotdev/shared/src/hooks/analytics/useAnalyticsQueue';
+import { LogEvent } from '@dailydotdev/shared/src/hooks/log/useLogQueue';
 
 export type RequestContentScripts = (data: {
   origin: string;
@@ -15,7 +15,7 @@ export type RequestContentScripts = (data: {
 
 export type CreateRequestContentScripts = (
   client: QueryClient,
-  trackEvent: (e: AnalyticsEvent) => void,
+  trackEvent: (e: LogEvent) => void,
 ) => RequestContentScripts;
 
 export const HOST_PERMISSIONS = isProduction
@@ -86,7 +86,7 @@ export const requestContentScripts: CreateRequestContentScripts = (
     skipRedirect?: boolean;
   }) => {
     trackEvent({
-      event_name: AnalyticsEventName.RequestContentScripts,
+      event_name: LogsEventName.RequestContentScripts,
       extra: JSON.stringify({ origin }),
     });
 
@@ -96,7 +96,7 @@ export const requestContentScripts: CreateRequestContentScripts = (
 
     if (granted) {
       trackEvent({
-        event_name: AnalyticsEventName.ApproveContentScripts,
+        event_name: LogsEventName.ApproveContentScripts,
         extra: JSON.stringify({ origin }),
       });
       client.setQueryData(contentScriptKey, true);
@@ -107,7 +107,7 @@ export const requestContentScripts: CreateRequestContentScripts = (
       }
     } else {
       trackEvent({
-        event_name: AnalyticsEventName.DeclineContentScripts,
+        event_name: LogsEventName.DeclineContentScripts,
         extra: JSON.stringify({ origin }),
       });
     }

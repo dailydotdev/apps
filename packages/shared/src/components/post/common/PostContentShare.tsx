@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
 import { InviteLinkInput } from '../../referral/InviteLinkInput';
-import { Origin } from '../../../lib/analytics';
+import { Origin } from '../../../lib/logs';
 import { Post } from '../../../graphql/posts';
 import { usePostShareLoop } from '../../../hooks/post/usePostShareLoop';
-import { postAnalyticsEvent } from '../../../lib/feed';
+import { postLogsEvent } from '../../../lib/feed';
 import { ShareProvider } from '../../../lib/share';
 import { ReferralCampaignKey, useGetShortUrl } from '../../../hooks';
 
@@ -36,7 +36,7 @@ export function PostContentShare({
         className={{ container: 'w-full flex-1' }}
         link={shareLink}
         onCopy={onInteract}
-        trackingProps={postAnalyticsEvent('share post', post, {
+        trackingProps={postLogsEvent('share post', post, {
           extra: {
             provider: ShareProvider.CopyLink,
             origin: Origin.PostContent,

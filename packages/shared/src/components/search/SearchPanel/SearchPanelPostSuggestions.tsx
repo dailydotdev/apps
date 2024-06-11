@@ -16,8 +16,8 @@ import { SearchPanelContext } from './SearchPanelContext';
 import { useDomPurify } from '../../../hooks/useDomPurify';
 import { useSearchPanelAction } from './useSearchPanelAction';
 import { webappUrl } from '../../../lib/constants';
-import { AnalyticsEvent, Origin, TargetType } from '../../../lib/analytics';
-import AnalyticsContext from '../../../contexts/AnalyticsContext';
+import { LogsEvent, Origin, TargetType } from '../../../lib/logs';
+import LogContext from '../../../contexts/LogContext';
 
 export type SearchPanelPostSuggestionsProps = {
   className?: string;
@@ -54,7 +54,7 @@ export const SearchPanelPostSuggestions = ({
   title,
 }: SearchPanelPostSuggestionsProps): ReactElement => {
   const router = useRouter();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const searchPanel = useContext(SearchPanelContext);
   const { search } = useSearchProvider();
 
@@ -68,7 +68,7 @@ export const SearchPanelPostSuggestions = ({
 
     if (suggestion.id) {
       trackEvent({
-        event_name: AnalyticsEvent.Click,
+        event_name: LogsEvent.Click,
         target_type: TargetType.SearchRecommendation,
         target_id: suggestion.id,
         feed_item_title: searchQuery,

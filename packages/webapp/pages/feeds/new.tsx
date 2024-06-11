@@ -37,11 +37,11 @@ import {
 } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { LogsEvent, Origin } from '@dailydotdev/shared/src/lib/logs';
 import { withExperiment } from '@dailydotdev/shared/src/components/withExperiment';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { CustomFeedsExperiment } from '@dailydotdev/shared/src/lib/featureValues';
-import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -69,7 +69,7 @@ const NewFeedPage = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const { FeedPageLayoutComponent } = useFeedLayout();
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
 
   const { user } = useAuthContext();
   const { feedSettings } = useFeedSettings({ feedId: newFeedId });
@@ -108,7 +108,7 @@ const NewFeedPage = (): ReactElement => {
     {
       onSuccess: (data) => {
         trackEvent({
-          event_name: AnalyticsEvent.CreateCustomFeed,
+          event_name: LogsEvent.CreateCustomFeed,
           target_id: data.id,
         });
 
@@ -164,7 +164,7 @@ const NewFeedPage = (): ReactElement => {
     trackedStartEventRef.current = true;
 
     trackEvent({
-      event_name: AnalyticsEvent.StartCustomFeed,
+      event_name: LogsEvent.StartCustomFeed,
     });
   }, [trackEvent]);
 

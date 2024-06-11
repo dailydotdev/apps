@@ -16,11 +16,11 @@ import Modal from 'react-modal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
-import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { LogsEvent, Origin } from '@dailydotdev/shared/src/lib/logs';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
+import { postLogsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
 import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
@@ -61,7 +61,7 @@ export default function CompanionMenu({
   setCompanionState,
 }: CompanionMenuProps): ReactElement {
   const { modal, closeModal } = useLazyModal();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { user } = useContext(AuthContext);
   const [showCompanionHelper, setShowCompanionHelper] = usePersistentContext(
     'companion_helper',
@@ -74,7 +74,7 @@ export default function CompanionMenu({
       ...update,
     });
     trackEvent(
-      postAnalyticsEvent(event, post, {
+      postLogsEvent(event, post, {
         extra: { origin: Origin.CompanionContextMenu },
       }),
     );
@@ -94,12 +94,12 @@ export default function CompanionMenu({
     onBookmarkMutate: () =>
       updatePost({
         update: { bookmarked: true },
-        event: AnalyticsEvent.BookmarkPost,
+        event: LogsEvent.BookmarkPost,
       }),
     onRemoveBookmarkMutate: () =>
       updatePost({
         update: { bookmarked: false },
-        event: AnalyticsEvent.RemovePostBookmark,
+        event: LogsEvent.RemovePostBookmark,
       }),
   });
 

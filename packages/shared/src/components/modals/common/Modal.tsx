@@ -15,7 +15,7 @@ import {
 } from './types';
 import classed from '../../../lib/classed';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
-import { AnalyticsEvent } from '../../../lib/analytics';
+import { LogsEvent } from '../../../lib/logs';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { Drawer, DrawerOnMobileProps } from '../../drawers';
 import { FormWrapper, FormWrapperProps } from '../../fields/form';
@@ -29,8 +29,8 @@ export interface ModalProps extends ReactModal.Props, DrawerOnMobileProps {
   steps?: ModalStep[];
   defaultView?: string;
   onViewChange?: (view: string) => void;
-  onTrackNext?: AnalyticsEvent;
-  onTrackPrev?: AnalyticsEvent;
+  onTrackNext?: LogsEvent;
+  onTrackPrev?: LogsEvent;
   isDrawerOnMobile?: boolean;
   formProps?: Omit<FormWrapperProps, 'children'>;
 }

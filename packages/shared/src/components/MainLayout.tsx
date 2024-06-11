@@ -11,7 +11,7 @@ import { useRouter } from 'next/router';
 import PromotionalBanner from './PromotionalBanner';
 import Sidebar from './sidebar/Sidebar';
 import useSidebarRendered from '../hooks/useSidebarRendered';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import LogContext from '../contexts/LogContext';
 import SettingsContext from '../contexts/SettingsContext';
 import Toast from './notifications/Toast';
 import { useAuthErrors } from '../hooks/useAuthErrors';
@@ -21,7 +21,7 @@ import MainLayoutHeader, {
 } from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
-import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
+import { LogsEvent, NotificationTarget } from '../lib/logs';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -75,7 +75,7 @@ function MainLayoutComponent({
   canGoBack,
 }: MainLayoutProps): ReactElement {
   const router = useRouter();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
@@ -107,7 +107,7 @@ function MainLayoutComponent({
     }
 
     trackEvent({
-      event_name: AnalyticsEvent.Impression,
+      event_name: LogsEvent.Impression,
       target_type: NotificationTarget.Icon,
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });

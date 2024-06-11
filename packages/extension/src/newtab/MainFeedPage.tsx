@@ -12,8 +12,8 @@ import {
   SearchProviderEnum,
   getSearchUrl,
 } from '@dailydotdev/shared/src/graphql/search';
-import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
-import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { LogsEvent } from '@dailydotdev/shared/src/lib/logs';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
@@ -40,7 +40,7 @@ export default function MainFeedPage({
   onPageChanged,
 }: MainFeedPageProps): ReactElement {
   const { alerts } = useContext(AlertContext);
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
   const [isSearchOn, setIsSearchOn] = useState(false);
   const { user, loadingUser } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>('default');
@@ -119,7 +119,7 @@ export default function MainFeedPage({
               <PostsSearch
                 onSubmitQuery={async (query) => {
                   trackEvent({
-                    event_name: AnalyticsEvent.SubmitSearch,
+                    event_name: LogsEvent.SubmitSearch,
                     extra: JSON.stringify({
                       query,
                       provider: SearchProviderEnum.Posts,
@@ -129,7 +129,7 @@ export default function MainFeedPage({
                   setSearchQuery(query);
                 }}
                 onFocus={() => {
-                  trackEvent({ event_name: AnalyticsEvent.FocusSearch });
+                  trackEvent({ event_name: LogsEvent.FocusSearch });
                 }}
               />
             }

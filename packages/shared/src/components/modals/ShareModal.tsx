@@ -1,8 +1,8 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { SocialShare } from '../widgets/SocialShare';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../../lib/feed';
+import LogContext from '../../contexts/LogContext';
+import { postLogsEvent } from '../../lib/feed';
 import { Modal, ModalProps } from './common/Modal';
 import { ExperimentWinner } from '../../lib/featureValues';
 import { ShareProps } from './post/common';
@@ -22,14 +22,14 @@ export default function ShareModal({
 }: ShareProps & ModalProps): ReactElement {
   const isComment = !!comment;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
 
   const baseTrackingEvent = (
     eventName: string,
     extra?: Record<string, unknown>,
   ) =>
     trackEvent(
-      postAnalyticsEvent(eventName, post, {
+      postLogsEvent(eventName, post, {
         extra: {
           ...extra,
           origin,

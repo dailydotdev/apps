@@ -122,7 +122,7 @@ export const TiktokTracking = (): ReactElement => {
   );
 };
 
-interface TrackAnalyticsSignUpProps {
+interface TrackLogsSignUpProps {
   experienceLevel: keyof typeof UserExperienceLevel;
 }
 
@@ -139,9 +139,9 @@ const EXPERIENCE_TO_SENIORITY: Record<
   NOT_ENGINEER: 'not_engineer',
 };
 
-export const trackAnalyticsSignUp = ({
+export const trackLogsSignUp = ({
   experienceLevel,
-}: TrackAnalyticsSignUpProps): void => {
+}: TrackLogsSignUpProps): void => {
   if (typeof globalThis.gtag === 'function') {
     globalThis.gtag('event', 'signup');
   }

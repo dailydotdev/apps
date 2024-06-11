@@ -4,8 +4,8 @@ import { ReactElement } from 'react-markdown/lib/react-markdown';
 import { Button } from '../buttons/Button';
 import { ButtonVariant, ButtonIconPosition } from '../buttons/common';
 import { ArrowIcon } from '../icons';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { LogsEvent, Origin } from '../../lib/logs';
+import { useLogContext } from '../../contexts/LogContext';
 
 export type FeedPreviewControlsControlsProps = {
   isOpen: boolean;
@@ -22,7 +22,7 @@ export const FeedPreviewControls = ({
   origin,
   onClick,
 }: FeedPreviewControlsControlsProps): ReactElement => {
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
 
   return (
     <div className="mt-10 flex items-center justify-center gap-10 text-text-quaternary typo-callout">
@@ -36,7 +36,7 @@ export const FeedPreviewControls = ({
           const newValue = !isOpen;
 
           trackEvent({
-            event_name: AnalyticsEvent.ToggleFeedPreview,
+            event_name: LogsEvent.ToggleFeedPreview,
             target_id: newValue,
             extra: JSON.stringify({ origin }),
           });

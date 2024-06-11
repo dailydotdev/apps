@@ -1,11 +1,11 @@
 import { MutableRefObject, useEffect } from 'react';
-import { AnalyticsEvent } from './useAnalyticsQueue';
+import { LogEvent } from './useLogQueue';
 
-export default function useBackfillPendingEvents(
-  sharedPropsRef: MutableRefObject<Partial<AnalyticsEvent>>,
+export default function useBackfillPendingLogs(
+  sharedPropsRef: MutableRefObject<Partial<LogEvent>>,
   sharedPropsSet: boolean,
-  queueRef: MutableRefObject<AnalyticsEvent[]>,
-  durationEventsQueue: MutableRefObject<Map<string, AnalyticsEvent>>,
+  queueRef: MutableRefObject<LogEvent[]>,
+  durationEventsQueue: MutableRefObject<Map<string, LogEvent>>,
   setEnabled: (enabled: boolean) => void,
 ): void {
   // Add shared props to all events that were tracked before they were ready

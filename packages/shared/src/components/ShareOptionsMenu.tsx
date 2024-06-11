@@ -3,10 +3,10 @@ import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { Post } from '../graphql/posts';
 import { ShareIcon, LinkIcon } from './icons';
-import AnalyticsContext from '../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../lib/feed';
+import LogContext from '../contexts/LogContext';
+import { postLogsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
-import { Origin } from '../lib/analytics';
+import { Origin } from '../lib/logs';
 import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { useGetShortUrl } from '../hooks';
@@ -43,7 +43,7 @@ export default function ShareOptionsMenu({
 }: ShareOptionsMenuProps): ReactElement {
   const link = post?.commentsPermalink;
   const [, copyLink] = useCopyPostLink(link);
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { getShortUrl } = useGetShortUrl();
   const { isOpen: isShareOptionsOpen } = useContextMenu({
     id: contextId,
@@ -51,7 +51,7 @@ export default function ShareOptionsMenu({
 
   const onClick = (provider: ShareProvider) =>
     trackEvent(
-      postAnalyticsEvent('share post', post, {
+      postLogsEvent('share post', post, {
         extra: { provider, origin: Origin.ShareBar },
       }),
     );

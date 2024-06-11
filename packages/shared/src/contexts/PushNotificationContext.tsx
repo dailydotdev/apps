@@ -9,12 +9,12 @@ import React, {
 } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import OneSignal from 'react-onesignal';
-import { AnalyticsEvent, NotificationPromptSource } from '../lib/analytics';
+import { LogsEvent, NotificationPromptSource } from '../lib/logs';
 import { checkIsExtension, disabledRefetch } from '../lib/func';
 import { useAuthContext } from './AuthContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { isTesting } from '../lib/constants';
-import { useAnalyticsContext } from './AnalyticsContext';
+import { useLogContext } from './LogContext';
 import { SubscriptionCallback } from '../components/notifications/utils';
 
 export interface PushNotificationsContextData {
@@ -57,7 +57,7 @@ export function PushNotificationContextProvider({
   }, []);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const { user } = useAuthContext();
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
   const subscriptionCallback: SubscriptionCallback = (
     isSubscribedNew,
     source,
@@ -65,7 +65,7 @@ export function PushNotificationContextProvider({
   ) => {
     if (isSubscribedNew) {
       trackEvent({
-        event_name: AnalyticsEvent.ClickEnableNotification,
+        event_name: LogsEvent.ClickEnableNotification,
         extra: JSON.stringify({
           origin: source || notificationSourceRef.current,
           permission: 'granted',

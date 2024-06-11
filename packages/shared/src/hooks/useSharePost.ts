@@ -1,9 +1,9 @@
 import { useCallback, useContext } from 'react';
 import { Post } from '../graphql/posts';
-import { postAnalyticsEvent } from '../lib/feed';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import { postLogsEvent } from '../lib/feed';
+import LogContext from '../contexts/LogContext';
 import { ShareProvider } from '../lib/share';
-import { Origin } from '../lib/analytics';
+import { Origin } from '../lib/logs';
 import { useCopyPostLink } from './useCopyPostLink';
 import { useGetShortUrl } from './utils/useGetShortUrl';
 import { ReferralCampaignKey } from '../lib';
@@ -21,7 +21,7 @@ interface UseSharePost {
 }
 
 export function useSharePost(origin: Origin): UseSharePost {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const [, copyLink] = useCopyPostLink();
   const { getShortUrl, getTrackedUrl } = useGetShortUrl();
   const { openModal } = useLazyModal();
@@ -34,7 +34,7 @@ export function useSharePost(origin: Origin): UseSharePost {
   const copyLinkShare: UseSharePost['copyLink'] = useCallback(
     ({ post, columns, column, row }) => {
       trackEvent(
-        postAnalyticsEvent('share post', post, {
+        postLogsEvent('share post', post, {
           columns,
           column,
           row,
@@ -62,7 +62,7 @@ export function useSharePost(origin: Origin): UseSharePost {
           url: shortLink,
         });
         trackEvent(
-          postAnalyticsEvent('share post', post, {
+          postLogsEvent('share post', post, {
             extra: { origin, provider: ShareProvider.Native },
           }),
         );

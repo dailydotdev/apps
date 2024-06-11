@@ -19,9 +19,9 @@ import { Image } from '../image/Image';
 import { fallbackImages } from '../../lib/config';
 import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../../lib/feed';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
+import { useLogContext } from '../../contexts/LogContext';
+import { postLogsEvent } from '../../lib/feed';
+import { LogsEvent, Origin } from '../../lib/logs';
 import { PostType } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
 import CommentInputOrModal from '../comments/CommentInputOrModal';
@@ -50,7 +50,7 @@ function NewCommentComponent(
   ref: MutableRefObject<NewCommentRef>,
 ): ReactElement {
   const router = useRouter();
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
   const { user, showLogin } = useAuthContext();
   const [inputContent, setInputContent] = useState<string>(undefined);
 
@@ -62,7 +62,7 @@ function NewCommentComponent(
   const onShowComment = useCallback(
     (origin: Origin, content = '') => {
       trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.OpenComment, post, {
+        postLogsEvent(LogsEvent.OpenComment, post, {
           extra: { origin },
         }),
       );

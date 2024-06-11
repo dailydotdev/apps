@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { link } from '../../lib/links';
-import { AnalyticsEvent, TargetId, TargetType } from '../../lib/analytics';
+import { LogsEvent, TargetId, TargetType } from '../../lib/logs';
 import ReferralSocialShareButtons from './ReferralSocialShareButtons';
 import { InviteLinkInput } from '../referral/InviteLinkInput';
 
@@ -25,7 +25,7 @@ const ReferralWidget = ({
       </p>
       <InviteLinkInput
         trackingProps={{
-          event_name: AnalyticsEvent.CopyReferralLink,
+          event_name: LogsEvent.CopyReferralLink,
           target_id: TargetId.ProfilePage,
         }}
         link={inviteLink}

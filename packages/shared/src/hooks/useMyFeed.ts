@@ -1,12 +1,12 @@
 import { useContext, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import LogContext from '../contexts/LogContext';
 import { AllTagCategoriesData, FeedSettings } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey, getHasAnyFilter } from './useFeedSettings';
 import useMutateFilters from './useMutateFilters';
 import { BOOT_QUERY_KEY } from '../contexts/common';
 import { AuthEventNames } from '../lib/auth';
-import { AnalyticsEvent } from '../lib/analytics';
+import { LogsEvent } from '../lib/logs';
 
 interface RegisterLocalFilters {
   hasFilters: boolean;
@@ -21,7 +21,7 @@ interface UseMyFeed {
 export function useMyFeed(): UseMyFeed {
   const client = useQueryClient();
   const { updateFeedFilters } = useMutateFilters();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
 
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -35,7 +35,7 @@ export function useMyFeed(): UseMyFeed {
     }
 
     trackEvent({
-      event_name: AnalyticsEvent.CreateFeed,
+      event_name: LogsEvent.CreateFeed,
     });
 
     try {

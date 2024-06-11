@@ -1,11 +1,7 @@
 import { useInView } from 'react-intersection-observer';
 import { useContext, useEffect } from 'react';
-import {
-  adAnalyticsEvent,
-  feedAnalyticsExtra,
-  postAnalyticsEvent,
-} from '../../lib/feed';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { adLogsEvent, feedLogsExtra, postLogsEvent } from '../../lib/feed';
+import LogContext from '../../contexts/LogContext';
 import { FeedItem } from '../useFeed';
 import { PostType } from '../../graphql/posts';
 
@@ -21,7 +17,7 @@ export default function useTrackImpression(
   feedName: string,
   ranking?: string,
 ): (node?: Element | null) => void {
-  const { trackEventStart, trackEventEnd } = useContext(AnalyticsContext);
+  const { trackEventStart, trackEventEnd } = useContext(LogContext);
   const { ref: inViewRef, inView } = useInView({
     threshold: 0.5,
   });
@@ -32,12 +28,12 @@ export default function useTrackImpression(
       if (inView && !item.post.impressionStatus) {
         trackEventStart(
           eventKey,
-          postAnalyticsEvent('impression', item.post, {
+          postLogsEvent('impression', item.post, {
             columns,
             column,
             row,
             extra: {
-              ...feedAnalyticsExtra(feedName, ranking, {
+              ...feedLogsExtra(feedName, ranking, {
                 scroll_y: window.scrollY,
               }).extra,
               feedback: item.post.type === PostType.Article ? true : undefined,
@@ -56,11 +52,11 @@ export default function useTrackImpression(
       if (inView && !item.ad.impressionStatus) {
         trackEventStart(
           eventKey,
-          adAnalyticsEvent('impression', item.ad, {
+          adLogsEvent('impression', item.ad, {
             columns,
             column,
             row,
-            ...feedAnalyticsExtra(feedName, ranking),
+            ...feedLogsExtra(feedName, ranking),
           }),
         );
         // eslint-disable-next-line no-param-reassign

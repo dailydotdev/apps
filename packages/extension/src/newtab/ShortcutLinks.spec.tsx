@@ -26,12 +26,12 @@ import {
 } from '@dailydotdev/shared/src/graphql/settings';
 import { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
 import browser, { TopSites } from 'webextension-polyfill';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import {
-  AnalyticsEvent,
+  LogsEvent,
   ShortcutsSourceType,
   TargetType,
-} from '@dailydotdev/shared/src/lib/analytics';
+} from '@dailydotdev/shared/src/lib/logs';
 import ShortcutLinks from './ShortcutLinks';
 
 jest.mock('@dailydotdev/shared/src/lib/boot', () => ({
@@ -129,7 +129,7 @@ const renderComponent = (bootData = defaultBootData): RenderResult => {
         deviceId="123"
         getPage={jest.fn()}
       >
-        <AnalyticsContext.Provider
+        <LogContext.Provider
           value={{
             trackEvent,
             trackEventStart: jest.fn(),
@@ -138,7 +138,7 @@ const renderComponent = (bootData = defaultBootData): RenderResult => {
           }}
         >
           <ShortcutLinks shouldUseListFeedLayout={false} />
-        </AnalyticsContext.Provider>
+        </LogContext.Provider>
       </BootDataProvider>
     </QueryClientProvider>,
   );
@@ -163,7 +163,7 @@ describe('shortcut links component', () => {
     });
 
     expect(trackEvent).toHaveBeenCalledWith({
-      event_name: AnalyticsEvent.Impression,
+      event_name: LogsEvent.Impression,
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
     });
@@ -177,7 +177,7 @@ describe('shortcut links component', () => {
     expect(shortcuts.length).toEqual(3);
 
     expect(trackEvent).toHaveBeenCalledWith({
-      event_name: AnalyticsEvent.Impression,
+      event_name: LogsEvent.Impression,
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: ShortcutsSourceType.Browser }),
     });
@@ -221,7 +221,7 @@ describe('shortcut links component', () => {
     expect(shortcuts.length).toEqual(3);
 
     expect(trackEvent).toHaveBeenCalledWith({
-      event_name: AnalyticsEvent.SaveShortcutAccess,
+      event_name: LogsEvent.SaveShortcutAccess,
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: ShortcutsSourceType.Browser }),
     });
@@ -250,7 +250,7 @@ describe('shortcut links component', () => {
     expect(addShortcuts).toBeVisible();
 
     expect(trackEvent).toHaveBeenCalledWith({
-      event_name: AnalyticsEvent.RevokeShortcutAccess,
+      event_name: LogsEvent.RevokeShortcutAccess,
       target_type: TargetType.Shortcuts,
     });
   });
@@ -287,7 +287,7 @@ describe('shortcut links component', () => {
     fireEvent.click(edit);
 
     expect(trackEvent).toHaveBeenCalledWith({
-      event_name: AnalyticsEvent.OpenShortcutConfig,
+      event_name: LogsEvent.OpenShortcutConfig,
       target_type: TargetType.Shortcuts,
     });
 
@@ -319,7 +319,7 @@ describe('shortcut links component', () => {
     expect(updated.length).toEqual(6);
 
     expect(trackEvent).toHaveBeenCalledWith({
-      event_name: AnalyticsEvent.SaveShortcutAccess,
+      event_name: LogsEvent.SaveShortcutAccess,
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
     });
@@ -333,7 +333,7 @@ describe('shortcut links component', () => {
     fireEvent.click(shortcutLink);
 
     expect(trackEvent).toHaveBeenCalledWith({
-      event_name: AnalyticsEvent.Click,
+      event_name: LogsEvent.Click,
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
     });

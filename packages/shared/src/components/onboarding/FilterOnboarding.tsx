@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import FeedTopicCard, { ButtonEvent } from '../containers/FeedTopicCard';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import useFeedSettings from '../../hooks/useFeedSettings';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/logs';
 
 export interface FilterOnboardingProps {
   onSelectedTopics?(tags: Record<string, boolean>): void;

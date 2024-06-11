@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { checkKratosEmail } from '../../lib/kratos';
 import { AuthFormProps, getFormEmail, providerMap } from './common';
 import OrDivider from './OrDivider';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
 import { Button, ButtonVariant } from '../buttons/Button';
 import AuthForm from './AuthForm';
@@ -46,7 +46,7 @@ export const OnboardingRegistrationForm4d5 = ({
   onClose,
   onShowLoginOptions,
 }: OnboardingRegistrationForm4d5Props): ReactElement => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const [shouldLogin, setShouldLogin] = useState(false);
   const [registerEmail, setRegisterEmail] = useState<string>(null);
   const { mutateAsync: checkEmail, isLoading } = useMutation(

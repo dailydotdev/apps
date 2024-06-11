@@ -46,7 +46,7 @@ import {
   RequestKey,
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
-import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { Origin } from '@dailydotdev/shared/src/lib/logs';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { SourceSubscribeButton } from '@dailydotdev/shared/src/components';
 import {

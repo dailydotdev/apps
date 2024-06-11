@@ -10,8 +10,8 @@ import React, {
 import { FilterOnboardingStep } from '../onboarding';
 import IntroductionOnboarding from '../onboarding/IntroductionOnboarding';
 import { OnboardingStep } from '../onboarding/common';
-import { AnalyticsEvent, TargetType } from '../../lib/analytics';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { LogsEvent, TargetType } from '../../lib/logs';
+import LogContext from '../../contexts/LogContext';
 import { OnboardingMode } from '../../graphql/feed';
 import { Modal, ModalProps } from './common/Modal';
 import useAuthForms from '../../hooks/useAuthForms';
@@ -48,7 +48,7 @@ function OnboardingModal({
   shouldSkipIntro = false,
   ...props
 }: OnboardingModalProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { showPrompt } = usePrompt();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [currentView, setCurrentView] = useState(
@@ -71,7 +71,7 @@ function OnboardingModal({
 
     if (mode === OnboardingMode.Auto) {
       trackEvent({
-        event_name: AnalyticsEvent.OnboardingSkip,
+        event_name: LogsEvent.OnboardingSkip,
         extra: JSON.stringify({ screen_value: currentView }),
       });
     }
@@ -94,7 +94,7 @@ function OnboardingModal({
 
   useEffect(() => {
     trackEvent({
-      event_name: AnalyticsEvent.Impression,
+      event_name: LogsEvent.Impression,
       target_type: TargetType.MyFeedModal,
       target_id: ExperimentWinner.OnboardingVersion,
       extra: JSON.stringify({
@@ -163,8 +163,8 @@ function OnboardingModal({
         overlayRef={onContainerChange}
         steps={isAuthenticating ? null : steps}
         onViewChange={onViewChange}
-        onTrackNext={AnalyticsEvent.ClickOnboardingNext}
-        onTrackPrev={AnalyticsEvent.ClickOnboardingBack}
+        onTrackNext={LogsEvent.ClickOnboardingNext}
+        onTrackPrev={LogsEvent.ClickOnboardingBack}
         onRequestClose={onClose}
       >
         {content}

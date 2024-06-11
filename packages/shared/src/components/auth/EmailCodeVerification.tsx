@@ -8,9 +8,9 @@ import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import AuthForm from './AuthForm';
 import { KeyIcon, MailIcon, VIcon } from '../icons';
 import { AuthEventNames } from '../../lib/auth';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
-import { AnalyticsEvent, TargetType } from '../../lib/analytics';
+import { LogsEvent, TargetType } from '../../lib/logs';
 
 interface EmailCodeVerificationProps extends AuthFormProps {
   code?: string;
@@ -26,7 +26,7 @@ function EmailCodeVerification({
   onSubmit,
   className,
 }: EmailCodeVerificationProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const [hint, setHint] = useState('');
   const [alert, setAlert] = useState({ firstAlert: true, alert: false });
   const [code, setCode] = useState(codeProp);
@@ -53,7 +53,7 @@ function EmailCodeVerification({
   const onCodeVerification = async (e) => {
     e.preventDefault();
     trackEvent({
-      event_name: AnalyticsEvent.Click,
+      event_name: LogsEvent.Click,
       target_type: TargetType.VerifyEmail,
     });
     setHint('');
@@ -63,7 +63,7 @@ function EmailCodeVerification({
 
   const onSendCode = () => {
     trackEvent({
-      event_name: AnalyticsEvent.Click,
+      event_name: LogsEvent.Click,
       target_type: TargetType.ResendVerificationCode,
     });
     setAlert({ firstAlert: false, alert: false });

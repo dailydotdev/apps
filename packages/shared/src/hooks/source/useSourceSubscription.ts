@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 import { NotificationType } from '../../components/notifications/utils';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Source } from '../../graphql/sources';
-import { AnalyticsEvent } from '../../lib/analytics';
+import { LogsEvent } from '../../lib/logs';
 import { AuthTriggers } from '../../lib/auth';
 import { useNotificationPreferenceToggle } from '../notifications';
 import { useToastNotification } from '../useToastNotification';
@@ -21,7 +21,7 @@ export type UseSourceSubscription = {
 export const useSourceSubscription = ({
   source,
 }: UseSourceSubscriptionProps): UseSourceSubscription => {
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
   const { isLoggedIn, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { isSubscribed, isReady, onToggle } = useNotificationPreferenceToggle({
@@ -48,8 +48,8 @@ export const useSourceSubscription = ({
 
     trackEvent({
       event_name: result.isSubscribed
-        ? AnalyticsEvent.SubscribeSource
-        : AnalyticsEvent.UnsubscribeSource,
+        ? LogsEvent.SubscribeSource
+        : LogsEvent.UnsubscribeSource,
       target_id: source.id,
     });
 

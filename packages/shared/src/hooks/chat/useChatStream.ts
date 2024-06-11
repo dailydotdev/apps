@@ -20,11 +20,11 @@ import {
   UseChatMessageType,
   UseChatStream,
 } from './types';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../../lib/analytics';
+import LogContext from '../../contexts/LogContext';
+import { LogsEvent } from '../../lib/logs';
 
 export const useChatStream = (): UseChatStream => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { user, accessToken } = useAuthContext();
   const client = useQueryClient();
   const sourceRef = useRef<EventSource>();
@@ -64,7 +64,7 @@ export const useChatStream = (): UseChatStream => {
 
       const trackErrorEvent = (code: SearchChunkErrorCode) => {
         trackEvent({
-          event_name: AnalyticsEvent.ErrorSearch,
+          event_name: LogsEvent.ErrorSearch,
           target_id: streamId,
           extra: JSON.stringify({ code }),
         });

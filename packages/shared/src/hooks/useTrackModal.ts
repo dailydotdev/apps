@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import LogContext from '../contexts/LogContext';
 
 interface UseTrackModalProps {
   isOpen: boolean;
@@ -11,7 +11,7 @@ export function useTrackModal({
   title,
   trigger,
 }: UseTrackModalProps): void {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   // eslint-disable-next-line consistent-return
   useEffect(() => {
     const trackObject = {

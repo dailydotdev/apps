@@ -5,7 +5,7 @@ import TagItemList from './TagItemList';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { BlockIcon } from '../icons';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/logs';
 
 export default function BlockedFilter({
   onUnblockItem,

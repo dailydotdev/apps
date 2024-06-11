@@ -15,10 +15,10 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import { useUpvoteQuery } from '@dailydotdev/shared/src/hooks/useUpvoteQuery';
-import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
+import { postLogsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
-import { Origin } from '@dailydotdev/shared/src/lib/analytics';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { Origin } from '@dailydotdev/shared/src/lib/logs';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { CompanionEngagements } from './CompanionEngagements';
 import { CompanionDiscussion } from './CompanionDiscussion';
 import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';
@@ -32,7 +32,7 @@ const COMPANION_TOP_OFFSET_PX = 120;
 export default function CompanionContent({
   post,
 }: CompanionContentProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
   const [heightPx, setHeightPx] = useState('0');
   const { queryKey, onShowUpvoted } = useUpvoteQuery();
@@ -40,7 +40,7 @@ export default function CompanionContent({
 
   const trackAndCopyLink = () => {
     trackEvent(
-      postAnalyticsEvent('share post', post, {
+      postLogsEvent('share post', post, {
         extra: { provider: ShareProvider.CopyLink, origin: Origin.Companion },
       }),
     );

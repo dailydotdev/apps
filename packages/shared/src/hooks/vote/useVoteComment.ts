@@ -1,12 +1,9 @@
 import { useCallback, useContext } from 'react';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import AuthContext from '../../contexts/AuthContext';
 import { Post, UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
-import {
-  PostAnalyticsEventFnOptions,
-  postAnalyticsEvent,
-} from '../../lib/feed';
+import { PostLogsEventFnOptions, postLogsEvent } from '../../lib/feed';
 import {
   UserVoteEntity,
   UseVote,
@@ -15,21 +12,19 @@ import {
   VoteEntityPayload,
 } from './types';
 import { useVote } from './useVote';
-import { AnalyticsEvent } from '../../lib/analytics';
+import { LogsEvent } from '../../lib/logs';
 
-const prepareVoteCommentAnalyticsOptions = ({
+const prepareVoteCommentLogsOptions = ({
   payload,
   origin,
   opts,
-}: ToggleVoteProps): PostAnalyticsEventFnOptions => {
+}: ToggleVoteProps): PostLogsEventFnOptions => {
   const { extra, ...restOpts } = opts || {};
 
-  const analyticsOptions: PostAnalyticsEventFnOptions = {
+  return {
     ...restOpts,
     extra: { ...extra, origin, commentId: payload.id },
   };
-
-  return analyticsOptions;
 };
 
 export const useVoteComment = ({
@@ -44,7 +39,7 @@ export const useVoteComment = ({
   'toggleUpvote' | 'toggleDownvote'
 > => {
   const { user, showLogin } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
 
   const { upvote, downvote, cancelVote } = useVote({
     onMutate,
@@ -61,7 +56,7 @@ export const useVoteComment = ({
           return;
         }
 
-        const analyticsOptions = prepareVoteCommentAnalyticsOptions({
+        const logsOptions = prepareVoteCommentLogsOptions({
           payload: comment,
           origin,
           opts,
@@ -69,10 +64,10 @@ export const useVoteComment = ({
 
         if (comment.userState?.vote === UserVote.Up) {
           trackEvent(
-            postAnalyticsEvent(
-              AnalyticsEvent.RemoveCommentUpvote,
+            postLogsEvent(
+              LogsEvent.RemoveCommentUpvote,
               comment.post,
-              analyticsOptions,
+              logsOptions,
             ),
           );
 
@@ -82,11 +77,7 @@ export const useVoteComment = ({
         }
 
         trackEvent(
-          postAnalyticsEvent(
-            AnalyticsEvent.UpvoteComment,
-            comment.post,
-            analyticsOptions,
-          ),
+          postLogsEvent(LogsEvent.UpvoteComment, comment.post, logsOptions),
         );
 
         await upvote({ id: comment.id });
@@ -101,7 +92,7 @@ export const useVoteComment = ({
           return;
         }
 
-        const analyticsOptions = prepareVoteCommentAnalyticsOptions({
+        const logsOptions = prepareVoteCommentLogsOptions({
           payload: comment,
           origin,
           opts,
@@ -109,10 +100,10 @@ export const useVoteComment = ({
 
         if (comment.userState?.vote === UserVote.Down) {
           trackEvent(
-            postAnalyticsEvent(
-              AnalyticsEvent.RemoveCommentDownvote,
+            postLogsEvent(
+              LogsEvent.RemoveCommentDownvote,
               comment.post,
-              analyticsOptions,
+              logsOptions,
             ),
           );
 
@@ -122,11 +113,7 @@ export const useVoteComment = ({
         }
 
         trackEvent(
-          postAnalyticsEvent(
-            AnalyticsEvent.DownvoteComment,
-            comment.post,
-            analyticsOptions,
-          ),
+          postLogsEvent(LogsEvent.DownvoteComment, comment.post, logsOptions),
         );
 
         await downvote({ id: comment.id });

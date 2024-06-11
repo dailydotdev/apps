@@ -20,7 +20,7 @@ import {
 } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import classNames from 'classnames';
-import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { Origin } from '@dailydotdev/shared/src/lib/logs';
 import { labels } from '@dailydotdev/shared/src/lib';
 import { Post, UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';

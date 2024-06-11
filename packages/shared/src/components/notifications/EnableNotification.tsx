@@ -10,7 +10,7 @@ import CloseButton from '../CloseButton';
 import { cloudinary } from '../../lib/image';
 import { VIcon, BellNotifyIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
-import { NotificationPromptSource } from '../../lib/analytics';
+import { NotificationPromptSource } from '../../lib/logs';
 import { useEnableNotification } from '../../hooks/notifications';
 
 type EnableNotificationProps = {

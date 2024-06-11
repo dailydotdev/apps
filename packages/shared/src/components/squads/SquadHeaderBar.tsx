@@ -9,7 +9,7 @@ import SquadMemberShortList, {
 } from './SquadMemberShortList';
 import { IconSize } from '../Icon';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/logs';
 import { TourScreenIndex } from './SquadTour';
 import { useSquadTour } from '../../hooks/useSquadTour';
 import { verifyPermission } from '../../graphql/squads';

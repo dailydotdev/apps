@@ -16,7 +16,7 @@ import { SharePostCard } from './cards/SharePostCard';
 import { SharePostList } from './cards/list/SharePostList';
 import { WelcomePostCard } from './cards/WelcomePostCard';
 import { WelcomePostList } from './cards/list/WelcomePostList';
-import { Origin } from '../lib/analytics';
+import { Origin } from '../lib/logs';
 import { useFeedLayout, UseVotePost } from '../hooks';
 import { CollectionCard } from './cards/CollectionCard';
 import { CollectionList } from './cards/list/CollectionList';

@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { useCallback, useContext, useEffect } from 'react';
-import { Origin } from '../lib/analytics';
+import { Origin } from '../lib/logs';
 import { AuthTriggers } from '../lib/auth';
 import AuthContext from '../contexts/AuthContext';
 import { webappUrl } from '../lib/constants';

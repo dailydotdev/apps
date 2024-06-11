@@ -5,7 +5,7 @@ import {
   ReactNode,
 } from 'react';
 import { Post } from '../../graphql/posts';
-import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
+import { PostOrigin } from '../../hooks/log/useLogContextData';
 import classed from '../../lib/classed';
 import { PostOptionsMenuProps } from '../PostOptionsMenu';
 import { PostPosition } from '../../hooks/usePostModalNavigation';

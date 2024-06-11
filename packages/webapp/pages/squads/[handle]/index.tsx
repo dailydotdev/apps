@@ -32,8 +32,8 @@ import {
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import SquadLoading from '@dailydotdev/shared/src/components/errors/SquadLoading';
 import { useQuery } from '@tanstack/react-query';
-import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { LogsEvent } from '@dailydotdev/shared/src/lib/logs';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 import classNames from 'classnames';
@@ -104,7 +104,7 @@ const SquadPage = ({
   referringUser,
 }: SourcePageProps): ReactElement => {
   useJoinReferral();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { sidebarRendered } = useSidebarRendered();
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
   const { user, isFetched: isBootFetched } = useContext(AuthContext);
@@ -119,7 +119,7 @@ const SquadPage = ({
     }
 
     trackEvent({
-      event_name: AnalyticsEvent.ViewSquadPage,
+      event_name: LogsEvent.ViewSquadPage,
       extra: JSON.stringify({ squad: squadId }),
     });
     setTrackedImpression(true);
@@ -149,7 +149,7 @@ const SquadPage = ({
     }
 
     trackEvent({
-      event_name: AnalyticsEvent.ViewSquadForbiddenPage,
+      event_name: LogsEvent.ViewSquadForbiddenPage,
       extra: JSON.stringify({ squad: squadId ?? handle }),
     });
   }, [isForbidden, squadId, handle, trackEvent]);

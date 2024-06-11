@@ -1,17 +1,17 @@
 import { MutableRefObject, useEffect, useRef } from 'react';
 import listenToLifecycleEvents from '../../lib/lifecycle';
-import { AnalyticsContextData } from './useAnalyticsContextData';
-import { AnalyticsEvent } from './useAnalyticsQueue';
+import { LogContextData } from './useLogContextData';
+import { LogEvent } from './useLogQueue';
 
 const ACTIVE_STATES = ['active', 'passive'];
 
 const isActiveState = (state: string): boolean =>
   ACTIVE_STATES.indexOf(state) > -1;
 
-export default function useTrackLifecycleEvents(
+export default function useLogLifecycleEvents(
   setEnabled: (enabled: boolean) => void,
-  contextData: AnalyticsContextData,
-  durationEventsQueue: MutableRefObject<Map<string, AnalyticsEvent>>,
+  contextData: LogContextData,
+  durationEventsQueue: MutableRefObject<Map<string, LogEvent>>,
   sendBeacon: () => void,
 ): void {
   const lifecycleCallbackRef = useRef<(event: CustomEvent) => void>();

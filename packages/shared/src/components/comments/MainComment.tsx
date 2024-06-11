@@ -12,10 +12,10 @@ import CommentBox, { CommentBoxProps } from './CommentBox';
 import SubComment from './SubComment';
 import AuthContext from '../../contexts/AuthContext';
 import {
-  AnalyticsEvent,
+  LogsEvent,
   NotificationPromptSource,
   TargetType,
-} from '../../lib/analytics';
+} from '../../lib/logs';
 import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
 import { SquadCommentJoinBanner } from '../squads/SquadCommentJoinBanner';
@@ -24,7 +24,7 @@ import { Comment } from '../../graphql/comments';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import CommentInputOrModal from './CommentInputOrModal';
 
 type ClassName = {
@@ -63,7 +63,7 @@ export default function MainComment({
   ...props
 }: MainCommentProps): ReactElement {
   const { user } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const isTrackedImpression = useRef(false);
   const showNotificationPermissionBanner = useMemo(
     () => shouldShowBannerOnComment(permissionNotificationCommentId, comment),
@@ -99,7 +99,7 @@ export default function MainComment({
     if (trackImpression && !isTrackedImpression.current && inView) {
       isTrackedImpression.current = true;
       trackEvent({
-        event_name: AnalyticsEvent.Impression,
+        event_name: LogsEvent.Impression,
         target_type: TargetType.Comment,
         target_id: comment.id,
         extra: JSON.stringify({ origin: props.origin }),
@@ -120,7 +120,7 @@ export default function MainComment({
     }
 
     trackEvent({
-      event_name: AnalyticsEvent.Click,
+      event_name: LogsEvent.Click,
       target_type: TargetType.Comment,
       target_id: comment.id,
       extra: JSON.stringify({ origin: props.origin }),
@@ -204,7 +204,7 @@ export default function MainComment({
         <SquadCommentJoinBanner
           className={!comment.children?.edges?.length && 'mt-3'}
           squad={props.post?.source as Squad}
-          analyticsOrigin={props.origin}
+          logsOrigin={props.origin}
           post={props.post}
         />
       )}

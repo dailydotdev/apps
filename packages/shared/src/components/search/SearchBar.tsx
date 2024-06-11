@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { SearchBarSuggestionList } from './SearchBarSuggestionList';
 import Alert, { AlertType } from '../widgets/Alert';
 import { useSearchQuestionRecommendations } from '../../hooks/search';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/logs';
 import { labels } from '../../lib';
 import { isNullOrUndefined } from '../../lib/func';
 import { SearchProgressBar } from './SearchProgressBar';

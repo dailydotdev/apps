@@ -3,7 +3,7 @@ import { ChecklistStepProps } from '../../lib/checklist';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ChecklistStep } from './ChecklistStep';
 import { BellIcon } from '../icons';
-import { NotificationPromptSource } from '../../lib/analytics';
+import { NotificationPromptSource } from '../../lib/logs';
 import { useEnableNotification } from '../../hooks/notifications';
 
 const NotificationChecklistStep = (props: ChecklistStepProps): ReactElement => {

@@ -10,7 +10,7 @@ import TokenInput from './TokenField';
 import { AuthFlow } from '../../lib/kratos';
 import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import { AuthEventNames } from '../../lib/auth';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import AuthForm from './AuthForm';
 import AuthModalFooter from './AuthModalFooter';
 
@@ -26,7 +26,7 @@ function ForgotPasswordForm({
   onSubmit,
   simplified,
 }: ForgotPasswordFormProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const [hint, setHint] = useState('');
   const { sendEmail, isLoading, token } = useAccountEmailFlow({
     flow: AuthFlow.Recovery,

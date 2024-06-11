@@ -11,14 +11,14 @@ import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { usePushNotificationMutation } from '../../hooks/notifications';
 import {
-  AnalyticsEvent,
+  LogsEvent,
   NotificationPromptSource,
   TargetType,
-} from '../../lib/analytics';
+} from '../../lib/logs';
 import { usePersonalizedDigest } from '../../hooks';
 import { UserPersonalizedDigestType } from '../../graphql/users';
 import { TimezoneDropdown } from '../widgets/TimezoneDropdown';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getUserInitialTimezone } from '../../lib/timezones';
 import { HourDropdown } from '../fields/HourDropdown';
@@ -37,7 +37,7 @@ export const ReadingReminder = ({
   onClickNext,
 }: ReadingReminderProps): ReactElement => {
   const { user } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const [loading, setLoading] = useState(false);
   const [userTimeZone, setUserTimeZone] = useState<string>(
     getUserInitialTimezone({
@@ -56,7 +56,7 @@ export const ReadingReminder = ({
     if (!isTracked.current) {
       isTracked.current = true;
       trackEvent({
-        event_name: AnalyticsEvent.Impression,
+        event_name: LogsEvent.Impression,
         target_type: TargetType.ReadingReminder,
       });
     }
@@ -64,7 +64,7 @@ export const ReadingReminder = ({
 
   const onSkip = () => {
     trackEvent({
-      event_name: AnalyticsEvent.SkipReadingReminder,
+      event_name: LogsEvent.SkipReadingReminder,
     });
     onClickNext();
   };
@@ -77,7 +77,7 @@ export const ReadingReminder = ({
     const selectedHour =
       timeOption === 'custom' ? customTimeIndex : parseInt(timeOption, 10);
     trackEvent({
-      event_name: AnalyticsEvent.ScheduleReadingReminder,
+      event_name: LogsEvent.ScheduleReadingReminder,
       extra: JSON.stringify({
         hour: selectedHour,
         timezone: userTimeZone,

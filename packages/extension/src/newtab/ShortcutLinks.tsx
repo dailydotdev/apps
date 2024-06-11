@@ -19,12 +19,12 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import {
-  AnalyticsEvent,
+  LogsEvent,
   ShortcutsSourceType,
   TargetType,
-} from '@dailydotdev/shared/src/lib/analytics';
+} from '@dailydotdev/shared/src/lib/logs';
 import {
   useActions,
   useConditionalFeature,
@@ -141,7 +141,7 @@ export default function ShortcutLinks({
   const [showModal, setShowModal] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const { displayToast } = useToastNotification();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const {
     askTopSitesPermission,
     revokePermission,
@@ -176,7 +176,7 @@ export default function ShortcutLinks({
       if (!trackedInitialRef.current) {
         trackedInitialRef.current = true;
         trackEvent({
-          event_name: AnalyticsEvent.Impression,
+          event_name: LogsEvent.Impression,
           target_type: TargetType.Shortcuts,
           extra: JSON.stringify({
             source: isShortcutsV1
@@ -196,7 +196,7 @@ export default function ShortcutLinks({
     trackedRef.current = true;
 
     trackEvent({
-      event_name: AnalyticsEvent.Impression,
+      event_name: LogsEvent.Impression,
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: shortcutSource }),
     });
@@ -212,7 +212,7 @@ export default function ShortcutLinks({
     setShowOptions(true);
 
     trackEvent({
-      event_name: AnalyticsEvent.OpenShortcutConfig,
+      event_name: LogsEvent.OpenShortcutConfig,
       target_type: TargetType.Shortcuts,
     });
   };
@@ -310,7 +310,7 @@ export default function ShortcutLinks({
 
   const onLinkClick = () => {
     trackEvent({
-      event_name: AnalyticsEvent.Click,
+      event_name: LogsEvent.Click,
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: shortcutSource }),
     });

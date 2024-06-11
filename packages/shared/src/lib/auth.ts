@@ -8,7 +8,7 @@ import {
   KratosMethod,
   MessageType,
 } from './kratos';
-import { Origin } from './analytics';
+import { Origin } from './logs';
 
 export enum AuthEventNames {
   OpenSignup = 'open signup',

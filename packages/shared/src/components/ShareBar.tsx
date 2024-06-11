@@ -3,10 +3,10 @@ import { CopyIcon, FacebookIcon, TwitterIcon, WhatsappIcon } from './icons';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { getShareLink, ShareProvider } from '../lib/share';
-import AnalyticsContext from '../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../lib/feed';
+import LogContext from '../contexts/LogContext';
+import { postLogsEvent } from '../lib/feed';
 import { WidgetContainer } from './widgets/common';
-import { AnalyticsEvent, Origin } from '../lib/analytics';
+import { LogsEvent, Origin } from '../lib/logs';
 import { LazyModal } from './modals/common/types';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { Squad } from '../graphql/sources';
@@ -26,12 +26,12 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const cid = ReferralCampaignKey.SharePost;
   const { getShortUrl } = useGetShortUrl();
   const [copying, copyLink] = useCopyPostLink();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { openModal } = useLazyModal();
 
   const trackShareEvent = (provider: ShareProvider) =>
     trackEvent(
-      postAnalyticsEvent('share post', post, {
+      postLogsEvent('share post', post, {
         extra: { provider, origin: Origin.ShareBar },
       }),
     );
@@ -55,14 +55,14 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   };
 
   const onShareToSquad = (squad: Squad) => {
-    trackEvent(postAnalyticsEvent(AnalyticsEvent.StartShareToSquad, post));
+    trackEvent(postLogsEvent(LogsEvent.StartShareToSquad, post));
     openModal({
       type: LazyModal.CreateSharedPost,
       props: {
         squad,
         preview: post,
         onSharedSuccessfully: () =>
-          trackEvent(postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post)),
+          trackEvent(postLogsEvent(LogsEvent.ShareToSquad, post)),
       },
     });
   };

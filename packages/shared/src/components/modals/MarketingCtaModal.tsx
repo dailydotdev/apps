@@ -10,8 +10,8 @@ import {
   Title,
 } from '../cards/MarketingCta/common';
 import { useBoot } from '../../hooks';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent, TargetType } from '../../lib/analytics';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogsEvent, TargetType } from '../../lib/logs';
 import { promotion } from './generic';
 
 export interface MarketingCtaModalProps extends ModalProps {
@@ -23,14 +23,14 @@ export const MarketingCtaModal = ({
   ...modalProps
 }: MarketingCtaModalProps): ReactElement => {
   const { clearMarketingCta } = useBoot();
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
   const { campaignId, flags } = marketingCta;
   const { tagColor, tagText, title, description, image, ctaUrl, ctaText } =
     flags;
 
   const onModalClose = (
     param: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<Element>,
-    eventName: AnalyticsEvent,
+    eventName: LogsEvent,
   ) => {
     trackEvent({
       event_name: eventName,
@@ -55,14 +55,14 @@ export const MarketingCtaModal = ({
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
       onRequestClose={(event) =>
-        onModalClose(event, AnalyticsEvent.MarketingCtaDismiss)
+        onModalClose(event, LogsEvent.MarketingCtaDismiss)
       }
     >
       <div className="p-6 !pt-4">
         {tagColor && tagText && (
           <Header
             onClose={(event) =>
-              onModalClose(event, AnalyticsEvent.MarketingCtaDismiss)
+              onModalClose(event, LogsEvent.MarketingCtaDismiss)
             }
             tagColor={tagColor}
             tagText={tagText}
@@ -87,7 +87,7 @@ export const MarketingCtaModal = ({
           <CTAButton
             ctaUrl={ctaUrl}
             ctaText={ctaText}
-            onClick={(event) => onModalClose(event, AnalyticsEvent.Click)}
+            onClick={(event) => onModalClose(event, LogsEvent.Click)}
             buttonSize={ButtonSize.Medium}
           />
         )}

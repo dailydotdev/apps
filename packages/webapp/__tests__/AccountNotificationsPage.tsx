@@ -28,7 +28,7 @@ import {
   UserPersonalizedDigestType,
 } from '@dailydotdev/shared/src/graphql/users';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { SendType } from '@dailydotdev/shared/src/hooks';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
@@ -118,7 +118,7 @@ const renderComponent = (user = defaultLoggedUser): RenderResult => {
         visit={defaultVisit}
         tokenRefreshed
       >
-        <AnalyticsContext.Provider
+        <LogContext.Provider
           value={{
             trackEvent,
             trackEventStart: jest.fn(),
@@ -131,7 +131,7 @@ const renderComponent = (user = defaultLoggedUser): RenderResult => {
               <ProfileNotificationsPage />
             </NotificationsContextProvider>
           </SettingsContext.Provider>
-        </AnalyticsContext.Provider>
+        </LogContext.Provider>
       </AuthContextProvider>
     </QueryClientProvider>,
   );

@@ -1,10 +1,10 @@
 import { useCallback, useContext } from 'react';
 import { Post } from '../../graphql/posts';
 import { useCopyPostLink } from '../useCopyPostLink';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import { ShareProvider } from '../../lib/share';
-import { postAnalyticsEvent } from '../../lib/feed';
-import { Origin } from '../../lib/analytics';
+import { postLogsEvent } from '../../lib/feed';
+import { Origin } from '../../lib/logs';
 import { ReferralCampaignKey } from '../../lib';
 import { useGetShortUrl } from '../utils/useGetShortUrl';
 
@@ -24,12 +24,12 @@ export const useTrackedCopyPostLink = (
     },
   });
   const [, copyLink] = useCopyPostLink(shareLink);
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
 
   const onCopyLink = useCallback(
     (provider: ShareProvider) => {
       trackEvent(
-        postAnalyticsEvent('share post', post, {
+        postLogsEvent('share post', post, {
           extra: { provider, origin },
         }),
       );

@@ -12,7 +12,7 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import SettingsContext from '../../contexts/SettingsContext';
 import { PostHeaderActionsProps } from './common';
 import { PostMenuOptions } from './PostMenuOptions';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/logs';
 import { CollectionSubscribeButton } from './collection/CollectionSubscribeButton';
 import { useViewSize, ViewSize } from '../../hooks';
 

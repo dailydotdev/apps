@@ -8,7 +8,7 @@ import { AuthFormProps, AuthModalText } from './common';
 import { AuthFlow } from '../../lib/kratos';
 import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import { AuthEventNames } from '../../lib/auth';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import AuthForm from './AuthForm';
 import { KeyIcon } from '../icons';
 
@@ -26,7 +26,7 @@ function CodeVerificationForm({
   onSubmit,
   simplified,
 }: CodeVerificationFormProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const [hint, setHint] = useState('');
   const [emailSent, setEmailSent] = useState(false);
   const { sendEmail, verifyCode, resendTimer, isLoading } = useAccountEmailFlow(

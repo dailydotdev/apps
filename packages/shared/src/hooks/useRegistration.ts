@@ -21,8 +21,8 @@ import {
 } from '../lib/kratos';
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
-import AnalyticsContext from '../contexts/AnalyticsContext';
-import { Origin } from '../lib/analytics';
+import LogContext from '../contexts/LogContext';
+import { Origin } from '../lib/logs';
 import { LogoutReason } from '../lib/user';
 
 type ParamKeys = keyof RegistrationParameters;
@@ -58,7 +58,7 @@ const useRegistration = ({
   onInvalidRegistration,
   onInitializeVerification,
 }: UseRegistrationProps): UseRegistration => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { displayToast } = useToastNotification();
   const [verificationId, setVerificationId] = useState<string>();
   const { trackingId, referral, referralOrigin, logout } =

@@ -24,7 +24,7 @@ import {
 import { squadFeedback } from '../../lib/constants';
 import { MenuItemProps } from '../fields/ContextMenu';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/logs';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import useContextMenu from '../../hooks/useContextMenu';

@@ -19,7 +19,7 @@ import {
   initializeKratosFlow,
   submitKratosFlow,
 } from '../lib/kratos';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import LogContext from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
 import { SignBackProvider, useSignBack } from './auth/useSignBack';
 import { LoggedUser } from '../lib/user';
@@ -60,7 +60,7 @@ const useLogin = ({
 }: UseLoginProps = {}): UseLogin => {
   const { onUpdateSignBack } = useSignBack();
   const { displayToast } = useToastNotification();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { refetchBoot } = useContext(AuthContext);
   const hintState = useState('Enter your password to login');
   const [, setHint] = hintState;

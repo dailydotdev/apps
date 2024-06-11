@@ -7,8 +7,8 @@ import { Checkbox } from '../../fields/Checkbox';
 import { ModalClose } from '../common/ModalClose';
 import { cloudinary } from '../../../lib/image';
 import { StreakModalProps } from './common';
-import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
-import { AnalyticsEvent, TargetType } from '../../../lib/analytics';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogsEvent, TargetType } from '../../../lib/logs';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions } from '../../../hooks';
@@ -24,7 +24,7 @@ export default function NewStreakModal({
 }: StreakModalProps): ReactElement {
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
   const { completeAction, checkHasCompleted } = useActions();
   const isStreakModalDisabled = checkHasCompleted(
     ActionType.DisableReadingStreakMilestone,
@@ -45,7 +45,7 @@ export default function NewStreakModal({
     });
 
     trackEvent({
-      event_name: AnalyticsEvent.Impression,
+      event_name: LogsEvent.Impression,
       target_type: TargetType.StreaksMilestone,
       target_id: currentStreak,
     });
@@ -56,7 +56,7 @@ export default function NewStreakModal({
   const handleOptOut = () => {
     if (!isStreakModalDisabled) {
       trackEvent({
-        event_name: AnalyticsEvent.DismissStreaksMilestone,
+        event_name: LogsEvent.DismissStreaksMilestone,
       });
       completeAction(ActionType.DisableReadingStreakMilestone);
     }

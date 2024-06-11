@@ -3,8 +3,8 @@ import { deleteSquad } from '../graphql/squads';
 import { Squad } from '../graphql/sources';
 import { PromptOptions, usePrompt } from './usePrompt';
 import { useBoot } from './useBoot';
-import AnalyticsContext from '../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../lib/analytics';
+import LogContext from '../contexts/LogContext';
+import { LogsEvent } from '../lib/logs';
 import { ButtonColor } from '../components/buttons/Button';
 
 interface UseDeleteSquadModal {
@@ -20,7 +20,7 @@ export const useDeleteSquad = ({
   squad,
   callback,
 }: UseDeleteSquadProps): UseDeleteSquadModal => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { showPrompt } = usePrompt();
   const { deleteSquad: deleteCachedSquad } = useBoot();
 
@@ -39,7 +39,7 @@ export const useDeleteSquad = ({
     };
     if (await showPrompt(options)) {
       trackEvent({
-        event_name: AnalyticsEvent.DeleteSquad,
+        event_name: LogsEvent.DeleteSquad,
         extra: JSON.stringify({ squad: squad.id }),
       });
       await deleteSquad(squad.id);

@@ -2,10 +2,10 @@ import request from 'graphql-request';
 import { useQuery } from '@tanstack/react-query';
 import { useContext } from 'react';
 import { SearchTagsData, SEARCH_TAGS_QUERY } from '../graphql/feedSettings';
-import { AnalyticsEvent, Origin } from '../lib/analytics';
+import { LogsEvent, Origin } from '../lib/logs';
 import { graphqlUrl } from '../lib/config';
 import { getSearchTagsQueryKey } from './useMutateFilters';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import LogContext from '../contexts/LogContext';
 
 export type UseTagSearchProps = {
   value: string;
@@ -23,7 +23,7 @@ export const useTagSearch = ({
   value,
   origin,
 }: UseTagSearchProps): UseTagSearch => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
 
   const { data, isLoading } = useQuery(
     getSearchTagsQueryKey(value),
@@ -36,7 +36,7 @@ export const useTagSearch = ({
 
       if (result.searchTags.query) {
         trackEvent({
-          event_name: AnalyticsEvent.SearchTags,
+          event_name: LogsEvent.SearchTags,
           extra: JSON.stringify({
             tag_search_term: result.searchTags.query,
             tag_return_value: result.searchTags.tags.length,

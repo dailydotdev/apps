@@ -1,9 +1,9 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { joinSquadInvitation, SquadInvitationProps } from '../graphql/squads';
-import { useAnalyticsContext } from '../contexts/AnalyticsContext';
+import { useLogContext } from '../contexts/LogContext';
 import { Squad } from '../graphql/sources';
-import { AnalyticsEvent } from '../lib/analytics';
+import { LogsEvent } from '../lib/logs';
 import { useBoot } from './useBoot';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { ActionType } from '../graphql/actions';
@@ -22,7 +22,7 @@ export const useJoinSquad = ({
 }: UseJoinSquadProps): UseJoinSquad => {
   const queryClient = useQueryClient();
   const { addSquad } = useBoot();
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
   const { completeAction } = useActions();
 
   const joinSquad = useCallback(async () => {
@@ -37,7 +37,7 @@ export const useJoinSquad = ({
     const result = await joinSquadInvitation(payload);
 
     trackEvent({
-      event_name: AnalyticsEvent.CompleteJoiningSquad,
+      event_name: LogsEvent.CompleteJoiningSquad,
       extra: JSON.stringify({
         inviter: result.currentMember.user.id,
         squad: result.id,

@@ -26,8 +26,8 @@ import useContextMenu from '@dailydotdev/shared/src/hooks/useContextMenu';
 import InfiniteScrolling, {
   checkFetchMore,
 } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
-import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogsEvent, Origin } from '@dailydotdev/shared/src/lib/logs';
 import {
   notificationMutingCopy,
   NotificationType,
@@ -55,7 +55,7 @@ const seo = (
 );
 
 const Notifications = (): ReactElement => {
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
   const { clearUnreadCount } = useNotificationContext();
   const { isSubscribed } = usePushNotificationContext();
 
@@ -87,7 +87,7 @@ const Notifications = (): ReactElement => {
 
   const onNotificationClick = ({ id, type }: Notification) => {
     trackEvent({
-      event_name: AnalyticsEvent.ClickNotification,
+      event_name: LogsEvent.ClickNotification,
       target_id: id,
       extra: JSON.stringify({ origin: Origin.NonRealTime, type }),
     });
@@ -98,7 +98,7 @@ const Notifications = (): ReactElement => {
       return;
     }
 
-    trackEvent({ event_name: AnalyticsEvent.OpenNotificationList });
+    trackEvent({ event_name: LogsEvent.OpenNotificationList });
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFetchedAfterMount]);

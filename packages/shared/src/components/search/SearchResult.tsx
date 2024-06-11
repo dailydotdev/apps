@@ -17,8 +17,8 @@ import { labels } from '../../lib';
 import { Pill } from '../utilities/loaders';
 import { WithClassNameProps } from '../utilities';
 import classed from '../../lib/classed';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../../lib/analytics';
+import LogContext from '../../contexts/LogContext';
+import { LogsEvent } from '../../lib/logs';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 
 export interface SearchResultProps {
@@ -50,7 +50,7 @@ export function SearchResult({
   isInProgress,
   searchMessageProps,
 }: SearchResultProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
   const [isCopying, copyContent] = useCopyText(chunk.response);
@@ -60,8 +60,8 @@ export function SearchResult({
       onMutate: (value) => {
         const previousValue = chunk.feedback;
         const eventNames = {
-          1: AnalyticsEvent.UpvoteSearch,
-          [-1]: AnalyticsEvent.DownvoteSearch,
+          1: LogsEvent.UpvoteSearch,
+          [-1]: LogsEvent.DownvoteSearch,
         };
 
         client.setQueryData<Search>(queryKey, (search) =>
@@ -89,7 +89,7 @@ export function SearchResult({
     if (!isCopying && chunk?.id) {
       copyContent();
       trackEvent({
-        event_name: AnalyticsEvent.CopySearch,
+        event_name: LogsEvent.CopySearch,
         target_id: chunk.id,
       });
     }

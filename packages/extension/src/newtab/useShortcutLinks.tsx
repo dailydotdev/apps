@@ -9,12 +9,12 @@ import {
   useRef,
   useState,
 } from 'react';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import {
-  AnalyticsEvent,
+  LogsEvent,
   ShortcutsSourceType,
   TargetType,
-} from '@dailydotdev/shared/src/lib/analytics';
+} from '@dailydotdev/shared/src/lib/logs';
 import useTopSites from './useTopSites';
 
 interface UseShortcutLinks {
@@ -35,7 +35,7 @@ interface UseShortcutLinks {
 }
 
 export default function useShortcutLinks(): UseShortcutLinks {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const formRef = useRef<HTMLFormElement>();
   const [isManual, setIsManual] = useState(true);
   const { customLinks, updateCustomLinks } = useContext(SettingsContext);
@@ -80,7 +80,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
     setIsManual(true);
 
     trackEvent({
-      event_name: AnalyticsEvent.RevokeShortcutAccess,
+      event_name: LogsEvent.RevokeShortcutAccess,
       target_type: TargetType.Shortcuts,
     });
   };
@@ -110,7 +110,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
     updateCustomLinks(links);
 
     trackEvent({
-      event_name: AnalyticsEvent.SaveShortcutAccess,
+      event_name: LogsEvent.SaveShortcutAccess,
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
     });
@@ -149,7 +149,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
 
         if (granted) {
           trackEvent({
-            event_name: AnalyticsEvent.SaveShortcutAccess,
+            event_name: LogsEvent.SaveShortcutAccess,
             target_type: TargetType.Shortcuts,
             extra: JSON.stringify({ source: ShortcutsSourceType.Browser }),
           });

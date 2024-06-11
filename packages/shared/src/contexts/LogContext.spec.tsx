@@ -2,12 +2,12 @@ import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
 import nock from 'nock';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import AnalyticsContext, { AnalyticsContextProvider } from './AnalyticsContext';
-import { AnalyticsContextData } from '../hooks/analytics/useAnalyticsContextData';
+import LogContext, { LogContextProvider } from './LogContext';
+import { LogContextData } from '../hooks/log/useLogContextData';
 import { SettingsContextData, ThemeMode } from './SettingsContext';
 import { AuthContextData } from './AuthContext';
 import { AnonymousUser } from '../lib/user';
-import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
+import { LogEvent } from '../hooks/log/useLogQueue';
 import { BootApp, Visit } from '../lib/boot';
 import { waitForNock } from '../../__tests__/helpers/utilities';
 import { TestBootProvider } from '../../__tests__/helpers/boot';
@@ -37,12 +37,12 @@ const settings: SettingsContextData = {
   toggleSidebarExpanded: jest.fn(),
 };
 
-const AnalyticsContextTester = ({
+const LogContextTester = ({
   callback,
 }: {
-  callback: (contextData: AnalyticsContextData) => unknown;
+  callback: (contextData: LogContextData) => unknown;
 }): ReactElement => {
-  const contextData = useContext(AnalyticsContext);
+  const contextData = useContext(LogContext);
 
   useEffect(() => {
     callback(contextData);
@@ -77,13 +77,9 @@ const TestComponent = ({
       ...authContext,
     }}
   >
-    <AnalyticsContextProvider
-      app={BootApp.Test}
-      getPage={getPage}
-      deviceId="123"
-    >
+    <LogContextProvider app={BootApp.Test} getPage={getPage} deviceId="123">
       {children}
-    </AnalyticsContextProvider>
+    </LogContextProvider>
   </TestBootProvider>
 );
 
@@ -100,7 +96,7 @@ const baseVisit: Visit = {
 
 const mockEventsEndpoint = (takeSnapshot = true) => {
   nock('http://localhost:3000')
-    .post('/e', (body: { events: AnalyticsEvent[] }) => {
+    .post('/e', (body: { events: LogEvent[] }) => {
       if (takeSnapshot) {
         // Reset time based properties
         expect(
@@ -124,7 +120,7 @@ const mockEventsEndpoint = (takeSnapshot = true) => {
 
 it('should batch events before sending', async () => {
   mockEventsEndpoint();
-  const callback = ({ trackEvent }: AnalyticsContextData) => {
+  const callback = ({ trackEvent }: LogContextData) => {
     trackEvent({ event_name: 'e1' });
     trackEvent({ event_name: 'e2' });
   };
@@ -137,7 +133,7 @@ it('should batch events before sending', async () => {
         visit: baseVisit,
       }}
     >
-      <AnalyticsContextTester callback={callback} />
+      <LogContextTester callback={callback} />
     </TestComponent>,
   );
   await waitForNock();
@@ -145,7 +141,7 @@ it('should batch events before sending', async () => {
 
 it('should add relevant properties when user is signed-in', async () => {
   mockEventsEndpoint();
-  const callback = ({ trackEvent }: AnalyticsContextData) => {
+  const callback = ({ trackEvent }: LogContextData) => {
     trackEvent({ event_name: 'e1' });
   };
   render(
@@ -164,7 +160,7 @@ it('should add relevant properties when user is signed-in', async () => {
         tokenRefreshed: true,
       }}
     >
-      <AnalyticsContextTester callback={callback} />
+      <LogContextTester callback={callback} />
     </TestComponent>,
   );
   await waitForNock();
@@ -172,7 +168,7 @@ it('should add relevant properties when user is signed-in', async () => {
 
 it('should send events in different batches', async () => {
   let done = false;
-  const callback = async ({ trackEvent }: AnalyticsContextData) => {
+  const callback = async ({ trackEvent }: LogContextData) => {
     mockEventsEndpoint();
     trackEvent({ event_name: 'e1' });
     await new Promise((resolve) => setTimeout(resolve, 600));
@@ -189,7 +185,7 @@ it('should send events in different batches', async () => {
         visit: baseVisit,
       }}
     >
-      <AnalyticsContextTester callback={callback} />
+      <LogContextTester callback={callback} />
     </TestComponent>,
   );
   await waitFor(() => expect(done).toBeTruthy());
@@ -198,7 +194,7 @@ it('should send events in different batches', async () => {
 
 it('should send event with duration', async () => {
   nock('http://localhost:3000')
-    .post('/e', (body: { events: AnalyticsEvent[] }) => {
+    .post('/e', (body: { events: LogEvent[] }) => {
       expect(body.events[0].event_duration).toBeTruthy();
       return true;
     })
@@ -207,7 +203,7 @@ it('should send event with duration', async () => {
   const callback = async ({
     trackEventStart,
     trackEventEnd,
-  }: AnalyticsContextData) => {
+  }: LogContextData) => {
     trackEventStart('event', { event_name: 'e1' });
     await new Promise((resolve) => setTimeout(resolve, 10));
     trackEventEnd('event');
@@ -221,7 +217,7 @@ it('should send event with duration', async () => {
         visit: baseVisit,
       }}
     >
-      <AnalyticsContextTester callback={callback} />
+      <LogContextTester callback={callback} />
     </TestComponent>,
   );
   await waitForNock();
@@ -230,7 +226,7 @@ it('should send event with duration', async () => {
 it('should send pending events when page becomes invisible', async () => {
   window.navigator.sendBeacon = jest.fn();
 
-  const callback = async ({ trackEventStart }: AnalyticsContextData) => {
+  const callback = async ({ trackEventStart }: LogContextData) => {
     trackEventStart('event', { event_name: 'e1' });
     await new Promise((resolve) => setTimeout(resolve, 10));
     fireEvent(
@@ -253,7 +249,7 @@ it('should send pending events when page becomes invisible', async () => {
         visit: baseVisit,
       }}
     >
-      <AnalyticsContextTester callback={callback} />
+      <LogContextTester callback={callback} />
     </TestComponent>,
   );
   await waitFor(() => expect(window.navigator.sendBeacon).toBeCalledTimes(1));
@@ -261,7 +257,7 @@ it('should send pending events when page becomes invisible', async () => {
 
 it('should send pending events when user information is fetched', async () => {
   let done = false;
-  const callback = async ({ trackEvent }: AnalyticsContextData) => {
+  const callback = async ({ trackEvent }: LogContextData) => {
     trackEvent({ event_name: 'e1' });
     // Wait for debounce to finish
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -276,7 +272,7 @@ it('should send pending events when user information is fetched', async () => {
         visit: baseVisit,
       }}
     >
-      <AnalyticsContextTester callback={callback} />
+      <LogContextTester callback={callback} />
     </TestComponent>,
   );
   await waitFor(() => expect(done).toBeTruthy());
@@ -295,7 +291,7 @@ it('should send pending events when user information is fetched', async () => {
         },
       }}
     >
-      <AnalyticsContextTester callback={callback} />
+      <LogContextTester callback={callback} />
     </TestComponent>,
   );
   await waitForNock();

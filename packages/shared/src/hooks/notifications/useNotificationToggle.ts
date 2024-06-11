@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { NotificationPromptSource } from '../../lib/analytics';
+import { NotificationPromptSource } from '../../lib/logs';
 import { useEnableNotification } from './useEnableNotification';
 
 interface UseNotificationToggle {

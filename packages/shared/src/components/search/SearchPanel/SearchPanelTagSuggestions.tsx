@@ -5,8 +5,8 @@ import { SearchProviderEnum, SearchSuggestion } from '../../../graphql/search';
 import { useSearchProviderSuggestions } from '../../../hooks/search';
 import { SearchPanelContext } from './SearchPanelContext';
 import { useSearchPanelAction } from './useSearchPanelAction';
-import { AnalyticsEvent, Origin, TargetType } from '../../../lib/analytics';
-import AnalyticsContext from '../../../contexts/AnalyticsContext';
+import { LogsEvent, Origin, TargetType } from '../../../lib/logs';
+import LogContext from '../../../contexts/LogContext';
 import { SearchPanelItemContainer } from './SearchPanelInputContainer';
 import { TagLink } from '../../TagLinks';
 import { webappUrl } from '../../../lib/constants';
@@ -47,7 +47,7 @@ export const SearchPanelTagSuggestions = ({
   title,
 }: SearchPanelTagSuggestionsProps): ReactElement => {
   const router = useRouter();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const searchPanel = useContext(SearchPanelContext);
 
   const { suggestions } = useSearchProviderSuggestions({
@@ -60,7 +60,7 @@ export const SearchPanelTagSuggestions = ({
     const tag = suggestion.id || suggestion.title.toLowerCase();
 
     trackEvent({
-      event_name: AnalyticsEvent.Click,
+      event_name: LogsEvent.Click,
       target_type: TargetType.SearchRecommendation,
       target_id: tag,
       feed_item_title: tag,

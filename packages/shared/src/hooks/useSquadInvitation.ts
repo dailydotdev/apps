@@ -1,6 +1,6 @@
 import { CopyNotifyFunction, useCopyLink } from './useCopy';
-import { useAnalyticsContext } from '../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../lib/analytics';
+import { useLogContext } from '../contexts/LogContext';
+import { LogsEvent } from '../lib/logs';
 import { Squad } from '../graphql/sources';
 import { useActions } from './useActions';
 import { ActionType } from '../graphql/actions';
@@ -20,7 +20,7 @@ export const useSquadInvitation = ({
   squad,
   origin,
 }: UseSquadInvitationProps): UseSquadInvitation => {
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
   const { completeAction } = useActions();
 
   const invitation = squad.referralUrl;
@@ -28,7 +28,7 @@ export const useSquadInvitation = ({
 
   const trackAndCopyLink = () => {
     trackEvent({
-      event_name: AnalyticsEvent.ShareSquadInvitation,
+      event_name: LogsEvent.ShareSquadInvitation,
       extra: JSON.stringify({ origin, squad: squad?.id }),
     });
 

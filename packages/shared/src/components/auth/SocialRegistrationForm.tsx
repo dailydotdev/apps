@@ -22,7 +22,7 @@ import { AuthFormProps, providerMap } from './common';
 import AuthContext from '../../contexts/AuthContext';
 import { ProfileFormHint } from '../../hooks/useProfileForm';
 import { Checkbox } from '../fields/Checkbox';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import AuthForm from './AuthForm';
 import { Modal } from '../modals/common/Modal';
 import { IconSize } from '../Icon';
@@ -61,7 +61,7 @@ export const SocialRegistrationForm = ({
   isLoading,
   simplified,
 }: SocialRegistrationFormProps): ReactElement => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { user } = useContext(AuthContext);
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);

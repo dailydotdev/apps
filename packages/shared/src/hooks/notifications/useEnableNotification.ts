@@ -1,11 +1,11 @@
 import { useCallback, useEffect } from 'react';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { useLogContext } from '../../contexts/LogContext';
 import usePersistentContext from '../usePersistentContext';
 import {
-  AnalyticsEvent,
+  LogsEvent,
   NotificationPromptSource,
   TargetType,
-} from '../../lib/analytics';
+} from '../../lib/logs';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { checkIsExtension } from '../../lib/func';
@@ -27,7 +27,7 @@ export const useEnableNotification = ({
   source = NotificationPromptSource.NotificationsPage,
 }: UseEnableNotificationProps): UseEnableNotification => {
   const isExtension = checkIsExtension();
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
   const { isInitialized, isPushSupported, isSubscribed, shouldOpenPopup } =
     usePushNotificationContext();
   const { hasPermissionCache, acceptedJustNow, onEnablePush } =
@@ -38,7 +38,7 @@ export const useEnableNotification = ({
   );
   const onDismiss = useCallback(() => {
     trackEvent({
-      event_name: AnalyticsEvent.ClickNotificationDismiss,
+      event_name: LogsEvent.ClickNotificationDismiss,
       extra: JSON.stringify({ origin: source }),
     });
     setIsDismissed(true);
@@ -70,7 +70,7 @@ export const useEnableNotification = ({
     }
 
     trackEvent({
-      event_name: AnalyticsEvent.Impression,
+      event_name: LogsEvent.Impression,
       target_type: TargetType.EnableNotifications,
       extra: JSON.stringify({ origin: source }),
     });

@@ -13,9 +13,9 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { AiIcon } from '../icons';
-import { AnalyticsEvent, Origin, TargetType } from '../../lib/analytics';
+import { LogsEvent, Origin, TargetType } from '../../lib/logs';
 import { SearchProviderEnum, SearchQuestion } from '../../graphql/search';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 
 export type SuggestionOrigin =
   | Origin.HomePage
@@ -38,13 +38,13 @@ export const SearchBarSuggestion = ({
   children,
   ...props
 }: SearchBarSuggestionProps): ReactElement => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const impressionEmitted = useRef(false);
 
   useEffect(() => {
     if (!isHistory && suggestionId && !impressionEmitted.current) {
       trackEvent({
-        event_name: AnalyticsEvent.Impression,
+        event_name: LogsEvent.Impression,
         target_type: TargetType.SearchRecommendation,
         target_id: suggestionId,
         feed_item_title: prompt,
@@ -61,7 +61,7 @@ export const SearchBarSuggestion = ({
   const handleSuggestionsClick = useCallback(() => {
     if (suggestionId) {
       trackEvent({
-        event_name: AnalyticsEvent.Click,
+        event_name: LogsEvent.Click,
         target_type: isHistory
           ? TargetType.SearchHistory
           : TargetType.SearchRecommendation,

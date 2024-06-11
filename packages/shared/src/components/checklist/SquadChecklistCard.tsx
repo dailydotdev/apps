@@ -6,8 +6,8 @@ import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
 import { useChecklist } from '../../hooks/useChecklist';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent, TargetType } from '../../lib/analytics';
+import LogContext from '../../contexts/LogContext';
+import { LogsEvent, TargetType } from '../../lib/logs';
 
 const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
   const { steps, isChecklistVisible, setChecklistVisible, isChecklistReady } =
@@ -15,12 +15,12 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
       squad,
     });
   const { isDone } = useChecklist({ steps });
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const totalStepsCount = steps.length;
 
   useEffect(() => {
     trackEvent({
-      event_name: AnalyticsEvent.Impression,
+      event_name: LogsEvent.Impression,
       target_type: TargetType.OnboardingChecklist,
       extra: JSON.stringify({ squad: squad.id }),
     });
@@ -34,7 +34,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
 
   const onRequestClose = () => {
     trackEvent({
-      event_name: AnalyticsEvent.ChecklistClose,
+      event_name: LogsEvent.ChecklistClose,
       extra: JSON.stringify({ squad: squad.id }),
     });
     setChecklistVisible(false);

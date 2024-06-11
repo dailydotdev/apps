@@ -52,7 +52,7 @@ import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
 import { VOTE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import PostPage, { Props } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
@@ -193,7 +193,7 @@ const renderPost = (
       }}
       settings={createTestSettings()}
     >
-      <AnalyticsContext.Provider
+      <LogContext.Provider
         value={{
           trackEvent,
           trackEventStart: jest.fn(),
@@ -202,7 +202,7 @@ const renderPost = (
         }}
       >
         {getMainLayout(<PostPage {...defaultProps} {...props} />)}
-      </AnalyticsContext.Provider>
+      </LogContext.Provider>
     </TestBootProvider>,
   );
 };

@@ -9,12 +9,12 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { BaseField, FieldInput } from '../../fields/common';
-import { AnalyticsEvent, TargetId } from '../../../lib/analytics';
+import { LogsEvent, TargetId } from '../../../lib/logs';
 import { IconSize } from '../../Icon';
 import { getFieldFontColor } from '../../fields/BaseFieldContainer';
 import { AiIcon, ClearIcon } from '../../icons';
 import { useInputField } from '../../../hooks/useInputField';
-import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
+import { useLogContext } from '../../../contexts/LogContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { AuthTriggers } from '../../../lib/auth';
 import { SearchPanelContext } from './SearchPanelContext';
@@ -57,7 +57,7 @@ export const SearchPanelInput = ({
   const { search } = useSearchProvider();
   const searchPanel = useContext(SearchPanelContext);
   const fieldRef = useRef<HTMLInputElement>();
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
   const {
     value,
     readOnly,
@@ -91,7 +91,7 @@ export const SearchPanelInput = ({
     const provider = searchPanel.provider ?? defaultSearchProvider;
 
     trackEvent({
-      event_name: AnalyticsEvent.SubmitSearch,
+      event_name: LogsEvent.SubmitSearch,
       extra: JSON.stringify({ query: finalValue, provider }),
     });
 
@@ -139,7 +139,7 @@ export const SearchPanelInput = ({
         });
 
         trackEvent({
-          event_name: AnalyticsEvent.KeyboardShortcutTriggered,
+          event_name: LogsEvent.KeyboardShortcutTriggered,
           target_id: TargetId.SearchActivation,
         });
       }
@@ -194,7 +194,7 @@ export const SearchPanelInput = ({
               externalOnFocus?.(event);
               itemProps.onFocus(event);
 
-              trackEvent({ event_name: AnalyticsEvent.FocusSearch });
+              trackEvent({ event_name: LogsEvent.FocusSearch });
             }}
             onBlur={(event) => {
               onBlur();

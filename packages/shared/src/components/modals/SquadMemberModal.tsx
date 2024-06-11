@@ -10,7 +10,7 @@ import UserListModal from './UserListModal';
 import { checkFetchMore } from '../containers/InfiniteScrolling';
 import useContextMenu from '../../hooks/useContextMenu';
 import SquadMemberMenu from '../squads/SquadMemberMenu';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/logs';
 import { IconSize } from '../Icon';
 import { LinkIcon } from '../icons';
 import { useSquadInvitation } from '../../hooks/useSquadInvitation';

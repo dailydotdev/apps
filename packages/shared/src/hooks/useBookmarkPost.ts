@@ -11,17 +11,17 @@ import {
   REMOVE_BOOKMARK_MUTATION,
   ReadHistoryPost,
 } from '../graphql/posts';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import LogContext from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
 import { useRequestProtocol } from './useRequestProtocol';
 import AuthContext from '../contexts/AuthContext';
 import { updatePostCache } from './usePostById';
 import { AuthTriggers } from '../lib/auth';
-import { AnalyticsEvent, Origin } from '../lib/analytics';
+import { LogsEvent, Origin } from '../lib/logs';
 import {
-  PostAnalyticsEventFnOptions,
+  PostLogsEventFnOptions,
   optimisticPostUpdateInFeed,
-  postAnalyticsEvent,
+  postLogsEvent,
 } from '../lib/feed';
 import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { ActionType } from '../graphql/actions';
@@ -33,7 +33,7 @@ import { useActions } from './useActions';
 export type ToggleBookmarkProps = {
   origin: Origin;
   post: Post | ReadHistoryPost;
-  opts?: PostAnalyticsEventFnOptions;
+  opts?: PostLogsEventFnOptions;
 };
 
 export const bookmarkMutationKey = ['post', 'mutation', 'bookmark'];
@@ -57,10 +57,10 @@ export type UseBookmarkPostProps = {
   mutationKey?: MutationKey;
 };
 
-const prepareBookmarkPostAnalyticsOptions = ({
+const prepareBookmarkPostLogsOptions = ({
   origin,
   opts,
-}: ToggleBookmarkProps): PostAnalyticsEventFnOptions => {
+}: ToggleBookmarkProps): PostLogsEventFnOptions => {
   const { extra, ...restOpts } = opts || {};
 
   return {
@@ -81,7 +81,7 @@ const useBookmarkPost = ({
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { openModal } = useLazyModal();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const seenBookmarkPromotion = useMemo(
@@ -145,7 +145,7 @@ const useBookmarkPost = ({
         return;
       }
 
-      const analyticsOptions = prepareBookmarkPostAnalyticsOptions({
+      const logsOptions = prepareBookmarkPostLogsOptions({
         post,
         origin,
         opts,
@@ -153,20 +153,14 @@ const useBookmarkPost = ({
 
       if (post.bookmarked) {
         trackEvent(
-          postAnalyticsEvent(
-            AnalyticsEvent.RemovePostBookmark,
-            post,
-            analyticsOptions,
-          ),
+          postLogsEvent(LogsEvent.RemovePostBookmark, post, logsOptions),
         );
         await removeBookmark({ id: post.id });
         displayToast('Post was removed from your bookmarks');
         return;
       }
 
-      trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.BookmarkPost, post, analyticsOptions),
-      );
+      trackEvent(postLogsEvent(LogsEvent.BookmarkPost, post, logsOptions));
 
       await addBookmark({ id: post.id });
       displayToast('Post was added to your bookmarks');

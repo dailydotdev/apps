@@ -1,11 +1,11 @@
 import { MutableRefObject, useMemo } from 'react';
-import { AnalyticsEvent, PushToQueueFunc } from './useAnalyticsQueue';
+import { LogEvent, PushToQueueFunc } from './useLogQueue';
 import { getCurrentLifecycleState } from '../../lib/lifecycle';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/logs';
 
-export type AnalyticsContextData = {
-  trackEvent: (event: AnalyticsEvent) => void;
-  trackEventStart: (id: string, event: AnalyticsEvent) => void;
+export type LogContextData = {
+  trackEvent: (event: LogEvent) => void;
+  trackEventStart: (id: string, event: LogEvent) => void;
   trackEventEnd: (id: string, now?: Date) => void;
   sendBeacon: () => void;
 };
@@ -21,7 +21,7 @@ export type PostOrigin =
   | Origin.ArticleModal
   | Origin.CollectionModal;
 
-const getGlobalSharedProps = (): Partial<AnalyticsEvent> => ({
+const getGlobalSharedProps = (): Partial<LogEvent> => ({
   screen_height: window.screen?.height,
   screen_width: window.screen?.width,
   page_referrer: document.referrer,
@@ -31,11 +31,11 @@ const getGlobalSharedProps = (): Partial<AnalyticsEvent> => ({
 });
 
 const generateEvent = (
-  event: AnalyticsEvent,
-  sharedPropsRef: MutableRefObject<Partial<AnalyticsEvent>>,
+  event: LogEvent,
+  sharedPropsRef: MutableRefObject<Partial<LogEvent>>,
   page: string,
   now = new Date(),
-): AnalyticsEvent => ({
+): LogEvent => ({
   ...sharedPropsRef.current,
   ...getGlobalSharedProps(),
   event_timestamp: now,
@@ -44,16 +44,16 @@ const generateEvent = (
   ...event,
 });
 
-export default function useAnalyticsContextData(
+export default function useLogContextData(
   pushToQueue: PushToQueueFunc,
-  sharedPropsRef: MutableRefObject<Partial<AnalyticsEvent>>,
+  sharedPropsRef: MutableRefObject<Partial<LogEvent>>,
   getPage: () => string,
-  durationEventsQueue: MutableRefObject<Map<string, AnalyticsEvent>>,
+  durationEventsQueue: MutableRefObject<Map<string, LogEvent>>,
   sendBeacon: () => void,
-): AnalyticsContextData {
-  return useMemo<AnalyticsContextData>(
+): LogContextData {
+  return useMemo<LogContextData>(
     () => ({
-      trackEvent(event: AnalyticsEvent) {
+      trackEvent(event: LogEvent) {
         pushToQueue([generateEvent(event, sharedPropsRef, getPage())]);
       },
       trackEventStart(id, event) {

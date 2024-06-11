@@ -4,7 +4,7 @@ import AuthOptions, { AuthDisplay as Display } from './AuthOptions';
 import useAuthForms from '../../hooks/useAuthForms';
 import AuthContext from '../../contexts/AuthContext';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import { Modal, ModalProps } from '../modals/common/Modal';
 import { LogoutReason } from '../../lib/user';
 
@@ -18,7 +18,7 @@ export default function AuthModal({
   onRequestClose,
   ...props
 }: AuthModalProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const [screenValue, setScreenValue] = useState<Display>(Display.Default);
   const { user, closeLogin, logout, loginState } = useContext(AuthContext);
   const onClose = (e) => {

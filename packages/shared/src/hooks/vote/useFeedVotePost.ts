@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { FeedItem, UpdateFeedPost } from '../useFeed';
-import { feedAnalyticsExtra } from '../../lib/feed';
-import { Origin } from '../../lib/analytics';
+import { feedLogsExtra } from '../../lib/feed';
+import { Origin } from '../../lib/logs';
 import { useMutationSubscription } from '../mutationSubscription/useMutationSubscription';
 import {
   UseVotePost,
@@ -57,18 +57,14 @@ export const useFeedVotePost = ({
     ...restVotePost,
     toggleUpvote: useCallback(
       ({ payload, origin, opts }) => {
-        const analyticsExtra = feedAnalyticsExtra(
-          feedName,
-          ranking,
-          opts?.extra,
-        );
+        const logsExtra = feedLogsExtra(feedName, ranking, opts?.extra);
 
         return toggleUpvote({
           payload,
-          origin: origin || (analyticsExtra.extra.origin as Origin),
+          origin: origin || (logsExtra.extra.origin as Origin),
           opts: {
             ...opts,
-            ...analyticsExtra,
+            ...logsExtra,
           },
         });
       },
@@ -76,18 +72,14 @@ export const useFeedVotePost = ({
     ),
     toggleDownvote: useCallback(
       ({ payload, origin, opts }) => {
-        const analyticsExtra = feedAnalyticsExtra(
-          feedName,
-          ranking,
-          opts?.extra,
-        );
+        const logsExtra = feedLogsExtra(feedName, ranking, opts?.extra);
 
         return toggleDownvote({
           payload,
-          origin: origin || (analyticsExtra.extra.origin as Origin),
+          origin: origin || (logsExtra.extra.origin as Origin),
           opts: {
             ...opts,
-            ...analyticsExtra,
+            ...logsExtra,
           },
         });
       },

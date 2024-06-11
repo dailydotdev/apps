@@ -3,8 +3,8 @@ import { Card } from '../Card';
 import { CardCover } from '../common/CardCover';
 import { CTAButton, Description, Header, MarketingCta, Title } from './common';
 import { useBoot } from '../../../hooks';
-import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
-import { AnalyticsEvent, TargetType } from '../../../lib/analytics';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogsEvent, TargetType } from '../../../lib/logs';
 
 export function MarketingCtaCard({
   marketingCta,
@@ -14,7 +14,7 @@ export function MarketingCtaCard({
   const { tagColor, tagText, title, description, image, ctaUrl, ctaText } =
     marketingCta.flags;
   const { clearMarketingCta } = useBoot();
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
   const isImpressionTracked = useRef(false);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export function MarketingCtaCard({
     }
 
     trackEvent({
-      event_name: AnalyticsEvent.Impression,
+      event_name: LogsEvent.Impression,
       target_type: TargetType.PromotionCard,
       target_id: marketingCta.campaignId,
     });
@@ -32,7 +32,7 @@ export function MarketingCtaCard({
 
   const onCtaClick = useCallback(() => {
     trackEvent({
-      event_name: AnalyticsEvent.Click,
+      event_name: LogsEvent.Click,
       target_type: TargetType.PromotionCard,
       target_id: marketingCta.campaignId,
     });
@@ -41,7 +41,7 @@ export function MarketingCtaCard({
 
   const onCtaDismiss = useCallback(() => {
     trackEvent({
-      event_name: AnalyticsEvent.MarketingCtaDismiss,
+      event_name: LogsEvent.MarketingCtaDismiss,
       target_type: TargetType.PromotionCard,
       target_id: marketingCta.campaignId,
     });

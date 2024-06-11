@@ -2,7 +2,7 @@ import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
 
 import browser from 'webextension-polyfill';
 import { useQueryClient } from '@tanstack/react-query';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { ExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import {
   requestContentScripts,
@@ -23,7 +23,7 @@ export const ExtensionContextProvider = ({
   children,
 }: ExtensionContextProviderProps): ReactElement => {
   const client = useQueryClient();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
 
   const contextData = useMemo(
     () => ({

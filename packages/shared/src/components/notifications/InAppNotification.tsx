@@ -11,8 +11,8 @@ import classed from '../../lib/classed';
 import { isTouchDevice } from '../../lib/tooltip';
 import { InAppNotificationItem } from './InAppNotificationItem';
 import styles from './InAppNotification.module.css';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogsEvent, Origin } from '../../lib/logs';
 import { NotificationType } from './utils';
 import { ButtonSize } from '../buttons/Button';
 import { ModalClose } from '../modals/common/ModalClose';
@@ -32,7 +32,7 @@ let timeoutId: number | NodeJS.Timeout = 0;
 export function InAppNotificationElement(): ReactElement {
   const router = useRouter();
   const client = useQueryClient();
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
   const { clearNotifications, dismissNotification } = useInAppNotification();
   const { isSubscribed } = usePushNotificationContext();
   const [isExit, setIsExit] = useState(false);
@@ -83,7 +83,7 @@ export function InAppNotificationElement(): ReactElement {
 
   const onNotificationClick = (id: string, type: NotificationType) => {
     trackEvent({
-      event_name: AnalyticsEvent.ClickNotification,
+      event_name: LogsEvent.ClickNotification,
       target_id: id,
       extra: JSON.stringify({ origin: Origin.RealTime, type }),
     });

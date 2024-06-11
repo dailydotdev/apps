@@ -1,14 +1,11 @@
 import { useContext, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import AuthContext from '../../contexts/AuthContext';
 import { PostData, UserVote } from '../../graphql/posts';
-import { AnalyticsEvent } from '../../lib/analytics';
+import { LogsEvent } from '../../lib/logs';
 import { AuthTriggers } from '../../lib/auth';
-import {
-  PostAnalyticsEventFnOptions,
-  postAnalyticsEvent,
-} from '../../lib/feed';
+import { PostLogsEventFnOptions, postLogsEvent } from '../../lib/feed';
 import {
   getPostByIdKey,
   updatePostCache as updateSinglePostCache,
@@ -22,18 +19,18 @@ import {
 } from './types';
 import { useVote } from './useVote';
 
-const prepareVotePostAnalyticsOptions = ({
+const prepareVotePostLogsOptions = ({
   origin,
   opts,
-}: ToggleVoteProps): PostAnalyticsEventFnOptions => {
+}: ToggleVoteProps): PostLogsEventFnOptions => {
   const { extra, ...restOpts } = opts || {};
 
-  const analyticsOptions: PostAnalyticsEventFnOptions = {
+  const logsOptions: PostLogsEventFnOptions = {
     ...restOpts,
     extra: { ...extra, origin },
   };
 
-  return analyticsOptions;
+  return logsOptions;
 };
 
 const useVotePost = ({
@@ -42,7 +39,7 @@ const useVotePost = ({
 }: UseVotePostProps = {}): UseVotePost => {
   const client = useQueryClient();
   const { user, showLogin } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const defaultOnMutate = ({ id, vote }) => {
     const mutationHandler = voteMutationHandlers[vote];
 
@@ -87,7 +84,7 @@ const useVotePost = ({
         return;
       }
 
-      const analyticsOptions = prepareVotePostAnalyticsOptions({
+      const logsOptions = prepareVotePostLogsOptions({
         payload: post,
         origin,
         opts,
@@ -95,11 +92,7 @@ const useVotePost = ({
 
       if (post?.userState?.vote === UserVote.Up) {
         trackEvent(
-          postAnalyticsEvent(
-            AnalyticsEvent.RemovePostUpvote,
-            post,
-            analyticsOptions,
-          ),
+          postLogsEvent(LogsEvent.RemovePostUpvote, post, logsOptions),
         );
 
         await cancelPostVote({ id: post.id });
@@ -107,9 +100,7 @@ const useVotePost = ({
         return;
       }
 
-      trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.UpvotePost, post, analyticsOptions),
-      );
+      trackEvent(postLogsEvent(LogsEvent.UpvotePost, post, logsOptions));
 
       await upvotePost({ id: post.id });
     },
@@ -128,7 +119,7 @@ const useVotePost = ({
         return;
       }
 
-      const analyticsOptions = prepareVotePostAnalyticsOptions({
+      const logsOptions = prepareVotePostLogsOptions({
         payload: post,
         origin,
         opts,
@@ -136,11 +127,7 @@ const useVotePost = ({
 
       if (post?.userState?.vote === UserVote.Down) {
         trackEvent(
-          postAnalyticsEvent(
-            AnalyticsEvent.RemovePostDownvote,
-            post,
-            analyticsOptions,
-          ),
+          postLogsEvent(LogsEvent.RemovePostDownvote, post, logsOptions),
         );
 
         await cancelPostVote({ id: post.id });
@@ -148,9 +135,7 @@ const useVotePost = ({
         return;
       }
 
-      trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.DownvotePost, post, analyticsOptions),
-      );
+      trackEvent(postLogsEvent(LogsEvent.DownvotePost, post, logsOptions));
 
       downvotePost({ id: post.id });
     },

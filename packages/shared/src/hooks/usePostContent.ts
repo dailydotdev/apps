@@ -5,11 +5,11 @@ import {
   PostsEngaged,
   POSTS_ENGAGED_SUBSCRIPTION,
 } from '../graphql/posts';
-import { useAnalyticsContext } from '../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../lib/feed';
+import { useLogContext } from '../contexts/LogContext';
+import { postLogsEvent } from '../lib/feed';
 import useOnPostClick from './useOnPostClick';
 import useSubscription from './useSubscription';
-import { PostOrigin } from './analytics/useAnalyticsContextData';
+import { PostOrigin } from './log/useLogContextData';
 import { updatePostCache } from './usePostById';
 import { ReferralCampaignKey } from '../lib';
 import { useGetShortUrl } from './utils/useGetShortUrl';
@@ -32,7 +32,7 @@ const usePostContent = ({
 }: UsePostContentProps): UsePostContent => {
   const id = post?.id;
   const queryClient = useQueryClient();
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
   const onPostClick = useOnPostClick({ origin });
   const { commentsPermalink } = post;
   const cid = ReferralCampaignKey.SharePost;
@@ -41,7 +41,7 @@ const usePostContent = ({
   const trackShareEvent = useCallback(
     (provider: ShareProvider) =>
       trackEvent(
-        postAnalyticsEvent('share post', post, {
+        postLogsEvent('share post', post, {
           extra: { provider, origin },
         }),
       ),
@@ -94,7 +94,7 @@ const usePostContent = ({
 
     trackedPostEvent.current = post.id;
 
-    trackEvent(postAnalyticsEvent(`${origin} view`, post));
+    trackEvent(postLogsEvent(`${origin} view`, post));
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post]);

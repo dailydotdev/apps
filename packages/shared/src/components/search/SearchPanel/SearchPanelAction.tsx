@@ -11,8 +11,8 @@ import {
   providerToLabelTextMap,
 } from './common';
 import { IconSize } from '../../Icon';
-import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../../../lib/analytics';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogsEvent } from '../../../lib/logs';
 
 export type SearchPanelActionProps = {
   provider: SearchProviderEnum;
@@ -27,14 +27,14 @@ export const SearchPanelAction = ({
   const itemProps = useSearchPanelAction({ provider });
   const isDefaultProvider = provider === defaultSearchProvider;
   const isDefaultActive = !searchPanel.provider && isDefaultProvider;
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
 
   return (
     <SearchPanelItem
       icon={<Icon className="rounded-6 p-0.5" size={IconSize.Small} />}
       onClick={() => {
         trackEvent({
-          event_name: AnalyticsEvent.SubmitSearch,
+          event_name: LogsEvent.SubmitSearch,
           extra: JSON.stringify({ query: searchPanel.query, provider }),
         });
 

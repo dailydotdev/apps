@@ -1,9 +1,9 @@
 import { useCallback, useContext, useEffect } from 'react';
 import { onCLS, onFCP, onFID, onLCP, onTTFB } from 'web-vitals';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import LogContext from '../contexts/LogContext';
 
 export function useWebVitals(): void {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
 
   const trackMetric = useCallback(
     (metric) => {

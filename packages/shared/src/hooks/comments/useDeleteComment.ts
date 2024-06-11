@@ -3,11 +3,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { PromptOptions, usePrompt } from '../usePrompt';
 import { ButtonVariant } from '../../components/buttons/common';
 import { ButtonColor } from '../../components/buttons/Button';
-import { postAnalyticsEvent } from '../../lib/feed';
-import { AnalyticsEvent } from '../../lib/analytics';
+import { postLogsEvent } from '../../lib/feed';
+import { LogsEvent } from '../../lib/logs';
 import { deleteComment } from '../../graphql/comments';
 import { removePostComments } from '../usePostById';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import { useToastNotification } from '../useToastNotification';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { Post } from '../../graphql/posts';
@@ -34,7 +34,7 @@ const options: PromptOptions = {
 export function useDeleteComment(): UseDeleteCommentRet {
   const client = useQueryClient();
   const { showPrompt } = usePrompt();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { displayToast } = useToastNotification();
   const { requestMethod } = useRequestProtocol();
 
@@ -45,7 +45,7 @@ export function useDeleteComment(): UseDeleteCommentRet {
           return;
         }
 
-        trackEvent(postAnalyticsEvent(AnalyticsEvent.DeleteComment, post));
+        trackEvent(postLogsEvent(LogsEvent.DeleteComment, post));
         await deleteComment(commentId, requestMethod);
         displayToast('The comment has been deleted');
         removePostComments(client, post, commentId, parentId);

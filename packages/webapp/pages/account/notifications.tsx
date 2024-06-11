@@ -13,13 +13,13 @@ import Pointer, {
 } from '@dailydotdev/shared/src/components/alert/Pointer';
 import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import {
-  AnalyticsEvent,
+  LogsEvent,
   NotificationCategory,
   NotificationChannel,
   NotificationPromptSource,
-} from '@dailydotdev/shared/src/lib/analytics';
+} from '@dailydotdev/shared/src/lib/logs';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import { SendType, usePersonalizedDigest } from '@dailydotdev/shared/src/hooks';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
@@ -48,7 +48,7 @@ const AccountNotificationsPage = (): ReactElement => {
     true,
   );
   const { updateUserProfile } = useProfileForm();
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
   const { user } = useContext(AuthContext);
   const {
     getPersonalizedDigest,
@@ -105,12 +105,12 @@ const AccountNotificationsPage = (): ReactElement => {
 
     if (value) {
       trackEvent({
-        event_name: AnalyticsEvent.EnableNotification,
+        event_name: LogsEvent.EnableNotification,
         ...defaultTrackingProps,
       });
     } else {
       trackEvent({
-        event_name: AnalyticsEvent.DisableNotification,
+        event_name: LogsEvent.DisableNotification,
         ...defaultTrackingProps,
       });
     }
@@ -137,12 +137,12 @@ const AccountNotificationsPage = (): ReactElement => {
     };
     if (isEnabled) {
       trackEvent({
-        event_name: AnalyticsEvent.EnableNotification,
+        event_name: LogsEvent.EnableNotification,
         ...baseTrackingProps,
       });
     } else {
       trackEvent({
-        event_name: AnalyticsEvent.DisableNotification,
+        event_name: LogsEvent.DisableNotification,
         ...baseTrackingProps,
       });
     }
@@ -158,7 +158,7 @@ const AccountNotificationsPage = (): ReactElement => {
 
     if (value) {
       trackEvent({
-        event_name: AnalyticsEvent.ScheduleReadingReminder,
+        event_name: LogsEvent.ScheduleReadingReminder,
         extra: JSON.stringify({
           hour: readingTimeIndex,
           timezone: user?.timezone,
@@ -184,7 +184,7 @@ const AccountNotificationsPage = (): ReactElement => {
 
     if (value) {
       trackEvent({
-        event_name: AnalyticsEvent.ScheduleStreakReminder,
+        event_name: LogsEvent.ScheduleStreakReminder,
         extra: JSON.stringify({
           hour: readingTimeIndex,
           timezone: user?.timezone,
@@ -243,7 +243,7 @@ const AccountNotificationsPage = (): ReactElement => {
       unsubscribePersonalizedDigest();
     } else {
       trackEvent({
-        event_name: AnalyticsEvent.ScheduleDigest,
+        event_name: LogsEvent.ScheduleDigest,
         extra: JSON.stringify({
           hour: digestTimeIndex,
           timezone: user?.timezone,
@@ -261,7 +261,7 @@ const AccountNotificationsPage = (): ReactElement => {
   ): void => {
     if (type === UserPersonalizedDigestType.ReadingReminder) {
       trackEvent({
-        event_name: AnalyticsEvent.ScheduleReadingReminder,
+        event_name: LogsEvent.ScheduleReadingReminder,
         extra: JSON.stringify({
           hour: preferredHour,
           timezone: user?.timezone,
@@ -269,7 +269,7 @@ const AccountNotificationsPage = (): ReactElement => {
       });
     } else if (type === UserPersonalizedDigestType.Digest) {
       trackEvent({
-        event_name: AnalyticsEvent.ScheduleDigest,
+        event_name: LogsEvent.ScheduleDigest,
         extra: JSON.stringify({
           hour: preferredHour,
           timezone: user?.timezone,

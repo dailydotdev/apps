@@ -1,7 +1,7 @@
 import { useCallback, useContext } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import LogContext from '../contexts/LogContext';
 import useMutateFilters from './useMutateFilters';
 import { Source } from '../graphql/sources';
 import AlertContext from '../contexts/AlertContext';
@@ -9,7 +9,7 @@ import { BooleanPromise } from '../components/filters/common';
 import { generateQueryKey } from '../lib/query';
 import useDebounce from './useDebounce';
 import { SharedFeedPage } from '../components/utilities';
-import { Origin } from '../lib/analytics';
+import { Origin } from '../lib/logs';
 import { AuthTriggersType } from '../lib/auth';
 
 export interface TagActionArguments {
@@ -52,7 +52,7 @@ export default function useTagAndSource({
   const queryClient = useQueryClient();
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { user, showLogin } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const shouldShowLogin = useCallback(
     (requireLogin?: boolean) => (user ? false : requireLogin),
     [user],

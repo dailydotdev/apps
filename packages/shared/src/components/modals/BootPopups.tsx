@@ -6,8 +6,8 @@ import { ActionType } from '../../graphql/actions';
 import { LazyModal } from './common/types';
 import AlertContext from '../../contexts/AlertContext';
 import { MarketingCtaVariant } from '../cards/MarketingCta/common';
-import { AnalyticsEvent, TargetType } from '../../lib/analytics';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { LogsEvent, TargetType } from '../../lib/logs';
+import LogContext from '../../contexts/LogContext';
 import { promotion } from './generic';
 import { useReadingStreak } from '../../hooks/streaks';
 
@@ -20,7 +20,7 @@ const REP_TRESHOLD = 250;
  * @constructor
  */
 export const BootPopups = (): null => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { openModal } = useLazyModal();
   const { user } = useAuthContext();
@@ -94,7 +94,7 @@ export const BootPopups = (): null => {
           marketingCta,
           onAfterOpen: () => {
             trackEvent({
-              event_name: AnalyticsEvent.Impression,
+              event_name: LogsEvent.Impression,
               target_type: TargetType.MarketingCtaPopover,
               target_id: marketingCta.campaignId,
             });

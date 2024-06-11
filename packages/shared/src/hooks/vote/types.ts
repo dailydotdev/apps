@@ -4,8 +4,8 @@ import {
   ReadHistoryPost,
   UserVote,
 } from '../../graphql/posts';
-import { Origin } from '../../lib/analytics';
-import { PostAnalyticsEventFnOptions } from '../../lib/feed';
+import { Origin } from '../../lib/logs';
+import { PostLogsEventFnOptions } from '../../lib/feed';
 import { UseMutationMatcher } from '../mutationSubscription/types';
 
 export type VoteEntityPayload = {
@@ -19,7 +19,7 @@ export type VoteEntityPayload = {
 export type ToggleVoteProps<T extends VoteEntityPayload = VoteEntityPayload> = {
   origin: Origin;
   payload: T;
-  opts?: PostAnalyticsEventFnOptions;
+  opts?: PostLogsEventFnOptions;
 };
 
 export type VoteProps = {

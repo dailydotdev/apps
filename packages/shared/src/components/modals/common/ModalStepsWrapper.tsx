@@ -6,7 +6,7 @@ import {
 } from 'react';
 import { isNullOrUndefined } from '../../../lib/func';
 import { ModalPropsContext } from './types';
-import AnalyticsContext from '../../../contexts/AnalyticsContext';
+import LogContext from '../../../contexts/LogContext';
 
 export interface StepComponentProps<
   T extends ReactEventHandler = MouseEventHandler,
@@ -25,7 +25,7 @@ export function ModalStepsWrapper({
   view,
   children,
 }: ModalStepsProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { activeView, steps, setActiveView, onTrackNext, onTrackPrev } =
     useContext(ModalPropsContext);
   const activeStepIndex = steps.findIndex(({ key }) => activeView === key);

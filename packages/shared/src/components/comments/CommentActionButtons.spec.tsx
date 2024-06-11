@@ -12,11 +12,11 @@ import {
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import comment from '../../../__tests__/fixture/comment';
 import post from '../../../__tests__/fixture/post';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/logs';
 import { VOTE_MUTATION } from '../../graphql/users';
 import { UserVoteEntity } from '../../hooks';
 import { UserVote } from '../../graphql/posts';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 
 const showLogin = jest.fn();
 const onComment = jest.fn();
@@ -63,7 +63,7 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <AnalyticsContext.Provider
+        <LogContext.Provider
           value={{
             trackEvent,
             trackEventStart: jest.fn(),
@@ -72,7 +72,7 @@ const renderComponent = (
           }}
         >
           <CommentActionButtons {...props} />
-        </AnalyticsContext.Provider>
+        </LogContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

@@ -11,8 +11,8 @@ import { AcquisitionChannel, updateUserAcquisition } from '../../graphql/users';
 import { MiniCloseIcon } from '../icons';
 import { OnboardingTitleGradient } from '../onboarding/common';
 import { removeQueryParam } from '../../lib/links';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent, UserAcquisitionEvent } from '../../lib/analytics';
+import LogContext from '../../contexts/LogContext';
+import { LogsEvent, UserAcquisitionEvent } from '../../lib/logs';
 import { useFeedLayout } from '../../hooks';
 
 const options = [
@@ -37,7 +37,7 @@ const options = [
 export const acquisitionKey = 'ua';
 
 export function AcquisitionFormCard(): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const [isDismissed, setIsDismissed] = useState(false);
   const [value, setValue] = useState<AcquisitionChannel>();
   const { shouldUseListFeedLayout } = useFeedLayout();
@@ -67,7 +67,7 @@ export function AcquisitionFormCard(): ReactElement {
 
   useEffect(() => {
     trackEvent({
-      event_name: AnalyticsEvent.Impression,
+      event_name: LogsEvent.Impression,
       target_type: acquisitionKey,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

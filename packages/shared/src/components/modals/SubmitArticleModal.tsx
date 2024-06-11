@@ -24,16 +24,16 @@ import {
 } from '../../graphql/submitArticle';
 import PostItemCard from '../post/PostItemCard';
 import { PostItem } from '../../graphql/posts';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import { LinkIcon, LockIcon } from '../icons';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Modal, ModalProps } from './common/Modal';
 import EnableNotification from '../notifications/EnableNotification';
 import {
-  AnalyticsEvent,
+  LogsEvent,
   FeedItemTitle,
   NotificationPromptSource,
-} from '../../lib/analytics';
+} from '../../lib/logs';
 import { Justify } from '../utilities';
 import { ReputationAlert } from './ReputationAlert';
 
@@ -47,7 +47,7 @@ export default function SubmitArticleModal({
   const submitFormRef = useRef<HTMLFormElement>();
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const [enableSubmission, setEnableSubmission] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -176,7 +176,7 @@ export default function SubmitArticleModal({
 
   useEffect(() => {
     trackEvent({
-      event_name: AnalyticsEvent.StartSubmitArticle,
+      event_name: LogsEvent.StartSubmitArticle,
       feed_item_title: FeedItemTitle.SubmitArticle,
       extra: JSON.stringify({ has_access: !!user?.canSubmitArticle }),
     });

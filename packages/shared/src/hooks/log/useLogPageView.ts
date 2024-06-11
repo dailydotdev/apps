@@ -1,10 +1,10 @@
 import { MutableRefObject, useContext, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 
-export default function useTrackPageView(): MutableRefObject<() => void> {
+export default function useLogPageView(): MutableRefObject<() => void> {
   const router = useRouter();
-  const { trackEventStart, trackEventEnd } = useContext(AnalyticsContext);
+  const { trackEventStart, trackEventEnd } = useContext(LogContext);
   const routeChangedCallbackRef = useRef<() => void>();
   const lifecycleCallbackRef = useRef<(event: CustomEvent) => void>();
 

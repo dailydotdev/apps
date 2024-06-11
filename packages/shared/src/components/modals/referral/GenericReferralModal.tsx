@@ -10,10 +10,10 @@ import { cloudinary } from '../../../lib/image';
 import { ModalSize } from '../common/types';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { link } from '../../../lib/links';
-import { AnalyticsEvent, TargetId, TargetType } from '../../../lib/analytics';
+import { LogsEvent, TargetId, TargetType } from '../../../lib/logs';
 import { ReferralCampaignKey, useReferralCampaign } from '../../../hooks';
 import ReferralSocialShareButtons from '../../widgets/ReferralSocialShareButtons';
-import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
+import { useLogContext } from '../../../contexts/LogContext';
 import { InviteLinkInput } from '../../referral/InviteLinkInput';
 import { ModalClose } from '../common/ModalClose';
 import AlertContext from '../../../contexts/AlertContext';
@@ -28,7 +28,7 @@ function GenericReferralModal({
     campaignKey: ReferralCampaignKey.Generic,
   });
   const inviteLink = url || link.referral.defaultUrl;
-  const { trackEvent } = useAnalyticsContext();
+  const { trackEvent } = useLogContext();
   const isTracked = useRef(false);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ function GenericReferralModal({
       updateLastReferralReminder();
       isTracked.current = true;
       trackEvent({
-        event_name: AnalyticsEvent.Impression,
+        event_name: LogsEvent.Impression,
         target_type: TargetType.ReferralPopup,
       });
     }
@@ -68,7 +68,7 @@ function GenericReferralModal({
         />
         <InviteLinkInput
           trackingProps={{
-            event_name: AnalyticsEvent.CopyReferralLink,
+            event_name: LogsEvent.CopyReferralLink,
             target_id: TargetId.GenericReferralPopup,
           }}
           link={inviteLink}

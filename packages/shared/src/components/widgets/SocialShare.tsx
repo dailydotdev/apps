@@ -1,9 +1,9 @@
 import React, { Dispatch, ReactElement, useContext } from 'react';
 import { ShareProvider, addTrackingQueryParams } from '../../lib/share';
 import { Post } from '../../graphql/posts';
-import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
-import { AnalyticsEvent, Origin } from '../../lib/analytics';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { FeedItemPosition, postLogsEvent } from '../../lib/feed';
+import { LogsEvent, Origin } from '../../lib/logs';
+import LogContext from '../../contexts/LogContext';
 import { Comment, getCommentHash } from '../../graphql/comments';
 import { useSharePost } from '../../hooks/useSharePost';
 import { SocialShareContainer } from './SocialShareContainer';
@@ -53,12 +53,12 @@ export const SocialShare = ({
       : href;
   const { getShortUrl } = useGetShortUrl();
   const [copying, copyLink] = useCopyLink();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { trackEvent } = useContext(LogContext);
   const { openNativeSharePost } = useSharePost(Origin.Share);
   const [squadToShare, setSquadToShare] = shareToSquadState;
   const trackClick = (provider: ShareProvider) =>
     trackEvent(
-      postAnalyticsEvent('share post', post, {
+      postLogsEvent('share post', post, {
         columns,
         column,
         row,
@@ -73,7 +73,7 @@ export const SocialShare = ({
   };
 
   const onSharedSuccessfully = () => {
-    trackEvent(postAnalyticsEvent(AnalyticsEvent.ShareToSquad, post));
+    trackEvent(postLogsEvent(LogsEvent.ShareToSquad, post));
 
     if (onClose) {
       onClose();

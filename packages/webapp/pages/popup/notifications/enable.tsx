@@ -5,8 +5,8 @@ import classed from '@dailydotdev/shared/src/lib/classed';
 import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
 import { ENABLE_NOTIFICATION_WINDOW_KEY } from '@dailydotdev/shared/src/hooks/useNotificationPermissionPopup';
 import { useRouter } from 'next/router';
-import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/analytics';
-import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/logs';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications';
 import dynamic from 'next/dynamic';
@@ -41,7 +41,7 @@ function Enable(): React.ReactElement {
   const { isSubscribed, isInitialized, trackPermissionGranted } =
     usePushNotificationContext();
   const { onEnablePush } = usePushNotificationMutation();
-  const { sendBeacon } = useAnalyticsContext();
+  const { sendBeacon } = useLogContext();
   const { source } = router.query;
 
   useEffect(() => {
