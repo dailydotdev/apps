@@ -23,10 +23,7 @@ import { AuthFlow } from '@dailydotdev/shared/src/lib/kratos';
 import useTimer from '@dailydotdev/shared/src/hooks/useTimer';
 import { AuthEventNames } from '@dailydotdev/shared/src/lib/auth';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import {
-  LogsEvent,
-  TargetType,
-} from '@dailydotdev/shared/src/lib/logs';
+import { LogsEvent, TargetType } from '@dailydotdev/shared/src/lib/logs';
 import { CommonTextField } from './common';
 
 export interface EmailFormProps {
