@@ -1,11 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import { useLogContext } from '../../contexts/LogContext';
 import usePersistentContext from '../usePersistentContext';
-import {
-  LogsEvent,
-  NotificationPromptSource,
-  TargetType,
-} from '../../lib/logs';
+import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { checkIsExtension } from '../../lib/func';
@@ -27,7 +23,7 @@ export const useEnableNotification = ({
   source = NotificationPromptSource.NotificationsPage,
 }: UseEnableNotificationProps): UseEnableNotification => {
   const isExtension = checkIsExtension();
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
   const { isInitialized, isPushSupported, isSubscribed, shouldOpenPopup } =
     usePushNotificationContext();
   const { hasPermissionCache, acceptedJustNow, onEnablePush } =
@@ -37,12 +33,12 @@ export const useEnableNotification = ({
     false,
   );
   const onDismiss = useCallback(() => {
-    trackEvent({
-      event_name: LogsEvent.ClickNotificationDismiss,
+    logEvent({
+      event_name: LogEvent.ClickNotificationDismiss,
       extra: JSON.stringify({ origin: source }),
     });
     setIsDismissed(true);
-  }, [source, trackEvent, setIsDismissed]);
+  }, [source, logEvent, setIsDismissed]);
 
   const onEnable = useCallback(
     () => onEnablePush(source),
@@ -69,8 +65,8 @@ export const useEnableNotification = ({
       return;
     }
 
-    trackEvent({
-      event_name: LogsEvent.Impression,
+    logEvent({
+      event_name: LogEvent.Impression,
       target_type: TargetType.EnableNotifications,
       extra: JSON.stringify({ origin: source }),
     });

@@ -4,7 +4,7 @@ import { Post, TocItem } from '../../graphql/posts';
 import { UnreadIcon as TocIcon } from '../icons';
 import { Summary, SummaryArrow } from '../utilities';
 import LogContext from '../../contexts/LogContext';
-import { postLogsEvent } from '../../lib/feed';
+import { postLogEvent } from '../../lib/feed';
 import styles from './PostToc.module.css';
 import { WidgetContainer } from './common';
 
@@ -28,10 +28,10 @@ export default function PostToc({
   className,
   collapsible,
 }: PostTocProps): ReactElement {
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
 
   const onLinkClick = async (): Promise<void> => {
-    trackEvent(postLogsEvent('click', post, { extra: { origin: 'toc' } }));
+    logEvent(postLogEvent('click', post, { extra: { origin: 'toc' } }));
   };
 
   const items = (

@@ -6,7 +6,7 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogsEvent } from '../../lib/logs';
+import { LogEvent } from '../../lib/log';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { FilterIcon } from '../icons';
@@ -16,10 +16,10 @@ export function FeedSettingsButton({
   children = 'Feed settings',
   ...props
 }: ButtonProps<'button'>): ReactElement {
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
   const onButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    trackEvent({ event_name: LogsEvent.ManageTags });
+    logEvent({ event_name: LogEvent.ManageTags });
 
     if (onClick) {
       onClick(event);

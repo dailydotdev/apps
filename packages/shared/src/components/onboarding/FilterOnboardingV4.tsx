@@ -21,7 +21,7 @@ import useDebounce from '../../hooks/useDebounce';
 import { useTagSearch } from '../../hooks';
 import type { FilterOnboardingProps } from './FilterOnboarding';
 import useTagAndSource from '../../hooks/useTagAndSource';
-import { Origin } from '../../lib/logs';
+import { Origin } from '../../lib/log';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { OnSelectTagProps } from './common';
 import { OnboardingTag } from './OnboardingTag';

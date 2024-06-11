@@ -19,7 +19,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/common';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogsEvent } from '@dailydotdev/shared/src/lib/logs';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { ReferralCampaignKey } from '@dailydotdev/shared/src/hooks';
 import { DailyDevLogo, JoinPageProps } from './common';
 
@@ -30,7 +30,7 @@ export function AISearchInvite({
 }: JoinPageProps): ReactElement {
   const router = useRouter();
   const { completeAction } = useActions();
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const { user, refetchBoot, showLogin } = useAuthContext();
   const {
@@ -69,9 +69,9 @@ export function AISearchInvite({
       });
     }
 
-    // since in the page view, query params are tracked automatically,
+    // since in the page view, query params are logged automatically,
     // we don't need to send the params here explicitly
-    trackEvent({ event_name: LogsEvent.AcceptInvitation });
+    logEvent({ event_name: LogEvent.AcceptInvitation });
 
     return handleAccept();
   };

@@ -1,14 +1,14 @@
 import { useInView } from 'react-intersection-observer';
 import { useContext, useEffect } from 'react';
-import { adLogsEvent, feedLogsExtra, postLogsEvent } from '../../lib/feed';
+import { adLogEvent, feedLogExtra, postLogEvent } from '../../lib/feed';
 import LogContext from '../../contexts/LogContext';
 import { FeedItem } from '../useFeed';
 import { PostType } from '../../graphql/posts';
 
-const TRACKING = 1;
-const TRACKED = 2;
+const LOGGING = 1;
+const LOGGED = 2;
 
-export default function useTrackImpression(
+export default function useLogImpression(
   item: FeedItem,
   index: number,
   columns: number,
@@ -17,7 +17,7 @@ export default function useTrackImpression(
   feedName: string,
   ranking?: string,
 ): (node?: Element | null) => void {
-  const { trackEventStart, trackEventEnd } = useContext(LogContext);
+  const { logEventStart, logEventEnd } = useContext(LogContext);
   const { ref: inViewRef, inView } = useInView({
     threshold: 0.5,
   });
@@ -26,14 +26,14 @@ export default function useTrackImpression(
     if (item.type === 'post') {
       const eventKey = `pi-${item.post.id}`;
       if (inView && !item.post.impressionStatus) {
-        trackEventStart(
+        logEventStart(
           eventKey,
-          postLogsEvent('impression', item.post, {
+          postLogEvent('impression', item.post, {
             columns,
             column,
             row,
             extra: {
-              ...feedLogsExtra(feedName, ranking, {
+              ...feedLogExtra(feedName, ranking, {
                 scroll_y: window.scrollY,
               }).extra,
               feedback: item.post.type === PostType.Article ? true : undefined,
@@ -41,30 +41,30 @@ export default function useTrackImpression(
           }),
         );
         // eslint-disable-next-line no-param-reassign
-        item.post.impressionStatus = TRACKING;
-      } else if (!inView && item.post.impressionStatus === TRACKING) {
-        trackEventEnd(eventKey);
+        item.post.impressionStatus = LOGGING;
+      } else if (!inView && item.post.impressionStatus === LOGGING) {
+        logEventEnd(eventKey);
         // eslint-disable-next-line no-param-reassign
-        item.post.impressionStatus = TRACKED;
+        item.post.impressionStatus = LOGGED;
       }
     } else if (item.type === 'ad') {
       const eventKey = `ai-${index}`;
       if (inView && !item.ad.impressionStatus) {
-        trackEventStart(
+        logEventStart(
           eventKey,
-          adLogsEvent('impression', item.ad, {
+          adLogEvent('impression', item.ad, {
             columns,
             column,
             row,
-            ...feedLogsExtra(feedName, ranking),
+            ...feedLogExtra(feedName, ranking),
           }),
         );
         // eslint-disable-next-line no-param-reassign
-        item.ad.impressionStatus = TRACKING;
-      } else if (!inView && item.ad.impressionStatus === TRACKING) {
-        trackEventEnd(eventKey);
+        item.ad.impressionStatus = LOGGING;
+      } else if (!inView && item.ad.impressionStatus === LOGGING) {
+        logEventEnd(eventKey);
         // eslint-disable-next-line no-param-reassign
-        item.ad.impressionStatus = TRACKED;
+        item.ad.impressionStatus = LOGGED;
       }
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
@@ -74,19 +74,19 @@ export default function useTrackImpression(
   useEffect(() => {
     // Send pending impression on unmount
     return () => {
-      if (item.type === 'ad' && item.ad.impressionStatus === TRACKING) {
+      if (item.type === 'ad' && item.ad.impressionStatus === LOGGING) {
         const eventKey = `ai-${index}`;
-        trackEventEnd(eventKey);
+        logEventEnd(eventKey);
         // eslint-disable-next-line no-param-reassign
-        item.ad.impressionStatus = TRACKED;
+        item.ad.impressionStatus = LOGGED;
       } else if (
         item.type === 'post' &&
-        item.post.impressionStatus === TRACKING
+        item.post.impressionStatus === LOGGING
       ) {
         const eventKey = `pi-${item.post.id}`;
-        trackEventEnd(eventKey);
+        logEventEnd(eventKey);
         // eslint-disable-next-line no-param-reassign
-        item.post.impressionStatus = TRACKED;
+        item.post.impressionStatus = LOGGED;
       }
     };
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM

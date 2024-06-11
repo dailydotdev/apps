@@ -13,14 +13,14 @@ import {
 } from '@dailydotdev/shared/src/graphql/search';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { labels } from '@dailydotdev/shared/src/lib';
-import { LogsEvent } from '@dailydotdev/shared/src/lib/logs';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { getLayout as getMainLayout } from '../layouts/MainLayout';
 import { getTemplatedTitle } from '../layouts/utils';
 
 const SearchPage = (): ReactElement => {
   const router = useRouter();
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
   const query = router?.query?.q as string;
   const sessionIdQuery = router?.query?.id as string;
   const { data, isLoading, queryKey, handleSubmit } = useChat({
@@ -93,8 +93,8 @@ const SearchPage = (): ReactElement => {
             provider={SearchProviderEnum.Posts}
             query={searchedQuery}
             onClick={() => {
-              trackEvent({
-                event_name: LogsEvent.SwitchSearch,
+              logEvent({
+                event_name: LogEvent.SwitchSearch,
                 extra: JSON.stringify({
                   from: SearchProviderEnum.Chat,
                   to: SearchProviderEnum.Posts,

@@ -4,9 +4,9 @@ import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { getShareLink, ShareProvider } from '../lib/share';
 import LogContext from '../contexts/LogContext';
-import { postLogsEvent } from '../lib/feed';
+import { postLogEvent } from '../lib/feed';
 import { WidgetContainer } from './widgets/common';
-import { LogsEvent, Origin } from '../lib/logs';
+import { LogEvent, Origin } from '../lib/log';
 import { LazyModal } from './modals/common/types';
 import { useLazyModal } from '../hooks/useLazyModal';
 import { Squad } from '../graphql/sources';
@@ -26,18 +26,18 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const cid = ReferralCampaignKey.SharePost;
   const { getShortUrl } = useGetShortUrl();
   const [copying, copyLink] = useCopyPostLink();
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const { openModal } = useLazyModal();
 
-  const trackShareEvent = (provider: ShareProvider) =>
-    trackEvent(
-      postLogsEvent('share post', post, {
+  const logShareEvent = (provider: ShareProvider) =>
+    logEvent(
+      postLogEvent('share post', post, {
         extra: { provider, origin: Origin.ShareBar },
       }),
     );
 
   const onClick = async (provider: ShareProvider) => {
-    trackShareEvent(provider);
+    logShareEvent(provider);
 
     const shortLink = await getShortUrl(href, cid);
     const shareLink = getShareLink({
@@ -48,21 +48,21 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
     window.open(shareLink, '_blank');
   };
 
-  const trackAndCopyLink = async () => {
+  const logAndCopyLink = async () => {
     const shortLink = await getShortUrl(href, cid);
     copyLink({ link: shortLink });
-    trackShareEvent(ShareProvider.CopyLink);
+    logShareEvent(ShareProvider.CopyLink);
   };
 
   const onShareToSquad = (squad: Squad) => {
-    trackEvent(postLogsEvent(LogsEvent.StartShareToSquad, post));
+    logEvent(postLogEvent(LogEvent.StartShareToSquad, post));
     openModal({
       type: LazyModal.CreateSharedPost,
       props: {
         squad,
         preview: post,
         onSharedSuccessfully: () =>
-          trackEvent(postLogsEvent(LogsEvent.ShareToSquad, post)),
+          logEvent(postLogEvent(LogEvent.ShareToSquad, post)),
       },
     });
   };
@@ -76,7 +76,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
         <SocialShareButton
           size={ButtonSize.Medium}
           variant={ButtonVariant.Tertiary}
-          onClick={trackAndCopyLink}
+          onClick={logAndCopyLink}
           pressed={copying}
           icon={
             <CopyIcon

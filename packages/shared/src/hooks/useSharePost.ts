@@ -1,9 +1,9 @@
 import { useCallback, useContext } from 'react';
 import { Post } from '../graphql/posts';
-import { postLogsEvent } from '../lib/feed';
+import { postLogEvent } from '../lib/feed';
 import LogContext from '../contexts/LogContext';
 import { ShareProvider } from '../lib/share';
-import { Origin } from '../lib/logs';
+import { Origin } from '../lib/log';
 import { useCopyPostLink } from './useCopyPostLink';
 import { useGetShortUrl } from './utils/useGetShortUrl';
 import { ReferralCampaignKey } from '../lib';
@@ -21,7 +21,7 @@ interface UseSharePost {
 }
 
 export function useSharePost(origin: Origin): UseSharePost {
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const [, copyLink] = useCopyPostLink();
   const { getShortUrl, getTrackedUrl } = useGetShortUrl();
   const { openModal } = useLazyModal();
@@ -33,8 +33,8 @@ export function useSharePost(origin: Origin): UseSharePost {
 
   const copyLinkShare: UseSharePost['copyLink'] = useCallback(
     ({ post, columns, column, row }) => {
-      trackEvent(
-        postLogsEvent('share post', post, {
+      logEvent(
+        postLogEvent('share post', post, {
           columns,
           column,
           row,
@@ -47,7 +47,7 @@ export function useSharePost(origin: Origin): UseSharePost {
       );
       copyLink({ link: trackedLink, shorten: true });
     },
-    [trackEvent, origin, getTrackedUrl, copyLink],
+    [logEvent, origin, getTrackedUrl, copyLink],
   );
 
   const openNativeSharePost = useCallback(
@@ -61,8 +61,8 @@ export function useSharePost(origin: Origin): UseSharePost {
           title: post.title,
           url: shortLink,
         });
-        trackEvent(
-          postLogsEvent('share post', post, {
+        logEvent(
+          postLogEvent('share post', post, {
             extra: { origin, provider: ShareProvider.Native },
           }),
         );
@@ -70,7 +70,7 @@ export function useSharePost(origin: Origin): UseSharePost {
         // Do nothing
       }
     },
-    [getShortUrl, origin, trackEvent],
+    [getShortUrl, origin, logEvent],
   );
 
   const openNativeShareOrPopup = useCallback(

@@ -18,7 +18,7 @@ import {
   useVotePost,
   ViewSize,
 } from '../../hooks';
-import { Origin } from '../../lib/logs';
+import { Origin } from '../../lib/log';
 import { Card } from '../cards/Card';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { PostTagsPanel } from './block/PostTagsPanel';

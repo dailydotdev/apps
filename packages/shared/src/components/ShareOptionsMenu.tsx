@@ -4,9 +4,9 @@ import classNames from 'classnames';
 import { Post } from '../graphql/posts';
 import { ShareIcon, LinkIcon } from './icons';
 import LogContext from '../contexts/LogContext';
-import { postLogsEvent } from '../lib/feed';
+import { postLogEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
-import { Origin } from '../lib/logs';
+import { Origin } from '../lib/log';
 import { ShareProvider } from '../lib/share';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { useGetShortUrl } from '../hooks';
@@ -43,20 +43,20 @@ export default function ShareOptionsMenu({
 }: ShareOptionsMenuProps): ReactElement {
   const link = post?.commentsPermalink;
   const [, copyLink] = useCopyPostLink(link);
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const { getShortUrl } = useGetShortUrl();
   const { isOpen: isShareOptionsOpen } = useContextMenu({
     id: contextId,
   });
 
   const onClick = (provider: ShareProvider) =>
-    trackEvent(
-      postLogsEvent('share post', post, {
+    logEvent(
+      postLogEvent('share post', post, {
         extra: { provider, origin: Origin.ShareBar },
       }),
     );
 
-  const trackAndCopyLink = async () => {
+  const logAndCopyLink = async () => {
     const shortLink = await getShortUrl(link, ReferralCampaignKey.SharePost);
     copyLink({ link: shortLink });
     onClick(ShareProvider.CopyLink);
@@ -73,7 +73,7 @@ export default function ShareOptionsMenu({
   shareOptions.push({
     icon: <MenuIcon Icon={LinkIcon} />,
     label: 'Copy link to post',
-    action: trackAndCopyLink,
+    action: logAndCopyLink,
   });
 
   return (

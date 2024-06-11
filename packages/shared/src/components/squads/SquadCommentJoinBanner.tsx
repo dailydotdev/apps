@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
-import { Origin } from '../../lib/logs';
+import { Origin } from '../../lib/log';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import { SimpleSquadJoinButton } from './SquadJoinButton';
 import { Squad } from '../../graphql/sources';
@@ -17,14 +17,14 @@ import { ProfileImageSize } from '../ProfilePicture';
 export type SquadCommentJoinBannerProps = {
   className?: string;
   squad: Squad;
-  logsOrigin: Origin;
+  logOrigin: Origin;
   post?: Pick<Post, 'id'>;
 };
 
 export const SquadCommentJoinBanner = ({
   className,
   squad,
-  logsOrigin,
+  logOrigin,
   post,
 }: SquadCommentJoinBannerProps): ReactElement => {
   const queryClient = useQueryClient();
@@ -74,7 +74,7 @@ export const SquadCommentJoinBanner = ({
             variant={ButtonVariant.Primary}
             color={ButtonColor.Cabbage}
             squad={squad}
-            origin={logsOrigin}
+            origin={logOrigin}
             onClick={() => {
               onJoinSquad();
             }}

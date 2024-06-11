@@ -11,7 +11,7 @@ import { PostActions } from './PostActions';
 import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import { Comment } from '../../graphql/comments';
-import { Origin } from '../../lib/logs';
+import { Origin } from '../../lib/log';
 import {
   isSourcePublicSquad,
   SQUAD_COMMENT_JOIN_BANNER_KEY,
@@ -25,7 +25,7 @@ const AuthorOnboarding = dynamic(
 
 interface PostEngagementsProps {
   post: Post;
-  logsOrigin: PostOrigin;
+  logOrigin: PostOrigin;
   shouldOnboardAuthor?: boolean;
   onCopyLinkClick?: (post?: Post) => void;
 }
@@ -33,7 +33,7 @@ interface PostEngagementsProps {
 function PostEngagements({
   post,
   onCopyLinkClick,
-  logsOrigin,
+  logOrigin,
   shouldOnboardAuthor,
 }: PostEngagementsProps): ReactElement {
   const postQueryKey = ['post', post.id];
@@ -45,7 +45,7 @@ function PostEngagements({
   const [joinNotificationCommentId, setJoinNotificationCommentId] =
     useState<string>();
   const { onShowUpvoted } = useUpvoteQuery();
-  const { openShareComment } = useShareComment(logsOrigin);
+  const { openShareComment } = useShareComment(logOrigin);
   const [isJoinSquadBannerDismissed] = usePersistentContext(
     SQUAD_COMMENT_JOIN_BANNER_KEY,
     false,
@@ -87,7 +87,7 @@ function PostEngagements({
           commentRef.current.onShowInput(Origin.PostCommentButton)
         }
         actionsClassName="hidden laptop:flex"
-        origin={logsOrigin}
+        origin={logOrigin}
       />
       <PostContentShare post={post} />
       <NewComment
@@ -98,7 +98,7 @@ function PostEngagements({
       />
       <PostComments
         post={post}
-        origin={logsOrigin}
+        origin={logOrigin}
         onShare={(comment) => openShareComment(comment, post)}
         onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
         permissionNotificationCommentId={permissionNotificationCommentId}

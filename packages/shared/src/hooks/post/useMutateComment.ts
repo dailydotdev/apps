@@ -8,9 +8,9 @@ import {
   COMMENT_ON_POST_MUTATION,
   EDIT_COMMENT_MUTATION,
 } from '../../graphql/comments';
-import { LogsEvent } from '../../lib/logs';
+import { LogEvent } from '../../lib/log';
 import { graphqlUrl } from '../../lib/config';
-import { postLogsEvent } from '../../lib/feed';
+import { postLogEvent } from '../../lib/feed';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useBackgroundRequest } from '../companion';
 import { updatePostCache } from '../usePostById';
@@ -63,7 +63,7 @@ export const useMutateComment = ({
   const { user } = useAuthContext();
   const client = useQueryClient();
   const { requestMethod, isCompanion } = useRequestProtocol();
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
 
   const key = useMemo(
     () =>
@@ -132,8 +132,8 @@ export const useMutateComment = ({
     if (!editCommentId) {
       updatePostCache(client, postId, { numComments: post.numComments + 1 });
 
-      trackEvent(
-        postLogsEvent(LogsEvent.CommentPost, post, {
+      logEvent(
+        postLogEvent(LogEvent.CommentPost, post, {
           extra: { commentId: parentCommentId },
         }),
       );

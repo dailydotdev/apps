@@ -19,8 +19,8 @@ export default function useLogLifecycleEvents(
     lifecycleCallbackRef.current = (event: CustomEvent) => {
       if (event.detail.newState === 'active') {
         setEnabled(true);
-        contextData.trackEventEnd('page inactive');
-        contextData.trackEvent({
+        contextData.logEventEnd('page inactive');
+        contextData.logEvent({
           event_name: 'page active',
         });
         // Update events page state to active
@@ -42,10 +42,10 @@ export default function useLogLifecycleEvents(
         setEnabled(false);
         const now = new Date();
         durationEventsQueue.current.forEach((value, key) =>
-          contextData.trackEventEnd(key, now),
+          contextData.logEventEnd(key, now),
         );
         sendBeacon();
-        contextData.trackEventStart('page inactive', {
+        contextData.logEventStart('page inactive', {
           event_name: 'page inactive',
         });
       }

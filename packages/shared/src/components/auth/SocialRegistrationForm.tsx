@@ -61,7 +61,7 @@ export const SocialRegistrationForm = ({
   isLoading,
   simplified,
 }: SocialRegistrationFormProps): ReactElement => {
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const { user } = useContext(AuthContext);
   const [nameHint, setNameHint] = useState<string>(null);
   const [usernameHint, setUsernameHint] = useState<string>(null);
@@ -73,15 +73,15 @@ export const SocialRegistrationForm = ({
   const { onUpdateSignBack } = useSignBack();
 
   useEffect(() => {
-    trackEvent({
+    logEvent({
       event_name: AuthEventNames.StartSignUpForm,
     });
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const trackError = (error) => {
-    trackEvent({
+  const logError = (error) => {
+    logEvent({
       event_name: AuthEventNames.SubmitSignUpFormError,
       extra: JSON.stringify({ error }),
     });
@@ -89,7 +89,7 @@ export const SocialRegistrationForm = ({
 
   useEffect(() => {
     if (Object.keys(hints).length) {
-      trackError(hints);
+      logError(hints);
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -98,7 +98,7 @@ export const SocialRegistrationForm = ({
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    trackEvent({
+    logEvent({
       event_name: AuthEventNames.SubmitSignUpForm,
     });
 
@@ -108,25 +108,25 @@ export const SocialRegistrationForm = ({
     );
 
     if (!values.name) {
-      trackError('Name not provided');
+      logError('Name not provided');
       setNameHint('Please prove your name');
       return;
     }
 
     if (!values.username) {
-      trackError('Username not provided');
+      logError('Username not provided');
       setUsernameHint('Please choose a username');
       return;
     }
 
     if (!values.experienceLevel) {
-      trackError('Experience level not provided');
+      logError('Experience level not provided');
       setExperienceLevelHint('Please select your experience level');
       return;
     }
 
     if (isAuthorOnboarding && !values.twitter) {
-      trackError('Twitter not provider');
+      logError('Twitter not provider');
       setTwitterHint('Please add your twitter handle');
     }
 

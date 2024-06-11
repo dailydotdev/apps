@@ -12,7 +12,7 @@ import {
   SearchProviderEnum,
   getSearchUrl,
 } from '@dailydotdev/shared/src/graphql/search';
-import { LogsEvent } from '@dailydotdev/shared/src/lib/logs';
+import { LogEvent } from 'packages/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import ShortcutLinks from './ShortcutLinks';
@@ -40,7 +40,7 @@ export default function MainFeedPage({
   onPageChanged,
 }: MainFeedPageProps): ReactElement {
   const { alerts } = useContext(AlertContext);
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
   const [isSearchOn, setIsSearchOn] = useState(false);
   const { user, loadingUser } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>('default');
@@ -118,8 +118,8 @@ export default function MainFeedPage({
             searchChildren={
               <PostsSearch
                 onSubmitQuery={async (query) => {
-                  trackEvent({
-                    event_name: LogsEvent.SubmitSearch,
+                  logEvent({
+                    event_name: LogEvent.SubmitSearch,
                     extra: JSON.stringify({
                       query,
                       provider: SearchProviderEnum.Posts,
@@ -129,7 +129,7 @@ export default function MainFeedPage({
                   setSearchQuery(query);
                 }}
                 onFocus={() => {
-                  trackEvent({ event_name: LogsEvent.FocusSearch });
+                  logEvent({ event_name: LogEvent.FocusSearch });
                 }}
               />
             }

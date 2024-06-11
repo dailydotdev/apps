@@ -8,8 +8,8 @@ import {
   ButtonVariant,
 } from './buttons/Button';
 import { WidgetContainer } from './widgets/common';
-import { postLogsEvent } from '../lib/feed';
-import { LogsEvent, Origin } from '../lib/logs';
+import { postLogEvent } from '../lib/feed';
+import { LogEvent, Origin } from '../lib/log';
 import { Post } from '../graphql/posts';
 import { useLogContext } from '../contexts/LogContext';
 import { useSharePost } from '../hooks/useSharePost';
@@ -30,10 +30,10 @@ export function ShareMobile({
 }: ShareMobileProps): ReactElement {
   const [copying] = useCopyPostLink(link);
   const { openSharePost } = useSharePost(origin);
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
 
   const onShare = () => {
-    trackEvent(postLogsEvent(LogsEvent.StartShareToSquad, post));
+    logEvent(postLogEvent(LogEvent.StartShareToSquad, post));
     openSharePost({ post });
   };
 

@@ -4,14 +4,14 @@ import { ReactElement, useContext, useEffect } from 'react';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 
 function CallbackPage(): ReactElement {
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
     const eventKey = params.login
       ? AuthEvent.Login
       : AuthEvent.SocialRegistration;
-    trackEvent({
+    logEvent({
       event_name: 'registration callback',
       extra: JSON.stringify(params),
     });

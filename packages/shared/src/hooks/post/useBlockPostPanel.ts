@@ -5,7 +5,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
 import useTagAndSource from '../useTagAndSource';
-import { Origin } from '../../lib/logs';
+import { Origin } from '../../lib/log';
 import {
   BlockTagSelection,
   DownvoteBlocked,

@@ -4,7 +4,7 @@ import { cloudinary } from '../../lib/image';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { Justify } from '../utilities';
 import { Modal, ModalProps } from './common/Modal';
-import { NotificationPromptSource } from '../../lib/logs';
+import { NotificationPromptSource } from '../../lib/log';
 import { usePushNotificationMutation } from '../../hooks/notifications';
 import { useModalContext } from './common/types';
 

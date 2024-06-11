@@ -18,7 +18,7 @@ import SettingsContext, {
 import styles from '@dailydotdev/shared/src/components/Feed.module.css';
 import FeedContext from '@dailydotdev/shared/src/contexts/FeedContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogsEvent } from '@dailydotdev/shared/src/lib/logs';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
@@ -76,7 +76,7 @@ const Search = (): ReactElement => {
 
 const AiSearchProviderButton = () => {
   const router = useRouter();
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
   const searchQuery = router.query?.q?.toString();
   const { spaciness, insaneMode } = useContext(SettingsContext);
   const currentSettings = useContext(FeedContext);
@@ -105,8 +105,8 @@ const AiSearchProviderButton = () => {
         provider={SearchProviderEnum.Chat}
         query={searchQuery}
         onClick={() => {
-          trackEvent({
-            event_name: LogsEvent.SwitchSearch,
+          logEvent({
+            event_name: LogEvent.SwitchSearch,
             extra: JSON.stringify({
               from: SearchProviderEnum.Posts,
               to: SearchProviderEnum.Chat,

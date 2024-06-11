@@ -16,7 +16,7 @@ export const useAdvancedSettings = (
 ): UseAdvancedSettings => {
   const { user } = useAuthContext();
   const { feedSettings } = useFeedSettings(props);
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
   const { updateAdvancedSettings } = useMutateFilters(user);
   const { alerts, updateAlerts } = useAlertsContext();
 
@@ -32,7 +32,7 @@ export const useAdvancedSettings = (
 
   const onUpdateSettings = useCallback(
     (id: number, enabled: boolean) => {
-      trackEvent({
+      logEvent({
         event_name: `toggle ${enabled ? 'on' : 'off'}`,
         target_type: 'advanced setting',
         target_id: id.toString(),
@@ -43,7 +43,7 @@ export const useAdvancedSettings = (
         advancedSettings: [{ id, enabled }],
       });
     },
-    [trackEvent, updateAdvancedSettings],
+    [logEvent, updateAdvancedSettings],
   );
 
   // We still need to support this function as this is used for experiments

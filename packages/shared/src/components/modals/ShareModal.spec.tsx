@@ -12,7 +12,7 @@ import { useRouter } from 'next/router';
 import ShareModal from './ShareModal';
 import Post from '../../../__tests__/fixture/post';
 import { getFacebookShareLink } from '../../lib/share';
-import { Origin } from '../../lib/logs';
+import { Origin } from '../../lib/log';
 import Comment from '../../../__tests__/fixture/comment';
 import { getCommentHash } from '../../graphql/comments';
 import loggedUser from '../../../__tests__/fixture/loggedUser';

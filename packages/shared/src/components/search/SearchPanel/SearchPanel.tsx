@@ -26,7 +26,7 @@ import { ArrowKeyEnum } from '../../../lib/func';
 import { ArrowIcon } from '../../icons';
 import { useSearchProvider } from '../../../hooks/search';
 import { SearchPanelCustomAction } from './SearchPanelCustomAction';
-import { LogsEvent } from '../../../lib/logs';
+import { LogEvent } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { SearchPanelTagSuggestions } from './SearchPanelTagSuggestions';
 import { feature } from '../../../lib/featureManagement';
@@ -44,7 +44,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   useContext(SettingsContext);
   const { search } = useSearchProvider();
   const { query } = useRouter();
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
 
   const [state, setState] = useState(() => {
     return {
@@ -198,8 +198,8 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
                 <SearchPanelCustomAction
                   provider={SearchProviderEnum.Posts}
                   onClick={() => {
-                    trackEvent({
-                      event_name: LogsEvent.SubmitSearch,
+                    logEvent({
+                      event_name: LogEvent.SubmitSearch,
                       extra: JSON.stringify({
                         query: state.query,
                         provider: SearchProviderEnum.Posts,

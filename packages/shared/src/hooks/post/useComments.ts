@@ -2,8 +2,8 @@ import { useCallback, useMemo, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isNullOrUndefined } from '../../lib/func';
 import { useLogContext } from '../../contexts/LogContext';
-import { postLogsEvent } from '../../lib/feed';
-import { LogsEvent, Origin } from '../../lib/logs';
+import { postLogEvent } from '../../lib/feed';
+import { LogEvent, Origin } from '../../lib/log';
 import { Post } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
 import { CommentWrite, CommentWriteProps } from './common';
@@ -18,7 +18,7 @@ interface UseComments extends CommentWrite {
 }
 
 export const useComments = (post: Post): UseComments => {
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
   const { user, showLogin } = useAuthContext();
   const [replyTo, setReplyTo] = useState<ReplyTo>(null);
 
@@ -44,8 +44,8 @@ export const useComments = (post: Post): UseComments => {
       }
 
       if (!isNullOrUndefined(params)) {
-        trackEvent(
-          postLogsEvent(LogsEvent.OpenComment, post, {
+        logEvent(
+          postLogEvent(LogEvent.OpenComment, post, {
             extra: { origin: Origin.PostCommentButton },
           }),
         );
@@ -61,7 +61,7 @@ export const useComments = (post: Post): UseComments => {
 
       return setReplyTo(params);
     },
-    [user, showLogin, trackEvent, post],
+    [user, showLogin, logEvent, post],
   );
 
   return {

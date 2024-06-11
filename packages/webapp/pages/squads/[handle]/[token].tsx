@@ -34,7 +34,7 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { NextSeo } from 'next-seo';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogsEvent, Origin } from '@dailydotdev/shared/src/lib/logs';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { ReferralOriginKey } from '@dailydotdev/shared/src/lib/user';
@@ -76,10 +76,10 @@ const SquadReferral = ({
 }: SquadReferralProps): ReactElement => {
   const router = useRouter();
   const { isFallback } = router;
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const { displayToast } = useToastNotification();
   const { showLogin, user: loggedUser } = useAuthContext();
-  const [trackedImpression, setTrackedImpression] = useState(false);
+  const [loggedImpression, setLoggedImpression] = useState(false);
   const { data: member, isFetched } = useQuery(
     ['squad_referral', token, loggedUser?.id],
     () => getSquadInvitation(token),
@@ -118,7 +118,7 @@ const SquadReferral = ({
     },
   );
 
-  const joinSquadLogsExtra = () => {
+  const joinSquadLogExtra = () => {
     return JSON.stringify({
       inviter: member.user.id,
       squad: member.source.id,
@@ -126,19 +126,19 @@ const SquadReferral = ({
   };
 
   useEffect(() => {
-    if (trackedImpression || !member) {
+    if (loggedImpression || !member) {
       return;
     }
 
-    trackEvent({
-      event_name: LogsEvent.ViewSquadInvitation,
-      extra: joinSquadLogsExtra(),
+    logEvent({
+      event_name: LogEvent.ViewSquadInvitation,
+      extra: joinSquadLogExtra(),
     });
 
-    setTrackedImpression(true);
+    setLoggedImpression(true);
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [member, trackedImpression]);
+  }, [member, loggedImpression]);
 
   const { mutateAsync: onJoinSquad } = useMutation(
     useJoinSquad({

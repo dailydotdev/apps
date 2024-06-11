@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import OneSignal from 'react-onesignal';
-import { LogsEvent, NotificationPromptSource } from '../lib/logs';
+import { LogEvent, NotificationPromptSource } from '../lib/log';
 import { checkIsExtension, disabledRefetch } from '../lib/func';
 import { useAuthContext } from './AuthContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
@@ -25,7 +25,7 @@ export interface PushNotificationsContextData {
   isLoading: boolean;
   shouldOpenPopup: boolean;
   onSourceChange: (source: string) => void;
-  trackPermissionGranted: (source: NotificationPromptSource) => void;
+  logPermissionGranted: (source: NotificationPromptSource) => void;
 }
 
 export const PushNotificationsContext =
@@ -35,7 +35,7 @@ export const PushNotificationsContext =
     isSubscribed: false,
     isLoading: false,
     shouldOpenPopup: true,
-    trackPermissionGranted: null,
+    logPermissionGranted: null,
     onSourceChange: null,
     OneSignal: null,
   });
@@ -57,15 +57,15 @@ export function PushNotificationContextProvider({
   }, []);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const { user } = useAuthContext();
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
   const subscriptionCallback: SubscriptionCallback = (
     isSubscribedNew,
     source,
     existing_permission,
   ) => {
     if (isSubscribedNew) {
-      trackEvent({
-        event_name: LogsEvent.ClickEnableNotification,
+      logEvent({
+        event_name: LogEvent.ClickEnableNotification,
         extra: JSON.stringify({
           origin: source || notificationSourceRef.current,
           permission: 'granted',
@@ -113,7 +113,7 @@ export function PushNotificationContextProvider({
     !!globalThis.window?.Notification &&
     OneSignal.Notifications.isPushSupported();
 
-  const trackPermissionGranted = useCallback(
+  const logPermissionGranted = useCallback(
     (source) => subscriptionCallbackRef.current?.(true, source, true),
     [],
   );
@@ -150,7 +150,7 @@ export function PushNotificationContextProvider({
         isSubscribed,
         isPushSupported: isPushSupported && isSuccess && isEnabled,
         onSourceChange,
-        trackPermissionGranted,
+        logPermissionGranted,
         shouldOpenPopup: false,
         OneSignal: isEnabled && isFetched ? OneSignalCache : null,
       }}

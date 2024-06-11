@@ -20,7 +20,7 @@ import {
   RequestKey,
   updateInfiniteCache,
 } from '../lib/query';
-import { Origin } from '../lib/logs';
+import { Origin } from '../lib/log';
 import useContextMenu from '../hooks/useContextMenu';
 import { ContextMenu as ContextMenuIds } from '../hooks/constants';
 

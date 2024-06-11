@@ -1,12 +1,12 @@
 import { MutableRefObject, useMemo } from 'react';
 import { LogEvent, PushToQueueFunc } from './useLogQueue';
 import { getCurrentLifecycleState } from '../../lib/lifecycle';
-import { Origin } from '../../lib/logs';
+import { Origin } from '../../lib/log';
 
 export type LogContextData = {
-  trackEvent: (event: LogEvent) => void;
-  trackEventStart: (id: string, event: LogEvent) => void;
-  trackEventEnd: (id: string, now?: Date) => void;
+  logEvent: (event: LogEvent) => void;
+  logEventStart: (id: string, event: LogEvent) => void;
+  logEventEnd: (id: string, now?: Date) => void;
   sendBeacon: () => void;
 };
 
@@ -53,10 +53,10 @@ export default function useLogContextData(
 ): LogContextData {
   return useMemo<LogContextData>(
     () => ({
-      trackEvent(event: LogEvent) {
+      logEvent(event: LogEvent) {
         pushToQueue([generateEvent(event, sharedPropsRef, getPage())]);
       },
-      trackEventStart(id, event) {
+      logEventStart(id, event) {
         if (!durationEventsQueue.current.has(id)) {
           durationEventsQueue.current.set(
             id,
@@ -64,7 +64,7 @@ export default function useLogContextData(
           );
         }
       },
-      trackEventEnd(id, now = new Date()) {
+      logEventEnd(id, now = new Date()) {
         const event = durationEventsQueue.current.get(id);
         if (event) {
           durationEventsQueue.current.delete(id);

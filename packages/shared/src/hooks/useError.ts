@@ -1,15 +1,15 @@
 import { useContext, useEffect } from 'react';
 import LogContext from '../contexts/LogContext';
-import { LogsEvent } from '../lib/logs';
+import { LogEvent } from '../lib/log';
 
 export function useError(): void {
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
 
   useEffect(() => {
-    if (trackEvent) {
+    if (logEvent) {
       window.onerror = (msg, url, line, col, error) => {
-        trackEvent({
-          event_name: LogsEvent.GlobalError,
+        logEvent({
+          event_name: LogEvent.GlobalError,
           extra: JSON.stringify({
             msg,
             url,
@@ -20,5 +20,5 @@ export function useError(): void {
         });
       };
     }
-  }, [trackEvent]);
+  }, [logEvent]);
 }

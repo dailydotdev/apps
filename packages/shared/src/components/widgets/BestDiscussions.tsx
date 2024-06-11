@@ -7,7 +7,7 @@ import styles from '../cards/Card.module.css';
 import { CardLink } from '../cards/Card';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
-import { postLogsEvent } from '../../lib/feed';
+import { postLogEvent } from '../../lib/feed';
 import LogContext from '../../contexts/LogContext';
 import { WidgetContainer } from './common';
 import { combinedClicks } from '../../lib/click';
@@ -78,22 +78,17 @@ export default function BestDiscussions({
   isLoading,
   className,
 }: BestDiscussionsProps): ReactElement {
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
 
   const onLinkClick = (post: Post): void => {
-    trackEvent(
-      postLogsEvent('click', post, {
+    logEvent(
+      postLogEvent('click', post, {
         extra: { origin: 'best discussions' },
       }),
     );
   };
 
-  const onLucky = (): void => {
-    // trackEvent({
-    //   category: 'Best Discussions',
-    //   action: 'Lucky',
-    // });
-  };
+  const onLucky = (): void => {};
 
   return (
     <BestDiscussionsContainer className={className}>

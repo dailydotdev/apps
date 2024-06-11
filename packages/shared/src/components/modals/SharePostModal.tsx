@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import { Modal, ModalProps } from './common/Modal';
 import BasePostModal from './BasePostModal';
-import { NotificationPromptSource, Origin } from '../../lib/logs';
+import { NotificationPromptSource, Origin } from '../../lib/log';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import SquadPostContent from '../post/SquadPostContent';
 import OnboardingContext from '../../contexts/OnboardingContext';

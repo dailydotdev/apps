@@ -21,10 +21,10 @@ import {
   UseChatStream,
 } from './types';
 import LogContext from '../../contexts/LogContext';
-import { LogsEvent } from '../../lib/logs';
+import { LogEvent } from '../../lib/log';
 
 export const useChatStream = (): UseChatStream => {
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const { user, accessToken } = useAuthContext();
   const client = useQueryClient();
   const sourceRef = useRef<EventSource>();
@@ -62,9 +62,9 @@ export const useChatStream = (): UseChatStream => {
         );
       };
 
-      const trackErrorEvent = (code: SearchChunkErrorCode) => {
-        trackEvent({
-          event_name: LogsEvent.ErrorSearch,
+      const logErrorEvent = (code: SearchChunkErrorCode) => {
+        logEvent({
+          event_name: LogEvent.ErrorSearch,
           target_id: streamId,
           extra: JSON.stringify({ code }),
         });
@@ -125,7 +125,7 @@ export const useChatStream = (): UseChatStream => {
               });
 
               sourceRef.current?.close();
-              trackErrorEvent(errorPayload.code);
+              logErrorEvent(errorPayload.code);
               break;
             }
             case UseChatMessageType.SessionFound: {
@@ -142,7 +142,7 @@ export const useChatStream = (): UseChatStream => {
           // eslint-disable-next-line no-console
           console.error('[EventSource][message] error', error);
 
-          trackErrorEvent(SearchChunkErrorCode.Unexpected);
+          logErrorEvent(SearchChunkErrorCode.Unexpected);
         }
       };
 
@@ -159,7 +159,7 @@ export const useChatStream = (): UseChatStream => {
           progress: -1,
         });
 
-        trackErrorEvent(code);
+        logErrorEvent(code);
       };
 
       const source = await sendSearchQuery(value, accessToken?.token);
@@ -167,7 +167,7 @@ export const useChatStream = (): UseChatStream => {
       source.addEventListener('error', onError);
       sourceRef.current = source;
     },
-    [accessToken?.token, client, user, trackEvent],
+    [accessToken?.token, client, user, logEvent],
   );
 
   useEffect(() => {

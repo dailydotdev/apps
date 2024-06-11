@@ -39,7 +39,7 @@ import {
   FeedPreviewControls,
   Redirect,
 } from '@dailydotdev/shared/src/components';
-import { LogsEvent, Origin } from '@dailydotdev/shared/src/lib/logs';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { withExperiment } from '@dailydotdev/shared/src/components/withExperiment';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { CustomFeedsExperiment } from '@dailydotdev/shared/src/lib/featureValues';
@@ -71,7 +71,7 @@ const EditFeedPage = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const { FeedPageLayoutComponent } = useFeedLayout();
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
 
   const feedSlugOrId = router.query.slugOrId as string;
   const feed = useMemo(() => {
@@ -131,8 +131,8 @@ const EditFeedPage = (): ReactElement => {
     },
     {
       onSuccess: (data) => {
-        trackEvent({
-          event_name: LogsEvent.UpdateCustomFeed,
+        logEvent({
+          event_name: LogEvent.UpdateCustomFeed,
           target_id: data.id,
         });
 
@@ -183,8 +183,8 @@ const EditFeedPage = (): ReactElement => {
     },
     {
       onSuccess: (data) => {
-        trackEvent({
-          event_name: LogsEvent.DeleteCustomFeed,
+        logEvent({
+          event_name: LogEvent.DeleteCustomFeed,
           target_id: data.id,
         });
 

@@ -2,7 +2,7 @@ import { FeedItem, PostItem } from '../hooks/useFeed';
 import { Ad, Post, ReadHistoryPost } from '../graphql/posts';
 import { LogEvent } from '../hooks/log/useLogQueue';
 import { PostBootData } from './boot';
-import { Origin } from './logs';
+import { Origin } from './log';
 import { SharedFeedPage } from '../components/utilities';
 import { AllFeedPages, OtherFeedPage } from './query';
 
@@ -22,7 +22,7 @@ export function optimisticPostUpdateInFeed(
   };
 }
 
-interface FeedItemLogsEvent extends LogEvent {
+interface FeedItemLogEvent extends LogEvent {
   event_name: string;
   feed_grid_columns?: number;
   feed_item_grid_column?: number;
@@ -35,7 +35,7 @@ interface FeedItemLogsEvent extends LogEvent {
   target_type: string;
 }
 
-interface PostItemLogsEvent extends FeedItemLogsEvent {
+interface PostItemLogEvent extends FeedItemLogEvent {
   post_author_id: string;
   post_scout_id: string;
   post_comments_count: number;
@@ -47,11 +47,11 @@ interface PostItemLogsEvent extends FeedItemLogsEvent {
   post_upvotes_count: number;
 }
 
-interface AdItemLogsEvent extends FeedItemLogsEvent {
+interface AdItemLogEvent extends FeedItemLogEvent {
   ad_provider_id: string;
 }
 
-interface FeedLogsExtra {
+interface FeedLogExtra {
   extra: {
     origin: string;
     feed: string;
@@ -61,7 +61,7 @@ interface FeedLogsExtra {
   };
 }
 
-export function feedLogsExtra(
+export function feedLogExtra(
   feedName: string,
   ranking?: string,
   extra?: {
@@ -70,7 +70,7 @@ export function feedLogsExtra(
   origin?: Origin,
   variant?: string,
   parent_id?: string,
-): FeedLogsExtra {
+): FeedLogExtra {
   return {
     extra: {
       origin: origin ?? Origin.Feed,
@@ -89,17 +89,17 @@ export interface FeedItemPosition {
   row?: number;
 }
 
-export type PostLogsEventFnOptions = FeedItemPosition & {
+export type PostLogEventFnOptions = FeedItemPosition & {
   extra?: Record<string, unknown>;
 };
 
 const feedPathWithIdMatcher = /^\/feeds\/(?<feedId>[A-z0-9]{9})\/?$/;
 
-export function postLogsEvent(
+export function postLogEvent(
   eventName: string,
   post: Post | ReadHistoryPost | PostBootData,
-  opts?: PostLogsEventFnOptions,
-): PostItemLogsEvent {
+  opts?: PostLogEventFnOptions,
+): PostItemLogEvent {
   const extra = {
     ...opts?.extra,
   };
@@ -140,7 +140,7 @@ export function postLogsEvent(
   };
 }
 
-export function adLogsEvent(
+export function adLogEvent(
   eventName: string,
   ad: Ad,
   opts?: {
@@ -149,7 +149,7 @@ export function adLogsEvent(
     row?: number;
     extra?: Record<string, unknown>;
   },
-): AdItemLogsEvent {
+): AdItemLogEvent {
   return {
     event_name: eventName,
     feed_grid_columns: opts?.columns,

@@ -2,7 +2,7 @@ import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { SocialShare } from '../widgets/SocialShare';
 import LogContext from '../../contexts/LogContext';
-import { postLogsEvent } from '../../lib/feed';
+import { postLogEvent } from '../../lib/feed';
 import { Modal, ModalProps } from './common/Modal';
 import { ExperimentWinner } from '../../lib/featureValues';
 import { ShareProps } from './post/common';
@@ -22,14 +22,11 @@ export default function ShareModal({
 }: ShareProps & ModalProps): ReactElement {
   const isComment = !!comment;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
 
-  const baseTrackingEvent = (
-    eventName: string,
-    extra?: Record<string, unknown>,
-  ) =>
-    trackEvent(
-      postLogsEvent(eventName, post, {
+  const baseLogEvent = (eventName: string, extra?: Record<string, unknown>) =>
+    logEvent(
+      postLogEvent(eventName, post, {
         extra: {
           ...extra,
           origin,
@@ -43,9 +40,9 @@ export default function ShareModal({
     );
 
   useEffect(() => {
-    baseTrackingEvent('open share');
+    baseLogEvent('open share');
 
-    return () => baseTrackingEvent('close share');
+    return () => baseLogEvent('close share');
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

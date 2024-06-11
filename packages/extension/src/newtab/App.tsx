@@ -13,7 +13,7 @@ import browser from 'webextension-polyfill';
 import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
 import { BootDataProviderProps } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
-import useTrackPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
+import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
@@ -68,7 +68,7 @@ function InternalApp(): ReactElement {
   const { contentScriptGranted } = useContentScriptStatus();
   const { hostGranted, isFetching: isCheckingHostPermissions } =
     useHostStatus();
-  const routeChangedCallbackRef = useTrackPageView();
+  const routeChangedCallbackRef = useLogPageView();
   useConsoleLogo();
 
   const { user, isAuthReady } = useAuthContext();

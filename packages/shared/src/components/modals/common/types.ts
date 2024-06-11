@@ -5,7 +5,7 @@ import {
   ReactNode,
   useContext,
 } from 'react';
-import { LogsEvent } from '../../../lib/logs';
+import { LogEvent } from '../../../lib/log';
 
 export enum ModalHeaderKind {
   Primary = 'primary',
@@ -76,8 +76,8 @@ export type ModalContextProps = {
   size: ModalSize;
   steps?: ModalStep[];
   tabs?: string[] | ModalTabItem[];
-  onTrackNext?: LogsEvent;
-  onTrackPrev?: LogsEvent;
+  onLogNext?: LogEvent;
+  onLogPrev?: LogEvent;
   isDrawer?: boolean;
   isForm?: boolean;
   isMobile?: boolean;

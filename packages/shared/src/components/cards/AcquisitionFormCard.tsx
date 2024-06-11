@@ -12,7 +12,7 @@ import { MiniCloseIcon } from '../icons';
 import { OnboardingTitleGradient } from '../onboarding/common';
 import { removeQueryParam } from '../../lib/links';
 import LogContext from '../../contexts/LogContext';
-import { LogsEvent, UserAcquisitionEvent } from '../../lib/logs';
+import { LogEvent, UserAcquisitionEvent } from '../../lib/log';
 import { useFeedLayout } from '../../hooks';
 
 const options = [
@@ -37,7 +37,7 @@ const options = [
 export const acquisitionKey = 'ua';
 
 export function AcquisitionFormCard(): ReactElement {
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const [isDismissed, setIsDismissed] = useState(false);
   const [value, setValue] = useState<AcquisitionChannel>();
   const { shouldUseListFeedLayout } = useFeedLayout();
@@ -49,7 +49,7 @@ export function AcquisitionFormCard(): ReactElement {
   };
   const onDismiss = () => {
     setIsDismissed(true);
-    trackEvent({ event_name: UserAcquisitionEvent.Dismiss });
+    logEvent({ event_name: UserAcquisitionEvent.Dismiss });
     onRemoveQueryParams();
   };
 
@@ -57,7 +57,7 @@ export function AcquisitionFormCard(): ReactElement {
     updateUserAcquisition,
     {
       onSuccess: () => {
-        trackEvent({
+        logEvent({
           event_name: UserAcquisitionEvent.Submit,
           target_id: value,
         });
@@ -66,8 +66,8 @@ export function AcquisitionFormCard(): ReactElement {
   );
 
   useEffect(() => {
-    trackEvent({
-      event_name: LogsEvent.Impression,
+    logEvent({
+      event_name: LogEvent.Impression,
       target_type: acquisitionKey,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -16,7 +16,7 @@ interface InviteLinkInputProps {
   text?: Text;
   onCopy?: () => void;
   className?: FieldClassName;
-  trackingProps: LogEvent;
+  logProps: LogEvent;
 }
 
 export function InviteLinkInput({
@@ -24,13 +24,13 @@ export function InviteLinkInput({
   text = {},
   onCopy,
   className,
-  trackingProps,
+  logProps,
 }: InviteLinkInputProps): ReactElement {
   const [copied, onCopyLink] = useCopyLink(() => link);
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
   const onCopyClick = () => {
     onCopyLink();
-    trackEvent(trackingProps);
+    logEvent(logProps);
 
     if (onCopy) {
       onCopy();

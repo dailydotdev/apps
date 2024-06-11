@@ -21,10 +21,10 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import {
-  LogsEvent,
+  LogEvent,
   ShortcutsSourceType,
   TargetType,
-} from '@dailydotdev/shared/src/lib/logs';
+} from 'packages/shared/src/lib/log';
 import {
   useActions,
   useConditionalFeature,
@@ -141,7 +141,7 @@ export default function ShortcutLinks({
   const [showModal, setShowModal] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const { displayToast } = useToastNotification();
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const {
     askTopSitesPermission,
     revokePermission,
@@ -160,8 +160,8 @@ export default function ShortcutLinks({
     ? ShortcutsSourceType.Browser
     : ShortcutsSourceType.Custom;
 
-  const trackedInitialRef = useRef(false);
-  const trackedRef = useRef(false);
+  const loggedInitialRef = useRef(false);
+  const loggedRef = useRef(false);
 
   const { value: isShortcutsV1 } = useConditionalFeature({
     feature: feature.onboardingMostVisited,
@@ -173,10 +173,10 @@ export default function ShortcutLinks({
 
   useEffect(() => {
     if (!showTopSites || !hasCheckedPermission) {
-      if (!trackedInitialRef.current) {
-        trackedInitialRef.current = true;
-        trackEvent({
-          event_name: LogsEvent.Impression,
+      if (!loggedInitialRef.current) {
+        loggedInitialRef.current = true;
+        logEvent({
+          event_name: LogEvent.Impression,
           target_type: TargetType.Shortcuts,
           extra: JSON.stringify({
             source: isShortcutsV1
@@ -189,19 +189,19 @@ export default function ShortcutLinks({
       return;
     }
 
-    if (trackedRef.current) {
+    if (loggedRef.current) {
       return;
     }
 
-    trackedRef.current = true;
+    loggedRef.current = true;
 
-    trackEvent({
-      event_name: LogsEvent.Impression,
+    logEvent({
+      event_name: LogEvent.Impression,
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: shortcutSource }),
     });
   }, [
-    trackEvent,
+    logEvent,
     showTopSites,
     shortcutSource,
     hasCheckedPermission,
@@ -211,8 +211,8 @@ export default function ShortcutLinks({
   const onOptionsOpen = () => {
     setShowOptions(true);
 
-    trackEvent({
-      event_name: LogsEvent.OpenShortcutConfig,
+    logEvent({
+      event_name: LogEvent.OpenShortcutConfig,
       target_type: TargetType.Shortcuts,
     });
   };
@@ -309,8 +309,8 @@ export default function ShortcutLinks({
   };
 
   const onLinkClick = () => {
-    trackEvent({
-      event_name: LogsEvent.Click,
+    logEvent({
+      event_name: LogEvent.Click,
       target_type: TargetType.Shortcuts,
       extra: JSON.stringify({ source: shortcutSource }),
     });

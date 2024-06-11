@@ -14,9 +14,9 @@ export function MobileMenuIcon({
   sidebarExpanded,
   toggleSidebarExpanded,
 }: MobileMenuIconProps): ReactElement {
-  const { trackEvent } = useContext(LogContext);
-  const trackAndToggleSidebarExpanded = () => {
-    trackEvent({
+  const { logEvent } = useContext(LogContext);
+  const logAndToggleSidebarExpanded = () => {
+    logEvent({
       event_name: `${sidebarExpanded ? 'open' : 'close'} sidebar`,
     });
     toggleSidebarExpanded();
@@ -28,7 +28,7 @@ export function MobileMenuIcon({
       content={`${sidebarExpanded ? 'Close' : 'Open'} sidebar`}
     >
       <Button
-        onClick={trackAndToggleSidebarExpanded}
+        onClick={logAndToggleSidebarExpanded}
         variant={ButtonVariant.Primary}
         className={classNames(
           'absolute -right-3 top-3 z-3 h-6 w-6',

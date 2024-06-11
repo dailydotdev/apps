@@ -4,7 +4,7 @@ import { CardCover } from '../common/CardCover';
 import { CTAButton, Description, Header, MarketingCta, Title } from './common';
 import { useBoot } from '../../../hooks';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogsEvent, TargetType } from '../../../lib/logs';
+import { LogEvent, TargetType } from '../../../lib/log';
 
 export function MarketingCtaCard({
   marketingCta,
@@ -14,7 +14,7 @@ export function MarketingCtaCard({
   const { tagColor, tagText, title, description, image, ctaUrl, ctaText } =
     marketingCta.flags;
   const { clearMarketingCta } = useBoot();
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
   const isImpressionTracked = useRef(false);
 
   useEffect(() => {
@@ -22,31 +22,31 @@ export function MarketingCtaCard({
       return;
     }
 
-    trackEvent({
-      event_name: LogsEvent.Impression,
+    logEvent({
+      event_name: LogEvent.Impression,
       target_type: TargetType.PromotionCard,
       target_id: marketingCta.campaignId,
     });
     isImpressionTracked.current = true;
-  }, [marketingCta.campaignId, trackEvent]);
+  }, [marketingCta.campaignId, logEvent]);
 
   const onCtaClick = useCallback(() => {
-    trackEvent({
-      event_name: LogsEvent.Click,
+    logEvent({
+      event_name: LogEvent.Click,
       target_type: TargetType.PromotionCard,
       target_id: marketingCta.campaignId,
     });
     clearMarketingCta(marketingCta.campaignId);
-  }, [clearMarketingCta, marketingCta.campaignId, trackEvent]);
+  }, [clearMarketingCta, marketingCta.campaignId, logEvent]);
 
   const onCtaDismiss = useCallback(() => {
-    trackEvent({
-      event_name: LogsEvent.MarketingCtaDismiss,
+    logEvent({
+      event_name: LogEvent.MarketingCtaDismiss,
       target_type: TargetType.PromotionCard,
       target_id: marketingCta.campaignId,
     });
     clearMarketingCta(marketingCta.campaignId);
-  }, [clearMarketingCta, marketingCta.campaignId, trackEvent]);
+  }, [clearMarketingCta, marketingCta.campaignId, logEvent]);
 
   return (
     <Card className="p-4">

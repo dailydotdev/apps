@@ -11,20 +11,20 @@ import { useContentScriptStatus } from '@dailydotdev/shared/src/hooks';
 import { CompanionPermission } from './CompanionPermission';
 
 export const CompanionPopupButton = (): ReactElement => {
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const { contentScriptGranted, isFetched } = useContentScriptStatus();
   const [showCompanionPermission, setShowCompanionPermission] = useState(false);
 
-  const companionNotificationTracking = (extra: string, value: boolean) => {
+  const companionNotificationLog = (extra: string, value: boolean) => {
     const state = value ? 'open' : 'close';
-    trackEvent({
+    logEvent({
       event_name: `${state} companion permission popup`,
       extra: JSON.stringify({ origin: extra }),
     });
   };
 
   const onButtonClick = () => {
-    companionNotificationTracking('manual', !showCompanionPermission);
+    companionNotificationLog('manual', !showCompanionPermission);
     setShowCompanionPermission(!showCompanionPermission);
   };
 
@@ -37,7 +37,7 @@ export const CompanionPopupButton = (): ReactElement => {
       return;
     }
 
-    trackEvent({
+    logEvent({
       event_name: 'impression',
       target_type: 'companion permission',
       target_id: ExperimentWinner.CompanionPermissionPlacement,

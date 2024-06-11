@@ -15,9 +15,9 @@ import useLogLifecycleEvents from '../hooks/log/useLogLifecycleEvents';
 import { BootApp } from '../lib/boot';
 
 const LogContext = createContext<LogContextData>({
-  trackEvent: () => {},
-  trackEventStart: () => {},
-  trackEventEnd: () => {},
+  logEvent: () => {},
+  logEventStart: () => {},
+  logEventEnd: () => {},
   sendBeacon: () => {},
 });
 export default LogContext;

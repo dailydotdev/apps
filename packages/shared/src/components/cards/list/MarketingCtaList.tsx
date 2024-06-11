@@ -2,7 +2,7 @@ import React, { ReactElement, useCallback, useEffect, useRef } from 'react';
 import { ListCard } from './ListCard';
 import { useBoot } from '../../../hooks';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogsEvent, TargetType } from '../../../lib/logs';
+import { LogEvent, TargetType } from '../../../lib/log';
 import {
   CTAButton,
   Description,
@@ -20,39 +20,39 @@ export function MarketingCtaList({
   const { tagColor, tagText, title, description, image, ctaUrl, ctaText } =
     marketingCta.flags;
   const { clearMarketingCta } = useBoot();
-  const { trackEvent } = useLogContext();
-  const isImpressionTracked = useRef(false);
+  const { logEvent } = useLogContext();
+  const isImpressionLogged = useRef(false);
 
   useEffect(() => {
-    if (isImpressionTracked.current) {
+    if (isImpressionLogged.current) {
       return;
     }
 
-    trackEvent({
-      event_name: LogsEvent.Impression,
+    logEvent({
+      event_name: LogEvent.Impression,
       target_type: TargetType.PromotionCard,
       target_id: marketingCta.campaignId,
     });
-    isImpressionTracked.current = true;
-  }, [marketingCta.campaignId, trackEvent]);
+    isImpressionLogged.current = true;
+  }, [marketingCta.campaignId, logEvent]);
 
   const onCtaClick = useCallback(() => {
-    trackEvent({
-      event_name: LogsEvent.Click,
+    logEvent({
+      event_name: LogEvent.Click,
       target_type: TargetType.PromotionCard,
       target_id: marketingCta.campaignId,
     });
     clearMarketingCta(marketingCta.campaignId);
-  }, [clearMarketingCta, marketingCta.campaignId, trackEvent]);
+  }, [clearMarketingCta, marketingCta.campaignId, logEvent]);
 
   const onCtaDismiss = useCallback(() => {
-    trackEvent({
-      event_name: LogsEvent.MarketingCtaDismiss,
+    logEvent({
+      event_name: LogEvent.MarketingCtaDismiss,
       target_type: TargetType.PromotionCard,
       target_id: marketingCta.campaignId,
     });
     clearMarketingCta(marketingCta.campaignId);
-  }, [clearMarketingCta, marketingCta.campaignId, trackEvent]);
+  }, [clearMarketingCta, marketingCta.campaignId, logEvent]);
 
   return (
     <ListCard className="p-4">

@@ -4,7 +4,7 @@ import { SourcePermissions, Squad } from '../../graphql/sources';
 import SourceProfilePicture from '../profile/SourceProfilePicture';
 import { SocialShareButton } from '../widgets/SocialShareButton';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { Origin } from '../../lib/logs';
+import { Origin } from '../../lib/log';
 import { PlusIcon } from '../icons';
 import { useSquadNavigation } from '../../hooks';
 import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';

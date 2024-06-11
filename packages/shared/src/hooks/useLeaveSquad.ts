@@ -4,7 +4,7 @@ import { Squad } from '../graphql/sources';
 import { PromptOptions, usePrompt } from './usePrompt';
 import { useBoot } from './useBoot';
 import LogContext from '../contexts/LogContext';
-import { LogsEvent } from '../lib/logs';
+import { LogEvent } from '../lib/log';
 import { ButtonColor } from '../components/buttons/Button';
 
 type UseLeaveSquad = () => Promise<boolean>;
@@ -15,7 +15,7 @@ type UseLeaveSquadProps = {
 };
 
 export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const { showPrompt } = usePrompt();
   const { deleteSquad: deleteCachedSquad } = useBoot();
 
@@ -31,8 +31,8 @@ export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
     const left = await showPrompt(options);
 
     if (left) {
-      trackEvent({
-        event_name: LogsEvent.LeaveSquad,
+      logEvent({
+        event_name: LogEvent.LeaveSquad,
         extra: JSON.stringify({ squad: squad.id }),
       });
       await leaveSquad(squad.id);
@@ -40,7 +40,7 @@ export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
     }
 
     return left;
-  }, [deleteCachedSquad, showPrompt, squad, trackEvent]);
+  }, [deleteCachedSquad, showPrompt, squad, logEvent]);
 
   return onLeaveSquad;
 };

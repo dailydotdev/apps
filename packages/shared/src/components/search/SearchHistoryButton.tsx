@@ -13,14 +13,14 @@ import ContextMenu, { MenuItemProps } from '../fields/ContextMenu';
 import useContextMenu from '../../hooks/useContextMenu';
 import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
 import { SearchProviderEnum, getSearchUrl } from '../../graphql/search';
-import { LogsEvent, Origin, TargetType } from '../../lib/logs';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
 import LogContext from '../../contexts/LogContext';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
 const contextMenuId = 'search-history-input';
 
 export function SearchHistoryButton(): ReactElement {
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const {
     nodes,
     result: { isLoading },
@@ -51,8 +51,8 @@ export function SearchHistoryButton(): ReactElement {
       icon: <TimerIcon />,
       label: node.prompt,
       action: () => {
-        trackEvent({
-          event_name: LogsEvent.Click,
+        logEvent({
+          event_name: LogEvent.Click,
           target_type: TargetType.SearchHistory,
           target_id: node.sessionId,
           feed_item_title: node.prompt,
@@ -73,7 +73,7 @@ export function SearchHistoryButton(): ReactElement {
       icon: null,
       label: 'Show all',
       action: () => {
-        trackEvent({ event_name: LogsEvent.OpenSearchHistory });
+        logEvent({ event_name: LogEvent.OpenSearchHistory });
 
         return router.push(
           `${process.env.NEXT_PUBLIC_WEBAPP_URL}history?t=Search%20history`,
@@ -82,7 +82,7 @@ export function SearchHistoryButton(): ReactElement {
     });
 
     return result;
-  }, [trackEvent, router, nodes]);
+  }, [logEvent, router, nodes]);
 
   const onMenuOpen: MouseEventHandler = (event) => {
     const command = isMenuOpen ? onHide : onMenuClick;

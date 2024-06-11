@@ -10,7 +10,7 @@ import { TwitterIcon, FacebookIcon, WhatsappIcon } from '../icons';
 import { link } from '../../lib/links';
 import { labels } from '../../lib';
 import { SimpleTooltip } from '../tooltips';
-import { LogsEvent, TargetType } from '../../lib/logs';
+import { LogEvent, TargetType } from '../../lib/log';
 import LogContext from '../../contexts/LogContext';
 
 interface ReferralSocialShareButtonsProps {
@@ -21,7 +21,7 @@ const ReferralSocialShareButtons = ({
   url,
   targetType,
 }: ReferralSocialShareButtonsProps): ReactElement => {
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const inviteLink = url || link.referral.defaultUrl;
 
   const socialShareButtonsDefaultConfig = {
@@ -57,8 +57,8 @@ const ReferralSocialShareButtons = ({
               rel="noopener"
               tag="a"
               onClick={() => {
-                trackEvent({
-                  event_name: LogsEvent.InviteReferral,
+                logEvent({
+                  event_name: LogEvent.InviteReferral,
                   target_id: shareProvider,
                   target_type: targetType,
                 });

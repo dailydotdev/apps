@@ -11,7 +11,7 @@ import { banPost, demotePost, Post, promotePost } from '../../graphql/posts';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import PostOptionsMenu, { PostOptionsMenuProps } from '../PostOptionsMenu';
 import { PromptOptions, usePrompt } from '../../hooks/usePrompt';
-import { Origin } from '../../lib/logs';
+import { Origin } from '../../lib/log';
 import useContextMenu from '../../hooks/useContextMenu';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 

@@ -13,7 +13,7 @@ interface CreateMyFeedButtonProps {
   action: () => unknown;
 }
 
-const getLogsEvent = (eventName: string, copy: string): LogEvent => ({
+const getLogEvent = (eventName: string, copy: string): LogEvent => ({
   event_name: eventName,
   target_type: 'my feed button',
   target_id: 'feed_top',
@@ -23,16 +23,16 @@ const getLogsEvent = (eventName: string, copy: string): LogEvent => ({
 export default function CreateMyFeedButton({
   action,
 }: CreateMyFeedButtonProps): ReactElement {
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const buttonCopy = 'Choose tags';
   const explainerCopy = 'Get the content you need by creating a personal feed';
   const onClick = () => {
-    trackEvent(getLogsEvent('click', buttonCopy));
+    logEvent(getLogEvent('click', buttonCopy));
     action();
   };
 
   useEffect(() => {
-    trackEvent(getLogsEvent('impression', buttonCopy));
+    logEvent(getLogEvent('impression', buttonCopy));
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buttonCopy]);

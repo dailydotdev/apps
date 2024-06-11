@@ -3,7 +3,7 @@ import LogContext from '../../contexts/LogContext';
 import AuthContext from '../../contexts/AuthContext';
 import { Post, UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
-import { PostLogsEventFnOptions, postLogsEvent } from '../../lib/feed';
+import { PostLogEventFnOptions, postLogEvent } from '../../lib/feed';
 import {
   UserVoteEntity,
   UseVote,
@@ -12,13 +12,13 @@ import {
   VoteEntityPayload,
 } from './types';
 import { useVote } from './useVote';
-import { LogsEvent } from '../../lib/logs';
+import { LogEvent } from '../../lib/log';
 
 const prepareVoteCommentLogsOptions = ({
   payload,
   origin,
   opts,
-}: ToggleVoteProps): PostLogsEventFnOptions => {
+}: ToggleVoteProps): PostLogEventFnOptions => {
   const { extra, ...restOpts } = opts || {};
 
   return {
@@ -39,7 +39,7 @@ export const useVoteComment = ({
   'toggleUpvote' | 'toggleDownvote'
 > => {
   const { user, showLogin } = useContext(AuthContext);
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
 
   const { upvote, downvote, cancelVote } = useVote({
     onMutate,
@@ -63,9 +63,9 @@ export const useVoteComment = ({
         });
 
         if (comment.userState?.vote === UserVote.Up) {
-          trackEvent(
-            postLogsEvent(
-              LogsEvent.RemoveCommentUpvote,
+          logEvent(
+            postLogEvent(
+              LogEvent.RemoveCommentUpvote,
               comment.post,
               logsOptions,
             ),
@@ -76,13 +76,13 @@ export const useVoteComment = ({
           return;
         }
 
-        trackEvent(
-          postLogsEvent(LogsEvent.UpvoteComment, comment.post, logsOptions),
+        logEvent(
+          postLogEvent(LogEvent.UpvoteComment, comment.post, logsOptions),
         );
 
         await upvote({ id: comment.id });
       },
-      [upvote, cancelVote, showLogin, trackEvent, user],
+      [upvote, cancelVote, showLogin, logEvent, user],
     ),
     toggleDownvote: useCallback(
       async ({ payload: comment, origin, opts }) => {
@@ -99,9 +99,9 @@ export const useVoteComment = ({
         });
 
         if (comment.userState?.vote === UserVote.Down) {
-          trackEvent(
-            postLogsEvent(
-              LogsEvent.RemoveCommentDownvote,
+          logEvent(
+            postLogEvent(
+              LogEvent.RemoveCommentDownvote,
               comment.post,
               logsOptions,
             ),
@@ -112,13 +112,13 @@ export const useVoteComment = ({
           return;
         }
 
-        trackEvent(
-          postLogsEvent(LogsEvent.DownvoteComment, comment.post, logsOptions),
+        logEvent(
+          postLogEvent(LogEvent.DownvoteComment, comment.post, logsOptions),
         );
 
         await downvote({ id: comment.id });
       },
-      [downvote, cancelVote, showLogin, trackEvent, user],
+      [downvote, cancelVote, showLogin, logEvent, user],
     ),
   };
 };

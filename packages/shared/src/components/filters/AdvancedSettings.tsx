@@ -4,7 +4,7 @@ import { FilterSwitch } from './FilterSwitch';
 import { AdvancedSettingsGroup } from '../../graphql/feedSettings';
 import { useAdvancedSettings } from '../../hooks/feed';
 import useTagAndSource from '../../hooks/useTagAndSource';
-import { Origin } from '../../lib/logs';
+import { Origin } from '../../lib/log';
 import { Source } from '../../graphql/sources';
 
 const ADVANCED_SETTINGS_KEY = 'advancedSettings';

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogsEvent, TargetId, TargetType } from '../../lib/logs';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { updateFeedFeedbackReminder } from '../../graphql/alerts';
 import { useAlertsContext } from '../../contexts/AlertContext';
 
@@ -16,11 +16,11 @@ interface UseFeedSurveyProps {
 
 export const useFeedSurvey = ({ score }: UseFeedSurveyProps): UseFeedSurvey => {
   const [submitted, setSubmitted] = useState(false);
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
   const { updateLocalBoot } = useAlertsContext();
 
-  const trackSurveyEvent = (event_name: LogsEvent, extra?) =>
-    trackEvent({
+  const logSurveyEvent = (event_name: LogEvent, extra?) =>
+    logEvent({
       target_type: TargetType.PromotionCard,
       target_id: TargetId.FeedSurvey,
       event_name,
@@ -34,18 +34,17 @@ export const useFeedSurvey = ({ score }: UseFeedSurveyProps): UseFeedSurvey => {
 
     setSubmitted(true);
     updateFeedFeedbackReminder();
-    trackSurveyEvent(LogsEvent.Click, { value: score });
+    logSurveyEvent(LogEvent.Click, { value: score });
   };
 
   const onHide = () => {
     updateFeedFeedbackReminder();
-    trackSurveyEvent(LogsEvent.DismissPromotion);
+    logSurveyEvent(LogEvent.DismissPromotion);
     updateLocalBoot({ shouldShowFeedFeedback: false });
   };
 
   useEffect(() => {
-    trackSurveyEvent(LogsEvent.Impression);
-    // trackEvent is unstable, and we only need to track once
+    logSurveyEvent(LogEvent.Impression);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

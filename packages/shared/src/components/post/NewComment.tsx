@@ -20,8 +20,8 @@ import { fallbackImages } from '../../lib/config';
 import { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
-import { postLogsEvent } from '../../lib/feed';
-import { LogsEvent, Origin } from '../../lib/logs';
+import { postLogEvent } from '../../lib/feed';
+import { LogEvent, Origin } from '../../lib/log';
 import { PostType } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
 import CommentInputOrModal from '../comments/CommentInputOrModal';
@@ -50,7 +50,7 @@ function NewCommentComponent(
   ref: MutableRefObject<NewCommentRef>,
 ): ReactElement {
   const router = useRouter();
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
   const { user, showLogin } = useAuthContext();
   const [inputContent, setInputContent] = useState<string>(undefined);
 
@@ -61,15 +61,15 @@ function NewCommentComponent(
 
   const onShowComment = useCallback(
     (origin: Origin, content = '') => {
-      trackEvent(
-        postLogsEvent(LogsEvent.OpenComment, post, {
+      logEvent(
+        postLogEvent(LogEvent.OpenComment, post, {
           extra: { origin },
         }),
       );
 
       setInputContent(content);
     },
-    [post, trackEvent, setInputContent],
+    [post, logEvent, setInputContent],
   );
 
   const hasCommentQuery = typeof router.query.comment === 'string';

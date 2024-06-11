@@ -17,11 +17,11 @@ import { useRequestProtocol } from './useRequestProtocol';
 import AuthContext from '../contexts/AuthContext';
 import { updatePostCache } from './usePostById';
 import { AuthTriggers } from '../lib/auth';
-import { LogsEvent, Origin } from '../lib/logs';
+import { LogEvent, Origin } from '../lib/log';
 import {
-  PostLogsEventFnOptions,
+  PostLogEventFnOptions,
   optimisticPostUpdateInFeed,
-  postLogsEvent,
+  postLogEvent,
 } from '../lib/feed';
 import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { ActionType } from '../graphql/actions';
@@ -33,7 +33,7 @@ import { useActions } from './useActions';
 export type ToggleBookmarkProps = {
   origin: Origin;
   post: Post | ReadHistoryPost;
-  opts?: PostLogsEventFnOptions;
+  opts?: PostLogEventFnOptions;
 };
 
 export const bookmarkMutationKey = ['post', 'mutation', 'bookmark'];
@@ -57,10 +57,10 @@ export type UseBookmarkPostProps = {
   mutationKey?: MutationKey;
 };
 
-const prepareBookmarkPostLogsOptions = ({
+const prepareBookmarkPostLogOptions = ({
   origin,
   opts,
-}: ToggleBookmarkProps): PostLogsEventFnOptions => {
+}: ToggleBookmarkProps): PostLogEventFnOptions => {
   const { extra, ...restOpts } = opts || {};
 
   return {
@@ -81,7 +81,7 @@ const useBookmarkPost = ({
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
   const { user, showLogin } = useContext(AuthContext);
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const { openModal } = useLazyModal();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const seenBookmarkPromotion = useMemo(
@@ -145,22 +145,20 @@ const useBookmarkPost = ({
         return;
       }
 
-      const logsOptions = prepareBookmarkPostLogsOptions({
+      const logOptions = prepareBookmarkPostLogOptions({
         post,
         origin,
         opts,
       });
 
       if (post.bookmarked) {
-        trackEvent(
-          postLogsEvent(LogsEvent.RemovePostBookmark, post, logsOptions),
-        );
+        logEvent(postLogEvent(LogEvent.RemovePostBookmark, post, logOptions));
         await removeBookmark({ id: post.id });
         displayToast('Post was removed from your bookmarks');
         return;
       }
 
-      trackEvent(postLogsEvent(LogsEvent.BookmarkPost, post, logsOptions));
+      logEvent(postLogEvent(LogEvent.BookmarkPost, post, logOptions));
 
       await addBookmark({ id: post.id });
       displayToast('Post was added to your bookmarks');
@@ -181,7 +179,7 @@ const useBookmarkPost = ({
       removeBookmark,
       seenBookmarkPromotion,
       showLogin,
-      trackEvent,
+      logEvent,
       user,
     ],
   );

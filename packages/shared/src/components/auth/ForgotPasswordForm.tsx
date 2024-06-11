@@ -26,7 +26,7 @@ function ForgotPasswordForm({
   onSubmit,
   simplified,
 }: ForgotPasswordFormProps): ReactElement {
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const [hint, setHint] = useState('');
   const { sendEmail, isLoading, token } = useAccountEmailFlow({
     flow: AuthFlow.Recovery,
@@ -36,7 +36,7 @@ function ForgotPasswordForm({
 
   const onSendEmail = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    trackEvent({
+    logEvent({
       event_name: AuthEventNames.SubmitForgotPassword,
     });
     const { email } = formToJson<{ email: string }>(e.currentTarget);

@@ -1,30 +1,30 @@
 import { useContext, useEffect } from 'react';
 import LogContext from '../contexts/LogContext';
 
-interface UseTrackModalProps {
+interface UseLogModalProps {
   isOpen: boolean;
   title: string;
   trigger?: string;
 }
-export function useTrackModal({
+export function useLogModal({
   isOpen,
   title,
   trigger,
-}: UseTrackModalProps): void {
-  const { trackEvent } = useContext(LogContext);
+}: UseLogModalProps): void {
+  const { logEvent } = useContext(LogContext);
   // eslint-disable-next-line consistent-return
   useEffect(() => {
-    const trackObject = {
+    const logObject = {
       event_name: `${isOpen ? 'open' : 'close'} ${title}`,
       ...(trigger && { extra: JSON.stringify({ trigger }) }),
     };
-    trackEvent(trackObject);
+    logEvent(logObject);
 
     if (isOpen === true) {
       return () => {
         // The modal was conditionally rendered we should fire a close event
-        trackObject.event_name = `close ${title}`;
-        trackEvent(trackObject);
+        logObject.event_name = `close ${title}`;
+        logEvent(logObject);
       };
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM

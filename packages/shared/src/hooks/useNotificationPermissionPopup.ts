@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { webappUrl } from '../lib/constants';
-import { NotificationPromptSource } from '../lib/logs';
+import { NotificationPromptSource } from '../lib/log';
 import { useEventListener, MessageEventData } from './useEventListener';
 
 export interface PermissionEvent extends MessageEventData {

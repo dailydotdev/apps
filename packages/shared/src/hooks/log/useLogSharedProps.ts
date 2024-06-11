@@ -43,7 +43,7 @@ export default function useLogSharedProps(
 
     // initial useRouter.query can be empty on prerendered static pages
     // so we add any missing initial query params to the query object
-    // that we pass to tracking
+    // that we pass to log
     initialQuerySearchParams.forEach((value, key) => {
       if (!queryObject[key]) {
         queryObject[key] = value;

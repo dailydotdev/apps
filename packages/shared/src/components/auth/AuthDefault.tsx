@@ -59,7 +59,7 @@ const AuthDefault = ({
   loginButton,
   simplified,
 }: AuthDefaultProps): ReactElement => {
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
   const title = shouldLogin ? logInTitle : signUpTitle;
   const { displayToast } = useToastNotification();
@@ -69,7 +69,7 @@ const AuthDefault = ({
   );
 
   useEffect(() => {
-    trackEvent({
+    logEvent({
       event_name: shouldLogin
         ? AuthEventNames.OpenLogin
         : AuthEventNames.OpenSignup,
@@ -83,7 +83,7 @@ const AuthDefault = ({
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    trackEvent({
+    logEvent({
       event_name: 'click',
       target_type: AuthEventNames.SignUpProvider,
       target_id: 'email',

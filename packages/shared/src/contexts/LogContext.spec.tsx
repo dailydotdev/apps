@@ -120,9 +120,9 @@ const mockEventsEndpoint = (takeSnapshot = true) => {
 
 it('should batch events before sending', async () => {
   mockEventsEndpoint();
-  const callback = ({ trackEvent }: LogContextData) => {
-    trackEvent({ event_name: 'e1' });
-    trackEvent({ event_name: 'e2' });
+  const callback = ({ logEvent }: LogContextData) => {
+    logEvent({ event_name: 'e1' });
+    logEvent({ event_name: 'e2' });
   };
 
   render(
@@ -141,8 +141,8 @@ it('should batch events before sending', async () => {
 
 it('should add relevant properties when user is signed-in', async () => {
   mockEventsEndpoint();
-  const callback = ({ trackEvent }: LogContextData) => {
-    trackEvent({ event_name: 'e1' });
+  const callback = ({ logEvent }: LogContextData) => {
+    logEvent({ event_name: 'e1' });
   };
   render(
     <TestComponent
@@ -168,12 +168,12 @@ it('should add relevant properties when user is signed-in', async () => {
 
 it('should send events in different batches', async () => {
   let done = false;
-  const callback = async ({ trackEvent }: LogContextData) => {
+  const callback = async ({ logEvent }: LogContextData) => {
     mockEventsEndpoint();
-    trackEvent({ event_name: 'e1' });
+    logEvent({ event_name: 'e1' });
     await new Promise((resolve) => setTimeout(resolve, 600));
     mockEventsEndpoint();
-    trackEvent({ event_name: 'e2' });
+    logEvent({ event_name: 'e2' });
     done = true;
   };
 
@@ -200,13 +200,10 @@ it('should send event with duration', async () => {
     })
     .reply(200, 'OK');
 
-  const callback = async ({
-    trackEventStart,
-    trackEventEnd,
-  }: LogContextData) => {
-    trackEventStart('event', { event_name: 'e1' });
+  const callback = async ({ logEventStart, logEventEnd }: LogContextData) => {
+    logEventStart('event', { event_name: 'e1' });
     await new Promise((resolve) => setTimeout(resolve, 10));
-    trackEventEnd('event');
+    logEventEnd('event');
   };
 
   render(
@@ -226,8 +223,8 @@ it('should send event with duration', async () => {
 it('should send pending events when page becomes invisible', async () => {
   window.navigator.sendBeacon = jest.fn();
 
-  const callback = async ({ trackEventStart }: LogContextData) => {
-    trackEventStart('event', { event_name: 'e1' });
+  const callback = async ({ logEventStart }: LogContextData) => {
+    logEventStart('event', { event_name: 'e1' });
     await new Promise((resolve) => setTimeout(resolve, 10));
     fireEvent(
       window,
@@ -257,8 +254,8 @@ it('should send pending events when page becomes invisible', async () => {
 
 it('should send pending events when user information is fetched', async () => {
   let done = false;
-  const callback = async ({ trackEvent }: LogContextData) => {
-    trackEvent({ event_name: 'e1' });
+  const callback = async ({ logEvent }: LogContextData) => {
+    logEvent({ event_name: 'e1' });
     // Wait for debounce to finish
     await new Promise((resolve) => setTimeout(resolve, 100));
     done = true;

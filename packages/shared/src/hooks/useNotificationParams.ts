@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { NotificationPromptSource } from '../lib/logs';
+import { NotificationPromptSource } from '../lib/log';
 import { stripLinkParameters } from '../lib/links';
 import { usePushNotificationContext } from '../contexts/PushNotificationContext';
 import { usePushNotificationMutation } from './notifications';

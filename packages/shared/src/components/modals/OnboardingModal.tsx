@@ -10,7 +10,7 @@ import React, {
 import { FilterOnboardingStep } from '../onboarding';
 import IntroductionOnboarding from '../onboarding/IntroductionOnboarding';
 import { OnboardingStep } from '../onboarding/common';
-import { LogsEvent, TargetType } from '../../lib/logs';
+import { LogEvent, TargetType } from '../../lib/log';
 import LogContext from '../../contexts/LogContext';
 import { OnboardingMode } from '../../graphql/feed';
 import { Modal, ModalProps } from './common/Modal';
@@ -48,7 +48,7 @@ function OnboardingModal({
   shouldSkipIntro = false,
   ...props
 }: OnboardingModalProps): ReactElement {
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const { showPrompt } = usePrompt();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [currentView, setCurrentView] = useState(
@@ -60,7 +60,7 @@ function OnboardingModal({
 
   const onCloseConfirm = (e: MouseEvent | KeyboardEvent) => {
     if (isAuthenticating) {
-      trackEvent({
+      logEvent({
         event_name: AuthEventNames.CloseSignUp,
         extra: JSON.stringify({
           trigger: AuthTriggers.CreateFeedFilters,
@@ -70,8 +70,8 @@ function OnboardingModal({
     }
 
     if (mode === OnboardingMode.Auto) {
-      trackEvent({
-        event_name: LogsEvent.OnboardingSkip,
+      logEvent({
+        event_name: LogEvent.OnboardingSkip,
         extra: JSON.stringify({ screen_value: currentView }),
       });
     }
@@ -93,8 +93,8 @@ function OnboardingModal({
   const { onContainerChange, formRef } = useAuthForms({ onDiscard: onClose });
 
   useEffect(() => {
-    trackEvent({
-      event_name: LogsEvent.Impression,
+    logEvent({
+      event_name: LogEvent.Impression,
       target_type: TargetType.MyFeedModal,
       target_id: ExperimentWinner.OnboardingVersion,
       extra: JSON.stringify({
@@ -163,8 +163,8 @@ function OnboardingModal({
         overlayRef={onContainerChange}
         steps={isAuthenticating ? null : steps}
         onViewChange={onViewChange}
-        onTrackNext={LogsEvent.ClickOnboardingNext}
-        onTrackPrev={LogsEvent.ClickOnboardingBack}
+        onLogNext={LogEvent.ClickOnboardingNext}
+        onLogPrev={LogEvent.ClickOnboardingBack}
         onRequestClose={onClose}
       >
         {content}

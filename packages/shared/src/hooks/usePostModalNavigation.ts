@@ -9,10 +9,10 @@ import {
 import { useRouter } from 'next/router';
 import LogContext from '../contexts/LogContext';
 import { Post, PostType } from '../graphql/posts';
-import { postLogsEvent } from '../lib/feed';
+import { postLogEvent } from '../lib/feed';
 import { FeedItem, PostItem, UpdateFeedPost } from './useFeed';
 import { useKeyboardNavigation } from './useKeyboardNavigation';
-import { Origin } from '../lib/logs';
+import { Origin } from '../lib/log';
 import { checkIsExtension } from '../lib/func';
 import { isTesting } from '../lib/constants';
 
@@ -45,7 +45,7 @@ export const usePostModalNavigation = (
   const isExtension = checkIsExtension();
   const [openedPostIndex, setOpenedPostIndex] = useState<number>(null);
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const scrollPositionOnFeed = useRef(0);
 
   const changeHistory = useCallback(
@@ -183,8 +183,8 @@ export const usePostModalNavigation = (
         }
 
         const current = items[openedPostIndex] as PostItem;
-        trackEvent(
-          postLogsEvent('navigate previous', current.post, {
+        logEvent(
+          postLogEvent('navigate previous', current.post, {
             extra: { origin: Origin.ArticleModal },
           }),
         );
@@ -224,8 +224,8 @@ export const usePostModalNavigation = (
         }
 
         setIsFetchingNextPage(false);
-        trackEvent(
-          postLogsEvent('navigate next', current.post, {
+        logEvent(
+          postLogEvent('navigate next', current.post, {
             extra: { origin: Origin.ArticleModal },
           }),
         );

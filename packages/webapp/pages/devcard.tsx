@@ -52,7 +52,7 @@ import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips';
 import request from 'graphql-request';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
-import { LogsEvent } from '@dailydotdev/shared/src/lib/logs';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
 import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
@@ -142,7 +142,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
   );
 
   const client = useQueryClient();
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
   const key = useMemo(
     () => generateQueryKey(RequestKey.DevCard, { id: user?.id }),
     [user],
@@ -214,8 +214,8 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
 
     if (url) {
       downloadImage(url);
-      trackEvent({
-        event_name: LogsEvent.DownloadDevcard,
+      logEvent({
+        event_name: LogEvent.DownloadDevcard,
         extra: JSON.stringify({
           format: devcardTypeToEventFormat[type],
         }),
@@ -365,8 +365,8 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
                     size={ButtonSize.Small}
                     onClick={() => {
                       copyEmbed();
-                      trackEvent({
-                        event_name: LogsEvent.CopyDevcardCode,
+                      logEvent({
+                        event_name: LogEvent.CopyDevcardCode,
                       });
                     }}
                   >
@@ -526,13 +526,13 @@ const DevCardPage = (): ReactElement => {
   const { user, loadingUser } = useContext(AuthContext);
   const isDevCardGenerated = checkHasCompleted(ActionType.DevCardGenerate);
   const [devCardSrc, setDevCarSrc] = useState<string>();
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
 
   const onGenerateDevCard = (url: string) => {
     setDevCarSrc(url);
     completeAction(ActionType.DevCardGenerate);
-    trackEvent({
-      event_name: LogsEvent.GenerateDevcard,
+    logEvent({
+      event_name: LogEvent.GenerateDevcard,
     });
   };
 

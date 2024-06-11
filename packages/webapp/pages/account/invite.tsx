@@ -24,10 +24,10 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import {
-  LogsEvent,
+  LogEvent,
   TargetId,
   TargetType,
-} from '@dailydotdev/shared/src/lib/logs';
+} from '@dailydotdev/shared/src/lib/log';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import {
@@ -49,13 +49,13 @@ const AccountInvitePage = (): ReactElement => {
   const { url, referredUsersCount } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Generic,
   });
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
   const inviteLink = url || link.referral.defaultUrl;
   const [, onShareOrCopyLink] = useShareOrCopyLink({
     text: labels.referral.generic.inviteText,
     link: inviteLink,
-    trackObject: () => ({
-      event_name: LogsEvent.CopyReferralLink,
+    logObject: () => ({
+      event_name: LogEvent.CopyReferralLink,
       target_id: TargetId.InviteFriendsPage,
     }),
   });
@@ -84,9 +84,9 @@ const AccountInvitePage = (): ReactElement => {
 
   const hypeCampaign = useFeature(feature.hypeCampaign);
 
-  const onTrackShare = (provider: ShareProvider) => {
-    trackEvent({
-      event_name: LogsEvent.InviteReferral,
+  const onLogShare = (provider: ShareProvider) => {
+    logEvent({
+      event_name: LogEvent.InviteReferral,
       target_id: provider,
       target_type: TargetType.InviteFriendsPage,
     });
@@ -98,8 +98,8 @@ const AccountInvitePage = (): ReactElement => {
 
       <InviteLinkInput
         link={inviteLink}
-        trackingProps={{
-          event_name: LogsEvent.CopyReferralLink,
+        logProps={{
+          event_name: LogEvent.CopyReferralLink,
           target_id: TargetId.InviteFriendsPage,
         }}
       />
@@ -111,7 +111,7 @@ const AccountInvitePage = (): ReactElement => {
           link={inviteLink}
           description={labels.referral.generic.inviteText}
           onNativeShare={onShareOrCopyLink}
-          onClickSocial={onTrackShare}
+          onClickSocial={onLogShare}
           shortenUrl={false}
         />
       </div>

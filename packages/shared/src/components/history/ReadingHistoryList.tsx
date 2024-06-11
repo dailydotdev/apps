@@ -7,7 +7,7 @@ import { InfiniteScrollScreenOffset } from '../../hooks/feed/useFeedInfiniteScro
 import PostOptionsReadingHistoryMenu from '../PostOptionsReadingHistoryMenu';
 import useReadingHistoryContextMenu from '../../hooks/useReadingHistoryContextMenu';
 import { useSharePost } from '../../hooks/useSharePost';
-import { Origin } from '../../lib/logs';
+import { Origin } from '../../lib/log';
 import { DateFormat } from '../utilities';
 
 const getDateGroup = (date: Date) => {
@@ -37,8 +37,8 @@ export default function ReadHistoryList({
     onReadingHistoryContextOptions,
     queryIndexes,
   } = useReadingHistoryContextMenu();
-  const logsOrigin = Origin.ReadingHistoryContextMenu;
-  const { openSharePost } = useSharePost(logsOrigin);
+  const logOrigin = Origin.ReadingHistoryContextMenu;
+  const { openSharePost } = useSharePost(logOrigin);
 
   const renderList = useCallback(() => {
     let currentDate: Date;
@@ -64,7 +64,7 @@ export default function ReadHistoryList({
             }
             onHide={(params) => onHide({ ...params, ...indexes })}
             showVoteActions
-            logsOrigin={Origin.History}
+            logOrigin={Origin.History}
           />,
         );
 

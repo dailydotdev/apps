@@ -6,7 +6,7 @@ import {
   POSTS_ENGAGED_SUBSCRIPTION,
 } from '../graphql/posts';
 import { useLogContext } from '../contexts/LogContext';
-import { postLogsEvent } from '../lib/feed';
+import { postLogEvent } from '../lib/feed';
 import useOnPostClick from './useOnPostClick';
 import useSubscription from './useSubscription';
 import { PostOrigin } from './log/useLogContextData';
@@ -32,20 +32,19 @@ const usePostContent = ({
 }: UsePostContentProps): UsePostContent => {
   const id = post?.id;
   const queryClient = useQueryClient();
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
   const onPostClick = useOnPostClick({ origin });
   const { commentsPermalink } = post;
   const cid = ReferralCampaignKey.SharePost;
   const { getShortUrl } = useGetShortUrl();
   const [, copyLink] = useCopyPostLink();
-  const trackShareEvent = useCallback(
+  const logShareEvent = useCallback(
     (provider: ShareProvider) =>
-      trackEvent(
-        postLogsEvent('share post', post, {
+      logEvent(
+        postLogEvent('share post', post, {
           extra: { provider, origin },
         }),
       ),
-    // trackEvent is unstable
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [origin, post],
   );
@@ -53,8 +52,8 @@ const usePostContent = ({
   const onCopyLink = useCallback(async () => {
     const shortLink = await getShortUrl(commentsPermalink, cid);
     copyLink({ link: shortLink });
-    trackShareEvent(ShareProvider.CopyLink);
-  }, [cid, commentsPermalink, copyLink, getShortUrl, trackShareEvent]);
+    logShareEvent(ShareProvider.CopyLink);
+  }, [cid, commentsPermalink, copyLink, getShortUrl, logShareEvent]);
 
   const onReadArticle = useCallback(
     () =>
@@ -81,20 +80,20 @@ const usePostContent = ({
     },
   );
 
-  const trackedPostEvent = useRef(null);
+  const loggedPostEvent = useRef(null);
 
   useEffect(() => {
     if (!post) {
       return;
     }
 
-    if (trackedPostEvent.current === post.id) {
+    if (loggedPostEvent.current === post.id) {
       return;
     }
 
-    trackedPostEvent.current = post.id;
+    loggedPostEvent.current = post.id;
 
-    trackEvent(postLogsEvent(`${origin} view`, post));
+    logEvent(postLogEvent(`${origin} view`, post));
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post]);

@@ -13,7 +13,7 @@ import InteractionCounter from '../InteractionCounter';
 import { checkIsExtension } from '../../lib/func';
 import { UserVote } from '../../graphql/posts';
 import InteractivePopup, { InteractivePopupPosition } from './InteractivePopup';
-import { Origin } from '../../lib/logs';
+import { Origin } from '../../lib/log';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import { ButtonVariant } from '../buttons/common';
 import { DateFormat } from '../utilities';

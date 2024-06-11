@@ -12,7 +12,7 @@ import {
 } from './common';
 import { IconSize } from '../../Icon';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogsEvent } from '../../../lib/logs';
+import { LogEvent } from '../../../lib/log';
 
 export type SearchPanelActionProps = {
   provider: SearchProviderEnum;
@@ -27,14 +27,14 @@ export const SearchPanelAction = ({
   const itemProps = useSearchPanelAction({ provider });
   const isDefaultProvider = provider === defaultSearchProvider;
   const isDefaultActive = !searchPanel.provider && isDefaultProvider;
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
 
   return (
     <SearchPanelItem
       icon={<Icon className="rounded-6 p-0.5" size={IconSize.Small} />}
       onClick={() => {
-        trackEvent({
-          event_name: LogsEvent.SubmitSearch,
+        logEvent({
+          event_name: LogEvent.SubmitSearch,
           extra: JSON.stringify({ query: searchPanel.query, provider }),
         });
 

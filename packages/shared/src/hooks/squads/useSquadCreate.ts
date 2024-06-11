@@ -2,7 +2,7 @@ import { UseMutateAsyncFunction, useMutation } from '@tanstack/react-query';
 import router from 'next/router';
 import { useContext } from 'react';
 import { createSquad, SquadForm } from '../../graphql/squads';
-import { LogsEvent } from '../../lib/logs';
+import { LogEvent } from '../../lib/log';
 import { ActionType } from '../../graphql/actions';
 import LogContext from '../../contexts/LogContext';
 import { useToastNotification } from '../useToastNotification';
@@ -37,14 +37,14 @@ export const useSquadCreate: CustomHook = ({
   retryWithRandomizedHandle,
 } = {}) => {
   const { addSquad } = useBoot();
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
 
   const { mutateAsync: onCreateSquad, isLoading } = useMutation(createSquad, {
     onSuccess: (squad) => {
-      trackEvent({
-        event_name: LogsEvent.CompleteSquadCreation,
+      logEvent({
+        event_name: LogEvent.CompleteSquadCreation,
       });
 
       addSquad(squad);

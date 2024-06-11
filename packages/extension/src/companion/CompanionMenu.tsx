@@ -16,11 +16,11 @@ import Modal from 'react-modal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
-import { LogsEvent, Origin } from '@dailydotdev/shared/src/lib/logs';
+import { LogEvent, Origin } from 'packages/shared/src/lib/log';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
-import { postLogsEvent } from '@dailydotdev/shared/src/lib/feed';
+import { postLogEvent } from '@dailydotdev/shared/src/lib/feed';
 import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
 import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
@@ -61,7 +61,7 @@ export default function CompanionMenu({
   setCompanionState,
 }: CompanionMenuProps): ReactElement {
   const { modal, closeModal } = useLazyModal();
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const { user } = useContext(AuthContext);
   const [showCompanionHelper, setShowCompanionHelper] = usePersistentContext(
     'companion_helper',
@@ -73,8 +73,8 @@ export default function CompanionMenu({
       ...post,
       ...update,
     });
-    trackEvent(
-      postLogsEvent(event, post, {
+    logEvent(
+      postLogEvent(event, post, {
         extra: { origin: Origin.CompanionContextMenu },
       }),
     );
@@ -94,12 +94,12 @@ export default function CompanionMenu({
     onBookmarkMutate: () =>
       updatePost({
         update: { bookmarked: true },
-        event: LogsEvent.BookmarkPost,
+        event: LogEvent.BookmarkPost,
       }),
     onRemoveBookmarkMutate: () =>
       updatePost({
         update: { bookmarked: false },
-        event: LogsEvent.RemovePostBookmark,
+        event: LogEvent.RemovePostBookmark,
       }),
   });
 
@@ -121,7 +121,7 @@ export default function CompanionMenu({
 
   const toggleCompanion = () => {
     setShowCompanionHelper(false);
-    trackEvent({
+    logEvent({
       event_name: `${companionState ? 'close' : 'open'} companion`,
     });
     toggleCompanionExpanded({ companionExpandedValue: !companionState });
@@ -195,7 +195,7 @@ export default function CompanionMenu({
       return;
     }
 
-    trackEvent({ event_name: 'close companion' });
+    logEvent({ event_name: 'close companion' });
     toggleCompanionExpanded({ companionExpandedValue: false });
     setCompanionState(false);
   };

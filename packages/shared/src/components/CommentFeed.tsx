@@ -6,7 +6,7 @@ import InfiniteScrolling, {
   checkFetchMore,
 } from './containers/InfiniteScrolling';
 import MainComment from './comments/MainComment';
-import { Origin } from '../lib/logs';
+import { Origin } from '../lib/log';
 import { useShareComment } from '../hooks/useShareComment';
 import { useUpvoteQuery } from '../hooks/useUpvoteQuery';
 import { useDeleteComment } from '../hooks/comments/useDeleteComment';
@@ -19,7 +19,7 @@ import { useViewSize, ViewSize } from '../hooks';
 interface CommentFeedProps<T> {
   feedQueryKey: unknown[];
   query: string;
-  logsOrigin: Origin;
+  logOrigin: Origin;
   variables?: T;
   emptyScreen?: ReactNode;
   commentClassName?: CommentClassName;
@@ -29,13 +29,13 @@ interface CommentFeedProps<T> {
 export default function CommentFeed<T>({
   feedQueryKey,
   query,
-  logsOrigin,
+  logOrigin,
   variables,
   emptyScreen,
   commentClassName,
   isMainFeed,
 }: CommentFeedProps<T>): ReactElement {
-  const { openShareComment } = useShareComment(logsOrigin);
+  const { openShareComment } = useShareComment(logOrigin);
   const { onShowUpvoted } = useUpvoteQuery();
   const { deleteComment } = useDeleteComment();
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -98,7 +98,7 @@ export default function CommentFeed<T>({
               }}
               post={node.post}
               comment={node}
-              origin={logsOrigin}
+              origin={logOrigin}
               onShare={(c) => openShareComment(c, c.post)}
               onDelete={(comment, parentId) =>
                 deleteComment(comment.id, parentId, comment.post)
@@ -111,8 +111,8 @@ export default function CommentFeed<T>({
               linkToComment
               lazy
               showContextHeader
-              trackImpression
-              trackClick
+              logImpression
+              logClick
             />
           )),
         )}

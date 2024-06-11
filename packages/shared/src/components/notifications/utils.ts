@@ -13,7 +13,7 @@ import {
   StarIcon,
   DevCardIcon,
 } from '../icons';
-import { NotificationPromptSource } from '../../lib/logs';
+import { NotificationPromptSource } from '../../lib/log';
 
 export const NotifContainer = classed(
   'div',

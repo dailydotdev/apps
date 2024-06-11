@@ -7,7 +7,7 @@ import {
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import { cloudinary } from '@dailydotdev/shared/src/lib/image';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogsEvent } from '@dailydotdev/shared/src/lib/logs';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { downloadBrowserExtension } from '@dailydotdev/shared/src/lib/constants';
 import { FlexCentered } from '@dailydotdev/shared/src/components/utilities';
@@ -24,13 +24,13 @@ export function Referral({
   referringUser,
   redirectTo,
 }: JoinPageProps): ReactElement {
-  const { trackEvent } = useLogContext();
+  const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
   const isLaptopL = useViewSize(ViewSize.LaptopL);
   const { isLoggedIn } = useAuthContext();
 
   const handleAcceptClick = () => {
-    trackEvent({ event_name: LogsEvent.DownloadExtension });
+    logEvent({ event_name: LogEvent.DownloadExtension });
   };
 
   useEffect(() => {

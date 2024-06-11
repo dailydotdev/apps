@@ -50,7 +50,7 @@ export enum Origin {
   CollectionModal = 'collection modal',
 }
 
-export enum LogsEvent {
+export enum LogEvent {
   DismissPromotion = 'dismiss promotion',
   Click = 'click',
   CommentPost = 'comment post',

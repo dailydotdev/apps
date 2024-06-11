@@ -30,10 +30,10 @@ import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { Modal, ModalProps } from './common/Modal';
 import EnableNotification from '../notifications/EnableNotification';
 import {
-  LogsEvent,
+  LogEvent,
   FeedItemTitle,
   NotificationPromptSource,
-} from '../../lib/logs';
+} from '../../lib/log';
 import { Justify } from '../utilities';
 import { ReputationAlert } from './ReputationAlert';
 
@@ -47,7 +47,7 @@ export default function SubmitArticleModal({
   const submitFormRef = useRef<HTMLFormElement>();
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const [enableSubmission, setEnableSubmission] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -70,7 +70,7 @@ export default function SubmitArticleModal({
   );
 
   const submitArticleFailEvent = (reason: string): void => {
-    trackEvent({
+    logEvent({
       event_name: 'submit article fail',
       extra: JSON.stringify({
         reason,
@@ -104,7 +104,7 @@ export default function SubmitArticleModal({
       return;
     }
 
-    trackEvent({
+    logEvent({
       event_name: 'submit article',
       feed_item_title: 'Submit article',
       extra: JSON.stringify({ url: data?.articleUrl }),
@@ -122,7 +122,7 @@ export default function SubmitArticleModal({
         const updated = { submissionAvailability };
         updated.submissionAvailability.todaySubmissionsCount += 1;
         client.setQueryData(availabilityKey, updated);
-        trackEvent({ event_name: 'submit article succeed' });
+        logEvent({ event_name: 'submit article succeed' });
       } else if (post) {
         setExistingArticle({ post });
         submitArticleFailEvent('Article exists already');
@@ -175,8 +175,8 @@ export default function SubmitArticleModal({
   };
 
   useEffect(() => {
-    trackEvent({
-      event_name: LogsEvent.StartSubmitArticle,
+    logEvent({
+      event_name: LogEvent.StartSubmitArticle,
       feed_item_title: FeedItemTitle.SubmitArticle,
       extra: JSON.stringify({ has_access: !!user?.canSubmitArticle }),
     });

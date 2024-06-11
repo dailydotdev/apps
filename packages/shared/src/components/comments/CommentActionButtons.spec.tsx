@@ -12,7 +12,7 @@ import {
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import comment from '../../../__tests__/fixture/comment';
 import post from '../../../__tests__/fixture/post';
-import { Origin } from '../../lib/logs';
+import { Origin } from '../../lib/log';
 import { VOTE_MUTATION } from '../../graphql/users';
 import { UserVoteEntity } from '../../hooks';
 import { UserVote } from '../../graphql/posts';
@@ -23,7 +23,7 @@ const onComment = jest.fn();
 const onDelete = jest.fn();
 const onEdit = jest.fn();
 const onShowUpvotes = jest.fn();
-const trackEvent = jest.fn();
+const logEvent = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -65,9 +65,9 @@ const renderComponent = (
       >
         <LogContext.Provider
           value={{
-            trackEvent,
-            trackEventStart: jest.fn(),
-            trackEventEnd: jest.fn(),
+            logEvent,
+            logEventStart: jest.fn(),
+            logEventEnd: jest.fn(),
             sendBeacon: jest.fn(),
           }}
         >
@@ -132,8 +132,8 @@ it('should send upvote mutation', async () => {
   el.click();
   await waitFor(() => mutationCalled);
 
-  expect(trackEvent).toHaveBeenCalledTimes(1);
-  expect(trackEvent).toHaveBeenCalledWith({
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
     event_name: 'upvote comment',
     extra: JSON.stringify({ origin: 'feed', commentId: 'c1' }),
     feed_item_image:
@@ -182,8 +182,8 @@ it('should send cancel upvote mutation', async () => {
   el.click();
   await waitFor(() => mutationCalled);
 
-  expect(trackEvent).toHaveBeenCalledTimes(1);
-  expect(trackEvent).toHaveBeenCalledWith({
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
     event_name: 'remove comment upvote',
     extra: JSON.stringify({ origin: 'feed', commentId: 'c1' }),
     feed_item_image:
@@ -290,8 +290,8 @@ it('should send downvote mutation', async () => {
   el.click();
   await waitFor(() => mutationCalled);
 
-  expect(trackEvent).toHaveBeenCalledTimes(1);
-  expect(trackEvent).toHaveBeenCalledWith({
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
     event_name: 'downvote comment',
     extra: JSON.stringify({ origin: 'feed', commentId: 'c1' }),
     feed_item_image:
@@ -340,8 +340,8 @@ it('should send cancel downvote mutation', async () => {
   el.click();
   await waitFor(() => mutationCalled);
 
-  expect(trackEvent).toHaveBeenCalledTimes(1);
-  expect(trackEvent).toHaveBeenCalledWith({
+  expect(logEvent).toHaveBeenCalledTimes(1);
+  expect(logEvent).toHaveBeenCalledWith({
     event_name: 'remove comment downvote',
     extra: JSON.stringify({ origin: 'feed', commentId: 'c1' }),
     feed_item_image:

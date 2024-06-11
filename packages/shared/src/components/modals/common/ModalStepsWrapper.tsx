@@ -25,8 +25,8 @@ export function ModalStepsWrapper({
   view,
   children,
 }: ModalStepsProps): ReactElement {
-  const { trackEvent } = useContext(LogContext);
-  const { activeView, steps, setActiveView, onTrackNext, onTrackPrev } =
+  const { logEvent } = useContext(LogContext);
+  const { activeView, steps, setActiveView, onLogNext, onLogPrev } =
     useContext(ModalPropsContext);
   const activeStepIndex = steps.findIndex(({ key }) => activeView === key);
   const activeStep = steps[activeStepIndex];
@@ -36,9 +36,9 @@ export function ModalStepsWrapper({
   const previousStep =
     activeStepIndex > 0
       ? () => {
-          if (onTrackPrev) {
-            trackEvent({
-              event_name: onTrackPrev,
+          if (onLogPrev) {
+            logEvent({
+              event_name: onLogPrev,
               extra: JSON.stringify({
                 screen_value: steps[activeStepIndex]?.screen_value,
               }),
@@ -50,9 +50,9 @@ export function ModalStepsWrapper({
   const nextStep =
     activeStepIndex < steps.length
       ? () => {
-          if (onTrackNext) {
-            trackEvent({
-              event_name: onTrackNext,
+          if (onLogNext) {
+            logEvent({
+              event_name: onLogNext,
               extra: JSON.stringify({
                 screen_value: steps[activeStepIndex]?.screen_value,
               }),

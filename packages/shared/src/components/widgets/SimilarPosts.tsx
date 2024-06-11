@@ -8,7 +8,7 @@ import { LazyImage } from '../LazyImage';
 import { CardLink } from '../cards/Card';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
-import { postLogsEvent } from '../../lib/feed';
+import { postLogEvent } from '../../lib/feed';
 import LogContext from '../../contexts/LogContext';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { HotLabel } from '../utilities';
@@ -128,14 +128,14 @@ export default function SimilarPosts({
   moreButtonProps,
   ListItem = DefaultListItem,
 }: SimilarPostsProps): ReactElement {
-  const { trackEvent } = useContext(LogContext);
+  const { logEvent } = useContext(LogContext);
   const moreButtonHref =
     moreButtonProps?.href || process.env.NEXT_PUBLIC_WEBAPP_URL;
   const moreButtonText = moreButtonProps?.text || 'View all';
 
   const onLinkClick = async (post: Post): Promise<void> => {
-    trackEvent(
-      postLogsEvent('click', post, {
+    logEvent(
+      postLogEvent('click', post, {
         extra: { origin: 'recommendation' },
       }),
     );
