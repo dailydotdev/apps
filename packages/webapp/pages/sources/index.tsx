@@ -20,9 +20,10 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { GetStaticPropsResult } from 'next';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
+import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
-import { BreadCrumbs, ListItem, TopList } from '../../components/common';
+import { ListItem, TopList } from '../../components/common';
 
 const PlaceholderList = classed(
   ElementPlaceholder,
@@ -89,9 +90,7 @@ const SourcesPage = ({
     <main className="py-6 tablet:px-4 laptop:px-10">
       <div className="flex justify-between">
         <BreadCrumbs>
-          <>
-            <SitesIcon size={IconSize.XSmall} secondary /> Sources
-          </>
+          <SitesIcon size={IconSize.XSmall} secondary /> Sources
         </BreadCrumbs>
         <Button
           icon={<PlusIcon />}

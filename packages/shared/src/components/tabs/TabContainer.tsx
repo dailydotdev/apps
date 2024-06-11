@@ -11,7 +11,6 @@ import TabList, { TabListProps } from './TabList';
 import { RenderTab } from './common';
 
 export interface TabProps<T extends string> {
-  key?: number;
   children?: ReactNode;
   label: T;
   className?: string;
@@ -38,14 +37,14 @@ interface ClassName {
   header?: string;
 }
 
-export interface TabContainerProps<T extends string> {
+export interface TabContainerProps<T extends string = string> {
   children?: ReactElement<TabProps<T>>[];
   shouldMountInactive?: boolean;
   onActiveChange?: (active: T) => unknown;
   className?: ClassName;
   style?: CSSProperties;
   showHeader?: boolean;
-  controlledActive?: string;
+  controlledActive?: T;
   tabListProps?: Pick<TabListProps, 'className' | 'autoScrollActive'>;
   showBorder?: boolean;
   renderTab?: RenderTab;
@@ -114,7 +113,7 @@ export function TabContainer<T extends string = string>({
     : children.map((child, i) =>
         createElement<TabProps<T>>(child.type, {
           ...child.props,
-          key: child.props.key || i,
+          key: child.props.label || i,
           style: isTabActive(child)
             ? child.props.style
             : { ...child.props.style, display: 'none' },
@@ -137,7 +136,7 @@ export function TabContainer<T extends string = string>({
           showBorder && 'border-b border-border-subtlest-tertiary',
         )}
       >
-        <TabList
+        <TabList<T>
           items={children.map((child) => child.props.label)}
           renderTab={renderTab}
           onClick={onClick}

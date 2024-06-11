@@ -15,9 +15,10 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { GetStaticPropsResult } from 'next';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
+import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
-import { BreadCrumbs, ListItem, TopList } from '../../components/common';
+import { ListItem, TopList } from '../../components/common';
 
 const PlaceholderList = classed(
   ElementPlaceholder,
@@ -102,9 +103,7 @@ const TagsPage = ({
   return (
     <main className="flex flex-col gap-4 p-0 tablet:px-10 tablet:py-6">
       <BreadCrumbs>
-        <>
-          <HashtagIcon size={IconSize.XSmall} secondary /> Tags
-        </>
+        <HashtagIcon size={IconSize.XSmall} secondary /> Tags
       </BreadCrumbs>
       <div className="grid grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
         <TagTopList
