@@ -1,0 +1,153 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should add relevant properties when user is signed-in 1`] = `
+Array [
+  Object {
+    "app_platform": "test",
+    "app_theme": "light",
+    "device_id": "",
+    "event_id": "",
+    "event_name": "e1",
+    "event_timestamp": "",
+    "feed_density": "roomy",
+    "feed_layout": "list",
+    "page_referrer": "",
+    "page_state": "passive",
+    "screen_height": 0,
+    "screen_width": 0,
+    "session_id": "s",
+    "user_first_visit": "2021-08-28T00:00:00.000Z",
+    "user_id": "u",
+    "user_referrer": "ido",
+    "user_registration_date": "2021-08-29T00:00:00.000Z",
+    "visit_id": "v",
+    "window_height": 768,
+    "window_width": 1024,
+  },
+]
+`;
+
+exports[`should batch events before sending 1`] = `
+Array [
+  Object {
+    "app_platform": "test",
+    "app_theme": "light",
+    "device_id": "",
+    "event_id": "",
+    "event_name": "e1",
+    "event_timestamp": "",
+    "feed_density": "roomy",
+    "feed_layout": "list",
+    "page_referrer": "",
+    "page_state": "passive",
+    "screen_height": 0,
+    "screen_width": 0,
+    "session_id": "s",
+    "user_first_visit": "2021-08-28T00:00:00.000Z",
+    "user_id": "u",
+    "user_referrer": "ido",
+    "visit_id": "v",
+    "window_height": 768,
+    "window_width": 1024,
+  },
+  Object {
+    "app_platform": "test",
+    "app_theme": "light",
+    "device_id": "",
+    "event_id": "",
+    "event_name": "e2",
+    "event_timestamp": "",
+    "feed_density": "roomy",
+    "feed_layout": "list",
+    "page_referrer": "",
+    "page_state": "passive",
+    "screen_height": 0,
+    "screen_width": 0,
+    "session_id": "s",
+    "user_first_visit": "2021-08-28T00:00:00.000Z",
+    "user_id": "u",
+    "user_referrer": "ido",
+    "visit_id": "v",
+    "window_height": 768,
+    "window_width": 1024,
+  },
+]
+`;
+
+exports[`should send events in different batches 1`] = `
+Array [
+  Object {
+    "app_platform": "test",
+    "app_theme": "light",
+    "device_id": "",
+    "event_id": "",
+    "event_name": "e1",
+    "event_timestamp": "",
+    "feed_density": "roomy",
+    "feed_layout": "list",
+    "page_referrer": "",
+    "page_state": "passive",
+    "screen_height": 0,
+    "screen_width": 0,
+    "session_id": "s",
+    "user_first_visit": "2021-08-28T00:00:00.000Z",
+    "user_id": "u",
+    "user_referrer": "ido",
+    "visit_id": "v",
+    "window_height": 768,
+    "window_width": 1024,
+  },
+]
+`;
+
+exports[`should send events in different batches 2`] = `
+Array [
+  Object {
+    "app_platform": "test",
+    "app_theme": "light",
+    "device_id": "",
+    "event_id": "",
+    "event_name": "e2",
+    "event_timestamp": "",
+    "feed_density": "roomy",
+    "feed_layout": "list",
+    "page_referrer": "",
+    "page_state": "passive",
+    "screen_height": 0,
+    "screen_width": 0,
+    "session_id": "s",
+    "user_first_visit": "2021-08-28T00:00:00.000Z",
+    "user_id": "u",
+    "user_referrer": "ido",
+    "visit_id": "v",
+    "window_height": 768,
+    "window_width": 1024,
+  },
+]
+`;
+
+exports[`should send pending events when user information is fetched 1`] = `
+Array [
+  Object {
+    "app_platform": "test",
+    "app_theme": "light",
+    "device_id": "",
+    "event_id": "",
+    "event_name": "e1",
+    "event_timestamp": "",
+    "feed_density": "roomy",
+    "feed_layout": "list",
+    "page_referrer": "",
+    "page_state": "passive",
+    "screen_height": 0,
+    "screen_width": 0,
+    "session_id": "s2",
+    "user_first_visit": "2021-08-28T00:00:00.000Z",
+    "user_id": "u2",
+    "user_referrer": "ido",
+    "visit_id": "v2",
+    "window_height": 768,
+    "window_width": 1024,
+  },
+]
+`;
