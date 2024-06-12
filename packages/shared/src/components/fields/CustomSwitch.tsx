@@ -123,7 +123,7 @@ export function CustomSwitch({
         <span
           className={classNames(
             'absolute inset-0 my-auto h-7 rounded-10 opacity-24 group-hover:opacity-32',
-            disabled ? 'bg-surface-disabled' : 'bg-raw-cabbage-50',
+            disabled ? 'bg-surface-disabled' : 'bg-accent-cabbage-bolder',
           )}
         />
         <span
