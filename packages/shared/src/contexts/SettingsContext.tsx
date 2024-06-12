@@ -192,11 +192,7 @@ export const SettingsContextProvider = ({
       setSpaciness: (density) =>
         setSettings({ ...settings, spaciness: density }),
       toggleInsaneMode: () =>
-        setSettings({
-          ...settings,
-          insaneMode: !settings.insaneMode,
-          spaciness: !settings.insaneMode ? 'eco' : settings.spaciness,
-        }),
+        setSettings({ ...settings, insaneMode: !settings.insaneMode }),
       toggleShowTopSites: () =>
         setSettings({ ...settings, showTopSites: !settings.showTopSites }),
       toggleSidebarExpanded: () =>
