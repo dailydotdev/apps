@@ -106,23 +106,25 @@ export function ReadingStreakPopup({
   }, [history, dateToday]);
 
   return (
-    <div className="flex flex-col">
-      <div className="flex flex-row">
-        <StreakSection streak={streak.current} label="Current streak" />
-        <StreakSection streak={streak.max} label="Longest streak 🏆" />
+    <div className="flex flex-col-reverse tablet:flex-col">
+      <div>
+        <div className="flex flex-row">
+          <StreakSection streak={streak.current} label="Current streak" />
+          <StreakSection streak={streak.max} label="Longest streak 🏆" />
+        </div>
+        <div
+          className={classNames(
+            'mt-6 flex flex-row gap-2',
+            fullWidth && 'justify-between',
+          )}
+        >
+          {streaks}
+        </div>
+        <div className="mt-4 text-center font-bold leading-8 text-text-tertiary">
+          Total reading days: {streak.total}
+        </div>
       </div>
-      <div
-        className={classNames(
-          'mt-6 flex flex-row gap-2',
-          fullWidth && 'justify-between',
-        )}
-      >
-        {streaks}
-      </div>
-      <div className="mt-4 text-center font-bold leading-8 text-text-tertiary">
-        Total reading days: {streak.total}
-      </div>
-      <StreakReminderSwitch className="mx-auto mt-4" />
+      <StreakReminderSwitch className="mb-5 mt-1 tablet:mx-auto tablet:mb-0 tablet:mt-4" />
     </div>
   );
 }
