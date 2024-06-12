@@ -4,12 +4,12 @@ import { SendType, usePersonalizedDigest } from '../../hooks';
 import { UserPersonalizedDigestType } from '../../graphql/users';
 import { usePushNotificationMutation } from '../../hooks/notifications';
 import {
-  AnalyticsEvent,
+  LogEvent,
   NotificationCategory,
   NotificationChannel,
   NotificationPromptSource,
-} from '../../lib/analytics';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+} from '../../lib/log';
+import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 interface StreakReminderSwitchProps {
@@ -19,7 +19,7 @@ const StreakReminderSwitch = ({
   className,
 }: StreakReminderSwitchProps): ReactElement => {
   const { user } = useAuthContext();
-  const { trackEvent } = useAnalyticsContext();
+  const { logEvent } = useLogContext();
   const { onEnablePush } = usePushNotificationMutation();
   const {
     getPersonalizedDigest,
@@ -33,10 +33,10 @@ const StreakReminderSwitch = ({
 
   const onToggleStreakReminder = () => {
     const value = !streakReminder;
-    trackEvent({
+    logEvent({
       event_name: value
-        ? AnalyticsEvent.EnableNotification
-        : AnalyticsEvent.DisableNotification,
+        ? LogEvent.EnableNotification
+        : LogEvent.DisableNotification,
       extra: JSON.stringify({
         channel: NotificationChannel.Web,
         category: NotificationCategory.StreakReminder,
@@ -44,8 +44,8 @@ const StreakReminderSwitch = ({
     });
 
     if (value) {
-      trackEvent({
-        event_name: AnalyticsEvent.ScheduleStreakReminder,
+      logEvent({
+        event_name: LogEvent.ScheduleStreakReminder,
         extra: JSON.stringify({
           hour: 20,
           timezone: user?.timezone,
