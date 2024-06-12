@@ -89,7 +89,7 @@ export function CustomSwitch({
           id={inputId}
           name={name}
           type="checkbox"
-          className="absolute h-0 w-0 opacity-0"
+          className="absolute size-0 opacity-0"
           checked={checked}
           onChange={onToggle}
           disabled={disabled}
