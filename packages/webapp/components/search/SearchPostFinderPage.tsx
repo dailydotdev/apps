@@ -19,6 +19,7 @@ import styles from '@dailydotdev/shared/src/components/Feed.module.css';
 import FeedContext from '@dailydotdev/shared/src/contexts/FeedContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
@@ -78,10 +79,10 @@ const AiSearchProviderButton = () => {
   const router = useRouter();
   const { logEvent } = useLogContext();
   const searchQuery = router.query?.q?.toString();
-  const { spaciness, insaneMode } = useContext(SettingsContext);
+  const { spaciness } = useContext(SettingsContext);
+  const { isListMode: isList } = useFeedLayout();
   const currentSettings = useContext(FeedContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
-  const isList = insaneMode && numCards > 1;
   const feedGapPx =
     getFeedGapPx[
       gapClass({ isList, isFeedLayoutList: false, space: spaciness })
