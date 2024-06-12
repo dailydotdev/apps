@@ -53,7 +53,10 @@ import { AlertColor, AlertDot } from '../AlertDot';
 import { cloudinary } from '../../lib/image';
 import { ActionType } from '../../graphql/actions';
 import { useFeature } from '../GrowthBookProvider';
-import { CustomFeedsExperiment } from '../../lib/featureValues';
+import {
+  CustomFeedsExperiment,
+  SeoSidebarExperiment,
+} from '../../lib/featureValues';
 import { feature } from '../../lib/featureManagement';
 import { HypeButton } from '../referral';
 
@@ -86,6 +89,7 @@ export default function Sidebar({
   const hypeCampaign = useFeature(feature.hypeCampaign);
   const hasCustomFeedsEnabled =
     customFeedsVersion !== CustomFeedsExperiment.Control;
+  const seoSidebar = useFeature(feature.seoSidebar);
 
   const feedName = getFeedName(activePageProp, {
     hasUser: !!user,
@@ -310,7 +314,9 @@ export default function Sidebar({
               enableSearch={enableSearch}
               isItemsButton={isNavButtons}
             />
-            <ContributeSection {...defaultRenderSectionProps} />
+            {seoSidebar === SeoSidebarExperiment.Control && (
+              <ContributeSection {...defaultRenderSectionProps} />
+            )}
             <ManageSection
               {...defaultRenderSectionProps}
               isDndActive={dndActive}

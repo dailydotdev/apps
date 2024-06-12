@@ -100,6 +100,8 @@ export default function MainFeedPage({
     setSearchQuery(undefined);
   };
 
+  const onShowDndClick = useCallback(() => setShowDnd(true), []);
+
   return (
     <>
       <div className="fixed bottom-0 left-0 z-2 w-full">
@@ -112,7 +114,7 @@ export default function MainFeedPage({
         onLogoClick={onLogoClick}
         showDnd={showDnd}
         dndActive={isDndActive}
-        onShowDndClick={() => setShowDnd(true)}
+        onShowDndClick={onShowDndClick}
         enableSearch={enableSearch}
         onNavTabClick={onNavTabClick}
         screenCentered={false}

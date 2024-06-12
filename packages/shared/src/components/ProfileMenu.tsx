@@ -25,6 +25,9 @@ import { anchorDefaultRel } from '../lib/strings';
 import { LogoutReason } from '../lib/user';
 import { useFeature } from './GrowthBookProvider';
 import { feature } from '../lib/featureManagement';
+import { SeoSidebarExperiment } from '../lib/featureValues';
+import { LazyModal } from './modals/common/types';
+import { useLazyModal } from '../hooks/useLazyModal';
 
 interface ListItem {
   title: string;
@@ -39,6 +42,8 @@ interface ProfileMenuProps {
 export default function ProfileMenu({
   onClose,
 }: ProfileMenuProps): ReactElement {
+  const { openModal } = useLazyModal();
+  const seoSidebar = useFeature(feature.seoSidebar);
   const { user, logout } = useContext(AuthContext);
   const hypeCampaign = useFeature(feature.hypeCampaign);
 
@@ -87,17 +92,28 @@ export default function ProfileMenu({
         },
         rightEmoji: hypeCampaign && '👕',
       },
-      {
-        title: 'Logout',
-        buttonProps: {
-          icon: <ExitIcon />,
-          onClick: () => logout(LogoutReason.ManualLogout),
-        },
-      },
     ];
 
+    if (seoSidebar === SeoSidebarExperiment.V1) {
+      list.push({
+        title: 'Customize',
+        buttonProps: {
+          icon: <SettingsIcon />,
+          onClick: () => openModal({ type: LazyModal.UserSettings }),
+        },
+      });
+    }
+
+    list.push({
+      title: 'Logout',
+      buttonProps: {
+        icon: <ExitIcon />,
+        onClick: () => logout(LogoutReason.ManualLogout),
+      },
+    });
+
     return list;
-  }, [hypeCampaign, logout, user.permalink]);
+  }, [hypeCampaign, logout, openModal, seoSidebar, user.permalink]);
 
   if (!user) {
     return <></>;
