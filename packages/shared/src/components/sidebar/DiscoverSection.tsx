@@ -1,5 +1,4 @@
 import React, { ReactElement, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/router';
 import {
   DiscussIcon,
   EarthIcon,
@@ -30,7 +29,6 @@ export function DiscoverSection({
   enableSearch,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement {
-  const router = useRouter();
   const seoSidebar = useFeature(feature.seoSidebar);
   const isV1Sidebar = seoSidebar === SeoSidebarExperiment.V1;
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
@@ -127,8 +125,8 @@ export function DiscoverSection({
     enableSearch,
     hasCompletedCommentFeed,
     isV1Sidebar,
+    locationPush,
     onNavTabClick,
-    router,
   ]);
 
   return (
