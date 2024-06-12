@@ -12,7 +12,7 @@ import {
 } from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Weekends } from '../../../lib/dateFormat';
-import { Switch } from '../../fields/Switch';
+import StreakReminderSwitch from '../StreakReminderSwitch';
 
 const getStreak = ({
   value,
@@ -122,17 +122,7 @@ export function ReadingStreakPopup({
       <div className="mt-4 text-center font-bold leading-8 text-text-tertiary">
         Total reading days: {streak.total}
       </div>
-      <Switch
-        data-testid="email_notification-switch"
-        inputId="email_notification-switch"
-        name="email_notification"
-        defaultTypo
-        className="mx-auto mt-4"
-        labelClassName="font-bold"
-        compact={false}
-      >
-        Streak reminder
-      </Switch>
+      <StreakReminderSwitch className="mx-auto mt-4" />
     </div>
   );
 }

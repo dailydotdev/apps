@@ -186,7 +186,7 @@ const AccountNotificationsPage = (): ReactElement => {
       trackEvent({
         event_name: AnalyticsEvent.ScheduleStreakReminder,
         extra: JSON.stringify({
-          hour: readingTimeIndex,
+          hour: 20,
           timezone: user?.timezone,
         }),
       });
