@@ -12,7 +12,9 @@ import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
 import { MagicIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import classNames from 'classnames';
-import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import SettingsContext, {
+  useSettingsContext,
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
 import styles from '@dailydotdev/shared/src/components/Feed.module.css';
 import FeedContext from '@dailydotdev/shared/src/contexts/FeedContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -77,7 +79,8 @@ const AiSearchProviderButton = () => {
   const router = useRouter();
   const { logEvent } = useLogContext();
   const searchQuery = router.query?.q?.toString();
-  const { spaciness, isListMode: isList } = useFeedLayout();
+  const { spaciness } = useContext(SettingsContext);
+  const { isListMode: isList } = useFeedLayout();
   const currentSettings = useContext(FeedContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const feedGapPx =
