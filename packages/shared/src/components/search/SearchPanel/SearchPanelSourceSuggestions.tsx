@@ -21,24 +21,22 @@ type PanelItemProps = Pick<ButtonProps<'a'>, 'onClick'> & {
 };
 
 const PanelItem = ({ suggestion, ...rest }: PanelItemProps) => {
+  const Icon = () => (
+    <img
+      loading="lazy"
+      src={suggestion.image}
+      alt={`${suggestion.title} logo`}
+      className="size-7 rounded-full"
+    />
+  );
   const itemProps = useSearchPanelAction({
     provider: SearchProviderEnum.Sources,
     text: suggestion.title,
+    icon: <Icon />,
   });
 
   return (
-    <SearchPanelItem
-      icon={
-        <img
-          loading="lazy"
-          src={suggestion.image}
-          alt={`${suggestion.title} logo`}
-          className="size-7 rounded-full"
-        />
-      }
-      {...itemProps}
-      {...rest}
-    >
+    <SearchPanelItem icon={<Icon />} {...itemProps} {...rest}>
       <div className="flex w-full flex-col items-start">
         <span className="flex-shrink overflow-hidden overflow-ellipsis whitespace-nowrap font-bold text-text-primary typo-subhead">
           {suggestion.title}

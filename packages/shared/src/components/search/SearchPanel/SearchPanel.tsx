@@ -53,6 +53,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
       query: '',
       isActive: false,
       providerText: undefined,
+      providerIcon: undefined,
     };
   });
 
@@ -77,9 +78,14 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   const searchPanel = useMemo<SearchPanelContextValue>(() => {
     return {
       ...state,
-      setProvider: ({ provider, text }) => {
+      setProvider: ({ provider, text, icon }) => {
         setState((currentState) => {
-          return { ...currentState, provider, providerText: text || undefined };
+          return {
+            ...currentState,
+            provider,
+            providerText: text || undefined,
+            providerIcon: icon || undefined,
+          };
         });
       },
       setActive: ({ isActive }) => {
@@ -175,6 +181,7 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
                 // reset provider label while typing
                 provider: undefined,
                 providerText: providerToLabelTextMap[defaultSearchProvider],
+                providerIcon: undefined,
               };
             });
           }}
