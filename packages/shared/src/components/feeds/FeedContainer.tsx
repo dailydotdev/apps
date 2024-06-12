@@ -160,7 +160,7 @@ export const FeedContainer = ({
   });
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
-  const { loadedSettings, spaciness } = useContext(SettingsContext);
+  const { spaciness, loadedSettings } = useContext(SettingsContext);
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
