@@ -241,7 +241,7 @@ it('should set spaciness callback', async () => {
 
 it('should toggle insane mode callback', async () => {
   const expected = true;
-  mockSettingsMutation({ insaneMode: expected });
+  mockSettingsMutation({ insaneMode: expected, spaciness: 'eco' });
   renderComponent(<SettingsMock />);
   await waitForRemoteBoot();
   const insaneMode = await screen.findByText('Insane Mode');
