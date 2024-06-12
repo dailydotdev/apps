@@ -22,9 +22,9 @@ import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/Su
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { useInAppNotification } from '@dailydotdev/shared/src/hooks/useInAppNotification';
-import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
+import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
-import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
+import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
@@ -76,7 +76,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     useContext(AuthContext);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
   useWebVitals();
-  useTrackPageView();
+  useLogPageView();
   useInAppNotification();
   const { modal, closeModal } = useLazyModal();
   usePrompt();

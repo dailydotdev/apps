@@ -14,7 +14,7 @@ import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import { REQUEST_PROTOCOL_KEY } from '@dailydotdev/shared/src/graphql/common';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { AccessToken, PostBootData } from '@dailydotdev/shared/src/lib/boot';
-import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
+import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
 import { usePopupSelector } from '@dailydotdev/shared/src/hooks/usePopupSelector';
 import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
@@ -109,7 +109,7 @@ export default function Companion({
     isCompanion: true,
   }));
   const [assetsLoadedDebounce] = useDebounce(() => setAssetsLoaded(true), 10);
-  const routeChangedCallbackRef = useTrackPageView();
+  const routeChangedCallbackRef = useLogPageView();
 
   useEffect(() => {
     if (routeChangedCallbackRef.current) {

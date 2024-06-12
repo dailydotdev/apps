@@ -10,13 +10,13 @@ import { PlaceholderList } from './cards/list/PlaceholderList';
 import { Ad, Post, PostItem, PostType } from '../graphql/posts';
 import { LoggedUser } from '../lib/user';
 import { CommentOnData } from '../graphql/comments';
-import useTrackImpression from '../hooks/feed/useTrackImpression';
+import useLogImpression from '../hooks/feed/useLogImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { SharePostCard } from './cards/SharePostCard';
 import { SharePostList } from './cards/list/SharePostList';
 import { WelcomePostCard } from './cards/WelcomePostCard';
 import { WelcomePostList } from './cards/list/WelcomePostList';
-import { Origin } from '../lib/analytics';
+import { Origin } from '../lib/log';
 import { useFeedLayout, UseVotePost } from '../hooks';
 import { CollectionCard } from './cards/CollectionCard';
 import { CollectionList } from './cards/list/CollectionList';
@@ -158,7 +158,7 @@ export default function FeedItemComponent({
   onReadArticleClick,
 }: FeedItemComponentProps): ReactElement {
   const item = items[index];
-  const inViewRef = useTrackImpression(
+  const inViewRef = useLogImpression(
     item,
     index,
     columns,

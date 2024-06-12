@@ -1,17 +1,17 @@
 import { postWindowMessage } from '@dailydotdev/shared/src/lib/func';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
 import { ReactElement, useContext, useEffect } from 'react';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 
 function CallbackPage(): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
     const eventKey = params.login
       ? AuthEvent.Login
       : AuthEvent.SocialRegistration;
-    trackEvent({
+    logEvent({
       event_name: 'registration callback',
       extra: JSON.stringify(params),
     });

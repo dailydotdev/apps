@@ -26,7 +26,6 @@ const feature = {
   readingReminder: new Feature('reading_reminder', false),
   onboardingMostVisited: new Feature('onboarding_most_visited', false),
   shareExperience: new Feature('share_experience', false),
-  sidebarClosed: new Feature('sidebar_closed', false),
   featureTheme: new Feature('feature_theme', {}),
   customFeeds: new Feature('custom_feeds', CustomFeedsExperiment.Control),
   hypeCampaign: new Feature('hype_campaign', false),

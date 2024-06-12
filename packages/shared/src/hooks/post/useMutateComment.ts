@@ -8,14 +8,14 @@ import {
   COMMENT_ON_POST_MUTATION,
   EDIT_COMMENT_MUTATION,
 } from '../../graphql/comments';
-import { AnalyticsEvent } from '../../lib/analytics';
+import { LogEvent } from '../../lib/log';
 import { graphqlUrl } from '../../lib/config';
-import { postAnalyticsEvent } from '../../lib/feed';
+import { postLogEvent } from '../../lib/feed';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useBackgroundRequest } from '../companion';
 import { updatePostCache } from '../usePostById';
 import { Edge } from '../../graphql/common';
-import { useAnalyticsContext } from '../../contexts/AnalyticsContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { useRequestProtocol } from '../useRequestProtocol';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Post } from '../../graphql/posts';
@@ -63,7 +63,7 @@ export const useMutateComment = ({
   const { user } = useAuthContext();
   const client = useQueryClient();
   const { requestMethod, isCompanion } = useRequestProtocol();
-  const { trackEvent } = useAnalyticsContext();
+  const { logEvent } = useLogContext();
 
   const key = useMemo(
     () =>
@@ -132,8 +132,8 @@ export const useMutateComment = ({
     if (!editCommentId) {
       updatePostCache(client, postId, { numComments: post.numComments + 1 });
 
-      trackEvent(
-        postAnalyticsEvent(AnalyticsEvent.CommentPost, post, {
+      logEvent(
+        postLogEvent(LogEvent.CommentPost, post, {
           extra: { commentId: parentCommentId },
         }),
       );

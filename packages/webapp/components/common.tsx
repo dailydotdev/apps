@@ -1,12 +1,6 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import classed from '@dailydotdev/shared/src/lib/classed';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import { HomeIcon } from '@dailydotdev/shared/src/components/icons';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { Card } from '@dailydotdev/shared/src/components/cards/Card';
 
@@ -30,33 +24,6 @@ export const ListItem = ({
         </a>
       </Link>
     </li>
-  );
-};
-
-const BreadCrumbsWrapper = classed(
-  'div',
-  'hidden h-10 gap-0.5 items-center p-1.5 text-border-subtlest-tertiary laptop:flex',
-);
-
-export const BreadCrumbs = ({
-  children,
-}: {
-  children: ReactElement;
-}): ReactElement => {
-  return (
-    <BreadCrumbsWrapper>
-      <Button
-        variant={ButtonVariant.Tertiary}
-        icon={<HomeIcon secondary />}
-        tag="a"
-        href={process.env.NEXT_PUBLIC_WEBAPP_URL}
-        size={ButtonSize.XSmall}
-      />
-      <span>/</span>
-      <div className="flex flex-row items-center gap-1 px-2 font-bold text-text-primary typo-callout">
-        {children}
-      </div>
-    </BreadCrumbsWrapper>
   );
 };
 

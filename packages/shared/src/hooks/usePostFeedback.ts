@@ -7,8 +7,8 @@ import { updateCachedPagePost } from '../lib/query';
 import { ActiveFeedContext } from '../contexts/ActiveFeedContext';
 import { SharedFeedPage } from '../components/utilities';
 import { EmptyResponse } from '../graphql/emptyResponse';
-import AnalyticsContext from '../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../lib/analytics';
+import LogContext from '../contexts/LogContext';
+import { LogEvent } from '../lib/log';
 
 type UsePostFeedbackProps = {
   post?: Pick<Post, 'id' | 'userState' | 'read'>;
@@ -24,7 +24,7 @@ export const usePostFeedback = ({
 }: UsePostFeedbackProps = {}): UsePostFeedback => {
   const client = useQueryClient();
   const { queryKey: feedQueryKey, items } = useContext(ActiveFeedContext);
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
 
   const isMyFeed = useMemo(() => {
     return feedQueryKey?.some((item) => item === SharedFeedPage.MyFeed);
@@ -38,8 +38,8 @@ export const usePostFeedback = ({
           return;
         }
 
-        trackEvent({
-          event_name: AnalyticsEvent.ClickDismissFeedback,
+        logEvent({
+          event_name: LogEvent.ClickDismissFeedback,
         });
 
         const mutationHandler = (postItem: Post) => {

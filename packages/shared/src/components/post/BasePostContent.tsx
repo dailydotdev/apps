@@ -49,7 +49,7 @@ export function BasePostContent({
       <PostEngagements
         post={post}
         onCopyLinkClick={onCopyPostLink}
-        analyticsOrigin={origin}
+        logOrigin={origin}
         shouldOnboardAuthor={shouldOnboardAuthor}
       />
     </>

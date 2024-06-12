@@ -18,23 +18,23 @@ interface DimensionProps {
   offset: number;
   indicatorOffset: number;
 }
-export interface TabListProps {
-  items: string[];
-  active: string;
-  onClick?: (label: string) => unknown;
+export interface TabListProps<T extends string = string> {
+  items: T[];
+  active: T;
+  onClick?: (label: T) => unknown;
   className?: ClassName;
   autoScrollActive?: boolean;
   renderTab?: RenderTab;
 }
 
-function TabList({
+function TabList<T extends string = string>({
   items,
   active,
   onClick,
   className = {},
   autoScrollActive,
   renderTab,
-}: TabListProps): ReactElement {
+}: TabListProps<T>): ReactElement {
   const hasActive = items.includes(active);
   const currentActiveTab = useRef<HTMLButtonElement>(null);
   const [dimensions, setDimensions] = useState<DimensionProps>({

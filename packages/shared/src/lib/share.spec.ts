@@ -1,8 +1,8 @@
 import { ReferralCampaignKey } from './referral';
 import {
-  AddLinkShareTrackingQueryParams,
+  AddLinkShareLogQueryParams,
   ShareProvider,
-  addTrackingQueryParams,
+  addLogQueryParams,
   getShareLink,
 } from './share';
 
@@ -89,16 +89,16 @@ describe('getShareLink tests', () => {
   });
 });
 
-describe('addTrackingQueryParams tests', () => {
+describe('addLogQueryParams tests', () => {
   const link = 'https://foo.bar';
   const userId = '42';
   const cid = ReferralCampaignKey.SharePost;
 
   const runTest = (
-    params: AddLinkShareTrackingQueryParams,
+    params: AddLinkShareLogQueryParams,
     expected: string | undefined,
   ) => {
-    const result = addTrackingQueryParams(params);
+    const result = addLogQueryParams(params);
     expect(result).toEqual(expected);
   };
   it('should return link as is if not provided', () => {

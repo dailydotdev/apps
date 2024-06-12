@@ -10,13 +10,13 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
-import { AnalyticsEvent } from '../lib/analytics';
+import { LogEvent } from '../lib/log';
 import { OnboardingMode } from '../graphql/feed';
 import { useMyFeed } from '../hooks/useMyFeed';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AuthContext from './AuthContext';
 import AlertContext from './AlertContext';
-import AnalyticsContext from './AnalyticsContext';
+import LogContext from './LogContext';
 import { isTesting } from '../lib/constants';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import { ExperimentWinner } from '../lib/featureValues';
@@ -52,7 +52,7 @@ export const OnboardingContextProvider = ({
 }: OnboardingContextProviderProps): ReactElement => {
   const { user } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const { registerLocalFilters } = useMyFeed();
   const [isOnboarding, setIsOnboarding] = useState(false);
   const [isRegisteringFilters, setIsRegisteringFilters] = useState(false);
@@ -80,8 +80,8 @@ export const OnboardingContextProvider = ({
   const { sidebarRendered } = useSidebarRendered();
   const showArticleOnboarding = sidebarRendered && alerts?.filter;
   const onStartArticleOnboarding = () => {
-    trackEvent({
-      event_name: AnalyticsEvent.ClickArticleAnonymousCTA,
+    logEvent({
+      event_name: LogEvent.ClickArticleAnonymousCTA,
       target_id: ExperimentWinner.ArticleOnboarding,
       extra: JSON.stringify({ origin: window.origin }),
     });
@@ -106,7 +106,7 @@ export const OnboardingContextProvider = ({
 
   const onCloseOnboardingModal = () => {
     if (onboardingMode === OnboardingMode.Auto) {
-      trackEvent({ event_name: AnalyticsEvent.OnboardingSkip });
+      logEvent({ event_name: LogEvent.OnboardingSkip });
     }
 
     if (!hasTriedOnboarding) {

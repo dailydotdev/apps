@@ -41,7 +41,7 @@ import {
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
-import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import FeedLayout, { getLayout } from '../../components/layouts/FeedLayout';

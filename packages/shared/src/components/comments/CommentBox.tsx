@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/log';
 import CommentActionButtons, {
   CommentActionProps,
 } from './CommentActionButtons';

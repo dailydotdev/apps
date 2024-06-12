@@ -63,17 +63,17 @@ export const getShareLink = ({
       return link;
   }
 };
-export interface AddLinkShareTrackingQueryParams {
+export interface AddLinkShareLogQueryParams {
   link: string | undefined;
   userId: string | undefined;
   cid: ReferralCampaignKey;
 }
 
-export const addTrackingQueryParams = ({
+export const addLogQueryParams = ({
   link,
   userId,
   cid,
-}: AddLinkShareTrackingQueryParams): string => {
+}: AddLinkShareLogQueryParams): string => {
   // return link as is if not provided
   if (!link || !userId || !cid) {
     return link;

@@ -14,8 +14,8 @@ import {
 } from '@dailydotdev/shared/src/components/tabs/TabContainer';
 import { SearchHistory } from '@dailydotdev/shared/src/components';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
+import LogContext from '@dailydotdev/shared/src/contexts/LogContext';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { HistoryType, ReadingHistory } from '../components/history';
@@ -33,7 +33,7 @@ const feedOptions = [
 ];
 
 const History = (): ReactElement => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const seo = <NextSeo title="History" nofollow noindex />;
   const router = useRouter();
@@ -46,10 +46,10 @@ const History = (): ReactElement => {
       setPage(active);
 
       if (active === HistoryType.Search) {
-        trackEvent({ event_name: AnalyticsEvent.OpenSearchHistory });
+        logEvent({ event_name: LogEvent.OpenSearchHistory });
       }
     },
-    [setPage, trackEvent],
+    [setPage, logEvent],
   );
 
   useEffect(() => {

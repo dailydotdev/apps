@@ -21,7 +21,7 @@ import {
 } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/log';
 import { Post, UserVote } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
 import ContextMenu, { MenuItemProps } from '../fields/ContextMenu';

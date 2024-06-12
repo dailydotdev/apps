@@ -29,15 +29,20 @@ import AlertContext from '../contexts/AlertContext';
 import { useFeature, useFeaturesReadyContext } from './GrowthBookProvider';
 import {
   algorithms,
+  algorithmsList,
   DEFAULT_ALGORITHM_INDEX,
   DEFAULT_ALGORITHM_KEY,
   LayoutHeader,
   periods,
   SearchControlHeader,
-  SearchControlHeaderProps,
 } from './layout/common';
 import { useFeedName } from '../hooks/feed/useFeedName';
-import { useFeedLayout, useScrollRestoration } from '../hooks';
+import {
+  useFeedLayout,
+  useScrollRestoration,
+  useViewSize,
+  ViewSize,
+} from '../hooks';
 import { feature } from '../lib/featureManagement';
 import { isDevelopment } from '../lib/constants';
 import { FeedContainerProps } from './feeds';
@@ -45,7 +50,10 @@ import { getFeedName } from '../lib/feed';
 import CommentFeed from './CommentFeed';
 import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
-import { Origin } from '../lib/analytics';
+import { Origin } from '../lib/log';
+import { ExploreTabs, FeedExploreHeader, urlToTab } from './header';
+import { Dropdown } from './fields/Dropdown';
+import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 
 const SearchEmptyScreen = dynamic(
   () =>
@@ -70,6 +78,9 @@ const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
   popular: {
     query: ANONYMOUS_FEED_QUERY,
   },
+  explore: {
+    query: ANONYMOUS_FEED_QUERY,
+  },
   search: {
     query: ANONYMOUS_FEED_QUERY,
     queryIfLogged: FEED_QUERY,
@@ -78,6 +89,15 @@ const propsByFeed: Record<SharedFeedPage, FeedQueryProps> = {
     query: MOST_UPVOTED_FEED_QUERY,
   },
   discussed: {
+    query: MOST_DISCUSSED_FEED_QUERY,
+  },
+  [SharedFeedPage.ExploreLatest]: {
+    query: ANONYMOUS_FEED_QUERY,
+  },
+  [SharedFeedPage.ExploreUpvoted]: {
+    query: MOST_UPVOTED_FEED_QUERY,
+  },
+  [SharedFeedPage.ExploreDiscussed]: {
     query: MOST_DISCUSSED_FEED_QUERY,
   },
   [SharedFeedPage.Custom]: {
@@ -121,6 +141,11 @@ const commentClassName = {
   },
 };
 
+const feedWithDateRange = [
+  ExploreTabs.MostUpvoted,
+  ExploreTabs.BestDiscussions,
+];
+
 export default function MainFeedLayout({
   feedName: feedNameProp,
   searchQuery,
@@ -137,13 +162,23 @@ export default function MainFeedLayout({
   const { getFeatureValue } = useFeaturesReadyContext();
   const { alerts } = useContext(AlertContext);
   const router = useRouter();
+  const [tab, setTab] = useState(ExploreTabs.Popular);
   const isSearchPage = !!router.pathname?.startsWith('/search');
   const feedName = getFeedName(feedNameProp, {
     hasFiltered: !alerts?.filter,
     hasUser: !!user,
   });
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const feedVersion = useFeature(feature.feedVersion);
-  const { isUpvoted, isPopular, isSortableFeed, isCustomFeed } = useFeedName({
+  const {
+    isUpvoted,
+    isPopular,
+    isAnyExplore,
+    isExplorePopular,
+    isExploreLatest,
+    isSortableFeed,
+    isCustomFeed,
+  } = useFeedName({
     feedName,
   });
   const {
@@ -151,9 +186,12 @@ export default function MainFeedLayout({
     shouldUseCommentFeedLayout,
     FeedPageLayoutComponent,
   } = useFeedLayout();
-  let query: { query: string; variables?: Record<string, unknown> };
 
-  if (feedName) {
+  const config = useMemo(() => {
+    if (!feedName) {
+      return { query: null };
+    }
+
     const dynamicPropsByFeed: Partial<
       Record<SharedFeedPage, Partial<FeedQueryProps>>
     > = {
@@ -164,7 +202,7 @@ export default function MainFeedLayout({
       },
     };
 
-    query = {
+    return {
       query: getQueryBasedOnLogin(
         tokenRefreshed,
         user,
@@ -177,9 +215,7 @@ export default function MainFeedLayout({
         version: isDevelopment ? 1 : feedVersion,
       },
     };
-  } else {
-    query = { query: null };
-  }
+  }, [feedName, feedVersion, router.query?.slugOrId, tokenRefreshed, user]);
 
   const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
@@ -187,13 +223,12 @@ export default function MainFeedLayout({
     [0, 1],
     DEFAULT_ALGORITHM_INDEX,
   );
-  const periodState = useState(0);
-  const [selectedPeriod] = periodState;
-  const searchProps: SearchControlHeaderProps = {
-    algoState: [selectedAlgo, setSelectedAlgo],
-    periodState,
-    feedName,
-  };
+
+  const [selectedPeriod] = useQueryState({
+    key: [QueryStateKeys.FeedPeriod],
+    defaultValue: 0,
+  });
+
   const search = (
     <LayoutHeader className={isSearchPage && 'mt-16 laptop:mt-0'}>
       {navChildren}
@@ -224,26 +259,56 @@ export default function MainFeedLayout({
         emptyScreen: <SearchEmptyScreen />,
       };
     }
-    if (!query.query) {
+
+    if (!config.query) {
       return null;
     }
 
     const getVariables = () => {
-      if (isUpvoted) {
-        return { ...query.variables, period: periods[selectedPeriod].value };
+      if (
+        isUpvoted ||
+        feedWithDateRange.includes(tab) ||
+        feedWithDateRange.includes(urlToTab[router.pathname])
+      ) {
+        return { ...config.variables, period: periods[selectedPeriod].value };
+      }
+
+      if (isAnyExplore) {
+        const laptopValue =
+          tab === ExploreTabs.ByDate || isExploreLatest ? 1 : 0;
+        const finalAlgo = isLaptop ? laptopValue : selectedAlgo;
+        return {
+          ...config.variables,
+          ranking: algorithms[finalAlgo].value,
+        };
       }
 
       if (isSortableFeed) {
         return {
-          ...query.variables,
+          ...config.variables,
           ranking: algorithms[selectedAlgo].value,
         };
       }
 
-      return query.variables;
+      return config.variables;
     };
 
     const variables = getVariables();
+    const mobileExploreActions = !isLaptop &&
+      (isExplorePopular || isExploreLatest) && (
+        <Dropdown
+          className={{ container: 'mx-4 mb-2 !w-56' }}
+          selectedIndex={selectedAlgo}
+          options={algorithmsList}
+          onChange={(_, index) => setSelectedAlgo(index)}
+        />
+      );
+    const controlFeedActions = feedWithActions && (
+      <SearchControlHeader
+        algoState={[selectedAlgo, setSelectedAlgo]}
+        feedName={feedName}
+      />
+    );
 
     return {
       feedName,
@@ -252,25 +317,32 @@ export default function MainFeedLayout({
         user,
         ...Object.values(variables ?? {}),
       ),
-      query: query.query,
+      query: config.query,
       variables,
       emptyScreen: <FeedEmptyScreen />,
-      header: null,
-      actionButtons: feedWithActions && (
-        <SearchControlHeader {...searchProps} />
-      ),
-      shortcuts,
+      actionButtons: isAnyExplore ? mobileExploreActions : controlFeedActions,
     };
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    shouldUseListFeedLayout,
+    isUpvoted,
+    isPopular,
+    isSortableFeed,
+    isCustomFeed,
     isSearchOn,
     searchQuery,
-    query.query,
-    query.variables,
-    isUpvoted,
+    config.query,
+    config.variables,
+    isAnyExplore,
+    feedName,
+    user,
+    isLaptop,
+    isExplorePopular,
+    isExploreLatest,
+    selectedAlgo,
+    getFeatureValue,
+    tab,
     selectedPeriod,
+    setSelectedAlgo,
+    router.pathname,
   ]);
 
   useEffect(() => {
@@ -288,13 +360,16 @@ export default function MainFeedLayout({
     <FeedPageLayoutComponent
       className={classNames('relative', disableTopPadding && '!pt-0')}
     >
+      {isAnyExplore && isLaptop && (
+        <FeedExploreHeader tab={tab} setTab={setTab} />
+      )}
       {isSearchOn && search}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
           isMainFeed
           feedQueryKey={generateQueryKey(RequestKey.CommentFeed, null)}
           query={COMMENT_FEED_QUERY}
-          analyticsOrigin={Origin.CommentFeed}
+          logOrigin={Origin.CommentFeed}
           emptyScreen={
             <ProfileEmptyScreen
               title="Nobody has replied to any post yet"
@@ -307,6 +382,7 @@ export default function MainFeedLayout({
         feedProps && (
           <Feed
             {...feedProps}
+            shortcuts={shortcuts}
             className={classNames(
               shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
             )}

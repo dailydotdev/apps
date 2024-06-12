@@ -11,7 +11,7 @@ import AuthModalFooter from './AuthModalFooter';
 import { AuthFormProps, Provider, getFormEmail } from './common';
 import EmailSignupForm from './EmailSignupForm';
 import LoginForm, { LoginFormParams } from './LoginForm';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import { AuthEventNames, AuthTriggersType } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
 import AuthHeader from './AuthHeader';
@@ -59,7 +59,7 @@ const AuthDefault = ({
   loginButton,
   simplified,
 }: AuthDefaultProps): ReactElement => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
   const title = shouldLogin ? logInTitle : signUpTitle;
   const { displayToast } = useToastNotification();
@@ -69,7 +69,7 @@ const AuthDefault = ({
   );
 
   useEffect(() => {
-    trackEvent({
+    logEvent({
       event_name: shouldLogin
         ? AuthEventNames.OpenLogin
         : AuthEventNames.OpenSignup,
@@ -83,7 +83,7 @@ const AuthDefault = ({
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    trackEvent({
+    logEvent({
       event_name: 'click',
       target_type: AuthEventNames.SignUpProvider,
       target_id: 'email',
