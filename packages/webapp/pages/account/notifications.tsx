@@ -186,7 +186,7 @@ const AccountNotificationsPage = (): ReactElement => {
       logEvent({
         event_name: LogEvent.ScheduleStreakReminder,
         extra: JSON.stringify({
-          hour: readingTimeIndex,
+          hour: 20,
           timezone: user?.timezone,
         }),
       });
