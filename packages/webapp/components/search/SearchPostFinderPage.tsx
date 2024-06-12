@@ -12,13 +12,12 @@ import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
 import { MagicIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import classNames from 'classnames';
-import SettingsContext, {
-  useSettingsContext,
-} from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import styles from '@dailydotdev/shared/src/components/Feed.module.css';
 import FeedContext from '@dailydotdev/shared/src/contexts/FeedContext';
 import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { AnalyticsEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
@@ -78,10 +77,9 @@ const AiSearchProviderButton = () => {
   const router = useRouter();
   const { trackEvent } = useAnalyticsContext();
   const searchQuery = router.query?.q?.toString();
-  const { spaciness, insaneMode } = useContext(SettingsContext);
+  const { spaciness, isListMode: isList } = useFeedLayout();
   const currentSettings = useContext(FeedContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
-  const isList = insaneMode && numCards > 1;
   const feedGapPx =
     getFeedGapPx[
       gapClass({ isList, isFeedLayoutList: false, space: spaciness })

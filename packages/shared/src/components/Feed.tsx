@@ -151,8 +151,8 @@ export default function Feed<T>({
   const { user } = useContext(AuthContext);
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { openNewTab, spaciness, loadedSettings } = useContext(SettingsContext);
-  const { isListMode } = useFeedLayout();
+  const { openNewTab, loadedSettings } = useContext(SettingsContext);
+  const { isListMode, spaciness } = useFeedLayout();
   const { isFetched, alerts } = useAlertsContext();
   const shouldEvaluateSurvey =
     !!user &&

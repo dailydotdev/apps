@@ -3,7 +3,6 @@ import classnames from 'classnames';
 import Feed from '../Feed';
 import { OtherFeedPage } from '../../lib/query';
 import FeedContext from '../../contexts/FeedContext';
-import SettingsContext from '../../contexts/SettingsContext';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 import { useFeedLayout } from '../../hooks';
@@ -26,9 +25,8 @@ export default function HorizontalFeed<T>({
 
   const [feedScrolledPosition, setFeedScrolledPosition] = useState(0);
   const currentSettings = useContext(FeedContext);
-  const { spaciness } = useContext(SettingsContext);
+  const { isListMode, spaciness } = useFeedLayout();
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
-  const { isListMode } = useFeedLayout();
 
   useEffect(() => {
     const element = feedContainerRef;

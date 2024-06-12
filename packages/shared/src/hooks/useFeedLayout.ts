@@ -11,6 +11,7 @@ import {
 import { AllFeedPages, OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import { isNullOrUndefined } from '../lib/func';
+import { Spaciness } from '../graphql/settings';
 
 interface UseFeedLayoutReturn {
   shouldUseListFeedLayout: boolean;
@@ -21,6 +22,7 @@ interface UseFeedLayoutReturn {
   shouldUseCommentFeedLayout: boolean;
   isListMode: boolean;
   shouldUseListMode: boolean;
+  spaciness: Spaciness;
 }
 
 interface UseFeedLayoutProps {
@@ -95,7 +97,8 @@ export const useFeedLayout = ({
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
-  const { insaneMode: isListMode } = useContext(SettingsContext);
+  const { insaneMode: isListMode, spaciness: settingsSpaciness } =
+    useContext(SettingsContext);
 
   const shouldUseListFeedLayoutOnProfilePages = UserProfileFeedPages.has(
     feedName as UserProfileFeedType,
@@ -125,11 +128,14 @@ export const useFeedLayout = ({
     shouldUseCommentFeedLayout,
   });
 
+  const spaciness = isListMode || !isLaptop ? 'eco' : settingsSpaciness;
+
   return {
     shouldUseListFeedLayout,
     shouldUseCommentFeedLayout,
     FeedPageLayoutComponent,
     isListMode,
+    spaciness,
     shouldUseListMode,
     screenCenteredOnMobileLayout:
       shouldUseListFeedLayoutOnMobileTablet &&
