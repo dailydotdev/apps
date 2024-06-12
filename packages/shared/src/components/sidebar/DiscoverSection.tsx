@@ -1,5 +1,13 @@
-import React, { ReactElement } from 'react';
-import { DiscussIcon, HotIcon, SearchIcon, UpvoteIcon } from '../icons';
+import React, { ReactElement, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/router';
+import {
+  DiscussIcon,
+  EarthIcon,
+  HashtagIcon,
+  HotIcon,
+  SearchIcon,
+  UpvoteIcon,
+} from '../icons';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
 import { useActions } from '../../hooks';
@@ -7,6 +15,8 @@ import { ActionType } from '../../graphql/actions';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
 import { SeoSidebarExperiment } from '../../lib/featureValues';
+import { checkIsExtension } from '../../lib/func';
+import { webappUrl } from '../../lib/constants';
 
 interface DiscoverSectionProps extends SectionCommonProps {
   isItemsButton?: boolean;
@@ -20,13 +30,35 @@ export function DiscoverSection({
   enableSearch,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement {
+  const router = useRouter();
   const seoSidebar = useFeature(feature.seoSidebar);
   const isV1Sidebar = seoSidebar === SeoSidebarExperiment.V1;
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const hasCompletedCommentFeed =
     !isActionsFetched || checkHasCompleted(ActionType.CommentFeed);
-  const discoverMenuItems: SidebarMenuItem[] = [
-    {
+  const locationPush = useCallback((path: string) => {
+    const isExtension = checkIsExtension();
+
+    if (!isExtension) {
+      return null;
+    }
+
+    return window.location.assign(`${webappUrl}${path}`);
+    // router is unstable
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const discoverMenuItems: SidebarMenuItem[] = useMemo(() => {
+    const feeds = {
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <HotIcon secondary={active} />} />
+      ),
+      title: isV1Sidebar ? 'Explore' : 'Popular',
+      path: isV1Sidebar ? '/explore' : '/popular',
+      action: () => onNavTabClick?.(isV1Sidebar ? 'explore' : 'popular'),
+    };
+
+    const discussion = {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <DiscussIcon secondary={active} />} />
       ),
@@ -43,34 +75,61 @@ export function DiscoverSection({
           </span>
         ),
       }),
-    },
-    {
-      icon: (active: boolean) => (
-        <ListIcon Icon={() => <HotIcon secondary={active} />} />
-      ),
-      title: isV1Sidebar ? 'Explore' : 'Popular',
-      path: isV1Sidebar ? '/explore' : '/popular',
-      action: () => onNavTabClick?.(isV1Sidebar ? 'explore' : 'popular'),
-    },
-    {
-      icon: (active: boolean) => (
-        <ListIcon Icon={() => <UpvoteIcon secondary={active} />} />
-      ),
-      title: 'Most upvoted',
-      path: '/upvoted',
-      action: () => onNavTabClick?.('upvoted'),
-    },
-    {
-      icon: (active: boolean) => (
-        <ListIcon Icon={() => <SearchIcon secondary={active} />} />
-      ),
-      title: 'Search',
-      hideOnMobile: true,
-      path: '/search',
-      action: enableSearch,
-      showActiveAsH1: true,
-    },
-  ];
+    };
+
+    if (!isV1Sidebar) {
+      return [
+        discussion,
+        feeds,
+        {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <UpvoteIcon secondary={active} />} />
+          ),
+          title: 'Most upvoted',
+          path: '/upvoted',
+          action: () => onNavTabClick?.('upvoted'),
+        },
+        {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <SearchIcon secondary={active} />} />
+          ),
+          title: 'Search',
+          hideOnMobile: true,
+          path: '/search',
+          action: enableSearch,
+          showActiveAsH1: true,
+        },
+      ];
+    }
+
+    return [
+      feeds,
+      discussion,
+      {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <HashtagIcon secondary={active} />} />
+        ),
+        title: 'Tags',
+        path: '/tags',
+        action: () => locationPush('/tags'),
+      },
+      {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <EarthIcon secondary={active} />} />
+        ),
+        title: 'Sources',
+        path: '/sources',
+        action: () => locationPush('/sources'),
+      },
+    ];
+  }, [
+    completeAction,
+    enableSearch,
+    hasCompletedCommentFeed,
+    isV1Sidebar,
+    onNavTabClick,
+    router,
+  ]);
 
   return (
     <Section
