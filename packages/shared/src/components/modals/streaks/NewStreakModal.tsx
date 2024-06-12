@@ -71,12 +71,11 @@ export default function NewStreakModal({
       onRequestClose={onRequestClose}
       isDrawerOnMobile
     >
-      <Modal.Header className="!border-0">
-        <StreakReminderSwitch />
-        <ModalClose onClick={onRequestClose} className="right-2 top-2" />
-      </Modal.Header>
-
-      <Modal.Body className="items-center overflow-hidden">
+      <Modal.Body className="items-center overflow-hidden !pt-0">
+        <div className="relative flex h-14 w-full items-center justify-center tablet:justify-start">
+          <StreakReminderSwitch />
+          <ModalClose onClick={onRequestClose} className="!-right-4 top-2" />
+        </div>
         <span className="relative flex flex-col items-center justify-center">
           <img
             src={
