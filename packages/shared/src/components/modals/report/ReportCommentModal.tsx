@@ -3,11 +3,11 @@ import { ModalProps } from '../common/Modal';
 import { ReportModal } from './ReportModal';
 import useReportComment from '../../../hooks/useReportComment';
 import { Comment, ReportCommentReason } from '../../../graphql/comments';
-import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../../../lib/feed';
+import { useLogContext } from '../../../contexts/LogContext';
+import { postLogEvent } from '../../../lib/feed';
 import { Post } from '../../../graphql/posts';
 import { PostBootData } from '../../../lib/boot';
-import { AnalyticsEvent } from '../../../lib/analytics';
+import { LogEvent } from '../../../lib/log';
 
 interface Props extends ModalProps {
   onReport: (comment: Comment) => void;
@@ -31,7 +31,7 @@ export function ReportCommentModal({
   ...props
 }: Props): ReactElement {
   const { reportComment } = useReportComment();
-  const { trackEvent } = useAnalyticsContext();
+  const { logEvent } = useLogContext();
 
   const onReportComment = async (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -47,8 +47,8 @@ export function ReportCommentModal({
       return;
     }
 
-    trackEvent(
-      postAnalyticsEvent(AnalyticsEvent.ReportComment, post, {
+    logEvent(
+      postLogEvent(LogEvent.ReportComment, post, {
         extra: { commentId: comment.id },
       }),
     );

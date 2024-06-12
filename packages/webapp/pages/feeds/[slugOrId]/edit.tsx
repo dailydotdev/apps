@@ -39,11 +39,11 @@ import {
   FeedPreviewControls,
   Redirect,
 } from '@dailydotdev/shared/src/components';
-import { AnalyticsEvent, Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { withExperiment } from '@dailydotdev/shared/src/components/withExperiment';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { CustomFeedsExperiment } from '@dailydotdev/shared/src/lib/featureValues';
-import { useAnalyticsContext } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { generateQueryKey } from '@dailydotdev/shared/src/lib/query';
 import { SharedFeedPage } from '@dailydotdev/shared/src/components/utilities';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
@@ -71,7 +71,7 @@ const EditFeedPage = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const { FeedPageLayoutComponent } = useFeedLayout();
-  const { trackEvent } = useAnalyticsContext();
+  const { logEvent } = useLogContext();
 
   const feedSlugOrId = router.query.slugOrId as string;
   const feed = useMemo(() => {
@@ -131,8 +131,8 @@ const EditFeedPage = (): ReactElement => {
     },
     {
       onSuccess: (data) => {
-        trackEvent({
-          event_name: AnalyticsEvent.UpdateCustomFeed,
+        logEvent({
+          event_name: LogEvent.UpdateCustomFeed,
           target_id: data.id,
         });
 
@@ -183,8 +183,8 @@ const EditFeedPage = (): ReactElement => {
     },
     {
       onSuccess: (data) => {
-        trackEvent({
-          event_name: AnalyticsEvent.DeleteCustomFeed,
+        logEvent({
+          event_name: LogEvent.DeleteCustomFeed,
           target_id: data.id,
         });
 

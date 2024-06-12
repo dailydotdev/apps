@@ -32,13 +32,13 @@ import { webappUrl } from '../../lib/constants';
 import { feature } from '../../lib/featureManagement';
 import { checkIsExtension } from '../../lib/func';
 import { ShortcutsUIExperiment } from '../../lib/featureValues';
+import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
 export interface SearchControlHeaderProps {
   feedName: AllFeedPages;
   algoState: State<number>;
-  periodState: State<number>;
 }
 
 export const LayoutHeader = classed(
@@ -56,7 +56,7 @@ export const periods = [
   { value: 30, text: 'Last month' },
   { value: 365, text: 'Last year' },
 ];
-const periodTexts = periods.map((period) => period.text);
+export const periodTexts = periods.map((period) => period.text);
 
 export const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
 export const DEFAULT_ALGORITHM_INDEX = 0;
@@ -64,8 +64,11 @@ export const DEFAULT_ALGORITHM_INDEX = 0;
 export const SearchControlHeader = ({
   feedName,
   algoState: [selectedAlgo, setSelectedAlgo],
-  periodState: [selectedPeriod, setSelectedPeriod],
 }: SearchControlHeaderProps): ReactElement => {
+  const [selectedPeriod, setSelectedPeriod] = useQueryState({
+    key: [QueryStateKeys.FeedPeriod],
+    defaultValue: 0,
+  });
   const isExtension = checkIsExtension();
   const router = useRouter();
   const { openModal } = useLazyModal();

@@ -2,7 +2,7 @@ import React, { ReactElement, useContext } from 'react';
 import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
 import { NewSquadIcon, DefaultSquadIcon, SourceIcon } from '../icons';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/log';
 import { useSquadNavigation } from '../../hooks';
 import AuthContext from '../../contexts/AuthContext';
 import { SquadImage } from '../squads/SquadImage';

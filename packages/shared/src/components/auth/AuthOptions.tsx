@@ -38,7 +38,7 @@ import { SocialRegistrationForm } from './SocialRegistrationForm';
 import useProfileForm from '../../hooks/useProfileForm';
 import { CloseAuthModalFunc } from '../../hooks/useAuthForms';
 import EmailVerified from './EmailVerified';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import LogContext from '../../contexts/LogContext';
 import SettingsContext from '../../contexts/SettingsContext';
 import { useToastNotification, useEventListener } from '../../hooks';
 import CodeVerificationForm from './CodeVerificationForm';
@@ -123,7 +123,7 @@ function AuthOptions({
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useContext(SettingsContext);
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const [isConnected, setIsConnected] = useState(false);
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
@@ -170,7 +170,7 @@ function AuthOptions({
     setHandleLoginCheck(handleLoginCheck === null);
 
     if (user.infoConfirmed) {
-      trackEvent({
+      logEvent({
         event_name: AuthEventNames.LoginSuccessfully,
       });
       onSuccessfulLogin?.();
@@ -247,7 +247,7 @@ function AuthOptions({
 
   const isReady = isTesting ? true : isLoginReady && isRegistrationReady;
   const onProviderClick = async (provider: string, login = true) => {
-    trackEvent({
+    logEvent({
       event_name: 'click',
       target_type: login
         ? AuthEventNames?.LoginProvider
@@ -275,7 +275,7 @@ function AuthOptions({
     if (e.data?.flow) {
       const connected = await getKratosFlow(AuthFlow.Registration, e.data.flow);
 
-      trackEvent({
+      logEvent({
         event_name: AuthEventNames.RegistrationError,
         extra: JSON.stringify({
           error: {
@@ -308,7 +308,7 @@ function AuthOptions({
     }
     const bootResponse = await refetchBoot();
     if (!bootResponse.data.user || !('email' in bootResponse.data.user)) {
-      trackEvent({
+      logEvent({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
           error: 'Could not find email on social registration',
@@ -352,7 +352,7 @@ function AuthOptions({
   };
 
   const onForgotPassword = (withEmail?: string) => {
-    trackEvent({
+    logEvent({
       event_name: 'click',
       target_type: AuthEventNames.ForgotPassword,
     });

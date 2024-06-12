@@ -28,7 +28,7 @@ export function Header({
     text: `Check out ${user.name}'s profile on daily.dev`,
     link: user.permalink,
     cid: ReferralCampaignKey.ShareProfile,
-    trackObject: () => ({ event_name: 'share profile', target_id: user.id }),
+    logObject: () => ({ event_name: 'share profile', target_id: user.id }),
   });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 

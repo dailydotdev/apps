@@ -6,17 +6,17 @@ import {
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
-import { AnalyticsEvent } from './useAnalyticsQueue';
+import { LogEvent } from './useLogQueue';
 import SettingsContext from '../../contexts/SettingsContext';
 import AuthContext from '../../contexts/AuthContext';
 
-export default function useAnalyticsSharedProps(
+export default function useLogSharedProps(
   app: string,
   version: string,
   deviceId: string,
-): [MutableRefObject<Partial<AnalyticsEvent>>, boolean] {
+): [MutableRefObject<Partial<LogEvent>>, boolean] {
   // Use ref instead of state to reduce renders
-  const sharedPropsRef = useRef<Partial<AnalyticsEvent>>();
+  const sharedPropsRef = useRef<Partial<LogEvent>>();
   const { query } = useRouter();
   const { themeMode, spaciness, insaneMode } = useContext(SettingsContext);
   const { visit, anonymous, tokenRefreshed, user } = useContext(AuthContext);
@@ -43,7 +43,7 @@ export default function useAnalyticsSharedProps(
 
     // initial useRouter.query can be empty on prerendered static pages
     // so we add any missing initial query params to the query object
-    // that we pass to tracking
+    // that we pass to log
     initialQuerySearchParams.forEach((value, key) => {
       if (!queryObject[key]) {
         queryObject[key] = value;

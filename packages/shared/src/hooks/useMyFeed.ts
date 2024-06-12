@@ -1,12 +1,12 @@
 import { useContext, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import LogContext from '../contexts/LogContext';
 import { AllTagCategoriesData, FeedSettings } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey, getHasAnyFilter } from './useFeedSettings';
 import useMutateFilters from './useMutateFilters';
 import { BOOT_QUERY_KEY } from '../contexts/common';
 import { AuthEventNames } from '../lib/auth';
-import { AnalyticsEvent } from '../lib/analytics';
+import { LogEvent } from '../lib/log';
 
 interface RegisterLocalFilters {
   hasFilters: boolean;
@@ -21,7 +21,7 @@ interface UseMyFeed {
 export function useMyFeed(): UseMyFeed {
   const client = useQueryClient();
   const { updateFeedFilters } = useMutateFilters();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
 
   // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -34,15 +34,15 @@ export function useMyFeed(): UseMyFeed {
       return { hasFilters: false };
     }
 
-    trackEvent({
-      event_name: AnalyticsEvent.CreateFeed,
+    logEvent({
+      event_name: LogEvent.CreateFeed,
     });
 
     try {
       await updateFeedFilters(feedSettings);
       await client.invalidateQueries(BOOT_QUERY_KEY);
     } catch (err) {
-      trackEvent({
+      logEvent({
         event_name: AuthEventNames.RegistrationError,
         extra: JSON.stringify({
           error: JSON.stringify(err),

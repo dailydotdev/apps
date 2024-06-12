@@ -1,9 +1,9 @@
 import { useCallback, useContext } from 'react';
 import { Post } from '../graphql/posts';
-import { postAnalyticsEvent } from '../lib/feed';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import { postLogEvent } from '../lib/feed';
+import LogContext from '../contexts/LogContext';
 import { ShareProvider } from '../lib/share';
-import { Origin } from '../lib/analytics';
+import { Origin } from '../lib/log';
 import { Comment, getCommentHash } from '../graphql/comments';
 import { useGetShortUrl } from './utils/useGetShortUrl';
 import { ReferralCampaignKey } from '../lib';
@@ -14,7 +14,7 @@ interface UseShareComment {
 }
 
 export function useShareComment(origin: Origin): UseShareComment {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const { openSharePost } = useSharePost(origin);
   const { getShortUrl } = useGetShortUrl();
 
@@ -29,8 +29,8 @@ export function useShareComment(origin: Origin): UseShareComment {
           await navigator.share({
             text: `${post.title}\n${shortUrl}`,
           });
-          trackEvent(
-            postAnalyticsEvent('share comment', post, {
+          logEvent(
+            postLogEvent('share comment', post, {
               extra: {
                 origin,
                 provider: ShareProvider.Native,
@@ -45,7 +45,6 @@ export function useShareComment(origin: Origin): UseShareComment {
         openSharePost({ post, comment });
       }
     },
-    // trackEvent is unstable
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [getShortUrl, openSharePost, origin],
   );

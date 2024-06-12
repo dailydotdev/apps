@@ -9,12 +9,12 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { BaseField, FieldInput } from '../../fields/common';
-import { AnalyticsEvent, TargetId } from '../../../lib/analytics';
+import { LogEvent, TargetId } from '../../../lib/log';
 import { IconSize } from '../../Icon';
 import { getFieldFontColor } from '../../fields/BaseFieldContainer';
 import { AiIcon, ClearIcon } from '../../icons';
 import { useInputField } from '../../../hooks/useInputField';
-import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
+import { useLogContext } from '../../../contexts/LogContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { AuthTriggers } from '../../../lib/auth';
 import { SearchPanelContext } from './SearchPanelContext';
@@ -57,7 +57,7 @@ export const SearchPanelInput = ({
   const { search } = useSearchProvider();
   const searchPanel = useContext(SearchPanelContext);
   const fieldRef = useRef<HTMLInputElement>();
-  const { trackEvent } = useAnalyticsContext();
+  const { logEvent } = useLogContext();
   const {
     value,
     readOnly,
@@ -90,8 +90,8 @@ export const SearchPanelInput = ({
     const finalValue = input ?? inputRef.current.value;
     const provider = searchPanel.provider ?? defaultSearchProvider;
 
-    trackEvent({
-      event_name: AnalyticsEvent.SubmitSearch,
+    logEvent({
+      event_name: LogEvent.SubmitSearch,
       extra: JSON.stringify({ query: finalValue, provider }),
     });
 
@@ -138,8 +138,8 @@ export const SearchPanelInput = ({
           isActive: true,
         });
 
-        trackEvent({
-          event_name: AnalyticsEvent.KeyboardShortcutTriggered,
+        logEvent({
+          event_name: LogEvent.KeyboardShortcutTriggered,
           target_id: TargetId.SearchActivation,
         });
       }
@@ -194,7 +194,7 @@ export const SearchPanelInput = ({
               externalOnFocus?.(event);
               itemProps.onFocus(event);
 
-              trackEvent({ event_name: AnalyticsEvent.FocusSearch });
+              logEvent({ event_name: LogEvent.FocusSearch });
             }}
             onBlur={(event) => {
               onBlur();

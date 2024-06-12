@@ -7,8 +7,8 @@ import { Checkbox } from '../../fields/Checkbox';
 import { ModalClose } from '../common/ModalClose';
 import { cloudinary } from '../../../lib/image';
 import { StreakModalProps } from './common';
-import { useAnalyticsContext } from '../../../contexts/AnalyticsContext';
-import { AnalyticsEvent, TargetType } from '../../../lib/analytics';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../../lib/log';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions } from '../../../hooks';
@@ -25,17 +25,17 @@ export default function NewStreakModal({
 }: StreakModalProps): ReactElement {
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
-  const { trackEvent } = useAnalyticsContext();
+  const { logEvent } = useLogContext();
   const { completeAction, checkHasCompleted } = useActions();
   const isStreakModalDisabled = checkHasCompleted(
     ActionType.DisableReadingStreakMilestone,
   );
   const shouldShowSplash = currentStreak >= maxStreak;
   const daysPlural = currentStreak === 1 ? 'day' : 'days';
-  const trackedImpression = useRef(false);
+  const loggedImpression = useRef(false);
 
   useEffect(() => {
-    if (trackedImpression.current) {
+    if (loggedImpression.current) {
       return;
     }
 
@@ -45,19 +45,19 @@ export default function NewStreakModal({
       queryKey: generateQueryKey(RequestKey.UserStreak, user),
     });
 
-    trackEvent({
-      event_name: AnalyticsEvent.Impression,
+    logEvent({
+      event_name: LogEvent.Impression,
       target_type: TargetType.StreaksMilestone,
       target_id: currentStreak,
     });
 
-    trackedImpression.current = true;
-  }, [currentStreak, queryClient, trackEvent, user]);
+    loggedImpression.current = true;
+  }, [currentStreak, queryClient, logEvent, user]);
 
   const handleOptOut = () => {
     if (!isStreakModalDisabled) {
-      trackEvent({
-        event_name: AnalyticsEvent.DismissStreaksMilestone,
+      logEvent({
+        event_name: LogEvent.DismissStreaksMilestone,
       });
       completeAction(ActionType.DisableReadingStreakMilestone);
     }

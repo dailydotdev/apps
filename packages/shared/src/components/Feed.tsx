@@ -24,16 +24,12 @@ import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
-import AnalyticsContext from '../contexts/AnalyticsContext';
-import {
-  adAnalyticsEvent,
-  feedAnalyticsExtra,
-  postAnalyticsEvent,
-} from '../lib/feed';
+import LogContext from '../contexts/LogContext';
+import { adLogEvent, feedLogExtra, postLogEvent } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
-import { Origin } from '../lib/analytics';
+import { Origin } from '../lib/log';
 import ShareOptionsMenu from './ShareOptionsMenu';
 import { SharedFeedPage } from './utilities';
 import { FeedContainer, FeedContainerProps } from './feeds/FeedContainer';
@@ -146,7 +142,7 @@ export default function Feed<T>({
   showPublicSquadsEligibility,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
   const router = useRouter();
@@ -214,7 +210,7 @@ export default function Feed<T>({
     useFeedContextMenu({ contextId });
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
-  const trackingOpts = useMemo(() => {
+  const logOpts = useMemo(() => {
     return {
       columns: virtualizedNumCards,
       row: !isNullOrUndefined(postModalIndex?.row)
@@ -230,9 +226,9 @@ export default function Feed<T>({
     return {
       queryKey: feedQueryKey,
       items,
-      trackingOpts,
+      logOpts,
     };
-  }, [feedQueryKey, items, trackingOpts]);
+  }, [feedQueryKey, items, logOpts]);
 
   const { ranking } = (variables as RankVariables) || {};
   const {
@@ -347,7 +343,7 @@ export default function Feed<T>({
     }
   };
 
-  const onCopyLinkClickTracked = (
+  const onCopyLinkClickLogged = (
     e: React.MouseEvent,
     post: Post,
     index: number,
@@ -372,12 +368,12 @@ export default function Feed<T>({
     row: number,
     column: number,
   ): void => {
-    trackEvent(
-      postAnalyticsEvent('comments click', post, {
+    logEvent(
+      postLogEvent('comments click', post, {
         columns: virtualizedNumCards,
         column,
         row,
-        ...feedAnalyticsExtra(feedName, ranking),
+        ...feedLogExtra(feedName, ranking),
       }),
     );
     if (!shouldUseListFeedLayout) {
@@ -386,12 +382,12 @@ export default function Feed<T>({
   };
 
   const onAdClick = (ad: Ad, row: number, column: number) => {
-    trackEvent(
-      adAnalyticsEvent('click', ad, {
+    logEvent(
+      adLogEvent('click', ad, {
         columns: virtualizedNumCards,
         column,
         row,
-        ...feedAnalyticsExtra(feedName, ranking),
+        ...feedLogExtra(feedName, ranking),
       }),
     );
   };
@@ -404,7 +400,7 @@ export default function Feed<T>({
         row,
         column,
         columns: virtualizedNumCards,
-        ...feedAnalyticsExtra(feedName, ranking),
+        ...feedLogExtra(feedName, ranking),
       },
     });
 
@@ -471,7 +467,7 @@ export default function Feed<T>({
             onPostClick={onPostCardClick}
             onShare={onShareClick}
             onMenuClick={onMenuClick}
-            onCopyLinkClick={onCopyLinkClickTracked}
+            onCopyLinkClick={onCopyLinkClickLogged}
             onCommentClick={onCommentClick}
             onAdClick={onAdClick}
             onReadArticleClick={onReadArticleClick}

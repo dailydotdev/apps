@@ -10,7 +10,7 @@ import {
   useNotificationPermissionPopup,
 } from '../useNotificationPermissionPopup';
 import { checkIsExtension } from '../../lib/func';
-import { NotificationPromptSource } from '../../lib/analytics';
+import { NotificationPromptSource } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { useEventListener } from '../useEventListener';

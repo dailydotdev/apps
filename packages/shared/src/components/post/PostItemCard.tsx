@@ -16,7 +16,7 @@ import { Image } from '../image/Image';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { cloudinary } from '../../lib/image';
 import { useReadHistoryVotePost } from '../../hooks';
-import { Origin } from '../../lib/analytics';
+import { Origin } from '../../lib/log';
 import {
   Button,
   ButtonColor,
@@ -32,7 +32,7 @@ export interface PostItemCardProps {
   onHide?: (params: HidePostItemCardProps) => Promise<unknown>;
   onContextMenu?: (event: React.MouseEvent, post: PostItem) => void;
   showVoteActions?: boolean;
-  analyticsOrigin?: Origin;
+  logOrigin?: Origin;
 }
 
 const SourceShadow = classed(
@@ -48,7 +48,7 @@ export default function PostItemCard({
   className,
   onContextMenu,
   showVoteActions = false,
-  analyticsOrigin = Origin.Feed,
+  logOrigin = Origin.Feed,
 }: PostItemCardProps): ReactElement {
   const { timestampDb, post } = postItem;
   const onHideClick = (e: MouseEvent) => {
@@ -128,7 +128,7 @@ export default function PostItemCard({
                     pressed={post?.userState?.vote === UserVote.Up}
                     onClick={(e) => {
                       e.preventDefault();
-                      toggleUpvote({ payload: post, origin: analyticsOrigin });
+                      toggleUpvote({ payload: post, origin: logOrigin });
                     }}
                     icon={
                       <UpvoteIcon
@@ -146,7 +146,7 @@ export default function PostItemCard({
                       e.preventDefault();
                       toggleDownvote({
                         payload: post,
-                        origin: analyticsOrigin,
+                        origin: logOrigin,
                       });
                     }}
                     icon={

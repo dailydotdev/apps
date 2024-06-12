@@ -6,8 +6,8 @@ import { ActionType } from '../../graphql/actions';
 import { LazyModal } from './common/types';
 import AlertContext from '../../contexts/AlertContext';
 import { MarketingCtaVariant } from '../cards/MarketingCta/common';
-import { AnalyticsEvent, TargetType } from '../../lib/analytics';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { LogEvent, TargetType } from '../../lib/log';
+import LogContext from '../../contexts/LogContext';
 import { promotion } from './generic';
 import { useReadingStreak } from '../../hooks/streaks';
 
@@ -20,7 +20,7 @@ const REP_TRESHOLD = 250;
  * @constructor
  */
 export const BootPopups = (): null => {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { openModal } = useLazyModal();
   const { user } = useAuthContext();
@@ -93,8 +93,8 @@ export const BootPopups = (): null => {
         props: {
           marketingCta,
           onAfterOpen: () => {
-            trackEvent({
-              event_name: AnalyticsEvent.Impression,
+            logEvent({
+              event_name: LogEvent.Impression,
               target_type: TargetType.MarketingCtaPopover,
               target_id: marketingCta.campaignId,
             });
@@ -105,7 +105,7 @@ export const BootPopups = (): null => {
         },
       });
     }
-  }, [marketingCta, trackEvent, updateLastBootPopup]);
+  }, [marketingCta, logEvent, updateLastBootPopup]);
 
   /** *
    * Boot popup for generic referral campaign

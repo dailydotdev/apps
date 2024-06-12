@@ -1,8 +1,8 @@
 import React, { ReactElement, useCallback, useContext } from 'react';
 import { ClickableText } from '../buttons/ClickableText';
 import { SearchChunkSource } from '../../graphql/search';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { AnalyticsEvent, TargetType } from '../../lib/analytics';
+import LogContext from '../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../lib/log';
 
 interface SearchSourceItemProps {
   item: SearchChunkSource;
@@ -11,20 +11,20 @@ interface SearchSourceItemProps {
 export function SearchSourceItem({
   item,
 }: SearchSourceItemProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const { id: itemId, name, snippet, url } = item || {};
 
   const handleSourceClick = useCallback(() => {
     if (itemId) {
-      trackEvent({
-        event_name: AnalyticsEvent.Click,
+      logEvent({
+        event_name: LogEvent.Click,
         target_type: TargetType.SearchSource,
         target_id: itemId,
         feed_item_title: name,
         feed_iem_target_url: url,
       });
     }
-  }, [itemId, name, trackEvent, url]);
+  }, [itemId, name, logEvent, url]);
 
   if (!url) {
     return null;

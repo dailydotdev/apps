@@ -11,7 +11,7 @@ import { useRouter } from 'next/router';
 import PromotionalBanner from './PromotionalBanner';
 import Sidebar from './sidebar/Sidebar';
 import useSidebarRendered from '../hooks/useSidebarRendered';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import LogContext from '../contexts/LogContext';
 import SettingsContext from '../contexts/SettingsContext';
 import Toast from './notifications/Toast';
 import { useAuthErrors } from '../hooks/useAuthErrors';
@@ -21,7 +21,7 @@ import MainLayoutHeader, {
 } from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
 import { useNotificationContext } from '../contexts/NotificationsContext';
-import { AnalyticsEvent, NotificationTarget } from '../lib/analytics';
+import { LogEvent, NotificationTarget } from '../lib/log';
 import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -75,7 +75,7 @@ function MainLayoutComponent({
   canGoBack,
 }: MainLayoutProps): ReactElement {
   const router = useRouter();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const { user, isAuthReady } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
@@ -83,7 +83,7 @@ function MainLayoutComponent({
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
   const { sidebarExpanded, autoDismissNotifications } =
     useContext(SettingsContext);
-  const [hasTrackedImpression, setHasTrackedImpression] = useState(false);
+  const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
   const { isCustomFeed } = useFeedName({ feedName });
 
@@ -95,26 +95,26 @@ function MainLayoutComponent({
   useNotificationParams();
 
   const onMobileSidebarToggle = (state: boolean) => {
-    trackEvent({
+    logEvent({
       event_name: `${state ? 'open' : 'close'} sidebar`,
     });
     setOpenMobileSidebar(state);
   };
 
   useEffect(() => {
-    if (!isNotificationsReady || unreadCount === 0 || hasTrackedImpression) {
+    if (!isNotificationsReady || unreadCount === 0 || hasLoggedImpression) {
       return;
     }
 
-    trackEvent({
-      event_name: AnalyticsEvent.Impression,
+    logEvent({
+      event_name: LogEvent.Impression,
       target_type: NotificationTarget.Icon,
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
-    setHasTrackedImpression(true);
+    setHasLoggedImpression(true);
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isNotificationsReady, unreadCount, hasTrackedImpression]);
+  }, [isNotificationsReady, unreadCount, hasLoggedImpression]);
 
   const page = router?.route?.substring(1).trim() as SharedFeedPage;
   const isPageReady =

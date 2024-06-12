@@ -19,7 +19,7 @@ import {
   initializeKratosFlow,
   submitKratosFlow,
 } from '../lib/kratos';
-import AnalyticsContext from '../contexts/AnalyticsContext';
+import LogContext from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
 import { SignBackProvider, useSignBack } from './auth/useSignBack';
 import { LoggedUser } from '../lib/user';
@@ -60,7 +60,7 @@ const useLogin = ({
 }: UseLoginProps = {}): UseLogin => {
   const { onUpdateSignBack } = useSignBack();
   const { displayToast } = useToastNotification();
-  const { trackEvent } = useContext(AnalyticsContext);
+  const { logEvent } = useContext(LogContext);
   const { refetchBoot } = useContext(AuthContext);
   const hintState = useState('Enter your password to login');
   const [, setHint] = hintState;
@@ -74,7 +74,7 @@ const useLogin = ({
   );
   const { mutateAsync: onPasswordLogin, isLoading } = useMutation(
     (params: ValidateLoginParams) => {
-      trackEvent({
+      logEvent({
         event_name: 'click',
         target_type: AuthEventNames.LoginProvider,
         target_id: 'email',
@@ -85,7 +85,7 @@ const useLogin = ({
     {
       onSuccess: async ({ error }) => {
         if (error) {
-          trackEvent({
+          logEvent({
             event_name: AuthEventNames.LoginError,
             extra: JSON.stringify({
               error: labels.auth.error.invalidEmailOrPassword,
@@ -114,7 +114,7 @@ const useLogin = ({
       onSuccess: async (res) => {
         const { error, redirect } = res;
         if (error) {
-          trackEvent({
+          logEvent({
             event_name: AuthEventNames.LoginError,
             extra: JSON.stringify({
               error: labels.auth.error.invalidEmailOrPassword,
