@@ -33,6 +33,11 @@ export const urlToTab: Record<string, ExploreTabs> = {
   '/explore/latest': ExploreTabs.ByDate,
 };
 
+export const tabToUrl = Object.entries(urlToTab).reduce(
+  (result, [url, tab]) => ({ ...result, [tab]: url }),
+  {},
+) as Record<ExploreTabs, string>;
+
 interface FeedExploreHeaderProps {
   tab: ExploreTabs;
   setTab: (tab: ExploreTabs) => void;

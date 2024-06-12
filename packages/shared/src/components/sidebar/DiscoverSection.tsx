@@ -4,6 +4,9 @@ import { ListIcon, SidebarMenuItem } from './common';
 import { Section, SectionCommonProps } from './Section';
 import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
+import { useFeature } from '../GrowthBookProvider';
+import { feature } from '../../lib/featureManagement';
+import { SeoSidebarExperiment } from '../../lib/featureValues';
 
 interface DiscoverSectionProps extends SectionCommonProps {
   isItemsButton?: boolean;
@@ -17,6 +20,8 @@ export function DiscoverSection({
   enableSearch,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement {
+  const seoSidebar = useFeature(feature.seoSidebar);
+  const isV1Sidebar = seoSidebar === SeoSidebarExperiment.V1;
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const hasCompletedCommentFeed =
     !isActionsFetched || checkHasCompleted(ActionType.CommentFeed);
@@ -43,9 +48,9 @@ export function DiscoverSection({
       icon: (active: boolean) => (
         <ListIcon Icon={() => <HotIcon secondary={active} />} />
       ),
-      title: 'Popular',
-      path: '/popular',
-      action: () => onNavTabClick?.('popular'),
+      title: isV1Sidebar ? 'Explore' : 'Popular',
+      path: isV1Sidebar ? '/explore' : '/popular',
+      action: () => onNavTabClick?.(isV1Sidebar ? 'explore' : 'popular'),
     },
     {
       icon: (active: boolean) => (

@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
@@ -85,10 +91,13 @@ function InternalApp(): ReactElement {
 
   const { dismissToast } = useToastNotification();
 
-  const onPageChanged = (page: string): void => {
-    setCurrentPage(page);
-    dismissToast();
-  };
+  const onPageChanged = useCallback(
+    (page: string): void => {
+      setCurrentPage(page);
+      dismissToast();
+    },
+    [dismissToast, setCurrentPage],
+  );
 
   useEffect(() => {
     if (contentScriptGranted) {

@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
@@ -55,18 +61,21 @@ export default function MainFeedPage({
     );
   };
 
-  const onNavTabClick = (tab: string): void => {
-    if (tab !== 'search') {
-      setIsSearchOn(false);
-    }
-    setFeedName(tab);
-    const isMyFeed = tab === '/my-feed';
-    if (getShouldRedirect(isMyFeed, !!user)) {
-      onPageChanged(`/`);
-    } else {
-      onPageChanged(`/${tab}`);
-    }
-  };
+  const onNavTabClick = useCallback(
+    (tab: string): void => {
+      if (tab !== 'search') {
+        setIsSearchOn(false);
+      }
+      setFeedName(tab);
+      const isMyFeed = tab === '/my-feed';
+      if (getShouldRedirect(isMyFeed, !!user)) {
+        onPageChanged(`/`);
+      } else {
+        onPageChanged(`/${tab}`);
+      }
+    },
+    [onPageChanged, user],
+  );
 
   const activePage = useMemo(() => {
     if (isSearchOn) {
@@ -115,6 +124,7 @@ export default function MainFeedPage({
             feedName={feedName}
             isSearchOn={isSearchOn}
             searchQuery={searchQuery}
+            onNavTabClick={onNavTabClick}
             searchChildren={
               <PostsSearch
                 onSubmitQuery={async (query) => {
