@@ -107,40 +107,23 @@ export default function Settings({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const showDensityTooltip = insaneMode || !isLaptop;
-
-  const getDensityTooltipContent = () => {
-    if (insaneMode) {
-      return 'Density will be fixed for the list mode layout';
-    }
-    if (!isLaptop) {
-      return 'Density will be fixed for mobile and tablet';
-    }
-    return null;
-  };
-
   return (
     <div className={classNames('flex', 'flex-col', className)} {...props}>
-      <Section className="!mt-0">
-        <SectionTitle>Layout</SectionTitle>
-        <CustomSwitch
-          inputId="layout-switch"
-          name="insaneMode"
-          leftContent={<CardIcon secondary={!insaneMode} />}
-          rightContent={<LineIcon secondary={insaneMode} />}
-          checked={insaneMode}
-          className="mx-1.5"
-          onToggle={toggleInsaneMode}
-          disabled={!isLaptop}
-          tooltip={
-            !isLaptop && {
-              content: 'Layout will be fixed for mobile and tablet',
-              placement: 'top-start',
-            }
-          }
-        />
-      </Section>
-      <Section>
+      {isLaptop && (
+        <Section className="!mt-0">
+          <SectionTitle>Layout</SectionTitle>
+          <CustomSwitch
+            inputId="layout-switch"
+            name="insaneMode"
+            leftContent={<CardIcon secondary={!insaneMode} />}
+            rightContent={<LineIcon secondary={insaneMode} />}
+            checked={insaneMode}
+            className="mx-1.5"
+            onToggle={toggleInsaneMode}
+          />
+        </Section>
+      )}
+      <Section className={!isLaptop && '!mt-0'}>
         <SectionTitle>Theme</SectionTitle>
         <Radio
           name="theme"
@@ -149,22 +132,24 @@ export default function Settings({
           onChange={setTheme}
         />
       </Section>
-      <Section>
-        <SectionTitle>Density</SectionTitle>
-        <Radio
-          name="density"
-          options={densities}
-          value={spaciness}
-          onChange={setSpaciness}
-          tooltip={
-            showDensityTooltip && {
-              content: getDensityTooltipContent(),
-              placement: 'top-start',
+      {isLaptop && (
+        <Section>
+          <SectionTitle>Density</SectionTitle>
+          <Radio
+            name="density"
+            options={densities}
+            value={spaciness}
+            onChange={setSpaciness}
+            tooltip={
+              insaneMode && {
+                content: 'Density will be fixed for the list mode layout',
+                placement: 'top-start',
+              }
             }
-          }
-          disabled={showDensityTooltip}
-        />
-      </Section>
+            disabled={insaneMode}
+          />
+        </Section>
+      )}
       <Section>
         <SectionTitle>Preferences</SectionTitle>
         <SectionContent>

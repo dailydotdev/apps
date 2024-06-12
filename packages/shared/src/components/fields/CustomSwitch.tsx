@@ -8,8 +8,6 @@ import React, {
 import classNames from 'classnames';
 import styles from './CustomSwitch.module.css';
 import classed from '../../lib/classed';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 
 export interface ContentsSwitchProps {
   className?: string;
@@ -19,11 +17,6 @@ export interface ContentsSwitchProps {
   onToggle?: () => unknown;
   leftContent: ReactNode | string;
   rightContent: ReactNode | string;
-  disabled: boolean;
-  tooltip?: {
-    content?: string;
-    placement?: TooltipPosition;
-  };
 }
 
 const ContentContainer = classed(
@@ -43,8 +36,6 @@ export function CustomSwitch({
   onToggle,
   leftContent,
   rightContent,
-  disabled,
-  tooltip,
 }: ContentsSwitchProps): ReactElement {
   const leftRef = useRef<HTMLElement>();
   const rightRef = useRef<HTMLElement>();
@@ -77,69 +68,60 @@ export function CustomSwitch({
   const difference = Math.abs(rightWidth - leftWidth);
 
   return (
-    <SimpleTooltip content={tooltip?.content} placement={tooltip?.placement}>
-      <label
-        className={classNames(
-          'group relative flex h-9 w-fit cursor-pointer font-bold typo-callout',
-          className,
-        )}
-        htmlFor={inputId}
+    <label
+      className={classNames(
+        'group relative flex h-9 w-fit cursor-pointer font-bold typo-callout',
+        className,
+      )}
+      htmlFor={inputId}
+    >
+      <input
+        id={inputId}
+        name={name}
+        type="checkbox"
+        className="absolute size-0 opacity-0"
+        checked={checked}
+        onChange={onToggle}
+      />
+      <ContentContainer
+        ref={leftRef}
+        className={checked && 'text-text-tertiary'}
       >
-        <input
-          id={inputId}
-          name={name}
-          type="checkbox"
-          className="absolute size-0 opacity-0"
-          checked={checked}
-          onChange={onToggle}
-          disabled={disabled}
-        />
-        <ContentContainer
-          ref={leftRef}
-          className={checked && 'text-text-tertiary'}
-        >
-          {typeof leftContent === 'string'
-            ? leftContent
-            : React.cloneElement(leftContent as ReactElement, {
-                className: classNames(
-                  (leftContent as ReactElement).props.className,
-                  leftClasses,
-                ),
-              })}
-        </ContentContainer>
-        <ContentContainer
-          ref={rightRef}
-          className={!checked && 'text-text-tertiary'}
-        >
-          {typeof rightContent === 'string'
-            ? rightContent
-            : React.cloneElement(rightContent as ReactElement, {
-                className: classNames(
-                  (rightContent as ReactElement).props.className,
-                  rightClasses,
-                ),
-              })}
-        </ContentContainer>
-        <span
-          className={classNames(
-            'absolute inset-0 my-auto h-7 rounded-10 opacity-24 group-hover:opacity-32',
-            disabled ? 'bg-surface-disabled' : 'bg-accent-cabbage-bolder',
-          )}
-        />
-        <span
-          className={classNames(
-            'absolute  top-0 z-1 h-full rounded-12',
-            styles.knob,
-            disabled && '!bg-surface-disabled',
-          )}
-          style={{
-            width: `${width}px`,
-            transform: checked
-              ? `translateX(calc(100% + ${difference}px))`
-              : 'translateX(0)',
-          }}
-        />
-      </label>
-    </SimpleTooltip>
+        {typeof leftContent === 'string'
+          ? leftContent
+          : React.cloneElement(leftContent as ReactElement, {
+              className: classNames(
+                (leftContent as ReactElement).props.className,
+                leftClasses,
+              ),
+            })}
+      </ContentContainer>
+      <ContentContainer
+        ref={rightRef}
+        className={!checked && 'text-text-tertiary'}
+      >
+        {typeof rightContent === 'string'
+          ? rightContent
+          : React.cloneElement(rightContent as ReactElement, {
+              className: classNames(
+                (rightContent as ReactElement).props.className,
+                rightClasses,
+              ),
+            })}
+      </ContentContainer>
+      <span className="absolute inset-0 my-auto h-7 rounded-10 bg-accent-cabbage-bolder opacity-24 group-hover:opacity-32" />
+      <span
+        className={classNames(
+          'absolute top-0 z-1 h-full rounded-12',
+          styles.knob,
+        )}
+        style={{
+          width: `${width}px`,
+          transform: checked
+            ? `translateX(calc(100% + ${difference}px))`
+            : 'translateX(0)',
+        }}
+      />
+    </label>
   );
 }
