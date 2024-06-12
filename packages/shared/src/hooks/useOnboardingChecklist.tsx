@@ -3,7 +3,6 @@ import { ActionType } from '../graphql/actions';
 import { ChecklistViewState, createChecklistStep } from '../lib/checklist';
 import { useActions } from './useActions';
 import { UseChecklist, useChecklist } from './useChecklist';
-import usePersistentContext from './usePersistentContext';
 import { useLazyModal } from './useLazyModal';
 import { Button } from '../components/buttons/Button';
 import { ButtonVariant, ButtonSize } from '../components/buttons/common';
@@ -11,7 +10,7 @@ import { ChecklistStep } from '../components/checklist/ChecklistStep';
 import { LazyModal } from '../components/modals/common/types';
 import { webappUrl } from '../lib/constants';
 import { useAuthContext } from '../contexts/AuthContext';
-import { generateStorageKey, StorageTopic } from '../lib/storage';
+import { useSettingsContext } from '../contexts/SettingsContext';
 
 type UseOnboardingChecklist = UseChecklist & {
   checklistView: ChecklistViewState;
@@ -20,7 +19,11 @@ type UseOnboardingChecklist = UseChecklist & {
 };
 
 export const useOnboardingChecklist = (): UseOnboardingChecklist => {
-  const { isLoggedIn, user } = useAuthContext();
+  const {
+    onboardingChecklistView: checklistView,
+    setOnboardingChecklistView: setChecklistView,
+  } = useSettingsContext();
+  const { isLoggedIn } = useAuthContext();
   const { actions, isActionsFetched, completeAction } = useActions();
   const { openModal } = useLazyModal();
   const isChecklistReady = isActionsFetched && isLoggedIn;
@@ -140,12 +143,6 @@ export const useOnboardingChecklist = (): UseOnboardingChecklist => {
   }, [isChecklistReady, actions, openModal, completeAction]);
 
   const checklist = useChecklist({ steps });
-
-  const [checklistView, setChecklistView] =
-    usePersistentContext<ChecklistViewState>(
-      generateStorageKey(StorageTopic.Onboarding, 'sidebarCard', user?.id),
-      ChecklistViewState.Open,
-    );
 
   return {
     ...checklist,

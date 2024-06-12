@@ -20,6 +20,7 @@ import { capitalize } from '../lib/strings';
 import { storageWrapper } from '../lib/storageWrapper';
 import { usePersonalizedDigest } from '../hooks/usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../graphql/users';
+import { ChecklistViewState } from '../lib/checklist';
 
 export enum ThemeMode {
   Dark = 'dark',
@@ -53,6 +54,7 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   updateCustomLinks: (links: string[]) => Promise<unknown>;
   syncSettings: (bootUserId?: string) => Promise<unknown>;
   onToggleHeaderPlacement(): Promise<unknown>;
+  setOnboardingChecklistView: (value: ChecklistViewState) => Promise<unknown>;
 }
 
 const SettingsContext = React.createContext<SettingsContextData>(null);
@@ -112,6 +114,7 @@ const defaultSettings: RemoteSettings = {
   autoDismissNotifications: true,
   theme: remoteThemes[ThemeMode.Dark],
   campaignCtaPlacement: CampaignCtaPlacement.Header,
+  onboardingChecklistView: ChecklistViewState.Hidden,
 };
 
 export const SettingsContextProvider = ({
@@ -232,6 +235,11 @@ export const SettingsContextProvider = ({
       loadedSettings,
       updateCustomLinks: (links: string[]) =>
         setSettings({ ...settings, customLinks: links }),
+      setOnboardingChecklistView: (value: ChecklistViewState) =>
+        setSettings({
+          ...settings,
+          onboardingChecklistView: value,
+        }),
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
