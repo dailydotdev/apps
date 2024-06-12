@@ -30,6 +30,7 @@ import { LogEvent } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { SearchPanelTagSuggestions } from './SearchPanelTagSuggestions';
 import { feature } from '../../../lib/featureManagement';
+import { SearchPanelSourceSuggestions } from './SearchPanelSourceSuggestions';
 
 export type SearchPanelProps = {
   className?: SearchPanelClassName;
@@ -142,6 +143,11 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
   const showDropdown =
     state.isActive && state.query.length >= minSearchQueryLength;
 
+  const { value: isSourceSearchEnabled } = useConditionalFeature({
+    feature: feature.searchSources,
+    shouldEvaluate: showDropdown,
+  });
+
   const { value: isGoogleSearchEnabled } = useConditionalFeature({
     feature: feature.searchGoogle,
     shouldEvaluate: showDropdown,
@@ -195,6 +201,9 @@ export const SearchPanel = ({ className }: SearchPanelProps): ReactElement => {
                 )}
                 <SearchPanelTagSuggestions title="Tags" />
                 <SearchPanelPostSuggestions title="Posts on daily.dev" />
+                {isSourceSearchEnabled && (
+                  <SearchPanelSourceSuggestions title="Sources" />
+                )}
                 <SearchPanelCustomAction
                   provider={SearchProviderEnum.Posts}
                   onClick={() => {
