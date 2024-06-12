@@ -48,7 +48,7 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         displayCloseButton: true,
       }}
       position={InteractivePopupPosition.RightEnd}
-      className="flex w-full max-w-[21.5rem] justify-center rounded-none"
+      className="flex w-full max-w-[21.5rem] justify-center rounded-none !bg-transparent"
       onClose={onRequestClose}
     >
       <ChecklistCard
