@@ -18,6 +18,7 @@ import { CustomSwitch } from './fields/CustomSwitch';
 import { checkIsExtension } from '../lib/func';
 import AuthContext from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
+import { useViewSize, ViewSize } from '../hooks';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -61,6 +62,7 @@ export default function Settings({
 }: HTMLAttributes<HTMLDivElement>): ReactElement {
   const isExtension = checkIsExtension();
   const { user, showLogin } = useContext(AuthContext);
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   const {
     spaciness,
@@ -107,19 +109,21 @@ export default function Settings({
 
   return (
     <div className={classNames('flex', 'flex-col', className)} {...props}>
-      <Section className="!mt-0">
-        <SectionTitle>Layout</SectionTitle>
-        <CustomSwitch
-          inputId="layout-switch"
-          name="insaneMode"
-          leftContent={<CardIcon secondary={!insaneMode} />}
-          rightContent={<LineIcon secondary={insaneMode} />}
-          checked={insaneMode}
-          className="mx-1.5"
-          onToggle={toggleInsaneMode}
-        />
-      </Section>
-      <Section>
+      {isLaptop && (
+        <Section className="!mt-0">
+          <SectionTitle>Layout</SectionTitle>
+          <CustomSwitch
+            inputId="layout-switch"
+            name="insaneMode"
+            leftContent={<CardIcon secondary={!insaneMode} />}
+            rightContent={<LineIcon secondary={insaneMode} />}
+            checked={insaneMode}
+            className="mx-1.5"
+            onToggle={toggleInsaneMode}
+          />
+        </Section>
+      )}
+      <Section className={!isLaptop && '!mt-0'}>
         <SectionTitle>Theme</SectionTitle>
         <Radio
           name="theme"
@@ -128,15 +132,24 @@ export default function Settings({
           onChange={setTheme}
         />
       </Section>
-      <Section>
-        <SectionTitle>Density</SectionTitle>
-        <Radio
-          name="density"
-          options={densities}
-          value={spaciness}
-          onChange={setSpaciness}
-        />
-      </Section>
+      {isLaptop && (
+        <Section>
+          <SectionTitle>Density</SectionTitle>
+          <Radio
+            name="density"
+            options={densities}
+            value={spaciness}
+            onChange={setSpaciness}
+            tooltip={
+              insaneMode && {
+                content: 'Density will be fixed for the list mode layout',
+                placement: 'top-start',
+              }
+            }
+            disabled={insaneMode}
+          />
+        </Section>
+      )}
       <Section>
         <SectionTitle>Preferences</SectionTitle>
         <SectionContent>

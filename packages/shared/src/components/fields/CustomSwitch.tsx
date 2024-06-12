@@ -79,7 +79,7 @@ export function CustomSwitch({
         id={inputId}
         name={name}
         type="checkbox"
-        className="absolute h-0 w-0 opacity-0"
+        className="absolute size-0 opacity-0"
         checked={checked}
         onChange={onToggle}
       />
@@ -109,10 +109,10 @@ export function CustomSwitch({
               ),
             })}
       </ContentContainer>
-      <span className="absolute inset-0 my-auto h-7 rounded-10 bg-raw-cabbage-50 opacity-24 group-hover:opacity-32" />
+      <span className="absolute inset-0 my-auto h-7 rounded-10 bg-accent-cabbage-bolder opacity-24 group-hover:opacity-32" />
       <span
         className={classNames(
-          'absolute  top-0 z-1 h-full rounded-12',
+          'absolute top-0 z-1 h-full rounded-12',
           styles.knob,
         )}
         style={{
