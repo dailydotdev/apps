@@ -59,7 +59,10 @@ export const useDevCard = (userId: string): UseDevCard => {
     cloudinary.devcard.defaultCoverImage;
 
   return {
-    devcard: { ...devCard, streak: { ...userStreakProfile } },
+    devcard: {
+      ...devCard,
+      streak: { ...userStreakProfile },
+    },
     isLoading,
     coverImage,
   };
