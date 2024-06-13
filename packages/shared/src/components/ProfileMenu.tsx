@@ -127,7 +127,14 @@ export default function ProfileMenu({
     });
 
     return list;
-  }, [hypeCampaign, logout, openModal, seoSidebar, user.permalink]);
+  }, [
+    hypeCampaign,
+    isDndActive,
+    logout,
+    seoSidebar,
+    setShowDnd,
+    user.permalink,
+  ]);
 
   if (!user) {
     return <></>;

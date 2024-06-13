@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import {
   DiscussIcon,
   EarthIcon,
@@ -37,11 +37,11 @@ export function DiscoverSection({
   const seoSidebar = useFeature(feature.seoSidebar);
   const isV1Sidebar = seoSidebar === SeoSidebarExperiment.V1;
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
-  const isExtension = checkIsExtension();
   const hasCompletedCommentFeed =
     !isActionsFetched || checkHasCompleted(ActionType.CommentFeed);
 
   const discoverMenuItems: SidebarMenuItem[] = useMemo(() => {
+    const isExtension = checkIsExtension();
     const feeds = {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <HotIcon secondary={active} />} />
