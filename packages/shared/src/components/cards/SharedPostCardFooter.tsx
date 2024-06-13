@@ -10,7 +10,6 @@ interface SharedPostCardFooterProps
     CommonCardCoverProps {
   isShort: boolean;
   isVideoType?: boolean;
-  image?: string;
 }
 
 export const SharedPostCardFooter = ({
@@ -19,7 +18,6 @@ export const SharedPostCardFooter = ({
   isVideoType,
   onShare,
   post,
-  image,
 }: SharedPostCardFooterProps): ReactElement => {
   return (
     <div
@@ -46,7 +44,7 @@ export const SharedPostCardFooter = ({
           imageProps={{
             loading: 'lazy',
             alt: 'Shared Post Cover image',
-            src: image ?? sharedPost.image,
+            src: sharedPost.image,
             className: classNames(
               'h-auto min-h-0',
               isShort ? 'aspect-square' : 'w-full',
