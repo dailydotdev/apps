@@ -3,6 +3,7 @@ import Link from 'next/link';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { Card } from '@dailydotdev/shared/src/components/cards/Card';
+import { largeNumberFormat } from '@dailydotdev/shared/src/lib';
 
 export const ListItem = ({
   index,
@@ -19,7 +20,9 @@ export const ListItem = ({
     <li className={className}>
       <Link href={href} passHref key={href} prefetch={false}>
         <a className="flex w-full flex-row items-center hover:bg-accent-pepper-subtler">
-          <span className="inline-flex w-4 text-text-quaternary">{index}</span>
+          <span className="inline-flex min-w-4 text-text-quaternary">
+            {largeNumberFormat(index)}
+          </span>
           {children}
         </a>
       </Link>
