@@ -10,6 +10,7 @@ import LogContext from '../../../contexts/LogContext';
 import { webappUrl } from '../../../lib/constants';
 import { ButtonProps } from '../../buttons/Button';
 import { SearchPanelItem } from './SearchPanelItem';
+import { Image } from '../../image/Image';
 
 export type SearchPanelSourceSuggestionsProps = {
   className?: string;
@@ -22,13 +23,14 @@ type PanelItemProps = Pick<ButtonProps<'a'>, 'onClick'> & {
 
 const PanelItem = ({ suggestion, ...rest }: PanelItemProps) => {
   const Icon = () => (
-    <img
+    <Image
       loading="lazy"
       src={suggestion.image}
       alt={`${suggestion.title} logo`}
       className="size-7 rounded-full"
     />
   );
+
   const itemProps = useSearchPanelAction({
     provider: SearchProviderEnum.Sources,
     text: suggestion.title,
