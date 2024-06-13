@@ -57,8 +57,6 @@ export const SharePostCard = forwardRef(function SharePostCard(
   if (improvedSharedPostCard) {
     // eslint-disable-next-line no-param-reassign
     post.image = post.sharedPost.image;
-    // eslint-disable-next-line no-param-reassign
-    post.sharedPost.createdAt = post.createdAt;
   }
 
   return (
@@ -93,7 +91,7 @@ export const SharePostCard = forwardRef(function SharePostCard(
             <CardSpace />
             <PostTags tags={post.sharedPost.tags} />
             <PostMetadata
-              createdAt={post.sharedPost.createdAt}
+              createdAt={post.createdAt}
               readTime={post.sharedPost.readTime}
               isVideoType={isVideoType}
               className="mx-4"
