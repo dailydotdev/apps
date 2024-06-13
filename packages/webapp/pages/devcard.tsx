@@ -218,11 +218,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     const url = res?.devCard?.imageUrl;
 
     if (url) {
-      if (isMobile) {
-        window.open(url, '_blank');
-      } else {
-        downloadImage(url);
-      }
+      downloadImage(url);
       logEvent({
         event_name: LogEvent.DownloadDevcard,
         extra: JSON.stringify({
@@ -288,6 +284,9 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
               size={ButtonSize.Medium}
               onClick={() => generateThenDownload({})}
               disabled={downloading || isLoading}
+              tag={isMobile ? 'a' : 'button'}
+              href={devCardSrc}
+              target={isMobile ? '_blank' : undefined}
             >
               Download DevCard
             </Button>
