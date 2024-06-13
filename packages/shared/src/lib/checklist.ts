@@ -11,7 +11,7 @@ export enum ChecklistCardVariant {
 export type ChecklistCardProps = {
   className?: string;
   title: string;
-  description: string;
+  content?: ReactNode;
   steps: ChecklistStepType[];
   variant?: ChecklistCardVariant;
   isOpen?: boolean;

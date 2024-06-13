@@ -4,17 +4,14 @@ import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { useOnboardingChecklist } from '../../hooks';
 import { ChecklistBarProps, ChecklistViewState } from '../../lib/checklist';
 import { ChecklistBar } from './ChecklistBar';
-import useContextMenu from '../../hooks/useContextMenu';
-import { ContextMenu as ContextMenuIds } from '../../hooks/constants';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { EyeCancelIcon, MenuIcon } from '../icons';
-import ContextMenu from '../fields/ContextMenu';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
 import { OnboardingChecklistCard } from './OnboardingChecklistCard';
 import { withExperiment } from '../withExperiment';
 import { feature } from '../../lib/featureManagement';
+import { OnboardingChecklistOptions } from './OnboardingChecklistOptions';
+import { OnboardingChecklistDismissButton } from './OnboardingChecklistDismissButton';
 
 export type OnboardingChecklistBarProps = Pick<ChecklistBarProps, 'className'>;
 
@@ -22,11 +19,7 @@ const OnboardingChecklistBarComponent = ({
   className,
 }: OnboardingChecklistBarProps): ReactElement => {
   const { logEvent } = useContext(LogContext);
-  const { steps, setChecklistView } = useOnboardingChecklist();
-  const { onMenuClick: showOptionsMenu, isOpen: isOptionsOpen } =
-    useContextMenu({
-      id: ContextMenuIds.SidebarOnboardingChecklistCard,
-    });
+  const { steps, isDone, checklistView } = useOnboardingChecklist();
   const [isPopupOpen, setPopupOpen] = useState(false);
 
   const onRequestClose = () => {
@@ -46,6 +39,10 @@ const OnboardingChecklistBarComponent = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  if (checklistView === ChecklistViewState.Hidden) {
+    return null;
+  }
+
   if (!steps.length) {
     return null;
   }
@@ -63,35 +60,13 @@ const OnboardingChecklistBarComponent = ({
       >
         <ChecklistBar
           className={className}
-          title="Get started like a pro"
+          title={`Get started like a pro${isDone ? ' - Perfectly done!' : ''}`}
           steps={steps}
         />
-        <Button
-          className="absolute right-2 top-2"
-          icon={<MenuIcon className="text-text-primary" />}
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.XSmall}
-          onClick={(event) => {
-            event.stopPropagation();
-
-            showOptionsMenu(event);
-          }}
-        />
-        <ContextMenu
-          id={ContextMenuIds.SidebarOnboardingChecklistCard}
-          className="menu-primary typo-callout"
-          animation="fade"
-          options={[
-            {
-              icon: <EyeCancelIcon />,
-              label: 'Hide forever',
-              action: () => {
-                setChecklistView(ChecklistViewState.Hidden);
-              },
-            },
-          ]}
-          isOpen={isOptionsOpen}
-        />
+        <div className="absolute right-2 top-2 tablet:right-5">
+          {!isDone && <OnboardingChecklistOptions />}
+          {isDone && <OnboardingChecklistDismissButton />}
+        </div>
       </button>
       {isPopupOpen && (
         <InteractivePopup
@@ -100,7 +75,7 @@ const OnboardingChecklistBarComponent = ({
             displayCloseButton: true,
           }}
           position={InteractivePopupPosition.Center}
-          className="flex w-full max-w-[21.5rem] justify-center rounded-none"
+          className="flex w-full max-w-[21.5rem] justify-center rounded-none !bg-transparent"
           onClose={onRequestClose}
         >
           <OnboardingChecklistCard isOpen />

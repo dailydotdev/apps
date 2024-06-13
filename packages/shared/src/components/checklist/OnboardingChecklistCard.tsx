@@ -4,7 +4,11 @@ import { ChecklistCard } from './ChecklistCard';
 import LogContext from '../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { useOnboardingChecklist } from '../../hooks';
-import { ChecklistCardProps, ChecklistCardVariant } from '../../lib/checklist';
+import {
+  ChecklistCardProps,
+  ChecklistCardVariant,
+  ChecklistVariantClassNameMap,
+} from '../../lib/checklist';
 import { feature } from '../../lib/featureManagement';
 import { withExperiment } from '../withExperiment';
 
@@ -12,6 +16,11 @@ export type OnboardingChecklistCardProps = Pick<
   ChecklistCardProps,
   'className' | 'isOpen' | 'variant'
 >;
+
+const descriptionSizeToClassNameMap: ChecklistVariantClassNameMap = {
+  [ChecklistCardVariant.Default]: 'typo-callout',
+  [ChecklistCardVariant.Small]: 'typo-caption1',
+};
 
 export const OnboardingChecklistCardComponent = ({
   className,
@@ -39,9 +48,18 @@ export const OnboardingChecklistCardComponent = ({
     <ChecklistCard
       className={classNames(className, 'max-w-full', !isOpen && '!border-0')}
       title="Get started like a pro"
-      description={`${completedSteps.length}/${steps.length}${
-        nextStep ? ` 👉 ${nextStep?.title}` : ''
-      }`}
+      content={
+        <p
+          className={classNames(
+            'text-white',
+            descriptionSizeToClassNameMap[variant],
+          )}
+        >
+          {`${completedSteps.length}/${steps.length}${
+            nextStep ? ` 👉 ${nextStep?.title}` : ''
+          }`}
+        </p>
+      }
       steps={steps}
       variant={variant}
       isOpen={isOpen}

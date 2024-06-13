@@ -56,7 +56,9 @@ const SquadChecklistCard = ({ squad }: { squad: Squad }): ReactElement => {
         title={
           isDone ? 'Good job! you nailed it. 🥳' : 'Get started with squads'
         }
-        description={`${totalStepsCount} simple steps to Squad greatness!`}
+        content={
+          <p className="text-white typo-callout">{`${totalStepsCount} simple steps to Squad greatness!`}</p>
+        }
         steps={steps}
         className="max-w-full border-0"
       />

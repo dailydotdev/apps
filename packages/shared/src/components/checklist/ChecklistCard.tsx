@@ -25,11 +25,6 @@ const titleSizeToClassNameMap: ChecklistVariantClassNameMap = {
   [ChecklistCardVariant.Small]: 'typo-footnote',
 };
 
-const descriptionSizeToClassNameMap: ChecklistVariantClassNameMap = {
-  [ChecklistCardVariant.Default]: 'typo-callout',
-  [ChecklistCardVariant.Small]: 'typo-caption1',
-};
-
 const stepsContainerClassNameMap: ChecklistVariantClassNameMap = {
   [ChecklistCardVariant.Default]: 'p-4',
   [ChecklistCardVariant.Small]: 'p-2',
@@ -48,7 +43,7 @@ const progressItemClassNameMap: ChecklistVariantClassNameMap = {
 const ChecklistCard = ({
   className,
   title,
-  description,
+  content,
   steps,
   variant = ChecklistCardVariant.Default,
   isOpen = true,
@@ -67,23 +62,16 @@ const ChecklistCard = ({
             : headerClassNameClosedMap[variant],
         )}
       >
-        {isDone && <ChecklistConfetti />}
+        {isDone && <ChecklistConfetti variant="checklist" />}
         <p
           className={classNames(
-            'mb-1 font-bold text-white',
+            'relative mb-1 font-bold text-white',
             titleSizeToClassNameMap[variant],
           )}
         >
           {title}
         </p>
-        <p
-          className={classNames(
-            'text-white',
-            descriptionSizeToClassNameMap[variant],
-          )}
-        >
-          {description}
-        </p>
+        <div className="relative">{content}</div>
         <div className={classNames('flex', progressClassNameMap[variant])}>
           {steps.map((step) => {
             return (

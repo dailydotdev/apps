@@ -204,6 +204,12 @@ export const cloudinary = {
     roadmap:
       'https://daily-now-res.cloudinary.com/image/upload/s--91LSaHRW--/f_auto,q_auto/v1717766368/roadmap_iambav',
   },
+  confetti: {
+    checklist:
+      'https://daily-now-res.cloudinary.com/image/upload/s--C5UKgEE8--/f_auto,q_auto/v1716231116/conffeti-web_ztmag9',
+    checklistBar:
+      'https://daily-now-res.cloudinary.com/image/upload/s--BNjSTWER--/f_auto,q_auto/v1716231116/conffeti-tablet-mobile_yvq4lg',
+  },
 };
 
 export const smallPostImage = (url: string): string => {
