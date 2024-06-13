@@ -8,14 +8,14 @@ interface DevCardStatsProps {
   user: PublicProfile;
   className?: string;
   articlesRead: number;
-  longestStreak: number;
+  maxStreak: number;
 }
 
 export function DevCardStats({
   user,
   className,
   articlesRead,
-  longestStreak,
+  maxStreak,
 }: DevCardStatsProps): ReactElement {
   return (
     <span
@@ -31,7 +31,7 @@ export function DevCardStats({
         Icon={ReputationIcon}
       />
       <DevCardStatsSection
-        amount={longestStreak}
+        amount={maxStreak}
         label="Longest streak"
         iconClassName="p-[0.19rem]"
         Icon={ReadingStreakIcon}

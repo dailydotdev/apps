@@ -31,7 +31,7 @@ export function DevCardTwitterCover({
             <DevCardStats
               user={devcard.user}
               articlesRead={devcard.articlesRead}
-              longestStreak={devcard.longestStreak}
+              maxStreak={devcard.maxStreak}
             />
             <DevCardFooter
               shouldShowLogo={false}

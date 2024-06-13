@@ -39,15 +39,8 @@ export function DevCard({
     return <DevCardTwitterCover {...data} />;
   }
 
-  const {
-    theme,
-    user,
-    articlesRead,
-    tags,
-    sources,
-    showBorder,
-    longestStreak,
-  } = devcard;
+  const { theme, user, articlesRead, tags, sources, showBorder, maxStreak } =
+    devcard;
   const isHorizontal = type === DevCardType.Horizontal;
   const isVertical = type === DevCardType.Vertical;
   const isIron = checkLowercaseEquality(theme, DevCardTheme.Iron);
@@ -120,7 +113,7 @@ export function DevCard({
             <DevCardStats
               className="absolute bottom-0 left-0 translate-y-1/2"
               articlesRead={articlesRead}
-              longestStreak={longestStreak}
+              maxStreak={maxStreak}
               user={user}
             />
           </div>

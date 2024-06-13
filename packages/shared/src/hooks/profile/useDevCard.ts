@@ -19,7 +19,7 @@ export interface DevCardData {
   articlesRead: number;
   tags: string[];
   sources: Source[];
-  longestStreak: number;
+  maxStreak: number;
 }
 
 export interface UseDevCard {
