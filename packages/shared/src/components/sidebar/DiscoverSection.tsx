@@ -122,8 +122,8 @@ export function DiscoverSection({
           <ListIcon Icon={() => <SquadIcon secondary={active} />} />
         ),
         title: 'Leaderboard',
-        path: '/leaderboard',
-        action: isExtension ? locationPush('/leaderboard') : undefined,
+        path: '/users',
+        action: isExtension ? locationPush('/users') : undefined,
       },
     ];
   }, [
@@ -131,7 +131,6 @@ export function DiscoverSection({
     enableSearch,
     hasCompletedCommentFeed,
     isV1Sidebar,
-    locationPush,
     onNavTabClick,
   ]);
 

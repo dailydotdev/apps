@@ -108,7 +108,7 @@ function FeedNav(): ReactElement {
     if (seoSidebar === SeoSidebarExperiment.V1) {
       urls[`${webappUrl}tags`] = FeedNavTab.Tags;
       urls[`${webappUrl}sources`] = FeedNavTab.Sources;
-      urls[`${webappUrl}leaderboard`] = FeedNavTab.Leaderboard;
+      urls[`${webappUrl}users`] = FeedNavTab.Leaderboard;
     }
 
     return {

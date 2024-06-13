@@ -20,7 +20,7 @@ export enum OtherFeedPage {
   SquadPage = 'squads[handle]',
   Source = 'source',
   Sources = 'sources',
-  Leaderboard = 'leaderboard',
+  Leaderboard = 'users',
   Bookmarks = 'bookmarks',
   SearchBookmarks = 'search-bookmarks',
   Preview = 'preview',
