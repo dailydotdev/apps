@@ -42,7 +42,11 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { useActions } from '@dailydotdev/shared/src/hooks';
+import {
+  useActions,
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   DevCardData,
@@ -134,6 +138,7 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     showBorder: true,
     isProfileCover: false,
   };
+  const isMobile = useViewSize(ViewSize.MobileL);
 
   const randomStr = Math.random().toString(36).substring(2, 5);
   const [devCardSrc, setDevCardSrc] = useState<string>(
@@ -213,7 +218,11 @@ const Step2 = ({ initialDevCardSrc }: Step2Props): ReactElement => {
     const url = res?.devCard?.imageUrl;
 
     if (url) {
-      downloadImage(url);
+      if (isMobile && navigator.userAgent.indexOf('Mobi') > -1) {
+        window.open(url, '_blank');
+      } else {
+        downloadImage(url);
+      }
       logEvent({
         event_name: LogEvent.DownloadDevcard,
         extra: JSON.stringify({
