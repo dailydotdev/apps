@@ -68,7 +68,14 @@ export function DevCardFooter({
             !elementsClickable && 'pointer-events-none',
           )}
         >
-          <Logo showGreeting={false} position={LogoPosition.Relative} />
+          <Logo
+            showGreeting={false}
+            position={LogoPosition.Relative}
+            logoClassName={{
+              group: 'fill-raw-salt-0',
+              container: 'h-logo',
+            }}
+          />
         </span>
       )}
     </>
